@@ -1,23 +1,42 @@
 # Invoice Ninja
-## An open-source invoicing site built with Laravel
+## Simple, Intuitive Invoicing
 
 ### Live Demo: [http://sketch-out.com/ninja/public/](http://sketch-out.com/ninja/public/)
 ### Introduction
 
-Most online invoicing site are expensive. They shouldn't be. Hosting costs are cheaper than ever and the software isn't that complicated. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is this codebase will serve a sample site for Laravel as well as other JavaScript technologies. 
+Most online invoicing site are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is this codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
 
 If you'd like to get involved please send an email to hillelcoren at gmail.
 
 ### Features
-* Application framework built using Laravel 4
+* Core application built using Laravel 4
 * Invoice PDF generation directly in the browser
 * Integrates with many payment providers
 
 ### Remaining Work
 * Recurring invoices
-* Partial payments
 * Internationalization
+* Home dashboard
 * Reports
+
+### Steps to setup
+
+Clone Github project
+
+    git clone git@github.com:hillelcoren/invoice-ninja.git ninja
+
+
+Install packages using Composer
+
+    cd ninja
+    composer install
+
+Configure the config/database.php file and then Initialize the database
+
+    php artisan migrate
+    php artisan db:seed
+
+
 
 ### Frameworks/Libraries
 * [laravel/laravel](https://github.com/laravel/laravel) - A PHP Framework For Web Artisans
