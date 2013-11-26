@@ -28,11 +28,9 @@ If you'd like to get involved please send an email to hillelcoren at gmail.
 * [eternicode/bootstrap-datepicker](https://github.com/eternicode/bootstrap-datepicker) - A datepicker for @twitter bootstrap
 * [jquery/jquery-ui](https://github.com/jquery/jquery-ui) - The official jQuery user interface library
 * [knockout/knockout](https://github.com/knockout/knockout) - Knockout makes it easier to create rich, responsive UIs with JavaScript
-* [rniemeyer/knockout-sortable](https://github.com/rniemeyer/knockout-sortable) - A Knockout.js binding to 
+* [rniemeyer/knockout-sortable](https://github.com/rniemeyer/knockout-sortable) - A Knockout.js binding to connect observableArrays with jQuery UI sortable functionality
 * [MrRio/jsPDF](https://github.com/MrRio/jsPDF) - Generate PDF files in JavaScript. HTML5 FTW.
-connect observableArrays with jQuery UI sortable functionality
-* [FortAwesome/Font-Awesome](https://github.com/FortAwesome/Font-Awesome) - The iconic font designed for Bootstrap
-that works with twitter bootstrap
+* [FortAwesome/Font-Awesome](https://github.com/FortAwesome/Font-Awesome) - The iconic font designed for Bootstrap that works with twitter bootstrap
 * [jasonlewis/basset](https://github.com/jasonlewis/basset) - A better asset management package for Laravel
 * [Zizaco/confide](https://github.com/Zizaco/confide) - Confide is a authentication solution for Laravel 4
 * [Anahkiasen/former](https://github.com/Anahkiasen/former) - A powerful form builder, for Laravel and other frameworks (stand-alone too)
