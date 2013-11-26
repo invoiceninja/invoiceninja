@@ -1,10 +1,10 @@
 # Invoice Ninja
 ## Simple, Intuitive Invoicing
 
-### Live Demo: [http://sketch-out.com/ninja/public/](http://sketch-out.com/ninja/public/)
+### Live demo: [http://sketch-out.com/ninja/public/](http://sketch-out.com/ninja/public/)
 ### Introduction
 
-Most online invoicing site are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is this codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
+Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is this codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
 
 If you'd like to get involved please send an email to hillelcoren at gmail.
 
@@ -21,21 +21,19 @@ If you'd like to get involved please send an email to hillelcoren at gmail.
 
 ### Steps to setup
 
-Clone Github project
+Clone the Github project
 
     git clone git@github.com:hillelcoren/invoice-ninja.git ninja
-
 
 Install packages using Composer
 
     cd ninja
     composer install
 
-Configure the config/database.php file and then Initialize the database
+Configure config/database.php and then initialize the database
 
     php artisan migrate
     php artisan db:seed
-
 
 
 ### Frameworks/Libraries
