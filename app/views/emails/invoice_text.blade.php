@@ -1,0 +1,3 @@
+New Invoice
+
+{{ $link }}

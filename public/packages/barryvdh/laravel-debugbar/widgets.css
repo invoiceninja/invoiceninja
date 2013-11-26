@@ -1,0 +1,293 @@
+ul.phpdebugbar-widgets-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: monospace;
+}
+  ul.phpdebugbar-widgets-list li.phpdebugbar-widgets-list-item {
+    padding: 3px 6px;
+    border-bottom: 1px solid #eee;
+    position: relative;
+    overflow: hidden;
+  }
+  ul.phpdebugbar-widgets-list li.phpdebugbar-widgets-list-item:hover {
+    background: #fafafa;
+  }
+
+/* -------------------------------------- */
+
+div.phpdebugbar-widgets-messages {
+  position: relative;
+  height: 100%;
+}
+  div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-list {
+    padding-bottom: 20px;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-warning:before {
+    font-family: FontAwesome;
+    content: "\f071";
+    margin-right: 8px;
+    font-size: 11px;
+    color: #ecb03d;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-error {
+    color: red;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-value.phpdebugbar-widgets-error:before {
+    font-family: FontAwesome;
+    content: "\f057";
+    margin-right: 8px;
+    font-size: 11px;
+    color: red;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-collector,
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-label {
+    float: right;
+    font-size: 12px;
+    padding: 2px 4px;
+    color: #888;
+    margin: 0 2px;
+    text-decoration: none;
+    text-shadow: none;
+    background: none;
+    font-weight: normal;
+  }
+  div.phpdebugbar-widgets-messages li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-collector {
+    color: #555;
+    font-style: italic;
+  }
+  div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-toolbar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #fff;
+  }
+    div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-toolbar input {
+      border: 0;
+      margin: 0;
+      margin-left: 7px;
+      width: 50%;
+      box-shadow: none;
+    }
+    div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-toolbar input:focus {
+      outline: none;
+    }
+      div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-toolbar a.phpdebugbar-widgets-filter {
+        float: right;
+        font-size: 12px;
+        padding: 2px 4px;
+        background: #7cacd5;
+        margin: 0 2px;
+        border-radius: 4px;
+        color: #fff;
+        text-decoration: none;
+      }
+      div.phpdebugbar-widgets-messages div.phpdebugbar-widgets-toolbar a.phpdebugbar-widgets-filter.phpdebugbar-widgets-excluded {
+        background: #eee;
+        color: #888;
+      }
+
+/* -------------------------------------- */
+
+dl.phpdebugbar-widgets-kvlist {
+  margin: 0;
+}
+  dl.phpdebugbar-widgets-kvlist dt {
+    float: left;
+    width: 140px;
+    padding: 5px;
+    border-top: 1px solid #eee;
+    font-weight: bold;
+    clear: both;
+  }
+  dl.phpdebugbar-widgets-kvlist dd {
+    margin-left: 150px;
+    padding: 5px;
+    border-top: 1px solid #eee;
+    cursor: pointer;
+  }
+
+/* -------------------------------------- */
+
+dl.phpdebugbar-widgets-varlist {
+  font-family: monospace;
+}
+
+/* -------------------------------------- */
+
+ul.phpdebugbar-widgets-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+  ul.phpdebugbar-widgets-timeline li {
+    height: 20px;
+    position: relative;
+    border-bottom: 1px solid #eee;
+    display: block;
+  }
+  ul.phpdebugbar-widgets-timeline li:hover {
+    background: #fafafa;
+  }
+    ul.phpdebugbar-widgets-timeline li span.phpdebugbar-widgets-label {
+      position: absolute;
+      font-size: 12px;
+      font-family: monospace;
+      color: #555;
+      top: 4px;
+      left: 5px;
+      background: none;
+      text-shadow: none;
+      font-weight: normal;
+    }
+    ul.phpdebugbar-widgets-timeline li span.phpdebugbar-widgets-value {
+      display: block; 
+      position: absolute;
+      height: 10px;
+      background: #3db9ec;
+      top: 5px;
+      border-radius: 2px;
+    }
+
+/* -------------------------------------- */
+
+div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item {
+  cursor: pointer;
+}
+  div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-message {
+    display: block;
+    color: red;
+  }
+
+  div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-filename {
+    display: block;
+    font-style: italic;
+    color: #555;
+  }
+
+  div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-type {
+    display: block;
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    font-weight: bold;
+  }
+
+  div.phpdebugbar-widgets-exceptions li.phpdebugbar-widgets-list-item div.phpdebugbar-widgets-file {
+    display: none;
+    margin: 10px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    font-family: monospace;
+  }
+
+/* -------------------------------------- */
+
+div.phpdebugbar-widgets-sqlqueries .phpdebugbar-widgets-status {
+  font-family: monospace;
+  padding: 6px 6px;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+  color: #555;
+  background: #fafafa;
+}
+
+div.phpdebugbar-widgets-sqlqueries li.phpdebugbar-widgets-list-item.phpdebugbar-widgets-error {
+  color: red;
+}
+
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-duration,
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-memory,
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-row-count,
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-stmt-id {
+  float: right;
+  margin-left: 8px;
+  color: #888;
+}
+div.phpdebugbar-widgets-sqlqueries div.phpdebugbar-widgets-status span.phpdebugbar-widgets-duration,
+div.phpdebugbar-widgets-sqlqueries div.phpdebugbar-widgets-status span.phpdebugbar-widgets-memory,
+div.phpdebugbar-widgets-sqlqueries div.phpdebugbar-widgets-status span.phpdebugbar-widgets-row-count,
+div.phpdebugbar-widgets-sqlqueries div.phpdebugbar-widgets-status span.phpdebugbar-widgets-stmt-id {
+  color: #555;
+}
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-duration:before,
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-memory:before,
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-row-count:before,
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-stmt-id:before {
+  font-family: FontAwesome;
+  margin-right: 4px;
+  font-size: 12px;
+}
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-duration:before {
+  content: "\f017";
+}
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-memory:before {
+  content: "\f085";
+}
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-row-count:before {
+  content: "\f0ce";
+}
+div.phpdebugbar-widgets-sqlqueries span.phpdebugbar-widgets-stmt-id:before {
+  content: "\f08d";
+}
+div.phpdebugbar-widgets-sqlqueries table.phpdebugbar-widgets-params {
+  display: none;
+  width: 70%;
+  margin: 10px;
+  border: 1px solid #ddd;
+  font-family: monospace;
+  border-collapse: collapse;
+}
+  div.phpdebugbar-widgets-sqlqueries table.phpdebugbar-widgets-params td {
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  div.phpdebugbar-widgets-sqlqueries table.phpdebugbar-widgets-params .phpdebugbar-widgets-name {
+    width: 20%;
+    font-weight: bold;
+  }
+
+div.phpdebugbar-widgets-sqlqueries li.phpdebugbar-widgets-list-item span.phpdebugbar-widgets-error {
+  display: block;
+  font-weight: bold;
+}
+
+/* -------------------------------------- */
+
+div.phpdebugbar-widgets-templates div.phpdebugbar-widgets-status {
+  font-family: monospace;
+  padding: 6px 6px;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+  color: #555;
+  background: #fafafa;
+}
+
+div.phpdebugbar-widgets-templates span.phpdebugbar-widgets-render_time {
+  float: right;
+}
+div.phpdebugbar-widgets-templates span.phpdebugbar-widgets-render_time:before {
+  content: "\f017";
+  font-family: FontAwesome;
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+div.phpdebugbar-widgets-templates div.phpdebugbar-widgets-status span.phpdebugbar-widgets-render_time {
+  color: #555;
+}
+
+
+/* -------------------------------------- */
+
+div.phpdebugbar-widgets-mails span.phpdebugbar-widgets-subject {
+  display: block;
+}
+
+div.phpdebugbar-widgets-mails li.phpdebugbar-widgets-list-item pre.phpdebugbar-widgets-headers {
+  display: none;
+  margin: 10px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  font-family: monospace;
+}
