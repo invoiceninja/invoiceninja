@@ -14,11 +14,6 @@ class Contact extends Eloquent
 		return $this->belongsTo('Client');
 	}
 
-	public function fullName()
-	{
-		return $this->first_name . ' ' . $this->last_name;
-	}
-
 	public function lastLogin()
 	{
 		if ($this->last_login == '0000-00-00 00:00:00') 
@@ -28,6 +23,20 @@ class Contact extends Eloquent
 		else 
 		{
 			return $this->last_login;
+		}
+	}
+
+	public function getFullName()
+	{
+		$fullName = $this->first_name . ' ' . $this->last_name;
+
+		if ($fullName == ' ')
+		{
+			return "Unknown";
+		}
+		else
+		{
+			return $fullName;
 		}
 	}
 }

@@ -10,6 +10,7 @@ class ConfideSetupUsersTable extends Migration {
      */
     public function up()
     {
+        Schema::dropIfExists('activities');
         Schema::dropIfExists('account_gateways');
         Schema::dropIfExists('gateways');
         Schema::dropIfExists('products');
@@ -176,13 +177,13 @@ class ConfideSetupUsersTable extends Migration {
             //$t->foreign('account_id')->references('id')->on('accounts');
         });
 
-
-
         Schema::create('payments', function($t)
         {
             $t->increments('id');
             $t->integer('invoice_id');
             $t->integer('account_id');
+            $t->integer('contact_id');
+            $t->integer('user_id');
             $t->timestamps();
             $t->softDeletes();
             
@@ -193,6 +194,20 @@ class ConfideSetupUsersTable extends Migration {
             //$t->foreign('account_id')->references('id')->on('accounts');
         });     
 
+        Schema::create('activities', function($t)
+        {
+            $t->increments('id');
+            $t->integer('account_id');
+            $t->integer('user_id');
+            $t->integer('client_id');
+            $t->integer('contact_id');
+            $t->integer('invoice_id');
+            $t->integer('payment_id');
+            $t->timestamps();
+
+            $t->integer('activity_type_id');
+            $t->text('message');
+        });
     }
 
     /**
@@ -202,6 +217,7 @@ class ConfideSetupUsersTable extends Migration {
      */
     public function down()
     {
+        Schema::dropIfExists('activities');
         Schema::dropIfExists('account_gateways');
         Schema::dropIfExists('gateways');
         Schema::dropIfExists('products');

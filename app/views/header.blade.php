@@ -261,11 +261,11 @@
 
 	  <div class="collapse navbar-collapse" id="navbar-collapse-1">
 	    <ul class="nav navbar-nav" style="font-weight: bold">
-	    	{{ HTML::nav_link('home', 'Home') }}
+	    	{{-- HTML::nav_link('home', 'Home') --}}
 	    	{{ HTML::menu_link('client') }}
 	    	{{ HTML::menu_link('invoice') }}
 	    	{{ HTML::menu_link('payment') }}
-	    	{{ HTML::nav_link('reports', 'Reports') }}
+	    	{{-- HTML::nav_link('reports', 'Reports') --}}
 	    </ul>
 	    <form class="navbar-form navbar-right" role="search">
 	      <div class="form-group">

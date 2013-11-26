@@ -28,3 +28,8 @@ class Client extends Eloquent
 		return $this->hasMany('Contact');
 	}
 }
+
+Client::created(function($client)
+{
+	Activity::createClient($client);
+});

@@ -40,6 +40,10 @@ class InvoiceController extends \BaseController {
 	public function view($invoiceKey)
 	{
 		$invoice = Invoice::with('invoice_items', 'client.account.account_gateways')->where('invoice_key', '=', $invoiceKey)->firstOrFail();				
+		$contact = null;
+
+		Activity::viewInvoice($invoice, $contact)
+
 		return View::make('invoices.view')->with('invoice', $invoice);	
 	}
 
@@ -98,6 +102,7 @@ class InvoiceController extends \BaseController {
 			$payment = new Payment;
 			$payment->invoice_id = $invoice->id;
 			$payment->account_id = $invoice->account_id;
+			$payment->contact_id = 0;			
 			$payment->transaction_reference = $response->getTransactionReference();
 			$payment->save();
 
@@ -271,6 +276,8 @@ class InvoiceController extends \BaseController {
 				    $message->from('hillelcoren@gmail.com', 'Hillel Coren');
 				    $message->to($contact->email);
 				});
+
+				Activity::emailInvoice($invoice, $contact);
 
 				Session::flash('message', 'Successfully emailed invoice');
 			} else {				

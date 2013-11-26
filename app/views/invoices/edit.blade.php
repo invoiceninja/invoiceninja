@@ -2,126 +2,113 @@
 
 @section('content')
 
-	</div>
-	<div>
-	<div class=".container">
 	<p>&nbsp;</p>
 
-	<div class="row">
+	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
+  		'number' => 'required',
+	)); }}
 
-		<div class="col-md-6 col-sm-10">
-			<div>
-				{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
-			  		'number' => 'required',
-				)); }}
+	<!-- <h3>{{ $title }} Invoice</h3> -->
 
-
-				<!-- <h3>{{ $title }} Invoice</h3> -->
-
-				@if ($invoice)
-					{{ Former::populate($invoice); }}
-					{{ Former::populateField('issued_on', DateTime::createFromFormat('Y-m-d', $invoice->issued_on)->format('m/d/Y')); }}
-				@else
-					{{ Former::populateField('issued_on', date('m/d/Y')) }}
-				@endif
-			    
-			    <div class="row">
-			    	<div class="col-md-6">
-						{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'id')->select($client ? $client->id : '')
-							->help('<a class="ul" data-toggle="modal" data-target="#myModal">Create new client</a>'); }}
-					</div>
-					<div class="col-md-6">
-						{{ Former::text('number') }}
-						{{ Former::text('issued_on') }}
-						{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}
-					</div>
-				</div>
-
-				<p>&nbsp;</p>
-			</div>
-			<div style="padding-left:16px">
-				<input type="text" name="items" data-bind="value: ko.toJSON(items)" style="display:none"/>
-				<table class="table invoice-table" style="margin-bottom: 0px !important;">
-				    <thead>
-				        <tr>
-				        	<th class="hide-border"></th>
-				        	<th>Item</th>
-				        	<th>Description</th>
-				        	<th>Unit&nbsp;Cost</th>
-				        	<th>Quantity</th>
-				        	<th>Line&nbsp;Total</th>
-				        	<th class="hide-border"></th>
-				        </tr>
-				    </thead>
-				    <tbody data-bind="sortable: { data: items, afterMove: onDragged }">
-				    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
-				        	<td style="width:50px;" class="hide-border">
-				        		<i data-bind="click: $parent.addItem, visible: actionsVisible" class="fa fa-plus-circle" style="cursor:pointer" title="Add item"></i>&nbsp;
-				        		<i data-bind="visible: actionsVisible" class="fa fa-sort"></i>
-				        	</td>
-				            <td style="width:120px">
-				            	<input data-bind="value: product_key, valueUpdate: 'afterkeydown'" onchange="refreshPDF()"/>
-				            </td>
-				            <td style="width:300px">
-				            	<textarea data-bind="value: notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" onchange="refreshPDF()"></textarea>
-				            </td>
-				            <td style="width:100px">
-				            	<input data-bind="value: cost, valueUpdate: 'afterkeydown'" style="text-align: right" onchange="refreshPDF()"//>
-				            </td>
-				            <td style="width:80px">
-				            	<input data-bind="value: qty, valueUpdate: 'afterkeydown'" style="text-align: right" onchange="refreshPDF()"//>
-				            </td>
-				            <!--
-				            <td style="width:100px">
-				            	<input data-bind="value: tax, valueUpdate: 'afterkeydown'"/>
-				            </td>
-				        	-->
-				            <td style="width:100px;background-color: #FFFFFF;text-align: right">
-				            	<span data-bind="text: total"></span>
-				            </td>
-				        	<td style="width:20px; cursor:pointer" class="hide-border">
-				        		&nbsp;<i data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.items().length > 1" class="fa fa-minus-circle" title="Remove item"/>
-				        	</td>
-				        </tr>
-					</tbody>
-					<tfoot>	        
-				        <tr data-bind="visible: subtotal() != total()">
-				        	<td colspan="3" class="hide-border"/>
-							<td colspan="2">Subtotal</td>
-							<td style="text-align: right"><span data-bind="text: subtotal"/></td>
-				        </tr>
-				        <tr data-bind="visible: discount() > 0">
-				        	<td colspan="3" class="hide-border"/>
-							<td colspan="2">Discount</td>
-							<td style="text-align: right"><span data-bind="text: discounted"/></td>
-				        </tr>
-				        <tr>
-				        	<td colspan="3" class="hide-border"/>
-							<td colspan="2">Invoice Total</td>
-							<td style="text-align: right"><span data-bind="text: total"/></td>
-				        </tr>
-				    </tfoot>
-				</table>
-			</div>
-
-			<input type="checkbox" name="send_email_checkBox" id="send_email_checkBox" value="true" style="display:none"/>
-
-			<p>&nbsp;</p>
-			<div class="form-actions">
-				{{ Button::primary('Download PDF', array('onclick' => 'onDownloadClick()')) }}
-				{{ Button::primary_submit('Save Invoice') }}
-				{{ Button::primary('Send Email', array('onclick' => 'onEmailClick()')) }}		
-			</div>
-			<p>&nbsp;</p>
-			
+	@if ($invoice)
+		{{ Former::populate($invoice); }}
+		{{ Former::populateField('issued_on', DateTime::createFromFormat('Y-m-d', $invoice->issued_on)->format('m/d/Y')); }}
+	@else
+		{{ Former::populateField('issued_on', date('m/d/Y')) }}
+	@endif
+    
+    <div class="row">
+    	<div class="col-md-6">
+			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'id')->select($client ? $client->id : '')
+				->help('<a class="ul" data-toggle="modal" data-target="#myModal">Create new client</a>'); }}
 		</div>
-		<div class="col-md-6">	
-			<!-- <textarea rows="20" cols="120" id="pdfText" onkeyup="runCode()"></textarea> -->
-			<!-- <iframe frameborder="1" width="600" height="600" style="display:block;margin: 0 auto"></iframe> -->
-			<iframe frameborder="1" width="92%" height="600" style="display:block;margin: 0 auto"></iframe>	
+		<div class="col-md-5">
+			{{ Former::text('number')->label('Invoice #') }}
+			{{ Former::text('issued_on')->label('Invoice Date') }}
+			{{-- Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") --}}
 		</div>
-
 	</div>
+
+	<p>&nbsp;</p>
+
+	<input type="text" name="items" data-bind="value: ko.toJSON(items)" style="display:none"/>
+	<table class="table invoice-table" style="margin-bottom: 0px !important;">
+	    <thead>
+	        <tr>
+	        	<th class="hide-border"></th>
+	        	<th>Item</th>
+	        	<th>Description</th>
+	        	<th>Unit&nbsp;Cost</th>
+	        	<th>Quantity</th>
+	        	<th>Line&nbsp;Total</th>
+	        	<th class="hide-border"></th>
+	        </tr>
+	    </thead>
+	    <tbody data-bind="sortable: { data: items, afterMove: onDragged }">
+	    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
+	        	<td style="width:50px;" class="hide-border">
+	        		<i data-bind="click: $parent.addItem, visible: actionsVisible" class="fa fa-plus-circle" style="cursor:pointer" title="Add item"></i>&nbsp;
+	        		<i data-bind="visible: actionsVisible" class="fa fa-sort"></i>
+	        	</td>
+	            <td style="width:120px">
+	            	<input data-bind="value: product_key, valueUpdate: 'afterkeydown'" onchange="refreshPDF()"/>
+	            </td>
+	            <td style="width:300px">
+	            	<textarea data-bind="value: notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" onchange="refreshPDF()"></textarea>
+	            </td>
+	            <td style="width:100px">
+	            	<input data-bind="value: cost, valueUpdate: 'afterkeydown'" style="text-align: right" onchange="refreshPDF()"//>
+	            </td>
+	            <td style="width:80px">
+	            	<input data-bind="value: qty, valueUpdate: 'afterkeydown'" style="text-align: right" onchange="refreshPDF()"//>
+	            </td>
+	            <!--
+	            <td style="width:100px">
+	            	<input data-bind="value: tax, valueUpdate: 'afterkeydown'"/>
+	            </td>
+	        	-->
+	            <td style="width:100px;background-color: #FFFFFF;text-align: right">
+	            	<span data-bind="text: total"></span>
+	            </td>
+	        	<td style="width:20px; cursor:pointer" class="hide-border">
+	        		&nbsp;<i data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.items().length > 1" class="fa fa-minus-circle" title="Remove item"/>
+	        	</td>
+	        </tr>
+		</tbody>
+		<tfoot>	        
+	        <tr data-bind="visible: subtotal() != total()">
+	        	<td colspan="3" class="hide-border"/>
+				<td colspan="2">Subtotal</td>
+				<td style="text-align: right"><span data-bind="text: subtotal"/></td>
+	        </tr>
+	        <tr data-bind="visible: discount() > 0">
+	        	<td colspan="3" class="hide-border"/>
+				<td colspan="2">Discount</td>
+				<td style="text-align: right"><span data-bind="text: discounted"/></td>
+	        </tr>
+	        <tr>
+	        	<td colspan="3" class="hide-border"/>
+				<td colspan="2">Invoice Total</td>
+				<td style="text-align: right"><span data-bind="text: total"/></td>
+	        </tr>
+	    </tfoot>
+	</table>
+
+
+	<input type="checkbox" name="send_email_checkBox" id="send_email_checkBox" value="true" style="display:none"/>
+
+	<p>&nbsp;</p>
+	<div class="form-actions">
+		{{ Button::primary('Download PDF', array('onclick' => 'onDownloadClick()')) }}
+		{{ Button::primary_submit('Save Invoice') }}
+		{{ Button::primary('Send Email', array('onclick' => 'onEmailClick()')) }}		
+	</div>
+	<p>&nbsp;</p>
+	
+	<!-- <textarea rows="20" cols="120" id="pdfText" onkeyup="runCode()"></textarea> -->
+	<!-- <iframe frameborder="1" width="600" height="600" style="display:block;margin: 0 auto"></iframe> -->
+	<iframe frameborder="1" width="92%" height="600" style="display:block;margin: 0 auto"></iframe>	
+
 
 
 	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

@@ -25,7 +25,7 @@ class ClientController extends \BaseController {
     	    	})
     	    ->addColumn('contact', function($model)
     	    	{
-    	    		return $model->contacts[0]->fullName();
+    	    		return $model->contacts[0]->getFullName();
     	    	})
     	    ->addColumn('last_login', function($model)
     	    	{

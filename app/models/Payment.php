@@ -9,3 +9,8 @@ class Payment extends Eloquent
 		return $this->belongsTo('Invoice');
 	}
 }
+
+Payment::created(function($payment)
+{
+	Activity::createPayment($payment);
+});

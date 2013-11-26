@@ -26,3 +26,8 @@ class Invoice extends Eloquent
 		return $total;
 	}
 }
+
+Invoice::created(function($invoice)
+{
+	Activity::createInvoice($invoice);
+});

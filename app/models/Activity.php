@@ -1,13 +1,16 @@
 <?php
 
+define("ACTIVITY_TYPE_CREATE_CLIENT", 1);
+define("ACTIVITY_TYPE_ARCHIVE_CLIENT", 2);
+define("ACTIVITY_TYPE_CREATE_INVOICE", 3);
+define("ACTIVITY_TYPE_EMAIL_INVOICE", 4);
+define("ACTIVITY_TYPE_VIEW_INVOICE", 5);
+define("ACTIVITY_TYPE_ARCHIVE_INVOICE", 6);
+define("ACTIVITY_TYPE_CREATE_PAYMENT", 7);
+define("ACTIVITY_TYPE_ARCHIVE_PAYMENT", 8);
+
 class Activity extends Eloquent
 {
-
-/*
-define("ACTIVITY_TYPE_CONTACT_VIEW_INVOICE", 11);
-define("ACTIVITY_TYPE_CONTACT_LOGIN", 12);
-*/
-
 	private static function getBlank()
 	{
 		$user = Auth::user();
@@ -25,7 +28,7 @@ define("ACTIVITY_TYPE_CONTACT_LOGIN", 12);
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_CLIENT;
 		$activity->message = $user->getFullName() . ' created client ' . $client->name;
 		$activity->save();
-	}	
+	}
 
 	public static function archiveClient($client)
 	{
@@ -66,20 +69,19 @@ define("ACTIVITY_TYPE_CONTACT_LOGIN", 12);
 		$activity->save();
 	}
 
-	public static function createPayment($payment, $contact)
+	public static function createPayment($payment)
 	{
-		if ($contact)
-		{
-			$activity = new Activity;
-			$activity->contact_id = $contact->id;
-			$activity->message = $contact->getFullName() . ' created payment ' . $payment->transaction_reference;		
-		}
-		else
+		if (Auth::check())
 		{
 			$activity = Activity::getBlank();
 			$activity->message = $user->getFullName() . ' created invoice ' . $payment->transaction_reference;		
 		}
-
+		else
+		{
+			$activity = new Activity;
+			$activity->contact_id = $payment->contact_id;
+			$activity->message = $contact->getFullName() . ' created payment ' . $payment->transaction_reference;		
+		}
 
 		$activity->payment_id = $payment->id;
 		$activity->invoice_id = $payment->invoice_id;
@@ -101,11 +103,11 @@ define("ACTIVITY_TYPE_CONTACT_LOGIN", 12);
 	public static function viewInvoice($invoice, $contact)
 	{
 		$activity = new Activity;
-		$activity->contact_id = $contact->id;
+		//$activity->contact_id = $contact->id;
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_VIEW_INVOICE;
 		$activity->message = $contact->getFullName() . ' viewed invoice ' . $invoice->number;
 		$activity->save();
-	}	
+	}
 }

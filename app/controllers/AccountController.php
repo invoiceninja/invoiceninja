@@ -215,7 +215,7 @@ class AccountController extends \BaseController {
 			}
 
 			$client->save();
-			$client->contacts()->save($contact);
+			$client->contacts()->save($contact);		
 		}
 
 		$message = pluralize('Successfully created ? client', $count);
