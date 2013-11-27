@@ -97,6 +97,10 @@ function toArray($data)
 	return json_decode(json_encode((array) $data), true);
 }
 
+define("ENV_DEVELOPMENT", "local");
+define("ENV_STAGING", "staging");
+define("ENV_PRODUCTION", "production");
+
 define("ACCOUNT_DETAILS", "details");
 define("ACCOUNT_SETTINGS", "settings");
 define("ACCOUNT_IMPORT", "import");

@@ -302,3 +302,5 @@ function isStorageSupported() {
   }
 }
 
+
+

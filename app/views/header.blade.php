@@ -197,7 +197,7 @@
 	}
 
 	.invoice-table td {
-		padding: 0px !important;
+		padding: 2px !important;
 	}
 
 	.invoice-table td input,
@@ -225,6 +225,7 @@
 
   <body>
 
+  	@if (App::environment() != ENV_DEVELOPMENT)  	
   	<script>
 	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -235,6 +236,8 @@
 	  ga('send', 'pageview');
 
 	</script>
+	@endif
+
 	<div class="container">
 
 	<p/>

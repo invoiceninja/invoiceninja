@@ -18,7 +18,7 @@ class Activity extends Eloquent
 		$activity->user_id = $user->id;
 		$activity->account_id = $user->account_id;
 
-		return $user;
+		return $activity;
 	}
 
 	public static function createClient($client)
@@ -26,7 +26,7 @@ class Activity extends Eloquent
 		$activity = Activity::getBlank();
 		$activity->client_id = $client->id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_CLIENT;
-		$activity->message = $user->getFullName() . ' created client ' . $client->name;
+		$activity->message = Auth::user()->getFullName() . ' created client ' . $client->name;
 		$activity->save();
 	}
 
@@ -35,7 +35,7 @@ class Activity extends Eloquent
 		$activity = Activity::getBlank();
 		$activity->client_id = $client->id;
 		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_CLIENT;
-		$activity->message = $user->getFullName() . ' archived client ' . $client->name;
+		$activity->message = Auth::user()->getFullName() . ' archived client ' . $client->name;
 		$activity->save();
 	}	
 
@@ -45,7 +45,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_INVOICE;
-		$activity->message = $user->getFullName() . ' created invoice ' . $invoice->number;
+		$activity->message = Auth::user()->getFullName() . ' created invoice ' . $invoice->number;
 		$activity->save();
 	}	
 
@@ -55,7 +55,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_INVOICE;
-		$activity->message = $user->getFullName() . ' archived invoice ' . $invoice->number;
+		$activity->message = Auth::user()->getFullName() . ' archived invoice ' . $invoice->number;
 		$activity->save();
 	}
 
@@ -65,7 +65,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_EMAIL_INVOICE;
-		$activity->message = $user->getFullName() . ' emailed invoice ' . $invoice->number . ' to ' . $contact->getFullName();
+		$activity->message = Auth::user()->getFullName() . ' emailed invoice ' . $invoice->number . ' to ' . $contact->getFullName();
 		$activity->save();
 	}
 
@@ -74,7 +74,7 @@ class Activity extends Eloquent
 		if (Auth::check())
 		{
 			$activity = Activity::getBlank();
-			$activity->message = $user->getFullName() . ' created invoice ' . $payment->transaction_reference;		
+			$activity->message = Auth::user()->getFullName() . ' created invoice ' . $payment->transaction_reference;		
 		}
 		else
 		{
@@ -96,7 +96,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_PAYMENT;
-		$activity->message = $user->getFullName() . ' archived payment ' . $invoice->number;
+		$activity->message = Auth::user()->getFullName() . ' archived payment ' . $invoice->number;
 		$activity->save();
 	}	
 

@@ -32,7 +32,7 @@
 	<p>&nbsp;</p>
 
 	<input type="text" name="items" data-bind="value: ko.toJSON(items)" style="display:none"/>
-	<table class="table invoice-table" style="margin-bottom: 0px !important;">
+	<table class="table invoice-table" style="margin-bottom: 0px !important">
 	    <thead>
 	        <tr>
 	        	<th class="hide-border"></th>
@@ -51,23 +51,23 @@
 	        		<i data-bind="visible: actionsVisible" class="fa fa-sort"></i>
 	        	</td>
 	            <td style="width:120px">
-	            	<input data-bind="value: product_key, valueUpdate: 'afterkeydown'" onchange="refreshPDF()"/>
+	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'product_key')->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 	            </td>
 	            <td style="width:300px">
-	            	<textarea data-bind="value: notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" onchange="refreshPDF()"></textarea>
+	            	<textarea data-bind="value: notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" class="form-control" onchange="refreshPDF()"></textarea>
 	            </td>
 	            <td style="width:100px">
-	            	<input data-bind="value: cost, valueUpdate: 'afterkeydown'" style="text-align: right" onchange="refreshPDF()"//>
+	            	<input data-bind="value: cost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 	            </td>
 	            <td style="width:80px">
-	            	<input data-bind="value: qty, valueUpdate: 'afterkeydown'" style="text-align: right" onchange="refreshPDF()"//>
+	            	<input data-bind="value: qty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 	            </td>
 	            <!--
 	            <td style="width:100px">
 	            	<input data-bind="value: tax, valueUpdate: 'afterkeydown'"/>
 	            </td>
 	        	-->
-	            <td style="width:100px;background-color: #FFFFFF;text-align: right">
+	            <td style="width:100px;background-color: #FFFFFF;text-align: right;padding-top:9px !important">
 	            	<span data-bind="text: total"></span>
 	            </td>
 	        	<td style="width:20px; cursor:pointer" class="hide-border">
@@ -106,9 +106,8 @@
 	<p>&nbsp;</p>
 	
 	<!-- <textarea rows="20" cols="120" id="pdfText" onkeyup="runCode()"></textarea> -->
-	<!-- <iframe frameborder="1" width="600" height="600" style="display:block;margin: 0 auto"></iframe> -->
-	<iframe frameborder="1" width="92%" height="600" style="display:block;margin: 0 auto"></iframe>	
-
+	<!-- <iframe frameborder="1" width="100%" height="600" style="display:block;margin: 0 auto"></iframe>	-->
+	<iframe frameborder="1" width="100%" height="500"></iframe>	
 
 
 	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -159,6 +158,7 @@
 	}
 	*/
 	
+
 	$(function() {
 
 		$('#issued_on').datepicker({
@@ -192,9 +192,30 @@
 
 		$('#number').change(refreshPDF);
 
-		refreshPDF();
-		
+		applyComboboxListeners();
+		refreshPDF();		
 	});
+
+	function applyComboboxListeners() {
+		var value;
+		$('.datalist').on('focus', function() {
+			value = $(this).val();
+		}).on('blur', function() {
+			if (value != $(this).val()) refreshPDF();
+		}).on('input', function() {
+			var key = $(this).val();
+			for (var i=0; i<products.length; i++) {
+				var product = products[i];
+				if (product.product_key == key) {
+					var model = ko.dataFor(this);
+					console.log(model);
+					model.notes(product.notes);
+					model.cost(product.cost);
+					break;
+				}
+			}
+		});
+	}
 
 	function runCode() {
 		var text = $('#pdfText').val();
@@ -317,6 +338,7 @@
 
 		self.addItem = function() {
 			self.items.push(new ItemModel());	
+			applyComboboxListeners();
 		}
 
 		this.rawSubtotal = ko.computed(function() {
@@ -389,8 +411,11 @@
     	}
 	}
 
+	var products = {{ $products }};
+
 	window.model = new InvoiceModel();
 	ko.applyBindings(model);
+
 
 	</script>
 

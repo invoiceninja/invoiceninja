@@ -42,7 +42,7 @@ class InvoiceController extends \BaseController {
 		$invoice = Invoice::with('invoice_items', 'client.account.account_gateways')->where('invoice_key', '=', $invoiceKey)->firstOrFail();				
 		$contact = null;
 
-		Activity::viewInvoice($invoice, $contact)
+		Activity::viewInvoice($invoice, $contact);
 
 		return View::make('invoices.view')->with('invoice', $invoice);	
 	}
@@ -181,6 +181,7 @@ class InvoiceController extends \BaseController {
 				'title' => 'New',
 				'client' => $client,
 				'account' => Auth::user()->account,
+				'products' => Product::getProducts()->get(),
 				'clients' => Client::where('account_id','=',Auth::user()->account_id)->get());
 		return View::make('invoices.edit', $data);
 	}
@@ -241,7 +242,7 @@ class InvoiceController extends \BaseController {
 		
 			$invoice->client_id = $clientId;
 			$invoice->number = Input::get('number');
-			$invoice->discount = Input::get('discount');
+			$invoice->discount = 0;
 			$invoice->issued_on = $date->format('Y-m-d');
 			$invoice->save();
 
@@ -252,11 +253,17 @@ class InvoiceController extends \BaseController {
 					continue;
 				}
 
-				$product = new Product;
-				$product->product_key = $item->product_key;
-				$product->notes = $item->notes;
-				$product->cost = $item->cost;
-				$product->save();
+				$product = Product::findProduct($item->product_key);
+
+				if (!$product)
+				{
+					$product = new Product;
+					$product->account_id = Auth::user()->account_id;
+					$product->product_key = $item->product_key;
+					$product->notes = $item->notes;
+					$product->cost = $item->cost;
+					$product->save();
+				}
 
 				$invoiceItem = new InvoiceItem;
 				$invoiceItem->product_id = $product->id;
@@ -316,6 +323,7 @@ class InvoiceController extends \BaseController {
 				'url' => 'invoices/' . $id, 
 				'title' => 'Edit',
 				'account' => Auth::user()->account,
+				'products' => Product::getProducts()->get(),
 				'client' => $invoice->client,
 				'clients' => Client::where('account_id','=',Auth::user()->account_id)->get());
 		return View::make('invoices.edit', $data);
