@@ -38,6 +38,7 @@
     <script type="text/javascript" src="{{ asset('js/jquery.dataTables.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/jquery.dataTables.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/knockout-3.0.0.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/knockout.mapping-latest.js') }}"></script>
     <script src="{{ asset('js/knockout-sortable.js') }}" type="text/javascript"></script>		
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/font-awesome.css') }}"/>
 	

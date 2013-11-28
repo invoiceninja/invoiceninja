@@ -62,42 +62,7 @@ class ClientController extends \BaseController {
 	 */
 	public function store()
 	{
-		$rules = array(
-			'name' => 'required',
-			'email' => 'email'
-		);
-		$validator = Validator::make(Input::all(), $rules);
-
-		if ($validator->fails()) {
-			return Redirect::to('clients/create')
-				->withErrors($validator)
-				->withInput(Input::except('password'));
-		} else {			
-			$client = new Client;
-			$client->account_id = Auth::user()->account_id;
-			$client->name = Input::get('name');
-			$client->work_phone = Input::get('work_phone');
-			$client->address1 = Input::get('address1');
-			$client->address2 = Input::get('address2');
-			$client->city = Input::get('city');
-			$client->state = Input::get('state');
-			$client->notes = Input::get('notes');
-			$client->postal_code = Input::get('postal_code');
-			$client->save();
-
-			$contact = new Contact;
-			$contact->email = Input::get('email');
-			$contact->first_name = Input::get('first_name');
-			$contact->last_name = Input::get('last_name');
-			$contact->phone = Input::get('phone');
-			$client->contacts()->save($contact);
-
-			$url = 'clients/' . $client->id;
-			processedRequest($url);
-
-			Session::flash('message', 'Successfully created client');
-			return Redirect::to($url);
-		}
+		return $this->save();
 	}
 
 	/**
@@ -120,7 +85,7 @@ class ClientController extends \BaseController {
 	 */
 	public function edit($id)
 	{
-		$client = Client::find($id);
+		$client = Client::with('contacts')->find($id);
 		$data = array('client' => $client, 'method' => 'PUT', 'url' => 'clients/' . $id, 'title' => 'Edit');
 		return View::make('clients.edit', $data);
 	}
@@ -133,6 +98,11 @@ class ClientController extends \BaseController {
 	 */
 	public function update($id)
 	{
+		return $this->save($id);
+	}
+
+	private function save($id = null)
+	{
 		$rules = array(
 			'name'       => 'required'
 		);
@@ -143,7 +113,12 @@ class ClientController extends \BaseController {
 				->withErrors($validator)
 				->withInput(Input::except('password'));
 		} else {			
-			$client = Client::find($id);
+			if ($id) {
+				$client = Client::find($id);
+			} else {
+				$client = new Client;
+			}
+
 			$client->name = Input::get('name');
 			$client->work_phone = Input::get('work_phone');
 			$client->address1 = Input::get('address1');
@@ -154,12 +129,36 @@ class ClientController extends \BaseController {
 			$client->postal_code = Input::get('postal_code');
 			$client->save();
 
-			$contact = $client->contacts[0];
-			$contact->email = Input::get('email');
-			$contact->first_name = Input::get('first_name');
-			$contact->last_name = Input::get('last_name');
-			$contact->phone = Input::get('phone');
-			$contact->save();
+			$data = json_decode(Input::get('data'));
+			$contactIds = [];
+
+			foreach ($data->contacts as $contact)
+			{
+				if (isset($contact->id) && $contact->id)
+				{
+					$record = Contact::find($contact->id);
+				}
+				else
+				{
+					$record = new Contact;
+				}
+
+				$record->email = $contact->email;
+				$record->first_name = $contact->first_name;
+				$record->last_name = $contact->last_name;
+				$record->phone = $contact->phone;
+
+				$client->contacts()->save($record);
+				$contactIds[] = $record->id;					
+			}
+
+			foreach ($client->contacts as $contact)
+			{
+				if (!in_array($contact->id, $contactIds))
+				{	
+					$contact->forceDelete();
+				}
+			}
 			
 			Session::flash('message', 'Successfully updated client');
 			return Redirect::to('clients');

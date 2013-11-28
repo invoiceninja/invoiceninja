@@ -172,11 +172,23 @@ class InvoiceController extends \BaseController {
 		}
 	}
 
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return Response
-	 */
+
+	public function edit($id)
+	{
+		$invoice = Invoice::with('client', 'invoice_items')->find($id);
+
+		$data = array(
+				'invoice' => $invoice, 
+				'method' => 'PUT', 
+				'url' => 'invoices/' . $id, 
+				'title' => 'Edit',
+				'account' => Auth::user()->account,
+				'products' => Product::getProducts()->get(),
+				'client' => $invoice->client,
+				'clients' => Client::where('account_id','=',Auth::user()->account_id)->orderBy('name')->get());
+		return View::make('invoices.edit', $data);
+	}
+
 	public function create($clientId = 0)
 	{		
 		$client = null;
@@ -193,7 +205,7 @@ class InvoiceController extends \BaseController {
 				'items' => json_decode(Input::old('items')),
 				'account' => Auth::user()->account,
 				'products' => Product::getProducts()->get(),
-				'clients' => Client::where('account_id','=',Auth::user()->account_id)->get());
+				'clients' => Client::where('account_id','=',Auth::user()->account_id)->orderBy('name')->get());
 		return View::make('invoices.edit', $data);
 	}
 
@@ -333,28 +345,6 @@ class InvoiceController extends \BaseController {
 	{
 		$invoice = Invoice::find($id);
 		return View::make('invoices.show')->with('invoice', $invoice);
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		$invoice = Invoice::with('client', 'invoice_items')->find($id);
-
-		$data = array(
-				'invoice' => $invoice, 
-				'method' => 'PUT', 
-				'url' => 'invoices/' . $id, 
-				'title' => 'Edit',
-				'account' => Auth::user()->account,
-				'products' => Product::getProducts()->get(),
-				'client' => $invoice->client,
-				'clients' => Client::where('account_id','=',Auth::user()->account_id)->get());
-		return View::make('invoices.edit', $data);
 	}
 
 	/**
