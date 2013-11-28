@@ -48,9 +48,18 @@
 	{{ Former::text('city') }}
 	{{ Former::text('state') }}
 	{{ Former::text('postal_code') }}
+	{{ Former::select('country_id')->addOption('','')->label('Country')
+		->fromQuery($countries, 'name', 'id')->select($account ? $account->country_id : '') }}
 
 	{{ Former::actions( Button::lg_primary_submit('Save') ) }}
 	{{ Former::close() }}
 
+	<script type="text/javascript">
+
+		$(function() {
+			$('#country_id').combobox();
+		});
+		
+	</script>
 
 @stop

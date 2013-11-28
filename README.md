@@ -54,3 +54,4 @@ Configure config/database.php and then initialize the database
 * [Chumper/Datatable](https://github.com/Chumper/Datatable) - This is a laravel 4 package for the server and client side of datatables
 * [omnipay/omnipay](https://github.com/omnipay/omnipay) - A framework agnostic, multi-gateway payment processing library for PHP 5.3+
 * [Intervention/image](https://github.com/Intervention/image) - PHP Image Manipulation
+* [webpatser/laravel-countries](https://github.com/webpatser/laravel-countries) - Almost ISO 3166_2, 3166_3, currency, Capital and more for all countries

@@ -51,7 +51,13 @@ class ClientController extends \BaseController {
 	 */
 	public function create()
 	{		
-		$data = array('client' => null, 'method' => 'POST', 'url' => 'clients', 'title' => 'New');
+		$data = array(
+			'client' => null, 
+			'method' => 'POST', 
+			'url' => 'clients', 
+			'title' => 'New',
+			'countries' => Country::orderBy('name')->get());
+
 		return View::make('clients.edit', $data);
 	}
 
@@ -86,7 +92,12 @@ class ClientController extends \BaseController {
 	public function edit($id)
 	{
 		$client = Client::with('contacts')->find($id);
-		$data = array('client' => $client, 'method' => 'PUT', 'url' => 'clients/' . $id, 'title' => 'Edit');
+		$data = array(
+			'client' => $client, 
+			'method' => 'PUT', 
+			'url' => 'clients/' . $id, 
+			'title' => 'Edit',
+			'countries' => Country::orderBy('name')->get());
 		return View::make('clients.edit', $data);
 	}
 
@@ -127,6 +138,7 @@ class ClientController extends \BaseController {
 			$client->state = Input::get('state');
 			$client->notes = Input::get('notes');
 			$client->postal_code = Input::get('postal_code');
+			$client->country_id = Input::get('country_id');
 			$client->save();
 
 			$data = json_decode(Input::get('data'));
@@ -161,7 +173,7 @@ class ClientController extends \BaseController {
 			}
 			
 			Session::flash('message', 'Successfully updated client');
-			return Redirect::to('clients');
+			return Redirect::to('clients/' . $client->id);
 		}
 
 	}

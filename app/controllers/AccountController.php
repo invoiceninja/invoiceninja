@@ -43,25 +43,28 @@ class AccountController extends \BaseController {
 	public function showSection($section = ACCOUNT_DETAILS)  
 	{
 		if ($section == ACCOUNT_DETAILS)
-		{
+		{			
 			$account = Account::with('users')->find(Auth::user()->account_id);
-			
-			return View::make('accounts.details', array('account' => $account));
+			$countries = Country::orderBy('name')->get();
+
+			return View::make('accounts.details', array('account'=>$account, 'countries'=>$countries));
 		}
 		else if ($section == ACCOUNT_SETTINGS)
 		{
 			$account = Account::with('account_gateways')->find(Auth::user()->account_id);
 			$accountGateway = null;
+			$config = null;
 
 			if (count($account->account_gateways) > 0)
 			{
 				$accountGateway = $account->account_gateways[0];
+				$config = $accountGateway->config;
 			}			
 
 			$data = [
 				'account' => $account,
 				'accountGateway' => $accountGateway,
-				'config' => json_decode($accountGateway->config),
+				'config' => json_decode($config),
 				'gateways' => Gateway::all()
 			];
 			
@@ -405,6 +408,7 @@ class AccountController extends \BaseController {
 			$account->city = Input::get('city');
 			$account->state = Input::get('state');
 			$account->postal_code = Input::get('postal_code');
+			$account->country_id = Input::get('country_id');
 			$account->save();
 
 			$user = $account->users()->first();

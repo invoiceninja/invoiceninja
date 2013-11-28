@@ -12,7 +12,8 @@
 		"barryvdh/laravel-debugbar": "dev-master",
 		"chumper/datatable": "dev-master",
 		"omnipay/omnipay": "2.x",
-		"intervention/image": "dev-master"
+		"intervention/image": "dev-master",
+		"webpatser/laravel-countries": "dev-master"
 	},
 	"autoload": {
 		"classmap": [

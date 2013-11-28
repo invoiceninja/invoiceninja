@@ -120,6 +120,7 @@ return array(
 		'Barryvdh\Debugbar\ServiceProvider',
 		'Chumper\Datatable\DatatableServiceProvider',
 		'Intervention\Image\ImageServiceProvider',
+		'Webpatser\Countries\CountriesServiceProvider',
 	),
 
 	/*
@@ -214,5 +215,6 @@ return array(
 		'Omnipay' => 'Omnipay\Omnipay',
 		'CreditCard' => 'Omnipay\Common\CreditCard',
 		'Image' => 'Intervention\Image\Facades\Image',
+		'Countries' => 'Webpatser\Countries\CountriesFacade',
 	),
 );
