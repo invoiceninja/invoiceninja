@@ -24,13 +24,13 @@ Route::get('complete', 'InvoiceController@do_payment');
 
 Route::filter('auth', function()
 {
-    if (!Auth::check())
+	if (!Auth::check())
     {
         return Redirect::to('/');
     }
 });
 
-Route::group(array('before' => 'auth'), function()
+Route::group(array('before' => array('auth', 'csrf')), function()
 {   
 	Route::get('account/{section?}', 'AccountController@showSection');
 	Route::post('account/{section?}', 'AccountController@doSection');
@@ -39,7 +39,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
 
 	Route::resource('invoices', 'InvoiceController');
-	Route::get('api/invoices', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));
+	Route::get('api/invoices', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));	
 	Route::get('invoices/create/{client_id}', 'InvoiceController@create');
 
 	Route::get('payments', 'PaymentController@index');
@@ -103,6 +103,32 @@ function toArray($data)
 function toSpaceCase($camelStr)
 {
 	return preg_replace('/([a-z])([A-Z])/s','$1 $2', $camelStr);
+}
+
+function toSqlDate($date)
+{
+	if (!$date)
+	{
+		return '';
+	}
+
+	return DateTime::createFromFormat('m/d/Y', $date);
+}
+
+function fromSqlDate($date)
+{
+	if (!$date || $date == '0000-00-00')
+	{
+		return '';
+	}
+
+	return DateTime::createFromFormat('Y-m-d', $date)->format('m/d/Y');
+}
+
+function processedRequest($url)
+{
+	Session::put(Input::get('_token'), $url);
+	Session::put('_token', md5(microtime()));
 }
 
 define("ENV_DEVELOPMENT", "local");

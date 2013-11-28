@@ -10,6 +10,7 @@ class ConfideSetupUsersTable extends Migration {
      */
     public function up()
     {
+        Schema::dropIfExists('invitations');
         Schema::dropIfExists('activities');
         Schema::dropIfExists('account_gateways');
         Schema::dropIfExists('gateways');
@@ -138,12 +139,24 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
-            $t->string('invoice_key')->unique();
             $t->string('invoice_number');
             $t->float('discount');
             $t->date('invoice_date');
+            $t->date('due_date');
 
             //$t->foreign('account_id')->references('id')->on('accounts');
+        });
+
+
+        Schema::create('invitations', function($t)
+        {
+            $t->increments('id');
+            $t->integer('user_id');
+            $t->integer('contact_id');
+            $t->integer('invoice_id');
+            $t->string('key')->unique();
+            $t->timestamps();
+            $t->softDeletes();
         });
 
         Schema::create('invoice_items', function($t)
@@ -169,7 +182,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
-            $t->string('product_key');
+            $t->string('key');
             $t->string('notes');
             $t->decimal('cost', 8, 2);
             $t->integer('qty');
@@ -203,6 +216,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->integer('contact_id');
             $t->integer('invoice_id');
             $t->integer('payment_id');
+            $t->integer('invitation_id');
             $t->timestamps();
 
             $t->integer('activity_type_id');
@@ -217,6 +231,7 @@ class ConfideSetupUsersTable extends Migration {
      */
     public function down()
     {
+        Schema::dropIfExists('invitations');
         Schema::dropIfExists('activities');
         Schema::dropIfExists('account_gateways');
         Schema::dropIfExists('gateways');

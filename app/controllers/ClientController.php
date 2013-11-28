@@ -92,8 +92,11 @@ class ClientController extends \BaseController {
 			$contact->phone = Input::get('phone');
 			$client->contacts()->save($contact);
 
+			$url = 'clients/' . $client->id;
+			processedRequest($url);
+
 			Session::flash('message', 'Successfully created client');
-			return Redirect::to('clients/' . $client->id);
+			return Redirect::to($url);
 		}
 	}
 
@@ -141,9 +144,23 @@ class ClientController extends \BaseController {
 				->withInput(Input::except('password'));
 		} else {			
 			$client = Client::find($id);
-			$client->name       = Input::get('name');
+			$client->name = Input::get('name');
+			$client->work_phone = Input::get('work_phone');
+			$client->address1 = Input::get('address1');
+			$client->address2 = Input::get('address2');
+			$client->city = Input::get('city');
+			$client->state = Input::get('state');
+			$client->notes = Input::get('notes');
+			$client->postal_code = Input::get('postal_code');
 			$client->save();
 
+			$contact = $client->contacts[0];
+			$contact->email = Input::get('email');
+			$contact->first_name = Input::get('first_name');
+			$contact->last_name = Input::get('last_name');
+			$contact->phone = Input::get('phone');
+			$contact->save();
+			
 			Session::flash('message', 'Successfully updated client');
 			return Redirect::to('clients');
 		}

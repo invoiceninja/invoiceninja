@@ -37,14 +37,14 @@ class InvoiceController extends \BaseController {
     }
 
 
-	public function view($invoiceKey)
+	public function view($key)
 	{
-		$invoice = Invoice::with('invoice_items', 'client.account.account_gateways')->where('invoice_key', '=', $invoiceKey)->firstOrFail();				
+		$invitation = Invitation::with('invoice.invoice_items', 'invoice.client.account.account_gateways')->where('key', '=', $key)->firstOrFail();				
 		$contact = null;
 
-		Activity::viewInvoice($invoice, $contact);
+		Activity::viewInvoice($invitation);
 
-		return View::make('invoices.view')->with('invoice', $invoice);	
+		return View::make('invoices.view')->with('invoice', $invitation->invoice);	
 	}
 
 	private function createGateway($accountGateway)
@@ -91,7 +91,7 @@ class InvoiceController extends \BaseController {
 
 	public function show_payment($invoiceKey)
 	{
-		$invoice = Invoice::with('invoice_items', 'client.account.account_gateways.gateway')->where('invoice_key', '=', $invoiceKey)->firstOrFail();
+		$invoice = Invoice::with('invoice_items', 'client.account.account_gateways.gateway')->where('key', '=', $invoiceKey)->firstOrFail();
 		$accountGateway = $invoice->client->account->account_gateways[0];
 		$gateway = InvoiceController::createGateway($accountGateway);
 
@@ -159,7 +159,7 @@ class InvoiceController extends \BaseController {
 				$payment->save();
 				
 				Session::flash('message', 'Successfully applied payment');	
-				return Redirect::to('view/' . $payment->invoice->invoice_key);				
+				return Redirect::to('view/' . $payment->invoice->key);				
 			}
 			else
 			{
@@ -247,16 +247,14 @@ class InvoiceController extends \BaseController {
 				$invoice->invoice_items()->forceDelete();
 			} else {
 				$invoice = new Invoice;
-				$invoice->invoice_key = str_random(20);
 				$invoice->account_id = Auth::user()->account_id;
 			}
 
-			$date = DateTime::createFromFormat('m/d/Y', Input::get('invoice_date'));
-		
 			$invoice->client_id = $clientId;
 			$invoice->invoice_number = Input::get('invoice_number');
 			$invoice->discount = 0;
-			$invoice->invoice_date = $date->format('Y-m-d');
+			$invoice->invoice_date = toSqlDate(Input::get('invoice_date'));
+			$invoice->due_date = toSqlDate(Input::get('due_date'));
 			$invoice->save();
 
 			$items = json_decode(Input::get('items'));
@@ -277,7 +275,7 @@ class InvoiceController extends \BaseController {
 				{
 					$product = new Product;
 					$product->account_id = Auth::user()->account_id;
-					$product->product_key = $item->product_key;
+					$product->key = $item->product_key;
 				}
 
 				$product->notes = $item->notes;
@@ -298,20 +296,30 @@ class InvoiceController extends \BaseController {
 			if (Input::get('send_email_checkBox')) 
 			{
 				$data = array('link' => URL::to('view') . '/' . $invoice->invoice_key);
+				/*
 				Mail::send(array('html'=>'emails.invoice_html','text'=>'emails.invoice_text'), $data, function($message) use ($contact)
 				{
 				    $message->from('hillelcoren@gmail.com', 'Hillel Coren');
 				    $message->to($contact->email);
 				});
+				*/
 
-				Activity::emailInvoice($invoice, $contact);
+				$invitation = new Invitation;
+				$invitation->invoice_id = $invoice->id;
+				$invitation->user_id = Auth::user()->id;
+				$invitation->contact_id = $contact->id;
+				$invitation->key = str_random(20);				
+				$invitation->save();
+
 
 				Session::flash('message', 'Successfully emailed invoice');
 			} else {				
 				Session::flash('message', 'Successfully saved invoice');
 			}
 
-			return Redirect::to('invoices/' . $invoice->id . '/edit');
+			$url = 'invoices/' . $invoice->id . '/edit';
+			processedRequest($url);
+			return Redirect::to($url);
 		}
 	}
 

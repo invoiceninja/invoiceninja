@@ -13,7 +13,8 @@
 
 	@if ($invoice)
 		{{ Former::populate($invoice); }}
-		{{ Former::populateField('invoice_date', DateTime::createFromFormat('Y-m-d', $invoice->invoice_date)->format('m/d/Y')); }}
+		{{ Former::populateField('invoice_date', fromSqlDate($invoice->invoice_date)); }}	
+		{{ Former::populateField('due_date', fromSqlDate($invoice->due_date)); }}
 	@else
 		{{ Former::populateField('invoice_date', date('m/d/Y')) }}
 	@endif
@@ -26,6 +27,7 @@
 		<div class="col-md-5">
 			{{ Former::text('invoice_number')->label('Invoice #') }}
 			{{ Former::text('invoice_date') }}
+			{{ Former::text('due_date') }}
 			{{-- Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") --}}
 		</div>
 	</div>
@@ -53,7 +55,7 @@
 	        		<i data-bind="visible: actionsVisible" class="fa fa-sort"></i>
 	        	</td>
 	            <td style="width:120px">
-	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'product_key')
+	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'key')
 	            		->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 	            </td>
 	            <td style="width:300px">
@@ -106,7 +108,7 @@
 	<p>&nbsp;</p>
 	<div class="form-actions">
 		{{ Button::primary('Download PDF', array('onclick' => 'onDownloadClick()')) }}
-		{{ Button::primary_submit('Save Invoice') }}
+		{{ Button::primary_submit('Save Invoice', array('onclick' => 'onSaveClick()')) }}
 		{{ Button::primary('Send Email', array('onclick' => 'onEmailClick()')) }}		
 	</div>
 	<p>&nbsp;</p>
@@ -174,6 +176,11 @@
 			refreshPDF();
 		});
 
+		$('#due_date').datepicker({
+			autoclose: true,
+			todayHighlight: true
+		});
+
 		var $input = $('select#client');
 		$input.combobox();
 		$('.combobox-container input.form-control').attr('name', 'client_combobox').on('change', function(e) {
@@ -212,7 +219,7 @@
 			var key = $(this).val();
 			for (var i=0; i<products.length; i++) {
 				var product = products[i];
-				if (product.product_key == key) {
+				if (product.key == key) {
 					var model = ko.dataFor(this);
 					console.log(model);
 					model.notes(product.notes);
@@ -275,6 +282,10 @@
 			$('#send_email_checkBox').prop("checked",true);
 			$('.main_form').submit();
 		}
+	}
+
+	function onSaveClick() {
+		$('.main_form').submit();
 	}
 
 	function newClient() {

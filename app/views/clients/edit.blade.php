@@ -14,7 +14,7 @@
 		{{ Former::populate($client); }}
 	@endif
 
-	{{ Former::open($url)->addClass('col-md-9 col-md-offset-1')->method($method)->rules(array(
+	{{ Former::open($url)->addClass('col-md-9 col-md-offset-1 main_form')->method($method)->rules(array(
   		'name' => 'required',
   		'email' => 'email'  		
 	)); }}
@@ -38,7 +38,7 @@
 	{{ Former::text('state') }}
 	{{ Former::text('postal_code') }}
 
-	{{ Former::actions()->lg_primary_submit('Save') }}
+	{{ Former::actions( Button::lg_primary_submit('Save') ) }}
 	{{ Former::close() }}
 
 @stop

@@ -59,13 +59,13 @@ class Activity extends Eloquent
 		$activity->save();
 	}
 
-	public static function emailInvoice($invoice, $contact)
+	public static function emailInvoice($invitation)
 	{
 		$activity = Activity::getBlank();
-		$activity->invoice_id = $invoice->id;
-		$activity->client_id = $invoice->client_id;
+		$activity->invoice_id = $invitation->invoice_id;
+		$activity->contact_id = $invitation->contact_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_EMAIL_INVOICE;
-		$activity->message = Auth::user()->getFullName() . ' emailed invoice ' . $invoice->number . ' to ' . $contact->getFullName();
+		//$activity->message = Auth::user()->getFullName() . ' emailed invoice ' . $invitation->invoice->number . ' to ' . $contact->getFullName();
 		$activity->save();
 	}
 
@@ -100,12 +100,12 @@ class Activity extends Eloquent
 		$activity->save();
 	}	
 
-	public static function viewInvoice($invoice, $contact)
+	public static function viewInvoice($invitation)
 	{
 		$activity = new Activity;
-		//$activity->contact_id = $contact->id;
-		$activity->invoice_id = $invoice->id;
-		$activity->client_id = $invoice->client_id;
+		$activity->invitation_id = $invitation->invitation_id;
+		$activity->contact_id = $invitation->contact_id;
+		$activity->invoice_id = $invitation->invoice_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_VIEW_INVOICE;
 		//$activity->message = $contact->getFullName() . ' viewed invoice ' . $invoice->number;
 		$activity->save();
