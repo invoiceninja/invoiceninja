@@ -11,6 +11,9 @@
 |
 */
 
+//dd(Omnipay::getFactory()->find());
+
+
 Route::get('/', 'HomeController@showWelcome');
 Route::post('get_started', 'AccountController@getStarted');
 
@@ -95,6 +98,11 @@ function pluralize($string, $count)
 function toArray($data)
 {
 	return json_decode(json_encode((array) $data), true);
+}
+
+function toSpaceCase($camelStr)
+{
+	return preg_replace('/([a-z])([A-Z])/s','$1 $2', $camelStr);
 }
 
 define("ENV_DEVELOPMENT", "local");

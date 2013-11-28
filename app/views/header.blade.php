@@ -88,16 +88,6 @@
 	}
 	*/
 
-	a.ul {
-		text-decoration: underline;
-		cursor: pointer;
-	}	
-
-	a.ul:hover {
-		text-decoration: none;
-	}
-
-
 	/* DataTables and BootStrap */
 	.dataTables_wrapper {
 		padding-top: 16px;

@@ -51,6 +51,7 @@ class ConfideSetupUsersTable extends Migration {
 
             $t->string('name');
             $t->string('provider');
+            $t->boolean('visible')->default(true);
         });     
 
         Schema::create('account_gateways', function($t)
@@ -61,9 +62,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
-            $t->string('username');
-            $t->string('password');
-            $t->string('signature');
+            $t->text('config');
         }); 
 
         Schema::create('users', function($t)
@@ -140,9 +139,9 @@ class ConfideSetupUsersTable extends Migration {
             $t->softDeletes();
 
             $t->string('invoice_key')->unique();
-            $t->string('number');
+            $t->string('invoice_number');
             $t->float('discount');
-            $t->date('issued_on');
+            $t->date('invoice_date');
 
             //$t->foreign('account_id')->references('id')->on('accounts');
         });
@@ -173,6 +172,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('product_key');
             $t->string('notes');
             $t->decimal('cost', 8, 2);
+            $t->integer('qty');
             
             //$t->foreign('account_id')->references('id')->on('accounts');
         });

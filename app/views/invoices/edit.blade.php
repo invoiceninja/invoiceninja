@@ -5,33 +5,35 @@
 	<p>&nbsp;</p>
 
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
-  		'number' => 'required',
+  		'invoice_number' => 'required',
+  		'invoice_date' => 'required'
 	)); }}
 
 	<!-- <h3>{{ $title }} Invoice</h3> -->
 
 	@if ($invoice)
 		{{ Former::populate($invoice); }}
-		{{ Former::populateField('issued_on', DateTime::createFromFormat('Y-m-d', $invoice->issued_on)->format('m/d/Y')); }}
+		{{ Former::populateField('invoice_date', DateTime::createFromFormat('Y-m-d', $invoice->invoice_date)->format('m/d/Y')); }}
 	@else
-		{{ Former::populateField('issued_on', date('m/d/Y')) }}
+		{{ Former::populateField('invoice_date', date('m/d/Y')) }}
 	@endif
     
     <div class="row">
     	<div class="col-md-6">
 			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'id')->select($client ? $client->id : '')
-				->help('<a class="ul" data-toggle="modal" data-target="#myModal">Create new client</a>'); }}
+				->help('<a data-toggle="modal" data-target="#myModal">Create new client</a>'); }}
 		</div>
 		<div class="col-md-5">
-			{{ Former::text('number')->label('Invoice #') }}
-			{{ Former::text('issued_on')->label('Invoice Date') }}
+			{{ Former::text('invoice_number')->label('Invoice #') }}
+			{{ Former::text('invoice_date') }}
 			{{-- Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") --}}
 		</div>
 	</div>
 
 	<p>&nbsp;</p>
 
-	<input type="text" name="items" data-bind="value: ko.toJSON(items)" style="display:none"/>
+	{{ Former::hidden('items')->data_bind("value: ko.toJSON(items)") }}	
+
 	<table class="table invoice-table" style="margin-bottom: 0px !important">
 	    <thead>
 	        <tr>
@@ -46,12 +48,13 @@
 	    </thead>
 	    <tbody data-bind="sortable: { data: items, afterMove: onDragged }">
 	    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
-	        	<td style="width:50px;" class="hide-border">
-	        		<i data-bind="click: $parent.addItem, visible: actionsVisible" class="fa fa-plus-circle" style="cursor:pointer" title="Add item"></i>&nbsp;
+	        	<td style="width:20px;" class="hide-border">
+	        		<!-- <i data-bind="click: $parent.addItem, visible: actionsVisible" class="fa fa-plus-circle" style="cursor:pointer" title="Add item"></i>&nbsp; -->
 	        		<i data-bind="visible: actionsVisible" class="fa fa-sort"></i>
 	        	</td>
 	            <td style="width:120px">
-	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'product_key')->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
+	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'product_key')
+	            		->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 	            </td>
 	            <td style="width:300px">
 	            	<textarea data-bind="value: notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" class="form-control" onchange="refreshPDF()"></textarea>
@@ -87,8 +90,11 @@
 				<td style="text-align: right"><span data-bind="text: discounted"/></td>
 	        </tr>
 	        <tr>
-	        	<td colspan="3" class="hide-border"/>
-				<td colspan="2">Invoice Total</td>
+	        	<td class="hide-border"></td>
+	        	<td colspan="2" class="hide-border">
+	        		<a href="#" onclick="model.addItem()">Add line item</a>
+	        	</td>
+				<td colspan="2"><b>Invoice Total</b></td>
 				<td style="text-align: right"><span data-bind="text: total"/></td>
 	        </tr>
 	    </tfoot>
@@ -118,14 +124,14 @@
 	        <h4 class="modal-title" id="myModalLabel">New Client</h4>
 	      </div>
 	      <div class="modal-body" style="min-height:80px">
-	      	<div class="form-group required">
+	      	<div class="form-group">
 	      		<label for="name" class="control-label col-lg-2 col-sm-4">Name<sup>*</sup></label>
 	      		<div class="col-lg-10 col-sm-8">
 	      			<input class="form-control" id="client_name" type="text" name="client_name" onkeypress="nameKeyPress(event)">
 	      			<span class="help-block" id="nameHelp" style="display: none">Please provide a value</span><span>&nbsp;</span>
 	      		</div>	      		
 	      	</div>
-	      	<div class="form-group required">
+	      	<div class="form-group">
 	      		<label for="email" class="control-label col-lg-2 col-sm-4">Email<sup>*</sup></label>
 	      		<div class="col-lg-10 col-sm-8">
 	      			<input class="form-control" id="client_email" type="text" name="client_email" onkeypress="nameKeyPress(event)">
@@ -161,7 +167,7 @@
 
 	$(function() {
 
-		$('#issued_on').datepicker({
+		$('#invoice_date').datepicker({
 			autoclose: true,
 			todayHighlight: true
 		}).on('changeDate', function(e) {
@@ -175,7 +181,7 @@
 		});
 
 		@if ($client)
-			$('input#number').focus();
+			$('input#invoice_number').focus();
 		@else
 			$('[name="client_combobox"]').focus();
 		@endif
@@ -190,7 +196,7 @@
 			$('#client_name').focus();
 		})
 
-		$('#number').change(refreshPDF);
+		$('#invoice_number').change(refreshPDF);
 
 		applyComboboxListeners();
 		refreshPDF();		
@@ -211,6 +217,7 @@
 					console.log(model);
 					model.notes(product.notes);
 					model.cost(product.cost);
+					model.qty(product.qty);
 					break;
 				}
 			}
@@ -224,8 +231,8 @@
 
 	function createInvoiceModel() {
 		var invoice = {
-			number: $('#number').val(),
-			issued_on: $('#issued_on').val(),
+			invoice_number: $('#invoice_number').val(),
+			invoice_date: $('#invoice_date').val(),
 			client: {
 				name: $('[name="client_combobox"]').val()
 			},
@@ -285,7 +292,7 @@
 			$('#emailHelp').css( "display", "none" );
 			//$('#client_name').val('');
 			$('#myModal').modal('hide');
-			$('input#number').focus();
+			$('input#invoice_number').focus();
 
 			refreshPDF();
 		}
@@ -304,13 +311,22 @@
 		self.discount = ko.observable();
 		self.items = ko.observableArray();
 
-		@if ($invoice)
+		@if (isset($items) && $items)
+			@foreach ($items as $item)
+				var item = new ItemModel();
+				item.product_key("{{ $item->product_key }}");
+				item.notes('{{ str_replace("\n", "\\n", $item->notes) }}');
+				item.cost("{{ isset($item->cost) ? $item->cost : '' }}");
+				item.qty("{{ isset($item->qty) ? $item->qty : '' }}");
+				self.items.push(item);								
+			@endforeach
+		@elseif ($invoice)
 			self.discount({{ $invoice->discount }});
 			@if (count($invoice->invoice_items) > 0)
 				@foreach ($invoice->invoice_items as $item)
 					var item = new ItemModel();
 					item.product_key("{{ $item->product_key }}");
-					item.notes('{{ str_replace("\n", "\\notes", $item->notes) }}');
+					item.notes('{{ str_replace("\n", "\\n", $item->notes) }}');
 					item.cost("{{ $item->cost }}");
 					item.qty("{{ $item->qty }}");				
 					self.items.push(item);				
@@ -320,15 +336,13 @@
 			@endif
 		@else
 			var model1 = new ItemModel();
-			var model2 = new ItemModel();
 			/*
 			model1.item('TEST');
 			model1.notes('Some test text');
 			model1.cost(10);
 			model1.qty(1);
 			*/
-			self.items.push(model1);	
-			self.items.push(model2);	
+			self.items.push(model1);				
 		@endif		
 		
 		self.removeItem = function(item) {

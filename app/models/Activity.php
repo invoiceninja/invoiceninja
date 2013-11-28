@@ -80,7 +80,7 @@ class Activity extends Eloquent
 		{
 			$activity = new Activity;
 			$activity->contact_id = $payment->contact_id;
-			$activity->message = $contact->getFullName() . ' created payment ' . $payment->transaction_reference;		
+			//$activity->message = $contact->getFullName() . ' created payment ' . $payment->transaction_reference;		
 		}
 
 		$activity->payment_id = $payment->id;
@@ -107,7 +107,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_VIEW_INVOICE;
-		$activity->message = $contact->getFullName() . ' viewed invoice ' . $invoice->number;
+		//$activity->message = $contact->getFullName() . ' viewed invoice ' . $invoice->number;
 		$activity->save();
 	}
 }

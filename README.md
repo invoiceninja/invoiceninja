@@ -6,8 +6,6 @@
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is this codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
 
-If you'd like to get involved please send an email to hillelcoren at gmail.
-
 ### Features
 * Core application built using Laravel 4
 * Invoice PDF generation directly in the browser

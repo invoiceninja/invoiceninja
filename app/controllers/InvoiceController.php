@@ -18,7 +18,7 @@ class InvoiceController extends \BaseController {
         return Datatable::collection(Invoice::with('client','invoice_items')->where('account_id','=',Auth::user()->account_id)->get())
     	    ->addColumn('number', function($model)
     	    	{
-    	    		return link_to('invoices/' . $model->id . '/edit', $model->number);
+    	    		return link_to('invoices/' . $model->id . '/edit', $model->invoice_number);
     	    	})
     	    ->addColumn('client', function($model)
     	    	{
@@ -47,33 +47,35 @@ class InvoiceController extends \BaseController {
 		return View::make('invoices.view')->with('invoice', $invoice);	
 	}
 
-	private function createGateway($config)
+	private function createGateway($accountGateway)
 	{
-		/*
-		$gateway = Omnipay::create($config->gateway->provider);
-		$gateway->setUsername($config->username);
-		$gateway->setPassword($config->password);
-		$gateway->setSignature($config->signature);
-		*/
+        $gateway = Omnipay::create($accountGateway->gateway->provider);	
+        $config = json_decode($accountGateway->config);
+        
+        /*
+        $gateway->setSolutionType ("Sole");
+        $gateway->setLandingPage("Billing");
+        */
+		
+		foreach ($config as $key => $val)
+		{
+			if (!$val)
+			{
+				continue;
+			}
 
-		$gateway = Omnipay::create('PayPal_Express');
-		$gateway->setUsername('hillelcoren_api1.gmail.com');
-		$gateway->setPassword('1385044249');
-		$gateway->setSignature('AFcWxV21C7fd0v3bYYYRCpSSRl31AWJs8aLiB19haXzcAicPwo6qC7Hm');
-
-		$gateway->setTestMode(true);
-		$gateway->setSolutionType ("Sole");
-		$gateway->setLandingPage("Billing");
-		//$gateway->headerImageUrl = "";
-
+			$function = "set" . ucfirst($key);
+			$gateway->$function($val);
+		}
+		
 		return $gateway;		
 	}
 
 	private function getPaymentDetails($invoice)
 	{
 		$data = array(
-		    'firstName' => 'Bobby',
-		    'lastName' => 'Tables',
+		    'firstName' => '',
+		    'lastName' => '',
 		);
 
 		$card = new CreditCard($data);
@@ -90,25 +92,31 @@ class InvoiceController extends \BaseController {
 	public function show_payment($invoiceKey)
 	{
 		$invoice = Invoice::with('invoice_items', 'client.account.account_gateways.gateway')->where('invoice_key', '=', $invoiceKey)->firstOrFail();
-		//$config = $invoice->client->account->account_gateways[0];
-
-		$gateway = InvoiceController::createGateway(false);
+		$accountGateway = $invoice->client->account->account_gateways[0];
+		$gateway = InvoiceController::createGateway($accountGateway);
 
 		try
 		{
 			$details = InvoiceController::getPaymentDetails($invoice);
-			$response = $gateway->purchase($details)->send();
+			$response = $gateway->purchase($details)->send();			
+			$ref = $response->getTransactionReference();
+
+			if (!$ref)
+			{
+				var_dump($response);
+				exit('Sorry, there was an error processing your payment. Please try again later.');
+			}
 
 			$payment = new Payment;
 			$payment->invoice_id = $invoice->id;
 			$payment->account_id = $invoice->account_id;
-			$payment->contact_id = 0;			
-			$payment->transaction_reference = $response->getTransactionReference();
+			$payment->contact_id = 0; // TODO_FIX
+			$payment->transaction_reference = $ref;
 			$payment->save();
 
 			if ($response->isSuccessful())
 			{
-
+				
 			}
 			else if ($response->isRedirect()) 
 			{
@@ -116,7 +124,7 @@ class InvoiceController extends \BaseController {
 	    	}
 	    	else
 	    	{
-	    		exit($response->getMessage());
+
 	    	}
 	    } 
 	    catch (\Exception $e) 
@@ -133,7 +141,9 @@ class InvoiceController extends \BaseController {
 		$token = Request::query('token');				
 
 		$payment = Payment::with('invoice.invoice_items')->where('transaction_reference','=',$token)->firstOrFail();
-		$gateway = InvoiceController::createGateway(false);
+		$invoice = Invoice::with('client.account.account_gateways.gateway')->where('id', '=', $payment->invoice_id)->firstOrFail();
+		$accountGateway = $invoice->client->account->account_gateways[0];
+		$gateway = InvoiceController::createGateway($accountGateway);
 	
 		try
 		{
@@ -180,6 +190,7 @@ class InvoiceController extends \BaseController {
 				'url' => 'invoices', 
 				'title' => 'New',
 				'client' => $client,
+				'items' => json_decode(Input::old('items')),
 				'account' => Auth::user()->account,
 				'products' => Product::getProducts()->get(),
 				'clients' => Client::where('account_id','=',Auth::user()->account_id)->get());
@@ -199,13 +210,15 @@ class InvoiceController extends \BaseController {
 	private function save($id = null)
 	{	
 		$rules = array(
-			'number'       => 'required',
-			'client'    => 'required',
+			'client' => 'required',
+			'invoice_number' => 'required',
+			'invoice_date' => 'required'
 		);
 		$validator = Validator::make(Input::all(), $rules);
 
 		if ($validator->fails()) {
 			return Redirect::to('invoices/create')
+				->withInput()
 				->withErrors($validator);
 		} else {			
 
@@ -238,20 +251,25 @@ class InvoiceController extends \BaseController {
 				$invoice->account_id = Auth::user()->account_id;
 			}
 
-			$date = DateTime::createFromFormat('m/d/Y', Input::get('issued_on'));
+			$date = DateTime::createFromFormat('m/d/Y', Input::get('invoice_date'));
 		
 			$invoice->client_id = $clientId;
-			$invoice->number = Input::get('number');
+			$invoice->invoice_number = Input::get('invoice_number');
 			$invoice->discount = 0;
-			$invoice->issued_on = $date->format('Y-m-d');
+			$invoice->invoice_date = $date->format('Y-m-d');
 			$invoice->save();
 
 			$items = json_decode(Input::get('items'));
 			foreach ($items as $item) {
 
-				if (!isset($item->cost) || !isset($item->qty)) {
-					continue;
+				if (!isset($item->cost))
+				{
+					$item->cost = 0;
 				}
+				if (!isset($item->qty))
+				{
+					$item->qty = 0;
+				}				
 
 				$product = Product::findProduct($item->product_key);
 
@@ -260,10 +278,12 @@ class InvoiceController extends \BaseController {
 					$product = new Product;
 					$product->account_id = Auth::user()->account_id;
 					$product->product_key = $item->product_key;
-					$product->notes = $item->notes;
-					$product->cost = $item->cost;
-					$product->save();
 				}
+
+				$product->notes = $item->notes;
+				$product->cost = $item->cost;
+				$product->qty = $item->qty;
+				$product->save();
 
 				$invoiceItem = new InvoiceItem;
 				$invoiceItem->product_id = $product->id;

@@ -4,25 +4,35 @@
 	@parent	
 
 	{{ Former::open()->addClass('col-md-9 col-md-offset-1') }}	
-	{{ Former::legend('Payment Gateways') }}
+	{{ Former::legend('Payment Gateway') }}
+
+	@if ($accountGateway)
+		{{ Former::populateField('gateway_id', $accountGateway->gateway_id) }}
+		@foreach ($accountGateway->fields as $field => $junk)
+			{{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}
+		@endforeach
+	@endif
+
+	{{ Former::select('gateway_id')->label('Provider')->addOption('', '')->fromQuery($gateways, 'name', 'id')->onchange('setFieldsShown()'); }}
 
 	@foreach ($gateways as $gateway)
 
-		{{ Former::checkbox('gateway_'.$gateway->id)->label('')->text($gateway->provider)
-			->check($account->isGatewayConfigured($gateway->id)) }}
-
 		<div id="gateway_{{ $gateway->id }}_div" style="display: none">
 			@foreach ($gateway->fields as $field => $details)
-				@if ($config = $account->getGatewayConfig($gateway->id))
-				{{ 	Former::populateField($gateway->id.'_'.$field, $config[$field]) }}
+
+				@if ($field == 'solutionType' || $field == 'landingPage')
+					{{-- do nothing --}}
+				@elseif ($field == 'testMode' || $field == 'developerMode') 
+					{{ Former::checkbox($gateway->id.'_'.$field)->label(toSpaceCase($field))->text('Enable') }}				
+				@else
+					{{ Former::text($gateway->id.'_'.$field)->label(toSpaceCase($field)) }}				
 				@endif
-				@if (in_array($field, array('username','password','signature')))		
-					{{ Former::text($gateway->id.'_'.$field)->label($field) }}
-				@endif
+
 			@endforeach
 		</div>
-
+		
 	@endforeach
+
 
 	{{ Former::actions( Button::lg_primary_submit('Save') ) }}
 	{{ Former::close() }}
@@ -30,22 +40,21 @@
 
 	<script type="text/javascript">
 
-	$(function() {
-
-		function setFieldsShown(id) {
-			if ($('#gateway_' + id).is(':checked')) {
-				$('#gateway_' + id + '_div').show();
+	var gateways = {{ $gateways }};
+	function setFieldsShown() {
+		var val = $('#gateway_id').val();
+		for (var i=0; i<gateways.length; i++) {
+			var gateway = gateways[i];			
+			if (val == gateway.id) {
+				$('#gateway_' + gateway.id + '_div').show();
 			} else {
-				$('#gateway_' + id + '_div').hide();
-			}				
+				$('#gateway_' + gateway.id + '_div').hide();	
+			}
 		}
+	}
 
-		@foreach ($gateways as $gateway)
-			$('#gateway_{{ $gateway->id }}').click(function() { 				
-				setFieldsShown('{{ $gateway->id }}');
-			});			
-			setFieldsShown('{{ $gateway->id }}');
-		@endforeach
+	$(function() {
+		setFieldsShown();
 	});
 
 	</script>

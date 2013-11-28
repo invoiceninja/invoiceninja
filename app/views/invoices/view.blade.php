@@ -2,7 +2,7 @@
 
 @section('content')
 
-	@if (true || $invoice->client->account->isGatewayConfigured())
+	@if ($invoice->client->account->isGatewayConfigured())
 		{{ Button::primary_link(URL::to('payment/' . $invoice->invoice_key), 'Pay Now', array('class' => 'btn-lg pull-right')) }}
 		<div class="clearfix"></div><p>&nbsp;</p>
 	@endif

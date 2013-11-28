@@ -51,14 +51,31 @@ class AccountController extends \BaseController {
 		else if ($section == ACCOUNT_SETTINGS)
 		{
 			$account = Account::with('account_gateways')->find(Auth::user()->account_id);
-			$gateways = Gateway::all();	
-			
-			foreach ($gateways as $gateway)
-			{
-				$gateway->fields = Omnipay::create($gateway->provider)->getDefaultParameters();
-			}
+			$accountGateway = null;
 
-			return View::make('accounts.settings', array('account' => $account, 'gateways' => $gateways));
+			if (count($account->account_gateways) > 0)
+			{
+				$accountGateway = $account->account_gateways[0];
+			}			
+
+			$data = [
+				'account' => $account,
+				'accountGateway' => $accountGateway,
+				'config' => json_decode($accountGateway->config),
+				'gateways' => Gateway::all()
+			];
+			
+			foreach ($data['gateways'] as $gateway)
+			{
+				$gateway->fields = Omnipay::create($gateway->provider)->getDefaultParameters();				
+
+				if ($accountGateway && $accountGateway->gateway_id == $gateway->id)
+				{
+					$accountGateway->fields = $gateway->fields;						
+				}
+			}	
+
+			return View::make('accounts.settings', $data);
 		}
 		else if ($section == ACCOUNT_IMPORT)
 		{
@@ -313,27 +330,22 @@ class AccountController extends \BaseController {
 		return View::make('accounts.import_map', $data);
 	}
 
-	private function saveSetting()
+	private function saveSettings()
 	{
-		$gateways = Gateway::all();
 		$rules = array();
-		
-		foreach ($gateways as $gateway)
+
+		if ($gatewayId = Input::get('gateway_id')) 
 		{
-			if (!Input::get('gateway_'.$gateway->id))
-			{
-				continue;
-			}
-
+			$gateway = Gateway::find($gatewayId);
 			$fields = Omnipay::create($gateway->provider)->getDefaultParameters();
-
+			
 			foreach ($fields as $field => $details)
 			{
-				if (in_array($field, array('username','password','signature')))
+				if (!in_array($field, ['testMode', 'developerMode', 'headerImageUrl', 'solutionType', 'landingPage']))
 				{
 					$rules[$gateway->id.'_'.$field] = 'required';
-				}
-			}
+				}				
+			}			
 		}
 		
 		$validator = Validator::make(Input::all(), $rules);
@@ -347,25 +359,24 @@ class AccountController extends \BaseController {
 		else 
 		{
 			$account = Account::find(Auth::user()->account_id);
-
-			/* Payment Gateways */
 			$account->account_gateways()->forceDelete();			
-			foreach ($gateways as $gateway)
-			{
-				if (!Input::get('gateway_'.$gateway->id))
-				{
-					continue;
-				}
 
+			if ($gatewayId) 
+			{
 				$accountGateway = new AccountGateway;
-				$accountGateway->gateway_id = $gateway->id;
-				$accountGateway->username = Input::get($gateway->id.'_username');
-				$accountGateway->password = Input::get($gateway->id.'_password');
-				$accountGateway->signature = Input::get($gateway->id.'_signature');
+				$accountGateway->gateway_id = $gatewayId;
+
+				$config = new stdClass;
+				foreach ($fields as $field => $details)
+				{
+					$config->$field = Input::get($gateway->id.'_'.$field);
+				}			
+				
+				$accountGateway->config = json_encode($config);
 				$account->account_gateways()->save($accountGateway);
 			}
 
-			Session::flash('message', 'Successfully updated account');
+			Session::flash('message', 'Successfully updated settings');
 			return Redirect::to('account/settings');
 		}				
 	}
@@ -411,7 +422,7 @@ class AccountController extends \BaseController {
 				Image::make($path)->resize(150, 100, true, false)->save('logo/' . $account->key . '.jpg');
 			}
 
-			Session::flash('message', 'Successfully updated account');
+			Session::flash('message', 'Successfully updated details');
 			return Redirect::to('account/details');
 		}
 	}

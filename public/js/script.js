@@ -1,8 +1,8 @@
 function generatePDF(invoice) {
-
+	
 	var clientName = invoice.client.name;
-	var invoiceNumber = invoice.number;
-	var issuedOn = invoice.issued_on;
+	var invoiceNumber = invoice.invoice_number;
+	var issuedOn = invoice.invoice_date;
 	var amount = '$0.00';
 
 	var marginLeft = 90;
@@ -18,16 +18,15 @@ function generatePDF(invoice) {
 	var unitCostRight = 400;
 	var qtyRight = 470;
 	var lineTotalRight = 540;
-
+	
 	var doc = new jsPDF('p', 'pt');
 	doc.setFont('Helvetica','');
 	doc.setFontSize(10);
-
+	
 	if (invoice.image)
 	{
 		doc.addImage(invoice.image, 'JPEG', 30, 30, invoice.imageWidth, invoice.imageHeight);
-	}
-
+	}	
 	
 	doc.setDrawColor(200,200,200);
 	doc.setFillColor(230,230,230);
@@ -42,10 +41,9 @@ function generatePDF(invoice) {
 	doc.text(invoiceNumberX, headerTop, invoiceNumber);
 	doc.text(headerLeft, headerTop + rowHeight, 'Invoice Date');
 	doc.text(issuedOnX, headerTop + rowHeight, issuedOn);
-
+	
 	doc.setFontType("bold");
 	doc.text(headerLeft, headerTop + (2 * rowHeight), 'Amount Due');
-
 
 	doc.setDrawColor(200,200,200);
 	doc.setFillColor(230,230,230);
@@ -113,7 +111,7 @@ function formatNumber(num) {
 }
 
 function formatMoney(num) {
-	num = parseInt(num);
+	num = parseFloat(num);
     if (!num) return '$0.00';
 	var p = num.toFixed(2).split(".");
     return "$" + p[0].split("").reverse().reduce(function(acc, num, i, orig) {
