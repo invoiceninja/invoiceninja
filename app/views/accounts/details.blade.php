@@ -24,33 +24,41 @@
 	@endif
 	{{ Former::populateField('phone', $account->users()->first()->phone) }}
 
-	{{ Former::legend('Account') }}
-	{{ Former::text('name') }}
+	<div class="row">
+		<div class="col-md-6">
 
-	{{ Former::file('logo')->max(2, 'MB')->accept('image')->wrap('test') }}
+			{{ Former::legend('Account') }}
+			{{ Former::text('name') }}
 
-	@if (file_exists($account->getLogoPath()))
-		<center>
-			{{ HTML::image($account->getLogoPath(), "Logo") }}
-		</center>
-	@endif
+			{{ Former::file('logo')->max(2, 'MB')->accept('image')->wrap('test') }}
 
-	{{ Former::legend('Users') }}
-	{{ Former::text('first_name') }}
-	{{ Former::text('last_name') }}
-	{{ Former::text('email')->label('Email/Username') }}
-	{{ Former::text('phone') }}
+			@if (file_exists($account->getLogoPath()))
+				<center>
+					{{ HTML::image($account->getLogoPath(), "Logo") }}
+				</center>
+			@endif
 
+			{{ Former::legend('Address') }}	
+			{{ Former::text('address1')->label('Street') }}
+			{{ Former::text('address2')->label('Apt/Floor') }}
+			{{ Former::text('city') }}
+			{{ Former::text('state') }}
+			{{ Former::text('postal_code') }}
+			{{ Former::select('country_id')->addOption('','')->label('Country')
+				->fromQuery($countries, 'name', 'id')->select($account ? $account->country_id : '') }}
+
+		</div>
 	
-	{{ Former::legend('Address') }}	
-	{{ Former::text('address1')->label('Street') }}
-	{{ Former::text('address2')->label('Apt/Floor') }}
-	{{ Former::text('city') }}
-	{{ Former::text('state') }}
-	{{ Former::text('postal_code') }}
-	{{ Former::select('country_id')->addOption('','')->label('Country')
-		->fromQuery($countries, 'name', 'id')->select($account ? $account->country_id : '') }}
+		<div class="col-md-6">		
 
+			{{ Former::legend('Users') }}
+			{{ Former::text('first_name') }}
+			{{ Former::text('last_name') }}
+			{{ Former::text('email')->label('Email/Username') }}
+			{{ Former::text('phone') }}
+		</div>
+	</div>
+	
 	{{ Former::actions( Button::lg_primary_submit('Save') ) }}
 	{{ Former::close() }}
 

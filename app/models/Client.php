@@ -27,6 +27,58 @@ class Client extends Eloquent
 	{
 		return $this->hasMany('Contact');
 	}
+
+	public function getAddress()
+	{
+		$str = '';
+
+		if ($this->address1) {
+			$str .= $this->address1 . '<br/>';
+		}
+		if ($this->address2) {
+			$str .= $this->address2 . '<br/>';	
+		}
+		if ($this->city) {
+			$str .= $this->city . ', ';	
+		}
+		if ($this->state) {
+			$str .= $this->state . ' ';	
+		}
+		if ($this->postal_code) {
+			$str .= $this->postal_code;
+		}
+
+		if ($str)
+		{
+			$str = '<p>' . $str . '</p>';
+		}
+
+		return $str;
+	}
+
+	public function getPhone()
+	{
+		$str = '';
+
+		if ($this->work_phone)
+		{
+			$str .= '<i class="fa fa-phone" style="width: 20px"></i>' . $this->work_phone;
+		}
+
+		return $str;
+	}
+
+	public function getNotes()
+	{
+		$str = '';
+
+		if ($this->notes)
+		{
+			$str .= '<i>' . $this->notes . '</i>';
+		}
+
+		return $str;
+	}
 }
 
 Client::created(function($client)

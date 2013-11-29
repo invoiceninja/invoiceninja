@@ -20,43 +20,53 @@
 	@endif
 
 	
-	{{ Former::legend('Organization') }}
-	{{ Former::text('name') }}
-	{{ Former::text('work_phone')->label('Phone') }}
-	{{ Former::textarea('notes') }}
+	<div class="row">
+		<div class="col-md-6">
 
-	{{ Former::legend('Contacts') }}
-	<div data-bind='template: { foreach: contacts,
-                            beforeRemove: hideContact,
-                            afterAdd: showContact }'>
-		{{ Former::hidden('id')->data_bind("value: id, valueUpdate: 'afterkeydown'") }}
-		{{ Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") }}
-		{{ Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") }}
-		{{ Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown'") }}
-		{{ Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") }}	
+			{{ Former::legend('Organization') }}
+			{{ Former::text('name') }}
+			{{ Former::text('work_phone')->label('Phone') }}
+			{{ Former::textarea('notes') }}
 
-		<div class="form-group">
-			<div class="col-lg-8 col-lg-offset-4">
-				<span data-bind="visible: $parent.contacts().length > 1">
-					{{ link_to('#', 'Remove contact', array('data-bind'=>'click: $parent.removeContact')) }}
-				</span>					
-				<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right">
-					{{ link_to('#', 'Add contact', array('onclick'=>'return addContact()')) }}
-				</span>
-			</div>
+			
+			{{ Former::legend('Address') }}
+			{{ Former::text('address1')->label('Street') }}
+			{{ Former::text('address2')->label('Apt/Floor') }}
+			{{ Former::text('city') }}
+			{{ Former::text('state') }}
+			{{ Former::text('postal_code') }}
+			{{ Former::select('country_id')->addOption('','')->label('Country')
+				->fromQuery($countries, 'name', 'id')->select($client ? $client->country_id : '') }}
+
+
 		</div>
-		<div class="clearfix"></div>
+		<div class="col-md-6">
 
+			{{ Former::legend('Contacts') }}
+			<div data-bind='template: { foreach: contacts,
+		                            beforeRemove: hideContact,
+		                            afterAdd: showContact }'>
+				{{ Former::hidden('id')->data_bind("value: id, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") }}	
+
+				<div class="form-group">
+					<div class="col-lg-8 col-lg-offset-4">
+						<span data-bind="visible: $parent.contacts().length > 1">
+							{{ link_to('#', 'Remove contact', array('data-bind'=>'click: $parent.removeContact')) }}
+						</span>					
+						<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right">
+							{{ link_to('#', 'Add contact', array('onclick'=>'return addContact()')) }}
+						</span>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
 	</div>
-	
-	{{ Former::legend('Address') }}
-	{{ Former::text('address1')->label('Street') }}
-	{{ Former::text('address2')->label('Apt/Floor') }}
-	{{ Former::text('city') }}
-	{{ Former::text('state') }}
-	{{ Former::text('postal_code') }}
-	{{ Former::select('country_id')->addOption('','')->label('Country')
-		->fromQuery($countries, 'name', 'id')->select($client ? $client->country_id : '') }}
 
 
 	{{ Former::hidden('data')->data_bind("value: ko.toJSON(model)") }}	

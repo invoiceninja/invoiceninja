@@ -23,12 +23,13 @@
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/typeahead.js-bootstrap.css') }}"/>	
 	-->
 
-	<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}"/>		
+	<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}"/>	
+	<script src="{{ asset('js/bootstrap.js') }}" type="text/javascript"></script>			
 	<!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css"> -->
 	
 
 	{{-- Basset::show('bootstrapper.css') --}}
-	{{ Basset::show('bootstrapper.js') }}
+	{{-- Basset::show('bootstrapper.js') --}}
 	
 
 	<script src="{{ asset('js/bootstrap-combobox.js') }}" type="text/javascript"></script>		
@@ -61,13 +62,18 @@
 
 	
 	body > div.container {
-		max-width: 850px;
+		/*max-width: 850px;*/
 	}
 
 	label.control-label {
 		font-weight: normal !important;
 	}
 
+
+	div.panel {
+		padding-left: 0px !important;
+		padding-right: 0px !important;
+	}
 
 	.form-actions {
 	    margin: 0;
@@ -233,7 +239,7 @@
 
 	<p/>
 	<div>		
-		<span style="font-size:38px">LOGO</span>		
+		<span style="font-size:30px">Invoice Ninja</span>		
 		<div style="float:right;text-align:right">
 			Logged in as Guest (<u>Sign up</u>) | {{ link_to('account/details', 'My Account') }}
 			<p class="text-danger">This is a sample site, the data is erased</p>
@@ -261,11 +267,25 @@
 	    	{{ HTML::menu_link('payment') }}
 	    	{{-- HTML::nav_link('reports', 'Reports') --}}
 	    </ul>
-	    <form class="navbar-form navbar-right" role="search">
+		<ul class="nav navbar-nav navbar-right">	      
+	      <li class="dropdown">
+	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Recently Viewed <b class="caret"></b></a>
+	        <ul class="dropdown-menu">	        		        	
+	        	@if (count(Session::get(RECENTLY_VIEWED)) == 0)
+	          		<li><a href="#">No items</a></li>
+	          	@else
+	          		@foreach (Session::get(RECENTLY_VIEWED) as $link)
+	          			<li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
+	          		@endforeach
+	          	@endif
+	        </ul>
+	      </li>
+	    <form class="navbar-form navbar-left" role="search">
 	      <div class="form-group">
 	        <input type="text" id="search" class="form-control" placeholder="Search">
 	      </div>
 	    </form>
+	    </ul>	    
 	  </div><!-- /.navbar-collapse -->
 	</nav>
 	

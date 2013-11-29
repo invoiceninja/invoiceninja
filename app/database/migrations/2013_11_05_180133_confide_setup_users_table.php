@@ -195,6 +195,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->increments('id');
             $t->integer('invoice_id');
             $t->integer('account_id');
+            $t->integer('client_id');
             $t->integer('contact_id');
             $t->integer('user_id');
             $t->timestamps();

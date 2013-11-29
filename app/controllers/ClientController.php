@@ -79,7 +79,10 @@ class ClientController extends \BaseController {
 	 */
 	public function show($id)
 	{
-		$client = Client::find($id);
+		$client = Client::with('contacts')->find($id);
+		trackViewed(Request::url(), $client->name);
+
+		
 		return View::make('clients.show')->with('client', $client);
 	}
 
@@ -128,6 +131,7 @@ class ClientController extends \BaseController {
 				$client = Client::find($id);
 			} else {
 				$client = new Client;
+				$client->account_id = Auth::user()->account_id;
 			}
 
 			$client->name = Input::get('name');

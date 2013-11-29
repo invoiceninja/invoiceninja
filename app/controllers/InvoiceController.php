@@ -13,18 +13,28 @@ class InvoiceController extends \BaseController {
 		return View::make('invoices.index');
 	}
 
-	public function getDatatable()
+	public function getDatatable($clientId = null)
     {
-        return Datatable::collection(Invoice::with('client','invoice_items')->where('account_id','=',Auth::user()->account_id)->get())
-    	    ->addColumn('number', function($model)
-    	    	{
-    	    		return link_to('invoices/' . $model->id . '/edit', $model->invoice_number);
-    	    	})
-    	    ->addColumn('client', function($model)
-    	    	{
-    	    		return link_to('clients/' . $model->client->id, $model->client->name);
-    	    	})
-    	    ->addColumn('amount', function($model)
+    	$collection = Invoice::with('client','invoice_items')->where('account_id','=',Auth::user()->account_id);
+
+    	if ($clientId) {
+    		$collection->where('client_id','=',$clientId);
+    	}
+
+    	$table = Datatable::collection($collection->get())->addColumn('number', function($model)
+    		{
+    	    	return link_to('invoices/' . $model->id . '/edit', $model->invoice_number);
+    	    });
+
+    	if (!$clientId)
+    	{
+    		$table->addColumn('client', function($model) {
+				return link_to('clients/' . $model->client->id, $model->client->name);
+    	    });
+
+    	}
+    	
+        return $table->addColumn('amount', function($model)
     	    	{
     	    		return '$' . money_format('%i', $model->getTotal());
     	    	})
@@ -33,7 +43,7 @@ class InvoiceController extends \BaseController {
     	    		return $model->created_at->format('m/d/y h:i a');
     	    	})
     	    ->orderColumns('number')
-    	    ->make();
+    	    ->make();    	
     }
 
 
@@ -176,7 +186,8 @@ class InvoiceController extends \BaseController {
 	public function edit($id)
 	{
 		$invoice = Invoice::with('client', 'invoice_items')->find($id);
-
+		trackViewed(Request::url(), $invoice->invoice_number . ' - ' . $invoice->client->name);
+		
 		$data = array(
 				'invoice' => $invoice, 
 				'method' => 'PUT', 
