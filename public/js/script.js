@@ -28,6 +28,7 @@ function generatePDF(invoice) {
 		doc.addImage(invoice.image, 'JPEG', 30, 30, invoice.imageWidth, invoice.imageHeight);
 	}	
 	
+	/* table header */
 	doc.setDrawColor(200,200,200);
 	doc.setFillColor(230,230,230);
 	doc.rect(headerLeft - 6, headerTop + rowHeight + 4, headerRight - headerLeft + 12, rowHeight + 2, 'FD'); 
@@ -59,6 +60,7 @@ function generatePDF(invoice) {
 	doc.text(qtyX, tableTop, 'Quantity');
 	doc.text(totalX, tableTop, 'Line Total');
 
+	/* line items */
 	doc.setFontType("normal");
 	var line = 1;
 	var total = 0;
@@ -86,6 +88,7 @@ function generatePDF(invoice) {
 		line += doc.splitTextToSize(item.notes, 200).length;
 	}
 	
+	/* table footer */
 	var x = tableTop + (line * rowHeight) + 14;
 	doc.lines([[0,0],[headerRight-tableLeft+5,0]],tableLeft - 8, x);
 
@@ -99,6 +102,61 @@ function generatePDF(invoice) {
 
 	totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
 	doc.text(totalX, headerTop + (2 * rowHeight), total);
+
+	/* payment stub */	
+	var y = 680;
+	doc.lines([[0,0],[headerRight-tableLeft+5,0]],tableLeft - 8, y - 30);
+	doc.setFontSize(20);
+	doc.text(tableLeft, y, 'Payment Stub');
+
+	doc.setFontSize(10);
+	doc.setFontType("normal");
+	y += 40;
+	doc.text(tableLeft, y, invoice.account.name);	
+	y += 16;
+	doc.text(tableLeft, y, invoice.account.address1);	
+	if (invoice.account.address2) {
+		y += 16;
+		doc.text(tableLeft, y, invoice.account.address2);	
+	}
+	y += 16;
+	doc.text(tableLeft, y, invoice.account.city + ', ' + invoice.account.state + ' ' + invoice.account.postal_code);	
+	y += 16;
+	doc.text(tableLeft, y, invoice.account.country.name);	
+
+
+	var clientX = headerRight - (doc.getStringUnitWidth(invoice.client.name) * doc.internal.getFontSize());
+	var numberX = headerRight - (doc.getStringUnitWidth(invoice.invoice_number) * doc.internal.getFontSize());
+	var dateX = headerRight - (doc.getStringUnitWidth(issuedOn) * doc.internal.getFontSize());
+	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
+
+	y = 720;
+	doc.setFontType("bold");
+	doc.text(headerLeft, y, 'Client');		
+	doc.setFontType("normal");
+	doc.text(clientX, y, invoice.client.name);		
+
+	y += 16;
+	doc.setFontType("bold");
+	doc.text(headerLeft, y, 'Invoice #');		
+	doc.setFontType("normal");
+	doc.text(numberX, y, invoice.invoice_number);		
+
+	y += 16;
+	doc.setFontType("bold");
+	doc.text(headerLeft, y, 'Invoice Date');		
+	doc.setFontType("normal");
+	doc.text(dateX, y, issuedOn);		
+
+	y += 16;
+	doc.setFontType("bold");
+	doc.text(headerLeft, y, 'Amount Due');		
+	doc.setFontType("normal");
+	doc.text(totalX, y, total);		
+
+	y += 16;
+	doc.setFontType("bold");
+	doc.text(headerLeft, y, 'Amount Enclosed');		
 
 	return doc;		
 }

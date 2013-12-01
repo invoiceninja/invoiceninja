@@ -1,6 +1,6 @@
 <?php
 
-class Payment extends Eloquent
+class Payment extends Eloquent implements iEntity 
 {
 	protected $softDelete = true;
 
@@ -8,6 +8,18 @@ class Payment extends Eloquent
 	{
 		return $this->belongsTo('Invoice');
 	}
+
+	public function getName()
+	{
+		return '';
+		//return $this->invoice_number;
+	}
+
+	public function getEntityType()
+	{
+		return ENTITY_PAYMENT;
+	}	
+
 }
 
 Payment::created(function($payment)

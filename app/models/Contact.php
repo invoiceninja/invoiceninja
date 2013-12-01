@@ -1,6 +1,6 @@
 <?php
 
-class Contact extends Eloquent
+class Contact extends Eloquent implements iPerson
 {
 	protected $softDelete = true;
 
@@ -12,6 +12,11 @@ class Contact extends Eloquent
 	public function client()
 	{
 		return $this->belongsTo('Client');
+	}
+
+	public function getPersonType()
+	{
+		return PERSON_CONTACT;
 	}
 
 	public function getLastLogin()
@@ -32,7 +37,7 @@ class Contact extends Eloquent
 
 		if ($fullName == ' ')
 		{
-			return 'Guest';
+			return '';
 		}
 		else
 		{

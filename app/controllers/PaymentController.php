@@ -40,4 +40,21 @@ class PaymentController extends \BaseController
     	    ->make();
     }
 
+    public function archive($id)
+    {
+        $payment = Payment::find($id);
+        $payment->delete();
+
+        Session::flash('message', 'Successfully archived payment');
+        return Redirect::to('payments');     
+    }
+
+    public function delete($id)
+    {
+        $payment = Payment::find($id);
+        $payment->forceDelete();
+
+        Session::flash('message', 'Successfully deleted payment');
+        return Redirect::to('payments');     
+    }
 }

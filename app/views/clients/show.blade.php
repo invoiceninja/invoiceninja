@@ -39,6 +39,7 @@
 		{{ HTML::tab_link('#activity', 'Activity', true) }}
 		{{ HTML::tab_link('#invoices', 'Invoices') }}
 		{{ HTML::tab_link('#payments', 'Payments') }}			
+		{{ HTML::tab_link('#credits', 'Credits') }}			
 	</ul>
 
 	<div class="tab-content">
@@ -46,7 +47,7 @@
         <div class="tab-pane active" id="activity">
 
 			{{ Datatable::table()		
-		    	->addColumn('Date', 'Message')       
+		    	->addColumn('Date', 'Message', 'Balance')       
 		    	->setUrl(url('api/activities/'. $client->id))    	
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
@@ -57,7 +58,7 @@
 		<div class="tab-pane" id="invoices">
 
 			{{ Datatable::table()		
-		    	->addColumn('Invoice Number', 'Amount', 'Date')       
+		    	->addColumn('Invoice Number', 'Total', 'Amount Due', 'Invoice Date', 'Due Date', 'Status')       
 		    	->setUrl(url('api/invoices/' . $client->id))    	
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
@@ -66,10 +67,19 @@
         </div>
         <div class="tab-pane" id="payments">
 
-
 	    	{{ Datatable::table()		
 				->addColumn('Invoice Number', 'Amount', 'Date')       
 				->setUrl(url('api/payments/' . $client->id))    	
+				->setOptions('sPaginationType', 'bootstrap')
+				->setOptions('bFilter', false)
+				->render() }}
+            
+        </div>
+        <div class="tab-pane" id="credits">
+
+	    	{{ Datatable::table()		
+				->addColumn('Credit Number', 'Amount', 'Credit Date')       
+				->setUrl(url('api/credits/' . $client->id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->render() }}

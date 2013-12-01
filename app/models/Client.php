@@ -1,6 +1,6 @@
 <?php
 
-class Client extends Eloquent
+class Client extends Eloquent implements iEntity 
 {
 	protected $softDelete = true;
 
@@ -12,6 +12,7 @@ class Client extends Eloquent
 	public static $fieldState = 'Client - State';
 	public static $fieldPostalCode = 'Client - Postal Code';
 	public static $fieldNotes = 'Client - Notes';
+	public static $fieldCountry = 'Client - Country';
 
 	public function account()
 	{
@@ -26,6 +27,21 @@ class Client extends Eloquent
 	public function contacts()
 	{
 		return $this->hasMany('Contact');
+	}
+
+	public function country()
+	{
+		return $this->belongsTo('Country');
+	}
+
+	public function getName()
+	{
+		return $this->name;
+	}
+
+	public function getEntityType()
+	{
+		return ENTITY_CLIENT;
 	}
 
 	public function getAddress()
@@ -46,6 +62,9 @@ class Client extends Eloquent
 		}
 		if ($this->postal_code) {
 			$str .= $this->postal_code;
+		}
+		if ($this->country) {
+			$str .= '<br/>' . $this->country->name;			
 		}
 
 		if ($str)

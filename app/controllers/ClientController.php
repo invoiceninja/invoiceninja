@@ -14,49 +14,39 @@ class ClientController extends \BaseController {
 
 		return View::make('list', array(
 			'entityType'=>ENTITY_CLIENT, 
-			'columns'=>['checkbox', 'Client', 'Contact', 'Balance', 'Last Login', 'Date Created', 'Email', 'Phone']
+			'columns'=>['checkbox', 'Client', 'Contact', 'Balance', 'Last Login', 'Date Created', 'Email', 'Phone', 'Action']
 		));		
 	}
 
 	public function getDatatable()
     {
-        return Datatable::collection(Client::with('contacts')->where('account_id','=',Auth::user()->account_id)->get())
-    	    ->addColumn('checkbox', function($model)
-    	    	{
-    	    		return '<input type="checkbox" name="ids[]" value="' . $model->id . '">';
-    	    	})
-    	    ->addColumn('name', function($model)
-    	    	{
-    	    		//return $model->name;
-    	    		return link_to('clients/' . $model->id, $model->name);
-    	    	})
-    	    ->addColumn('contact', function($model)
-    	    	{
-    	    		return $model->contacts[0]->getFullName();
-    	    	})
-    	    ->addColumn('balance', function($model)
-    	    	{
-    	    		return '$' . $model->balance;
-    	    	})    	    
-    	    ->addColumn('last_login', function($model)
-    	    	{
-    	    		return $model->contacts[0]->getLastLogin();
-    	    	})
-    	    ->addColumn('date_created', function($model)
-    	    	{
-    	    		return $model->getDateCreated();
-    	    	})
-    	    ->addColumn('email', function($model)
-    	    	{
-    	    		//return $model->contacts[0]->email;
-    	    		return HTML::mailto($model->contacts[0]->email, $model->contacts[0]->email);
-    	    	})
-    	    ->addColumn('phone', function($model)
-    	    	{
-    	    		return $model->contacts[0]->phone;
-    	    	})    	   
+    	$clients = Client::with('contacts')->where('account_id','=',Auth::user()->account_id)->get();
+
+        return Datatable::collection($clients)
+    	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->id . '">'; })
+    	    ->addColumn('name', function($model) { return link_to('clients/' . $model->id, $model->name); })
+    	    ->addColumn('contact', function($model) { return $model->contacts[0]->getFullName(); })
+    	    ->addColumn('balance', function($model) { return '$' . $model->balance; })    	    
+    	    ->addColumn('last_login', function($model) { return $model->contacts[0]->getLastLogin(); })
+    	    ->addColumn('date_created', function($model) { return $model->getDateCreated(); })
+    	    ->addColumn('email', function($model) { return HTML::mailto($model->contacts[0]->email, $model->contacts[0]->email); })
+    	    ->addColumn('phone', function($model) { return $model->contacts[0]->phone; })    	   
+    	    ->addColumn('dropdown', function($model) 
+    	    { 
+    	    	return '<div class="btn-group tr-action" style="display:none">
+  							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+    							Select <span class="caret"></span>
+  							</button>
+  							<ul class="dropdown-menu" role="menu">
+						    <li><a href="' . URL::to('clients/'.$model->id.'/edit') . '">Edit</a></li>
+						    <li class="divider"></li>
+						    <li><a href="' . URL::to('clients/'.$model->id.'/archive') . '">Archive</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->id. ')">Delete</a></li>						    
+						  </ul>
+						</div>';
+    	    })    	   
     	    ->orderColumns('name')
-    	    ->make();
+    	    ->make();    	    
     }
 
 	/**
@@ -199,11 +189,6 @@ class ClientController extends \BaseController {
 
 	}
 
-	/**
-	 * Bulk update the records
-	 *
-	 * @return Response
-	 */
 	public function bulk()
 	{
 		$action = Input::get('action');
@@ -222,5 +207,28 @@ class ClientController extends \BaseController {
 		Session::flash('message', $message);
 
 		return Redirect::to('clients');
+	}
+
+	public function archive($id)
+	{
+		$client = Client::find($id);
+		$client->delete();
+
+		foreach ($client->invoices as $invoice)
+		{
+			$invoice->delete();
+		}
+
+		Session::flash('message', 'Successfully archived ' . $client->name);
+		return Redirect::to('clients');		
+	}
+
+	public function delete($id)
+	{
+		$client = Client::find($id);
+		$client->forceDelete();
+
+		Session::flash('message', 'Successfully deleted ' . $client->name);
+		return Redirect::to('clients');		
 	}
 }

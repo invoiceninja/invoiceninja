@@ -4,10 +4,11 @@ use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableInterface;
 use Zizaco\Confide\ConfideUser;
 
-class User extends ConfideUser implements UserInterface, RemindableInterface {
+class User extends ConfideUser implements UserInterface, RemindableInterface, iPerson 
+{
 
 	protected $softDelete = true;
-	
+
     public static $rules = array(
     	/*
         'username' => 'required|email|unique:users',
@@ -31,12 +32,15 @@ class User extends ConfideUser implements UserInterface, RemindableInterface {
 	 */
 	protected $hidden = array('password');
 
-
 	public function account()
 	{
 		return $this->belongsTo('Account');
 	}
 
+	public function getPersonType()
+	{
+		return PERSON_USER;
+	}
 
 	/**
 	 * Get the unique identifier for the user.
@@ -74,7 +78,7 @@ class User extends ConfideUser implements UserInterface, RemindableInterface {
 
 		if ($fullName == ' ')
 		{
-			return "Unknown";
+			return "Guest";
 		}
 		else
 		{

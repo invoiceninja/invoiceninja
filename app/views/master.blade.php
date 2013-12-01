@@ -44,6 +44,7 @@
           </button>
           <a class="navbar-brand" href="#">Invoice Ninja</a>
         </div>
+        <!--
         <div class="navbar-collapse collapse">
           {{ Form::open(array('url' => 'login', 'class' => 'navbar-form navbar-right')) }}
             <div class="form-group">
@@ -54,6 +55,7 @@
             </div>
             <button type="submit" class="btn btn-success">Sign in</button>
           {{ Form::close() }}
+        -->
         </div><!--/.navbar-collapse -->
       </div>
     </div>

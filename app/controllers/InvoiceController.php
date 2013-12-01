@@ -9,11 +9,9 @@ class InvoiceController extends \BaseController {
 	 */
 	public function index()
 	{
-		//$invoices = Invoice::with('client')->orderBy('created_at', 'DESC')->get();
-		//return View::make('invoices.index');
 		return View::make('list', array(
 			'entityType'=>ENTITY_INVOICE, 
-			'columns'=>['checkbox', 'Invoice Number', 'Client', 'Total', 'Amount Due', 'Invoice Date', 'Due Date', 'Status']
+			'columns'=>['checkbox', 'Invoice Number', 'Client', 'Total', 'Amount Due', 'Invoice Date', 'Due Date', 'Status', 'Action']
 		));
 	}
 
@@ -25,43 +23,37 @@ class InvoiceController extends \BaseController {
     		$collection->where('client_id','=',$clientId);
     	}
 
-    	$table = Datatable::collection($collection->get())->addColumn('checkbox', function($model)
-    	    	{
-    	    		return '<input type="checkbox" name="ids[]" value="' . $model->id . '">';
-    	    	})
-    	->addColumn('invoice_number', function($model)
-    	{
-    	   	return link_to('invoices/' . $model->id . '/edit', $model->invoice_number);
-    	});
+    	$table = Datatable::collection($collection->get());
 
-    	if (!$clientId)
-    	{
-    		$table->addColumn('client', function($model) {
-				return link_to('clients/' . $model->client->id, $model->client->name);
-    	    });
-
+    	if (!$clientId) {
+    		$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->id . '">'; });
     	}
     	
-        return $table->addColumn('total', function($model)
-    	    	{
-    	    		return '$' . money_format('%i', $model->getTotal());
-    	    	})
-    	    ->addColumn('amount_due', function($model)
-    	    	{
-    	    		return '$' . money_format('%i', $model->getTotal());
-    	    	})
-    	    ->addColumn('invoice_date', function($model)
-    	    	{
-    	    		return (new Carbon($model->invoice_date))->toFormattedDateString();
-    	    	})
-    	    ->addColumn('due_date', function($model)
-    	    	{
-    	    		return $model->due_date == '0000-00-00' ? '' : (new Carbon($model->due_date))->toFormattedDateString();
-    	    	})
-    	    ->addColumn('status', function($model)
-    	    	{
-    	    		return $model->invoice_status->name;
-    	    	})
+    	$table->addColumn('invoice_number', function($model) { return link_to('invoices/' . $model->id . '/edit', $model->invoice_number); });
+
+    	if (!$clientId) {
+    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client->id, $model->client->name); });
+    	}
+    	
+    	return $table->addColumn('total', function($model){ return '$' . money_format('%i', $model->getTotal()); })
+    		->addColumn('amount_due', function($model) { return '$' . money_format('%i', $model->getTotal()); })
+    	    ->addColumn('invoice_date', function($model) { return (new Carbon($model->invoice_date))->toFormattedDateString(); })
+    	    ->addColumn('due_date', function($model) { return $model->due_date == '0000-00-00' ? '' : (new Carbon($model->due_date))->toFormattedDateString(); })
+    	    ->addColumn('status', function($model) { return $model->invoice_status->name; })
+    	    ->addColumn('dropdown', function($model) 
+    	    { 
+    	    	return '<div class="btn-group tr-action" style="display:none">
+  							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+    							Select <span class="caret"></span>
+  							</button>
+  							<ul class="dropdown-menu" role="menu">
+						    <li><a href="' . URL::to('invoices/'.$model->id.'/edit') . '">Edit</a></li>
+						    <li class="divider"></li>
+						    <li><a href="' . URL::to('invoices/'.$model->id.'/archive') . '">Archive</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->id . ')">Delete</a></li>						    
+						  </ul>
+						</div>';
+    	    })    	       	    
     	    ->orderColumns('number')
     	    ->make();    	
     }
@@ -72,7 +64,10 @@ class InvoiceController extends \BaseController {
 		$invitation = Invitation::with('invoice.invoice_items', 'invoice.client.account.account_gateways')->where('key', '=', $key)->firstOrFail();				
 		$contact = null;
 
-		Activity::viewInvoice($invitation);
+		$invitation->viewed_date = new date('Y-m-d H:i:s');
+		$invitation->save();
+
+		Activity::log($invitation->invoice->client, ACTIVITY_TYPE_VIEW_INVOICE, $contact, $invitation);
 
 		return View::make('invoices.view')->with('invoice', $invitation->invoice);	
 	}
@@ -205,10 +200,11 @@ class InvoiceController extends \BaseController {
 
 	public function edit($id)
 	{
-		$invoice = Invoice::with('client', 'invoice_items')->find($id);
+		$invoice = Invoice::with('account.country', 'client', 'invoice_items')->find($id);
 		trackViewed($invoice->invoice_number . ' - ' . $invoice->client->name);
 		
 		$data = array(
+				'account' => $invoice->account,
 				'invoice' => $invoice, 
 				'method' => 'PUT', 
 				'url' => 'invoices/' . $id, 
@@ -224,8 +220,10 @@ class InvoiceController extends \BaseController {
 	{		
 		$client = null;
 		$invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
-		
+		$account = Account::with('country')->find(Auth::user()->account_id);
+
 		$data = array(
+				'account' => $account,
 				'invoice' => null, 
 				'invoiceNumber' => $invoiceNumber,
 				'method' => 'POST', 
@@ -280,8 +278,8 @@ class InvoiceController extends \BaseController {
 			}
 			else
 			{
-				$client = Client::with('contacts')->find($clientId);
-				$contact = $client->contacts[0];
+				$client = Client::with('contacts')->find($clientId);				
+				$contact = $client->contacts()->first();
 			}
 
 			if ($id) {
@@ -290,8 +288,8 @@ class InvoiceController extends \BaseController {
 			} else {
 				$invoice = new Invoice;
 				$invoice->account_id = Auth::user()->account_id;
-			}
-
+			}			
+			
 			$invoice->client_id = $clientId;
 			$invoice->invoice_number = Input::get('invoice_number');
 			$invoice->discount = 0;
@@ -356,7 +354,6 @@ class InvoiceController extends \BaseController {
 				$invitation->key = str_random(20);				
 				$invitation->save();
 
-
 				Session::flash('message', 'Successfully emailed invoice');
 			} else {				
 				Session::flash('message', 'Successfully saved invoice');
@@ -376,8 +373,10 @@ class InvoiceController extends \BaseController {
 	 */
 	public function show($id)
 	{
-		$invoice = Invoice::find($id);
-		return View::make('invoices.show')->with('invoice', $invoice);
+		return Redirect::to('invoices/'.$id.'/edit');
+
+		//$invoice = Invoice::find($id);
+		//return View::make('invoices.show')->with('invoice', $invoice);
 	}
 
 	/**
@@ -415,5 +414,23 @@ class InvoiceController extends \BaseController {
 		Session::flash('message', $message);
 
 		return Redirect::to('invoices');
+	}
+
+	public function archive($id)
+	{
+		$invoice = Invoice::find($id);
+		$invoice->delete();
+
+		Session::flash('message', 'Successfully archived invoice ' . $invoice->invoice_number);
+		return Redirect::to('invoices');		
+	}
+
+	public function delete($id)
+	{
+		$invoice = Invoice::find($id);
+		$invoice->forceDelete();
+
+		Session::flash('message', 'Successfully deleted invoice ' . $invoice->invoice_number);
+		return Redirect::to('invoices');		
 	}
 }

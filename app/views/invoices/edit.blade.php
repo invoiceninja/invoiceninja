@@ -24,7 +24,7 @@
     <div class="row">
     	<div class="col-md-6">
 			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'id')->select($client ? $client->id : '')
-				->help('<a data-toggle="modal" data-target="#myModal">Create new client</a>'); }}
+				->help('<a style="cursor:pointer" data-toggle="modal" data-target="#myModal">Create new client</a>'); }}
 		</div>
 		<div class="col-md-5">
 			{{ Former::text('invoice_number')->label('Invoice #') }}
@@ -83,19 +83,27 @@
 	        </tr>
 		</tbody>
 		<tfoot>	        
-	        <tr data-bind="visible: subtotal() != total()">
-	        	<td colspan="3" class="hide-border"/>
+	        <tr>
+	        	<td class="hide-border"></td>
+	        	<td colspan="2"/>
 				<td colspan="2">Subtotal</td>
 				<td style="text-align: right"><span data-bind="text: subtotal"/></td>
 	        </tr>
+	        <tr>
+	        	<td class="hide-border"></td>
+	        	<td colspan="2" class="hide-border"/>
+				<td colspan="2">Paid to Date</td>
+				<td style="text-align: right"></td>
+	        </tr>	        
 	        <tr data-bind="visible: discount() > 0">
-	        	<td colspan="3" class="hide-border"/>
+	        	<td class="hide-border"></td>
+	        	<td colspan="2" class="hide-border"/>
 				<td colspan="2">Discount</td>
 				<td style="text-align: right"><span data-bind="text: discounted"/></td>
 	        </tr>
 	        <tr>
 	        	<td class="hide-border"></td>
-	        	<td colspan="2"/>
+	        	<td colspan="2" class="hide-border"/>
 				<td colspan="2"><b>Invoice Total</b></td>
 				<td style="text-align: right"><span data-bind="text: total"/></td>
 	        </tr>
@@ -239,6 +247,17 @@
 		var invoice = {
 			invoice_number: $('#invoice_number').val(),
 			invoice_date: $('#invoice_date').val(),
+			account: {
+				name: "{{ $account->name }}",
+				address1: "{{ $account->address1 }}",
+				address2: "{{ $account->address2 }}",
+				city: "{{ $account->city }}",
+				state: "{{ $account->state }}",
+				postal_code: "{{ $account->postal_code }}",
+				country: {
+					name: "{{ $account->country->name }}"
+				}
+			},
 			client: {
 				name: $('[name="client_combobox"]').val()
 			},

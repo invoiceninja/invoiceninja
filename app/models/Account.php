@@ -24,6 +24,11 @@ class Account extends Eloquent
 		return $this->hasMany('AccountGateway');
 	}
 
+	public function country()
+	{
+		return $this->belongsTo('Country');
+	}
+
 	public function isGatewayConfigured($gatewayId = 0)
 	{
 		if ($gatewayId)
@@ -73,7 +78,7 @@ class Account extends Eloquent
 		if ($order) 
 		{
 			$number = intval($order->invoice_number) + 1;
-			return str_pad($number, 5, "0", STR_PAD_LEFT);
+			return str_pad($number, 4, "0", STR_PAD_LEFT);
 		}	
 		else
 		{

@@ -257,6 +257,7 @@
 	    	{{ HTML::menu_link('client') }}
 	    	{{ HTML::menu_link('invoice') }}
 	    	{{ HTML::menu_link('payment') }}
+	    	{{ HTML::menu_link('credit') }}
 	    	{{-- HTML::nav_link('reports', 'Reports') --}}
 	    </ul>
 		<ul class="nav navbar-nav navbar-right">	      
@@ -267,9 +268,7 @@
 	          		<li><a href="#">No items</a></li>
 	          	@else
 	          		@foreach (Session::get(RECENTLY_VIEWED) as $link)
-	          			@if (Request::url() != $link->url) 
 	          			<li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
-	          			@endif
 	          		@endforeach
 	          	@endif
 	        </ul>

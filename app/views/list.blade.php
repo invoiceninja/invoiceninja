@@ -15,8 +15,9 @@
 		, array('id'=>'archive'))->split(); }}
 	
 
+	@if (in_array($entityType, [ENTITY_CLIENT, ENTITY_INVOICE]))
 	{{ Button::primary_link(URL::to($entityType . 's/create'), 'New ' . ucwords($entityType), array('class' => 'pull-right')) }}	
-	
+	@endif
 	
 	{{ Datatable::table()		
     	->addColumn($columns)
@@ -30,8 +31,19 @@
     <script type="text/javascript">
 
 	function submitForm(action) {
+		if (action == 'delete') {
+			if (!confirm('Are you sure')) {
+				return;
+			}
+		}
 		$('#action').val(action);
 		$('form').submit();		
+	}
+
+	function deleteEntity(id) {
+		if (confirm("Are you sure?")) {
+			window.location = "{{ URL::to($entityType . 's') }}/" + id + "/delete";
+		}
 	}
 
     </script>
@@ -46,11 +58,20 @@
 		});	
 
 		$('tbody tr').click(function(event) {
-			if (event.target.type !== 'checkbox') {
+			if (event.target.type !== 'checkbox' && event.target.type !== 'button' && event.target.tagName.toLowerCase() !== 'a') {
 				$checkbox = $(this).closest('tr').find(':checkbox');
 				var checked = $checkbox.prop('checked');
 				$checkbox.prop('checked', !checked);
 				setArchiveEnabled();
+			}
+		});
+
+		$('tbody tr').mouseover(function() {
+			$(this).closest('tr').find('.tr-action').show();			
+		}).mouseout(function() {
+			$dropdown = $(this).closest('tr').find('.tr-action');
+			if (!$dropdown.hasClass('open')) {
+				$dropdown.hide();
 			}
 		});
 	}	
@@ -69,5 +90,7 @@
 		var checked = $('tbody :checkbox:checked').length > 0;
 		$('#archive > button').prop('disabled', !checked);	
 	}
+
+
 	
 @stop

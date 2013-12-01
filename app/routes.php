@@ -32,27 +32,38 @@ Route::filter('auth', function()
 
 Route::group(array('before' => array('auth', 'csrf')), function()
 {   
+	Route::get('home', function() { return View::make('header'); });
 	Route::get('account/{section?}', 'AccountController@showSection');
 	Route::post('account/{section?}', 'AccountController@doSection');
 
 	Route::resource('clients', 'ClientController');
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
+	Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));	
 	Route::post('clients/bulk', 'ClientController@bulk');
+	Route::get('clients/{client_id}/archive', 'ClientController@archive');
+	Route::get('clients/{client_id}/delete', 'ClientController@delete');
 
 	Route::resource('invoices', 'InvoiceController');
 	Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));	
 	Route::get('invoices/create/{client_id}', 'InvoiceController@create');
 	Route::post('invoices/bulk', 'InvoiceController@bulk');
+	Route::get('invoices/{client_id}/archive', 'InvoiceController@archive');
+	Route::get('invoices/{client_id}/delete', 'InvoiceController@delete');
 
 	Route::get('payments', 'PaymentController@index');
 	Route::get('api/payments/{client_id?}', array('as'=>'api.payments', 'uses'=>'PaymentController@getDatatable'));
 	Route::post('payments/bulk', 'PaymentController@bulk');
-
-	Route::get('home', function() { return View::make('header'); });
-	Route::get('reports', function() { return View::make('header'); });
 	Route::get('payments/create', function() { return View::make('header'); });
+	Route::get('payments/{client_id}/archive', 'PaymentController@archive');
+	Route::get('payments/{client_id}/delete', 'PaymentController@delete');
 
-	Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));	
+	Route::get('credits', 'CreditController@index');
+	Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));	
+	Route::get('credits/create', function() { return View::make('header'); });
+	Route::get('credits/{client_id}/archive', 'CreditController@archive');
+	Route::get('credits/{client_id}/delete', 'CreditController@delete');
+
+	Route::get('reports', function() { return View::make('header'); });
 });
 
 // Confide routes
@@ -164,6 +175,7 @@ function trackViewed($name)
 		if ($object->url == $item->url)
 		{
 			array_splice($viewed, $i, 1);
+			break;
 		}
 	}
 
@@ -186,6 +198,10 @@ define("RECENTLY_VIEWED", "RECENTLY_VIEWED");
 define("ENTITY_CLIENT", "client");
 define("ENTITY_INVOICE", "invoice");
 define("ENTITY_PAYMENT", "payment");
+define("ENTITY_CREDIT", "credit");
+
+define("PERSON_CONTACT", "contact");
+define("PERSON_USER", "user");
 
 define("ACCOUNT_DETAILS", "details");
 define("ACCOUNT_SETTINGS", "settings");
@@ -194,5 +210,18 @@ define("ACCOUNT_MAP", "import_map");
 define("ACCOUNT_EXPORT", "export");
 
 
-define("DEFAULT_INVOICE_NUMBER", "00001");
+define("DEFAULT_INVOICE_NUMBER", "0001");
 define("RECENTLY_VIEWED_LIMIT", 8);
+
+
+interface iPerson
+{
+    public function getFullName();
+    public function getPersonType();
+}
+
+interface iEntity
+{
+    public function getName();
+    public function getEntityType();
+}

@@ -1,8 +1,13 @@
 <?php
 
-class Invoice extends Eloquent
+class Invoice extends Eloquent implements iEntity 
 {
-	protected $softDelete = true;
+	protected $softDelete = true;	
+
+	public function account()
+	{
+		return $this->belongsTo('Account');
+	}
 
 	public function client()
 	{
@@ -18,6 +23,16 @@ class Invoice extends Eloquent
 	{
 		return $this->belongsTo('InvoiceStatus');
 	}
+
+	public function getName()
+	{
+		return $this->invoice_number;
+	}
+
+	public function getEntityType()
+	{
+		return ENTITY_INVOICE;
+	}	
 
 	public function getTotal()
 	{

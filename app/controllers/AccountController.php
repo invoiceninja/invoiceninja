@@ -167,6 +167,12 @@ class AccountController extends \BaseController {
 		$count = 0;
 		$hasHeaders = Input::get('header_checkbox');
 		
+		$countries = Country::all();
+		$countryMap = [];
+		foreach ($countries as $country) {
+			$countryMap[strtolower($country->name)] = $country->id;
+		}		
+
 		foreach ($data as $row)
 		{
 			if ($hasHeaders)
@@ -211,6 +217,11 @@ class AccountController extends \BaseController {
 				else if ($field == Client::$fieldPostalCode)
 				{
 					$client->postal_code = $value;
+				}
+				else if ($field == Client::$fieldCountry)
+				{
+					$value = strtolower($value);
+					$client->country_id = isset($countryMap[$value]) ? $countryMap[$value] : null;
 				}
 				else if ($field == Client::$fieldNotes)
 				{
@@ -266,6 +277,7 @@ class AccountController extends \BaseController {
 			Client::$fieldCity,
 			Client::$fieldState,
 			Client::$fieldPostalCode,
+			Client::$fieldCountry,
 			Client::$fieldNotes,
 			Contact::$fieldFirstName,
 			Contact::$fieldLastName,
@@ -304,6 +316,7 @@ class AccountController extends \BaseController {
 						'city' => Client::$fieldCity,
 						'state' => Client::$fieldState,
 						'zip|postal|code' => Client::$fieldPostalCode,
+						'country' => Client::$fieldCountry,
 						'note' => Client::$fieldNotes,
 					);
 
