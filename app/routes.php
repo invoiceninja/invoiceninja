@@ -143,8 +143,9 @@ function processedRequest($url)
 
 
 	
-function trackViewed($url, $name)
+function trackViewed($name)
 {
+	$url = Request::url();
 	$viewed = Session::get(RECENTLY_VIEWED);	
 	
 	if (!$viewed)
@@ -168,7 +169,7 @@ function trackViewed($url, $name)
 
 	array_unshift($viewed, $object);
 		
-	if (count($viewed) > 5)
+	if (count($viewed) > RECENTLY_VIEWED_LIMIT)
 	{
 		array_pop($viewed);
 	}
@@ -191,3 +192,7 @@ define("ACCOUNT_SETTINGS", "settings");
 define("ACCOUNT_IMPORT", "import");
 define("ACCOUNT_MAP", "import_map");
 define("ACCOUNT_EXPORT", "export");
+
+
+define("DEFAULT_INVOICE_NUMBER", "00001");
+define("RECENTLY_VIEWED_LIMIT", 8);

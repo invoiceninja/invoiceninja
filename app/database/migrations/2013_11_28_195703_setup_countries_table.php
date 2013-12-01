@@ -11,6 +11,7 @@ class SetupCountriesTable extends Migration {
 	public function up()
 	{
 		// Creates the users table
+		/*
 		Schema::create('countries', function($table)
 		{		    
 		    $table->integer('id')->index();
@@ -30,6 +31,7 @@ class SetupCountriesTable extends Migration {
 		    
 		    $table->primary('id');
 		});
+		*/
 	}
 
 	/**
@@ -39,7 +41,7 @@ class SetupCountriesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('countries');
+		//Schema::drop('countries');
 	}
 
 }

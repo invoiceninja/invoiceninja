@@ -267,7 +267,9 @@
 	          		<li><a href="#">No items</a></li>
 	          	@else
 	          		@foreach (Session::get(RECENTLY_VIEWED) as $link)
+	          			@if (Request::url() != $link->url) 
 	          			<li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
+	          			@endif
 	          		@endforeach
 	          	@endif
 	        </ul>

@@ -206,7 +206,7 @@ class InvoiceController extends \BaseController {
 	public function edit($id)
 	{
 		$invoice = Invoice::with('client', 'invoice_items')->find($id);
-		trackViewed(Request::url(), $invoice->invoice_number . ' - ' . $invoice->client->name);
+		trackViewed($invoice->invoice_number . ' - ' . $invoice->client->name);
 		
 		$data = array(
 				'invoice' => $invoice, 
@@ -223,12 +223,11 @@ class InvoiceController extends \BaseController {
 	public function create($clientId = 0)
 	{		
 		$client = null;
-		if ($clientId) {
-			$client = Client::find($clientId);
-		}
-
+		$invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
+		
 		$data = array(
 				'invoice' => null, 
+				'invoiceNumber' => $invoiceNumber,
 				'method' => 'POST', 
 				'url' => 'invoices', 
 				'title' => 'New',
@@ -312,22 +311,25 @@ class InvoiceController extends \BaseController {
 					$item->qty = 0;
 				}				
 
-				$product = Product::findProduct($item->product_key);
-
-				if (!$product)
+				if ($item->product_key)
 				{
-					$product = new Product;
-					$product->account_id = Auth::user()->account_id;
-					$product->key = $item->product_key;
+					$product = Product::findProduct($item->product_key);
+
+					if (!$product)
+					{
+						$product = new Product;
+						$product->account_id = Auth::user()->account_id;
+						$product->key = $item->product_key;
+					}
+
+					$product->notes = $item->notes;
+					$product->cost = $item->cost;
+					$product->qty = $item->qty;
+					$product->save();
 				}
 
-				$product->notes = $item->notes;
-				$product->cost = $item->cost;
-				$product->qty = $item->qty;
-				$product->save();
-
 				$invoiceItem = new InvoiceItem;
-				$invoiceItem->product_id = $product->id;
+				$invoiceItem->product_id = isset($product) ? $product->id : null;
 				$invoiceItem->product_key = $item->product_key;
 				$invoiceItem->notes = $item->notes;
 				$invoiceItem->cost = $item->cost;

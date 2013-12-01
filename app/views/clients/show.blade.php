@@ -27,9 +27,9 @@
 		</div>
 
 		<div class="col-md-6">
-			<h3>Balance</h3>
+			<h3>Standing</h3>
 			<h3>$0.00 <small>Paid to Date USD</small></h3>	    
-			<h3>$0.00 <small>Outstanding USD</small></h3>
+			<h3>$0.00 <small>Balance USD</small></h3>
 		</div>
 	</div>
 

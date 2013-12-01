@@ -95,7 +95,7 @@ class ClientController extends \BaseController {
 	public function show($id)
 	{
 		$client = Client::with('contacts')->find($id);
-		trackViewed(Request::url(), $client->name);
+		trackViewed($client->name);
 
 		
 		return View::make('clients.show')->with('client', $client);
@@ -157,7 +157,9 @@ class ClientController extends \BaseController {
 			$client->state = Input::get('state');
 			$client->notes = Input::get('notes');
 			$client->postal_code = Input::get('postal_code');
-			$client->country_id = Input::get('country_id');
+			if (Input::get('country_id')) {
+				$client->country_id = Input::get('country_id');
+			}
 			$client->save();
 
 			$data = json_decode(Input::get('data'));

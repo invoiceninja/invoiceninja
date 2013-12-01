@@ -6,7 +6,8 @@
 
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
   		'invoice_number' => 'required',
-  		'invoice_date' => 'required'
+  		'invoice_date' => 'required',
+  		'product_key' => 'max:14',
 	)); }}
 
 	<!-- <h3>{{ $title }} Invoice</h3> -->
@@ -16,6 +17,7 @@
 		{{ Former::populateField('invoice_date', fromSqlDate($invoice->invoice_date)); }}	
 		{{ Former::populateField('due_date', fromSqlDate($invoice->due_date)); }}
 	@else
+		{{ Former::populateField('invoice_number', $invoiceNumber) }}
 		{{ Former::populateField('invoice_date', date('m/d/Y')) }}
 	@endif
     
@@ -54,18 +56,18 @@
 	        		<!-- <i data-bind="click: $parent.addItem, visible: actionsVisible" class="fa fa-plus-circle" style="cursor:pointer" title="Add item"></i>&nbsp; -->
 	        		<i data-bind="visible: actionsVisible" class="fa fa-sort"></i>
 	        	</td>
-	            <td style="width:120px">
-	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'key')
+	            <td style="width:120px">	            	
+	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'key')->onkeyup('onChange()')
 	            		->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 	            </td>
 	            <td style="width:300px">
-	            	<textarea data-bind="value: notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" class="form-control" onchange="refreshPDF()"></textarea>
+	            	<textarea onkeyup="checkWordWrap(event)" data-bind="value: notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control" onchange="refreshPDF()"></textarea>
 	            </td>
 	            <td style="width:100px">
-	            	<input data-bind="value: cost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
+	            	<input onkeyup="onChange()" data-bind="value: cost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 	            </td>
 	            <td style="width:80px">
-	            	<input data-bind="value: qty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
+	            	<input onkeyup="onChange()" data-bind="value: qty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 	            </td>
 	            <!--
 	            <td style="width:100px">
@@ -93,9 +95,7 @@
 	        </tr>
 	        <tr>
 	        	<td class="hide-border"></td>
-	        	<td colspan="2" class="hide-border">
-	        		<a href="#" onclick="model.addItem()">Add line item</a>
-	        	</td>
+	        	<td colspan="2"/>
 				<td colspan="2"><b>Invoice Total</b></td>
 				<td style="text-align: right"><span data-bind="text: total"/></td>
 	        </tr>
@@ -221,7 +221,6 @@
 				var product = products[i];
 				if (product.key == key) {
 					var model = ko.dataFor(this);
-					console.log(model);
 					model.notes(product.notes);
 					model.cost(product.cost);
 					model.qty(product.qty);
@@ -434,6 +433,54 @@
     	this.showActions = function() {
 			this.actionsVisible(true);
     	}
+
+    	this.isEmpty = function() {
+    		return !self.product_key() && !self.notes() && !self.cost() && !self.qty() && !self.tax();
+    	}
+	}
+
+	function checkWordWrap(event)
+	{
+		var doc = new jsPDF('p', 'pt');
+		doc.setFont('Helvetica','');
+		doc.setFontSize(10);
+
+		var $textarea = $(event.target || event.srcElement);
+	    var lines = $textarea.val().split("\n");
+	    for (var i = 0; i < lines.length; i++) {
+	    	var numLines = doc.splitTextToSize(lines[i], 200).length;
+	        if (numLines <= 1) continue;
+	        var j = 0; space = lines[i].length;
+	        while (j++ < lines[i].length) {
+	            if (lines[i].charAt(j) === " ") space = j;
+	        }
+	        lines[i + 1] = lines[i].substring(space + 1) + (lines[i + 1] || "");
+	        lines[i] = lines[i].substring(0, space);
+	    }
+	    
+	    var val = lines.slice(0, 6).join("\n");
+	    if (val != $textarea.val())
+	    {
+			var model = ko.dataFor($textarea[0]);
+			model.notes(val);
+			refreshPDF();
+	    }
+	    $textarea.height(val.split('\n').length * 22);
+	    onChange();
+	}
+
+	function onChange()
+	{
+		var hasEmpty = false;
+		for(var i=0; i<model.items().length; i++) {
+			var item = model.items()[i];
+			if (item.isEmpty()) {
+				hasEmpty = true;
+			}
+		}
+		if (!hasEmpty) {
+			model.addItem();
+		}
 	}
 
 	var products = {{ $products }};

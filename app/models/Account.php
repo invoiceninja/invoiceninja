@@ -14,6 +14,11 @@ class Account extends Eloquent
 		return $this->hasMany('Client');
 	}
 
+	public function invoices()
+	{
+		return $this->hasMany('Invoice');
+	}
+
 	public function account_gateways()
 	{
 		return $this->hasMany('AccountGateway');
@@ -59,5 +64,20 @@ class Account extends Eloquent
 	{
 		list($width, $height) = getimagesize($this->getLogoPath());
 		return $height;	
+	}
+
+	public function getNextInvoiceNumber()
+	{
+		$order = $this->invoices()->orderBy('invoice_number', 'DESC')->first();
+
+		if ($order) 
+		{
+			$number = intval($order->invoice_number) + 1;
+			return str_pad($number, 5, "0", STR_PAD_LEFT);
+		}	
+		else
+		{
+			return DEFAULT_INVOICE_NUMBER;
+		}
 	}
 }
