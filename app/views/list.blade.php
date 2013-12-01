@@ -2,7 +2,7 @@
 
 @section('content')
 
-	{{ Former::open('invoices/action') }}
+	{{ Former::open($entityType . 's/bulk') }}
 	<div style="display:none">{{ Former::text('action') }}</div>
 
 	{{ DropdownButton::normal('Archive',
@@ -15,12 +15,12 @@
 		, array('id'=>'archive'))->split(); }}
 	
 
-	{{ Button::primary_link(URL::to('invoices/create'), 'New Invoice', array('class' => 'pull-right')) }}	
+	{{ Button::primary_link(URL::to($entityType . 's/create'), 'New ' . ucwords($entityType), array('class' => 'pull-right')) }}	
 	
 	
 	{{ Datatable::table()		
-    	->addColumn('checkbox', 'Invoice Number', 'Client', 'Total', 'Amount Due', 'Invoice Date', 'Due Date', 'Status')
-    	->setUrl(route('api.invoices'))    	
+    	->addColumn($columns)
+    	->setUrl(route('api.' . $entityType . 's'))    	
     	->setOptions('sPaginationType', 'bootstrap')
     	->setOptions('bFilter', false)
     	->render('datatable') }}
@@ -45,11 +45,13 @@
 			setArchiveEnabled();
 		});	
 
-		$('tbody tr').click(function() {
-			$checkbox = $(this).closest('tr').find(':checkbox');
-			var checked = $checkbox.prop('checked');
-			$checkbox.prop('checked', !checked);
-			setArchiveEnabled();
+		$('tbody tr').click(function(event) {
+			if (event.target.type !== 'checkbox') {
+				$checkbox = $(this).closest('tr').find(':checkbox');
+				var checked = $checkbox.prop('checked');
+				$checkbox.prop('checked', !checked);
+				setArchiveEnabled();
+			}
 		});
 	}	
 
@@ -59,13 +61,13 @@
 	});
 
 	$('#selectAll').click(function() {
-		$(':checkbox').prop('checked', this.checked);
+		$(':checkbox').prop('checked', this.checked);		
+
 	});
 
 	function setArchiveEnabled() {
 		var checked = $('tbody :checkbox:checked').length > 0;
 		$('#archive > button').prop('disabled', !checked);	
 	}
-
-
+	
 @stop

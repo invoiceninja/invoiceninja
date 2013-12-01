@@ -79,6 +79,19 @@ class Client extends Eloquent
 
 		return $str;
 	}
+
+	public function getDateCreated()
+	{
+		if ($this->created_at == '0000-00-00 00:00:00') 
+		{
+			return '---';
+		} 
+		else 
+		{
+			return $this->created_at->format('m/d/y h:i a');
+		}
+	}
+
 }
 
 Client::created(function($client)

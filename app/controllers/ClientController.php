@@ -12,12 +12,19 @@ class ClientController extends \BaseController {
 		//$clients = Client::orderBy('name')->get();
 		//return View::make('clients.index')->with('clients', $clients);
 
-		return View::make('clients.index');
+		return View::make('list', array(
+			'entityType'=>ENTITY_CLIENT, 
+			'columns'=>['checkbox', 'Client', 'Contact', 'Balance', 'Last Login', 'Date Created', 'Email', 'Phone']
+		));		
 	}
 
 	public function getDatatable()
     {
         return Datatable::collection(Client::with('contacts')->where('account_id','=',Auth::user()->account_id)->get())
+    	    ->addColumn('checkbox', function($model)
+    	    	{
+    	    		return '<input type="checkbox" name="ids[]" value="' . $model->id . '">';
+    	    	})
     	    ->addColumn('name', function($model)
     	    	{
     	    		//return $model->name;
@@ -27,9 +34,17 @@ class ClientController extends \BaseController {
     	    	{
     	    		return $model->contacts[0]->getFullName();
     	    	})
+    	    ->addColumn('balance', function($model)
+    	    	{
+    	    		return '$' . $model->balance;
+    	    	})    	    
     	    ->addColumn('last_login', function($model)
     	    	{
-    	    		return $model->contacts[0]->lastLogin();
+    	    		return $model->contacts[0]->getLastLogin();
+    	    	})
+    	    ->addColumn('date_created', function($model)
+    	    	{
+    	    		return $model->getDateCreated();
     	    	})
     	    ->addColumn('email', function($model)
     	    	{
@@ -183,18 +198,27 @@ class ClientController extends \BaseController {
 	}
 
 	/**
-	 * Remove the specified resource from storage.
+	 * Bulk update the records
 	 *
-	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function bulk()
 	{
-		$client = Client::find($id);
-		$client->delete();
+		$action = Input::get('action');
+		$ids = Input::get('ids');
+		$clients = Client::find($ids);
 
-		// redirect
-		Session::flash('message', 'Successfully deleted the client');
+		foreach ($clients as $client) {
+			if ($action == 'archive') {
+				$client->delete();
+			} else if ($action == 'delete') {
+				$client->forceDelete();
+			} 
+		}
+
+		$message = pluralize('Successfully '.$action.'d ? client', count($ids));
+		Session::flash('message', $message);
+
 		return Redirect::to('clients');
 	}
 }

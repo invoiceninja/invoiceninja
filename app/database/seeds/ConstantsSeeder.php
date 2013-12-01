@@ -5,8 +5,39 @@ class ConstantsSeeder extends Seeder
 
 	public function run()
 	{
-		DB::table('gateways')->delete();
+		// TEST DATA
+		/*
+		$contact = new Contact;
+		$contact->first_name = 'Hillel';
+		$contact->last_name = 'Hillel';
+		$contact->email = 'hillelcoren@gmail.com';
+		$contact->last_name = '2125551234';
+		$client->contacts()->save($contact);
 		
+		$invoice = new Invoice;
+		$invoice->invoice_number = '0001';
+		$client->invoices()->save($invoice);
+
+		$invoice = new Invoice;
+		$invoice->invoice_number = '0002';
+		$client->invoices()->save($invoice);
+
+		$invoice = new Invoice;
+		$invoice->invoice_number = '0003';
+		$client->invoices()->save($invoice);
+
+		$invoice = new Invoice;
+		$invoice->invoice_number = '0004';
+		$client->invoices()->save($invoice);
+		*/
+
+
+		InvoiceStatus::create(array('name' => 'Draft'));
+		InvoiceStatus::create(array('name' => 'Sent'));
+		InvoiceStatus::create(array('name' => 'Viewed'));
+		InvoiceStatus::create(array('name' => 'Partial'));
+		InvoiceStatus::create(array('name' => 'Paid'));		
+
 		$gateways = [
 			array('name'=>'Authorize.Net AIM', 'provider'=>'AuthorizeNet_AIM'),
 			array('name'=>'Authorize.Net SIM', 'provider'=>'AuthorizeNet_SIM'),

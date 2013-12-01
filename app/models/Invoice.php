@@ -14,6 +14,11 @@ class Invoice extends Eloquent
 		return $this->hasMany('InvoiceItem');
 	}
 
+	public function invoice_status()
+	{
+		return $this->belongsTo('InvoiceStatus');
+	}
+
 	public function getTotal()
 	{
 		$total = 0;

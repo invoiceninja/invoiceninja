@@ -14,7 +14,7 @@ class Contact extends Eloquent
 		return $this->belongsTo('Client');
 	}
 
-	public function lastLogin()
+	public function getLastLogin()
 	{
 		if ($this->last_login == '0000-00-00 00:00:00') 
 		{
@@ -22,7 +22,7 @@ class Contact extends Eloquent
 		} 
 		else 
 		{
-			return $this->last_login;
+			return $this->last_login->format('m/d/y h:i a');
 		}
 	}
 

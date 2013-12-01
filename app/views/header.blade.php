@@ -37,7 +37,6 @@
 
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/jquery.dataTables.css') }}">
     <script type="text/javascript" src="{{ asset('js/jquery.dataTables.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('js/jquery.dataTables.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/knockout-3.0.0.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/knockout.mapping-latest.js') }}"></script>
     <script src="{{ asset('js/knockout-sortable.js') }}" type="text/javascript"></script>		
@@ -50,13 +49,6 @@
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/datepicker.css') }}"/>
 	
 	<script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
-
-
-	<script type="text/javascript">
-		$(function() {
-			@yield('onReady')
-		});
-	</script>
 
 	<style type="text/css">
 
@@ -110,7 +102,7 @@
 	}
 
 	div.dataTables_paginate.paging_bootstrap  {
-		margin-top: -30px;
+		margin-top: -20px;
 	}
 
 	table.table tbody tr.odd {
@@ -312,6 +304,7 @@
         	}
   			@endif
 
+  			@yield('onReady')
   		});
 
   </script>

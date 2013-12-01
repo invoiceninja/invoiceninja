@@ -216,5 +216,6 @@ return array(
 		'CreditCard' => 'Omnipay\Common\CreditCard',
 		'Image' => 'Intervention\Image\Facades\Image',
 		'Countries' => 'Webpatser\Countries\CountriesFacade',
+		'Carbon' => 'Carbon\Carbon',
 	),
 );

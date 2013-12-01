@@ -5,7 +5,7 @@
 	{{ Button::primary_link(URL::to('clients/create'), 'New Client', array('class' => 'pull-right')) }}	
 
 	{{ Datatable::table()		
-    	->addColumn('Client', 'Contact', 'Last Login', 'Email', 'Phone')       
+    	->addColumn('Client', 'Contact', 'Balance', 'Last Login', 'Date Created', 'Email', 'Phone')       
     	->setUrl(route('api.clients'))    	
     	->setOptions('sPaginationType', 'bootstrap')
     	->setOptions('bFilter', false)

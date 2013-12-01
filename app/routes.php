@@ -37,13 +37,16 @@ Route::group(array('before' => array('auth', 'csrf')), function()
 
 	Route::resource('clients', 'ClientController');
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
+	Route::post('clients/bulk', 'ClientController@bulk');
 
 	Route::resource('invoices', 'InvoiceController');
 	Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));	
 	Route::get('invoices/create/{client_id}', 'InvoiceController@create');
+	Route::post('invoices/bulk', 'InvoiceController@bulk');
 
 	Route::get('payments', 'PaymentController@index');
 	Route::get('api/payments/{client_id?}', array('as'=>'api.payments', 'uses'=>'PaymentController@getDatatable'));
+	Route::post('payments/bulk', 'PaymentController@bulk');
 
 	Route::get('home', function() { return View::make('header'); });
 	Route::get('reports', function() { return View::make('header'); });
@@ -179,9 +182,9 @@ define("ENV_STAGING", "staging");
 define("ENV_PRODUCTION", "production");
 
 define("RECENTLY_VIEWED", "RECENTLY_VIEWED");
-define("ENTITY_CLIENT", "Client");
-define("ENTITY_INVOICE", "Invoice");
-define("ENTITY_PAYMENT", "Payment");
+define("ENTITY_CLIENT", "client");
+define("ENTITY_INVOICE", "invoice");
+define("ENTITY_PAYMENT", "payment");
 
 define("ACCOUNT_DETAILS", "details");
 define("ACCOUNT_SETTINGS", "settings");

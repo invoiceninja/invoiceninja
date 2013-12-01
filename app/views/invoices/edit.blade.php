@@ -26,8 +26,8 @@
 		</div>
 		<div class="col-md-5">
 			{{ Former::text('invoice_number')->label('Invoice #') }}
-			{{ Former::text('invoice_date') }}
-			{{ Former::text('due_date') }}
+			{{ Former::text('invoice_date')->label('Invoice Date') }}
+			{{ Former::text('due_date')->label('Due Date') }}
 			{{-- Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") --}}
 		</div>
 	</div>

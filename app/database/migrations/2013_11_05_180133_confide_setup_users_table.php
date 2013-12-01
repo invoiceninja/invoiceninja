@@ -10,6 +10,7 @@ class ConfideSetupUsersTable extends Migration {
      */
     public function up()
     {
+        Schema::dropIfExists('invoice_statuses');
         Schema::dropIfExists('invitations');
         Schema::dropIfExists('activities');
         Schema::dropIfExists('account_gateways');
@@ -110,7 +111,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->integer('country_id');
             $t->string('work_phone');
             $t->text('notes');
-
+            $t->decimal('balance', 10, 2);
             //$t->foreign('account_id')->references('id')->on('accounts');
         });     
 
@@ -136,6 +137,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->increments('id');
             $t->integer('client_id');
             $t->integer('account_id');
+            $t->integer('invoice_status_id')->default(1);
             $t->timestamps();
             $t->softDeletes();
 
@@ -145,6 +147,12 @@ class ConfideSetupUsersTable extends Migration {
             $t->date('due_date');
 
             //$t->foreign('account_id')->references('id')->on('accounts');
+        });
+
+        Schema::create('invoice_statuses', function($t)
+        {
+            $t->increments('id');
+            $t->string('name');
         });
 
 
@@ -232,6 +240,7 @@ class ConfideSetupUsersTable extends Migration {
      */
     public function down()
     {
+        Schema::dropIfExists('invoice_statuses');
         Schema::dropIfExists('invitations');
         Schema::dropIfExists('activities');
         Schema::dropIfExists('account_gateways');

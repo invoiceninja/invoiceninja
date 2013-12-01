@@ -81,11 +81,14 @@ Route::filter('csrf', function()
 	$tokenInput = Input::get('_token');
 	$tokenSession = Session::token();
 
+	/*
 	if ($url = Session::get($tokenInput))
 	{
 		return Redirect::to($url);
 	}
-	else if ($tokenSession != $tokenInput)
+	*/
+	
+	if ($tokenSession != $tokenInput)
 	{
 		throw new Illuminate\Session\TokenMismatchException;
 	}

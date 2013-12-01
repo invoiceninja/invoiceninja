@@ -22,12 +22,12 @@ class Activity extends Eloquent
 	}
 
 	public static function createClient($client)
-	{
+	{		
 		$activity = Activity::getBlank();
 		$activity->client_id = $client->id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_CLIENT;
 		$activity->message = Auth::user()->getFullName() . ' created client ' . $client->name;
-		$activity->save();
+		$activity->save();		
 	}
 
 	public static function archiveClient($client)
