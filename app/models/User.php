@@ -84,5 +84,5 @@ class User extends ConfideUser implements UserInterface, RemindableInterface, iP
 		{
 			return $fullName;
 		}
-	}
+	}	
 }

@@ -29,10 +29,10 @@ class AccountController extends \BaseController {
 			$random = str_random(20);
 
 			$user = new User;
-			$user->username = $random.'@gmail.com';
-			$user->password = $random;
-			$user->email = $random.'@gmail.com';
-			$user->password_confirmation = $random;
+			//$user->username = $random.'@gmail.com';
+			//$user->password = $random;
+			//$user->email = $random.'@gmail.com';
+			//$user->password_confirmation = $random;
 			$account->users()->save($user);
 		}
 

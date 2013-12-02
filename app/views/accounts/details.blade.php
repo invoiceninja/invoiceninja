@@ -19,9 +19,7 @@
 	{{ Former::populate($account); }}
 	{{ Former::populateField('first_name', $account->users()->first()->first_name) }}
 	{{ Former::populateField('last_name', $account->users()->first()->last_name) }}
-	@if (!$account->users()->first()->is_guest)
-		{{ Former::populateField('email', $account->users()->first()->email) }}
-	@endif
+	{{ Former::populateField('email', $account->users()->first()->email) }}	
 	{{ Former::populateField('phone', $account->users()->first()->phone) }}
 
 	<div class="row">
@@ -55,7 +53,7 @@
 			{{ Former::legend('Users') }}
 			{{ Former::text('first_name') }}
 			{{ Former::text('last_name') }}
-			{{ Former::text('email')->label('Email/Username') }}
+			{{ Former::text('email') }}
 			{{ Former::text('phone') }}
 		</div>
 	</div>

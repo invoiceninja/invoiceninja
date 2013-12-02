@@ -115,10 +115,10 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('last_name');
             $t->string('phone');
             $t->string('username');
-            $t->string('email');
+            $t->string('email')->unique();
             $t->string('password');
             $t->string('confirmation_code');
-            $t->boolean('is_guest')->default(true);
+            $t->boolean('registered')->default(false);
             $t->boolean('confirmed')->default(false);
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');

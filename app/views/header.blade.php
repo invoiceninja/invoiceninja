@@ -233,8 +233,13 @@
 	<div>		
 		<span style="font-size:30px">Invoice Ninja</span>		
 		<div style="float:right;text-align:right">
-			Logged in as Guest (<u>Sign up</u>) | {{ link_to('account/details', 'My Account') }}
-			<p class="text-danger">This is a sample site, the data is erased</p>
+			@if (Auth::user()->registered)
+
+			@else			
+			{{ Button::sm_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')); }} &nbsp;
+			{{ link_to('account/details', 'My Account'); }}
+			@endif
+			<p class="text-danger">This is a sample site, the data is erased.</p>
 		</div>		
 	</div>
 
@@ -290,6 +295,35 @@
 
 		</div>
 	</div>
+
+
+	@if (!Auth::user()->registered)
+	<div class="modal fade" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	        <h4 class="modal-title" id="myModalLabel">Sign Up</h4>
+	      </div>
+
+	      <div style="padding-right:20px" onkeyup="validateSignUp()" onkeydown="checkForEnter(event)">
+	    	{{ Former::open(); }}
+	    	{{ Former::populate(Auth::user()) }}
+	    	{{ Former::text('first_name'); }}
+	    	{{ Former::text('last_name'); }}
+	    	{{ Former::text('email'); }}	    	
+			{{ Former::password('password'); }}
+			{{ Former::close(); }}
+		  </div>
+
+	      <div class="modal-footer">	      	
+	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary" onclick="submitSignUp()">Save</button>	      	
+	      </div>
+	    </div>
+	  </div>
+	</div>
+	@endif
 	
 		
 
@@ -297,12 +331,58 @@
 
   <script type="text/javascript">
 
+		@if (!Auth::user()->registered)
+  		function validateSignUp(showError) 
+  		{
+  			var isValid = true;
+  			$(['first_name','last_name','email','password']).each(function(i, field) {
+  				var $input = $('#'+field),
+  					val = $.trim($input.val());
+  				var isValid = val && val.length > (field == 'password' ? 6 : 0);
+  				if (isValid && field == 'email') {
+  					isValid = isValidEmailAddress(val);
+  				}
+  				if (isValid) {
+  					$input.closest('div.form-group').removeClass('has-error');
+  					$input.closest('div.form-group').addClass('has-success');
+  				} else {
+  					isValid = false;
+  					$input.closest('div.form-group').removeClass('has-success');
+  					if (showError) {
+  						$input.closest('div.form-group').addClass('has-error');
+  					}
+  				}
+  			});
+  			return isValid;
+  		}
+
+  		function submitSignUp()
+  		{
+  			if (!validateSignUp(true)) {
+  				return;
+  			}
+  		}
+
+  		function checkForEnter(event)
+  		{
+			if (event.keyCode === 13){
+				event.preventDefault();		     	
+	            submitSignUp();
+	            return false;
+	        }
+        }
+  		@endif
+
   		$(function() {
 
   			@if (Auth::user()->is_guest)
 	      	if (isStorageSupported()) {
         		localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
         	}
+  			@endif
+
+			@if (!Auth::user()->registered)
+  			validateSignUp();
   			@endif
 
   			@yield('onReady')

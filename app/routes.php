@@ -36,6 +36,7 @@ Route::group(array('before' => array('auth', 'csrf')), function()
 	Route::get('account/{section?}', 'AccountController@showSection');
 	Route::post('account/{section?}', 'AccountController@doSection');
 
+	
 	Route::resource('clients', 'ClientController');
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
 	Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));	
