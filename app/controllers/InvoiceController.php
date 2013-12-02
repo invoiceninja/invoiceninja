@@ -37,8 +37,8 @@ class InvoiceController extends \BaseController {
     	
     	return $table->addColumn('total', function($model){ return '$' . money_format('%i', $model->getTotal()); })
     		->addColumn('amount_due', function($model) { return '$' . money_format('%i', $model->getTotal()); })
-    	    ->addColumn('invoice_date', function($model) { return (new Carbon($model->invoice_date))->toFormattedDateString(); })
-    	    ->addColumn('due_date', function($model) { return $model->due_date == '0000-00-00' ? '' : (new Carbon($model->due_date))->toFormattedDateString(); })
+    	    ->addColumn('invoice_date', function($model) { return fromSqlDate($model->invoice_date); })
+    	    ->addColumn('due_date', function($model) { return fromSqlDate($model->due_date); })
     	    ->addColumn('status', function($model) { return $model->invoice_status->name; })
     	    ->addColumn('dropdown', function($model) 
     	    { 
@@ -61,13 +61,14 @@ class InvoiceController extends \BaseController {
 
 	public function view($key)
 	{
-		$invitation = Invitation::with('invoice.invoice_items', 'invoice.client.account.account_gateways')->where('key', '=', $key)->firstOrFail();				
-		$contact = null;
+		$invitation = Invitation::with('user', 'invoice.account', 'invoice.invoice_items', 'invoice.client.account.account_gateways')->where('key', '=', $key)->firstOrFail();				
+		
+		$user = $invitation->user;		
 
-		$invitation->viewed_date = new date('Y-m-d H:i:s');
+		$invitation->viewed_date = Carbon::now()->toDateTimeString();
 		$invitation->save();
 
-		Activity::log($invitation->invoice->client, ACTIVITY_TYPE_VIEW_INVOICE, $contact, $invitation);
+		Activity::viewInvoice($invitation);
 
 		return View::make('invoices.view')->with('invoice', $invitation->invoice);	
 	}
@@ -320,9 +321,12 @@ class InvoiceController extends \BaseController {
 						$product->key = $item->product_key;
 					}
 
+					/*
 					$product->notes = $item->notes;
 					$product->cost = $item->cost;
 					$product->qty = $item->qty;
+					*/
+					
 					$product->save();
 				}
 

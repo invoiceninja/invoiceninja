@@ -102,7 +102,7 @@
 	}
 
 	div.dataTables_paginate.paging_bootstrap  {
-		margin-top: -20px;
+		margin-top: -30px;
 	}
 
 	table.table tbody tr.odd {

@@ -122,7 +122,7 @@ function generatePDF(invoice) {
 	y += 16;
 	doc.text(tableLeft, y, invoice.account.city + ', ' + invoice.account.state + ' ' + invoice.account.postal_code);	
 	y += 16;
-	doc.text(tableLeft, y, invoice.account.country.name);	
+	doc.text(tableLeft, y, invoice.account.country ? invoice.account.country.name : '');	
 
 
 	var clientX = headerRight - (doc.getStringUnitWidth(invoice.client.name) * doc.internal.getFontSize());
@@ -186,13 +186,17 @@ function formatMoney(num) {
 
 /* Set the defaults for DataTables initialisation */
 $.extend( true, $.fn.dataTable.defaults, {
-	"sDom": "t<'row-fluid'<'span6'l><'span6'p>>",
+	"sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
+	//"sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",		
 	"sPaginationType": "bootstrap",
 	"bProcessing": false,            
-	"bInfo": false,
+	//"iDisplayLength": 50,
+	"bInfo": true,
 	"oLanguage": {
-		"sLengthMenu": "_MENU_ records per page"
-	}
+		//"sLengthMenu": "_MENU_ records per page"
+		"sLengthMenu": "_MENU_"
+	},
+	//"sScrollY": "500px",	
 } );
 
 

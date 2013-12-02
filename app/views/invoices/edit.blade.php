@@ -28,6 +28,7 @@
 		</div>
 		<div class="col-md-5">
 			{{ Former::text('invoice_number')->label('Invoice #') }}
+			{{-- Former::text('invoice_date')->label('Invoice Date')->data_date_format('yyyy-mm-dd') --}}
 			{{ Former::text('invoice_date')->label('Invoice Date') }}
 			{{ Former::text('due_date')->label('Due Date') }}
 			{{-- Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") --}}
@@ -255,7 +256,7 @@
 				state: "{{ $account->state }}",
 				postal_code: "{{ $account->postal_code }}",
 				country: {
-					name: "{{ $account->country->name }}"
+					name: "{{ $account->country ? $account->country->name : '' }}"
 				}
 			},
 			client: {

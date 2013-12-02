@@ -37,6 +37,8 @@ class AccountController extends \BaseController {
 		}
 
 		Auth::login($user);
+		Session::put('tz', 'US/Eastern');
+
 		return Redirect::to('invoices/create');		
 	}
 
@@ -46,8 +48,9 @@ class AccountController extends \BaseController {
 		{			
 			$account = Account::with('users')->find(Auth::user()->account_id);
 			$countries = Country::orderBy('name')->get();
+			$timezones = Timezone::orderBy('location')->get();
 
-			return View::make('accounts.details', array('account'=>$account, 'countries'=>$countries));
+			return View::make('accounts.details', array('account'=>$account, 'countries'=>$countries, 'timezones'=>$timezones));
 		}
 		else if ($section == ACCOUNT_SETTINGS)
 		{
@@ -421,7 +424,8 @@ class AccountController extends \BaseController {
 			$account->city = Input::get('city');
 			$account->state = Input::get('state');
 			$account->postal_code = Input::get('postal_code');
-			$account->country_id = Input::get('country_id');
+			$account->country_id = Input::get('country_id') ? Input::get('country_id') : null;
+			$account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
 			$account->save();
 
 			$user = $account->users()->first();
@@ -430,6 +434,11 @@ class AccountController extends \BaseController {
 			$user->email = Input::get('email');
 			$user->phone = Input::get('phone');
 			$user->save();
+
+			if (Input::get('timezone_id')) {
+				$timezone = Timezone::find(Input::get('timezone_id'));
+				Session::put('tz', $timezone->name);
+			}
 
 			/* Logo image file */
 			if ($file = Input::file('logo'))

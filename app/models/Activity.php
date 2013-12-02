@@ -70,6 +70,7 @@ class Activity extends Eloquent
 	public static function emailInvoice($invitation)
 	{
 		$activity = Activity::getBlank();
+		$activity->client_id = $invitation->invoice->client_id;
 		$activity->invoice_id = $invitation->invoice_id;
 		$activity->contact_id = $invitation->contact_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_EMAIL_INVOICE;
@@ -111,7 +112,10 @@ class Activity extends Eloquent
 	public static function viewInvoice($invitation)
 	{
 		$activity = new Activity;
-		$activity->invitation_id = $invitation->invitation_id;
+		$activity->user_id = $invitation->user_id;
+		$activity->account_id = $invitation->user->account_id;
+		$activity->client_id = $invitation->invoice->client_id;
+		$activity->invitation_id = $invitation->id;
 		$activity->contact_id = $invitation->contact_id;
 		$activity->invoice_id = $invitation->invoice_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_VIEW_INVOICE;

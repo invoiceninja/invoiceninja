@@ -29,6 +29,11 @@ class Account extends Eloquent
 		return $this->belongsTo('Country');
 	}
 
+	public function timezone()
+	{
+		return $this->belongsTo('Timezone');
+	}
+
 	public function isGatewayConfigured($gatewayId = 0)
 	{
 		if ($gatewayId)

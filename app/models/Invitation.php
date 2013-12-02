@@ -8,6 +8,16 @@ class Invitation extends Eloquent
 	{
 		return $this->belongsTo('Invoice');
 	}
+
+	public function contact()
+	{
+		return $this->belongsTo('Contact');
+	}
+
+	public function user()
+	{
+		return $this->belongsTo('User');
+	}	
 }
 
 Invitation::created(function($invitation)

@@ -126,6 +126,26 @@ function toSpaceCase($camelStr)
 	return preg_replace('/([a-z])([A-Z])/s','$1 $2', $camelStr);
 }
 
+/*
+function toDateString($date)
+{
+	if ($date->year < 1900) {
+		return '';
+	}
+	$tz = Session::get('tz');
+	if (!$tz) {
+		$tz = 'US/Eastern';
+	}
+	$date->tz = $tz;	
+	return $date->toFormattedDateString();
+}
+*/
+
+function toDateTimeString($date)
+{
+
+}
+
 function toSqlDate($date)
 {
 	if (!$date)
@@ -142,14 +162,14 @@ function fromSqlDate($date)
 	{
 		return '';
 	}
-
+	
 	return DateTime::createFromFormat('Y-m-d', $date)->format('m/d/Y');
 }
 
 function processedRequest($url)
-{
-	Session::put(Input::get('_token'), $url);
-	Session::put('_token', md5(microtime()));
+{	
+	//Session::put(Input::get('_token'), $url);
+	//Session::put('_token', md5(microtime()));
 }
 
 

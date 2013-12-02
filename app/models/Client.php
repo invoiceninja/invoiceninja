@@ -100,7 +100,7 @@ class Client extends Eloquent implements iEntity
 	}
 
 	public function getDateCreated()
-	{
+	{		
 		if ($this->created_at == '0000-00-00 00:00:00') 
 		{
 			return '---';

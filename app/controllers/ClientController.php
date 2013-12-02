@@ -28,7 +28,7 @@ class ClientController extends \BaseController {
     	    ->addColumn('contact', function($model) { return $model->contacts[0]->getFullName(); })
     	    ->addColumn('balance', function($model) { return '$' . $model->balance; })    	    
     	    ->addColumn('last_login', function($model) { return $model->contacts[0]->getLastLogin(); })
-    	    ->addColumn('date_created', function($model) { return $model->getDateCreated(); })
+    	    ->addColumn('date_created', function($model) { return $model->created_at->toFormattedDateString(); })
     	    ->addColumn('email', function($model) { return HTML::mailto($model->contacts[0]->email, $model->contacts[0]->email); })
     	    ->addColumn('phone', function($model) { return $model->contacts[0]->phone; })    	   
     	    ->addColumn('dropdown', function($model) 

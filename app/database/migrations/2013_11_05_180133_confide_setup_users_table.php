@@ -26,6 +26,7 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('accounts');
         Schema::dropIfExists('invoice_statuses');
         Schema::dropIfExists('countries');
+        Schema::dropIfExists('timezones');
         
 
         Schema::create('countries', function($table)
@@ -46,10 +47,18 @@ class ConfideSetupUsersTable extends Migration {
             $table->boolean('eea')->default(0);                        
         });
 
+        Schema::create('timezones', function($t)
+        {
+            $t->increments('id');
+            $t->string('name');
+            $t->string('location');
+        });
 
         Schema::create('accounts', function($t)
         {
             $t->increments('id');
+            $t->unsignedInteger('timezone_id')->nullable();
+
             $t->timestamps();
             $t->softDeletes();
 
@@ -65,6 +74,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('postal_code');
             $t->unsignedInteger('country_id')->nullable();     
 
+            $t->foreign('timezone_id')->references('id')->on('timezones');
             $t->foreign('country_id')->references('id')->on('countries');       
         });     
 
@@ -290,6 +300,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('payment_id');
             $t->unsignedInteger('invoice_id');
             $t->unsignedInteger('credit_id');
+            $t->unsignedInteger('invitation_id');
             
             $t->text('message');
             $t->integer('activity_type_id');            
@@ -324,6 +335,6 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('accounts');
         Schema::dropIfExists('invoice_statuses');
         Schema::dropIfExists('countries');
-
+        Schema::dropIfExists('timezones');
     }
 }
