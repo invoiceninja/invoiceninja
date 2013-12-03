@@ -219,9 +219,14 @@ class UserController extends BaseController {
      */
     public function logout()
     {
-        Confide::logout();
-        
-        return Redirect::to('/');
-    }
+        if (!Auth::user()->registered)
+        {
+            $account = Auth::user()->account;
+            $account->forceDelete();
+        }
 
+        Confide::logout();        
+        
+        return Redirect::to('/')->with('clearGuestKey', true);
+    }
 }

@@ -171,19 +171,18 @@ function generatePDF(invoice) {
 }
 
 function formatNumber(num) {
-	if (!num) {
-		return "";
-	}
-	return parseFloat(num).toFixed(2);
+	num = parseFloat(num);
+    if (!num) return '';
+	var p = num.toFixed(2).split(".");
+    return p[0].split("").reverse().reduce(function(acc, num, i, orig) {
+        return  num + (i && !(i % 3) ? "," : "") + acc;
+    }, "") + "." + p[1];
 }
 
 function formatMoney(num) {
 	num = parseFloat(num);
     if (!num) return '$0.00';
-	var p = num.toFixed(2).split(".");
-    return "$" + p[0].split("").reverse().reduce(function(acc, num, i, orig) {
-        return  num + (i && !(i % 3) ? "," : "") + acc;
-    }, "") + "." + p[1];
+	return '$' + formatNumber(num);
 }
 
 

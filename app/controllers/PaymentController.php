@@ -4,7 +4,11 @@ class PaymentController extends \BaseController
 {
 	public function index()
 	{
-		return View::make('payments.index');
+        return View::make('list', array(
+            'entityType'=>ENTITY_PAYMENT, 
+            'title' => '- Payments',
+            'columns'=>['checkbox', 'Transaction Reference', 'Client', 'Amount', 'Payment Date']
+        ));
 	}
 
 	public function getDatatable($clientId = null)
@@ -18,24 +22,17 @@ class PaymentController extends \BaseController
         $table = Datatable::collection($collection->get());
 
         if (!$clientId) {
-            $table->addColumn('client', function($model)
-    	    	{
-    	    		return link_to('clients/' . $model->invoice->client->id, $model->invoice->client->name);
-    	    	});
+            $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->id . '">'; });
         }
 
-        return $table->addColumn('invoice', function($model)
-    	    	{
-                    return link_to('invoices/' . $model->invoice->id . '/edit', $model->invoice->number);
-    	    	})
-    	    ->addColumn('amount', function($model)
-    	    	{
-    	    		return '$' . $model->amount;
-    	    	})
-    	    ->addColumn('date', function($model)
-    	    	{
-    	    		return $model->created_at->format('m/d/y h:i a');
-    	    	})
+        $table->addColumn('transaction_reference', function($model) { return $model->transaction_reference; });
+
+        if (!$clientId) {
+            $table->addColumn('client', function($model) { return link_to('clients/' . $model->client->id, $model->client->name); });
+        }
+
+        return $table->addColumn('amount', function($model) { return '$' . $model->amount; })
+    	    ->addColumn('date', function($model) { return timestampToDateTimeString($model->created_at); })
     	    ->orderColumns('client')
     	    ->make();
     }

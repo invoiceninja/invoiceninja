@@ -116,8 +116,13 @@
         }
 
         if (isStorageSupported()) {
-          $('[name="guest_key"]').val(localStorage.getItem('guest_key'));
+          @if (Session::get('clearGuestKey'))
+              localStorage.setItem('guest_key', '');
+          @else
+              $('[name="guest_key"]').val(localStorage.getItem('guest_key'));
+          @endif
         }
+        
 
       });
 

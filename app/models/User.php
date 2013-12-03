@@ -8,6 +8,7 @@ class User extends ConfideUser implements UserInterface, RemindableInterface, iP
 {
 
 	protected $softDelete = true;
+	protected $hidden = array('created_at', 'updated_at', 'deleted_at', 'password', 'confirmation_code', 'registered', 'confirmed');
 
     public static $rules = array(
     	/*
@@ -24,13 +25,6 @@ class User extends ConfideUser implements UserInterface, RemindableInterface, iP
 	 * @var string
 	 */
 	protected $table = 'users';
-
-	/**
-	 * The attributes excluded from the model's JSON form.
-	 *
-	 * @var array
-	 */
-	protected $hidden = array('password');
 
 	public function account()
 	{

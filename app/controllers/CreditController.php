@@ -11,6 +11,7 @@ class CreditController extends \BaseController {
     {
         return View::make('list', array(
             'entityType'=>ENTITY_CREDIT, 
+            'title' => '- Credits',
             'columns'=>['checkbox', 'Credit Number', 'Client', 'Amount', 'Credit Date']
         ));
     }

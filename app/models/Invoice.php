@@ -3,6 +3,7 @@
 class Invoice extends Eloquent implements iEntity 
 {
 	protected $softDelete = true;	
+	protected $hidden = array('created_at', 'updated_at', 'deleted_at', 'viewed_date', 'key');
 
 	public function scopeScope($query)
 	{

@@ -14,6 +14,7 @@ class ClientController extends \BaseController {
 
 		return View::make('list', array(
 			'entityType'=>ENTITY_CLIENT, 
+			'title' => '- Clients',
 			'columns'=>['checkbox', 'Client', 'Contact', 'Balance', 'Last Login', 'Date Created', 'Email', 'Phone', 'Action']
 		));		
 	}
@@ -61,7 +62,7 @@ class ClientController extends \BaseController {
 			'client' => null, 
 			'method' => 'POST', 
 			'url' => 'clients', 
-			'title' => 'New',
+			'title' => '- New Client',
 			'countries' => Country::orderBy('name')->get());
 
 		return View::make('clients.edit', $data);
@@ -88,7 +89,11 @@ class ClientController extends \BaseController {
 		$client = Client::scope()->with('contacts')->findOrFail($id);
 		trackViewed($client->name);
 		
-		return View::make('clients.show')->with('client', $client);
+		$data = array(
+			'client' => $client,
+			'title' => '- ' . $client->name);
+
+		return View::make('clients.show', $data);
 	}
 
 	/**
@@ -104,7 +109,7 @@ class ClientController extends \BaseController {
 			'client' => $client, 
 			'method' => 'PUT', 
 			'url' => 'clients/' . $id, 
-			'title' => 'Edit',
+			'title' => '- ' . $client->name,
 			'countries' => Country::orderBy('name')->get());
 		return View::make('clients.edit', $data);
 	}

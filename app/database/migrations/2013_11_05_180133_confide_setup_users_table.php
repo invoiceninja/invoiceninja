@@ -212,7 +212,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamp('viewed_date');
 
             $t->foreign('user_id')->references('id')->on('users');
-            $t->foreign('contact_id')->references('id')->on('contacts');
+            $t->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
         });
 

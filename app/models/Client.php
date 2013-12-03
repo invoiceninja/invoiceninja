@@ -3,7 +3,8 @@
 class Client extends Eloquent implements iEntity 
 {
 	protected $softDelete = true;
-	
+	protected $hidden = array('created_at', 'updated_at', 'deleted_at', 'notes', 'last_login');
+
 	public static $fieldName = 'Client - Name';
 	public static $fieldPhone = 'Client - Phone';
 	public static $fieldAddress1 = 'Client - Street';

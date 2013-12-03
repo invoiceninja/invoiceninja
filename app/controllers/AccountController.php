@@ -13,7 +13,7 @@ class AccountController extends \BaseController {
 			//$user = User::where('password', '=', $guestKey)->firstOrFail();
 			$user = User::where('password', '=', $guestKey)->first();
 
-			if ($user && !$user->is_guest)
+			if ($user && $user->registered)
 			{
 				exit;
 			}
@@ -33,7 +33,7 @@ class AccountController extends \BaseController {
 			$account->users()->save($user);
 		}
 
-		Auth::login($user);
+		Auth::login($user, true);
 		Session::put('tz', 'US/Eastern');
 
 		return Redirect::to('invoices/create');		
@@ -452,7 +452,7 @@ class AccountController extends \BaseController {
 
 	public function checkEmail()
 	{		
-		$email = User::where('email', '=', Input::get('email'))->first();
+		$email = User::where('email', '=', Input::get('email'))->where('id', '<>', Auth::user()->id)->first();
 
 		if ($email) {
 			return "taken";
@@ -500,6 +500,6 @@ class AccountController extends \BaseController {
 		*/
 
 		Session::flash('message', 'Successfully registered');		
-		return Redirect::to(Input::get('path'));
+		return Redirect::to(Input::get('path'))->with('clearGuestKey', true);
 	}
 }

@@ -11,6 +11,7 @@ class InvoiceController extends \BaseController {
 	{
 		return View::make('list', array(
 			'entityType'=>ENTITY_INVOICE, 
+			'title' => '- Invoices',
 			'columns'=>['checkbox', 'Invoice Number', 'Client', 'Total', 'Amount Due', 'Invoice Date', 'Due Date', 'Status', 'Action']
 		));
 	}
@@ -61,7 +62,8 @@ class InvoiceController extends \BaseController {
 
 	public function view($key)
 	{
-		$invitation = Invitation::with('user', 'invoice.account', 'invoice.invoice_items', 'invoice.client.account.account_gateways')->where('key', '=', $key)->firstOrFail();				
+		$invitation = Invitation::with('user', 'invoice.account', 'invoice.invoice_items', 'invoice.client.account.account_gateways')
+			->where('key', '=', $key)->firstOrFail();				
 		
 		$user = $invitation->user;		
 		$invoice = $invitation->invoice;
@@ -216,9 +218,9 @@ class InvoiceController extends \BaseController {
 				'invoice' => $invoice, 
 				'method' => 'PUT', 
 				'url' => 'invoices/' . $id, 
-				'title' => 'Edit',
+				'title' => '- ' . $invoice->invoice_number,
 				'account' => Auth::user()->account,
-				'products' => Product::scope()->get(),
+				'products' => Product::scope()->get(array('key','notes','cost','qty')),
 				'client' => $invoice->client,
 				'clients' => Client::scope()->orderBy('name')->get());
 		return View::make('invoices.edit', $data);
@@ -240,11 +242,11 @@ class InvoiceController extends \BaseController {
 				'invoiceNumber' => $invoiceNumber,
 				'method' => 'POST', 
 				'url' => 'invoices', 
-				'title' => 'New',
+				'title' => '- New Invoice',
 				'client' => $client,
 				'items' => json_decode(Input::old('items')),
 				'account' => Auth::user()->account,
-				'products' => Product::scope()->get(),
+				'products' => Product::scope()->get(array('key','notes','cost','qty')),
 				'clients' => Client::scope()->orderBy('name')->get());
 		return View::make('invoices.edit', $data);
 	}

@@ -3,7 +3,7 @@
 @section('content')	
 	@parent	
 
-	{{ Former::open()->addClass('col-md-9 col-md-offset-1') }}	
+	{{ Former::open()->addClass('col-md-10 col-md-offset-1') }}	
 	{{ Former::legend('Payment Gateway') }}
 
 	@if ($accountGateway)

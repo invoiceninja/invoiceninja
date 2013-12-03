@@ -11,7 +11,7 @@
 
 	</style>
 
-	{{ Former::open_for_files()->addClass('col-md-9 col-md-offset-1')->rules(array(
+	{{ Former::open_for_files()->addClass('col-md-10 col-md-offset-1')->rules(array(
   		'name' => 'required',
   		'email' => 'email|required'
 	)); }}
@@ -58,7 +58,10 @@
 		</div>
 	</div>
 	
-	{{ Former::actions( Button::lg_primary_submit('Save') ) }}
+	<center>
+		{{ Button::lg_primary_submit('Save') }}
+	</center>
+
 	{{ Former::close() }}
 
 	<script type="text/javascript">

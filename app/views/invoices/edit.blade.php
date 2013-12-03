@@ -131,7 +131,7 @@
 			{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}		
 		@endif
 
-		{{ Button::primary('Save Invoice', array('onclick' => 'onSaveClick()')) }}		
+		{{ Button::primary_submit('Save Invoice', array('onclick' => 'onSaveClick()')) }}		
 		{{ Button::primary('Send Email', array('onclick' => 'onEmailClick()')) }}		
 	</div>
 	<p>&nbsp;</p>
@@ -341,10 +341,6 @@
 			$('#action').val('email');
 			$('.main_form').submit();
 		}
-	}
-
-	function onSaveClick() {
-		$('.main_form').submit();
 	}
 
 	function onArchiveClick() {

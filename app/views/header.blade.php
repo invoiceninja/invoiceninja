@@ -8,7 +8,7 @@
     <meta name="author" content="">
     <meta name="csrf-token" content="<?= csrf_token() ?>">
 
-    <title>Invoice Ninja</title>
+    <title>Invoice Ninja {{ isset($title) ? $title : '' }}</title>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -237,7 +237,7 @@
 			@if (Auth::user()->registered)
 			{{ Auth::user()->email }} &nbsp;
 			@else			
-			{{ Button::sm_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')); }}
+			{{ Button::sm_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }}
 			@endif
 			
 			<div class="btn-group">
@@ -245,12 +245,12 @@
 			    My Account <span class="caret"></span>
 			  </button>			
 			  <ul class="dropdown-menu" role="menu">
-			    <li>{{ link_to('account/details', 'Details'); }}</li>
-			    <li>{{ link_to('account/settings', 'Settings'); }}</li>
-			    <li>{{ link_to('account/import', 'Import'); }}</li>
-			    <li>{{ link_to('account/export', 'Export'); }}</li>
+			    <li>{{ link_to('account/details', 'Details') }}</li>
+			    <li>{{ link_to('account/settings', 'Settings') }}</li>
+			    <li>{{ link_to('account/import', 'Import') }}</li>
+			    <li>{{ link_to('account/export', 'Export') }}</li>
 			    <li class="divider"></li>
-			    <li><a href="#">Logout</a></li>
+			    <li>{{ link_to('#', 'Logout', array('onclick'=>'logout()')) }}</li>
 			  </ul>
 			</div>			
 		</div>		
@@ -352,6 +352,28 @@
 	    </div>
 	  </div>
 	</div>
+
+	
+	<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	        <h4 class="modal-title" id="myModalLabel">Logout</h4>
+	      </div>
+
+	      <div class="container">	     
+	      	<h3>Are you sure?</h3>
+	      	<p>This will erase all of your data.</p>	
+	      </div>
+
+	      <div class="modal-footer" id="signUpFooter">	      	
+	      	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	        <button type="button" class="btn btn-primary" onclick="logout(true)">Logout</button>	      	
+	      </div>
+	    </div>
+	  </div>
+	</div>
 	@endif
 	
 		
@@ -398,7 +420,6 @@
 				url: '{{ URL::to('signup/validate') }}',
 				data: 'email=' + $('form.signUpForm #email').val() + '&path={{ Request::path() }}',
 				success: function(result) { 
-					console.log(result) 
 					if (result == 'available') {
 						$('.signUpForm').submit();
 					} else {
@@ -421,27 +442,45 @@
         }
   		@endif
 
+  		function logout(force)
+  		{
+  			if (force || {{ Auth::user()->registered ? 'true' : 'false' }}) {
+  				window.location = '{{ URL::to('logout') }}';
+  			} else {
+  				$('#logoutModal').modal('show');	
+  			}
+  		}
+
   		$(function() {
 
-  			@if (Auth::user()->is_guest)
 	      	if (isStorageSupported()) {
-        		localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
+	  			@if (!Auth::user()->registered)
+	        		localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
+	        	@elseif (Session::get('clearGuestKey'))
+	        		localStorage.setItem('guest_key', '');
+				@endif
         	}
-  			@endif
-
+  	
 			@if (!Auth::user()->registered)
-  			validateSignUp();
+	  			validateSignUp();
 
-			$('#signUpModal').on('shown.bs.modal', function () {
-	  			$(['first_name','last_name','email','password']).each(function(i, field) {
-	  				var $input = $('form.signUpForm #'+field);
-	  				if (!$input.val()) {
-	  					console.log('focus: %s', field);
-	  					$input.focus();	  					
-	  					return false;
-	  				}
-	  			});
-			})
+				$('#signUpModal').on('shown.bs.modal', function () {
+		  			$(['first_name','last_name','email','password']).each(function(i, field) {
+		  				var $input = $('form.signUpForm #'+field);
+		  				if (!$input.val()) {
+		  					$input.focus();	  					
+		  					return false;
+		  				}
+		  			});
+				})
+
+				/*
+				$(window).on('beforeunload', function() {
+					return true;
+				});	
+				$('form').submit(function() { $(window).off('beforeunload') });
+				$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });
+				*/
   			@endif
 
   			@yield('onReady')

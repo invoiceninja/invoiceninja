@@ -5,12 +5,11 @@
 	$('input#name').focus();
 @stop
 
-
 @section('content')
 
 	<!--<h3>{{ $title }} Client</h3>-->
 	
-	{{ Former::open($url)->addClass('col-md-9 col-md-offset-1 main_form')->method($method)->rules(array(
+	{{ Former::open($url)->addClass('col-md-10 col-md-offset-1 main_form')->method($method)->rules(array(
   		'name' => 'required',
   		'email' => 'email'  		
 	)); }}
@@ -71,7 +70,11 @@
 
 	{{ Former::hidden('data')->data_bind("value: ko.toJSON(model)") }}	
 
-	{{ Former::actions( Button::lg_primary_submit('Save') ) }}
+	<center style="margin-top:16px">
+		{{ Button::lg_primary_submit('Save') }} &nbsp;|&nbsp;
+		{{ link_to('clients/' . ($client ? $client->id : ''), 'Cancel') }}	
+	</center>
+
 	{{ Former::close() }}
 
 	<script type="text/javascript">
