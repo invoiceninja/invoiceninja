@@ -66,7 +66,8 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('ip');
             $t->string('logo_path');
             $t->string('key')->unique();
-
+            $t->timestamp('last_login');
+            
             $t->string('address1');
             $t->string('address2');
             $t->string('city');
@@ -115,7 +116,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('last_name');
             $t->string('phone');
             $t->string('username');
-            $t->string('email')->unique();
+            $t->string('email');
             $t->string('password');
             $t->string('confirmation_code');
             $t->boolean('registered')->default(false);
@@ -149,6 +150,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('work_phone');
             $t->text('notes');
             $t->decimal('balance', 10, 2);
+            $t->timestamp('last_login');
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');         
             $t->foreign('country_id')->references('id')->on('countries');       

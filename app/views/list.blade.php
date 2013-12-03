@@ -2,7 +2,7 @@
 
 @section('content')
 
-	{{ Former::open($entityType . 's/bulk') }}
+	{{ Former::open($entityType . 's/bulk')->addClass('listForm') }}
 	<div style="display:none">{{ Former::text('action') }}</div>
 
 	{{ DropdownButton::normal('Archive',
@@ -37,7 +37,7 @@
 			}
 		}
 		$('#action').val(action);
-		$('form').submit();		
+		$('form.listForm').submit();		
 	}
 
 	function deleteEntity(id) {

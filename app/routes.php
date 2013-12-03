@@ -30,12 +30,13 @@ Route::filter('auth', function()
     }
 });
 
-Route::group(array('before' => array('auth', 'csrf')), function()
+Route::group(array('before' => 'auth'), function()
 {   
 	Route::get('home', function() { return View::make('header'); });
 	Route::get('account/{section?}', 'AccountController@showSection');
 	Route::post('account/{section?}', 'AccountController@doSection');
-
+	Route::post('signup/validate', 'AccountController@checkEmail');
+	Route::post('signup/submit', 'AccountController@submitSignup');
 	
 	Route::resource('clients', 'ClientController');
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
@@ -127,7 +128,16 @@ function toSpaceCase($camelStr)
 	return preg_replace('/([a-z])([A-Z])/s','$1 $2', $camelStr);
 }
 
-/*
+function timestampToDateTimeString($timestamp) {
+	$tz = Session::get('tz');
+	if (!$tz) {
+		$tz = 'US/Eastern';
+	}	
+	$date = new Carbon($timestamp);	
+	$date->tz = $tz;	
+	return $date->toDayDateTimeString();
+}
+
 function toDateString($date)
 {
 	if ($date->year < 1900) {
@@ -140,7 +150,7 @@ function toDateString($date)
 	$date->tz = $tz;	
 	return $date->toFormattedDateString();
 }
-*/
+
 
 function toDateTimeString($date)
 {

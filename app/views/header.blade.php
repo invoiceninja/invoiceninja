@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    
+    <meta name="csrf-token" content="<?= csrf_token() ?>">
+
     <title>Invoice Ninja</title>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -54,12 +55,13 @@
 
 	
 	body > div.container {
-		/*max-width: 850px;*/
+		min-height: 600px;
 	}
 
 	label.control-label {
 		font-weight: normal !important;
 	}
+
 
 
 	div.panel {
@@ -228,18 +230,29 @@
 	@endif
 
 	<div class="container">
-
 	<p/>
 	<div>		
 		<span style="font-size:30px">Invoice Ninja</span>		
-		<div style="float:right;text-align:right">
+		<div style="float:right">
 			@if (Auth::user()->registered)
-
+			{{ Auth::user()->email }} &nbsp;
 			@else			
-			{{ Button::sm_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')); }} &nbsp;
-			{{ link_to('account/details', 'My Account'); }}
+			{{ Button::sm_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')); }}
 			@endif
-			<p class="text-danger">This is a sample site, the data is erased.</p>
+			
+			<div class="btn-group">
+			  <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+			    My Account <span class="caret"></span>
+			  </button>			
+			  <ul class="dropdown-menu" role="menu">
+			    <li>{{ link_to('account/details', 'Details'); }}</li>
+			    <li>{{ link_to('account/settings', 'Settings'); }}</li>
+			    <li>{{ link_to('account/import', 'Import'); }}</li>
+			    <li>{{ link_to('account/export', 'Export'); }}</li>
+			    <li class="divider"></li>
+			    <li><a href="#">Logout</a></li>
+			  </ul>
+			</div>			
 		</div>		
 	</div>
 
@@ -293,6 +306,13 @@
 
 	@yield('content')		
 
+
+		</div>
+		<div class="container">
+		<div class="footer">
+			Powered by {{ link_to('https://github.com/hillelcoren/invoice-ninja', 'InvoiceNinja', array('target'=>'_blank')) }}
+			<p class="text-danger">This is a demo site, the data is erased.</p>
+		</div>	
 		</div>
 	</div>
 
@@ -303,20 +323,29 @@
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="myModalLabel">Sign Up</h4>
+	        <h4 class="modal-title" id="myModalLabel">Sign up</h4>
 	      </div>
 
-	      <div style="padding-right:20px" onkeyup="validateSignUp()" onkeydown="checkForEnter(event)">
-	    	{{ Former::open(); }}
+	      <div style="padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onkeydown="checkForEnter(event)">
+	    	{{ Former::open('signup/submit')->addClass('signUpForm') }}
 	    	{{ Former::populate(Auth::user()) }}
-	    	{{ Former::text('first_name'); }}
-	    	{{ Former::text('last_name'); }}
-	    	{{ Former::text('email'); }}	    	
-			{{ Former::password('password'); }}
-			{{ Former::close(); }}
+	    	{{ Former::hidden('path')->value(Request::path()) }}
+	    	{{ Former::text('first_name') }}
+	    	{{ Former::text('last_name') }}
+	    	{{ Former::text('email') }}	    	
+			{{ Former::password('password') }}
+			{{ Former::close() }}
+			<center><div id="errorTaken" style="display:none">&nbsp;<br/>The email address is already regiestered</div></center>
 		  </div>
 
-	      <div class="modal-footer">	      	
+		  <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="working">
+		  	<h3>Working...</h3>
+		  	<div class="progress progress-striped active">
+	  			<div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+			</div>
+		  </div>
+
+	      <div class="modal-footer" id="signUpFooter">	      	
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 	        <button type="button" class="btn btn-primary" onclick="submitSignUp()">Save</button>	      	
 	      </div>
@@ -334,26 +363,25 @@
 		@if (!Auth::user()->registered)
   		function validateSignUp(showError) 
   		{
-  			var isValid = true;
+  			var isFormValid = true;
   			$(['first_name','last_name','email','password']).each(function(i, field) {
-  				var $input = $('#'+field),
+  				var $input = $('form.signUpForm #'+field),
   					val = $.trim($input.val());
-  				var isValid = val && val.length > (field == 'password' ? 6 : 0);
+  				var isValid = val && val.length >= (field == 'password' ? 6 : 1);
   				if (isValid && field == 'email') {
   					isValid = isValidEmailAddress(val);
   				}
   				if (isValid) {
-  					$input.closest('div.form-group').removeClass('has-error');
-  					$input.closest('div.form-group').addClass('has-success');
+  					$input.closest('div.form-group').removeClass('has-error').addClass('has-success');
   				} else {
-  					isValid = false;
+  					isFormValid = false;
   					$input.closest('div.form-group').removeClass('has-success');
   					if (showError) {
   						$input.closest('div.form-group').addClass('has-error');
   					}
   				}
   			});
-  			return isValid;
+  			return isFormValid;
   		}
 
   		function submitSignUp()
@@ -361,6 +389,26 @@
   			if (!validateSignUp(true)) {
   				return;
   			}
+
+  			$('#signUpDiv, #signUpFooter').hide();
+  			$('#working').show();
+
+			$.ajax({
+				type: 'POST',
+				url: '{{ URL::to('signup/validate') }}',
+				data: 'email=' + $('form.signUpForm #email').val() + '&path={{ Request::path() }}',
+				success: function(result) { 
+					console.log(result) 
+					if (result == 'available') {
+						$('.signUpForm').submit();
+					} else {
+						$('#errorTaken').show();
+  						$('form.signUpForm #email').closest('div.form-group').removeClass('has-success').addClass('has-error');
+  						$('#signUpDiv, #signUpFooter').show();
+			  			$('#working').hide();
+					}
+				}
+			});			
   		}
 
   		function checkForEnter(event)
@@ -383,11 +431,21 @@
 
 			@if (!Auth::user()->registered)
   			validateSignUp();
+
+			$('#signUpModal').on('shown.bs.modal', function () {
+	  			$(['first_name','last_name','email','password']).each(function(i, field) {
+	  				var $input = $('form.signUpForm #'+field);
+	  				if (!$input.val()) {
+	  					console.log('focus: %s', field);
+	  					$input.focus();	  					
+	  					return false;
+	  				}
+	  			});
+			})
   			@endif
 
   			@yield('onReady')
   		});
 
-  </script>
-
+  </script>  
 </html>

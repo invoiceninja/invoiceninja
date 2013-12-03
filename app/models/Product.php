@@ -4,14 +4,14 @@ class Product extends Eloquent
 {
 	protected $softDelete = true;
 
-	public static function getProducts()
+	public function scopeScope($query)
 	{
-		return Product::where('account_id','=',Auth::user()->account_id);
+		return $query->whereAccountId(Auth::user()->account_id);
 	}
 
-	public static function findProduct($key)
+	public static function findProductByKey($key)
 	{
-		return Product::getProducts()->where('key','=',$key)->first();
+		return Product::scope()->where('key','=',$key)->first();
 	}
 
 	public static function getProductKeys($products)

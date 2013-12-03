@@ -9,7 +9,7 @@ class PaymentController extends \BaseController
 
 	public function getDatatable($clientId = null)
     {
-        $collection = Payment::with('invoice.client')->where('account_id', '=', Auth::user()->account_id);
+        $collection = Payment::scope()->with('invoice.client');
 
         if ($clientId) {
             $collection->where('client_id','=',$clientId);
@@ -42,7 +42,7 @@ class PaymentController extends \BaseController
 
     public function archive($id)
     {
-        $payment = Payment::find($id);
+        $payment = Payment::scope()->findOrFail($id);
         $payment->delete();
 
         Session::flash('message', 'Successfully archived payment');
@@ -51,7 +51,7 @@ class PaymentController extends \BaseController
 
     public function delete($id)
     {
-        $payment = Payment::find($id);
+        $payment = Payment::scope()->findOrFail($id);
         $payment->forceDelete();
 
         Session::flash('message', 'Successfully deleted payment');

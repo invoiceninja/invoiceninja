@@ -20,7 +20,7 @@ class ClientController extends \BaseController {
 
 	public function getDatatable()
     {
-    	$clients = Client::with('contacts')->where('account_id','=',Auth::user()->account_id)->get();
+    	$clients = Client::scope()->with('contacts')->get();
 
         return Datatable::collection($clients)
     	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->id . '">'; })
@@ -38,10 +38,11 @@ class ClientController extends \BaseController {
     							Select <span class="caret"></span>
   							</button>
   							<ul class="dropdown-menu" role="menu">
-						    <li><a href="' . URL::to('clients/'.$model->id.'/edit') . '">Edit</a></li>
+  							<li><a href="' . URL::to('invoices/create/'.$model->id) . '">New Invoice</a></li>						    
+						    <li><a href="' . URL::to('clients/'.$model->id.'/edit') . '">Edit Client</a></li>
 						    <li class="divider"></li>
-						    <li><a href="' . URL::to('clients/'.$model->id.'/archive') . '">Archive</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->id. ')">Delete</a></li>						    
+						    <li><a href="' . URL::to('clients/'.$model->id.'/archive') . '">Archive Client</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->id. ')">Delete Client</a></li>						    
 						  </ul>
 						</div>';
     	    })    	   
@@ -84,9 +85,8 @@ class ClientController extends \BaseController {
 	 */
 	public function show($id)
 	{
-		$client = Client::with('contacts')->find($id);
+		$client = Client::scope()->with('contacts')->findOrFail($id);
 		trackViewed($client->name);
-
 		
 		return View::make('clients.show')->with('client', $client);
 	}
@@ -99,7 +99,7 @@ class ClientController extends \BaseController {
 	 */
 	public function edit($id)
 	{
-		$client = Client::with('contacts')->find($id);
+		$client = Client::scope()->with('contacts')->findOrFail($id);
 		$data = array(
 			'client' => $client, 
 			'method' => 'PUT', 
@@ -133,7 +133,7 @@ class ClientController extends \BaseController {
 				->withInput(Input::except('password'));
 		} else {			
 			if ($id) {
-				$client = Client::find($id);
+				$client = Client::scope()->findOrFail($id);
 			} else {
 				$client = new Client;
 				$client->account_id = Auth::user()->account_id;
@@ -159,7 +159,7 @@ class ClientController extends \BaseController {
 			{
 				if (isset($contact->id) && $contact->id)
 				{
-					$record = Contact::find($contact->id);
+					$record = Contact::findOrFail($contact->id);
 				}
 				else
 				{
@@ -192,8 +192,8 @@ class ClientController extends \BaseController {
 	public function bulk()
 	{
 		$action = Input::get('action');
-		$ids = Input::get('ids');
-		$clients = Client::find($ids);
+		$ids = Input::get('ids') ? Input::get('ids') : [Input::get('id')];
+		$clients = Client::scope()->findOrFail($ids);
 
 		foreach ($clients as $client) {
 			if ($action == 'archive') {
@@ -211,7 +211,7 @@ class ClientController extends \BaseController {
 
 	public function archive($id)
 	{
-		$client = Client::find($id);
+		$client = Client::scope()->findOrFail($id);
 		$client->delete();
 
 		foreach ($client->invoices as $invoice)
@@ -225,7 +225,7 @@ class ClientController extends \BaseController {
 
 	public function delete($id)
 	{
-		$client = Client::find($id);
+		$client = Client::scope()->findOrFail($id);
 		$client->forceDelete();
 
 		Session::flash('message', 'Successfully deleted ' . $client->name);

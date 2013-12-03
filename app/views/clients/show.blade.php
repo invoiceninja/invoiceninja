@@ -4,11 +4,33 @@
 	
 	
 	<div class="pull-right">
-		{{ Button::link(URL::to('clients/' . $client->id . '/edit'), 'Edit Client') }}
+		{{ Former::open('clients/bulk')->addClass('mainForm') }}
+		<div style="display:none">
+			{{ Former::text('action') }}
+			{{ Former::text('id')->value($client->id) }}
+		</div>
+
+		{{ DropdownButton::normal('Edit Client',
+			  Navigation::links(
+			    array(
+			      array('Edit Client', URL::to('clients/' . $client->id . '/edit')),
+			      array(Navigation::DIVIDER),
+			      array('Archive Client', "javascript:onArchiveClick()"),
+			      array('Delete Client', "javascript:onDeleteClick()"),
+			    )
+			  )
+			, array('id'=>'actionDropDown'))->split(); }}
 		{{ Button::primary_link(URL::to('invoices/create/' . $client->id), 'Create Invoice') }}
+	    {{ Former::close() }}
+		
 	</div>
 
 	<h2>{{ $client->name }}</h2>
+	@if ($client->last_login > 0)
+	<h3 style="margin-top:0px"><small>		
+		Last logged in {{ timestampToDateTimeString($client->last_login); }}
+	</small></h3>
+	@endif
 
 	<div class="row">
 
@@ -90,8 +112,22 @@
 	<script type="text/javascript">
 
 	$(function() {
-
+		$('#actionDropDown > button:first').click(function() {
+			window.location = '{{ URL::to('clients/' . $client->id . '/edit') }}';
+		});
 	});
+
+	function onArchiveClick() {
+		$('#action').val('archive');
+		$('.mainForm').submit();
+	}
+
+	function onDeleteClick() {
+		if (confirm('Are you sure you want to delete this client?')) {
+			$('#action').val('delete');
+			$('.mainForm').submit();
+		}		
+	}
 
 	</script>
 

@@ -10,7 +10,7 @@ class AccountController extends \BaseController {
 
 		if ($guestKey) 
 		{
-			//$user = User::where('key','=',$guestKey)->firstOrFail();
+			//$user = User::where('password', '=', $guestKey)->firstOrFail();
 			$user = User::where('password', '=', $guestKey)->first();
 
 			if ($user && !$user->is_guest)
@@ -29,10 +29,7 @@ class AccountController extends \BaseController {
 			$random = str_random(20);
 
 			$user = new User;
-			//$user->username = $random.'@gmail.com';
-			//$user->password = $random;
-			//$user->email = $random.'@gmail.com';
-			//$user->password_confirmation = $random;
+			$user->password = $random;
 			$account->users()->save($user);
 		}
 
@@ -46,7 +43,7 @@ class AccountController extends \BaseController {
 	{
 		if ($section == ACCOUNT_DETAILS)
 		{			
-			$account = Account::with('users')->find(Auth::user()->account_id);
+			$account = Account::with('users')->findOrFail(Auth::user()->account_id);
 			$countries = Country::orderBy('name')->get();
 			$timezones = Timezone::orderBy('location')->get();
 
@@ -54,7 +51,7 @@ class AccountController extends \BaseController {
 		}
 		else if ($section == ACCOUNT_SETTINGS)
 		{
-			$account = Account::with('account_gateways')->find(Auth::user()->account_id);
+			$account = Account::with('account_gateways')->findOrFail(Auth::user()->account_id);
 			$accountGateway = null;
 			$config = null;
 
@@ -355,7 +352,7 @@ class AccountController extends \BaseController {
 
 		if ($gatewayId = Input::get('gateway_id')) 
 		{
-			$gateway = Gateway::find($gatewayId);
+			$gateway = Gateway::findOrFail($gatewayId);
 			$fields = Omnipay::create($gateway->provider)->getDefaultParameters();
 			
 			foreach ($fields as $field => $details)
@@ -377,7 +374,7 @@ class AccountController extends \BaseController {
 		} 
 		else 
 		{
-			$account = Account::find(Auth::user()->account_id);
+			$account = Account::findOrFail(Auth::user()->account_id);
 			$account->account_gateways()->forceDelete();			
 
 			if ($gatewayId) 
@@ -417,7 +414,7 @@ class AccountController extends \BaseController {
 		} 
 		else 
 		{
-			$account = Account::find(Auth::user()->account_id);
+			$account = Account::findOrFail(Auth::user()->account_id);
 			$account->name = Input::get('name');
 			$account->address1 = Input::get('address1');
 			$account->address2 = Input::get('address2');
@@ -436,7 +433,7 @@ class AccountController extends \BaseController {
 			$user->save();
 
 			if (Input::get('timezone_id')) {
-				$timezone = Timezone::find(Input::get('timezone_id'));
+				$timezone = Timezone::findOrFail(Input::get('timezone_id'));
 				Session::put('tz', $timezone->name);
 			}
 
@@ -451,5 +448,58 @@ class AccountController extends \BaseController {
 			Session::flash('message', 'Successfully updated details');
 			return Redirect::to('account/details');
 		}
+	}
+
+	public function checkEmail()
+	{		
+		$email = User::where('email', '=', Input::get('email'))->first();
+
+		if ($email) {
+			return "taken";
+		} else {
+			return "available";
+		}
+	}
+
+	public function submitSignup()
+	{
+		$rules = array(
+			'first_name' => 'required',
+			'last_name' => 'required',
+			'password' => 'required|min:6',
+			'email' => 'email|required'
+		);
+
+		$validator = Validator::make(Input::all(), $rules);
+
+		if ($validator->fails()) 
+		{
+			return Redirect::to(Input::get('path'));
+		} 
+
+		$user = Auth::user();
+		$user->first_name = Input::get('first_name');
+		$user->last_name = Input::get('last_name');
+		$user->email = Input::get('email');
+		$user->password = Input::get('password');
+		$user->registered = true;
+		$user->save();
+
+		$activities = Activity::scope()->get();
+		foreach ($activities as $activity) {
+			$activity->message = str_replace('Guest', $user->getFullName(), $activity->message);
+			$activity->save();
+		}
+
+		/*
+		Mail::send(array('html'=>'emails.welcome_html','text'=>'emails.welcome_text'), $data, function($message) use ($user)
+		{
+		    $message->from('hillelcoren@gmail.com', 'Hillel Coren');
+		    $message->to($user->email);
+		});
+		*/
+
+		Session::flash('message', 'Successfully registered');		
+		return Redirect::to(Input::get('path'));
 	}
 }

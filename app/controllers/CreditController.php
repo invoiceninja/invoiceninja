@@ -17,7 +17,7 @@ class CreditController extends \BaseController {
 
     public function getDatatable($clientId = null)
     {
-        $collection = Credit::with('client')->where('account_id','=',Auth::user()->account_id);
+        $collection = Credit::scope()->with('client');
 
         if ($clientId) {
             $collection->where('client_id','=',$clientId);
@@ -43,7 +43,7 @@ class CreditController extends \BaseController {
 
     public function archive($id)
     {
-        $credit = Credit::find($id);
+        $credit = Credit::scope()->findOrFail($id);
         $creidt->delete();
 
         Session::flash('message', 'Successfully archived credit ' . $credit->credit_number);
@@ -52,7 +52,7 @@ class CreditController extends \BaseController {
 
     public function delete($id)
     {
-        $credit = Credit::find($id);
+        $credit = Credit::scope()->findOrFail($id);
         $credit->forceDelete();
 
         Session::flash('message', 'Successfully deleted credit ' . $credit->credit_number);

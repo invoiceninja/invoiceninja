@@ -4,6 +4,7 @@
 
 	<p>&nbsp;</p>
 
+
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
   		'invoice_number' => 'required',
   		'invoice_date' => 'required',
@@ -111,13 +112,26 @@
 	    </tfoot>
 	</table>
 
-
-	<input type="checkbox" name="send_email_checkBox" id="send_email_checkBox" value="true" style="display:none"/>
-
 	<p>&nbsp;</p>
 	<div class="form-actions">
-		{{ Button::primary('Download PDF', array('onclick' => 'onDownloadClick()')) }}
-		{{ Button::primary_submit('Save Invoice', array('onclick' => 'onSaveClick()')) }}
+
+		@if ($invoice)		
+			<div style="display:none">{{ Former::text('action') }}</div>
+			{{ DropdownButton::normal('Download PDF',
+				  Navigation::links(
+				    array(
+				    	array('Download PDF', "javascript:onDownloadClick()"),
+				     	array(Navigation::DIVIDER),
+				     	array('Archive Invoice', "javascript:onArchiveClick()"),
+				     	array('Delete Invoice', "javascript:onDeleteClick()"),
+				    )
+				  )
+				, array('id'=>'actionDropDown','style'=>'text-align:left'))->split(); }}				
+		@else
+			{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}		
+		@endif
+
+		{{ Button::primary('Save Invoice', array('onclick' => 'onSaveClick()')) }}		
 		{{ Button::primary('Send Email', array('onclick' => 'onEmailClick()')) }}		
 	</div>
 	<p>&nbsp;</p>
@@ -160,8 +174,6 @@
 
 	{{ Former::close() }}
 
-
-
 	<script type="text/javascript">
 
 	/*
@@ -192,9 +204,32 @@
 
 		var $input = $('select#client');
 		$input.combobox();
-		$('.combobox-container input.form-control').attr('name', 'client_combobox').on('change', function(e) {
+		$('.combobox-container input.form-control').attr('name', 'client_combobox').on('change', function(e) {			
 			refreshPDF();
+		}).mouseleave(function() {
+			$(this).css('text-decoration','none');
+		}).on('change keyup mouseenter', function(e) {
+			if ($(this).closest('.combobox-container').hasClass('combobox-selected')) {
+				$(this).css('text-decoration','underline');
+				$(this).css('cursor','pointer');	
+			} else {
+				$(this).css('text-decoration','none');
+				$(this).css('cursor','text');	
+			}			
+		}).on('focusout mouseleave', function(e) {
+			$(this).css('text-decoration','none');
+			$(this).css('cursor','text');	
+		}).on('click', function() {
+			var clientId = $('.combobox-container input[name=client]').val();
+			if ($(this).closest('.combobox-container').hasClass('combobox-selected')) {				
+				if (parseInt(clientId) > 0) {
+					window.open('{{ URL::to('clients') }}' + '/' + clientId, '_blank');
+				} else {
+					$('#myModal').modal('show');
+				}
+			};
 		});
+		
 
 		@if ($client)
 			$('input#invoice_number').focus();
@@ -214,6 +249,11 @@
 
 		$('#invoice_number').change(refreshPDF);
 
+		$('#actionDropDown > button:first').click(function() {
+			onDownloadClick();
+		});
+
+
 		applyComboboxListeners();
 		refreshPDF();		
 	});
@@ -224,7 +264,7 @@
 			value = $(this).val();
 		}).on('blur', function() {
 			if (value != $(this).val()) refreshPDF();
-		}).on('input', function() {
+		}).on('input', function() {			
 			var key = $(this).val();
 			for (var i=0; i<products.length; i++) {
 				var product = products[i];
@@ -298,13 +338,25 @@
 
 	function onEmailClick() {
 		if (confirm('Are you sure you want to email this invoice?')) {
-			$('#send_email_checkBox').prop("checked",true);
+			$('#action').val('email');
 			$('.main_form').submit();
 		}
 	}
 
 	function onSaveClick() {
 		$('.main_form').submit();
+	}
+
+	function onArchiveClick() {
+		$('#action').val('archive');
+		$('.main_form').submit();
+	}
+
+	function onDeleteClick() {
+		if (confirm('Are you sure you want to delete this invoice?')) {
+			$('#action').val('delete');
+			$('.main_form').submit();
+		}		
 	}
 
 	function newClient() {
@@ -361,19 +413,10 @@
 					item.qty("{{ $item->qty }}");				
 					self.items.push(item);				
 				@endforeach
-			@else
-				self.items.push(new ItemModel());
 			@endif
-		@else
-			var model1 = new ItemModel();
-			/*
-			model1.item('TEST');
-			model1.notes('Some test text');
-			model1.cost(10);
-			model1.qty(1);
-			*/
-			self.items.push(model1);				
-		@endif		
+		@endif
+
+		self.items.push(new ItemModel());
 		
 		self.removeItem = function(item) {
 			self.items.remove(item);

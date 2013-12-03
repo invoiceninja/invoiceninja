@@ -17,7 +17,7 @@ class InvoiceController extends \BaseController {
 
 	public function getDatatable($clientId = null)
     {
-    	$collection = Invoice::with('client','invoice_items','invoice_status')->where('account_id','=',Auth::user()->account_id);
+    	$collection = Invoice::scope()->with('client','invoice_items','invoice_status');
 
     	if ($clientId) {
     		$collection->where('client_id','=',$clientId);
@@ -47,10 +47,10 @@ class InvoiceController extends \BaseController {
     							Select <span class="caret"></span>
   							</button>
   							<ul class="dropdown-menu" role="menu">
-						    <li><a href="' . URL::to('invoices/'.$model->id.'/edit') . '">Edit</a></li>
+						    <li><a href="' . URL::to('invoices/'.$model->id.'/edit') . '">Edit Invoice</a></li>
 						    <li class="divider"></li>
-						    <li><a href="' . URL::to('invoices/'.$model->id.'/archive') . '">Archive</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->id . ')">Delete</a></li>						    
+						    <li><a href="' . URL::to('invoices/'.$model->id.'/archive') . '">Archive Invoice</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->id . ')">Delete Invoice</a></li>						    
 						  </ul>
 						</div>';
     	    })    	       	    
@@ -64,13 +64,20 @@ class InvoiceController extends \BaseController {
 		$invitation = Invitation::with('user', 'invoice.account', 'invoice.invoice_items', 'invoice.client.account.account_gateways')->where('key', '=', $key)->firstOrFail();				
 		
 		$user = $invitation->user;		
+		$invoice = $invitation->invoice;
+		
+		$now = Carbon::now()->toDateTimeString();
 
-		$invitation->viewed_date = Carbon::now()->toDateTimeString();
+		$invitation->viewed_date = $now;
 		$invitation->save();
+
+		$client = $invoice->client;
+		$client->last_login = $now;
+		$client->save();
 
 		Activity::viewInvoice($invitation);
 
-		return View::make('invoices.view')->with('invoice', $invitation->invoice);	
+		return View::make('invoices.view')->with('invoice', $invoice);	
 	}
 
 	private function createGateway($accountGateway)
@@ -201,7 +208,7 @@ class InvoiceController extends \BaseController {
 
 	public function edit($id)
 	{
-		$invoice = Invoice::with('account.country', 'client', 'invoice_items')->find($id);
+		$invoice = Invoice::scope()->with('account.country', 'client', 'invoice_items')->findOrFail($id);
 		trackViewed($invoice->invoice_number . ' - ' . $invoice->client->name);
 		
 		$data = array(
@@ -211,9 +218,9 @@ class InvoiceController extends \BaseController {
 				'url' => 'invoices/' . $id, 
 				'title' => 'Edit',
 				'account' => Auth::user()->account,
-				'products' => Product::getProducts()->get(),
+				'products' => Product::scope()->get(),
 				'client' => $invoice->client,
-				'clients' => Client::where('account_id','=',Auth::user()->account_id)->orderBy('name')->get());
+				'clients' => Client::scope()->orderBy('name')->get());
 		return View::make('invoices.edit', $data);
 	}
 
@@ -221,7 +228,11 @@ class InvoiceController extends \BaseController {
 	{		
 		$client = null;
 		$invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
-		$account = Account::with('country')->find(Auth::user()->account_id);
+		$account = Account::with('country')->findOrFail(Auth::user()->account_id);
+
+		if ($clientId) {
+			$client = Client::scope()->findOrFail($clientId);
+        }
 
 		$data = array(
 				'account' => $account,
@@ -233,8 +244,8 @@ class InvoiceController extends \BaseController {
 				'client' => $client,
 				'items' => json_decode(Input::old('items')),
 				'account' => Auth::user()->account,
-				'products' => Product::getProducts()->get(),
-				'clients' => Client::where('account_id','=',Auth::user()->account_id)->orderBy('name')->get());
+				'products' => Product::scope()->get(),
+				'clients' => Client::scope()->orderBy('name')->get());
 		return View::make('invoices.edit', $data);
 	}
 
@@ -250,6 +261,17 @@ class InvoiceController extends \BaseController {
 
 	private function save($id = null)
 	{	
+		$action = Input::get('action');
+
+		if ($action == 'archive')
+		{
+			return InvoiceController::archive($id);
+		}
+		else if ($action == 'delete')
+		{
+			return InvoiceController::delete($id);
+		}
+
 		$rules = array(
 			'client' => 'required',
 			'invoice_number' => 'required',
@@ -279,12 +301,12 @@ class InvoiceController extends \BaseController {
 			}
 			else
 			{
-				$client = Client::with('contacts')->find($clientId);				
+				$client = Client::scope()->with('contacts')->findOrFail($clientId);				
 				$contact = $client->contacts()->first();
 			}
 
 			if ($id) {
-				$invoice = Invoice::find($id);
+				$invoice = Invoice::scope()->findOrFail($id);
 				$invoice->invoice_items()->forceDelete();
 			} else {
 				$invoice = new Invoice;
@@ -308,11 +330,16 @@ class InvoiceController extends \BaseController {
 				if (!isset($item->qty))
 				{
 					$item->qty = 0;
-				}				
+				}
+
+				if (!$item->cost && !$item->qty && !$item->product_key && !$item->notes)
+				{
+					continue;
+				}
 
 				if ($item->product_key)
 				{
-					$product = Product::findProduct($item->product_key);
+					$product = Product::findProductByKey($item->product_key);
 
 					if (!$product)
 					{
@@ -340,7 +367,7 @@ class InvoiceController extends \BaseController {
 				$invoice->invoice_items()->save($invoiceItem);
 			}
 
-			if (Input::get('send_email_checkBox')) 
+			if ($action == 'email') 
 			{
 				$data = array('link' => URL::to('view') . '/' . $invoice->invoice_key);
 				/*
@@ -404,7 +431,7 @@ class InvoiceController extends \BaseController {
 	{
 		$action = Input::get('action');
 		$ids = Input::get('ids');
-		$invoices = Invoice::find($ids);
+		$invoices = Invoice::scope()->findOrFail($ids);
 
 		foreach ($invoices as $invoice) {
 			if ($action == 'archive') {
@@ -422,16 +449,16 @@ class InvoiceController extends \BaseController {
 
 	public function archive($id)
 	{
-		$invoice = Invoice::find($id);
+		$invoice = Invoice::scope()->findOrFail($id);
 		$invoice->delete();
-
+		
 		Session::flash('message', 'Successfully archived invoice ' . $invoice->invoice_number);
 		return Redirect::to('invoices');		
 	}
 
 	public function delete($id)
 	{
-		$invoice = Invoice::find($id);
+		$invoice = Invoice::scope()->findOrFail($id);
 		$invoice->forceDelete();
 
 		Session::flash('message', 'Successfully deleted invoice ' . $invoice->invoice_number);

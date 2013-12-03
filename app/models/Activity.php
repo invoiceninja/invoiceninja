@@ -18,6 +18,11 @@ define("ACTIVITY_TYPE_DELETE_CREDIT", 14);
 
 class Activity extends Eloquent
 {
+	public function scopeScope($query)
+	{
+		return $query->whereAccountId(Auth::user()->account_id);
+	}
+
 	private static function getBlank()
 	{
 		$user = Auth::user();

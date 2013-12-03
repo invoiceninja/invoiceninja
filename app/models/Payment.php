@@ -4,6 +4,11 @@ class Payment extends Eloquent implements iEntity
 {
 	protected $softDelete = true;
 
+	public function scopeScope($query)
+	{
+		return $query->whereAccountId(Auth::user()->account_id);
+	}
+
 	public function invoice()
 	{
 		return $this->belongsTo('Invoice');
