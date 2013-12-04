@@ -18,6 +18,8 @@ define("ACTIVITY_TYPE_DELETE_CREDIT", 14);
 
 class Activity extends Eloquent
 {
+	protected $hidden = array('id');
+
 	public function scopeScope($query)
 	{
 		return $query->whereAccountId(Auth::user()->account_id);

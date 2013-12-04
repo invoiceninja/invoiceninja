@@ -234,7 +234,7 @@
 	<div>		
 		<span style="font-size:30px">Invoice Ninja</span>		
 		<div style="float:right">
-			@if (Auth::user()->registered)
+			@if (Auth::check() && Auth::user()->registered)
 			{{ Auth::user()->email }} &nbsp;
 			@else			
 			{{ Button::sm_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }}
@@ -317,7 +317,7 @@
 	</div>
 
 
-	@if (!Auth::user()->registered)
+	@if (!Auth::check() || !Auth::user()->registered)
 	<div class="modal fade" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModalLabel" aria-hidden="true">
 	  <div class="modal-dialog">
 	    <div class="modal-content">
@@ -328,7 +328,9 @@
 
 	      <div style="padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onkeydown="checkForEnter(event)">
 	    	{{ Former::open('signup/submit')->addClass('signUpForm') }}
-	    	{{ Former::populate(Auth::user()) }}
+	    	@if (Auth::check())
+	    		{{ Former::populate(Auth::user()) }}
+	    	@endif
 	    	{{ Former::hidden('path')->value(Request::path()) }}
 	    	{{ Former::text('first_name') }}
 	    	{{ Former::text('last_name') }}
@@ -382,7 +384,7 @@
 
   <script type="text/javascript">
 
-		@if (!Auth::user()->registered)
+		@if (!Auth::check() || !Auth::user()->registered)
   		function validateSignUp(showError) 
   		{
   			var isFormValid = true;
@@ -444,7 +446,7 @@
 
   		function logout(force)
   		{
-  			if (force || {{ Auth::user()->registered ? 'true' : 'false' }}) {
+  			if (force || {{ !Auth::check() || Auth::user()->registered ? 'true' : 'false' }}) {
   				window.location = '{{ URL::to('logout') }}';
   			} else {
   				$('#logoutModal').modal('show');	
@@ -454,14 +456,14 @@
   		$(function() {
 
 	      	if (isStorageSupported()) {
-	  			@if (!Auth::user()->registered)
+	  			@if (Auth::check() && !Auth::user()->registered)
 	        		localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
 	        	@elseif (Session::get('clearGuestKey'))
 	        		localStorage.setItem('guest_key', '');
 				@endif
         	}
   	
-			@if (!Auth::user()->registered)
+			@if (!Auth::check() || !Auth::user()->registered)
 	  			validateSignUp();
 
 				$('#signUpModal').on('shown.bs.modal', function () {

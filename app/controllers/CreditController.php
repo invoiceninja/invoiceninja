@@ -16,24 +16,25 @@ class CreditController extends \BaseController {
         ));
     }
 
-    public function getDatatable($clientId = null)
+    public function getDatatable($clientPublicId = null)
     {
         $collection = Credit::scope()->with('client');
 
-        if ($clientId) {
+        if ($clientPublicId) {
+            $clientId = Client::getPrivateId($clientPublicId);
             $collection->where('client_id','=',$clientId);
         }
 
         $table = Datatable::collection($collection->get());
 
-        if (!$clientId) {
-            $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->id . '">'; });
+        if (!$clientPublicId) {
+            $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
         }
         
         $table->addColumn('credit_number', function($model) { return $model->credit_number; });
 
-        if (!$clientId) {
-            $table->addColumn('client', function($model) { return link_to('clients/' . $model->client->id, $model->client->name); });
+        if (!$clientPublicId) {
+            $table->addColumn('client', function($model) { return link_to('clients/' . $model->client->public_id, $model->client->name); });
         }
         
         return $table->addColumn('amount', function($model){ return '$' . money_format('%i', $model->amount); })
@@ -42,18 +43,18 @@ class CreditController extends \BaseController {
             ->make();       
     }
 
-    public function archive($id)
+    public function archive($publicId)
     {
-        $credit = Credit::scope()->findOrFail($id);
+        $credit = Credit::scope($publicId)->firstOrFail();
         $creidt->delete();
 
         Session::flash('message', 'Successfully archived credit ' . $credit->credit_number);
         return Redirect::to('credits');     
     }
 
-    public function delete($id)
+    public function delete($publicId)
     {
-        $credit = Credit::scope()->findOrFail($id);
+        $credit = Credit::scope($publicId)->firstOrFail();
         $credit->forceDelete();
 
         Session::flash('message', 'Successfully deleted credit ' . $credit->credit_number);

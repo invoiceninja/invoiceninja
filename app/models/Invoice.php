@@ -1,14 +1,8 @@
 <?php
 
-class Invoice extends Eloquent implements iEntity 
+class Invoice extends EntityModel
 {
-	protected $softDelete = true;	
-	protected $hidden = array('created_at', 'updated_at', 'deleted_at', 'viewed_date', 'key');
-
-	public function scopeScope($query)
-	{
-		return $query->whereAccountId(Auth::user()->account_id);
-	}
+	protected $hidden = array('id', 'created_at', 'updated_at', 'deleted_at', 'viewed_date');
 
 	public function account()
 	{

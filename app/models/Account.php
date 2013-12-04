@@ -62,7 +62,7 @@ class Account extends Eloquent
 
 	public function getLogoPath()
 	{
-		return 'logo/' . $this->key . '.jpg';
+		return 'logo/' . $this->account_key . '.jpg';
 	}
 
 	public function getLogoWidth()
@@ -79,7 +79,7 @@ class Account extends Eloquent
 
 	public function getNextInvoiceNumber()
 	{
-		$order = $this->invoices()->orderBy('invoice_number', 'DESC')->first();
+		$order = Invoice::scope()->orderBy('invoice_number', 'DESC')->first();
 
 		if ($order) 
 		{

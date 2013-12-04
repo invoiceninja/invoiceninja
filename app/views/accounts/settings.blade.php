@@ -4,6 +4,11 @@
 	@parent	
 
 	{{ Former::open()->addClass('col-md-10 col-md-offset-1') }}	
+	{{ Former::populate($account) }}
+
+	{{ Former::legend('Invoices') }}
+	{{ Former::textarea('invoice_terms') }}
+
 	{{ Former::legend('Payment Gateway') }}
 
 	@if ($accountGateway)

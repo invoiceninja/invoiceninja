@@ -72,7 +72,7 @@
 
 	<center style="margin-top:16px">
 		{{ Button::lg_primary_submit('Save') }} &nbsp;|&nbsp;
-		{{ link_to('clients/' . ($client ? $client->id : ''), 'Cancel') }}	
+		{{ link_to('clients/' . ($client ? $client->public_id : ''), 'Cancel') }}	
 	</center>
 
 	{{ Former::close() }}

@@ -23,7 +23,7 @@ class AccountController extends \BaseController {
 		{
 			$account = new Account;
 			$account->ip = Request::getClientIp();
-			$account->key = str_random(20);
+			$account->account_key = str_random(20);
 			$account->save();
 			
 			$random = str_random(20);
@@ -374,8 +374,11 @@ class AccountController extends \BaseController {
 		} 
 		else 
 		{
-			$account = Account::findOrFail(Auth::user()->account_id);
+			$account = Account::findOrFail(Auth::user()->account_id);			
 			$account->account_gateways()->forceDelete();			
+
+			$account->invoice_terms = Input::get('invoice_terms');
+			$account->save();
 
 			if ($gatewayId) 
 			{
@@ -441,8 +444,8 @@ class AccountController extends \BaseController {
 			if ($file = Input::file('logo'))
 			{
 				$path = Input::file('logo')->getRealPath();
-				File::delete('logo/' . $account->key . '.jpg');
-				Image::make($path)->resize(150, 100, true, false)->save('logo/' . $account->key . '.jpg');
+				File::delete('logo/' . $account->account_key . '.jpg');
+				Image::make($path)->resize(150, 100, true, false)->save('logo/' . $account->account_key . '.jpg');
 			}
 
 			Session::flash('message', 'Successfully updated details');

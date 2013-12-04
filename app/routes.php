@@ -11,8 +11,7 @@
 |
 */
 
-//dd(Omnipay::getFactory()->find());
-
+//dd(Client::getPrivateId(1));
 
 Route::get('/', 'HomeController@showWelcome');
 Route::post('get_started', 'AccountController@getStarted');
@@ -21,6 +20,8 @@ Route::get('view/{invoice_key}', 'InvoiceController@view');
 Route::get('payment/{invoice_key}', 'InvoiceController@show_payment');
 Route::get('complete', 'InvoiceController@do_payment');
 
+Route::post('signup/validate', 'AccountController@checkEmail');
+Route::post('signup/submit', 'AccountController@submitSignup');
 
 Route::filter('auth', function()
 {
@@ -35,9 +36,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('home', function() { return View::make('header'); });
 	Route::get('account/{section?}', 'AccountController@showSection');
 	Route::post('account/{section?}', 'AccountController@doSection');
-	Route::post('signup/validate', 'AccountController@checkEmail');
-	Route::post('signup/submit', 'AccountController@submitSignup');
-	
+		
 	Route::resource('clients', 'ClientController');
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
 	Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));	
@@ -52,16 +51,14 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('invoices/{client_id}/archive', 'InvoiceController@archive');
 	Route::get('invoices/{client_id}/delete', 'InvoiceController@delete');
 
-	Route::get('payments', 'PaymentController@index');
+	Route::resource('payments', 'PaymentController');
 	Route::get('api/payments/{client_id?}', array('as'=>'api.payments', 'uses'=>'PaymentController@getDatatable'));
 	Route::post('payments/bulk', 'PaymentController@bulk');
-	Route::get('payments/create', function() { return View::make('header'); });
 	Route::get('payments/{client_id}/archive', 'PaymentController@archive');
 	Route::get('payments/{client_id}/delete', 'PaymentController@delete');
 
-	Route::get('credits', 'CreditController@index');
+	Route::resource('credits', 'CreditController');
 	Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));	
-	Route::get('credits/create', function() { return View::make('header'); });
 	Route::get('credits/{client_id}/archive', 'CreditController@archive');
 	Route::get('credits/{client_id}/delete', 'CreditController@delete');
 
@@ -247,12 +244,12 @@ define("RECENTLY_VIEWED_LIMIT", 8);
 
 interface iPerson
 {
-    public function getFullName();
-    public function getPersonType();
+    //public function getFullName();
+    //public function getPersonType();
 }
 
 interface iEntity
 {
-    public function getName();
-    public function getEntityType();
+    //public function getName();
+    //public function getEntityType();
 }

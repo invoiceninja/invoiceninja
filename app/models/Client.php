@@ -1,9 +1,8 @@
 <?php
 
-class Client extends Eloquent implements iEntity 
+class Client extends EntityModel
 {
-	protected $softDelete = true;
-	protected $hidden = array('created_at', 'updated_at', 'deleted_at', 'notes', 'last_login');
+	protected $hidden = array('id', 'created_at', 'updated_at', 'deleted_at', 'notes', 'last_login');
 
 	public static $fieldName = 'Client - Name';
 	public static $fieldPhone = 'Client - Phone';
@@ -14,11 +13,6 @@ class Client extends Eloquent implements iEntity
 	public static $fieldPostalCode = 'Client - Postal Code';
 	public static $fieldNotes = 'Client - Notes';
 	public static $fieldCountry = 'Client - Country';
-
-	public function scopeScope($query)
-	{
-		return $query->whereAccountId(Auth::user()->account_id);
-	}
 
 	public function account()
 	{

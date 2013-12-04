@@ -24,8 +24,9 @@
     
     <div class="row">
     	<div class="col-md-6">
-			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'id')->select($client ? $client->id : '')
-				->help('<a style="cursor:pointer" data-toggle="modal" data-target="#myModal">Create new client</a>'); }}
+			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'public_id')->select($client ? $client->public_id : '')
+				->help('<a style="cursor:pointer" data-toggle="modal" data-target="#myModal">Create new client</a>') }}
+			{{ Former::textarea('notes') }}
 		</div>
 		<div class="col-md-5">
 			{{ Former::text('invoice_number')->label('Invoice #') }}
@@ -131,7 +132,7 @@
 			{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}		
 		@endif
 
-		{{ Button::primary_submit('Save Invoice', array('onclick' => 'onSaveClick()')) }}		
+		{{ Button::primary_submit('Save Invoice') }}		
 		{{ Button::primary('Send Email', array('onclick' => 'onEmailClick()')) }}		
 	</div>
 	<p>&nbsp;</p>
@@ -268,7 +269,7 @@
 			var key = $(this).val();
 			for (var i=0; i<products.length; i++) {
 				var product = products[i];
-				if (product.key == key) {
+				if (product.product_key == key) {
 					var model = ko.dataFor(this);
 					model.notes(product.notes);
 					model.cost(product.cost);

@@ -16,24 +16,25 @@ class InvoiceController extends \BaseController {
 		));
 	}
 
-	public function getDatatable($clientId = null)
+	public function getDatatable($clientPublicId = null)
     {
     	$collection = Invoice::scope()->with('client','invoice_items','invoice_status');
 
-    	if ($clientId) {
+    	if ($clientPublicId) {
+    		$clientId = Client::getPrivateId($clientPublicId);
     		$collection->where('client_id','=',$clientId);
     	}
 
     	$table = Datatable::collection($collection->get());
 
-    	if (!$clientId) {
-    		$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->id . '">'; });
+    	if (!$clientPublicId) {
+    		$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
     	}
     	
-    	$table->addColumn('invoice_number', function($model) { return link_to('invoices/' . $model->id . '/edit', $model->invoice_number); });
+    	$table->addColumn('invoice_number', function($model) { return link_to('invoices/' . $model->public_id . '/edit', $model->invoice_number); });
 
-    	if (!$clientId) {
-    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client->id, $model->client->name); });
+    	if (!$clientPublicId) {
+    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client->public_id, $model->client->name); });
     	}
     	
     	return $table->addColumn('total', function($model){ return '$' . money_format('%i', $model->getTotal()); })
@@ -48,10 +49,10 @@ class InvoiceController extends \BaseController {
     							Select <span class="caret"></span>
   							</button>
   							<ul class="dropdown-menu" role="menu">
-						    <li><a href="' . URL::to('invoices/'.$model->id.'/edit') . '">Edit Invoice</a></li>
+						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">Edit Invoice</a></li>
 						    <li class="divider"></li>
-						    <li><a href="' . URL::to('invoices/'.$model->id.'/archive') . '">Archive Invoice</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->id . ')">Delete Invoice</a></li>						    
+						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/archive') . '">Archive Invoice</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">Delete Invoice</a></li>						    
 						  </ul>
 						</div>';
     	    })    	       	    
@@ -60,10 +61,10 @@ class InvoiceController extends \BaseController {
     }
 
 
-	public function view($key)
+	public function view($invitationKey)
 	{
 		$invitation = Invitation::with('user', 'invoice.account', 'invoice.invoice_items', 'invoice.client.account.account_gateways')
-			->where('key', '=', $key)->firstOrFail();				
+			->where('invitation_key', '=', $invitationKey)->firstOrFail();				
 		
 		$user = $invitation->user;		
 		$invoice = $invitation->invoice;
@@ -124,9 +125,9 @@ class InvoiceController extends \BaseController {
 		];
 	}
 
-	public function show_payment($invoiceKey)
+	public function show_payment($invitationKey)
 	{
-		$invoice = Invoice::with('invoice_items', 'client.account.account_gateways.gateway')->where('key', '=', $invoiceKey)->firstOrFail();
+		$invoice = Invoice::with('invoice_items', 'client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
 		$accountGateway = $invoice->client->account->account_gateways[0];
 		$gateway = InvoiceController::createGateway($accountGateway);
 
@@ -208,32 +209,32 @@ class InvoiceController extends \BaseController {
 	}
 
 
-	public function edit($id)
+	public function edit($publicId)
 	{
-		$invoice = Invoice::scope()->with('account.country', 'client', 'invoice_items')->findOrFail($id);
+		$invoice = Invoice::scope($publicId)->with('account.country', 'client', 'invoice_items')->firstOrFail();
 		trackViewed($invoice->invoice_number . ' - ' . $invoice->client->name);
 		
 		$data = array(
 				'account' => $invoice->account,
 				'invoice' => $invoice, 
 				'method' => 'PUT', 
-				'url' => 'invoices/' . $id, 
+				'url' => 'invoices/' . $publicId, 
 				'title' => '- ' . $invoice->invoice_number,
 				'account' => Auth::user()->account,
-				'products' => Product::scope()->get(array('key','notes','cost','qty')),
+				'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
 				'client' => $invoice->client,
 				'clients' => Client::scope()->orderBy('name')->get());
 		return View::make('invoices.edit', $data);
 	}
 
-	public function create($clientId = 0)
+	public function create($clientPublicId = 0)
 	{		
 		$client = null;
 		$invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
 		$account = Account::with('country')->findOrFail(Auth::user()->account_id);
 
-		if ($clientId) {
-			$client = Client::scope()->findOrFail($clientId);
+		if ($clientPublicId) {
+			$client = Client::scope($clientPublicId)->firstOrFail();
         }
 
 		$data = array(
@@ -246,7 +247,7 @@ class InvoiceController extends \BaseController {
 				'client' => $client,
 				'items' => json_decode(Input::old('items')),
 				'account' => Auth::user()->account,
-				'products' => Product::scope()->get(array('key','notes','cost','qty')),
+				'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
 				'clients' => Client::scope()->orderBy('name')->get());
 		return View::make('invoices.edit', $data);
 	}
@@ -261,17 +262,17 @@ class InvoiceController extends \BaseController {
 		return InvoiceController::save();
 	}
 
-	private function save($id = null)
+	private function save($publicId = null)
 	{	
 		$action = Input::get('action');
 
 		if ($action == 'archive')
 		{
-			return InvoiceController::archive($id);
+			return InvoiceController::archive($publicId);
 		}
 		else if ($action == 'delete')
 		{
-			return InvoiceController::delete($id);
+			return InvoiceController::delete($publicId);
 		}
 
 		$rules = array(
@@ -287,41 +288,39 @@ class InvoiceController extends \BaseController {
 				->withErrors($validator);
 		} else {			
 
-			$clientId = Input::get('client');
+			$clientPublicId = Input::get('client');
 
-			if ($clientId == "-1") 
+			if ($clientPublicId == "-1") 
 			{
-				$client = new Client;
+				$client = Client::createNew();
 				$client->name = Input::get('client_name');
-				$client->account_id = Auth::user()->account_id;
 				$client->save();				
 				$clientId = $client->id;	
 
-				$contact = new Contact;
+				$contact = Contact::createNew();
 				$contact->email = Input::get('client_email');
 				$client->contacts()->save($contact);
 			}
 			else
 			{
-				$client = Client::scope()->with('contacts')->findOrFail($clientId);				
+				$client = Client::scope($clientPublicId)->with('contacts')->firstOrFail();
 				$contact = $client->contacts()->first();
 			}
 
-			if ($id) {
-				$invoice = Invoice::scope()->findOrFail($id);
+			if ($publicId) {
+				$invoice = Invoice::scope($publicId)->firstOrFail();
 				$invoice->invoice_items()->forceDelete();
 			} else {
-				$invoice = new Invoice;
-				$invoice->account_id = Auth::user()->account_id;
+				$invoice = Invoice::createNew();			
 			}			
 			
-			$invoice->client_id = $clientId;
 			$invoice->invoice_number = Input::get('invoice_number');
 			$invoice->discount = 0;
 			$invoice->invoice_date = toSqlDate(Input::get('invoice_date'));
-			$invoice->due_date = toSqlDate(Input::get('due_date'));
-			$invoice->save();
-
+			$invoice->due_date = toSqlDate(Input::get('due_date'));			
+			$invoice->notes = Input::get('notes');
+			$client->invoices()->save($invoice);
+			
 			$items = json_decode(Input::get('items'));
 			foreach ($items as $item) {
 
@@ -345,9 +344,8 @@ class InvoiceController extends \BaseController {
 
 					if (!$product)
 					{
-						$product = new Product;
-						$product->account_id = Auth::user()->account_id;
-						$product->key = $item->product_key;
+						$product = Product::createNew();						
+						$product->product_key = $item->product_key;
 					}
 
 					/*
@@ -359,7 +357,7 @@ class InvoiceController extends \BaseController {
 					$product->save();
 				}
 
-				$invoiceItem = new InvoiceItem;
+				$invoiceItem = InvoiceItem::createNew();
 				$invoiceItem->product_id = isset($product) ? $product->id : null;
 				$invoiceItem->product_key = $item->product_key;
 				$invoiceItem->notes = $item->notes;
@@ -380,11 +378,11 @@ class InvoiceController extends \BaseController {
 				});
 				*/
 
-				$invitation = new Invitation;
+				$invitation = Invitation::createNew();
 				$invitation->invoice_id = $invoice->id;
 				$invitation->user_id = Auth::user()->id;
 				$invitation->contact_id = $contact->id;
-				$invitation->key = str_random(20);				
+				$invitation->invitation_key = str_random(20);				
 				$invitation->save();
 
 				Session::flash('message', 'Successfully emailed invoice');
@@ -392,8 +390,7 @@ class InvoiceController extends \BaseController {
 				Session::flash('message', 'Successfully saved invoice');
 			}
 
-			$url = 'invoices/' . $invoice->id . '/edit';
-			processedRequest($url);
+			$url = 'invoices/' . $invoice->public_id . '/edit';
 			return Redirect::to($url);
 		}
 	}
@@ -404,12 +401,9 @@ class InvoiceController extends \BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show($publicId)
 	{
-		return Redirect::to('invoices/'.$id.'/edit');
-
-		//$invoice = Invoice::find($id);
-		//return View::make('invoices.show')->with('invoice', $invoice);
+		return Redirect::to('invoices/'.$publicId.'/edit');
 	}
 
 	/**
@@ -418,9 +412,9 @@ class InvoiceController extends \BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update($id)
+	public function update($publicId)
 	{
-		return InvoiceController::save($id);
+		return InvoiceController::save($publicId);
 	}
 
 	/**
@@ -433,7 +427,7 @@ class InvoiceController extends \BaseController {
 	{
 		$action = Input::get('action');
 		$ids = Input::get('ids');
-		$invoices = Invoice::scope()->findOrFail($ids);
+		$invoices = Invoice::scope($ids)->get();
 
 		foreach ($invoices as $invoice) {
 			if ($action == 'archive') {
@@ -449,18 +443,18 @@ class InvoiceController extends \BaseController {
 		return Redirect::to('invoices');
 	}
 
-	public function archive($id)
+	public function archive($publicId)
 	{
-		$invoice = Invoice::scope()->findOrFail($id);
+		$invoice = Invoice::scope($publicId)->firstOrFail();
 		$invoice->delete();
 		
 		Session::flash('message', 'Successfully archived invoice ' . $invoice->invoice_number);
 		return Redirect::to('invoices');		
 	}
 
-	public function delete($id)
+	public function delete($publicId)
 	{
-		$invoice = Invoice::scope()->findOrFail($id);
+		$invoice = Invoice::scope($publicId)->firstOrFail();
 		$invoice->forceDelete();
 
 		Session::flash('message', 'Successfully deleted invoice ' . $invoice->invoice_number);

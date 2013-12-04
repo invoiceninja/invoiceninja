@@ -2,8 +2,10 @@
 
 class ActivityController extends \BaseController {
 
-	public function getDatatable($clientId)
+	public function getDatatable($clientPublicId)
     {
+    	$clientId = Client::getPrivateId($clientPublicId);
+    	
         return Datatable::collection(Activity::scope()->where('client_id','=',$clientId)->get())
     	    ->addColumn('date', function($model) { return timestampToDateTimeString($model->created_at); })
             ->addColumn('message', function($model) { return $model->message; })

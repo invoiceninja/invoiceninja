@@ -7,7 +7,7 @@
 		<div class="clearfix"></div><p>&nbsp;</p>
 	@endif
 
-	<iframe frameborder="1" width="100%" height="600" style="display:block;margin: 0 auto"></iframe>	
+	<iframe frameborder="1" width="100%" height="650" style="display:block;margin: 0 auto"></iframe>	
 	
 	<script type="text/javascript">
 

@@ -24,8 +24,8 @@ class ClientController extends \BaseController {
     	$clients = Client::scope()->with('contacts')->get();
 
         return Datatable::collection($clients)
-    	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->id . '">'; })
-    	    ->addColumn('name', function($model) { return link_to('clients/' . $model->id, $model->name); })
+    	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
+    	    ->addColumn('name', function($model) { return link_to('clients/' . $model->public_id, $model->name); })
     	    ->addColumn('contact', function($model) { return $model->contacts[0]->getFullName(); })
     	    ->addColumn('balance', function($model) { return '$' . $model->balance; })    	    
     	    ->addColumn('last_login', function($model) { return $model->contacts[0]->getLastLogin(); })
@@ -39,11 +39,11 @@ class ClientController extends \BaseController {
     							Select <span class="caret"></span>
   							</button>
   							<ul class="dropdown-menu" role="menu">
-  							<li><a href="' . URL::to('invoices/create/'.$model->id) . '">New Invoice</a></li>						    
-						    <li><a href="' . URL::to('clients/'.$model->id.'/edit') . '">Edit Client</a></li>
+  							<li><a href="' . URL::to('invoices/create/'.$model->public_id) . '">New Invoice</a></li>						    
+						    <li><a href="' . URL::to('clients/'.$model->public_id.'/edit') . '">Edit Client</a></li>
 						    <li class="divider"></li>
-						    <li><a href="' . URL::to('clients/'.$model->id.'/archive') . '">Archive Client</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->id. ')">Delete Client</a></li>						    
+						    <li><a href="' . URL::to('clients/'.$model->public_id.'/archive') . '">Archive Client</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->public_id. ')">Delete Client</a></li>						    
 						  </ul>
 						</div>';
     	    })    	   
@@ -84,9 +84,9 @@ class ClientController extends \BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function show($id)
+	public function show($publicId)
 	{
-		$client = Client::scope()->with('contacts')->findOrFail($id);
+		$client = Client::scope($publicId)->with('contacts')->firstOrFail();
 		trackViewed($client->name);
 		
 		$data = array(
@@ -102,13 +102,13 @@ class ClientController extends \BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function edit($id)
+	public function edit($publicId)
 	{
-		$client = Client::scope()->with('contacts')->findOrFail($id);
+		$client = Client::scope($publicId)->with('contacts')->firstOrFail();
 		$data = array(
 			'client' => $client, 
 			'method' => 'PUT', 
-			'url' => 'clients/' . $id, 
+			'url' => 'clients/' . $publicId, 
 			'title' => '- ' . $client->name,
 			'countries' => Country::orderBy('name')->get());
 		return View::make('clients.edit', $data);
@@ -120,12 +120,12 @@ class ClientController extends \BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function update($id)
+	public function update($publicId)
 	{
-		return $this->save($id);
+		return $this->save($publicId);
 	}
 
-	private function save($id = null)
+	private function save($publicId = null)
 	{
 		$rules = array(
 			'name'       => 'required'
@@ -133,15 +133,14 @@ class ClientController extends \BaseController {
 		$validator = Validator::make(Input::all(), $rules);
 
 		if ($validator->fails()) {
-			return Redirect::to('clients/' . $id . '/edit')
+			return Redirect::to('clients/' . $publicId . '/edit')
 				->withErrors($validator)
 				->withInput(Input::except('password'));
 		} else {			
-			if ($id) {
-				$client = Client::scope()->findOrFail($id);
+			if ($publicId) {
+				$client = Client::scope($publicId)->firstOrFail();
 			} else {
-				$client = new Client;
-				$client->account_id = Auth::user()->account_id;
+				$client = Client::createNew();
 			}
 
 			$client->name = Input::get('name');
@@ -159,16 +158,16 @@ class ClientController extends \BaseController {
 
 			$data = json_decode(Input::get('data'));
 			$contactIds = [];
-
+			
 			foreach ($data->contacts as $contact)
 			{
 				if (isset($contact->id) && $contact->id)
 				{
-					$record = Contact::findOrFail($contact->id);
+					$record = Contact::scope($contact->id)->firstOrFail();
 				}
 				else
 				{
-					$record = new Contact;
+					$record = Contact::createNew();
 				}
 
 				$record->email = $contact->email;
@@ -189,7 +188,7 @@ class ClientController extends \BaseController {
 			}
 			
 			Session::flash('message', 'Successfully updated client');
-			return Redirect::to('clients/' . $client->id);
+			return Redirect::to('clients/' . $client->public_id);
 		}
 
 	}
@@ -198,7 +197,7 @@ class ClientController extends \BaseController {
 	{
 		$action = Input::get('action');
 		$ids = Input::get('ids') ? Input::get('ids') : [Input::get('id')];
-		$clients = Client::scope()->findOrFail($ids);
+		$clients = Client::scope($ids)->get();
 
 		foreach ($clients as $client) {
 			if ($action == 'archive') {
@@ -214,9 +213,9 @@ class ClientController extends \BaseController {
 		return Redirect::to('clients');
 	}
 
-	public function archive($id)
+	public function archive($publicId)
 	{
-		$client = Client::scope()->findOrFail($id);
+		$client = Client::scope($publicId)->firstOrFail();
 		$client->delete();
 
 		foreach ($client->invoices as $invoice)
@@ -230,7 +229,7 @@ class ClientController extends \BaseController {
 
 	public function delete($id)
 	{
-		$client = Client::scope()->findOrFail($id);
+		$client = Client::scope($publicId)->firstOrFail();
 		$client->forceDelete();
 
 		Session::flash('message', 'Successfully deleted ' . $client->name);

@@ -7,13 +7,13 @@
 		{{ Former::open('clients/bulk')->addClass('mainForm') }}
 		<div style="display:none">
 			{{ Former::text('action') }}
-			{{ Former::text('id')->value($client->id) }}
+			{{ Former::text('id')->value($client->public_id) }}
 		</div>
 
 		{{ DropdownButton::normal('Edit Client',
 			  Navigation::links(
 			    array(
-			      array('Edit Client', URL::to('clients/' . $client->id . '/edit')),
+			      array('Edit Client', URL::to('clients/' . $client->public_id . '/edit')),
 			      array(Navigation::DIVIDER),
 			      array('Archive Client', "javascript:onArchiveClick()"),
 			      array('Delete Client', "javascript:onDeleteClick()"),
@@ -70,7 +70,7 @@
 
 			{{ Datatable::table()		
 		    	->addColumn('Date', 'Message', 'Balance')       
-		    	->setUrl(url('api/activities/'. $client->id))    	
+		    	->setUrl(url('api/activities/'. $client->public_id))    	
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->render() }}
@@ -81,7 +81,7 @@
 
 			{{ Datatable::table()		
 		    	->addColumn('Invoice Number', 'Total', 'Amount Due', 'Invoice Date', 'Due Date', 'Status')       
-		    	->setUrl(url('api/invoices/' . $client->id))    	
+		    	->setUrl(url('api/invoices/' . $client->public_id))    	
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->render() }}
@@ -91,7 +91,7 @@
 
 	    	{{ Datatable::table()		
 				->addColumn('Invoice Number', 'Amount', 'Date')       
-				->setUrl(url('api/payments/' . $client->id))    	
+				->setUrl(url('api/payments/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->render() }}
@@ -101,7 +101,7 @@
 
 	    	{{ Datatable::table()		
 				->addColumn('Credit Number', 'Amount', 'Credit Date')       
-				->setUrl(url('api/credits/' . $client->id))    	
+				->setUrl(url('api/credits/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->render() }}
@@ -113,7 +113,7 @@
 
 	$(function() {
 		$('#actionDropDown > button:first').click(function() {
-			window.location = '{{ URL::to('clients/' . $client->id . '/edit') }}';
+			window.location = '{{ URL::to('clients/' . $client->public_id . '/edit') }}';
 		});
 	});
 

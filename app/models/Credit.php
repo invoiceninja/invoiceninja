@@ -1,14 +1,7 @@
 <?php
 
-class Credit extends Eloquent implements iEntity 
+class Credit extends EntityModel
 {
-	protected $softDelete = true;
-
-	public function scopeScope($query)
-	{
-		return $query->whereAccountId(Auth::user()->account_id);
-	}	
-
 	public function invoice()
 	{
 		return $this->belongsTo('Invoice');

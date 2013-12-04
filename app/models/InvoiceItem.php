@@ -1,10 +1,7 @@
 <?php
 
-class InvoiceItem extends Eloquent
+class InvoiceItem extends EntityModel
 {
-	protected $softDelete = true;
-	protected $hidden = array('created_at', 'updated_at', 'deleted_at');
-
 	public function invoice()
 	{
 		return $this->belongsTo('Invoice');

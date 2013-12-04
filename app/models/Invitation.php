@@ -1,15 +1,9 @@
 <?php
 
-class Invitation extends Eloquent
+class Invitation extends EntityModel
 {
-	protected $softDelete = true;
-	protected $hidden = array('created_at', 'updated_at', 'deleted_at');
-
-	public function scopeScope($query)
-	{
-		return $query->whereAccountId(Auth::user()->account_id);
-	}
-
+	protected $hidden = array('id', 'created_at', 'updated_at', 'deleted_at', 'viewed_date');
+	
 	public function invoice()
 	{
 		return $this->belongsTo('Invoice');
