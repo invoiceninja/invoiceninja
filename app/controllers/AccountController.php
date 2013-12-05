@@ -309,7 +309,7 @@ class AccountController extends \BaseController {
 						'email' => Contact::$fieldEmail,
 						'mobile' => Contact::$fieldPhone,
 						'phone' => Client::$fieldPhone,
-						'name' => Client::$fieldName,
+						'name|organization' => Client::$fieldName,
 						'address|address1' => Client::$fieldAddress1,	
 						'address2' => Client::$fieldAddress2,						
 						'city' => Client::$fieldCity,

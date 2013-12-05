@@ -21,16 +21,21 @@ class ClientController extends \BaseController {
 
 	public function getDatatable()
     {
-    	$query = DB::table('clients')->join('contacts', 'clients.id', '=','contacts.client_id')->where('contacts.is_primary', '=', true);
+    	$query = DB::table('clients')
+    				->join('contacts', 'contacts.client_id', '=', 'clients.id')
+    				->where('clients.account_id', '=', Auth::user()->account_id)
+    				->where('clients.deleted_at', '=', null)
+    				->where('contacts.is_primary', '=', true)
+    				->select('clients.public_id','clients.name','contacts.first_name','contacts.last_name','clients.balance','clients.last_login','clients.created_at','contacts.phone','contacts.email');
 
         return Datatable::query($query)
     	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
     	    ->addColumn('name', function($model) { return link_to('clients/' . $model->public_id, $model->name); })
     	    ->addColumn('first_name', function($model) { return $model->first_name . ' ' . $model->last_name; })
     	    ->addColumn('balance', function($model) { return '$' . $model->balance; })    	    
-    	    ->addColumn('clients.last_login', function($model) { return timestampToDateString($model->last_login); })
-    	    ->addColumn('clients.created_at', function($model) { return timestampToDateString($model->created_at); })
-    	    ->addColumn('email', function($model) { return HTML::mailto($model->email, $model->email); })
+    	    ->addColumn('last_login', function($model) { return timestampToDateString($model->last_login); })
+    	    ->addColumn('created_at', function($model) { return timestampToDateString($model->created_at); })
+    	    ->addColumn('email', function($model) { return $model->email ? HTML::mailto($model->email, $model->email) : ''; })
     	    ->addColumn('phone', function($model) { return $model->phone; })    	   
     	    ->addColumn('dropdown', function($model) 
     	    { 
@@ -47,7 +52,7 @@ class ClientController extends \BaseController {
 						  </ul>
 						</div>';
     	    })    	   
-    	    ->orderColumns('name','first_name','balance','clients.last_login','clients.created_at','email','phone')
+    	    ->orderColumns('name','first_name','balance','last_login','created_at','email','phone')
     	    ->make();    	    
     }
 
@@ -200,8 +205,7 @@ class ClientController extends \BaseController {
 	public function bulk()
 	{
 		$action = Input::get('action');
-		$ids = Input::get('ids') ? Input::get('ids') : [Input::get('id')];
-		
+		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');		
 		$clients = Client::scope($ids)->get();
 
 		foreach ($clients as $client) {

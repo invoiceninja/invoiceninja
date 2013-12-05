@@ -8,7 +8,7 @@
     <tr>
         @foreach($columns as $i => $c)
         <th align="center" valign="middle" class="head{{ $i }}">
-            @if ($c == 'checkbox' && $haeCheckboxes = true)
+            @if ($c == 'checkbox' && $hasCheckboxes = true)
                 <input type="checkbox" id="selectAll"/>
             @else
                 {{ $c }}
@@ -32,7 +32,7 @@
         // dynamic table
         jQuery('.{{ $class }}').dataTable({
             // Disable sorting on the first column
-            @if ($haeCheckboxes)
+            @if (isset($haeCheckboxes) && $hasCheckboxes)
             "aoColumnDefs" : [ {
                 'bSortable' : false,
                 'aTargets' : [ 0 ]

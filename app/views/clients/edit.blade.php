@@ -18,7 +18,7 @@
 		{{ Former::populate($client) }}
 	@endif
 
-	
+
 	<div class="row">
 		<div class="col-md-6">
 
@@ -70,13 +70,6 @@
 
 	{{ Former::hidden('data')->data_bind("value: ko.toJSON(model)") }}	
 
-	<center style="margin-top:16px">
-		{{ Button::lg_primary_submit('Save') }} &nbsp;|&nbsp;
-		{{ link_to('clients/' . ($client ? $client->public_id : ''), 'Cancel') }}	
-	</center>
-
-	{{ Former::close() }}
-
 	<script type="text/javascript">
 
 	$(function() {
@@ -105,7 +98,7 @@
 	@endif
 
 	model.showContact = function(elem) { if (elem.nodeType === 1) $(elem).hide().slideDown() }
-    model.hideContact = function(elem) { if (elem.nodeType === 1) $(elem).slideUp(function() { $(elem).remove(); }) }
+	model.hideContact = function(elem) { if (elem.nodeType === 1) $(elem).slideUp(function() { $(elem).remove(); }) }
 
 
 	ko.applyBindings(model);
@@ -119,7 +112,16 @@
 		model.contacts.remove(this);
 	}
 
-	
+
 	</script>
+
+
+
+	<center style="margin-top:16px">
+		{{ Button::lg_primary_submit('Save') }} &nbsp;|&nbsp;
+		{{ link_to('clients/' . ($client ? $client->public_id : ''), 'Cancel') }}	
+	</center>
+
+	{{ Former::close() }}
 
 @stop

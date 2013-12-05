@@ -73,7 +73,7 @@
 		    	->setUrl(url('api/activities/'. $client->public_id))    	
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
-		    	->render() }}
+		    	->render('datatable') }}
 
         </div>
 
@@ -84,7 +84,7 @@
 		    	->setUrl(url('api/invoices/' . $client->public_id))    	
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
-		    	->render() }}
+		    	->render('datatable') }}
             
         </div>
         <div class="tab-pane" id="payments">
@@ -94,7 +94,7 @@
 				->setUrl(url('api/payments/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
-				->render() }}
+				->render('datatable') }}
             
         </div>
         <div class="tab-pane" id="credits">
@@ -104,7 +104,7 @@
 				->setUrl(url('api/credits/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
-				->render() }}
+				->render('datatable') }}
             
         </div>
     </div>

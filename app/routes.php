@@ -11,6 +11,7 @@
 |
 */
 
+//dd(DB::getQueryLog());
 //dd(Client::getPrivateId(1));
 
 Route::get('/', 'HomeController@showWelcome');
@@ -48,14 +49,16 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('invoices/create/{client_id}', 'InvoiceController@create');
 	Route::post('invoices/bulk', 'InvoiceController@bulk');
 
+	Route::get('payments/{id}/edit', function() { return View::make('header'); });
 	Route::resource('payments', 'PaymentController');
 	Route::get('api/payments/{client_id?}', array('as'=>'api.payments', 'uses'=>'PaymentController@getDatatable'));
 	Route::post('payments/bulk', 'PaymentController@bulk');
-
+	
+	Route::get('credits/{id}/edit', function() { return View::make('header'); });
 	Route::resource('credits', 'CreditController');
 	Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));	
 	Route::post('credits/bulk', 'PaymentController@bulk');
-
+	
 	Route::get('reports', function() { return View::make('header'); });
 });
 

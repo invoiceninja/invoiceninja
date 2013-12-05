@@ -4,7 +4,6 @@
 
 	<p>&nbsp;</p>
 
-
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
   		'invoice_number' => 'required',
   		'invoice_date' => 'required',
@@ -15,6 +14,7 @@
 
 	@if ($invoice)
 		{{ Former::populate($invoice); }}
+		{{ Former::populateField('id', $invoice->public_id); }}	
 		{{ Former::populateField('invoice_date', fromSqlDate($invoice->invoice_date)); }}	
 		{{ Former::populateField('due_date', fromSqlDate($invoice->due_date)); }}
 	@else
@@ -25,7 +25,7 @@
     <div class="row">
     	<div class="col-md-6">
 			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'public_id')->select($client ? $client->public_id : '')
-				->help('<a style="cursor:pointer" data-toggle="modal" data-target="#myModal">Create new client</a>') }}
+				->help('<a style="cursor:pointer" data-toggle="modal" id="modalLink" onclick="showCreateNew()">Create new client</a>') }}
 			{{ Former::textarea('notes') }}
 		</div>
 		<div class="col-md-5">
@@ -117,7 +117,10 @@
 	<div class="form-actions">
 
 		@if ($invoice)		
-			<div style="display:none">{{ Former::text('action') }}</div>
+			<div style="display:none">
+				{{ Former::text('action') }}
+				{{ Former::text('id') }}
+			</div>
 			{{ DropdownButton::normal('Download PDF',
 				  Navigation::links(
 				    array(
@@ -143,12 +146,40 @@
 
 
 	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	  <div class="modal-dialog">
+	  <div class="modal-dialog" style="min-width:1000px">
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 	        <h4 class="modal-title" id="myModalLabel">New Client</h4>
 	      </div>
+
+		<div class="row" style="padding-left:16px;padding-right:16px" onkeypress="preventFormSubmit(event)">
+			<div class="col-md-6">	    
+
+      		{{ Former::legend('Organization') }}
+			{{ Former::text('name') }}
+			{{ Former::text('work_phone')->label('Phone') }}
+
+			{{ Former::legend('Contact') }}
+			{{ Former::text('first_name') }}
+			{{ Former::text('last_name') }}
+			{{ Former::text('email') }}
+			{{ Former::text('phone') }}	
+
+			</div>
+			<div class="col-md-6">	    			
+      		{{ Former::legend('Address') }}
+			{{ Former::text('address1')->label('Street') }}
+			{{ Former::text('address2')->label('Apt/Floor') }}
+			{{ Former::text('city') }}
+			{{ Former::text('state') }}
+			{{ Former::text('postal_code') }}
+			{{ Former::select('country_id')->addOption('','')->label('Country')
+				->fromQuery($countries, 'name', 'id')->select($client ? $client->country_id : '') }}
+			</div>
+		</div>
+
+	      <!--
 	      <div class="modal-body" style="min-height:80px">
 	      	<div class="form-group">
 	      		<label for="name" class="control-label col-lg-2 col-sm-4">Name<sup>*</sup></label>
@@ -165,10 +196,14 @@
 	      		</div>	      		
 	      	</div>
 	      </div>
+	  		-->
+
 	      <div class="modal-footer">
-	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	        <button type="button" class="btn btn-primary" onclick="newClient()">Save</button>	      	
+	      	<span class="error-block" id="nameError" style="display:none;float:left">Please provide a value for the name field.</span><span>&nbsp;</span>
+	      	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	        <button type="button" class="btn btn-primary" onclick="newClient()">Done</button>	      	
 	      </div>
+	  		
 	    </div>
 	  </div>
 	</div>
@@ -191,6 +226,8 @@
 
 	$(function() {
 
+		$('#country_id').combobox();
+
 		$('#invoice_date').datepicker({
 			autoclose: true,
 			todayHighlight: true
@@ -206,7 +243,9 @@
 		var $input = $('select#client');
 		$input.combobox();
 		$('.combobox-container input.form-control').attr('name', 'client_combobox').on('change', function(e) {			
-			refreshPDF();
+			refreshPDF();			
+		}).on('keydown', function() {			
+			$('#modalLink').text('Create new client');
 		});
 		enableHoverClick($('.combobox-container input.form-control'), $('.combobox-container input[name=client]'), '{{ URL::to('clients') }}');
 
@@ -223,7 +262,7 @@
 		*/
 
 		$('#myModal').on('shown.bs.modal', function () {
-			$('#client_name').focus();
+			$('#name').focus();
 		})
 
 		$('#invoice_number').change(refreshPDF);
@@ -236,6 +275,16 @@
 		applyComboboxListeners();
 		refreshPDF();		
 	});
+
+	function showCreateNew() {
+		if ($('.combobox-container input[name=client]').val() != '-1') {
+			$('#myModal input').val('');
+			$('#myModal #country_id').val('');
+			$('#nameError').css( "display", "none" );			
+		}		
+		$('#myModal').modal('show');	
+	}
+
 
 	function applyComboboxListeners() {
 		var value;
@@ -335,27 +384,27 @@
 	}
 
 	function newClient() {
-		var name = $('#client_name').val();
-		var email = $('#client_email').val();
-		if (!name || !email) {
-			if (!name) $('#nameHelp').css( "display", "block" );
-			if (!email) $('#emailHelp').css( "display", "block" );
+		var name = $('#name').val();
+		if (!name) {
+			if (!name) $('#nameError').css( "display", "inline" );
 		} else {
 			$('.combobox-container input[name=client]').val('-1');
 			$('.combobox-container input.form-control').val(name);
 			$('.combobox-container').addClass('combobox-selected');
 
-			$('#nameHelp').css( "display", "none" );
-			$('#emailHelp').css( "display", "none" );
+			$('#nameError').css( "display", "none" );
 			//$('#client_name').val('');
+			$('#modalLink').text('Edit client details');
 			$('#myModal').modal('hide');
 			$('input#invoice_number').focus();
+			//$('[name="client_combobox"]').focus();
 
 			refreshPDF();
 		}
 	}		
 
-	function nameKeyPress(event) {		
+
+	function preventFormSubmit(event) {		
 		if (event.keyCode === 13){
 			event.preventDefault();		     	
             newClient();

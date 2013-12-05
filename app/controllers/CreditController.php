@@ -18,25 +18,28 @@ class CreditController extends \BaseController {
 
     public function getDatatable($clientPublicId = null)
     {
-        $collection = Credit::scope()->with('client');
+        $query = DB::table('credits')
+                    ->join('clients', 'clients.id', '=','credits.client_id')
+                    ->where('clients.account_id', '=', Auth::user()->account_id)
+                    ->where('clients.deleted_at', '=', null)
+                    ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.credit_date');        
 
         if ($clientPublicId) {
-            $clientId = Client::getPrivateId($clientPublicId);
-            $collection->where('client_id','=',$clientId);
+            $query->where('clients.public_id', '=', $clientPublicId);
         }
 
-        $table = Datatable::collection($collection->get());
+        $table = Datatable::query($query);        
 
         if (!$clientPublicId) {
             $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
-                  ->addColumn('client', function($model) { return link_to('clients/' . $model->client->public_id, $model->client->name); });
+                  ->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
         }
         
         return $table->addColumn('amount', function($model){ return '$' . money_format('%i', $model->amount); })
-            ->addColumn('credit_date', function($model) { return (new Carbon($model->credit_date))->toFormattedDateString(); })
+            ->addColumn('credit_date', function($model) { return timestampToDateString($model->credit_date); })
             ->addColumn('dropdown', function($model) 
             { 
-                return '<div class="btn-group tr-action" style="display:none">
+                return '<div class="btn-group tr-action" style="visibility:hidden;">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                                 Select <span class="caret"></span>
                             </button>
@@ -123,7 +126,7 @@ class CreditController extends \BaseController {
     public function bulk()
     {
         $action = Input::get('action');
-        $ids = Input::get('ids');
+        $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
         $credits = Credit::scope($ids)->get();
 
         foreach ($credits as $credit) {

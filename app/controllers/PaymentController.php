@@ -13,14 +13,18 @@ class PaymentController extends \BaseController
 
 	public function getDatatable($clientPublicId = null)
     {
-        $collection = Payment::scope()->with('invoice', 'client');
+        $query = DB::table('payments')
+                    ->join('clients', 'clients.id', '=','payments.client_id')
+                    ->leftJoin('invoices', 'invoices.id', '=','payments.invoice_id')
+                    ->where('payments.account_id', '=', Auth::user()->account_id)
+                    ->where('payments.deleted_at', '=', null)
+                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number');        
 
         if ($clientPublicId) {
-            $clientId = Client::getPrivateId($clientPublicId);
-            $collection->where('client_id','=',$clientId);
+            $query->where('clients.public_id', '=', $clientPublicId);
         }
 
-        $table = Datatable::collection($collection->get());
+        $table = Datatable::query($query);        
 
         if (!$clientPublicId) {
             $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
@@ -29,15 +33,15 @@ class PaymentController extends \BaseController
         $table->addColumn('transaction_reference', function($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; });
 
         if (!$clientPublicId) {
-            $table->addColumn('client', function($model) { return link_to('clients/' . $model->client->public_id, $model->client->name); });
+            $table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
         }
 
-        return $table->addColumn('invoice_number', function($model) { return $model->invoice ? link_to('invoices/' . $model->invoice->public_id . '/edit', $model->invoice->invoice_number) : ''; })
+        return $table->addColumn('invoice_number', function($model) { return $model->invoice_public_id ? link_to('invoices/' . $model->invoice_public_id . '/edit', $model->invoice_invoice_number) : ''; })
             ->addColumn('amount', function($model) { return '$' . $model->amount; })
-    	    ->addColumn('date', function($model) { return timestampToDateTimeString($model->created_at); })
+    	    ->addColumn('payment_date', function($model) { return timestampToDateString($model->payment_date); })
             ->addColumn('dropdown', function($model) 
             { 
-                return '<div class="btn-group tr-action" style="display:none">
+                return '<div class="btn-group tr-action" style="visibility:hidden;">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                                 Select <span class="caret"></span>
                             </button>
@@ -49,7 +53,7 @@ class PaymentController extends \BaseController
                           </ul>
                         </div>';
             })         
-    	    ->orderColumns('client')
+    	    ->orderColumns('transaction_reference', 'client_name', 'invoice_number', 'amount', 'payment_date')
     	    ->make();
     }
 
@@ -131,7 +135,7 @@ class PaymentController extends \BaseController
     public function bulk()
     {
         $action = Input::get('action');
-        $ids = Input::get('ids');
+        $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
         $payments = Payment::scope($ids)->get();
 
         foreach ($payments as $payment) {

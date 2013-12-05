@@ -20,18 +20,16 @@ class InvoiceController extends \BaseController {
     {
     	$query = DB::table('invoices')
     				->join('clients', 'clients.id', '=','invoices.client_id')
-					->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id');
-					//->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name', 'invoices.public_id', 'total', 'invoices.balance', 'invoice_date', 'due_date');
-		//dd($query->get());
+					->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
+					->where('invoices.account_id', '=', Auth::user()->account_id)
+    				->where('invoices.deleted_at', '=', null)
+					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'total', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name');
 
     	if ($clientPublicId) {
     		$query->where('clients.public_id', '=', $clientPublicId);
-    		//$clientId = Client::getPrivateId($clientPublicId);
-    		//$collection->where('client_id','=',$clientId);
     	}
 
-    	$table = Datatable::query($query);
-			
+    	$table = Datatable::query($query);			
 
     	if (!$clientPublicId) {
     		$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
@@ -40,17 +38,17 @@ class InvoiceController extends \BaseController {
     	$table->addColumn('invoice_number', function($model) { return link_to('invoices/' . $model->public_id . '/edit', $model->invoice_number); });
 
     	if (!$clientPublicId) {
-    		//$table->addColumn('client', function($model) { dd($model); return link_to('clients/' . $model->client_public_id, $model->client_name); });
+    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
     	}
     	
     	return $table->addColumn('total', function($model){ return '$' . money_format('%i', $model->total); })
-    		->addColumn('invoices.balance', function($model) { return '$' . money_format('%i', $model->balance); })
+    		->addColumn('balance', function($model) { return '$' . money_format('%i', $model->balance); })
     	    ->addColumn('invoice_date', function($model) { return fromSqlDate($model->invoice_date); })
     	    ->addColumn('due_date', function($model) { return fromSqlDate($model->due_date); })
-    	    //->addColumn('status', function($model) { return $model->invoice_status->name; })
+    	    ->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
     	    ->addColumn('dropdown', function($model) 
     	    { 
-    	    	return '<div class="btn-group tr-action" style="display:none">
+    	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
   							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
     							Select <span class="caret"></span>
   							</button>
@@ -62,7 +60,7 @@ class InvoiceController extends \BaseController {
 						  </ul>
 						</div>';
     	    })    	       	    
-    	    ->orderColumns('number')
+    	    ->orderColumns('invoice_number','client','total','balance','invoice_date','due_date','invoice_status_name')
     	    ->make();    	
     }
 
@@ -228,6 +226,7 @@ class InvoiceController extends \BaseController {
 				'title' => '- ' . $invoice->invoice_number,
 				'account' => Auth::user()->account,
 				'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
+				'countries' => Country::orderBy('name')->get(),
 				'client' => $invoice->client,
 				'clients' => Client::scope()->orderBy('name')->get());
 		return View::make('invoices.edit', $data);
@@ -252,6 +251,7 @@ class InvoiceController extends \BaseController {
 				'title' => '- New Invoice',
 				'client' => $client,
 				'items' => json_decode(Input::old('items')),
+				'countries' => Country::orderBy('name')->get(),
 				'account' => Auth::user()->account,
 				'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
 				'clients' => Client::scope()->orderBy('name')->get());
@@ -272,13 +272,9 @@ class InvoiceController extends \BaseController {
 	{	
 		$action = Input::get('action');
 
-		if ($action == 'archive')
+		if ($action == 'archive' || $action == 'delete')
 		{
-			return InvoiceController::archive($publicId);
-		}
-		else if ($action == 'delete')
-		{
-			return InvoiceController::delete($publicId);
+			return InvoiceController::bulk();
 		}
 
 		$rules = array(
@@ -299,12 +295,25 @@ class InvoiceController extends \BaseController {
 			if ($clientPublicId == "-1") 
 			{
 				$client = Client::createNew();
-				$client->name = Input::get('client_name');
+				$client->name = Input::get('name');
+				$client->work_phone = Input::get('work_phone');
+				$client->address1 = Input::get('address1');
+				$client->address2 = Input::get('address2');
+				$client->city = Input::get('city');
+				$client->state = Input::get('state');
+				$client->postal_code = Input::get('postal_code');
+				if (Input::get('country_id')) {
+					$client->country_id = Input::get('country_id');
+				}
 				$client->save();				
 				$clientId = $client->id;	
 
 				$contact = Contact::createNew();
-				$contact->email = Input::get('client_email');
+				$contact->is_primary = true;
+				$contact->first_name = Input::get('first_name');
+				$contact->last_name = Input::get('last_name');
+				$contact->phone = Input::get('phone');
+				$contact->email = Input::get('email');
 				$client->contacts()->save($contact);
 			}
 			else
@@ -328,14 +337,12 @@ class InvoiceController extends \BaseController {
 			$client->invoices()->save($invoice);
 			
 			$items = json_decode(Input::get('items'));
-			foreach ($items as $item) {
-
-				if (!isset($item->cost))
-				{
+			foreach ($items as $item) 
+			{
+				if (!isset($item->cost)) {
 					$item->cost = 0;
 				}
-				if (!isset($item->qty))
-				{
+				if (!isset($item->qty)) {
 					$item->qty = 0;
 				}
 
@@ -432,7 +439,7 @@ class InvoiceController extends \BaseController {
 	public function bulk()
 	{
 		$action = Input::get('action');
-		$ids = Input::get('ids');
+		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');
 		$invoices = Invoice::scope($ids)->get();
 
 		foreach ($invoices as $invoice) {
@@ -448,3 +455,4 @@ class InvoiceController extends \BaseController {
 
 		return Redirect::to('invoices');
 	}
+}

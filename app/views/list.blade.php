@@ -11,16 +11,14 @@
 	{{ DropdownButton::normal('Archive',
 		  Navigation::links(
 		    array(
-		      array('Archive', "javascript:submitForm('archive')"),
-		      array('Delete', "javascript:submitForm('delete')"),
+		      array('Archive '.ucwords($entityType), "javascript:submitForm('archive')"),
+		      array('Delete '.ucwords($entityType), "javascript:submitForm('delete')"),
 		    )
 		  )
 		, array('id'=>'archive'))->split(); }}
 	
 
-	@if (in_array($entityType, [ENTITY_CLIENT, ENTITY_INVOICE]))
 	{{ Button::primary_link(URL::to($entityType . 's/create'), 'New ' . ucwords($entityType), array('class' => 'pull-right')) }}	
-	@endif
 	
 	{{ Datatable::table()		
     	->addColumn($columns)
