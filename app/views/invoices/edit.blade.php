@@ -207,30 +207,8 @@
 		$input.combobox();
 		$('.combobox-container input.form-control').attr('name', 'client_combobox').on('change', function(e) {			
 			refreshPDF();
-		}).mouseleave(function() {
-			$(this).css('text-decoration','none');
-		}).on('change keyup mouseenter', function(e) {
-			if ($(this).closest('.combobox-container').hasClass('combobox-selected')) {
-				$(this).css('text-decoration','underline');
-				$(this).css('cursor','pointer');	
-			} else {
-				$(this).css('text-decoration','none');
-				$(this).css('cursor','text');	
-			}			
-		}).on('focusout mouseleave', function(e) {
-			$(this).css('text-decoration','none');
-			$(this).css('cursor','text');	
-		}).on('click', function() {
-			var clientId = $('.combobox-container input[name=client]').val();
-			if ($(this).closest('.combobox-container').hasClass('combobox-selected')) {				
-				if (parseInt(clientId) > 0) {
-					window.open('{{ URL::to('clients') }}' + '/' + clientId, '_blank');
-				} else {
-					$('#myModal').modal('show');
-				}
-			};
 		});
-		
+		enableHoverClick($('.combobox-container input.form-control'), $('.combobox-container input[name=client]'), '{{ URL::to('clients') }}');
 
 		@if ($client)
 			$('input#invoice_number').focus();

@@ -31,6 +31,19 @@ class ConstantsSeeder extends Seeder
 		$client->invoices()->save($invoice);
 		*/
 
+		Theme::create(array('name' => 'amelia'));
+		Theme::create(array('name' => 'cerulean'));
+		Theme::create(array('name' => 'cosmo'));
+		Theme::create(array('name' => 'cyborg'));
+		Theme::create(array('name' => 'flatly'));
+		Theme::create(array('name' => 'journal'));
+		Theme::create(array('name' => 'readable'));
+		Theme::create(array('name' => 'simplex'));
+		Theme::create(array('name' => 'slate'));
+		Theme::create(array('name' => 'spacelab'));
+		Theme::create(array('name' => 'united'));
+		Theme::create(array('name' => 'yeti'));
+
 		InvoiceStatus::create(array('name' => 'Draft'));
 		InvoiceStatus::create(array('name' => 'Sent'));
 		InvoiceStatus::create(array('name' => 'Viewed'));

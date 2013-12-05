@@ -7,6 +7,11 @@ class Credit extends EntityModel
 		return $this->belongsTo('Invoice');
 	}
 
+	public function client()
+	{
+		return $this->belongsTo('Client');
+	}
+
 	public function getName()
 	{
 		return $this->credit_number;
@@ -20,5 +25,5 @@ class Credit extends EntityModel
 
 Credit::created(function($credit)
 {
-	Activity::creaateCredit($credit);
+	Activity::createCredit($credit);
 });

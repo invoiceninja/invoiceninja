@@ -31,6 +31,11 @@ class User extends ConfideUser implements UserInterface, RemindableInterface, iP
 		return $this->belongsTo('Account');
 	}
 
+	public function theme()
+	{
+		return $this->belongsTo('Theme');
+	}
+
 	public function getPersonType()
 	{
 		return PERSON_USER;

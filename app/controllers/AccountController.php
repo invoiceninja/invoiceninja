@@ -181,9 +181,8 @@ class AccountController extends \BaseController {
 				continue;
 			}
 
-			$client = new Client;			
-			$client->account_id = Auth::user()->account_id;
-			$contact = new Contact;
+			$client = Client::createNew();		
+			$contact = Contact::createNew();
 			$count++;
 
 			foreach ($row as $index => $value)

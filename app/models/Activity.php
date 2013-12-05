@@ -100,11 +100,26 @@ class Activity extends Eloquent
 		}
 
 		$activity->payment_id = $payment->id;
-		$activity->invoice_id = $payment->invoice_id;
-		$activity->client_id = $payment->invoice->client_id;
+		if ($payment->invoice_id) {
+			$activity->invoice_id = $payment->invoice_id;
+		}
+		$activity->client_id = $payment->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_PAYMENT;
 		$activity->save();
 	}	
+
+
+	public static function createCredit($credit)
+	{
+		$activity = Activity::getBlank();
+		$activity->message = Auth::user()->getFullName() . ' created credit';
+		$activity->credit_id = $credit->id;
+		$activity->client_id = $credit->client_id;
+		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_CREDIT;
+		$activity->save();
+	}	
+
+
 
 	public static function archivePayment($payment)
 	{

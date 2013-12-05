@@ -379,3 +379,49 @@ $(function() {
     });
 });
 
+
+function enableHoverClick($combobox, $entityId, url) {
+	/*
+	$combobox.mouseleave(function() {
+		$combobox.css('text-decoration','none');
+	}).on('mouseenter', function(e) {
+		setAsLink($combobox, $combobox.closest('.combobox-container').hasClass('combobox-selected'));
+	}).on('focusout mouseleave', function(e) {
+		setAsLink($combobox, false);
+	}).on('click', function() {
+		var clientId = $entityId.val();
+		if ($(combobox).closest('.combobox-container').hasClass('combobox-selected')) {				
+			if (parseInt(clientId) > 0) {
+				window.open(url + '/' + clientId, '_blank');
+			} else {
+				$('#myModal').modal('show');
+			}
+		};
+	});
+*/
+}
+
+function setAsLink($input, enable) {
+	if (enable) {
+		$input.css('text-decoration','underline');
+		$input.css('cursor','pointer');	
+	} else {
+		$input.css('text-decoration','none');
+		$input.css('cursor','text');	
+	}
+}
+
+function setComboboxValue($combobox, id, name) {
+	console.log('id: ' + id);
+	$combobox.find('input').val(id);
+	$combobox.find('input.form-control').val(name);
+	if (id && name) {
+		//console.log('%s %s', $combobox.find('select')[0], id);
+		//$combobox.find('select').val(id).prop('selected', 'selected');
+		$combobox.find('.combobox-container').addClass('combobox-selected');
+	} else {
+		//$combobox.find('select').val('');
+		$combobox.find('.combobox-container').removeClass('combobox-selected');
+	}
+	//console.log($combobox).combobox('');
+}

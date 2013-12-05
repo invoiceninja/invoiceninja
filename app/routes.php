@@ -36,31 +36,25 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('home', function() { return View::make('header'); });
 	Route::get('account/{section?}', 'AccountController@showSection');
 	Route::post('account/{section?}', 'AccountController@doSection');
-		
+	Route::post('user/setTheme', 'UserController@setTheme');
+
 	Route::resource('clients', 'ClientController');
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
 	Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));	
 	Route::post('clients/bulk', 'ClientController@bulk');
-	Route::get('clients/{client_id}/archive', 'ClientController@archive');
-	Route::get('clients/{client_id}/delete', 'ClientController@delete');
 
 	Route::resource('invoices', 'InvoiceController');
 	Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));	
 	Route::get('invoices/create/{client_id}', 'InvoiceController@create');
 	Route::post('invoices/bulk', 'InvoiceController@bulk');
-	Route::get('invoices/{client_id}/archive', 'InvoiceController@archive');
-	Route::get('invoices/{client_id}/delete', 'InvoiceController@delete');
 
 	Route::resource('payments', 'PaymentController');
 	Route::get('api/payments/{client_id?}', array('as'=>'api.payments', 'uses'=>'PaymentController@getDatatable'));
 	Route::post('payments/bulk', 'PaymentController@bulk');
-	Route::get('payments/{client_id}/archive', 'PaymentController@archive');
-	Route::get('payments/{client_id}/delete', 'PaymentController@delete');
 
 	Route::resource('credits', 'CreditController');
 	Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));	
-	Route::get('credits/{client_id}/archive', 'CreditController@archive');
-	Route::get('credits/{client_id}/delete', 'CreditController@delete');
+	Route::post('credits/bulk', 'PaymentController@bulk');
 
 	Route::get('reports', function() { return View::make('header'); });
 });
@@ -132,8 +126,25 @@ function timestampToDateTimeString($timestamp) {
 	}	
 	$date = new Carbon($timestamp);	
 	$date->tz = $tz;	
-	return $date->toDayDateTimeString();
+	if ($date->year < 1900) {
+		return '';
+	}
+	return $date->toFormattedDateTimeString();
 }
+
+function timestampToDateString($timestamp) {
+	$tz = Session::get('tz');
+	if (!$tz) {
+		$tz = 'US/Eastern';
+	}	
+	$date = new Carbon($timestamp);	
+	$date->tz = $tz;	
+	if ($date->year < 1900) {
+		return '';
+	}
+	return $date->toFormattedDateString();
+}
+
 
 function toDateString($date)
 {
@@ -172,6 +183,16 @@ function fromSqlDate($date)
 	}
 	
 	return DateTime::createFromFormat('Y-m-d', $date)->format('m/d/Y');
+}
+
+function fromSqlTimestamp($date)
+{
+	if (!$date || $date == '0000-00-00 00:00:00')
+	{
+		return '';
+	}
+	
+	return DateTime::createFromFormat('Y-m-d H:i:s', $date)->format('m/d/Y h:ia');
 }
 
 function processedRequest($url)

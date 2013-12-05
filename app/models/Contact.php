@@ -19,6 +19,7 @@ class Contact extends EntityModel
 		return PERSON_CONTACT;
 	}
 
+	/*
 	public function getLastLogin()
 	{
 		if ($this->last_login == '0000-00-00 00:00:00') 
@@ -30,7 +31,8 @@ class Contact extends EntityModel
 			return $this->last_login->format('m/d/y h:i a');
 		}
 	}
-
+	*/
+	
 	public function getFullName()
 	{
 		$fullName = $this->first_name . ' ' . $this->last_name;

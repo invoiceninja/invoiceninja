@@ -90,7 +90,7 @@
         <div class="tab-pane" id="payments">
 
 	    	{{ Datatable::table()		
-				->addColumn('Invoice Number', 'Amount', 'Date')       
+				->addColumn('Transaction Reference', 'Invoice', 'Amount', 'Payment Date')       
 				->setUrl(url('api/payments/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
@@ -100,7 +100,7 @@
         <div class="tab-pane" id="credits">
 
 	    	{{ Datatable::table()		
-				->addColumn('Credit Number', 'Amount', 'Credit Date')       
+				->addColumn('Amount', 'Credit Date')       
 				->setUrl(url('api/credits/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)

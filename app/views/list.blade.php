@@ -3,7 +3,10 @@
 @section('content')
 
 	{{ Former::open($entityType . 's/bulk')->addClass('listForm') }}
-	<div style="display:none">{{ Former::text('action') }}</div>
+	<div style="display:none">
+		{{ Former::text('action') }}
+		{{ Former::text('id') }}
+	</div>
 
 	{{ DropdownButton::normal('Archive',
 		  Navigation::links(
@@ -35,15 +38,21 @@
 			if (!confirm('Are you sure')) {
 				return;
 			}
-		}
+		}		
 		$('#action').val(action);
 		$('form.listForm').submit();		
 	}
 
 	function deleteEntity(id) {
 		if (confirm("Are you sure?")) {
-			window.location = "{{ URL::to($entityType . 's') }}/" + id + "/delete";
+			$('#id').val(id);
+			submitForm('delete');	
 		}
+	}
+
+	function archiveEntity(id) {
+		$('#id').val(id);
+		submitForm('archive');
 	}
 
     </script>
@@ -67,12 +76,12 @@
 		});
 
 		$('tbody tr').mouseover(function() {
-			$(this).closest('tr').find('.tr-action').show();			
+			$(this).closest('tr').find('.tr-action').css('visibility','visible');
 		}).mouseout(function() {
 			$dropdown = $(this).closest('tr').find('.tr-action');
 			if (!$dropdown.hasClass('open')) {
-				$dropdown.hide();
-			}
+				$dropdown.css('visibility','hidden');
+			}			
 		});
 	}	
 

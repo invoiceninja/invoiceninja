@@ -30,8 +30,7 @@ Install packages using Composer
 
 Configure config/database.php and then initialize the database
 
-    php artisan migrate
-    php artisan db:seed
+    php artisan migrate --seed
 
 
 ### Frameworks/Libraries
@@ -56,3 +55,4 @@ Configure config/database.php and then initialize the database
 * [Intervention/image](https://github.com/Intervention/image) - PHP Image Manipulation
 * [webpatser/laravel-countries](https://github.com/webpatser/laravel-countries) - Almost ISO 3166_2, 3166_3, currency, Capital and more for all countries
 * [briannesbitt/Carbon](https://github.com/briannesbitt/Carbon) - A simple API extension for DateTime with PHP 5.3+
+* [thomaspark/bootswatch](https://github.com/thomaspark/bootswatch) - Themes for Bootstrap

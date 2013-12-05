@@ -23,8 +23,11 @@
 	<script src="{{ asset('js/typeahead.js') }}" type="text/javascript"></script>		
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/typeahead.js-bootstrap.css') }}"/>	
 	-->
-
-	<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}"/>	
+	@if (Auth::check() && Auth::user()->theme_id)
+		<link rel="stylesheet" type="text/css" href="{{ asset('css/themes/'.Auth::user()->theme->name.'.min.css') }}"/>		
+	@else
+		<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}"/>
+	@endif
 	<script src="{{ asset('js/bootstrap.js') }}" type="text/javascript"></script>			
 	<!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css"> -->
 	
@@ -107,6 +110,7 @@
 		margin-top: -30px;
 	}
 
+	/*
 	table.table tbody tr.odd {
 		background-color: #f9f9f9;
 	}
@@ -114,9 +118,9 @@
 	table.table tbody tr:hover {
 		background-color: #f0f0f0 !important;
 	}
+	*/
 
-
-	/*
+	/* table sorting indicators */
 	table.table thead .sorting,
 	table.table thead .sorting_asc,
 	table.table thead .sorting_desc,
@@ -126,14 +130,15 @@
 	    *cursor: hand;
 	}
 	 
-	table.table thead .sorting { background: url('images/sort_both.png') no-repeat center right; }
+	/*table.table thead .sorting { background: url('images/sort_both.png') no-repeat center right; }*/
 	table.table thead .sorting_asc { background: url('images/sort_asc.png') no-repeat center right; }
 	table.table thead .sorting_desc { background: url('images/sort_desc.png') no-repeat center right; }
+	
 	 
 	table.table thead .sorting_asc_disabled { background: url('images/sort_asc_disabled.png') no-repeat center right; }
 	table.table thead .sorting_desc_disabled { background: url('images/sort_desc_disabled.png') no-repeat center right; }
-	*/
-	
+
+		
 
 	/* Hover nav */
 	.sidebar-nav {
@@ -310,9 +315,30 @@
 		</div>
 		<div class="container">
 		<div class="footer">
-			Powered by {{ link_to('https://github.com/hillelcoren/invoice-ninja', 'InvoiceNinja', array('target'=>'_blank')) }}
+	      <div class="pull-right">
+		      	{{ Former::open('user/setTheme')->addClass('themeForm') }}
+		      	<div style="display:none">
+			      	{{ Former::text('theme_id') }}
+			      	{{ Former::text('path')->value(Request::url()) }}
+			    </div>
+		      	<div class="btn-group tr-action dropup">
+					<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+						Theme <span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+					<li><a href="#" onclick="setTheme(0)">Default</a></li>
+					@foreach (Theme::all() as $theme)
+						<li><a href="#" onclick="setTheme({{ $theme->id }})">{{ ucwords($theme->name) }}</a></li>
+					@endforeach
+				  </ul>
+				</div>
+		      	{{ Former::close() }}	      	
+		    </div>
+
+  			Powered by {{ link_to('https://github.com/hillelcoren/invoice-ninja', 'InvoiceNinja', array('target'=>'_blank')) }}
 			<p class="text-danger">This is a demo site, the data is erased.</p>
-		</div>	
+
+		</div>			
 		</div>
 	</div>
 
@@ -383,6 +409,12 @@
   </body>
 
   <script type="text/javascript">
+
+  		function setTheme(id)
+  		{
+  			$('#theme_id').val(id);
+  			$('form.themeForm').submit();
+  		}
 
 		@if (!Auth::check() || !Auth::user()->registered)
   		function validateSignUp(showError) 

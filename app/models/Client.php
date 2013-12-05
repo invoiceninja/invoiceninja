@@ -2,7 +2,7 @@
 
 class Client extends EntityModel
 {
-	protected $hidden = array('id', 'created_at', 'updated_at', 'deleted_at', 'notes', 'last_login');
+	protected $hidden = array('id', 'account_id', 'created_at', 'updated_at', 'deleted_at', 'notes', 'last_login');
 
 	public static $fieldName = 'Client - Name';
 	public static $fieldPhone = 'Client - Phone';

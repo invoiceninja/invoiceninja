@@ -45,7 +45,7 @@
 			<div data-bind='template: { foreach: contacts,
 		                            beforeRemove: hideContact,
 		                            afterAdd: showContact }'>
-				{{ Former::hidden('id')->data_bind("value: id, valueUpdate: 'afterkeydown'") }}
+				{{ Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown'") }}
@@ -85,7 +85,7 @@
 
 	function ContactModel() {
 		var self = this;
-		self.id = ko.observable('');
+		self.public_id = ko.observable('');
 		self.first_name = ko.observable('');
 		self.last_name = ko.observable('');
 		self.email = ko.observable('');

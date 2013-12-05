@@ -21,20 +21,20 @@ class ClientController extends \BaseController {
 
 	public function getDatatable()
     {
-    	$clients = Client::scope()->with('contacts')->get();
+    	$query = DB::table('clients')->join('contacts', 'clients.id', '=','contacts.client_id')->where('contacts.is_primary', '=', true);
 
-        return Datatable::collection($clients)
+        return Datatable::query($query)
     	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
     	    ->addColumn('name', function($model) { return link_to('clients/' . $model->public_id, $model->name); })
-    	    ->addColumn('contact', function($model) { return $model->contacts[0]->getFullName(); })
+    	    ->addColumn('first_name', function($model) { return $model->first_name . ' ' . $model->last_name; })
     	    ->addColumn('balance', function($model) { return '$' . $model->balance; })    	    
-    	    ->addColumn('last_login', function($model) { return $model->contacts[0]->getLastLogin(); })
-    	    ->addColumn('date_created', function($model) { return $model->created_at->toFormattedDateString(); })
-    	    ->addColumn('email', function($model) { return HTML::mailto($model->contacts[0]->email, $model->contacts[0]->email); })
-    	    ->addColumn('phone', function($model) { return $model->contacts[0]->phone; })    	   
+    	    ->addColumn('clients.last_login', function($model) { return timestampToDateString($model->last_login); })
+    	    ->addColumn('clients.created_at', function($model) { return timestampToDateString($model->created_at); })
+    	    ->addColumn('email', function($model) { return HTML::mailto($model->email, $model->email); })
+    	    ->addColumn('phone', function($model) { return $model->phone; })    	   
     	    ->addColumn('dropdown', function($model) 
     	    { 
-    	    	return '<div class="btn-group tr-action" style="display:none">
+    	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
   							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
     							Select <span class="caret"></span>
   							</button>
@@ -42,12 +42,12 @@ class ClientController extends \BaseController {
   							<li><a href="' . URL::to('invoices/create/'.$model->public_id) . '">New Invoice</a></li>						    
 						    <li><a href="' . URL::to('clients/'.$model->public_id.'/edit') . '">Edit Client</a></li>
 						    <li class="divider"></li>
-						    <li><a href="' . URL::to('clients/'.$model->public_id.'/archive') . '">Archive Client</a></li>
+						    <li><a href="javascript:archiveEntity(' . $model->public_id. ')">Archive Client</a></li>
 						    <li><a href="javascript:deleteEntity(' . $model->public_id. ')">Delete Client</a></li>						    
 						  </ul>
 						</div>';
     	    })    	   
-    	    ->orderColumns('name')
+    	    ->orderColumns('name','first_name','balance','clients.last_login','clients.created_at','email','phone')
     	    ->make();    	    
     }
 
@@ -133,7 +133,8 @@ class ClientController extends \BaseController {
 		$validator = Validator::make(Input::all(), $rules);
 
 		if ($validator->fails()) {
-			return Redirect::to('clients/' . $publicId . '/edit')
+			$url = $publicId ? 'clients/' . $publicId . '/edit' : 'clients/create';
+			return Redirect::to($url)
 				->withErrors($validator)
 				->withInput(Input::except('password'));
 		} else {			
@@ -158,12 +159,13 @@ class ClientController extends \BaseController {
 
 			$data = json_decode(Input::get('data'));
 			$contactIds = [];
+			$isPrimary = true;
 			
 			foreach ($data->contacts as $contact)
 			{
-				if (isset($contact->id) && $contact->id)
+				if (isset($contact->public_id) && $contact->public_id)
 				{
-					$record = Contact::scope($contact->id)->firstOrFail();
+					$record = Contact::scope($contact->public_id)->firstOrFail();
 				}
 				else
 				{
@@ -174,14 +176,16 @@ class ClientController extends \BaseController {
 				$record->first_name = $contact->first_name;
 				$record->last_name = $contact->last_name;
 				$record->phone = $contact->phone;
+				$record->is_primary = $isPrimary;
+				$isPrimary = false;
 
 				$client->contacts()->save($record);
-				$contactIds[] = $record->id;					
+				$contactIds[] = $record->public_id;					
 			}
 
 			foreach ($client->contacts as $contact)
 			{
-				if (!in_array($contact->id, $contactIds))
+				if (!in_array($contact->public_id, $contactIds))
 				{	
 					$contact->forceDelete();
 				}
@@ -197,6 +201,7 @@ class ClientController extends \BaseController {
 	{
 		$action = Input::get('action');
 		$ids = Input::get('ids') ? Input::get('ids') : [Input::get('id')];
+		
 		$clients = Client::scope($ids)->get();
 
 		foreach ($clients as $client) {
@@ -211,28 +216,5 @@ class ClientController extends \BaseController {
 		Session::flash('message', $message);
 
 		return Redirect::to('clients');
-	}
-
-	public function archive($publicId)
-	{
-		$client = Client::scope($publicId)->firstOrFail();
-		$client->delete();
-
-		foreach ($client->invoices as $invoice)
-		{
-			$invoice->delete();
-		}
-
-		Session::flash('message', 'Successfully archived ' . $client->name);
-		return Redirect::to('clients');		
-	}
-
-	public function delete($id)
-	{
-		$client = Client::scope($publicId)->firstOrFail();
-		$client->forceDelete();
-
-		Session::flash('message', 'Successfully deleted ' . $client->name);
-		return Redirect::to('clients');		
 	}
 }

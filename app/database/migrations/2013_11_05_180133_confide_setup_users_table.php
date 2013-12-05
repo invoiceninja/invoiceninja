@@ -10,6 +10,7 @@ class ConfideSetupUsersTable extends Migration {
      */
     public function up()
     {
+        Schema::dropIfExists('themes');        
         Schema::dropIfExists('credits');        
         Schema::dropIfExists('activities');
         Schema::dropIfExists('invitations');
@@ -45,6 +46,12 @@ class ConfideSetupUsersTable extends Migration {
             $table->string('region_code', 3)->default('');
             $table->string('sub_region_code', 3)->default('');
             $table->boolean('eea')->default(0);                        
+        });
+
+        Schema::create('themes', function($t)
+        {
+            $t->increments('id');
+            $t->string('name');
         });
 
         Schema::create('timezones', function($t)
@@ -121,7 +128,8 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('confirmation_code');
             $t->boolean('registered')->default(false);
             $t->boolean('confirmed')->default(false);
-            
+            $t->integer('theme_id');
+
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
 
             $t->unsignedInteger('public_id');
@@ -170,6 +178,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
+            $t->boolean('is_primary');
             $t->string('first_name');
             $t->string('last_name');
             $t->string('email');
@@ -203,6 +212,9 @@ class ConfideSetupUsersTable extends Migration {
             $t->date('invoice_date');
             $t->date('due_date');
             $t->text('notes');
+
+            $t->decimal('total', 10, 2);
+            $t->decimal('balance', 10, 2);
 
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
             $t->foreign('account_id')->references('id')->on('accounts'); 
@@ -277,7 +289,7 @@ class ConfideSetupUsersTable extends Migration {
         Schema::create('payments', function($t)
         {
             $t->increments('id');
-            $t->unsignedInteger('invoice_id');
+            $t->unsignedInteger('invoice_id')->nullable();
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('client_id');
             $t->unsignedInteger('contact_id')->nullable();
@@ -352,6 +364,7 @@ class ConfideSetupUsersTable extends Migration {
      */
     public function down()
     {
+        Schema::dropIfExists('themes');        
         Schema::dropIfExists('credits');        
         Schema::dropIfExists('activities');
         Schema::dropIfExists('invitations');

@@ -18,14 +18,20 @@ class InvoiceController extends \BaseController {
 
 	public function getDatatable($clientPublicId = null)
     {
-    	$collection = Invoice::scope()->with('client','invoice_items','invoice_status');
+    	$query = DB::table('invoices')
+    				->join('clients', 'clients.id', '=','invoices.client_id')
+					->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id');
+					//->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name', 'invoices.public_id', 'total', 'invoices.balance', 'invoice_date', 'due_date');
+		//dd($query->get());
 
     	if ($clientPublicId) {
-    		$clientId = Client::getPrivateId($clientPublicId);
-    		$collection->where('client_id','=',$clientId);
+    		$query->where('clients.public_id', '=', $clientPublicId);
+    		//$clientId = Client::getPrivateId($clientPublicId);
+    		//$collection->where('client_id','=',$clientId);
     	}
 
-    	$table = Datatable::collection($collection->get());
+    	$table = Datatable::query($query);
+			
 
     	if (!$clientPublicId) {
     		$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
@@ -34,14 +40,14 @@ class InvoiceController extends \BaseController {
     	$table->addColumn('invoice_number', function($model) { return link_to('invoices/' . $model->public_id . '/edit', $model->invoice_number); });
 
     	if (!$clientPublicId) {
-    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client->public_id, $model->client->name); });
+    		//$table->addColumn('client', function($model) { dd($model); return link_to('clients/' . $model->client_public_id, $model->client_name); });
     	}
     	
-    	return $table->addColumn('total', function($model){ return '$' . money_format('%i', $model->getTotal()); })
-    		->addColumn('amount_due', function($model) { return '$' . money_format('%i', $model->getTotal()); })
+    	return $table->addColumn('total', function($model){ return '$' . money_format('%i', $model->total); })
+    		->addColumn('invoices.balance', function($model) { return '$' . money_format('%i', $model->balance); })
     	    ->addColumn('invoice_date', function($model) { return fromSqlDate($model->invoice_date); })
     	    ->addColumn('due_date', function($model) { return fromSqlDate($model->due_date); })
-    	    ->addColumn('status', function($model) { return $model->invoice_status->name; })
+    	    //->addColumn('status', function($model) { return $model->invoice_status->name; })
     	    ->addColumn('dropdown', function($model) 
     	    { 
     	    	return '<div class="btn-group tr-action" style="display:none">
@@ -442,22 +448,3 @@ class InvoiceController extends \BaseController {
 
 		return Redirect::to('invoices');
 	}
-
-	public function archive($publicId)
-	{
-		$invoice = Invoice::scope($publicId)->firstOrFail();
-		$invoice->delete();
-		
-		Session::flash('message', 'Successfully archived invoice ' . $invoice->invoice_number);
-		return Redirect::to('invoices');		
-	}
-
-	public function delete($publicId)
-	{
-		$invoice = Invoice::scope($publicId)->firstOrFail();
-		$invoice->forceDelete();
-
-		Session::flash('message', 'Successfully deleted invoice ' . $invoice->invoice_number);
-		return Redirect::to('invoices');		
-	}
-}

@@ -11,6 +11,15 @@
 
 class UserController extends BaseController {
 
+    public function setTheme()
+    {
+        $user = User::find(Auth::user()->id);
+        $user->theme_id = Input::get('theme_id');
+        $user->save();
+        
+        return Redirect::to(Input::get('path'));
+    }
+
     /**
      * Displays the form for account creation
      *

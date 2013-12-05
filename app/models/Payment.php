@@ -7,6 +7,11 @@ class Payment extends EntityModel
 		return $this->belongsTo('Invoice');
 	}
 
+	public function client()
+	{
+		return $this->belongsTo('Client');
+	}
+
 	public function getName()
 	{
 		return '';

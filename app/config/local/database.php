@@ -9,7 +9,7 @@ return array(
 			'host'      => 'localhost',
 			'database'  => 'ninja',
 			'username'  => 'ninja',
-			'password'  => '1234',
+			'password'  => 'ninja',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',
