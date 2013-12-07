@@ -293,6 +293,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('client_id');
             $t->unsignedInteger('contact_id')->nullable();
+            $t->unsignedInteger('invitation_id')->nullable();
             $t->unsignedInteger('user_id')->nullable();
             $t->timestamps();
             $t->softDeletes();

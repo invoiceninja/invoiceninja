@@ -74,8 +74,6 @@ class UserController extends BaseController {
     {
         if( Confide::user() )
         {
-            // If user is logged, redirect to internal 
-            // page, change it to '/admin', '/dashboard' or something
             return Redirect::to('/');
         }
         else
@@ -94,7 +92,7 @@ class UserController extends BaseController {
             'email'    => Input::get( 'email' ), // May be the username too
             'username' => Input::get( 'email' ), // so we have to pass both
             'password' => Input::get( 'password' ),
-            'remember' => Input::get( 'remember' ),
+            'remember' => true,
         );
 
         // If you wish to only allow login from confirmed users, call logAttempt
@@ -102,12 +100,16 @@ class UserController extends BaseController {
         // logAttempt will check if the 'email' perhaps is the username.
         // Get the value from the config file instead of changing the controller
         if ( Confide::logAttempt( $input, Config::get('confide::signup_confirm') ) ) 
-        {
+        {            
+            $account = Account::findOrFail(Auth::user()->account_id);
+            $account->last_login = Carbon::now()->toDateTimeString();
+            $account->save();
+
             // Redirect the user to the URL they were trying to access before
             // caught by the authentication filter IE Redirect::guest('user/login').
             // Otherwise fallback to '/'
             // Fix pull #145
-            return Redirect::intended('/'); // change it to '/admin', '/dashboard' or something
+            return Redirect::intended('/clients'); // change it to '/admin', '/dashboard' or something
         }
         else
         {
@@ -118,18 +120,20 @@ class UserController extends BaseController {
             {
                 $err_msg = Lang::get('confide::confide.alerts.too_many_attempts');
             }
+            /*
             elseif( $user->checkUserExists( $input ) and ! $user->isConfirmed( $input ) )
             {
                 $err_msg = Lang::get('confide::confide.alerts.not_confirmed');
             }
+            */
             else
             {
                 $err_msg = Lang::get('confide::confide.alerts.wrong_credentials');
             }
 
-                        return Redirect::action('UserController@login')
-                            ->withInput(Input::except('password'))
-                ->with( 'error', $err_msg );
+                return Redirect::action('UserController@login')
+                    ->withInput(Input::except('password'))
+                    ->with( 'error', $err_msg );
         }
     }
 

@@ -1,40 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <meta name="csrf-token" content="<?= csrf_token() ?>">
+@extends('master')
 
-    <title>Invoice Ninja {{ isset($title) ? $title : '' }}</title>
+	
 
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-    <![endif]-->
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js" type="text/javascript"></script>
+@section('head')
+
+	<meta name="csrf-token" content="<?= csrf_token() ?>">
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-        
-
-    <!--
-	<script src="{{ asset('js/typeahead.js') }}" type="text/javascript"></script>		
-	<link rel="stylesheet" type="text/css" href="{{ asset('css/typeahead.js-bootstrap.css') }}"/>	
-	-->
 	@if (Auth::check() && Auth::user()->theme_id)
 		<link rel="stylesheet" type="text/css" href="{{ asset('css/themes/'.Auth::user()->theme->name.'.min.css') }}"/>		
 	@else
 		<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}"/>
 	@endif
-	<script src="{{ asset('js/bootstrap.js') }}" type="text/javascript"></script>			
-	<!-- <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css"> -->
-	
-
-	{{-- Basset::show('bootstrapper.css') --}}
-	{{-- Basset::show('bootstrapper.js') --}}
-	
+	<script src="{{ asset('js/bootstrap.js') }}" type="text/javascript"></script>				
 
 	<script src="{{ asset('js/bootstrap-combobox.js') }}" type="text/javascript"></script>		
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap-combobox.css') }}"/>	
@@ -56,9 +33,14 @@
 
 	<style type="text/css">
 
-	
+	@if (!Auth::check() || Auth::user()->showGreyBackground())
+	body {
+		background-color: #EEEEEE;
+	}
+	@endif
+
 	body > div.container {
-		min-height: 600px;
+		min-height: 600px;		
 	}
 
 	label.control-label {
@@ -188,10 +170,12 @@
 		border-style: none !important;
 	}
 
+	/*
 	table.invoice-table tbody tr:hover {
 		background-color: #FFFFFF !important;
 	}
-
+	*/
+	
 	.invoice-table td {
 		padding: 2px !important;
 	}
@@ -217,27 +201,14 @@
 
 	</style>
 
-  </head>
+@stop
 
-  <body>
-
-  	@if (App::environment() != ENV_DEVELOPMENT)  	
-  	<script>
-	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-	  ga('create', 'UA-46031341-1', 'sketch-out.com');
-	  ga('send', 'pageview');
-
-	</script>
-	@endif
-
+@section('body')
+		
 	<div class="container">
 	<p/>
 	<div>		
-		<span style="font-size:30px">Invoice Ninja</span>		
+		<a href="{{ URL::to('/') }}" style="font-size:30px;color:black">Invoice Ninja</a>
 		<div style="float:right">
 			@if (Auth::check() && Auth::user()->registered)
 			{{ Auth::user()->email }} &nbsp;
@@ -521,4 +492,5 @@
   		});
 
   </script>  
-</html>
+  
+@stop

@@ -24,6 +24,17 @@ Route::get('complete', 'InvoiceController@do_payment');
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
 
+// Confide routes
+Route::get('login', 'UserController@login');
+Route::post('login', 'UserController@do_login');
+//Route::get( 'user/confirm/{code}', 'UserController@confirm');
+Route::get('forgot_password', 'UserController@forgot_password');
+Route::post('forgot_password', 'UserController@do_forgot_password');
+//Route::get('user/reset_password/{token}', 'UserController@reset_password');
+//Route::post('user/reset_password', 'UserController@do_reset_password');
+Route::get('logout', 'UserController@logout');
+
+
 Route::filter('auth', function()
 {
 	if (!Auth::check())
@@ -61,18 +72,6 @@ Route::group(array('before' => 'auth'), function()
 	
 	Route::get('reports', function() { return View::make('header'); });
 });
-
-// Confide routes
-//Route::get( 'user/create',                 'UserController@create');
-//Route::post('user',                        'UserController@store');
-Route::get('login',                  'UserController@login');
-Route::post('login',                  'UserController@do_login');
-//Route::get( 'user/confirm/{code}',         'UserController@confirm');
-//Route::get( 'user/forgot_password',        'UserController@forgot_password');
-//Route::post('user/forgot_password',        'UserController@do_forgot_password');
-//Route::get( 'user/reset_password/{token}', 'UserController@reset_password');
-//Route::post('user/reset_password',         'UserController@do_reset_password');
-Route::get('logout',                 'UserController@logout');
 
 
 
@@ -132,7 +131,8 @@ function timestampToDateTimeString($timestamp) {
 	if ($date->year < 1900) {
 		return '';
 	}
-	return $date->toFormattedDateTimeString();
+	
+	return $date->format('l M jS, Y g:ia');
 }
 
 function timestampToDateString($timestamp) {
@@ -206,7 +206,7 @@ function processedRequest($url)
 
 
 	
-function trackViewed($name)
+function trackViewed($name, $type)
 {
 	$url = Request::url();
 	$viewed = Session::get(RECENTLY_VIEWED);	
@@ -218,7 +218,7 @@ function trackViewed($name)
 
 	$object = new stdClass;
 	$object->url = $url;
-	$object->name = $name;
+	$object->name = ucwords($type) . ': ' . $name;
 	
 	for ($i=0; $i<count($viewed); $i++)
 	{
@@ -261,9 +261,16 @@ define("ACCOUNT_IMPORT", "import");
 define("ACCOUNT_MAP", "import_map");
 define("ACCOUNT_EXPORT", "export");
 
-
 define("DEFAULT_INVOICE_NUMBER", "0001");
 define("RECENTLY_VIEWED_LIMIT", 8);
+
+
+define('INVOICE_STATUS_DRAFT', 1);
+define('INVOICE_STATUS_SENT', 2);
+define('INVOICE_STATUS_VIEWED', 3);
+define('INVOICE_STATUS_PARTIAL', 4);
+define('INVOICE_STATUS_PAID', 5);
+
 
 
 interface iPerson

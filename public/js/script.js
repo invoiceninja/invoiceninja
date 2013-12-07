@@ -1,6 +1,5 @@
 function generatePDF(invoice) {
 	
-	var clientName = invoice.client.name;
 	var invoiceNumber = invoice.invoice_number;
 	var issuedOn = invoice.invoice_date;
 	var amount = '$0.00';
@@ -37,7 +36,25 @@ function generatePDF(invoice) {
 	var issuedOnX = headerRight - (doc.getStringUnitWidth(issuedOn) * doc.internal.getFontSize());	
 
 	doc.setFontType("normal");
-	doc.text(marginLeft, headerTop, clientName);
+	if (invoice.client) {
+		var y = headerTop;
+		doc.text(marginLeft, y, invoice.client.name);
+		y += rowHeight;
+		doc.text(marginLeft, y, invoice.client.address1);
+		if (invoice.client.address2) {
+			y += rowHeight;
+			doc.text(marginLeft, y, invoice.client.address2);
+		}
+		if (invoice.client.city || invoice.client.state || invoice.client.postal_code) {
+			y += rowHeight;
+			doc.text(marginLeft, y, invoice.client.city + ', ' + invoice.client.state + ' ' + invoice.client.postal_code);
+		}
+		if (invoice.client.country) {
+			y += rowHeight;
+			doc.text(marginLeft, y, invoice.client.country.name);
+		}
+	}
+
 	doc.text(headerLeft, headerTop, 'Invoice #');
 	doc.text(invoiceNumberX, headerTop, invoiceNumber);
 	doc.text(headerLeft, headerTop + rowHeight, 'Invoice Date');
@@ -134,16 +151,20 @@ function generatePDF(invoice) {
 	doc.text(tableLeft, y, invoice.account.country ? invoice.account.country.name : '');	
 
 
-	var clientX = headerRight - (doc.getStringUnitWidth(invoice.client.name) * doc.internal.getFontSize());
+	if (invoice.client) {
+		var clientX = headerRight - (doc.getStringUnitWidth(invoice.client.name) * doc.internal.getFontSize());
+	}
 	var numberX = headerRight - (doc.getStringUnitWidth(invoice.invoice_number) * doc.internal.getFontSize());
 	var dateX = headerRight - (doc.getStringUnitWidth(issuedOn) * doc.internal.getFontSize());
 	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
 
 	y = 720;
-	doc.setFontType("bold");
-	doc.text(headerLeft, y, 'Client');		
-	doc.setFontType("normal");
-	doc.text(clientX, y, invoice.client.name);		
+	if (invoice.client) {
+		doc.setFontType("bold");
+		doc.text(headerLeft, y, 'Client');		
+		doc.setFontType("normal");
+		doc.text(clientX, y, invoice.client.name);		
+	}
 
 	y += 16;
 	doc.setFontType("bold");
@@ -184,9 +205,6 @@ function formatMoney(num) {
     if (!num) return '$0.00';
 	return '$' + formatNumber(num);
 }
-
-
-
 
 
 

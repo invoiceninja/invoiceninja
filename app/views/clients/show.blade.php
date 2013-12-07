@@ -1,6 +1,6 @@
 @extends('header')
 
-@section('content')
+@section('content') 
 	
 	
 	<div class="pull-right">

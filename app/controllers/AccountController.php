@@ -31,6 +31,8 @@ class AccountController extends \BaseController {
 			$user = new User;
 			$user->password = $random;
 			$account->users()->save($user);
+
+			Session::forget(RECENTLY_VIEWED);
 		}
 
 		Auth::login($user, true);
@@ -188,6 +190,7 @@ class AccountController extends \BaseController {
 			foreach ($row as $index => $value)
 			{
 				$field = $map[$index];
+				$value = trim($value);
 
 				if ($field == Client::$fieldName)
 				{
@@ -387,7 +390,7 @@ class AccountController extends \BaseController {
 				$config = new stdClass;
 				foreach ($fields as $field => $details)
 				{
-					$config->$field = Input::get($gateway->id.'_'.$field);
+					$config->$field = trim(Input::get($gateway->id.'_'.$field));
 				}			
 				
 				$accountGateway->config = json_encode($config);
@@ -417,21 +420,21 @@ class AccountController extends \BaseController {
 		else 
 		{
 			$account = Account::findOrFail(Auth::user()->account_id);
-			$account->name = Input::get('name');
-			$account->address1 = Input::get('address1');
-			$account->address2 = Input::get('address2');
-			$account->city = Input::get('city');
-			$account->state = Input::get('state');
-			$account->postal_code = Input::get('postal_code');
+			$account->name = trim(Input::get('name'));
+			$account->address1 = trim(Input::get('address1'));
+			$account->address2 = trim(Input::get('address2'));
+			$account->city = trim(Input::get('city'));
+			$account->state = trim(Input::get('state'));
+			$account->postal_code = trim(Input::get('postal_code'));
 			$account->country_id = Input::get('country_id') ? Input::get('country_id') : null;
 			$account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
 			$account->save();
 
 			$user = $account->users()->first();
-			$user->first_name = Input::get('first_name');
-			$user->last_name = Input::get('last_name');
-			$user->email = Input::get('email');
-			$user->phone = Input::get('phone');
+			$user->first_name = trim(Input::get('first_name'));
+			$user->last_name = trim(Input::get('last_name'));
+			$user->email = trim(Input::get('email'));
+			$user->phone = trim(Input::get('phone'));
 			$user->save();
 
 			if (Input::get('timezone_id')) {
@@ -480,10 +483,10 @@ class AccountController extends \BaseController {
 		} 
 
 		$user = Auth::user();
-		$user->first_name = Input::get('first_name');
-		$user->last_name = Input::get('last_name');
-		$user->email = Input::get('email');
-		$user->password = Input::get('password');
+		$user->first_name = trim(Input::get('first_name'));
+		$user->last_name = trim(Input::get('last_name'));
+		$user->email = trim(Input::get('email'));
+		$user->password = trim(Input::get('password'));
 		$user->registered = true;
 		$user->save();
 

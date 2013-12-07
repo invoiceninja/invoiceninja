@@ -123,7 +123,7 @@ class PaymentController extends \BaseController
             $payment->client_id = Input::get('client');
             $payment->invoice_id = $invoiceId;
             $payment->payment_date = toSqlDate(Input::get('payment_date'));
-            $payment->amount = Input::get('amount');
+            $payment->amount = floatval(Input::get('amount'));
             $payment->save();
 
             $message = $publicId ? 'Successfully updated payment' : 'Successfully created payment';

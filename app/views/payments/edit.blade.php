@@ -109,7 +109,6 @@
 		$input.combobox();
 
 		var $input = $('select#invoice').on('change', function(e) {			
-			console.log('invoice change');
 			$clientCombobox = $('select#client');
 			var invoiceId = $('input[name=invoice]').val();						
 			if (invoiceId) {

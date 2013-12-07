@@ -40,7 +40,7 @@ class Activity extends Eloquent
 		$activity = Activity::getBlank();
 		$activity->client_id = $client->id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_CLIENT;
-		$activity->message = Auth::user()->getFullName() . ' created client ' . link_to('clients/'.$client->id, $client->name);
+		$activity->message = Auth::user()->getFullName() . ' created client ' . link_to('clients/'.$client->public_id, $client->name);
 
 		$activity->save();		
 	}
@@ -60,7 +60,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_INVOICE;
-		$activity->message = Auth::user()->getFullName() . ' created invoice ' . link_to('invoices/'.$invoice->id, $invoice->invoice_number);
+		$activity->message = Auth::user()->getFullName() . ' created invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
 		$activity->save();
 	}	
 
@@ -81,7 +81,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invitation->invoice_id;
 		$activity->contact_id = $invitation->contact_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_EMAIL_INVOICE;
-		//$activity->message = Auth::user()->getFullName() . ' emailed invoice ' . $invitation->invoice->number . ' to ' . $contact->getFullName();
+		$activity->message = Auth::user()->getFullName() . ' emailed invoice ' . link_to('invoices/'.$invitation->invoice->public_id, $invitation->invoice->invoice_number) . ' to ' . $invitation->contact->getFullName();
 		$activity->save();
 	}
 
@@ -127,7 +127,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_PAYMENT;
-		$activity->message = Auth::user()->getFullName() . ' archived payment ' . $invoice->number;
+		$activity->message = Auth::user()->getFullName() . ' archived payment';
 		$activity->save();
 	}	
 
@@ -141,7 +141,7 @@ class Activity extends Eloquent
 		$activity->contact_id = $invitation->contact_id;
 		$activity->invoice_id = $invitation->invoice_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_VIEW_INVOICE;
-		//$activity->message = $contact->getFullName() . ' viewed invoice ' . $invoice->number;
+		$activity->message = $invitation->contact->getFullName() . ' viewed invoice ' . link_to('invoices/'.$invitation->invoice->public_id, $invitation->invoice->invoice_number);
 		$activity->save();
 	}
 }

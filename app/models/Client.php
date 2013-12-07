@@ -24,6 +24,11 @@ class Client extends EntityModel
 		return $this->hasMany('Invoice');
 	}
 
+	public function payments()
+	{
+		return $this->hasMany('Payment');
+	}
+
 	public function contacts()
 	{
 		return $this->hasMany('Contact');

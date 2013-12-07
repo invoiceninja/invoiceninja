@@ -1,7 +1,7 @@
 @extends('header')
 
 @section('content')
-
+	
 	<p>&nbsp;</p>
 
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
@@ -24,7 +24,7 @@
     
     <div class="row">
     	<div class="col-md-6">
-			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'public_id')->select($client ? $client->public_id : '')
+			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'public_id')->select($client ? $client->public_id : '')->addGroupClass('client_select')
 				->help('<a style="cursor:pointer" data-toggle="modal" id="modalLink" onclick="showCreateNew()">Create new client</a>') }}
 			{{ Former::textarea('notes') }}
 		</div>
@@ -77,7 +77,7 @@
 	            	<input data-bind="value: tax, valueUpdate: 'afterkeydown'"/>
 	            </td>
 	        	-->
-	            <td style="width:100px;background-color: #FFFFFF;text-align: right;padding-top:9px !important">
+	            <td style="width:100px;text-align: right;padding-top:9px !important">
 	            	<span data-bind="text: total"></span>
 	            </td>
 	        	<td style="width:20px; cursor:pointer" class="hide-border">
@@ -116,11 +116,14 @@
 	<p>&nbsp;</p>
 	<div class="form-actions">
 
-		@if ($invoice)		
-			<div style="display:none">
-				{{ Former::text('action') }}
+		<div style="display:none">
+			{{ Former::text('action') }}
+			@if ($invoice)		
 				{{ Former::text('id') }}
-			</div>
+			@endif
+		</div>
+
+		@if ($invoice)		
 			{{ DropdownButton::normal('Download PDF',
 				  Navigation::links(
 				    array(
@@ -174,7 +177,7 @@
 			{{ Former::text('city') }}
 			{{ Former::text('state') }}
 			{{ Former::text('postal_code') }}
-			{{ Former::select('country_id')->addOption('','')->label('Country')
+			{{ Former::select('country_id')->addOption('','')->label('Country')->addGroupClass('country_select')
 				->fromQuery($countries, 'name', 'id')->select($client ? $client->country_id : '') }}
 			</div>
 		</div>
@@ -242,17 +245,17 @@
 
 		var $input = $('select#client');
 		$input.combobox();
-		$('.combobox-container input.form-control').attr('name', 'client_combobox').on('change', function(e) {			
+		$('.client_select input.form-control').on('change', function(e) {			
 			refreshPDF();			
 		}).on('keydown', function() {			
 			$('#modalLink').text('Create new client');
 		});
-		enableHoverClick($('.combobox-container input.form-control'), $('.combobox-container input[name=client]'), '{{ URL::to('clients') }}');
+		//enableHoverClick($('.combobox-container input.form-control'), $('.combobox-container input[name=client]'), '{{ URL::to('clients') }}');
 
 		@if ($client)
 			$('input#invoice_number').focus();
 		@else
-			$('[name="client_combobox"]').focus();
+			//$('[name="client_combobox"]').focus();
 		@endif
 		
 		/*
@@ -277,7 +280,8 @@
 	});
 
 	function showCreateNew() {
-		if ($('.combobox-container input[name=client]').val() != '-1') {
+		console.log('showCreateNew: %s', $('input[name=client]').val());
+		if ($('input[name=client]').val() != '-1') {
 			$('#myModal input').val('');
 			$('#myModal #country_id').val('');
 			$('#nameError').css( "display", "none" );			
@@ -327,9 +331,6 @@
 					name: "{{ $account->country ? $account->country->name : '' }}"
 				}
 			},
-			client: {
-				name: $('[name="client_combobox"]').val()
-			},
 			@if (file_exists($account->getLogoPath()))
 				image: "{{ HTML::image_data($account->getLogoPath()) }}",			
 				imageWidth: {{ $account->getLogoWidth() }},
@@ -337,6 +338,26 @@
 			@endif
 			invoice_items: []
 		};
+
+		var clientId = $('input[name=client]').val();
+		console.log('clientId: %s', clientId);
+		console.log('mapped: %s', clientMap[clientId]);
+		if (clientId == '-1') {
+			var client = {
+				name: $('#name').val(),
+				address1: $('#address1').val(),
+				address2: $('#address2').val(),
+				city: $('#city').val(),
+				state: $('#state').val(),
+				postal_code: $('#postal_code').val(),
+				country: {
+					name: $('.country_select input[type=text]').val()
+				}
+			};
+		} else if (clientMap.hasOwnProperty(clientId)) {
+			var client = clientMap[clientId];
+		}
+		invoice.client = client;
 
 		for(var i=0; i<model.items().length; i++) {
 			var item = model.items()[i];
@@ -352,11 +373,17 @@
 	}
 
 	function refreshPDF() {
+		setTimeout(function() {
+			_refreshPDF();
+		}, 100);
+	}	
+
+	function _refreshPDF() {
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice);
 		var string = doc.output('datauristring');
-		$('iframe').attr('src', string);
-	}	
+		$('iframe').attr('src', string);		
+	}
 
 	function onDownloadClick() {
 		var invoice = createInvoiceModel();
@@ -388,12 +415,11 @@
 		if (!name) {
 			if (!name) $('#nameError').css( "display", "inline" );
 		} else {
-			$('.combobox-container input[name=client]').val('-1');
-			$('.combobox-container input.form-control').val(name);
-			$('.combobox-container').addClass('combobox-selected');
+			$('input[name=client]').val('-1');
+			$('.client_select input.form-control').val(name);
+			$('.client_select').addClass('combobox-selected');
 
 			$('#nameError').css( "display", "none" );
-			//$('#client_name').val('');
 			$('#modalLink').text('Edit client details');
 			$('#myModal').modal('hide');
 			$('input#invoice_number').focus();
@@ -571,6 +597,13 @@
 	}
 
 	var products = {{ $products }};
+	var clients = {{ $clients }};	
+	var clientMap = {};
+
+	for (var i=0; i<clients.length; i++) {
+		var client = clients[i];
+		clientMap[client.public_id] = client;
+	}
 
 	window.model = new InvoiceModel();
 	ko.applyBindings(model);

@@ -84,4 +84,9 @@ class User extends ConfideUser implements UserInterface, RemindableInterface, iP
 			return $fullName;
 		}
 	}	
+
+	public function showGreyBackground()
+	{
+		return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
+	}
 }

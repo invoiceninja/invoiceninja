@@ -7,6 +7,11 @@ class Payment extends EntityModel
 		return $this->belongsTo('Invoice');
 	}
 
+	public function invitation()
+	{
+		return $this->belongsTo('Invitation');
+	}
+
 	public function client()
 	{
 		return $this->belongsTo('Client');

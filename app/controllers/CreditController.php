@@ -114,7 +114,7 @@ class CreditController extends \BaseController {
 
             $credit->client_id = Input::get('client');
             $credit->credit_date = toSqlDate(Input::get('credit_date'));
-            $credit->amount = Input::get('amount');
+            $credit->amount = floatval(Input::get('amount'));
             $credit->save();
 
             $message = $publicId ? 'Successfully updated credit' : 'Successfully created credit';

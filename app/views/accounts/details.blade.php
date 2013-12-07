@@ -1,8 +1,8 @@
 @extends('accounts.nav')
 
 @section('content')	
-	@parent	
-
+	@parent
+	
 	<style type="text/css">
 
 	#logo {

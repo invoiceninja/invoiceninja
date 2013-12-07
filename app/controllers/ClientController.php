@@ -92,7 +92,7 @@ class ClientController extends \BaseController {
 	public function show($publicId)
 	{
 		$client = Client::scope($publicId)->with('contacts')->firstOrFail();
-		trackViewed($client->name);
+		trackViewed($client->name, ENTITY_CLIENT);
 		
 		$data = array(
 			'client' => $client,
@@ -149,14 +149,14 @@ class ClientController extends \BaseController {
 				$client = Client::createNew();
 			}
 
-			$client->name = Input::get('name');
-			$client->work_phone = Input::get('work_phone');
-			$client->address1 = Input::get('address1');
-			$client->address2 = Input::get('address2');
-			$client->city = Input::get('city');
-			$client->state = Input::get('state');
-			$client->notes = Input::get('notes');
-			$client->postal_code = Input::get('postal_code');
+			$client->name = trim(Input::get('name'));
+			$client->work_phone = trim(Input::get('work_phone'));
+			$client->address1 = trim(Input::get('address1'));
+			$client->address2 = trim(Input::get('address2'));
+			$client->city = trim(Input::get('city'));
+			$client->state = trim(Input::get('state'));
+			$client->notes = trim(Input::get('notes'));
+			$client->postal_code = trim(Input::get('postal_code'));
 			if (Input::get('country_id')) {
 				$client->country_id = Input::get('country_id');
 			}
@@ -177,10 +177,10 @@ class ClientController extends \BaseController {
 					$record = Contact::createNew();
 				}
 
-				$record->email = $contact->email;
-				$record->first_name = $contact->first_name;
-				$record->last_name = $contact->last_name;
-				$record->phone = $contact->phone;
+				$record->email = trim($contact->email);
+				$record->first_name = trim($contact->first_name);
+				$record->last_name = trim($contact->last_name);
+				$record->phone = trim($contact->phone);
 				$record->is_primary = $isPrimary;
 				$isPrimary = false;
 

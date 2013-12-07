@@ -73,6 +73,11 @@ class InvoiceController extends \BaseController {
 		$user = $invitation->user;		
 		$invoice = $invitation->invoice;
 		
+		if ($invoice->invoice_status_id < INVOICE_STATUS_VIEWED) {
+			$invoice->invoice_status_id = INVOICE_STATUS_VIEWED;
+			$invoice->save();
+		}
+		
 		$now = Carbon::now()->toDateTimeString();
 
 		$invitation->viewed_date = $now;
@@ -84,7 +89,12 @@ class InvoiceController extends \BaseController {
 
 		Activity::viewInvoice($invitation);
 
-		return View::make('invoices.view')->with('invoice', $invoice);	
+		$data = array(
+			'invoice' => $invoice,
+			'invitation' => $invitation
+		);
+
+		return View::make('invoices.view', $data);
 	}
 
 	private function createGateway($accountGateway)
@@ -119,9 +129,9 @@ class InvoiceController extends \BaseController {
 		);
 
 		$card = new CreditCard($data);
-			
+		
 		return [
-			    'amount' => $invoice->getTotal(),
+			    'amount' => $invoice->total,
 			    'card' => $card,
 			    'currency' => 'USD',
 			    'returnUrl' => URL::to('complete'),
@@ -131,13 +141,14 @@ class InvoiceController extends \BaseController {
 
 	public function show_payment($invitationKey)
 	{
-		$invoice = Invoice::with('invoice_items', 'client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+		$invitation = Invitation::with('invoice.invoice_items', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+		$invoice = $invitation->invoice;		
 		$accountGateway = $invoice->client->account->account_gateways[0];
 		$gateway = InvoiceController::createGateway($accountGateway);
 
 		try
 		{
-			$details = InvoiceController::getPaymentDetails($invoice);
+			$details = InvoiceController::getPaymentDetails($invoice);			
 			$response = $gateway->purchase($details)->send();			
 			$ref = $response->getTransactionReference();
 
@@ -147,12 +158,16 @@ class InvoiceController extends \BaseController {
 				exit('Sorry, there was an error processing your payment. Please try again later.');
 			}
 
-			$payment = new Payment;
+			$payment = Payment::createNew();
+			$payment->invitation_id = $invitation->id;
 			$payment->invoice_id = $invoice->id;
-			$payment->account_id = $invoice->account_id;
-			$payment->contact_id = 0; // TODO_FIX
+			$payment->amount = $invoice->total;
+			$payment->client_id = $invoice->client_id;
+			//$payment->contact_id = 0; // TODO_FIX
 			$payment->transaction_reference = $ref;
 			$payment->save();
+
+			$invoice->balance = floatval($invoice->total) - floatval($paymount->amount);
 
 			if ($response->isSuccessful())
 			{
@@ -180,7 +195,7 @@ class InvoiceController extends \BaseController {
 		$payerId = Request::query('PayerID');
 		$token = Request::query('token');				
 
-		$payment = Payment::with('invoice.invoice_items')->where('transaction_reference','=',$token)->firstOrFail();
+		$payment = Payment::with('invitation', 'invoice.invoice_items')->where('transaction_reference','=',$token)->firstOrFail();
 		$invoice = Invoice::with('client.account.account_gateways.gateway')->where('id', '=', $payment->invoice_id)->firstOrFail();
 		$accountGateway = $invoice->client->account->account_gateways[0];
 		$gateway = InvoiceController::createGateway($accountGateway);
@@ -195,11 +210,17 @@ class InvoiceController extends \BaseController {
 			{
 				$payment->payer_id = $payerId;
 				$payment->transaction_reference = $ref;
-				$payment->amount = $payment->invoice->getTotal();
 				$payment->save();
+
+				if ($payment->amount >= $invoice->amount) {
+					$invoice->invoice_status_id = INVOICE_STATUS_PAID;
+				} else {
+					$invoice->invoice_status_id = INVOICE_STATUS_PARTIAL;
+				}
+				$invoice->save();
 				
 				Session::flash('message', 'Successfully applied payment');	
-				return Redirect::to('view/' . $payment->invoice->key);				
+				return Redirect::to('view/' . $payment->invitation->invitation_key);				
 			}
 			else
 			{
@@ -216,7 +237,7 @@ class InvoiceController extends \BaseController {
 	public function edit($publicId)
 	{
 		$invoice = Invoice::scope($publicId)->with('account.country', 'client', 'invoice_items')->firstOrFail();
-		trackViewed($invoice->invoice_number . ' - ' . $invoice->client->name);
+		trackViewed($invoice->invoice_number . ' - ' . $invoice->client->name, ENTITY_INVOICE);
 		
 		$data = array(
 				'account' => $invoice->account,
@@ -271,7 +292,7 @@ class InvoiceController extends \BaseController {
 	private function save($publicId = null)
 	{	
 		$action = Input::get('action');
-
+		
 		if ($action == 'archive' || $action == 'delete')
 		{
 			return InvoiceController::bulk();
@@ -295,13 +316,13 @@ class InvoiceController extends \BaseController {
 			if ($clientPublicId == "-1") 
 			{
 				$client = Client::createNew();
-				$client->name = Input::get('name');
-				$client->work_phone = Input::get('work_phone');
-				$client->address1 = Input::get('address1');
-				$client->address2 = Input::get('address2');
-				$client->city = Input::get('city');
-				$client->state = Input::get('state');
-				$client->postal_code = Input::get('postal_code');
+				$client->name = trim(Input::get('name'));
+				$client->work_phone = trim(Input::get('work_phone'));
+				$client->address1 = trim(Input::get('address1'));
+				$client->address2 = trim(Input::get('address2'));
+				$client->city = trim(Input::get('city'));
+				$client->state = trim(Input::get('state'));
+				$client->postal_code = trim(Input::get('postal_code'));
 				if (Input::get('country_id')) {
 					$client->country_id = Input::get('country_id');
 				}
@@ -310,10 +331,10 @@ class InvoiceController extends \BaseController {
 
 				$contact = Contact::createNew();
 				$contact->is_primary = true;
-				$contact->first_name = Input::get('first_name');
-				$contact->last_name = Input::get('last_name');
-				$contact->phone = Input::get('phone');
-				$contact->email = Input::get('email');
+				$contact->first_name = trim(Input::get('first_name'));
+				$contact->last_name = trim(Input::get('last_name'));
+				$contact->phone = trim(Input::get('phone'));
+				$contact->email = trim(Input::get('email'));
 				$client->contacts()->save($contact);
 			}
 			else
@@ -329,14 +350,17 @@ class InvoiceController extends \BaseController {
 				$invoice = Invoice::createNew();			
 			}			
 			
-			$invoice->invoice_number = Input::get('invoice_number');
+			$invoice->invoice_number = trim(Input::get('invoice_number'));
 			$invoice->discount = 0;
 			$invoice->invoice_date = toSqlDate(Input::get('invoice_date'));
 			$invoice->due_date = toSqlDate(Input::get('due_date'));			
 			$invoice->notes = Input::get('notes');
+
 			$client->invoices()->save($invoice);
 			
 			$items = json_decode(Input::get('items'));
+			$total = 0;
+
 			foreach ($items as $item) 
 			{
 				if (!isset($item->cost)) {
@@ -346,6 +370,22 @@ class InvoiceController extends \BaseController {
 					$item->qty = 0;
 				}
 
+				$total += intval($item->qty) * floatval($item->cost);
+			}
+						
+			if ($action == 'email' && $invoice->invoice_status_id == INVOICE_STATUS_DRAFT)
+			{
+				$invoice->invoice_status_id = INVOICE_STATUS_SENT;
+				
+				$client->balance = $invoice->client->balance + $invoice->total;
+				$client->save();
+			}
+
+			$invoice->total = $total;
+			$invoice->save();
+
+			foreach ($items as $item) 
+			{
 				if (!$item->cost && !$item->qty && !$item->product_key && !$item->notes)
 				{
 					continue;
@@ -353,12 +393,12 @@ class InvoiceController extends \BaseController {
 
 				if ($item->product_key)
 				{
-					$product = Product::findProductByKey($item->product_key);
+					$product = Product::findProductByKey(trim($item->product_key));
 
 					if (!$product)
 					{
 						$product = Product::createNew();						
-						$product->product_key = $item->product_key;
+						$product->product_key = trim($item->product_key);
 					}
 
 					/*
@@ -372,13 +412,16 @@ class InvoiceController extends \BaseController {
 
 				$invoiceItem = InvoiceItem::createNew();
 				$invoiceItem->product_id = isset($product) ? $product->id : null;
-				$invoiceItem->product_key = $item->product_key;
-				$invoiceItem->notes = $item->notes;
-				$invoiceItem->cost = $item->cost;
-				$invoiceItem->qty = $item->qty;
+				$invoiceItem->product_key = trim($item->product_key);
+				$invoiceItem->notes = trim($item->notes);
+				$invoiceItem->cost = floatval($item->cost);
+				$invoiceItem->qty = intval($item->qty);
 
 				$invoice->invoice_items()->save($invoiceItem);
 			}
+
+			/*
+			*/
 
 			if ($action == 'email') 
 			{
