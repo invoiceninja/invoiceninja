@@ -4,7 +4,7 @@ use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\Reminders\RemindableInterface;
 use Zizaco\Confide\ConfideUser;
 
-class User extends ConfideUser implements UserInterface, RemindableInterface, iPerson 
+class User extends ConfideUser implements UserInterface, RemindableInterface
 {
 
 	protected $softDelete = true;

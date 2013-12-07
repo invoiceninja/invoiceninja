@@ -43,8 +43,8 @@ class InvoiceController extends \BaseController {
     	
     	return $table->addColumn('total', function($model){ return '$' . money_format('%i', $model->total); })
     		->addColumn('balance', function($model) { return '$' . money_format('%i', $model->balance); })
-    	    ->addColumn('invoice_date', function($model) { return fromSqlDate($model->invoice_date); })
-    	    ->addColumn('due_date', function($model) { return fromSqlDate($model->due_date); })
+    	    ->addColumn('invoice_date', function($model) { return Utils::fromSqlDate($model->invoice_date); })
+    	    ->addColumn('due_date', function($model) { return Utils::fromSqlDate($model->due_date); })
     	    ->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
     	    ->addColumn('dropdown', function($model) 
     	    { 
@@ -237,7 +237,7 @@ class InvoiceController extends \BaseController {
 	public function edit($publicId)
 	{
 		$invoice = Invoice::scope($publicId)->with('account.country', 'client', 'invoice_items')->firstOrFail();
-		trackViewed($invoice->invoice_number . ' - ' . $invoice->client->name, ENTITY_INVOICE);
+		Utils::trackViewed($invoice->invoice_number . ' - ' . $invoice->client->name, ENTITY_INVOICE);
 		
 		$data = array(
 				'account' => $invoice->account,
@@ -352,8 +352,8 @@ class InvoiceController extends \BaseController {
 			
 			$invoice->invoice_number = trim(Input::get('invoice_number'));
 			$invoice->discount = 0;
-			$invoice->invoice_date = toSqlDate(Input::get('invoice_date'));
-			$invoice->due_date = toSqlDate(Input::get('due_date'));			
+			$invoice->invoice_date = Utils::toSqlDate(Input::get('invoice_date'));
+			$invoice->due_date = Utils::toSqlDate(Input::get('due_date'));			
 			$invoice->notes = Input::get('notes');
 
 			$client->invoices()->save($invoice);
@@ -493,7 +493,7 @@ class InvoiceController extends \BaseController {
 			} 
 		}
 
-		$message = pluralize('Successfully '.$action.'d ? invoice', count($ids));
+		$message = Utils::pluralize('Successfully '.$action.'d ? invoice', count($ids));
 		Session::flash('message', $message);
 
 		return Redirect::to('invoices');

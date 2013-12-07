@@ -5,7 +5,7 @@
 	<p>&nbsp;</p>
 
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
-  		'invoice_number' => 'required',
+		'invoice_number' => 'required',
   		'invoice_date' => 'required',
   		'product_key' => 'max:14',
 	)); }}
@@ -15,8 +15,8 @@
 	@if ($invoice)
 		{{ Former::populate($invoice); }}
 		{{ Former::populateField('id', $invoice->public_id); }}	
-		{{ Former::populateField('invoice_date', fromSqlDate($invoice->invoice_date)); }}	
-		{{ Former::populateField('due_date', fromSqlDate($invoice->due_date)); }}
+		{{ Former::populateField('invoice_date', Utils::fromSqlDate($invoice->invoice_date)); }}	
+		{{ Former::populateField('due_date', Utils::fromSqlDate($invoice->due_date)); }}
 	@else
 		{{ Former::populateField('invoice_number', $invoiceNumber) }}
 		{{ Former::populateField('invoice_date', date('m/d/Y')) }}

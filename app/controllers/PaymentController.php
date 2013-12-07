@@ -38,7 +38,7 @@ class PaymentController extends \BaseController
 
         return $table->addColumn('invoice_number', function($model) { return $model->invoice_public_id ? link_to('invoices/' . $model->invoice_public_id . '/edit', $model->invoice_invoice_number) : ''; })
             ->addColumn('amount', function($model) { return '$' . $model->amount; })
-    	    ->addColumn('payment_date', function($model) { return timestampToDateString($model->payment_date); })
+    	    ->addColumn('payment_date', function($model) { return Utils::timestampToDateString($model->payment_date); })
             ->addColumn('dropdown', function($model) 
             { 
                 return '<div class="btn-group tr-action" style="visibility:hidden;">
@@ -122,7 +122,7 @@ class PaymentController extends \BaseController
 
             $payment->client_id = Input::get('client');
             $payment->invoice_id = $invoiceId;
-            $payment->payment_date = toSqlDate(Input::get('payment_date'));
+            $payment->payment_date = Utils::toSqlDate(Input::get('payment_date'));
             $payment->amount = floatval(Input::get('amount'));
             $payment->save();
 
@@ -146,7 +146,7 @@ class PaymentController extends \BaseController
             } 
         }
 
-        $message = pluralize('Successfully '.$action.'d ? payment', count($ids));
+        $message = Utils::pluralize('Successfully '.$action.'d ? payment', count($ids));
         Session::flash('message', $message);
 
         return Redirect::to('payments');

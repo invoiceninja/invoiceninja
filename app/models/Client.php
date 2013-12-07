@@ -86,7 +86,7 @@ class Client extends EntityModel
 
 		if ($this->work_phone)
 		{
-			$str .= '<i class="fa fa-phone" style="width: 20px"></i>' . $this->work_phone;
+			$str .= '<i class="fa fa-phone" style="width: 20px"></i>' . Utils::formatPhoneNumber($this->work_phone);
 		}
 
 		return $str;

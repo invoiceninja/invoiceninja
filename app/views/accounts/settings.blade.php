@@ -28,9 +28,9 @@
 				@if ($field == 'solutionType' || $field == 'landingPage')
 					{{-- do nothing --}}
 				@elseif ($field == 'testMode' || $field == 'developerMode') 
-					{{ Former::checkbox($gateway->id.'_'.$field)->label(toSpaceCase($field))->text('Enable') }}				
+					{{ Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable') }}				
 				@else
-					{{ Former::text($gateway->id.'_'.$field)->label(toSpaceCase($field)) }}				
+					{{ Former::text($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field)) }}				
 				@endif
 
 			@endforeach

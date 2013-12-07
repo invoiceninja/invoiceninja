@@ -4,8 +4,12 @@ class AccountController extends \BaseController {
 
 	public function getStarted()
 	{	
-		$user = false;	
+		if (Auth::check())
+		{
+			return Redirect::to('invoices/create');	
+		}
 
+		$user = false;	
 		$guestKey = Input::get('guest_key');
 
 		if ($guestKey) 
@@ -128,7 +132,7 @@ class AccountController extends \BaseController {
 		$contacts = DB::table('contacts')->whereIn('client_id', function($query){
             $query->select('client_id')->from('clients')->where('account_id','=',Auth::user()->account_id);
 	    })->get();
-		AccountController::exportData($output, toArray($contacts));
+		AccountController::exportData($output, Utils::toArray($contacts));
 		
 		$invoices = Invoice::where('account_id','=',Auth::user()->account_id)->get();
 		AccountController::exportData($output, $invoices->toArray());		
@@ -136,7 +140,7 @@ class AccountController extends \BaseController {
 		$invoiceItems = DB::table('invoice_items')->whereIn('invoice_id', function($query){
             $query->select('invoice_id')->from('invoices')->where('account_id','=',Auth::user()->account_id);
 	    })->get();
-		AccountController::exportData($output, toArray($invoiceItems));
+		AccountController::exportData($output, Utils::toArray($invoiceItems));
 
 		$payments = Payment::where('account_id','=',Auth::user()->account_id)->get();
 		AccountController::exportData($output, $payments->toArray());
@@ -251,7 +255,7 @@ class AccountController extends \BaseController {
 			$client->contacts()->save($contact);		
 		}
 
-		$message = pluralize('Successfully created ? client', $count);
+		$message = Utils::pluralize('Successfully created ? client', $count);
 		Session::flash('message', $message);
 		return Redirect::to('clients');
 	}

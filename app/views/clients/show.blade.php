@@ -28,7 +28,7 @@
 	<h2>{{ $client->name }}</h2>
 	@if ($client->last_login > 0)
 	<h3 style="margin-top:0px"><small>		
-		Last logged in {{ timestampToDateTimeString($client->last_login); }}
+		Last logged in {{ Utils::timestampToDateTimeString($client->last_login); }}
 	</small></h3>
 	@endif
 

@@ -74,7 +74,7 @@ class UserController extends BaseController {
     {
         if( Confide::user() )
         {
-            return Redirect::to('/');
+            return Redirect::to('/clients');            
         }
         else
         {
@@ -173,6 +173,14 @@ class UserController extends BaseController {
      */
     public function do_forgot_password()
     {
+        Confide::forgotPassword( Input::get( 'email' ) );
+
+        $notice_msg = Lang::get('confide::confide.alerts.password_forgot');
+                    return Redirect::action('UserController@login')
+                        ->with( 'notice', $notice_msg );
+
+
+        /*
         if( Confide::forgotPassword( Input::get( 'email' ) ) )
         {
             $notice_msg = Lang::get('confide::confide.alerts.password_forgot');
@@ -186,6 +194,7 @@ class UserController extends BaseController {
                             ->withInput()
                 ->with( 'error', $error_msg );
         }
+        */
     }
 
     /**

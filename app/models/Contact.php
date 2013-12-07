@@ -63,7 +63,7 @@ class Contact extends EntityModel
 
 		if ($this->phone)
 		{
-			$str .= '<i class="fa fa-phone" style="width: 20px"></i>' . $this->phone;
+			$str .= '<i class="fa fa-phone" style="width: 20px"></i>' . Utils::formatPhoneNumber($this->phone);
 		}
 
 		if ($str)

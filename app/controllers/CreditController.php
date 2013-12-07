@@ -36,7 +36,7 @@ class CreditController extends \BaseController {
         }
         
         return $table->addColumn('amount', function($model){ return '$' . money_format('%i', $model->amount); })
-            ->addColumn('credit_date', function($model) { return timestampToDateString($model->credit_date); })
+            ->addColumn('credit_date', function($model) { return Utils::timestampToDateString($model->credit_date); })
             ->addColumn('dropdown', function($model) 
             { 
                 return '<div class="btn-group tr-action" style="visibility:hidden;">
@@ -113,7 +113,7 @@ class CreditController extends \BaseController {
             }
 
             $credit->client_id = Input::get('client');
-            $credit->credit_date = toSqlDate(Input::get('credit_date'));
+            $credit->credit_date = Utils::toSqlDate(Input::get('credit_date'));
             $credit->amount = floatval(Input::get('amount'));
             $credit->save();
 
@@ -137,7 +137,7 @@ class CreditController extends \BaseController {
             } 
         }
 
-        $message = pluralize('Successfully '.$action.'d ? credit', count($ids));
+        $message = Utils::pluralize('Successfully '.$action.'d ? credit', count($ids));
         Session::flash('message', $message);
 
         return Redirect::to('credits');

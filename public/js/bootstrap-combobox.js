@@ -93,6 +93,7 @@
     this.$element.attr('class', this.$source.attr('class'));
     this.$element.attr('tabindex', this.$source.attr('tabindex'));
     this.$source.removeAttr('tabindex');
+    this.$source.removeAttr('required');
   }
 
   , select: function () {

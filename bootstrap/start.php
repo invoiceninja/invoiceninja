@@ -29,6 +29,7 @@ $app->redirectIfTrailingSlash();
 $env = $app->detectEnvironment(array(
 
 	'local' => array('precise64'),
+	'staging' => array('host107.hostmonster.com')
 
 ));
 

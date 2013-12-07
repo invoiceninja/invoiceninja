@@ -35,7 +35,7 @@
 
 	@if (!Auth::check() || Auth::user()->showGreyBackground())
 	body {
-		background-color: #EEEEEE;
+		background-color: #F6F6F6;
 	}
 	@endif
 

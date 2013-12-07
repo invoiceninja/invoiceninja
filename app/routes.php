@@ -39,7 +39,7 @@ Route::filter('auth', function()
 {
 	if (!Auth::check())
     {
-        return Redirect::to('/');
+        return Redirect::to('/login');
     }
 });
 
@@ -105,142 +105,6 @@ HTML::macro('image_data', function($imagePath) {
 });
 
 
-function pluralize($string, $count) 
-{
-	$string = str_replace('?', $count, $string);
-	return $count == 1 ? $string : $string . 's';
-}
-
-function toArray($data)
-{
-	return json_decode(json_encode((array) $data), true);
-}
-
-function toSpaceCase($camelStr)
-{
-	return preg_replace('/([a-z])([A-Z])/s','$1 $2', $camelStr);
-}
-
-function timestampToDateTimeString($timestamp) {
-	$tz = Session::get('tz');
-	if (!$tz) {
-		$tz = 'US/Eastern';
-	}	
-	$date = new Carbon($timestamp);	
-	$date->tz = $tz;	
-	if ($date->year < 1900) {
-		return '';
-	}
-	
-	return $date->format('l M jS, Y g:ia');
-}
-
-function timestampToDateString($timestamp) {
-	$tz = Session::get('tz');
-	if (!$tz) {
-		$tz = 'US/Eastern';
-	}	
-	$date = new Carbon($timestamp);	
-	$date->tz = $tz;	
-	if ($date->year < 1900) {
-		return '';
-	}
-	return $date->toFormattedDateString();
-}
-
-
-function toDateString($date)
-{
-	if ($date->year < 1900) {
-		return '';
-	}
-	$tz = Session::get('tz');
-	if (!$tz) {
-		$tz = 'US/Eastern';
-	}
-	$date->tz = $tz;	
-	return $date->toFormattedDateString();
-}
-
-
-function toDateTimeString($date)
-{
-
-}
-
-function toSqlDate($date)
-{
-	if (!$date)
-	{
-		return '';
-	}
-
-	return DateTime::createFromFormat('m/d/Y', $date);
-}
-
-function fromSqlDate($date)
-{
-	if (!$date || $date == '0000-00-00')
-	{
-		return '';
-	}
-	
-	return DateTime::createFromFormat('Y-m-d', $date)->format('m/d/Y');
-}
-
-function fromSqlTimestamp($date)
-{
-	if (!$date || $date == '0000-00-00 00:00:00')
-	{
-		return '';
-	}
-	
-	return DateTime::createFromFormat('Y-m-d H:i:s', $date)->format('m/d/Y h:ia');
-}
-
-function processedRequest($url)
-{	
-	//Session::put(Input::get('_token'), $url);
-	//Session::put('_token', md5(microtime()));
-}
-
-
-	
-function trackViewed($name, $type)
-{
-	$url = Request::url();
-	$viewed = Session::get(RECENTLY_VIEWED);	
-	
-	if (!$viewed)
-	{
-		$viewed = [];
-	}
-
-	$object = new stdClass;
-	$object->url = $url;
-	$object->name = ucwords($type) . ': ' . $name;
-	
-	for ($i=0; $i<count($viewed); $i++)
-	{
-		$item = $viewed[$i];
-		
-		if ($object->url == $item->url)
-		{
-			array_splice($viewed, $i, 1);
-			break;
-		}
-	}
-
-	array_unshift($viewed, $object);
-		
-	if (count($viewed) > RECENTLY_VIEWED_LIMIT)
-	{
-		array_pop($viewed);
-	}
-
-	Session::put(RECENTLY_VIEWED, $viewed);
-}
-
 
 define("ENV_DEVELOPMENT", "local");
 define("ENV_STAGING", "staging");
@@ -264,23 +128,8 @@ define("ACCOUNT_EXPORT", "export");
 define("DEFAULT_INVOICE_NUMBER", "0001");
 define("RECENTLY_VIEWED_LIMIT", 8);
 
-
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);
 define('INVOICE_STATUS_VIEWED', 3);
 define('INVOICE_STATUS_PARTIAL', 4);
 define('INVOICE_STATUS_PAID', 5);
-
-
-
-interface iPerson
-{
-    //public function getFullName();
-    //public function getPersonType();
-}
-
-interface iEntity
-{
-    //public function getName();
-    //public function getEntityType();
-}

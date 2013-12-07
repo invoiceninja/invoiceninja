@@ -26,17 +26,17 @@ class ClientController extends \BaseController {
     				->where('clients.account_id', '=', Auth::user()->account_id)
     				->where('clients.deleted_at', '=', null)
     				->where('contacts.is_primary', '=', true)
-    				->select('clients.public_id','clients.name','contacts.first_name','contacts.last_name','clients.balance','clients.last_login','clients.created_at','contacts.phone','contacts.email');
+    				->select('clients.public_id','clients.name','contacts.first_name','contacts.last_name','clients.balance','clients.last_login','clients.created_at','clients.work_phone','contacts.email');
 
         return Datatable::query($query)
     	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
     	    ->addColumn('name', function($model) { return link_to('clients/' . $model->public_id, $model->name); })
     	    ->addColumn('first_name', function($model) { return $model->first_name . ' ' . $model->last_name; })
     	    ->addColumn('balance', function($model) { return '$' . $model->balance; })    	    
-    	    ->addColumn('last_login', function($model) { return timestampToDateString($model->last_login); })
-    	    ->addColumn('created_at', function($model) { return timestampToDateString($model->created_at); })
+    	    ->addColumn('last_login', function($model) { return Utils::timestampToDateString($model->last_login); })
+    	    ->addColumn('created_at', function($model) { return Utils::timestampToDateString($model->created_at); })
     	    ->addColumn('email', function($model) { return $model->email ? HTML::mailto($model->email, $model->email) : ''; })
-    	    ->addColumn('phone', function($model) { return $model->phone; })    	   
+    	    ->addColumn('work_phone', function($model) { return Utils::formatPhoneNumber($model->work_phone); })    	   
     	    ->addColumn('dropdown', function($model) 
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
@@ -92,7 +92,7 @@ class ClientController extends \BaseController {
 	public function show($publicId)
 	{
 		$client = Client::scope($publicId)->with('contacts')->firstOrFail();
-		trackViewed($client->name, ENTITY_CLIENT);
+		Utils::trackViewed($client->name, ENTITY_CLIENT);
 		
 		$data = array(
 			'client' => $client,
@@ -216,7 +216,7 @@ class ClientController extends \BaseController {
 			} 
 		}
 
-		$message = pluralize('Successfully '.$action.'d ? client', count($ids));
+		$message = Utils::pluralize('Successfully '.$action.'d ? client', count($ids));
 		Session::flash('message', $message);
 
 		return Redirect::to('clients');
