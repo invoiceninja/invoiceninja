@@ -370,7 +370,7 @@ class InvoiceController extends \BaseController {
 					$item->qty = 0;
 				}
 
-				$total += intval($item->qty) * floatval($item->cost);
+				$total += floatval($item->qty) * floatval($item->cost);
 			}
 						
 			if ($action == 'email' && $invoice->invoice_status_id == INVOICE_STATUS_DRAFT)
@@ -415,7 +415,7 @@ class InvoiceController extends \BaseController {
 				$invoiceItem->product_key = trim($item->product_key);
 				$invoiceItem->notes = trim($item->notes);
 				$invoiceItem->cost = floatval($item->cost);
-				$invoiceItem->qty = intval($item->qty);
+				$invoiceItem->qty = floatval($item->qty);
 
 				$invoice->invoice_items()->save($invoiceItem);
 			}

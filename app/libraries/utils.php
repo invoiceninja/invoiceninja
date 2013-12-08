@@ -35,23 +35,23 @@ class Utils
 	    return $phoneNumber;
 	}
 
-	function pluralize($string, $count) 
+	public static function pluralize($string, $count) 
 	{
 		$string = str_replace('?', $count, $string);
 		return $count == 1 ? $string : $string . 's';
 	}
 
-	function toArray($data)
+	public static function toArray($data)
 	{
 		return json_decode(json_encode((array) $data), true);
 	}
 
-	function toSpaceCase($camelStr)
+	public static function toSpaceCase($camelStr)
 	{
 		return preg_replace('/([a-z])([A-Z])/s','$1 $2', $camelStr);
 	}
 
-	function timestampToDateTimeString($timestamp) {
+	public static function timestampToDateTimeString($timestamp) {
 		$tz = Session::get('tz');
 		if (!$tz) {
 			$tz = 'US/Eastern';
@@ -65,7 +65,7 @@ class Utils
 		return $date->format('l M jS, Y g:ia');
 	}
 
-	function timestampToDateString($timestamp) {
+	public static function timestampToDateString($timestamp) {
 		$tz = Session::get('tz');
 		if (!$tz) {
 			$tz = 'US/Eastern';
@@ -93,7 +93,7 @@ class Utils
 	}
 	*/
 
-	function toSqlDate($date)
+	public static function toSqlDate($date)
 	{
 		if (!$date)
 		{
@@ -103,7 +103,7 @@ class Utils
 		return DateTime::createFromFormat('m/d/Y', $date);
 	}
 	
-	function fromSqlDate($date)
+	public static function fromSqlDate($date)
 	{
 		if (!$date || $date == '0000-00-00')
 		{
@@ -113,7 +113,7 @@ class Utils
 		return DateTime::createFromFormat('Y-m-d', $date)->format('m/d/Y');
 	}
 
-	function trackViewed($name, $type)
+	public static function trackViewed($name, $type)
 	{
 		$url = Request::url();
 		$viewed = Session::get(RECENTLY_VIEWED);	

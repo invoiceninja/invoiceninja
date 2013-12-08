@@ -1,10 +1,18 @@
 @extends('header')
 
+@section('head')
+	@parent
+
+		<script type="text/javascript" src="{{ asset('js/pdf_viewer.js') }}"></script>
+		<script type="text/javascript" src="{{ asset('js/compatibility.js') }}"></script>
+@stop
+
 @section('content')
 	
 	<p>&nbsp;</p>
 
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
+		'client' => 'required',
 		'invoice_number' => 'required',
   		'invoice_date' => 'required',
   		'product_key' => 'max:14',
@@ -55,9 +63,8 @@
 	    </thead>
 	    <tbody data-bind="sortable: { data: items, afterMove: onDragged }">
 	    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
-	        	<td style="width:20px;" class="hide-border">
-	        		<!-- <i data-bind="click: $parent.addItem, visible: actionsVisible" class="fa fa-plus-circle" style="cursor:pointer" title="Add item"></i>&nbsp; -->
-	        		<i data-bind="visible: actionsVisible" class="fa fa-sort"></i>
+	        	<td style="width:20px;" class="hide-border td-icon">
+	        		<i data-bind="visible: actionsVisible() &amp;&amp; $parent.items().length > 1" class="fa fa-sort"></i>
 	        	</td>
 	            <td style="width:120px">	            	
 	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'key')->onkeyup('onChange()')
@@ -80,7 +87,7 @@
 	            <td style="width:100px;text-align: right;padding-top:9px !important">
 	            	<span data-bind="text: total"></span>
 	            </td>
-	        	<td style="width:20px; cursor:pointer" class="hide-border">
+	        	<td style="width:20px; cursor:pointer" class="hide-border td-icon">
 	        		&nbsp;<i data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.items().length > 1" class="fa fa-minus-circle" title="Remove item"/>
 	        	</td>
 	        </tr>
@@ -145,7 +152,8 @@
 	
 	<!-- <textarea rows="20" cols="120" id="pdfText" onkeyup="runCode()"></textarea> -->
 	<!-- <iframe frameborder="1" width="100%" height="600" style="display:block;margin: 0 auto"></iframe>	-->
-	<iframe frameborder="1" width="100%" height="500"></iframe>	
+	<!-- <iframe frameborder="1" width="100%" height="500"></iframe> -->
+	<canvas id="the-canvas" style="width:100%"></canvas>
 
 
 	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -245,10 +253,11 @@
 
 		var $input = $('select#client');
 		$input.combobox();
-		$('.client_select input.form-control').on('change', function(e) {			
+		$('.client_select input.form-control').on('change', function(e) {
 			refreshPDF();			
-		}).on('keydown', function() {			
-			$('#modalLink').text('Create new client');
+			if ($('input[name=client]').val() != '-1') {
+				$('#modalLink').text('Create new client');	
+			}
 		});
 		//enableHoverClick($('.combobox-container input.form-control'), $('.combobox-container input[name=client]'), '{{ URL::to('clients') }}');
 
@@ -280,7 +289,6 @@
 	});
 
 	function showCreateNew() {
-		console.log('showCreateNew: %s', $('input[name=client]').val());
 		if ($('input[name=client]').val() != '-1') {
 			$('#myModal input').val('');
 			$('#myModal #country_id').val('');
@@ -340,8 +348,7 @@
 		};
 
 		var clientId = $('input[name=client]').val();
-		console.log('clientId: %s', clientId);
-		console.log('mapped: %s', clientMap[clientId]);
+		
 		if (clientId == '-1') {
 			var client = {
 				name: $('#name').val(),
@@ -378,11 +385,46 @@
 		}, 100);
 	}	
 
+
+	var BASE64_MARKER = ';base64,';
+	function convertDataURIToBinary(dataURI) {
+	  var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+	  var base64 = dataURI.substring(base64Index);
+	  var raw = window.atob(base64);
+	  var rawLength = raw.length;
+	  var array = new Uint8Array(new ArrayBuffer(rawLength));
+
+	  for(i = 0; i < rawLength; i++) {
+	    array[i] = raw.charCodeAt(i);
+	  }
+	  return array;
+	}
+	
+
 	function _refreshPDF() {
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice);
-		var string = doc.output('datauristring');
-		$('iframe').attr('src', string);		
+		var string = doc.output('dataurlstring');
+			
+		//console.log(string);
+		var pdfAsArray = convertDataURIToBinary(string);	
+	    PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
+
+	      pdf.getPage(1).then(function getPageHelloWorld(page) {
+	        var scale = 1.5;
+	        var viewport = page.getViewport(scale);
+
+	        var canvas = document.getElementById('the-canvas');
+	        var context = canvas.getContext('2d');
+	        canvas.height = viewport.height;
+	        canvas.width = viewport.width;
+
+	        page.render({canvasContext: context, viewport: viewport});
+	      });
+	    });		
+		
+
+		//$('iframe').attr('src', string);		
 	}
 
 	function onDownloadClick() {
@@ -415,6 +457,7 @@
 		if (!name) {
 			if (!name) $('#nameError').css( "display", "inline" );
 		} else {
+			$('select#client').combobox('setSelected');
 			$('input[name=client]').val('-1');
 			$('.client_select input.form-control').val(name);
 			$('.client_select').addClass('combobox-selected');
@@ -422,7 +465,7 @@
 			$('#nameError').css( "display", "none" );
 			$('#modalLink').text('Edit client details');
 			$('#myModal').modal('hide');
-			$('input#invoice_number').focus();
+			$('.client_select input.form-control').focus();
 			//$('[name="client_combobox"]').focus();
 
 			refreshPDF();
@@ -525,7 +568,7 @@
 
 		this.rawTotal = ko.computed(function() {
 			var cost = parseFloat(self.cost());
-			var qty = parseInt(self.qty());
+			var qty = parseFloat(self.qty());
 			var tax = parseFloat(self.tax());
         	var value = cost * qty;
         	if (self.tax() > 0) {

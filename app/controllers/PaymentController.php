@@ -36,7 +36,7 @@ class PaymentController extends \BaseController
             $table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
         }
 
-        return $table->addColumn('invoice_number', function($model) { return $model->invoice_public_id ? link_to('invoices/' . $model->invoice_public_id . '/edit', $model->invoice_invoice_number) : ''; })
+        return $table->addColumn('invoice_number', function($model) { return $model->invoice_public_id ? link_to('invoices/' . $model->invoice_public_id . '/edit', $model->invoice_number) : ''; })
             ->addColumn('amount', function($model) { return '$' . $model->amount; })
     	    ->addColumn('payment_date', function($model) { return Utils::timestampToDateString($model->payment_date); })
             ->addColumn('dropdown', function($model) 

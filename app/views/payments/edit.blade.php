@@ -9,7 +9,8 @@
 
 	
 	{{ Former::open($url)->addClass('col-md-10 col-md-offset-1 main_form')->method($method)->rules(array(
-  		'amount' => 'required'		
+		'client' => 'required',
+  		'amount' => 'required',		
 	)); }}
 
 	@if ($payment)
@@ -105,7 +106,6 @@
 			}
 			$('select#invoice').combobox('refresh');
 		}).trigger('change');
-		//enableHoverClick($('.client-select input.form-control'), $('input[name=client]'), '{{ URL::to('clients') }}');
 		$input.combobox();
 
 		var $input = $('select#invoice').on('change', function(e) {			
@@ -113,11 +113,9 @@
 			var invoiceId = $('input[name=invoice]').val();						
 			if (invoiceId) {
 				var client = clientMap[invoiceId];
-				setComboboxValue($('.client-select'), client.public_id, client.name);				
-				//setComboboxValue($('select#client'), client.public_id, client.name);				
+				setComboboxValue($('.client-select'), client.public_id, client.name);
 			}
 		});
-		//enableHoverClick($('.invoice-select input.form-control'), $('input[name=invoice]'), '{{ URL::to('invoices') }}');
 		$input.combobox();
 
 		$('#payment_date').datepicker({

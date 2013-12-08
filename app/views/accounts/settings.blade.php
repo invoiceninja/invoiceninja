@@ -6,9 +6,6 @@
 	{{ Former::open()->addClass('col-md-10 col-md-offset-1') }}	
 	{{ Former::populate($account) }}
 
-	{{ Former::legend('Invoices') }}
-	{{ Former::textarea('invoice_terms') }}
-
 	{{ Former::legend('Payment Gateway') }}
 
 	@if ($accountGateway)
@@ -38,6 +35,9 @@
 		
 	@endforeach
 
+
+	{{ Former::legend('Invoices') }}
+	{{ Former::textarea('invoice_terms') }}
 
 	{{ Former::actions( Button::lg_primary_submit('Save') ) }}
 	{{ Former::close() }}

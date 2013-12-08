@@ -256,7 +256,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('product_key');
             $t->string('notes');
             $t->decimal('cost', 10, 2);
-            $t->integer('qty');
+            $t->decimal('qty', 10, 2);
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade'); 
 
@@ -277,7 +277,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('product_key');
             $t->string('notes');
             $t->decimal('cost', 10, 2);
-            $t->integer('qty');
+            $t->decimal('qty', 10, 2);            
 
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('product_id')->references('id')->on('products');

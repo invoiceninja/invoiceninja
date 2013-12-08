@@ -9,7 +9,8 @@
 
 	
 	{{ Former::open($url)->addClass('col-md-10 col-md-offset-1 main_form')->method($method)->rules(array(
-  		'amount' => 'required'		
+		'client' => 'required',
+  		'amount' => 'required',		
 	)); }}
 
 	@if ($credit)

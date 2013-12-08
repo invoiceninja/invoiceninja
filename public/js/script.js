@@ -86,7 +86,7 @@ function generatePDF(invoice) {
 	for(var i=0; i<invoice.invoice_items.length; i++) {
 		var item = invoice.invoice_items[i];
 		var cost = formatNumber(item.cost);
-		var qty = item.qty ? parseInt(item.qty, 10) + '' : '';
+		var qty = item.qty ? parseFloat(item.qty) + '' : '';
 		var notes = item.notes;
 		var productKey = item.product_key;
 
@@ -430,16 +430,12 @@ function setAsLink($input, enable) {
 }
 
 function setComboboxValue($combobox, id, name) {
-	console.log('id: ' + id);
 	$combobox.find('input').val(id);
 	$combobox.find('input.form-control').val(name);
 	if (id && name) {
-		//console.log('%s %s', $combobox.find('select')[0], id);
-		//$combobox.find('select').val(id).prop('selected', 'selected');
+		$combobox.find('select').combobox('setSelected');
 		$combobox.find('.combobox-container').addClass('combobox-selected');
 	} else {
-		//$combobox.find('select').val('');
 		$combobox.find('.combobox-container').removeClass('combobox-selected');
 	}
-	//console.log($combobox).combobox('');
 }

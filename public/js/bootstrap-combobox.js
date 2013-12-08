@@ -96,6 +96,10 @@
     this.$source.removeAttr('required');
   }
 
+  , setSelected: function() {
+    this.selected = true;
+  }
+
   , select: function () {
       var val = this.$menu.find('.active').attr('data-value');
       this.$element.val(this.updater(val)).trigger('change');

@@ -102,7 +102,10 @@
 	}
 	*/
 
+
 	/* table sorting indicators */
+	/*table.table thead .sorting { background: url('images/sort_both.png') no-repeat center right; }*/
+	/*
 	table.table thead .sorting,
 	table.table thead .sorting_asc,
 	table.table thead .sorting_desc,
@@ -112,14 +115,13 @@
 	    *cursor: hand;
 	}
 	 
-	/*table.table thead .sorting { background: url('images/sort_both.png') no-repeat center right; }*/
 	table.table thead .sorting_asc { background: url('images/sort_asc.png') no-repeat center right; }
 	table.table thead .sorting_desc { background: url('images/sort_desc.png') no-repeat center right; }
 	
 	 
 	table.table thead .sorting_asc_disabled { background: url('images/sort_asc_disabled.png') no-repeat center right; }
 	table.table thead .sorting_desc_disabled { background: url('images/sort_desc_disabled.png') no-repeat center right; }
-
+	*/
 		
 
 	/* Hover nav */
@@ -193,6 +195,10 @@
 	.invoice-table td.hide-border,
 	.invoice-table th.hide-border {
 		border-style: none !important;
+	}
+
+	.invoice-table td.td-icon {
+		vertical-align: middle !important;
 	}
 
 	.fa-bars {
