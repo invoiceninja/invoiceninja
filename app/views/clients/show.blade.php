@@ -20,7 +20,7 @@
 			    )
 			  )
 			, array('id'=>'actionDropDown'))->split(); }}
-		{{ Button::primary_link(URL::to('invoices/create/' . $client->id), 'Create Invoice') }}
+		{{ Button::primary_link(URL::to('invoices/create/' . $client->public_id), 'Create Invoice') }}
 	    {{ Former::close() }}
 		
 	</div>

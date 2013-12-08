@@ -187,7 +187,7 @@ var log = (function() {
 // disabled, which is important to devs but not end users.
 function info(msg) {
   if (verbosity >= INFOS) {
-    log('Info: ' + msg);
+    //log('Info: ' + msg);
     PDFJS.LogManager.notify('info', msg);
   }
 }
@@ -195,7 +195,7 @@ function info(msg) {
 // Non-fatal warnings that should trigger the fallback UI.
 function warn(msg) {
   if (verbosity >= WARNINGS) {
-    log('Warning: ' + msg);
+    //log('Warning: ' + msg);
     PDFJS.LogManager.notify('warn', msg);
   }
 }
@@ -34845,8 +34845,8 @@ var WorkerMessageHandler = PDFJS.WorkerMessageHandler = {
         // Pre compile the pdf page and fetch the fonts/images.
         page.getOperatorList(handler).then(function(operatorList) {
 
-          log('page=%d - getOperatorList: time=%dms, len=%d', pageNum,
-              Date.now() - start, operatorList.fnArray.length);
+          //log('page=%d - getOperatorList: time=%dms, len=%d', pageNum,
+          //    Date.now() - start, operatorList.fnArray.length);
 
         }, function(e) {
 

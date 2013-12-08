@@ -1,4 +1,5 @@
 /app/config/staging
+/public/logo
 /bootstrap/compiled.php
 /vendor
 composer.phar

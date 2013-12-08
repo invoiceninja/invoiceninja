@@ -233,6 +233,10 @@
         this.lookup();
       }
     }
+
+    this.$element.trigger('change');
+    this.$target.trigger('change');
+    this.$source.trigger('change');    
   }
 
   , clearElement: function () {

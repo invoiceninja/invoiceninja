@@ -153,7 +153,7 @@
 	<!-- <textarea rows="20" cols="120" id="pdfText" onkeyup="runCode()"></textarea> -->
 	<!-- <iframe frameborder="1" width="100%" height="600" style="display:block;margin: 0 auto"></iframe>	-->
 	<!-- <iframe frameborder="1" width="100%" height="500"></iframe> -->
-	<canvas id="the-canvas" style="width:100%"></canvas>
+	<canvas id="the-canvas" style="width:100%;border:solid 1px #CCCCCC;"></canvas>
 
 
 	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -262,7 +262,7 @@
 		//enableHoverClick($('.combobox-container input.form-control'), $('.combobox-container input[name=client]'), '{{ URL::to('clients') }}');
 
 		@if ($client)
-			$('input#invoice_number').focus();
+			$('#invoice_number').focus();
 		@else
 			//$('[name="client_combobox"]').focus();
 		@endif
@@ -386,21 +386,6 @@
 	}	
 
 
-	var BASE64_MARKER = ';base64,';
-	function convertDataURIToBinary(dataURI) {
-	  var base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-	  var base64 = dataURI.substring(base64Index);
-	  var raw = window.atob(base64);
-	  var rawLength = raw.length;
-	  var array = new Uint8Array(new ArrayBuffer(rawLength));
-
-	  for(i = 0; i < rawLength; i++) {
-	    array[i] = raw.charCodeAt(i);
-	  }
-	  return array;
-	}
-	
-
 	function _refreshPDF() {
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice);
@@ -421,8 +406,7 @@
 
 	        page.render({canvasContext: context, viewport: viewport});
 	      });
-	    });		
-		
+	    });				
 
 		//$('iframe').attr('src', string);		
 	}
@@ -430,7 +414,7 @@
 	function onDownloadClick() {
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice);
-		doc.save('Invoice-' + $('#number').val() + '.pdf');
+		doc.save('Invoice-' + $('#invoice_number').val() + '.pdf');
 	}
 
 	function onEmailClick() {
@@ -460,13 +444,12 @@
 			$('select#client').combobox('setSelected');
 			$('input[name=client]').val('-1');
 			$('.client_select input.form-control').val(name);
-			$('.client_select').addClass('combobox-selected');
+			$('.client_select .combobox-container').addClass('combobox-selected');
 
 			$('#nameError').css( "display", "none" );
 			$('#modalLink').text('Edit client details');
 			$('#myModal').modal('hide');
-			$('.client_select input.form-control').focus();
-			//$('[name="client_combobox"]').focus();
+			$('.client_select input.form-control').focus();			
 
 			refreshPDF();
 		}
