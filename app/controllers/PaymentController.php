@@ -58,10 +58,15 @@ class PaymentController extends \BaseController
     }
 
 
-    public function create()
+    public function create($clientPublicId = 0)
     {       
+        $client = null;
+        if ($clientPublicId) {
+            $client = Client::scope($clientPublicId)->firstOrFail();
+        }
+
         $data = array(
-            'client' => null,
+            'client' => $client,
             'invoice' => null,
             'invoices' => Invoice::with('client')->scope()->orderBy('invoice_number')->get(),
             'payment' => null, 

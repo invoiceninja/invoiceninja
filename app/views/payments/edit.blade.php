@@ -86,6 +86,11 @@
 			$input.append(new Option(client.name, client.public_id));
 		}	
 
+		@if ($client)
+			$('select#client').val({{ $client->public_id }});
+		@endif		
+		
+		$input.combobox();
 		$input.on('change', function(e) {						
 			console.log('client change');
 			var clientId = $('input[name=client]').val();
@@ -106,7 +111,6 @@
 			}
 			$('select#invoice').combobox('refresh');
 		}).trigger('change');
-		$input.combobox();
 
 		var $input = $('select#invoice').on('change', function(e) {			
 			$clientCombobox = $('select#client');
@@ -122,7 +126,6 @@
 			autoclose: true,
 			todayHighlight: true
 		});
-
 	});
 
 	</script>

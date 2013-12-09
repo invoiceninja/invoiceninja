@@ -12,15 +12,25 @@
 
 		{{ DropdownButton::normal('Edit Client',
 			  Navigation::links(
-			    array(
-			      array('Edit Client', URL::to('clients/' . $client->public_id . '/edit')),
-			      array(Navigation::DIVIDER),
-			      array('Archive Client', "javascript:onArchiveClick()"),
-			      array('Delete Client', "javascript:onDeleteClick()"),
-			    )
+			    [
+			      ['Edit Client', URL::to('clients/' . $client->public_id . '/edit')],
+			      [Navigation::DIVIDER],
+			      ['Archive Client', "javascript:onArchiveClick()"],
+			      ['Delete Client', "javascript:onDeleteClick()"],
+			    ]
 			  )
-			, array('id'=>'actionDropDown'))->split(); }}
-		{{ Button::primary_link(URL::to('invoices/create/' . $client->public_id), 'Create Invoice') }}
+			, ['id'=>'normalDropDown'])->split(); }}
+
+		{{ DropdownButton::primary('Create Invoice',
+			  Navigation::links(
+			    [
+			    	['Create Invoice', URL::to('invoices/create/' . $client->public_id )],
+			     	['Create Payment', URL::to('payments/create/' . $client->public_id )],
+			     	['Create Credit', URL::to('credits/create/' . $client->public_id )],
+			    ]
+			  )
+			, ['id'=>'primaryDropDown'])->split(); }}
+
 	    {{ Former::close() }}
 		
 	</div>
@@ -112,8 +122,11 @@
 	<script type="text/javascript">
 
 	$(function() {
-		$('#actionDropDown > button:first').click(function() {
+		$('#normalDropDown > button:first').click(function() {
 			window.location = '{{ URL::to('clients/' . $client->public_id . '/edit') }}';
+		});
+		$('#primaryDropDown > button:first').click(function() {
+			window.location = '{{ URL::to('invoices/create/' . $client->public_id ) }}';
 		});
 	});
 

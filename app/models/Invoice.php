@@ -34,6 +34,11 @@ class Invoice extends EntityModel
 		return ENTITY_INVOICE;
 	}	
 
+	public function isRecurring()
+	{
+		return $this->how_often || $this->start_date || $this->end_date;
+	}
+
 	/*
 	public function getTotal()
 	{

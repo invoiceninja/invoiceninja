@@ -43,9 +43,11 @@
 		min-height: 600px;		
 	}
 
+	label.checkbox,
 	label.control-label {
 		font-weight: normal !important;
 	}
+
 
 
 
@@ -203,6 +205,15 @@
 
 	.fa-bars {
 		cursor: move !important;
+	}
+
+
+	/* Animate col width changes */
+	.row div {
+	    -webkit-transition: width 0.5s ease, margin 0.5s ease;
+	    -moz-transition: width 0.5s ease, margin 0.5s ease;
+	    -o-transition: width 0.5s ease, margin 0.5s ease;
+	    transition: width 0.5s ease, margin 0.5s ease;	    
 	}
 
 	</style>

@@ -56,10 +56,15 @@ class CreditController extends \BaseController {
     }
 
 
-    public function create()
+    public function create($clientPublicId)
     {       
+        $client = null;
+        if ($clientPublicId) {
+            $client = Client::scope($clientPublicId)->firstOrFail();
+        }
+
         $data = array(
-            'client' => null,
+            'client' => $client,
             'credit' => null, 
             'method' => 'POST', 
             'url' => 'credits', 

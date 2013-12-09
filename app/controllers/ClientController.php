@@ -44,8 +44,11 @@ class ClientController extends \BaseController {
     							Select <span class="caret"></span>
   							</button>
   							<ul class="dropdown-menu" role="menu">
-  							<li><a href="' . URL::to('invoices/create/'.$model->public_id) . '">New Invoice</a></li>						    
-						    <li><a href="' . URL::to('clients/'.$model->public_id.'/edit') . '">Edit Client</a></li>
+  							<li><a href="' . URL::to('clients/'.$model->public_id.'/edit') . '">Edit Client</a></li>
+						    <li class="divider"></li>
+						    <li><a href="' . URL::to('invoices/create/'.$model->public_id) . '">New Invoice</a></li>						    
+						    <li><a href="' . URL::to('payments/create/'.$model->public_id) . '">New Payment</a></li>						    
+						    <li><a href="' . URL::to('credits/create/'.$model->public_id) . '">New Credit</a></li>						    
 						    <li class="divider"></li>
 						    <li><a href="javascript:archiveEntity(' . $model->public_id. ')">Archive Client</a></li>
 						    <li><a href="javascript:deleteEntity(' . $model->public_id. ')">Delete Client</a></li>						    

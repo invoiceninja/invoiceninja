@@ -25,23 +25,33 @@
 		{{ Former::populateField('id', $invoice->public_id); }}	
 		{{ Former::populateField('invoice_date', Utils::fromSqlDate($invoice->invoice_date)); }}	
 		{{ Former::populateField('due_date', Utils::fromSqlDate($invoice->due_date)); }}
+		{{ Former::populateField('start_date', Utils::fromSqlDate($invoice->start_date)); }}
+		{{ Former::populateField('end_date', Utils::fromSqlDate($invoice->end_date)); }}
 	@else
 		{{ Former::populateField('invoice_number', $invoiceNumber) }}
 		{{ Former::populateField('invoice_date', date('m/d/Y')) }}
 	@endif
     
-    <div class="row">
-    	<div class="col-md-6">
+    <div class="row" style="min-height:195px">
+    	<div class="col-md-6" id="col_1">
 			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'public_id')->select($client ? $client->public_id : '')->addGroupClass('client_select')
 				->help('<a style="cursor:pointer" data-toggle="modal" id="modalLink" onclick="showCreateNew()">Create new client</a>') }}
-			{{ Former::textarea('notes') }}
+			{{ Former::textarea('notes') }}			
 		</div>
-		<div class="col-md-5">
+		<div class="col-md-5" id="col_2">
 			{{ Former::text('invoice_number')->label('Invoice #') }}
 			{{-- Former::text('invoice_date')->label('Invoice Date')->data_date_format('yyyy-mm-dd') --}}
-			{{ Former::text('invoice_date')->label('Invoice Date') }}
-			{{ Former::text('due_date')->label('Due Date') }}
+			{{ Former::text('invoice_date') }}
+			{{ Former::text('due_date')->help('<a id="showRecurring" style="cursor:pointer" onclick="toggleRecurring(true)">Enable recurring</a>') }}
 			{{-- Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") --}}
+
+			
+		</div>
+		<div class="col-md-3" id="col_3" style="display:none">
+			{{ Former::select('how_often')->options($frequencies) }}
+			{{ Former::text('start_date') }}
+			{{ Former::text('end_date')->help('<a id="hideRecurring" style="cursor:pointer;display:none" onclick="toggleRecurring(false)">Disable recurring</a>') }}
+			
 		</div>
 	</div>
 
@@ -246,7 +256,7 @@
 			refreshPDF();
 		});
 
-		$('#due_date').datepicker({
+		$('#due_date,#start_date').datepicker({
 			autoclose: true,
 			todayHighlight: true
 		});
@@ -283,6 +293,10 @@
 			onDownloadClick();
 		});
 
+
+		@if ($invoice && $invoice->isRecurring())
+			toggleRecurring(true);
+		@endif;
 
 		applyComboboxListeners();
 		refreshPDF();		
@@ -621,6 +635,26 @@
 			model.addItem();
 		}
 	}
+
+	function toggleRecurring(show)
+	{
+		$('#col_1').toggleClass('col-md-6 col-md-5');
+		$('#col_2').toggleClass('col-md-5 col-md-3');
+		
+		if (show) {
+			setTimeout(function() {
+				$('#col_3').show();
+			}, 500);		
+		} else {
+			$('#col_3').hide();
+		}
+
+		$('#showRecurring,#hideRecurring').toggle();
+
+		if (!show) {
+			$('#how_often, #start_date, #end_date').val('')
+		}
+	}	
 
 	var products = {{ $products }};
 	var clients = {{ $clients }};	

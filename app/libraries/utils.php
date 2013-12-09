@@ -78,26 +78,11 @@ class Utils
 		return $date->toFormattedDateString();
 	}
 
-	/*
-	function toDateString($date)
-	{
-		if ($date->year < 1900) {
-			return '';
-		}
-		$tz = Session::get('tz');
-		if (!$tz) {
-			$tz = 'US/Eastern';
-		}
-		$date->tz = $tz;	
-		return $date->toFormattedDateString();
-	}
-	*/
-
 	public static function toSqlDate($date)
 	{
 		if (!$date)
 		{
-			return '';
+			return null;
 		}
 
 		return DateTime::createFromFormat('m/d/Y', $date);

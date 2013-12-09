@@ -210,11 +210,15 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('invoice_number');
             $t->float('discount');
             $t->date('invoice_date');
-            $t->date('due_date');
+            $t->date('due_date')->nullable();
             $t->text('notes');
 
             $t->decimal('total', 10, 2);
             $t->decimal('balance', 10, 2);
+
+            $t->integer('how_often');
+            $t->date('start_date')->nullable();
+            $t->date('end_date')->nullable();
 
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
             $t->foreign('account_id')->references('id')->on('accounts'); 

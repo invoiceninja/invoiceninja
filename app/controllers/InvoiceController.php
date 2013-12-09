@@ -245,11 +245,8 @@ class InvoiceController extends \BaseController {
 				'method' => 'PUT', 
 				'url' => 'invoices/' . $publicId, 
 				'title' => '- ' . $invoice->invoice_number,
-				'account' => Auth::user()->account,
-				'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
-				'countries' => Country::orderBy('name')->get(),
-				'client' => $invoice->client,
-				'clients' => Client::scope()->orderBy('name')->get());
+				'client' => $invoice->client);
+		$data = array_merge($data, InvoiceController::getViewModel());
 		return View::make('invoices.edit', $data);
 	}
 
@@ -271,12 +268,29 @@ class InvoiceController extends \BaseController {
 				'url' => 'invoices', 
 				'title' => '- New Invoice',
 				'client' => $client,
-				'items' => json_decode(Input::old('items')),
-				'countries' => Country::orderBy('name')->get(),
-				'account' => Auth::user()->account,
-				'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
-				'clients' => Client::scope()->orderBy('name')->get());
+				'items' => json_decode(Input::old('items')));
+		$data = array_merge($data, InvoiceController::getViewModel());				
 		return View::make('invoices.edit', $data);
+	}
+
+	private static function getViewModel()
+	{
+		return [
+			'account' => Auth::user()->account,
+			'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
+			'countries' => Country::orderBy('name')->get(),
+			'clients' => Client::scope()->orderBy('name')->get(),
+			'frequencies' => array(
+				0 => '',
+				1 => 'Weekly',
+				2 => 'Two weeks',
+				3 => 'Four weeks',
+				4 => 'Monthly',
+				5 => 'Three months',
+				6 => 'Six months',
+				7 => 'Annually'
+			)
+		];
 	}
 
 	/**
@@ -353,8 +367,12 @@ class InvoiceController extends \BaseController {
 			$invoice->invoice_number = trim(Input::get('invoice_number'));
 			$invoice->discount = 0;
 			$invoice->invoice_date = Utils::toSqlDate(Input::get('invoice_date'));
-			$invoice->due_date = Utils::toSqlDate(Input::get('due_date'));			
+			$invoice->due_date = Utils::toSqlDate(Input::get('due_date', null));
 			$invoice->notes = Input::get('notes');
+
+			$invoice->how_often = Input::get('how_often');
+			$invoice->start_date = Utils::toSqlDate(Input::get('start_date', null));
+			$invoice->end_date = Utils::toSqlDate(Input::get('end_date', null));			
 
 			$client->invoices()->save($invoice);
 			

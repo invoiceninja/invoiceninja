@@ -39,7 +39,7 @@ Route::filter('auth', function()
 {
 	if (!Auth::check())
     {
-        return Redirect::to('/login');
+        return Redirect::to('/');
     }
 });
 
@@ -57,16 +57,18 @@ Route::group(array('before' => 'auth'), function()
 
 	Route::resource('invoices', 'InvoiceController');
 	Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));	
-	Route::get('invoices/create/{client_id}', 'InvoiceController@create');
+	Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
 	Route::post('invoices/bulk', 'InvoiceController@bulk');
 
 	Route::get('payments/{id}/edit', function() { return View::make('header'); });
 	Route::resource('payments', 'PaymentController');
+	Route::get('payments/create/{client_id?}', 'PaymentController@create');
 	Route::get('api/payments/{client_id?}', array('as'=>'api.payments', 'uses'=>'PaymentController@getDatatable'));
 	Route::post('payments/bulk', 'PaymentController@bulk');
 	
 	Route::get('credits/{id}/edit', function() { return View::make('header'); });
 	Route::resource('credits', 'CreditController');
+	Route::get('credits/create/{client_id?}', 'CreditController@create');
 	Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));	
 	Route::post('credits/bulk', 'PaymentController@bulk');
 	
@@ -133,3 +135,11 @@ define('INVOICE_STATUS_SENT', 2);
 define('INVOICE_STATUS_VIEWED', 3);
 define('INVOICE_STATUS_PARTIAL', 4);
 define('INVOICE_STATUS_PAID', 5);
+
+define('FREQUENCY_WEEKLY', 1);
+define('FREQUENCY_TWO_WEEKS', 2);
+define('FREQUENCY_FOUR_WEEKS', 3);
+define('FREQUENCY_MONTHLY', 4);
+define('FREQUENCY_THREE_MONTHS', 5);
+define('FREQUENCY_SIX_MONTHS', 6);
+define('FREQUENCY_ANNUALLY', 7);
