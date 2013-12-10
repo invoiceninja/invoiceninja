@@ -1,0 +1,8 @@
+SendRecurringInvoicesCron:
+	type: cron
+	script: htdocs/artisan
+	args:
+		- "ninja:send-invoices"
+	interval:
+		minute: 0
+		hour: *

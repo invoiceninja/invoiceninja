@@ -5,13 +5,22 @@ class EntityModel extends Eloquent
 	protected $softDelete = true;
 	protected $hidden = array('id', 'created_at', 'updated_at', 'deleted_at');
 
-	public static function createNew()
-	{
+	public static function createNew($parent = false)
+	{		
 		$className = get_called_class();
 		$entity = new $className();
-		$entity->account_id = Auth::user()->account_id;
 		
-		$lastEntity = $className::scope()->orderBy('public_id', 'DESC')->first();
+		if (Auth::check()) {
+			$entity->user_id = Auth::user()->id;
+			$entity->account_id = Auth::user()->account_id;
+		} else if ($parent) {
+			$entity->user_id = $parent->user_id;
+			$entity->account_id = $parent->account_id;
+		} else {
+			exit; // TODO_FIX
+		}
+
+		$lastEntity = $className::scope(false, $entity->account_id)->orderBy('public_id', 'DESC')->first();
 
 		if ($lastEntity)
 		{
@@ -21,7 +30,7 @@ class EntityModel extends Eloquent
 		{
 			$entity->public_id = 1;
 		}
-
+		
 		return $entity;
 	}
 
@@ -36,9 +45,12 @@ class EntityModel extends Eloquent
 		return '';
 	}
 
-	public function scopeScope($query, $publicId = false)
+	public function scopeScope($query, $publicId = false, $accountId = false)
 	{
-		$query->whereAccountId(Auth::user()->account_id);
+		if (!$accountId) {
+			$accountId = Auth::user()->account_id;
+		}
+		$query->whereAccountId($accountId);
 
 		if ($publicId)
 		{

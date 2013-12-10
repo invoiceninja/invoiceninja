@@ -25,12 +25,19 @@ class Activity extends Eloquent
 		return $query->whereAccountId(Auth::user()->account_id);
 	}
 
-	private static function getBlank()
+	private static function getBlank($entity = false)
 	{
-		$user = Auth::user();
 		$activity = new Activity;
-		$activity->user_id = $user->id;
-		$activity->account_id = $user->account_id;
+
+		if (Auth::check()) {
+			$activity->user_id = Auth::user()->id;
+			$activity->account_id = Auth::user()->account_id;	
+		} else if ($entity) {
+			$activity->user_id = $entity->user_id;
+			$activity->account_id = $entity->account_id;
+		} else {
+			exit; // TODO_FIX log error
+		}
 
 		return $activity;
 	}
@@ -56,11 +63,12 @@ class Activity extends Eloquent
 
 	public static function createInvoice($invoice)
 	{
-		$activity = Activity::getBlank();
+		$userName = Auth::check() ? Auth::user()->getFullName() : '<i>System</i>';
+		$activity = Activity::getBlank($invoice);
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_INVOICE;
-		$activity->message = Auth::user()->getFullName() . ' created invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
+		$activity->message = $userName . ' created invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
 		$activity->save();
 	}	
 
@@ -76,12 +84,13 @@ class Activity extends Eloquent
 
 	public static function emailInvoice($invitation)
 	{
-		$activity = Activity::getBlank();
+		$userName = Auth::check() ? Auth::user()->getFullName() : '<i>System</i>';
+		$activity = Activity::getBlank($invitation);
 		$activity->client_id = $invitation->invoice->client_id;
 		$activity->invoice_id = $invitation->invoice_id;
 		$activity->contact_id = $invitation->contact_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_EMAIL_INVOICE;
-		$activity->message = Auth::user()->getFullName() . ' emailed invoice ' . link_to('invoices/'.$invitation->invoice->public_id, $invitation->invoice->invoice_number) . ' to ' . $invitation->contact->getFullName();
+		$activity->message = $userName . ' emailed invoice ' . link_to('invoices/'.$invitation->invoice->public_id, $invitation->invoice->invoice_number) . ' to ' . $invitation->contact->getFullName();
 		$activity->save();
 	}
 

@@ -78,8 +78,8 @@ class Account extends Eloquent
 	}
 
 	public function getNextInvoiceNumber()
-	{
-		$order = Invoice::withTrashed()->scope()->orderBy('invoice_number', 'DESC')->first();
+	{	
+		$order = Invoice::withTrashed()->scope(false, $this->id)->orderBy('invoice_number', 'DESC')->first();
 
 		if ($order) 
 		{

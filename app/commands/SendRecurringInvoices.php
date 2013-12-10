@@ -3,50 +3,68 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use Ninja\Mailers\ContactMailer as Mailer;
 
 class SendRecurringInvoices extends Command {
 
-	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
 	protected $name = 'ninja:send-invoices';
-
-	/**
-	 * The console command description.
-	 *
-	 * @var string
-	 */
 	protected $description = 'Send recurring invoices';
+	protected $mailer;
 
-	/**
-	 * Create a new command instance.
-	 *
-	 * @return void
-	 */
-	public function __construct()
+	public function __construct(Mailer $mailer)
 	{
 		parent::__construct();
+
+		$this->mailer = $mailer;
 	}
 
-	/**
-	 * Execute the console command.
-	 *
-	 * @return void
-	 */
 	public function fire()
 	{
-		$this->info('Running SendRecurringInvoices...');
+		$this->info(date('Y-m-d') . ' Running SendRecurringInvoices...');
+
+		$today = date('Y-m-d');
+
+		$invoices = Invoice::with('account', 'invoice_items')->whereRaw('start_date <= ? AND (end_date IS NULL OR end_date >= ?)', array($today, $today))->get();
+		$this->info(count($invoices) . ' recurring invoice(s) found');
+
+		foreach ($invoices as $recurInvoice)
+		{
+			$this->info('Processing Invoice ' . $recurInvoice->id . ' - Should send ' . ($recurInvoice->shouldSendToday() ? 'YES' : 'NO'));
+
+			if (!$recurInvoice->shouldSendToday())
+			{
+				continue;
+			}
+			
+			$invoice = Invoice::createNew($recurInvoice);									
+			$invoice->client_id = $recurInvoice->client_id;
+			$invoice->parent_id = $recurInvoice->id;
+			$invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber();
+			$invoice->total = $recurInvoice->total;
+			$invoice->invoice_date = new DateTime();
+			$invoice->due_date = new DateTime();
+			$invoice->save();
+			
+			foreach ($recurInvoice->invoice_items as $recurItem)
+			{
+				$item = InvoiceItem::createNew($recurItem);
+				$item->product_id = $recurItem->product_id;
+				$item->qty = $recurItem->qty;
+				$item->cost = $recurItem->cost;
+				$item->notes = Utils::processVariables($recurItem->notes);
+				$item->product_key = Utils::processVariables($recurItem->product_key);				
+				$invoice->invoice_items()->save($item);				
+			}
+
+			$recurInvoice->last_sent_date = new DateTime();
+			$recurInvoice->save();
+
+			$this->mailer->sendInvoice($invoice, $invoice->client->contacts()->first());
+		}		
 
 		$this->info('Done');
 	}
 
-	/**
-	 * Get the console command arguments.
-	 *
-	 * @return array
-	 */
 	protected function getArguments()
 	{
 		return array(
@@ -54,11 +72,6 @@ class SendRecurringInvoices extends Command {
 		);
 	}
 
-	/**
-	 * Get the console command options.
-	 *
-	 * @return array
-	 */
 	protected function getOptions()
 	{
 		return array(

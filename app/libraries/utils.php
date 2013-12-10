@@ -133,5 +133,78 @@ class Utils
 		Session::put(RECENTLY_VIEWED, $viewed);
 	}
 
+	public static function processVariables($str)
+	{
+		if (!$str) {
+			return '';
+		}
 
+		$variables = ['MONTH', 'QUARTER', 'YEAR'];
+		for ($i=0; $i<count($variables); $i++)
+		{
+			$variable = $variables[$i];
+			$regExp = '/\[' . $variable . '[+-]?[\d]*\]/';
+			preg_match_all($regExp, $str, $matches);
+			$matches = $matches[0];
+			if (count($matches) == 0) {
+				continue;
+			}
+			foreach ($matches as $match) {
+				$offset = 0;
+				$addArray = explode('+', $match);
+				$minArray = explode('-', $match);
+				if (count($addArray) > 1) {
+					$offset = intval($addArray[1]);
+				} else if (count($minArray) > 1) {
+					$offset = intval($minArray[1]) * -1;
+				}				
+
+				$val = Utils::getDatePart($variable, $offset);
+				$str = str_replace($match, $val, $str);
+			}
+		}
+
+		return $str;
+	}
+
+	private static function getDatePart($part, $offset)
+	{
+		$offset = intval($offset);
+		if ($part == 'MONTH') {
+			return Utils::getMonth($offset);
+		} else if ($part == 'QUARTER') {
+			return Utils::getQuarter($offset);
+		} else if ($part == 'YEAR') {
+			return Utils::getYear($offset);
+		}
+	}
+
+	private static function getMonth($offset)
+	{
+		$months = [ "January", "February", "March", "April", "May", "June",
+			"July", "August", "September", "October", "November", "December" ];
+
+		$month = intval(date('n')) - 1;
+		$month += $offset;
+		$month = $month % 12;
+		return $months[$month];
+	}
+
+	private static function getQuarter($offset)
+	{
+		$month = intval(date('n')) - 1;
+		$quarter = floor(($month + 3) / 3);
+		$quarter += $offset;
+    	$quarter = $quarter % 4;
+    	if ($quarter == 0) {
+         	$quarter = 4;   
+    	}
+    	return 'Q' . $quarter;
+	}
+
+	private static function getYear($offset) 
+	{
+		$year = intval(date('Y'));
+		return $year + $offset;
+	}
 }

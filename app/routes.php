@@ -13,6 +13,7 @@
 
 //dd(DB::getQueryLog());
 //dd(Client::getPrivateId(1));
+//dd(new DateTime());
 
 Route::get('/', 'HomeController@showWelcome');
 Route::post('get_started', 'AccountController@getStarted');

@@ -256,7 +256,7 @@
 			refreshPDF();
 		});
 
-		$('#due_date,#start_date').datepicker({
+		$('#due_date, #start_date, #end_date').datepicker({
 			autoclose: true,
 			todayHighlight: true
 		});

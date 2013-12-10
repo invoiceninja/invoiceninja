@@ -1,4 +1,5 @@
 /app/config/staging
+/app/config/development
 /public/logo
 /bootstrap/compiled.php
 /vendor

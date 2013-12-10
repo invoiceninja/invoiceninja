@@ -93,8 +93,12 @@ function generatePDF(invoice) {
 		// show at most one blank line
 		if (shownItem && !cost && !qty && !notes && !productKey) {
 			continue;
-		}
+		}		
 		shownItem = true;
+
+		// process date variables
+		notes = processVariables(notes);
+		productKey = processVariables(productKey);
 
 		var lineTotal = item.cost * item.qty;
 		if (lineTotal) total += lineTotal;
@@ -199,6 +203,77 @@ function formatNumber(num) {
         return  num + (i && !(i % 3) ? "," : "") + acc;
     }, "") + "." + p[1];
 }
+
+
+/* Handle converting variables in the invoices (ie, MONTH+1) */
+function processVariables(str) {
+	if (!str) return '';
+	var variables = ['MONTH','QUARTER','YEAR'];
+	for (var i=0; i<variables.length; i++) {
+		var variable = variables[i];        
+        var regexp = new RegExp('\\[' + variable + '[+-]?[\\d]*\\]', 'g');
+        var matches = str.match(regexp);        
+        if (!matches) {
+             continue;  
+        }
+        for (var j=0; j<matches.length; j++) {
+            var match = matches[j];
+            var offset = 0;                
+            if (match.split('+').length > 1) {
+                offset = match.split('+')[1];
+            } else if (match.split('-').length > 1) {
+                offset = parseInt(match.split('-')[1]) * -1;
+            }
+            str = str.replace(match, getDatePart(variable, offset));            
+        }
+	}		
+	
+	return str;
+}
+
+function getDatePart(part, offset) {
+    offset = parseInt(offset);
+    if (!offset) {
+        offset = 0;
+    }
+	if (part == 'MONTH') {
+		return getMonth(offset);
+	} else if (part == 'QUARTER') {
+		return getQuarter(offset);
+	} else if (part == 'YEAR') {
+		return getYear(offset);
+	}
+}
+
+function getMonth(offset) {
+	var today = new Date();
+	var months = [ "January", "February", "March", "April", "May", "June",
+    				"July", "August", "September", "October", "November", "December" ];
+	var month = today.getMonth();
+    month = parseInt(month) + offset;    
+    month = month % 12;
+    return months[month];
+}
+
+function getYear(offset) {
+	var today = new Date();
+	var year = today.getFullYear();
+	return parseInt(year) + offset;
+}
+
+function getQuarter(offset) {
+	var today = new Date();
+	var quarter = Math.floor((today.getMonth() + 3) / 3);
+	quarter += offset;
+    quarter = quarter % 4;
+    if (quarter == 0) {
+         quarter = 4;   
+    }
+    return 'Q' + quarter;
+}
+
+
+
 
 function formatMoney(num) {
 	num = parseFloat(num);

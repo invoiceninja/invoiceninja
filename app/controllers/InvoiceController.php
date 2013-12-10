@@ -1,12 +1,18 @@
 <?php
 
+use Ninja\Mailers\ContactMailer as Mailer;
+
 class InvoiceController extends \BaseController {
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
+	protected $mailer;
+
+	public function __construct(Mailer $mailer)
+	{
+		parent::__construct();
+
+		$this->mailer = $mailer;
+	}	
+
 	public function index()
 	{
 		return View::make('list', array(
@@ -41,7 +47,7 @@ class InvoiceController extends \BaseController {
     		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
     	}
     	
-    	return $table->addColumn('total', function($model){ return '$' . money_format('%i', $model->total); })
+    	return $table->addColumn('total', function($model) { return '$' . money_format('%i', $model->total); })
     		->addColumn('balance', function($model) { return '$' . money_format('%i', $model->balance); })
     	    ->addColumn('invoice_date', function($model) { return Utils::fromSqlDate($model->invoice_date); })
     	    ->addColumn('due_date', function($model) { return Utils::fromSqlDate($model->due_date); })
@@ -364,6 +370,7 @@ class InvoiceController extends \BaseController {
 				$invoice = Invoice::createNew();			
 			}			
 			
+			$invoice->client_id = $client->id;
 			$invoice->invoice_number = trim(Input::get('invoice_number'));
 			$invoice->discount = 0;
 			$invoice->invoice_date = Utils::toSqlDate(Input::get('invoice_date'));
@@ -442,23 +449,9 @@ class InvoiceController extends \BaseController {
 			*/
 
 			if ($action == 'email') 
-			{
-				$data = array('link' => URL::to('view') . '/' . $invoice->invoice_key);
-				/*
-				Mail::send(array('html'=>'emails.invoice_html','text'=>'emails.invoice_text'), $data, function($message) use ($contact)
-				{
-				    $message->from('hillelcoren@gmail.com', 'Hillel Coren');
-				    $message->to($contact->email);
-				});
-				*/
-
-				$invitation = Invitation::createNew();
-				$invitation->invoice_id = $invoice->id;
-				$invitation->user_id = Auth::user()->id;
-				$invitation->contact_id = $contact->id;
-				$invitation->invitation_key = str_random(20);				
-				$invitation->save();
-
+			{							
+				$this->mailer->sendInvoice($invoice, $contact);				
+				
 				Session::flash('message', 'Successfully emailed invoice');
 			} else {				
 				Session::flash('message', 'Successfully saved invoice');
