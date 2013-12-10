@@ -13,9 +13,7 @@
 
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
 		'client' => 'required',
-		'invoice_number' => 'required',
-  		'invoice_date' => 'required',
-  		'product_key' => 'max:14',
+		'product_key' => 'max:14',
 	)); }}
 
 	<!-- <h3>{{ $title }} Invoice</h3> -->
@@ -26,10 +24,11 @@
 		{{ Former::populateField('invoice_date', Utils::fromSqlDate($invoice->invoice_date)); }}	
 		{{ Former::populateField('due_date', Utils::fromSqlDate($invoice->due_date)); }}
 		{{ Former::populateField('start_date', Utils::fromSqlDate($invoice->start_date)); }}
-		{{ Former::populateField('end_date', Utils::fromSqlDate($invoice->end_date)); }}
+		{{ Former::populateField('end_date', Utils::fromSqlDate($invoice->end_date)); }}		
 	@else
 		{{ Former::populateField('invoice_number', $invoiceNumber) }}
 		{{ Former::populateField('invoice_date', date('m/d/Y')) }}
+		{{ Former::populateField('frequency', FREQUENCY_MONTHLY) }}
 	@endif
     
     <div class="row" style="min-height:195px">
@@ -39,19 +38,25 @@
 			{{ Former::textarea('notes') }}			
 		</div>
 		<div class="col-md-5" id="col_2">
-			{{ Former::text('invoice_number')->label('Invoice #') }}
-			{{-- Former::text('invoice_date')->label('Invoice Date')->data_date_format('yyyy-mm-dd') --}}
-			{{ Former::text('invoice_date') }}
-			{{ Former::text('due_date')->help('<a id="showRecurring" style="cursor:pointer" onclick="toggleRecurring(true)">Enable recurring</a>') }}
-			{{-- Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") --}}
-
+			<div id="recurring_checkbox">
+				{{ Former::checkbox('recurring')->text('Enable automatic invoicing | <a href="#">Learn more</a>')->onchange('toggleRecurring()')
+					->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::timestampToDateString($invoice->last_sent_date) : '') }}
+			</div>
+			<div id="recurring_off">
+				{{ Former::text('invoice_number')->label('Invoice #') }}
+				{{ Former::text('invoice_date') }}
+				{{ Former::text('due_date') }}
 			
+				{{-- Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") --}}
+				{{-- Former::text('invoice_date')->label('Invoice Date')->data_date_format('yyyy-mm-dd') --}}	
+			</div>
+			<div id="recurring_on" style="display:none">
+				{{ Former::select('frequency')->label('How often')->options($frequencies)->onchange('updateRecurringStats()') }}
+				{{ Former::text('start_date')->onchange('updateRecurringStats()') }}
+				{{ Former::text('end_date')->onchange('updateRecurringStats()') }}
+			</div>
 		</div>
-		<div class="col-md-3" id="col_3" style="display:none">
-			{{ Former::select('how_often')->options($frequencies) }}
-			{{ Former::text('start_date') }}
-			{{ Former::text('end_date')->help('<a id="hideRecurring" style="cursor:pointer;display:none" onclick="toggleRecurring(false)">Disable recurring</a>') }}
-			
+		<div class="col-md-3" id="col_3" style="display:none">			
 		</div>
 	</div>
 
@@ -156,7 +161,7 @@
 		@endif
 
 		{{ Button::primary_submit('Save Invoice') }}		
-		{{ Button::primary('Send Email', array('onclick' => 'onEmailClick()')) }}		
+		{{ Button::primary('Send Email', array('id' => 'email_button', 'onclick' => 'onEmailClick()')) }}		
 	</div>
 	<p>&nbsp;</p>
 	
@@ -294,9 +299,19 @@
 		});
 
 
-		@if ($invoice && $invoice->isRecurring())
-			toggleRecurring(true);
-		@endif;
+		$('label.radio').addClass('radio-inline');
+		
+		
+		@if ($isRecurring)
+			$('#recurring').prop('checked', true);
+			@if ($invoice)			
+				$('#recurring_checkbox').hide();
+			@endif
+		@elseif (isset($invoice->recurring_invoice_id) && $invoice->recurring_invoice_id)
+			$('#recurring_checkbox > div > div').html('Created by a {{ link_to('/recurring_invoices/'.$invoice->recurring_invoice_id, 'recurring invoice') }}').css('padding-top','6px');
+		@endif
+		
+		toggleRecurring();		
 
 		applyComboboxListeners();
 		refreshPDF();		
@@ -636,8 +651,25 @@
 		}
 	}
 
-	function toggleRecurring(show)
+	function toggleRecurring()
 	{
+		var enabled = $('#recurring').is(':checked');
+		
+		if (enabled) {
+			$('#recurring_on').show();
+			$('#recurring_off').hide();
+			$('#email_button').prop('disabled', true);
+			@if (!$isRecurring)
+				$('.main_form').prop('action', '{{ URL::to('/recurring_invoices') }}');			
+			@endif
+		} else {
+			$('#recurring_on').hide();
+			$('#recurring_off').show();			
+			$('#email_button').prop('disabled', false);
+			$('.main_form').prop('action', '{{ $url }}');					
+		}		
+
+		/*
 		$('#col_1').toggleClass('col-md-6 col-md-5');
 		$('#col_2').toggleClass('col-md-5 col-md-3');
 		
@@ -654,7 +686,27 @@
 		if (!show) {
 			$('#how_often, #start_date, #end_date').val('')
 		}
-	}	
+		*/
+	};	
+
+	function updateRecurringStats()
+	{
+		/*
+		var howOften = $('#how_often').val();
+		var startDate = $('#start_date').val();
+		var endDate = $('#end_date').val();
+		console.log("%s %s %s", howOften, startDate, endDate);
+
+		var str = "Send ";
+		if (!endDate) {
+			str += " an unlimited number of ";
+		} else {
+			str += "";
+		}
+		str += " emails";
+		$('#stats').html(str);
+		*/
+	}
 
 	var products = {{ $products }};
 	var clients = {{ $clients }};	

@@ -18,7 +18,7 @@
 		, array('id'=>'archive'))->split(); }}
 	
 
-	{{ Button::primary_link(URL::to($entityType . 's/create'), 'New ' . ucwords($entityType), array('class' => 'pull-right')) }}	
+	{{ Button::primary_link(URL::to($entityType . 's/create'), 'New ' . Utils::getEntityName($entityType), array('class' => 'pull-right')) }}	
 	
 	{{ Datatable::table()		
     	->addColumn($columns)

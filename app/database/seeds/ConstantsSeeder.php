@@ -50,6 +50,14 @@ class ConstantsSeeder extends Seeder
 		InvoiceStatus::create(array('name' => 'Partial'));
 		InvoiceStatus::create(array('name' => 'Paid'));		
 
+		Frequency::create(array('name' => 'Weekly'));
+		Frequency::create(array('name' => 'Two weeks'));
+		Frequency::create(array('name' => 'Four weeks'));
+		Frequency::create(array('name' => 'Monthly'));
+		Frequency::create(array('name' => 'Three months'));
+		Frequency::create(array('name' => 'Six months'));
+		Frequency::create(array('name' => 'Annually'));
+
 		$gateways = [
 			array('name'=>'Authorize.Net AIM', 'provider'=>'AuthorizeNet_AIM'),
 			array('name'=>'Authorize.Net SIM', 'provider'=>'AuthorizeNet_SIM'),

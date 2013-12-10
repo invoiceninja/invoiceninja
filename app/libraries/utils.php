@@ -207,4 +207,9 @@ class Utils
 		$year = intval(date('Y'));
 		return $year + $offset;
 	}
+
+	public static function getEntityName($entityType)
+	{
+		return ucwords(str_replace('_', ' ', $entityType));
+	}
 }

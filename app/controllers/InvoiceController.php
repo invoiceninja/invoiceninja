@@ -279,15 +279,15 @@ class InvoiceController extends \BaseController {
 		return View::make('invoices.edit', $data);
 	}
 
-	private static function getViewModel()
+	public static function getViewModel($isRecurring = false)
 	{
 		return [
+			'isRecurring' => $isRecurring,
 			'account' => Auth::user()->account,
 			'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
 			'countries' => Country::orderBy('name')->get(),
 			'clients' => Client::scope()->orderBy('name')->get(),
 			'frequencies' => array(
-				0 => '',
 				1 => 'Weekly',
 				2 => 'Two weeks',
 				3 => 'Four weeks',
@@ -366,21 +366,17 @@ class InvoiceController extends \BaseController {
 			if ($publicId) {
 				$invoice = Invoice::scope($publicId)->firstOrFail();
 				$invoice->invoice_items()->forceDelete();
-			} else {
+			} else {				
 				$invoice = Invoice::createNew();			
 			}			
 			
 			$invoice->client_id = $client->id;
-			$invoice->invoice_number = trim(Input::get('invoice_number'));
 			$invoice->discount = 0;
+			$invoice->invoice_number = trim(Input::get('invoice_number'));
 			$invoice->invoice_date = Utils::toSqlDate(Input::get('invoice_date'));
-			$invoice->due_date = Utils::toSqlDate(Input::get('due_date', null));
+			$invoice->due_date = Utils::toSqlDate(Input::get('due_date', null));					
 			$invoice->notes = Input::get('notes');
-
-			$invoice->how_often = Input::get('how_often');
-			$invoice->start_date = Utils::toSqlDate(Input::get('start_date', null));
-			$invoice->end_date = Utils::toSqlDate(Input::get('end_date', null));			
-
+			
 			$client->invoices()->save($invoice);
 			
 			$items = json_decode(Input::get('items'));

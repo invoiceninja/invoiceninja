@@ -14,6 +14,10 @@
 //dd(DB::getQueryLog());
 //dd(Client::getPrivateId(1));
 //dd(new DateTime());
+Route::get('/send_emails', function() {
+	Artisan::call('ninja:send-invoices');	
+});
+
 
 Route::get('/', 'HomeController@showWelcome');
 Route::post('get_started', 'AccountController@getStarted');
@@ -61,6 +65,9 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
 	Route::post('invoices/bulk', 'InvoiceController@bulk');
 
+	Route::resource('recurring_invoices', 'RecurringInvoiceController');
+	Route::get('api/recurring_invoices/{client_id?}', array('as'=>'api.recurring_invoices', 'uses'=>'RecurringInvoiceController@getDatatable'));	
+	
 	Route::get('payments/{id}/edit', function() { return View::make('header'); });
 	Route::resource('payments', 'PaymentController');
 	Route::get('payments/create/{client_id?}', 'PaymentController@create');
@@ -93,12 +100,17 @@ HTML::macro('menu_link', function($type) {
 	$types = $type.'s';
 	$Type = ucfirst($type);
 	$Types = ucfirst($types);
-	$class = ( Request::is($types) || Request::is($types.'/*')) ? ' active' : '';
-    return '<li class="dropdown '.$class.'">
+	$class = ( Request::is($types) || Request::is('*'.$type.'*')) ? ' active' : '';
+    $str= '<li class="dropdown '.$class.'">
 			  <a href="'.URL::to($types).'" class="dropdown-toggle">'.$Types.'</a>
 			  <ul class="dropdown-menu" id="menu1">
-			    <!-- <li><a href="'.URL::to($types).'">List '.$Types.'</a></li> -->
-			    <li><a href="'.URL::to($types.'/create').'">New '.$Type.'</a></li>
+			    <li><a href="'.URL::to($types).'">View '.$Types.'</a></li>';
+
+	if ($Type == 'Invoice') {
+		$str .= '<li><a href="'.URL::to('recurring_invoices').'">View Recurring Invoices</a></li>';
+	}
+
+	return $str . '<li><a href="'.URL::to($types.'/create').'">New '.$Type.'</a></li>
 			  </ul>
 			</li>';
 });
@@ -116,6 +128,7 @@ define("ENV_PRODUCTION", "production");
 define("RECENTLY_VIEWED", "RECENTLY_VIEWED");
 define("ENTITY_CLIENT", "client");
 define("ENTITY_INVOICE", "invoice");
+define("ENTITY_RECURRING_INVOICE", "recurring_invoice");
 define("ENTITY_PAYMENT", "payment");
 define("ENTITY_CREDIT", "credit");
 

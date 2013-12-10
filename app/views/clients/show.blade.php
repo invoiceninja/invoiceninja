@@ -89,6 +89,15 @@
 
 		<div class="tab-pane" id="invoices">
 
+			@if ($hasRecurringInvoices)
+				{{ Datatable::table()		
+			    	->addColumn('Total', 'How Often', 'Start Date', 'End Date')       
+			    	->setUrl(url('api/recurring_invoices/' . $client->public_id))    	
+			    	->setOptions('sPaginationType', 'bootstrap')
+			    	->setOptions('bFilter', false)
+			    	->render('datatable') }}
+			@endif
+
 			{{ Datatable::table()		
 		    	->addColumn('Invoice Number', 'Total', 'Amount Due', 'Invoice Date', 'Due Date', 'Status')       
 		    	->setUrl(url('api/invoices/' . $client->public_id))    	

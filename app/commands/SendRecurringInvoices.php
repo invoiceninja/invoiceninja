@@ -22,9 +22,9 @@ class SendRecurringInvoices extends Command {
 	{
 		$this->info(date('Y-m-d') . ' Running SendRecurringInvoices...');
 
-		$today = date('Y-m-d');
+		$today = new DateTime();
 
-		$invoices = Invoice::with('account', 'invoice_items')->whereRaw('start_date <= ? AND (end_date IS NULL OR end_date >= ?)', array($today, $today))->get();
+		$invoices = RecurringInvoice::with('account', 'invoice_items')->whereRaw('start_date <= ? AND (end_date IS NULL OR end_date >= ?)', array($today, $today))->get();
 		$this->info(count($invoices) . ' recurring invoice(s) found');
 
 		foreach ($invoices as $recurInvoice)
@@ -38,7 +38,7 @@ class SendRecurringInvoices extends Command {
 			
 			$invoice = Invoice::createNew($recurInvoice);									
 			$invoice->client_id = $recurInvoice->client_id;
-			$invoice->parent_id = $recurInvoice->id;
+			$invoice->recurring_invoice_id = $recurInvoice->id;
 			$invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber();
 			$invoice->total = $recurInvoice->total;
 			$invoice->invoice_date = new DateTime();
