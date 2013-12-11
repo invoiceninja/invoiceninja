@@ -20,13 +20,22 @@
 
 	{{ Button::primary_link(URL::to($entityType . 's/create'), 'New ' . Utils::getEntityName($entityType), array('class' => 'pull-right')) }}	
 	
+    @if (isset($secEntityType))
+		{{ Datatable::table()		
+	    	->addColumn($secColumns)
+	    	->setUrl(route('api.' . $secEntityType . 's'))    	
+	    	->setOptions('sPaginationType', 'bootstrap')
+	    	->setOptions('bFilter', false)
+	    	->render('datatable') }}    
+	@endif	
+
 	{{ Datatable::table()		
     	->addColumn($columns)
     	->setUrl(route('api.' . $entityType . 's'))    	
     	->setOptions('sPaginationType', 'bootstrap')
     	->setOptions('bFilter', false)
     	->render('datatable') }}
-
+    
     {{ Former::close() }}
 
     <script type="text/javascript">
@@ -88,8 +97,8 @@
 		submitForm('archive');
 	});
 
-	$('#selectAll').click(function() {
-		$(':checkbox').prop('checked', this.checked);		
+	$('.selectAll').click(function() {
+		$(this).closest('table').find(':checkbox').prop('checked', this.checked);		
 
 	});
 

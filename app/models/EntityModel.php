@@ -20,7 +20,7 @@ class EntityModel extends Eloquent
 			exit; // TODO_FIX
 		}
 
-		$lastEntity = $className::scope(false, $entity->account_id)->orderBy('public_id', 'DESC')->first();
+		$lastEntity = $className::withTrashed()->scope(false, $entity->account_id)->orderBy('public_id', 'DESC')->first();
 
 		if ($lastEntity)
 		{

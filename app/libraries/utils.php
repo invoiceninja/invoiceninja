@@ -143,7 +143,7 @@ class Utils
 		for ($i=0; $i<count($variables); $i++)
 		{
 			$variable = $variables[$i];
-			$regExp = '/\[' . $variable . '[+-]?[\d]*\]/';
+			$regExp = '/:' . $variable . '[+-]?[\d]*/';
 			preg_match_all($regExp, $str, $matches);
 			$matches = $matches[0];
 			if (count($matches) == 0) {

@@ -60,14 +60,14 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));	
 	Route::post('clients/bulk', 'ClientController@bulk');
 
+	Route::get('recurring_invoices', 'InvoiceController@recurringIndex');
+	Route::get('api/recurring_invoices/{client_id?}', array('as'=>'api.recurring_invoices', 'uses'=>'InvoiceController@getRecurringDatatable'));	
+
 	Route::resource('invoices', 'InvoiceController');
 	Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));	
 	Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
 	Route::post('invoices/bulk', 'InvoiceController@bulk');
 
-	Route::resource('recurring_invoices', 'RecurringInvoiceController');
-	Route::get('api/recurring_invoices/{client_id?}', array('as'=>'api.recurring_invoices', 'uses'=>'RecurringInvoiceController@getDatatable'));	
-	
 	Route::get('payments/{id}/edit', function() { return View::make('header'); });
 	Route::resource('payments', 'PaymentController');
 	Route::get('payments/create/{client_id?}', 'PaymentController@create');
@@ -104,14 +104,16 @@ HTML::macro('menu_link', function($type) {
     $str= '<li class="dropdown '.$class.'">
 			  <a href="'.URL::to($types).'" class="dropdown-toggle">'.$Types.'</a>
 			  <ul class="dropdown-menu" id="menu1">
-			    <li><a href="'.URL::to($types).'">View '.$Types.'</a></li>';
-
+			  <li><a href="'.URL::to($types.'/create').'">New '.$Type.'</a></li>';
+			    //<li><a href="'.URL::to($types).'">View '.$Types.'</a></li>';
+			  
+	/*
 	if ($Type == 'Invoice') {
-		$str .= '<li><a href="'.URL::to('recurring_invoices').'">View Recurring Invoices</a></li>';
+		$str .= '<li><a href="'.URL::to('recurring_invoices').'">Recurring Invoices</a></li>';
 	}
-
-	return $str . '<li><a href="'.URL::to($types.'/create').'">New '.$Type.'</a></li>
-			  </ul>
+	*/
+	
+	return $str . '</ul>
 			</li>';
 });
 

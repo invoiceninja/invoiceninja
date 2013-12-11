@@ -24,7 +24,7 @@ class SendRecurringInvoices extends Command {
 
 		$today = new DateTime();
 
-		$invoices = RecurringInvoice::with('account', 'invoice_items')->whereRaw('start_date <= ? AND (end_date IS NULL OR end_date >= ?)', array($today, $today))->get();
+		$invoices = Invoice::with('account', 'invoice_items')->whereRaw('frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', array($today, $today))->get();
 		$this->info(count($invoices) . ' recurring invoice(s) found');
 
 		foreach ($invoices as $recurInvoice)

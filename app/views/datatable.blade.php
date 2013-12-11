@@ -9,7 +9,7 @@
         @foreach($columns as $i => $c)
         <th align="center" valign="middle" class="head{{ $i }}">
             @if ($c == 'checkbox' && $hasCheckboxes = true)
-                <input type="checkbox" id="selectAll"/>
+                <input type="checkbox" class="selectAll"/>
             @else
                 {{ $c }}
             @endif

@@ -211,7 +211,7 @@ function processVariables(str) {
 	var variables = ['MONTH','QUARTER','YEAR'];
 	for (var i=0; i<variables.length; i++) {
 		var variable = variables[i];        
-        var regexp = new RegExp('\\[' + variable + '[+-]?[\\d]*\\]', 'g');
+        var regexp = new RegExp(':' + variable + '[+-]?[\\d]*', 'g');
         var matches = str.match(regexp);        
         if (!matches) {
              continue;  

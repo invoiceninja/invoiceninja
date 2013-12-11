@@ -15,11 +15,19 @@ class InvoiceController extends \BaseController {
 
 	public function index()
 	{
-		return View::make('list', array(
-			'entityType'=>ENTITY_INVOICE, 
+		$data = [
 			'title' => '- Invoices',
+			'entityType'=>ENTITY_INVOICE, 
 			'columns'=>['checkbox', 'Invoice Number', 'Client', 'Total', 'Amount Due', 'Invoice Date', 'Due Date', 'Status', 'Action']
-		));
+		];
+
+		if (Invoice::scope()->where('frequency_id', '>', '0')->count() > 0)
+		{
+			$data['secEntityType'] = ENTITY_RECURRING_INVOICE;
+			$data['secColumns'] = ['checkbox', 'Client', 'Total', 'Frequency', 'Start Date', 'End Date', 'Action'];
+		}
+
+		return View::make('list', $data);
 	}
 
 	public function getDatatable($clientPublicId = null)
@@ -29,6 +37,7 @@ class InvoiceController extends \BaseController {
 					->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
 					->where('invoices.account_id', '=', Auth::user()->account_id)
     				->where('invoices.deleted_at', '=', null)
+    				->where('invoices.frequency_id', '=', 0)
 					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'total', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name');
 
     	if ($clientPublicId) {
@@ -67,6 +76,52 @@ class InvoiceController extends \BaseController {
 						</div>';
     	    })    	       	    
     	    ->orderColumns('invoice_number','client','total','balance','invoice_date','due_date','invoice_status_name')
+    	    ->make();    	
+    }
+
+	public function getRecurringDatatable($clientPublicId = null)
+    {
+    	$query = DB::table('invoices')
+    				->join('clients', 'clients.id', '=','invoices.client_id')
+					->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
+					->where('invoices.account_id', '=', Auth::user()->account_id)
+    				->where('invoices.deleted_at', '=', null)
+    				->where('invoices.frequency_id', '>', 0)
+					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'total', 'frequencies.name as frequency', 'start_date', 'end_date');
+
+    	if ($clientPublicId) {
+    		$query->where('clients.public_id', '=', $clientPublicId);
+    	}
+
+    	$table = Datatable::query($query);			
+
+    	if (!$clientPublicId) {
+    		$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
+    	}
+    	
+    	if (!$clientPublicId) {
+    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
+    	}
+    	
+    	return $table->addColumn('total', function($model) { return '$' . money_format('%i', $model->total); })
+    		->addColumn('frequency', function($model) { return $model->frequency; })
+    	    ->addColumn('start_date', function($model) { return Utils::fromSqlDate($model->start_date); })
+    	    ->addColumn('end_date', function($model) { return Utils::fromSqlDate($model->end_date); })    	    
+    	    ->addColumn('dropdown', function($model) 
+    	    { 
+    	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
+  							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+    							Select <span class="caret"></span>
+  							</button>
+  							<ul class="dropdown-menu" role="menu">
+						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">Edit Invoice</a></li>
+						    <li class="divider"></li>
+						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/archive') . '">Archive Invoice</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">Delete Invoice</a></li>						    
+						  </ul>
+						</div>';
+    	    })    	       	    
+    	    ->orderColumns('client','total','frequency','start_date','end_date')
     	    ->make();    	
     }
 
@@ -279,10 +334,9 @@ class InvoiceController extends \BaseController {
 		return View::make('invoices.edit', $data);
 	}
 
-	public static function getViewModel($isRecurring = false)
+	public static function getViewModel()
 	{
 		return [
-			'isRecurring' => $isRecurring,
 			'account' => Auth::user()->account,
 			'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
 			'countries' => Country::orderBy('name')->get(),
@@ -320,8 +374,6 @@ class InvoiceController extends \BaseController {
 
 		$rules = array(
 			'client' => 'required',
-			'invoice_number' => 'required',
-			'invoice_date' => 'required'
 		);
 		$validator = Validator::make(Input::all(), $rules);
 
@@ -374,7 +426,11 @@ class InvoiceController extends \BaseController {
 			$invoice->discount = 0;
 			$invoice->invoice_number = trim(Input::get('invoice_number'));
 			$invoice->invoice_date = Utils::toSqlDate(Input::get('invoice_date'));
-			$invoice->due_date = Utils::toSqlDate(Input::get('due_date', null));					
+			$invoice->due_date = Utils::toSqlDate(Input::get('due_date'));					
+
+			$invoice->frequency_id = Input::get('recurring') ? Input::get('frequency') : 0;
+			$invoice->start_date = Utils::toSqlDate(Input::get('start_date'));
+			$invoice->end_date = Utils::toSqlDate(Input::get('end_date'));
 			$invoice->notes = Input::get('notes');
 			
 			$client->invoices()->save($invoice);

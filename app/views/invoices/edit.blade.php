@@ -28,6 +28,7 @@
 	@else
 		{{ Former::populateField('invoice_number', $invoiceNumber) }}
 		{{ Former::populateField('invoice_date', date('m/d/Y')) }}
+		{{ Former::populateField('start_date', date('m/d/Y')) }}
 		{{ Former::populateField('frequency', FREQUENCY_MONTHLY) }}
 	@endif
     
@@ -302,13 +303,12 @@
 		$('label.radio').addClass('radio-inline');
 		
 		
-		@if ($isRecurring)
+		@if ($invoice && $invoice->isRecurring())
 			$('#recurring').prop('checked', true);
-			@if ($invoice)			
-				$('#recurring_checkbox').hide();
-			@endif
+		@elseif ($invoice && $invoice->isSent())
+			$('#recurring_checkbox').hide();
 		@elseif (isset($invoice->recurring_invoice_id) && $invoice->recurring_invoice_id)
-			$('#recurring_checkbox > div > div').html('Created by a {{ link_to('/recurring_invoices/'.$invoice->recurring_invoice_id, 'recurring invoice') }}').css('padding-top','6px');
+			$('#recurring_checkbox > div > div').html('Created by a {{ link_to('/invoices/'.$invoice->recurring_invoice_id, 'recurring invoice') }}').css('padding-top','6px');
 		@endif
 		
 		toggleRecurring();		
@@ -659,14 +659,10 @@
 			$('#recurring_on').show();
 			$('#recurring_off').hide();
 			$('#email_button').prop('disabled', true);
-			@if (!$isRecurring)
-				$('.main_form').prop('action', '{{ URL::to('/recurring_invoices') }}');			
-			@endif
 		} else {
 			$('#recurring_on').hide();
 			$('#recurring_off').show();			
 			$('#email_button').prop('disabled', false);
-			$('.main_form').prop('action', '{{ $url }}');					
 		}		
 
 		/*

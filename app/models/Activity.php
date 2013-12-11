@@ -15,9 +15,6 @@ define("ACTIVITY_TYPE_DELETE_PAYMENT", 11);
 define("ACTIVITY_TYPE_CREATE_CREDIT", 12);
 define("ACTIVITY_TYPE_ARCHIVE_CREDIT", 13);
 define("ACTIVITY_TYPE_DELETE_CREDIT", 14);
-define("ACTIVITY_TYPE_CREATE_RECURRING_INVOICE", 15);
-define("ACTIVITY_TYPE_ARCHIVE_RECURRING_INVOICE", 16);
-define("ACTIVITY_TYPE_DELETE_RECURRING_INVOICE", 17);
 
 
 class Activity extends Eloquent
@@ -68,11 +65,18 @@ class Activity extends Eloquent
 	public static function createInvoice($invoice)
 	{
 		$userName = Auth::check() ? Auth::user()->getFullName() : '<i>System</i>';
+
+		if ($invoice->isRecurring()) {
+			$message = $userName . ' created ' . link_to('invoices/'.$invoice->public_id, 'recuring invoice');
+		} else {
+			$message = $userName . ' created invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
+		}
+
 		$activity = Activity::getBlank($invoice);
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_INVOICE;
-		$activity->message = $userName . ' created invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
+		$activity->message = $message;
 		$activity->save();
 	}	
 
@@ -97,27 +101,7 @@ class Activity extends Eloquent
 		$activity->message = $userName . ' emailed invoice ' . link_to('invoices/'.$invitation->invoice->public_id, $invitation->invoice->invoice_number) . ' to ' . $invitation->contact->getFullName();
 		$activity->save();
 	}
-
-	public static function createRecurringInvoice($invoice)
-	{
-		$activity = Activity::getBlank();
-		$activity->recurring_invoice_id = $invoice->id;
-		$activity->client_id = $invoice->client_id;
-		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_RECURRING_INVOICE;
-		$activity->message = Auth::user()->getFullName() . ' created recurring invoice ' . link_to('recurring_invoices/'.$invoice->public_id, $invoice->getName());
-		$activity->save();
-	}	
-
-	public static function archiveRecurringInvoice($invoice)
-	{
-		$activity = Activity::getBlank();
-		$activity->recurring_invoice_id = $invoice->id;
-		$activity->client_id = $invoice->client_id;
-		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_INVOICE;
-		$activity->message = Auth::user()->getFullName() . ' archived recurring invoice ' . $invoice->getName();
-		$activity->save();
-	}
-
+	
 	public static function createPayment($payment)
 	{
 		if (Auth::check())

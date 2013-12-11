@@ -100,7 +100,7 @@ class ClientController extends \BaseController {
 		$data = array(
 			'client' => $client,
 			'title' => '- ' . $client->name,
-			'hasRecurringInvoices' => RecurringInvoice::whereClientId($client->id)->count() > 0
+			'hasRecurringInvoices' => Invoice::scope()->where('frequency_id', '>', '0')->count() > 0
 		);
 
 		return View::make('clients.show', $data);

@@ -17,12 +17,10 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('account_gateways');
         Schema::dropIfExists('gateways');
         Schema::dropIfExists('payments');
-        Schema::dropIfExists('recurring_invoice_items');
         Schema::dropIfExists('invoice_items');
         Schema::dropIfExists('products');
         Schema::dropIfExists('contacts');
         Schema::dropIfExists('invoices');
-        Schema::dropIfExists('recurring_invoices');
         Schema::dropIfExists('password_reminders');
         Schema::dropIfExists('clients');
         Schema::dropIfExists('users');
@@ -209,33 +207,6 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('name');
         });
 
-        Schema::create('recurring_invoices', function($t)
-        {
-            $t->increments('id');
-            $t->unsignedInteger('client_id');
-            $t->unsignedInteger('user_id');
-            $t->unsignedInteger('account_id');
-            $t->timestamps();
-            $t->softDeletes();
-
-            $t->float('discount');
-            $t->text('notes');
-            $t->decimal('total', 10, 2);
-            
-            $t->unsignedInteger('frequency_id');
-            $t->date('start_date')->nullable();
-            $t->date('end_date')->nullable();
-            $t->date('last_sent_date')->nullable();            
-
-            $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
-            $t->foreign('account_id')->references('id')->on('accounts'); 
-            $t->foreign('user_id')->references('id')->on('users'); 
-            $t->foreign('frequency_id')->references('id')->on('frequencies'); 
-
-            $t->unsignedInteger('public_id');
-            $t->unique( array('account_id','public_id') );
-        });
-
         Schema::create('invoices', function($t)
         {
             $t->increments('id');
@@ -252,17 +223,22 @@ class ConfideSetupUsersTable extends Migration {
             $t->date('due_date')->nullable();
             $t->text('notes');
 
+            $t->unsignedInteger('frequency_id');
+            $t->date('start_date')->nullable();
+            $t->date('end_date')->nullable();
+            $t->date('last_sent_date')->nullable();    
+            $t->unsignedInteger('recurring_invoice_id')->nullable();
+            
+
             $t->decimal('total', 10, 2);
             $t->decimal('balance', 10, 2);
-
-            $t->unsignedInteger('recurring_invoice_id')->nullable();
-
+        
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
             $t->foreign('account_id')->references('id')->on('accounts'); 
             $t->foreign('user_id')->references('id')->on('users'); 
             $t->foreign('invoice_status_id')->references('id')->on('invoice_statuses');
-            $t->foreign('recurring_invoice_id')->references('id')->on('recurring_invoices'); 
-            
+            $t->foreign('recurring_invoice_id')->references('id')->on('invoices');
+
             $t->unsignedInteger('public_id');
             $t->unique( array('account_id','public_id') );
         });
@@ -333,29 +309,6 @@ class ConfideSetupUsersTable extends Migration {
             $t->unique( array('account_id','public_id') );
         });
 
-        Schema::create('recurring_invoice_items', function($t)
-        {
-            $t->increments('id');
-            $t->unsignedInteger('account_id');
-            $t->unsignedInteger('user_id');
-            $t->unsignedInteger('recurring_invoice_id');
-            $t->unsignedInteger('product_id')->nullable();
-            $t->timestamps();
-            $t->softDeletes();
-
-            $t->string('product_key');
-            $t->string('notes');
-            $t->decimal('cost', 10, 2);
-            $t->decimal('qty', 10, 2);            
-
-            $t->foreign('recurring_invoice_id')->references('id')->on('recurring_invoices')->onDelete('cascade');
-            $t->foreign('product_id')->references('id')->on('products');
-            $t->foreign('user_id')->references('id')->on('users');
-
-            $t->unsignedInteger('public_id');
-            $t->unique( array('account_id','public_id') );
-        });
-
         Schema::create('payments', function($t)
         {
             $t->increments('id');
@@ -417,7 +370,6 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('contact_id');
             $t->unsignedInteger('payment_id');
             $t->unsignedInteger('invoice_id');
-            $t->unsignedInteger('recurring_invoice_id');
             $t->unsignedInteger('credit_id');
             $t->unsignedInteger('invitation_id');
             
@@ -445,12 +397,10 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('account_gateways');
         Schema::dropIfExists('gateways');
         Schema::dropIfExists('payments');
-        Schema::dropIfExists('recurring_invoice_items');
         Schema::dropIfExists('invoice_items');
         Schema::dropIfExists('products');
         Schema::dropIfExists('contacts');
         Schema::dropIfExists('invoices');
-        Schema::dropIfExists('recurring_invoices');
         Schema::dropIfExists('password_reminders');
         Schema::dropIfExists('clients');
         Schema::dropIfExists('users');

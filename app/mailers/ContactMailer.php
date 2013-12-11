@@ -26,6 +26,12 @@ class ContactMailer extends Mailer {
 		$invitation->invitation_key = str_random(20);				
 		$invitation->save();
 
+		if (!$invoice->isSent())
+		{
+			$invoice->invoice_status_id = INVOICE_STATUS_SENT;
+			$invoice->save();
+		}
+
 		return $this->sendTo($contact->email, $subject, $view, $data);
 	}
 }
