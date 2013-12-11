@@ -25,8 +25,7 @@
 			{{ Former::legend('Organization') }}
 			{{ Former::text('name') }}
 			{{ Former::text('work_phone')->label('Phone') }}
-			{{ Former::textarea('notes') }}
-
+			
 			
 			{{ Former::legend('Address') }}
 			{{ Former::text('address1')->label('Street') }}
@@ -61,8 +60,14 @@
 						</span>
 					</div>
 				</div>
-
 			</div>
+
+			{{ Former::legend('Additional Info') }}
+			{{ Former::select('client_size_id')->addOption('','')->label('Size')
+				->fromQuery($clientSizes, 'name', 'id')->select($client ? $client->client_size_id : '') }}
+			{{ Former::select('client_industry_id')->addOption('','')->label('Industry')
+				->fromQuery($clientIndustries, 'name', 'id')->select($client ? $client->client_industry_id : '') }}
+			{{ Former::textarea('notes') }}
 
 		</div>
 	</div>

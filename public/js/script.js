@@ -1,5 +1,4 @@
 function generatePDF(invoice) {
-	
 	var invoiceNumber = invoice.invoice_number;
 	var issuedOn = invoice.invoice_date;
 	var amount = '$0.00';
@@ -9,7 +8,7 @@ function generatePDF(invoice) {
 	var headerLeft = 360;
 	var headerRight = 540;
 	var rowHeight = 15;
-	var footerLeft = 450;
+	var footerLeft = 420;
 
 	var tableTop = 240;
 	var tableLeft = 60;
@@ -30,10 +29,18 @@ function generatePDF(invoice) {
 	/* table header */
 	doc.setDrawColor(200,200,200);
 	doc.setFillColor(230,230,230);
-	doc.rect(headerLeft - 6, headerTop + rowHeight + 4, headerRight - headerLeft + 12, rowHeight + 2, 'FD'); 
+	var x1 = headerLeft - 6;
+	var y1 = headerTop + rowHeight + 4;
+	var x2 = headerRight - headerLeft + 12;
+	var y2 = rowHeight + 2;
+	if (invoice.po_number) {
+		y1 += rowHeight;
+	}
+	doc.rect(x1, y1, x2, y2, 'FD'); 
 
 	var invoiceNumberX = headerRight - (doc.getStringUnitWidth(invoiceNumber) * doc.internal.getFontSize());
 	var issuedOnX = headerRight - (doc.getStringUnitWidth(issuedOn) * doc.internal.getFontSize());	
+	var poNumberX = headerRight - (doc.getStringUnitWidth(invoice.po_number) * doc.internal.getFontSize());	
 
 	doc.setFontType("normal");
 	if (invoice.client) {
@@ -55,13 +62,23 @@ function generatePDF(invoice) {
 		}
 	}
 
-	doc.text(headerLeft, headerTop, 'Invoice #');
-	doc.text(invoiceNumberX, headerTop, invoiceNumber);
-	doc.text(headerLeft, headerTop + rowHeight, 'Invoice Date');
-	doc.text(issuedOnX, headerTop + rowHeight, issuedOn);
+	var headerY = headerTop;
+	doc.text(headerLeft, headerY, 'Invoice #');
+	doc.text(invoiceNumberX, headerY, invoiceNumber);
+
+	if (invoice.po_number) {
+		headerY += rowHeight;
+		doc.text(headerLeft, headerY, 'PO Number');
+		doc.text(poNumberX, headerY, invoice.po_number);		
+	}
+
+	headerY += rowHeight;
+	doc.text(headerLeft, headerY, 'Invoice Date');
+	doc.text(issuedOnX, headerY, issuedOn);
 	
+	headerY += rowHeight;
 	doc.setFontType("bold");
-	doc.text(headerLeft, headerTop + (2 * rowHeight), 'Amount Due');
+	doc.text(headerLeft, headerY, 'Amount Due');
 
 	doc.setDrawColor(200,200,200);
 	doc.setFillColor(230,230,230);
@@ -122,6 +139,21 @@ function generatePDF(invoice) {
 	var x = tableTop + (line * rowHeight);
 	doc.lines([[0,0],[headerRight-tableLeft+5,0]],tableLeft - 8, x);
 
+	if (invoice.discount > 0) {
+		x += 16;
+		doc.text(footerLeft, x, 'Subtotal');
+		var total = formatNumber(total);
+		var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
+		doc.text(totalX, x, total);		
+
+		x += 16;
+		doc.text(footerLeft, x, 'Discount');
+		var discount = formatNumber(total * (invoice.discount/100));
+		total -= discount;
+		var discountX = headerRight - (doc.getStringUnitWidth(discount) * doc.internal.getFontSize());
+		doc.text(discountX, x, discount);		
+	}
+
 	x += 16;
 	doc.setFontType("bold");
 	doc.text(footerLeft, x, 'Total');
@@ -131,9 +163,10 @@ function generatePDF(invoice) {
 	doc.text(totalX, x, total);		
 
 	totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
-	doc.text(totalX, headerTop + (2 * rowHeight), total);
+	doc.text(totalX, headerY, total);
 
 	/* payment stub */	
+	/*
 	var y = 680;
 	doc.lines([[0,0],[headerRight-tableLeft+5,0]],tableLeft - 8, y - 30);
 	doc.setFontSize(20);
@@ -191,7 +224,8 @@ function generatePDF(invoice) {
 	y += 16;
 	doc.setFontType("bold");
 	doc.text(headerLeft, y, 'Amount Enclosed');		
-
+	*/
+	
 	return doc;		
 }
 
@@ -282,20 +316,18 @@ function formatMoney(num) {
 }
 
 
-
-
-
 /* Set the defaults for DataTables initialisation */
 $.extend( true, $.fn.dataTable.defaults, {
 	"sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
 	//"sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",		
 	"sPaginationType": "bootstrap",
-	"bProcessing": false,            
+	//"bProcessing": true,            
 	//"iDisplayLength": 50,
 	"bInfo": true,
 	"oLanguage": {
 		//"sLengthMenu": "_MENU_ records per page"
-		"sLengthMenu": "_MENU_"
+		"sLengthMenu": "_MENU_",
+		"sSearch": ""
 	},
 	//"sScrollY": "500px",	
 } );

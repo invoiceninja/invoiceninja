@@ -39,6 +39,16 @@ class Client extends EntityModel
 		return $this->belongsTo('Country');
 	}
 
+	public function client_size()
+	{
+		return $this->belongsTo('ClientSize');	
+	}
+
+	public function client_industry()
+	{
+		return $this->belongsTo('ClientIndustry');
+	}
+
 	public function getName()
 	{
 		return $this->name;
@@ -99,6 +109,23 @@ class Client extends EntityModel
 		if ($this->notes)
 		{
 			$str .= '<i>' . $this->notes . '</i>';
+		}
+
+		return $str;
+	}
+
+	public function getIndustry()
+	{
+		$str = '';
+
+		if ($this->client_industry)
+		{
+			$str .= $this->client_industry->name . ' ';
+		}
+
+		if ($this->client_size)
+		{
+			$str .= $this->client_size->name;
 		}
 
 		return $str;

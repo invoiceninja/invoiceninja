@@ -62,7 +62,7 @@ class Utils
 			return '';
 		}
 		
-		return $date->format('l M jS, Y g:ia');
+		return $date->format('D M jS, Y g:ia');
 	}
 
 	public static function timestampToDateString($timestamp) {
@@ -212,4 +212,5 @@ class Utils
 	{
 		return ucwords(str_replace('_', ' ', $entityType));
 	}
+
 }

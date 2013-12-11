@@ -1,5 +1,6 @@
 /app/config/staging
 /app/config/development
+/app/storage/
 /public/logo
 /bootstrap/compiled.php
 /vendor

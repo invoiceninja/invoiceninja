@@ -18,13 +18,13 @@ class InvoiceController extends \BaseController {
 		$data = [
 			'title' => '- Invoices',
 			'entityType'=>ENTITY_INVOICE, 
-			'columns'=>['checkbox', 'Invoice Number', 'Client', 'Total', 'Amount Due', 'Invoice Date', 'Due Date', 'Status', 'Action']
+			'columns'=>['checkbox', 'Invoice Number', 'Client', 'Invoice Date', 'Invoice Total', 'Balance Due', 'Due Date', 'Status', 'Action']
 		];
 
 		if (Invoice::scope()->where('frequency_id', '>', '0')->count() > 0)
 		{
 			$data['secEntityType'] = ENTITY_RECURRING_INVOICE;
-			$data['secColumns'] = ['checkbox', 'Client', 'Total', 'Frequency', 'Start Date', 'End Date', 'Action'];
+			$data['secColumns'] = ['checkbox', 'Frequency', 'Client', 'Start Date', 'End Date', 'Invoice Total', 'Action'];
 		}
 
 		return View::make('list', $data);
@@ -44,6 +44,17 @@ class InvoiceController extends \BaseController {
     		$query->where('clients.public_id', '=', $clientPublicId);
     	}
 
+		$filter = Input::get('sSearch');
+    	if ($filter)
+    	{
+    		$query->where(function($query) use ($filter)
+            {
+            	$query->where('clients.name', 'like', '%'.$filter.'%')
+            		  ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%')
+            		  ->orWhere('invoice_statuses.name', 'like', '%'.$filter.'%');
+            });
+    	}
+
     	$table = Datatable::query($query);			
 
     	if (!$clientPublicId) {
@@ -56,9 +67,9 @@ class InvoiceController extends \BaseController {
     		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
     	}
     	
-    	return $table->addColumn('total', function($model) { return '$' . money_format('%i', $model->total); })
+    	return $table->addColumn('invoice_date', function($model) { return Utils::fromSqlDate($model->invoice_date); })    	    
+    		->addColumn('total', function($model) { return '$' . money_format('%i', $model->total); })
     		->addColumn('balance', function($model) { return '$' . money_format('%i', $model->balance); })
-    	    ->addColumn('invoice_date', function($model) { return Utils::fromSqlDate($model->invoice_date); })
     	    ->addColumn('due_date', function($model) { return Utils::fromSqlDate($model->due_date); })
     	    ->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
     	    ->addColumn('dropdown', function($model) 
@@ -93,20 +104,31 @@ class InvoiceController extends \BaseController {
     		$query->where('clients.public_id', '=', $clientPublicId);
     	}
 
+		$filter = Input::get('sSearch');
+    	if ($filter)
+    	{
+    		$query->where(function($query) use ($filter)
+            {
+            	$query->where('clients.name', 'like', '%'.$filter.'%')
+            		  ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%');
+            });
+    	}
+    	
     	$table = Datatable::query($query);			
 
     	if (!$clientPublicId) {
     		$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
     	}
     	
+    	$table->addColumn('frequency', function($model) { return link_to('invoices/' . $model->public_id, $model->frequency); });
+
     	if (!$clientPublicId) {
     		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
     	}
     	
-    	return $table->addColumn('total', function($model) { return '$' . money_format('%i', $model->total); })
-    		->addColumn('frequency', function($model) { return $model->frequency; })
-    	    ->addColumn('start_date', function($model) { return Utils::fromSqlDate($model->start_date); })
+    	return $table->addColumn('start_date', function($model) { return Utils::fromSqlDate($model->start_date); })
     	    ->addColumn('end_date', function($model) { return Utils::fromSqlDate($model->end_date); })    	    
+    	    ->addColumn('total', function($model) { return '$' . money_format('%i', $model->total); })
     	    ->addColumn('dropdown', function($model) 
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
@@ -340,7 +362,7 @@ class InvoiceController extends \BaseController {
 			'account' => Auth::user()->account,
 			'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
 			'countries' => Country::orderBy('name')->get(),
-			'clients' => Client::scope()->orderBy('name')->get(),
+			'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',
@@ -371,7 +393,7 @@ class InvoiceController extends \BaseController {
 		{
 			return InvoiceController::bulk();
 		}
-
+		
 		$rules = array(
 			'client' => 'required',
 		);
@@ -388,32 +410,32 @@ class InvoiceController extends \BaseController {
 			if ($clientPublicId == "-1") 
 			{
 				$client = Client::createNew();
-				$client->name = trim(Input::get('name'));
-				$client->work_phone = trim(Input::get('work_phone'));
-				$client->address1 = trim(Input::get('address1'));
-				$client->address2 = trim(Input::get('address2'));
-				$client->city = trim(Input::get('city'));
-				$client->state = trim(Input::get('state'));
-				$client->postal_code = trim(Input::get('postal_code'));
-				if (Input::get('country_id')) {
-					$client->country_id = Input::get('country_id');
-				}
-				$client->save();				
-				$clientId = $client->id;	
-
 				$contact = Contact::createNew();
-				$contact->is_primary = true;
-				$contact->first_name = trim(Input::get('first_name'));
-				$contact->last_name = trim(Input::get('last_name'));
-				$contact->phone = trim(Input::get('phone'));
-				$contact->email = trim(Input::get('email'));
-				$client->contacts()->save($contact);
+				$contact->is_primary = true;			
 			}
 			else
 			{
 				$client = Client::scope($clientPublicId)->with('contacts')->firstOrFail();
-				$contact = $client->contacts()->first();
+				$contact = $client->contacts()->where('is_primary', '=', true)->firstOrFail();
 			}
+
+			$client->name = trim(Input::get('name'));
+			$client->work_phone = trim(Input::get('work_phone'));
+			$client->address1 = trim(Input::get('address1'));
+			$client->address2 = trim(Input::get('address2'));
+			$client->city = trim(Input::get('city'));
+			$client->state = trim(Input::get('state'));
+			$client->postal_code = trim(Input::get('postal_code'));
+			if (Input::get('country_id')) {
+				$client->country_id = Input::get('country_id');
+			}
+			$client->save();
+			
+			$contact->first_name = trim(Input::get('first_name'));
+			$contact->last_name = trim(Input::get('last_name'));
+			$contact->phone = trim(Input::get('phone'));
+			$contact->email = trim(Input::get('email'));
+			$client->contacts()->save($contact);
 
 			if ($publicId) {
 				$invoice = Invoice::scope($publicId)->firstOrFail();
@@ -423,7 +445,7 @@ class InvoiceController extends \BaseController {
 			}			
 			
 			$invoice->client_id = $client->id;
-			$invoice->discount = 0;
+			$invoice->discount = Input::get('discount');
 			$invoice->invoice_number = trim(Input::get('invoice_number'));
 			$invoice->invoice_date = Utils::toSqlDate(Input::get('invoice_date'));
 			$invoice->due_date = Utils::toSqlDate(Input::get('due_date'));					
@@ -432,7 +454,8 @@ class InvoiceController extends \BaseController {
 			$invoice->start_date = Utils::toSqlDate(Input::get('start_date'));
 			$invoice->end_date = Utils::toSqlDate(Input::get('end_date'));
 			$invoice->notes = Input::get('notes');
-			
+			$invoice->po_number = Input::get('po_number');
+
 			$client->invoices()->save($invoice);
 			
 			$items = json_decode(Input::get('items'));
@@ -500,7 +523,11 @@ class InvoiceController extends \BaseController {
 			/*
 			*/
 
-			if ($action == 'email') 
+			if ($action == 'clone')
+			{
+				return InvoiceController::cloneInvoice($publicId);
+			}
+			else if ($action == 'email') 
 			{							
 				$this->mailer->sendInvoice($invoice, $contact);				
 				
@@ -560,5 +587,38 @@ class InvoiceController extends \BaseController {
 		Session::flash('message', $message);
 
 		return Redirect::to('invoices');
+	}
+
+	public static function cloneInvoice($publicId)
+	{
+		$invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();		
+
+		$clone = Invoice::createNew();		
+		foreach (['client_id', 'discount', 'invoice_date', 'due_date', 'frequency_id', 'start_date', 'end_date', 'notes'] as $field) 
+		{
+			$clone->$field = $invoice->$field;	
+		}
+
+		if (!$clone->isRecurring())
+		{
+			$clone->invoice_number = Auth::user()->account->getNextInvoiceNumber();
+		}
+
+		$clone->save();
+
+		foreach ($invoice->invoice_items as $item)
+		{
+			$cloneItem = InvoiceItem::createNew();
+			
+			foreach (['product_id', 'product_key', 'notes', 'cost', 'qty'] as $field) 
+			{
+				$cloneItem->$field = $item->$field;
+			}
+
+			$clone->invoice_items()->save($cloneItem);			
+		}		
+
+		Session::flash('message', 'Successfully cloned invoice');
+		return Redirect::to('invoices/' . $clone->public_id);
 	}
 }

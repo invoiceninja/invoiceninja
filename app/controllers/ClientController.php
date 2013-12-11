@@ -15,12 +15,12 @@ class ClientController extends \BaseController {
 		return View::make('list', array(
 			'entityType'=>ENTITY_CLIENT, 
 			'title' => '- Clients',
-			'columns'=>['checkbox', 'Client', 'Contact', 'Balance', 'Last Login', 'Date Created', 'Email', 'Phone', 'Action']
+			'columns'=>['checkbox', 'Client', 'Contact', 'Date Created', 'Email', 'Phone', 'Last Login', 'Balance', 'Action']
 		));		
 	}
 
 	public function getDatatable()
-    {
+    {    	
     	$query = DB::table('clients')
     				->join('contacts', 'contacts.client_id', '=', 'clients.id')
     				->where('clients.account_id', '=', Auth::user()->account_id)
@@ -28,15 +28,30 @@ class ClientController extends \BaseController {
     				->where('contacts.is_primary', '=', true)
     				->select('clients.public_id','clients.name','contacts.first_name','contacts.last_name','clients.balance','clients.last_login','clients.created_at','clients.work_phone','contacts.email');
 
+		$filter = Input::get('sSearch');
+    	if ($filter)
+    	{
+    		$query->where(function($query) use ($filter)
+            {
+            	$query->where('clients.name', 'like', '%'.$filter.'%')
+            		  ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+            		  ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+            		  ->orWhere('contacts.email', 'like', '%'.$filter.'%');
+            });
+    	}
+
+    	//$query->get();
+    	//dd(DB::getQueryLog());
+
         return Datatable::query($query)
     	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
     	    ->addColumn('name', function($model) { return link_to('clients/' . $model->public_id, $model->name); })
     	    ->addColumn('first_name', function($model) { return $model->first_name . ' ' . $model->last_name; })
-    	    ->addColumn('balance', function($model) { return '$' . $model->balance; })    	    
-    	    ->addColumn('last_login', function($model) { return Utils::timestampToDateString($model->last_login); })
     	    ->addColumn('created_at', function($model) { return Utils::timestampToDateString($model->created_at); })
     	    ->addColumn('email', function($model) { return $model->email ? HTML::mailto($model->email, $model->email) : ''; })
     	    ->addColumn('work_phone', function($model) { return Utils::formatPhoneNumber($model->work_phone); })    	   
+    	    ->addColumn('last_login', function($model) { return Utils::timestampToDateString($model->last_login); })
+    	    ->addColumn('balance', function($model) { return '$' . $model->balance; })    	    
     	    ->addColumn('dropdown', function($model) 
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
@@ -71,6 +86,8 @@ class ClientController extends \BaseController {
 			'method' => 'POST', 
 			'url' => 'clients', 
 			'title' => '- New Client',
+			'clientSizes' => ClientSize::orderBy('id')->get(),
+			'clientIndustries' => ClientIndustry::orderBy('name')->get(),
 			'countries' => Country::orderBy('name')->get());
 
 		return View::make('clients.edit', $data);
@@ -94,13 +111,13 @@ class ClientController extends \BaseController {
 	 */
 	public function show($publicId)
 	{
-		$client = Client::scope($publicId)->with('contacts')->firstOrFail();
+		$client = Client::scope($publicId)->with('contacts', 'client_size', 'client_industry')->firstOrFail();
 		Utils::trackViewed($client->name, ENTITY_CLIENT);
 		
 		$data = array(
 			'client' => $client,
 			'title' => '- ' . $client->name,
-			'hasRecurringInvoices' => Invoice::scope()->where('frequency_id', '>', '0')->count() > 0
+			'hasRecurringInvoices' => Invoice::scope()->where('frequency_id', '>', '0')->whereClientId($client->id)->count() > 0
 		);
 
 		return View::make('clients.show', $data);
@@ -120,6 +137,8 @@ class ClientController extends \BaseController {
 			'method' => 'PUT', 
 			'url' => 'clients/' . $publicId, 
 			'title' => '- ' . $client->name,
+			'clientSizes' => ClientSize::orderBy('id')->get(),
+			'clientIndustries' => ClientIndustry::orderBy('name')->get(),
 			'countries' => Country::orderBy('name')->get());
 		return View::make('clients.edit', $data);
 	}
@@ -161,10 +180,11 @@ class ClientController extends \BaseController {
 			$client->city = trim(Input::get('city'));
 			$client->state = trim(Input::get('state'));
 			$client->notes = trim(Input::get('notes'));
-			$client->postal_code = trim(Input::get('postal_code'));
-			if (Input::get('country_id')) {
-				$client->country_id = Input::get('country_id');
-			}
+			$client->postal_code = trim(Input::get('postal_code'));			
+			$client->country_id = Input::get('country_id') ? Input::get('country_id') : null;
+			$client->client_size_id = Input::get('client_size_id') ? Input::get('client_size_id') : null;
+			$client->client_industry_id = Input::get('client_industry_id') ? Input::get('client_industry_id') : null;
+
 			$client->save();
 
 			$data = json_decode(Input::get('data'));
@@ -201,7 +221,12 @@ class ClientController extends \BaseController {
 				}
 			}
 			
-			Session::flash('message', 'Successfully updated client');
+			if ($publicId) {
+				Session::flash('message', 'Successfully updated client');
+			} else {
+				Session::flash('message', 'Successfully created client');
+			}
+
 			return Redirect::to('clients/' . $client->public_id);
 		}
 

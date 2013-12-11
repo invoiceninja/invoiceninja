@@ -18,14 +18,16 @@
 		, array('id'=>'archive'))->split(); }}
 	
 
-	{{ Button::primary_link(URL::to($entityType . 's/create'), 'New ' . Utils::getEntityName($entityType), array('class' => 'pull-right')) }}	
-	
+	<div id="top_right_buttons" class="pull-right">
+		<input id="tableFilter" type="text" style="width:140px;margin-right:4px" class="form-control pull-left" placeholder="Filter"/> 
+		{{ Button::primary_link(URL::to($entityType . 's/create'), 'New ' . Utils::getEntityName($entityType), array('class' => 'pull-right')) }}	
+	</div>
+
     @if (isset($secEntityType))
 		{{ Datatable::table()		
 	    	->addColumn($secColumns)
 	    	->setUrl(route('api.' . $secEntityType . 's'))    	
 	    	->setOptions('sPaginationType', 'bootstrap')
-	    	->setOptions('bFilter', false)
 	    	->render('datatable') }}    
 	@endif	
 
@@ -33,7 +35,6 @@
     	->addColumn($columns)
     	->setUrl(route('api.' . $entityType . 's'))    	
     	->setOptions('sPaginationType', 'bootstrap')
-    	->setOptions('bFilter', false)
     	->render('datatable') }}
     
     {{ Former::close() }}
@@ -46,6 +47,7 @@
 				return;
 			}
 		}		
+
 		$('#action').val(action);
 		$('form.listForm').submit();		
 	}
@@ -67,8 +69,36 @@
 @stop
 
 @section('onReady')
-	
+
+	var tableFilter = '';
+	var searchTimeout = false;
+
+	var oTable0 = $('#DataTables_Table_0').dataTable();
+	var oTable1 = $('#DataTables_Table_1').dataTable();	
+	function filterTable(val) {	
+		if (val == tableFilter) {
+			return;
+		}
+		tableFilter = val;
+		oTable0.fnFilter(val);
+    	@if (isset($secEntityType))
+    		oTable1.fnFilter(val);
+		@endif
+	}
+
+	$('#tableFilter').on('keyup', function(){
+		if (searchTimeout) {
+			window.clearTimeout(searchTimeout);
+		}
+
+		searchTimeout = setTimeout(function() {
+			filterTable($('#tableFilter').val());
+		}, 1000);					
+	})
+
 	window.onDatatableReady = function() {
+		console.log('data loaded');
+		
 		$(':checkbox').click(function() {
 			setArchiveEnabled();
 		});	
@@ -90,6 +120,7 @@
 				$dropdown.css('visibility','hidden');
 			}			
 		});
+
 	}	
 
 	$('#archive > button').prop('disabled', true);

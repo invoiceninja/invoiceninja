@@ -7,7 +7,11 @@
     <thead>
     <tr>
         @foreach($columns as $i => $c)
-        <th align="center" valign="middle" class="head{{ $i }}">
+        <th align="center" valign="middle" class="head{{ $i }}" 
+            @if ($c == 'checkbox')
+                style="width:20px"
+            @endif
+        >
             @if ($c == 'checkbox' && $hasCheckboxes = true)
                 <input type="checkbox" class="selectAll"/>
             @else
@@ -45,7 +49,6 @@
             {{ json_encode($k) }}: {{ $o }},
             @endforeach
             "fnDrawCallback": function(oSettings) {
-                //jQuery.uniform.update();
                 if (window.onDatatableReady) {
                     window.onDatatableReady();
                 }

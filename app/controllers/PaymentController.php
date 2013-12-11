@@ -7,7 +7,7 @@ class PaymentController extends \BaseController
         return View::make('list', array(
             'entityType'=>ENTITY_PAYMENT, 
             'title' => '- Payments',
-            'columns'=>['checkbox', 'Transaction Reference', 'Client', 'Invoice', 'Amount', 'Payment Date', 'Action']
+            'columns'=>['checkbox', 'Transaction Reference', 'Client', 'Invoice', 'Payment Amount', 'Payment Date', 'Action']
         ));
 	}
 
@@ -22,6 +22,15 @@ class PaymentController extends \BaseController
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
+        }
+
+        $filter = Input::get('sSearch');
+        if ($filter)
+        {
+            $query->where(function($query) use ($filter)
+            {
+                $query->where('clients.name', 'like', '%'.$filter.'%');
+            });
         }
 
         $table = Datatable::query($query);        

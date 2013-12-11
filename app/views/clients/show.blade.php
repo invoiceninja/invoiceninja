@@ -49,6 +49,7 @@
 		  	<p>{{ $client->getAddress() }}</p>
 		  	<p>{{ $client->getPhone() }}</p>
 		  	<p>{{ $client->getNotes() }}</p>
+		  	<p>{{ $client->getIndustry() }}</p>
 		</div>
 
 		<div class="col-md-3">
@@ -91,7 +92,7 @@
 
 			@if ($hasRecurringInvoices)
 				{{ Datatable::table()		
-			    	->addColumn('Total', 'How Often', 'Start Date', 'End Date')       
+			    	->addColumn('How Often', 'Start Date', 'End Date', 'Invoice Total')       
 			    	->setUrl(url('api/recurring_invoices/' . $client->public_id))    	
 			    	->setOptions('sPaginationType', 'bootstrap')
 			    	->setOptions('bFilter', false)
@@ -99,7 +100,7 @@
 			@endif
 
 			{{ Datatable::table()		
-		    	->addColumn('Invoice Number', 'Total', 'Amount Due', 'Invoice Date', 'Due Date', 'Status')       
+		    	->addColumn('Invoice Number', 'Invoice Date', 'Invoice Total', 'Balance Due', 'Due Date', 'Status')       
 		    	->setUrl(url('api/invoices/' . $client->public_id))    	
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
@@ -109,7 +110,7 @@
         <div class="tab-pane" id="payments">
 
 	    	{{ Datatable::table()		
-				->addColumn('Transaction Reference', 'Invoice', 'Amount', 'Payment Date')       
+				->addColumn('Transaction Reference', 'Invoice', 'Payment Amount', 'Payment Date')       
 				->setUrl(url('api/payments/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
@@ -119,7 +120,7 @@
         <div class="tab-pane" id="credits">
 
 	    	{{ Datatable::table()		
-				->addColumn('Amount', 'Credit Date')       
+				->addColumn('Credit Amount', 'Credit Date')       
 				->setUrl(url('api/credits/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)

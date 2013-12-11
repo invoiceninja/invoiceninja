@@ -14,6 +14,8 @@
 //dd(DB::getQueryLog());
 //dd(Client::getPrivateId(1));
 //dd(new DateTime());
+
+
 Route::get('/send_emails', function() {
 	Artisan::call('ninja:send-invoices');	
 });

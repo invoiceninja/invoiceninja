@@ -58,6 +58,17 @@ class ConstantsSeeder extends Seeder
 		Frequency::create(array('name' => 'Six months'));
 		Frequency::create(array('name' => 'Annually'));
 
+		ClientIndustry::create(array('name' => 'Accounting'));
+		ClientIndustry::create(array('name' => 'Travel'));
+		ClientIndustry::create(array('name' => 'Engineering'));
+		ClientIndustry::create(array('name' => 'Marketing'));
+
+		ClientSize::create(array('name' => '1 - 10'));
+		ClientSize::create(array('name' => '11 - 50'));
+		ClientSize::create(array('name' => '51 - 100'));
+		ClientSize::create(array('name' => '101 - 500'));
+		ClientSize::create(array('name' => '500+'));		
+
 		$gateways = [
 			array('name'=>'Authorize.Net AIM', 'provider'=>'AuthorizeNet_AIM'),
 			array('name'=>'Authorize.Net SIM', 'provider'=>'AuthorizeNet_SIM'),

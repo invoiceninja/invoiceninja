@@ -33,22 +33,25 @@
 	@endif
     
     <div class="row" style="min-height:195px">
-    	<div class="col-md-6" id="col_1">
+    	<div class="col-md-7" id="col_1">
 			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'public_id')->select($client ? $client->public_id : '')->addGroupClass('client_select')
 				->help('<a style="cursor:pointer" data-toggle="modal" id="modalLink" onclick="showCreateNew()">Create new client</a>') }}
+			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}
 			{{ Former::textarea('notes') }}			
+			
 		</div>
-		<div class="col-md-5" id="col_2">
+		<div class="col-md-4" id="col_2">
 			<div id="recurring_checkbox">
-				{{ Former::checkbox('recurring')->text('Enable automatic invoicing | <a href="#">Learn more</a>')->onchange('toggleRecurring()')
+				{{ Former::checkbox('recurring')->text('Enable | <a href="#">Learn more</a>')->onchange('toggleRecurring()')
 					->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::timestampToDateString($invoice->last_sent_date) : '') }}
 			</div>
 			<div id="recurring_off">
 				{{ Former::text('invoice_number')->label('Invoice #') }}
+				{{ Former::text('po_number')->label('PO number') }}
 				{{ Former::text('invoice_date') }}
 				{{ Former::text('due_date') }}
 			
-				{{-- Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") --}}
+				
 				{{-- Former::text('invoice_date')->label('Invoice Date')->data_date_format('yyyy-mm-dd') --}}	
 			</div>
 			<div id="recurring_on" style="display:none">
@@ -56,8 +59,11 @@
 				{{ Former::text('start_date')->onchange('updateRecurringStats()') }}
 				{{ Former::text('end_date')->onchange('updateRecurringStats()') }}
 			</div>
+			
 		</div>
 		<div class="col-md-3" id="col_3" style="display:none">			
+
+
 		</div>
 	</div>
 
@@ -71,8 +77,8 @@
 	        	<th class="hide-border"></th>
 	        	<th>Item</th>
 	        	<th>Description</th>
-	        	<th>Unit&nbsp;Cost</th>
-	        	<th>Quantity</th>
+	        	<th>Rate</th>
+	        	<th>Units</th>
 	        	<th>Line&nbsp;Total</th>
 	        	<th class="hide-border"></th>
 	        </tr>
@@ -130,7 +136,7 @@
 	        <tr>
 	        	<td class="hide-border"></td>
 	        	<td colspan="2" class="hide-border"/>
-				<td colspan="2"><b>Invoice Total</b></td>
+				<td colspan="2"><b>Balance Due</b></td>
 				<td style="text-align: right"><span data-bind="text: total"/></td>
 	        </tr>
 	    </tfoot>
@@ -146,11 +152,15 @@
 			@endif
 		</div>
 
+
+		{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
+
 		@if ($invoice)		
-			{{ DropdownButton::normal('Download PDF',
+			{{ DropdownButton::primary('Save Invoice',
 				  Navigation::links(
 				    array(
-				    	array('Download PDF', "javascript:onDownloadClick()"),
+				    	array('Save Invoice', "javascript:onSaveClick()"),
+				     	array('Clone Invoice', "javascript:onCloneClick()"),
 				     	array(Navigation::DIVIDER),
 				     	array('Archive Invoice', "javascript:onArchiveClick()"),
 				     	array('Delete Invoice', "javascript:onDeleteClick()"),
@@ -158,18 +168,17 @@
 				  )
 				, array('id'=>'actionDropDown','style'=>'text-align:left'))->split(); }}				
 		@else
-			{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}		
+			{{ Button::primary_submit('Save Invoice') }}			
 		@endif
 
-		{{ Button::primary_submit('Save Invoice') }}		
 		{{ Button::primary('Send Email', array('id' => 'email_button', 'onclick' => 'onEmailClick()')) }}		
 	</div>
 	<p>&nbsp;</p>
 	
 	<!-- <textarea rows="20" cols="120" id="pdfText" onkeyup="runCode()"></textarea> -->
 	<!-- <iframe frameborder="1" width="100%" height="600" style="display:block;margin: 0 auto"></iframe>	-->
-	<!-- <iframe frameborder="1" width="100%" height="500"></iframe> -->
-	<canvas id="the-canvas" style="width:100%;border:solid 1px #CCCCCC;"></canvas>
+	<iframe id="theIFrame" frameborder="1" width="100%" height="500"></iframe>
+	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
 
 	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -253,13 +262,13 @@
 
 	$(function() {
 
+		$('form').change(refreshPDF);
+
 		$('#country_id').combobox();
 
 		$('#invoice_date').datepicker({
 			autoclose: true,
 			todayHighlight: true
-		}).on('changeDate', function(e) {
-			refreshPDF();
 		});
 
 		$('#due_date, #start_date, #end_date').datepicker({
@@ -270,11 +279,13 @@
 		var $input = $('select#client');
 		$input.combobox();
 		$('.client_select input.form-control').on('change', function(e) {
-			refreshPDF();			
-			if ($('input[name=client]').val() != '-1') {
-				$('#modalLink').text('Create new client');	
+			var clientId = parseInt($('input[name=client]').val(), 10);	
+			$('#modalLink').text(clientId ? 'Edit client details' : 'Create new client');
+			if (clientId > 0) {
+				loadClientDetails(clientId);
 			}
-		});
+		}).trigger('change');
+
 		//enableHoverClick($('.combobox-container input.form-control'), $('.combobox-container input[name=client]'), '{{ URL::to('clients') }}');
 
 		@if ($client)
@@ -296,7 +307,7 @@
 		$('#invoice_number').change(refreshPDF);
 
 		$('#actionDropDown > button:first').click(function() {
-			onDownloadClick();
+			onSaveClick();
 		});
 
 
@@ -305,24 +316,46 @@
 		
 		@if ($invoice && $invoice->isRecurring())
 			$('#recurring').prop('checked', true);
-		@elseif ($invoice && $invoice->isSent())
-			$('#recurring_checkbox').hide();
 		@elseif (isset($invoice->recurring_invoice_id) && $invoice->recurring_invoice_id)
 			$('#recurring_checkbox > div > div').html('Created by a {{ link_to('/invoices/'.$invoice->recurring_invoice_id, 'recurring invoice') }}').css('padding-top','6px');
+		@elseif ($invoice && $invoice->isSent())
+			$('#recurring_checkbox').hide();
 		@endif
 		
-		toggleRecurring();		
+		toggleRecurring();	
 
 		applyComboboxListeners();
 		refreshPDF();		
 	});
 
-	function showCreateNew() {
-		if ($('input[name=client]').val() != '-1') {
+	function loadClientDetails(clientId) {
+		var client = clientMap[clientId];
+		$('#name').val(client.name);
+		$('#work_phone').val(client.work_phone);
+		$('#address1').val(client.address1);
+		$('#address2').val(client.address2);
+		$('#city').val(client.city);
+		$('#state').val(client.state);
+		$('#postal_code').val(client.postal_code);
+		$('#country_id').val(client.country_id).combobox('refresh');
+		for (var i=0; i<client.contacts.length; i++) {
+			var contact = client.contacts[i];
+			if (contact.is_primary) {
+				$('#first_name').val(contact.first_name);
+				$('#last_name').val(contact.last_name);
+				$('#email').val(contact.email);
+				$('#phone').val(contact.phone);
+			}
+		}
+	}
+
+	function showCreateNew() {		
+		if (!$('input[name=client]').val()) {
 			$('#myModal input').val('');
 			$('#myModal #country_id').val('');
 			$('#nameError').css( "display", "none" );			
-		}		
+		}
+		
 		$('#myModal').modal('show');	
 	}
 
@@ -357,6 +390,8 @@
 		var invoice = {
 			invoice_number: $('#invoice_number').val(),
 			invoice_date: $('#invoice_date').val(),
+			discount: parseFloat($('#discount').val()),
+			po_number: $('#po_number').val(),
 			account: {
 				name: "{{ $account->name }}",
 				address1: "{{ $account->address1 }}",
@@ -376,8 +411,20 @@
 			invoice_items: []
 		};
 
-		var clientId = $('input[name=client]').val();
-		
+		var client = {
+			name: $('#name').val(),
+			address1: $('#address1').val(),
+			address2: $('#address2').val(),
+			city: $('#city').val(),
+			state: $('#state').val(),
+			postal_code: $('#postal_code').val(),
+			country: {
+				name: $('.country_select input[type=text]').val()
+			}
+		};
+
+		/*
+		var clientId = $('input[name=client]').val();	
 		if (clientId == '-1') {
 			var client = {
 				name: $('#name').val(),
@@ -393,6 +440,7 @@
 		} else if (clientMap.hasOwnProperty(clientId)) {
 			var client = clientMap[clientId];
 		}
+		*/
 		invoice.client = client;
 
 		for(var i=0; i<model.items().length; i++) {
@@ -417,10 +465,10 @@
 
 	function _refreshPDF() {
 		var invoice = createInvoiceModel();
-		var doc = generatePDF(invoice);
+		var doc = generatePDF(invoice);		
+
+		/*		
 		var string = doc.output('dataurlstring');
-			
-		//console.log(string);
 		var pdfAsArray = convertDataURIToBinary(string);	
 	    PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
 
@@ -428,7 +476,7 @@
 	        var scale = 1.5;
 	        var viewport = page.getViewport(scale);
 
-	        var canvas = document.getElementById('the-canvas');
+	        var canvas = document.getElementById('theCanvas');
 	        var context = canvas.getContext('2d');
 	        canvas.height = viewport.height;
 	        canvas.width = viewport.width;
@@ -436,8 +484,10 @@
 	        page.render({canvasContext: context, viewport: viewport});
 	      });
 	    });				
+		*/
 
-		//$('iframe').attr('src', string);		
+		var string = doc.output('datauristring');
+		$('#theIFrame').attr('src', string);		
 	}
 
 	function onDownloadClick() {
@@ -451,6 +501,15 @@
 			$('#action').val('email');
 			$('.main_form').submit();
 		}
+	}
+
+	function onSaveClick() {
+		$('.main_form').submit();
+	}
+
+	function onCloneClick() {
+		$('#action').val('clone');
+		$('.main_form').submit();
 	}
 
 	function onArchiveClick() {
@@ -471,7 +530,9 @@
 			if (!name) $('#nameError').css( "display", "inline" );
 		} else {
 			$('select#client').combobox('setSelected');
-			$('input[name=client]').val('-1');
+			if (!$('input[name=client]').val()) {
+				$('input[name=client]').val('-1');
+			}
 			$('.client_select input.form-control').val(name);
 			$('.client_select .combobox-container').addClass('combobox-selected');
 
@@ -556,7 +617,7 @@
 		this.total = ko.computed(function() {
 		    var total = self.rawSubtotal();
 
-		    var discount = parseInt(self.discount());
+		    var discount = parseFloat(self.discount());
 		    if (discount > 0) {
 		    	total = total * ((100 - discount)/100);
 		    }
