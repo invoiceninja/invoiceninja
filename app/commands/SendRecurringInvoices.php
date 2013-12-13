@@ -24,7 +24,7 @@ class SendRecurringInvoices extends Command {
 
 		$today = new DateTime();
 
-		$invoices = Invoice::with('account', 'invoice_items')->whereRaw('frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', array($today, $today))->get();
+		$invoices = Invoice::with('account', 'invoice_items')->whereRaw('is_recurring is true AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', array($today, $today))->get();
 		$this->info(count($invoices) . ' recurring invoice(s) found');
 
 		foreach ($invoices as $recurInvoice)
@@ -59,7 +59,7 @@ class SendRecurringInvoices extends Command {
 			$recurInvoice->last_sent_date = new DateTime();
 			$recurInvoice->save();
 
-			$this->mailer->sendInvoice($invoice, $invoice->client->contacts()->first());
+			$this->mailer->sendInvoice($invoice);
 		}		
 
 		$this->info('Done');

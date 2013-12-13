@@ -1,6 +1,6 @@
 function generatePDF(invoice) {
 	var invoiceNumber = invoice.invoice_number;
-	var issuedOn = invoice.invoice_date;
+	var issuedOn = invoice.invoice_date ? invoice.invoice_date : '';
 	var amount = '$0.00';
 
 	var marginLeft = 90;
@@ -561,3 +561,39 @@ function convertDataURIToBinary(dataURI) {
   }
   return array;
 }
+
+
+ko.bindingHandlers.dropdown = {
+    init: function (element, valueAccessor, allBindingsAccessor) {
+       var options = allBindingsAccessor().dropdownOptions|| {};
+       var value = ko.utils.unwrapObservable(valueAccessor());
+       var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : false;
+       if (id) $(element).val(id);
+       console.log("combo-init: %s", id);
+       $(element).combobox(options);       
+
+       /*
+        ko.utils.registerEventHandler(element, "change", function () {
+        	console.log("change: %s", $(element).val());
+	       	var  
+	       	valueAccessor($(element).val());
+            //$(element).combobox('refresh');
+        });
+			*/
+    },
+    update: function (element, valueAccessor) {    	
+    	var value = ko.utils.unwrapObservable(valueAccessor());
+    	var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : false;
+       	console.log("combo-update: %s", id);
+    	if (id) $(element).val(id);       
+        $(element).combobox('refresh');
+    }    
+};
+
+
+var CONSTS = {};
+CONSTS.INVOICE_STATUS_DRAFT = 1;
+CONSTS.INVOICE_STATUS_SENT = 2;
+CONSTS.INVOICE_STATUS_VIEWED = 3;
+CONSTS.INVOICE_STATUS_PARTIAL = 4;
+CONSTS.INVOICE_STATUS_PAID = 5;

@@ -24,6 +24,11 @@ class Invoice extends EntityModel
 		return $this->belongsTo('InvoiceStatus');
 	}
 
+	public function invitations()
+	{
+		return $this->hasMany('Invitation');
+	}
+
 	public function getName()
 	{
 		return $this->invoice_number;
@@ -33,11 +38,6 @@ class Invoice extends EntityModel
 	{
 		return ENTITY_INVOICE;
 	}	
-
-	public function isRecurring() 
-	{
-		return $this->frequency_id > 0;
-	}
 
 	public function isSent()
 	{

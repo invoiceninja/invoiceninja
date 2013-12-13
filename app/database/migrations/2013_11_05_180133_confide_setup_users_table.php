@@ -204,7 +204,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('last_name');
             $t->string('email');
             $t->string('phone');
-            $t->timestamp('last_login');
+            $t->timestamp('last_login');            
 
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
             $t->foreign('user_id')->references('id')->on('users');
@@ -238,14 +238,15 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('invoice_number');
             $t->float('discount');
             $t->string('po_number');
-            $t->date('invoice_date');
+            $t->date('invoice_date')->nullable();
             $t->date('due_date')->nullable();
             $t->text('notes');
 
+            $t->boolean('is_recurring');
             $t->unsignedInteger('frequency_id');
             $t->date('start_date')->nullable();
             $t->date('end_date')->nullable();
-            $t->date('last_sent_date')->nullable();    
+            $t->timestamp('last_sent_date')->nullable();    
             $t->unsignedInteger('recurring_invoice_id')->index()->nullable();
             
 
@@ -274,6 +275,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
+            $t->timestamp('sent_date');
             $t->timestamp('viewed_date');
 
             $t->foreign('user_id')->references('id')->on('users');

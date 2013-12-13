@@ -2,6 +2,7 @@
 /app/config/development
 /app/storage/
 /public/logo
+/public/build
 /bootstrap/compiled.php
 /vendor
 composer.phar

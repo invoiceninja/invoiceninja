@@ -21,7 +21,7 @@ class InvoiceController extends \BaseController {
 			'columns'=>['checkbox', 'Invoice Number', 'Client', 'Invoice Date', 'Invoice Total', 'Balance Due', 'Due Date', 'Status', 'Action']
 		];
 
-		if (Invoice::scope()->where('frequency_id', '>', '0')->count() > 0)
+		if (Invoice::scope()->where('is_recurring', '=', true)->count() > 0)
 		{
 			$data['secEntityType'] = ENTITY_RECURRING_INVOICE;
 			$data['secColumns'] = ['checkbox', 'Frequency', 'Client', 'Start Date', 'End Date', 'Invoice Total', 'Action'];
@@ -37,7 +37,7 @@ class InvoiceController extends \BaseController {
 					->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
 					->where('invoices.account_id', '=', Auth::user()->account_id)
     				->where('invoices.deleted_at', '=', null)
-    				->where('invoices.frequency_id', '=', 0)
+    				->where('invoices.is_recurring', '=', false)    				
 					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'total', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name');
 
     	if ($clientPublicId) {
@@ -97,7 +97,7 @@ class InvoiceController extends \BaseController {
 					->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
 					->where('invoices.account_id', '=', Auth::user()->account_id)
     				->where('invoices.deleted_at', '=', null)
-    				->where('invoices.frequency_id', '>', 0)
+    				->where('invoices.is_recurring', '=', true)
 					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'total', 'frequencies.name as frequency', 'start_date', 'end_date');
 
     	if ($clientPublicId) {
@@ -322,10 +322,20 @@ class InvoiceController extends \BaseController {
 		$invoice = Invoice::scope($publicId)->with('account.country', 'client', 'invoice_items')->firstOrFail();
 		Utils::trackViewed($invoice->invoice_number . ' - ' . $invoice->client->name, ENTITY_INVOICE);
 		
+    	$contactIds = DB::table('invitations')
+    				->join('contacts', 'contacts.id', '=','invitations.contact_id')
+    				->where('invitations.invoice_id', '=', $invoice->id)
+					->where('invitations.account_id', '=', Auth::user()->account_id)
+    				->where('invitations.deleted_at', '=', null)
+    				->select('contacts.public_id')->lists('public_id');
+    	
 		$data = array(
 				'account' => $invoice->account,
 				'invoice' => $invoice, 
 				'method' => 'PUT', 
+				'invitationContactIds' => $contactIds,
+				'clientSizes' => ClientSize::orderBy('id')->get(),
+				'clientIndustries' => ClientIndustry::orderBy('name')->get(),
 				'url' => 'invoices/' . $publicId, 
 				'title' => '- ' . $invoice->invoice_number,
 				'client' => $invoice->client);
@@ -349,6 +359,8 @@ class InvoiceController extends \BaseController {
 				'invoiceNumber' => $invoiceNumber,
 				'method' => 'POST', 
 				'url' => 'invoices', 
+				'clientSizes' => ClientSize::orderBy('id')->get(),
+				'clientIndustries' => ClientIndustry::orderBy('name')->get(),
 				'title' => '- New Invoice',
 				'client' => $client,
 				'items' => json_decode(Input::old('items')));
@@ -393,20 +405,18 @@ class InvoiceController extends \BaseController {
 		{
 			return InvoiceController::bulk();
 		}
-		
-		$rules = array(
-			'client' => 'required',
-		);
-		$validator = Validator::make(Input::all(), $rules);
 
-		if ($validator->fails()) {
+		$input = json_decode(Input::get('data'));			
+		$inputClient = $input->client;
+		$inputClient->name = trim($inputClient->name);
+		
+		if (!$inputClient->name) {
 			return Redirect::to('invoices/create')
-				->withInput()
-				->withErrors($validator);
+				->withInput();
 		} else {			
 
-			$clientPublicId = Input::get('client');
-
+			$clientPublicId = $input->client->public_id;
+			
 			if ($clientPublicId == "-1") 
 			{
 				$client = Client::createNew();
@@ -418,24 +428,58 @@ class InvoiceController extends \BaseController {
 				$client = Client::scope($clientPublicId)->with('contacts')->firstOrFail();
 				$contact = $client->contacts()->where('is_primary', '=', true)->firstOrFail();
 			}
-
-			$client->name = trim(Input::get('name'));
-			$client->work_phone = trim(Input::get('work_phone'));
-			$client->address1 = trim(Input::get('address1'));
-			$client->address2 = trim(Input::get('address2'));
-			$client->city = trim(Input::get('city'));
-			$client->state = trim(Input::get('state'));
-			$client->postal_code = trim(Input::get('postal_code'));
-			if (Input::get('country_id')) {
-				$client->country_id = Input::get('country_id');
-			}
+			
+			$inputClient = $input->client;
+			$client->name = trim($inputClient->name);
+			$client->work_phone = trim($inputClient->work_phone);
+			$client->address1 = trim($inputClient->address1);
+			$client->address2 = trim($inputClient->address2);
+			$client->city = trim($inputClient->city);
+			$client->state = trim($inputClient->state);
+			$client->postal_code = trim($inputClient->postal_code);
+			$client->country_id = $inputClient->country_id ? $inputClient->country_id : null;
 			$client->save();
 			
-			$contact->first_name = trim(Input::get('first_name'));
-			$contact->last_name = trim(Input::get('last_name'));
-			$contact->phone = trim(Input::get('phone'));
-			$contact->email = trim(Input::get('email'));
-			$client->contacts()->save($contact);
+			$isPrimary = true;
+			$contacts = [];
+			$contactIds = [];
+			$sendInvoiceIds = [];
+
+			foreach ($inputClient->contacts as $contact)
+			{
+				if (isset($contact->public_id) && $contact->public_id)
+				{
+					$record = Contact::scope($contact->public_id)->firstOrFail();
+				}
+				else
+				{
+					$record = Contact::createNew();
+				}
+
+				$record->email = trim($contact->email);
+				$record->first_name = trim($contact->first_name);
+				$record->last_name = trim($contact->last_name);
+				$record->phone = trim($contact->phone);
+				$record->is_primary = $isPrimary;
+				$isPrimary = false;
+
+				$client->contacts()->save($record);
+				$contacts[] = $record;
+				$contactIds[] = $record->public_id;	
+
+				if ($contact->send_invoice) 
+				{
+					$sendInvoiceIds[] = $record->id;
+				}
+			}
+			
+			foreach ($client->contacts as $contact)
+			{
+				if (!in_array($contact->public_id, $contactIds))
+				{	
+					$contact->forceDelete();
+				}
+			}
 
 			if ($publicId) {
 				$invoice = Invoice::scope($publicId)->firstOrFail();
@@ -445,20 +489,22 @@ class InvoiceController extends \BaseController {
 			}			
 			
 			$invoice->client_id = $client->id;
-			$invoice->discount = Input::get('discount');
-			$invoice->invoice_number = trim(Input::get('invoice_number'));
-			$invoice->invoice_date = Utils::toSqlDate(Input::get('invoice_date'));
-			$invoice->due_date = Utils::toSqlDate(Input::get('due_date'));					
+			$invoice->discount = $input->discount;
+			$invoice->invoice_number = trim($input->invoice_number);
+			$invoice->invoice_date = Utils::toSqlDate($input->invoice_date);
+			$invoice->due_date = Utils::toSqlDate($input->due_date);					
 
-			$invoice->frequency_id = Input::get('recurring') ? Input::get('frequency') : 0;
-			$invoice->start_date = Utils::toSqlDate(Input::get('start_date'));
-			$invoice->end_date = Utils::toSqlDate(Input::get('end_date'));
-			$invoice->notes = Input::get('notes');
-			$invoice->po_number = Input::get('po_number');
+			$invoice->is_recurring = $input->is_recurring;
+			$invoice->frequency_id = $input->frequency_id ? $input->frequency_id : 0;
+			$invoice->start_date = Utils::toSqlDate($input->start_date);
+			$invoice->end_date = Utils::toSqlDate($input->end_date);
+			$invoice->notes = $input->notes;
+			$invoice->po_number = $input->po_number;
+			
 
 			$client->invoices()->save($invoice);
 			
-			$items = json_decode(Input::get('items'));
+			$items = $input->invoice_items;
 			$total = 0;
 
 			foreach ($items as $item) 
@@ -483,6 +529,24 @@ class InvoiceController extends \BaseController {
 
 			$invoice->total = $total;
 			$invoice->save();
+
+			foreach ($contacts as $contact)
+			{
+				$invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
+				
+				if (in_array($contact->id, $sendInvoiceIds) && !$invitation) 
+				{	
+					$invitation = Invitation::createNew();
+					$invitation->invoice_id = $invoice->id;
+					$invitation->contact_id = $contact->id;
+					$invitation->invitation_key = str_random(20);				
+					$invitation->save();
+				}				
+				else if (!in_array($contact->id, $sendInvoiceIds) && $invitation)
+				{
+					$invitation->forceDelete();
+				}
+			}						
 
 			foreach ($items as $item) 
 			{
@@ -529,7 +593,7 @@ class InvoiceController extends \BaseController {
 			}
 			else if ($action == 'email') 
 			{							
-				$this->mailer->sendInvoice($invoice, $contact);				
+				$this->mailer->sendInvoice($invoice);				
 				
 				Session::flash('message', 'Successfully emailed invoice');
 			} else {				
@@ -594,12 +658,12 @@ class InvoiceController extends \BaseController {
 		$invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();		
 
 		$clone = Invoice::createNew();		
-		foreach (['client_id', 'discount', 'invoice_date', 'due_date', 'frequency_id', 'start_date', 'end_date', 'notes'] as $field) 
+		foreach (['client_id', 'discount', 'invoice_date', 'due_date', 'is_recurring', 'frequency_id', 'start_date', 'end_date', 'notes'] as $field) 
 		{
 			$clone->$field = $invoice->$field;	
 		}
 
-		if (!$clone->isRecurring())
+		if (!$clone->is_recurring)
 		{
 			$clone->invoice_number = Auth::user()->account->getNextInvoiceNumber();
 		}

@@ -207,6 +207,10 @@
 		cursor: move !important;
 	}
 
+	.closer-row {
+		margin-bottom: 2px;
+	}
+
 
 	/* Animate col width changes */
 	.row div {

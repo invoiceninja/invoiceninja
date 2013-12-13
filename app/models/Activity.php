@@ -66,7 +66,7 @@ class Activity extends Eloquent
 	{
 		$userName = Auth::check() ? Auth::user()->getFullName() : '<i>System</i>';
 
-		if ($invoice->isRecurring()) {
+		if ($invoice->is_recurring) {
 			$message = $userName . ' created ' . link_to('invoices/'.$invoice->public_id, 'recuring invoice');
 		} else {
 			$message = $userName . ' created invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
