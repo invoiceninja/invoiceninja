@@ -52,30 +52,25 @@ class Utils
 	}
 
 	public static function timestampToDateTimeString($timestamp) {
-		$tz = Session::get('tz');
-		if (!$tz) {
-			$tz = 'US/Eastern';
-		}	
-		$date = new Carbon($timestamp);	
-		$date->tz = $tz;	
-		if ($date->year < 1900) {
-			return '';
-		}
-		
-		return $date->format('D M jS, Y g:ia');
+		$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+		$format = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
+		return Utils::timestampToString($timestamp, $timezone, $format);		
 	}
 
 	public static function timestampToDateString($timestamp) {
-		$tz = Session::get('tz');
-		if (!$tz) {
-			$tz = 'US/Eastern';
-		}	
+		$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+		$format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+		return Utils::timestampToString($timestamp, $timezone, $format);
+	}
+
+	public static function timestampToString($timestamp, $timzone, $format)
+	{
 		$date = new Carbon($timestamp);	
-		$date->tz = $tz;	
+		$date->tz = $timzone;	
 		if ($date->year < 1900) {
 			return '';
 		}
-		return $date->toFormattedDateString();
+		return $date->format($format);		
 	}
 
 	public static function toSqlDate($date)

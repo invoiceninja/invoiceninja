@@ -35,6 +35,17 @@ class Account extends Eloquent
 		return $this->belongsTo('Timezone');
 	}
 
+	public function date_format()
+	{
+		return $this->belongsTo('DateFormat');	
+	}
+
+	public function datetime_format()
+	{
+		return $this->belongsTo('DatetimeFormat');	
+	}
+
+
 	public function isGatewayConfigured($gatewayId = 0)
 	{
 		if ($gatewayId)

@@ -22,6 +22,7 @@ class CreditController extends \BaseController {
                     ->join('clients', 'clients.id', '=','credits.client_id')
                     ->where('clients.account_id', '=', Auth::user()->account_id)
                     ->where('clients.deleted_at', '=', null)
+                    ->where('credits.deleted_at', '=', null)
                     ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.credit_date');        
 
         if ($clientPublicId) {
@@ -55,7 +56,7 @@ class CreditController extends \BaseController {
                             <ul class="dropdown-menu" role="menu">
                             <li><a href="' . URL::to('credits/'.$model->public_id.'/edit') . '">Edit Credit</a></li>
                             <li class="divider"></li>
-                            <li><a href="' . URL::to('credits/'.$model->public_id.'/archive') . '">Archive Credit</a></li>
+                            <li><a href="javascript:archiveEntity(' . $model->public_id. ')">Archive Credit</a></li>
                             <li><a href="javascript:deleteEntity(' . $model->public_id. ')">Delete Credit</a></li>                          
                           </ul>
                         </div>';
@@ -65,7 +66,7 @@ class CreditController extends \BaseController {
     }
 
 
-    public function create($clientPublicId)
+    public function create($clientPublicId = null)
     {       
         $client = null;
         if ($clientPublicId) {
@@ -144,14 +145,14 @@ class CreditController extends \BaseController {
         $credits = Credit::scope($ids)->get();
 
         foreach ($credits as $credit) {
-            if ($action == 'archive') {
-                $credit->delete();
-            } else if ($action == 'delete') {
-                $credit->forceDelete();
+            if ($action == 'delete') {
+                $credit->is_deleted = true;
+                $credit->save();
             } 
+            $credit->delete();
         }
 
-        $message = Utils::pluralize('Successfully '.$action.'d ? credit', count($ids));
+        $message = Utils::pluralize('Successfully '.$action.'d ? credit', count($credits));
         Session::flash('message', $message);
 
         return Redirect::to('credits');

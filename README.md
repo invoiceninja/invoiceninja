@@ -57,3 +57,4 @@ Configure config/database.php and then initialize the database
 * [briannesbitt/Carbon](https://github.com/briannesbitt/Carbon) - A simple API extension for DateTime with PHP 5.3+
 * [thomaspark/bootswatch](https://github.com/thomaspark/bootswatch) - Themes for Bootstrap
 * [mozilla/pdf.js)](https://github.com/mozilla/pdf.js) - PDF Reader in JavaScript
+* [nnnick/Chart.js](https://github.com/nnnick/Chart.js) - Simple HTML5 Charts using the <canvas> tag

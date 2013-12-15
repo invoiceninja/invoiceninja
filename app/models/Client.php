@@ -131,6 +131,16 @@ class Client extends EntityModel
 		return $str;
 	}
 
+	public function getWebsite()
+	{
+		if (!$this->website)
+		{
+			return '';
+		}
+
+		return link_to($this->website, $this->website);
+	}
+
 	public function getDateCreated()
 	{		
 		if ($this->created_at == '0000-00-00 00:00:00') 

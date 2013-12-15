@@ -22,7 +22,7 @@
 					->addGroupClass('client_select closer-row') }}
 
 			<div class="form-group" style="margin-bottom: 8px">
-				<div class="col-lg-8 col-lg-offset-4">
+				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
 					<a href="#" data-bind="click: showClientForm, text: showClientText"></a>
 				</div>
 			</div>
@@ -38,7 +38,7 @@
 				</div>
 			</div>
 			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}
-			{{ Former::textarea('notes')->data_bind("value: notes, valueUpdate: 'afterkeydown'") }}			
+			{{ Former::textarea('terms')->data_bind("value: wrapped_terms, valueUpdate: 'afterkeydown'") }}			
 			
 		</div>
 		<div class="col-md-4" id="col_2">
@@ -94,7 +94,7 @@
 	            		->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 	            </td>
 	            <td style="width:300px">
-	            	<textarea onkeyup="checkWordWrap(event)" data-bind="value: notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control" onchange="refreshPDF()"></textarea>
+	            	<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap" onchange="refreshPDF()"></textarea>
 	            </td>
 	            <td style="width:100px">
 	            	<input onkeyup="onChange()" data-bind="value: cost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
@@ -195,6 +195,7 @@
 
 				{{ Former::legend('Organization') }}
 				{{ Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'")->label('Phone') }}
 				
 				
@@ -437,9 +438,10 @@
 		this.client = new ClientModel();		
 		self.discount = ko.observable('');
 		self.frequency_id = ko.observable('');
-		self.notes = ko.observable('');		
+		self.terms = ko.observable('');		
 		self.po_number = ko.observable('');
 		self.invoice_date = ko.observable('');
+		self.invoice_number = ko.observable('');
 		self.due_date = ko.observable('');
 		self.start_date = ko.observable('');
 		self.end_date = ko.observable('');
@@ -455,10 +457,21 @@
 		    }
 		}
 
+		self.wrapped_terms = ko.computed({
+			read: function() {
+				return this.terms();
+			},
+			write: function(value) {
+				value = wordWrapText(value, 250);
+				self.terms(value);
+				$('#terms').height(value.split('\n').length * 22);
+			},
+			owner: this
+		});
+
 		self.showClientText = ko.computed(function() {
         	return self.client.public_id() ? 'Edit client details' : 'Create new client';
     	});
-
 
 		self.showClientForm = function() {
 			if (self.client.public_id() == 0) {
@@ -552,6 +565,7 @@
 		self.country_id = ko.observable('');
 		self.client_size_id = ko.observable('');
 		self.client_industry_id = ko.observable('');
+		self.website = ko.observable('');
 		self.contacts = ko.observableArray();
 
 		self.mapping = {
@@ -617,6 +631,18 @@
 			ko.mapping.fromJS(data, {}, this);
 		}		
 
+		self.wrapped_notes = ko.computed({
+			read: function() {
+				return this.notes();
+			},
+			write: function(value) {
+				value = wordWrapText(value);
+				self.notes(value);
+				onChange();
+			},
+			owner: this
+		});
+
 		this.rawTotal = ko.computed(function() {
 			var cost = parseFloat(self.cost());
 			var qty = parseFloat(self.qty());
@@ -646,36 +672,6 @@
     	}
 	}
 
-	function checkWordWrap(event)
-	{
-		var doc = new jsPDF('p', 'pt');
-		doc.setFont('Helvetica','');
-		doc.setFontSize(10);
-
-		var $textarea = $(event.target || event.srcElement);
-	    var lines = $textarea.val().split("\n");
-	    for (var i = 0; i < lines.length; i++) {
-	    	var numLines = doc.splitTextToSize(lines[i], 200).length;
-	        if (numLines <= 1) continue;
-	        var j = 0; space = lines[i].length;
-	        while (j++ < lines[i].length) {
-	            if (lines[i].charAt(j) === " ") space = j;
-	        }
-	        lines[i + 1] = lines[i].substring(space + 1) + (lines[i + 1] || "");
-	        lines[i] = lines[i].substring(0, space);
-	    }
-	    
-	    var val = lines.slice(0, 6).join("\n");
-	    if (val != $textarea.val())
-	    {
-			var model = ko.dataFor($textarea[0]);
-			model.notes(val);
-			refreshPDF();
-	    }
-	    $textarea.height(val.split('\n').length * 22);
-	    onChange();
-	}
-
 	function onChange()
 	{
 		var hasEmpty = false;
@@ -688,6 +684,10 @@
 		if (!hasEmpty) {
 			model.addItem();
 		}
+
+		$('.word-wrap').each(function(index, input) {
+			$(input).height($(input).val().split('\n').length * 22);
+		});
 	}
 
 	var products = {{ $products }};
@@ -696,8 +696,8 @@
 
 	for (var i=0; i<clients.length; i++) {
 		var client = clients[i];
-		for (var i=0; i<client.contacts.length; i++) {
-			var contact = client.contacts[i];
+		for (var j=0; j<client.contacts.length; j++) {
+			var contact = client.contacts[j];
 			contact.send_invoice = contact.is_primary;
 		}
 		clientMap[client.public_id] = client;
@@ -716,7 +716,8 @@
 			contact.send_invoice = invitationContactIds.indexOf(contact.public_id) >= 0;
 		}
 	@else
-		model.invoice_number = '{{ $invoiceNumber }}';
+		model.invoice_number('{{ $invoiceNumber }}');
+		model.terms(wordWrapText('{{ $account->invoice_terms }}', 250));		
 	@endif	
 	model.invoice_items.push(new ItemModel());
 	ko.applyBindings(model);

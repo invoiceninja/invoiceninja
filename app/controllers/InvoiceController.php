@@ -37,6 +37,7 @@ class InvoiceController extends \BaseController {
 					->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
 					->where('invoices.account_id', '=', Auth::user()->account_id)
     				->where('invoices.deleted_at', '=', null)
+    				->where('clients.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', false)    				
 					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'total', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name');
 
@@ -81,7 +82,7 @@ class InvoiceController extends \BaseController {
   							<ul class="dropdown-menu" role="menu">
 						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">Edit Invoice</a></li>
 						    <li class="divider"></li>
-						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/archive') . '">Archive Invoice</a></li>
+						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">Archive Invoice</a></li>
 						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">Delete Invoice</a></li>						    
 						  </ul>
 						</div>';
@@ -138,7 +139,7 @@ class InvoiceController extends \BaseController {
   							<ul class="dropdown-menu" role="menu">
 						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">Edit Invoice</a></li>
 						    <li class="divider"></li>
-						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/archive') . '">Archive Invoice</a></li>
+						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">Archive Invoice</a></li>
 						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">Delete Invoice</a></li>						    
 						  </ul>
 						</div>';
@@ -150,12 +151,22 @@ class InvoiceController extends \BaseController {
 
 	public function view($invitationKey)
 	{
-		$invitation = Invitation::with('user', 'invoice.account', 'invoice.invoice_items', 'invoice.client.account.account_gateways')
+		$invitation = Invitation::with('user', 'invoice.account', 'invoice.client', 'invoice.invoice_items', 'invoice.client.account.account_gateways')
 			->where('invitation_key', '=', $invitationKey)->firstOrFail();				
 		
 		$user = $invitation->user;		
 		$invoice = $invitation->invoice;
 		
+		if (!$invoice || $invoice->is_deleted) {
+			return View::make('invoices.deleted');
+		}
+
+		$client = $invoice->client;
+
+		if (!$client || $client->is_deleted) {
+			return View::make('invoices.deleted');
+		}
+
 		if ($invoice->invoice_status_id < INVOICE_STATUS_VIEWED) {
 			$invoice->invoice_status_id = INVOICE_STATUS_VIEWED;
 			$invoice->save();
@@ -438,6 +449,10 @@ class InvoiceController extends \BaseController {
 			$client->state = trim($inputClient->state);
 			$client->postal_code = trim($inputClient->postal_code);
 			$client->country_id = $inputClient->country_id ? $inputClient->country_id : null;
+			$client->notes = trim($inputClient->notes);
+			$client->client_size_id = $inputClient->client_size_id ? $inputClient->client_size_id : null;
+			$client->client_industry_id = $inputClient->client_industry_id ? $inputClient->client_industry_id : null;
+			$client->website = trim($inputClient->website);
 			$client->save();
 			
 			$isPrimary = true;
@@ -498,7 +513,7 @@ class InvoiceController extends \BaseController {
 			$invoice->frequency_id = $input->frequency_id ? $input->frequency_id : 0;
 			$invoice->start_date = Utils::toSqlDate($input->start_date);
 			$invoice->end_date = Utils::toSqlDate($input->end_date);
-			$invoice->notes = $input->notes;
+			$invoice->terms = $input->terms;
 			$invoice->po_number = $input->po_number;
 			
 
@@ -587,6 +602,7 @@ class InvoiceController extends \BaseController {
 			/*
 			*/
 
+			$message = $clientPublicId == "-1" ? ' and created client' : '';
 			if ($action == 'clone')
 			{
 				return InvoiceController::cloneInvoice($publicId);
@@ -595,9 +611,9 @@ class InvoiceController extends \BaseController {
 			{							
 				$this->mailer->sendInvoice($invoice);				
 				
-				Session::flash('message', 'Successfully emailed invoice');
+				Session::flash('message', 'Successfully emailed invoice'.$message);
 			} else {				
-				Session::flash('message', 'Successfully saved invoice');
+				Session::flash('message', 'Successfully saved invoice'.$message);
 			}
 
 			$url = 'invoices/' . $invoice->public_id . '/edit';
@@ -640,14 +656,14 @@ class InvoiceController extends \BaseController {
 		$invoices = Invoice::scope($ids)->get();
 
 		foreach ($invoices as $invoice) {
-			if ($action == 'archive') {
-				$invoice->delete();
-			} else if ($action == 'delete') {
-				$invoice->forceDelete();
+			if ($action == 'delete') {
+				$invoice->is_deleted = true;
+				$invoice->save();
 			} 
+			$invoice->delete();
 		}
 
-		$message = Utils::pluralize('Successfully '.$action.'d ? invoice', count($ids));
+		$message = Utils::pluralize('Successfully '.$action.'d ? invoice', count($invoices));
 		Session::flash('message', $message);
 
 		return Redirect::to('invoices');

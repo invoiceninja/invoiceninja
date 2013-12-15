@@ -27,8 +27,6 @@
 
 			{{ Former::legend('Account') }}
 			{{ Former::text('name') }}
-			{{ Former::select('timezone_id')->addOption('','')->label('Timezone')
-				->fromQuery($timezones, 'location', 'id')->select($account->timezone_id) }}
 			{{ Former::file('logo')->max(2, 'MB')->accept('image')->wrap('test') }}
 
 			@if (file_exists($account->getLogoPath()))

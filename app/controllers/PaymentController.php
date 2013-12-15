@@ -18,6 +18,7 @@ class PaymentController extends \BaseController
                     ->leftJoin('invoices', 'invoices.id', '=','payments.invoice_id')
                     ->where('payments.account_id', '=', Auth::user()->account_id)
                     ->where('payments.deleted_at', '=', null)
+                    ->where('clients.deleted_at', '=', null)
                     ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number');        
 
         if ($clientPublicId) {
@@ -57,7 +58,7 @@ class PaymentController extends \BaseController
                             <ul class="dropdown-menu" role="menu">
                             <li><a href="' . URL::to('payments/'.$model->public_id.'/edit') . '">Edit Payment</a></li>
                             <li class="divider"></li>
-                            <li><a href="' . URL::to('payments/'.$model->public_id.'/archive') . '">Archive Payment</a></li>
+                            <li><a href="javascript:archiveEntity(' . $model->public_id. ')">Archive Payment</a></li>
                             <li><a href="javascript:deleteEntity(' . $model->public_id. ')">Delete Payment</a></li>                          
                           </ul>
                         </div>';
@@ -152,15 +153,15 @@ class PaymentController extends \BaseController
         $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
         $payments = Payment::scope($ids)->get();
 
-        foreach ($payments as $payment) {
-            if ($action == 'archive') {
-                $payment->delete();
-            } else if ($action == 'delete') {
-                $payment->forceDelete();
+        foreach ($payments as $payment) {            
+            if ($action == 'delete') {
+                $payment->is_deleted = true;
+                $payment->save();
             } 
+            $payment->delete();
         }
 
-        $message = Utils::pluralize('Successfully '.$action.'d ? payment', count($ids));
+        $message = Utils::pluralize('Successfully '.$action.'d ? payment', count($payments));
         Session::flash('message', $message);
 
         return Redirect::to('payments');

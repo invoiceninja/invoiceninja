@@ -179,11 +179,12 @@ class ClientController extends \BaseController {
 			$client->address2 = trim(Input::get('address2'));
 			$client->city = trim(Input::get('city'));
 			$client->state = trim(Input::get('state'));
-			$client->notes = trim(Input::get('notes'));
 			$client->postal_code = trim(Input::get('postal_code'));			
 			$client->country_id = Input::get('country_id') ? Input::get('country_id') : null;
+			$client->notes = trim(Input::get('notes'));
 			$client->client_size_id = Input::get('client_size_id') ? Input::get('client_size_id') : null;
 			$client->client_industry_id = Input::get('client_industry_id') ? Input::get('client_industry_id') : null;
+			$client->website = trim(Input::get('website'));
 
 			$client->save();
 
@@ -238,15 +239,15 @@ class ClientController extends \BaseController {
 		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');		
 		$clients = Client::scope($ids)->get();
 
-		foreach ($clients as $client) {
-			if ($action == 'archive') {
-				$client->delete();
-			} else if ($action == 'delete') {
-				$client->forceDelete();
+		foreach ($clients as $client) {			
+			if ($action == 'delete') {
+				$client->is_deleted = true;
+				$client->save();
 			} 
+			$client->delete();			
 		}
 
-		$message = Utils::pluralize('Successfully '.$action.'d ? client', count($ids));
+		$message = Utils::pluralize('Successfully '.$action.'d ? client', count($clients));
 		Session::flash('message', $message);
 
 		return Redirect::to('clients');

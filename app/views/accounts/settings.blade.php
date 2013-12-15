@@ -3,7 +3,7 @@
 @section('content')	
 	@parent	
 
-	{{ Former::open()->addClass('col-md-10 col-md-offset-1') }}	
+	{{ Former::open()->addClass('col-md-8 col-md-offset-2') }}	
 	{{ Former::populate($account) }}
 
 	{{ Former::legend('Payment Gateway') }}
@@ -34,6 +34,15 @@
 		</div>
 		
 	@endforeach
+
+
+	{{ Former::legend('Date and Time') }}
+	{{ Former::select('timezone_id')->addOption('','')->label('Timezone')
+		->fromQuery($timezones, 'location', 'id')->select($account->timezone_id) }}
+	{{ Former::select('date_format_id')->addOption('','')->label('Date Format')
+		->fromQuery($dateFormats, 'label', 'id')->select($account->date_format_id) }}
+	{{ Former::select('datetime_format_id')->addOption('','')->label('Date/Time Format')
+		->fromQuery($datetimeFormats, 'label', 'id')->select($account->datetime_format_id) }}
 
 
 	{{ Former::legend('Invoices') }}

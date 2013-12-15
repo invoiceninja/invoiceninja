@@ -50,6 +50,7 @@
 		  	<p>{{ $client->getPhone() }}</p>
 		  	<p>{{ $client->getNotes() }}</p>
 		  	<p>{{ $client->getIndustry() }}</p>
+		  	<p>{{ $client->getWebsite() }}
 		</div>
 
 		<div class="col-md-3">

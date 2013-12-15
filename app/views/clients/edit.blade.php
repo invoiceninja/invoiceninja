@@ -24,6 +24,7 @@
 
 			{{ Former::legend('Organization') }}
 			{{ Former::text('name') }}
+			{{ Former::text('website') }}
 			{{ Former::text('work_phone')->label('Phone') }}
 			
 			

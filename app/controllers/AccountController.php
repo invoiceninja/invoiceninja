@@ -40,7 +40,7 @@ class AccountController extends \BaseController {
 		}
 
 		Auth::login($user, true);
-		Session::put('tz', 'US/Eastern');
+		Event::fire('user.login');		
 
 		return Redirect::to('invoices/create');		
 	}
@@ -51,9 +51,8 @@ class AccountController extends \BaseController {
 		{			
 			$account = Account::with('users')->findOrFail(Auth::user()->account_id);
 			$countries = Country::orderBy('name')->get();
-			$timezones = Timezone::orderBy('location')->get();
 
-			return View::make('accounts.details', array('account'=>$account, 'countries'=>$countries, 'timezones'=>$timezones));
+			return View::make('accounts.details', array('account'=>$account, 'countries'=>$countries));
 		}
 		else if ($section == ACCOUNT_SETTINGS)
 		{
@@ -71,7 +70,10 @@ class AccountController extends \BaseController {
 				'account' => $account,
 				'accountGateway' => $accountGateway,
 				'config' => json_decode($config),
-				'gateways' => Gateway::all()
+				'gateways' => Gateway::all(),
+				'timezones' => Timezone::orderBy('location')->get(),
+				'dateFormats' => DateFormat::all(),
+				'datetimeFormats' => DatetimeFormat::all(),
 			];
 			
 			foreach ($data['gateways'] as $gateway)
@@ -383,6 +385,12 @@ class AccountController extends \BaseController {
 			$account = Account::findOrFail(Auth::user()->account_id);			
 			$account->account_gateways()->forceDelete();			
 
+			$account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
+			$account->date_format_id = Input::get('date_format_id') ? Input::get('date_format_id') : null;
+			$account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
+
+			Event::fire('user.refresh');
+
 			$account->invoice_terms = Input::get('invoice_terms');
 			$account->save();
 
@@ -431,7 +439,6 @@ class AccountController extends \BaseController {
 			$account->state = trim(Input::get('state'));
 			$account->postal_code = trim(Input::get('postal_code'));
 			$account->country_id = Input::get('country_id') ? Input::get('country_id') : null;
-			$account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
 			$account->save();
 
 			$user = $account->users()->first();

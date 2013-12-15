@@ -14,7 +14,7 @@
 //dd(DB::getQueryLog());
 //dd(Client::getPrivateId(1));
 //dd(new DateTime());
-
+//Event::fire('user.signup');
 
 Route::get('/send_emails', function() {
 	Artisan::call('ninja:send-invoices');	
@@ -80,9 +80,9 @@ Route::group(array('before' => 'auth'), function()
 	Route::resource('credits', 'CreditController');
 	Route::get('credits/create/{client_id?}', 'CreditController@create');
 	Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));	
-	Route::post('credits/bulk', 'PaymentController@bulk');
+	Route::post('credits/bulk', 'CreditController@bulk');
 	
-	Route::get('reports', function() { return View::make('header'); });
+	Route::get('reports', 'ReportController@monthly');
 });
 
 
@@ -161,3 +161,11 @@ define('FREQUENCY_MONTHLY', 4);
 define('FREQUENCY_THREE_MONTHS', 5);
 define('FREQUENCY_SIX_MONTHS', 6);
 define('FREQUENCY_ANNUALLY', 7);
+
+define('SESSION_TIMEZONE', 'timezone');
+define('SESSION_DATE_FORMAT', 'dateFormat');
+define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
+
+define('DEFAULT_TIMEZONE', 'US/Eastern');
+define('DEFAULT_DATE_FORMAT', 'F j, Y');
+define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');

@@ -69,6 +69,13 @@ class ConstantsSeeder extends Seeder
 		ClientSize::create(array('name' => '101 - 500'));
 		ClientSize::create(array('name' => '500+'));		
 
+		DatetimeFormat::create(array('format' => 'F j, Y, g:i a', 'label' => 'March 10, 2013, 6:15 pm'));
+		DatetimeFormat::create(array('format' => 'D M jS, Y g:ia', 'label' => 'Mon March 10th, 2013, 6:15 pm'));
+		
+		DateFormat::create(array('format' => 'F j, Y', 'label' => 'March 10, 2013'));
+		DateFormat::create(array('format' => 'D M jS', 'label' => 'Mon March 10th, 2013'));			
+
+
 		$gateways = [
 			array('name'=>'Authorize.Net AIM', 'provider'=>'AuthorizeNet_AIM'),
 			array('name'=>'Authorize.Net SIM', 'provider'=>'AuthorizeNet_SIM'),

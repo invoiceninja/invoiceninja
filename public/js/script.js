@@ -139,12 +139,16 @@ function generatePDF(invoice) {
 	var x = tableTop + (line * rowHeight);
 	doc.lines([[0,0],[headerRight-tableLeft+5,0]],tableLeft - 8, x);
 
+
+	doc.text(tableLeft, x+16, invoice.terms);
+
+	x += 16;
+	doc.text(footerLeft, x, 'Subtotal');
+	var total = formatNumber(total);
+	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
+	doc.text(totalX, x, total);		
+
 	if (invoice.discount > 0) {
-		x += 16;
-		doc.text(footerLeft, x, 'Subtotal');
-		var total = formatNumber(total);
-		var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
-		doc.text(totalX, x, total);		
 
 		x += 16;
 		doc.text(footerLeft, x, 'Discount');
@@ -153,6 +157,13 @@ function generatePDF(invoice) {
 		var discountX = headerRight - (doc.getStringUnitWidth(discount) * doc.internal.getFontSize());
 		doc.text(discountX, x, discount);		
 	}
+
+	x += 16;
+	doc.text(footerLeft, x, 'Paid to Date');
+	var paid = formatNumber(0);
+	var paidX = headerRight - (doc.getStringUnitWidth(paid) * doc.internal.getFontSize());
+	doc.text(paidX, x, paid);		
+
 
 	x += 16;
 	doc.setFontType("bold");
@@ -227,15 +238,6 @@ function generatePDF(invoice) {
 	*/
 	
 	return doc;		
-}
-
-function formatNumber(num) {
-	num = parseFloat(num);
-    if (!num) return '';
-	var p = num.toFixed(2).split(".");
-    return p[0].split("").reverse().reduce(function(acc, num, i, orig) {
-        return  num + (i && !(i % 3) ? "," : "") + acc;
-    }, "") + "." + p[1];
 }
 
 
@@ -313,6 +315,16 @@ function formatMoney(num) {
 	num = parseFloat(num);
     if (!num) return '$0.00';
 	return '$' + formatNumber(num);
+}
+
+
+function formatNumber(num) {
+	num = parseFloat(num);
+    if (!num) num = 0;
+	var p = num.toFixed(2).split(".");
+    return p[0].split("").reverse().reduce(function(acc, num, i, orig) {
+        return  num + (i && !(i % 3) ? "," : "") + acc;
+    }, "") + "." + p[1];
 }
 
 
@@ -589,6 +601,28 @@ ko.bindingHandlers.dropdown = {
         $(element).combobox('refresh');
     }    
 };
+
+function wordWrapText(value, width)
+{
+	if (!width) width = 200;
+	var doc = new jsPDF('p', 'pt');
+	doc.setFont('Helvetica','');
+	doc.setFontSize(10);
+
+	var lines = value.split("\n");
+    for (var i = 0; i < lines.length; i++) {
+    	var numLines = doc.splitTextToSize(lines[i], width).length;
+        if (numLines <= 1) continue;
+        var j = 0; space = lines[i].length;
+        while (j++ < lines[i].length) {
+            if (lines[i].charAt(j) === " ") space = j;
+        }
+        lines[i + 1] = lines[i].substring(space + 1) + (lines[i + 1] || "");
+        lines[i] = lines[i].substring(0, space);
+    }
+    
+    return lines.slice(0, 6).join("\n");
+}
 
 
 var CONSTS = {};

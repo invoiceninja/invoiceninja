@@ -74,6 +74,7 @@ class UserController extends BaseController {
     {
         if( Confide::user() )
         {
+            Event::fire('user.login');      
             return Redirect::to('/clients');            
         }
         else
@@ -101,10 +102,7 @@ class UserController extends BaseController {
         // Get the value from the config file instead of changing the controller
         if ( Confide::logAttempt( $input, Config::get('confide::signup_confirm') ) ) 
         {            
-            $account = Account::findOrFail(Auth::user()->account_id);
-            $account->last_login = Carbon::now()->toDateTimeString();
-            $account->save();
-
+            Event::fire('user.login');
             // Redirect the user to the URL they were trying to access before
             // caught by the authentication filter IE Redirect::guest('user/login').
             // Otherwise fallback to '/'

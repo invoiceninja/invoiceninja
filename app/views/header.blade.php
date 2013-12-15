@@ -273,7 +273,7 @@
 	    	{{ HTML::menu_link('invoice') }}
 	    	{{ HTML::menu_link('payment') }}
 	    	{{ HTML::menu_link('credit') }}
-	    	{{-- HTML::nav_link('reports', 'Reports') --}}
+	    	{{ HTML::nav_link('reports', 'Reports') }}
 	    </ul>
 		<ul class="nav navbar-nav navbar-right">	      
 	      <li class="dropdown">
