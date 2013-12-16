@@ -48,7 +48,7 @@ class PaymentController extends \BaseController
 
         return $table->addColumn('invoice_number', function($model) { return $model->invoice_public_id ? link_to('invoices/' . $model->invoice_public_id . '/edit', $model->invoice_number) : ''; })
             ->addColumn('amount', function($model) { return '$' . $model->amount; })
-    	    ->addColumn('payment_date', function($model) { return Utils::timestampToDateString($model->payment_date); })
+    	    ->addColumn('payment_date', function($model) { return Utils::dateToString($model->payment_date); })
             ->addColumn('dropdown', function($model) 
             { 
                 return '<div class="btn-group tr-action" style="visibility:hidden;">

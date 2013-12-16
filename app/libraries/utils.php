@@ -63,15 +63,24 @@ class Utils
 		return Utils::timestampToString($timestamp, $timezone, $format);
 	}
 
-	public static function timestampToString($timestamp, $timzone, $format)
+	public static function dateToString($date) {		
+		$dateTime = new DateTime($date); 		
+		$timestamp = $dateTime->getTimestamp();
+		$format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+		return Utils::timestampToString($timestamp, false, $format);
+	}
+
+	public static function timestampToString($timestamp, $timezone = false, $format)
 	{
-		$date = new Carbon($timestamp);	
-		$date->tz = $timzone;	
+		$date = Carbon::createFromTimeStamp($timestamp);
+		if ($timezone) {
+			$date->tz = $timezone;	
+		}
 		if ($date->year < 1900) {
 			return '';
 		}
 		return $date->format($format);		
-	}
+	}	
 
 	public static function toSqlDate($date)
 	{

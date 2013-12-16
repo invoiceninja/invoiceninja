@@ -270,7 +270,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('recurring_invoice_id')->index()->nullable();
             
 
-            $t->decimal('total', 10, 2);
+            $t->decimal('amount', 10, 2);
             $t->decimal('balance', 10, 2);
         
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 

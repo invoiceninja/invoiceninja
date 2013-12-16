@@ -39,7 +39,7 @@ class InvoiceController extends \BaseController {
     				->where('invoices.deleted_at', '=', null)
     				->where('clients.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', false)    				
-					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'total', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name');
+					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name');
 
     	if ($clientPublicId) {
     		$query->where('clients.public_id', '=', $clientPublicId);
@@ -69,7 +69,7 @@ class InvoiceController extends \BaseController {
     	}
     	
     	return $table->addColumn('invoice_date', function($model) { return Utils::fromSqlDate($model->invoice_date); })    	    
-    		->addColumn('total', function($model) { return '$' . money_format('%i', $model->total); })
+    		->addColumn('total', function($model) { return '$' . money_format('%i', $model->amount); })
     		->addColumn('balance', function($model) { return '$' . money_format('%i', $model->balance); })
     	    ->addColumn('due_date', function($model) { return Utils::fromSqlDate($model->due_date); })
     	    ->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
@@ -99,7 +99,7 @@ class InvoiceController extends \BaseController {
 					->where('invoices.account_id', '=', Auth::user()->account_id)
     				->where('invoices.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', true)
-					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'total', 'frequencies.name as frequency', 'start_date', 'end_date');
+					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date');
 
     	if ($clientPublicId) {
     		$query->where('clients.public_id', '=', $clientPublicId);
@@ -129,7 +129,7 @@ class InvoiceController extends \BaseController {
     	
     	return $table->addColumn('start_date', function($model) { return Utils::fromSqlDate($model->start_date); })
     	    ->addColumn('end_date', function($model) { return Utils::fromSqlDate($model->end_date); })    	    
-    	    ->addColumn('total', function($model) { return '$' . money_format('%i', $model->total); })
+    	    ->addColumn('total', function($model) { return '$' . money_format('%i', $model->amount); })
     	    ->addColumn('dropdown', function($model) 
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
@@ -225,7 +225,7 @@ class InvoiceController extends \BaseController {
 		$card = new CreditCard($data);
 		
 		return [
-			    'amount' => $invoice->total,
+			    'amount' => $invoice->amount,
 			    'card' => $card,
 			    'currency' => 'USD',
 			    'returnUrl' => URL::to('complete'),
@@ -255,13 +255,13 @@ class InvoiceController extends \BaseController {
 			$payment = Payment::createNew();
 			$payment->invitation_id = $invitation->id;
 			$payment->invoice_id = $invoice->id;
-			$payment->amount = $invoice->total;
+			$payment->amount = $invoice->amount;
 			$payment->client_id = $invoice->client_id;
 			//$payment->contact_id = 0; // TODO_FIX
 			$payment->transaction_reference = $ref;
 			$payment->save();
 
-			$invoice->balance = floatval($invoice->total) - floatval($paymount->amount);
+			$invoice->balance = floatval($invoice->amount) - floatval($paymount->amount);
 
 			if ($response->isSuccessful())
 			{
@@ -538,11 +538,11 @@ class InvoiceController extends \BaseController {
 			{
 				$invoice->invoice_status_id = INVOICE_STATUS_SENT;
 				
-				$client->balance = $invoice->client->balance + $invoice->total;
+				$client->balance = $invoice->client->balance + $invoice->amount;
 				$client->save();
 			}
 
-			$invoice->total = $total;
+			$invoice->amount = $total;
 			$invoice->save();
 
 			foreach ($contacts as $contact)
