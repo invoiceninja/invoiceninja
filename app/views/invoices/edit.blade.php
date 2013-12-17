@@ -279,11 +279,10 @@
 		$input.combobox();
 		$('.client_select input.form-control').on('change', function(e) {
 			var clientId = parseInt($('input[name=client]').val(), 10);	
-			//$('#modalLink').text(clientId ? 'Edit client details' : 'Create new client');
-			if (clientId > 0) {
-				ko.mapping.fromJS(clientMap[clientId], model.client.mapping, model.client);		
+			if (clientId > 0) { 
+				model.loadClient(clientMap[clientId]);				
 			} else {
-				model.client.public_id(0);
+				model.client.public_id(0);  // TODO_FIX
 			}
 		}).trigger('change');		
 
@@ -293,14 +292,18 @@
 			//$('[name="client_combobox"]').focus();
 		@endif
 		
-		/*
 		$('#myModal').on('hidden.bs.modal', function () {
-			$('#popup_client_name').val('');
+			if (model.clientBackup) {
+				console.log("Loading backup");
+				//console.log(model.clientBackup);
+				model.loadClient(model.clientBackup);
+				refreshPDF();
+			}
 		})
-		*/
+		
 
 		$('#myModal').on('shown.bs.modal', function () {
-			$('#name').focus();
+			$('#name').focus();			
 		})
 
 		$('#actionDropDown > button:first').click(function() {
@@ -311,7 +314,7 @@
 		
 		applyComboboxListeners();
 		refreshPDF();		
-	});
+	});	
 
 	function applyComboboxListeners() {
 		var value;
@@ -457,6 +460,11 @@
 		    }
 		}
 
+		self.loadClient = function(client) {
+			//console.log(client);				
+			ko.mapping.fromJS(client, model.client.mapping, model.client);
+		}
+
 		self.wrapped_terms = ko.computed({
 			read: function() {
 				return this.terms();
@@ -474,6 +482,9 @@
     	});
 
 		self.showClientForm = function() {
+			self.clientBackup = ko.mapping.toJS(self.client);
+			console.log(self.clientBackup);
+
 			if (self.client.public_id() == 0) {
 				$('#myModal input').val('');
 				$('#myModal #country_id').val('');
@@ -501,7 +512,7 @@
 			$('.client_select input.form-control').focus();			
 
 			refreshPDF();
-
+			model.clientBackup = false;
 			$('#myModal').modal('hide');			
 		}
 

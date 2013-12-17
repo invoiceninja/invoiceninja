@@ -16,6 +16,9 @@
 //dd(new DateTime());
 //Event::fire('user.signup');
 
+include(app_path().'/libraries/utils.php');  // TODO_FIX
+include(app_path().'/handlers/UserEventHandler.php');  // TODO_FIX
+
 Route::get('/send_emails', function() {
 	Artisan::call('ninja:send-invoices');	
 });
