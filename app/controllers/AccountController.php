@@ -494,10 +494,10 @@ class AccountController extends \BaseController {
 		} 
 
 		$user = Auth::user();
-		$user->first_name = trim(Input::get('first_name'));
-		$user->last_name = trim(Input::get('last_name'));
-		$user->email = trim(Input::get('email'));
-		$user->password = trim(Input::get('password'));
+		$user->first_name = trim(Input::get('new_first_name'));
+		$user->last_name = trim(Input::get('new_last_name'));
+		$user->email = trim(Input::get('new_email'));
+		$user->password = trim(Input::get('new_password'));
 		$user->registered = true;
 		$user->save();
 

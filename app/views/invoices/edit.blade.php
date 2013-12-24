@@ -54,7 +54,7 @@
 				{{ Former::text('end_date')->data_bind("value: end_date, valueUpdate: 'afterkeydown'") }}
 			</div>
 			<div data-bind="visible: invoice_status_id() < CONSTS.INVOICE_STATUS_SENT">
-				{{ Former::checkbox('recurring')->text('Enable | <a href="#">Learn more</a>')->data_bind("checked: is_recurring")
+				{{ Former::checkbox('recurring')->text('Enable | <a href="#" rel="tooltip" data-toggle="tooltip" title="Recurring invoices are automatically sent. Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well. ie, :MONTH-1.">Learn more</a>')->data_bind("checked: is_recurring")
 					->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::timestampToDateString($invoice->last_sent_date) : '') }}
 			</div>
 			@if ($invoice && $invoice->recurring_invoice_id)
@@ -68,6 +68,7 @@
 		<div class="col-md-3" id="col_2">
 			{{ Former::text('po_number')->label('PO&nbsp;number')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
 			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}			
+			{{ Former::text('currency')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}			
 		</div>
 	</div>
 
@@ -208,8 +209,8 @@
 				{{ Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") }}
-				{{ Former::select('country_id')->addOption('','')->label('Country')
-					->fromQuery($countries, 'name', 'id')->data_bind("value: country_id") }}
+				{{ Former::select('country_id')->addOption('','')->label('Country')->addGroupClass('country_select')
+					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") }}
 					
 			</div>
 			<div class="col-md-6">
@@ -237,9 +238,9 @@
 				</div>
 
 				{{ Former::legend('Additional Info') }}
-				{{ Former::select('client_size_id')->addOption('','')->label('Size')
+				{{ Former::select('client_size_id')->addOption('','')->label('Size')->data_bind('value: client_size_id')
 					->fromQuery($clientSizes, 'name', 'id')->select($client ? $client->client_size_id : '') }}
-				{{ Former::select('client_industry_id')->addOption('','')->label('Industry')
+				{{ Former::select('client_industry_id')->addOption('','')->label('Industry')->data_bind('value: client_industry_id')
 					->fromQuery($clientIndustries, 'name', 'id')->select($client ? $client->client_industry_id : '') }}
 				{{ Former::textarea('notes') }}
 
@@ -267,6 +268,7 @@
 		$('form').change(refreshPDF);
 
 		$('#country_id').combobox();
+		$('[rel=tooltip]').tooltip();
 
 		$('#invoice_date').datepicker({
 			autoclose: true,
@@ -288,6 +290,13 @@
 				model.client.public_id(0);  // TODO_FIX
 			}
 		}).trigger('change');		
+
+
+		$('.country_select input.form-control').on('change', function(e) {
+			var countryId = parseInt($('input[name=country_id]').val(), 10);	
+			model.client.country_id(countryId);
+		});		
+
 
 		@if ($client)
 			$('#invoice_number').focus();

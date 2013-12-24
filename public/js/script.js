@@ -108,7 +108,7 @@ function generatePDF(invoice) {
 		var productKey = item.product_key;
 
 		// show at most one blank line
-		if (shownItem && !cost && !qty && !notes && !productKey) {
+		if (shownItem && (!cost || cost == '0.00') && !qty && !notes && !productKey) {
 			continue;
 		}		
 		shownItem = true;
@@ -579,7 +579,7 @@ ko.bindingHandlers.dropdown = {
     init: function (element, valueAccessor, allBindingsAccessor) {
        var options = allBindingsAccessor().dropdownOptions|| {};
        var value = ko.utils.unwrapObservable(valueAccessor());
-       var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : false;
+       var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
        if (id) $(element).val(id);
        console.log("combo-init: %s", id);
        $(element).combobox(options);       
@@ -595,7 +595,7 @@ ko.bindingHandlers.dropdown = {
     },
     update: function (element, valueAccessor) {    	
     	var value = ko.utils.unwrapObservable(valueAccessor());
-    	var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : false;
+    	var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
        	console.log("combo-update: %s", id);
     	if (id) $(element).val(id);       
         $(element).combobox('refresh');

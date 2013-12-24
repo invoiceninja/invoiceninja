@@ -440,7 +440,7 @@ class InvoiceController extends \BaseController {
 				$contact = $client->contacts()->where('is_primary', '=', true)->firstOrFail();
 			}
 			
-			$inputClient = $input->client;
+			$inputClient = $input->client;			
 			$client->name = trim($inputClient->name);
 			$client->work_phone = trim($inputClient->work_phone);
 			$client->address1 = trim($inputClient->address1);
