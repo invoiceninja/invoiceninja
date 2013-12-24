@@ -72,6 +72,9 @@ class Utils
 
 	public static function timestampToString($timestamp, $timezone = false, $format)
 	{
+		if (!$timestamp) {
+			return '';
+		}		
 		$date = Carbon::createFromTimeStamp($timestamp);
 		if ($timezone) {
 			$date->tz = $timezone;	

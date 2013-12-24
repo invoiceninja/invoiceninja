@@ -47,7 +47,7 @@ class ClientController extends \BaseController {
     	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
     	    ->addColumn('name', function($model) { return link_to('clients/' . $model->public_id, $model->name); })
     	    ->addColumn('first_name', function($model) { return $model->first_name . ' ' . $model->last_name; })
-    	    ->addColumn('created_at', function($model) { return Utils::timestampToDateString($model->created_at); })
+    	    ->addColumn('created_at', function($model) { return Utils::timestampToDateString(strtotime($model->created_at)); })
     	    ->addColumn('email', function($model) { return $model->email ? HTML::mailto($model->email, $model->email) : ''; })
     	    ->addColumn('work_phone', function($model) { return Utils::formatPhoneNumber($model->work_phone); })    	   
     	    ->addColumn('last_login', function($model) { return Utils::timestampToDateString($model->last_login); })

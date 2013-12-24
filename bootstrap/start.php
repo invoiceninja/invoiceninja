@@ -28,7 +28,7 @@ $app->redirectIfTrailingSlash();
 
 $env = $app->detectEnvironment(array(
 
-	'development' => array('precise64'),
+	'development' => array('precise64', 'ubuntu-server-12042-x64-vbox4210'),
 	'staging' => array('host107.hostmonster.com')
 ));
 

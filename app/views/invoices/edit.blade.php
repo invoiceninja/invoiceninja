@@ -17,7 +17,7 @@
 	)); }}
     
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
-    	<div class="col-md-7" id="col_1">
+    	<div class="col-md-5" id="col_1">
 			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'public_id')->data_bind("dropdown: client")
 					->addGroupClass('client_select closer-row') }}
 
@@ -37,23 +37,12 @@
 					</div>				
 				</div>
 			</div>
-			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}
 			{{ Former::textarea('terms')->data_bind("value: wrapped_terms, valueUpdate: 'afterkeydown'") }}			
 			
 		</div>
 		<div class="col-md-4" id="col_2">
-			<div data-bind="visible: invoice_status_id() < CONSTS.INVOICE_STATUS_SENT">
-				{{ Former::checkbox('recurring')->text('Enable | <a href="#">Learn more</a>')->data_bind("checked: is_recurring")
-					->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::timestampToDateString($invoice->last_sent_date) : '') }}
-			</div>
-			@if ($invoice && $invoice->recurring_invoice_id)
-				<div style="padding-top: 6px">
-					Created by a {{ link_to('/invoices/'.$invoice->recurring_invoice_id, 'recurring invoice') }}
-				</div>
-			@endif
 			<div data-bind="visible: !is_recurring()">
 				{{ Former::text('invoice_number')->label('Invoice #')->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('po_number')->label('PO number')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('invoice_date')->data_bind("value: invoice_date, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('due_date')->data_bind("value: due_date, valueUpdate: 'afterkeydown'") }}
 							
@@ -64,7 +53,21 @@
 				{{ Former::text('start_date')->data_bind("value: start_date, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('end_date')->data_bind("value: end_date, valueUpdate: 'afterkeydown'") }}
 			</div>
+			<div data-bind="visible: invoice_status_id() < CONSTS.INVOICE_STATUS_SENT">
+				{{ Former::checkbox('recurring')->text('Enable | <a href="#">Learn more</a>')->data_bind("checked: is_recurring")
+					->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::timestampToDateString($invoice->last_sent_date) : '') }}
+			</div>
+			@if ($invoice && $invoice->recurring_invoice_id)
+				<div style="padding-top: 6px">
+					Created by a {{ link_to('/invoices/'.$invoice->recurring_invoice_id, 'recurring invoice') }}
+				</div>
+			@endif
 			
+		</div>
+
+		<div class="col-md-3" id="col_2">
+			{{ Former::text('po_number')->label('PO&nbsp;number')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
+			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}			
 		</div>
 	</div>
 

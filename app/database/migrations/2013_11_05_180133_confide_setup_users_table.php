@@ -194,7 +194,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->text('notes');
             $t->decimal('balance', 10, 2);
             $t->decimal('paid_to_date', 10, 2);
-            $t->timestamp('last_login');
+            $t->timestamp('last_login')->nullable();
             $t->string('website');
             $t->unsignedInteger('client_industry_id')->nullable();
             $t->unsignedInteger('client_size_id')->nullable();

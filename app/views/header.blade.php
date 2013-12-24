@@ -39,10 +39,12 @@
 	}
 	@endif
 
+	/*
 	body > div.container {
 		min-height: 600px;		
 	}
-
+	*/
+	
 	label.checkbox,
 	label.control-label {
 		font-weight: normal !important;
@@ -230,7 +232,33 @@
 	<p/>
 	<div>		
 		<a href="{{ URL::to('/') }}" style="font-size:30px;color:black">Invoice Ninja</a>
-		<div style="float:right">
+	
+	</div>
+
+	<p style="clear: both"/>
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+
+	  <div class="navbar-header">
+	    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
+	      <span class="sr-only">Toggle navigation</span>
+	      <span class="icon-bar"></span>
+	      <span class="icon-bar"></span>
+	      <span class="icon-bar"></span>
+	    </button>
+	    {{ link_to('/', 'Invoice Ninja', array('class'=>'navbar-brand')) }}
+	  </div>
+
+	  <div class="collapse navbar-collapse" id="navbar-collapse-1">
+	    <ul class="nav navbar-nav" style="font-weight: bold">
+	    	{{-- HTML::nav_link('home', 'Home') --}}
+	    	{{ HTML::menu_link('client') }}
+	    	{{ HTML::menu_link('invoice') }}
+	    	{{ HTML::menu_link('payment') }}
+	    	{{ HTML::menu_link('credit') }}
+	    	{{ HTML::nav_link('reports', 'Reports') }}
+	    </ul>
+
+		<div class="navbar-form navbar-right">
 			@if (Auth::check() && Auth::user()->registered)
 			{{ Auth::user()->email }} &nbsp;
 			@else			
@@ -250,31 +278,8 @@
 			    <li>{{ link_to('#', 'Logout', array('onclick'=>'logout()')) }}</li>
 			  </ul>
 			</div>			
-		</div>		
-	</div>
+		</div>	
 
-	<p style="clear: both"/>
-	<nav class="navbar navbar-default" role="navigation">
-
-	  <div class="navbar-header">
-	    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
-	      <span class="sr-only">Toggle navigation</span>
-	      <span class="icon-bar"></span>
-	      <span class="icon-bar"></span>
-	      <span class="icon-bar"></span>
-	    </button>
-	    <!-- <a class="navbar-brand" href="#">Invoice Ninja</a> -->
-	  </div>
-
-	  <div class="collapse navbar-collapse" id="navbar-collapse-1">
-	    <ul class="nav navbar-nav" style="font-weight: bold">
-	    	{{-- HTML::nav_link('home', 'Home') --}}
-	    	{{ HTML::menu_link('client') }}
-	    	{{ HTML::menu_link('invoice') }}
-	    	{{ HTML::menu_link('payment') }}
-	    	{{ HTML::menu_link('credit') }}
-	    	{{ HTML::nav_link('reports', 'Reports') }}
-	    </ul>
 		<ul class="nav navbar-nav navbar-right">	      
 	      <li class="dropdown">
 	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Recently Viewed <b class="caret"></b></a>
@@ -294,6 +299,9 @@
 	      </div>
 	    </form>
 	    </ul>	    
+
+
+
 	  </div><!-- /.navbar-collapse -->
 	</nav>
 	

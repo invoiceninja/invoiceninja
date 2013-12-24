@@ -9,7 +9,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Invoice Ninja</a>
+          <!-- <a class="navbar-brand" href="#">Invoice Ninja</a> -->
         </div>
         <div class="navbar-collapse collapse">
           {{ Form::open(array('url' => 'login', 'class' => 'navbar-form navbar-right')) }}

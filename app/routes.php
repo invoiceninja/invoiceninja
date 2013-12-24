@@ -15,9 +15,11 @@
 //dd(Client::getPrivateId(1));
 //dd(new DateTime());
 //Event::fire('user.signup');
+//dd(App::environment());
 
-include(app_path().'/libraries/utils.php');  // TODO_FIX
-include(app_path().'/handlers/UserEventHandler.php');  // TODO_FIX
+
+include_once(app_path().'/libraries/utils.php');  // TODO_FIX
+include_once(app_path().'/handlers/UserEventHandler.php');  // TODO_FIX
 
 Route::get('/send_emails', function() {
 	Artisan::call('ninja:send-invoices');	
