@@ -170,8 +170,10 @@ define('FREQUENCY_ANNUALLY', 7);
 
 define('SESSION_TIMEZONE', 'timezone');
 define('SESSION_DATE_FORMAT', 'dateFormat');
+define('SESSION_DATE_PICKER_FORMAT', 'datePickerFormat');
 define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
 
 define('DEFAULT_TIMEZONE', 'US/Eastern');
-define('DEFAULT_DATE_FORMAT', 'F j, Y');
+define('DEFAULT_DATE_FORMAT', 'M j, Y');
+define('DEFAULT_DATE_PICKER_FORMAT', 'yyyy-mm-dd');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');

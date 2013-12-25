@@ -68,7 +68,8 @@ class ConfideSetupUsersTable extends Migration {
         Schema::create('date_formats', function($t)
         {
             $t->increments('id');
-            $t->string('format');            
+            $t->string('format');    
+            $t->string('picker_format');                    
             $t->string('label');            
         });
 
@@ -149,6 +150,10 @@ class ConfideSetupUsersTable extends Migration {
             $t->boolean('confirmed')->default(false);
             $t->integer('theme_id');
 
+            $t->boolean('notify_sent')->default(false);
+            $t->boolean('notify_viewed')->default(false);
+            $t->boolean('notify_paid')->default(true);
+
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
 
             $t->unsignedInteger('public_id');
@@ -220,6 +225,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->softDeletes();
 
             $t->boolean('is_primary');
+            $t->boolean('send_invoice');
             $t->string('first_name');
             $t->string('last_name');
             $t->string('email');

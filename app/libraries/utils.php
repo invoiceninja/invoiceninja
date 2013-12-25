@@ -92,7 +92,13 @@ class Utils
 			return null;
 		}
 
-		return DateTime::createFromFormat('m/d/Y', $date);
+		/*
+		$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+		$format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+		return DateTime::createFromFormat($format, $date, new DateTimeZone($timezone));
+		*/
+
+		return DateTime::createFromFormat('Y-m-d', $date);
 	}
 	
 	public static function fromSqlDate($date)
@@ -102,12 +108,23 @@ class Utils
 			return '';
 		}
 		
-		return DateTime::createFromFormat('Y-m-d', $date)->format('m/d/Y');
+		/*
+		$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+		return DateTime::createFromFormat('Y-m-d', $date, new DateTimeZone($timezone))->format($format);
+		*/
+		
+		$format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+		
+		return DateTime::createFromFormat('Y-m-d', $date)->format($format);
 	}
 
-	public static function trackViewed($name, $type)
+	public static function trackViewed($name, $type, $url = false)
 	{
-		$url = Request::url();
+		if (!$url)
+		{
+			$url = Request::url();
+		}
+		
 		$viewed = Session::get(RECENTLY_VIEWED);	
 		
 		if (!$viewed)

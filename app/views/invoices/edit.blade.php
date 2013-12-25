@@ -43,15 +43,13 @@
 		<div class="col-md-4" id="col_2">
 			<div data-bind="visible: !is_recurring()">
 				{{ Former::text('invoice_number')->label('Invoice #')->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('invoice_date')->data_bind("value: invoice_date, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('due_date')->data_bind("value: due_date, valueUpdate: 'afterkeydown'") }}
-							
-				{{-- Former::text('invoice_date')->label('Invoice Date')->data_date_format('yyyy-mm-dd') --}}	
+				{{ Former::text('invoice_date')->data_bind("value: invoice_date, valueUpdate: 'afterkeydown'")->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
+				{{ Former::text('due_date')->data_bind("value: due_date, valueUpdate: 'afterkeydown'")->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}							
 			</div>
 			<div data-bind="visible: is_recurring">
 				{{ Former::select('frequency_id')->label('How often')->options($frequencies)->data_bind("value: frequency_id") }}
-				{{ Former::text('start_date')->data_bind("value: start_date, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('end_date')->data_bind("value: end_date, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('start_date')->data_bind("value: start_date, valueUpdate: 'afterkeydown'")->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
+				{{ Former::text('end_date')->data_bind("value: end_date, valueUpdate: 'afterkeydown'")->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
 			</div>
 			<div data-bind="visible: invoice_status_id() < CONSTS.INVOICE_STATUS_SENT">
 				{{ Former::checkbox('recurring')->text('Enable | <a href="#" rel="tooltip" data-toggle="tooltip" title="Recurring invoices are automatically sent. Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well. ie, :MONTH-1.">Learn more</a>')->data_bind("checked: is_recurring")

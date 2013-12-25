@@ -1,4 +1,4 @@
-<?php namespace Ninja\Mailers;
+<?php namespace ninja\mailers;
 
 use Mail;
 
@@ -11,7 +11,7 @@ abstract class Mailer {
 			'text' => 'emails.'.$view.'_text'
 		];
 		
-		Mail::queue($views, $data, function($message) use($email, $subject)
+		Mail::queue($views, $data, function($message) use ($email, $subject)
 		{
 			$message->to($email)->subject($subject);
 		});

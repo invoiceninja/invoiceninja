@@ -29,7 +29,7 @@
 
 			{{ Former::select('client')->fromQuery($clients, 'name', 'public_id')->select($client ? $client->public_id : '')->addOption('', '')->addGroupClass('client-select') }}
 			{{ Former::text('amount') }}
-			{{ Former::text('credit_date') }}
+			{{ Former::text('credit_date')->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
 
 		</div>
 		<div class="col-md-6">

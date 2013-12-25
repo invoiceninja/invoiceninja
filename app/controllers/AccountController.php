@@ -389,10 +389,16 @@ class AccountController extends \BaseController {
 			$account->date_format_id = Input::get('date_format_id') ? Input::get('date_format_id') : null;
 			$account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
 
-			Event::fire('user.refresh');
-
 			$account->invoice_terms = Input::get('invoice_terms');
 			$account->save();
+
+			$user = Auth::user();
+			$user->notify_sent = Input::get('notify_sent');
+			$user->notify_viewed = Input::get('notify_viewed');
+			$user->notify_paid = Input::get('notify_paid');
+			$user->save();
+
+			Event::fire('user.refresh');
 
 			if ($gatewayId) 
 			{

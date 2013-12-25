@@ -602,6 +602,23 @@ ko.bindingHandlers.dropdown = {
     }    
 };
 
+
+/*
+ko.bindingHandlers.datePicker = {
+    init: function (element, valueAccessor, allBindingsAccessor) {
+       var value = ko.utils.unwrapObservable(valueAccessor());       
+       if (value) $(element).datepicker('update', value);
+       console.log("datePicker-init: %s", value);
+    },
+    update: function (element, valueAccessor) {    	
+       var value = ko.utils.unwrapObservable(valueAccessor());
+       if (value) $(element).datepicker('update', value);
+       console.log("datePicker-init: %s", value);
+    }    
+};
+*/
+
+
 function wordWrapText(value, width)
 {
 	if (!width) width = 200;

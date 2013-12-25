@@ -1,16 +1,22 @@
 <?php
 
-use Ninja\Mailers\ContactMailer as Mailer;
+use ninja\mailers\ContactMailer as Mailer;
+use ninja\repositories\InvoiceRepository;
+use ninja\repositories\ClientRepository;
 
 class InvoiceController extends \BaseController {
 
 	protected $mailer;
+	protected $invoiceRepo;
+	protected $clientRepo;
 
-	public function __construct(Mailer $mailer)
+	public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo)
 	{
 		parent::__construct();
 
 		$this->mailer = $mailer;
+		$this->invoiceRepo = $invoiceRepo;
+		$this->clientRepo = $clientRepo;
 	}	
 
 	public function index()
@@ -32,30 +38,7 @@ class InvoiceController extends \BaseController {
 
 	public function getDatatable($clientPublicId = null)
     {
-    	$query = DB::table('invoices')
-    				->join('clients', 'clients.id', '=','invoices.client_id')
-					->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
-					->where('invoices.account_id', '=', Auth::user()->account_id)
-    				->where('invoices.deleted_at', '=', null)
-    				->where('clients.deleted_at', '=', null)
-    				->where('invoices.is_recurring', '=', false)    				
-					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name');
-
-    	if ($clientPublicId) {
-    		$query->where('clients.public_id', '=', $clientPublicId);
-    	}
-
-		$filter = Input::get('sSearch');
-    	if ($filter)
-    	{
-    		$query->where(function($query) use ($filter)
-            {
-            	$query->where('clients.name', 'like', '%'.$filter.'%')
-            		  ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%')
-            		  ->orWhere('invoice_statuses.name', 'like', '%'.$filter.'%');
-            });
-    	}
-
+    	$query = $this->invoiceRepo->getInvoices(Auth::user()->account_id, $clientPublicId, Input::get('sSearch'));
     	$table = Datatable::query($query);			
 
     	if (!$clientPublicId) {
@@ -93,28 +76,7 @@ class InvoiceController extends \BaseController {
 
 	public function getRecurringDatatable($clientPublicId = null)
     {
-    	$query = DB::table('invoices')
-    				->join('clients', 'clients.id', '=','invoices.client_id')
-					->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
-					->where('invoices.account_id', '=', Auth::user()->account_id)
-    				->where('invoices.deleted_at', '=', null)
-    				->where('invoices.is_recurring', '=', true)
-					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date');
-
-    	if ($clientPublicId) {
-    		$query->where('clients.public_id', '=', $clientPublicId);
-    	}
-
-		$filter = Input::get('sSearch');
-    	if ($filter)
-    	{
-    		$query->where(function($query) use ($filter)
-            {
-            	$query->where('clients.name', 'like', '%'.$filter.'%')
-            		  ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%');
-            });
-    	}
-    	
+    	$query = $this->invoiceRepo->getRecurringInvoices(Auth::user()->account_id, $clientPublicId, Input::get('sSearch'));
     	$table = Datatable::query($query);			
 
     	if (!$clientPublicId) {
@@ -421,131 +383,40 @@ class InvoiceController extends \BaseController {
 		$inputClient = $input->client;
 		$inputClient->name = trim($inputClient->name);
 		
-		if (!$inputClient->name) {
+		if (!$inputClient->name) 
+		{
 			return Redirect::to('invoices/create')
 				->withInput();
-		} else {			
-
-			$clientPublicId = $input->client->public_id;
+		} 
+		else 
+		{			
+			$clientData = (array) $input->client;			
+			$client = $this->clientRepo->save($input->client->public_id, $clientData);
 			
-			if ($clientPublicId == "-1") 
-			{
-				$client = Client::createNew();
-				$contact = Contact::createNew();
-				$contact->is_primary = true;			
-			}
-			else
-			{
-				$client = Client::scope($clientPublicId)->with('contacts')->firstOrFail();
-				$contact = $client->contacts()->where('is_primary', '=', true)->firstOrFail();
-			}
-			
-			$inputClient = $input->client;			
-			$client->name = trim($inputClient->name);
-			$client->work_phone = trim($inputClient->work_phone);
-			$client->address1 = trim($inputClient->address1);
-			$client->address2 = trim($inputClient->address2);
-			$client->city = trim($inputClient->city);
-			$client->state = trim($inputClient->state);
-			$client->postal_code = trim($inputClient->postal_code);
-			$client->country_id = $inputClient->country_id ? $inputClient->country_id : null;
-			$client->notes = trim($inputClient->notes);
-			$client->client_size_id = $inputClient->client_size_id ? $inputClient->client_size_id : null;
-			$client->client_industry_id = $inputClient->client_industry_id ? $inputClient->client_industry_id : null;
-			$client->website = trim($inputClient->website);
-			$client->save();
-			
-			$isPrimary = true;
-			$contacts = [];
-			$contactIds = [];
-			$sendInvoiceIds = [];
-
-			foreach ($inputClient->contacts as $contact)
-			{
-				if (isset($contact->public_id) && $contact->public_id)
-				{
-					$record = Contact::scope($contact->public_id)->firstOrFail();
-				}
-				else
-				{
-					$record = Contact::createNew();
-				}
-
-				$record->email = trim($contact->email);
-				$record->first_name = trim($contact->first_name);
-				$record->last_name = trim($contact->last_name);
-				$record->phone = trim($contact->phone);
-				$record->is_primary = $isPrimary;
-				$isPrimary = false;
-
-				$client->contacts()->save($record);
-				$contacts[] = $record;
-				$contactIds[] = $record->public_id;	
-
-				if ($contact->send_invoice) 
-				{
-					$sendInvoiceIds[] = $record->id;
-				}
-			}
-			
-			foreach ($client->contacts as $contact)
-			{
-				if (!in_array($contact->public_id, $contactIds))
-				{	
-					$contact->forceDelete();
-				}
-			}
-
-			if ($publicId) {
-				$invoice = Invoice::scope($publicId)->firstOrFail();
-				$invoice->invoice_items()->forceDelete();
-			} else {				
-				$invoice = Invoice::createNew();			
-			}			
-			
-			$invoice->client_id = $client->id;
-			$invoice->discount = $input->discount;
-			$invoice->invoice_number = trim($input->invoice_number);
-			$invoice->invoice_date = Utils::toSqlDate($input->invoice_date);
-			$invoice->due_date = Utils::toSqlDate($input->due_date);					
-
-			$invoice->is_recurring = $input->is_recurring;
-			$invoice->frequency_id = $input->frequency_id ? $input->frequency_id : 0;
-			$invoice->start_date = Utils::toSqlDate($input->start_date);
-			$invoice->end_date = Utils::toSqlDate($input->end_date);
-			$invoice->terms = $input->terms;
-			$invoice->po_number = $input->po_number;
-			
-
-			$client->invoices()->save($invoice);
-			
-			$items = $input->invoice_items;
-			$total = 0;
-
-			foreach ($items as $item) 
-			{
-				if (!isset($item->cost)) {
-					$item->cost = 0;
-				}
-				if (!isset($item->qty)) {
-					$item->qty = 0;
-				}
-
-				$total += floatval($item->qty) * floatval($item->cost);
-			}
+			$invoiceData = (array) $input;
+			$invoiceData['client_id'] = $client->id;
+			$invoice = $this->invoiceRepo->save($publicId, $invoiceData);
 						
 			if ($action == 'email' && $invoice->invoice_status_id == INVOICE_STATUS_DRAFT)
 			{
 				$invoice->invoice_status_id = INVOICE_STATUS_SENT;
 				
-				$client->balance = $invoice->client->balance + $invoice->amount;
+				$client->balance = $client->balance + $invoice->amount;
 				$client->save();
 			}
 
-			$invoice->amount = $total;
-			$invoice->save();
+			$client->load('contacts');
+			$sendInvoiceIds = [];
 
-			foreach ($contacts as $contact)
+			foreach ($client->contacts as $contact)
+			{
+				if ($contact->send_invoice) 
+				{	
+					$sendInvoiceIds[] = $contact->id;
+				}
+			}
+			
+			foreach ($client->contacts as $contact)
 			{
 				$invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
 				
@@ -563,56 +434,25 @@ class InvoiceController extends \BaseController {
 				}
 			}						
 
-			foreach ($items as $item) 
+			$message = '';
+			if ($input->client->public_id == '-1')
 			{
-				if (!$item->cost && !$item->qty && !$item->product_key && !$item->notes)
-				{
-					continue;
-				}
-
-				if ($item->product_key)
-				{
-					$product = Product::findProductByKey(trim($item->product_key));
-
-					if (!$product)
-					{
-						$product = Product::createNew();						
-						$product->product_key = trim($item->product_key);
-					}
-
-					/*
-					$product->notes = $item->notes;
-					$product->cost = $item->cost;
-					$product->qty = $item->qty;
-					*/
-					
-					$product->save();
-				}
-
-				$invoiceItem = InvoiceItem::createNew();
-				$invoiceItem->product_id = isset($product) ? $product->id : null;
-				$invoiceItem->product_key = trim($item->product_key);
-				$invoiceItem->notes = trim($item->notes);
-				$invoiceItem->cost = floatval($item->cost);
-				$invoiceItem->qty = floatval($item->qty);
-
-				$invoice->invoice_items()->save($invoiceItem);
+				$message = ' and created client';
+				$url = URL::to('clients/' . $client->public_id);
+				Utils::trackViewed($client->name, ENTITY_CLIENT, $url);
 			}
-
-			/*
-			*/
-
-			$message = $clientPublicId == "-1" ? ' and created client' : '';
+			
 			if ($action == 'clone')
 			{
 				return InvoiceController::cloneInvoice($publicId);
 			}
 			else if ($action == 'email') 
 			{							
-				$this->mailer->sendInvoice($invoice);				
-				
+				$this->mailer->sendInvoice($invoice);								
 				Session::flash('message', 'Successfully emailed invoice'.$message);
-			} else {				
+			} 
+			else 
+			{				
 				Session::flash('message', 'Successfully saved invoice'.$message);
 			}
 

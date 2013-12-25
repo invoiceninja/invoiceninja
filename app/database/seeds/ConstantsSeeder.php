@@ -72,9 +72,16 @@ class ConstantsSeeder extends Seeder
 		DatetimeFormat::create(array('format' => 'F j, Y, g:i a', 'label' => 'March 10, 2013, 6:15 pm'));
 		DatetimeFormat::create(array('format' => 'D M jS, Y g:ia', 'label' => 'Mon March 10th, 2013, 6:15 pm'));
 		
-		DateFormat::create(array('format' => 'F j, Y', 'label' => 'March 10, 2013'));
-		DateFormat::create(array('format' => 'D M jS', 'label' => 'Mon March 10th, 2013'));			
-
+		DateFormat::create(array('format' => 'F j, Y', 'picker_format' => 'MM d, yyyy', 'label' => 'March 10, 2013'));
+		DateFormat::create(array('format' => 'D M jS, Y', 'picker_format' => 'D MM d, yyyy', 'label' => 'Mon March 10th, 2013'));			
+		
+		/*	
+		d, dd: Numeric date, no leading zero and leading zero, respectively. Eg, 5, 05.
+		D, DD: Abbreviated and full weekday names, respectively. Eg, Mon, Monday.
+		m, mm: Numeric month, no leading zero and leading zero, respectively. Eg, 7, 07.
+		M, MM: Abbreviated and full month names, respectively. Eg, Jan, January
+		yy, yyyy: 2- and 4-digit years, respectively. Eg, 12, 2012.)
+		*/
 
 		$gateways = [
 			array('name'=>'Authorize.Net AIM', 'provider'=>'AuthorizeNet_AIM'),

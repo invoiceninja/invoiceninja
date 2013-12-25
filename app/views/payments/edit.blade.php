@@ -30,7 +30,7 @@
 			{{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
 			{{ Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') }}
 			{{ Former::text('amount') }}
-			{{ Former::text('payment_date') }}
+			{{ Former::text('payment_date')->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
 
 		</div>
 		<div class="col-md-6">

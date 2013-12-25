@@ -3,7 +3,7 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use Ninja\Mailers\ContactMailer as Mailer;
+use ninja\mailers\ContactMailer as Mailer;
 
 class SendRecurringInvoices extends Command {
 

@@ -74,6 +74,7 @@ App::down(function()
 
 
 Event::subscribe('UserEventHandler');
+Event::subscribe('InvoiceEventHandler');
 
 
 /*

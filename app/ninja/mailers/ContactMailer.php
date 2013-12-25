@@ -1,4 +1,4 @@
-<?php namespace Ninja\Mailers;
+<?php namespace ninja\mailers;
 
 use Invoice;
 use Contact;
@@ -27,5 +27,7 @@ class ContactMailer extends Mailer {
 			$invoice->invoice_status_id = INVOICE_STATUS_SENT;
 			$invoice->save();
 		}
+
+		\Event::fire('invoice.sent', $invoice);
 	}
 }

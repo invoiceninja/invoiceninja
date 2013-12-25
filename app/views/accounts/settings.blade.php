@@ -5,6 +5,9 @@
 
 	{{ Former::open()->addClass('col-md-8 col-md-offset-2') }}	
 	{{ Former::populate($account) }}
+	{{ Former::populateField('notify_sent', Auth::user()->notify_sent) }}
+	{{ Former::populateField('notify_viewed', Auth::user()->notify_viewed) }}
+	{{ Former::populateField('notify_paid', Auth::user()->notify_paid) }}
 
 	{{ Former::legend('Payment Gateway') }}
 
@@ -44,6 +47,10 @@
 	{{ Former::select('datetime_format_id')->addOption('','')->label('Date/Time Format')
 		->fromQuery($datetimeFormats, 'label', 'id')->select($account->datetime_format_id) }}
 
+	{{ Former::legend('Notifications') }}
+	{{ Former::checkbox('notify_sent')->label('&nbsp;')->text('Email me when an invoice is <b>sent</b>') }}
+	{{ Former::checkbox('notify_viewed')->label('&nbsp;')->text('Email me when an invoice is <b>viewed</b>') }}
+	{{ Former::checkbox('notify_paid')->label('&nbsp;')->text('Email me when an invoice is <b>paid</b>') }}
 
 	{{ Former::legend('Invoices') }}
 	{{ Former::textarea('invoice_terms') }}
