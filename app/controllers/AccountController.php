@@ -1,6 +1,17 @@
 <?php
 
+use ninja\repositories\AccountRepository;
+
 class AccountController extends \BaseController {
+
+	protected $accountRepo;
+
+	public function __construct(AccountRepository $accountRepo)
+	{
+		parent::__construct();
+
+		$this->accountRepo = $accountRepo;
+	}	
 
 	public function getStarted()
 	{	
@@ -43,6 +54,13 @@ class AccountController extends \BaseController {
 		Event::fire('user.login');		
 
 		return Redirect::to('invoices/create');		
+	}
+
+	public function getSearchData()
+	{
+		$data = $this->accountRepo->getSearchData();
+
+		return Response::json($data);
 	}
 
 	public function showSection($section = ACCOUNT_DETAILS)  

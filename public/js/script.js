@@ -641,7 +641,6 @@ function wordWrapText(value, width)
     return lines.slice(0, 6).join("\n");
 }
 
-
 var CONSTS = {};
 CONSTS.INVOICE_STATUS_DRAFT = 1;
 CONSTS.INVOICE_STATUS_SENT = 2;

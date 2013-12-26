@@ -25,12 +25,12 @@ class InvoiceEventHandler
 
 	public function onViewed($invoice)
 	{
-		
+		$this->sendNotifications($invoice, 'viewed');
 	}
 
 	public function onPaid($invoice)
 	{
-		
+		$this->sendNotifications($invoice, 'paid');
 	}
 
 	private function sendNotifications($invoice, $type)

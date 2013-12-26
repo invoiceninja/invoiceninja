@@ -58,7 +58,8 @@ Route::filter('auth', function()
 Route::group(array('before' => 'auth'), function()
 {   
 	Route::get('home', function() { return View::make('header'); });
-	Route::get('account/{section?}', 'AccountController@showSection');
+	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
+	Route::get('account/{section?}', 'AccountController@showSection');	
 	Route::post('account/{section?}', 'AccountController@doSection');
 	Route::post('user/setTheme', 'UserController@setTheme');
 

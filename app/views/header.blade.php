@@ -28,6 +28,10 @@
 	
 	<script src="{{ asset('js/bootstrap-datepicker.js') }}" type="text/javascript"></script>		
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/datepicker.css') }}"/>
+
+	<script src="{{ asset('js/typeahead.js') }}" type="text/javascript"></script>	
+	<script src="{{ asset('js/hogan-2.0.0.js') }}" type="text/javascript"></script>	
+	<link rel="stylesheet" type="text/css" href="{{ asset('css/typeahead.js-bootstrap.css') }}"/>			
 	
 	<script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
 
@@ -485,7 +489,30 @@
   			}
   		}
 
-  		$(function() {
+  		$(function() 
+  		{
+  			$('#search').focus(function(){
+  				if (!window.hasOwnProperty('searchData')) {
+  					$.get('{{ URL::route('getSearchData') }}', function(data) {  						
+  						window.searchData = true;						
+  						var datasets = [];
+  						for (var type in data)
+  						{  							
+  							if (!data.hasOwnProperty(type)) continue;  							
+  							datasets.push({
+  								name: type,
+  								header: '&nbsp;<b>' + type  + '</b>',
+  								local: data[type]
+  							});  														
+  						}
+  						$('#search').typeahead(datasets).on('typeahead:selected', function(element, datum, name) {
+  							var type = name == 'Contacts' ? 'clients' : name.toLowerCase();
+  							window.location = '{{ URL::to('/') }}' + '/' + type + '/' + datum.public_id;
+  						}).focus().typeahead('setQuery', $('#search').val());  						
+					});
+  				}
+  			});
+			
 
 	      	if (isStorageSupported()) {
 	  			@if (Auth::check() && !Auth::user()->registered)
