@@ -15,8 +15,28 @@ function generatePDF(invoice) {
 	var descriptionLeft = 140;
 	var unitCostRight = 400;
 	var qtyRight = 470;
+	var taxRight = 470;
 	var lineTotalRight = 540;
 	
+
+	var hasTaxes = true;
+	for (var i=0; i<invoice.invoice_items.length; i++) 
+	{
+		var item = invoice.invoice_items[i];
+		if (item.tax_rate > 0) {
+			hasTaxes = true;
+			break;
+		}
+	}
+
+	if (hasTaxes)
+	{
+		descriptionLeft -= 20;
+		unitCostRight -= 40;
+		qtyRight -= 40;
+	}	
+
+
 	var doc = new jsPDF('p', 'pt');
 	doc.setFont('Helvetica','');
 	doc.setFontSize(10);
@@ -86,6 +106,7 @@ function generatePDF(invoice) {
 
 	var costX = unitCostRight - (doc.getStringUnitWidth('Unit Cost') * doc.internal.getFontSize());
 	var qtyX = qtyRight - (doc.getStringUnitWidth('Quantity') * doc.internal.getFontSize());
+	var taxX = taxRight - (doc.getStringUnitWidth('Tax') * doc.internal.getFontSize());
 	var totalX = lineTotalRight - (doc.getStringUnitWidth('Line Total') * doc.internal.getFontSize());
 
 	doc.text(tableLeft, tableTop, 'Item');
@@ -94,13 +115,18 @@ function generatePDF(invoice) {
 	doc.text(qtyX, tableTop, 'Quantity');
 	doc.text(totalX, tableTop, 'Line Total');
 
+	if (hasTaxes)
+	{
+		doc.text(taxX, tableTop, 'Tax');
+	}
+
 	/* line items */
 	doc.setFontType("normal");
 	var line = 1;
 	var total = 0;
 	var shownItem = false;
 
-	for(var i=0; i<invoice.invoice_items.length; i++) {
+	for (var i=0; i<invoice.invoice_items.length; i++) {
 		var item = invoice.invoice_items[i];
 		var cost = formatNumber(item.cost);
 		var qty = item.qty ? parseFloat(item.qty) + '' : '';

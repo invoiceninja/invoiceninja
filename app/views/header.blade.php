@@ -30,7 +30,6 @@
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/datepicker.css') }}"/>
 
 	<script src="{{ asset('js/typeahead.js') }}" type="text/javascript"></script>	
-	<script src="{{ asset('js/hogan-2.0.0.js') }}" type="text/javascript"></script>	
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/typeahead.js-bootstrap.css') }}"/>			
 	
 	<script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
@@ -501,7 +500,7 @@
   							if (!data.hasOwnProperty(type)) continue;  							
   							datasets.push({
   								name: type,
-  								header: '&nbsp;<b>' + type  + '</b>',
+  								header: '&nbsp;<b>' + type  + '</b>',  								
   								local: data[type]
   							});  														
   						}

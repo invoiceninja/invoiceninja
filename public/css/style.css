@@ -23,6 +23,11 @@ div.panel {
     text-align: center;
 }
 
+.sides-padded {
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+}
+
 /*
 .form-horizontal {
 	max-width: 750px;

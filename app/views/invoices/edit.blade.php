@@ -67,6 +67,14 @@
 			{{ Former::text('po_number')->label('PO&nbsp;number')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
 			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}			
 			{{ Former::text('currency')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}			
+			
+			<div class="form-group" style="margin-bottom: 8px">
+				<label for="recurring" class="control-label col-lg-4 col-sm-4">Taxes</label>
+				<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
+					<a href="#" data-bind="click: showTaxesForm">Manage taxe rates</a>
+				</div>
+			</div>
+
 		</div>
 	</div>
 
@@ -82,6 +90,7 @@
 	        	<th>Description</th>
 	        	<th>Unit Cost</th>
 	        	<th>Quantity</th>
+	        	<th data-bind="visible: tax_rates().length > 1">Tax</th>
 	        	<th>Line&nbsp;Total</th>
 	        	<th class="hide-border"></th>
 	        </tr>
@@ -92,24 +101,22 @@
 	        		<i data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 	        	</td>
 	            <td style="width:120px">	            	
-	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'key')->onkeyup('onChange()')
+	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'key')->onkeyup('onItemChange()')
 	            		->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 	            </td>
 	            <td style="width:300px">
 	            	<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap" onchange="refreshPDF()"></textarea>
 	            </td>
 	            <td style="width:100px">
-	            	<input onkeyup="onChange()" data-bind="value: cost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
+	            	<input onkeyup="onItemChange()" data-bind="value: cost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 	            </td>
 	            <td style="width:80px">
-	            	<input onkeyup="onChange()" data-bind="value: qty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
+	            	<input onkeyup="onItemChange()" data-bind="value: qty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 	            </td>
-	            <!--
-	            <td style="width:100px">
-	            	<input data-bind="value: tax, valueUpdate: 'afterkeydown'"/>
+	            <td style="width:80px; vertical-align:middle" data-bind="visible: $parent.tax_rates().length > 1">
+	            	<select style="width:100%" data-bind="options: $parent.tax_rates"></select>
 	            </td>
-	        	-->
-	            <td style="width:100px;text-align: right;padding-top:9px !important">
+	        	<td style="width:100px;text-align: right;padding-top:9px !important">
 	            	<span data-bind="text: total"></span>
 	            </td>
 	        	<td style="width:20px; cursor:pointer" class="hide-border td-icon">
@@ -119,26 +126,22 @@
 		</tbody>
 		<tfoot>	        
 	        <tr>
-	        	<td class="hide-border"></td>
-	        	<td colspan="2"/>
+	        	<td class="hide-border" data-bind="attr: {colspan: tax_rates().length > 1 ? 4 : 3}"/>
 				<td colspan="2">Subtotal</td>
 				<td style="text-align: right"><span data-bind="text: subtotal"/></td>
 	        </tr>
 	        <tr>
-	        	<td class="hide-border"></td>
-	        	<td colspan="2" class="hide-border"/>
+	        	<td class="hide-border" data-bind="attr: {colspan: tax_rates().length > 1 ? 4 : 3}"/>
 				<td colspan="2">Paid to Date</td>
 				<td style="text-align: right"></td>
 	        </tr>	        
 	        <tr data-bind="visible: discount() > 0">
-	        	<td class="hide-border"></td>
-	        	<td colspan="2" class="hide-border"/>
+	        	<td class="hide-border" data-bind="attr: {colspan: tax_rates().length > 1 ? 4 : 3}"/>
 				<td colspan="2">Discount</td>
 				<td style="text-align: right"><span data-bind="text: discounted"/></td>
 	        </tr>
 	        <tr>
-	        	<td class="hide-border"></td>
-	        	<td colspan="2" class="hide-border"/>
+	        	<td class="hide-border" data-bind="attr: {colspan: tax_rates().length > 1 ? 4 : 3}"/>
 				<td colspan="2"><b>Balance Due</b></td>
 				<td style="text-align: right"><span data-bind="text: total"/></td>
 	        </tr>
@@ -184,16 +187,17 @@
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
 
-	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
 	  <div class="modal-dialog" style="min-width:1000px">
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="myModalLabel">New Client</h4>
+	        <h4 class="modal-title" id="clientModalLabel">New Client</h4>
 	      </div>
 
-		<div class="row" data-bind="with: client" style="padding-left:16px;padding-right:16px" onkeypress="modalEnterClick(event)">
-			<div class="col-md-6">
+	      <div class="container" style="width: 100%">
+		<div style="background-color: #F6F6F6" class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
+			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
 
 				{{ Former::legend('Organization') }}
 				{{ Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown'") }}
@@ -211,7 +215,7 @@
 					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") }}
 					
 			</div>
-			<div class="col-md-6">
+			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
 
 				{{ Former::legend('Contacts') }}
 				<div data-bind='template: { foreach: contacts,
@@ -244,17 +248,63 @@
 
 			</div>
 		</div>
+		</div>
 
-
-	      <div class="modal-footer">
+	     <div class="modal-footer" style="margin-top: 0px">
 	      	<span class="error-block" id="nameError" style="display:none;float:left">Please provide a value for the name field.</span><span>&nbsp;</span>
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	        <button type="button" class="btn btn-primary" data-bind="click: clientFormComplete">Done</button>	      	
-	      </div>
+	     </div>
 	  		
 	    </div>
 	  </div>
 	</div>
+
+	<div class="modal fade" id="taxModal" tabindex="-1" role="dialog" aria-labelledby="taxModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" style="min-width:150px">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	        <h4 class="modal-title" id="taxModalLabel">Tax Rates</h4>
+	      </div>
+
+	      <div style="background-color: #F6F6F6" onkeypress="taxModalEnterClick(event)">
+			<table class="table invoice-table sides-padded" style="margin-bottom: 0px !important">
+			    <thead>
+			        <tr>
+			        	<th class="hide-border"></th>
+			        	<th class="hide-border">Name</th>
+			        	<th class="hide-border">Rate</th>
+			        	<th class="hide-border"></th>
+			        </tr>
+			    </thead>
+			    <tbody data-bind="foreach: tax_rates">
+			    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }">
+			    		<td style="width:10px" class="hide-border"></td>
+			            <td style="width:60px">
+			            	<input onkeyup="onTaxRateChange()" data-bind="value: name, valueUpdate: 'afterkeydown'" class="form-control" onchange="refreshPDF()"//>			            	
+			            </td>
+			            <td style="width:60px">
+			            	<input onkeyup="onTaxRateChange()" data-bind="value: rate, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
+			            </td>
+			        	<td style="width:10px; cursor:pointer" class="hide-border td-icon">
+			        		&nbsp;<i data-bind="click: $parent.removeTaxRate, visible: actionsVisible() &amp;&amp; $parent.tax_rates().length > 1" class="fa fa-minus-circle" title="Remove item"/>
+			        	</td>
+			        </tr>
+				</tbody>
+			</table>
+			&nbsp;
+		</div>
+
+	     <div class="modal-footer" style="margin-top: 0px">
+	      	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	        <button type="button" class="btn btn-primary" data-bind="click: taxFormComplete">Done</button>	      	
+	     </div>
+	  		
+	    </div>
+	  </div>
+	</div>
+
 
 	{{ Former::close() }}
 
@@ -302,7 +352,7 @@
 			//$('[name="client_combobox"]').focus();
 		@endif
 		
-		$('#myModal').on('hidden.bs.modal', function () {
+		$('#clientModal').on('hidden.bs.modal', function () {
 			if (model.clientBackup) {
 				console.log("Loading backup");
 				//console.log(model.clientBackup);
@@ -312,9 +362,13 @@
 		})
 		
 
-		$('#myModal').on('shown.bs.modal', function () {
+		$('#clientModal').on('shown.bs.modal', function () {
 			$('#name').focus();			
 		})
+
+		$('#taxModal').on('shown.bs.modal', function () {
+			$('#taxModal input:first').focus();			
+		})		
 
 		$('#actionDropDown > button:first').click(function() {
 			onSaveClick();
@@ -438,10 +492,18 @@
 		}
 	}
 
-	function modalEnterClick(event) {		
+	function clientModalEnterClick(event) {		
 		if (event.keyCode === 13){
 			event.preventDefault();		     	
             model.clientFormComplete();
+            return false;
+        }
+	}
+
+	function taxModalEnterClick(event) {		
+		if (event.keyCode === 13){
+			event.preventDefault();		     	
+            model.taxFormComplete();
             return false;
         }
 	}
@@ -460,7 +522,9 @@
 		self.end_date = ko.observable('');
 		self.is_recurring = ko.observable(false);
 		self.invoice_status_id = ko.observable(0);
+
 		self.invoice_items = ko.observableArray();
+		self.tax_rates = ko.observableArray();
 
 		self.mapping = {
 		    'invoice_items': {
@@ -491,17 +555,27 @@
         	return self.client.public_id() ? 'Edit client details' : 'Create new client';
     	});
 
+
+		self.showTaxesForm = function() {
+			$('#taxModal').modal('show');	
+		}	
+
+		self.taxFormComplete = function() {
+			$('#taxModal').modal('hide');	
+		}
+
+
 		self.showClientForm = function() {
 			self.clientBackup = ko.mapping.toJS(self.client);
-			console.log(self.clientBackup);
+			//console.log(self.clientBackup);
 
 			if (self.client.public_id() == 0) {
-				$('#myModal input').val('');
-				$('#myModal #country_id').val('');
+				$('#clientModal input').val('');
+				$('#clientModal #country_id').val('');
 			}
 			
 			$('#nameError').css( "display", "none" );			
-			$('#myModal').modal('show');			
+			$('#clientModal').modal('show');			
 		}
 
 		self.clientFormComplete = function() {
@@ -523,7 +597,7 @@
 
 			refreshPDF();
 			model.clientBackup = false;
-			$('#myModal').modal('hide');			
+			$('#clientModal').modal('hide');			
 		}
 
 		self.removeItem = function(item) {
@@ -533,6 +607,16 @@
 
 		self.addItem = function() {
 			self.invoice_items.push(new ItemModel());	
+			applyComboboxListeners();
+		}
+
+		self.removeTaxRate = function(taxRate) {
+			self.tax_rates.remove(taxRate);
+			//refreshPDF();
+		}
+
+		self.addTaxRate = function() {
+			self.tax_rates.push(new TaxRateModel());	
 			applyComboboxListeners();
 		}
 
@@ -639,13 +723,33 @@
 		});		
 	}
 
+	function TaxRateModel(data) {
+		var self = this;
+		this.rate = ko.observable();
+		this.name = ko.observable('');
+		this.actionsVisible = ko.observable(false);
+
+    	this.hideActions = function() {
+			this.actionsVisible(false);
+    	}
+
+    	this.showActions = function() {
+			this.actionsVisible(true);
+    	}		
+
+    	this.isEmpty = function() {
+    		return !self.rate() && !self.name();
+    	}    	
+	}
+
 	function ItemModel(data) {
 		var self = this;		
 		this.product_key = ko.observable('');
 		this.notes = ko.observable('');
 		this.cost = ko.observable();
 		this.qty = ko.observable();
-		this.tax = ko.observable();
+		this.tax_rate = ko.observable();
+		this.tax_name = ko.observable('');
 		this.actionsVisible = ko.observable(false);
 
 		if (data) {
@@ -659,7 +763,7 @@
 			write: function(value) {
 				value = wordWrapText(value);
 				self.notes(value);
-				onChange();
+				onItemChange();
 			},
 			owner: this
 		});
@@ -667,9 +771,9 @@
 		this.rawTotal = ko.computed(function() {
 			var cost = parseFloat(self.cost());
 			var qty = parseFloat(self.qty());
-			var tax = parseFloat(self.tax());
+			var tax = parseFloat(self.tax_rate());
         	var value = cost * qty;
-        	if (self.tax() > 0) {
+        	if (tax > 0) {
         		//value = value * ((100 - this.tax())/100);
         	}
         	return value ? value : '';
@@ -693,7 +797,7 @@
     	}
 	}
 
-	function onChange()
+	function onItemChange()
 	{
 		var hasEmpty = false;
 		for(var i=0; i<model.invoice_items().length; i++) {
@@ -702,6 +806,7 @@
 				hasEmpty = true;
 			}
 		}
+
 		if (!hasEmpty) {
 			model.addItem();
 		}
@@ -709,6 +814,21 @@
 		$('.word-wrap').each(function(index, input) {
 			$(input).height($(input).val().split('\n').length * 22);
 		});
+	}
+
+	function onTaxRateChange()
+	{
+		var hasEmpty = false;
+		for(var i=0; i<model.tax_rates().length; i++) {
+			var taxRate = model.tax_rates()[i];
+			if (taxRate.isEmpty()) {
+				hasEmpty = true;
+			}
+		}
+
+		if (!hasEmpty) {
+			model.addTaxRate();
+		}
 	}
 
 	var products = {{ $products }};
@@ -740,7 +860,8 @@
 		model.invoice_number('{{ $invoiceNumber }}');
 		model.terms(wordWrapText('{{ $account->invoice_terms }}', 250));		
 	@endif	
-	model.invoice_items.push(new ItemModel());
+	model.addItem();
+	model.addTaxRate();
 	ko.applyBindings(model);
 
 
