@@ -10,7 +10,6 @@ class ConfideSetupUsersTable extends Migration {
      */
     public function up()
     {
-        Schema::dropIfExists('tax_rates');        
         Schema::dropIfExists('themes');        
         Schema::dropIfExists('credits');        
         Schema::dropIfExists('activities');
@@ -20,6 +19,7 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('payments');
         Schema::dropIfExists('invoice_items');
         Schema::dropIfExists('products');
+        Schema::dropIfExists('tax_rates');        
         Schema::dropIfExists('contacts');
         Schema::dropIfExists('invoices');
         Schema::dropIfExists('password_reminders');
@@ -313,6 +313,24 @@ class ConfideSetupUsersTable extends Migration {
             $t->unique( array('account_id','public_id') );
         });
 
+        Schema::create('tax_rates', function($t)
+        {
+            $t->increments('id');
+            $t->unsignedInteger('account_id')->index();
+            $t->unsignedInteger('user_id');
+            $t->timestamps();
+            $t->softDeletes();
+
+            $t->string('name');
+            $t->decimal('rate', 10, 2);
+            
+            $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade'); 
+            $t->foreign('user_id')->references('id')->on('users');
+            
+            $t->unsignedInteger('public_id');
+            $t->unique( array('account_id','public_id') );
+        });
+
         Schema::create('products', function($t)
         {
             $t->increments('id');
@@ -341,6 +359,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('invoice_id')->index();
             $t->unsignedInteger('product_id')->nullable();
+            $t->unsignedInteger('tax_rate_id')->nullable();            
             $t->timestamps();
             $t->softDeletes();
 
@@ -354,6 +373,7 @@ class ConfideSetupUsersTable extends Migration {
 
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('product_id')->references('id')->on('products');
+            $t->foreign('tax_rate_id')->references('id')->on('tax_rates');
             $t->foreign('user_id')->references('id')->on('users');
 
             $t->unsignedInteger('public_id');
@@ -412,24 +432,6 @@ class ConfideSetupUsersTable extends Migration {
             $t->unique( array('account_id','public_id') );
         });     
 
-        Schema::create('tax_rates', function($t)
-        {
-            $t->increments('id');
-            $t->unsignedInteger('account_id')->index();
-            $t->unsignedInteger('user_id');
-            $t->timestamps();
-            $t->softDeletes();
-
-            $t->string('name');
-            $t->decimal('rate', 10, 2);
-            
-            $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade'); 
-            $t->foreign('user_id')->references('id')->on('users');
-            
-            $t->unsignedInteger('public_id');
-            $t->unique( array('account_id','public_id') );
-        });
-
         Schema::create('activities', function($t)
         {
             $t->increments('id');
@@ -461,7 +463,6 @@ class ConfideSetupUsersTable extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('tax_rates');
         Schema::dropIfExists('themes');        
         Schema::dropIfExists('credits');        
         Schema::dropIfExists('activities');
@@ -471,6 +472,7 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('payments');
         Schema::dropIfExists('invoice_items');
         Schema::dropIfExists('products');
+        Schema::dropIfExists('tax_rates');
         Schema::dropIfExists('contacts');
         Schema::dropIfExists('invoices');
         Schema::dropIfExists('password_reminders');

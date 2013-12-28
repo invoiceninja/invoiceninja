@@ -1,6 +1,6 @@
 /app/config/staging
 /app/config/development
-/app/storage/
+/app/storage
 /public/logo
 /public/build
 /bootstrap/compiled.php

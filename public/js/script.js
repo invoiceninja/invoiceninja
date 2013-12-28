@@ -132,6 +132,7 @@ function generatePDF(invoice) {
 		var qty = item.qty ? parseFloat(item.qty) + '' : '';
 		var notes = item.notes;
 		var productKey = item.product_key;
+		var tax = item.tax && parseFloat(item.tax.rate) ? parseFloat(item.tax.rate) + '%' : false;
 
 		// show at most one blank line
 		if (shownItem && (!cost || cost == '0.00') && !qty && !notes && !productKey) {
@@ -144,11 +145,17 @@ function generatePDF(invoice) {
 		productKey = processVariables(productKey);
 
 		var lineTotal = item.cost * item.qty;
-		if (lineTotal) total += lineTotal;
+		if (tax) {
+			lineTotal += lineTotal * parseFloat(item.tax.rate) / 100;
+		}
+		if (lineTotal) {
+			total += lineTotal;
+		}
 		lineTotal = formatNumber(lineTotal);
 		
 		var costX = unitCostRight - (doc.getStringUnitWidth(cost) * doc.internal.getFontSize());
 		var qtyX = qtyRight - (doc.getStringUnitWidth(qty) * doc.internal.getFontSize());
+		var taxX = taxRight - (doc.getStringUnitWidth(tax) * doc.internal.getFontSize());
 		var totalX = lineTotalRight - (doc.getStringUnitWidth(lineTotal) * doc.internal.getFontSize());
 		var x = tableTop + (line * rowHeight) + 6;
 
@@ -157,6 +164,10 @@ function generatePDF(invoice) {
 		doc.text(costX, x, cost);
 		doc.text(qtyX, x, qty);
 		doc.text(totalX, x, lineTotal);
+
+		if (tax) {
+			doc.text(taxX, x, tax);
+		}
 
 		line += doc.splitTextToSize(item.notes, 200).length;
 	}

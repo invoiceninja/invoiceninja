@@ -5,7 +5,7 @@
 @section('head')
 
 	<meta name="csrf-token" content="<?= csrf_token() ?>">
-	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+	<script src="{{ asset('js/jquery-ui.min.js') }}" type="text/javascript"></script>				
 	@if (Auth::check() && Auth::user()->theme_id)
 		<link rel="stylesheet" type="text/css" href="{{ asset('css/themes/'.Auth::user()->theme->name.'.min.css') }}"/>		
 	@else

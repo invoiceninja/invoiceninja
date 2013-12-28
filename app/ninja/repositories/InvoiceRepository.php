@@ -4,6 +4,7 @@ use Invoice;
 use InvoiceItem;
 use Product;
 use Utils;
+use TaxRate;
 
 class InvoiceRepository
 {
@@ -134,12 +135,37 @@ class InvoiceRepository
 				$product->save();
 			}
 
+			$taxRate = false;
+			if ($item->tax)
+			{
+				if ($item->tax->public_id)
+				{
+					$taxRate = TaxRate::scope($item->tax->public_id)->firstOrFail();	
+				}
+				else
+				{
+					$taxRate = TaxRate::createNew();
+				}
+
+				$taxRate->rate = floatval($item->tax->rate);
+				$taxRate->name = trim($item->tax->name);
+
+				$taxRate->save();
+			}
+
 			$invoiceItem = InvoiceItem::createNew();
 			$invoiceItem->product_id = isset($product) ? $product->id : null;
 			$invoiceItem->product_key = trim($item->product_key);
 			$invoiceItem->notes = trim($item->notes);
 			$invoiceItem->cost = floatval($item->cost);
 			$invoiceItem->qty = floatval($item->qty);
+
+			if ($taxRate)
+			{
+				$invoiceItem->tax_rate_id = $taxRate->id;
+				$invoiceItem->tax_rate = $taxRate->rate;
+				$invoiceItem->tax_name = $taxRate->name;
+			}
 
 			$invoice->invoice_items()->save($invoiceItem);
 			$total += floatval($item->qty) * floatval($item->cost);

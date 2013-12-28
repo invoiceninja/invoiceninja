@@ -348,6 +348,7 @@ class InvoiceController extends \BaseController {
 			'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
 			'countries' => Country::orderBy('name')->get(),
 			'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+			'taxRates' => TaxRate::scope()->orderBy('name')->get(),
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',
