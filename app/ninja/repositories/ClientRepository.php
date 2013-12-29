@@ -30,6 +30,7 @@ class ClientRepository
 		$client->notes = trim($data['notes']);
 		$client->client_size_id = $data['client_size_id'] ? $data['client_size_id'] : null;
 		$client->client_industry_id = $data['client_industry_id'] ? $data['client_industry_id'] : null;
+		$client->currency_id = $data['currency_id'] ? $data['currency_id'] : null;
 		$client->website = trim($data['website']);
 		$client->save();
 		

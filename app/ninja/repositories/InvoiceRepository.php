@@ -17,7 +17,7 @@ class InvoiceRepository
     				->where('invoices.deleted_at', '=', null)
     				->where('clients.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', false)    				
-					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name');
+					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'invoices.currency_id');
 
     	if ($clientPublicId) 
     	{
@@ -45,7 +45,7 @@ class InvoiceRepository
 					->where('invoices.account_id', '=', $accountId)
     				->where('invoices.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', true)
-					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date');
+					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'invoices.currency_id');
 
     	if ($clientPublicId) 
     	{
@@ -88,7 +88,8 @@ class InvoiceRepository
 		$invoice->end_date = Utils::toSqlDate($data['end_date']);
 		$invoice->terms = trim($data['terms']);
 		$invoice->po_number = trim($data['po_number']);
-				
+		$invoice->currency_id = $data['currency_id'];
+
 		$total = 0;						
 
 		foreach ($data['invoice_items'] as $item) 

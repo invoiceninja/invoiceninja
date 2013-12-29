@@ -26,7 +26,7 @@ class ClientController extends \BaseController {
     				->where('clients.account_id', '=', Auth::user()->account_id)
     				->where('clients.deleted_at', '=', null)
     				->where('contacts.is_primary', '=', true)
-    				->select('clients.public_id','clients.name','contacts.first_name','contacts.last_name','clients.balance','clients.last_login','clients.created_at','clients.work_phone','contacts.email');
+    				->select('clients.public_id','clients.name','contacts.first_name','contacts.last_name','clients.balance','clients.last_login','clients.created_at','clients.work_phone','contacts.email','clients.currency_id');
 
 		$filter = Input::get('sSearch');
     	if ($filter)
@@ -51,7 +51,7 @@ class ClientController extends \BaseController {
     	    ->addColumn('email', function($model) { return $model->email ? HTML::mailto($model->email, $model->email) : ''; })
     	    ->addColumn('work_phone', function($model) { return Utils::formatPhoneNumber($model->work_phone); })    	   
     	    ->addColumn('last_login', function($model) { return Utils::timestampToDateString($model->last_login); })
-    	    ->addColumn('balance', function($model) { return '$' . $model->balance; })    	    
+    	    ->addColumn('balance', function($model) { return Utils::formatMoney($model->balance, $model->currency_id); })    	    
     	    ->addColumn('dropdown', function($model) 
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
@@ -139,6 +139,7 @@ class ClientController extends \BaseController {
 			'title' => '- ' . $client->name,
 			'clientSizes' => ClientSize::orderBy('id')->get(),
 			'clientIndustries' => ClientIndustry::orderBy('name')->get(),
+			'currencies' => Currency::orderBy('name')->get(),
 			'countries' => Country::orderBy('name')->get());
 		return View::make('clients.edit', $data);
 	}
@@ -184,6 +185,7 @@ class ClientController extends \BaseController {
 			$client->notes = trim(Input::get('notes'));
 			$client->client_size_id = Input::get('client_size_id') ? Input::get('client_size_id') : null;
 			$client->client_industry_id = Input::get('client_industry_id') ? Input::get('client_industry_id') : null;
+			$client->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
 			$client->website = trim(Input::get('website'));
 
 			$client->save();

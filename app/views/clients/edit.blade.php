@@ -64,6 +64,8 @@
 			</div>
 
 			{{ Former::legend('Additional Info') }}
+			{{ Former::select('currency_id')->addOption('','')->label('Currency')
+				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
 			{{ Former::select('client_size_id')->addOption('','')->label('Size')
 				->fromQuery($clientSizes, 'name', 'id')->select($client ? $client->client_size_id : '') }}
 			{{ Former::select('client_industry_id')->addOption('','')->label('Industry')

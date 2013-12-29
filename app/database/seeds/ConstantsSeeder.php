@@ -69,6 +69,10 @@ class ConstantsSeeder extends Seeder
 		ClientSize::create(array('name' => '101 - 500'));
 		ClientSize::create(array('name' => '500+'));		
 
+		Currency::create(array('name' => 'US Dollar', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
+		Currency::create(array('name' => 'Pound Sterling', 'symbol' => '£', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
+
+
 		DatetimeFormat::create(array('format' => 'F j, Y, g:i a', 'label' => 'March 10, 2013, 6:15 pm'));
 		DatetimeFormat::create(array('format' => 'D M jS, Y g:ia', 'label' => 'Mon March 10th, 2013, 6:15 pm'));
 		

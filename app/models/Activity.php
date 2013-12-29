@@ -26,6 +26,12 @@ class Activity extends Eloquent
 		return $query->whereAccountId(Auth::user()->account_id);
 	}
 
+	public function account()
+	{
+		return $this->belongsTo('Account');
+	}
+
+
 	private static function getBlank($entity = false)
 	{
 		$activity = new Activity;
@@ -75,6 +81,7 @@ class Activity extends Eloquent
 		$activity = Activity::getBlank($invoice);
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
+		$activity->currency_id = $invoice->currency_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_INVOICE;
 		$activity->message = $message;
 		$activity->save();
@@ -121,6 +128,7 @@ class Activity extends Eloquent
 			$activity->invoice_id = $payment->invoice_id;
 		}
 		$activity->client_id = $payment->client_id;
+		$activity->currency_id = $payment->currency_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_PAYMENT;
 		$activity->save();
 	}	
@@ -132,6 +140,7 @@ class Activity extends Eloquent
 		$activity->message = Auth::user()->getFullName() . ' created credit';
 		$activity->credit_id = $credit->id;
 		$activity->client_id = $credit->client_id;
+		$activity->currency_id = $credit->currency_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_CREDIT;
 		$activity->save();
 	}	

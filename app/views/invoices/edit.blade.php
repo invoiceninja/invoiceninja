@@ -66,7 +66,7 @@
 		<div class="col-md-3" id="col_2">
 			{{ Former::text('po_number')->label('PO&nbsp;number')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
 			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}			
-			{{ Former::text('currency')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}			
+			{{ Former::select('currency_id')->label('Currency')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") }}
 			
 			<div class="form-group" style="margin-bottom: 8px">
 				<label for="recurring" class="control-label col-lg-4 col-sm-4">Taxes</label>
@@ -241,6 +241,8 @@
 				</div>
 
 				{{ Former::legend('Additional Info') }}
+				{{ Former::select('currency_id')->addOption('','')->label('Currency')->data_bind('value: currency_id')
+					->fromQuery($currencies, 'name', 'id') }}
 				{{ Former::select('client_size_id')->addOption('','')->label('Size')->data_bind('value: client_size_id')
 					->fromQuery($clientSizes, 'name', 'id')->select($client ? $client->client_size_id : '') }}
 				{{ Former::select('client_industry_id')->addOption('','')->label('Industry')->data_bind('value: client_industry_id')
@@ -328,6 +330,10 @@
 			autoclose: true,
 			todayHighlight: true
 		});
+
+		@if ($client && !$invoice)
+			$('input[name=client]').val({{ $client->public_id }});
+		@endif
 
 		var $input = $('select#client');
 		$input.combobox();
@@ -513,6 +519,7 @@
 		this.client = new ClientModel();		
 		self.discount = ko.observable('');
 		self.frequency_id = ko.observable('');
+		self.currency_id = ko.observable({{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }});
 		self.terms = ko.observable('');		
 		self.po_number = ko.observable('');
 		self.invoice_date = ko.observable('');
@@ -636,13 +643,13 @@
 
 		this.subtotal = ko.computed(function() {
 		    var total = self.rawSubtotal();
-		    return total > 0 ? formatMoney(total) : '';
+		    return total > 0 ? formatMoney(total, self.currency_id()) : '';
 		});
 
 
 		this.discounted = ko.computed(function() {
 			var total = self.rawSubtotal() * (self.discount()/100);
-			return formatMoney(total);
+			return formatMoney(total, self.currency_id());
 		});
 
 		this.total = ko.computed(function() {
@@ -653,7 +660,7 @@
 		    	total = total * ((100 - discount)/100);
 		    }
 
-		    return total > 0 ? formatMoney(total) : '';
+		    return total > 0 ? formatMoney(total, self.currency_id()) : '';
     	});
 
     	self.onDragged = function(item) {
@@ -675,6 +682,7 @@
 		self.country_id = ko.observable('');
 		self.client_size_id = ko.observable('');
 		self.client_industry_id = ko.observable('');
+		self.currency_id = ko.observable('');
 		self.website = ko.observable('');
 		self.contacts = ko.observableArray();
 
@@ -778,7 +786,7 @@
 		this.qty = ko.observable();
 		this.tax = ko.observable();
 		this.actionsVisible = ko.observable(false);
-
+		
 		this.prettyQty = ko.computed({
 	        read: function () {
 	            return this.qty() ? parseFloat(this.qty()) : '';
@@ -791,6 +799,7 @@
 
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);			
+			if (this.cost()) this.cost(formatMoney(this.cost(), model.currency_id(), true));
 		}
 
 		for (var i=0; i<model.tax_rates().length; i++) {
@@ -839,7 +848,7 @@
 
 		this.total = ko.computed(function() {
 			var total = self.rawTotal();
-			return total ? formatMoney(total) : '';
+			return total ? formatMoney(total, model.currency_id()) : '';
     	});
 
     	this.hideActions = function() {

@@ -29,6 +29,8 @@
 
 			{{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
 			{{ Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') }}
+			{{ Former::select('currency_id')->addOption('','')->label('Currency')
+				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
 			{{ Former::text('amount') }}
 			{{ Former::text('payment_date')->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
 
@@ -107,7 +109,7 @@
 			var list = clientId ? (invoiceMap.hasOwnProperty(clientId) ? invoiceMap[clientId] : []) : invoices;
 			for (var i=0; i<list.length; i++) {
 				var invoice = list[i];
-				$invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + invoice.invoice_date + ' - ' + invoice.client.name,  invoice.public_id));
+				$invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + invoice.client.name,  invoice.public_id));
 			}
 			$('select#invoice').combobox('refresh');
 		}).trigger('change');
@@ -121,6 +123,8 @@
 			}
 		});
 		$input.combobox();
+
+		$('#currency_id').combobox();
 
 		$('#payment_date').datepicker({
 			autoclose: true,

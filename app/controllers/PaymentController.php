@@ -19,7 +19,7 @@ class PaymentController extends \BaseController
                     ->where('payments.account_id', '=', Auth::user()->account_id)
                     ->where('payments.deleted_at', '=', null)
                     ->where('clients.deleted_at', '=', null)
-                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number');        
+                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'payments.currency_id');        
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
@@ -47,7 +47,7 @@ class PaymentController extends \BaseController
         }
 
         return $table->addColumn('invoice_number', function($model) { return $model->invoice_public_id ? link_to('invoices/' . $model->invoice_public_id . '/edit', $model->invoice_number) : ''; })
-            ->addColumn('amount', function($model) { return '$' . $model->amount; })
+            ->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
     	    ->addColumn('payment_date', function($model) { return Utils::dateToString($model->payment_date); })
             ->addColumn('dropdown', function($model) 
             { 
@@ -83,6 +83,7 @@ class PaymentController extends \BaseController
             'method' => 'POST', 
             'url' => 'payments', 
             'title' => '- New Payment',
+            'currencies' => Currency::orderBy('name')->get(),
             'clients' => Client::scope()->orderBy('name')->get());
 
         return View::make('payments.edit', $data);
@@ -99,6 +100,7 @@ class PaymentController extends \BaseController
             'method' => 'PUT', 
             'url' => 'payments/' . $publicId, 
             'title' => '- Edit Payment',
+            'currencies' => Currency::orderBy('name')->get(),
             'clients' => Client::scope()->orderBy('name')->get());
         return View::make('payments.edit', $data);
     }
@@ -137,6 +139,7 @@ class PaymentController extends \BaseController
 
             $payment->client_id = Input::get('client');
             $payment->invoice_id = $invoiceId;
+            $payment->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
             $payment->payment_date = Utils::toSqlDate(Input::get('payment_date'));
             $payment->amount = floatval(Input::get('amount'));
             $payment->save();

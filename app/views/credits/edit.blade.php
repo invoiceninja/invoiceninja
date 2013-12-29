@@ -28,6 +28,8 @@
 			@endif
 
 			{{ Former::select('client')->fromQuery($clients, 'name', 'public_id')->select($client ? $client->public_id : '')->addOption('', '')->addGroupClass('client-select') }}
+			{{ Former::select('currency_id')->addOption('','')->label('Currency')
+				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
 			{{ Former::text('amount') }}
 			{{ Former::text('credit_date')->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
 
@@ -50,7 +52,8 @@
 
 		var $input = $('select#client');		
 		$input.combobox();
-
+		$('#currency_id').combobox();
+		
 		$('#credit_date').datepicker({
 			autoclose: true,
 			todayHighlight: true

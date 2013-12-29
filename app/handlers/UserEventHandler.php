@@ -33,5 +33,6 @@ class UserEventHandler
 		Session::put(SESSION_DATE_FORMAT, $account->date_format ? $account->date_format->format : DEFAULT_DATE_FORMAT);
 		Session::put(SESSION_DATE_PICKER_FORMAT, $account->date_format ? $account->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
 		Session::put(SESSION_DATETIME_FORMAT, $account->datetime_format ? $account->datetime_format->format : DEFAULT_DATETIME_FORMAT);			
+		Session::put(SESSION_CURRENCY, $account->currency_id ? $account->currency_id : DEFAULT_CURRENCY);			
 	}
 }

@@ -92,6 +92,7 @@ class AccountController extends \BaseController {
 				'timezones' => Timezone::orderBy('location')->get(),
 				'dateFormats' => DateFormat::all(),
 				'datetimeFormats' => DatetimeFormat::all(),
+				'currencies' => Currency::orderBy('name')->get(),				
 			];
 			
 			foreach ($data['gateways'] as $gateway)
@@ -406,6 +407,7 @@ class AccountController extends \BaseController {
 			$account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
 			$account->date_format_id = Input::get('date_format_id') ? Input::get('date_format_id') : null;
 			$account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
+			$account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
 
 			$account->invoice_terms = Input::get('invoice_terms');
 			$account->save();

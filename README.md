@@ -58,3 +58,4 @@ Configure config/database.php and then initialize the database
 * [thomaspark/bootswatch](https://github.com/thomaspark/bootswatch) - Themes for Bootstrap
 * [mozilla/pdf.js](https://github.com/mozilla/pdf.js) - PDF Reader in JavaScript
 * [nnnick/Chart.js](https://github.com/nnnick/Chart.js) - Simple HTML5 Charts using the <canvas> tag
+* [josscrowcroft/accounting.js](https://github.com/josscrowcroft/accounting.js) - A lightweight JavaScript library for number, money and currency formatting

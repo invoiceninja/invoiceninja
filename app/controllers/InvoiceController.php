@@ -55,8 +55,8 @@ class InvoiceController extends \BaseController {
     	}
     	
     	return $table->addColumn('invoice_date', function($model) { return Utils::fromSqlDate($model->invoice_date); })    	    
-    		->addColumn('total', function($model) { return '$' . money_format('%i', $model->amount); })
-    		->addColumn('balance', function($model) { return '$' . money_format('%i', $model->balance); })
+    		->addColumn('total', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
+    		->addColumn('balance', function($model) { return Utils::formatMoney($model->balance, $model->currency_id); })
     	    ->addColumn('due_date', function($model) { return Utils::fromSqlDate($model->due_date); })
     	    ->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
     	    ->addColumn('dropdown', function($model) 
@@ -94,7 +94,7 @@ class InvoiceController extends \BaseController {
     	
     	return $table->addColumn('start_date', function($model) { return Utils::fromSqlDate($model->start_date); })
     	    ->addColumn('end_date', function($model) { return Utils::fromSqlDate($model->end_date); })    	    
-    	    ->addColumn('total', function($model) { return '$' . money_format('%i', $model->amount); })
+    	    ->addColumn('total', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
     	    ->addColumn('dropdown', function($model) 
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
@@ -352,6 +352,7 @@ class InvoiceController extends \BaseController {
 			'countries' => Country::orderBy('name')->get(),
 			'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
 			'taxRates' => TaxRate::scope()->orderBy('name')->get(),
+			'currencies' => Currency::orderBy('name')->get(),
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',

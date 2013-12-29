@@ -14,6 +14,7 @@ class AccountRepository
 		$contacts = \DB::table('clients')
 			->join('contacts', 'contacts.client_id', '=', 'clients.id')
 			->where('clients.deleted_at', '=', null)
+			->whereRaw("CONCAT(contacts.first_name, contacts.last_name) <> ''")
 			->select(\DB::raw("'Contacts' as type, clients.public_id, CONCAT(contacts.first_name, ' ', contacts.last_name, ': ', clients.name) as name, '' as token"));
 
 		$invoices = \DB::table('clients')

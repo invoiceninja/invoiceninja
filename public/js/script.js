@@ -1,4 +1,5 @@
 function generatePDF(invoice) {
+	var currencyId = invoice.currency_id;
 	var invoiceNumber = invoice.invoice_number;
 	var issuedOn = invoice.invoice_date ? invoice.invoice_date : '';
 	var amount = '$0.00';
@@ -128,7 +129,7 @@ function generatePDF(invoice) {
 
 	for (var i=0; i<invoice.invoice_items.length; i++) {
 		var item = invoice.invoice_items[i];
-		var cost = formatNumber(item.cost);
+		var cost = formatMoney(item.cost, currencyId, true);
 		var qty = item.qty ? parseFloat(item.qty) + '' : '';
 		var notes = item.notes;
 		var productKey = item.product_key;
@@ -151,7 +152,7 @@ function generatePDF(invoice) {
 		if (lineTotal) {
 			total += lineTotal;
 		}
-		lineTotal = formatNumber(lineTotal);
+		lineTotal = formatMoney(lineTotal, currencyId, true);
 		
 		var costX = unitCostRight - (doc.getStringUnitWidth(cost) * doc.internal.getFontSize());
 		var qtyX = qtyRight - (doc.getStringUnitWidth(qty) * doc.internal.getFontSize());
@@ -181,7 +182,7 @@ function generatePDF(invoice) {
 
 	x += 16;
 	doc.text(footerLeft, x, 'Subtotal');
-	var total = formatNumber(total);
+	var total = formatMoney(total, currencyId, true);
 	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
 	doc.text(totalX, x, total);		
 
@@ -189,7 +190,7 @@ function generatePDF(invoice) {
 
 		x += 16;
 		doc.text(footerLeft, x, 'Discount');
-		var discount = formatNumber(total * (invoice.discount/100));
+		var discount = formatMoney(total * (invoice.discount/100), currencyId, true);
 		total -= discount;
 		var discountX = headerRight - (doc.getStringUnitWidth(discount) * doc.internal.getFontSize());
 		doc.text(discountX, x, discount);		
@@ -197,7 +198,7 @@ function generatePDF(invoice) {
 
 	x += 16;
 	doc.text(footerLeft, x, 'Paid to Date');
-	var paid = formatNumber(0);
+	var paid = formatMoney(0, currencyId, true);
 	var paidX = headerRight - (doc.getStringUnitWidth(paid) * doc.internal.getFontSize());
 	doc.text(paidX, x, paid);		
 
@@ -206,7 +207,7 @@ function generatePDF(invoice) {
 	doc.setFontType("bold");
 	doc.text(footerLeft, x, 'Total');
 	
-	var total = formatMoney(total);
+	var total = formatMoney(total, currencyId);
 	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
 	doc.text(totalX, x, total);		
 
@@ -344,26 +345,6 @@ function getQuarter(offset) {
     }
     return 'Q' + quarter;
 }
-
-
-
-
-function formatMoney(num) {
-	num = parseFloat(num);
-    if (!num) return '$0.00';
-	return '$' + formatNumber(num);
-}
-
-
-function formatNumber(num) {
-	num = parseFloat(num);
-    if (!num) num = 0;
-	var p = num.toFixed(2).split(".");
-    return p[0].split("").reverse().reduce(function(acc, num, i, orig) {
-        return  num + (i && !(i % 3) ? "," : "") + acc;
-    }, "") + "." + p[1];
-}
-
 
 /* Set the defaults for DataTables initialisation */
 $.extend( true, $.fn.dataTable.defaults, {

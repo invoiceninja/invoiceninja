@@ -35,6 +35,15 @@ class Utils
 	    return $phoneNumber;
 	}
 
+	public static function formatMoney($value, $currencyId)
+	{
+		$currency = Currency::find($currencyId);		
+		if (!$currency) {
+			$currency = Currency::find(1);		
+		}
+		return $currency->symbol . number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
+	}
+
 	public static function pluralize($string, $count) 
 	{
 		$string = str_replace('?', $count, $string);

@@ -23,7 +23,7 @@ class CreditController extends \BaseController {
                     ->where('clients.account_id', '=', Auth::user()->account_id)
                     ->where('clients.deleted_at', '=', null)
                     ->where('credits.deleted_at', '=', null)
-                    ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.credit_date');        
+                    ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.credit_date', 'credits.currency_id');        
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
@@ -45,8 +45,8 @@ class CreditController extends \BaseController {
                   ->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
         }
         
-        return $table->addColumn('amount', function($model){ return '$' . money_format('%i', $model->amount); })
-            ->addColumn('credit_date', function($model) { return Utils::timestampToDateString($model->credit_date); })
+        return $table->addColumn('amount', function($model){ return Utils::formatMoney($model->amount, $model->currency_id); })
+            ->addColumn('credit_date', function($model) { return Utils::fromSqlDate($model->credit_date); })
             ->addColumn('dropdown', function($model) 
             { 
                 return '<div class="btn-group tr-action" style="visibility:hidden;">
@@ -79,6 +79,7 @@ class CreditController extends \BaseController {
             'method' => 'POST', 
             'url' => 'credits', 
             'title' => '- New Credit',
+            'currencies' => Currency::orderBy('name')->get(),
             'clients' => Client::scope()->orderBy('name')->get());
 
         return View::make('credits.edit', $data);
@@ -93,6 +94,7 @@ class CreditController extends \BaseController {
             'method' => 'PUT', 
             'url' => 'credits/' . $publicId, 
             'title' => '- Edit Credit',
+            'currencies' => Currency::orderBy('name')->get(),
             'clients' => Client::scope()->orderBy('name')->get());
         return View::make('credit.edit', $data);
     }
@@ -130,6 +132,7 @@ class CreditController extends \BaseController {
             $credit->client_id = Input::get('client');
             $credit->credit_date = Utils::toSqlDate(Input::get('credit_date'));
             $credit->amount = floatval(Input::get('amount'));
+            $credit->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
             $credit->save();
 
             $message = $publicId ? 'Successfully updated credit' : 'Successfully created credit';

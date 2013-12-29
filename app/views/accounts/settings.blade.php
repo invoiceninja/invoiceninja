@@ -39,7 +39,9 @@
 	@endforeach
 
 
-	{{ Former::legend('Date and Time') }}
+	{{ Former::legend('Localization') }}
+	{{ Former::select('currency_id')->addOption('','')->label('Currency')
+		->fromQuery($currencies, 'name', 'id')->select($account->currency_id) }}			
 	{{ Former::select('timezone_id')->addOption('','')->label('Timezone')
 		->fromQuery($timezones, 'location', 'id')->select($account->timezone_id) }}
 	{{ Former::select('date_format_id')->addOption('','')->label('Date Format')

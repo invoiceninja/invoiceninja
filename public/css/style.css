@@ -1,20 +1,20 @@
 /*
 body > div.container {
-	min-height: 600px;		
+    min-height: 600px;      
 }
 */
 
 label.checkbox,
 label.control-label {
-	font-weight: normal !important;
+    font-weight: normal !important;
 }
 
 
 
 
 div.panel {
-	padding-left: 0px !important;
-	padding-right: 0px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
 }
 
 .form-actions {
@@ -23,57 +23,52 @@ div.panel {
     text-align: center;
 }
 
-.sides-padded {
-    margin-left: 8px !important;
-    margin-right: 8px !important;
-}
-
 /*
 .form-horizontal {
-	max-width: 750px;
-	margin: 0 auto;
+    max-width: 750px;
+    margin: 0 auto;
 }
 */
 
 /*
 .form-group {
-	width: 50%;
-	margin: 0 auto;
+    width: 50%;
+    margin: 0 auto;
 }
 */
 
 /* DataTables and BootStrap */
 .dataTables_wrapper {
-	padding-top: 16px;
+    padding-top: 16px;
 }
 
 table.table thead > tr > th {
-	border-bottom-width: 0px;
+    border-bottom-width: 0px;
 }
 
 #DataTables_Table_0_length label {
-	font-weight: normal;
-	padding-bottom: 10px;		
+    font-weight: normal;
+    padding-bottom: 10px;       
 }
 
 div.dataTables_paginate.paging_bootstrap  {
-	margin-top: -30px;
+    margin-top: -30px;
 }
 
 /*
 table.table tbody tr.odd {
-	background-color: #f9f9f9;
+    background-color: #f9f9f9;
 }
 
 table.table tbody tr:hover {
-	background-color: #f0f0f0 !important;
+    background-color: #f0f0f0 !important;
 }
 */
 
 
 /* table sorting indicators */
 /*table.table thead .sorting { background: url('images/sort_both.png') no-repeat center right; }*/
-/*
+
 table.table thead .sorting,
 table.table thead .sorting_asc,
 table.table thead .sorting_desc,
@@ -83,14 +78,13 @@ table.table thead .sorting_desc_disabled {
     *cursor: hand;
 }
  
-table.table thead .sorting_asc { background: url('images/sort_asc.png') no-repeat center right; }
-table.table thead .sorting_desc { background: url('images/sort_desc.png') no-repeat center right; }
+table.table thead .sorting_asc { background: url('../images/sort_asc.png') no-repeat center right; }
+table.table thead .sorting_desc { background: url('../images/sort_desc.png') no-repeat center right; }
 
  
-table.table thead .sorting_asc_disabled { background: url('images/sort_asc_disabled.png') no-repeat center right; }
-table.table thead .sorting_desc_disabled { background: url('images/sort_desc_disabled.png') no-repeat center right; }
-*/
-	
+table.table thead .sorting_asc_disabled { background: url('../images/sort_asc_disabled.png') no-repeat center right; }
+table.table thead .sorting_desc_disabled { background: url('../images/sort_desc_disabled.png') no-repeat center right; }
+    
 
 /* Hover nav */
 .sidebar-nav {
@@ -137,44 +131,44 @@ table.table thead .sorting_desc_disabled { background: url('images/sort_desc_dis
 
 
 .invoice-table {
-	border-style: none !important;
+    border-style: none !important;
 }
 
 /*
 table.invoice-table tbody tr:hover {
-	background-color: #FFFFFF !important;
+    background-color: #FFFFFF !important;
 }
 */
 
 .invoice-table td {
-	padding: 2px !important;
+    padding: 2px !important;
 }
 
 .invoice-table td input,
 .invoice-table td textarea {
-	border: none !important;
-	width: 100%;
+    border: none !important;
+    width: 100%;
 }
 
 .invoice-table th {
-	border-top: 1px solid #ddd !important;		
+    border-top: 1px solid #ddd !important;      
 }
 
 .invoice-table td.hide-border,
 .invoice-table th.hide-border {
-	border-style: none !important;
+    border-style: none !important;
 }
 
 .invoice-table td.td-icon {
-	vertical-align: middle !important;
+    vertical-align: middle !important;
 }
 
 .fa-bars {
-	cursor: move !important;
+    cursor: move !important;
 }
 
 .closer-row {
-	margin-bottom: 2px;
+    margin-bottom: 2px;
 }
 
 
@@ -183,5 +177,5 @@ table.invoice-table tbody tr:hover {
     -webkit-transition: width 0.5s ease, margin 0.5s ease;
     -moz-transition: width 0.5s ease, margin 0.5s ease;
     -o-transition: width 0.5s ease, margin 0.5s ease;
-    transition: width 0.5s ease, margin 0.5s ease;	    
+    transition: width 0.5s ease, margin 0.5s ease;      
 }

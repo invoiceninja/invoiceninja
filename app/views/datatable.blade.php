@@ -36,7 +36,8 @@
         // dynamic table
         jQuery('.{{ $class }}').dataTable({
             // Disable sorting on the first column
-            @if (isset($haeCheckboxes) && $hasCheckboxes)
+            "aaSorting": [],
+            @if (isset($hasCheckboxes) && $hasCheckboxes)
             "aoColumnDefs" : [ {
                 'bSortable' : false,
                 'aTargets' : [ 0 ]
