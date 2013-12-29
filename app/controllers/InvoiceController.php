@@ -3,20 +3,23 @@
 use ninja\mailers\ContactMailer as Mailer;
 use ninja\repositories\InvoiceRepository;
 use ninja\repositories\ClientRepository;
+use ninja\repositories\TaxRateRepository;
 
 class InvoiceController extends \BaseController {
 
 	protected $mailer;
 	protected $invoiceRepo;
 	protected $clientRepo;
+	protected $taxRateRepo;
 
-	public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo)
+	public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, TaxRateRepository $taxRateRepo)
 	{
 		parent::__construct();
 
 		$this->mailer = $mailer;
 		$this->invoiceRepo = $invoiceRepo;
 		$this->clientRepo = $clientRepo;
+		$this->taxRateRepo = $taxRateRepo;
 	}	
 
 	public function index()
@@ -391,13 +394,15 @@ class InvoiceController extends \BaseController {
 		} 
 		else 
 		{			
+			$this->taxRateRepo->save($input->tax_rates);
+						
 			$clientData = (array) $input->client;			
 			$client = $this->clientRepo->save($input->client->public_id, $clientData);
 			
 			$invoiceData = (array) $input;
 			$invoiceData['client_id'] = $client->id;
 			$invoice = $this->invoiceRepo->save($publicId, $invoiceData);
-						
+
 			if ($action == 'email' && $invoice->invoice_status_id == INVOICE_STATUS_DRAFT)
 			{
 				$invoice->invoice_status_id = INVOICE_STATUS_SENT;

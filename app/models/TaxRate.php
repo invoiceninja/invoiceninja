@@ -2,5 +2,6 @@
 
 class TaxRate extends EntityModel
 {
+	
 
 }

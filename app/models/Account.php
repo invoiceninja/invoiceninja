@@ -25,6 +25,11 @@ class Account extends Eloquent
 		return $this->hasMany('AccountGateway');
 	}
 
+	public function tax_rates()
+	{
+		return $this->hasMany('TaxRate');
+	}
+
 	public function country()
 	{
 		return $this->belongsTo('Country');

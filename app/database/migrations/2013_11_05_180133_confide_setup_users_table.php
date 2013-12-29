@@ -359,7 +359,6 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('invoice_id')->index();
             $t->unsignedInteger('product_id')->nullable();
-            $t->unsignedInteger('tax_rate_id')->nullable();            
             $t->timestamps();
             $t->softDeletes();
 
@@ -373,7 +372,6 @@ class ConfideSetupUsersTable extends Migration {
 
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('product_id')->references('id')->on('products');
-            $t->foreign('tax_rate_id')->references('id')->on('tax_rates');
             $t->foreign('user_id')->references('id')->on('users');
 
             $t->unsignedInteger('public_id');

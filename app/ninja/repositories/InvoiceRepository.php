@@ -135,24 +135,6 @@ class InvoiceRepository
 				$product->save();
 			}
 
-			$taxRate = false;
-			if ($item->tax)
-			{
-				if ($item->tax->public_id)
-				{
-					$taxRate = TaxRate::scope($item->tax->public_id)->firstOrFail();	
-				}
-				else
-				{
-					$taxRate = TaxRate::createNew();
-				}
-
-				$taxRate->rate = floatval($item->tax->rate);
-				$taxRate->name = trim($item->tax->name);
-
-				$taxRate->save();
-			}
-
 			$invoiceItem = InvoiceItem::createNew();
 			$invoiceItem->product_id = isset($product) ? $product->id : null;
 			$invoiceItem->product_key = trim($item->product_key);
@@ -160,11 +142,10 @@ class InvoiceRepository
 			$invoiceItem->cost = floatval($item->cost);
 			$invoiceItem->qty = floatval($item->qty);
 
-			if ($taxRate)
+			if ($item->tax && isset($item->tax->rate) && isset($item->tax->name))
 			{
-				$invoiceItem->tax_rate_id = $taxRate->id;
-				$invoiceItem->tax_rate = $taxRate->rate;
-				$invoiceItem->tax_name = $taxRate->name;
+				$invoiceItem->tax_rate = floatval($item->tax->rate);
+				$invoiceItem->tax_name = trim($item->tax->name);
 			}
 
 			$invoice->invoice_items()->save($invoiceItem);

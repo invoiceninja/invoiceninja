@@ -111,10 +111,10 @@
 	            	<input onkeyup="onItemChange()" data-bind="value: cost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 	            </td>
 	            <td style="width:80px">
-	            	<input onkeyup="onItemChange()" data-bind="value: qty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
+	            	<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 	            </td>
-	            <td style="width:80px; vertical-align:middle" data-bind="visible: $parent.tax_rates().length > 1">
-	            	<select style="width:100%" data-bind="value: tax, options: $parent.tax_rates, optionsText: 'displayName'"></select>
+	            <td style="width:120px; vertical-align:middle" data-bind="visible: $parent.tax_rates().length > 1">
+	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $parent.tax_rates, optionsText: 'displayName'"></select>
 	            </td>
 	        	<td style="width:100px;text-align: right;padding-top:9px !important">
 	            	<span data-bind="text: total"></span>
@@ -286,7 +286,7 @@
 			            	<input onkeyup="onTaxRateChange()" data-bind="value: name, valueUpdate: 'afterkeydown'" class="form-control" onchange="refreshPDF()"//>			            	
 			            </td>
 			            <td style="width:60px">
-			            	<input onkeyup="onTaxRateChange()" data-bind="value: rate, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
+			            	<input onkeyup="onTaxRateChange()" data-bind="value: prettyRate, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 			            </td>
 			        	<td style="width:10px; cursor:pointer" class="hide-border td-icon">
 			        		&nbsp;<i data-bind="click: $parent.removeTaxRate, visible: actionsVisible() &amp;&amp; $parent.tax_rates().length > 1" class="fa fa-minus-circle" title="Remove item"/>
@@ -298,7 +298,7 @@
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">
-	      	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	      	<!-- <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button> -->
 	        <button type="button" class="btn btn-primary" data-bind="click: taxFormComplete">Done</button>	      	
 	     </div>
 	  		
@@ -392,9 +392,9 @@
 				var product = products[i];
 				if (product.product_key == key) {
 					var model = ko.dataFor(this);
-					model.notes(product.notes);
-					model.cost(product.cost);
-					model.qty(product.qty);
+					//model.notes(product.notes);
+					//model.cost(product.cost);
+					//model.qty(product.qty);
 					break;
 				}
 			}
@@ -611,12 +611,7 @@
 		self.addItem = function() {
 			var itemModel = new ItemModel();
 			self.invoice_items.push(itemModel);	
-			applyComboboxListeners();
-
-			itemModel.tax.subscribe(function (data) {
-				console.log('Tax change...');
-       			console.log(data)
-    		});
+			applyComboboxListeners();			
 		}
 
 		self.removeTaxRate = function(taxRate) {
@@ -625,7 +620,8 @@
 		}
 
 		self.addTaxRate = function(data) {
-			self.tax_rates.push(new TaxRateModel(data));	
+			var itemModel = new TaxRateModel(data);
+			self.tax_rates.push(itemModel);	
 			applyComboboxListeners();
 		}
 
@@ -737,15 +733,27 @@
 		self.public_id = ko.observable('');
 		self.rate = ko.observable();
 		self.name = ko.observable('');
+		self.is_deleted = ko.observable(false);
 		self.actionsVisible = ko.observable(false);
 
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);		
 		}		
 
+		this.prettyRate = ko.computed({
+	        read: function () {
+	            return this.rate() ? parseFloat(this.rate()) : '';
+	        },
+	        write: function (value) {
+	            this.rate(value);
+	        },
+	        owner: this
+	    });				
+
+
 		self.displayName = ko.computed(function() {
 			var name = self.name() ? self.name() : false;
-			var rate = self.rate() ? self.rate() : false;
+			var rate = self.rate() ? parseFloat(self.rate()) : false;
 			return (name && rate) ? (rate + '%' + ' - ' + name) : '';
 		});	
 
@@ -771,19 +779,40 @@
 		this.tax = ko.observable();
 		this.actionsVisible = ko.observable(false);
 
+		this.prettyQty = ko.computed({
+	        read: function () {
+	            return this.qty() ? parseFloat(this.qty()) : '';
+	        },
+	        write: function (value) {
+	            this.qty(value);
+	        },
+	        owner: this
+	    });				
+
 		if (data) {
-			ko.mapping.fromJS(data, {}, this);
+			ko.mapping.fromJS(data, {}, this);			
 		}
 
-		console.log('data: ' + data);
 		for (var i=0; i<model.tax_rates().length; i++) {
 			var taxRate = model.tax_rates()[i];
-			if (data && (data.tax_name == taxRate.name())) {
+			if (data && (data.tax_name == taxRate.name() && data.tax_rate == taxRate.rate())) {
 				self.tax(taxRate);
-			} else if (!data && !taxRate.tax_name) {
+				break;
+			} else if ((!data || !data.tax_name) && !taxRate.name()) {
 				self.tax(taxRate);
+				break;				
 			}
 		}
+		
+		// if the tax was deleted but exists for the line item
+		if (data && data.tax_name && (parseFloat(data.tax_rate)) && !self.tax()) {
+			var taxRate = new TaxRateModel();
+			taxRate.rate(parseFloat(data.tax_rate));
+			taxRate.name(data.tax_name);
+			taxRate.is_deleted(true);
+			model.tax_rates.push(taxRate);
+			self.tax(taxRate);
+		}		
 
 		self.wrapped_notes = ko.computed({
 			read: function() {
@@ -882,6 +911,7 @@
 	@foreach ($taxRates as $taxRate)
 		model.addTaxRate({{ $taxRate }});	
 	@endforeach
+	model.addTaxRate();
 	@if ($invoice)
 		var invoice = {{ $invoice }};
 		ko.mapping.fromJS(invoice, model.mapping, model);
@@ -896,7 +926,6 @@
 		model.invoice_number('{{ $invoiceNumber }}');
 		model.terms(wordWrapText('{{ $account->invoice_terms }}', 250));		
 	@endif
-	model.addTaxRate();
 	model.addItem();
 	ko.applyBindings(model);
 
