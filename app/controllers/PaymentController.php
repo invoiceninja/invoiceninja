@@ -80,7 +80,7 @@ class PaymentController extends \BaseController
             'method' => 'POST', 
             'url' => 'payments', 
             'title' => '- New Payment',
-            'currencies' => Currency::orderBy('name')->get(),
+            'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
 
         return View::make('payments.edit', $data);
@@ -97,7 +97,7 @@ class PaymentController extends \BaseController
             'method' => 'PUT', 
             'url' => 'payments/' . $publicId, 
             'title' => '- Edit Payment',
-            'currencies' => Currency::orderBy('name')->get(),
+            'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
         return View::make('payments.edit', $data);
     }

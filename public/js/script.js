@@ -1,3 +1,10 @@
+// http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
+var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
+var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
+var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
+
 function generatePDF(invoice) {
 	var currencyId = invoice.currency_id;
 	var invoiceNumber = invoice.invoice_number;
@@ -52,8 +59,8 @@ function generatePDF(invoice) {
 	doc.setFillColor(230,230,230);
 	var x1 = headerLeft - 6;
 	var y1 = headerTop + rowHeight + 4;
-	var x2 = headerRight - headerLeft + 12;
-	var y2 = rowHeight + 2;
+	var x2 = headerRight - headerLeft + 11;
+	var y2 = rowHeight + 1;
 	if (invoice.po_number) {
 		y1 += rowHeight;
 	}

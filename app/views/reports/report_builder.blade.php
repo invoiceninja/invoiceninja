@@ -23,6 +23,20 @@
 			{{ Former::actions( Button::primary_submit('Generate') ) }}
 			{{ Former::close() }}
 
+			<p>&nbsp;</p>
+			<div style="padding-bottom:8px">
+				<div style="float:left; height:22px; width:60px; background-color:rgba(78,205,196,.5); border: 1px solid rgba(78,205,196,1)"></div>
+				<div style="vertical-align: middle">&nbsp;Invoices</div>
+			</div>			
+			<div style="padding-bottom:8px; clear:both">
+				<div style="float:left; height:22px; width:60px; background-color:rgba(255,107,107,.5); border: 1px solid rgba(255,107,107,1)"></div>
+				<div style="vertical-align: middle">&nbsp;Payments</div>
+			</div>
+			<div style="clear:both">
+				<div style="float:left; height:22px; width:60px; background-color:rgba(199,244,100,.5); border: 1px solid rgba(199,244,100,1)"></div>
+				<div style="vertical-align: middle">&nbsp;Credits</div>
+			</div>
+
 		</div>
 		<div class="col-lg-9">
 			<canvas id="monthly-reports" width="850" height="400"></canvas>

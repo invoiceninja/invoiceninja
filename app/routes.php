@@ -180,3 +180,5 @@ define('DEFAULT_CURRENCY', 1); // US Dollar
 define('DEFAULT_DATE_FORMAT', 'M j, Y');
 define('DEFAULT_DATE_PICKER_FORMAT', 'yyyy-mm-dd');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
+
+define('DEFAULT_QUERY_CACHE', 120);

@@ -19,6 +19,17 @@
     
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-5" id="col_1">
+
+    		@if ($invoice && $invoice->isSent())
+				<div class="form-group">
+					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
+					<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
+						<a href="#" data-bind="click: showClientForm">{{ $client->getDisplayName() }}</a>
+					</div>
+				</div>    				
+				<div style="display:none">
+    		@endif
+
 			{{ Former::select('client')->addOption('', '')->data_bind("dropdown: client")
 					->addGroupClass('client_select closer-row') }}
 
@@ -28,12 +39,16 @@
 				</div>
 			</div>
 
+			@if ($invoice && $invoice->isSent())
+				</div>
+			@endif
+
 			<div data-bind="with: client">
 				<div class="form-group" data-bind="visible: contacts().length > 1, foreach: contacts">
 					<div class="col-lg-8 col-lg-offset-4">
 						<label for="test" class="checkbox" data-bind="attr: {for: $index() + '_check'}">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check'}">
-								<span data-bind="text: fullName"/>
+								<span data-bind="text: displayName"/>
 						</label>
 					</div>				
 				</div>
@@ -111,13 +126,13 @@
 	            	<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap" onchange="refreshPDF()"></textarea>
 	            </td>
 	            <td style="width:100px">
-	            	<input onkeyup="onItemChange()" data-bind="value: cost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
+	            	<input onkeyup="onItemChange()" data-bind="value: prettyCost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 	            </td>
 	            <td style="width:80px">
 	            	<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 	            </td>
 	            <td style="width:120px; vertical-align:middle" data-bind="visible: $parent.tax_rates().length > 1">
-	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $parent.tax_rates, optionsText: 'displayName'"></select>
+	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $parent.tax_rates, optionsText: 'displayName'" onchange="refreshPDF()"></select>
 	            </td>
 	        	<td style="width:100px;text-align: right;padding-top:9px !important">
 	            	<span data-bind="text: total"></span>
@@ -187,7 +202,7 @@
 	
 	<!-- <textarea rows="20" cols="120" id="pdfText" onkeyup="runCode()"></textarea> -->
 	<!-- <iframe frameborder="1" width="100%" height="600" style="display:block;margin: 0 auto"></iframe>	-->
-	<iframe id="theIFrame" frameborder="1" width="100%" height="500"></iframe>
+	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="500"></iframe>
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
 
@@ -196,7 +211,7 @@
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="clientModalLabel">New Client</h4>
+	        <h4 class="modal-title" id="clientModalLabel">Client</h4>
 	      </div>
 
 	      <div class="container" style="width: 100%">
@@ -321,8 +336,6 @@
 
 	$(function() {
 
-		//$('form').change(refreshPDF);
-
 		$('#country_id').combobox();
 		$('[rel=tooltip]').tooltip();
 
@@ -365,7 +378,7 @@
 		@if ($client)
 			$('#invoice_number').focus();
 		@else
-			//$('[name="client_combobox"]').focus();
+			$('.client_select input.form-control').focus();			
 		@endif
 		
 		$('#clientModal').on('shown.bs.modal', function () {
@@ -392,7 +405,6 @@
 		$('label.radio').addClass('radio-inline');
 		
 		applyComboboxListeners();
-		refreshPDF();		
 	});	
 
 	function applyComboboxListeners() {
@@ -437,28 +449,28 @@
 		console.log("refreshPDF");
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice);		
-
-		/*		
-		var string = doc.output('dataurlstring');
-		var pdfAsArray = convertDataURIToBinary(string);	
-	    PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
-
-	      pdf.getPage(1).then(function getPageHelloWorld(page) {
-	        var scale = 1.5;
-	        var viewport = page.getViewport(scale);
-
-	        var canvas = document.getElementById('theCanvas');
-	        var context = canvas.getContext('2d');
-	        canvas.height = viewport.height;
-	        canvas.width = viewport.width;
-
-	        page.render({canvasContext: context, viewport: viewport});
-	      });
-	    });				
-		*/
-
 		var string = doc.output('datauristring');
-		$('#theIFrame').attr('src', string);		
+
+		if (isFirefox || isChrome) {
+			$('#theFrame').attr('src', string).show();		
+		} else {			
+			var pdfAsArray = convertDataURIToBinary(string);	
+		    PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
+
+		      pdf.getPage(1).then(function getPageHelloWorld(page) {
+		        var scale = 1.5;
+		        var viewport = page.getViewport(scale);
+
+		        var canvas = document.getElementById('theCanvas');
+		        var context = canvas.getContext('2d');
+		        canvas.height = viewport.height;
+		        canvas.width = viewport.width;
+
+		        page.render({canvasContext: context, viewport: viewport});
+		      	$('#theCanvas').show();
+		      });
+		    });	
+		}
 	}
 
 	function onDownloadClick() {
@@ -496,11 +508,12 @@
 	}
 
 	function formEnterClick(event) {
+		console.log('form enter click');
+			
 		if (event.keyCode === 13){
 			if (event.target.type == 'textarea') {
 				return;
 			}
-
 			event.preventDefault();		     				
 			$('.main_form').submit();
 			return false;
@@ -508,6 +521,7 @@
 	}
 
 	function clientModalEnterClick(event) {		
+		console.log('client form enter click');
 		if (event.keyCode === 13){
 			event.preventDefault();		     	
             model.clientFormComplete();
@@ -516,6 +530,7 @@
 	}
 
 	function taxModalEnterClick(event) {		
+		console.log('tax form enter click');
 		if (event.keyCode === 13){
 			event.preventDefault();		     	
             model.taxFormComplete();
@@ -777,8 +792,8 @@
 			ko.mapping.fromJS(data, {}, this);		
 		}		
 
-		self.fullName = ko.computed(function() {
-			return self.first_name() + ' ' + self.last_name();
+		self.displayName = ko.computed(function() {
+			return self.first_name() + ' ' + self.last_name() + ' - ' + self.email();
 		});		
 	}
 
@@ -828,8 +843,8 @@
 		var self = this;		
 		this.product_key = ko.observable('');
 		this.notes = ko.observable('');
-		this.cost = ko.observable();
-		this.qty = ko.observable();
+		this.cost = ko.observable(0);
+		this.qty = ko.observable(0);
 		this.tax = ko.observable();
 		this.actionsVisible = ko.observable(false);
 		
@@ -839,6 +854,16 @@
 	        },
 	        write: function (value) {
 	            this.qty(value);
+	        },
+	        owner: this
+	    });				
+
+		this.prettyCost = ko.computed({
+	        read: function () {
+	            return this.cost() ? this.cost() : '';
+	        },
+	        write: function (value) {
+	            this.cost(value);
 	        },
 	        owner: this
 	    });				

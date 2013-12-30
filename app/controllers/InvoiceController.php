@@ -310,8 +310,6 @@ class InvoiceController extends \BaseController {
 				'invoice' => $invoice, 
 				'method' => 'PUT', 
 				'invitationContactIds' => $contactIds,
-				'clientSizes' => ClientSize::orderBy('id')->get(),
-				'clientIndustries' => ClientIndustry::orderBy('name')->get(),
 				'url' => 'invoices/' . $publicId, 
 				'title' => '- ' . $invoice->invoice_number,
 				'client' => $invoice->client);
@@ -335,8 +333,6 @@ class InvoiceController extends \BaseController {
 				'invoiceNumber' => $invoiceNumber,
 				'method' => 'POST', 
 				'url' => 'invoices', 
-				'clientSizes' => ClientSize::orderBy('id')->get(),
-				'clientIndustries' => ClientIndustry::orderBy('name')->get(),
 				'title' => '- New Invoice',
 				'client' => $client,
 				'items' => json_decode(Input::old('items')));
@@ -349,10 +345,12 @@ class InvoiceController extends \BaseController {
 		return [
 			'account' => Auth::user()->account,
 			'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
-			'countries' => Country::orderBy('name')->get(),
+			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
 			'taxRates' => TaxRate::scope()->orderBy('name')->get(),
-			'currencies' => Currency::orderBy('name')->get(),
+			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+			'clientSizes' => ClientSize::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'clientIndustries' => ClientIndustry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',

@@ -86,10 +86,10 @@ class ClientController extends \BaseController {
 			'method' => 'POST', 
 			'url' => 'clients', 
 			'title' => '- New Client',
-			'clientSizes' => ClientSize::orderBy('id')->get(),
-			'clientIndustries' => ClientIndustry::orderBy('name')->get(),
-			'currencies' => Currency::orderBy('name')->get(),
-			'countries' => Country::orderBy('name')->get());
+			'clientSizes' => ClientSize::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'clientIndustries' => ClientIndustry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get());
 
 		return View::make('clients.edit', $data);
 	}
@@ -138,10 +138,10 @@ class ClientController extends \BaseController {
 			'method' => 'PUT', 
 			'url' => 'clients/' . $publicId, 
 			'title' => '- ' . $client->name,
-			'clientSizes' => ClientSize::orderBy('id')->get(),
-			'clientIndustries' => ClientIndustry::orderBy('name')->get(),
-			'currencies' => Currency::orderBy('name')->get(),
-			'countries' => Country::orderBy('name')->get());
+			'clientSizes' => ClientSize::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'clientIndustries' => ClientIndustry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get());
 		return View::make('clients.edit', $data);
 	}
 

@@ -17,8 +17,8 @@
 	</div>
 	<div class="clearfix"></div><p>&nbsp;</p>
 
-	<!-- <iframe frameborder="1" width="100%" height="650" style="display:block;margin: 0 auto"></iframe> -->
-	<canvas id="the-canvas" style="width:100%;border:solid 1px #CCCCCC;"></canvas>
+	<iframe id="theFrame" frameborder="1" width="100%" height="650" style="display:none;margin: 0 auto"></iframe>
+	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
 	<script type="text/javascript">
 
@@ -31,24 +31,29 @@
 			@endif
 			var doc = generatePDF(invoice);
 			var string = doc.output('datauristring');
-			//$('iframe').attr('src', string);
+			alert(isFirefox);
+			alert(isChrome);
+			if (isFirefox || isChrome) {
+				$('#theFrame').attr('src', string).show();
+			} else {
+				alert(1);
+				var pdfAsArray = convertDataURIToBinary(string);	
+			    PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
 
-			//console.log(string);
-			var pdfAsArray = convertDataURIToBinary(string);	
-		    PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
+			      pdf.getPage(1).then(function getPageHelloWorld(page) {
+			        var scale = 1.5;
+			        var viewport = page.getViewport(scale);
 
-		      pdf.getPage(1).then(function getPageHelloWorld(page) {
-		        var scale = 1.5;
-		        var viewport = page.getViewport(scale);
+			        var canvas = document.getElementById('theCanvas');
+			        var context = canvas.getContext('2d');
+			        canvas.height = viewport.height;
+			        canvas.width = viewport.width;
 
-		        var canvas = document.getElementById('the-canvas');
-		        var context = canvas.getContext('2d');
-		        canvas.height = viewport.height;
-		        canvas.width = viewport.width;
-
-		        page.render({canvasContext: context, viewport: viewport});
-		      });
-		    });				
+			        page.render({canvasContext: context, viewport: viewport});
+			        $('#theCanvas').show();
+			      });
+			    });				
+			 }
 		});
 
 		function onDownloadClick() {

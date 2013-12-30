@@ -76,7 +76,7 @@ class CreditController extends \BaseController {
             'method' => 'POST', 
             'url' => 'credits', 
             'title' => '- New Credit',
-            'currencies' => Currency::orderBy('name')->get(),
+            'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
 
         return View::make('credits.edit', $data);
@@ -91,7 +91,7 @@ class CreditController extends \BaseController {
             'method' => 'PUT', 
             'url' => 'credits/' . $publicId, 
             'title' => '- Edit Credit',
-            'currencies' => Currency::orderBy('name')->get(),
+            'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
         return View::make('credit.edit', $data);
     }

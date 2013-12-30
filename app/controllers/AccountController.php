@@ -68,7 +68,7 @@ class AccountController extends \BaseController {
 		if ($section == ACCOUNT_DETAILS)
 		{			
 			$account = Account::with('users')->findOrFail(Auth::user()->account_id);
-			$countries = Country::orderBy('name')->get();
+			$countries = Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get();
 
 			return View::make('accounts.details', array('account'=>$account, 'countries'=>$countries));
 		}
@@ -88,11 +88,11 @@ class AccountController extends \BaseController {
 				'account' => $account,
 				'accountGateway' => $accountGateway,
 				'config' => json_decode($config),
-				'gateways' => Gateway::all(),
-				'timezones' => Timezone::orderBy('location')->get(),
-				'dateFormats' => DateFormat::all(),
-				'datetimeFormats' => DatetimeFormat::all(),
-				'currencies' => Currency::orderBy('name')->get(),				
+				'gateways' => Gateway::remember(DEFAULT_QUERY_CACHE)->get(),
+				'timezones' => Timezone::remember(DEFAULT_QUERY_CACHE)->orderBy('location')->get(),
+				'dateFormats' => DateFormat::remember(DEFAULT_QUERY_CACHE)->get(),
+				'datetimeFormats' => DatetimeFormat::remember(DEFAULT_QUERY_CACHE)->get(),
+				'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
 			];
 			
 			foreach ($data['gateways'] as $gateway)

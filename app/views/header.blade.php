@@ -151,7 +151,7 @@
 
 		</div>
 		<div class="container">
-		<div class="footer">
+		<div class="footer" style="padding-top: 32px">
 	      <div class="pull-right">
 		      	{{ Former::open('user/setTheme')->addClass('themeForm') }}
 		      	<div style="display:none">
@@ -160,11 +160,11 @@
 			    </div>
 		      	<div class="btn-group tr-action dropup">
 					<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-						Theme <span class="caret"></span>
+						Site Theme <span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu" role="menu">
 					<li><a href="#" onclick="setTheme(0)">Default</a></li>
-					@foreach (Theme::all() as $theme)
+					@foreach (Theme::remember(DEFAULT_QUERY_CACHE)->get() as $theme)
 						<li><a href="#" onclick="setTheme({{ $theme->id }})">{{ ucwords($theme->name) }}</a></li>
 					@endforeach
 				  </ul>
@@ -172,7 +172,7 @@
 		      	{{ Former::close() }}	      	
 		    </div>
 
-  			Powered by {{ link_to('https://github.com/hillelcoren/invoice-ninja', 'InvoiceNinja', array('target'=>'_blank')) }}
+		    Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice-ninja', 'open source', array('target'=>'_blank')) }}, email us at {{ link_to('mailto:contact@invoiceninja.com', 'contact@invoiceninja.com') }}.  			
 			<p class="text-danger">This is a demo site, the data is erased.</p>
 
 		</div>			
