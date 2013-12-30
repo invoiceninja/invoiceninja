@@ -5,6 +5,7 @@ use Contact;
 use Invitation;
 use URL;
 use Auth;
+use Activity;
 
 class ContactMailer extends Mailer {
 
@@ -20,8 +21,10 @@ class ContactMailer extends Mailer {
 			$invitation->save();
 
 			$this->sendTo($invitation->contact->email, $subject, $view, $data);
-		}
 
+			Activity::emailInvoice($invitation);
+		}
+		
 		if (!$invoice->isSent())
 		{
 			$invoice->invoice_status_id = INVOICE_STATUS_SENT;

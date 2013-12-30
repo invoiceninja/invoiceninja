@@ -2,7 +2,7 @@
 
 
 @section('onReady')
-	$('input#name').focus();
+	$('input#first_name').focus();
 @stop
 
 @section('content')
@@ -10,8 +10,7 @@
 	<!--<h3>{{ $title }} Client</h3>-->
 	
 	{{ Former::open($url)->addClass('col-md-10 col-md-offset-1 main_form')->method($method)->rules(array(
-  		'name' => 'required',
-  		'email' => 'email'  		
+  		'email' => 'email|required'  		
 	)); }}
 
 	@if ($client)
@@ -20,25 +19,6 @@
 
 
 	<div class="row">
-		<div class="col-md-6">
-
-			{{ Former::legend('Organization') }}
-			{{ Former::text('name') }}
-			{{ Former::text('website') }}
-			{{ Former::text('work_phone')->label('Phone') }}
-			
-			
-			{{ Former::legend('Address') }}
-			{{ Former::text('address1')->label('Street') }}
-			{{ Former::text('address2')->label('Apt/Floor') }}
-			{{ Former::text('city') }}
-			{{ Former::text('state') }}
-			{{ Former::text('postal_code') }}
-			{{ Former::select('country_id')->addOption('','')->label('Country')
-				->fromQuery($countries, 'name', 'id')->select($client ? $client->country_id : '') }}
-
-
-		</div>
 		<div class="col-md-6">
 
 			{{ Former::legend('Contacts') }}
@@ -70,7 +50,28 @@
 				->fromQuery($clientSizes, 'name', 'id')->select($client ? $client->client_size_id : '') }}
 			{{ Former::select('client_industry_id')->addOption('','')->label('Industry')
 				->fromQuery($clientIndustries, 'name', 'id')->select($client ? $client->client_industry_id : '') }}
-			{{ Former::textarea('notes') }}
+			{{ Former::textarea('private_notes') }}
+
+
+		</div>
+		<div class="col-md-6">
+
+
+			{{ Former::legend('Organization') }}
+			{{ Former::text('name') }}
+			{{ Former::text('website') }}
+			{{ Former::text('work_phone')->label('Phone') }}
+			
+			
+			{{ Former::legend('Address') }}
+			{{ Former::text('address1')->label('Street') }}
+			{{ Former::text('address2')->label('Apt/Floor') }}
+			{{ Former::text('city') }}
+			{{ Former::text('state') }}
+			{{ Former::text('postal_code') }}
+			{{ Former::select('country_id')->addOption('','')->label('Country')
+				->fromQuery($countries, 'name', 'id')->select($client ? $client->country_id : '') }}
+
 
 		</div>
 	</div>

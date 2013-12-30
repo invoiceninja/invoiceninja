@@ -9,7 +9,7 @@
         @foreach($columns as $i => $c)
         <th align="center" valign="middle" class="head{{ $i }}" 
             @if ($c == 'checkbox')
-                style="width:20px"
+                style="width:20px"            
             @endif
         >
             @if ($c == 'checkbox' && $hasCheckboxes = true)
@@ -37,6 +37,7 @@
         jQuery('.{{ $class }}').dataTable({
             // Disable sorting on the first column
             "aaSorting": [],
+            "bAutoWidth": false,
             @if (isset($hasCheckboxes) && $hasCheckboxes)
             "aoColumnDefs" : [ {
                 'bSortable' : false,

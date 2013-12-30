@@ -165,7 +165,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->boolean('confirmed')->default(false);
             $t->integer('theme_id');
 
-            $t->boolean('notify_sent')->default(false);
+            $t->boolean('notify_sent')->default(true);
             $t->boolean('notify_viewed')->default(false);
             $t->boolean('notify_paid')->default(true);
 
@@ -212,7 +212,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('postal_code');
             $t->unsignedInteger('country_id')->nullable();
             $t->string('work_phone');
-            $t->text('notes');
+            $t->text('private_notes');
             $t->decimal('balance', 13, 4);
             $t->decimal('paid_to_date', 13, 4);
             $t->timestamp('last_login')->nullable();
@@ -285,6 +285,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->date('invoice_date')->nullable();
             $t->date('due_date')->nullable();
             $t->text('terms');
+            $t->text('public_notes');
             $t->boolean('is_deleted');            
             $t->boolean('is_recurring');
             $t->unsignedInteger('frequency_id');

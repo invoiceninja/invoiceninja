@@ -13,12 +13,13 @@
 
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
 		'client' => 'required',
+		'email' => 'required',
 		'product_key' => 'max:14',
 	)); }}
     
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-5" id="col_1">
-			{{ Former::select('client')->addOption('', '')->fromQuery($clients, 'name', 'public_id')->data_bind("dropdown: client")
+			{{ Former::select('client')->addOption('', '')->data_bind("dropdown: client")
 					->addGroupClass('client_select closer-row') }}
 
 			<div class="form-group" style="margin-bottom: 8px">
@@ -38,6 +39,7 @@
 				</div>
 			</div>
 			{{ Former::textarea('terms')->data_bind("value: wrapped_terms, valueUpdate: 'afterkeydown'") }}			
+			{{ Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'") }}			
 			
 		</div>
 		<div class="col-md-4" id="col_2">
@@ -51,14 +53,15 @@
 				{{ Former::text('start_date')->data_bind("value: start_date, valueUpdate: 'afterkeydown'")->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
 				{{ Former::text('end_date')->data_bind("value: end_date, valueUpdate: 'afterkeydown'")->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
 			</div>
-			<div data-bind="visible: invoice_status_id() < CONSTS.INVOICE_STATUS_SENT">
-				{{ Former::checkbox('recurring')->text('Enable | <a href="#" rel="tooltip" data-toggle="tooltip" title="Recurring invoices are automatically sent. Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well. ie, :MONTH-1.">Learn more</a>')->data_bind("checked: is_recurring")
-					->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::timestampToDateString($invoice->last_sent_date) : '') }}
-			</div>
 			@if ($invoice && $invoice->recurring_invoice_id)
-				<div style="padding-top: 6px">
+				<div class="pull-right" style="padding-top: 6px">
 					Created by a {{ link_to('/invoices/'.$invoice->recurring_invoice_id, 'recurring invoice') }}
 				</div>
+			@else 
+			<div data-bind="visible: invoice_status_id() < CONSTS.INVOICE_STATUS_SENT">
+				{{ Former::checkbox('recurring')->text('Enable | <a href="#" rel="tooltip" data-toggle="tooltip" title="Recurring invoices are automatically sent. Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well. ie, :MONTH-1.">Learn more</a>')->data_bind("checked: is_recurring")
+					->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::dateToString($invoice->last_sent_date) : '') }}
+			</div>			
 			@endif
 			
 		</div>
@@ -131,16 +134,16 @@
 				<td colspan="2">Subtotal</td>
 				<td style="text-align: right"><span data-bind="text: subtotal"/></td>
 	        </tr>
-	        <tr>
-	        	<td class="hide-border" data-bind="attr: {colspan: tax_rates().length > 1 ? 4 : 3}"/>
-				<td colspan="2">Paid to Date</td>
-				<td style="text-align: right"></td>
-	        </tr>	        
 	        <tr data-bind="visible: discount() > 0">
 	        	<td class="hide-border" data-bind="attr: {colspan: tax_rates().length > 1 ? 4 : 3}"/>
 				<td colspan="2">Discount</td>
 				<td style="text-align: right"><span data-bind="text: discounted"/></td>
 	        </tr>
+	        <tr>
+	        	<td class="hide-border" data-bind="attr: {colspan: tax_rates().length > 1 ? 4 : 3}"/>
+				<td colspan="2">Paid to Date</td>
+				<td style="text-align: right"></td>
+	        </tr>	        
 	        <tr>
 	        	<td class="hide-border" data-bind="attr: {colspan: tax_rates().length > 1 ? 4 : 3}"/>
 				<td colspan="2"><b>Balance Due</b></td>
@@ -200,23 +203,6 @@
 		<div style="background-color: #F6F6F6" class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
 			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
 
-				{{ Former::legend('Organization') }}
-				{{ Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'")->label('Phone') }}
-				
-				
-				{{ Former::legend('Address') }}
-				{{ Former::text('address1')->label('Street')->data_bind("value: address1, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('address2')->label('Apt/Floor')->data_bind("value: address2, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") }}
-				{{ Former::select('country_id')->addOption('','')->label('Country')->addGroupClass('country_select')
-					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") }}
-					
-			</div>
-			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
 
 				{{ Former::legend('Contacts') }}
 				<div data-bind='template: { foreach: contacts,
@@ -247,14 +233,33 @@
 					->fromQuery($clientSizes, 'name', 'id')->select($client ? $client->client_size_id : '') }}
 				{{ Former::select('client_industry_id')->addOption('','')->label('Industry')->data_bind('value: client_industry_id')
 					->fromQuery($clientIndustries, 'name', 'id')->select($client ? $client->client_industry_id : '') }}
-				{{ Former::textarea('notes') }}
+				{{ Former::textarea('private_notes')->data_bind('value: private_notes') }}
 
+
+			</div>
+			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
+
+				{{ Former::legend('Organization') }}
+				{{ Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'")->label('Phone') }}
+				
+				
+				{{ Former::legend('Address') }}
+				{{ Former::text('address1')->label('Street')->data_bind("value: address1, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('address2')->label('Apt/Floor')->data_bind("value: address2, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") }}
+				{{ Former::select('country_id')->addOption('','')->label('Country')->addGroupClass('country_select')
+					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") }}
+					
 			</div>
 		</div>
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">
-	      	<span class="error-block" id="nameError" style="display:none;float:left">Please provide a value for the name field.</span><span>&nbsp;</span>
+	      	<span class="error-block" id="emailError" style="display:none;float:left">Please provide a valid email address.</span><span>&nbsp;</span>
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	        <button type="button" class="btn btn-primary" data-bind="click: clientFormComplete">Done</button>	      	
 	     </div>
@@ -316,7 +321,7 @@
 
 	$(function() {
 
-		$('form').change(refreshPDF);
+		//$('form').change(refreshPDF);
 
 		$('#country_id').combobox();
 		$('[rel=tooltip]').tooltip();
@@ -344,8 +349,12 @@
 			} else {
 				model.client.public_id(0);  // TODO_FIX
 			}
+			refreshPDF();
 		}).trigger('change');		
 
+		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discout, #currency_id').change(function() {
+			refreshPDF();
+		});
 
 		$('.country_select input.form-control').on('change', function(e) {
 			var countryId = parseInt($('input[name=country_id]').val(), 10);	
@@ -360,7 +369,7 @@
 		@endif
 		
 		$('#clientModal').on('shown.bs.modal', function () {
-			$('#name').focus();			
+			$('#first_name').focus();			
 		}).on('hidden.bs.modal', function () {
 			if (model.clientBackup) {
 				model.loadClient(model.clientBackup);
@@ -521,6 +530,7 @@
 		self.frequency_id = ko.observable('');
 		self.currency_id = ko.observable({{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }});
 		self.terms = ko.observable('');		
+		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
 		self.invoice_date = ko.observable('');
 		self.invoice_number = ko.observable('');
@@ -548,12 +558,26 @@
 
 		self.wrapped_terms = ko.computed({
 			read: function() {
+				$('#terms').height(this.terms().split('\n').length * 36);
 				return this.terms();
 			},
 			write: function(value) {
-				value = wordWrapText(value, 250);
+				value = wordWrapText(value, 340);
 				self.terms(value);
-				$('#terms').height(value.split('\n').length * 22);
+				$('#terms').height(value.split('\n').length * 36);
+			},
+			owner: this
+		});
+
+		self.wrapped_notes = ko.computed({
+			read: function() {
+				$('#public_notes').height(this.public_notes().split('\n').length * 36);
+				return this.public_notes();
+			},
+			write: function(value) {
+				value = wordWrapText(value, 340);
+				self.public_notes(value);
+				$('#public_notes').height(value.split('\n').length * 36);
 			},
 			owner: this
 		});
@@ -584,14 +608,17 @@
 				$('#clientModal #country_id').val('');
 			}
 			
-			$('#nameError').css( "display", "none" );			
+			$('#emailError').css( "display", "none" );			
 			$('#clientModal').modal('show');			
 		}
 
 		self.clientFormComplete = function() {
+			var email = $('#email').val();
+			var firstName = $('#first_name').val();
+			var lastName = $('#last_name').val();
 			var name = $('#name').val();
-			if (!name) {
-				if (!name) $('#nameError').css( "display", "inline" );
+			if (!email || !isValidEmailAddress(email)) {
+				$('#emailError').css( "display", "inline" );
 				return;
 			}
 
@@ -599,10 +626,19 @@
 			if (self.client.public_id() == 0) {
 				self.client.public_id(-1);
 			}
+
+			if (name) {
+				//
+			} else if (firstName || lastName) {
+				name = firstName + ' ' + lastName;
+			} else {
+				name = email;
+			}
+
 			$('.client_select input.form-control').val(name);
 			$('.client_select .combobox-container').addClass('combobox-selected');
 
-			$('#nameError').css( "display", "none" );
+			$('#emailError').css( "display", "none" );
 			$('.client_select input.form-control').focus();			
 
 			refreshPDF();
@@ -673,7 +709,7 @@
 		self.public_id = ko.observable(0);
 		self.name = ko.observable('');
 		self.work_phone = ko.observable('');
-		self.notes = ko.observable('');
+		self.private_notes = ko.observable('');
 		self.address1 = ko.observable('');
 		self.address2 = ko.observable('');
 		self.city = ko.observable('');
@@ -710,6 +746,16 @@
 		self.removeContact = function() {
 			self.contacts.remove(this);			
 		}
+
+		self.placeholderName = ko.computed(function() {
+			if (self.contacts().length == 0) return;
+			var contact = self.contacts()[0];
+			if (contact.first_name() || contact.last_name()) {
+				return contact.first_name() + ' ' + contact.last_name();
+			} else {
+				return '';
+			}
+		});		
 
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);
@@ -905,6 +951,7 @@
 	var products = {{ $products }};
 	var clients = {{ $clients }};	
 	var clientMap = {};
+	var $clientSelect = $('select#client');
 
 	for (var i=0; i<clients.length; i++) {
 		var client = clients[i];
@@ -913,8 +960,8 @@
 			contact.send_invoice = contact.is_primary;
 		}
 		clientMap[client.public_id] = client;
+		$clientSelect.append(new Option(getClientDisplayName(client), client.public_id)); 
 	}
-
 
 	window.model = new InvoiceModel();
 	@foreach ($taxRates as $taxRate)
@@ -932,8 +979,9 @@
 			contact.send_invoice = invitationContactIds.indexOf(contact.public_id) >= 0;
 		}
 	@else
+		model.invoice_date('{{ date('Y-m-d') }}');
 		model.invoice_number('{{ $invoiceNumber }}');
-		model.terms(wordWrapText('{{ $account->invoice_terms }}', 250));		
+		model.terms(wordWrapText('{{ $account->invoice_terms }}', 340));		
 	@endif
 	model.addItem();
 	ko.applyBindings(model);

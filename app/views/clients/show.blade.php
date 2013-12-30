@@ -62,8 +62,8 @@
 
 		<div class="col-md-6">
 			<h3>Standing</h3>
-			<h3>$0.00 <small>Paid to Date USD</small></h3>	    
-			<h3>$0.00 <small>Balance USD</small></h3>
+			<h3>{{ Utils::formatMoney($client->paid_to_date, $client->currency_id); }} <small>Paid to Date USD</small></h3>	    
+			<h3>{{ Utils::formatMoney($client->balance, $client->currency_id); }} <small>Balance USD</small></h3>
 		</div>
 	</div>
 
@@ -81,7 +81,7 @@
         <div class="tab-pane active" id="activity">
 
 			{{ Datatable::table()		
-		    	->addColumn('Date', 'Message', 'Balance')       
+		    	->addColumn('Date', 'Message', 'Balance', 'Adjustment')       
 		    	->setUrl(url('api/activities/'. $client->public_id))    	
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)

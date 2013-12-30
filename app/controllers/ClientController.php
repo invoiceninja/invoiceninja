@@ -15,7 +15,7 @@ class ClientController extends \BaseController {
 		return View::make('list', array(
 			'entityType'=>ENTITY_CLIENT, 
 			'title' => '- Clients',
-			'columns'=>['checkbox', 'Client', 'Contact', 'Date Created', 'Email', 'Phone', 'Last Login', 'Balance', 'Action']
+			'columns'=>['checkbox', 'Client', 'Contact', 'Email', 'Date Created', 'Phone', 'Last Login', 'Balance', 'Action']
 		));		
 	}
 
@@ -46,9 +46,9 @@ class ClientController extends \BaseController {
         return Datatable::query($query)
     	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
     	    ->addColumn('name', function($model) { return link_to('clients/' . $model->public_id, $model->name); })
-    	    ->addColumn('first_name', function($model) { return $model->first_name . ' ' . $model->last_name; })
+    	    ->addColumn('first_name', function($model) { return link_to('clients/' . $model->public_id, $model->first_name . ' ' . $model->last_name); })
+    	    ->addColumn('email', function($model) { return link_to('clients/' . $model->public_id, $model->email); })
     	    ->addColumn('created_at', function($model) { return Utils::timestampToDateString(strtotime($model->created_at)); })
-    	    ->addColumn('email', function($model) { return $model->email ? HTML::mailto($model->email, $model->email) : ''; })
     	    ->addColumn('work_phone', function($model) { return Utils::formatPhoneNumber($model->work_phone); })    	   
     	    ->addColumn('last_login', function($model) { return Utils::timestampToDateString($model->last_login); })
     	    ->addColumn('balance', function($model) { return Utils::formatMoney($model->balance, $model->currency_id); })    	    
@@ -88,6 +88,7 @@ class ClientController extends \BaseController {
 			'title' => '- New Client',
 			'clientSizes' => ClientSize::orderBy('id')->get(),
 			'clientIndustries' => ClientIndustry::orderBy('name')->get(),
+			'currencies' => Currency::orderBy('name')->get(),
 			'countries' => Country::orderBy('name')->get());
 
 		return View::make('clients.edit', $data);
@@ -117,7 +118,7 @@ class ClientController extends \BaseController {
 		$data = array(
 			'client' => $client,
 			'title' => '- ' . $client->name,
-			'hasRecurringInvoices' => Invoice::scope()->where('frequency_id', '>', '0')->whereClientId($client->id)->count() > 0
+			'hasRecurringInvoices' => Invoice::scope()->where('is_recurring', '=', true)->whereClientId($client->id)->count() > 0
 		);
 
 		return View::make('clients.show', $data);
@@ -158,7 +159,7 @@ class ClientController extends \BaseController {
 	private function save($publicId = null)
 	{
 		$rules = array(
-			'name'       => 'required'
+			'email' => 'required'
 		);
 		$validator = Validator::make(Input::all(), $rules);
 
@@ -182,7 +183,7 @@ class ClientController extends \BaseController {
 			$client->state = trim(Input::get('state'));
 			$client->postal_code = trim(Input::get('postal_code'));			
 			$client->country_id = Input::get('country_id') ? Input::get('country_id') : null;
-			$client->notes = trim(Input::get('notes'));
+			$client->private_notes = trim(Input::get('private_notes'));
 			$client->client_size_id = Input::get('client_size_id') ? Input::get('client_size_id') : null;
 			$client->client_industry_id = Input::get('client_industry_id') ? Input::get('client_industry_id') : null;
 			$client->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;

@@ -40,7 +40,8 @@ class SendRecurringInvoices extends Command {
 			$invoice->client_id = $recurInvoice->client_id;
 			$invoice->recurring_invoice_id = $recurInvoice->id;
 			$invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber();
-			$invoice->total = $recurInvoice->total;
+			$invoice->amount = $recurInvoice->amount;
+			$invoice->currency_id = $recurInvoice->currency_id;
 			$invoice->invoice_date = new DateTime();
 			$invoice->due_date = new DateTime();
 			$invoice->save();

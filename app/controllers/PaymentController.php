@@ -16,10 +16,12 @@ class PaymentController extends \BaseController
         $query = DB::table('payments')
                     ->join('clients', 'clients.id', '=','payments.client_id')
                     ->leftJoin('invoices', 'invoices.id', '=','payments.invoice_id')
+                    ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('payments.account_id', '=', Auth::user()->account_id)
                     ->where('payments.deleted_at', '=', null)
                     ->where('clients.deleted_at', '=', null)
-                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'payments.currency_id');        
+                    ->where('contacts.is_primary', '=', true)   
+                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'payments.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');        
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
@@ -43,7 +45,7 @@ class PaymentController extends \BaseController
         $table->addColumn('transaction_reference', function($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; });
 
         if (!$clientPublicId) {
-            $table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
+            $table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
         }
 
         return $table->addColumn('invoice_number', function($model) { return $model->invoice_public_id ? link_to('invoices/' . $model->invoice_public_id . '/edit', $model->invoice_number) : ''; })
@@ -70,21 +72,16 @@ class PaymentController extends \BaseController
 
     public function create($clientPublicId = 0)
     {       
-        $client = null;
-        if ($clientPublicId) {
-            $client = Client::scope($clientPublicId)->firstOrFail();
-        }
-
         $data = array(
-            'client' => $client,
+            'clientPublicId' => $clientPublicId,
             'invoice' => null,
-            'invoices' => Invoice::with('client')->scope()->orderBy('invoice_number')->get(),
+            'invoices' => Invoice::scope()->with('client')->orderBy('invoice_number')->get(),
             'payment' => null, 
             'method' => 'POST', 
             'url' => 'payments', 
             'title' => '- New Payment',
             'currencies' => Currency::orderBy('name')->get(),
-            'clients' => Client::scope()->orderBy('name')->get());
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
 
         return View::make('payments.edit', $data);
     }
@@ -95,13 +92,13 @@ class PaymentController extends \BaseController
         $data = array(
             'client' => null,
             'invoice' => null,
-            'invoices' => Invoice::scope()->orderBy('invoice_number')->get(array('public_id','invoice_number')),
+            'invoices' => Invoice::scope()->with('client')->orderBy('invoice_number')->get(array('public_id','invoice_number')),
             'payment' => $payment, 
             'method' => 'PUT', 
             'url' => 'payments/' . $publicId, 
             'title' => '- Edit Payment',
             'currencies' => Currency::orderBy('name')->get(),
-            'clients' => Client::scope()->orderBy('name')->get());
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
         return View::make('payments.edit', $data);
     }
 

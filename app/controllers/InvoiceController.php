@@ -51,7 +51,7 @@ class InvoiceController extends \BaseController {
     	$table->addColumn('invoice_number', function($model) { return link_to('invoices/' . $model->public_id . '/edit', $model->invoice_number); });
 
     	if (!$clientPublicId) {
-    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
+    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
     	}
     	
     	return $table->addColumn('invoice_date', function($model) { return Utils::fromSqlDate($model->invoice_date); })    	    
@@ -89,7 +89,7 @@ class InvoiceController extends \BaseController {
     	$table->addColumn('frequency', function($model) { return link_to('invoices/' . $model->public_id, $model->frequency); });
 
     	if (!$clientPublicId) {
-    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
+    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
     	}
     	
     	return $table->addColumn('start_date', function($model) { return Utils::fromSqlDate($model->start_date); })
@@ -220,7 +220,7 @@ class InvoiceController extends \BaseController {
 			$payment = Payment::createNew();
 			$payment->invitation_id = $invitation->id;
 			$payment->invoice_id = $invoice->id;
-			$payment->amount = $invoice->amount;
+			$payment->amount = $invoice->amount;			
 			$payment->client_id = $invoice->client_id;
 			//$payment->contact_id = 0; // TODO_FIX
 			$payment->transaction_reference = $ref;
@@ -384,11 +384,9 @@ class InvoiceController extends \BaseController {
 			return InvoiceController::bulk();
 		}
 
-		$input = json_decode(Input::get('data'));			
-		$inputClient = $input->client;
-		$inputClient->name = trim($inputClient->name);
+		$input = json_decode(Input::get('data'));					
 		
-		if (!$inputClient->name) 
+		if (!$input->client->contacts[0]->email) 
 		{
 			return Redirect::to('invoices/create')
 				->withInput();
@@ -521,7 +519,7 @@ class InvoiceController extends \BaseController {
 		$invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();		
 
 		$clone = Invoice::createNew();		
-		foreach (['client_id', 'discount', 'invoice_date', 'due_date', 'is_recurring', 'frequency_id', 'start_date', 'end_date', 'notes'] as $field) 
+		foreach (['client_id', 'discount', 'invoice_date', 'due_date', 'is_recurring', 'frequency_id', 'start_date', 'end_date', 'terms', 'currency_id'] as $field) 
 		{
 			$clone->$field = $invoice->$field;	
 		}
@@ -537,7 +535,7 @@ class InvoiceController extends \BaseController {
 		{
 			$cloneItem = InvoiceItem::createNew();
 			
-			foreach (['product_id', 'product_key', 'notes', 'cost', 'qty'] as $field) 
+			foreach (['product_id', 'product_key', 'notes', 'cost', 'qty', 'tax_name', 'tax_rate'] as $field) 
 			{
 				$cloneItem->$field = $item->$field;
 			}

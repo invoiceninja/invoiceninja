@@ -246,4 +246,20 @@ class Utils
 		return ucwords(str_replace('_', ' ', $entityType));
 	}
 
+	public static function getClientDisplayName($model)
+	{
+		if ($model->client_name) 
+		{
+			return $model->client_name;
+		}
+		else if ($model->first_name || $model->last_name) 
+		{
+			return $model->first_name . ' ' . $model->last_name;
+		}
+		else
+		{
+			return $model->email;
+		}
+	}
+
 }

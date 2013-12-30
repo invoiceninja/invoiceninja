@@ -9,6 +9,7 @@ function generatePDF(invoice) {
 	var headerLeft = 360;
 	var headerRight = 540;
 	var rowHeight = 15;
+	var tableRowHeight = 20;
 	var footerLeft = 420;
 
 	var tableTop = 240;
@@ -20,16 +21,15 @@ function generatePDF(invoice) {
 	var lineTotalRight = 540;
 	
 
-	var hasTaxes = true;
+	var hasTaxes = false;
 	for (var i=0; i<invoice.invoice_items.length; i++) 
 	{
-		var item = invoice.invoice_items[i];
-		if (item.tax_rate > 0) {
+		var item = invoice.invoice_items[i];		
+		if (item.tax && item.tax.rate > 0) {
 			hasTaxes = true;
 			break;
 		}
-	}
-
+	}	
 	if (hasTaxes)
 	{
 		descriptionLeft -= 20;
@@ -66,7 +66,7 @@ function generatePDF(invoice) {
 	doc.setFontType("normal");
 	if (invoice.client) {
 		var y = headerTop;
-		doc.text(marginLeft, y, invoice.client.name);
+		doc.text(marginLeft, y, getClientDisplayName(invoice.client));
 		y += rowHeight;
 		doc.text(marginLeft, y, invoice.client.address1);
 		if (invoice.client.address2) {
@@ -126,6 +126,7 @@ function generatePDF(invoice) {
 	var line = 1;
 	var total = 0;
 	var shownItem = false;
+	doc.setDrawColor(220,220,220);
 
 	for (var i=0; i<invoice.invoice_items.length; i++) {
 		var item = invoice.invoice_items[i];
@@ -158,7 +159,8 @@ function generatePDF(invoice) {
 		var qtyX = qtyRight - (doc.getStringUnitWidth(qty) * doc.internal.getFontSize());
 		var taxX = taxRight - (doc.getStringUnitWidth(tax) * doc.internal.getFontSize());
 		var totalX = lineTotalRight - (doc.getStringUnitWidth(lineTotal) * doc.internal.getFontSize());
-		var x = tableTop + (line * rowHeight) + 6;
+		var x = tableTop + (line * tableRowHeight) + 6;
+		if (i==0) x -= 4;
 
 		doc.text(tableLeft, x, productKey);
 		doc.text(descriptionLeft, x, notes);
@@ -171,14 +173,21 @@ function generatePDF(invoice) {
 		}
 
 		line += doc.splitTextToSize(item.notes, 200).length;
+
+		if (i < invoice.invoice_items.length - 2) {
+			doc.lines([[0,0],[headerRight-tableLeft+5,0]],tableLeft - 8, tableTop + (line * tableRowHeight) - 8);
+		}
+
 	}
 	
 	/* table footer */
-	var x = tableTop + (line * rowHeight);
+	doc.setDrawColor(200,200,200);
+	var x = tableTop + (line * tableRowHeight);
 	doc.lines([[0,0],[headerRight-tableLeft+5,0]],tableLeft - 8, x);
 
 
 	doc.text(tableLeft, x+16, invoice.terms);
+	doc.text(tableLeft, x+16 + (doc.splitTextToSize(invoice.terms, 340).length * rowHeight), invoice.public_notes);
 
 	x += 16;
 	doc.text(footerLeft, x, 'Subtotal');
@@ -205,7 +214,7 @@ function generatePDF(invoice) {
 
 	x += 16;
 	doc.setFontType("bold");
-	doc.text(footerLeft, x, 'Total');
+	doc.text(footerLeft, x, 'Balance Due');
 	
 	var total = formatMoney(total, currencyId);
 	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
@@ -652,12 +661,33 @@ function wordWrapText(value, width)
         while (j++ < lines[i].length) {
             if (lines[i].charAt(j) === " ") space = j;
         }
-        lines[i + 1] = lines[i].substring(space + 1) + (lines[i + 1] || "");
+        lines[i + 1] = lines[i].substring(space + 1) + ' ' + (lines[i + 1] || "");
         lines[i] = lines[i].substring(0, space);
     }
     
-    return lines.slice(0, 6).join("\n");
+    var newValue = (lines.join("\n")).trim();
+
+    if (value == newValue) {
+    	return newValue;
+    } else {
+    	return wordWrapText(newValue, width);
+    }
 }
+
+
+
+function getClientDisplayName(client)
+{
+	var contact = client.contacts[0];
+	if (client.name) {
+		return client.name;
+	} else if (contact.first_name || contact.last_name) {
+		return contact.first_name + ' ' + contact.last_name;
+	} else {
+		return contact.email;
+	}
+}
+
 
 var CONSTS = {};
 CONSTS.INVOICE_STATUS_DRAFT = 1;

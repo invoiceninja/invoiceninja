@@ -27,7 +27,7 @@ class ClientRepository
 		$client->state = trim($data['state']);
 		$client->postal_code = trim($data['postal_code']);
 		$client->country_id = $data['country_id'] ? $data['country_id'] : null;
-		$client->notes = trim($data['notes']);
+		$client->private_notes = trim($data['private_notes']);
 		$client->client_size_id = $data['client_size_id'] ? $data['client_size_id'] : null;
 		$client->client_industry_id = $data['client_industry_id'] ? $data['client_industry_id'] : null;
 		$client->currency_id = $data['currency_id'] ? $data['currency_id'] : null;

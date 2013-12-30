@@ -96,3 +96,8 @@ Invoice::created(function($invoice)
 {
 	Activity::createInvoice($invoice);
 });
+
+Invoice::updating(function($invoice)
+{
+	Activity::updateInvoice($invoice);
+});

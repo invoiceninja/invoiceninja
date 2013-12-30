@@ -19,8 +19,3 @@ class Invitation extends EntityModel
 		return $this->belongsTo('User');
 	}	
 }
-
-Invitation::created(function($invitation)
-{
-	Activity::emailInvoice($invitation);
-});

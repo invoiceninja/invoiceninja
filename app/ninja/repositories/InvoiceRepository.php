@@ -13,11 +13,13 @@ class InvoiceRepository
     	$query = \DB::table('invoices')
     				->join('clients', 'clients.id', '=','invoices.client_id')
 					->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
+					->join('contacts', 'contacts.client_id', '=', 'clients.id')
 					->where('invoices.account_id', '=', $accountId)
     				->where('invoices.deleted_at', '=', null)
     				->where('clients.deleted_at', '=', null)
-    				->where('invoices.is_recurring', '=', false)    				
-					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'invoices.currency_id');
+    				->where('invoices.is_recurring', '=', false)    			
+    				->where('contacts.is_primary', '=', true)	
+					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'invoices.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
 
     	if ($clientPublicId) 
     	{
@@ -42,10 +44,12 @@ class InvoiceRepository
     	$query = \DB::table('invoices')
     				->join('clients', 'clients.id', '=','invoices.client_id')
 					->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
+					->join('contacts', 'contacts.client_id', '=', 'clients.id')
 					->where('invoices.account_id', '=', $accountId)
     				->where('invoices.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', true)
-					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'invoices.currency_id');
+    				->where('contacts.is_primary', '=', true)	
+					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'invoices.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
 
     	if ($clientPublicId) 
     	{
@@ -87,6 +91,7 @@ class InvoiceRepository
 		$invoice->start_date = Utils::toSqlDate($data['start_date']);
 		$invoice->end_date = Utils::toSqlDate($data['end_date']);
 		$invoice->terms = trim($data['terms']);
+		$invoice->public_notes = trim($data['public_notes']);
 		$invoice->po_number = trim($data['po_number']);
 		$invoice->currency_id = $data['currency_id'];
 
@@ -108,6 +113,7 @@ class InvoiceRepository
 		}
 
 		$invoice->amount = $total;
+		$invoice->balance = $total;
 		$invoice->save();
 
 		foreach ($data['invoice_items'] as $item) 

@@ -20,10 +20,12 @@ class CreditController extends \BaseController {
     {
         $query = DB::table('credits')
                     ->join('clients', 'clients.id', '=','credits.client_id')
+                    ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('clients.account_id', '=', Auth::user()->account_id)
                     ->where('clients.deleted_at', '=', null)
                     ->where('credits.deleted_at', '=', null)
-                    ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.credit_date', 'credits.currency_id');        
+                    ->where('contacts.is_primary', '=', true)   
+                    ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.credit_date', 'credits.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');        
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
@@ -42,7 +44,7 @@ class CreditController extends \BaseController {
 
         if (!$clientPublicId) {
             $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
-                  ->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, $model->client_name); });
+                  ->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
         }
         
         return $table->addColumn('amount', function($model){ return Utils::formatMoney($model->amount, $model->currency_id); })
@@ -68,19 +70,14 @@ class CreditController extends \BaseController {
 
     public function create($clientPublicId = null)
     {       
-        $client = null;
-        if ($clientPublicId) {
-            $client = Client::scope($clientPublicId)->firstOrFail();
-        }
-
         $data = array(
-            'client' => $client,
+            'clientPublicId' => $clientPublicId,
             'credit' => null, 
             'method' => 'POST', 
             'url' => 'credits', 
             'title' => '- New Credit',
             'currencies' => Currency::orderBy('name')->get(),
-            'clients' => Client::scope()->orderBy('name')->get());
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
 
         return View::make('credits.edit', $data);
     }
@@ -95,7 +92,7 @@ class CreditController extends \BaseController {
             'url' => 'credits/' . $publicId, 
             'title' => '- Edit Credit',
             'currencies' => Currency::orderBy('name')->get(),
-            'clients' => Client::scope()->orderBy('name')->get());
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
         return View::make('credit.edit', $data);
     }
 

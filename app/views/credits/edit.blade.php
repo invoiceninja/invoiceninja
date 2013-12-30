@@ -15,6 +15,8 @@
 
 	@if ($credit)
 		{{ Former::populate($credit) }}
+	@else
+		{{ Former::populateField('credit_date', date('Y-m-d')) }}
 	@endif
 
 	
@@ -27,11 +29,11 @@
 				{{ Former::legend('New Credit') }}
 			@endif
 
-			{{ Former::select('client')->fromQuery($clients, 'name', 'public_id')->select($client ? $client->public_id : '')->addOption('', '')->addGroupClass('client-select') }}
-			{{ Former::select('currency_id')->addOption('','')->label('Currency')
-				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
+			{{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
 			{{ Former::text('amount') }}
 			{{ Former::text('credit_date')->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
+			{{ Former::select('currency_id')->addOption('','')->label('Currency')
+				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
 
 		</div>
 		<div class="col-md-6">
@@ -48,10 +50,20 @@
 
 	<script type="text/javascript">
 
+	var clients = {{ $clients }};
+
 	$(function() {
 
 		var $input = $('select#client');		
+		for (var i=0; i<clients.length; i++) {
+			var client = clients[i];
+			$input.append(new Option(getClientDisplayName(client), client.public_id));
+		}
+		@if ($clientPublicId)
+			$('select#client').val({{ $clientPublicId }});
+		@endif		
 		$input.combobox();
+
 		$('#currency_id').combobox();
 		
 		$('#credit_date').datepicker({
