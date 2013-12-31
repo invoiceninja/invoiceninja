@@ -477,6 +477,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('currency_id')->default(1);
 
             $t->text('message');
+            $t->text('json_backup');
             $t->integer('activity_type_id');            
             $t->decimal('adjustment', 13, 4);
             $t->decimal('balance', 13, 4);

@@ -139,6 +139,9 @@ class Activity extends Eloquent
 			return;
 		}
 
+		$backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($invoice->id);
+		//dd($backupInvoice->hidePrivateFields()->toJSON());
+
 		$client = $invoice->client;
 		$client->balance = $client->balance + $diff;
 		$client->save();
@@ -150,6 +153,7 @@ class Activity extends Eloquent
 		$activity->message = Auth::user()->getFullName() . ' updated invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
 		$activity->balance = $client->balance;
 		$activity->adjustment = $diff;
+		$activity->json_backup = $backupInvoice->hidePrivateFields()->toJSON();
 		$activity->save();
 	}
 

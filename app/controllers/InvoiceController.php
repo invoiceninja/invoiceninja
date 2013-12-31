@@ -117,22 +117,25 @@ class InvoiceController extends \BaseController {
 	public function view($invitationKey)
 	{
 		$invitation = Invitation::with('user', 'invoice.invoice_items', 'invoice.client.account', 'invoice.client.contacts')
-			->where('invitation_key', '=', $invitationKey)->firstOrFail();				
-		
+			->where('invitation_key', '=', $invitationKey)->firstOrFail();
+
 		$user = $invitation->user;		
 		$invoice = $invitation->invoice;
-		
-		if (!$invoice || $invoice->is_deleted) {
+
+		if (!$invoice || $invoice->is_deleted) 
+		{
 			return View::make('invoices.deleted');
 		}
 
 		$client = $invoice->client;
 
-		if (!$client || $client->is_deleted) {
+		if (!$client || $client->is_deleted) 
+		{
 			return View::make('invoices.deleted');
 		}
-
-		if ($invoice->invoice_status_id < INVOICE_STATUS_VIEWED) {
+		
+		if ($invoice->invoice_status_id < INVOICE_STATUS_VIEWED) 
+		{
 			$invoice->invoice_status_id = INVOICE_STATUS_VIEWED;
 			$invoice->save();
 		}
@@ -147,9 +150,9 @@ class InvoiceController extends \BaseController {
 		$client->save();
 
 		Activity::viewInvoice($invitation);
-
+		
 		$data = array(
-			'invoice' => $invoice,
+			'invoice' => $invoice->hidePrivateFields(),
 			'invitation' => $invitation
 		);
 
@@ -404,7 +407,8 @@ class InvoiceController extends \BaseController {
 			if ($action == 'email' && $invoice->invoice_status_id == INVOICE_STATUS_DRAFT)
 			{
 				$invoice->invoice_status_id = INVOICE_STATUS_SENT;
-				
+				$invoice->save();
+
 				$client->balance = $client->balance + $invoice->amount;
 				$client->save();
 			}

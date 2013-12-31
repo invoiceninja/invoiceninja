@@ -73,7 +73,6 @@ class InvoiceRepository
 		if ($publicId) 
 		{
 			$invoice = Invoice::scope($publicId)->firstOrFail();
-			$invoice->invoice_items()->forceDelete();
 		} 
 		else 
 		{				
@@ -115,6 +114,8 @@ class InvoiceRepository
 		$invoice->amount = $total;
 		$invoice->balance = $total;
 		$invoice->save();
+
+		$invoice->invoice_items()->forceDelete();
 
 		foreach ($data['invoice_items'] as $item) 
 		{

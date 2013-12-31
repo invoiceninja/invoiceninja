@@ -333,9 +333,12 @@
         case 37: // left arrow
         case 36: // home
         case 35: // end
+        case 33: // page up
+        case 34: // page down
         case 16: // shift
         case 17: // ctrl
         case 18: // alt
+        case 20: // cap lock
           break;
 
         case 9: // tab
@@ -350,6 +353,7 @@
           break;
 
         default:
+          console.log('keyCode: %s', e.keyCode);
           this.clearTarget();
           this.lookup();
       }

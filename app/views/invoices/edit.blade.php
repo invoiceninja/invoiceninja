@@ -356,13 +356,11 @@
 		@endif
 
 		var $input = $('select#client');
-		$input.combobox();
-		$('.client_select input.form-control').on('change', function(e) {
-			var clientId = parseInt($('input[name=client]').val(), 10);	
+		$input.combobox().on('change', function(e) {
+			var clientId = parseInt($('input[name=client]').val(), 10);				
 			if (clientId > 0) { 
 				model.loadClient(clientMap[clientId]);				
 			} else {
-				//model.client.public_id(0);  // TODO_FIX
 				model.loadClient(new ClientModel());				
 			}
 			refreshPDF();
@@ -609,7 +607,6 @@
         	return self.client.public_id() ? 'Edit client details' : 'Create new client';
     	});
 
-
 		self.showTaxesForm = function() {
 			self.taxBackup = ko.mapping.toJS(self.tax_rates);
 
@@ -621,21 +618,8 @@
 			$('#taxModal').modal('hide');	
 		}
 
-
 		self.showClientForm = function() {
 			self.clientBackup = ko.mapping.toJS(self.client);
-			//console.log(self.clientBackup);
-			
-			/*
-			if (self.client.public_id() == 0) {
-				$('#clientModal input').val('');
-				$('#clientModal #payment_terms').val('');
-				$('#clientModal #country_id').val('');
-				$('#clientModal #currency_id').val('');
-				$('#clientModal #client_size_id').val('');
-				$('#clientModal #client_industry_id').val('');
-			}
-			*/
 
 			$('#emailError').css( "display", "none" );			
 			$('#clientModal').modal('show');			
@@ -651,7 +635,6 @@
 				return;
 			}
 
-			$('select#client').combobox('setSelected');
 			if (self.client.public_id() == 0) {
 				self.client.public_id(-1);
 			}
@@ -664,11 +647,13 @@
 				name = email;
 			}
 
+			$('.client_select select').combobox('setSelected');
 			$('.client_select input.form-control').val(name);
 			$('.client_select .combobox-container').addClass('combobox-selected');
 
 			$('#emailError').css( "display", "none" );
-			$('.client_select input.form-control').focus();			
+			//$('.client_select input.form-control').focus();			
+			$('#terms').focus();
 
 			refreshPDF();
 			model.clientBackup = false;
@@ -765,7 +750,7 @@
 
 		self.addContact = function() {
 			var contact = new ContactModel();
-			console.log('num: ' + self.contacts().length);
+			console.log('add contact: ' + self.contacts().length);
 			if (self.contacts().length == 0) {
 				contact.send_invoice(true);
 			}
@@ -1020,6 +1005,7 @@
 		}
 	@else
 		model.invoice_date('{{ date('Y-m-d') }}');
+		model.start_date('{{ date('Y-m-d') }}');
 		model.invoice_number('{{ $invoiceNumber }}');
 		model.terms(wordWrapText('{{ $account->invoice_terms }}', 340));		
 	@endif
