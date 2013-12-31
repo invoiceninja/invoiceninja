@@ -6,9 +6,7 @@ use Zizaco\Confide\ConfideUser;
 
 class User extends ConfideUser implements UserInterface, RemindableInterface
 {
-
 	protected $softDelete = true;
-	protected $hidden = array('created_at', 'updated_at', 'deleted_at', 'password', 'confirmation_code', 'registered', 'confirmed');
 
     public static $rules = array(
     	/*

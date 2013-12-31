@@ -88,6 +88,7 @@ class ClientController extends \BaseController {
 			'title' => '- New Client',
 			'clientSizes' => ClientSize::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'clientIndustries' => ClientIndustry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get());
 
@@ -139,6 +140,7 @@ class ClientController extends \BaseController {
 			'url' => 'clients/' . $publicId, 
 			'title' => '- ' . $client->name,
 			'clientSizes' => ClientSize::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
 			'clientIndustries' => ClientIndustry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get());
@@ -187,6 +189,7 @@ class ClientController extends \BaseController {
 			$client->client_size_id = Input::get('client_size_id') ? Input::get('client_size_id') : null;
 			$client->client_industry_id = Input::get('client_industry_id') ? Input::get('client_industry_id') : null;
 			$client->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
+			$client->payment_terms = Input::get('payment_terms');
 			$client->website = trim(Input::get('website'));
 
 			$client->save();

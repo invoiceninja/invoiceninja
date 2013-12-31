@@ -2,8 +2,6 @@
 
 class Invoice extends EntityModel
 {
-	protected $hidden = array('id', 'account_id', 'client_id', 'created_at', 'updated_at', 'deleted_at', 'viewed_date');
-
 	public function account()
 	{
 		return $this->belongsTo('Account');

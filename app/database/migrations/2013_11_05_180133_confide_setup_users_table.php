@@ -9,7 +9,8 @@ class ConfideSetupUsersTable extends Migration {
      * @return void
      */
     public function up()
-    {        
+    {   
+        Schema::dropIfExists('payment_terms');             
         Schema::dropIfExists('themes');        
         Schema::dropIfExists('credits');        
         Schema::dropIfExists('activities');
@@ -57,6 +58,13 @@ class ConfideSetupUsersTable extends Migration {
         Schema::create('themes', function($t)
         {
             $t->increments('id');
+            $t->string('name');
+        });
+
+        Schema::create('payment_terms', function($t)
+        {
+            $t->increments('id');
+            $t->integer('num_days');
             $t->string('name');
         });
 
@@ -220,6 +228,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('client_industry_id')->nullable();
             $t->unsignedInteger('client_size_id')->nullable();
             $t->boolean('is_deleted');
+            $t->integer('payment_terms');
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');         
             $t->foreign('user_id')->references('id')->on('users');
@@ -293,7 +302,6 @@ class ConfideSetupUsersTable extends Migration {
             $t->date('end_date')->nullable();
             $t->timestamp('last_sent_date')->nullable();    
             $t->unsignedInteger('recurring_invoice_id')->index()->nullable();
-            
 
             $t->decimal('amount', 13, 4);
             $t->decimal('balance', 13, 4);
@@ -486,6 +494,7 @@ class ConfideSetupUsersTable extends Migration {
      */
     public function down()
     {
+        Schema::dropIfExists('payment_terms');             
         Schema::dropIfExists('themes');        
         Schema::dropIfExists('credits');        
         Schema::dropIfExists('activities');

@@ -1,7 +1,7 @@
 <?php
 
 class Credit extends EntityModel
-{
+{	
 	public function invoice()
 	{
 		return $this->belongsTo('Invoice');

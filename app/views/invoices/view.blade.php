@@ -31,12 +31,10 @@
 			@endif
 			var doc = generatePDF(invoice);
 			var string = doc.output('datauristring');
-			alert(isFirefox);
-			alert(isChrome);
+			
 			if (isFirefox || isChrome) {
 				$('#theFrame').attr('src', string).show();
 			} else {
-				alert(1);
 				var pdfAsArray = convertDataURIToBinary(string);	
 			    PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
 

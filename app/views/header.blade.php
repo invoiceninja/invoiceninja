@@ -66,13 +66,8 @@
 @section('body')
 		
 	<div class="container">
-	<p/>
-	<div>		
-		<a href="{{ URL::to('/') }}" style="font-size:30px;color:black">Invoice Ninja</a>
-	
-	</div>
-
-	<p style="clear: both"/>
+	<p>&nbsp;</p>
+	<p>&nbsp;</p>
 	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
 
 	  <div class="navbar-header">
@@ -172,7 +167,7 @@
 		      	{{ Former::close() }}	      	
 		    </div>
 
-		    Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice-ninja', 'open source', array('target'=>'_blank')) }}, email us at {{ link_to('mailto:contact@invoiceninja.com', 'contact@invoiceninja.com') }}.  			
+		    Need something changed? We're {{ link_to('https://github.com/hillelcoren/invoice-ninja', 'open source', array('target'=>'_blank')) }}, email us at {{ link_to('mailto:contact@invoiceninja.com', 'contact@invoiceninja.com') }}.  			
 			<p class="text-danger">This is a demo site, the data is erased.</p>
 
 		</div>			

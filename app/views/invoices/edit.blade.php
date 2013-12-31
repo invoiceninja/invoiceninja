@@ -123,16 +123,16 @@
 	            		->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 	            </td>
 	            <td style="width:300px">
-	            	<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap" onchange="refreshPDF()"></textarea>
+	            	<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap"></textarea>
 	            </td>
 	            <td style="width:100px">
-	            	<input onkeyup="onItemChange()" data-bind="value: prettyCost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
+	            	<input onkeyup="onItemChange()" data-bind="value: prettyCost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
 	            </td>
 	            <td style="width:80px">
-	            	<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
+	            	<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
 	            </td>
 	            <td style="width:120px; vertical-align:middle" data-bind="visible: $parent.tax_rates().length > 1">
-	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $parent.tax_rates, optionsText: 'displayName'" onchange="refreshPDF()"></select>
+	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $parent.tax_rates, optionsText: 'displayName'"></select>
 	            </td>
 	        	<td style="width:100px;text-align: right;padding-top:9px !important">
 	            	<span data-bind="text: total"></span>
@@ -242,6 +242,8 @@
 				</div>
 
 				{{ Former::legend('Additional Info') }}
+				{{ Former::select('payment_terms')->addOption('','')->data_bind('value: payment_terms')
+					->fromQuery($paymentTerms, 'name', 'num_days') }}
 				{{ Former::select('currency_id')->addOption('','')->label('Currency')->data_bind('value: currency_id')
 					->fromQuery($currencies, 'name', 'id') }}
 				{{ Former::select('client_size_id')->addOption('','')->label('Size')->data_bind('value: client_size_id')
@@ -274,7 +276,7 @@
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">
-	      	<span class="error-block" id="emailError" style="display:none;float:left">Please provide a valid email address.</span><span>&nbsp;</span>
+	      	<span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">Please provide a valid email address.</span><span>&nbsp;</span>
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	        <button type="button" class="btn btn-primary" data-bind="click: clientFormComplete">Done</button>	      	
 	     </div>
@@ -360,7 +362,8 @@
 			if (clientId > 0) { 
 				model.loadClient(clientMap[clientId]);				
 			} else {
-				model.client.public_id(0);  // TODO_FIX
+				//model.client.public_id(0);  // TODO_FIX
+				model.loadClient(new ClientModel());				
 			}
 			refreshPDF();
 		}).trigger('change');		
@@ -408,7 +411,12 @@
 	});	
 
 	function applyComboboxListeners() {
-		var value;
+		$('.invoice-table input, .invoice-table select, .invoice-table textarea').on('blur', function() {
+			//if (value != $(this).val()) refreshPDF();
+			refreshPDF();
+		});
+
+		var value;		
 		$('.datalist').on('focus', function() {
 			value = $(this).val();
 		}).on('blur', function() {
@@ -617,12 +625,18 @@
 		self.showClientForm = function() {
 			self.clientBackup = ko.mapping.toJS(self.client);
 			//console.log(self.clientBackup);
-
+			
+			/*
 			if (self.client.public_id() == 0) {
 				$('#clientModal input').val('');
+				$('#clientModal #payment_terms').val('');
 				$('#clientModal #country_id').val('');
+				$('#clientModal #currency_id').val('');
+				$('#clientModal #client_size_id').val('');
+				$('#clientModal #client_industry_id').val('');
 			}
-			
+			*/
+
 			$('#emailError').css( "display", "none" );			
 			$('#clientModal').modal('show');			
 		}
@@ -735,6 +749,7 @@
 		self.client_industry_id = ko.observable('');
 		self.currency_id = ko.observable('');
 		self.website = ko.observable('');
+		self.payment_terms = ko.observable();			
 		self.contacts = ko.observableArray();
 
 		self.mapping = {

@@ -35,10 +35,10 @@
 		
 	</div>
 
-	<h2>{{ $client->name }}</h2>
+	<h2>{{ $client->getDisplayName() }}</h2>
 	@if ($client->last_login > 0)
 	<h3 style="margin-top:0px"><small>		
-		Last logged in {{ Utils::timestampToDateTimeString($client->last_login); }}
+		Last logged in {{ Utils::timestampToDateTimeString(strtotime($client->last_login)); }}
 	</small></h3>
 	@endif
 
@@ -50,7 +50,8 @@
 		  	<p>{{ $client->getPhone() }}</p>
 		  	<p>{{ $client->getNotes() }}</p>
 		  	<p>{{ $client->getIndustry() }}</p>
-		  	<p>{{ $client->getWebsite() }}
+		  	<p>{{ $client->getWebsite() }}</p>
+		  	<p>{{ $client->payment_terms ? "Payment terms: Net " . $client->payment_terms : '' }}</p>
 		</div>
 
 		<div class="col-md-3">

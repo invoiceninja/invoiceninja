@@ -2,8 +2,6 @@
 
 class Client extends EntityModel
 {
-	protected $hidden = array('id', 'account_id', 'created_at', 'updated_at', 'deleted_at', 'private_notes', 'last_login');
-
 	public static $fieldName = 'Client - Name';
 	public static $fieldPhone = 'Client - Phone';
 	public static $fieldAddress1 = 'Client - Street';

@@ -116,7 +116,7 @@ class InvoiceController extends \BaseController {
 
 	public function view($invitationKey)
 	{
-		$invitation = Invitation::with('user', 'invoice.account', 'invoice.client', 'invoice.invoice_items', 'invoice.client.account.account_gateways')
+		$invitation = Invitation::with('user', 'invoice.invoice_items', 'invoice.client.account', 'invoice.client.contacts')
 			->where('invitation_key', '=', $invitationKey)->firstOrFail();				
 		
 		$user = $invitation->user;		
@@ -350,6 +350,7 @@ class InvoiceController extends \BaseController {
 			'taxRates' => TaxRate::scope()->orderBy('name')->get(),
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'clientSizes' => ClientSize::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
 			'clientIndustries' => ClientIndustry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
 			'frequencies' => array(
 				1 => 'Weekly',

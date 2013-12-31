@@ -3,7 +3,6 @@
 class Account extends Eloquent
 {
 	protected $softDelete = true;
-	protected $hidden = array('ip', 'timezone_id', 'created_at', 'updated_at', 'deleted_at', 'key', 'last_login');
 
 	public function users()
 	{

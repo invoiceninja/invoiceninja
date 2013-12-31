@@ -631,8 +631,13 @@ ko.bindingHandlers.dropdown = {
     	var value = ko.utils.unwrapObservable(valueAccessor());
     	var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
        	console.log("combo-update: %s", id);
-    	if (id) $(element).val(id);       
-        $(element).combobox('refresh');
+    	if (id) { 
+    		$(element).val(id);       
+    		$(element).combobox('refresh');
+    	} else {
+    		$(element).combobox('clearTarget');    		
+    		$(element).combobox('clearElement');    		
+    	}       
     }    
 };
 

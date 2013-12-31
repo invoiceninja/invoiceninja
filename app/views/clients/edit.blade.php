@@ -44,6 +44,8 @@
 			</div>
 
 			{{ Former::legend('Additional Info') }}
+			{{ Former::select('payment_terms')->addOption('','')
+				->fromQuery($paymentTerms, 'name', 'num_days') }}
 			{{ Former::select('currency_id')->addOption('','')->label('Currency')
 				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
 			{{ Former::select('client_size_id')->addOption('','')->label('Size')

@@ -69,9 +69,15 @@ class ConstantsSeeder extends Seeder
 		ClientSize::create(array('name' => '101 - 500'));
 		ClientSize::create(array('name' => '500+'));		
 
+		PaymentTerm::create(array('num_days' => 7, 'name' => 'Net 7'));
+		PaymentTerm::create(array('num_days' => 10, 'name' => 'Net 10'));
+		PaymentTerm::create(array('num_days' => 14, 'name' => 'Net 14'));
+		PaymentTerm::create(array('num_days' => 15, 'name' => 'Net 15'));
+		PaymentTerm::create(array('num_days' => 30, 'name' => 'Net 30'));
+		PaymentTerm::create(array('num_days' => 60, 'name' => 'Net 60'));
+
 		Currency::create(array('name' => 'US Dollar', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 		Currency::create(array('name' => 'Pound Sterling', 'symbol' => '£', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
-
 
 		DatetimeFormat::create(array('format' => 'F j, Y, g:i a', 'label' => 'March 10, 2013, 6:15 pm'));
 		DatetimeFormat::create(array('format' => 'D M jS, Y g:ia', 'label' => 'Mon March 10th, 2013, 6:15 pm'));

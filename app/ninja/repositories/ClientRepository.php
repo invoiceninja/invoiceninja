@@ -31,6 +31,7 @@ class ClientRepository
 		$client->client_size_id = $data['client_size_id'] ? $data['client_size_id'] : null;
 		$client->client_industry_id = $data['client_industry_id'] ? $data['client_industry_id'] : null;
 		$client->currency_id = $data['currency_id'] ? $data['currency_id'] : null;
+		$client->payment_terms = $data['payment_terms'];
 		$client->website = trim($data['website']);
 		$client->save();
 		
@@ -41,7 +42,7 @@ class ClientRepository
 		{
 			$record = (array) $record;
 
-			if (isset($record['public_id']) && $record['public_id'])
+			if ($publicId != "-1" && isset($record['public_id']) && $record['public_id'])
 			{
 				$contact = Contact::scope($record['public_id'])->firstOrFail();
 			}

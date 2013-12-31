@@ -2,8 +2,6 @@
 
 class Contact extends EntityModel
 {
-	protected $hidden = array('id', 'cliend_id', 'created_at', 'updated_at', 'deleted_at', 'last_login');
-
 	public static $fieldFirstName = 'Contact - First Name';
 	public static $fieldLastName = 'Contact - Last Name';
 	public static $fieldEmail = 'Contact - Email';

@@ -20,8 +20,6 @@ define("ACTIVITY_TYPE_DELETE_CREDIT", 15);
 
 class Activity extends Eloquent
 {
-	protected $hidden = array('id');
-
 	public function scopeScope($query)
 	{
 		return $query->whereAccountId(Auth::user()->account_id);
@@ -121,7 +119,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invitation->invoice_id;
 		$activity->contact_id = $invitation->contact_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_EMAIL_INVOICE;
-		$activity->message = $userName . ' emailed invoice ' . link_to('invoices/'.$invitation->invoice->public_id, $invitation->invoice->invoice_number) . ' to ' . $invitation->contact->getFullName();
+		$activity->message = $userName . ' emailed invoice ' . link_to('invoices/'.$invitation->invoice->public_id, $invitation->invoice->invoice_number) . ' to ' . $invitation->contact->getFullName() . ' - ' . $invitation->contact->email;
 		$activity->balance = $invitation->invoice->client->balance;
 		$activity->adjustment = $adjustment;
 		$activity->save();
