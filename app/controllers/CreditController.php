@@ -85,6 +85,8 @@ class CreditController extends \BaseController {
     public function edit($publicId)
     {
         $credit = Credit::scope($publicId)->firstOrFail();
+        $credit->credit_date = Utils::fromSqlDate($credit->credit_date);
+
         $data = array(
             'client' => null,
             'credit' => $credit, 
@@ -126,7 +128,7 @@ class CreditController extends \BaseController {
                 $credit = Credit::createNew();
             }
 
-            $credit->client_id = Input::get('client');
+            $credit->client_id = Client::getPrivateId(Input::get('client'));
             $credit->credit_date = Utils::toSqlDate(Input::get('credit_date'));
             $credit->amount = floatval(Input::get('amount'));
             $credit->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
@@ -134,7 +136,7 @@ class CreditController extends \BaseController {
 
             $message = $publicId ? 'Successfully updated credit' : 'Successfully created credit';
             Session::flash('message', $message);
-            return Redirect::to('clients/' . $credit->client_id);
+            return Redirect::to('clients/' . Input::get('client'));
         }
     }
 

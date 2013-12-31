@@ -83,7 +83,7 @@ class ConstantsSeeder extends Seeder
 		DatetimeFormat::create(array('format' => 'D M jS, Y g:ia', 'label' => 'Mon March 10th, 2013, 6:15 pm'));
 		
 		DateFormat::create(array('format' => 'F j, Y', 'picker_format' => 'MM d, yyyy', 'label' => 'March 10, 2013'));
-		DateFormat::create(array('format' => 'D M jS, Y', 'picker_format' => 'D MM d, yyyy', 'label' => 'Mon March 10th, 2013'));			
+		DateFormat::create(array('format' => 'D M j, Y', 'picker_format' => 'D MM d, yyyy', 'label' => 'Mon March 10, 2013'));			
 		
 		/*	
 		d, dd: Numeric date, no leading zero and leading zero, respectively. Eg, 5, 05.

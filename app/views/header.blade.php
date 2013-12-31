@@ -167,7 +167,7 @@
 		      	{{ Former::close() }}	      	
 		    </div>
 
-		    Need something changed? We're {{ link_to('https://github.com/hillelcoren/invoice-ninja', 'open source', array('target'=>'_blank')) }}, email us at {{ link_to('mailto:contact@invoiceninja.com', 'contact@invoiceninja.com') }}.  			
+		    Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice-ninja', 'open source', array('target'=>'_blank')) }}, email us at {{ link_to('mailto:contact@invoiceninja.com', 'contact@invoiceninja.com') }}.
 			<p class="text-danger">This is a demo site, the data is erased.</p>
 
 		</div>			
@@ -185,15 +185,19 @@
 	      </div>
 
 	      <div style="padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onkeydown="checkForEnter(event)">
+	    	
 	    	{{ Former::open('signup/submit')->addClass('signUpForm') }}
+
 	    	@if (Auth::check())
-	    		{{ Former::populate(Auth::user()) }}
+	    		{{ Former::populateField('new_first_name', Auth::user()->first_name); }}
+	    		{{ Former::populateField('new_last_name', Auth::user()->last_name); }}
+	    		{{ Former::populateField('new_email', Auth::user()->email); }}	    		
 	    	@endif
 	    	{{ Former::hidden('path')->value(Request::path()) }}
-	    	{{ Former::text('first_name') }}
-	    	{{ Former::text('last_name') }}
-	    	{{ Former::text('email') }}	    	
-			{{ Former::password('password') }}
+	    	{{ Former::text('new_first_name')->label('First name') }}
+	    	{{ Former::text('new_last_name')->label('Last name') }}
+	    	{{ Former::text('new_email')->label('Email') }}	    	
+			{{ Former::password('new_password')->label('Password') }}
 			{{ Former::close() }}
 			<center><div id="errorTaken" style="display:none">&nbsp;<br/>The email address is already regiestered</div></center>
 		  </div>
@@ -224,7 +228,7 @@
 
 	      <div class="container">	     
 	      	<h3>Are you sure?</h3>
-	      	<p>This will erase all of your data.</p>	
+	      	<p>This will permanently erase your data.</p>
 	      </div>
 
 	      <div class="modal-footer" id="signUpFooter">	      	
@@ -253,7 +257,7 @@
   		{
   			var isFormValid = true;
   			$(['first_name','last_name','email','password']).each(function(i, field) {
-  				var $input = $('form.signUpForm #'+field),
+  				var $input = $('form.signUpForm #new_'+field),
   					val = $.trim($input.val());
   				var isValid = val && val.length >= (field == 'password' ? 6 : 1);
   				if (isValid && field == 'email') {
@@ -371,6 +375,12 @@
 				$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });
 				*/
   			@endif
+
+  			@if (Session::has('message'))
+  				setTimeout(function() {
+  					$('.alert-info').fadeOut();
+  				}, 5000);
+  			@endif		
 
   			@yield('onReady')
   		});

@@ -89,6 +89,8 @@ class PaymentController extends \BaseController
     public function edit($publicId)
     {
         $payment = Payment::scope($publicId)->firstOrFail();        
+        $payment->payment_date = Utils::fromSqlDate($payment->payment_date);
+
         $data = array(
             'client' => null,
             'invoice' => null,
@@ -132,9 +134,9 @@ class PaymentController extends \BaseController
                 $payment = Payment::createNew();
             }
 
-            $invoiceId = Input::get('invoice') && Input::get('invoice') != "-1" ? Input::get('invoice') : null;
+            $invoiceId = Input::get('invoice') && Input::get('invoice') != "-1" ? Invoice::getPrivateId(Input::get('invoice')) : null;
 
-            $payment->client_id = Input::get('client');
+            $payment->client_id = Client::getPrivateId(Input::get('client'));
             $payment->invoice_id = $invoiceId;
             $payment->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
             $payment->payment_date = Utils::toSqlDate(Input::get('payment_date'));
@@ -143,7 +145,7 @@ class PaymentController extends \BaseController
 
             $message = $publicId ? 'Successfully updated payment' : 'Successfully created payment';
             Session::flash('message', $message);
-            return Redirect::to('clients/' . $payment->client_id);
+            return Redirect::to('clients/' . Input::get('client'));
         }
     }
 

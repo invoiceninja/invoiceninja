@@ -300,8 +300,13 @@ class InvoiceController extends \BaseController {
 	public function edit($publicId)
 	{
 		$invoice = Invoice::scope($publicId)->with('account.country', 'client', 'invoice_items')->firstOrFail();
-		Utils::trackViewed($invoice->invoice_number . ' - ' . $invoice->client->name, ENTITY_INVOICE);
+		Utils::trackViewed($invoice->invoice_number . ' - ' . $invoice->client->getDisplayName(), ENTITY_INVOICE);
 		
+		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
+		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
+		$invoice->start_date = Utils::fromSqlDate($invoice->start_date);
+		$invoice->end_date = Utils::fromSqlDate($invoice->end_date);
+
     	$contactIds = DB::table('invitations')
     				->join('contacts', 'contacts.id', '=','invitations.contact_id')
     				->where('invitations.invoice_id', '=', $invoice->id)
@@ -453,7 +458,7 @@ class InvoiceController extends \BaseController {
 			{
 				$message = ' and created client';
 				$url = URL::to('clients/' . $client->public_id);
-				Utils::trackViewed($client->name, ENTITY_CLIENT, $url);
+				Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
 			}
 			
 			if ($action == 'clone')

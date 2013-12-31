@@ -47,14 +47,6 @@ Route::post('forgot_password', 'UserController@do_forgot_password');
 Route::get('logout', 'UserController@logout');
 
 
-Route::filter('auth', function()
-{
-	if (!Auth::check())
-    {
-        return Redirect::to('/');
-    }
-});
-
 Route::group(array('before' => 'auth'), function()
 {   
 	Route::get('home', function() { return View::make('header'); });
@@ -178,7 +170,6 @@ define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
 define('DEFAULT_TIMEZONE', 'US/Eastern');
 define('DEFAULT_CURRENCY', 1); // US Dollar
 define('DEFAULT_DATE_FORMAT', 'M j, Y');
-define('DEFAULT_DATE_PICKER_FORMAT', 'yyyy-mm-dd');
+define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
-
 define('DEFAULT_QUERY_CACHE', 120);

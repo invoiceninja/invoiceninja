@@ -16,7 +16,7 @@
 	@if ($credit)
 		{{ Former::populate($credit) }}
 	@else
-		{{ Former::populateField('credit_date', date('Y-m-d')) }}
+		{{ Former::populateField('credit_date', Utils::today()) }}
 	@endif
 
 	
@@ -31,7 +31,7 @@
 
 			{{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
 			{{ Former::text('amount') }}
-			{{ Former::text('credit_date')->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
+			{{ Former::text('credit_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
 			{{ Former::select('currency_id')->addOption('','')->label('Currency')
 				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
 
@@ -68,7 +68,8 @@
 		
 		$('#credit_date').datepicker({
 			autoclose: true,
-			todayHighlight: true
+			todayHighlight: true,
+			keyboardNavigation: false
 		});
 
 	});

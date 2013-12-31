@@ -17,7 +17,7 @@
 	@if ($payment)
 		{{-- Former::populate($payment) --}}
 	@else
-		{{ Former::populateField('payment_date', date('Y-m-d')) }}
+		{{ Former::populateField('payment_date', Utils::today()) }}
 	@endif
 
 	
@@ -33,7 +33,7 @@
 			{{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
 			{{ Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') }}
 			{{ Former::text('amount') }}
-			{{ Former::text('payment_date')->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
+			{{ Former::text('payment_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
 			{{ Former::select('currency_id')->addOption('','')->label('Currency')
 				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
 
@@ -140,7 +140,8 @@
 
 		$('#payment_date').datepicker({
 			autoclose: true,
-			todayHighlight: true
+			todayHighlight: true,
+			keyboardNavigation: false
 		});
 	});
 

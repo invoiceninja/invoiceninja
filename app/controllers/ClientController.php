@@ -114,11 +114,11 @@ class ClientController extends \BaseController {
 	public function show($publicId)
 	{
 		$client = Client::scope($publicId)->with('contacts', 'client_size', 'client_industry')->firstOrFail();
-		Utils::trackViewed($client->name, ENTITY_CLIENT);
+		Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 		
 		$data = array(
 			'client' => $client,
-			'title' => '- ' . $client->name,
+			'title' => '- ' . $client->getDisplayName(),
 			'hasRecurringInvoices' => Invoice::scope()->where('is_recurring', '=', true)->whereClientId($client->id)->count() > 0
 		);
 

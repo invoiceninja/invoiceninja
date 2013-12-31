@@ -79,7 +79,8 @@
 
 	$('#start_date, #end_date').datepicker({
 		autoclose: true,
-		todayHighlight: true
+		todayHighlight: true,
+		keyboardNavigation: false
 	});
 
 @stop

@@ -93,14 +93,18 @@ class InvoiceRepository
 		$invoice->public_notes = trim($data['public_notes']);
 		$invoice->po_number = trim($data['po_number']);
 		$invoice->currency_id = $data['currency_id'];
-		$invoice->tax_rate = 0;
-
+		
 		if (isset($data['tax']) && isset($data['tax']->rate) && floatval($data['tax']->rate) > 0)
 		{
 			$invoice->tax_rate = floatval($data['tax']->rate);
 			$invoice->tax_name = trim($data['tax']->name);
+		} 
+		else
+		{
+			$invoice->tax_rate = 0;
+			$invoice->tax_name = '';
 		}
-
+		
 		$invoice->save();
 		$invoice->invoice_items()->forceDelete();
 

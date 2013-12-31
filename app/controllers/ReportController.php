@@ -8,15 +8,15 @@ class ReportController extends \BaseController {
 		{
 			$groupBy = Input::get('group_by');
 			$chartType = Input::get('chart_type');
-			$startDate = date_create(Input::get('start_date'));
-			$endDate = date_create(Input::get('end_date'));
+			$startDate = Utils::toSqlDate(Input::get('start_date'), false);
+			$endDate = Utils::toSqlDate(Input::get('end_date'), false);
 		}
 		else
 		{
 			$groupBy = 'MONTH';
 			$chartType = 'Bar';
-			$startDate = date_create()->modify('-3 month');
-			$endDate = date_create();
+			$startDate = Utils::today(false)->modify('-3 month');
+			$endDate = Utils::today(false);
 		}
 
 		$padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
@@ -90,8 +90,8 @@ class ReportController extends \BaseController {
 			'dateTypes' => $dateTypes,
 			'chartTypes' => $chartTypes,
 			'chartType' => $chartType,
-			'startDate' => $startDate->format('m/d/Y'),
-			'endDate' => $endDate->modify('-1'.$padding)->format('m/d/Y'),
+			'startDate' => $startDate->format(Session::get(SESSION_DATE_FORMAT)),
+			'endDate' => $endDate->modify('-1'.$padding)->format(Session::get(SESSION_DATE_FORMAT)),
 			'groupBy' => $groupBy
 		];
 		

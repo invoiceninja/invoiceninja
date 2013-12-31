@@ -60,13 +60,13 @@
 		<div class="col-md-4" id="col_2">
 			<div data-bind="visible: !is_recurring()">
 				{{ Former::text('invoice_number')->label('Invoice #')->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('invoice_date')->data_bind("value: invoice_date, valueUpdate: 'afterkeydown'")->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
-				{{ Former::text('due_date')->data_bind("value: due_date, valueUpdate: 'afterkeydown'")->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}							
+				{{ Former::text('invoice_date')->data_bind("value: invoice_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
+				{{ Former::text('due_date')->data_bind("value: due_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}							
 			</div>
 			<div data-bind="visible: is_recurring">
 				{{ Former::select('frequency_id')->label('How often')->options($frequencies)->data_bind("value: frequency_id") }}
-				{{ Former::text('start_date')->data_bind("value: start_date, valueUpdate: 'afterkeydown'")->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
-				{{ Former::text('end_date')->data_bind("value: end_date, valueUpdate: 'afterkeydown'")->data_date_format(DEFAULT_DATE_PICKER_FORMAT) }}
+				{{ Former::text('start_date')->data_bind("value: start_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
+				{{ Former::text('end_date')->data_bind("value: end_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
 			</div>
 			@if ($invoice && $invoice->recurring_invoice_id)
 				<div class="pull-right" style="padding-top: 6px">
@@ -202,12 +202,12 @@
 				     	array('Delete Invoice', "javascript:onDeleteClick()"),
 				    )
 				  )
-				, array('id'=>'actionDropDown','style'=>'text-align:left'))->split(); }}				
+				, array('id'=>'actionDropDown', 'style'=>'text-align:left', 'data-bind'=>'css: saveButtonEnabled'))->split(); }}				
 		@else
-			{{ Button::primary_submit('Save Invoice') }}			
+			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: saveButtonEnabled')) }}			
 		@endif
 
-		{{ Button::primary('Send Email', array('id' => 'email_button', 'onclick' => 'onEmailClick()')) }}		
+		{{ Button::primary('Send Email', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: emailButtonEnabled')) }}		
 	</div>
 	<p>&nbsp;</p>
 	
@@ -358,14 +358,10 @@
 		$('#country_id').combobox();
 		$('[rel=tooltip]').tooltip();
 
-		$('#invoice_date').datepicker({
+		$('#invoice_date, #due_date, #start_date, #end_date').datepicker({
 			autoclose: true,
-			todayHighlight: true
-		});
-
-		$('#due_date, #start_date, #end_date').datepicker({
-			autoclose: true,
-			todayHighlight: true
+			todayHighlight: true,
+			keyboardNavigation: false
 		});
 
 		@if ($client && !$invoice)
@@ -378,7 +374,7 @@
 			if (clientId > 0) { 
 				model.loadClient(clientMap[clientId]);				
 			} else {
-				model.loadClient(new ClientModel());				
+				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));				
 			}
 			refreshPDF();
 		}).trigger('change');		
@@ -476,14 +472,15 @@
 		return invoice;
 	}
 
+	/*
 	function refreshPDF() {
 		setTimeout(function() {
 			_refreshPDF();
 		}, 100);
 	}	
+	*/
 
-
-	function _refreshPDF() {
+	function refreshPDF() {
 		console.log("refreshPDF");
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice);		
@@ -576,7 +573,7 @@
         }
 	}
 
-	function InvoiceModel() {
+	function InvoiceModel(data) {
 		var self = this;		
 		this.client = new ClientModel();		
 		self.discount = ko.observable('');
@@ -590,7 +587,7 @@
 		self.due_date = ko.observable('');
 		self.start_date = ko.observable('');
 		self.end_date = ko.observable('');
-		self.tax = ko.observable('');
+		self.tax = ko.observable();
 		self.is_recurring = ko.observable(false);
 		self.invoice_status_id = ko.observable(0);
 
@@ -607,7 +604,6 @@
 		        }
 		    }
 		}
-
 		self.loadClient = function(client) {
 			//console.log(client);				
 			ko.mapping.fromJS(client, model.client.mapping, model.client);
@@ -632,7 +628,7 @@
 			}
 			if (self.tax() && self.tax().rate() > 0) {
 				return true;
-			}
+			}			
 			return false;
 		});
 
@@ -665,6 +661,39 @@
 
 		self.showClientText = ko.computed(function() {
         	return self.client.public_id() ? 'Edit client details' : 'Create new client';
+    	});
+
+		self.saveButtonEnabled = ko.computed(function() {
+			var isValid = false;
+
+        	for (var i=0; i<self.client.contacts().length; i++) {
+        		var contact = self.client.contacts()[i];
+        		if (isValidEmailAddress(contact.email())) {
+        			isValid = true;
+        		} else {
+        			isValid = false;
+        			break;
+        		}
+        	}
+        	return isValid ? "enabled" : "disabled";
+    	});
+
+		self.emailButtonEnabled = ko.computed(function() {
+			var isValid = false;
+			var sendTo = false;
+        	for (var i=0; i<self.client.contacts().length; i++) {
+        		var contact = self.client.contacts()[i];        		
+        		if (isValidEmailAddress(contact.email())) {
+        			isValid = true;
+        			if (contact.send_invoice()) {
+        				sendTo = true;
+        			}
+        		} else {
+        			isValid = false;
+        			break;
+        		}
+        	}
+        	return isValid && sendTo ? "enabled" : "disabled";
     	});
 
 		self.showTaxesForm = function() {
@@ -809,7 +838,7 @@
 
     	self.onDragged = function(item) {
     		refreshPDF();
-    	}
+    	}	
 	}
 
 	function ClientModel(data) {
@@ -1087,9 +1116,17 @@
 		model.addTaxRate({{ $taxRate }});	
 	@endforeach
 	model.addTaxRate();
+	model.tax(model.getBlankTaxRate());
 	@if ($invoice)
 		var invoice = {{ $invoice }};
 		ko.mapping.fromJS(invoice, model.mapping, model);
+		for (var i=0; i<model.tax_rates().length; i++) {
+			var taxRate = model.tax_rates()[i];
+			if (model.tax_name() == taxRate.name() && model.tax_rate() == taxRate.rate()) {
+				model.tax(taxRate);
+				break;
+			}
+		}
 		if (!model.discount()) model.discount('');
 		var invitationContactIds = {{ json_encode($invitationContactIds) }};		
 		var client = clientMap[invoice.client.public_id];
@@ -1098,8 +1135,8 @@
 			contact.send_invoice = invitationContactIds.indexOf(contact.public_id) >= 0;
 		}
 	@else
-		model.invoice_date('{{ date('Y-m-d') }}');
-		model.start_date('{{ date('Y-m-d') }}');
+		model.invoice_date('{{ Utils::today() }}');
+		model.start_date('{{ Utils::today() }}');
 		model.invoice_number('{{ $invoiceNumber }}');
 		model.terms(wordWrapText('{{ $account->invoice_terms }}', 340));		
 	@endif

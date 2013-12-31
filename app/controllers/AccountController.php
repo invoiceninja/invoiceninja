@@ -506,10 +506,10 @@ class AccountController extends \BaseController {
 	public function submitSignup()
 	{
 		$rules = array(
-			'first_name' => 'required',
-			'last_name' => 'required',
-			'password' => 'required|min:6',
-			'email' => 'email|required'
+			'new_first_name' => 'required',
+			'new_last_name' => 'required',
+			'new_password' => 'required|min:6',
+			'new_email' => 'email|required'
 		);
 
 		$validator = Validator::make(Input::all(), $rules);
@@ -528,7 +528,8 @@ class AccountController extends \BaseController {
 		$user->save();
 
 		$activities = Activity::scope()->get();
-		foreach ($activities as $activity) {
+		foreach ($activities as $activity) 
+		{
 			$activity->message = str_replace('Guest', $user->getFullName(), $activity->message);
 			$activity->save();
 		}
