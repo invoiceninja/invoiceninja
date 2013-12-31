@@ -134,7 +134,7 @@ class InvoiceController extends \BaseController {
 			return View::make('invoices.deleted');
 		}
 		
-		if ($invoice->invoice_status_id < INVOICE_STATUS_VIEWED) 
+		if (!$invoice->isViewed())
 		{
 			$invoice->invoice_status_id = INVOICE_STATUS_VIEWED;
 			$invoice->save();
@@ -241,15 +241,13 @@ class InvoiceController extends \BaseController {
 	    	}
 	    	else
 	    	{
-
+	    		return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>');
 	    	}
 	    } 
 	    catch (\Exception $e) 
 	    {
-			exit('Sorry, there was an error processing your payment. Please try again later.<p>'.$e);
+	    	return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>'.$e);
 		}
-
-		exit;
 	}
 
 	public function do_payment()
@@ -274,9 +272,12 @@ class InvoiceController extends \BaseController {
 				$payment->transaction_reference = $ref;
 				$payment->save();
 
-				if ($payment->amount >= $invoice->amount) {
+				if ($payment->amount >= $invoice->amount) 
+				{
 					$invoice->invoice_status_id = INVOICE_STATUS_PAID;
-				} else {
+				} 
+				else 
+				{
 					$invoice->invoice_status_id = INVOICE_STATUS_PARTIAL;
 				}
 				$invoice->save();
@@ -286,12 +287,12 @@ class InvoiceController extends \BaseController {
 			}
 			else
 			{
-				exit($response->getMessage());
+				return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>'.$response->getMessage());				
 			}
 	    } 
 	    catch (\Exception $e) 
 	    {
-			exit('Sorry, there was an error processing your payment. Please try again later.' . $e);
+			return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>'.$e);
 		}
 	}
 
@@ -404,11 +405,16 @@ class InvoiceController extends \BaseController {
 			$invoiceData['client_id'] = $client->id;
 			$invoice = $this->invoiceRepo->save($publicId, $invoiceData);
 
+			$account = Auth::user()->account;
+			if ($account->invoice_taxes != $input->invoice_taxes || $account->invoice_item_taxes != $input->invoice_item_taxes)
+			{
+				$account->invoice_taxes = $input->invoice_taxes;
+				$account->invoice_item_taxes = $input->invoice_item_taxes;
+				$account->save();
+			}
+
 			if ($action == 'email' && $invoice->invoice_status_id == INVOICE_STATUS_DRAFT)
 			{
-				$invoice->invoice_status_id = INVOICE_STATUS_SENT;
-				$invoice->save();
-
 				$client->balance = $client->balance + $invoice->amount;
 				$client->save();
 			}

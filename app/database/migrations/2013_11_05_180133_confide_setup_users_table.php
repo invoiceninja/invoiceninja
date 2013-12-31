@@ -125,6 +125,9 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('country_id')->nullable();     
             $t->text('invoice_terms');
 
+            $t->boolean('invoice_taxes')->default(true);
+            $t->boolean('invoice_item_taxes')->default(false);
+
             $t->foreign('timezone_id')->references('id')->on('timezones');
             $t->foreign('date_format_id')->references('id')->on('date_formats');
             $t->foreign('datetime_format_id')->references('id')->on('datetime_formats');
@@ -302,6 +305,9 @@ class ConfideSetupUsersTable extends Migration {
             $t->date('end_date')->nullable();
             $t->timestamp('last_sent_date')->nullable();    
             $t->unsignedInteger('recurring_invoice_id')->index()->nullable();
+
+            $t->string('tax_name');
+            $t->decimal('tax_rate', 13, 4);
 
             $t->decimal('amount', 13, 4);
             $t->decimal('balance', 13, 4);

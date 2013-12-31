@@ -42,9 +42,15 @@ class Invoice extends EntityModel
 		return $this->invoice_status_id >= INVOICE_STATUS_SENT;
 	}
 
+	public function isViewed()
+	{
+		return $this->invoice_status_id >= INVOICE_STATUS_VIEWED;	
+	}	
+
 	public function hidePrivateFields()
 	{
-		$this->setVisible(['invoice_number', 'discount', 'po_number', 'invoice_date', 'due_date', 'terms', 'currency_id', 'public_notes', 'amount', 'balance', 'invoice_items', 'client']);
+		$this->setVisible(['invoice_number', 'discount', 'po_number', 'invoice_date', 'due_date', 'terms', 'currency_id', 'public_notes', 'amount', 'balance', 'invoice_items', 'client', 'tax_name', 'tax_rate']);
+		
 		$this->client->setVisible(['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'work_phone', 'payment_terms', 'contacts']);
 
 		foreach ($this->invoice_items as $invoiceItem) 

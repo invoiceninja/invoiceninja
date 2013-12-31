@@ -16,7 +16,7 @@
 		'email' => 'required',
 		'product_key' => 'max:14',
 	)); }}
-    
+
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-5" id="col_1">
 
@@ -108,59 +108,70 @@
 	        	<th>Description</th>
 	        	<th>Unit Cost</th>
 	        	<th>Quantity</th>
-	        	<th data-bind="visible: tax_rates().length > 1">Tax</th>
+	        	<th data-bind="visible: showInvoiceItemTaxes">Tax</th>
 	        	<th>Line&nbsp;Total</th>
 	        	<th class="hide-border"></th>
 	        </tr>
 	    </thead>
 	    <tbody data-bind="sortable: { data: invoice_items, afterMove: onDragged }">
 	    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
-	        	<td style="width:20px;" class="hide-border td-icon">
+	        	<td style="min-width:20px;" class="hide-border td-icon">
 	        		<i data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 	        	</td>
-	            <td style="width:120px">	            	
+	            <td style="min-width:120px">	            	
 	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'key')->onkeyup('onItemChange()')
 	            		->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 	            </td>
-	            <td style="width:300px">
+	            <td style="width:100%">
 	            	<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap"></textarea>
 	            </td>
-	            <td style="width:100px">
+	            <td style="min-width:120px">
 	            	<input onkeyup="onItemChange()" data-bind="value: prettyCost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
 	            </td>
-	            <td style="width:80px">
+	            <td style="min-width:120px">
 	            	<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
 	            </td>
-	            <td style="width:120px; vertical-align:middle" data-bind="visible: $parent.tax_rates().length > 1">
+	            <td style="min-width:120px; vertical-align:middle" data-bind="visible: $parent.showInvoiceItemTaxes">
 	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $parent.tax_rates, optionsText: 'displayName'"></select>
 	            </td>
-	        	<td style="width:100px;text-align: right;padding-top:9px !important">
+	        	<td style="min-width:120px;text-align: right;padding-top:9px !important">
 	            	<span data-bind="text: total"></span>
 	            </td>
-	        	<td style="width:20px; cursor:pointer" class="hide-border td-icon">
+	        	<td style="min-width:20px; cursor:pointer" class="hide-border td-icon">
 	        		&nbsp;<i data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-minus-circle" title="Remove item"/>
 	        	</td>
 	        </tr>
 		</tbody>
-		<tfoot>	        
-	        <tr>
+		<tfoot>
+			<tr>
 	        	<td class="hide-border"/>
-	        	<td data-bind="attr: {colspan: tax_rates().length > 1 ? 3 : 2}"/>
+	        	<td colspan="2"/>
+	        	<td data-bind="visible: showInvoiceItemTaxes"/>	        	
 				<td colspan="2">Subtotal</td>
 				<td style="text-align: right"><span data-bind="text: subtotal"/></td>
 	        </tr>
 	        <tr data-bind="visible: discount() > 0">
-	        	<td class="hide-border" data-bind="attr: {colspan: tax_rates().length > 1 ? 4 : 3}"/>
+	        	<td class="hide-border" colspan="3"/>
+	        	<td class="hide-border" data-bind="visible: showInvoiceItemTaxes"/>
 				<td colspan="2">Discount</td>
 				<td style="text-align: right"><span data-bind="text: discounted"/></td>
 	        </tr>
+	        <tr data-bind="visible: showInvoiceTaxes">
+	        	<td class="hide-border" colspan="3"/>
+	        	<td class="hide-border" data-bind="visible: showInvoiceItemTaxes"/>	        	
+				<td style="vertical-align: middle">Tax</td>
+				<td><select class="form-control" style="width:100%" data-bind="value: tax, options: tax_rates, optionsText: 'displayName'"></select></td>
+				<td style="vertical-align: middle; text-align: right"><span data-bind="text: taxAmount"/></td>
+	        </tr>
 	        <tr>
-	        	<td class="hide-border" data-bind="attr: {colspan: tax_rates().length > 1 ? 4 : 3}"/>
+	        	<td class="hide-border" colspan="3"/>
+	        	<td class="hide-border" data-bind="visible: showInvoiceItemTaxes"/>	        	
 				<td colspan="2">Paid to Date</td>
 				<td style="text-align: right"></td>
 	        </tr>	        
 	        <tr>
-	        	<td class="hide-border" data-bind="attr: {colspan: tax_rates().length > 1 ? 4 : 3}"/>
+	        	<td class="hide-border" colspan="3"/>
+	        	<td class="hide-border" data-bind="visible: showInvoiceItemTaxes"/>	        	
 				<td colspan="2"><b>Balance Due</b></td>
 				<td style="text-align: right"><span data-bind="text: total"/></td>
 	        </tr>
@@ -319,6 +330,12 @@
 				</tbody>
 			</table>
 			&nbsp;
+
+			{{ Former::checkbox('invoice_taxes')->text('Enable specifying an <b>invoice tax</b>')
+				->label('Settings')->data_bind('checked: invoice_taxes, enable: tax_rates().length > 1') }}
+			{{ Former::checkbox('invoice_item_taxes')->text('Enable specifying <b>line item taxes</b>')
+				->label('&nbsp;')->data_bind('checked: invoice_item_taxes, enable: tax_rates().length > 1') }}
+
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">
@@ -394,9 +411,24 @@
 		$('#taxModal').on('shown.bs.modal', function () {
 			$('#taxModal input:first').focus();			
 		}).on('hidden.bs.modal', function () {
+			console.log('TAX HIDDEN: %s %s', model.invoice_taxes(), model.invoice_item_taxes())
+			/*
+			var blank = model.getBlankTaxRate();
+			if (!model.invoice_taxes()) {
+				model.tax(blank);
+			}
+			if (!model.invoice_item_taxes()) {
+				for (var i=0; i<model.invoice_items().length; i++) {
+					var item = model.invoice_items()[i];
+					item.tax(blank);
+				}
+			}
+			*/
+			/*
 			if (model.taxBackup) {
 				
 			}
+			*/
 		})
 
 		$('#actionDropDown > button:first').click(function() {
@@ -558,11 +590,15 @@
 		self.due_date = ko.observable('');
 		self.start_date = ko.observable('');
 		self.end_date = ko.observable('');
+		self.tax = ko.observable('');
 		self.is_recurring = ko.observable(false);
 		self.invoice_status_id = ko.observable(0);
 
 		self.invoice_items = ko.observableArray();
 		self.tax_rates = ko.observableArray();
+
+		self.invoice_taxes = ko.observable({{ Auth::user()->account->invoice_taxes ? 'true' : 'false' }});
+		self.invoice_item_taxes = ko.observable({{ Auth::user()->account->invoice_item_taxes ? 'true' : 'false' }});
 
 		self.mapping = {
 		    'invoice_items': {
@@ -589,6 +625,30 @@
 			},
 			owner: this
 		});
+
+		self.showInvoiceTaxes = ko.computed(function() {
+			if (self.tax_rates().length > 1 && self.invoice_taxes()) {
+				return true;
+			}
+			if (self.tax() && self.tax().rate() > 0) {
+				return true;
+			}
+			return false;
+		});
+
+		self.showInvoiceItemTaxes = ko.computed(function() {
+			if (self.tax_rates().length > 1 && self.invoice_item_taxes()) {
+				return true;
+			}
+			for (var i=0; i<self.invoice_items().length; i++) {
+				var item = self.invoice_items()[i];
+				if (item.tax() && item.tax().rate() > 0) {
+					return true;
+				}
+			}
+			return false;
+		});
+
 
 		self.wrapped_notes = ko.computed({
 			read: function() {
@@ -653,7 +713,7 @@
 
 			$('#emailError').css( "display", "none" );
 			//$('.client_select input.form-control').focus();			
-			$('#terms').focus();
+			$('#invoice_number').focus();
 
 			refreshPDF();
 			model.clientBackup = false;
@@ -682,6 +742,15 @@
 			applyComboboxListeners();
 		}
 
+		self.getBlankTaxRate = function() {
+			for (var i=0; i<self.tax_rates().length; i++) {
+				var taxRate = self.tax_rates()[i];
+				if (!taxRate.name()) {
+					return taxRate;
+				}
+			}
+		}
+
 		this.rawSubtotal = ko.computed(function() {
 		    var total = 0;
 		    for(var p = 0; p < self.invoice_items().length; ++p)
@@ -696,11 +765,31 @@
 		    return total > 0 ? formatMoney(total, self.currency_id()) : '';
 		});
 
+		this.rawDiscounted = ko.computed(function() {
+			return self.rawSubtotal() * (self.discount()/100);			
+		});
 
 		this.discounted = ko.computed(function() {
-			var total = self.rawSubtotal() * (self.discount()/100);
-			return formatMoney(total, self.currency_id());
+			return formatMoney(self.rawDiscounted(), self.currency_id());
 		});
+
+		self.taxAmount = ko.computed(function() {
+		    var total = self.rawSubtotal();
+
+		    var discount = parseFloat(self.discount());
+		    if (discount > 0) {
+		    	total = total * ((100 - discount)/100);
+		    }
+
+			var taxRate = self.tax() ? parseFloat(self.tax().rate()) : 0;
+			if (taxRate > 0) {
+				var tax = total * (taxRate/100);			
+        		return formatMoney(tax, self.currency_id());
+        	} else {
+        		return formatMoney(0);
+        	}
+    	});
+
 
 		this.total = ko.computed(function() {
 		    var total = self.rawSubtotal();
@@ -709,6 +798,11 @@
 		    if (discount > 0) {
 		    	total = total * ((100 - discount)/100);
 		    }
+
+			var taxRate = self.tax() ? parseFloat(self.tax().rate()) : 0;
+			if (taxRate > 0) {
+        		total = parseFloat(total) + (total * (taxRate/100));
+        	}        	
 
 		    return total > 0 ? formatMoney(total, self.currency_id()) : '';
     	});
@@ -821,9 +915,9 @@
 
 
 		self.displayName = ko.computed(function() {
-			var name = self.name() ? self.name() : false;
-			var rate = self.rate() ? parseFloat(self.rate()) : false;
-			return (name && rate) ? (rate + '%' + ' - ' + name) : '';
+			var name = self.name() ? self.name() : '';
+			var rate = self.rate() ? parseFloat(self.rate()) + '% -' : '';
+			return rate + name;
 		});	
 
     	self.hideActions = function() {

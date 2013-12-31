@@ -2,6 +2,12 @@
 
 class Utils
 {
+	public static function fatalError($error)
+	{
+		Log::error($error);
+		return View::make('error')->with('error', $error);
+	}
+
 	public static function formatPhoneNumber($phoneNumber) 
 	{
 	    $phoneNumber = preg_replace('/[^0-9]/','',$phoneNumber);

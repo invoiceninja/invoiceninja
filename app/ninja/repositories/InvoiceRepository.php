@@ -80,7 +80,7 @@ class InvoiceRepository
 		}			
 		
 		$invoice->client_id = $data['client_id'];
-		$invoice->discount = $data['discount'];
+		$invoice->discount = floatval($data['discount']);
 		$invoice->invoice_number = trim($data['invoice_number']);
 		$invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
 		$invoice->due_date = Utils::toSqlDate($data['due_date']);					
@@ -93,30 +93,19 @@ class InvoiceRepository
 		$invoice->public_notes = trim($data['public_notes']);
 		$invoice->po_number = trim($data['po_number']);
 		$invoice->currency_id = $data['currency_id'];
+		$invoice->tax_rate = 0;
 
-		$total = 0;						
-
-		foreach ($data['invoice_items'] as $item) 
+		if (isset($data['tax']) && isset($data['tax']->rate) && floatval($data['tax']->rate) > 0)
 		{
-			if (!isset($item->cost)) 
-			{
-				$item->cost = 0;
-			}
-		
-			if (!isset($item->qty)) 
-			{
-				$item->qty = 0;
-			}
-
-			$total += floatval($item->qty) * floatval($item->cost);
+			$invoice->tax_rate = floatval($data['tax']->rate);
+			$invoice->tax_name = trim($data['tax']->name);
 		}
 
-		$invoice->amount = $total;
-		$invoice->balance = $total;
 		$invoice->save();
-
 		$invoice->invoice_items()->forceDelete();
 
+		$total = 0;						
+		
 		foreach ($data['invoice_items'] as $item) 
 		{
 			if (!$item->cost && !$item->qty && !$item->product_key && !$item->notes)
@@ -149,16 +138,30 @@ class InvoiceRepository
 			$invoiceItem->notes = trim($item->notes);
 			$invoiceItem->cost = floatval($item->cost);
 			$invoiceItem->qty = floatval($item->qty);
+			$invoiceItem->tax_rate = 0;
 
-			if ($item->tax && isset($item->tax->rate) && isset($item->tax->name))
+			if ($item->tax && isset($item->tax->rate) && floatval($item->tax->rate) > 0)
 			{
 				$invoiceItem->tax_rate = floatval($item->tax->rate);
 				$invoiceItem->tax_name = trim($item->tax->name);
 			}
 
 			$invoice->invoice_items()->save($invoiceItem);
-			$total += floatval($item->qty) * floatval($item->cost);
+
+			$lineTotal = $invoiceItem->cost * $invoiceItem->qty;
+			$total += $lineTotal + ($lineTotal * $invoiceItem->tax_rate / 100);
 		}
+
+		if ($invoice->discount > 0)
+		{
+			$total *= (100 - $invoice->discount) / 100;
+		}
+
+		$total += $total * $invoice->tax_rate / 100;
+
+		$invoice->amount = $total;
+		$invoice->balance = $total;
+		$invoice->save();
 
 		return $invoice;
 	}

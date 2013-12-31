@@ -32,7 +32,7 @@ function generatePDF(invoice) {
 	for (var i=0; i<invoice.invoice_items.length; i++) 
 	{
 		var item = invoice.invoice_items[i];		
-		if (item.tax && item.tax.rate > 0) {
+		if ((item.tax && item.tax.rate > 0) || (item.tax_rate && parseFloat(item.tax_rate) > 0)) {
 			hasTaxes = true;
 			break;
 		}
@@ -141,7 +141,12 @@ function generatePDF(invoice) {
 		var qty = item.qty ? parseFloat(item.qty) + '' : '';
 		var notes = item.notes;
 		var productKey = item.product_key;
-		var tax = item.tax && parseFloat(item.tax.rate) ? parseFloat(item.tax.rate) + '%' : false;
+		var tax = 0;
+		if (item.tax && parseFloat(item.tax.rate)) {
+			tax = parseFloat(item.tax.rate);
+		} else if (item.tax_rate && parseFloat(item.tax_rate)) {
+			tax = parseFloat(item.tax_rate);
+		}		
 
 		// show at most one blank line
 		if (shownItem && (!cost || cost == '0.00') && !qty && !notes && !productKey) {
@@ -155,7 +160,7 @@ function generatePDF(invoice) {
 
 		var lineTotal = item.cost * item.qty;
 		if (tax) {
-			lineTotal += lineTotal * parseFloat(item.tax.rate) / 100;
+			lineTotal += lineTotal * tax / 100;
 		}
 		if (lineTotal) {
 			total += lineTotal;
@@ -164,7 +169,7 @@ function generatePDF(invoice) {
 		
 		var costX = unitCostRight - (doc.getStringUnitWidth(cost) * doc.internal.getFontSize());
 		var qtyX = qtyRight - (doc.getStringUnitWidth(qty) * doc.internal.getFontSize());
-		var taxX = taxRight - (doc.getStringUnitWidth(tax) * doc.internal.getFontSize());
+		var taxX = taxRight - (doc.getStringUnitWidth(tax+'%') * doc.internal.getFontSize());
 		var totalX = lineTotalRight - (doc.getStringUnitWidth(lineTotal) * doc.internal.getFontSize());
 		var x = tableTop + (line * tableRowHeight) + 6;
 		if (i==0) x -= 4;
@@ -176,7 +181,7 @@ function generatePDF(invoice) {
 		doc.text(totalX, x, lineTotal);
 
 		if (tax) {
-			doc.text(taxX, x, tax);
+			doc.text(taxX, x, tax+'%');
 		}
 
 		line += doc.splitTextToSize(item.notes, 200).length;
@@ -206,10 +211,28 @@ function generatePDF(invoice) {
 
 		x += 16;
 		doc.text(footerLeft, x, 'Discount');
-		var discount = formatMoney(total * (invoice.discount/100), currencyId, true);
+		var discount = total * (invoice.discount/100);
 		total -= discount;
+		discount = formatMoney(discount, currencyId, true);
 		var discountX = headerRight - (doc.getStringUnitWidth(discount) * doc.internal.getFontSize());
 		doc.text(discountX, x, discount);		
+	}
+
+	var tax = 0;
+	if (invoice.tax && parseFloat(invoice.tax.rate)) {
+		tax = parseFloat(invoice.tax.rate);
+	} else if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
+		tax = parseFloat(invoice.tax_rate);
+	}		
+
+	if (tax) {
+		x += 16;
+		doc.text(footerLeft, x, 'Tax ' + tax + '%');
+		var tax = total * (tax/100);
+		total = parseFloat(total) + parseFloat(tax);
+		tax = formatMoney(tax, currencyId, true);
+		var taxX = headerRight - (doc.getStringUnitWidth(tax) * doc.internal.getFontSize());
+		doc.text(taxX, x, tax);		
 	}
 
 	x += 16;
