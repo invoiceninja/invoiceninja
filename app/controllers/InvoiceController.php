@@ -317,6 +317,7 @@ class InvoiceController extends \BaseController {
 		$data = array(
 				'account' => $invoice->account,
 				'invoice' => $invoice, 
+				'data' => false,
 				'method' => 'PUT', 
 				'invitationContactIds' => $contactIds,
 				'url' => 'invoices/' . $publicId, 
@@ -338,13 +339,13 @@ class InvoiceController extends \BaseController {
 
 		$data = array(
 				'account' => $account,
-				'invoice' => null, 
+				'invoice' => null,
+				'data' => Input::old('data'), 
 				'invoiceNumber' => $invoiceNumber,
 				'method' => 'POST', 
 				'url' => 'invoices', 
 				'title' => '- New Invoice',
-				'client' => $client,
-				'items' => json_decode(Input::old('items')));
+				'client' => $client);
 		$data = array_merge($data, InvoiceController::getViewModel());				
 		return View::make('invoices.edit', $data);
 	}
@@ -393,20 +394,21 @@ class InvoiceController extends \BaseController {
 		}
 
 		$input = json_decode(Input::get('data'));					
-		
-		if (!$input->client->contacts[0]->email) 
+		$invoice = $input->invoice;
+
+		if ($errors = $this->invoiceRepo->getErrors($invoice))
 		{
 			return Redirect::to('invoices/create')
-				->withInput();
+				->withInput()->withErrors($errors);
 		} 
 		else 
 		{			
 			$this->taxRateRepo->save($input->tax_rates);
 						
-			$clientData = (array) $input->client;			
-			$client = $this->clientRepo->save($input->client->public_id, $clientData);
-			
-			$invoiceData = (array) $input;
+			$clientData = (array) $invoice->client;			
+			$client = $this->clientRepo->save($invoice->client->public_id, $clientData);
+						
+			$invoiceData = (array) $invoice;
 			$invoiceData['client_id'] = $client->id;
 			$invoice = $this->invoiceRepo->save($publicId, $invoiceData);
 
@@ -454,7 +456,7 @@ class InvoiceController extends \BaseController {
 			}						
 
 			$message = '';
-			if ($input->client->public_id == '-1')
+			if ($input->invoice->client->public_id == '-1')
 			{
 				$message = ' and created client';
 				$url = URL::to('clients/' . $client->public_id);

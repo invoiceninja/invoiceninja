@@ -21,6 +21,7 @@
 include_once(app_path().'/libraries/utils.php');  // TODO_FIX
 include_once(app_path().'/handlers/UserEventHandler.php');  // TODO_FIX
 
+
 Route::get('/send_emails', function() {
 	Artisan::call('ninja:send-invoices');	
 });
@@ -173,3 +174,8 @@ define('DEFAULT_DATE_FORMAT', 'M j, Y');
 define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
 define('DEFAULT_QUERY_CACHE', 120);
+
+
+if (Auth::check() && !Session::has(SESSION_TIMEZONE)) {
+	Event::fire('user.refresh');
+}

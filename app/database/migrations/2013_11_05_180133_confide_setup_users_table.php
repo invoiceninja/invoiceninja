@@ -321,6 +321,7 @@ class ConfideSetupUsersTable extends Migration {
 
             $t->unsignedInteger('public_id')->index();
             $t->unique( array('account_id','public_id') );
+            $t->unique( array('account_id','invoice_number') );
         });
 
 

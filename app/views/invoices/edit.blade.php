@@ -9,14 +9,16 @@
 
 @section('content')
 	
+
 	<p>&nbsp;</p>
 
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
 		'client' => 'required',
 		'email' => 'required',
 		'product_key' => 'max:14',
-	)); }}
+	)); }}	
 
+	<div data-bind="with: invoice">
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-5" id="col_1">
 
@@ -24,7 +26,7 @@
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
 					<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
-						<a href="#" data-bind="click: showClientForm">{{ $client->getDisplayName() }}</a>
+						<a href="#" data-bind="click: $root.showClientForm">{{ $client->getDisplayName() }}</a>
 					</div>
 				</div>    				
 				<div style="display:none">
@@ -35,7 +37,7 @@
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-					<a href="#" data-bind="click: showClientForm, text: showClientText"></a>
+					<a href="#" data-bind="click: $root.showClientForm, text: client.linkText"></a>
 				</div>
 			</div>
 
@@ -48,7 +50,7 @@
 					<div class="col-lg-8 col-lg-offset-4">
 						<label for="test" class="checkbox" data-bind="attr: {for: $index() + '_check'}">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check'}">
-								<span data-bind="text: displayName"/>
+								<span data-bind="text: email.display"/>
 						</label>
 					</div>				
 				</div>
@@ -89,7 +91,7 @@
 			<div class="form-group" style="margin-bottom: 8px">
 				<label for="recurring" class="control-label col-lg-4 col-sm-4">Taxes</label>
 				<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
-					<a href="#" data-bind="click: showTaxesForm">Manage taxe rates</a>
+					<a href="#" data-bind="click: $root.showTaxesForm">Manage taxe rates</a>
 				</div>
 			</div>
 
@@ -98,7 +100,7 @@
 
 	<p>&nbsp;</p>
 
-	{{ Former::hidden('data')->data_bind("value: ko.toJSON(model)") }}	
+	{{ Former::hidden('data')->data_bind("value: ko.mapping.toJSON(model)") }}	
 
 	<table class="table invoice-table" style="margin-bottom: 0px !important">
 	    <thead>
@@ -108,7 +110,7 @@
 	        	<th>Description</th>
 	        	<th>Unit Cost</th>
 	        	<th>Quantity</th>
-	        	<th data-bind="visible: showInvoiceItemTaxes">Tax</th>
+	        	<th data-bind="visible: $root.invoice_item_taxes.show">Tax</th>
 	        	<th>Line&nbsp;Total</th>
 	        	<th class="hide-border"></th>
 	        </tr>
@@ -131,11 +133,11 @@
 	            <td style="min-width:120px">
 	            	<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
 	            </td>
-	            <td style="min-width:120px; vertical-align:middle" data-bind="visible: $parent.showInvoiceItemTaxes">
-	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $parent.tax_rates, optionsText: 'displayName'"></select>
+	            <td style="min-width:120px; vertical-align:middle" data-bind="visible: $root.invoice_item_taxes.show">
+	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select>
 	            </td>
 	        	<td style="min-width:120px;text-align: right;padding-top:9px !important">
-	            	<span data-bind="text: total"></span>
+	            	<span data-bind="text: totals.total"></span>
 	            </td>
 	        	<td style="min-width:20px; cursor:pointer" class="hide-border td-icon">
 	        		&nbsp;<i data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-minus-circle" title="Remove item"/>
@@ -146,34 +148,34 @@
 			<tr>
 	        	<td class="hide-border"/>
 	        	<td colspan="2"/>
-	        	<td data-bind="visible: showInvoiceItemTaxes"/>	        	
+	        	<td data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2">Subtotal</td>
-				<td style="text-align: right"><span data-bind="text: subtotal"/></td>
+				<td style="text-align: right"><span data-bind="text: totals.subtotal"/></td>
 	        </tr>
 	        <tr data-bind="visible: discount() > 0">
 	        	<td class="hide-border" colspan="3"/>
-	        	<td class="hide-border" data-bind="visible: showInvoiceItemTaxes"/>
+	        	<td class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
 				<td colspan="2">Discount</td>
-				<td style="text-align: right"><span data-bind="text: discounted"/></td>
+				<td style="text-align: right"><span data-bind="text: totals.discounted"/></td>
 	        </tr>
-	        <tr data-bind="visible: showInvoiceTaxes">
+	        <tr data-bind="visible: $root.invoice_taxes.show">
 	        	<td class="hide-border" colspan="3"/>
-	        	<td class="hide-border" data-bind="visible: showInvoiceItemTaxes"/>	        	
+	        	<td class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td style="vertical-align: middle">Tax</td>
-				<td><select class="form-control" style="width:100%" data-bind="value: tax, options: tax_rates, optionsText: 'displayName'"></select></td>
-				<td style="vertical-align: middle; text-align: right"><span data-bind="text: taxAmount"/></td>
+				<td><select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select></td>
+				<td style="vertical-align: middle; text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 	        </tr>
 	        <tr>
 	        	<td class="hide-border" colspan="3"/>
-	        	<td class="hide-border" data-bind="visible: showInvoiceItemTaxes"/>	        	
+	        	<td class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2">Paid to Date</td>
 				<td style="text-align: right"></td>
 	        </tr>	        
 	        <tr>
 	        	<td class="hide-border" colspan="3"/>
-	        	<td class="hide-border" data-bind="visible: showInvoiceItemTaxes"/>	        	
+	        	<td class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2"><b>Balance Due</b></td>
-				<td style="text-align: right"><span data-bind="text: total"/></td>
+				<td style="text-align: right"><span data-bind="text: totals.total"/></td>
 	        </tr>
 	    </tfoot>
 	</table>
@@ -183,8 +185,9 @@
 
 		<div style="display:none">
 			{{ Former::text('action') }}
-			@if ($invoice)		
+			@if ($invoice)
 				{{ Former::text('id') }}
+				{{ Former::populateField('id', $invoice->id) }}
 			@endif
 		</div>
 
@@ -202,12 +205,12 @@
 				     	array('Delete Invoice', "javascript:onDeleteClick()"),
 				    )
 				  )
-				, array('id'=>'actionDropDown', 'style'=>'text-align:left', 'data-bind'=>'css: saveButtonEnabled'))->split(); }}				
+				, array('id'=>'actionDropDown', 'style'=>'text-align:left', 'data-bind'=>'css: enable.save'))->split(); }}				
 		@else
-			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: saveButtonEnabled')) }}			
+			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: enable.save')) }}			
 		@endif
 
-		{{ Button::primary('Send Email', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: emailButtonEnabled')) }}		
+		{{ Button::primary('Send Email', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: enable.email')) }}		
 	</div>
 	<p>&nbsp;</p>
 	
@@ -253,7 +256,7 @@
 				</div>
 
 				{{ Former::legend('Additional Info') }}
-				{{ Former::select('payment_terms')->addOption('','')->data_bind('value: payment_terms')
+				{{ Former::select('payment_terms')->addOption('','0')->data_bind('value: payment_terms')
 					->fromQuery($paymentTerms, 'name', 'num_days') }}
 				{{ Former::select('currency_id')->addOption('','')->label('Currency')->data_bind('value: currency_id')
 					->fromQuery($currencies, 'name', 'id') }}
@@ -289,7 +292,7 @@
 	     <div class="modal-footer" style="margin-top: 0px">
 	      	<span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">Please provide a valid email address.</span><span>&nbsp;</span>
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-	        <button type="button" class="btn btn-primary" data-bind="click: clientFormComplete">Done</button>	      	
+	        <button type="button" class="btn btn-primary" data-bind="click: $root.clientFormComplete">Done</button>	      	
 	     </div>
 	  		
 	    </div>
@@ -314,7 +317,7 @@
 			        	<th class="hide-border"></th>
 			        </tr>
 			    </thead>
-			    <tbody data-bind="foreach: tax_rates">
+			    <tbody data-bind="foreach: $root.tax_rates.filtered">
 			    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }">
 			    		<td style="width:10px" class="hide-border"></td>
 			            <td style="width:60px">
@@ -324,7 +327,7 @@
 			            	<input onkeyup="onTaxRateChange()" data-bind="value: prettyRate, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 			            </td>
 			        	<td style="width:10px; cursor:pointer" class="hide-border td-icon">
-			        		&nbsp;<i data-bind="click: $parent.removeTaxRate, visible: actionsVisible() &amp;&amp; $parent.tax_rates().length > 1" class="fa fa-minus-circle" title="Remove item"/>
+			        		&nbsp;<i data-bind="click: $root.removeTaxRate, visible: actionsVisible() &amp;&amp; $root.tax_rates().length > 1" class="fa fa-minus-circle" title="Remove item"/>
 			        	</td>
 			        </tr>
 				</tbody>
@@ -332,15 +335,15 @@
 			&nbsp;
 
 			{{ Former::checkbox('invoice_taxes')->text('Enable specifying an <b>invoice tax</b>')
-				->label('Settings')->data_bind('checked: invoice_taxes, enable: tax_rates().length > 1') }}
+				->label('Settings')->data_bind('checked: $root.invoice_taxes, enable: $root.tax_rates().length > 1') }}
 			{{ Former::checkbox('invoice_item_taxes')->text('Enable specifying <b>line item taxes</b>')
-				->label('&nbsp;')->data_bind('checked: invoice_item_taxes, enable: tax_rates().length > 1') }}
+				->label('&nbsp;')->data_bind('checked: $root.invoice_item_taxes, enable: $root.tax_rates().length > 1') }}
 
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">
 	      	<!-- <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button> -->
-	        <button type="button" class="btn btn-primary" data-bind="click: taxFormComplete">Done</button>	      	
+	        <button type="button" class="btn btn-primary" data-bind="click: $root.taxFormComplete">Done</button>	      	
 	     </div>
 	  		
 	    </div>
@@ -349,6 +352,7 @@
 
 
 	{{ Former::close() }}
+	</div>
 
 	<script type="text/javascript">
 	
@@ -463,7 +467,7 @@
 	}
 
 	function createInvoiceModel() {
-		var invoice = ko.toJS(model);
+		var invoice = ko.toJS(model).invoice;
 		@if (file_exists($account->getLogoPath()))
 			invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
 			invoice.imageWidth = {{ $account->getLogoWidth() }};
@@ -573,192 +577,61 @@
         }
 	}
 
-	function InvoiceModel(data) {
-		var self = this;		
-		this.client = new ClientModel();		
-		self.discount = ko.observable('');
-		self.frequency_id = ko.observable('');
-		self.currency_id = ko.observable({{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }});
-		self.terms = ko.observable('');		
-		self.public_notes = ko.observable('');		
-		self.po_number = ko.observable('');
-		self.invoice_date = ko.observable('');
-		self.invoice_number = ko.observable('');
-		self.due_date = ko.observable('');
-		self.start_date = ko.observable('');
-		self.end_date = ko.observable('');
-		self.tax = ko.observable();
-		self.is_recurring = ko.observable(false);
-		self.invoice_status_id = ko.observable(0);
-
-		self.invoice_items = ko.observableArray();
+	function ViewModel() {
+		var self = this;
+		self.invoice = new InvoiceModel();
 		self.tax_rates = ko.observableArray();
+
+		self.loadClient = function(client) {
+			//console.log(client);				
+			ko.mapping.fromJS(client, model.invoice.client.mapping, model.invoice.client);
+		}
 
 		self.invoice_taxes = ko.observable({{ Auth::user()->account->invoice_taxes ? 'true' : 'false' }});
 		self.invoice_item_taxes = ko.observable({{ Auth::user()->account->invoice_item_taxes ? 'true' : 'false' }});
 
+		/*
 		self.mapping = {
-		    'invoice_items': {
+		    'invoice': {
 		        create: function(options) {
-		            return new ItemModel(options.data);
+		            return new InvoiceModel(options.data);
 		        }
-		    }
+		    },
+		    'tax_rates': {
+		    	create: function(options) {
+		    		return new TaxRateModel(options.data);
+		    	}
+		    },
 		}
-		self.loadClient = function(client) {
-			//console.log(client);				
-			ko.mapping.fromJS(client, model.client.mapping, model.client);
-		}
+		*/
 
-		self.wrapped_terms = ko.computed({
-			read: function() {
-				$('#terms').height(this.terms().split('\n').length * 36);
-				return this.terms();
-			},
-			write: function(value) {
-				value = wordWrapText(value, 340);
-				self.terms(value);
-				$('#terms').height(value.split('\n').length * 36);
-			},
-			owner: this
-		});
-
-		self.showInvoiceTaxes = ko.computed(function() {
-			if (self.tax_rates().length > 1 && self.invoice_taxes()) {
+		self.invoice_taxes.show = ko.computed(function() {
+			if (self.tax_rates().length > 2 && self.invoice_taxes()) {
 				return true;
 			}
-			if (self.tax() && self.tax().rate() > 0) {
+			if (self.invoice.tax_rate() > 0) {
 				return true;
 			}			
 			return false;
 		});
 
-		self.showInvoiceItemTaxes = ko.computed(function() {
-			if (self.tax_rates().length > 1 && self.invoice_item_taxes()) {
+		self.invoice_item_taxes.show = ko.computed(function() {
+			if (self.tax_rates().length > 2 && self.invoice_item_taxes()) {
 				return true;
 			}
-			for (var i=0; i<self.invoice_items().length; i++) {
-				var item = self.invoice_items()[i];
-				if (item.tax() && item.tax().rate() > 0) {
+			for (var i=0; i<self.invoice.invoice_items().length; i++) {
+				var item = self.invoice.invoice_items()[i];
+				if (item.tax_rate() > 0) {
 					return true;
 				}
 			}
 			return false;
 		});
 
-
-		self.wrapped_notes = ko.computed({
-			read: function() {
-				$('#public_notes').height(this.public_notes().split('\n').length * 36);
-				return this.public_notes();
-			},
-			write: function(value) {
-				value = wordWrapText(value, 340);
-				self.public_notes(value);
-				$('#public_notes').height(value.split('\n').length * 36);
-			},
-			owner: this
+		self.tax_rates.filtered = ko.computed(function() {
+			return self.tax_rates().slice(1, self.tax_rates().length);
 		});
 
-		self.showClientText = ko.computed(function() {
-        	return self.client.public_id() ? 'Edit client details' : 'Create new client';
-    	});
-
-		self.saveButtonEnabled = ko.computed(function() {
-			var isValid = false;
-
-        	for (var i=0; i<self.client.contacts().length; i++) {
-        		var contact = self.client.contacts()[i];
-        		if (isValidEmailAddress(contact.email())) {
-        			isValid = true;
-        		} else {
-        			isValid = false;
-        			break;
-        		}
-        	}
-        	return isValid ? "enabled" : "disabled";
-    	});
-
-		self.emailButtonEnabled = ko.computed(function() {
-			var isValid = false;
-			var sendTo = false;
-        	for (var i=0; i<self.client.contacts().length; i++) {
-        		var contact = self.client.contacts()[i];        		
-        		if (isValidEmailAddress(contact.email())) {
-        			isValid = true;
-        			if (contact.send_invoice()) {
-        				sendTo = true;
-        			}
-        		} else {
-        			isValid = false;
-        			break;
-        		}
-        	}
-        	return isValid && sendTo ? "enabled" : "disabled";
-    	});
-
-		self.showTaxesForm = function() {
-			self.taxBackup = ko.mapping.toJS(self.tax_rates);
-
-			$('#taxModal').modal('show');	
-		}	
-
-		self.taxFormComplete = function() {
-			model.taxBackup = false;
-			$('#taxModal').modal('hide');	
-		}
-
-		self.showClientForm = function() {
-			self.clientBackup = ko.mapping.toJS(self.client);
-
-			$('#emailError').css( "display", "none" );			
-			$('#clientModal').modal('show');			
-		}
-
-		self.clientFormComplete = function() {
-			var email = $('#email').val();
-			var firstName = $('#first_name').val();
-			var lastName = $('#last_name').val();
-			var name = $('#name').val();
-			if (!email || !isValidEmailAddress(email)) {
-				$('#emailError').css( "display", "inline" );
-				return;
-			}
-
-			if (self.client.public_id() == 0) {
-				self.client.public_id(-1);
-			}
-
-			if (name) {
-				//
-			} else if (firstName || lastName) {
-				name = firstName + ' ' + lastName;
-			} else {
-				name = email;
-			}
-
-			$('.client_select select').combobox('setSelected');
-			$('.client_select input.form-control').val(name);
-			$('.client_select .combobox-container').addClass('combobox-selected');
-
-			$('#emailError').css( "display", "none" );
-			//$('.client_select input.form-control').focus();			
-			$('#invoice_number').focus();
-
-			refreshPDF();
-			model.clientBackup = false;
-			$('#clientModal').modal('hide');			
-		}
-
-		self.removeItem = function(item) {
-			self.invoice_items.remove(item);
-			refreshPDF();
-		}
-
-		self.addItem = function() {
-			var itemModel = new ItemModel();
-			self.invoice_items.push(itemModel);	
-			applyComboboxListeners();			
-		}
 
 		self.removeTaxRate = function(taxRate) {
 			self.tax_rates.remove(taxRate);
@@ -780,37 +653,239 @@
 			}
 		}
 
-		this.rawSubtotal = ko.computed(function() {
+		self.getTaxRate = function(name, rate) {
+			for (var i=0; i<self.tax_rates().length; i++) {
+				var taxRate = self.tax_rates()[i];
+				if (taxRate.name() == name && taxRate.rate() == parseFloat(rate)) {
+					return taxRate;
+				}			
+			}			
+			var taxRate = new TaxRateModel();
+			taxRate.name(name);
+			taxRate.rate(parseFloat(rate));
+			taxRate.is_deleted(true);
+			model.tax_rates.push(taxRate);
+			return taxRate;			
+		}		
+
+		self.showTaxesForm = function() {
+			self.taxBackup = ko.mapping.toJS(self.tax_rates);
+
+			$('#taxModal').modal('show');	
+		}	
+
+		self.taxFormComplete = function() {
+			model.taxBackup = false;
+			$('#taxModal').modal('hide');	
+		}
+
+		self.showClientForm = function() {
+			self.clientBackup = ko.mapping.toJS(self.invoice.client);
+
+			$('#emailError').css( "display", "none" );			
+			$('#clientModal').modal('show');			
+		}
+
+		self.clientFormComplete = function() {
+			var email = $('#email').val();
+			var firstName = $('#first_name').val();
+			var lastName = $('#last_name').val();
+			var name = $('#name').val();
+			if (!email || !isValidEmailAddress(email)) {
+				$('#emailError').css( "display", "inline" );
+				return;
+			}
+
+			if (self.invoice.client.public_id() == 0) {
+				self.invoice.client.public_id(-1);
+			}
+
+			if (name) {
+				//
+			} else if (firstName || lastName) {
+				name = firstName + ' ' + lastName;
+			} else {
+				name = email;
+			}
+
+			$('.client_select select').combobox('setSelected');
+			$('.client_select input.form-control').val(name);
+			$('.client_select .combobox-container').addClass('combobox-selected');
+
+			$('#emailError').css( "display", "none" );
+			//$('.client_select input.form-control').focus();			
+			$('#invoice_number').focus();
+
+			refreshPDF();
+			model.clientBackup = false;
+			$('#clientModal').modal('hide');			
+		}		
+	}
+
+	function InvoiceModel(data) {
+		var self = this;		
+		this.client = new ClientModel();		
+		this.id = ko.observable('');
+		self.discount = ko.observable('');
+		self.frequency_id = ko.observable('');
+		self.currency_id = ko.observable({{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }});
+		self.terms = ko.observable(wordWrapText('{{ $account->invoice_terms }}', 340));		
+		self.public_notes = ko.observable('');		
+		self.po_number = ko.observable('');
+		self.invoice_date = ko.observable('{{ Utils::today() }}');
+		self.invoice_number = ko.observable('{{ isset($invoiceNumber) ? $invoiceNumber : '' }}');
+		self.due_date = ko.observable('');
+		self.start_date = ko.observable('{{ Utils::today() }}');
+		self.end_date = ko.observable('');
+		self.tax_name = ko.observable();
+		self.tax_rate = ko.observable();
+		self.is_recurring = ko.observable(false);
+		self.invoice_status_id = ko.observable(0);
+		self.invoice_items = ko.observableArray();
+
+
+		self.mapping = {
+		    'invoice_items': {
+		        create: function(options) {
+		            return new ItemModel(options.data);
+		        }
+		    },
+		    'tax': {
+		    	create: function(options) {
+		    		return new TaxRateModel(options.data);
+		    	}
+		    },
+		}
+
+		self._tax = ko.observable();
+		this.tax = ko.computed({
+			read: function () {
+				return self._tax();
+			},
+			write: function(value) {
+				if (value) {
+					console.log("WRITE INVOICE TAX");
+					console.log(value.name());
+					self._tax(value);								
+					self.tax_name(value.name());
+					self.tax_rate(value.rate());
+				} else {
+					self._tax(false);								
+					self.tax_name('');
+					self.tax_rate(0);
+				}
+			}
+		})
+
+		self.wrapped_terms = ko.computed({
+			read: function() {
+				$('#terms').height(this.terms().split('\n').length * 36);
+				return this.terms();
+			},
+			write: function(value) {
+				value = wordWrapText(value, 340);
+				self.terms(value);
+				$('#terms').height(value.split('\n').length * 36);
+			},
+			owner: this
+		});
+
+
+		self.wrapped_notes = ko.computed({
+			read: function() {
+				$('#public_notes').height(this.public_notes().split('\n').length * 36);
+				return this.public_notes();
+			},
+			write: function(value) {
+				value = wordWrapText(value, 340);
+				self.public_notes(value);
+				$('#public_notes').height(value.split('\n').length * 36);
+			},
+			owner: this
+		});
+
+		self.client.linkText = ko.computed(function() {
+        	return self.client.public_id() ? 'Edit client details' : 'Create new client';
+    	});
+		
+		self.enable = {};
+		self.enable.save = ko.computed(function() {
+			var isValid = false;
+
+        	for (var i=0; i<self.client.contacts().length; i++) {
+        		var contact = self.client.contacts()[i];
+        		if (isValidEmailAddress(contact.email())) {
+        			isValid = true;
+        		} else {
+        			isValid = false;
+        			break;
+        		}
+        	}
+        	return isValid ? "enabled" : "disabled";
+    	});
+
+		self.enable.email = ko.computed(function() {
+			var isValid = false;
+			var sendTo = false;
+        	for (var i=0; i<self.client.contacts().length; i++) {
+        		var contact = self.client.contacts()[i];        		
+        		if (isValidEmailAddress(contact.email())) {
+        			isValid = true;
+        			if (contact.send_invoice()) {
+        				sendTo = true;
+        			}
+        		} else {
+        			isValid = false;
+        			break;
+        		}
+        	}
+        	return isValid && sendTo ? "enabled" : "disabled";
+    	});
+
+		self.removeItem = function(item) {
+			self.invoice_items.remove(item);
+			refreshPDF();
+		}
+
+		self.addItem = function() {
+			var itemModel = new ItemModel();
+			self.invoice_items.push(itemModel);	
+			applyComboboxListeners();			
+		}
+
+		this.totals = ko.observable();
+
+		this.totals.rawSubtotal = ko.computed(function() {
 		    var total = 0;
 		    for(var p = 0; p < self.invoice_items().length; ++p)
 		    {
-		        total += self.invoice_items()[p].rawTotal();
+		        total += self.invoice_items()[p].totals.rawTotal();
 		    }
 		    return total;
 		});
 
-		this.subtotal = ko.computed(function() {
-		    var total = self.rawSubtotal();
+		this.totals.subtotal = ko.computed(function() {
+		    var total = self.totals.rawSubtotal();
 		    return total > 0 ? formatMoney(total, self.currency_id()) : '';
 		});
 
-		this.rawDiscounted = ko.computed(function() {
-			return self.rawSubtotal() * (self.discount()/100);			
+		this.totals.rawDiscounted = ko.computed(function() {
+			return self.totals.rawSubtotal() * (self.discount()/100);			
 		});
 
-		this.discounted = ko.computed(function() {
-			return formatMoney(self.rawDiscounted(), self.currency_id());
+		this.totals.discounted = ko.computed(function() {
+			return formatMoney(self.totals.rawDiscounted(), self.currency_id());
 		});
 
-		self.taxAmount = ko.computed(function() {
-		    var total = self.rawSubtotal();
+		self.totals.taxAmount = ko.computed(function() {
+		    var total = self.totals.rawSubtotal();
 
 		    var discount = parseFloat(self.discount());
 		    if (discount > 0) {
 		    	total = total * ((100 - discount)/100);
 		    }
 
-			var taxRate = self.tax() ? parseFloat(self.tax().rate()) : 0;
+			var taxRate = parseFloat(self.tax_rate());
 			if (taxRate > 0) {
 				var tax = total * (taxRate/100);			
         		return formatMoney(tax, self.currency_id());
@@ -820,15 +895,15 @@
     	});
 
 
-		this.total = ko.computed(function() {
-		    var total = self.rawSubtotal();
+		this.totals.total = ko.computed(function() {
+		    var total = self.totals.rawSubtotal();
 
 		    var discount = parseFloat(self.discount());
 		    if (discount > 0) {
 		    	total = total * ((100 - discount)/100);
 		    }
 
-			var taxRate = self.tax() ? parseFloat(self.tax().rate()) : 0;
+			var taxRate = parseFloat(self.tax_rate());
 			if (taxRate > 0) {
         		total = parseFloat(total) + (total * (taxRate/100));
         	}        	
@@ -857,7 +932,7 @@
 		self.client_industry_id = ko.observable('');
 		self.currency_id = ko.observable('');
 		self.website = ko.observable('');
-		self.payment_terms = ko.observable();			
+		self.payment_terms = ko.observable(0);
 		self.contacts = ko.observableArray();
 
 		self.mapping = {
@@ -885,6 +960,7 @@
 			self.contacts.remove(this);			
 		}
 
+		/*
 		self.placeholderName = ko.computed(function() {
 			if (self.contacts().length == 0) return;
 			var contact = self.contacts()[0];
@@ -894,6 +970,7 @@
 				return '';
 			}
 		});		
+		*/
 
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);
@@ -915,7 +992,7 @@
 			ko.mapping.fromJS(data, {}, this);		
 		}		
 
-		self.displayName = ko.computed(function() {
+		self.email.display = ko.computed(function() {
 			return self.first_name() + ' ' + self.last_name() + ' - ' + self.email();
 		});		
 	}
@@ -923,12 +1000,14 @@
 	function TaxRateModel(data) {
 		var self = this;
 		self.public_id = ko.observable('');
-		self.rate = ko.observable();
+		self.rate = ko.observable(0);
 		self.name = ko.observable('');
 		self.is_deleted = ko.observable(false);
 		self.actionsVisible = ko.observable(false);
 
 		if (data) {
+			console.log("NEW TAX MODEL");
+			console.log(data);
 			ko.mapping.fromJS(data, {}, this);		
 		}		
 
@@ -943,10 +1022,16 @@
 	    });				
 
 
-		self.displayName = ko.computed(function() {
-			var name = self.name() ? self.name() : '';
-			var rate = self.rate() ? parseFloat(self.rate()) + '% -' : '';
-			return rate + name;
+		self.displayName = ko.computed({
+			read: function () {
+				var name = self.name() ? self.name() : '';
+				var rate = self.rate() ? parseFloat(self.rate()) + '% -' : '';
+				return rate + name;
+			},
+	        write: function (value) {
+	            // do nothing
+	        },
+	        owner: this			
 		});	
 
     	self.hideActions = function() {
@@ -968,9 +1053,25 @@
 		this.notes = ko.observable('');
 		this.cost = ko.observable(0);
 		this.qty = ko.observable(0);
-		this.tax = ko.observable();
+		self.tax_name = ko.observable('');
+		self.tax_rate = ko.observable(0);
 		this.actionsVisible = ko.observable(false);
 		
+
+		self._tax = ko.observable();
+		this.tax = ko.computed({
+			read: function () {
+				return self._tax();
+			},
+			write: function(value) {
+				console.log("TAX-WRITE");
+				console.log(value);
+				self._tax(value);								
+				self.tax_name(value.name());
+				self.tax_rate(value.rate());
+			}
+		})
+
 		this.prettyQty = ko.computed({
 	        read: function () {
 	            return this.qty() ? parseFloat(this.qty()) : '';
@@ -991,31 +1092,44 @@
 	        owner: this
 	    });				
 
-		if (data) {
-			ko.mapping.fromJS(data, {}, this);			
-			if (this.cost()) this.cost(formatMoney(this.cost(), model.currency_id(), true));
+		self.mapping = {
+		    'tax': {
+		    	create: function(options) {
+		    		console.log('CALLED');
+		    		return new TaxRateModel(options.data);
+		    	}
+		    }
 		}
 
+		if (data) {
+			ko.mapping.fromJS(data, self.mapping, this);			
+			if (this.cost()) this.cost(formatMoney(this.cost(), model.invoice.currency_id(), true));
+			if (self.tax_rate()) {
+				self.tax(model.getTaxRate(self.tax_name(), self.tax_rate()));
+			}
+		}
+
+		/*
 		for (var i=0; i<model.tax_rates().length; i++) {
 			var taxRate = model.tax_rates()[i];
 			if (data && (data.tax_name == taxRate.name() && data.tax_rate == taxRate.rate())) {
+				console.log("SETTING TAX: " + data.tax_name);
 				self.tax(taxRate);
 				break;
-			} else if ((!data || !data.tax_name) && !taxRate.name()) {
-				self.tax(taxRate);
-				break;				
 			}
 		}
 		
 		// if the tax was deleted but exists for the line item
-		if (data && data.tax_name && (parseFloat(data.tax_rate)) && !self.tax()) {
+		if (data && data.tax_name && (parseFloat(data.tax_rate)) && !self.tax_rate()) {
 			var taxRate = new TaxRateModel();
 			taxRate.rate(parseFloat(data.tax_rate));
 			taxRate.name(data.tax_name);
 			taxRate.is_deleted(true);
 			model.tax_rates.push(taxRate);
+			console.log("SETTING TAX: " + taxRate.name());
 			self.tax(taxRate);
 		}		
+		*/
 
 		self.wrapped_notes = ko.computed({
 			read: function() {
@@ -1029,10 +1143,12 @@
 			owner: this
 		});
 
-		this.rawTotal = ko.computed(function() {
+		this.totals = ko.observable();
+
+		this.totals.rawTotal = ko.computed(function() {
 			var cost = parseFloat(self.cost());
 			var qty = parseFloat(self.qty());
-			var taxRate = self.tax() ? parseFloat(self.tax().rate()) : 0;
+			var taxRate = parseFloat(self.tax_rate());
         	var value = cost * qty;        	
         	if (taxRate > 0) {
         		value += value * (taxRate/100);
@@ -1040,9 +1156,9 @@
         	return value ? value : '';
     	});		
 
-		this.total = ko.computed(function() {
-			var total = self.rawTotal();
-			return total ? formatMoney(total, model.currency_id()) : '';
+		this.totals.total = ko.computed(function() {
+			var total = self.totals.rawTotal();
+			return total ? formatMoney(total, model.invoice.currency_id()) : '';
     	});
 
     	this.hideActions = function() {
@@ -1065,15 +1181,15 @@
 	function onItemChange()
 	{
 		var hasEmpty = false;
-		for(var i=0; i<model.invoice_items().length; i++) {
-			var item = model.invoice_items()[i];
+		for(var i=0; i<model.invoice.invoice_items().length; i++) {
+			var item = model.invoice.invoice_items()[i];
 			if (item.isEmpty()) {
 				hasEmpty = true;
 			}
 		}
 
 		if (!hasEmpty) {
-			model.addItem();
+			model.invoice.addItem();
 		}
 
 		$('.word-wrap').each(function(index, input) {
@@ -1083,15 +1199,15 @@
 
 	function onTaxRateChange()
 	{
-		var hasEmpty = false;
+		var emptyCount = 0;
 		for(var i=0; i<model.tax_rates().length; i++) {
 			var taxRate = model.tax_rates()[i];
 			if (taxRate.isEmpty()) {
-				hasEmpty = true;
+				emptyCount++;
 			}
 		}
 
-		if (!hasEmpty) {
+		if (emptyCount < 2) {
 			model.addTaxRate();
 		}
 	}
@@ -1111,36 +1227,52 @@
 		$clientSelect.append(new Option(getClientDisplayName(client), client.public_id)); 
 	}
 
-	window.model = new InvoiceModel();
-	@foreach ($taxRates as $taxRate)
-		model.addTaxRate({{ $taxRate }});	
-	@endforeach
-	model.addTaxRate();
-	model.tax(model.getBlankTaxRate());
-	@if ($invoice)
-		var invoice = {{ $invoice }};
-		ko.mapping.fromJS(invoice, model.mapping, model);
+	window.model = new ViewModel();
+	@if (!$data)
+		model.addTaxRate();
+		@foreach ($taxRates as $taxRate)
+			model.addTaxRate({{ $taxRate }});	
+		@endforeach
+	@endif
+	//model.tax(model.getBlankTaxRate());
+	@if ($invoice || $data)
+		var invoice = {{ $invoice ? $invoice : $data }};
+		ko.mapping.fromJS(invoice, model.invoice.mapping, model.invoice);
+		var taxRate = model.getTaxRate(invoice.tax_name, invoice.tax_rate);
+		model.invoice.tax(taxRate);
+		/*
 		for (var i=0; i<model.tax_rates().length; i++) {
 			var taxRate = model.tax_rates()[i];
 			if (model.tax_name() == taxRate.name() && model.tax_rate() == taxRate.rate()) {
 				model.tax(taxRate);
 				break;
 			}
+		}		
+		// if the tax was deleted but exists for the line item
+		if (parseFloat(invoice.tax_rate) && !model.tax_rate()) {
+			var taxRate = new TaxRateModel();
+			taxRate.rate(parseFloat(invoice.tax_rate));
+			taxRate.name(invoice.tax_name);
+			taxRate.is_deleted(true);
+			model.tax_rates.push(taxRate);
+			model.tax(taxRate);
 		}
-		if (!model.discount()) model.discount('');
-		var invitationContactIds = {{ json_encode($invitationContactIds) }};		
-		var client = clientMap[invoice.client.public_id];
-		for (var i=0; i<client.contacts.length; i++) {
-			var contact = client.contacts[i];
-			contact.send_invoice = invitationContactIds.indexOf(contact.public_id) >= 0;
-		}
-	@else
-		model.invoice_date('{{ Utils::today() }}');
-		model.start_date('{{ Utils::today() }}');
-		model.invoice_number('{{ $invoiceNumber }}');
-		model.terms(wordWrapText('{{ $account->invoice_terms }}', 340));		
+		@if ($invoice)
+			var invitationContactIds = {{ json_encode($invitationContactIds) }};		
+			var client = clientMap[invoice.client.public_id];
+			for (var i=0; i<client.contacts.length; i++) {
+				var contact = client.contacts[i];
+				contact.send_invoice = invitationContactIds.indexOf(contact.public_id) >= 0;
+			}
+		@endif
+		*/
+		if (!model.invoice.discount()) model.invoice.discount('');
+		
 	@endif
-	model.addItem();
+	@if (!$data)
+		model.addTaxRate();
+		model.invoice.addItem();
+	@endif
 	ko.applyBindings(model);
 
 	</script>

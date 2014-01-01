@@ -68,6 +68,29 @@ class InvoiceRepository
     	return $query;
 	}
 
+	public function getErrors($input)
+	{
+		$contact = (array) $input->client->contacts[0];
+		$rules = ['email' => 'required|email'];
+    	$validator = \Validator::make($contact, $rules);
+
+    	if ($validator->fails())
+    	{
+    		return $validator;
+    	}
+
+    	$invoice = (array) $input;
+    	$rules = ['invoice_number' => 'unique:invoices,invoice_number,' . $input->id];
+    	$validator = \Validator::make($invoice, $rules);
+
+    	if ($validator->fails())
+    	{
+    		return $validator;
+    	}
+
+    	return false;
+	}
+
 	public function save($publicId, $data)
 	{
 		if ($publicId) 
@@ -94,10 +117,10 @@ class InvoiceRepository
 		$invoice->po_number = trim($data['po_number']);
 		$invoice->currency_id = $data['currency_id'];
 		
-		if (isset($data['tax']) && isset($data['tax']->rate) && floatval($data['tax']->rate) > 0)
+		if (isset($data['tax_rate']) && floatval($data['tax_rate']) > 0)
 		{
-			$invoice->tax_rate = floatval($data['tax']->rate);
-			$invoice->tax_name = trim($data['tax']->name);
+			$invoice->tax_rate = floatval($data['tax_rate']);
+			$invoice->tax_name = trim($data['tax_name']);
 		} 
 		else
 		{
@@ -144,10 +167,10 @@ class InvoiceRepository
 			$invoiceItem->qty = floatval($item->qty);
 			$invoiceItem->tax_rate = 0;
 
-			if ($item->tax && isset($item->tax->rate) && floatval($item->tax->rate) > 0)
+			if (isset($item->tax_rate) && floatval($item->tax_rate) > 0)
 			{
-				$invoiceItem->tax_rate = floatval($item->tax->rate);
-				$invoiceItem->tax_name = trim($item->tax->name);
+				$invoiceItem->tax_rate = floatval($item->tax_rate);
+				$invoiceItem->tax_name = trim($item->tax_name);
 			}
 
 			$invoice->invoice_items()->save($invoiceItem);

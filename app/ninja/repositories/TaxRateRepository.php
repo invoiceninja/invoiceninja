@@ -10,7 +10,7 @@ class TaxRateRepository
 		
 		foreach ($taxRates as $record)
 		{	
-			if (!isset($record->rate) || $record->is_deleted)
+			if (!isset($record->rate) || (isset($record->is_deleted) && $record->is_deleted))
 			{
 				continue;
 			}
