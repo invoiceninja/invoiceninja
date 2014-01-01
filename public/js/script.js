@@ -237,7 +237,7 @@ function generatePDF(invoice) {
 
 	x += 16;
 	doc.text(footerLeft, x, 'Paid to Date');
-	var paid = formatMoney(0, currencyId, true);
+	var paid = formatMoney(invoice.amount - invoice.balance, currencyId, true);
 	var paidX = headerRight - (doc.getStringUnitWidth(paid) * doc.internal.getFontSize());
 	doc.text(paidX, x, paid);		
 
@@ -246,7 +246,7 @@ function generatePDF(invoice) {
 	doc.setFontType("bold");
 	doc.text(footerLeft, x, 'Balance Due');
 	
-	var total = formatMoney(total, currencyId);
+	var total = formatMoney(invoice.balance, currencyId);
 	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
 	doc.text(totalX, x, total);		
 

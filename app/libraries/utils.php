@@ -2,9 +2,15 @@
 
 class Utils
 {
-	public static function fatalError($error)
+	public static function fatalError($error = false)
 	{
+		if (!$error)
+		{
+			$error = "An error occurred, please try again later";
+		}
+
 		Log::error($error);
+
 		return View::make('error')->with('error', $error);
 	}
 

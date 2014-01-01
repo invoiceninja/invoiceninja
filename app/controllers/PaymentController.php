@@ -75,7 +75,7 @@ class PaymentController extends \BaseController
         $data = array(
             'clientPublicId' => $clientPublicId,
             'invoice' => null,
-            'invoices' => Invoice::scope()->with('client')->orderBy('invoice_number')->get(),
+            'invoices' => Invoice::scope()->with('client')->where('balance','>',0)->orderBy('invoice_number')->get(),
             'payment' => null, 
             'method' => 'POST', 
             'url' => 'payments', 

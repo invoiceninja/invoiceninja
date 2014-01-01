@@ -71,6 +71,8 @@ class ClientRepository
 			}
 		}
 
+		$client->save();
+
 		return $client;
 	}
 }

@@ -112,8 +112,9 @@ class CreditController extends \BaseController {
     {
         $rules = array(
             'client' => 'required',
-            'amount' => 'required'
+            'amount' => 'required',            
         );
+
         $validator = Validator::make(Input::all(), $rules);
 
         if ($validator->fails()) {

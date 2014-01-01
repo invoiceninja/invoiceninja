@@ -120,7 +120,7 @@
 			for (var i=0; i<list.length; i++) {
 				var invoice = list[i];
 				var client = clientMap[invoice.client.public_id];
-				$invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + getClientDisplayName(client),  invoice.public_id));
+				$invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + getClientDisplayName(client) + ' - ' + formatMoney(invoice.balance, invoice.currency_id),  invoice.public_id));
 			}
 			$('select#invoice').combobox('refresh');
 		}).trigger('change');

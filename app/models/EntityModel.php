@@ -15,7 +15,7 @@ class EntityModel extends Eloquent
 			$entity->user_id = $parent->user_id;
 			$entity->account_id = $parent->account_id;
 		} else {
-			exit; // TODO_FIX
+			Utils::fatalError();
 		}
 
 		$lastEntity = $className::withTrashed()->scope(false, $entity->account_id)->orderBy('public_id', 'DESC')->first();

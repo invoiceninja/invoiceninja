@@ -216,8 +216,7 @@ class InvoiceController extends \BaseController {
 
 			if (!$ref)
 			{
-				var_dump($response);
-				exit('Sorry, there was an error processing your payment. Please try again later.');
+				Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>');
 			}
 
 			$payment = Payment::createNew();
@@ -225,7 +224,7 @@ class InvoiceController extends \BaseController {
 			$payment->invoice_id = $invoice->id;
 			$payment->amount = $invoice->amount;			
 			$payment->client_id = $invoice->client_id;
-			//$payment->contact_id = 0; // TODO_FIX
+			$payment->contact_id = $invitation->contact_id;
 			$payment->transaction_reference = $ref;
 			$payment->save();
 
@@ -299,7 +298,7 @@ class InvoiceController extends \BaseController {
 
 	public function edit($publicId)
 	{
-		$invoice = Invoice::scope($publicId)->with('account.country', 'client', 'invoice_items')->firstOrFail();
+		$invoice = Invoice::scope($publicId)->with('account.country', 'client.contacts', 'invoice_items')->firstOrFail();
 		Utils::trackViewed($invoice->invoice_number . ' - ' . $invoice->client->getDisplayName(), ENTITY_INVOICE);
 		
 		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
@@ -418,12 +417,6 @@ class InvoiceController extends \BaseController {
 				$account->invoice_taxes = $input->invoice_taxes;
 				$account->invoice_item_taxes = $input->invoice_item_taxes;
 				$account->save();
-			}
-
-			if ($action == 'email' && $invoice->invoice_status_id == INVOICE_STATUS_DRAFT)
-			{
-				$client->balance = $client->balance + $invoice->amount;
-				$client->save();
 			}
 
 			$client->load('contacts');

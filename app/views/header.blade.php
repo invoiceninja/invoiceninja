@@ -22,6 +22,7 @@
     <script type="text/javascript" src="{{ asset('js/knockout.mapping-latest.js') }}"></script>
     <script src="{{ asset('js/knockout-sortable.js') }}" type="text/javascript"></script>		
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/font-awesome.css') }}"/>
+	<script src="{{ asset('js/underscore-min.js') }}" type="text/javascript"></script>		
 	
 	<script src="{{ asset('js/jspdf.source.js') }}" type="text/javascript"></script>		
 	<script src="{{ asset('js/jspdf.plugin.split_text_to_size.js') }}" type="text/javascript"></script>		
@@ -91,15 +92,18 @@
 	    </ul>
 
 		<div class="navbar-form navbar-right">
-			@if (Auth::check() && Auth::user()->registered)
-			{{ Auth::user()->email }} &nbsp;
-			@else			
-			{{ Button::sm_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }}
+			@if (!Auth::check() || !Auth::user()->registered)
+				{{ Button::sm_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }}
 			@endif
 			
 			<div class="btn-group">
 			  <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-			    My Account <span class="caret"></span>
+			  @if (Auth::check() && Auth::user()->registered)
+			  {{ Auth::user()->getFullName() }}
+			  @else			  
+			    My Account 
+			  @endif
+			  <span class="caret"></span>
 			  </button>			
 			  <ul class="dropdown-menu" role="menu">
 			    <li>{{ link_to('account/details', 'Details') }}</li>
@@ -359,7 +363,7 @@
 
 				$('#signUpModal').on('shown.bs.modal', function () {
 		  			$(['first_name','last_name','email','password']).each(function(i, field) {
-		  				var $input = $('form.signUpForm #'+field);
+		  				var $input = $('form.signUpForm #new_'+field);
 		  				if (!$input.val()) {
 		  					$input.focus();	  					
 		  					return false;

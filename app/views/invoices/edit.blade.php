@@ -36,7 +36,7 @@
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-					<a href="#" data-bind="click: $root.showClientForm, text: client.linkText"></a>					
+					<a href="#" data-bind="click: $root.showClientForm, text: $root.clientLinkText"></a>					
 				</div>
 			</div>
 
@@ -204,12 +204,12 @@
 				     	array('Delete Invoice', "javascript:onDeleteClick()"),
 				    )
 				  )
-				, array('id'=>'actionDropDown', 'style'=>'text-align:left', 'data-bind'=>'css: enable.save'))->split(); }}				
+				, array('id'=>'actionDropDown', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); }}				
 		@else
-			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: enable.save')) }}			
+			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save')) }}			
 		@endif
 
-		{{ Button::primary('Send Email', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: enable.email')) }}		
+		{{ Button::primary('Send Email', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email')) }}		
 	</div>
 	<p>&nbsp;</p>
 	
@@ -326,7 +326,7 @@
 			            	<input onkeyup="onTaxRateChange()" data-bind="value: prettyRate, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 			            </td>
 			        	<td style="width:10px; cursor:pointer" class="hide-border td-icon">
-			        		&nbsp;<i data-bind="click: $root.removeTaxRate, visible: actionsVisible() &amp;&amp; $root.tax_rates().length > 1" class="fa fa-minus-circle" title="Remove item"/>
+			        		&nbsp;<i data-bind="click: $root.removeTaxRate, visible: actionsVisible() &amp;&amp; !isEmpty()" class="fa fa-minus-circle" title="Remove item"/>
 			        	</td>
 			        </tr>
 				</tbody>
@@ -380,7 +380,7 @@
 				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));				
 			}
 			refreshPDF();
-		}).trigger('change');		
+		}); //.trigger('change');		
 
 		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discout, #currency_id').change(function() {
 			refreshPDF();
@@ -410,7 +410,9 @@
 		$('#taxModal').on('shown.bs.modal', function () {
 			$('#taxModal input:first').focus();			
 		}).on('hidden.bs.modal', function () {
-
+			// if the user changed the tax rates we need to trigger the
+			// change event on the selects for the model to get updated
+			$('table.invoice-table select').trigger('change');
 		})
 
 		$('#actionDropDown > button:first').click(function() {
@@ -418,8 +420,14 @@
 		});
 
 		$('label.radio').addClass('radio-inline');
-		
+	
+		var client = model.invoice().client();
+		setComboboxValue($('.client_select'), 
+			client.public_id(), 
+			client.name.display());
+
 		applyComboboxListeners();
+		refreshPDF();
 	});	
 
 	function applyComboboxListeners() {
@@ -534,6 +542,11 @@
 				return;
 			}
 			event.preventDefault();		     				
+
+			if (model.enable.save() != 'enabled') {
+				return;
+			}
+
 			$('.main_form').submit();
 			return false;
 		}
@@ -609,9 +622,20 @@
 		});
 
 		self.tax_rates.filtered = ko.computed(function() {
-			return self.tax_rates().slice(1, self.tax_rates().length);
-		});
+			var i = 0;
+			for (i; i<self.tax_rates().length; i++) {
+				var taxRate = self.tax_rates()[i];
+				if (taxRate.isEmpty()) {
+					break;
+				}
+			}
 
+			//console.log('i is %s', i);			
+			var rates = self.tax_rates().concat();
+			rates.splice(i, 1);
+			return rates;
+		});
+		
 
 		self.removeTaxRate = function(taxRate) {
 			self.tax_rates.remove(taxRate);
@@ -622,8 +646,9 @@
 			var itemModel = new TaxRateModel(data);
 			self.tax_rates.push(itemModel);	
 			applyComboboxListeners();
-		}
+		}		
 
+		/*
 		self.getBlankTaxRate = function() {
 			for (var i=0; i<self.tax_rates().length; i++) {
 				var taxRate = self.tax_rates()[i];
@@ -632,6 +657,7 @@
 				}
 			}
 		}
+		*/
 
 		self.getTaxRate = function(name, rate) {
 			for (var i=0; i<self.tax_rates().length; i++) {
@@ -640,10 +666,11 @@
 					return taxRate;
 				}			
 			}			
+
 			var taxRate = new TaxRateModel();
 			taxRate.name(name);
 			taxRate.rate(parseFloat(rate));
-			taxRate.is_deleted(true);
+			if (parseFloat(rate) > 0) taxRate.is_deleted(true);
 			self.tax_rates.push(taxRate);
 			return taxRate;			
 		}		
@@ -688,9 +715,11 @@
 				name = email;
 			}
 
-			$('.client_select select').combobox('setSelected');
-			$('.client_select input.form-control').val(name);
-			$('.client_select .combobox-container').addClass('combobox-selected');
+			setComboboxValue($('.client_select'), -1, name);
+
+			//$('.client_select select').combobox('setSelected');
+			//$('.client_select input.form-control').val(name);
+			//$('.client_select .combobox-container').addClass('combobox-selected');
 
 			$('#emailError').css( "display", "none" );
 			//$('.client_select input.form-control').focus();			
@@ -700,6 +729,44 @@
 			model.clientBackup = false;
 			$('#clientModal').modal('hide');			
 		}		
+
+		self.enable = {};
+		self.enable.save = ko.computed(function() {
+			var isValid = false;
+
+        	for (var i=0; i<self.invoice().client().contacts().length; i++) {
+        		var contact = self.invoice().client().contacts()[i];
+        		if (isValidEmailAddress(contact.email())) {
+        			isValid = true;
+        		} else {
+        			isValid = false;
+        			break;
+        		}
+        	}
+        	return isValid ? "enabled" : "disabled";
+    	});
+
+		self.enable.email = ko.computed(function() {
+			var isValid = false;
+			var sendTo = false;
+        	for (var i=0; i<self.invoice().client().contacts().length; i++) {
+        		var contact = self.invoice().client().contacts()[i];        		
+        		if (isValidEmailAddress(contact.email())) {
+        			isValid = true;
+        			if (contact.send_invoice()) {
+        				sendTo = true;
+        			}
+        		} else {
+        			isValid = false;
+        			break;
+        		}
+        	}
+        	return isValid && sendTo ? "enabled" : "disabled";
+    	});
+
+		self.clientLinkText = ko.computed(function() {
+			return self.invoice().client().public_id() ? 'Edit client details' : 'Create new client';
+    	});
 	}
 
 	function InvoiceModel(data) {
@@ -708,7 +775,7 @@
 		this.id = ko.observable('');
 		self.discount = ko.observable('');
 		self.frequency_id = ko.observable('');
-		self.currency_id = ko.observable({{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }});
+		self.currency_id = ko.observable({{ Session::get(SESSION_CURRENCY) }});
 		self.terms = ko.observable(wordWrapText('{{ $account->invoice_terms }}', 340));		
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
@@ -799,43 +866,6 @@
 			owner: this
 		});
 
-		self.client.linkText = ko.computed(function() {
-        	return self.client().public_id() ? 'Edit client details' : 'Create new client';
-    	});
-		
-		self.enable = {};
-		self.enable.save = ko.computed(function() {
-			var isValid = false;
-
-        	for (var i=0; i<self.client().contacts().length; i++) {
-        		var contact = self.client().contacts()[i];
-        		if (isValidEmailAddress(contact.email())) {
-        			isValid = true;
-        		} else {
-        			isValid = false;
-        			break;
-        		}
-        	}
-        	return isValid ? "enabled" : "disabled";
-    	});
-
-		self.enable.email = ko.computed(function() {
-			var isValid = false;
-			var sendTo = false;
-        	for (var i=0; i<self.client().contacts().length; i++) {
-        		var contact = self.client().contacts()[i];        		
-        		if (isValidEmailAddress(contact.email())) {
-        			isValid = true;
-        			if (contact.send_invoice()) {
-        				sendTo = true;
-        			}
-        		} else {
-        			isValid = false;
-        			break;
-        		}
-        	}
-        	return isValid && sendTo ? "enabled" : "disabled";
-    	});
 
 		self.removeItem = function(item) {
 			self.invoice_items.remove(item);
@@ -933,6 +963,7 @@
 	    	}
 		}
 
+
 		self.showContact = function(elem) { if (elem.nodeType === 1) $(elem).hide().slideDown() }
 		self.hideContact = function(elem) { if (elem.nodeType === 1) $(elem).slideUp(function() { $(elem).remove(); }) }
 
@@ -949,17 +980,19 @@
 			self.contacts.remove(this);			
 		}
 
-		/*
-		self.placeholderName = ko.computed(function() {
-			if (self.contacts().length == 0) return;
-			var contact = self.contacts()[0];
-			if (contact.first_name() || contact.last_name()) {
-				return contact.first_name() + ' ' + contact.last_name();
-			} else {
-				return '';
+		self.name.display = ko.computed(function() {
+			if (self.name()) {
+				return self.name();
 			}
-		});		
-		*/
+			if (self.contacts().length == 0) return;
+			var contact = self.contacts()[0];			
+			if (contact.first_name() || contact.last_name()) {
+				return contact.first_name() + ' ' + contact.last_name();				
+			} else {
+				return contact.email();
+			}
+		});				
+	
 
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);
@@ -992,6 +1025,7 @@
 		self.rate = ko.observable(0);
 		self.name = ko.observable('');
 		self.is_deleted = ko.observable(false);
+		self.is_blank = ko.observable(false);
 		self.actionsVisible = ko.observable(false);
 
 		if (data) {
@@ -1012,7 +1046,7 @@
 		self.displayName = ko.computed({
 			read: function () {
 				var name = self.name() ? self.name() : '';
-				var rate = self.rate() ? parseFloat(self.rate()) + '% -' : '';
+				var rate = self.rate() ? parseFloat(self.rate()) + '% ' : '';
 				return rate + name;
 			},
 	        write: function (value) {
@@ -1086,8 +1120,7 @@
 
 		if (data) {
 			ko.mapping.fromJS(data, self.mapping, this);			
-			//if (this.cost()) this.cost(formatMoney(this.cost(), parent.invoice.currency_id(), true));  // TODO_FIX
-			if (this.cost()) this.cost(formatMoney(this.cost(), 1, true));
+			//if (this.cost()) this.cost(formatMoney(this.cost(), model ? model.invoice().currency_id() : 1, true));
 		}
 
 		self.wrapped_notes = ko.computed({
@@ -1159,6 +1192,7 @@
 	function onTaxRateChange()
 	{
 		var emptyCount = 0;
+
 		for(var i=0; i<model.tax_rates().length; i++) {
 			var taxRate = model.tax_rates()[i];
 			if (taxRate.isEmpty()) {
@@ -1166,7 +1200,7 @@
 			}
 		}
 
-		if (emptyCount < 2) {
+		for(var i=0; i<2-emptyCount; i++) {
 			model.addTaxRate();
 		}
 	}
@@ -1187,12 +1221,12 @@
 	}
 
 	@if ($data)
-		window.model = new ViewModel({{ $data }});		
+		window.model = new ViewModel({{ $data }});				
 	@else 
 		window.model = new ViewModel();
 		model.addTaxRate();
 		@foreach ($taxRates as $taxRate)
-			model.addTaxRate({{ $taxRate }});	
+			model.addTaxRate({{ $taxRate }});
 		@endforeach	
 		@if ($invoice)
 			var invoice = {{ $invoice }};
@@ -1203,16 +1237,18 @@
 				var contact = client.contacts[i];
 				contact.send_invoice = invitationContactIds.indexOf(contact.public_id) >= 0;
 			}			
+			model.invoice().addItem();
+			//model.addTaxRate();			
 		@endif
-		model.invoice().addItem();
-		model.addTaxRate();
 	@endif
 
 	model.invoice().tax(model.getTaxRate(model.invoice().tax_name(), model.invoice().tax_rate()));			
 	for (var i=0; i<model.invoice().invoice_items().length; i++) {
 		var item = model.invoice().invoice_items()[i];
 		item.tax(model.getTaxRate(item.tax_name(), item.tax_rate()));
+		item.cost(parseFloat(item.cost()) > 0 ? formatMoney(item.cost(), model.invoice().currency_id(), true) : '');
 	}
+	onTaxRateChange();
 
 	if (!model.invoice().discount()) model.invoice().discount('');
 

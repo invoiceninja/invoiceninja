@@ -106,7 +106,7 @@ class Invoice extends EntityModel
 			case FREQUENCY_ANNUALLY:
 				return ($dayOfMonthStart == $dayOfMonthToday && (!$daysSinceLastSent || $monthsSinceLastSent == 12)) || $daysSinceLastSent > (12 *31);
 			default:
-				echo "Error: invalid frequency_id - ".$this->frequency_id; exit; //TODO_FIX
+				Utils::fatalError("Invalid frequency supplied: " . $this->frequency_id);
 				break;
 		}
 

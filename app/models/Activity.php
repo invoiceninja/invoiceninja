@@ -42,7 +42,7 @@ class Activity extends Eloquent
 			$activity->user_id = $entity->user_id;
 			$activity->account_id = $entity->account_id;
 		} else {
-			exit; // TODO_FIX log error
+			Utils::fatalError();
 		}
 
 		return $activity;
@@ -104,11 +104,11 @@ class Activity extends Eloquent
 	public static function emailInvoice($invitation)
 	{
 		$adjustment = 0;
+		$client = $invitation->invoice->client;
 
 		if (!$invitation->invoice->isSent())
 		{
 			$adjustment = $invitation->invoice->amount;
-			$client = $invitation->invoice->client;
 			$client->balance = $client->balance + $adjustment;
 			$client->save();
 		}
@@ -120,7 +120,7 @@ class Activity extends Eloquent
 		$activity->contact_id = $invitation->contact_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_EMAIL_INVOICE;
 		$activity->message = $userName . ' emailed invoice ' . link_to('invoices/'.$invitation->invoice->public_id, $invitation->invoice->invoice_number) . ' to ' . $invitation->contact->getFullName() . ' - ' . $invitation->contact->email;
-		$activity->balance = $invitation->invoice->client->balance;
+		$activity->balance = $client->balance;
 		$activity->adjustment = $adjustment;
 		$activity->save();
 	}
@@ -176,9 +176,16 @@ class Activity extends Eloquent
 		}
 
 		$activity->payment_id = $payment->id;
-		if ($payment->invoice_id) {
+
+		if ($payment->invoice_id) 
+		{
 			$activity->invoice_id = $payment->invoice_id;
+
+			$invoice = $payment->invoice;
+			$invoice->balance = $invoice->balance - $payment->amount;
+			$invoice->save();
 		}
+
 		$activity->client_id = $payment->client_id;
 		$activity->currency_id = $payment->currency_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_PAYMENT;
@@ -197,6 +204,16 @@ class Activity extends Eloquent
 		$activity->message = Auth::user()->getFullName() . ' created credit';
 		$activity->credit_id = $credit->id;
 		$activity->client_id = $credit->client_id;
+
+		if ($credit->invoice_id) 
+		{
+			$activity->invoice_id = $payment->invoice_id;
+
+			$invoice = $credit->invoice;
+			$invoice->balance = $invoice->amount - $credit->amount;
+			$invoice->save();
+		}		
+
 		$activity->currency_id = $credit->currency_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_CREDIT;
 		$activity->balance = $client->balance;
