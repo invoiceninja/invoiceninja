@@ -32,12 +32,11 @@
 				<div style="display:none">
     		@endif
 
-			{{ Former::select('client')->addOption('', '')->data_bind("dropdown: client")
-					->addGroupClass('client_select closer-row') }}
+			{{ Former::select('client')->addOption('', '')->data_bind("dropdown: client")->addGroupClass('client_select closer-row') }}
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-					<a href="#" data-bind="click: $root.showClientForm, text: client.linkText"></a>
+					<a href="#" data-bind="click: $root.showClientForm, text: client.linkText"></a>					
 				</div>
 			</div>
 
@@ -374,7 +373,7 @@
 
 		var $input = $('select#client');
 		$input.combobox().on('change', function(e) {
-			var clientId = parseInt($('input[name=client]').val(), 10);				
+			var clientId = parseInt($('input[name=client]').val(), 10);		
 			if (clientId > 0) { 
 				model.loadClient(clientMap[clientId]);				
 			} else {
@@ -389,7 +388,7 @@
 
 		$('.country_select input.form-control').on('change', function(e) {
 			var countryId = parseInt($('input[name=country_id]').val(), 10);	
-			model.client.country_id(countryId);
+			model.invoice().client().country_id(countryId);
 		});		
 
 
@@ -411,24 +410,7 @@
 		$('#taxModal').on('shown.bs.modal', function () {
 			$('#taxModal input:first').focus();			
 		}).on('hidden.bs.modal', function () {
-			console.log('TAX HIDDEN: %s %s', model.invoice_taxes(), model.invoice_item_taxes())
-			/*
-			var blank = model.getBlankTaxRate();
-			if (!model.invoice_taxes()) {
-				model.tax(blank);
-			}
-			if (!model.invoice_item_taxes()) {
-				for (var i=0; i<model.invoice_items().length; i++) {
-					var item = model.invoice_items()[i];
-					item.tax(blank);
-				}
-			}
-			*/
-			/*
-			if (model.taxBackup) {
-				
-			}
-			*/
+
 		})
 
 		$('#actionDropDown > button:first').click(function() {
@@ -547,8 +529,6 @@
 	}
 
 	function formEnterClick(event) {
-		console.log('form enter click');
-			
 		if (event.keyCode === 13){
 			if (event.target.type == 'textarea') {
 				return;
@@ -560,7 +540,6 @@
 	}
 
 	function clientModalEnterClick(event) {		
-		console.log('client form enter click');
 		if (event.keyCode === 13){
 			event.preventDefault();		     	
             model.clientFormComplete();
@@ -569,7 +548,6 @@
 	}
 
 	function taxModalEnterClick(event) {		
-		console.log('tax form enter click');
 		if (event.keyCode === 13){
 			event.preventDefault();		     	
             model.taxFormComplete();
@@ -577,20 +555,19 @@
         }
 	}
 
-	function ViewModel() {
+	function ViewModel(data) {
 		var self = this;
-		self.invoice = new InvoiceModel();
+		//self.invoice = data ? false : new InvoiceModel();
+		self.invoice = ko.observable(data ? false : new InvoiceModel());
 		self.tax_rates = ko.observableArray();
 
 		self.loadClient = function(client) {
-			//console.log(client);				
-			ko.mapping.fromJS(client, model.invoice.client.mapping, model.invoice.client);
+			ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
 		}
 
 		self.invoice_taxes = ko.observable({{ Auth::user()->account->invoice_taxes ? 'true' : 'false' }});
 		self.invoice_item_taxes = ko.observable({{ Auth::user()->account->invoice_item_taxes ? 'true' : 'false' }});
-
-		/*
+		
 		self.mapping = {
 		    'invoice': {
 		        create: function(options) {
@@ -602,14 +579,17 @@
 		    		return new TaxRateModel(options.data);
 		    	}
 		    },
+		}		
+
+		if (data) {
+			ko.mapping.fromJS(data, self.mapping, self);
 		}
-		*/
 
 		self.invoice_taxes.show = ko.computed(function() {
 			if (self.tax_rates().length > 2 && self.invoice_taxes()) {
 				return true;
 			}
-			if (self.invoice.tax_rate() > 0) {
+			if (self.invoice().tax_rate() > 0) {
 				return true;
 			}			
 			return false;
@@ -619,8 +599,8 @@
 			if (self.tax_rates().length > 2 && self.invoice_item_taxes()) {
 				return true;
 			}
-			for (var i=0; i<self.invoice.invoice_items().length; i++) {
-				var item = self.invoice.invoice_items()[i];
+			for (var i=0; i<self.invoice().invoice_items().length; i++) {
+				var item = self.invoice().invoice_items()[i];
 				if (item.tax_rate() > 0) {
 					return true;
 				}
@@ -664,7 +644,7 @@
 			taxRate.name(name);
 			taxRate.rate(parseFloat(rate));
 			taxRate.is_deleted(true);
-			model.tax_rates.push(taxRate);
+			self.tax_rates.push(taxRate);
 			return taxRate;			
 		}		
 
@@ -680,7 +660,7 @@
 		}
 
 		self.showClientForm = function() {
-			self.clientBackup = ko.mapping.toJS(self.invoice.client);
+			self.clientBackup = ko.mapping.toJS(self.invoice().client);
 
 			$('#emailError').css( "display", "none" );			
 			$('#clientModal').modal('show');			
@@ -696,8 +676,8 @@
 				return;
 			}
 
-			if (self.invoice.client.public_id() == 0) {
-				self.invoice.client.public_id(-1);
+			if (self.invoice().client().public_id() == 0) {
+				self.invoice().client().public_id(-1);
 			}
 
 			if (name) {
@@ -724,7 +704,7 @@
 
 	function InvoiceModel(data) {
 		var self = this;		
-		this.client = new ClientModel();		
+		this.client = ko.observable(data ? false : new ClientModel());		
 		this.id = ko.observable('');
 		self.discount = ko.observable('');
 		self.frequency_id = ko.observable('');
@@ -745,6 +725,11 @@
 
 
 		self.mapping = {
+			'client': {
+		        create: function(options) {
+		            return new ClientModel(options.data);
+		        }
+			},
 		    'invoice_items': {
 		        create: function(options) {
 		            return new ItemModel(options.data);
@@ -757,6 +742,18 @@
 		    },
 		}
 
+		self.addItem = function() {
+			var itemModel = new ItemModel();
+			self.invoice_items.push(itemModel);	
+			applyComboboxListeners();			
+		}
+
+		if (data) {
+			ko.mapping.fromJS(data, self.mapping, self);			
+		} else {
+			self.addItem();
+		}
+
 		self._tax = ko.observable();
 		this.tax = ko.computed({
 			read: function () {
@@ -764,8 +761,6 @@
 			},
 			write: function(value) {
 				if (value) {
-					console.log("WRITE INVOICE TAX");
-					console.log(value.name());
 					self._tax(value);								
 					self.tax_name(value.name());
 					self.tax_rate(value.rate());
@@ -805,15 +800,15 @@
 		});
 
 		self.client.linkText = ko.computed(function() {
-        	return self.client.public_id() ? 'Edit client details' : 'Create new client';
+        	return self.client().public_id() ? 'Edit client details' : 'Create new client';
     	});
 		
 		self.enable = {};
 		self.enable.save = ko.computed(function() {
 			var isValid = false;
 
-        	for (var i=0; i<self.client.contacts().length; i++) {
-        		var contact = self.client.contacts()[i];
+        	for (var i=0; i<self.client().contacts().length; i++) {
+        		var contact = self.client().contacts()[i];
         		if (isValidEmailAddress(contact.email())) {
         			isValid = true;
         		} else {
@@ -827,8 +822,8 @@
 		self.enable.email = ko.computed(function() {
 			var isValid = false;
 			var sendTo = false;
-        	for (var i=0; i<self.client.contacts().length; i++) {
-        		var contact = self.client.contacts()[i];        		
+        	for (var i=0; i<self.client().contacts().length; i++) {
+        		var contact = self.client().contacts()[i];        		
         		if (isValidEmailAddress(contact.email())) {
         			isValid = true;
         			if (contact.send_invoice()) {
@@ -847,19 +842,14 @@
 			refreshPDF();
 		}
 
-		self.addItem = function() {
-			var itemModel = new ItemModel();
-			self.invoice_items.push(itemModel);	
-			applyComboboxListeners();			
-		}
 
 		this.totals = ko.observable();
 
 		this.totals.rawSubtotal = ko.computed(function() {
 		    var total = 0;
-		    for(var p = 0; p < self.invoice_items().length; ++p)
-		    {
-		        total += self.invoice_items()[p].totals.rawTotal();
+		    for(var p=0; p < self.invoice_items().length; ++p) {
+		    	var item = self.invoice_items()[p];
+		        total += item.totals.rawTotal();
 		    }
 		    return total;
 		});
@@ -948,7 +938,6 @@
 
 		self.addContact = function() {
 			var contact = new ContactModel();
-			console.log('add contact: ' + self.contacts().length);
 			if (self.contacts().length == 0) {
 				contact.send_invoice(true);
 			}
@@ -1006,8 +995,6 @@
 		self.actionsVisible = ko.observable(false);
 
 		if (data) {
-			console.log("NEW TAX MODEL");
-			console.log(data);
 			ko.mapping.fromJS(data, {}, this);		
 		}		
 
@@ -1057,15 +1044,12 @@
 		self.tax_rate = ko.observable(0);
 		this.actionsVisible = ko.observable(false);
 		
-
 		self._tax = ko.observable();
 		this.tax = ko.computed({
 			read: function () {
 				return self._tax();
 			},
 			write: function(value) {
-				console.log("TAX-WRITE");
-				console.log(value);
 				self._tax(value);								
 				self.tax_name(value.name());
 				self.tax_rate(value.rate());
@@ -1095,7 +1079,6 @@
 		self.mapping = {
 		    'tax': {
 		    	create: function(options) {
-		    		console.log('CALLED');
 		    		return new TaxRateModel(options.data);
 		    	}
 		    }
@@ -1103,33 +1086,9 @@
 
 		if (data) {
 			ko.mapping.fromJS(data, self.mapping, this);			
-			if (this.cost()) this.cost(formatMoney(this.cost(), model.invoice.currency_id(), true));
-			if (self.tax_rate()) {
-				self.tax(model.getTaxRate(self.tax_name(), self.tax_rate()));
-			}
+			//if (this.cost()) this.cost(formatMoney(this.cost(), parent.invoice.currency_id(), true));  // TODO_FIX
+			if (this.cost()) this.cost(formatMoney(this.cost(), 1, true));
 		}
-
-		/*
-		for (var i=0; i<model.tax_rates().length; i++) {
-			var taxRate = model.tax_rates()[i];
-			if (data && (data.tax_name == taxRate.name() && data.tax_rate == taxRate.rate())) {
-				console.log("SETTING TAX: " + data.tax_name);
-				self.tax(taxRate);
-				break;
-			}
-		}
-		
-		// if the tax was deleted but exists for the line item
-		if (data && data.tax_name && (parseFloat(data.tax_rate)) && !self.tax_rate()) {
-			var taxRate = new TaxRateModel();
-			taxRate.rate(parseFloat(data.tax_rate));
-			taxRate.name(data.tax_name);
-			taxRate.is_deleted(true);
-			model.tax_rates.push(taxRate);
-			console.log("SETTING TAX: " + taxRate.name());
-			self.tax(taxRate);
-		}		
-		*/
 
 		self.wrapped_notes = ko.computed({
 			read: function() {
@@ -1158,7 +1117,8 @@
 
 		this.totals.total = ko.computed(function() {
 			var total = self.totals.rawTotal();
-			return total ? formatMoney(total, model.invoice.currency_id()) : '';
+			//return total ? formatMoney(total, model.invoice.currency_id()) : '';
+			return total ? formatMoney(total, 1) : ''; // TODO_FIX
     	});
 
     	this.hideActions = function() {
@@ -1173,23 +1133,22 @@
     		return !self.product_key() && !self.notes() && !self.cost() && !self.qty();
     	}
 
-    	this.onSelect = function(){
-              console.log("select");
+    	this.onSelect = function(){              
         }
 	}
 
 	function onItemChange()
 	{
 		var hasEmpty = false;
-		for(var i=0; i<model.invoice.invoice_items().length; i++) {
-			var item = model.invoice.invoice_items()[i];
+		for(var i=0; i<model.invoice().invoice_items().length; i++) {
+			var item = model.invoice().invoice_items()[i];
 			if (item.isEmpty()) {
 				hasEmpty = true;
 			}
 		}
 
 		if (!hasEmpty) {
-			model.invoice.addItem();
+			model.invoice().addItem();
 		}
 
 		$('.word-wrap').each(function(index, input) {
@@ -1227,53 +1186,37 @@
 		$clientSelect.append(new Option(getClientDisplayName(client), client.public_id)); 
 	}
 
-	window.model = new ViewModel();
-	@if (!$data)
+	@if ($data)
+		window.model = new ViewModel({{ $data }});		
+	@else 
+		window.model = new ViewModel();
 		model.addTaxRate();
 		@foreach ($taxRates as $taxRate)
 			model.addTaxRate({{ $taxRate }});	
-		@endforeach
-	@endif
-	//model.tax(model.getBlankTaxRate());
-	@if ($invoice || $data)
-		var invoice = {{ $invoice ? $invoice : $data }};
-		ko.mapping.fromJS(invoice, model.invoice.mapping, model.invoice);
-		var taxRate = model.getTaxRate(invoice.tax_name, invoice.tax_rate);
-		model.invoice.tax(taxRate);
-		/*
-		for (var i=0; i<model.tax_rates().length; i++) {
-			var taxRate = model.tax_rates()[i];
-			if (model.tax_name() == taxRate.name() && model.tax_rate() == taxRate.rate()) {
-				model.tax(taxRate);
-				break;
-			}
-		}		
-		// if the tax was deleted but exists for the line item
-		if (parseFloat(invoice.tax_rate) && !model.tax_rate()) {
-			var taxRate = new TaxRateModel();
-			taxRate.rate(parseFloat(invoice.tax_rate));
-			taxRate.name(invoice.tax_name);
-			taxRate.is_deleted(true);
-			model.tax_rates.push(taxRate);
-			model.tax(taxRate);
-		}
+		@endforeach	
 		@if ($invoice)
+			var invoice = {{ $invoice }};
+			ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);			
 			var invitationContactIds = {{ json_encode($invitationContactIds) }};		
 			var client = clientMap[invoice.client.public_id];
 			for (var i=0; i<client.contacts.length; i++) {
 				var contact = client.contacts[i];
 				contact.send_invoice = invitationContactIds.indexOf(contact.public_id) >= 0;
-			}
+			}			
 		@endif
-		*/
-		if (!model.invoice.discount()) model.invoice.discount('');
-		
-	@endif
-	@if (!$data)
+		model.invoice().addItem();
 		model.addTaxRate();
-		model.invoice.addItem();
 	@endif
-	ko.applyBindings(model);
+
+	model.invoice().tax(model.getTaxRate(model.invoice().tax_name(), model.invoice().tax_rate()));			
+	for (var i=0; i<model.invoice().invoice_items().length; i++) {
+		var item = model.invoice().invoice_items()[i];
+		item.tax(model.getTaxRate(item.tax_name(), item.tax_rate()));
+	}
+
+	if (!model.invoice().discount()) model.invoice().discount('');
+
+	ko.applyBindings(model);	
 
 	</script>
 
