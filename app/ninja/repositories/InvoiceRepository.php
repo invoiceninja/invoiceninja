@@ -80,7 +80,7 @@ class InvoiceRepository
     	}
 
     	$invoice = (array) $input;
-    	$rules = ['invoice_number' => 'unique:invoices,invoice_number,' . $input->id];
+    	$rules = ['invoice_number' => 'unique:invoices,invoice_number,' . $invoice['invoice_number'] . ',id,account_id,' . \Auth::user()->account_id];    	
     	$validator = \Validator::make($invoice, $rules);
 
     	if ($validator->fails())

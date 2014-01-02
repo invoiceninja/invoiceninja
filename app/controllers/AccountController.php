@@ -422,7 +422,7 @@ class AccountController extends \BaseController {
 
 			if ($gatewayId) 
 			{
-				$accountGateway = new AccountGateway;
+				$accountGateway = AccountGateway::createNew();
 				$accountGateway->gateway_id = $gatewayId;
 
 				$config = new stdClass;

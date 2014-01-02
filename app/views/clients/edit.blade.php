@@ -21,6 +21,26 @@
 	<div class="row">
 		<div class="col-md-6">
 
+
+			{{ Former::legend('Organization') }}
+			{{ Former::text('name')->data_bind("attr { placeholder: placeholderName }") }}
+			{{ Former::text('website') }}
+			{{ Former::text('work_phone')->label('Phone') }}
+			
+			
+			{{ Former::legend('Address') }}
+			{{ Former::text('address1')->label('Street') }}
+			{{ Former::text('address2')->label('Apt/Floor') }}
+			{{ Former::text('city') }}
+			{{ Former::text('state') }}
+			{{ Former::text('postal_code') }}
+			{{ Former::select('country_id')->addOption('','')->label('Country')
+				->fromQuery($countries, 'name', 'id')->select($client ? $client->country_id : '') }}
+
+
+		</div>
+		<div class="col-md-6">
+
 			{{ Former::legend('Contacts') }}
 			<div data-bind='template: { foreach: contacts,
 		                            beforeRemove: hideContact,
@@ -56,26 +76,6 @@
 
 
 		</div>
-		<div class="col-md-6">
-
-
-			{{ Former::legend('Organization') }}
-			{{ Former::text('name') }}
-			{{ Former::text('website') }}
-			{{ Former::text('work_phone')->label('Phone') }}
-			
-			
-			{{ Former::legend('Address') }}
-			{{ Former::text('address1')->label('Street') }}
-			{{ Former::text('address2')->label('Apt/Floor') }}
-			{{ Former::text('city') }}
-			{{ Former::text('state') }}
-			{{ Former::text('postal_code') }}
-			{{ Former::select('country_id')->addOption('','')->label('Country')
-				->fromQuery($countries, 'name', 'id')->select($client ? $client->country_id : '') }}
-
-
-		</div>
 	</div>
 
 
@@ -99,6 +99,16 @@
 	function ContactsModel() {
 		var self = this;
 		self.contacts = ko.observableArray();
+
+		self.placeholderName = ko.computed(function() {
+			if (self.contacts().length == 0) return '';
+			var contact = self.contacts()[0];
+			if (contact.first_name() || contact.last_name()) {
+				return contact.first_name() + ' ' + contact.last_name();
+			} else {
+				return contact.email();
+			}
+		});	
 	}
 
 	@if ($client)

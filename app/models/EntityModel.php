@@ -3,6 +3,8 @@
 class EntityModel extends Eloquent
 {
 	protected $softDelete = true;
+	protected $hidden = ['id', 'created_at', 'deleted_at', 'updated_at'];
+
 	public static function createNew($parent = false)
 	{		
 		$className = get_called_class();

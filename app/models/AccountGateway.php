@@ -1,6 +1,6 @@
 <?php
 
-class AccountGateway extends Eloquent
+class AccountGateway extends EntityModel
 {
 	public function gateway()
 	{

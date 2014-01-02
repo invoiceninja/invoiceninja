@@ -77,6 +77,7 @@ class CreditController extends \BaseController {
             'url' => 'credits', 
             'title' => '- New Credit',
             'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+            'invoices' => Invoice::scope()->with('client')->where('balance','>',0)->orderBy('invoice_number')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
 
         return View::make('credits.edit', $data);
@@ -128,9 +129,12 @@ class CreditController extends \BaseController {
             } else {
                 $credit = Credit::createNew();
             }
+            
+            $invoiceId = Input::get('invoice') && Input::get('invoice') != "-1" ? Invoice::getPrivateId(Input::get('invoice')) : null;
 
             $credit->client_id = Client::getPrivateId(Input::get('client'));
             $credit->credit_date = Utils::toSqlDate(Input::get('credit_date'));
+            $credit->invoice_id = $invoiceId;
             $credit->amount = floatval(Input::get('amount'));
             $credit->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
             $credit->save();

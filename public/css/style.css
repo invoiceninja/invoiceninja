@@ -4,6 +4,11 @@ body > div.container {
 }
 */
 
+
+div.required > label {
+    font-weight: bold !important;
+}
+
 label.checkbox,
 label.control-label {
     font-weight: normal !important;

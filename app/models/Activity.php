@@ -207,7 +207,7 @@ class Activity extends Eloquent
 
 		if ($credit->invoice_id) 
 		{
-			$activity->invoice_id = $payment->invoice_id;
+			$activity->invoice_id = $credit->invoice_id;
 
 			$invoice = $credit->invoice;
 			$invoice->balance = $invoice->amount - $credit->amount;

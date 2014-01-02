@@ -49,7 +49,7 @@
 					<div class="col-lg-8 col-lg-offset-4">
 						<label for="test" class="checkbox" data-bind="attr: {for: $index() + '_check'}">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check'}">
-								<span data-bind="text: email.display"/>
+								<span data-bind="text: first_name() + ' ' + last_name() + ' - ' + email()"/>
 						</label>
 					</div>				
 				</div>
@@ -231,6 +231,24 @@
 		<div style="background-color: #F6F6F6" class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
 			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
 
+				{{ Former::legend('Organization') }}
+				{{ Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }") }}
+				{{ Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'")->label('Phone') }}
+				
+				
+				{{ Former::legend('Address') }}
+				{{ Former::text('address1')->label('Street')->data_bind("value: address1, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('address2')->label('Apt/Floor')->data_bind("value: address2, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") }}
+				{{ Former::select('country_id')->addOption('','')->label('Country')->addGroupClass('country_select')
+					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") }}
+					
+			</div>
+			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
+
 
 				{{ Former::legend('Contacts') }}
 				<div data-bind='template: { foreach: contacts,
@@ -266,24 +284,6 @@
 				{{ Former::textarea('private_notes')->data_bind('value: private_notes') }}
 
 
-			</div>
-			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
-
-				{{ Former::legend('Organization') }}
-				{{ Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'")->label('Phone') }}
-				
-				
-				{{ Former::legend('Address') }}
-				{{ Former::text('address1')->label('Street')->data_bind("value: address1, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('address2')->label('Apt/Floor')->data_bind("value: address2, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") }}
-				{{ Former::select('country_id')->addOption('','')->label('Country')->addGroupClass('country_select')
-					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") }}
-					
 			</div>
 		</div>
 		</div>
@@ -377,7 +377,8 @@
 			if (clientId > 0) { 
 				model.loadClient(clientMap[clientId]);				
 			} else {
-				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));				
+				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));
+				console.log('load blank client');
 			}
 			refreshPDF();
 		}); //.trigger('change');		
@@ -392,14 +393,14 @@
 		});		
 
 
-		@if ($client)
+		@if ($client || $invoice)
 			$('#invoice_number').focus();
 		@else
 			$('.client_select input.form-control').focus();			
 		@endif
 		
 		$('#clientModal').on('shown.bs.modal', function () {
-			$('#first_name').focus();			
+			$('#email').focus();			
 		}).on('hidden.bs.modal', function () {
 			if (model.clientBackup) {
 				model.loadClient(model.clientBackup);
@@ -694,14 +695,23 @@
 		}
 
 		self.clientFormComplete = function() {
+
+			var isValid = true;
+			$("input[id='email']").each(function(item, value) {
+				var email = $(value).val();
+				if (!email || !isValidEmailAddress(email)) {
+					isValid = false;					
+				}
+			});
+			if (!isValid) {
+				$('#emailError').css( "display", "inline" );
+				return;
+			}
+
 			var email = $('#email').val();
 			var firstName = $('#first_name').val();
 			var lastName = $('#last_name').val();
 			var name = $('#name').val();
-			if (!email || !isValidEmailAddress(email)) {
-				$('#emailError').css( "display", "inline" );
-				return;
-			}
 
 			if (self.invoice().client().public_id() == 0) {
 				self.invoice().client().public_id(-1);
@@ -993,6 +1003,15 @@
 			}
 		});				
 	
+		self.name.placeholder = ko.computed(function() {
+			if (self.contacts().length == 0) return '';
+			var contact = self.contacts()[0];
+			if (contact.first_name() || contact.last_name()) {
+				return contact.first_name() + ' ' + contact.last_name();
+			} else {
+				return contact.email();
+			}
+		});	
 
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);
@@ -1010,13 +1029,15 @@
 		self.phone = ko.observable('');		
 		self.send_invoice = ko.observable(false);
 
+		/*
+		self.displayName = ko.computed(function() {
+			return self.first_name() + ' ' + self.last_name() + ' - ' + self.email();
+		});		
+		*/
+
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);		
 		}		
-
-		self.email.display = ko.computed(function() {
-			return self.first_name() + ' ' + self.last_name() + ' - ' + self.email();
-		});		
 	}
 
 	function TaxRateModel(data) {
