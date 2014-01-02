@@ -15,7 +15,7 @@ class ClientController extends \BaseController {
 		return View::make('list', array(
 			'entityType'=>ENTITY_CLIENT, 
 			'title' => '- Clients',
-			'columns'=>['checkbox', 'Client', 'Contact', 'Email', 'Date Created', 'Phone', 'Last Login', 'Balance', 'Action']
+			'columns'=>['checkbox', 'Client', 'Contact', 'Email', 'Date Created', 'Last Login', 'Balance', 'Action']
 		));		
 	}
 
@@ -49,7 +49,6 @@ class ClientController extends \BaseController {
     	    ->addColumn('first_name', function($model) { return link_to('clients/' . $model->public_id, $model->first_name . ' ' . $model->last_name); })
     	    ->addColumn('email', function($model) { return link_to('clients/' . $model->public_id, $model->email); })
     	    ->addColumn('created_at', function($model) { return Utils::timestampToDateString(strtotime($model->created_at)); })
-    	    ->addColumn('work_phone', function($model) { return Utils::formatPhoneNumber($model->work_phone); })    	   
     	    ->addColumn('last_login', function($model) { return Utils::timestampToDateString($model->last_login); })
     	    ->addColumn('balance', function($model) { return Utils::formatMoney($model->balance, $model->currency_id); })    	    
     	    ->addColumn('dropdown', function($model) 

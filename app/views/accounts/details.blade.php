@@ -37,9 +37,9 @@
 
 			{{ Former::legend('Address') }}	
 			{{ Former::text('address1')->label('Street') }}
-			{{ Former::text('address2')->label('Apt/Floor') }}
+			{{ Former::text('address2')->label('Apt/Suite') }}
 			{{ Former::text('city') }}
-			{{ Former::text('state') }}
+			{{ Former::text('state')->label('State/Province') }}
 			{{ Former::text('postal_code') }}
 			{{ Former::select('country_id')->addOption('','')->label('Country')
 				->fromQuery($countries, 'name', 'id')->select($account ? $account->country_id : '') }}

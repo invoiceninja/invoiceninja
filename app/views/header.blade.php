@@ -6,10 +6,12 @@
 
 	<meta name="csrf-token" content="<?= csrf_token() ?>">
 	<script src="{{ asset('js/jquery-ui.min.js') }}" type="text/javascript"></script>				
+
 	@if (Auth::check() && Auth::user()->theme_id)
 		<link rel="stylesheet" type="text/css" href="{{ asset('css/themes/'.Auth::user()->theme->name.'.min.css') }}"/>		
 	@else
 		<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}"/>
+		<link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}"/>			
 	@endif
 	<script src="{{ asset('js/bootstrap.js') }}" type="text/javascript"></script>				
 
@@ -37,7 +39,6 @@
 	<script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
 	<script src="{{ asset('js/accounting.js') }}" type="text/javascript"></script>		
 
-	<link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}"/>			
 	<style type="text/css">
 
 	@if (!Auth::check() || Auth::user()->showGreyBackground())
@@ -90,12 +91,12 @@
 	    	{{ HTML::menu_link('invoice') }}
 	    	{{ HTML::menu_link('payment') }}
 	    	{{ HTML::menu_link('credit') }}
-	    	{{ HTML::nav_link('reports', 'Reports') }}
+	    	{{-- HTML::nav_link('reports', 'Reports') --}}
 	    </ul>
 
 		<div class="navbar-form navbar-right">
 			@if (!Auth::check() || !Auth::user()->registered)
-				{{ Button::sm_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }}
+				{{ Button::sm_success_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }}
 			@endif
 			
 			<div class="btn-group">
@@ -143,6 +144,8 @@
 	  </div><!-- /.navbar-collapse -->
 	</nav>
 	
+	<p>&nbsp;</p>
+
 	@if (Session::has('message'))
 		<div class="alert alert-info">{{ Session::get('message') }}</div>
 	@endif
@@ -153,6 +156,7 @@
 		</div>
 		<div class="container">
 		<div class="footer" style="padding-top: 32px">
+			@if (false)
 	      <div class="pull-right">
 		      	{{ Former::open('user/setTheme')->addClass('themeForm') }}
 		      	<div style="display:none">
@@ -172,6 +176,7 @@
 				</div>
 		      	{{ Former::close() }}	      	
 		    </div>
+		    @endif
 
 		    Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice-ninja', 'open source', array('target'=>'_blank')) }}, email us at {{ link_to('mailto:contact@invoiceninja.com', 'contact@invoiceninja.com') }}.
 			<p class="text-danger">This is a demo site, the data is erased.</p>
@@ -234,7 +239,7 @@
 
 	      <div class="container">	     
 	      	<h3>Are you sure?</h3>
-	      	<p>This will permanently erase your data.</p>
+	      	<p>This will permanently erase your data.</p>	      	
 	      </div>
 
 	      <div class="modal-footer" id="signUpFooter">	      	
@@ -392,5 +397,5 @@
   		});
 
   </script>  
-  
+
 @stop

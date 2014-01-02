@@ -10,8 +10,6 @@
 @section('content')
 	
 
-	<p>&nbsp;</p>
-
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
 		'client' => 'required',
 		'email' => 'required',
@@ -54,8 +52,6 @@
 					</div>				
 				</div>
 			</div>
-			{{ Former::textarea('terms')->data_bind("value: wrapped_terms, valueUpdate: 'afterkeydown'") }}			
-			{{ Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'") }}			
 			
 		</div>
 		<div class="col-md-4" id="col_2">
@@ -85,12 +81,12 @@
 		<div class="col-md-3" id="col_2">
 			{{ Former::text('po_number')->label('PO&nbsp;number')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
 			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}			
-			{{ Former::select('currency_id')->label('Currency')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") }}
+			{{ Former::select('currency_id')->label('Currency')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") }}
 			
 			<div class="form-group" style="margin-bottom: 8px">
 				<label for="recurring" class="control-label col-lg-4 col-sm-4">Taxes</label>
 				<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
-					<a href="#" data-bind="click: $root.showTaxesForm">Manage taxe rates</a>
+					<a href="#" data-bind="click: $root.showTaxesForm">Manage tax rates</a>
 				</div>
 			</div>
 
@@ -146,7 +142,13 @@
 		<tfoot>
 			<tr>
 	        	<td class="hide-border"/>
-	        	<td colspan="2"/>
+	        	<td colspan="2" rowspan="5">
+	        		<br/>
+					{{ Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
+						->label(false)->placeholder('Note to client')->style('width: 520px; resize: none') }}			
+					{{ Former::textarea('terms')->data_bind("value: wrapped_terms, valueUpdate: 'afterkeydown'")
+						->label(false)->placeholder('Invoice terms')->style('width: 520px; resize: none') }}			
+	        	</td>
 	        	<td data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2">Subtotal</td>
 				<td style="text-align: right"><span data-bind="text: totals.subtotal"/></td>
@@ -201,7 +203,7 @@
 				     	array('Create Credit', "javascript:onCreditClick()"),
 				    )
 				  )
-				, array('id'=>'actionDropDown', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); }}				
+				, array('id'=>'relatedActions', 'style'=>'text-align:left'))->split(); }}				
 
 			{{ DropdownButton::primary('Save Invoice',
 				  Navigation::links(
@@ -213,7 +215,7 @@
 				     	array('Delete Invoice', "javascript:onDeleteClick()"),
 				    )
 				  )
-				, array('id'=>'actionDropDown', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); }}				
+				, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); }}				
 		@else
 			{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
 			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save')) }}			
@@ -249,9 +251,9 @@
 				
 				{{ Former::legend('Address') }}
 				{{ Former::text('address1')->label('Street')->data_bind("value: address1, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('address2')->label('Apt/Floor')->data_bind("value: address2, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('address2')->label('Apt/Suite')->data_bind("value: address2, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('state')->label('State/Province')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") }}
 				{{ Former::select('country_id')->addOption('','')->label('Country')->addGroupClass('country_select')
 					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") }}
@@ -387,7 +389,7 @@
 				console.log('load blank client');
 			}
 			refreshPDF();
-		}); //.trigger('change');		
+		}).trigger('change');		
 
 		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discout, #currency_id').change(function() {
 			refreshPDF();
@@ -422,7 +424,11 @@
 			$('table.invoice-table select').trigger('change');
 		})
 
-		$('#actionDropDown > button:first').click(function() {
+		$('#relatedActions > button:first').click(function() {
+			onDownloadClick();
+		});
+
+		$('#primaryActions > button:first').click(function() {
 			onSaveClick();
 		});
 
@@ -434,7 +440,7 @@
 			client.name.display());
 
 		applyComboboxListeners();
-		refreshPDF();
+		//refreshPDF();
 	});	
 
 	function applyComboboxListeners() {
@@ -801,7 +807,8 @@
 		this.id = ko.observable('');
 		self.discount = ko.observable('');
 		self.frequency_id = ko.observable('');
-		self.currency_id = ko.observable({{ Session::get(SESSION_CURRENCY) }});
+		//self.currency_id = ko.observable({{ Session::get(SESSION_CURRENCY) }});
+		self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
 		self.terms = ko.observable(wordWrapText('{{ $account->invoice_terms }}', 340));		
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');

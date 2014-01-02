@@ -80,7 +80,8 @@ class InvoiceRepository
     	}
 
     	$invoice = (array) $input;
-    	$rules = ['invoice_number' => 'unique:invoices,invoice_number,' . $invoice['invoice_number'] . ',id,account_id,' . \Auth::user()->account_id];    	
+    	$invoiceId = isset($invoice['public_id']) && $invoice['public_id'] ? Invoice::getPrivateId($invoice['public_id']) : null;
+    	$rules = ['invoice_number' => 'unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . \Auth::user()->account_id];    	
     	$validator = \Validator::make($invoice, $rules);
 
     	if ($validator->fails())

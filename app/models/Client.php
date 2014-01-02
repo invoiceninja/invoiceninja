@@ -148,7 +148,7 @@ class Client extends EntityModel
 			return '';
 		}
 
-		return link_to($this->website, $this->website);
+		return link_to($this->website, $this->website, array('target'=>'_blank'));
 	}
 
 	public function getDateCreated()

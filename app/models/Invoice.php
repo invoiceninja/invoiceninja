@@ -100,11 +100,11 @@ class Invoice extends EntityModel
 			case FREQUENCY_MONTHLY:
 				return $dayOfMonthStart == $dayOfMonthToday || $daysSinceLastSent > 31;
 			case FREQUENCY_THREE_MONTHS:
-				return ($dayOfMonthStart == $dayOfMonthToday && (!$daysSinceLastSent || $monthsSinceLastSent == 3)) || $daysSinceLastSent > (3 * 31);
+				return ($dayOfMonthStart == $dayOfMonthToday && (!$daysSinceLastSent || $monthsSinceLastSent == 3)) || $daysSinceLastSent > 92;
 			case FREQUENCY_SIX_MONTHS:
-				return ($dayOfMonthStart == $dayOfMonthToday && (!$daysSinceLastSent || $monthsSinceLastSent == 6)) || $daysSinceLastSent > (6 * 31);
+				return ($dayOfMonthStart == $dayOfMonthToday && (!$daysSinceLastSent || $monthsSinceLastSent == 6)) || $daysSinceLastSent > 183;
 			case FREQUENCY_ANNUALLY:
-				return ($dayOfMonthStart == $dayOfMonthToday && (!$daysSinceLastSent || $monthsSinceLastSent == 12)) || $daysSinceLastSent > (12 *31);
+				return ($dayOfMonthStart == $dayOfMonthToday && (!$daysSinceLastSent || $monthsSinceLastSent == 12)) || $daysSinceLastSent > 365;
 			default:
 				Utils::fatalError("Invalid frequency supplied: " . $this->frequency_id);
 				break;

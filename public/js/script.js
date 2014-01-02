@@ -104,6 +104,14 @@ function generatePDF(invoice) {
 	doc.text(headerLeft, headerY, 'Invoice Date');
 	doc.text(issuedOnX, headerY, issuedOn);
 	
+	/*
+	if (invoice.due_date) {
+		headerY += rowHeight;
+		doc.text(headerLeft, headerY, 'Due Date');
+		doc.text(poNumberX, headerY, invoice.po_number);				
+	}
+	*/
+	
 	headerY += rowHeight;
 	doc.setFontType("bold");
 	doc.text(headerLeft, headerY, 'Amount Due');
@@ -198,8 +206,8 @@ function generatePDF(invoice) {
 	doc.lines([[0,0],[headerRight-tableLeft+5,0]],tableLeft - 8, x);
 
 
-	doc.text(tableLeft, x+16, invoice.terms);
-	doc.text(tableLeft, x+16 + (doc.splitTextToSize(invoice.terms, 340).length * rowHeight), invoice.public_notes);
+	doc.text(tableLeft, x+16, invoice.public_notes);
+	doc.text(tableLeft, x+16 + (doc.splitTextToSize(invoice.public_notes, 340).length * rowHeight) + (rowHeight/2), invoice.terms);
 
 	x += 16;
 	doc.text(footerLeft, x, 'Subtotal');
@@ -669,12 +677,12 @@ ko.bindingHandlers.datePicker = {
     init: function (element, valueAccessor, allBindingsAccessor) {
        var value = ko.utils.unwrapObservable(valueAccessor());       
        if (value) $(element).datepicker('update', value);
-       console.log("datePicker-init: %s", value);
+       //console.log("datePicker-init: %s", value);
     },
     update: function (element, valueAccessor) {    	
        var value = ko.utils.unwrapObservable(valueAccessor());
        if (value) $(element).datepicker('update', value);
-       console.log("datePicker-init: %s", value);
+       //console.log("datePicker-init: %s", value);
     }    
 };
 
