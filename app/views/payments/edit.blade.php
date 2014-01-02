@@ -13,13 +13,6 @@
 		'invoice' => 'required',		
   		'amount' => 'required',		
 	)); }}
-
-	@if ($payment)
-		{{-- Former::populate($payment) --}}
-	@else
-		{{ Former::populateField('payment_date', Utils::today()) }}
-	@endif
-
 	
 	<div class="row">
 		<div class="col-md-8">
@@ -57,19 +50,12 @@
 
 	$(function() {
 
-		@if ($clientPublicId)
-			$('select#client').val({{ $clientPublicId }});
-		@endif		
-		
-		populateInvoiceComboboxes();
+		populateInvoiceComboboxes({{ $clientPublicId }}, {{ $invoicePublicId }});
 
 		$('#currency_id').combobox();
 
-		$('#payment_date').datepicker({
-			autoclose: true,
-			todayHighlight: true,
-			keyboardNavigation: false
-		});
+		$('#payment_date').datepicker('update', new Date({{ strtotime(Utils::today()) * 1000 }}));
+
 	});
 
 	</script>

@@ -68,10 +68,11 @@ class CreditController extends \BaseController {
     }
 
 
-    public function create($clientPublicId = null)
+    public function create($clientPublicId = 0, $invoicePublicId = 0)
     {       
         $data = array(
             'clientPublicId' => $clientPublicId,
+            'invoicePublicId' => $invoicePublicId,
             'credit' => null, 
             'method' => 'POST', 
             'url' => 'credits', 

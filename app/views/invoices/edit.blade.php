@@ -61,13 +61,13 @@
 		<div class="col-md-4" id="col_2">
 			<div data-bind="visible: !is_recurring()">
 				{{ Former::text('invoice_number')->label('Invoice #')->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('invoice_date')->data_bind("value: invoice_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
-				{{ Former::text('due_date')->data_bind("value: due_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}							
+				{{ Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
+				{{ Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}							
 			</div>
 			<div data-bind="visible: is_recurring">
 				{{ Former::select('frequency_id')->label('How often')->options($frequencies)->data_bind("value: frequency_id") }}
-				{{ Former::text('start_date')->data_bind("value: start_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
-				{{ Former::text('end_date')->data_bind("value: end_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
+				{{ Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
+				{{ Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
 			</div>
 			@if ($invoice && $invoice->recurring_invoice_id)
 				<div class="pull-right" style="padding-top: 6px">
@@ -191,9 +191,18 @@
 		</div>
 
 
-		{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
-
 		@if ($invoice)		
+			{{ DropdownButton::normal('Download PDF',
+				  Navigation::links(
+				    array(
+				    	array('Download PDF', "javascript:onDownloadClick()"),
+				     	array(Navigation::DIVIDER),
+				     	array('Create Payment', "javascript:onPaymentClick()"),
+				     	array('Create Credit', "javascript:onCreditClick()"),
+				    )
+				  )
+				, array('id'=>'actionDropDown', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); }}				
+
 			{{ DropdownButton::primary('Save Invoice',
 				  Navigation::links(
 				    array(
@@ -206,6 +215,7 @@
 				  )
 				, array('id'=>'actionDropDown', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); }}				
 		@else
+			{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
 			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save')) }}			
 		@endif
 
@@ -361,11 +371,7 @@
 		$('#country_id').combobox();
 		$('[rel=tooltip]').tooltip();
 
-		$('#invoice_date, #due_date, #start_date, #end_date').datepicker({
-			autoclose: true,
-			todayHighlight: true,
-			keyboardNavigation: false
-		});
+		$('#invoice_date, #due_date, #start_date, #end_date').datepicker();
 
 		@if ($client && !$invoice)
 			$('input[name=client]').val({{ $client->public_id }});
@@ -524,6 +530,16 @@
 		$('#action').val('clone');
 		$('.main_form').submit();
 	}
+
+	@if ($client && $invoice)
+	function onPaymentClick() {
+		window.location = '{{ URL::to('payments/create/' . $client->public_id . '/' . $invoice->public_id ) }}';
+	}
+
+	function onCreditClick() {
+		window.location = '{{ URL::to('credits/create/' . $client->public_id . '/' . $invoice->public_id ) }}';
+	}
+	@endif
 
 	function onArchiveClick() {
 		$('#action').val('archive');

@@ -67,7 +67,7 @@ class ClientRepository
 		{
 			if (!in_array($contact->public_id, $contactIds))
 			{	
-				$contact->forceDelete();
+				$contact->delete();
 			}
 		}
 

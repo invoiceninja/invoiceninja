@@ -70,10 +70,11 @@ class PaymentController extends \BaseController
     }
 
 
-    public function create($clientPublicId = 0)
+    public function create($clientPublicId = 0, $invoicePublicId = 0)
     {       
         $data = array(
             'clientPublicId' => $clientPublicId,
+            'invoicePublicId' => $invoicePublicId,
             'invoice' => null,
             'invoices' => Invoice::scope()->with('client')->where('balance','>',0)->orderBy('invoice_number')->get(),
             'payment' => null, 

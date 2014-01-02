@@ -9,6 +9,20 @@
     
     <title>Invoice Ninja {{ isset($title) ? $title : '' }}</title>
 
+    <script src="{{ asset('js/jquery.js') }}" type="text/javascript"></script>  
+    <script type="text/javascript">
+    window.onerror = function(e) {
+      try {
+        $.ajax({
+          type: 'GET',
+          url: '{{ URL::to('log_error') }}',
+          data: 'error='+e+'&url='+window.location
+        });     
+      } catch(err) {}
+      return false;
+    }
+    </script>
+
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -16,7 +30,6 @@
     <![endif]-->
     
     <!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.js" type="text/javascript"></script>  -->
-    <script src="{{ asset('js/jquery.js') }}" type="text/javascript"></script>  
     <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}"/> 
 
 

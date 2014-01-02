@@ -665,7 +665,6 @@ ko.bindingHandlers.dropdown = {
 };
 
 
-/*
 ko.bindingHandlers.datePicker = {
     init: function (element, valueAccessor, allBindingsAccessor) {
        var value = ko.utils.unwrapObservable(valueAccessor());       
@@ -678,7 +677,6 @@ ko.bindingHandlers.datePicker = {
        console.log("datePicker-init: %s", value);
     }    
 };
-*/
 
 
 function wordWrapText(value, width)
@@ -724,11 +722,11 @@ function getClientDisplayName(client)
 }
 
 
-function populateInvoiceComboboxes() {
+function populateInvoiceComboboxes(clientId, invoiceId) {
 	var clientMap = {};
 	var invoiceMap = {};
 	var invoicesForClientMap = {};
-	var $input = $('select#client');		
+	var $clientSelect = $('select#client');		
 	
 	for (var i=0; i<invoices.length; i++) {
 		var invoice = invoices[i];
@@ -747,14 +745,18 @@ function populateInvoiceComboboxes() {
 		clientMap[client.public_id] = client;
 	}
 
-	$input.append(new Option('', ''));	
+	$clientSelect.append(new Option('', ''));	
 	for (var i=0; i<clients.length; i++) {
 		var client = clients[i];
-		$input.append(new Option(getClientDisplayName(client), client.public_id));
+		$clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
 	}	
 
-	$input.combobox();
-	$input.on('change', function(e) {						
+	if (clientId) {
+		$clientSelect.val(clientId);
+	}
+
+	$clientSelect.combobox();
+	$clientSelect.on('change', function(e) {						
 		console.log('client change');
 		var clientId = $('input[name=client]').val();
 		var invoiceId = $('input[name=invoice]').val();						
@@ -775,9 +777,9 @@ function populateInvoiceComboboxes() {
 			$invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + getClientDisplayName(client) + ' - ' + formatMoney(invoice.balance, invoice.currency_id),  invoice.public_id));
 		}
 		$('select#invoice').combobox('refresh');
-	}).trigger('change');
+	});
 
-	var $input = $('select#invoice').on('change', function(e) {			
+	var $invoiceSelect = $('select#invoice').on('change', function(e) {			
 		$clientCombobox = $('select#client');
 		var invoiceId = $('input[name=invoice]').val();						
 		if (invoiceId) {
@@ -789,7 +791,21 @@ function populateInvoiceComboboxes() {
 			}
 		}
 	});
-	$input.combobox();	
+
+	$invoiceSelect.combobox();	
+
+	if (invoiceId) {
+		var invoice = invoiceMap[invoiceId];
+		var client = clientMap[invoice.client.public_id];
+		setComboboxValue($('.invoice-select'), invoice.public_id, (invoice.invoice_number + ' - ' + getClientDisplayName(client) + ' - ' + formatMoney(invoice.balance, invoice.currency_id)));
+		$invoiceSelect.trigger('change');
+	} else if (clientId) {
+		var client = clientMap[clientId];
+		setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
+		$clientSelect.trigger('change');
+	} else {
+		$clientSelect.trigger('change');
+	}	
 }
 
 
@@ -799,3 +815,6 @@ CONSTS.INVOICE_STATUS_SENT = 2;
 CONSTS.INVOICE_STATUS_VIEWED = 3;
 CONSTS.INVOICE_STATUS_PARTIAL = 4;
 CONSTS.INVOICE_STATUS_PAID = 5;
+
+$.fn.datepicker.defaults.autoclose = true;
+$.fn.datepicker.defaults.todayHighlight = true;

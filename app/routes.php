@@ -21,13 +21,14 @@
 include_once(app_path().'/libraries/utils.php');  // TODO_FIX
 include_once(app_path().'/handlers/UserEventHandler.php');  // TODO_FIX
 
-
+// TODO_FIX replace with cron
 Route::get('/send_emails', function() {
 	Artisan::call('ninja:send-invoices');	
 });
 
 
 Route::get('/', 'HomeController@showWelcome');
+Route::get('log_error', 'HomeController@logError');
 Route::post('get_started', 'AccountController@getStarted');
 
 Route::get('view/{invoice_key}', 'InvoiceController@view');
@@ -71,13 +72,13 @@ Route::group(array('before' => 'auth'), function()
 
 	Route::get('payments/{id}/edit', function() { return View::make('header'); });
 	Route::resource('payments', 'PaymentController');
-	Route::get('payments/create/{client_id?}', 'PaymentController@create');
+	Route::get('payments/create/{client_id?}/{invoice_id?}', 'PaymentController@create');
 	Route::get('api/payments/{client_id?}', array('as'=>'api.payments', 'uses'=>'PaymentController@getDatatable'));
 	Route::post('payments/bulk', 'PaymentController@bulk');
 	
 	Route::get('credits/{id}/edit', function() { return View::make('header'); });
 	Route::resource('credits', 'CreditController');
-	Route::get('credits/create/{client_id?}', 'CreditController@create');
+	Route::get('credits/create/{client_id?}/{invoice_id?}', 'CreditController@create');
 	Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));	
 	Route::post('credits/bulk', 'CreditController@bulk');
 	
@@ -147,6 +148,7 @@ define("ACCOUNT_EXPORT", "export");
 
 define("DEFAULT_INVOICE_NUMBER", "0001");
 define("RECENTLY_VIEWED_LIMIT", 8);
+define("LOGGED_ERROR_LIMIT", 100);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);

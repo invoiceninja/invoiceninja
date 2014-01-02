@@ -224,7 +224,7 @@ class ClientController extends \BaseController {
 			{
 				if (!in_array($contact->public_id, $contactIds))
 				{	
-					$contact->forceDelete();
+					$contact->delete();
 				}
 			}
 			

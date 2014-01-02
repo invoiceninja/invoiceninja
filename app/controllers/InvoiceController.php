@@ -444,7 +444,7 @@ class InvoiceController extends \BaseController {
 				}				
 				else if (!in_array($contact->id, $sendInvoiceIds) && $invitation)
 				{
-					$invitation->forceDelete();
+					$invitation->delete();
 				}
 			}						
 

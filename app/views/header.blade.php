@@ -22,7 +22,8 @@
     <script type="text/javascript" src="{{ asset('js/knockout.mapping-latest.js') }}"></script>
     <script src="{{ asset('js/knockout-sortable.js') }}" type="text/javascript"></script>		
 	<link rel="stylesheet" type="text/css" href="{{ asset('css/font-awesome.css') }}"/>
-	<script src="{{ asset('js/underscore-min.js') }}" type="text/javascript"></script>		
+	<script src="{{ asset('js/underscore.js') }}" type="text/javascript"></script>		
+
 	
 	<script src="{{ asset('js/jspdf.source.js') }}" type="text/javascript"></script>		
 	<script src="{{ asset('js/jspdf.plugin.split_text_to_size.js') }}" type="text/javascript"></script>		
@@ -48,6 +49,7 @@
 	</style>
 
 	<script type="text/javascript">
+
 		var currencies = {{ Currency::remember(120)->get(); }};
 		var currencyMap = {};
 		for (var i=0; i<currencies.length; i++) {
