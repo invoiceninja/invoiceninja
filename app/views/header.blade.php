@@ -96,7 +96,7 @@
 
 		<div class="navbar-form navbar-right">
 			@if (!Auth::check() || !Auth::user()->registered)
-				{{ Button::sm_success_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }}
+				{{ Button::sm_success_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
 			@endif
 			
 			<div class="btn-group">

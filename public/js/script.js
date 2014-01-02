@@ -8,7 +8,9 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 function generatePDF(invoice) {
 	var currencyId = invoice.currency_id;
 	var invoiceNumber = invoice.invoice_number;
-	var issuedOn = invoice.invoice_date ? invoice.invoice_date : '';
+	var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
+	var dueDate = invoice.due_date ? invoice.due_date : '';
+	console.log("DueDate: %s", dueDate);
 	var amount = '$0.00';
 
 	var marginLeft = 90;
@@ -64,10 +66,14 @@ function generatePDF(invoice) {
 	if (invoice.po_number) {
 		y1 += rowHeight;
 	}
+	if (dueDate) {
+		y1 += rowHeight;
+	}
 	doc.rect(x1, y1, x2, y2, 'FD'); 
 
 	var invoiceNumberX = headerRight - (doc.getStringUnitWidth(invoiceNumber) * doc.internal.getFontSize());
-	var issuedOnX = headerRight - (doc.getStringUnitWidth(issuedOn) * doc.internal.getFontSize());	
+	var invoiceDateX = headerRight - (doc.getStringUnitWidth(invoiceDate) * doc.internal.getFontSize());	
+	var dueDateX = headerRight - (doc.getStringUnitWidth(dueDate) * doc.internal.getFontSize());	
 	var poNumberX = headerRight - (doc.getStringUnitWidth(invoice.po_number) * doc.internal.getFontSize());	
 
 	doc.setFontType("normal");
@@ -102,15 +108,13 @@ function generatePDF(invoice) {
 
 	headerY += rowHeight;
 	doc.text(headerLeft, headerY, 'Invoice Date');
-	doc.text(issuedOnX, headerY, issuedOn);
+	doc.text(invoiceDateX, headerY, invoiceDate);
 	
-	/*
-	if (invoice.due_date) {
+	if (dueDate) {
 		headerY += rowHeight;
 		doc.text(headerLeft, headerY, 'Due Date');
-		doc.text(poNumberX, headerY, invoice.po_number);				
-	}
-	*/
+		doc.text(dueDateX, headerY, dueDate);				
+	}	
 	
 	headerY += rowHeight;
 	doc.setFontType("bold");
@@ -677,12 +681,14 @@ ko.bindingHandlers.datePicker = {
     init: function (element, valueAccessor, allBindingsAccessor) {
        var value = ko.utils.unwrapObservable(valueAccessor());       
        if (value) $(element).datepicker('update', value);
-       //console.log("datePicker-init: %s", value);
+       $(element).change(function() { 
+       		var value = valueAccessor();
+            value($(element).val());
+       })
     },
     update: function (element, valueAccessor) {    	
        var value = ko.utils.unwrapObservable(valueAccessor());
        if (value) $(element).datepicker('update', value);
-       //console.log("datePicker-init: %s", value);
     }    
 };
 
