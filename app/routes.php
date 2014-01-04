@@ -15,7 +15,7 @@
 //dd(Client::getPrivateId(1));
 //dd(new DateTime());
 //Event::fire('user.signup');
-//dd(App::environment());
+dd(App::environment());
 //dd(gethostname());
 
 
