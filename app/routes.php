@@ -16,10 +16,8 @@
 //dd(new DateTime());
 //Event::fire('user.signup');
 //dd(App::environment());
+//dd(gethostname());
 
-
-include_once(app_path().'/libraries/utils.php');  // TODO_FIX
-include_once(app_path().'/handlers/UserEventHandler.php');  // TODO_FIX
 
 // TODO_FIX replace with cron
 Route::get('/send_emails', function() {

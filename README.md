@@ -1,19 +1,18 @@
 # Invoice Ninja
 ## Simple, Intuitive Invoicing
 
-### Live demo: [http://sketch-out.com/ninja/public/](http://sketch-out.com/ninja/public/)
+### Live demo: [http://invoice-ninja.appspot.com](http://invoice-ninja.appspot.com/)
 ### Introduction
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is this codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
 
 ### Features
-* Core application built using Laravel 4
+* Core application built using Laravel 4.1
 * Invoice PDF generation directly in the browser
 * Integrates with many payment providers
+* Recurring invoices
 
 ### Remaining Work
-* Recurring invoices
-* Internationalization
 * Home dashboard
 * Reports
 

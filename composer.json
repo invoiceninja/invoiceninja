@@ -4,10 +4,10 @@
 	"keywords": ["framework", "laravel"],
 	"license": "MIT",
 	"require": {
-		"laravel/framework": "4.0.*",
+		"laravel/framework": "4.1.*",
 		"jasonlewis/basset": "dev-master",
 		"patricktalmadge/bootstrapper": "dev-develop",
-		"zizaco/confide": "2.0.x",
+		"zizaco/confide": "3.1.x",
 		"anahkiasen/former": "dev-master",
 		"barryvdh/laravel-debugbar": "dev-master",
 		"chumper/datatable": "dev-master",

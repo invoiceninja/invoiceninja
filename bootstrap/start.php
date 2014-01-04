@@ -1,5 +1,39 @@
 <?php
 
+
+/*
+require_once 'google/appengine/api/app_identity/AppIdentityService.php';
+use \google\appengine\api\app_identity\AppIdentityService;
+
+// Define the gethostname function if it does not exist
+if (!function_exists('gethostname')) {
+    function gethostname() {
+        return AppIdentityService::getApplicationId();
+    }
+}    
+*/
+
+/*
+$app->instance('path.storage','gs://invoice-ninja');
+$app->instance('path.manifest', 'gs://invoice-ninja/meta');
+
+if(strlen(ini_get('google_app_engine.allow_include_gs_buckets'))) {
+        $primary_bucket_name = explode(', ', ini_get('google_app_engine.allow_include_gs_buckets'))[0];
+        dd($primary_bucket_name);
+        $app->instance('path.storage','gs://'.$primary_bucket_name);
+        $app->instance('path.manifest', storage_path().'/meta');
+}
+*/
+
+
+
+if (!function_exists('gethostname')) {
+    function gethostname() {
+        return php_uname('n');
+    }
+}
+
+
 /*
 |--------------------------------------------------------------------------
 | Create The Application
@@ -13,7 +47,7 @@
 
 $app = new Illuminate\Foundation\Application;
 
-$app->redirectIfTrailingSlash();
+//$app->redirectIfTrailingSlash();
 
 /*
 |--------------------------------------------------------------------------
@@ -28,8 +62,9 @@ $app->redirectIfTrailingSlash();
 
 $env = $app->detectEnvironment(array(
 
-	'development' => array('precise64', 'ubuntu-server-12042-x64-vbox4210'),
-	'staging' => array('host107.hostmonster.com')
+	'development' => ['precise64', 'ubuntu-server-12042-x64-vbox4210'],
+	'gae-development' => ['HILLEL-PC','hillel-PC'],
+	'gae-production' => ['GNU/Linux']
 ));
 
 /*

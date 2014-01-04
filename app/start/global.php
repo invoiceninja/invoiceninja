@@ -33,9 +33,12 @@ ClassLoader::addDirectories(array(
 |
 */
 
-$logFile = 'log-'.php_sapi_name().'.txt';
+//$logFile = 'log-'.php_sapi_name().'.txt';
+//Log::useDailyFiles(storage_path().'/logs/'.$logFile);
 
-Log::useDailyFiles(storage_path().'/logs/'.$logFile);
+use Monolog\Logger;
+$monolog = Log::getMonolog();
+$monolog->pushHandler(new Monolog\Handler\SyslogHandler('intranet', 'user', Logger::DEBUG, false, LOG_PID));
 
 /*
 |--------------------------------------------------------------------------

@@ -113,6 +113,7 @@ return array(
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',
 		'Illuminate\Workbench\WorkbenchServiceProvider',
+		'Illuminate\Remote\RemoteServiceProvider',
 		'Basset\BassetServiceProvider',
 		'Bootstrapper\BootstrapperServiceProvider',
 		'Zizaco\Confide\ConfideServiceProvider',
@@ -134,7 +135,7 @@ return array(
 	|
 	*/
 
-	'manifest' => storage_path().'/meta',
+	'manifest' => storage_path() . '/meta',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -156,7 +157,7 @@ return array(
 		'Cache'           => 'Illuminate\Support\Facades\Cache',
 		'ClassLoader'     => 'Illuminate\Support\ClassLoader',
 		'Config'          => 'Illuminate\Support\Facades\Config',
-		'Controller'      => 'Illuminate\Routing\Controllers\Controller',
+		'Controller'      => 'Illuminate\Routing\Controller',
 		'Cookie'          => 'Illuminate\Support\Facades\Cookie',
 		'Crypt'           => 'Illuminate\Support\Facades\Crypt',
 		'DB'              => 'Illuminate\Support\Facades\DB',
@@ -185,6 +186,7 @@ return array(
 		'URL'             => 'Illuminate\Support\Facades\URL',
 		'Validator'       => 'Illuminate\Support\Facades\Validator',
 		'View'            => 'Illuminate\Support\Facades\View',
+		'SSH' 			  => 'Illuminate\Support\Facades\SSH',
 		'Basset' 		  => 'Basset\Facade',
 		'Alert'          => 'Bootstrapper\Alert',
 		'Badge'          => 'Bootstrapper\Badge',
