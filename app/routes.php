@@ -15,8 +15,8 @@
 //dd(Client::getPrivateId(1));
 //dd(new DateTime());
 //Event::fire('user.signup');
-dd(App::environment());
-//dd(gethostname());
+//dd(App::environment());
+dd(gethostname());
 
 
 // TODO_FIX replace with cron
