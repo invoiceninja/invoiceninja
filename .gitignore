@@ -1,5 +1,6 @@
 /app/config/staging
 /app/config/development
+/app/config/fortrabbit
 /app/storage
 /public/logo
 /public/build

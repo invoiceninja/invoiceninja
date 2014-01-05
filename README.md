@@ -1,7 +1,7 @@
 # Invoice Ninja
 ## Simple, Intuitive Invoicing
 
-### Live demo: [http://invoice-ninja.appspot.com](http://invoice-ninja.appspot.com/)
+### Live demo: [http://invoice-ninja.eu1.frbit.net](http://invoice-ninja.eu1.frbit.net)
 ### Introduction
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is this codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
