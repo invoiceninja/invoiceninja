@@ -64,7 +64,8 @@ $env = $app->detectEnvironment(array(
 
 	'development' => ['precise64', 'ubuntu-server-12042-x64-vbox4210'],
 	'gae-development' => ['HILLEL-PC','hillel-PC'],
-	'gae-production' => ['GNU/Linux']
+	'gae-production' => ['GNU/Linux'],
+    'fortrabbit' => ['instance-zudx3h.nodes.eu1.frbit.com']
 ));
 
 /*
