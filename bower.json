@@ -1,0 +1,21 @@
+{
+  "name": "hillelcoren/invoice-ninja",
+  "version": "0.9.0",
+  "dependencies": {
+    "jquery": "~1.*",
+    "bootstrap": "~3.*",
+    "jquery-ui": "~1.*",
+    "datatables": "~1.*",
+    "datatables-bootstrap3": "*",
+    "knockout.js": "~3.*",
+    "knockout-mapping": "*",
+    "knockout-sortable": "*",
+    "font-awesome": "~4.*",
+    "underscore": "~1.*",
+    "jspdf": "*",
+    "bootstrap-datepicker": "~1.*",
+    "typeahead.js": "~0.9.3",
+    "accounting": "~0.*",
+    "pdfjs": "*"
+  }
+}

@@ -3,8 +3,8 @@
 @section('head')
 	@parent
 
-		<script type="text/javascript" src="{{ asset('js/pdf_viewer.js') }}"></script>
-		<script type="text/javascript" src="{{ asset('js/compatibility.js') }}"></script>
+		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
+		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
 @stop
 
 @section('content')

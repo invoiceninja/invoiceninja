@@ -60,13 +60,19 @@ $app = new Illuminate\Foundation\Application;
 |
 */
 
-$env = $app->detectEnvironment(array(
 
+$env = $app->detectEnvironment(function () {
+    return isset($_SERVER['LARAVEL_ENV']) ? $_SERVER['LARAVEL_ENV'] : 'development';
+});
+
+/*
+$env = $app->detectEnvironment(array(
 	'development' => ['precise64', 'ubuntu-server-12042-x64-vbox4210'],
 	'gae-development' => ['HILLEL-PC','hillel-PC'],
 	'gae-production' => ['GNU/Linux'],
     'fortrabbit' => ['instance-zudx3h.nodes.eu1.frbit.com']
 ));
+*/
 
 /*
 |--------------------------------------------------------------------------

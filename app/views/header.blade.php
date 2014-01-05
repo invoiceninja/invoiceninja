@@ -5,40 +5,32 @@
 @section('head')
 
 	<meta name="csrf-token" content="<?= csrf_token() ?>">
-	<script src="{{ asset('js/jquery-ui.min.js') }}" type="text/javascript"></script>				
 
-	@if (Auth::check() && Auth::user()->theme_id)
-		<link rel="stylesheet" type="text/css" href="{{ asset('css/themes/'.Auth::user()->theme->name.'.min.css') }}"/>		
-	@else
-		<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}"/>
-		<link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}"/>			
-	@endif
-	<script src="{{ asset('js/bootstrap.js') }}" type="text/javascript"></script>				
-
+	<script src="{{ asset('vendor/jquery-ui/ui/minified/jquery-ui.min.js') }}" type="text/javascript"></script>				
+	<script src="{{ asset('vendor/bootstrap/dist/js/bootstrap.min.js') }}" type="text/javascript"></script>				
+	<script src="{{ asset('vendor/datatables/media/js/jquery.dataTables.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('vendor/datatables-bootstrap3/BS3/assets/js/datatables.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('vendor/knockout.js/knockout.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('vendor/knockout-mapping/build/output/knockout.mapping-latest.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('vendor/knockout-sortable/build/knockout-sortable.min.js') }}" type="text/javascript"></script>
+	<script src="{{ asset('vendor/underscore/underscore-min.js') }}" type="text/javascript"></script>		
+	<script src="{{ asset('vendor/bootstrap-datepicker/js/bootstrap-datepicker.js') }}" type="text/javascript"></script>		
+	<script src="{{ asset('vendor/typeahead.js/dist/typeahead.min.js') }}" type="text/javascript"></script>	
+	<script src="{{ asset('vendor/accounting/accounting.min.js') }}" type="text/javascript"></script>		
 	<script src="{{ asset('js/bootstrap-combobox.js') }}" type="text/javascript"></script>		
-	<link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap-combobox.css') }}"/>	
-
-	<link rel="stylesheet" type="text/css" href="{{ asset('css/jquery.dataTables.css') }}">
-    <script type="text/javascript" src="{{ asset('js/jquery.dataTables.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('js/knockout-3.0.0.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('js/knockout.mapping-latest.js') }}"></script>
-    <script src="{{ asset('js/knockout-sortable.js') }}" type="text/javascript"></script>		
-	<link rel="stylesheet" type="text/css" href="{{ asset('css/font-awesome.css') }}"/>
-	<script src="{{ asset('js/underscore.js') }}" type="text/javascript"></script>		
-
-	
 	<script src="{{ asset('js/jspdf.source.js') }}" type="text/javascript"></script>		
 	<script src="{{ asset('js/jspdf.plugin.split_text_to_size.js') }}" type="text/javascript"></script>		
-	
-	<script src="{{ asset('js/bootstrap-datepicker.js') }}" type="text/javascript"></script>		
-	<link rel="stylesheet" type="text/css" href="{{ asset('css/datepicker.css') }}"/>
-
-	<script src="{{ asset('js/typeahead.js') }}" type="text/javascript"></script>	
-	<link rel="stylesheet" type="text/css" href="{{ asset('css/typeahead.js-bootstrap.css') }}"/>			
-	
 	<script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
-	<script src="{{ asset('js/accounting.js') }}" type="text/javascript"></script>		
 
+	<link href="{{ asset('vendor/datatables/media/css/jquery.dataTables.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('vendor/datatables-bootstrap3/BS3/assets/css/datatables.css') }}" rel="stylesheet" type="text/css">    
+	<link href="{{ asset('vendor/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css"/>
+	<link href="{{ asset('vendor/bootstrap-datepicker/css/datepicker.css') }}" rel="stylesheet" type="text/css"/>	
+	<link href="{{ asset('css/bootstrap-combobox.css') }}" rel="stylesheet" type="text/css"/>	
+	<link href="{{ asset('css/typeahead.js-bootstrap.css') }}" rel="stylesheet" type="text/css"/>			
+	<link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>    
+
+		
 	<style type="text/css">
 
 	@if (!Auth::check() || Auth::user()->showGreyBackground())
@@ -254,6 +246,7 @@
 		
 
   </body>
+
 
   <script type="text/javascript">
 

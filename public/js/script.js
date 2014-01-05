@@ -71,7 +71,7 @@ function generatePDF(invoice) {
 	}
 	doc.rect(x1, y1, x2, y2, 'FD'); 
 
-	var invoiceNumberX = headerRight - (doc.getStringUnitWidth(invoiceNumber) * doc.internal.getFontSize());
+	var invoiceNumberX = headerRight - (doc.getStringUnitWidth(invoiceNumber, false) * doc.internal.getFontSize());
 	var invoiceDateX = headerRight - (doc.getStringUnitWidth(invoiceDate) * doc.internal.getFontSize());	
 	var dueDateX = headerRight - (doc.getStringUnitWidth(dueDate) * doc.internal.getFontSize());	
 	var poNumberX = headerRight - (doc.getStringUnitWidth(invoice.po_number) * doc.internal.getFontSize());	

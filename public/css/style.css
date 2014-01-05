@@ -1,10 +1,3 @@
-/*
-body > div.container {
-    min-height: 600px;      
-}
-*/
-
-
 div.required > label {
     font-weight: bold !important;
 }
@@ -28,19 +21,6 @@ div.panel {
     text-align: center;
 }
 
-/*
-.form-horizontal {
-    max-width: 750px;
-    margin: 0 auto;
-}
-*/
-
-/*
-.form-group {
-    width: 50%;
-    margin: 0 auto;
-}
-*/
 
 /* DataTables and BootStrap */
 .dataTables_wrapper {
@@ -51,45 +31,23 @@ table.table thead > tr > th {
     border-bottom-width: 0px;
 }
 
-#DataTables_Table_0_length label {
-    font-weight: normal;
-    padding-bottom: 10px;       
-}
-
-div.dataTables_paginate.paging_bootstrap  {
-    margin-top: -30px;
-}
-
 /*
-table.table tbody tr.odd {
-    background-color: #f9f9f9;
-}
-
-table.table tbody tr:hover {
-    background-color: #f0f0f0 !important;
-}
+table.dataTable tr.odd {  background-color: white; }
+table.dataTable tr.even { background-color: #f9f9f9; }
 */
 
+table.dataTable tr.odd td.sorting_1 { background-color: white; }
+table.dataTable tr.odd td.sorting_2 { background-color: white; }
+table.dataTable tr.odd td.sorting_3 { background-color: white; }
+table.dataTable tr.even td.sorting_1 { background-color: white; }
+table.dataTable tr.even td.sorting_2 { background-color: white; }
+table.dataTable tr.even td.sorting_3 { background-color: white; }
 
-/* table sorting indicators */
-/*table.table thead .sorting { background: url('images/sort_both.png') no-repeat center right; }*/
 
-table.table thead .sorting,
-table.table thead .sorting_asc,
-table.table thead .sorting_desc,
-table.table thead .sorting_asc_disabled,
-table.table thead .sorting_desc_disabled {
-    cursor: pointer;
-    *cursor: hand;
-}
- 
-table.table thead .sorting_asc { background: url('../images/sort_asc.png') no-repeat center right; }
-table.table thead .sorting_desc { background: url('../images/sort_desc.png') no-repeat center right; }
 
- 
-table.table thead .sorting_asc_disabled { background: url('../images/sort_asc_disabled.png') no-repeat center right; }
-table.table thead .sorting_desc_disabled { background: url('../images/sort_desc_disabled.png') no-repeat center right; }
-    
+/* hide table sorting indicators */
+table.table thead .sorting { background: url('') no-repeat center right; }
+
 
 /* Hover nav */
 .sidebar-nav {

@@ -4,6 +4,7 @@
 /app/storage
 /public/logo
 /public/build
+/public/vendor
 /bootstrap/compiled.php
 /vendor
 composer.phar
