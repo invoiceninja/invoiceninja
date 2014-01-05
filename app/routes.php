@@ -17,6 +17,14 @@
 //Event::fire('user.signup');
 //dd(App::environment());
 //dd(gethostname());
+//Log::error('test');
+
+
+/*
+DB::listen(function($sql)) {
+	Log::info($sql);
+}
+*/
 
 
 // TODO_FIX replace with cron

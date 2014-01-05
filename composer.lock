@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "f3123f7a9ed2358f7ef2b796e28244b2",
+    "hash": "c5ddc3dddbc7d41a2d8929990a68536b",
     "packages": [
         {
             "name": "anahkiasen/former",
@@ -99,6 +99,70 @@
             "time": "2013-11-19 15:20:02"
         },
         {
+            "name": "anahkiasen/rocketeer",
+            "version": "dev-develop",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Anahkiasen/rocketeer.git",
+                "reference": "41ea0e4bc55211b809710aea8a6e06df93b9051d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Anahkiasen/rocketeer/zipball/41ea0e4bc55211b809710aea8a6e06df93b9051d",
+                "reference": "41ea0e4bc55211b809710aea8a6e06df93b9051d",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/config": "~4",
+                "illuminate/console": "~4",
+                "illuminate/container": "~4",
+                "illuminate/events": "~4",
+                "illuminate/filesystem": "~4",
+                "illuminate/support": "~4",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "herrera-io/box": "dev-master",
+                "illuminate/remote": "~4",
+                "mockery/mockery": "dev-master",
+                "nesbot/carbon": "dev-master",
+                "patchwork/utf8": "dev-master",
+                "phpseclib/phpseclib": "dev-phar as 0.3.x-dev"
+            },
+            "suggest": {
+                "anahkiasen/rocketeer-campfire": "Campfire plugin to create deployments notifications"
+            },
+            "bin": [
+                "bin/rocketeer"
+            ],
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "tests"
+                ],
+                "psr-0": {
+                    "Rocketeer": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maxime Fabre",
+                    "email": "ehtnam6@gmail.com"
+                }
+            ],
+            "description": "Rocketeer provides a fast and easy way to deploy your Laravel projects",
+            "keywords": [
+                "deployment",
+                "laravel",
+                "ssh"
+            ],
+            "time": "2013-12-15 15:36:02"
+        },
+        {
             "name": "anahkiasen/underscore-php",
             "version": "dev-master",
             "source": {
@@ -147,12 +211,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/laravel-debugbar.git",
-                "reference": "1a7fac491d19613ed899853dd7e2168897bd9243"
+                "reference": "d5d7097f3bfb54aa4ceca8375c371d1412cec6b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/1a7fac491d19613ed899853dd7e2168897bd9243",
-                "reference": "1a7fac491d19613ed899853dd7e2168897bd9243",
+                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/d5d7097f3bfb54aa4ceca8375c371d1412cec6b9",
+                "reference": "d5d7097f3bfb54aa4ceca8375c371d1412cec6b9",
                 "shasum": ""
             },
             "require": {
@@ -184,7 +248,7 @@
                 "profiler",
                 "webprofiler"
             ],
-            "time": "2014-01-02 11:34:45"
+            "time": "2014-01-04 16:25:27"
         },
         {
             "name": "chumper/datatable",
@@ -851,12 +915,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "397c1e2b9742555862eafb508adab5a31755b5ac"
+                "reference": "956511d9ebbddabb6ab79b1ec074616308a93a50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/397c1e2b9742555862eafb508adab5a31755b5ac",
-                "reference": "397c1e2b9742555862eafb508adab5a31755b5ac",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/956511d9ebbddabb6ab79b1ec074616308a93a50",
+                "reference": "956511d9ebbddabb6ab79b1ec074616308a93a50",
                 "shasum": ""
             },
             "require": {
@@ -960,7 +1024,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2013-12-31 21:36:23"
+            "time": "2014-01-05 16:10:41"
         },
         {
             "name": "laravelbook/ardent",
@@ -2879,12 +2943,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/patricktalmadge/bootstrapper.git",
-                "reference": "b07ad15300e91fb5cc6ed2d1f50fb2a43d663a17"
+                "reference": "d606a1c5b8b059ccc64b1c75fa45bad6b90008d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/patricktalmadge/bootstrapper/zipball/b07ad15300e91fb5cc6ed2d1f50fb2a43d663a17",
-                "reference": "b07ad15300e91fb5cc6ed2d1f50fb2a43d663a17",
+                "url": "https://api.github.com/repos/patricktalmadge/bootstrapper/zipball/d606a1c5b8b059ccc64b1c75fa45bad6b90008d5",
+                "reference": "d606a1c5b8b059ccc64b1c75fa45bad6b90008d5",
                 "shasum": ""
             },
             "require": {
@@ -2926,7 +2990,7 @@
                 "bootstrap",
                 "laravel"
             ],
-            "time": "2013-12-27 11:12:54"
+            "time": "2014-01-04 17:50:59"
         },
         {
             "name": "phpseclib/phpseclib",
@@ -3432,12 +3496,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/DomCrawler.git",
-                "reference": "ea4e3be8d036627e1bc67129173f3f9c780776a0"
+                "reference": "58e85928ad277c67102a41a046160de86df44d55"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/DomCrawler/zipball/ea4e3be8d036627e1bc67129173f3f9c780776a0",
-                "reference": "ea4e3be8d036627e1bc67129173f3f9c780776a0",
+                "url": "https://api.github.com/repos/symfony/DomCrawler/zipball/58e85928ad277c67102a41a046160de86df44d55",
+                "reference": "58e85928ad277c67102a41a046160de86df44d55",
                 "shasum": ""
             },
             "require": {
@@ -3476,7 +3540,7 @@
             ],
             "description": "Symfony DomCrawler Component",
             "homepage": "http://symfony.com",
-            "time": "2013-12-29 14:43:38"
+            "time": "2013-12-29 20:33:52"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -3635,12 +3699,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/HttpFoundation.git",
-                "reference": "51dba46f98ff2ee026cb0591088daa117d2a5025"
+                "reference": "6c6b8a7bcd7e2cc920cd6acace563fdbf121d844"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/HttpFoundation/zipball/51dba46f98ff2ee026cb0591088daa117d2a5025",
-                "reference": "51dba46f98ff2ee026cb0591088daa117d2a5025",
+                "url": "https://api.github.com/repos/symfony/HttpFoundation/zipball/6c6b8a7bcd7e2cc920cd6acace563fdbf121d844",
+                "reference": "6c6b8a7bcd7e2cc920cd6acace563fdbf121d844",
                 "shasum": ""
             },
             "require": {
@@ -3676,7 +3740,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "http://symfony.com",
-            "time": "2014-01-01 08:14:50"
+            "time": "2014-01-05 02:10:50"
         },
         {
             "name": "symfony/http-kernel",
@@ -3685,12 +3749,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/HttpKernel.git",
-                "reference": "2b022521ce2156cb97eb02dd0148c33f9f54a03f"
+                "reference": "2f5c4d0c7f273c0575f46823674ce2c1d0a5b310"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/HttpKernel/zipball/2b022521ce2156cb97eb02dd0148c33f9f54a03f",
-                "reference": "2b022521ce2156cb97eb02dd0148c33f9f54a03f",
+                "url": "https://api.github.com/repos/symfony/HttpKernel/zipball/2f5c4d0c7f273c0575f46823674ce2c1d0a5b310",
+                "reference": "2f5c4d0c7f273c0575f46823674ce2c1d0a5b310",
                 "shasum": ""
             },
             "require": {
@@ -3747,7 +3811,7 @@
             ],
             "description": "Symfony HttpKernel Component",
             "homepage": "http://symfony.com",
-            "time": "2014-01-01 09:02:49"
+            "time": "2014-01-05 10:33:23"
         },
         {
             "name": "symfony/process",
@@ -3756,12 +3820,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Process.git",
-                "reference": "5223ec2578e7ecd0192915434a6e33a689e329d6"
+                "reference": "58fdccb311e44f28866f976c2d7b3227e9f713db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Process/zipball/5223ec2578e7ecd0192915434a6e33a689e329d6",
-                "reference": "5223ec2578e7ecd0192915434a6e33a689e329d6",
+                "url": "https://api.github.com/repos/symfony/Process/zipball/58fdccb311e44f28866f976c2d7b3227e9f713db",
+                "reference": "58fdccb311e44f28866f976c2d7b3227e9f713db",
                 "shasum": ""
             },
             "require": {
@@ -3794,7 +3858,7 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "http://symfony.com",
-            "time": "2013-12-29 14:43:38"
+            "time": "2014-01-05 02:10:50"
         },
         {
             "name": "symfony/routing",
@@ -3803,12 +3867,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Routing.git",
-                "reference": "c82b3e7cc2dc304c06957e0e8dd3d56fd0b13781"
+                "reference": "4abfb500aab8be458c9e3a227ea56b190584f78a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Routing/zipball/c82b3e7cc2dc304c06957e0e8dd3d56fd0b13781",
-                "reference": "c82b3e7cc2dc304c06957e0e8dd3d56fd0b13781",
+                "url": "https://api.github.com/repos/symfony/Routing/zipball/4abfb500aab8be458c9e3a227ea56b190584f78a",
+                "reference": "4abfb500aab8be458c9e3a227ea56b190584f78a",
                 "shasum": ""
             },
             "require": {
@@ -3860,7 +3924,7 @@
                 "uri",
                 "url"
             ],
-            "time": "2014-01-01 08:14:50"
+            "time": "2014-01-05 02:10:50"
         },
         {
             "name": "symfony/translation",
@@ -4044,7 +4108,8 @@
         "barryvdh/laravel-debugbar": 20,
         "chumper/datatable": 20,
         "intervention/image": 20,
-        "webpatser/laravel-countries": 20
+        "webpatser/laravel-countries": 20,
+        "anahkiasen/rocketeer": 20
     },
     "platform": [
 

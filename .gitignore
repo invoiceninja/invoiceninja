@@ -1,6 +1,7 @@
 /app/config/staging
 /app/config/development
 /app/config/fortrabbit
+/app/config/packages/anahkiasen/rocketeer/
 /app/storage
 /public/logo
 /public/build

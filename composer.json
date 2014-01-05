@@ -1,8 +1,8 @@
 {
-	"name": "laravel/laravel",
-	"description": "The Laravel Framework.",
-	"keywords": ["framework", "laravel"],
-	"license": "MIT",
+	"name": "hillelcoren/invoice-ninja",
+	"description": "An open-source invoicing site built with Laravel",
+	"keywords": ["invoice", "laravel"],
+	"license": "Attribution Assurance License",
 	"require": {
 		"laravel/framework": "4.1.*",
 		"jasonlewis/basset": "dev-master",
@@ -13,7 +13,8 @@
 		"chumper/datatable": "dev-master",
 		"omnipay/omnipay": "2.x",
 		"intervention/image": "dev-master",
-		"webpatser/laravel-countries": "dev-master"
+		"webpatser/laravel-countries": "dev-master",
+		"anahkiasen/rocketeer": "dev-develop"
 	},
 	"autoload": {
 		"classmap": [
