@@ -37,6 +37,26 @@ class Invoice extends EntityModel
 		return ENTITY_INVOICE;
 	}	
 
+	public function getInvoiceDateAttribute($value)
+	{
+		return Utils::fromSqlDate($value);
+	}
+	
+	public function getDueDateAttribute($value)
+	{
+		return Utils::fromSqlDate($value);
+	}
+	
+	public function getStartDateAttribute($value)
+	{
+		return Utils::fromSqlDate($value);
+	}
+	
+	public function getEndDateAttribute($value)
+	{
+		return Utils::fromSqlDate($value);
+	}
+
 	public function isSent()
 	{
 		return $this->invoice_status_id >= INVOICE_STATUS_SENT;

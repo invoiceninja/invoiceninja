@@ -383,7 +383,7 @@
   			@if (Session::has('message'))
   				setTimeout(function() {
   					$('.alert-info').fadeOut();
-  				}, 5000);
+  				}, 3000);
   			@endif		
 
   			@yield('onReady')

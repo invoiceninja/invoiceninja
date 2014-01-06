@@ -2,7 +2,7 @@
 
 
 @section('onReady')
-	$('input#first_name').focus();
+	$('input#name').focus();
 @stop
 
 @section('content')

@@ -21,6 +21,10 @@ div.panel {
     text-align: center;
 }
 
+.no-space-bottom {
+    padding-bottom: 0px !important;
+    margin-bottom: 0px !important;
+}
 
 /* DataTables and BootStrap */
 .dataTables_wrapper {

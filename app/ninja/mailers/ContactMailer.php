@@ -12,13 +12,14 @@ class ContactMailer extends Mailer {
 	public function sendInvoice(Invoice $invoice)
 	{
 		$view = 'invoice';
-		$data = array('link' => URL::to('view') . '/' . $invoice->invoice_key);		
 		$subject = '';
 
 		foreach ($invoice->invitations as $invitation)
 		{
-			//$invitation->date_sent = 
+			$invitation->sent_date = Carbon::now()->toDateTimeString();
 			$invitation->save();
+	
+			$data = array('link' => URL::to('view') . '/' . $invitation->invitation_key);		
 
 			$this->sendTo($invitation->contact->email, $subject, $view, $data);
 

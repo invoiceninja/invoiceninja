@@ -86,7 +86,7 @@
 			<div class="form-group" style="margin-bottom: 8px">
 				<label for="recurring" class="control-label col-lg-4 col-sm-4">Taxes</label>
 				<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
-					<a href="#" data-bind="click: $root.showTaxesForm">Manage tax rates</a>
+					<a href="#" data-bind="click: $root.showTaxesForm">Manage rates</a>
 				</div>
 			</div>
 
@@ -347,8 +347,10 @@
 
 			{{ Former::checkbox('invoice_taxes')->text('Enable specifying an <b>invoice tax</b>')
 				->label('Settings')->data_bind('checked: $root.invoice_taxes, enable: $root.tax_rates().length > 1') }}
-			{{ Former::checkbox('invoice_item_taxes')->text('Enable specifying <b>line item taxes</b>')
+			{{ Former::checkbox('invoice_item_taxes')->text('Enable specifying <b>line item taxes</b>')->addOnGroupClass('no-space-bottom')
 				->label('&nbsp;')->data_bind('checked: $root.invoice_item_taxes, enable: $root.tax_rates().length > 1') }}
+
+			<br/>
 
 		</div>
 
@@ -408,7 +410,7 @@
 		@endif
 		
 		$('#clientModal').on('shown.bs.modal', function () {
-			$('#email').focus();			
+			$('#name').focus();			
 		}).on('hidden.bs.modal', function () {
 			if (model.clientBackup) {
 				model.loadClient(model.clientBackup);
@@ -765,7 +767,6 @@
 		self.enable = {};
 		self.enable.save = ko.computed(function() {
 			var isValid = false;
-
         	for (var i=0; i<self.invoice().client().contacts().length; i++) {
         		var contact = self.invoice().client().contacts()[i];
         		if (isValidEmailAddress(contact.email())) {
@@ -775,6 +776,7 @@
         			break;
         		}
         	}
+
         	return isValid ? "enabled" : "disabled";
     	});
 

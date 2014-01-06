@@ -60,8 +60,8 @@ class Client extends EntityModel
 		}
 
 		$contact = $this->contacts()->first();
-				
-		return $contact->getFullName();
+		
+		return $contact->getDisplayName();
 	}
 
 	public function getEntityType()
