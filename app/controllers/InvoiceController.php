@@ -116,41 +116,27 @@ class InvoiceController extends \BaseController {
 
 	public function view($invitationKey)
 	{
-		$invitation = Invitation::with('user', 'invoice.invoice_items', 'invoice.client.account', 'invoice.client.contacts')
+		$invitation = Invitation::with('user', 'invoice.invoice_items', 'invoice.account.country', 'invoice.client.contacts', 'invoice.client.country')
 			->where('invitation_key', '=', $invitationKey)->firstOrFail();
 
-		$user = $invitation->user;		
 		$invoice = $invitation->invoice;
-
+		
 		if (!$invoice || $invoice->is_deleted) 
 		{
 			return View::make('invoices.deleted');
 		}
 
 		$client = $invoice->client;
-
+		
 		if (!$client || $client->is_deleted) 
 		{
 			return View::make('invoices.deleted');
 		}
-		
-		if (!$invoice->isViewed())
-		{
-			$invoice->invoice_status_id = INVOICE_STATUS_VIEWED;
-			$invoice->save();
-		}
-		
-		$now = Carbon::now()->toDateTimeString();
 
-		$invitation->viewed_date = $now;
-		$invitation->save();
+		Activity::viewInvoice($invitation);	
 
-		$client = $invoice->client;
-		$client->last_login = $now;
-		$client->save();
+		$client->account->loadLocalizationSettings();		
 
-		Activity::viewInvoice($invitation);
-			
 		$data = array(
 			'invoice' => $invoice->hidePrivateFields(),
 			'invitation' => $invitation
@@ -298,7 +284,7 @@ class InvoiceController extends \BaseController {
 
 	public function edit($publicId)
 	{
-		$invoice = Invoice::scope($publicId)->with('account.country', 'client.contacts', 'invoice_items')->firstOrFail();
+		$invoice = Invoice::scope($publicId)->with('account.country', 'client.contacts', 'client.country', 'invoice_items')->firstOrFail();
 		Utils::trackViewed($invoice->invoice_number . ' - ' . $invoice->client->getDisplayName(), ENTITY_INVOICE);
 			
     	$contactIds = DB::table('invitations')
@@ -350,12 +336,12 @@ class InvoiceController extends \BaseController {
 			'account' => Auth::user()->account,
 			'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-			'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+			'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
 			'taxRates' => TaxRate::scope()->orderBy('name')->get(),
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-			'clientSizes' => ClientSize::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-			'clientIndustries' => ClientIndustry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
+			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',
@@ -419,7 +405,7 @@ class InvoiceController extends \BaseController {
 
 			foreach ($client->contacts as $contact)
 			{
-				if ($contact->send_invoice) 
+				if ($contact->send_invoice || count($client->contacts) == 1)
 				{	
 					$sendInvoiceIds[] = $contact->id;
 				}
@@ -505,11 +491,14 @@ class InvoiceController extends \BaseController {
 		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');
 		$invoices = Invoice::scope($ids)->get();
 
-		foreach ($invoices as $invoice) {
-			if ($action == 'delete') {
+		foreach ($invoices as $invoice) 
+		{
+			if ($action == 'delete') 
+			{
 				$invoice->is_deleted = true;
 				$invoice->save();
 			} 
+			
 			$invoice->delete();
 		}
 

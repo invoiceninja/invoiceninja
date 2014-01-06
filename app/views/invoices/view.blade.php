@@ -10,9 +10,11 @@
 @section('content')
 
 	<div class="pull-right">
-		{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
 		@if ($invoice->client->account->isGatewayConfigured())
+			{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
 			{{ Button::primary_link(URL::to('payment/' . $invitation->invitation_key), 'Pay Now', array('class' => 'btn-lg pull-right')) }}
+		@else 
+			{{ Button::primary('Download PDF', array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
 		@endif
 	</div>
 	<div class="clearfix"></div><p>&nbsp;</p>
@@ -29,7 +31,7 @@
 				invoice.imageWidth = {{ $invoice->client->account->getLogoWidth() }};
 				invoice.imageHeight = {{ $invoice->client->account->getLogoHeight() }};
 			@endif
-			var doc = generatePDF(invoice);
+			var doc = generatePDF(invoice, true);
 			var string = doc.output('datauristring');
 			
 			if (isFirefox || isChrome) {

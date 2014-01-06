@@ -5,6 +5,29 @@ use Contact;
 
 class ClientRepository
 {
+	public function find($filter = null)
+	{
+    	$query = \DB::table('clients')
+    				->join('contacts', 'contacts.client_id', '=', 'clients.id')
+    				->where('clients.account_id', '=', \Auth::user()->account_id)
+    				->where('clients.deleted_at', '=', null)
+    				->where('contacts.is_primary', '=', true)
+    				->select('clients.public_id','clients.name','contacts.first_name','contacts.last_name','clients.balance','clients.last_login','clients.created_at','clients.work_phone','contacts.email','clients.currency_id');
+
+    	if ($filter)
+    	{
+    		$query->where(function($query) use ($filter)
+            {
+            	$query->where('clients.name', 'like', '%'.$filter.'%')
+            		  ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+            		  ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+            		  ->orWhere('contacts.email', 'like', '%'.$filter.'%');
+            });
+    	}
+
+    	return $query;
+	}
+
 	public function save($publicId, $data)
 	{			
 		if ($publicId == "-1") 
@@ -28,8 +51,8 @@ class ClientRepository
 		$client->postal_code = trim($data['postal_code']);
 		$client->country_id = $data['country_id'] ? $data['country_id'] : null;
 		$client->private_notes = trim($data['private_notes']);
-		$client->client_size_id = $data['client_size_id'] ? $data['client_size_id'] : null;
-		$client->client_industry_id = $data['client_industry_id'] ? $data['client_industry_id'] : null;
+		$client->size_id = $data['size_id'] ? $data['size_id'] : null;
+		$client->industry_id = $data['industry_id'] ? $data['industry_id'] : null;
 		$client->currency_id = $data['currency_id'] ? $data['currency_id'] : null;
 		$client->payment_terms = $data['payment_terms'];
 		$client->website = trim($data['website']);

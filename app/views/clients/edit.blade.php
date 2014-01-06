@@ -35,7 +35,7 @@
 			{{ Former::text('state')->label('State/Province') }}
 			{{ Former::text('postal_code') }}
 			{{ Former::select('country_id')->addOption('','')->label('Country')
-				->fromQuery($countries, 'name', 'id')->select($client ? $client->country_id : '') }}
+				->fromQuery($countries, 'name', 'id') }}
 
 
 		</div>
@@ -68,10 +68,10 @@
 				->fromQuery($paymentTerms, 'name', 'num_days') }}
 			{{ Former::select('currency_id')->addOption('','')->label('Currency')
 				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
-			{{ Former::select('client_size_id')->addOption('','')->label('Size')
-				->fromQuery($clientSizes, 'name', 'id')->select($client ? $client->client_size_id : '') }}
-			{{ Former::select('client_industry_id')->addOption('','')->label('Industry')
-				->fromQuery($clientIndustries, 'name', 'id')->select($client ? $client->client_industry_id : '') }}
+			{{ Former::select('size_id')->addOption('','')->label('Size')
+				->fromQuery($sizes, 'name', 'id') }}
+			{{ Former::select('industry_id')->addOption('','')->label('Industry')
+				->fromQuery($industries, 'name', 'id') }}
 			{{ Former::textarea('private_notes') }}
 
 

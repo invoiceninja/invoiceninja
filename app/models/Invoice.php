@@ -69,9 +69,10 @@ class Invoice extends EntityModel
 
 	public function hidePrivateFields()
 	{
-		$this->setVisible(['invoice_number', 'discount', 'po_number', 'invoice_date', 'due_date', 'terms', 'currency_id', 'public_notes', 'amount', 'balance', 'invoice_items', 'client', 'tax_name', 'tax_rate']);
+		$this->setVisible(['invoice_number', 'discount', 'po_number', 'invoice_date', 'due_date', 'terms', 'currency_id', 'public_notes', 'amount', 'balance', 'invoice_items', 'client', 'tax_name', 'tax_rate', 'account']);
 		
-		$this->client->setVisible(['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'work_phone', 'payment_terms', 'contacts']);
+		$this->client->setVisible(['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'work_phone', 'payment_terms', 'contacts', 'country']);
+		$this->account->setVisible(['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country']);		
 
 		foreach ($this->invoice_items as $invoiceItem) 
 		{

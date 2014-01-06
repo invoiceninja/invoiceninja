@@ -326,7 +326,6 @@
     }
 
   , keyup: function (e) {
-      console.log('keyCode: %s', e.keyCode);
       switch(e.keyCode) {
         case 40: // down arrow
         case 39: // right arrow

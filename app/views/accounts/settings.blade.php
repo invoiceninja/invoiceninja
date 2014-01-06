@@ -18,7 +18,8 @@
 		@endforeach
 	@endif
 
-	{{ Former::select('gateway_id')->label('Provider')->addOption('', '')->fromQuery($gateways, 'name', 'id')->onchange('setFieldsShown()'); }}
+	{{ Former::select('gateway_id')->label('Provider')->addOption('', '')
+		->fromQuery($gateways, 'name', 'id')->onchange('setFieldsShown()'); }}
 
 	@foreach ($gateways as $gateway)
 
@@ -41,13 +42,13 @@
 
 	{{ Former::legend('Localization') }}
 	{{ Former::select('currency_id')->addOption('','')->label('Currency')
-		->fromQuery($currencies, 'name', 'id')->select($account->currency_id) }}			
+		->fromQuery($currencies, 'name', 'id') }}			
 	{{ Former::select('timezone_id')->addOption('','')->label('Timezone')
-		->fromQuery($timezones, 'location', 'id')->select($account->timezone_id) }}
+		->fromQuery($timezones, 'location', 'id') }}
 	{{ Former::select('date_format_id')->addOption('','')->label('Date Format')
-		->fromQuery($dateFormats, 'label', 'id')->select($account->date_format_id) }}
+		->fromQuery($dateFormats, 'label', 'id') }}
 	{{ Former::select('datetime_format_id')->addOption('','')->label('Date/Time Format')
-		->fromQuery($datetimeFormats, 'label', 'id')->select($account->datetime_format_id) }}
+		->fromQuery($datetimeFormats, 'label', 'id') }}
 
 	{{ Former::legend('Notifications') }}
 	{{ Former::checkbox('notify_sent')->label('&nbsp;')->text('Email me when an invoice is <b>sent</b>') }}

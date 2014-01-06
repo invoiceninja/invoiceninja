@@ -67,10 +67,14 @@ class AccountController extends \BaseController {
 	{
 		if ($section == ACCOUNT_DETAILS)
 		{			
-			$account = Account::with('users')->findOrFail(Auth::user()->account_id);
-			$countries = Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get();
+			$data = [
+				'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+				'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+				'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+				'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
+			];
 
-			return View::make('accounts.details', array('account'=>$account, 'countries'=>$countries));
+			return View::make('accounts.details', $data);
 		}
 		else if ($section == ACCOUNT_SETTINGS)
 		{
@@ -444,7 +448,7 @@ class AccountController extends \BaseController {
 	{
 		$rules = array(
 			'name' => 'required',
-			'email' => 'email|required'
+			'email' => 'email|required|unique:users,email,' . Auth::user()->id . ',id'
 		);
 
 		$validator = Validator::make(Input::all(), $rules);
@@ -465,12 +469,14 @@ class AccountController extends \BaseController {
 			$account->state = trim(Input::get('state'));
 			$account->postal_code = trim(Input::get('postal_code'));
 			$account->country_id = Input::get('country_id') ? Input::get('country_id') : null;
+			$account->size_id = Input::get('size_id') ? Input::get('size_id') : null;
+			$account->industry_id = Input::get('industry_id') ? Input::get('industry_id') : null;
 			$account->save();
 
 			$user = $account->users()->first();
 			$user->first_name = trim(Input::get('first_name'));
 			$user->last_name = trim(Input::get('last_name'));
-			$user->email = trim(Input::get('email'));
+			$user->username = $user->email = trim(Input::get('email'));
 			$user->phone = trim(Input::get('phone'));
 			$user->save();
 
@@ -484,7 +490,7 @@ class AccountController extends \BaseController {
 			{
 				$path = Input::file('logo')->getRealPath();
 				File::delete('logo/' . $account->account_key . '.jpg');
-				Image::make($path)->resize(150, 100, true, false)->save('logo/' . $account->account_key . '.jpg');
+				Image::make($path)->resize(120, 80, true, false)->save('logo/' . $account->account_key . '.jpg');
 			}
 
 			Session::flash('message', 'Successfully updated details');
@@ -494,11 +500,13 @@ class AccountController extends \BaseController {
 
 	public function checkEmail()
 	{		
-		$email = User::where('email', '=', Input::get('email'))->where('id', '<>', Auth::user()->id)->first();
+		$email = User::withTrashed()->where('email', '=', Input::get('email'))->where('id', '<>', Auth::user()->id)->first();
 
-		if ($email) {
+		if ($email) 
+		{
 			return "taken";
-		} else {
+		} 
+		else {
 			return "available";
 		}
 	}

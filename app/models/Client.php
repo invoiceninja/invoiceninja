@@ -37,14 +37,14 @@ class Client extends EntityModel
 		return $this->belongsTo('Country');
 	}
 
-	public function client_size()
+	public function size()
 	{
-		return $this->belongsTo('ClientSize');	
+		return $this->belongsTo('Size');	
 	}
 
-	public function client_industry()
+	public function industry()
 	{
-		return $this->belongsTo('ClientIndustry');
+		return $this->belongsTo('Industry');
 	}
 
 	public function getName()

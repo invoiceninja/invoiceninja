@@ -1,6 +1,6 @@
 <?php
 
-class ClientSize extends Eloquent
+class Industry extends Eloquent
 {
 	public $timestamps = false;
 }

@@ -1,6 +1,17 @@
 <?php
 
+use ninja\repositories\ClientRepository;
+
 class ClientController extends \BaseController {
+
+	protected $clientRepo;
+
+	public function __construct(ClientRepository $clientRepo)
+	{
+		parent::__construct();
+
+		$this->clientRepo = $clientRepo;
+	}	
 
 	/**
 	 * Display a listing of the resource.
@@ -9,9 +20,6 @@ class ClientController extends \BaseController {
 	 */
 	public function index()
 	{
-		//$clients = Client::orderBy('name')->get();
-		//return View::make('clients.index')->with('clients', $clients);
-
 		return View::make('list', array(
 			'entityType'=>ENTITY_CLIENT, 
 			'title' => '- Clients',
@@ -21,29 +29,9 @@ class ClientController extends \BaseController {
 
 	public function getDatatable()
     {    	
-    	$query = DB::table('clients')
-    				->join('contacts', 'contacts.client_id', '=', 'clients.id')
-    				->where('clients.account_id', '=', Auth::user()->account_id)
-    				->where('clients.deleted_at', '=', null)
-    				->where('contacts.is_primary', '=', true)
-    				->select('clients.public_id','clients.name','contacts.first_name','contacts.last_name','clients.balance','clients.last_login','clients.created_at','clients.work_phone','contacts.email','clients.currency_id');
+    	$clients = $this->clientRepo->find(Input::get('sSearch'));
 
-		$filter = Input::get('sSearch');
-    	if ($filter)
-    	{
-    		$query->where(function($query) use ($filter)
-            {
-            	$query->where('clients.name', 'like', '%'.$filter.'%')
-            		  ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
-            		  ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
-            		  ->orWhere('contacts.email', 'like', '%'.$filter.'%');
-            });
-    	}
-
-    	//$query->get();
-    	//dd(DB::getQueryLog());
-
-        return Datatable::query($query)
+        return Datatable::query($clients)
     	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
     	    ->addColumn('name', function($model) { return link_to('clients/' . $model->public_id, $model->name); })
     	    ->addColumn('first_name', function($model) { return link_to('clients/' . $model->public_id, $model->first_name . ' ' . $model->last_name); })
@@ -85,8 +73,8 @@ class ClientController extends \BaseController {
 			'method' => 'POST', 
 			'url' => 'clients', 
 			'title' => '- New Client',
-			'clientSizes' => ClientSize::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-			'clientIndustries' => ClientIndustry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get());
@@ -112,7 +100,7 @@ class ClientController extends \BaseController {
 	 */
 	public function show($publicId)
 	{
-		$client = Client::scope($publicId)->with('contacts', 'client_size', 'client_industry')->firstOrFail();
+		$client = Client::scope($publicId)->with('contacts', 'size', 'industry')->firstOrFail();
 		Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 		
 		$data = array(
@@ -138,9 +126,9 @@ class ClientController extends \BaseController {
 			'method' => 'PUT', 
 			'url' => 'clients/' . $publicId, 
 			'title' => '- ' . $client->name,
-			'clientSizes' => ClientSize::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-			'clientIndustries' => ClientIndustry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get());
 		return View::make('clients.edit', $data);
@@ -185,8 +173,8 @@ class ClientController extends \BaseController {
 			$client->postal_code = trim(Input::get('postal_code'));			
 			$client->country_id = Input::get('country_id') ? Input::get('country_id') : null;
 			$client->private_notes = trim(Input::get('private_notes'));
-			$client->client_size_id = Input::get('client_size_id') ? Input::get('client_size_id') : null;
-			$client->client_industry_id = Input::get('client_industry_id') ? Input::get('client_industry_id') : null;
+			$client->size_id = Input::get('size_id') ? Input::get('size_id') : null;
+			$client->industry_id = Input::get('industry_id') ? Input::get('industry_id') : null;
 			$client->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
 			$client->payment_terms = Input::get('payment_terms');
 			$client->website = trim(Input::get('website'));
@@ -244,11 +232,14 @@ class ClientController extends \BaseController {
 		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');		
 		$clients = Client::scope($ids)->get();
 
-		foreach ($clients as $client) {			
-			if ($action == 'delete') {
+		foreach ($clients as $client) 
+		{			
+			if ($action == 'delete') 
+			{
 				$client->is_deleted = true;
 				$client->save();
 			} 
+			
 			$client->delete();			
 		}
 

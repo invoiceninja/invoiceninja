@@ -1,6 +1,17 @@
-<?php
+<?php 
+
+use ninja\repositories\CreditRepository;
 
 class CreditController extends \BaseController {
+
+    protected $creditRepo;
+
+    public function __construct(CreditRepository $creditRepo)
+    {
+        parent::__construct();
+
+        $this->creditRepo = $creditRepo;
+    }   
 
     /**
      * Display a listing of the resource.
@@ -18,31 +29,12 @@ class CreditController extends \BaseController {
 
     public function getDatatable($clientPublicId = null)
     {
-        $query = DB::table('credits')
-                    ->join('clients', 'clients.id', '=','credits.client_id')
-                    ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-                    ->where('clients.account_id', '=', Auth::user()->account_id)
-                    ->where('clients.deleted_at', '=', null)
-                    ->where('credits.deleted_at', '=', null)
-                    ->where('contacts.is_primary', '=', true)   
-                    ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.credit_date', 'credits.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');        
+        $credits = $this->creditRepo->find($clientPublicId, Input::get('sSearch'));
 
-        if ($clientPublicId) {
-            $query->where('clients.public_id', '=', $clientPublicId);
-        }
+        $table = Datatable::query($credits);        
 
-        $filter = Input::get('sSearch');
-        if ($filter)
+        if (!$clientPublicId) 
         {
-            $query->where(function($query) use ($filter)
-            {
-                $query->where('clients.name', 'like', '%'.$filter.'%');
-            });
-        }
-
-        $table = Datatable::query($query);        
-
-        if (!$clientPublicId) {
             $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
                   ->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
         }
@@ -56,14 +48,12 @@ class CreditController extends \BaseController {
                                 Select <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                            <li><a href="' . URL::to('credits/'.$model->public_id.'/edit') . '">Edit Credit</a></li>
-                            <li class="divider"></li>
                             <li><a href="javascript:archiveEntity(' . $model->public_id. ')">Archive Credit</a></li>
                             <li><a href="javascript:deleteEntity(' . $model->public_id. ')">Delete Credit</a></li>                          
                           </ul>
                         </div>';
             })         
-           ->orderColumns('number')
+            ->orderColumns('number')
             ->make();       
     }
 
@@ -119,26 +109,16 @@ class CreditController extends \BaseController {
 
         $validator = Validator::make(Input::all(), $rules);
 
-        if ($validator->fails()) {
+        if ($validator->fails()) 
+        {
             $url = $publicId ? 'credits/' . $publicId . '/edit' : 'credits/create';
             return Redirect::to($url)
                 ->withErrors($validator)
                 ->withInput();
-        } else {            
-            if ($publicId) {
-                $credit = Credit::scope($publicId)->firstOrFail();
-            } else {
-                $credit = Credit::createNew();
-            }
-            
-            $invoiceId = Input::get('invoice') && Input::get('invoice') != "-1" ? Invoice::getPrivateId(Input::get('invoice')) : null;
-
-            $credit->client_id = Client::getPrivateId(Input::get('client'));
-            $credit->credit_date = Utils::toSqlDate(Input::get('credit_date'));
-            $credit->invoice_id = $invoiceId;
-            $credit->amount = floatval(Input::get('amount'));
-            $credit->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
-            $credit->save();
+        } 
+        else 
+        {            
+            $this->creditRepo->save($publicId, Input::all());
 
             $message = $publicId ? 'Successfully updated credit' : 'Successfully created credit';
             Session::flash('message', $message);
@@ -149,18 +129,10 @@ class CreditController extends \BaseController {
     public function bulk()
     {
         $action = Input::get('action');
-        $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
-        $credits = Credit::scope($ids)->get();
+        $ids = Input::get('id') ? Input::get('id') : Input::get('ids');        
+        $count = $this->creditRepo->bulk($ids, $action);
 
-        foreach ($credits as $credit) {
-            if ($action == 'delete') {
-                $credit->is_deleted = true;
-                $credit->save();
-            } 
-            $credit->delete();
-        }
-
-        $message = Utils::pluralize('Successfully '.$action.'d ? credit', count($credits));
+        $message = Utils::pluralize('Successfully '.$action.'d ? credit', $count);
         Session::flash('message', $message);
 
         return Redirect::to('credits');

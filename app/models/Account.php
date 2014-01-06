@@ -49,6 +49,15 @@ class Account extends Eloquent
 		return $this->belongsTo('DatetimeFormat');	
 	}
 
+	public function size()
+	{
+		return $this->belongsTo('Size');	
+	}
+
+	public function industry()
+	{
+		return $this->belongsTo('Industry');
+	}
 
 	public function isGatewayConfigured($gatewayId = 0)
 	{
@@ -93,17 +102,29 @@ class Account extends Eloquent
 	}
 
 	public function getNextInvoiceNumber()
-	{	
-		$order = Invoice::withTrashed()->scope(false, $this->id)->orderBy('invoice_number', 'DESC')->first();
+	{			
+		$order = Invoice::withTrashed()->scope(false, $this->id)->orderBy('created_at', 'DESC')->first();
 
 		if ($order) 
 		{
-			$number = intval($order->invoice_number) + 1;
+			$number = preg_replace("/[^0-9]/", "", $order->invoice_number);
+			$number = intval($number) + 1;
 			return str_pad($number, 4, "0", STR_PAD_LEFT);
 		}	
 		else
 		{
 			return DEFAULT_INVOICE_NUMBER;
 		}
+	}
+
+	public function loadLocalizationSettings()
+	{
+		$this->load('timezone', 'date_format', 'datetime_format');
+
+		Session::put(SESSION_TIMEZONE, $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE);
+		Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
+		Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
+		Session::put(SESSION_DATETIME_FORMAT, $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT);			
+		Session::put(SESSION_CURRENCY, $this->currency_id ? $this->currency_id : DEFAULT_CURRENCY);					
 	}
 }

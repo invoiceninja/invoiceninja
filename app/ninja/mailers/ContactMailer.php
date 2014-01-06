@@ -16,7 +16,7 @@ class ContactMailer extends Mailer {
 
 		foreach ($invoice->invitations as $invitation)
 		{
-			$invitation->sent_date = Carbon::now()->toDateTimeString();
+			$invitation->sent_date = \Carbon::now()->toDateTimeString();
 			$invitation->save();
 	
 			$data = array('link' => URL::to('view') . '/' . $invitation->invitation_key);		

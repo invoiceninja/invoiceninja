@@ -5,15 +5,16 @@ var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Const
 var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
-function generatePDF(invoice) {
+function generatePDF(invoice, checkMath) {
+	var client = invoice.client;
+	var account = invoice.account;
 	var currencyId = invoice.currency_id;
 	var invoiceNumber = invoice.invoice_number;
 	var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
 	var dueDate = invoice.due_date ? invoice.due_date : '';
-	console.log("DueDate: %s", dueDate);
-	var amount = '$0.00';
 
 	var marginLeft = 90;
+	var accountTop = 30;
 	var headerTop = 140;
 	var headerLeft = 360;
 	var headerRight = 540;
@@ -77,22 +78,49 @@ function generatePDF(invoice) {
 	var poNumberX = headerRight - (doc.getStringUnitWidth(invoice.po_number) * doc.internal.getFontSize());	
 
 	doc.setFontType("normal");
-	if (invoice.client) {
-		var y = headerTop;
-		doc.text(marginLeft, y, getClientDisplayName(invoice.client));
+
+	var y = accountTop;
+	var left = headerLeft;
+	
+	if (account.name) {
 		y += rowHeight;
-		doc.text(marginLeft, y, invoice.client.address1);
-		if (invoice.client.address2) {
+		doc.text(left, y, account.name);
+	}
+	if (account.address1) {
+		y += rowHeight;
+		doc.text(left, y, account.address1);
+	}
+	if (account.address2) {
+		y += rowHeight;
+		doc.text(left, y, account.address2);
+	}
+	if (account.city || account.state || account.postal_code) {
+		y += rowHeight;
+		doc.text(left, y, account.city + ', ' + account.state + ' ' + account.postal_code);
+	}
+	if (account.country) {
+		y += rowHeight;
+		doc.text(left, y, account.country.name);
+	}
+
+	if (client) {
+		var y = headerTop;
+		doc.text(marginLeft, y, getClientDisplayName(client));
+		if (client.address1) {
 			y += rowHeight;
-			doc.text(marginLeft, y, invoice.client.address2);
+			doc.text(marginLeft, y, client.address1);
 		}
-		if (invoice.client.city || invoice.client.state || invoice.client.postal_code) {
+		if (client.address2) {
 			y += rowHeight;
-			doc.text(marginLeft, y, invoice.client.city + ', ' + invoice.client.state + ' ' + invoice.client.postal_code);
+			doc.text(marginLeft, y, client.address2);
 		}
-		if (invoice.client.country) {
+		if (client.city || client.state || client.postal_code) {
 			y += rowHeight;
-			doc.text(marginLeft, y, invoice.client.country.name);
+			doc.text(marginLeft, y, client.city + ', ' + client.state + ' ' + client.postal_code);
+		}
+		if (client.country) {
+			y += rowHeight;
+			doc.text(marginLeft, y, client.country.name);
 		}
 	}
 
@@ -253,17 +281,28 @@ function generatePDF(invoice) {
 	var paidX = headerRight - (doc.getStringUnitWidth(paid) * doc.internal.getFontSize());
 	doc.text(paidX, x, paid);		
 
-
 	x += 16;
 	doc.setFontType("bold");
 	doc.text(footerLeft, x, 'Balance Due');
 	
+	if (checkMath && parseFloat(total) != parseFloat(invoice.amount)) 
+	{
+		var doc = new jsPDF('p', 'pt');
+		doc.setFont('Helvetica','');
+		doc.setFontSize(10);
+		doc.text(100, 100, "An error occurred, please try again later.");
+		onerror('Failed to generate PDF ' + total + ', ' + invoice.amount );
+		return doc;		
+	}	
+
 	var total = formatMoney(invoice.balance, currencyId);
 	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
 	doc.text(totalX, x, total);		
 
 	totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
 	doc.text(totalX, headerY, total);
+
+
 
 	/* payment stub */	
 	/*
@@ -771,12 +810,10 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
 
 	$clientSelect.combobox();
 	$clientSelect.on('change', function(e) {						
-		console.log('client change');
 		var clientId = $('input[name=client]').val();
 		var invoiceId = $('input[name=invoice]').val();						
 		var invoice = invoiceMap[invoiceId];
 		if (invoice && invoice.client.public_id == clientId) {
-			console.log('values the same:' + $('select#client').prop('selected'))
 			e.preventDefault();
 			return;
 		}

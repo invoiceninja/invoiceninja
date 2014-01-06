@@ -211,12 +211,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/laravel-debugbar.git",
-                "reference": "d5d7097f3bfb54aa4ceca8375c371d1412cec6b9"
+                "reference": "22f1751267e7a2714f0df74fe207623cc928c68b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/d5d7097f3bfb54aa4ceca8375c371d1412cec6b9",
-                "reference": "d5d7097f3bfb54aa4ceca8375c371d1412cec6b9",
+                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/22f1751267e7a2714f0df74fe207623cc928c68b",
+                "reference": "22f1751267e7a2714f0df74fe207623cc928c68b",
                 "shasum": ""
             },
             "require": {
@@ -248,7 +248,7 @@
                 "profiler",
                 "webprofiler"
             ],
-            "time": "2014-01-04 16:25:27"
+            "time": "2014-01-05 20:29:11"
         },
         {
             "name": "chumper/datatable",
@@ -915,12 +915,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "956511d9ebbddabb6ab79b1ec074616308a93a50"
+                "reference": "c472ca9b043c373230ded1363dd05d1478effca4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/956511d9ebbddabb6ab79b1ec074616308a93a50",
-                "reference": "956511d9ebbddabb6ab79b1ec074616308a93a50",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/c472ca9b043c373230ded1363dd05d1478effca4",
+                "reference": "c472ca9b043c373230ded1363dd05d1478effca4",
                 "shasum": ""
             },
             "require": {
@@ -1024,7 +1024,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2014-01-05 16:10:41"
+            "time": "2014-01-06 02:22:05"
         },
         {
             "name": "laravelbook/ardent",

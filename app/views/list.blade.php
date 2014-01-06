@@ -96,9 +96,7 @@
 		}, 1000);					
 	})
 
-	window.onDatatableReady = function() {
-		console.log('data loaded');
-		
+	window.onDatatableReady = function() {		
 		$(':checkbox').click(function() {
 			setArchiveEnabled();
 		});	

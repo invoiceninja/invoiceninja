@@ -87,10 +87,11 @@
 	    </ul>
 
 		<div class="navbar-form navbar-right">
-			@if (!Auth::check() || !Auth::user()->registered)
+			@if (Auth::check() && !Auth::user()->registered)
 				{{ Button::sm_success_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
 			@endif
 			
+			@if (Auth::check())
 			<div class="btn-group">
 			  <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
 			  @if (Auth::check() && Auth::user()->registered)
@@ -108,7 +109,8 @@
 			    <li class="divider"></li>
 			    <li>{{ link_to('#', 'Logout', array('onclick'=>'logout()')) }}</li>
 			  </ul>
-			</div>			
+			</div>
+			@endif			
 		</div>	
 
 		<ul class="nav navbar-nav navbar-right">	      
@@ -292,7 +294,7 @@
 			$.ajax({
 				type: 'POST',
 				url: '{{ URL::to('signup/validate') }}',
-				data: 'email=' + $('form.signUpForm #email').val() + '&path={{ Request::path() }}',
+				data: 'email=' + $('form.signUpForm #new_email').val() + '&path={{ Request::path() }}',
 				success: function(result) { 
 					if (result == 'available') {
 						$('.signUpForm').submit();

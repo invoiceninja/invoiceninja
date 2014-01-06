@@ -1,7 +1,18 @@
 <?php
 
+use ninja\repositories\PaymentRepository;
+
 class PaymentController extends \BaseController 
 {
+    protected $creditRepo;
+
+    public function __construct(PaymentRepository $paymentRepo)
+    {
+        parent::__construct();
+
+        $this->paymentRepo = $paymentRepo;
+    }   
+
 	public function index()
 	{
         return View::make('list', array(
@@ -13,30 +24,8 @@ class PaymentController extends \BaseController
 
 	public function getDatatable($clientPublicId = null)
     {
-        $query = DB::table('payments')
-                    ->join('clients', 'clients.id', '=','payments.client_id')
-                    ->leftJoin('invoices', 'invoices.id', '=','payments.invoice_id')
-                    ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-                    ->where('payments.account_id', '=', Auth::user()->account_id)
-                    ->where('payments.deleted_at', '=', null)
-                    ->where('clients.deleted_at', '=', null)
-                    ->where('contacts.is_primary', '=', true)   
-                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'payments.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');        
-
-        if ($clientPublicId) {
-            $query->where('clients.public_id', '=', $clientPublicId);
-        }
-
-        $filter = Input::get('sSearch');
-        if ($filter)
-        {
-            $query->where(function($query) use ($filter)
-            {
-                $query->where('clients.name', 'like', '%'.$filter.'%');
-            });
-        }
-
-        $table = Datatable::query($query);        
+        $payments = $this->paymentRepo->find($clientPublicId, Input::get('sSearch'));
+        $table = Datatable::query($payments);        
 
         if (!$clientPublicId) {
             $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
@@ -58,8 +47,6 @@ class PaymentController extends \BaseController
                                 Select <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                            <li><a href="' . URL::to('payments/'.$model->public_id.'/edit') . '">Edit Payment</a></li>
-                            <li class="divider"></li>
                             <li><a href="javascript:archiveEntity(' . $model->public_id. ')">Archive Payment</a></li>
                             <li><a href="javascript:deleteEntity(' . $model->public_id. ')">Delete Payment</a></li>                          
                           </ul>
@@ -123,26 +110,16 @@ class PaymentController extends \BaseController
         );
         $validator = Validator::make(Input::all(), $rules);
 
-        if ($validator->fails()) {
+        if ($validator->fails()) 
+        {
             $url = $publicId ? 'payments/' . $publicId . '/edit' : 'payments/create';
             return Redirect::to($url)
                 ->withErrors($validator)
                 ->withInput();
-        } else {            
-            if ($publicId) {
-                $payment = Payment::scope($publicId)->firstOrFail();
-            } else {
-                $payment = Payment::createNew();
-            }
-
-            $invoiceId = Input::get('invoice') && Input::get('invoice') != "-1" ? Invoice::getPrivateId(Input::get('invoice')) : null;
-
-            $payment->client_id = Client::getPrivateId(Input::get('client'));
-            $payment->invoice_id = $invoiceId;
-            $payment->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
-            $payment->payment_date = Utils::toSqlDate(Input::get('payment_date'));
-            $payment->amount = floatval(Input::get('amount'));
-            $payment->save();
+        } 
+        else 
+        {            
+            $this->paymentRepo->save($publicId, Input::all());
 
             $message = $publicId ? 'Successfully updated payment' : 'Successfully created payment';
             Session::flash('message', $message);
@@ -154,15 +131,7 @@ class PaymentController extends \BaseController
     {
         $action = Input::get('action');
         $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
-        $payments = Payment::scope($ids)->get();
-
-        foreach ($payments as $payment) {            
-            if ($action == 'delete') {
-                $payment->is_deleted = true;
-                $payment->save();
-            } 
-            $payment->delete();
-        }
+        $count = $this->paymentRepo->bulk($ids, $action);
 
         $message = Utils::pluralize('Successfully '.$action.'d ? payment', count($payments));
         Session::flash('message', $message);

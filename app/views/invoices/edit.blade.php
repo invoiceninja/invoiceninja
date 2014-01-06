@@ -194,7 +194,36 @@
 
 
 		@if ($invoice)		
-			{{ DropdownButton::normal('Download PDF',
+
+			<div id="relatedActions" style="text-align:left" class="btn-group">
+				<button class=" btn-default btn" type="button">Download PDF</button>
+				<button class=" btn-default btn dropdown-toggle" type="button" data-toggle="dropdown"> 
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="javascript:onDownloadClick()">Download PDF</a></li>
+					<li class="divider"></li>
+					<li><a href="javascript:onPaymentClick()">Create Payment</a></li>
+					<li><a href="javascript:onCreditClick()">Create Credit</a></li>
+				</ul>
+			</div>				
+
+			<div id="primaryActions" style="text-align:left" data-bind="css: $root.enable.save" class="btn-group">
+				<button class=" btn-primary btn" type="button" data-bind="css: $root.enable.save">Save Invoice</button>
+				<button class=" btn-primary btn dropdown-toggle" type="button" data-toggle="dropdown" data-bind="css: $root.enable.save"> 
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="javascript:onSaveClick()">Save Invoice</a></li>
+					<li><a href="javascript:onCloneClick()">Clone Invoice</a></li>
+					<li class="divider"></li>
+					<li><a href="javascript:onArchiveClick()">Archive Invoice</a></li>
+					<li><a href="javascript:onDeleteClick()">Delete Invoice</a></li>
+				</ul>
+			</div>		
+
+
+			{{-- DropdownButton::normal('Download PDF',
 				  Navigation::links(
 				    array(
 				    	array('Download PDF', "javascript:onDownloadClick()"),
@@ -203,9 +232,9 @@
 				     	array('Create Credit', "javascript:onCreditClick()"),
 				    )
 				  )
-				, array('id'=>'relatedActions', 'style'=>'text-align:left'))->split(); }}				
+				, array('id'=>'relatedActions', 'style'=>'text-align:left'))->split(); --}}				
 
-			{{ DropdownButton::primary('Save Invoice',
+			{{-- DropdownButton::primary('Save Invoice',
 				  Navigation::links(
 				    array(
 				    	array('Save Invoice', "javascript:onSaveClick()"),
@@ -215,7 +244,7 @@
 				     	array('Delete Invoice', "javascript:onDeleteClick()"),
 				    )
 				  )
-				, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); }}				
+				, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); --}}				
 		@else
 			{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
 			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save')) }}			
@@ -289,10 +318,10 @@
 					->fromQuery($paymentTerms, 'name', 'num_days') }}
 				{{ Former::select('currency_id')->addOption('','')->label('Currency')->data_bind('value: currency_id')
 					->fromQuery($currencies, 'name', 'id') }}
-				{{ Former::select('client_size_id')->addOption('','')->label('Size')->data_bind('value: client_size_id')
-					->fromQuery($clientSizes, 'name', 'id')->select($client ? $client->client_size_id : '') }}
-				{{ Former::select('client_industry_id')->addOption('','')->label('Industry')->data_bind('value: client_industry_id')
-					->fromQuery($clientIndustries, 'name', 'id')->select($client ? $client->client_industry_id : '') }}
+				{{ Former::select('size_id')->addOption('','')->label('Size')->data_bind('value: size_id')
+					->fromQuery($sizes, 'name', 'id') }}
+				{{ Former::select('industry_id')->addOption('','')->label('Industry')->data_bind('value: industry_id')
+					->fromQuery($industries, 'name', 'id') }}
 				{{ Former::textarea('private_notes')->data_bind('value: private_notes') }}
 
 
@@ -388,10 +417,9 @@
 				model.loadClient(clientMap[clientId]);				
 			} else {
 				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));
-				console.log('load blank client');
 			}
 			refreshPDF();
-		}).trigger('change');		
+		}); //.trigger('change');		
 
 		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discout, #currency_id').change(function() {
 			refreshPDF();
@@ -401,8 +429,7 @@
 			var countryId = parseInt($('input[name=country_id]').val(), 10);	
 			model.invoice().client().country_id(countryId);
 		});		
-
-
+		
 		@if ($client || $invoice)
 			$('#invoice_number').focus();
 		@else
@@ -435,14 +462,20 @@
 		});
 
 		$('label.radio').addClass('radio-inline');
-	
+
+		applyComboboxListeners();
+		
+		@if ($client)
+			$input.trigger('change');
+		@else 
+			refreshPDF();
+		@endif
+
 		var client = model.invoice().client();
 		setComboboxValue($('.client_select'), 
 			client.public_id(), 
 			client.name.display());
-
-		applyComboboxListeners();
-		//refreshPDF();
+		
 	});	
 
 	function applyComboboxListeners() {
@@ -472,7 +505,8 @@
 	}
 
 	function createInvoiceModel() {
-		var invoice = ko.toJS(model).invoice;
+		var invoice = ko.toJS(model).invoice;		
+		
 		@if (file_exists($account->getLogoPath()))
 			invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
 			invoice.imageWidth = {{ $account->getLogoWidth() }};
@@ -490,7 +524,6 @@
 	*/
 
 	function refreshPDF() {
-		console.log("refreshPDF");
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice);		
 		var string = doc.output('datauristring');
@@ -655,7 +688,6 @@
 				}
 			}
 
-			//console.log('i is %s', i);			
 			var rates = self.tax_rates().concat();
 			rates.splice(i, 1);
 			return rates;
@@ -776,18 +808,18 @@
         			break;
         		}
         	}
-
         	return isValid ? "enabled" : "disabled";
     	});
 
 		self.enable.email = ko.computed(function() {
 			var isValid = false;
 			var sendTo = false;
-        	for (var i=0; i<self.invoice().client().contacts().length; i++) {
-        		var contact = self.invoice().client().contacts()[i];        		
+			var client = self.invoice().client();
+        	for (var i=0; i<client.contacts().length; i++) {
+        		var contact = client.contacts()[i];        		
         		if (isValidEmailAddress(contact.email())) {
         			isValid = true;
-        			if (contact.send_invoice()) {
+        			if (contact.send_invoice() || client.contacts().length == 1) {
         				sendTo = true;
         			}
         		} else {
@@ -806,6 +838,7 @@
 	function InvoiceModel(data) {
 		var self = this;		
 		this.client = ko.observable(data ? false : new ClientModel());		
+		self.account = {{ $account }};		
 		this.id = ko.observable('');
 		self.discount = ko.observable('');
 		self.frequency_id = ko.observable('');
@@ -983,8 +1016,8 @@
 		self.state = ko.observable('');
 		self.postal_code = ko.observable('');
 		self.country_id = ko.observable('');
-		self.client_size_id = ko.observable('');
-		self.client_industry_id = ko.observable('');
+		self.size_id = ko.observable('');
+		self.industry_id = ko.observable('');
 		self.currency_id = ko.observable('');
 		self.website = ko.observable('');
 		self.payment_terms = ko.observable(0);

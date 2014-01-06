@@ -15,7 +15,7 @@
 		{{ Former::text('state') }}
 		{{ Former::text('postal_code') }}
 		{{ Former::select('country_id')->addOption('','')->label('Country')
-			->fromQuery($countries, 'name', 'id')->select($client ? $client->country_id : '') }}
+			->fromQuery($countries, 'name', 'id') }}
 
 
 	</div>

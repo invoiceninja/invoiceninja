@@ -234,6 +234,23 @@ class Activity extends Eloquent
 
 	public static function viewInvoice($invitation)
 	{
+		$invoice = $invitation->invoice;
+		
+		if (!$invoice->isViewed())
+		{
+			$invoice->invoice_status_id = INVOICE_STATUS_VIEWED;
+			$invoice->save();
+		}
+		
+		$now = Carbon::now()->toDateTimeString();
+
+		$invitation->viewed_date = $now;
+		$invitation->save();
+
+		$client = $invoice->client;
+		$client->last_login = $now;
+		$client->save();
+
 		$activity = new Activity;
 		$activity->user_id = $invitation->user_id;
 		$activity->account_id = $invitation->user->account_id;

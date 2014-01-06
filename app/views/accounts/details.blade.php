@@ -42,7 +42,7 @@
 			{{ Former::text('state')->label('State/Province') }}
 			{{ Former::text('postal_code') }}
 			{{ Former::select('country_id')->addOption('','')->label('Country')
-				->fromQuery($countries, 'name', 'id')->select($account ? $account->country_id : '') }}
+				->fromQuery($countries, 'name', 'id') }}
 
 		</div>
 	
@@ -53,6 +53,13 @@
 			{{ Former::text('last_name') }}
 			{{ Former::text('email') }}
 			{{ Former::text('phone') }}
+
+			{{ Former::legend('Additional Info') }}
+			{{ Former::select('size_id')->addOption('','')->label('Size')
+				->fromQuery($sizes, 'name', 'id') }}
+			{{ Former::select('industry_id')->addOption('','')->label('Industry')
+				->fromQuery($industries, 'name', 'id') }}
+
 		</div>
 	</div>
 	
