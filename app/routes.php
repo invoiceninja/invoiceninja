@@ -131,7 +131,7 @@ HTML::macro('image_data', function($imagePath) {
 });
 
 
-define('CONTACT_EMAIL', 'contact@invoiceninja.com')
+define('CONTACT_EMAIL', 'contact@invoiceninja.com');
 
 define("ENV_DEVELOPMENT", "local");
 define("ENV_STAGING", "staging");
