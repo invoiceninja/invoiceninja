@@ -61,9 +61,17 @@ $app = new Illuminate\Foundation\Application;
 */
 
 
+$env = $app->detectEnvironment(function ()
+{
+    return require __DIR__.'/environment.php';
+});
+
+
+/*
 $env = $app->detectEnvironment(function () {
     return isset($_SERVER['LARAVEL_ENV']) ? $_SERVER['LARAVEL_ENV'] : 'development';
 });
+*/
 
 /*
 $env = $app->detectEnvironment(array(

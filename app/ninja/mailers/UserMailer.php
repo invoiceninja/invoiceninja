@@ -18,6 +18,6 @@ class UserMailer extends Mailer {
 		$data = [];
 		$subject = 'Notification - Invoice ' . $type;
 
-		$this->sendTo($user->email, $subject, $view, $data);
+		$this->sendTo($user->email, CONTACT_EMAIL, $subject, $view, $data);
 	}
 }
