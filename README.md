@@ -1,7 +1,7 @@
 # Invoice Ninja
 ## Simple, Intuitive Invoicing
 
-### Live demo: [http://invoice-ninja.eu1.frbit.net](http://invoice-ninja.eu1.frbit.net)
+### Live demo: [http://invoiceninja.eu1.frbit.net](http://invoiceninja.eu1.frbit.net)
 ### Introduction
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is this codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
@@ -9,11 +9,13 @@ Most online invoicing sites are expensive. They shouldn't be. The aim of this pr
 ### Features
 * Core application built using Laravel 4.1
 * Invoice PDF generation directly in the browser
+* Tax rates and payment terms
 * Integrates with many payment providers
 * Recurring invoices
 
 ### Remaining Work
 * Home dashboard
+* Multiple language support
 * Reports
 
 ### Steps to setup

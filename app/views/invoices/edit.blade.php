@@ -170,7 +170,7 @@
 	        	<td class="hide-border" colspan="3"/>
 	        	<td class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2">Paid to Date</td>
-				<td style="text-align: right"></td>
+				<td style="text-align: right" data-bind="text: totals.paidToDate"></td>
 	        </tr>	        
 	        <tr>
 	        	<td class="hide-border" colspan="3"/>
@@ -634,6 +634,17 @@
 
 		self.loadClient = function(client) {
 			ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
+			self.setDueDate();
+		}
+
+		self.setDueDate = function() {
+			var paymentTerms = parseInt(self.invoice().client().payment_terms());
+			if (paymentTerms && !self.invoice().due_date())
+			{
+				var dueDate = $('#invoice_date').datepicker('getDate');
+				dueDate.setDate(dueDate.getDate() + paymentTerms);
+				self.invoice().due_date(dueDate);	
+			}			
 		}
 
 		self.invoice_taxes = ko.observable({{ Auth::user()->account->invoice_taxes ? 'true' : 'false' }});
@@ -773,6 +784,8 @@
 				self.invoice().client().public_id(-1);
 			}
 
+			model.setDueDate();
+
 			if (name) {
 				//
 			} else if (firstName || lastName) {
@@ -857,7 +870,8 @@
 		self.is_recurring = ko.observable(false);
 		self.invoice_status_id = ko.observable(0);
 		self.invoice_items = ko.observableArray();
-
+		self.amount = ko.observable(0);
+		self.balance = ko.observable(0);
 
 		self.mapping = {
 			'client': {
@@ -982,6 +996,14 @@
         	}
     	});
 
+		this.totals.rawPaidToDate = ko.computed(function() {
+			return self.amount() - self.balance();		    
+		});
+
+		this.totals.paidToDate = ko.computed(function() {
+			var total = self.totals.rawPaidToDate();
+		    return total > 0 ? formatMoney(total, self.currency_id()) : '';			
+		});
 
 		this.totals.total = ko.computed(function() {
 		    var total = self.totals.rawSubtotal();
@@ -996,7 +1018,12 @@
         		total = parseFloat(total) + (total * (taxRate/100));
         	}        	
 
-		    return total > 0 ? formatMoney(total, self.currency_id()) : '';
+        	var paid = self.totals.rawPaidToDate();
+        	if (paid > 0) {
+        		total -= paid;
+        	}
+
+		    return total != 0 ? formatMoney(total, self.currency_id()) : '';
     	});
 
     	self.onDragged = function(item) {

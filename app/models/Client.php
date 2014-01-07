@@ -168,3 +168,13 @@ Client::created(function($client)
 {
 	Activity::createClient($client);
 });
+
+Client::updating(function($client)
+{
+	Activity::updateClient($client);
+});
+
+Client::deleting(function($client)
+{
+	Activity::archiveClient($client);
+});

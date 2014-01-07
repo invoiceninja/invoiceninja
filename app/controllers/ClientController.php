@@ -57,7 +57,6 @@ class ClientController extends \BaseController {
 						  </ul>
 						</div>';
     	    })    	   
-    	    ->orderColumns('name','first_name','balance','last_login','created_at','email','phone')
     	    ->make();    	    
     }
 
@@ -230,20 +229,9 @@ class ClientController extends \BaseController {
 	{
 		$action = Input::get('action');
 		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');		
-		$clients = Client::scope($ids)->get();
+		$count = $this->clientRepo->bulk($ids, $action);
 
-		foreach ($clients as $client) 
-		{			
-			if ($action == 'delete') 
-			{
-				$client->is_deleted = true;
-				$client->save();
-			} 
-			
-			$client->delete();			
-		}
-
-		$message = Utils::pluralize('Successfully '.$action.'d ? client', count($clients));
+		$message = Utils::pluralize('Successfully '.$action.'d ? client', $count);
 		Session::flash('message', $message);
 
 		return Redirect::to('clients');

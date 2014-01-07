@@ -133,29 +133,29 @@ HTML::macro('image_data', function($imagePath) {
 
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
 
-define("ENV_DEVELOPMENT", "local");
-define("ENV_STAGING", "staging");
-define("ENV_PRODUCTION", "production");
+define('ENV_DEVELOPMENT', 'local');
+define('ENV_STAGING', 'staging');
+define('ENV_PRODUCTION', 'production');
 
-define("RECENTLY_VIEWED", "RECENTLY_VIEWED");
-define("ENTITY_CLIENT", "client");
-define("ENTITY_INVOICE", "invoice");
-define("ENTITY_RECURRING_INVOICE", "recurring_invoice");
-define("ENTITY_PAYMENT", "payment");
-define("ENTITY_CREDIT", "credit");
+define('RECENTLY_VIEWED', 'RECENTLY_VIEWED');
+define('ENTITY_CLIENT', 'client');
+define('ENTITY_INVOICE', 'invoice');
+define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
+define('ENTITY_PAYMENT', 'payment');
+define('ENTITY_CREDIT', 'credit');
 
-define("PERSON_CONTACT", "contact");
-define("PERSON_USER", "user");
+define('PERSON_CONTACT', 'contact');
+define('PERSON_USER', 'user');
 
-define("ACCOUNT_DETAILS", "details");
-define("ACCOUNT_SETTINGS", "settings");
-define("ACCOUNT_IMPORT", "import");
-define("ACCOUNT_MAP", "import_map");
-define("ACCOUNT_EXPORT", "export");
+define('ACCOUNT_DETAILS', 'details');
+define('ACCOUNT_SETTINGS', 'settings');
+define('ACCOUNT_IMPORT', 'import');
+define('ACCOUNT_MAP', 'import_map');
+define('ACCOUNT_EXPORT', 'export');
 
-define("DEFAULT_INVOICE_NUMBER", "0001");
-define("RECENTLY_VIEWED_LIMIT", 8);
-define("LOGGED_ERROR_LIMIT", 100);
+define('DEFAULT_INVOICE_NUMBER', '0001');
+define('RECENTLY_VIEWED_LIMIT', 8);
+define('LOGGED_ERROR_LIMIT', 100);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);

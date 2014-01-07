@@ -53,7 +53,6 @@ class CreditController extends \BaseController {
                           </ul>
                         </div>';
             })         
-            ->orderColumns('number')
             ->make();       
     }
 

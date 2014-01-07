@@ -15,7 +15,7 @@ class UserMailer extends Mailer {
 
 		$view = 'invoice';
 		//$data = array('link' => URL::to('view') . '/' . $invoice->invoice_key);		
-		$data = [];
+		$data = ['link' => ''];
 		$subject = 'Notification - Invoice ' . $type;
 
 		$this->sendTo($user->email, CONTACT_EMAIL, $subject, $view, $data);

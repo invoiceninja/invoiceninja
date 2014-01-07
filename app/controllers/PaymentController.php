@@ -52,7 +52,6 @@ class PaymentController extends \BaseController
                           </ul>
                         </div>';
             })         
-    	    ->orderColumns('transaction_reference', 'client_name', 'invoice_number', 'amount', 'payment_date')
     	    ->make();
     }
 

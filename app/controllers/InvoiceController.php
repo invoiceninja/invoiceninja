@@ -73,7 +73,6 @@ class InvoiceController extends \BaseController {
 						  </ul>
 						</div>';
     	    })    	       	    
-    	    ->orderColumns('invoice_number','client','total','balance','invoice_date','due_date','invoice_status_name')
     	    ->make();    	
     }
 
@@ -109,7 +108,6 @@ class InvoiceController extends \BaseController {
 						  </ul>
 						</div>';
     	    })    	       	    
-    	    ->orderColumns('client','total','frequency','start_date','end_date')
     	    ->make();    	
     }
 
@@ -444,7 +442,7 @@ class InvoiceController extends \BaseController {
 			}
 			else if ($action == 'email') 
 			{							
-				$this->mailer->sendInvoice($invoice);								
+				$this->mailer->sendInvoice($invoice);
 				Session::flash('message', 'Successfully emailed invoice'.$message);
 			} 
 			else 

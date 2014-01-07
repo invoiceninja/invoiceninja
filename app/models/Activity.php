@@ -57,14 +57,29 @@ class Activity extends Eloquent
 		$activity->save();		
 	}
 
+	public static function updateClient($client)
+	{		
+		if ($client->is_deleted && !$client->getOriginal('is_deleted'))
+		{
+			$activity = Activity::getBlank();
+			$activity->client_id = $client->id;
+			$activity->activity_type_id = ACTIVITY_TYPE_DELETE_CLIENT;
+			$activity->message = Auth::user()->getFullName() . ' deleted client ' . link_to('clients/'.$client->public_id, $client->name);
+			$activity->save();		
+		}
+	}
+
 	public static function archiveClient($client)
 	{
-		$activity = Activity::getBlank();
-		$activity->client_id = $client->id;
-		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_CLIENT;
-		$activity->message = Auth::user()->getFullName() . ' archived client ' . $client->name;
-		$activity->balance = $client->balance;
-		$activity->save();
+		if (!$client->is_deleted)
+		{
+			$activity = Activity::getBlank();
+			$activity->client_id = $client->id;
+			$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_CLIENT;
+			$activity->message = Auth::user()->getFullName() . ' archived client ' . link_to('clients/'.$client->public_id, $client->name);
+			$activity->balance = $client->balance;
+			$activity->save();
+		}
 	}	
 
 	public static function createInvoice($invoice)
@@ -92,13 +107,30 @@ class Activity extends Eloquent
 
 	public static function archiveInvoice($invoice)
 	{
-		$activity = Activity::getBlank();
-		$activity->invoice_id = $invoice->id;
-		$activity->client_id = $invoice->client_id;
-		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_INVOICE;
-		$activity->message = Auth::user()->getFullName() . ' archived invoice ' . $invoice->invoice_number;
-		$activity->balance = $invoice->client->balance;
-		$activity->save();
+		if ($invoice->invoice_status_id < INVOICE_STATUS_SENT)
+		{
+			return;
+		}
+
+		if (!$invoice->is_deleted)
+		{
+			if ($invoice->balance > 0)
+			{
+				$client = $invoice->client;
+				$client->balance = $client->balance - $invoice->balance;
+				$client->save();
+			}			
+
+			$activity = Activity::getBlank();
+			$activity->invoice_id = $invoice->id;
+			$activity->client_id = $invoice->client_id;
+			$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_INVOICE;
+			$activity->message = Auth::user()->getFullName() . ' archived invoice ' . $invoice->invoice_number;
+			$activity->balance = $client->balance;
+			$activity->adjustment = $invoice->balance;
+
+			$activity->save();
+		}
 	}
 
 	public static function emailInvoice($invitation)
@@ -132,35 +164,56 @@ class Activity extends Eloquent
 			return;
 		}
 
-		$diff = floatval($invoice->amount) - floatval($invoice->getOriginal('amount'));
-		
-		if ($diff == 0)
+		if ($invoice->is_deleted && !$invoice->getOriginal('is_deleted'))
 		{
-			return;
+			if ($invoice->balance > 0)
+			{
+				$client = $invoice->client;
+				$client->balance = $client->balance - $invoice->balance;
+				$client->save();
+			}
+
+			$activity = Activity::getBlank();
+			$activity->client_id = $invoice->client_id;
+			$activity->invoice_id = $invoice->id;
+			$activity->activity_type_id = ACTIVITY_TYPE_DELETE_INVOICE;
+			$activity->message = Auth::user()->getFullName() . ' deleted invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
+			$activity->balance = $client->balance;
+			$activity->adjustment = $invoice->balance * -1;
+			$activity->save();		
 		}
+		else
+		{
+			$diff = floatval($invoice->amount) - floatval($invoice->getOriginal('amount'));
+			
+			if ($diff == 0)
+			{
+				return;
+			}
 
-		$backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($invoice->id);
-		//dd($backupInvoice->hidePrivateFields()->toJSON());
+			$backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($invoice->id);			
 
-		$client = $invoice->client;
-		$client->balance = $client->balance + $diff;
-		$client->save();
+			$client = $invoice->client;
+			$client->balance = $client->balance + $diff;
+			$client->save();
 
-		$activity = Activity::getBlank($invoice);
-		$activity->client_id = $invoice->client_id;
-		$activity->invoice_id = $invoice->id;
-		$activity->activity_type_id = ACTIVITY_TYPE_UPDATE_INVOICE;
-		$activity->message = Auth::user()->getFullName() . ' updated invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
-		$activity->balance = $client->balance;
-		$activity->adjustment = $diff;
-		$activity->json_backup = $backupInvoice->hidePrivateFields()->toJSON();
-		$activity->save();
+			$activity = Activity::getBlank($invoice);
+			$activity->client_id = $invoice->client_id;
+			$activity->invoice_id = $invoice->id;
+			$activity->activity_type_id = ACTIVITY_TYPE_UPDATE_INVOICE;
+			$activity->message = Auth::user()->getFullName() . ' updated invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
+			$activity->balance = $client->balance;
+			$activity->adjustment = $diff;
+			$activity->json_backup = $backupInvoice->hidePrivateFields()->toJSON();
+			$activity->save();
+		}
 	}
 
 	public static function createPayment($payment)
 	{
 		$client = $payment->client;
 		$client->balance = $client->balance - $payment->amount;
+		$client->paid_to_date = $client->paid_to_date + $payment->amount;
 		$client->save();
 
 		if (Auth::check())

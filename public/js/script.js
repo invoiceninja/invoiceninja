@@ -21,6 +21,7 @@ function generatePDF(invoice, checkMath) {
 	var rowHeight = 15;
 	var tableRowHeight = 20;
 	var footerLeft = 420;
+	var tablePadding = 6;
 
 	var tableTop = 240;
 	var tableLeft = 60;
@@ -60,7 +61,7 @@ function generatePDF(invoice, checkMath) {
 	/* table header */
 	doc.setDrawColor(200,200,200);
 	doc.setFillColor(230,230,230);
-	var x1 = headerLeft - 6;
+	var x1 = headerLeft - tablePadding;
 	var y1 = headerTop + rowHeight + 4;
 	var x2 = headerRight - headerLeft + 11;
 	var y2 = rowHeight + 1;
@@ -150,7 +151,7 @@ function generatePDF(invoice, checkMath) {
 
 	doc.setDrawColor(200,200,200);
 	doc.setFillColor(230,230,230);
-	doc.rect(tableLeft - 6, tableTop - 12, headerRight - tableLeft + 12, rowHeight + 2, 'FD');
+	doc.rect(tableLeft - tablePadding, tableTop - 12, headerRight - tableLeft + 12, rowHeight + 2, 'FD');
 
 	var costX = unitCostRight - (doc.getStringUnitWidth('Unit Cost') * doc.internal.getFontSize());
 	var qtyX = qtyRight - (doc.getStringUnitWidth('Quantity') * doc.internal.getFontSize());
@@ -227,7 +228,9 @@ function generatePDF(invoice, checkMath) {
 		line += doc.splitTextToSize(item.notes, 200).length;
 
 		if (i < invoice.invoice_items.length - 2) {
-			doc.lines([[0,0],[headerRight-tableLeft+5,0]],tableLeft - 8, tableTop + (line * tableRowHeight) - 8);
+			doc.setLineWidth(0.5);
+			doc.line(tableLeft - tablePadding, tableTop + (line * tableRowHeight) - 8, 
+				lineTotalRight+tablePadding, tableTop + (line * tableRowHeight) - 8);
 		}
 
 	}
@@ -235,8 +238,10 @@ function generatePDF(invoice, checkMath) {
 	/* table footer */
 	doc.setDrawColor(200,200,200);
 	var x = tableTop + (line * tableRowHeight);
-	doc.lines([[0,0],[headerRight-tableLeft+5,0]],tableLeft - 8, x);
 
+	doc.setLineWidth(1);
+	doc.line(tableLeft - tablePadding, x, lineTotalRight+tablePadding, x);
+	console.log('%s %s %s', lineTotalRight, tableLeft, (lineTotalRight-tableLeft));
 
 	doc.text(tableLeft, x+16, invoice.public_notes);
 	doc.text(tableLeft, x+16 + (doc.splitTextToSize(invoice.public_notes, 340).length * rowHeight) + (rowHeight/2), invoice.terms);
@@ -295,7 +300,7 @@ function generatePDF(invoice, checkMath) {
 		return doc;		
 	}	
 
-	var total = formatMoney(invoice.balance, currencyId);
+	var total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
 	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
 	doc.text(totalX, x, total);		
 
