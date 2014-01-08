@@ -152,7 +152,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invitation->invoice_id;
 		$activity->contact_id = $invitation->contact_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_EMAIL_INVOICE;
-		$activity->message = Utils::encodeActivity(Auth::check() ? Auth::user() : null, 'emailed', $invoice, $invitation->contact);
+		$activity->message = Utils::encodeActivity(Auth::check() ? Auth::user() : null, 'emailed', $invitation->invoice, $invitation->contact);
 		$activity->balance = $client->balance;
 		$activity->adjustment = $adjustment;
 		$activity->save();
@@ -226,7 +226,7 @@ class Activity extends Eloquent
 		{
 			$activity = new Activity;
 			$activity->contact_id = $payment->contact_id;
-			//$activity->message = $contact->getFullName() . ' created payment ' . $payment->transaction_reference;		
+			$activity->message = Utils::encodeActivity($payment->invitation->contact, 'created payment');			
 		}
 
 		$activity->payment_id = $payment->id;

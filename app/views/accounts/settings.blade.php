@@ -14,7 +14,13 @@
 	@if ($accountGateway)
 		{{ Former::populateField('gateway_id', $accountGateway->gateway_id) }}
 		@foreach ($accountGateway->fields as $field => $junk)
-			{{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}
+			@if ($field == 'testMode' || $field == 'developerMode')
+				@if ($config->$field)
+					{{ Former::populateField($accountGateway->gateway_id.'_'.$field, true ) }}
+				@endif
+			@else
+				{{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}
+			@endif
 		@endforeach
 	@endif
 

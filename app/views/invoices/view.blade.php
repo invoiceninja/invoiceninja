@@ -9,14 +9,17 @@
 
 @section('content')
 
-	<div class="pull-right">
-		@if ($invoice->client->account->isGatewayConfigured())
+	@if ($invoice->client->account->isGatewayConfigured())
+		<div class="pull-right" style="width:270px">
 			{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
 			{{ Button::primary_link(URL::to('payment/' . $invitation->invitation_key), 'Pay Now', array('class' => 'btn-lg pull-right')) }}
-		@else 
+		</div>		
+	@else 
+		<div class="pull-right">
 			{{ Button::primary('Download PDF', array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
-		@endif
-	</div>
+		</div>		
+	@endif
+	
 	<div class="clearfix"></div><p>&nbsp;</p>
 
 	<iframe id="theFrame" frameborder="1" width="100%" height="650" style="display:none;margin: 0 auto"></iframe>

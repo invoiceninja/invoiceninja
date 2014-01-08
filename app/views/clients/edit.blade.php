@@ -87,18 +87,36 @@
 		$('#country_id').combobox();
 	});
 
-	function ContactModel() {
+	function ContactModel(data) {
 		var self = this;
 		self.public_id = ko.observable('');
 		self.first_name = ko.observable('');
 		self.last_name = ko.observable('');
 		self.email = ko.observable('');
 		self.phone = ko.observable('');
+
+		if (data) {
+			ko.mapping.fromJS(data, {}, this);			
+		}		
 	}
 
-	function ContactsModel() {
+	function ContactsModel(data) {
 		var self = this;
 		self.contacts = ko.observableArray();
+
+		self.mapping = {
+		    'contacts': {
+		    	create: function(options) {
+		    		return new ContactModel(options.data);
+		    	}
+		    }
+		}		
+
+		if (data) {
+			ko.mapping.fromJS(data, self.mapping, this);			
+		} else {
+			self.contacts.push(new ContactModel());
+		}
 
 		self.placeholderName = ko.computed(function() {
 			if (self.contacts().length == 0) return '';
@@ -111,12 +129,7 @@
 		});	
 	}
 
-	@if ($client)
-		window.model = ko.mapping.fromJS({{ $client }});			
-	@else
-		window.model = new ContactsModel();
-		addContact();
-	@endif
+	window.model = new ContactsModel({{ $client }});
 
 	model.showContact = function(elem) { if (elem.nodeType === 1) $(elem).hide().slideDown() }
 	model.hideContact = function(elem) { if (elem.nodeType === 1) $(elem).slideUp(function() { $(elem).remove(); }) }

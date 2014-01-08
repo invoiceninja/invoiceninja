@@ -132,6 +132,7 @@ class InvoiceController extends \BaseController {
 		}
 
 		Activity::viewInvoice($invitation);	
+		Event::fire('invoice.viewed', $invoice);
 
 		$client->account->loadLocalizationSettings();		
 
@@ -200,19 +201,20 @@ class InvoiceController extends \BaseController {
 
 			if (!$ref)
 			{
-				Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>');
+				return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
 			}
 
 			$payment = Payment::createNew();
 			$payment->invitation_id = $invitation->id;
+			$payment->account_gateway_id = $accountGateway->id;
 			$payment->invoice_id = $invoice->id;
 			$payment->amount = $invoice->amount;			
 			$payment->client_id = $invoice->client_id;
+			$payment->currency_id = $invoice->currency_id ? $invoice->currency_id : 0;
 			$payment->contact_id = $invitation->contact_id;
 			$payment->transaction_reference = $ref;
+			$payment->payment_date = date_create();
 			$payment->save();
-
-			$invoice->balance = floatval($invoice->amount) - floatval($paymount->amount);
 
 			if ($response->isSuccessful())
 			{
@@ -229,7 +231,7 @@ class InvoiceController extends \BaseController {
 	    } 
 	    catch (\Exception $e) 
 	    {
-	    	return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>'.$e);
+	    	return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $e);
 		}
 	}
 
@@ -263,19 +265,22 @@ class InvoiceController extends \BaseController {
 				{
 					$invoice->invoice_status_id = INVOICE_STATUS_PARTIAL;
 				}
-				$invoice->save();
 				
+				$invoice->save();
+								
+				Event::fire('invoice.paid', $invoice);
+
 				Session::flash('message', 'Successfully applied payment');	
 				return Redirect::to('view/' . $payment->invitation->invitation_key);				
 			}
 			else
 			{
-				return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>'.$response->getMessage());				
+				return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());				
 			}
 	    } 
 	    catch (\Exception $e) 
 	    {
-			return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>'.$e);
+			return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $e);
 		}
 	}
 

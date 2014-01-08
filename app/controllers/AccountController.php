@@ -434,6 +434,8 @@ class AccountController extends \BaseController {
 				{
 					$config->$field = trim(Input::get($gateway->id.'_'.$field));
 				}			
+				//dd(Input::all());
+				//dd($config);
 				
 				$accountGateway->config = json_encode($config);
 				$account->account_gateways()->save($accountGateway);

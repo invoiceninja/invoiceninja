@@ -43,7 +43,7 @@
 			@endif
 
 			<div data-bind="with: client">
-				<div class="form-group" data-bind="visible: contacts().length > 1, foreach: contacts">
+				<div class="form-group" data-bind="visible: contacts().length > 0 &amp;&amp; contacts()[0].email(), foreach: contacts">
 					<div class="col-lg-8 col-lg-offset-4">
 						<label for="test" class="checkbox" data-bind="attr: {for: $index() + '_check'}">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check'}">
@@ -60,7 +60,7 @@
 				{{ Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
 				{{ Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}							
 			</div>
-			<div data-bind="visible: is_recurring">
+			<div data-bind="visible: is_recurring" style="display: none">
 				{{ Former::select('frequency_id')->label('How often')->options($frequencies)->data_bind("value: frequency_id") }}
 				{{ Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
 				{{ Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}

@@ -2,16 +2,41 @@
 
 class Utils
 {
-	public static function fatalError($error = false)
+	public static function fatalError($message = false, $exception = false)
 	{
-		if (!$error)
+		if (!$message)
 		{
-			$error = "An error occurred, please try again later";
+			$message = "An error occurred, please try again later";
 		}
 
-		Log::error($error);
+		static::logError($message . ' ' . $exception);		
 
-		return View::make('error')->with('error', $error);
+		return View::make('error')->with('error', $message);
+	}
+
+	public static function logError($error, $context = 'PHP')
+	{
+		$count = Session::get('error_count', 0);
+		Session::put('error_count', ++$count);
+		if ($count > LOGGED_ERROR_LIMIT) return 'logged';
+
+		$data = [
+			'context' => $context,
+			'user_id' => Auth::check() ? Auth::user()->id : 0,
+			'url' => Input::get('url'),
+			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+			'ip' => Request::getClientIp(),
+			'count' => Session::get('error_count', 0)
+		];
+
+		Log::error($error, $data);
+
+		/*
+		Mail::queue('emails.error', ['message'=>$error.' '.json_encode($data)], function($message)
+		{			
+			$message->to($email)->subject($subject);
+		});		
+		*/
 	}
 
 	public static function formatPhoneNumber($phoneNumber) 
@@ -285,9 +310,9 @@ class Utils
 
 	public static function encodeActivity($person = null, $action, $entity = null, $otherPerson = null)
 	{
-		$person = $person ? $person->getFullName() : '<i>System</i>';
+		$person = $person ? $person->getDisplayName() : '<i>System</i>';
 		$entity = $entity ? '[' . $entity->getKey() . ']' : '';
-		$otherPerson = $otherPerson ? 'to ' . $otherPerson->getFullName() : '';
+		$otherPerson = $otherPerson ? 'to ' . $otherPerson->getDisplayName() : '';
 
 		return trim("$person $action $entity $otherPerson");
 	}

@@ -237,7 +237,7 @@ function generatePDF(invoice, checkMath) {
 	
 	/* table footer */
 	doc.setDrawColor(200,200,200);
-	var x = tableTop + (line * tableRowHeight);
+	var x = tableTop + (line * tableRowHeight) - 6;
 
 	doc.setLineWidth(1);
 	doc.line(tableLeft - tablePadding, x, lineTotalRight+tablePadding, x);

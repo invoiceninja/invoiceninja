@@ -58,16 +58,9 @@ $monolog->pushHandler(new Monolog\Handler\SyslogHandler('intranet', 'user', Logg
 
 App::error(function(Exception $exception, $code)
 {
-	$data = [
-		'context' => 'PHP',
-		'user_id' => Auth::check() ? Auth::user()->id : 0,
-		'code' => $code,
-		'url' => Request::url(),
-		'user_agent' => $_SERVER['HTTP_USER_AGENT'],
-		'ip' => Request::getClientIp()		
-	];
+	//Log::error($exception);
 
-	Log::error($exception, $data);
+	Utils::logError($exception . ' ' . $code);
 });
 
 /*

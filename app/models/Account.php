@@ -61,6 +61,8 @@ class Account extends Eloquent
 
 	public function isGatewayConfigured($gatewayId = 0)
 	{
+		$this->load('account_gateways');
+
 		if ($gatewayId)
 		{
 			return $this->getGatewayConfig($gatewayId) != false;
@@ -103,13 +105,19 @@ class Account extends Eloquent
 
 	public function getNextInvoiceNumber()
 	{			
-		$order = Invoice::withTrashed()->scope(false, $this->id)->orderBy('created_at', 'DESC')->first();
+		$orders = Invoice::withTrashed()->scope(false, $this->id)->get();
 
-		if ($order) 
+		$max = 0;
+
+		foreach ($orders as $order)
 		{
-			$number = preg_replace("/[^0-9]/", "", $order->invoice_number);
-			$number = intval($number) + 1;
-			return str_pad($number, 4, "0", STR_PAD_LEFT);
+			$number = intval(preg_replace("/[^0-9]/", "", $order->invoice_number));
+			$max = max($max, $number);
+		}
+
+		if ($max > 0) 
+		{
+			return str_pad($max+1, 4, "0", STR_PAD_LEFT);
 		}	
 		else
 		{

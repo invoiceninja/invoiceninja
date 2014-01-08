@@ -432,6 +432,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('contact_id')->nullable();
             $t->unsignedInteger('invitation_id')->nullable();
             $t->unsignedInteger('user_id')->nullable();
+            $t->unsignedInteger('account_gateway_id')->nullable();
             $t->unsignedInteger('currency_id')->default(1);
             $t->timestamps();
             $t->softDeletes();
@@ -446,6 +447,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $t->foreign('contact_id')->references('id')->on('contacts');
+            $t->foreign('account_gateway_id')->references('id')->on('account_gateways');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
             $t->foreign('currency_id')->references('id')->on('currencies');
             

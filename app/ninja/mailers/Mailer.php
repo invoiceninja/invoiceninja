@@ -10,7 +10,6 @@ abstract class Mailer {
 			'emails.'.$view.'_html',
 			'emails.'.$view.'_text'
 		];
-		\Log::info('data: ' . json_encode($data));
 
 		Mail::queue($views, $data, function($message) use ($toEmail, $fromEmail, $subject)
 		{			
