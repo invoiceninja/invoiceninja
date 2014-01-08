@@ -830,7 +830,7 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
 		for (var i=0; i<list.length; i++) {
 			var invoice = list[i];
 			var client = clientMap[invoice.client.public_id];
-			$invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + getClientDisplayName(client) + ' - ' + formatMoney(invoice.balance, invoice.currency_id),  invoice.public_id));
+			$invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' + getClientDisplayName(client) + ' - ' + formatMoney(invoice.amount, invoice.currency_id) + ' | ' + formatMoney(invoice.balance, invoice.currency_id),  invoice.public_id));		
 		}
 		$('select#invoice').combobox('refresh');
 	});
@@ -853,7 +853,8 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
 	if (invoiceId) {
 		var invoice = invoiceMap[invoiceId];
 		var client = clientMap[invoice.client.public_id];
-		setComboboxValue($('.invoice-select'), invoice.public_id, (invoice.invoice_number + ' - ' + getClientDisplayName(client) + ' - ' + formatMoney(invoice.balance, invoice.currency_id)));
+		console.log(invoice);
+		setComboboxValue($('.invoice-select'), invoice.public_id, (invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' + getClientDisplayName(client) + ' - ' + formatMoney(invoice.amount, invoice.currency_id) + ' | ' + formatMoney(invoice.balance, invoice.currency_id)));
 		$invoiceSelect.trigger('change');
 	} else if (clientId) {
 		var client = clientMap[clientId];

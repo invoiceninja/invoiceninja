@@ -62,7 +62,7 @@ class PaymentController extends \BaseController
             'clientPublicId' => $clientPublicId,
             'invoicePublicId' => $invoicePublicId,
             'invoice' => null,
-            'invoices' => Invoice::scope()->with('client')->where('balance','>',0)->orderBy('invoice_number')->get(),
+            'invoices' => Invoice::scope()->with('client', 'invoice_status')->where('balance','>',0)->orderBy('invoice_number')->get(),
             'payment' => null, 
             'method' => 'POST', 
             'url' => 'payments', 
@@ -81,7 +81,7 @@ class PaymentController extends \BaseController
         $data = array(
             'client' => null,
             'invoice' => null,
-            'invoices' => Invoice::scope()->with('client')->orderBy('invoice_number')->get(array('public_id','invoice_number')),
+            'invoices' => Invoice::scope()->with('client', 'invoice_status')->orderBy('invoice_number')->get(array('public_id','invoice_number')),
             'payment' => $payment, 
             'method' => 'PUT', 
             'url' => 'payments/' . $publicId, 

@@ -1198,7 +1198,7 @@
 
 		this.prettyQty = ko.computed({
 	        read: function () {
-	            return this.qty() ? parseFloat(this.qty()) : '';
+	            return parseFloat(this.qty()) ? parseFloat(this.qty()) : '';
 	        },
 	        write: function (value) {
 	            this.qty(value);

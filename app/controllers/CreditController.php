@@ -67,7 +67,7 @@ class CreditController extends \BaseController {
             'url' => 'credits', 
             'title' => '- New Credit',
             'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'invoices' => Invoice::scope()->with('client')->where('balance','>',0)->orderBy('invoice_number')->get(),
+            'invoices' => Invoice::scope()->with('client', 'invoice_status')->where('balance','>',0)->orderBy('invoice_number')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
 
         return View::make('credits.edit', $data);
