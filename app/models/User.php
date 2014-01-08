@@ -87,4 +87,16 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 	{
 		return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
 	}
+
+	public function afterSave($success=true, $forced = false)
+	{
+		if ($this->email)
+		{
+			return parent::afterSave($success=true, $forced = false);
+		}
+		else
+		{
+			return true;
+		}	
+	}
 }

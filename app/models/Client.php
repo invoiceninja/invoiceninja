@@ -49,7 +49,7 @@ class Client extends EntityModel
 
 	public function getName()
 	{
-		return $this->name;
+		return $this->getDisplayName();
 	}
 
 	public function getDisplayName()
@@ -59,6 +59,7 @@ class Client extends EntityModel
 			return $this->name;
 		}
 
+		$this->load('contacts');
 		$contact = $this->contacts()->first();
 		
 		return $contact->getDisplayName();
@@ -164,10 +165,12 @@ class Client extends EntityModel
 	}
 }
 
+/*
 Client::created(function($client)
 {
 	Activity::createClient($client);
 });
+*/
 
 Client::updating(function($client)
 {

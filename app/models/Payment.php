@@ -20,7 +20,6 @@ class Payment extends EntityModel
 	public function getName()
 	{
 		return '';
-		//return $this->invoice_number;
 	}
 
 	public function getEntityType()

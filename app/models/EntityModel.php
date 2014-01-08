@@ -3,6 +3,8 @@
 class EntityModel extends Eloquent
 {
 	protected $softDelete = true;
+	public $timestamps = false;
+	
 	protected $hidden = ['id', 'created_at', 'deleted_at', 'updated_at'];
 
 	public static function createNew($parent = false)
@@ -40,10 +42,22 @@ class EntityModel extends Eloquent
 		return $className::scope($publicId)->pluck('id');
 	}
 
+	public function getKey()
+	{
+		return $this->getEntityType() . ':' . $this->public_id . ':' . $this->getName();
+	}
+
+	/*
+	public function getEntityType()
+	{
+		return '';
+	}
+
 	public function getNmae()
 	{
 		return '';
 	}
+	*/
 
 	public function scopeScope($query, $publicId = false, $accountId = false)
 	{

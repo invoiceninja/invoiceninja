@@ -20,6 +20,9 @@ define("ACTIVITY_TYPE_DELETE_CREDIT", 15);
 
 class Activity extends Eloquent
 {
+	public $timestamps = true;
+	protected $softDelete = false;	
+
 	public function scopeScope($query)
 	{
 		return $query->whereAccountId(Auth::user()->account_id);
@@ -53,7 +56,7 @@ class Activity extends Eloquent
 		$activity = Activity::getBlank();
 		$activity->client_id = $client->id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_CLIENT;
-		$activity->message = Auth::user()->getFullName() . ' created client ' . link_to('clients/'.$client->public_id, $client->name);
+		$activity->message = Utils::encodeActivity(Auth::user(), 'created', $client);
 		$activity->save();		
 	}
 
@@ -64,7 +67,7 @@ class Activity extends Eloquent
 			$activity = Activity::getBlank();
 			$activity->client_id = $client->id;
 			$activity->activity_type_id = ACTIVITY_TYPE_DELETE_CLIENT;
-			$activity->message = Auth::user()->getFullName() . ' deleted client ' . link_to('clients/'.$client->public_id, $client->name);
+			$activity->message = Utils::encodeActivity(Auth::user(), 'deleted', $client);
 			$activity->save();		
 		}
 	}
@@ -76,7 +79,7 @@ class Activity extends Eloquent
 			$activity = Activity::getBlank();
 			$activity->client_id = $client->id;
 			$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_CLIENT;
-			$activity->message = Auth::user()->getFullName() . ' archived client ' . link_to('clients/'.$client->public_id, $client->name);
+			$activity->message = Utils::encodeActivity(Auth::user(), 'archived', $client);
 			$activity->balance = $client->balance;
 			$activity->save();
 		}
@@ -84,15 +87,13 @@ class Activity extends Eloquent
 
 	public static function createInvoice($invoice)
 	{
-		$userName = Auth::check() ? Auth::user()->getFullName() : '<i>System</i>';
-
 		if ($invoice->is_recurring) 
 		{
-			$message = $userName . ' created ' . link_to('invoices/'.$invoice->public_id, 'recuring invoice');
+			$message = Utils::encodeActivity(null, 'created recurring', $invoice);
 		} 
 		else 
 		{
-			$message = $userName . ' created invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
+			$message = Utils::encodeActivity(Auth::user(), 'created', $invoice);
 		}
 
 		$activity = Activity::getBlank($invoice);
@@ -125,7 +126,7 @@ class Activity extends Eloquent
 			$activity->invoice_id = $invoice->id;
 			$activity->client_id = $invoice->client_id;
 			$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_INVOICE;
-			$activity->message = Auth::user()->getFullName() . ' archived invoice ' . $invoice->invoice_number;
+			$activity->message = Utils::encodeActivity(Auth::user(), 'archived', $invoice);
 			$activity->balance = $client->balance;
 			$activity->adjustment = $invoice->balance;
 
@@ -151,7 +152,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invitation->invoice_id;
 		$activity->contact_id = $invitation->contact_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_EMAIL_INVOICE;
-		$activity->message = $userName . ' emailed invoice ' . link_to('invoices/'.$invitation->invoice->public_id, $invitation->invoice->invoice_number) . ' to ' . $invitation->contact->getDisplayName();
+		$activity->message = Utils::encodeActivity(Auth::check() ? Auth::user() : null, 'emailed', $invoice, $invitation->contact);
 		$activity->balance = $client->balance;
 		$activity->adjustment = $adjustment;
 		$activity->save();
@@ -177,7 +178,7 @@ class Activity extends Eloquent
 			$activity->client_id = $invoice->client_id;
 			$activity->invoice_id = $invoice->id;
 			$activity->activity_type_id = ACTIVITY_TYPE_DELETE_INVOICE;
-			$activity->message = Auth::user()->getFullName() . ' deleted invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
+			$activity->message = Utils::encodeActivity(Auth::user(), 'deleted', $invoice);
 			$activity->balance = $client->balance;
 			$activity->adjustment = $invoice->balance * -1;
 			$activity->save();		
@@ -201,7 +202,7 @@ class Activity extends Eloquent
 			$activity->client_id = $invoice->client_id;
 			$activity->invoice_id = $invoice->id;
 			$activity->activity_type_id = ACTIVITY_TYPE_UPDATE_INVOICE;
-			$activity->message = Auth::user()->getFullName() . ' updated invoice ' . link_to('invoices/'.$invoice->public_id, $invoice->invoice_number);
+			$activity->message = Utils::encodeActivity(Auth::user(), 'updated', $invoice);
 			$activity->balance = $client->balance;
 			$activity->adjustment = $diff;
 			$activity->json_backup = $backupInvoice->hidePrivateFields()->toJSON();
@@ -219,7 +220,7 @@ class Activity extends Eloquent
 		if (Auth::check())
 		{
 			$activity = Activity::getBlank();
-			$activity->message = Auth::user()->getFullName() . ' created payment ' . $payment->transaction_reference;		
+			$activity->message = Utils::encodeActivity(Auth::user(), 'created payment');
 		}
 		else
 		{
@@ -254,7 +255,7 @@ class Activity extends Eloquent
 		$client->save();
 
 		$activity = Activity::getBlank();
-		$activity->message = Auth::user()->getFullName() . ' created credit';
+		$activity->message = Utils::encodeActivity(Auth::user(), 'created credit');
 		$activity->credit_id = $credit->id;
 		$activity->client_id = $credit->client_id;
 
@@ -280,7 +281,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_PAYMENT;
-		$activity->message = Auth::user()->getFullName() . ' archived payment';
+		$activity->message = Utils::encodeActivity(Auth::user(), 'archived payment');
 		$activity->balance = $payment->client->balance;
 		$activity->save();
 	}	
@@ -312,7 +313,7 @@ class Activity extends Eloquent
 		$activity->contact_id = $invitation->contact_id;
 		$activity->invoice_id = $invitation->invoice_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_VIEW_INVOICE;
-		$activity->message = $invitation->contact->getFullName() . ' viewed invoice ' . link_to('invoices/'.$invitation->invoice->public_id, $invitation->invoice->invoice_number);
+		$activity->message = Utils::encodeActivity($invitation->contact, 'viewed', $invitation->invoice);
 		$activity->balance = $invitation->invoice->client->balance;
 		$activity->save();
 	}

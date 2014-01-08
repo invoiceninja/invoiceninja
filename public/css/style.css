@@ -21,9 +21,9 @@ div.panel {
     text-align: center;
 }
 
-.no-space-bottom {
-    padding-bottom: 0px !important;
-    margin-bottom: 0px !important;
+.less-space-bottom {
+    padding-bottom: 4px !important;
+    margin-bottom: 4px !important;
 }
 
 /* DataTables and BootStrap */

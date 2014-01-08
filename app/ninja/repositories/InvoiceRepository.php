@@ -191,6 +191,13 @@ class InvoiceRepository
 		$invoice->balance = $total;
 		$invoice->save();
 
+		if ($data['set_default_terms'])
+		{
+			$account = \Auth::user()->account;
+			$account->invoice_terms = $invoice->terms;
+			$account->save();
+		}
+
 		return $invoice;
 	}
 }

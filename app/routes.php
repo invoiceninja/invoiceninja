@@ -26,14 +26,16 @@ DB::listen(function($sql)) {
 }
 */
 
-
 // TODO_FIX replace with cron
 Route::get('/send_emails', function() {
 	Artisan::call('ninja:send-invoices');	
 });
 
 
-Route::get('/', 'HomeController@showWelcome');
+Route::get('/', 'HomeController@showComingSoon');
+Route::get('/rocksteady', 'HomeController@showWelcome');
+
+
 Route::get('log_error', 'HomeController@logError');
 Route::post('get_started', 'AccountController@getStarted');
 
@@ -47,7 +49,7 @@ Route::post('signup/submit', 'AccountController@submitSignup');
 // Confide routes
 Route::get('login', 'UserController@login');
 Route::post('login', 'UserController@do_login');
-//Route::get( 'user/confirm/{code}', 'UserController@confirm');
+Route::get( 'user/confirm/{code}', 'UserController@confirm');
 Route::get('forgot_password', 'UserController@forgot_password');
 Route::post('forgot_password', 'UserController@do_forgot_password');
 //Route::get('user/reset_password/{token}', 'UserController@reset_password');
@@ -135,7 +137,7 @@ define('CONTACT_EMAIL', 'contact@invoiceninja.com');
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');
-define('ENV_PRODUCTION', 'production');
+define('ENV_PRODUCTION', 'fortrabbit');
 
 define('RECENTLY_VIEWED', 'RECENTLY_VIEWED');
 define('ENTITY_CLIENT', 'client');

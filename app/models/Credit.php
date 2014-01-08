@@ -14,7 +14,7 @@ class Credit extends EntityModel
 
 	public function getName()
 	{
-		return $this->credit_number;
+		return '';
 	}
 
 	public function getEntityType()

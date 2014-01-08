@@ -283,4 +283,31 @@ class Utils
 		}
 	}
 
+	public static function encodeActivity($person = null, $action, $entity = null, $otherPerson = null)
+	{
+		$person = $person ? $person->getFullName() : '<i>System</i>';
+		$entity = $entity ? '[' . $entity->getKey() . ']' : '';
+		$otherPerson = $otherPerson ? 'to ' . $otherPerson->getFullName() : '';
+
+		return trim("$person $action $entity $otherPerson");
+	}
+	
+	public static function decodeActivity($message)
+	{
+		$pattern = '/\[([\w]*):([\d]*):(.*)\]/i';
+		preg_match($pattern, $message, $matches);
+
+		if (count($matches) > 0)
+		{
+			$match = $matches[0];
+			$type = $matches[1];
+			$publicId = $matches[2];
+			$name = $matches[3];
+
+			$link = link_to($type . 's/' . $publicId, $name);
+			$message = str_replace($match, "$type $link", $message);
+		}
+
+		return $message;
+	}	
 }

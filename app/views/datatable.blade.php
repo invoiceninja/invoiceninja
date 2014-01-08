@@ -41,7 +41,7 @@
             @if (isset($hasCheckboxes) && $hasCheckboxes)
             "aoColumnDefs" : [ {
                 'bSortable' : false,
-                'aTargets' : [ 0 ]
+                'aTargets' : [ 0, {{ count($columns) - 1 }} ]
             } ],
             @endif
             @foreach ($options as $k => $o)

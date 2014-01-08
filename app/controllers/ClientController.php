@@ -213,6 +213,8 @@ class ClientController extends \BaseController {
 					$contact->delete();
 				}
 			}
+
+			Activity::createClient($client);
 			
 			if ($publicId) {
 				Session::flash('message', 'Successfully updated client');

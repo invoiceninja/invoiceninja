@@ -12,7 +12,7 @@ class ActivityController extends \BaseController {
     	
         return Datatable::query($query)
     	    ->addColumn('created_at', function($model) { return Utils::timestampToDateTimeString(strtotime($model->created_at)); })
-            ->addColumn('message', function($model) { return $model->message; })
+            ->addColumn('message', function($model) { return Utils::decodeActivity($model->message); })
             ->addColumn('balance', function($model) { return Utils::formatMoney($model->balance, $model->currency_id); })
             ->addColumn('adjustment', function($model) { return $model->adjustment != 0 ? Utils::formatMoney($model->adjustment, $model->currency_id) : ''; })
     	    ->make();

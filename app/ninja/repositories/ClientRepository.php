@@ -95,6 +95,8 @@ class ClientRepository
 		}
 
 		$client->save();
+		
+		\Activity::createClient($client);
 
 		return $client;
 	}

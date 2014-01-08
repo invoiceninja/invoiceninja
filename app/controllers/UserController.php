@@ -74,8 +74,8 @@ class UserController extends BaseController {
     {
         if( Confide::user() )
         {
-            Event::fire('user.login');      
-            return Redirect::to('/clients');            
+            Event::fire('user.login'); 
+            return Redirect::to('/invoices/create');
         }
         else
         {

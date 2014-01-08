@@ -9,6 +9,11 @@ class HomeController extends BaseController {
 		return View::make('splash');
 	}
 
+	public function showComingSoon()
+	{
+		return View::make('coming_soon');	
+	}
+
 	public function logError()
 	{
 		$count = Session::get('error_count', 0);

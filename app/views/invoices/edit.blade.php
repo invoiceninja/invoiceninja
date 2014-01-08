@@ -147,7 +147,11 @@
 					{{ Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
 						->label(false)->placeholder('Note to client')->style('width: 520px; resize: none') }}			
 					{{ Former::textarea('terms')->data_bind("value: wrapped_terms, valueUpdate: 'afterkeydown'")
-						->label(false)->placeholder('Invoice terms')->style('width: 520px; resize: none') }}			
+						->label(false)->placeholder('Invoice terms')->style('width: 520px; resize: none')
+						->addGroupClass('less-space-bottom') }}
+					<label class="checkbox">
+						<input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>Save as default terms
+					</label>
 	        	</td>
 	        	<td data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2">Subtotal</td>
@@ -250,7 +254,7 @@
 			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save')) }}			
 		@endif
 
-		{{ Button::primary('Send Email', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email')) }}		
+		{{ Button::primary('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email')) }}		
 	</div>
 	<p>&nbsp;</p>
 	
@@ -269,7 +273,7 @@
 	      </div>
 
 	      <div class="container" style="width: 100%">
-		<div style="background-color: #F6F6F6" class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
+		<div style="background-color: #EEEEEE" class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
 			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
 
 				{{ Former::legend('Organization') }}
@@ -347,7 +351,7 @@
 	        <h4 class="modal-title" id="taxModalLabel">Tax Rates</h4>
 	      </div>
 
-	      <div style="background-color: #F6F6F6" onkeypress="taxModalEnterClick(event)">
+	      <div style="background-color: #EEEEEE" onkeypress="taxModalEnterClick(event)">
 			<table class="table invoice-table sides-padded" style="margin-bottom: 0px !important">
 			    <thead>
 			        <tr>
@@ -376,7 +380,7 @@
 
 			{{ Former::checkbox('invoice_taxes')->text('Enable specifying an <b>invoice tax</b>')
 				->label('Settings')->data_bind('checked: $root.invoice_taxes, enable: $root.tax_rates().length > 1') }}
-			{{ Former::checkbox('invoice_item_taxes')->text('Enable specifying <b>line item taxes</b>')->addOnGroupClass('no-space-bottom')
+			{{ Former::checkbox('invoice_item_taxes')->text('Enable specifying <b>line item taxes</b>')
 				->label('&nbsp;')->data_bind('checked: $root.invoice_item_taxes, enable: $root.tax_rates().length > 1') }}
 
 			<br/>
@@ -393,11 +397,43 @@
 	</div>
 
 
+	<div class="modal fade" id="notSignedUpModal" tabindex="-1" role="dialog" aria-labelledby="notSignedUpModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" style="min-width:150px">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	        <h4 class="modal-title" id="notSignedUpModalLabel">Email Invoice</h4>
+	      </div>
+
+	    <div style="background-color: #EEEEEE; padding-left: 16px; padding-right: 16px">
+	    	@if (Auth::user()->registered)
+	    		<p>Please confirm your account to email an invoice.</p>	    	
+	    	@else
+	    		<p>Please sign up to email an invoice.</p>	    	
+	    	@endif
+		</div>
+
+	     <div class="modal-footer" style="margin-top: 0px">
+	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      	@if (!Auth::user()->registered)
+	        	<button type="button" class="btn btn-primary" onclick="showSignUp()">Sign Up</button>	      	
+	        @endif
+	     </div>
+	  		
+	    </div>
+	  </div>
+	</div>
+
+
 	{{ Former::close() }}
 	</div>
 
 	<script type="text/javascript">
 	
+	function showSignUp() {
+		$('#notSignedUpModal').modal('hide');	
+		$('#signUpModal').modal('show');		
+	}
 
 	$(function() {
 
@@ -557,9 +593,13 @@
 	}
 
 	function onEmailClick() {
-		if (confirm('Are you sure you want to email this invoice?')) {
-			$('#action').val('email');
-			$('.main_form').submit();
+		if ({{ !Auth::user()->confirmed ? 'true' : 'false' }}) {
+			$('#notSignedUpModal').modal('show');	
+		} else {
+			if (confirm('Are you sure you want to email this invoice?')) {
+				$('#action').val('email');
+				$('.main_form').submit();
+			}
 		}
 	}
 
@@ -801,12 +841,13 @@
 			//$('.client_select .combobox-container').addClass('combobox-selected');
 
 			$('#emailError').css( "display", "none" );
-			//$('.client_select input.form-control').focus();			
-			$('#invoice_number').focus();
+			//$('.client_select input.form-control').focus();						
 
 			refreshPDF();
 			model.clientBackup = false;
 			$('#clientModal').modal('hide');			
+
+			$('#invoice_number').focus();
 		}		
 
 		self.enable = {};
@@ -858,6 +899,7 @@
 		//self.currency_id = ko.observable({{ Session::get(SESSION_CURRENCY) }});
 		self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
 		self.terms = ko.observable(wordWrapText('{{ $account->invoice_terms }}', 340));		
+		self.set_default_terms = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
 		self.invoice_date = ko.observable('{{ Utils::today() }}');
@@ -1256,8 +1298,11 @@
 
 		this.totals.total = ko.computed(function() {
 			var total = self.totals.rawTotal();
-			//return total ? formatMoney(total, model.invoice.currency_id()) : '';
-			return total ? formatMoney(total, 1) : ''; // TODO_FIX
+			if (window.hasOwnProperty('model') && model.invoice && model.invoice()) {
+				return total ? formatMoney(total, model.invoice().currency_id()) : '';
+			} else {
+				return total ? formatMoney(total, 1) : '';
+			}
     	});
 
     	this.hideActions = function() {
