@@ -11,6 +11,8 @@
 |
 */
 
+//apc_clear_cache();
+
 //dd(DB::getQueryLog());
 //dd(Client::getPrivateId(1));
 //dd(new DateTime());

@@ -29,7 +29,6 @@ class SendRecurringInvoices extends Command {
 
 		foreach ($invoices as $recurInvoice)
 		{
-			$this->info($recurInvoice->invoice_date);
 			$this->info('Processing Invoice ' . $recurInvoice->id . ' - Should send ' . ($recurInvoice->shouldSendToday() ? 'YES' : 'NO'));
 			
 			if (!$recurInvoice->shouldSendToday())

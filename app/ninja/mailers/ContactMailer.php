@@ -27,9 +27,7 @@ class ContactMailer extends Mailer {
 			$invitation->save();
 	
 			$data = array('link' => URL::to('view') . '/' . $invitation->invitation_key);		
-
 			$this->sendTo($invitation->contact->email, $invitation->user->email, $subject, $view, $data);
-			//$this->sendTo($invitation->contact->email, $subject, $view, $data);
 
 			Activity::emailInvoice($invitation);
 		}

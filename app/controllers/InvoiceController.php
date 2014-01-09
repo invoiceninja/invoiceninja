@@ -136,6 +136,9 @@ class InvoiceController extends \BaseController {
 
 		$client->account->loadLocalizationSettings();		
 
+		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
+		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
+
 		$data = array(
 			'invoice' => $invoice->hidePrivateFields(),
 			'invitation' => $invitation
@@ -289,7 +292,12 @@ class InvoiceController extends \BaseController {
 	{
 		$invoice = Invoice::scope($publicId)->with('account.country', 'client.contacts', 'client.country', 'invoice_items')->firstOrFail();
 		Utils::trackViewed($invoice->invoice_number . ' - ' . $invoice->client->getDisplayName(), ENTITY_INVOICE);
-			
+	
+		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
+		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
+		$invoice->start_date = Utils::fromSqlDate($invoice->start_date);
+		$invoice->end_date = Utils::fromSqlDate($invoice->end_date);
+
     	$contactIds = DB::table('invitations')
     				->join('contacts', 'contacts.id', '=','invitations.contact_id')
     				->where('invitations.invoice_id', '=', $invoice->id)
