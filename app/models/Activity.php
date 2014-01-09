@@ -33,17 +33,16 @@ class Activity extends Eloquent
 		return $this->belongsTo('Account');
 	}
 
-
 	private static function getBlank($entity = false)
 	{
 		$activity = new Activity;
 
-		if (Auth::check()) {
-			$activity->user_id = Auth::user()->id;
-			$activity->account_id = Auth::user()->account_id;	
-		} else if ($entity) {
+		if ($entity) {
 			$activity->user_id = $entity->user_id;
 			$activity->account_id = $entity->account_id;
+		} else if (Auth::check()) {
+			$activity->user_id = Auth::user()->id;
+			$activity->account_id = Auth::user()->account_id;	
 		} else {
 			Utils::fatalError();
 		}
