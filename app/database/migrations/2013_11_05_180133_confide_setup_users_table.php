@@ -15,9 +15,8 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('credits');        
         Schema::dropIfExists('activities');
         Schema::dropIfExists('invitations');
-        Schema::dropIfExists('account_gateways');
-        Schema::dropIfExists('gateways');
         Schema::dropIfExists('payments');
+        Schema::dropIfExists('account_gateways');
         Schema::dropIfExists('invoice_items');
         Schema::dropIfExists('products');
         Schema::dropIfExists('tax_rates');        
@@ -36,6 +35,7 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('datetime_formats');                
         Schema::dropIfExists('sizes');
         Schema::dropIfExists('industries');
+        Schema::dropIfExists('gateways');
         
         Schema::create('countries', function($table)
         {           
@@ -522,9 +522,8 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('credits');        
         Schema::dropIfExists('activities');
         Schema::dropIfExists('invitations');
-        Schema::dropIfExists('account_gateways');
-        Schema::dropIfExists('gateways');
         Schema::dropIfExists('payments');
+        Schema::dropIfExists('account_gateways');
         Schema::dropIfExists('invoice_items');
         Schema::dropIfExists('products');
         Schema::dropIfExists('tax_rates');
@@ -543,5 +542,6 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('datetime_formats');                      
         Schema::dropIfExists('sizes');
         Schema::dropIfExists('industries');
+        Schema::dropIfExists('gateways');        
     }
 }

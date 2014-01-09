@@ -41,9 +41,15 @@ class SendRecurringInvoices extends Command {
 			$invoice->recurring_invoice_id = $recurInvoice->id;
 			$invoice->invoice_number = 'R' . $recurInvoice->account->getNextInvoiceNumber();
 			$invoice->amount = $recurInvoice->amount;
+			$invoice->balance = $recurInvoice->amount;
 			$invoice->currency_id = $recurInvoice->currency_id;
 			$invoice->invoice_date = date_create();
-			$invoice->due_date = date_create()->modify($invoice->client->payment_terms . ' day');
+
+			if ($invoice->client->payment_terms)
+			{
+				$invoice->due_date = date_create()->modify($invoice->client->payment_terms . ' day');
+			}
+			
 			$invoice->save();
 			
 			foreach ($recurInvoice->invoice_items as $recurItem)
@@ -54,7 +60,15 @@ class SendRecurringInvoices extends Command {
 				$item->cost = $recurItem->cost;
 				$item->notes = Utils::processVariables($recurItem->notes);
 				$item->product_key = Utils::processVariables($recurItem->product_key);				
-				$invoice->invoice_items()->save($item);				
+				$invoice->invoice_items()->save($item);
+			}
+
+			foreach ($recurInvoice->invitations as $recurInvitation)
+			{
+				$invitation = Invitation::createNew($recurInvitation);
+				$invitation->contact_id = $recurInvitation->contact_id;
+				$invitation->invitation_key = str_random(20);
+				$invoice->invitations()->save($invitation);
 			}
 
 			$recurInvoice->last_sent_date = new DateTime();

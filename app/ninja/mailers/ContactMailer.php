@@ -14,6 +14,8 @@ class ContactMailer extends Mailer {
 		$view = 'invoice';
 		$subject = '';
 
+		$invoice->load('invitations');
+
 		foreach ($invoice->invitations as $invitation)
 		{
 			if (!$invitation->user->email)

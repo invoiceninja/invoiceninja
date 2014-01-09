@@ -264,8 +264,15 @@ class Utils
 			"July", "August", "September", "October", "November", "December" ];
 
 		$month = intval(date('n')) - 1;
+
 		$month += $offset;
 		$month = $month % 12;
+
+		if ($month < 0)
+		{
+			$month += 12;
+		}
+		
 		return $months[$month];
 	}
 

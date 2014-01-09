@@ -421,6 +421,9 @@ function getMonth(offset) {
 	var month = today.getMonth();
     month = parseInt(month) + offset;    
     month = month % 12;
+    if (month < 0) {
+    	month += 12;
+    }
     return months[month];
 }
 
