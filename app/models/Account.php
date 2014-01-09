@@ -105,16 +105,16 @@ class Account extends Eloquent
 
 	public function getNextInvoiceNumber()
 	{			
-		$orders = Invoice::withTrashed()->scope(false, $this->id)->get();
+		$invoices = Invoice::withTrashed()->scope(false, $this->id)->get();
 
 		$max = 0;
 
-		foreach ($orders as $order)
+		foreach ($invoices as $invoice)
 		{
-			$number = intval(preg_replace("/[^0-9]/", "", $order->invoice_number));
+			$number = intval(preg_replace("/[^0-9]/", "", $invoice->invoice_number));
 			$max = max($max, $number);
 		}
-
+		
 		if ($max > 0) 
 		{
 			return str_pad($max+1, 4, "0", STR_PAD_LEFT);

@@ -43,11 +43,11 @@ class SendRecurringInvoices extends Command {
 			$invoice->amount = $recurInvoice->amount;
 			$invoice->balance = $recurInvoice->amount;
 			$invoice->currency_id = $recurInvoice->currency_id;
-			$invoice->invoice_date = date_create();
+			$invoice->invoice_date = date_create()->format('Y-m-d');
 
 			if ($invoice->client->payment_terms)
 			{
-				$invoice->due_date = date_create()->modify($invoice->client->payment_terms . ' day');
+				$invoice->due_date = date_create()->modify($invoice->client->payment_terms . ' day')->format('Y-m-d');
 			}
 			
 			$invoice->save();
@@ -71,7 +71,7 @@ class SendRecurringInvoices extends Command {
 				$invoice->invitations()->save($invitation);
 			}
 
-			$recurInvoice->last_sent_date = new DateTime();
+			$recurInvoice->last_sent_date = Carbon::now()->toDateTimeString();
 			$recurInvoice->save();
 
 			$this->mailer->sendInvoice($invoice);

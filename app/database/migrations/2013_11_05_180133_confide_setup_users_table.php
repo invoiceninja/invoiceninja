@@ -314,7 +314,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('frequency_id');
             $t->date('start_date')->nullable();
             $t->date('end_date')->nullable();
-            $t->timestamp('last_sent_date')->nullable();    
+            $t->timestamp('last_sent_date')->nullable();  
             $t->unsignedInteger('recurring_invoice_id')->index()->nullable();
 
             $t->string('tax_name');
