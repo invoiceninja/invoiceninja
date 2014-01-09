@@ -59,11 +59,12 @@ Route::get('/test', function() {
 });
 */
 
+/*
 // TODO_FIX replace with cron
 Route::get('/send_emails', function() {
 	Artisan::call('ninja:send-invoices');	
 });
-
+*/
 
 //Route::get('/', 'HomeController@showComingSoon');
 Route::get('/', 'HomeController@showWelcome');
@@ -83,11 +84,11 @@ Route::post('signup/submit', 'AccountController@submitSignup');
 // Confide routes
 Route::get('login', 'UserController@login');
 Route::post('login', 'UserController@do_login');
-Route::get( 'user/confirm/{code}', 'UserController@confirm');
+Route::get('user/confirm/{code}', 'UserController@confirm');
 Route::get('forgot_password', 'UserController@forgot_password');
 Route::post('forgot_password', 'UserController@do_forgot_password');
-//Route::get('user/reset_password/{token}', 'UserController@reset_password');
-//Route::post('user/reset_password', 'UserController@do_reset_password');
+Route::get('user/reset/{token}', 'UserController@reset_password');
+Route::post('user/reset', 'UserController@do_reset_password');
 Route::get('logout', 'UserController@logout');
 
 

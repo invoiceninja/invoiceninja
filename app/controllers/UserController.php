@@ -216,7 +216,7 @@ class UserController extends BaseController {
             'password'=>Input::get( 'password' ),
             'password_confirmation'=>Input::get( 'password_confirmation' ),
         );
-
+        
         // By passing an array with the token, password and confirmation
         if( Confide::resetPassword( $input ) )
         {

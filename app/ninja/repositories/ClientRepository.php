@@ -96,7 +96,10 @@ class ClientRepository
 
 		$client->save();
 		
-		\Activity::createClient($client);
+		if ($publicId == "-1")
+		{
+			\Activity::createClient($client);
+		}
 
 		return $client;
 	}

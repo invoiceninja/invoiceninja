@@ -73,6 +73,18 @@ class Account extends Eloquent
 		}
 	}
 
+	public function getTimezone()
+	{
+		if ($this->timezone)
+		{
+			return $this->timezone->name;
+		}
+		else
+		{
+			return 'US/Eastern';
+		}
+	}
+
 	public function getGatewayConfig($gatewayId)
 	{
 		foreach ($this->account_gateways as $gateway)

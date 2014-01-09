@@ -47,7 +47,7 @@
 					<div class="col-lg-8 col-lg-offset-4">
 						<label for="test" class="checkbox" data-bind="attr: {for: $index() + '_check'}">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check'}">
-								<span data-bind="text: first_name() + ' ' + last_name() + ' - ' + email()"/>
+								<span data-bind="text: email.display"/>
 						</label>
 					</div>				
 				</div>
@@ -1156,11 +1156,14 @@
 		self.phone = ko.observable('');		
 		self.send_invoice = ko.observable(false);
 
-		/*
-		self.displayName = ko.computed(function() {
-			return self.first_name() + ' ' + self.last_name() + ' - ' + self.email();
+		self.email.display = ko.computed(function() {
+			var str = '';
+			if (self.first_name() || self.last_name()) {
+				str += self.first_name() + ' ' + self.last_name() + ' - ';
+			}			
+			return str + self.email();
 		});		
-		*/
+		
 
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);		
