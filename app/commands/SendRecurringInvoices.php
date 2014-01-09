@@ -51,7 +51,7 @@ class SendRecurringInvoices extends Command {
 			}
 			
 			$invoice->save();
-			
+				
 			foreach ($recurInvoice->invoice_items as $recurItem)
 			{
 				$item = InvoiceItem::createNew($recurItem);

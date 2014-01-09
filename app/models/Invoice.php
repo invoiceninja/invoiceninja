@@ -109,7 +109,7 @@ class Invoice extends EntityModel
 				return false;
 			}
 		}
-
+		
 		switch ($this->frequency_id)
 		{
 			case FREQUENCY_WEEKLY:
