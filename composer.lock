@@ -68,12 +68,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Anahkiasen/html-object.git",
-                "reference": "2c6cdc6368d19ac42357f7ae17bd99652a1916e4"
+                "reference": "6264f3dd6b65b40a47632328e9049db83750a4c6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Anahkiasen/html-object/zipball/2c6cdc6368d19ac42357f7ae17bd99652a1916e4",
-                "reference": "2c6cdc6368d19ac42357f7ae17bd99652a1916e4",
+                "url": "https://api.github.com/repos/Anahkiasen/html-object/zipball/6264f3dd6b65b40a47632328e9049db83750a4c6",
+                "reference": "6264f3dd6b65b40a47632328e9049db83750a4c6",
                 "shasum": ""
             },
             "require": {
@@ -96,7 +96,7 @@
                 }
             ],
             "description": "A set of classes to create and manipulate HTML objects abstractions",
-            "time": "2013-11-19 15:20:02"
+            "time": "2014-01-08 20:26:54"
         },
         {
             "name": "anahkiasen/rocketeer",
@@ -211,17 +211,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/laravel-debugbar.git",
-                "reference": "d1ec609e371dc081562b106c36a77357641fefa3"
+                "reference": "ae8d5906c95343c7845ffc0c883f7355694b606c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/d1ec609e371dc081562b106c36a77357641fefa3",
-                "reference": "d1ec609e371dc081562b106c36a77357641fefa3",
+                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/ae8d5906c95343c7845ffc0c883f7355694b606c",
+                "reference": "ae8d5906c95343c7845ffc0c883f7355694b606c",
                 "shasum": ""
             },
             "require": {
                 "illuminate/support": "~4.0",
-                "maximebf/debugbar": "~1.8",
+                "maximebf/debugbar": "~1.9",
                 "php": ">=5.3.0"
             },
             "type": "library",
@@ -248,7 +248,7 @@
                 "profiler",
                 "webprofiler"
             ],
-            "time": "2014-01-07 10:13:21"
+            "time": "2014-01-08 21:04:27"
         },
         {
             "name": "chumper/datatable",
@@ -638,12 +638,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/image.git",
-                "reference": "ab884ad94b0861bfa43118eff114af8ee7cf4661"
+                "reference": "c932b81171abbbdc8e3365281443cb28d3b974e1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/ab884ad94b0861bfa43118eff114af8ee7cf4661",
-                "reference": "ab884ad94b0861bfa43118eff114af8ee7cf4661",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/c932b81171abbbdc8e3365281443cb28d3b974e1",
+                "reference": "c932b81171abbbdc8e3365281443cb28d3b974e1",
                 "shasum": ""
             },
             "require": {
@@ -680,7 +680,7 @@
                 "thumbnail",
                 "watermark"
             ],
-            "time": "2013-12-30 14:38:30"
+            "time": "2014-01-08 18:31:04"
         },
         {
             "name": "ircmaxell/password-compat",
@@ -915,12 +915,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "a49d68a0c048718d442855f52c4c68b97d76fd89"
+                "reference": "e7bcc5741dff0ac6bd16d0d26248d14d8a285842"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/a49d68a0c048718d442855f52c4c68b97d76fd89",
-                "reference": "a49d68a0c048718d442855f52c4c68b97d76fd89",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/e7bcc5741dff0ac6bd16d0d26248d14d8a285842",
+                "reference": "e7bcc5741dff0ac6bd16d0d26248d14d8a285842",
                 "shasum": ""
             },
             "require": {
@@ -1024,7 +1024,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2014-01-07 02:54:25"
+            "time": "2014-01-09 04:59:16"
         },
         {
             "name": "laravelbook/ardent",
@@ -2943,12 +2943,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/patricktalmadge/bootstrapper.git",
-                "reference": "85c8e3ec29d0f98554d85b73d1e454b6600c0432"
+                "reference": "dcc58a6e9cd8324f391d2846cd1d264969145298"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/patricktalmadge/bootstrapper/zipball/85c8e3ec29d0f98554d85b73d1e454b6600c0432",
-                "reference": "85c8e3ec29d0f98554d85b73d1e454b6600c0432",
+                "url": "https://api.github.com/repos/patricktalmadge/bootstrapper/zipball/dcc58a6e9cd8324f391d2846cd1d264969145298",
+                "reference": "dcc58a6e9cd8324f391d2846cd1d264969145298",
                 "shasum": ""
             },
             "require": {
@@ -2973,7 +2973,7 @@
             ],
             "authors": [
                 {
-                    "name": "Maxime Fabre",
+                    "name": "Anahkiasen",
                     "email": "ehtnam6@gmail.com"
                 },
                 {
@@ -2990,7 +2990,7 @@
                 "bootstrap",
                 "laravel"
             ],
-            "time": "2014-01-07 16:02:34"
+            "time": "2014-01-08 20:23:07"
         },
         {
             "name": "phpseclib/phpseclib",
@@ -3092,12 +3092,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nrk/predis.git",
-                "reference": "d2debfd43eb8a5201204bb70275a0ef83b3d11ff"
+                "reference": "9d0201ed9ef4fae09ed251897260941af230bed3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nrk/predis/zipball/d2debfd43eb8a5201204bb70275a0ef83b3d11ff",
-                "reference": "d2debfd43eb8a5201204bb70275a0ef83b3d11ff",
+                "url": "https://api.github.com/repos/nrk/predis/zipball/9d0201ed9ef4fae09ed251897260941af230bed3",
+                "reference": "9d0201ed9ef4fae09ed251897260941af230bed3",
                 "shasum": ""
             },
             "require": {
@@ -3131,7 +3131,7 @@
                 "predis",
                 "redis"
             ],
-            "time": "2013-12-22 16:51:18"
+            "time": "2014-01-08 16:38:22"
         },
         {
             "name": "psr/log",

@@ -3,7 +3,7 @@
 class EntityModel extends Eloquent
 {
 	protected $softDelete = true;
-	public $timestamps = false;
+	public $timestamps = true;
 	
 	protected $hidden = ['id', 'created_at', 'deleted_at', 'updated_at'];
 
@@ -42,7 +42,7 @@ class EntityModel extends Eloquent
 		return $className::scope($publicId)->pluck('id');
 	}
 
-	public function getKey()
+	public function getActivityKey()
 	{
 		return $this->getEntityType() . ':' . $this->public_id . ':' . $this->getName();
 	}

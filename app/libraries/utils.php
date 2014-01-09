@@ -74,10 +74,13 @@ class Utils
 
 	public static function formatMoney($value, $currencyId)
 	{
-		$currency = Currency::find($currencyId);		
-		if (!$currency) {
-			$currency = Currency::find(1);		
+		$currency = Currency::remember(DEFAULT_QUERY_CACHE)->find($currencyId);		
+
+		if (!$currency) 
+		{
+			$currency = Currency::remember(DEFAULT_QUERY_CACHE)->find(1);		
 		}
+		
 		return $currency->symbol . number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
 	}
 
@@ -318,7 +321,7 @@ class Utils
 	public static function encodeActivity($person = null, $action, $entity = null, $otherPerson = null)
 	{
 		$person = $person ? $person->getDisplayName() : '<i>System</i>';
-		$entity = $entity ? '[' . $entity->getKey() . ']' : '';
+		$entity = $entity ? '[' . $entity->getActivityKey() . ']' : '';
 		$otherPerson = $otherPerson ? 'to ' . $otherPerson->getDisplayName() : '';
 
 		return trim("$person $action $entity $otherPerson");

@@ -501,7 +501,7 @@ class InvoiceController extends \BaseController {
 				$invoice->is_deleted = true;
 				$invoice->save();
 			} 
-			
+
 			$invoice->delete();
 		}
 

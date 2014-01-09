@@ -144,3 +144,8 @@ Invoice::updating(function($invoice)
 {
 	Activity::updateInvoice($invoice);
 });
+
+Invoice::deleting(function($invoice)
+{
+	Activity::archiveInvoice($invoice);
+});

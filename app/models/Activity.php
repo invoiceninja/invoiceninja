@@ -127,7 +127,7 @@ class Activity extends Eloquent
 			$activity->client_id = $invoice->client_id;
 			$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_INVOICE;
 			$activity->message = Utils::encodeActivity(Auth::user(), 'archived', $invoice);
-			$activity->balance = $client->balance;
+			$activity->balance = $invoice->client->balance;
 			$activity->adjustment = $invoice->balance;
 
 			$activity->save();
@@ -179,7 +179,7 @@ class Activity extends Eloquent
 			$activity->invoice_id = $invoice->id;
 			$activity->activity_type_id = ACTIVITY_TYPE_DELETE_INVOICE;
 			$activity->message = Utils::encodeActivity(Auth::user(), 'deleted', $invoice);
-			$activity->balance = $client->balance;
+			$activity->balance = $invoice->client->balance;
 			$activity->adjustment = $invoice->balance * -1;
 			$activity->save();		
 		}
