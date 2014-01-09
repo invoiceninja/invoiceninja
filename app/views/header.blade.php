@@ -343,6 +343,9 @@
   								local: data[type]
   							});  														
   						}
+  						if (datasets.length == 0) {
+  							return;
+  						}
   						$('#search').typeahead(datasets).on('typeahead:selected', function(element, datum, name) {
   							var type = name == 'Contacts' ? 'clients' : name.toLowerCase();
   							window.location = '{{ URL::to('/') }}' + '/' + type + '/' + datum.public_id;

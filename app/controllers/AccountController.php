@@ -170,6 +170,9 @@ class AccountController extends \BaseController {
 		$payments = Payment::where('account_id','=',Auth::user()->account_id)->get();
 		AccountController::exportData($output, $payments->toArray());
 
+		$credits = Credit::where('account_id','=',Auth::user()->account_id)->get();
+		AccountController::exportData($output, $credits->toArray());
+
 		fclose($output);
 		exit;
 	}

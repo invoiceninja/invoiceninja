@@ -117,9 +117,9 @@ class Client extends EntityModel
 	{
 		$str = '';
 
-		if ($this->notes)
+		if ($this->private_notes)
 		{
-			$str .= '<i>' . $this->notes . '</i>';
+			$str .= '<i>' . $this->private_notes . '</i>';
 		}
 
 		return $str;

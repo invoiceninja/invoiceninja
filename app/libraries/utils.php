@@ -41,7 +41,7 @@ class Utils
 
 	public static function formatPhoneNumber($phoneNumber) 
 	{
-	    $phoneNumber = preg_replace('/[^0-9]/','',$phoneNumber);
+	    $phoneNumber = preg_replace('/[^0-9a-zA-Z]/','',$phoneNumber);
 
 	    if (!$phoneNumber) {
 	    	return '';

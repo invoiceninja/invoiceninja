@@ -149,7 +149,7 @@
 					{{ Former::textarea('terms')->data_bind("value: wrapped_terms, valueUpdate: 'afterkeydown'")
 						->label(false)->placeholder('Invoice terms')->style('width: 520px; resize: none')
 						->addGroupClass('less-space-bottom') }}
-					<label class="checkbox">
+					<label class="checkbox" style="width: 200px">
 						<input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>Save as default terms
 					</label>
 	        	</td>
@@ -457,7 +457,7 @@
 			refreshPDF();
 		}); //.trigger('change');		
 
-		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discout, #currency_id').change(function() {
+		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id').change(function() {
 			refreshPDF();
 		});
 

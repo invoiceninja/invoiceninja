@@ -25,7 +25,7 @@ function generatePDF(invoice, checkMath) {
 
 	var tableTop = 240;
 	var tableLeft = 60;
-	var descriptionLeft = 140;
+	var descriptionLeft = 150;
 	var unitCostRight = 400;
 	var qtyRight = 470;
 	var taxRight = 470;
@@ -179,7 +179,7 @@ function generatePDF(invoice, checkMath) {
 	for (var i=0; i<invoice.invoice_items.length; i++) {
 		var item = invoice.invoice_items[i];
 		var cost = formatMoney(item.cost, currencyId, true);
-		var qty = item.qty ? parseFloat(item.qty) + '' : '';
+		var qty = parseFloat(item.qty) ? parseFloat(item.qty) + '' : '';
 		var notes = item.notes;
 		var productKey = item.product_key;
 		var tax = 0;
