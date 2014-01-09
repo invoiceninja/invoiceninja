@@ -89,27 +89,34 @@ class Invoice extends EntityModel
 
 	public function shouldSendToday()
 	{
+		//$dayOfWeekStart = strtotime($this->start_date);
+		return false;
+
 		$dayOfWeekToday = date('w');
 		$dayOfWeekStart = date('w', strtotime($this->start_date));
 
 		$dayOfMonthToday = date('j');
 		$dayOfMonthStart = date('j', strtotime($this->start_date));
-			
-		if (!$this->last_sent_date) {
+		
+		if (!$this->last_sent_date) 
+		{
 			$daysSinceLastSent = 0;
 			$monthsSinceLastSent = 0;
-		} else {
+		} 
+		else 
+		{	
 			$date1 = new DateTime($this->last_sent_date);
 			$date2 = new DateTime();
 			$diff = $date2->diff($date1);
 			$daysSinceLastSent = $diff->format("%a");
 			$monthsSinceLastSent = ($diff->format('%y') * 12) + $diff->format('%m');
 
-			if ($daysSinceLastSent == 0) {
+			if ($daysSinceLastSent == 0) 
+			{
 				return false;
 			}
 		}
-		
+
 		switch ($this->frequency_id)
 		{
 			case FREQUENCY_WEEKLY:

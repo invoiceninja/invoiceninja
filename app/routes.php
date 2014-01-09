@@ -19,6 +19,9 @@
 //dd(gethostname());
 //Log::error('test');
 
+
+
+
 /*
 Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 {
@@ -45,6 +48,14 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 });
 */
 
+/*
+Route::get('/test', function() {
+	foreach (Invoice::all() as $invoice) {
+		echo $invoice->id . ' ' . $invoice->shouldSendToday() . '<br/>';
+	}
+	dd(true);
+});
+*/
 
 // TODO_FIX replace with cron
 Route::get('/send_emails', function() {

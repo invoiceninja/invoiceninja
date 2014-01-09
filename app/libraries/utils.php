@@ -18,13 +18,13 @@ class Utils
 	{
 		$count = Session::get('error_count', 0);
 		Session::put('error_count', ++$count);
-		if ($count > LOGGED_ERROR_LIMIT) return 'logged';
+		if ($count > 100) return 'logged';
 
 		$data = [
 			'context' => $context,
 			'user_id' => Auth::check() ? Auth::user()->id : 0,
 			'url' => Input::get('url'),
-			'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+			'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
 			'ip' => Request::getClientIp(),
 			'count' => Session::get('error_count', 0)
 		];

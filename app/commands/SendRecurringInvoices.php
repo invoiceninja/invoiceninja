@@ -23,14 +23,15 @@ class SendRecurringInvoices extends Command {
 		$this->info(date('Y-m-d') . ' Running SendRecurringInvoices...');
 
 		$today = new DateTime();
-
+			
 		$invoices = Invoice::with('account', 'invoice_items')->whereRaw('is_recurring is true AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', array($today, $today))->get();
 		$this->info(count($invoices) . ' recurring invoice(s) found');
 
 		foreach ($invoices as $recurInvoice)
 		{
+			$this->info($recurInvoice->invoice_date);
 			$this->info('Processing Invoice ' . $recurInvoice->id . ' - Should send ' . ($recurInvoice->shouldSendToday() ? 'YES' : 'NO'));
-
+			
 			if (!$recurInvoice->shouldSendToday())
 			{
 				continue;
