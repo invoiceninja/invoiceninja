@@ -54,13 +54,13 @@
 			<h2 class="form-signin-heading">Please sign in</h2>
 
 			<p>
-				{{ $errors->first('email') }}
-				{{ $errors->first('password') }}
+				{{ $errors->first('login_email') }}
+				{{ $errors->first('login_password') }}
 			</p>
 
 			<p>
-				{{ Form::text('email', Input::old('email'), array('placeholder' => 'Email address')) }}
-				{{ Form::password('password', array('placeholder' => 'Password')) }}
+				{{ Form::text('login_email', Input::old('login_email'), array('placeholder' => 'Email address')) }}
+				{{ Form::password('login_password', array('placeholder' => 'Password')) }}
 			</p>
 
 			<p>{{ Button::primary_submit('Sign In', array('class' => 'btn-lg'))->block() }}</p>

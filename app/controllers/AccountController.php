@@ -201,7 +201,7 @@ class AccountController extends \BaseController {
 		$count = 0;
 		$hasHeaders = Input::get('header_checkbox');
 		
-		$countries = Country::all();
+		$countries = Country::remember(DEFAULT_QUERY_CACHE)->all();
 		$countryMap = [];
 		foreach ($countries as $country) {
 			$countryMap[strtolower($country->name)] = $country->id;

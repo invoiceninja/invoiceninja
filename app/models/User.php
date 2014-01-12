@@ -71,28 +71,30 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 
 	public function getDisplayName()
 	{
-		if (!$this->first_name && !$this->last_name)
+		if ($this->getFullName())
+		{
+			return $this->getFullName();
+		}
+		else if ($this->email)
 		{
 			return $this->email;
 		}
 		else
 		{
-			return $this->getFullName();
+			return 'Guest';
 		}
-
 	}
+
 
 	public function getFullName()
 	{
-		$fullName = $this->first_name . ' ' . $this->last_name;
-
-		if ($fullName == ' ')
+		if ($this->first_name || $this->last_name)
 		{
-			return "Guest";
+			return $this->first_name . ' ' . $this->last_name;
 		}
 		else
 		{
-			return $fullName;
+			return '';
 		}
 	}	
 

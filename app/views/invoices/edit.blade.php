@@ -191,8 +191,8 @@
 		<div style="display:none">
 			{{ Former::text('action') }}
 			@if ($invoice)
-				{{ Former::text('id') }}
-				{{ Former::populateField('id', $invoice->id) }}
+				{{ Former::populateField('id', $invoice->public_id) }}
+				{{ Former::text('id') }}		
 			@endif
 		</div>
 

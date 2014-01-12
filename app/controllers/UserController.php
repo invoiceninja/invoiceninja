@@ -90,9 +90,9 @@ class UserController extends BaseController {
     public function do_login()
     {
         $input = array(
-            'email'    => Input::get( 'email' ), // May be the username too
-            'username' => Input::get( 'email' ), // so we have to pass both
-            'password' => Input::get( 'password' ),
+            'email'    => Input::get( 'login_email' ), // May be the username too
+            'username' => Input::get( 'login_email' ), // so we have to pass both
+            'password' => Input::get( 'login_password' ),
             'remember' => true,
         );
 
@@ -100,7 +100,7 @@ class UserController extends BaseController {
         // with the second parameter as true.
         // logAttempt will check if the 'email' perhaps is the username.
         // Get the value from the config file instead of changing the controller
-        if ( Confide::logAttempt( $input, Config::get('confide::signup_confirm') ) ) 
+        if ( Confide::logAttempt( $input, false ) ) 
         {            
             Event::fire('user.login');
             // Redirect the user to the URL they were trying to access before
@@ -130,7 +130,7 @@ class UserController extends BaseController {
             }
 
                 return Redirect::action('UserController@login')
-                    ->withInput(Input::except('password'))
+                    ->withInput(Input::except('login_password'))
                     ->with( 'error', $err_msg );
         }
     }

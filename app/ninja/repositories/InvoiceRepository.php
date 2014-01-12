@@ -200,4 +200,27 @@ class InvoiceRepository
 
 		return $invoice;
 	}
+
+	public function bulk($ids, $action)
+	{
+		if (!$ids)
+		{
+			return 0;
+		}
+
+		$invoices = Invoice::scope($ids)->get();
+
+		foreach ($invoices as $invoice) 
+		{
+			if ($action == 'delete') 
+			{
+				$invoice->is_deleted = true;
+				$invoice->save();
+			} 
+
+			$invoice->delete();
+		}
+
+		return count($invoices);
+	}
 }

@@ -57,6 +57,11 @@ class CreditRepository
 
 	public function bulk($ids, $action)
 	{
+        if (!$ids)
+        {
+            return 0;
+        }
+
        	$credits = Credit::scope($ids)->get();
 
         foreach ($credits as $credit) 

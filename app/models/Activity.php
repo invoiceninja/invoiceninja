@@ -145,7 +145,6 @@ class Activity extends Eloquent
 			$client->save();
 		}
 
-		$userName = Auth::check() ? Auth::user()->getFullName() : '<i>System</i>';
 		$activity = Activity::getBlank($invitation);
 		$activity->client_id = $invitation->invoice->client_id;
 		$activity->invoice_id = $invitation->invoice_id;

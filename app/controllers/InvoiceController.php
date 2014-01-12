@@ -500,21 +500,13 @@ class InvoiceController extends \BaseController {
 	{
 		$action = Input::get('action');
 		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');
-		$invoices = Invoice::scope($ids)->get();
+		$count = $this->invoiceRepo->bulk($ids, $action);
 
-		foreach ($invoices as $invoice) 
-		{
-			if ($action == 'delete') 
-			{
-				$invoice->is_deleted = true;
-				$invoice->save();
-			} 
-
-			$invoice->delete();
+ 		if ($count > 0)		
+ 		{
+			$message = Utils::pluralize('Successfully '.$action.'d ? invoice', $count);
+			Session::flash('message', $message);
 		}
-
-		$message = Utils::pluralize('Successfully '.$action.'d ? invoice', count($invoices));
-		Session::flash('message', $message);
 
 		return Redirect::to('invoices');
 	}

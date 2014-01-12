@@ -132,9 +132,12 @@ class PaymentController extends \BaseController
         $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
         $count = $this->paymentRepo->bulk($ids, $action);
 
-        $message = Utils::pluralize('Successfully '.$action.'d ? payment', count($payments));
-        Session::flash('message', $message);
-
+        if ($count > 0)
+        {
+            $message = Utils::pluralize('Successfully '.$action.'d ? payment', count($payments));
+            Session::flash('message', $message);
+        }
+        
         return Redirect::to('payments');
     }
 

@@ -300,7 +300,7 @@
 						$('.signUpForm').submit();
 					} else {
 						$('#errorTaken').show();
-  						$('form.signUpForm #email').closest('div.form-group').removeClass('has-success').addClass('has-error');
+  						$('form.signUpForm #new_email').closest('div.form-group').removeClass('has-success').addClass('has-error');
   						$('#signUpDiv, #signUpFooter').show();
 			  			$('#working').hide();
 					}

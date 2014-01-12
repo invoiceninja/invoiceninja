@@ -58,6 +58,11 @@ class PaymentRepository
 
 	public function bulk($ids, $action)
 	{
+        if (!$ids)
+        {
+            return 0;
+        }
+
         $payments = Payment::scope($ids)->get();
 
         foreach ($payments as $payment) 

@@ -22,9 +22,6 @@
 //Log::error('test');
 
 
-
-
-/*
 Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 {
     $data = compact('bindings', 'time', 'name');
@@ -48,7 +45,7 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 
     Log::info($query, $data);
 });
-*/
+
 
 /*
 Route::get('/test', function() {

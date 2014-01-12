@@ -13,7 +13,7 @@ function generatePDF(invoice, checkMath) {
 	var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
 	var dueDate = invoice.due_date ? invoice.due_date : '';
 
-	var marginLeft = 90;
+	var marginLeft = 60;
 	var accountTop = 30;
 	var headerTop = 140;
 	var headerLeft = 360;
@@ -55,7 +55,8 @@ function generatePDF(invoice, checkMath) {
 	
 	if (invoice.image)
 	{
-		doc.addImage(invoice.image, 'JPEG', 30, 30, invoice.imageWidth, invoice.imageHeight);
+		var left = headerRight - invoice.imageWidth;
+		doc.addImage(invoice.image, 'JPEG', left, 30, invoice.imageWidth, invoice.imageHeight);
 	}	
 	
 	/* table header */
@@ -81,7 +82,7 @@ function generatePDF(invoice, checkMath) {
 	doc.setFontType("normal");
 
 	var y = accountTop;
-	var left = headerLeft;
+	var left = marginLeft;
 	
 	if (account.name) {
 		y += rowHeight;
@@ -149,6 +150,11 @@ function generatePDF(invoice, checkMath) {
 	doc.setFontType("bold");
 	doc.text(headerLeft, headerY, 'Amount Due');
 
+	var balance = formatMoney(invoice.balance, currencyId, true);
+	balanceX = headerRight - (doc.getStringUnitWidth(balance) * doc.internal.getFontSize());
+	doc.text(balanceX, headerY, balance);
+
+
 	doc.setDrawColor(200,200,200);
 	doc.setFillColor(230,230,230);
 	doc.rect(tableLeft - tablePadding, tableTop - 12, headerRight - tableLeft + 12, rowHeight + 2, 'FD');
@@ -174,7 +180,6 @@ function generatePDF(invoice, checkMath) {
 	var line = 1;
 	var total = 0;
 	var shownItem = false;
-	doc.setDrawColor(220,220,220);
 
 	for (var i=0; i<invoice.invoice_items.length; i++) {
 		var item = invoice.invoice_items[i];
@@ -225,14 +230,20 @@ function generatePDF(invoice, checkMath) {
 			doc.text(taxX, x, tax+'%');
 		}
 
-		line += doc.splitTextToSize(item.notes, 200).length;
+		line += (doc.splitTextToSize(item.notes, 200).length * .6) + .4;
 
 		if (i < invoice.invoice_items.length - 2) {
 			doc.setLineWidth(0.5);
+			doc.setDrawColor(220,220,220);
 			doc.line(tableLeft - tablePadding, tableTop + (line * tableRowHeight) - 8, 
 				lineTotalRight+tablePadding, tableTop + (line * tableRowHeight) - 8);
 		}
 
+		if (line > 20) {
+			line = 0;
+			tableTop = 60;
+			doc.addPage();
+		}
 	}
 	
 	/* table footer */
@@ -303,9 +314,6 @@ function generatePDF(invoice, checkMath) {
 	var total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
 	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
 	doc.text(totalX, x, total);		
-
-	totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
-	doc.text(totalX, headerY, total);
 
 
 

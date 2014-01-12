@@ -131,8 +131,11 @@ class CreditController extends \BaseController {
         $ids = Input::get('id') ? Input::get('id') : Input::get('ids');        
         $count = $this->creditRepo->bulk($ids, $action);
 
-        $message = Utils::pluralize('Successfully '.$action.'d ? credit', $count);
-        Session::flash('message', $message);
+        if ($count > 0)
+        {
+            $message = Utils::pluralize('Successfully '.$action.'d ? credit', $count);
+            Session::flash('message', $message);
+        }
 
         return Redirect::to('credits');
     }

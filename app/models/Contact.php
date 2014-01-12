@@ -33,28 +33,26 @@ class Contact extends EntityModel
 	
 	public function getDisplayName()
 	{
-		if (!$this->first_name && !$this->last_name)
+		if ($this->getFullName())
 		{
-			return $this->email;
+			return $this->getFullName();
 		}
 		else
 		{
-			return $this->getFullName();
+			return $this->email;
 		}
 
 	}
 
 	public function getFullName()
 	{
-		$fullName = $this->first_name . ' ' . $this->last_name;
-
-		if ($fullName == ' ')
+		if ($this->first_name || $this->last_name)
 		{
-			return '';
+			return $this->first_name . ' ' . $this->last_name;
 		}
 		else
 		{
-			return $fullName;
+			return '';
 		}
 	}
 

@@ -14,10 +14,10 @@
         <div class="navbar-collapse collapse">
           {{ Form::open(array('url' => 'login', 'class' => 'navbar-form navbar-right')) }}
             <div class="form-group">
-              {{ Form::text('email', Input::old('email'), array('placeholder' => 'Email')) }}
+              {{ Form::text('login_email', Input::old('login_email'), array('placeholder' => 'Email')) }}
             </div>
             <div class="form-group">
-              {{ Form::password('password', array('placeholder' => 'Password')) }}
+              {{ Form::password('login_password', array('placeholder' => 'Password')) }}
             </div>
             <button type="submit" class="btn btn-success">Sign in</button>
           {{ Form::close() }}
