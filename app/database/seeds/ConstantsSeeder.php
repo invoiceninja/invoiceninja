@@ -31,6 +31,11 @@ class ConstantsSeeder extends Seeder
 		$client->invoices()->save($invoice);
 		*/
 
+		PaymentType::create(array('name' => 'Visa'));
+		PaymentType::create(array('name' => 'MasterCard'));
+		PaymentType::create(array('name' => 'American Express'));
+		PaymentType::create(array('name' => 'Cash'));
+
 		Theme::create(array('name' => 'amelia'));
 		Theme::create(array('name' => 'cerulean'));
 		Theme::create(array('name' => 'cosmo'));

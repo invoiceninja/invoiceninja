@@ -68,6 +68,7 @@ class PaymentController extends \BaseController
             'url' => 'payments', 
             'title' => '- New Payment',
             'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+            'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
 
         return View::make('payments.edit', $data);
@@ -87,6 +88,7 @@ class PaymentController extends \BaseController
             'url' => 'payments/' . $publicId, 
             'title' => '- Edit Payment',
             'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+            'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
         return View::make('payments.edit', $data);
     }

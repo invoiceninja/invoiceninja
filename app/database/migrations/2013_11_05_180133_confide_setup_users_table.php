@@ -36,7 +36,8 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('sizes');
         Schema::dropIfExists('industries');
         Schema::dropIfExists('gateways');
-        
+        Schema::dropIfExists('payment_types');
+
         Schema::create('countries', function($table)
         {           
             $table->increments('id');
@@ -56,6 +57,12 @@ class ConfideSetupUsersTable extends Migration {
         });
 
         Schema::create('themes', function($t)
+        {
+            $t->increments('id');
+            $t->string('name');
+        });
+
+        Schema::create('payment_types', function($t)
         {
             $t->increments('id');
             $t->string('name');
@@ -433,6 +440,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('invitation_id')->nullable();
             $t->unsignedInteger('user_id')->nullable();
             $t->unsignedInteger('account_gateway_id')->nullable();
+            $t->unsignedInteger('payment_type_id')->nullable();
             $t->unsignedInteger('currency_id')->default(1);
             $t->timestamps();
             $t->softDeletes();
@@ -450,6 +458,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->foreign('account_gateway_id')->references('id')->on('account_gateways');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
             $t->foreign('currency_id')->references('id')->on('currencies');
+            $t->foreign('payment_type_id')->references('id')->on('payment_types');
             
             $t->unsignedInteger('public_id')->index();
             $t->unique( array('account_id','public_id') );
@@ -543,5 +552,6 @@ class ConfideSetupUsersTable extends Migration {
         Schema::dropIfExists('sizes');
         Schema::dropIfExists('industries');
         Schema::dropIfExists('gateways');        
+        Schema::dropIfExists('payment_types');
     }
 }

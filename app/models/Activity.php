@@ -286,6 +286,12 @@ class Activity extends Eloquent
 
 	public static function viewInvoice($invitation)
 	{
+		if (Session::get($invitation->invitation_key))
+		{
+			return;
+		}
+		Session::put($invitation->invitation_key, true);
+
 		$invoice = $invitation->invoice;
 		
 		if (!$invoice->isViewed())

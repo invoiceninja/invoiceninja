@@ -50,7 +50,11 @@
 @section('body')
     <div class="container">
 
-		{{ Former::open('user/reset')->addClass('form-signin') }}
+		{{ Former::open('user/reset')->addClass('form-signin')->rules(array(
+	        'password' => 'required',
+	        'password_confirmation' => 'required',        
+		)); }}
+
 			<h2 class="form-signin-heading">Passord Reset</h2>
     		<input type="hidden" name="token" value="{{{ $token }}}">
 

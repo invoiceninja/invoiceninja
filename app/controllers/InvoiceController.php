@@ -431,7 +431,7 @@ class InvoiceController extends \BaseController {
 					$invitation = Invitation::createNew();
 					$invitation->invoice_id = $invoice->id;
 					$invitation->contact_id = $contact->id;
-					$invitation->invitation_key = str_random(20);				
+					$invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
 					$invitation->save();
 				}				
 				else if (!in_array($contact->id, $sendInvoiceIds) && $invitation)

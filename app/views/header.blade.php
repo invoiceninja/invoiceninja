@@ -189,7 +189,8 @@
 	        <h4 class="modal-title" id="myModalLabel">Sign up</h4>
 	      </div>
 
-	      <div style="padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onkeydown="checkForEnter(event)">
+	      <div style="background-color: #EEEEEE; padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onkeydown="checkForEnter(event)">
+	    	<br/>
 	    	
 	    	{{ Former::open('signup/submit')->addClass('signUpForm') }}
 
@@ -205,6 +206,7 @@
 			{{ Former::password('new_password')->label('Password') }}
 			{{ Former::close() }}
 			<center><div id="errorTaken" style="display:none">&nbsp;<br/>The email address is already regiestered</div></center>
+			<br/>
 		  </div>
 
 		  <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="working">
@@ -214,7 +216,7 @@
 			</div>
 		  </div>
 
-	      <div class="modal-footer" id="signUpFooter">	      	
+	      <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">	      	
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 	        <button type="button" class="btn btn-primary" onclick="submitSignUp()">Save</button>	      	
 	      </div>

@@ -11,7 +11,7 @@ class PaymentRepository
 	{
         $query = \DB::table('payments')
                     ->join('clients', 'clients.id', '=','payments.client_id')
-                    ->leftJoin('invoices', 'invoices.id', '=','payments.invoice_id')
+                    ->join('invoices', 'invoices.id', '=','payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('payments.account_id', '=', \Auth::user()->account_id)
                     ->where('payments.deleted_at', '=', null)
@@ -49,6 +49,7 @@ class PaymentRepository
         $payment->client_id = Client::getPrivateId($input['client']);
         $payment->invoice_id = isset($input['invoice']) && $input['invoice'] != "-1" ? Invoice::getPrivateId($input['invoice']) : null;
         $payment->currency_id = $input['currency_id'] ? $input['currency_id'] : null;
+        $payment->payment_type_id = $input['payment_type_id'] ? $input['payment_type_id'] : null;
         $payment->payment_date = Utils::toSqlDate($input['payment_date']);
         $payment->amount = floatval($input['amount']);
         $payment->save();

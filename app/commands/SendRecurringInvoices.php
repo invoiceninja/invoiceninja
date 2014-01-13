@@ -69,7 +69,7 @@ class SendRecurringInvoices extends Command {
 			{
 				$invitation = Invitation::createNew($recurInvitation);
 				$invitation->contact_id = $recurInvitation->contact_id;
-				$invitation->invitation_key = str_random(20);
+				$invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
 				$invoice->invitations()->save($invitation);
 			}
 

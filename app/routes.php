@@ -22,6 +22,7 @@
 //Log::error('test');
 
 
+/*
 Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 {
     $data = compact('bindings', 'time', 'name');
@@ -45,16 +46,8 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 
     Log::info($query, $data);
 });
-
-
-/*
-Route::get('/test', function() {
-	foreach (Invoice::all() as $invoice) {
-		echo $invoice->id . ' ' . $invoice->shouldSendToday() . '<br/>';
-	}
-	dd(true);
-});
 */
+
 
 /*
 // TODO_FIX replace with cron
@@ -190,6 +183,7 @@ define('ACCOUNT_EXPORT', 'export');
 define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
 define('LOGGED_ERROR_LIMIT', 100);
+define('RANDOM_KEY_LENGTH', 32);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);

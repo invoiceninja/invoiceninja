@@ -406,11 +406,13 @@
 	      </div>
 
 	    <div style="background-color: #EEEEEE; padding-left: 16px; padding-right: 16px">
+	    	<br/>
 	    	@if (Auth::user()->registered)
-	    		<p>Please confirm your account to email an invoice.</p>	    	
+	    		Please confirm your account to email an invoice.
 	    	@else
-	    		<p>Please sign up to email an invoice.</p>	    	
+	    		Please sign up to email an invoice.
 	    	@endif
+	    	<br/>&nbsp;
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">

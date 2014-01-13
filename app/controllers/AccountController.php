@@ -38,13 +38,14 @@ class AccountController extends \BaseController {
 		{
 			$account = new Account;
 			$account->ip = Request::getClientIp();
-			$account->account_key = str_random(20);
+			$account->account_key = str_random(RANDOM_KEY_LENGTH);
 			$account->save();
 			
-			$random = str_random(20);
+			$random = str_random(RANDOM_KEY_LENGTH);
 
 			$user = new User;
 			$user->password = $random;
+			$user->password_confirmation = $random;
 			$account->users()->save($user);
 
 			Session::forget(RECENTLY_VIEWED);
@@ -537,6 +538,7 @@ class AccountController extends \BaseController {
 		$user->last_name = trim(Input::get('new_last_name'));
 		$user->email = trim(Input::get('new_email'));
 		$user->password = trim(Input::get('new_password'));
+		$user->password_confirmation = trim(Input::get('new_password'));
 		$user->registered = true;
 		$user->save();
 

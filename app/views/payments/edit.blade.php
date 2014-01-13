@@ -26,6 +26,8 @@
 			{{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
 			{{ Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') }}
 			{{ Former::text('amount') }}
+			{{ Former::select('payment_type_id')->addOption('','')->label('Payment type')
+				->fromQuery($paymentTypes, 'name', 'id') }}			
 			{{ Former::text('payment_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
 			{{ Former::select('currency_id')->addOption('','')->label('Currency')
 				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
