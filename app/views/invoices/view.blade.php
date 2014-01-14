@@ -35,6 +35,7 @@
 				invoice.imageHeight = {{ $invoice->client->account->getLogoHeight() }};
 			@endif
 			var doc = generatePDF(invoice, true);
+			if (!doc) return;
 			var string = doc.output('datauristring');
 			
 			if (isFirefox || isChrome) {

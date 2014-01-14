@@ -51,7 +51,7 @@ class PaymentRepository
         $payment->currency_id = $input['currency_id'] ? $input['currency_id'] : null;
         $payment->payment_type_id = $input['payment_type_id'] ? $input['payment_type_id'] : null;
         $payment->payment_date = Utils::toSqlDate($input['payment_date']);
-        $payment->amount = floatval($input['amount']);
+        $payment->amount = Utils::parseFloat($input['amount']);
         $payment->save();
 	
 		return $payment;		

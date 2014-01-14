@@ -127,7 +127,7 @@ function generatePDF(invoice, checkMath) {
 	}
 
 	var headerY = headerTop;
-	doc.text(headerLeft, headerY, 'Invoice #');
+	doc.text(headerLeft, headerY, 'Invoice Number');
 	doc.text(invoiceNumberX, headerY, invoiceNumber);
 
 	if (invoice.po_number) {

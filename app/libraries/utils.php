@@ -39,6 +39,12 @@ class Utils
 		*/
 	}
 
+	public static function parseFloat($value)
+	{
+		$value = preg_replace('/[^0-9\.\-]/', '', $value);
+		return floatval($value);
+	}
+
 	public static function formatPhoneNumber($phoneNumber) 
 	{
 	    $phoneNumber = preg_replace('/[^0-9a-zA-Z]/','',$phoneNumber);
@@ -144,7 +150,7 @@ class Utils
 		$timezone = Session::get(SESSION_TIMEZONE);
 		$format = Session::get(SESSION_DATE_FORMAT);
 
-		return DateTime::createFromFormat($format, $date, new DateTimeZone($timezone));			
+		return DateTime::createFromFormat($format, $date, new DateTimeZone($timezone))->format('Y-m-d');
 	}
 	
 	public static function fromSqlDate($date)

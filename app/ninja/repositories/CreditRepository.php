@@ -48,7 +48,7 @@ class CreditRepository
         $credit->client_id = Client::getPrivateId($input['client']);
         $credit->credit_date = Utils::toSqlDate($input['credit_date']);
         $credit->invoice_id = isset($input['invoice']) && $input['invoice'] != "-1" ? Invoice::getPrivateId($input['invoice']) : null;
-        $credit->amount = floatval($input['amount']);
+        $credit->amount = Utils::parseFloat($input['amount']);
         $credit->currency_id = $input['currency_id'] ? $input['currency_id'] : null;
         $credit->save();
 

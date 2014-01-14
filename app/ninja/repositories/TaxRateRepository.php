@@ -1,6 +1,7 @@
 <?php namespace ninja\repositories;
 
 use TaxRate;
+use Utils;
 
 class TaxRateRepository
 {
@@ -15,7 +16,7 @@ class TaxRateRepository
 				continue;
 			}
 
-			if (!floatval($record->rate) || !trim($record->name))
+			if (!Utils::parseFloat($record->rate) || !trim($record->name))
 			{
 				continue;
 			}
@@ -29,7 +30,7 @@ class TaxRateRepository
 				$taxRate = TaxRate::createNew();
 			}
 
-			$taxRate->rate = floatval($record->rate);
+			$taxRate->rate = Utils::parseFloat($record->rate);
 			$taxRate->name = trim($record->name);
 			$taxRate->save();				
 

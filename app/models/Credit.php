@@ -27,3 +27,13 @@ Credit::created(function($credit)
 {
 	Activity::createCredit($credit);
 });
+
+Credit::updating(function($credit)
+{
+	Activity::updateCredit($credit);
+});
+
+Credit::deleting(function($credit)
+{
+	Activity::archiveCredit($credit);
+});

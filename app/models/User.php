@@ -13,8 +13,8 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
         'username' => 'required|email|unique:users',
         'email' => 'required|email|unique:users',
         */
-        'password' => 'required|between:6,20|confirmed',
-        'password_confirmation' => 'between:6,20',        
+        'password' => 'required|between:6,32|confirmed',
+        'password_confirmation' => 'between:6,32',        
     );
 
 	/**

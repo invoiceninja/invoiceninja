@@ -33,3 +33,13 @@ Payment::created(function($payment)
 {
 	Activity::createPayment($payment);
 });
+
+Payment::updating(function($payment)
+{
+	Activity::updatePayment($payment);
+});
+
+Payment::deleting(function($payment)
+{
+	Activity::archivePayment($payment);
+});

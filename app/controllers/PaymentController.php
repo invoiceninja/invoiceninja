@@ -59,13 +59,13 @@ class PaymentController extends \BaseController
     public function create($clientPublicId = 0, $invoicePublicId = 0)
     {       
         $data = array(
-            'clientPublicId' => $clientPublicId,
-            'invoicePublicId' => $invoicePublicId,
+            'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
+            'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : $invoicePublicId,
             'invoice' => null,
             'invoices' => Invoice::scope()->with('client', 'invoice_status')->where('balance','>',0)->orderBy('invoice_number')->get(),
             'payment' => null, 
             'method' => 'POST', 
-            'url' => 'payments', 
+            'url' => "payments", 
             'title' => '- New Payment',
             'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
@@ -107,7 +107,8 @@ class PaymentController extends \BaseController
     {
         $rules = array(
             'client' => 'required',
-            'amount' => 'required'
+            'invoice' => 'required',  
+            'amount' => 'required|positive'
         );
         $validator = Validator::make(Input::all(), $rules);
 
@@ -136,7 +137,7 @@ class PaymentController extends \BaseController
 
         if ($count > 0)
         {
-            $message = Utils::pluralize('Successfully '.$action.'d ? payment', count($payments));
+            $message = Utils::pluralize('Successfully '.$action.'d ? payment', $count);
             Session::flash('message', $message);
         }
         

@@ -1,3 +1,7 @@
+div {
+    word-break: break-word;
+}
+
 div.required > label {
     font-weight: bold !important;
 }
@@ -33,6 +37,10 @@ div.panel {
 
 table.table thead > tr > th {
     border-bottom-width: 0px;
+}
+
+table td {
+    max-width: 250px;
 }
 
 /*

@@ -22,7 +22,6 @@
 //Log::error('test');
 
 
-/*
 Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 {
     $data = compact('bindings', 'time', 'name');
@@ -46,7 +45,6 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 
     Log::info($query, $data);
 });
-*/
 
 
 /*
@@ -216,3 +214,9 @@ define('DEFAULT_QUERY_CACHE', 120);
 if (Auth::check() && !Session::has(SESSION_TIMEZONE)) {
 	Event::fire('user.refresh');
 }
+
+
+Validator::extend('positive', function($attribute, $value, $parameters)
+{
+    return Utils::parseFloat($value) > 0;
+});

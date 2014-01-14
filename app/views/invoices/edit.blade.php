@@ -79,7 +79,7 @@
 		</div>
 
 		<div class="col-md-3" id="col_2">
-			{{ Former::text('po_number')->label('PO&nbsp;number')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
+			{{ Former::text('po_number')->label('PO #')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
 			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}			
 			{{ Former::select('currency_id')->label('Currency')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") }}
 			
@@ -561,14 +561,21 @@
 	}	
 	*/
 
+	var isRefreshing = false;
 	function refreshPDF() {
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice);		
+		if (!doc) return;
 		var string = doc.output('datauristring');
 
 		if (isFirefox || isChrome) {
 			$('#theFrame').attr('src', string).show();		
 		} else {			
+			if (isRefreshing) {
+				return;
+			}
+			isRefreshing = true;
+
 			var pdfAsArray = convertDataURIToBinary(string);	
 		    PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
 
@@ -583,6 +590,7 @@
 
 		        page.render({canvasContext: context, viewport: viewport});
 		      	$('#theCanvas').show();
+		      	isRefreshing = false;
 		      });
 		    });	
 		}

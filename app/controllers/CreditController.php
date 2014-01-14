@@ -60,8 +60,8 @@ class CreditController extends \BaseController {
     public function create($clientPublicId = 0, $invoicePublicId = 0)
     {       
         $data = array(
-            'clientPublicId' => $clientPublicId,
-            'invoicePublicId' => $invoicePublicId,
+            'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
+            'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : $invoicePublicId,
             'credit' => null, 
             'method' => 'POST', 
             'url' => 'credits', 
@@ -103,7 +103,7 @@ class CreditController extends \BaseController {
     {
         $rules = array(
             'client' => 'required',
-            'amount' => 'required',            
+            'amount' => 'required|positive',
         );
 
         $validator = Validator::make(Input::all(), $rules);

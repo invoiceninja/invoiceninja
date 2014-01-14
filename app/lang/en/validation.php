@@ -68,6 +68,8 @@ return array(
 	),
 	"unique"           => "The :attribute has already been taken.",
 	"url"              => "The :attribute format is invalid.",
+	
+	"positive" => "The :attribute must be greater than zero.",
 
 	/*
 	|--------------------------------------------------------------------------

@@ -4,18 +4,23 @@
 define("ACTIVITY_TYPE_CREATE_CLIENT", 1);
 define("ACTIVITY_TYPE_ARCHIVE_CLIENT", 2);
 define("ACTIVITY_TYPE_DELETE_CLIENT", 3);
+
 define("ACTIVITY_TYPE_CREATE_INVOICE", 4);
 define("ACTIVITY_TYPE_UPDATE_INVOICE", 5);
 define("ACTIVITY_TYPE_EMAIL_INVOICE", 6);
 define("ACTIVITY_TYPE_VIEW_INVOICE", 7);
 define("ACTIVITY_TYPE_ARCHIVE_INVOICE", 8);
 define("ACTIVITY_TYPE_DELETE_INVOICE", 9);
+
 define("ACTIVITY_TYPE_CREATE_PAYMENT", 10);
-define("ACTIVITY_TYPE_ARCHIVE_PAYMENT", 11);
-define("ACTIVITY_TYPE_DELETE_PAYMENT", 12);
-define("ACTIVITY_TYPE_CREATE_CREDIT", 13);
-define("ACTIVITY_TYPE_ARCHIVE_CREDIT", 14);
-define("ACTIVITY_TYPE_DELETE_CREDIT", 15);
+define("ACTIVITY_TYPE_UPDATE_PAYMENT", 11);
+define("ACTIVITY_TYPE_ARCHIVE_PAYMENT", 12);
+define("ACTIVITY_TYPE_DELETE_PAYMENT", 13);
+
+define("ACTIVITY_TYPE_CREATE_CREDIT", 14);
+define("ACTIVITY_TYPE_UPDATE_CREDIT", 15);
+define("ACTIVITY_TYPE_ARCHIVE_CREDIT", 16);
+define("ACTIVITY_TYPE_DELETE_CREDIT", 17);
 
 
 class Activity extends Eloquent
@@ -37,13 +42,18 @@ class Activity extends Eloquent
 	{
 		$activity = new Activity;
 
-		if ($entity) {
+		if ($entity) 
+		{
 			$activity->user_id = $entity->user_id;
 			$activity->account_id = $entity->account_id;
-		} else if (Auth::check()) {
+		} 
+		else if (Auth::check()) 
+		{
 			$activity->user_id = Auth::user()->id;
 			$activity->account_id = Auth::user()->account_id;	
-		} else {
+		} 
+		else 
+		{
 			Utils::fatalError();
 		}
 
@@ -208,6 +218,46 @@ class Activity extends Eloquent
 		}
 	}
 
+	public static function viewInvoice($invitation)
+	{
+		if (Session::get($invitation->invitation_key))
+		{
+			return;
+		}
+
+		Session::put($invitation->invitation_key, true);
+		$invoice = $invitation->invoice;
+		
+		if (!$invoice->isViewed())
+		{
+			$invoice->invoice_status_id = INVOICE_STATUS_VIEWED;
+			$invoice->save();
+		}
+		
+		$now = Carbon::now()->toDateTimeString();
+
+		$invitation->viewed_date = $now;
+		$invitation->save();
+
+		$client = $invoice->client;
+		$client->last_login = $now;
+		$client->save();
+
+		$activity = new Activity;
+		$activity->user_id = $invitation->user_id;
+		$activity->account_id = $invitation->user->account_id;
+		$activity->client_id = $invitation->invoice->client_id;
+		$activity->invitation_id = $invitation->id;
+		$activity->contact_id = $invitation->contact_id;
+		$activity->invoice_id = $invitation->invoice_id;
+		$activity->activity_type_id = ACTIVITY_TYPE_VIEW_INVOICE;
+		$activity->message = Utils::encodeActivity($invitation->contact, 'viewed', $invitation->invoice);
+		$activity->balance = $invitation->invoice->client->balance;
+		$activity->save();
+	}
+
+
+
 	public static function createPayment($payment)
 	{
 		$client = $payment->client;
@@ -246,6 +296,82 @@ class Activity extends Eloquent
 		$activity->save();
 	}	
 
+	public static function updatePayment($payment)
+	{
+		if ($payment->is_deleted && !$payment->getOriginal('is_deleted'))
+		{
+			$client = $payment->client;
+			$client->balance = $client->balance + $payment->amount;
+			$client->paid_to_date = $client->paid_to_date - $payment->amount;
+			$client->save();
+
+			$invoice = $payment->invoice;
+			$invoice->balance = $invoice->balance + $payment->amount;
+			$invoice->save();
+
+			$activity = Activity::getBlank();
+			$activity->client_id = $invoice->client_id;
+			$activity->invoice_id = $invoice->id;
+			$activity->activity_type_id = ACTIVITY_TYPE_DELETE_PAYMENT;
+			$activity->message = Utils::encodeActivity(Auth::user(), 'deleted payment');
+			$activity->balance = $client->balance;
+			$activity->adjustment = $payment->amount;
+			$activity->save();		
+		}
+		else
+		{
+			/*
+			$diff = floatval($invoice->amount) - floatval($invoice->getOriginal('amount'));
+			
+			if ($diff == 0)
+			{
+				return;
+			}
+
+			$client = $invoice->client;
+			$client->balance = $client->balance + $diff;
+			$client->save();
+
+			$activity = Activity::getBlank($invoice);
+			$activity->client_id = $invoice->client_id;
+			$activity->invoice_id = $invoice->id;
+			$activity->activity_type_id = ACTIVITY_TYPE_UPDATE_INVOICE;
+			$activity->message = Utils::encodeActivity(Auth::user(), 'updated', $invoice);
+			$activity->balance = $client->balance;
+			$activity->adjustment = $diff;
+			$activity->json_backup = $backupInvoice->hidePrivateFields()->toJSON();
+			$activity->save();
+			*/
+		}
+	}
+
+	public static function archivePayment($payment)
+	{
+		if ($payment->is_deleted)
+		{
+			return;
+		}
+
+		$client = $payment->client;
+		$client->balance = $client->balance + $payment->amount;
+		$client->paid_to_date = $client->paid_to_date - $payment->amount;
+		$client->save();
+
+		$invoice = $payment->invoice;
+		$invoice->balance = $invoice->balance + $payment->amount;
+		$invoice->save();
+
+		$activity = Activity::getBlank();
+		$activity->invoice_id = $invoice->id;
+		$activity->client_id = $client->id;
+		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_PAYMENT;
+		$activity->message = Utils::encodeActivity(Auth::user(), 'archived payment');
+		$activity->balance = $client->balance;
+		$activity->adjustment = $payment->amount;
+		$activity->save();
+	}	
+
+
 	public static function createCredit($credit)
 	{
 		$client = $credit->client;
@@ -273,52 +399,82 @@ class Activity extends Eloquent
 		$activity->save();
 	}	
 
-	public static function archivePayment($payment)
+	public static function updateCredit($credit)
 	{
-		$activity = Activity::getBlank();
-		$activity->invoice_id = $invoice->id;
-		$activity->client_id = $invoice->client_id;
-		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_PAYMENT;
-		$activity->message = Utils::encodeActivity(Auth::user(), 'archived payment');
-		$activity->balance = $payment->client->balance;
-		$activity->save();
-	}	
+		if ($credit->is_deleted && !$credit->getOriginal('is_deleted'))
+		{
+			$client = $credit->client;
+			$client->balance = $client->balance + $credit->amount;
+			$client->save();
 
-	public static function viewInvoice($invitation)
+			if ($credit->invoice)
+			{
+				$invoice = $credit->invoice;
+				$invoice->balance = $invoice->balance + $credit->amount;
+				$invoice->save();
+			}
+
+			$activity = Activity::getBlank();
+			$activity->client_id = $invoice->client_id;
+			$activity->invoice_id = $credit->invoice ? $credit->invoice->id : null;
+			$activity->activity_type_id = ACTIVITY_TYPE_DELETE_CREDIT;
+			$activity->message = Utils::encodeActivity(Auth::user(), 'deleted credit');
+			$activity->balance = $client->balance;
+			$activity->adjustment = $credit->amount;
+			$activity->save();		
+		}
+		else
+		{
+			/*
+			$diff = floatval($invoice->amount) - floatval($invoice->getOriginal('amount'));
+			
+			if ($diff == 0)
+			{
+				return;
+			}
+
+			$client = $invoice->client;
+			$client->balance = $client->balance + $diff;
+			$client->save();
+
+			$activity = Activity::getBlank($invoice);
+			$activity->client_id = $invoice->client_id;
+			$activity->invoice_id = $invoice->id;
+			$activity->activity_type_id = ACTIVITY_TYPE_UPDATE_INVOICE;
+			$activity->message = Utils::encodeActivity(Auth::user(), 'updated', $invoice);
+			$activity->balance = $client->balance;
+			$activity->adjustment = $diff;
+			$activity->json_backup = $backupInvoice->hidePrivateFields()->toJSON();
+			$activity->save();
+			*/
+		}
+	}
+
+	public static function archiveCredit($credit)
 	{
-		if (Session::get($invitation->invitation_key))
+		if ($credit->is_deleted)
 		{
 			return;
 		}
-		Session::put($invitation->invitation_key, true);
-
-		$invoice = $invitation->invoice;
-		
-		if (!$invoice->isViewed())
-		{
-			$invoice->invoice_status_id = INVOICE_STATUS_VIEWED;
-			$invoice->save();
-		}
-		
-		$now = Carbon::now()->toDateTimeString();
-
-		$invitation->viewed_date = $now;
-		$invitation->save();
-
-		$client = $invoice->client;
-		$client->last_login = $now;
+	
+		$client = $credit->client;
+		$client->balance = $client->balance + $credit->amount;
 		$client->save();
 
-		$activity = new Activity;
-		$activity->user_id = $invitation->user_id;
-		$activity->account_id = $invitation->user->account_id;
-		$activity->client_id = $invitation->invoice->client_id;
-		$activity->invitation_id = $invitation->id;
-		$activity->contact_id = $invitation->contact_id;
-		$activity->invoice_id = $invitation->invoice_id;
-		$activity->activity_type_id = ACTIVITY_TYPE_VIEW_INVOICE;
-		$activity->message = Utils::encodeActivity($invitation->contact, 'viewed', $invitation->invoice);
-		$activity->balance = $invitation->invoice->client->balance;
+		if ($credit->invoice)
+		{
+			$invoice = $credit->invoice;
+			$invoice->balance = $invoice->balance + $credit->amount;
+			$invoice->save();
+		}
+
+		$activity = Activity::getBlank();
+		$activity->invoice_id = $credit->invoice ? $credit->invoice->id : null;
+		$activity->client_id = $client->id;
+		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_CREDIT;
+		$activity->message = Utils::encodeActivity(Auth::user(), 'archived credit');
+		$activity->balance = $client->balance;
+		$activity->adjustment = $credit->amount;
 		$activity->save();
 	}
 }

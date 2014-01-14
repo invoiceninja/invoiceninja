@@ -53,10 +53,8 @@
 	}
 
 	function deleteEntity(id) {
-		if (confirm("Are you sure?")) {
-			$('#id').val(id);
-			submitForm('delete');	
-		}
+		$('#id').val(id);
+		submitForm('delete');
 	}
 
 	function archiveEntity(id) {
