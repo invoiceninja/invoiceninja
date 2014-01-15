@@ -8,7 +8,7 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 function generatePDF(invoice, checkMath) {
 	var client = invoice.client;
 	var account = invoice.account;
-	var currencyId = invoice.currency_id;
+	var currencyId = client.currency_id;
 	var invoiceNumber = invoice.invoice_number;
 	var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
 	var dueDate = invoice.due_date ? invoice.due_date : '';
@@ -150,7 +150,7 @@ function generatePDF(invoice, checkMath) {
 	doc.setFontType("bold");
 	doc.text(headerLeft, headerY, 'Amount Due');
 
-	var balance = formatMoney(invoice.balance, currencyId, true);
+	var balance = formatMoney(invoice.balance, currencyId);
 	balanceX = headerRight - (doc.getStringUnitWidth(balance) * doc.internal.getFontSize());
 	doc.text(balanceX, headerY, balance);
 
@@ -341,6 +341,7 @@ function generatePDF(invoice, checkMath) {
 
 
 	if (invoice.client) {
+
 		var clientX = headerRight - (doc.getStringUnitWidth(invoice.client.name) * doc.internal.getFontSize());
 	}
 	var numberX = headerRight - (doc.getStringUnitWidth(invoice.invoice_number) * doc.internal.getFontSize());

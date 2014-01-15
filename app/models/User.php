@@ -9,12 +9,14 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 	protected $softDelete = true;
 
     public static $rules = array(
-    	/*
-        'username' => 'required|email|unique:users',
-        'email' => 'required|email|unique:users',
-        */
+    	'username' => 'required|unique:users',
         'password' => 'required|between:6,32|confirmed',
         'password_confirmation' => 'between:6,32',        
+    );
+
+    protected $updateRules = array(
+    	'email' => 'required|unique:users',
+		'username' => 'required|unique:users',
     );
 
 	/**

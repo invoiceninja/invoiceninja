@@ -29,8 +29,8 @@
 			{{ Former::select('payment_type_id')->addOption('','')->label('Payment type')
 				->fromQuery($paymentTypes, 'name', 'id') }}			
 			{{ Former::text('payment_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
-			{{ Former::select('currency_id')->addOption('','')->label('Currency')
-				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
+			{{-- Former::select('currency_id')->addOption('','')->label('Currency')
+				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) --}}
 
 		</div>
 		<div class="col-md-6">

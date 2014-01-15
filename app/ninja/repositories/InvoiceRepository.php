@@ -19,7 +19,7 @@ class InvoiceRepository
     				->where('clients.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', false)    			
     				->where('contacts.is_primary', '=', true)	
-					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'invoices.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
+					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
 
     	if ($clientPublicId) 
     	{
@@ -49,7 +49,7 @@ class InvoiceRepository
     				->where('invoices.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', true)
     				->where('contacts.is_primary', '=', true)	
-					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'invoices.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
+					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
 
     	if ($clientPublicId) 
     	{
@@ -122,7 +122,7 @@ class InvoiceRepository
 		$invoice->terms = trim($data['terms']);
 		$invoice->public_notes = trim($data['public_notes']);
 		$invoice->po_number = trim($data['po_number']);
-		$invoice->currency_id = $data['currency_id'];
+		//$invoice->currency_id = $data['currency_id'];
 		
 		if (isset($data['tax_rate']) && Utils::parseFloat($data['tax_rate']) > 0)
 		{

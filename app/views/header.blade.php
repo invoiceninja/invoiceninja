@@ -62,11 +62,11 @@
 
 @section('body')
 		
-	<div class="container">
 	<p>&nbsp;</p>
 	<p>&nbsp;</p>
 	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-
+	<div class="container">
+	
 	  <div class="navbar-header">
 	    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
 	      <span class="sr-only">Toggle navigation</span>
@@ -137,10 +137,13 @@
 
 
 	  </div><!-- /.navbar-collapse -->
+	</div>
 	</nav>
 	
+	
 	<p>&nbsp;</p>
-
+	<div class="container">	
+	
 	@if (Session::has('message'))
 		<div class="alert alert-info">{{ Session::get('message') }}</div>
 	@endif

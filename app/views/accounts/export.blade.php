@@ -4,7 +4,7 @@
 	@parent
 
 	{{ Former::open()->addClass('col-md-9 col-md-offset-1') }}
-	{{ Former::legend('Export Data') }}
+	{{ Former::legend('Export Client Data') }}
 	{{ Button::lg_primary_submit('Download') }}
 	{{ Former::close() }}
 

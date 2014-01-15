@@ -68,6 +68,9 @@ class InvoiceController extends \BaseController {
   							<ul class="dropdown-menu" role="menu">
 						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">Edit Invoice</a></li>
 						    <li class="divider"></li>
+						    <li><a href="' . URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">Enter Payment</a></li>
+						    <li><a href="' . URL::to('credits/create/' . $model->client_public_id . '/' . $model->public_id ) . '">Enter Credit</a></li>
+						    <li class="divider"></li>
 						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">Archive Invoice</a></li>
 						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">Delete Invoice</a></li>						    
 						  </ul>

@@ -25,8 +25,8 @@
 			  Navigation::links(
 			    [
 			    	['Create Invoice', URL::to('invoices/create/' . $client->public_id )],
-			     	['Create Payment', URL::to('payments/create/' . $client->public_id )],
-			     	['Create Credit', URL::to('credits/create/' . $client->public_id )],
+			     	['Enter Payment', URL::to('payments/create/' . $client->public_id )],
+			     	['Enter Credit', URL::to('credits/create/' . $client->public_id )],
 			    ]
 			  )
 			, ['id'=>'primaryDropDown'])->split(); }}
@@ -112,7 +112,7 @@
         <div class="tab-pane" id="payments">
 
 	    	{{ Datatable::table()		
-				->addColumn('Transaction Reference', 'Invoice', 'Payment Amount', 'Payment Date')       
+				->addColumn('Transaction Reference', 'Method', 'Invoice', 'Payment Amount', 'Payment Date')       
 				->setUrl(url('api/payments/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
@@ -122,7 +122,7 @@
         <div class="tab-pane" id="credits">
 
 	    	{{ Datatable::table()		
-				->addColumn('Credit Amount', 'Credit Date')       
+				->addColumn('Credit Amount', 'Credit Date', 'Private Notes')       
 				->setUrl(url('api/credits/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)

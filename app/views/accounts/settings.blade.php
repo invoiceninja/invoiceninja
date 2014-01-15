@@ -56,13 +56,13 @@
 	{{ Former::select('datetime_format_id')->addOption('','')->label('Date/Time Format')
 		->fromQuery($datetimeFormats, 'label', 'id') }}
 
-	{{ Former::legend('Notifications') }}
+	{{ Former::legend('Email Notifications') }}
 	{{ Former::checkbox('notify_sent')->label('&nbsp;')->text('Email me when an invoice is <b>sent</b>') }}
 	{{ Former::checkbox('notify_viewed')->label('&nbsp;')->text('Email me when an invoice is <b>viewed</b>') }}
 	{{ Former::checkbox('notify_paid')->label('&nbsp;')->text('Email me when an invoice is <b>paid</b>') }}
 
-	{{ Former::legend('Invoices') }}
-	{{ Former::textarea('invoice_terms') }}
+	{{ Former::legend('Invoice Terms') }}
+	{{ Former::textarea('invoice_terms')->label('Terms') }}
 
 	{{ Former::actions( Button::lg_primary_submit('Save') ) }}
 	{{ Former::close() }}

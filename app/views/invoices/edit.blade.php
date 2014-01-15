@@ -56,7 +56,6 @@
 		</div>
 		<div class="col-md-4" id="col_2">
 			<div data-bind="visible: !is_recurring()">
-				{{ Former::text('invoice_number')->label('Invoice #')->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
 				{{ Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}							
 			</div>
@@ -71,7 +70,7 @@
 				</div>
 			@else 
 			<div data-bind="visible: invoice_status_id() < CONSTS.INVOICE_STATUS_SENT">
-				{{ Former::checkbox('recurring')->text('Enable | <a href="#" rel="tooltip" data-toggle="tooltip" title="Recurring invoices are automatically sent. Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well. ie, :MONTH-1.">Learn more</a>')->data_bind("checked: is_recurring")
+				{{ Former::checkbox('recurring')->text('Enable | <a href="#" onclick="showLearnMore()">Learn more</a>')->data_bind("checked: is_recurring")
 					->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::dateToString($invoice->last_sent_date) : '') }}
 			</div>			
 			@endif
@@ -79,9 +78,10 @@
 		</div>
 
 		<div class="col-md-3" id="col_2">
+			{{ Former::text('invoice_number')->label('Invoice #')->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
 			{{ Former::text('po_number')->label('PO #')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
 			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}			
-			{{ Former::select('currency_id')->label('Currency')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") }}
+			{{-- Former::select('currency_id')->label('Currency')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") --}}
 			
 			<div class="form-group" style="margin-bottom: 8px">
 				<label for="recurring" class="control-label col-lg-4 col-sm-4">Taxes</label>
@@ -197,24 +197,14 @@
 		</div>
 
 
+		{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
+			
 		@if ($invoice)		
 
-			<div id="relatedActions" style="text-align:left" class="btn-group">
-				<button class=" btn-default btn" type="button">Download PDF</button>
-				<button class=" btn-default btn dropdown-toggle" type="button" data-toggle="dropdown"> 
-					<span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu">
-					<li><a href="javascript:onDownloadClick()">Download PDF</a></li>
-					<li class="divider"></li>
-					<li><a href="javascript:onPaymentClick()">Create Payment</a></li>
-					<li><a href="javascript:onCreditClick()">Create Credit</a></li>
-				</ul>
-			</div>				
 
 			<div id="primaryActions" style="text-align:left" data-bind="css: $root.enable.save" class="btn-group">
-				<button class=" btn-primary btn" type="button" data-bind="css: $root.enable.save">Save Invoice</button>
-				<button class=" btn-primary btn dropdown-toggle" type="button" data-toggle="dropdown" data-bind="css: $root.enable.save"> 
+				<button class="btn-primary btn" type="button" data-bind="css: $root.enable.save">Save Invoice</button>
+				<button class="btn-primary btn dropdown-toggle" type="button" data-toggle="dropdown" data-bind="css: $root.enable.save"> 
 					<span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu">
@@ -250,17 +240,33 @@
 				  )
 				, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); --}}				
 		@else
-			{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
 			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save')) }}			
 		@endif
 
 		{{ Button::primary('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email')) }}		
+
+		@if ($invoice)		
+
+			<div id="relatedActions" style="text-align:left" class="btn-group">
+				<button class="btn-success btn" type="button">Enter Payment</button>
+				<button class="btn-success btn dropdown-toggle" type="button" data-toggle="dropdown"> 
+					<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="javascript:onPaymentClick()">Enter Payment</a></li>
+					<li><a href="javascript:onCreditClick()">Enter Credit</a></li>
+				</ul>
+			</div>				
+
+		@endif
+
+
 	</div>
 	<p>&nbsp;</p>
 	
 	<!-- <textarea rows="20" cols="120" id="pdfText" onkeyup="runCode()"></textarea> -->
 	<!-- <iframe frameborder="1" width="100%" height="600" style="display:block;margin: 0 auto"></iframe>	-->
-	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="500"></iframe>
+	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="1150"></iframe>
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
 
@@ -427,6 +433,32 @@
 	</div>
 
 
+	<div class="modal fade" id="recurringModal" tabindex="-1" role="dialog" aria-labelledby="recurringModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" style="min-width:150px">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	        <h4 class="modal-title" id="recurringModalLabel">Recurring Invoices</h4>
+	      </div>
+
+	    <div style="background-color: #EEEEEE; padding-left: 16px; padding-right: 16px">
+	    	&nbsp;
+	    	<p>Recurring invoices are automatically sent.</p>
+	    	<p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. </p>
+	    	<p>Basic math works as well. ie, :MONTH-1. </p>
+	    	&nbsp;
+		</div>
+
+	     <div class="modal-footer" style="margin-top: 0px">
+	      	<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+	     </div>
+	  		
+	    </div>
+	  </div>
+	</div>
+
+
+
 	{{ Former::close() }}
 	</div>
 
@@ -435,6 +467,10 @@
 	function showSignUp() {
 		$('#notSignedUpModal').modal('hide');	
 		$('#signUpModal').modal('show');		
+	}
+
+	function showLearnMore() {
+		$('#recurringModal').modal('show');			
 	}
 
 	$(function() {
@@ -492,7 +528,7 @@
 		})
 
 		$('#relatedActions > button:first').click(function() {
-			onDownloadClick();
+			onPaymentClick();
 		});
 
 		$('#primaryActions > button:first').click(function() {
@@ -906,9 +942,8 @@
 		this.id = ko.observable('');
 		self.discount = ko.observable('');
 		self.frequency_id = ko.observable('');
-		//self.currency_id = ko.observable({{ Session::get(SESSION_CURRENCY) }});
-		self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
-		self.terms = ko.observable(wordWrapText('{{ $account->invoice_terms }}', 340));		
+		//self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
+		self.terms = ko.observable(wordWrapText('{{ str_replace("\n", '\n', $account->invoice_terms) }}', 340));
 		self.set_default_terms = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
@@ -1020,7 +1055,7 @@
 
 		this.totals.subtotal = ko.computed(function() {
 		    var total = self.totals.rawSubtotal();
-		    return total > 0 ? formatMoney(total, self.currency_id()) : '';
+		    return total > 0 ? formatMoney(total, self.client().currency_id()) : '';
 		});
 
 		this.totals.rawDiscounted = ko.computed(function() {
@@ -1028,7 +1063,7 @@
 		});
 
 		this.totals.discounted = ko.computed(function() {
-			return formatMoney(self.totals.rawDiscounted(), self.currency_id());
+			return formatMoney(self.totals.rawDiscounted(), self.client().currency_id());
 		});
 
 		self.totals.taxAmount = ko.computed(function() {
@@ -1042,7 +1077,7 @@
 			var taxRate = parseFloat(self.tax_rate());
 			if (taxRate > 0) {
 				var tax = total * (taxRate/100);			
-        		return formatMoney(tax, self.currency_id());
+        		return formatMoney(tax, self.client().currency_id());
         	} else {
         		return formatMoney(0);
         	}
@@ -1054,7 +1089,7 @@
 
 		this.totals.paidToDate = ko.computed(function() {
 			var total = self.totals.rawPaidToDate();
-		    return total > 0 ? formatMoney(total, self.currency_id()) : '';			
+		    return total > 0 ? formatMoney(total, self.client().currency_id()) : '';			
 		});
 
 		this.totals.total = ko.computed(function() {
@@ -1075,7 +1110,7 @@
         		total -= paid;
         	}
 
-		    return total != 0 ? formatMoney(total, self.currency_id()) : '';
+		    return total != 0 ? formatMoney(total, self.client().currency_id()) : '';
     	});
 
     	self.onDragged = function(item) {
@@ -1311,8 +1346,8 @@
 
 		this.totals.total = ko.computed(function() {
 			var total = self.totals.rawTotal();
-			if (window.hasOwnProperty('model') && model.invoice && model.invoice()) {
-				return total ? formatMoney(total, model.invoice().currency_id()) : '';
+			if (window.hasOwnProperty('model') && model.invoice && model.invoice() && model.invoice().client()) {
+				return total ? formatMoney(total, model.invoice().client().currency_id()) : '';
 			} else {
 				return total ? formatMoney(total, 1) : '';
 			}
@@ -1410,7 +1445,7 @@
 	for (var i=0; i<model.invoice().invoice_items().length; i++) {
 		var item = model.invoice().invoice_items()[i];
 		item.tax(model.getTaxRate(item.tax_name(), item.tax_rate()));
-		item.cost(parseFloat(item.cost()) > 0 ? formatMoney(item.cost(), model.invoice().currency_id(), true) : '');
+		item.cost(parseFloat(item.cost()) > 0 ? formatMoney(item.cost(), model.invoice().client().currency_id(), true) : '');
 	}
 	onTaxRateChange();
 

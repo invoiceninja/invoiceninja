@@ -26,8 +26,9 @@
 			{{ Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') }}
 			{{ Former::text('amount') }}
 			{{ Former::text('credit_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
-			{{ Former::select('currency_id')->addOption('','')->label('Currency')
-				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) }}
+			{{-- Former::select('currency_id')->addOption('','')->label('Currency')
+				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) --}}
+			{{ Former::textarea('private_notes') }}
 
 		</div>
 		<div class="col-md-6">

@@ -16,7 +16,7 @@
   		'email' => 'email|required'
 	)); }}
 
-	{{ Former::populate($account); }}
+	{{ Former::populate($account) }}
 	{{ Former::populateField('first_name', $account->users()->first()->first_name) }}
 	{{ Former::populateField('last_name', $account->users()->first()->last_name) }}
 	{{ Former::populateField('email', $account->users()->first()->email) }}	
@@ -27,7 +27,7 @@
 
 			{{ Former::legend('Account') }}
 			{{ Former::text('name') }}
-			{{ Former::file('logo')->max(2, 'MB')->accept('image')->wrap('test') }}
+			{{ Former::file('logo')->max(2, 'MB')->accept('image')->wrap('test')->inlineHelp('Recommnded size: 120px width, 80px height') }}
 
 			@if (file_exists($account->getLogoPath()))
 				<center>

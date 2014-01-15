@@ -16,7 +16,7 @@ class CreditRepository
 	                ->where('clients.deleted_at', '=', null)
 	                ->where('credits.deleted_at', '=', null)
 	                ->where('contacts.is_primary', '=', true)   
-	                ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.credit_date', 'credits.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');        
+	                ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.credit_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'credits.private_notes');        
 
 	    if ($clientPublicId) 
 	    {
@@ -49,7 +49,8 @@ class CreditRepository
         $credit->credit_date = Utils::toSqlDate($input['credit_date']);
         $credit->invoice_id = isset($input['invoice']) && $input['invoice'] != "-1" ? Invoice::getPrivateId($input['invoice']) : null;
         $credit->amount = Utils::parseFloat($input['amount']);
-        $credit->currency_id = $input['currency_id'] ? $input['currency_id'] : null;
+        //$credit->currency_id = $input['currency_id'] ? $input['currency_id'] : null;
+        $credit->private_notes = trim($input['private_notes']);
         $credit->save();
 
         return $credit;

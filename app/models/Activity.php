@@ -108,7 +108,7 @@ class Activity extends Eloquent
 		$activity = Activity::getBlank($invoice);
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
-		$activity->currency_id = $invoice->currency_id;
+		$activity->currency_id = $invoice->client->currency_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_INVOICE;
 		$activity->message = $message;
 		$activity->balance = $invoice->client->balance;
@@ -289,7 +289,7 @@ class Activity extends Eloquent
 		}
 
 		$activity->client_id = $payment->client_id;
-		$activity->currency_id = $payment->currency_id;
+		$activity->currency_id = $client->currency_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_PAYMENT;
 		$activity->balance = $client->balance;
 		$activity->adjustment = $payment->amount * -1;
@@ -388,11 +388,11 @@ class Activity extends Eloquent
 			$activity->invoice_id = $credit->invoice_id;
 
 			$invoice = $credit->invoice;
-			$invoice->balance = $invoice->amount - $credit->amount;
+			$invoice->balance = $invoice->balance - $credit->amount;			
 			$invoice->save();
 		}		
 
-		$activity->currency_id = $credit->currency_id;
+		$activity->currency_id = $client->currency_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_CREDIT;
 		$activity->balance = $client->balance;
 		$activity->adjustment = $credit->amount * -1;

@@ -18,7 +18,7 @@ class PaymentController extends \BaseController
         return View::make('list', array(
             'entityType'=>ENTITY_PAYMENT, 
             'title' => '- Payments',
-            'columns'=>['checkbox', 'Transaction Reference', 'Client', 'Invoice', 'Payment Amount', 'Payment Date', 'Action']
+            'columns'=>['checkbox', 'Transaction Reference', 'Method', 'Client', 'Invoice', 'Payment Amount', 'Payment Date', 'Action']
         ));
 	}
 
@@ -31,7 +31,9 @@ class PaymentController extends \BaseController
             $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
         }
 
-        $table->addColumn('transaction_reference', function($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; });
+        $table->addColumn('transaction_reference', function($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
+              ->addColumn('method', function($model) { return $model->payment_type ? $model->payment_type : ($model->transaction_reference ? '<i>Online payment</i>' : ''); });
+
 
         if (!$clientPublicId) {
             $table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
@@ -62,12 +64,12 @@ class PaymentController extends \BaseController
             'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
             'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : $invoicePublicId,
             'invoice' => null,
-            'invoices' => Invoice::scope()->with('client', 'invoice_status')->where('balance','>',0)->orderBy('invoice_number')->get(),
+            'invoices' => Invoice::scope()->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
             'payment' => null, 
             'method' => 'POST', 
             'url' => "payments", 
             'title' => '- New Payment',
-            'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+            //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
 
@@ -87,7 +89,7 @@ class PaymentController extends \BaseController
             'method' => 'PUT', 
             'url' => 'payments/' . $publicId, 
             'title' => '- Edit Payment',
-            'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+            //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
         return View::make('payments.edit', $data);

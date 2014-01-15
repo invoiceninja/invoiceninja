@@ -13,11 +13,12 @@ class PaymentRepository
                     ->join('clients', 'clients.id', '=','payments.client_id')
                     ->join('invoices', 'invoices.id', '=','payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
+                    ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
                     ->where('payments.account_id', '=', \Auth::user()->account_id)
                     ->where('payments.deleted_at', '=', null)
                     ->where('clients.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)   
-                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'payments.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');        
+                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type');        
 
         if ($clientPublicId) 
         {
@@ -48,7 +49,7 @@ class PaymentRepository
 
         $payment->client_id = Client::getPrivateId($input['client']);
         $payment->invoice_id = isset($input['invoice']) && $input['invoice'] != "-1" ? Invoice::getPrivateId($input['invoice']) : null;
-        $payment->currency_id = $input['currency_id'] ? $input['currency_id'] : null;
+        //$payment->currency_id = $input['currency_id'] ? $input['currency_id'] : null;
         $payment->payment_type_id = $input['payment_type_id'] ? $input['payment_type_id'] : null;
         $payment->payment_date = Utils::toSqlDate($input['payment_date']);
         $payment->amount = Utils::parseFloat($input['amount']);
