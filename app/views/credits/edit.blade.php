@@ -23,7 +23,6 @@
 			@endif
 
 			{{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
-			{{ Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') }}
 			{{ Former::text('amount') }}
 			{{ Former::text('credit_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
 			{{-- Former::select('currency_id')->addOption('','')->label('Currency')
@@ -46,12 +45,22 @@
 	<script type="text/javascript">
 
 	
-	var invoices = {{ $invoices }};
 	var clients = {{ $clients }};
 
 	$(function() {
 
-		populateInvoiceComboboxes({{ $clientPublicId }}, {{ $invoicePublicId }});
+		var $clientSelect = $('select#client');		
+		for (var i=0; i<clients.length; i++) {
+			var client = clients[i];
+			$clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
+		}	
+
+		if ({{ $clientPublicId ? 'true' : 'false' }}) {
+			$clientSelect.val({{ $clientPublicId }});
+		}
+
+		$clientSelect.combobox();
+		
 
 
 		$('#currency_id').combobox();

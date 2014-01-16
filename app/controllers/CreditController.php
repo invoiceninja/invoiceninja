@@ -23,7 +23,7 @@ class CreditController extends \BaseController {
         return View::make('list', array(
             'entityType'=>ENTITY_CREDIT, 
             'title' => '- Credits',
-            'columns'=>['checkbox', 'Client', 'Credit Amount', 'Credit Date', 'Private Notes', 'Action']
+            'columns'=>['checkbox', 'Client', 'Credit Amount', 'Credit Balance', 'Credit Date', 'Private Notes', 'Action']
         ));
     }
 
@@ -40,6 +40,7 @@ class CreditController extends \BaseController {
         }
         
         return $table->addColumn('amount', function($model){ return Utils::formatMoney($model->amount, $model->currency_id); })
+            ->addColumn('balance', function($model){ return Utils::formatMoney($model->balance, $model->currency_id); })
             ->addColumn('credit_date', function($model) { return Utils::fromSqlDate($model->credit_date); })
             ->addColumn('private_notes', function($model) { return $model->private_notes; })
             ->addColumn('dropdown', function($model) 
@@ -58,17 +59,17 @@ class CreditController extends \BaseController {
     }
 
 
-    public function create($clientPublicId = 0, $invoicePublicId = 0)
+    public function create($clientPublicId = 0)
     {       
         $data = array(
             'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
-            'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : $invoicePublicId,
+            //'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : $invoicePublicId,
             'credit' => null, 
             'method' => 'POST', 
             'url' => 'credits', 
             'title' => '- New Credit',
             //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'invoices' => Invoice::scope()->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
+            //'invoices' => Invoice::scope()->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
 
         return View::make('credits.edit', $data);

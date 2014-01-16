@@ -44,7 +44,6 @@ class SendRecurringInvoices extends Command {
 			$invoice->invoice_number = 'R' . $recurInvoice->account->getNextInvoiceNumber();
 			$invoice->amount = $recurInvoice->amount;
 			$invoice->balance = $recurInvoice->amount;
-			$invoice->currency_id = $recurInvoice->currency_id;
 			$invoice->invoice_date = date_create()->format('Y-m-d');
 
 			if ($invoice->client->payment_terms)

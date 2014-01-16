@@ -8,7 +8,7 @@ class ActivityController extends \BaseController {
                     ->join('clients', 'clients.id', '=', 'activities.client_id')
                     ->where('clients.public_id', '=', $clientPublicId)
                     ->where('activities.account_id', '=', Auth::user()->account_id)
-                    ->select('activities.message', 'activities.created_at', 'activities.currency_id', 'activities.balance', 'activities.adjustment');
+                    ->select('activities.message', 'activities.created_at', 'clients.currency_id', 'activities.balance', 'activities.adjustment');
     	
         return Datatable::query($query)
     	    ->addColumn('created_at', function($model) { return Utils::timestampToDateTimeString(strtotime($model->created_at)); })

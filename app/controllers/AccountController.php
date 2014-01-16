@@ -44,9 +44,9 @@ class AccountController extends \BaseController {
 			$random = str_random(RANDOM_KEY_LENGTH);
 
 			$user = new User;
-			$user->username = $random;
 			$user->password = $random;
 			$user->password_confirmation = $random;			
+			$user->username = $random;
 			$account->users()->save($user);			
 			
 			Session::forget(RECENTLY_VIEWED);
@@ -486,7 +486,7 @@ class AccountController extends \BaseController {
 			$user->username = trim(Input::get('email'));
 			$user->email = trim(Input::get('email'));
 			$user->phone = trim(Input::get('phone'));				
-			$user->amend(); // need to 'amend' to avoid password validation rules
+			$user->save();
 
 			/* Logo image file */
 			if ($file = Input::file('logo'))
@@ -520,7 +520,7 @@ class AccountController extends \BaseController {
 			'new_first_name' => 'required',
 			'new_last_name' => 'required',
 			'new_password' => 'required|min:6',
-			'new_email' => 'email|required'
+			'new_email' => 'email|required|unique:users,email,' . Auth::user()->id . ',id'
 		);
 
 		$validator = Validator::make(Input::all(), $rules);
@@ -537,7 +537,7 @@ class AccountController extends \BaseController {
 		$user->password = trim(Input::get('new_password'));
 		$user->password_confirmation = trim(Input::get('new_password'));
 		$user->registered = true;
-		$user->save();
+		$user->amend();
 
 		$activities = Activity::scope()->get();
 		foreach ($activities as $activity) 

@@ -70,6 +70,8 @@ return array(
 	"url"              => "The :attribute format is invalid.",
 	
 	"positive" => "The :attribute must be greater than zero.",
+	"has_credit" => "The client does not have enough credit.",
+
 
 	/*
 	|--------------------------------------------------------------------------

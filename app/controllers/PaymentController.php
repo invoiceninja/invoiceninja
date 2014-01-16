@@ -18,7 +18,7 @@ class PaymentController extends \BaseController
         return View::make('list', array(
             'entityType'=>ENTITY_PAYMENT, 
             'title' => '- Payments',
-            'columns'=>['checkbox', 'Transaction Reference', 'Method', 'Client', 'Invoice', 'Payment Amount', 'Payment Date', 'Action']
+            'columns'=>['checkbox', 'Invoice', 'Client', 'Transaction Reference', 'Method', 'Payment Amount', 'Payment Date', 'Action']
         ));
 	}
 
@@ -31,16 +31,16 @@ class PaymentController extends \BaseController
             $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
         }
 
-        $table->addColumn('transaction_reference', function($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
-              ->addColumn('method', function($model) { return $model->payment_type ? $model->payment_type : ($model->transaction_reference ? '<i>Online payment</i>' : ''); });
-
+        $table->addColumn('invoice_number', function($model) { return $model->invoice_public_id ? link_to('invoices/' . $model->invoice_public_id . '/edit', $model->invoice_number) : ''; });
 
         if (!$clientPublicId) {
             $table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
-        }
+        }        
 
-        return $table->addColumn('invoice_number', function($model) { return $model->invoice_public_id ? link_to('invoices/' . $model->invoice_public_id . '/edit', $model->invoice_number) : ''; })
-            ->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
+        $table->addColumn('transaction_reference', function($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
+              ->addColumn('method', function($model) { return $model->payment_type ? $model->payment_type : ($model->transaction_reference ? '<i>Online payment</i>' : ''); });
+
+        return $table->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
     	    ->addColumn('payment_date', function($model) { return Utils::dateToString($model->payment_date); })
             ->addColumn('dropdown', function($model) 
             { 
@@ -107,18 +107,11 @@ class PaymentController extends \BaseController
 
     private function save($publicId = null)
     {
-        $rules = array(
-            'client' => 'required',
-            'invoice' => 'required',  
-            'amount' => 'required|positive'
-        );
-        $validator = Validator::make(Input::all(), $rules);
-
-        if ($validator->fails()) 
+        if ($errors = $this->paymentRepo->getErrors(Input::all())) 
         {
             $url = $publicId ? 'payments/' . $publicId . '/edit' : 'payments/create';
             return Redirect::to($url)
-                ->withErrors($validator)
+                ->withErrors($errors)
                 ->withInput();
         } 
         else 

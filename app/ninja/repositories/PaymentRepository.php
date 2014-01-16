@@ -1,6 +1,7 @@
 <?php namespace ninja\repositories;
 
 use Payment;
+use Credit;
 use Invoice;
 use Client;
 use Utils;
@@ -36,6 +37,29 @@ class PaymentRepository
         return $query;
 	}
 
+    public function getErrors($input)
+    {
+        $rules = array(
+            'client' => 'required',
+            'invoice' => 'required',  
+            'amount' => 'required|positive'
+        );
+        
+        if ($input['payment_type_id'] == PAYMENT_TYPE_CREDIT)
+        {
+            $rules['payment_type_id'] = 'has_credit:' . $input['client'] . ',' . $input['amount'];
+        }
+
+        $validator = \Validator::make($input, $rules);
+
+        if ($validator->fails())
+        {
+            return $validator;
+        }
+
+        return false;
+    }
+
 	public function save($publicId = null, $input)
 	{
         if ($publicId) 
@@ -47,12 +71,30 @@ class PaymentRepository
             $payment = Payment::createNew();
         }
 
+        $paymentTypeId = $input['payment_type_id'] ? $input['payment_type_id'] : null;
+        $amount = Utils::parseFloat($input['amount']);
+
+        if ($paymentTypeId == PAYMENT_TYPE_CREDIT)
+        {
+            $credits = Credit::scope()->where('balance', '>', 0)->orderBy('created_at')->get();            
+            $applied = 0;
+
+            foreach ($credits as $credit)
+            {
+                $applied += $credit->apply($amount);
+
+                if ($applied >= $amount)
+                {
+                    break;
+                }
+            }
+        }
+
         $payment->client_id = Client::getPrivateId($input['client']);
         $payment->invoice_id = isset($input['invoice']) && $input['invoice'] != "-1" ? Invoice::getPrivateId($input['invoice']) : null;
-        //$payment->currency_id = $input['currency_id'] ? $input['currency_id'] : null;
-        $payment->payment_type_id = $input['payment_type_id'] ? $input['payment_type_id'] : null;
+        $payment->payment_type_id = $paymentTypeId;
         $payment->payment_date = Utils::toSqlDate($input['payment_date']);
-        $payment->amount = Utils::parseFloat($input['amount']);
+        $payment->amount = $amount;
         $payment->save();
 	
 		return $payment;		

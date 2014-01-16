@@ -22,6 +22,7 @@
 //Log::error('test');
 
 
+/*
 Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 {
     $data = compact('bindings', 'time', 'name');
@@ -45,7 +46,7 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 
     Log::info($query, $data);
 });
-
+*/
 
 /*
 // TODO_FIX replace with cron
@@ -189,6 +190,8 @@ define('INVOICE_STATUS_VIEWED', 3);
 define('INVOICE_STATUS_PARTIAL', 4);
 define('INVOICE_STATUS_PAID', 5);
 
+define('PAYMENT_TYPE_CREDIT', 1);
+
 define('FREQUENCY_WEEKLY', 1);
 define('FREQUENCY_TWO_WEEKS', 2);
 define('FREQUENCY_FOUR_WEEKS', 3);
@@ -219,4 +222,15 @@ if (Auth::check() && !Session::has(SESSION_TIMEZONE)) {
 Validator::extend('positive', function($attribute, $value, $parameters)
 {
     return Utils::parseFloat($value) > 0;
+});
+
+Validator::extend('has_credit', function($attribute, $value, $parameters)
+{
+	$publicClientId = $parameters[0];
+	$amount = $parameters[1];
+	
+	$client = Client::scope($publicClientId)->firstOrFail();
+	$credit = $client->getTotalCredit();
+    
+    return $credit >= $amount;
 });

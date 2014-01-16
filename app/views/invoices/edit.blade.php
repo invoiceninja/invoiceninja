@@ -247,6 +247,9 @@
 
 		@if ($invoice)		
 
+			{{ Button::success('Enter Payment', array('onclick' => 'onPaymentClick()')) }}		
+
+			<!--
 			<div id="relatedActions" style="text-align:left" class="btn-group">
 				<button class="btn-success btn" type="button">Enter Payment</button>
 				<button class="btn-success btn dropdown-toggle" type="button" data-toggle="dropdown"> 
@@ -257,6 +260,7 @@
 					<li><a href="javascript:onCreditClick()">Enter Credit</a></li>
 				</ul>
 			</div>				
+			-->
 
 		@endif
 

@@ -108,7 +108,6 @@ class Activity extends Eloquent
 		$activity = Activity::getBlank($invoice);
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
-		$activity->currency_id = $invoice->client->currency_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_INVOICE;
 		$activity->message = $message;
 		$activity->balance = $invoice->client->balance;
@@ -268,13 +267,14 @@ class Activity extends Eloquent
 		if (Auth::check())
 		{
 			$activity = Activity::getBlank();
-			$activity->message = Utils::encodeActivity(Auth::user(), 'created payment');
+			$message = $payment->payment_type_id == PAYMENT_TYPE_CREDIT ? 'applied credit' : 'entered payment';
+			$activity->message = Utils::encodeActivity(Auth::user(), $message);
 		}
 		else
 		{
 			$activity = new Activity;
 			$activity->contact_id = $payment->contact_id;
-			$activity->message = Utils::encodeActivity($payment->invitation->contact, 'created payment');			
+			$activity->message = Utils::encodeActivity($payment->invitation->contact, 'entered payment');			
 		}
 
 		$activity->payment_id = $payment->id;
@@ -288,8 +288,8 @@ class Activity extends Eloquent
 			$invoice->save();
 		}
 
+		$activity->payment_id = $payment->id;
 		$activity->client_id = $payment->client_id;
-		$activity->currency_id = $client->currency_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_PAYMENT;
 		$activity->balance = $client->balance;
 		$activity->adjustment = $payment->amount * -1;
@@ -310,6 +310,7 @@ class Activity extends Eloquent
 			$invoice->save();
 
 			$activity = Activity::getBlank();
+			$activity->payment_id = $payment->id;
 			$activity->client_id = $invoice->client_id;
 			$activity->invoice_id = $invoice->id;
 			$activity->activity_type_id = ACTIVITY_TYPE_DELETE_PAYMENT;
@@ -362,6 +363,7 @@ class Activity extends Eloquent
 		$invoice->save();
 
 		$activity = Activity::getBlank();
+		$activity->payment_id = $payment->id;
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $client->id;
 		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_PAYMENT;
@@ -374,28 +376,12 @@ class Activity extends Eloquent
 
 	public static function createCredit($credit)
 	{
-		$client = $credit->client;
-		$client->balance = $client->balance - $credit->amount;
-		$client->save();
-
 		$activity = Activity::getBlank();
-		$activity->message = Utils::encodeActivity(Auth::user(), 'created credit');
+		$activity->message = Utils::encodeActivity(Auth::user(), 'entered ' . Utils::formatMoney($credit->amount, $credit->client->currency_id) . ' credit');
 		$activity->credit_id = $credit->id;
 		$activity->client_id = $credit->client_id;
-
-		if ($credit->invoice_id) 
-		{
-			$activity->invoice_id = $credit->invoice_id;
-
-			$invoice = $credit->invoice;
-			$invoice->balance = $invoice->balance - $credit->amount;			
-			$invoice->save();
-		}		
-
-		$activity->currency_id = $client->currency_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_CREDIT;
-		$activity->balance = $client->balance;
-		$activity->adjustment = $credit->amount * -1;
+		$activity->balance = $credit->client->balance;
 		$activity->save();
 	}	
 
@@ -403,24 +389,12 @@ class Activity extends Eloquent
 	{
 		if ($credit->is_deleted && !$credit->getOriginal('is_deleted'))
 		{
-			$client = $credit->client;
-			$client->balance = $client->balance + $credit->amount;
-			$client->save();
-
-			if ($credit->invoice)
-			{
-				$invoice = $credit->invoice;
-				$invoice->balance = $invoice->balance + $credit->amount;
-				$invoice->save();
-			}
-
 			$activity = Activity::getBlank();
-			$activity->client_id = $invoice->client_id;
-			$activity->invoice_id = $credit->invoice ? $credit->invoice->id : null;
+			$activity->credit_id = $credit->id;
+			$activity->client_id = $credit->client_id;
 			$activity->activity_type_id = ACTIVITY_TYPE_DELETE_CREDIT;
-			$activity->message = Utils::encodeActivity(Auth::user(), 'deleted credit');
-			$activity->balance = $client->balance;
-			$activity->adjustment = $credit->amount;
+			$activity->message = Utils::encodeActivity(Auth::user(), 'deleted ' . Utils::formatMoney($credit->balance, $credit->client->currency_id) . ' credit');
+			$activity->balance = $credit->client->balance;
 			$activity->save();		
 		}
 		else
@@ -457,24 +431,12 @@ class Activity extends Eloquent
 			return;
 		}
 	
-		$client = $credit->client;
-		$client->balance = $client->balance + $credit->amount;
-		$client->save();
-
-		if ($credit->invoice)
-		{
-			$invoice = $credit->invoice;
-			$invoice->balance = $invoice->balance + $credit->amount;
-			$invoice->save();
-		}
-
 		$activity = Activity::getBlank();
-		$activity->invoice_id = $credit->invoice ? $credit->invoice->id : null;
 		$activity->client_id = $client->id;
+		$activity->credit_id = $credit->id;
 		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_CREDIT;
-		$activity->message = Utils::encodeActivity(Auth::user(), 'archived credit');
-		$activity->balance = $client->balance;
-		$activity->adjustment = $credit->amount;
+		$activity->message = Utils::encodeActivity(Auth::user(), 'archived ' . Utils::formatMoney($credit->balance, $credit->client->currency_id) . ' credit');
+		$activity->balance = $credit->client->balance;
 		$activity->save();
 	}
 }

@@ -67,9 +67,7 @@ class InvoiceController extends \BaseController {
   							</button>
   							<ul class="dropdown-menu" role="menu">
 						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">Edit Invoice</a></li>
-						    <li class="divider"></li>
 						    <li><a href="' . URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">Enter Payment</a></li>
-						    <li><a href="' . URL::to('credits/create/' . $model->client_public_id . '/' . $model->public_id ) . '">Enter Credit</a></li>
 						    <li class="divider"></li>
 						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">Archive Invoice</a></li>
 						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">Delete Invoice</a></li>						    
@@ -216,7 +214,6 @@ class InvoiceController extends \BaseController {
 			$payment->invoice_id = $invoice->id;
 			$payment->amount = $invoice->amount;			
 			$payment->client_id = $invoice->client_id;
-			$payment->currency_id = $invoice->currency_id ? $invoice->currency_id : 0;
 			$payment->contact_id = $invitation->contact_id;
 			$payment->transaction_reference = $ref;
 			$payment->payment_date = date_create();
@@ -519,7 +516,7 @@ class InvoiceController extends \BaseController {
 		$invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();		
 
 		$clone = Invoice::createNew();		
-		foreach (['client_id', 'discount', 'invoice_date', 'due_date', 'is_recurring', 'frequency_id', 'start_date', 'end_date', 'terms', 'currency_id'] as $field) 
+		foreach (['client_id', 'discount', 'invoice_date', 'due_date', 'is_recurring', 'frequency_id', 'start_date', 'end_date', 'terms'] as $field) 
 		{
 			$clone->$field = $invoice->$field;	
 		}

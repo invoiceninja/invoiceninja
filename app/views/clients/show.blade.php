@@ -62,9 +62,25 @@
 		</div>
 
 		<div class="col-md-6">
-			<h3>Standing</h3>
-			<h3>{{ Utils::formatMoney($client->paid_to_date, $client->currency_id); }} <small>Paid to Date USD</small></h3>	    
-			<h3>{{ Utils::formatMoney($client->balance, $client->currency_id); }} <small>Balance USD</small></h3>
+			<h3>Standing
+			<table class="table" style="width:300px">
+				<tr>
+					<td><small>Paid to Date</small></td>
+					<td style="text-align: right">{{ Utils::formatMoney($client->paid_to_date, $client->currency_id); }}</td>
+				</tr>
+				<tr>
+					<td><small>Balance</small></td>
+					<td style="text-align: right">{{ Utils::formatMoney($client->balance, $client->currency_id); }}</td>
+				</tr>
+				@if ($credit > 0)
+				<tr>
+					<td><small>Credit</small></td>
+					<td style="text-align: right">{{ Utils::formatMoney($credit, $client->currency_id); }}</td>
+				</tr>
+				@endif
+			</table>
+			</h3>
+
 		</div>
 	</div>
 
@@ -112,7 +128,7 @@
         <div class="tab-pane" id="payments">
 
 	    	{{ Datatable::table()		
-				->addColumn('Transaction Reference', 'Method', 'Invoice', 'Payment Amount', 'Payment Date')       
+				->addColumn('Invoice', 'Transaction Reference', 'Method', 'Payment Amount', 'Payment Date')       
 				->setUrl(url('api/payments/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
@@ -122,7 +138,7 @@
         <div class="tab-pane" id="credits">
 
 	    	{{ Datatable::table()		
-				->addColumn('Credit Amount', 'Credit Date', 'Private Notes')       
+				->addColumn('Credit Amount', 'Credit Balance', 'Credit Date', 'Private Notes')       
 				->setUrl(url('api/credits/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)

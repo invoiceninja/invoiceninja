@@ -21,6 +21,24 @@ class Credit extends EntityModel
 	{
 		return ENTITY_CREDIT;
 	}		
+
+	public function apply($amount)
+	{
+		if ($amount > $this->balance)
+		{
+			$applied = $this->balance;
+			$this->balance = 0;
+		}
+		else
+		{
+			$applied = $amount;
+			$this->balance = $this->balance - $amount;			
+		}
+
+		$this->save();
+
+		return $applied;
+	}
 }
 
 Credit::created(function($credit)

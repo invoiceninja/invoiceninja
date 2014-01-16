@@ -5,6 +5,8 @@ var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Const
 var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
+var NINJA = {};
+
 function generatePDF(invoice, checkMath) {
 	var client = invoice.client;
 	var account = invoice.account;
@@ -148,9 +150,49 @@ function generatePDF(invoice, checkMath) {
 	
 	headerY += rowHeight;
 	doc.setFontType("bold");
-	doc.text(headerLeft, headerY, 'Amount Due');
+	doc.text(headerLeft, headerY, 'Balance Due');
 
-	var balance = formatMoney(invoice.balance, currencyId);
+	var total = 0;
+
+	for (var i=0; i<invoice.invoice_items.length; i++) {
+		var item = invoice.invoice_items[i];
+		var tax = 0;
+		if (item.tax && parseFloat(item.tax.rate)) {
+			tax = parseFloat(item.tax.rate);
+		} else if (item.tax_rate && parseFloat(item.tax_rate)) {
+			tax = parseFloat(item.tax_rate);
+		}		
+
+		var lineTotal = item.cost * item.qty;
+		if (tax) {
+			lineTotal += lineTotal * tax / 100;
+		}
+		if (lineTotal) {
+			total += lineTotal;
+		}
+	}
+
+	if (invoice.discount > 0) {
+
+		var discount = total * (invoice.discount/100);
+		total -= discount;
+	}
+
+	var tax = 0;
+	if (invoice.tax && parseFloat(invoice.tax.rate)) {
+		tax = parseFloat(invoice.tax.rate);
+	} else if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
+		tax = parseFloat(invoice.tax_rate);
+	}		
+
+	if (tax) {
+		var tax = total * (tax/100);
+		total = parseFloat(total) + parseFloat(tax);
+	}
+
+	total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
+
+	var balance = formatMoney(total, currencyId);
 	balanceX = headerRight - (doc.getStringUnitWidth(balance) * doc.internal.getFontSize());
 	doc.text(balanceX, headerY, balance);
 
@@ -259,9 +301,9 @@ function generatePDF(invoice, checkMath) {
 
 	x += 16;
 	doc.text(footerLeft, x, 'Subtotal');
-	var total = formatMoney(total, currencyId, true);
-	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
-	doc.text(totalX, x, total);		
+	var prettyTotal = formatMoney(total, currencyId, true);
+	var totalX = headerRight - (doc.getStringUnitWidth(prettyTotal) * doc.internal.getFontSize());
+	doc.text(totalX, x, prettyTotal);		
 
 	if (invoice.discount > 0) {
 
@@ -298,9 +340,7 @@ function generatePDF(invoice, checkMath) {
 	doc.text(paidX, x, paid);		
 
 	x += 16;
-	doc.setFontType("bold");
-	doc.text(footerLeft, x, 'Balance Due');
-	
+
 	if (checkMath && parseFloat(total) != parseFloat(invoice.amount)) 
 	{
 		var doc = new jsPDF('p', 'pt');
@@ -311,76 +351,37 @@ function generatePDF(invoice, checkMath) {
 		return doc;		
 	}	
 
-	var total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
+
+	doc.setDrawColor(200,200,200);
+	doc.setFillColor(230,230,230);
+	var x1 = footerLeft - tablePadding;
+	var y1 = x - 11;
+	var x2 = headerRight - footerLeft + 11;
+	var y2 = 16;
+	doc.rect(x1, y1, x2, y2, 'FD'); 
+
+	doc.setFontType("bold");
+	doc.text(footerLeft, x, 'Balance Due');
+	
+	console.log('total %s', total);
+	console.log('inovice.amount %s', invoice.amount);
+	console.log('invoice.blance %s', invoice.balance);
+	total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
 	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
 	doc.text(totalX, x, total);		
 
-
-
-	/* payment stub */	
-	/*
-	var y = 680;
-	doc.lines([[0,0],[headerRight-tableLeft+5,0]],tableLeft - 8, y - 30);
-	doc.setFontSize(20);
-	doc.text(tableLeft, y, 'Payment Stub');
-
-	doc.setFontSize(10);
-	doc.setFontType("normal");
-	y += 40;
-	doc.text(tableLeft, y, invoice.account.name);	
-	y += 16;
-	doc.text(tableLeft, y, invoice.account.address1);	
-	if (invoice.account.address2) {
-		y += 16;
-		doc.text(tableLeft, y, invoice.account.address2);	
-	}
-	y += 16;
-	doc.text(tableLeft, y, invoice.account.city + ', ' + invoice.account.state + ' ' + invoice.account.postal_code);	
-	y += 16;
-	doc.text(tableLeft, y, invoice.account.country ? invoice.account.country.name : '');	
-
-
-	if (invoice.client) {
-
-		var clientX = headerRight - (doc.getStringUnitWidth(invoice.client.name) * doc.internal.getFontSize());
-	}
-	var numberX = headerRight - (doc.getStringUnitWidth(invoice.invoice_number) * doc.internal.getFontSize());
-	var dateX = headerRight - (doc.getStringUnitWidth(issuedOn) * doc.internal.getFontSize());
-	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
-
-	y = 720;
-	if (invoice.client) {
-		doc.setFontType("bold");
-		doc.text(headerLeft, y, 'Client');		
-		doc.setFontType("normal");
-		doc.text(clientX, y, invoice.client.name);		
-	}
-
-	y += 16;
-	doc.setFontType("bold");
-	doc.text(headerLeft, y, 'Invoice #');		
-	doc.setFontType("normal");
-	doc.text(numberX, y, invoice.invoice_number);		
-
-	y += 16;
-	doc.setFontType("bold");
-	doc.text(headerLeft, y, 'Invoice Date');		
-	doc.setFontType("normal");
-	doc.text(dateX, y, issuedOn);		
-
-	y += 16;
-	doc.setFontType("bold");
-	doc.text(headerLeft, y, 'Amount Due');		
-	doc.setFontType("normal");
-	doc.text(totalX, y, total);		
-
-	y += 16;
-	doc.setFontType("bold");
-	doc.text(headerLeft, y, 'Amount Enclosed');		
-	*/
 	
+	doc.setFontType("normal");
+	doc.text(marginLeft, 790, "Created by InvoiceNinja.com");
+
 	return doc;		
 }
+
+NINJA.parseFloat = function(str) {
+	str = str.replace(/[^0-9\.\-]/g, '');
+	return window.parseFloat(str);
+}
+
 
 
 /* Handle converting variables in the invoices (ie, MONTH+1) */

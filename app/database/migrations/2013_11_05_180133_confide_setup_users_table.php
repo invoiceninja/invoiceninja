@@ -464,23 +464,20 @@ class ConfideSetupUsersTable extends Migration {
         {
             $t->increments('id');
             $t->unsignedInteger('account_id')->index();
+            $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('user_id');
-            $t->unsignedInteger('client_id')->index()->nullable();
-            $t->unsignedInteger('invoice_id')->nullable();
-            $t->unsignedInteger('contact_id')->nullable();
             $t->timestamps();
             $t->softDeletes();
             
             $t->boolean('is_deleted');
             $t->decimal('amount', 13, 4);
+            $t->decimal('balance', 13, 4);
             $t->date('credit_date')->nullable();
             $t->string('credit_number');
             $t->text('private_notes');
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-            $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
-            $t->foreign('contact_id')->references('id')->on('contacts');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
             
             $t->unsignedInteger('public_id')->index();
@@ -500,8 +497,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('invoice_id');
             $t->unsignedInteger('credit_id');
             $t->unsignedInteger('invitation_id');
-            $t->unsignedInteger('currency_id')->nullable();
-
+            
             $t->text('message');
             $t->text('json_backup');
             $t->integer('activity_type_id');            
@@ -510,7 +506,6 @@ class ConfideSetupUsersTable extends Migration {
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-            $t->foreign('currency_id')->references('id')->on('currencies');
         });
     }
 

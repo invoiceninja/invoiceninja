@@ -104,6 +104,7 @@ class ClientController extends \BaseController {
 		
 		$data = array(
 			'client' => $client,
+			'credit' => $client->getTotalCredit(),
 			'title' => '- ' . $client->getDisplayName(),
 			'hasRecurringInvoices' => Invoice::scope()->where('is_recurring', '=', true)->whereClientId($client->id)->count() > 0
 		);

@@ -47,6 +47,14 @@ class Client extends EntityModel
 		return $this->belongsTo('Industry');
 	}
 
+	public function getTotalCredit()
+	{
+		return DB::table('credits')
+				->where('client_id','=',$this->id)
+				->whereNull('deleted_at')
+				->sum('balance');
+	}
+
 	public function getName()
 	{
 		return $this->getDisplayName();
