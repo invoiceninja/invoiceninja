@@ -13,7 +13,7 @@
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
 		'client' => 'required',
 		'email' => 'required',
-		'product_key' => 'max:14',
+		'product_key' => 'max:20',
 	)); }}	
 
 	<div data-bind="with: invoice">
@@ -47,7 +47,7 @@
 					<div class="col-lg-8 col-lg-offset-4">
 						<label for="test" class="checkbox" data-bind="attr: {for: $index() + '_check'}">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check'}">
-								<span data-bind="text: email.display"/>
+								<span data-bind="html: email.display"/>
 						</label>
 					</div>				
 				</div>
@@ -80,7 +80,7 @@
 		<div class="col-md-3" id="col_2">
 			{{ Former::text('invoice_number')->label('Invoice #')->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
 			{{ Former::text('po_number')->label('PO #')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
-			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'") }}			
+			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")->append('%') }}			
 			{{-- Former::select('currency_id')->label('Currency')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") --}}
 			
 			<div class="form-group" style="margin-bottom: 8px">
@@ -115,7 +115,7 @@
 	        	<td style="min-width:20px;" class="hide-border td-icon">
 	        		<i data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 	        	</td>
-	            <td style="min-width:120px">	            	
+	            <td style="min-width:160px">	            	
 	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'key')->onkeyup('onItemChange()')
 	            		->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 	            </td>
@@ -1208,7 +1208,7 @@
 		self.email.display = ko.computed(function() {
 			var str = '';
 			if (self.first_name() || self.last_name()) {
-				str += self.first_name() + ' ' + self.last_name() + ' - ';
+				str += self.first_name() + ' ' + self.last_name() + '<br/>';
 			}			
 			return str + self.email();
 		});		

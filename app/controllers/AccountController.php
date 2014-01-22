@@ -203,9 +203,11 @@ class AccountController extends \BaseController {
 		$count = 0;
 		$hasHeaders = Input::get('header_checkbox');
 		
-		$countries = Country::remember(DEFAULT_QUERY_CACHE)->all();
+		$countries = Country::remember(DEFAULT_QUERY_CACHE)->get();
 		$countryMap = [];
-		foreach ($countries as $country) {
+
+		foreach ($countries as $country) 
+		{
 			$countryMap[strtolower($country->name)] = $country->id;
 		}		
 
@@ -219,6 +221,7 @@ class AccountController extends \BaseController {
 
 			$client = Client::createNew();		
 			$contact = Contact::createNew();
+			$contact->is_primary = true;
 			$count++;
 
 			foreach ($row as $index => $value)
@@ -226,56 +229,56 @@ class AccountController extends \BaseController {
 				$field = $map[$index];
 				$value = trim($value);
 
-				if ($field == Client::$fieldName)
+				if ($field == Client::$fieldName && !$client->name)
 				{
 					$client->name = $value;
 				}			
-				else if ($field == Client::$fieldPhone)
+				else if ($field == Client::$fieldPhone && !$client->work_phone)
 				{
 					$client->work_phone = $value;
 				}
-				else if ($field == Client::$fieldAddress1)
+				else if ($field == Client::$fieldAddress1 && !$client->address1)
 				{
 					$client->address1 = $value;
 				}
-				else if ($field == Client::$fieldAddress2)
+				else if ($field == Client::$fieldAddress2 && !$client->address2)
 				{
 					$client->address2 = $value;
 				}
-				else if ($field == Client::$fieldCity)
+				else if ($field == Client::$fieldCity && !$client->city)
 				{
 					$client->city = $value;
 				}
-				else if ($field == Client::$fieldState)
+				else if ($field == Client::$fieldState && !$client->state)
 				{
 					$client->state = $value;
 				}
-				else if ($field == Client::$fieldPostalCode)
+				else if ($field == Client::$fieldPostalCode && !$client->postal_code)
 				{
 					$client->postal_code = $value;
 				}
-				else if ($field == Client::$fieldCountry)
+				else if ($field == Client::$fieldCountry && !$client->country_id)
 				{
 					$value = strtolower($value);
 					$client->country_id = isset($countryMap[$value]) ? $countryMap[$value] : null;
 				}
-				else if ($field == Client::$fieldNotes)
+				else if ($field == Client::$fieldNotes && !$client->private_notes)
 				{
-					$client->notes = $value;
+					$client->private_notes = $value;
 				}
-				else if ($field == Contact::$fieldFirstName)
+				else if ($field == Contact::$fieldFirstName && !$contact->first_name)
 				{
 					$contact->first_name = $value;
 				}
-				else if ($field == Contact::$fieldLastName)
+				else if ($field == Contact::$fieldLastName && !$contact->last_name)
 				{
 					$contact->last_name = $value;
 				}
-				else if ($field == Contact::$fieldPhone)
+				else if ($field == Contact::$fieldPhone && !$contact->phone)
 				{
 					$contact->phone = $value;
 				}
-				else if ($field == Contact::$fieldEmail)
+				else if ($field == Contact::$fieldEmail && !$contact->email)
 				{
 					$contact->email = $value;
 				}				
@@ -347,10 +350,10 @@ class AccountController extends \BaseController {
 						'mobile' => Contact::$fieldPhone,
 						'phone' => Client::$fieldPhone,
 						'name|organization' => Client::$fieldName,
-						'address|address1' => Client::$fieldAddress1,	
-						'address2' => Client::$fieldAddress2,						
+						'street|address|address1' => Client::$fieldAddress1,	
+						'street2|address2' => Client::$fieldAddress2,						
 						'city' => Client::$fieldCity,
-						'state' => Client::$fieldState,
+						'state|province' => Client::$fieldState,
 						'zip|postal|code' => Client::$fieldPostalCode,
 						'country' => Client::$fieldCountry,
 						'note' => Client::$fieldNotes,
@@ -360,6 +363,11 @@ class AccountController extends \BaseController {
 					{
 						foreach(explode("|", $search) as $string)
 						{
+							if (strpos($title, 'sec') === 0)
+							{
+								continue;
+							}
+
 							if (strpos($title, $string) !== false)
 							{
 								$mapped[$i] = $column;

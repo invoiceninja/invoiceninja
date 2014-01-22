@@ -55,8 +55,10 @@ Route::get('/send_emails', function() {
 });
 */
 
-//Route::get('/', 'HomeController@showComingSoon');
-Route::get('/', 'HomeController@showWelcome');
+Route::get('/', function() {
+	return Redirect::to('http://signup.invoiceninja.com');
+});
+
 Route::get('/rocksteady', 'HomeController@showWelcome');
 
 

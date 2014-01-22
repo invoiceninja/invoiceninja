@@ -15,23 +15,23 @@ function generatePDF(invoice, checkMath) {
 	var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
 	var dueDate = invoice.due_date ? invoice.due_date : '';
 
-	var marginLeft = 60;
+	var marginLeft = 50;
 	var accountTop = 30;
 	var headerTop = 140;
 	var headerLeft = 360;
-	var headerRight = 540;
+	var headerRight = 550;
 	var rowHeight = 15;
 	var tableRowHeight = 20;
 	var footerLeft = 420;
 	var tablePadding = 6;
 
 	var tableTop = 240;
-	var tableLeft = 60;
-	var descriptionLeft = 150;
-	var unitCostRight = 400;
-	var qtyRight = 470;
-	var taxRight = 470;
-	var lineTotalRight = 540;
+	var tableLeft = 50;
+	var descriptionLeft = 162;
+	var unitCostRight = 410;
+	var qtyRight = 480;
+	var taxRight = 480;
+	var lineTotalRight = 550;
 	
 
 	var hasTaxes = false;
@@ -297,7 +297,13 @@ function generatePDF(invoice, checkMath) {
 	console.log('%s %s %s', lineTotalRight, tableLeft, (lineTotalRight-tableLeft));
 
 	doc.text(tableLeft, x+16, invoice.public_notes);
-	doc.text(tableLeft, x+16 + (doc.splitTextToSize(invoice.public_notes, 340).length * rowHeight) + (rowHeight/2), invoice.terms);
+	if (invoice.terms) {
+		var termsX = x+16 + (doc.splitTextToSize(invoice.public_notes, 340).length * rowHeight) + (rowHeight/2);
+		doc.setFontType("bold");
+		doc.text(tableLeft, termsX, "Terms");
+		doc.setFontType("normal");
+		doc.text(tableLeft, termsX + rowHeight, invoice.terms);
+	}
 
 	x += 16;
 	doc.text(footerLeft, x, 'Subtotal');
