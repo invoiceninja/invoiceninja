@@ -1,6 +1,7 @@
 /app/config/staging
 /app/config/development
 /app/config/fortrabbit
+/app/config/ubuntu
 /app/config/packages/anahkiasen/rocketeer/
 /app/storage
 /public/logo
@@ -14,3 +15,5 @@ composer.phar
 Thumbs.db
 app.yaml
 database.sql
+ninja.sublime-project
+ninja.sublime-workspace

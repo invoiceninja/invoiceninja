@@ -61,7 +61,6 @@ Route::get('/', function() {
 
 Route::get('/rocksteady', 'HomeController@showWelcome');
 
-
 Route::get('log_error', 'HomeController@logError');
 Route::post('get_started', 'AccountController@getStarted');
 

@@ -38,7 +38,7 @@
 			if (!doc) return;
 			var string = doc.output('datauristring');
 			
-			if (isFirefox || isChrome) {
+			if (isFirefox || (isChrome && !isChromium)) {
 				$('#theFrame').attr('src', string).show();
 			} else {
 				var pdfAsArray = convertDataURIToBinary(string);	
