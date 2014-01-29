@@ -270,8 +270,8 @@ class InvoiceController extends \BaseController {
 				}
 				
 				$invoice->save();
-								
-				Event::fire('invoice.paid', $invoice);
+
+				Event::fire('invoice.paid', $payment);
 
 				Session::flash('message', 'Successfully applied payment');	
 				return Redirect::to('view/' . $payment->invitation->invitation_key);				
@@ -345,7 +345,7 @@ class InvoiceController extends \BaseController {
 	{
 		return [
 			'account' => Auth::user()->account,
-			'products' => Product::scope()->get(array('product_key','notes','cost','qty')),
+			'products' => Product::scope()->orderBy('id')->get(array('product_key','notes','cost','qty')),
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
 			'taxRates' => TaxRate::scope()->orderBy('name')->get(),

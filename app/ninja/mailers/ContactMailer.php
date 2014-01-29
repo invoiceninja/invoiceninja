@@ -1,20 +1,22 @@
 <?php namespace ninja\mailers;
 
 use Invoice;
+use Payment;
 use Contact;
 use Invitation;
 use URL;
 use Auth;
 use Activity;
+use Utils;
 
 class ContactMailer extends Mailer {
 
 	public function sendInvoice(Invoice $invoice)
 	{
 		$view = 'invoice';
-		$subject = '';
+		$subject = 'New invoice ' . $invoice->invoice_number;
 
-		$invoice->load('invitations');
+		$invoice->load('invitations', 'client', 'account');
 
 		foreach ($invoice->invitations as $invitation)
 		{
@@ -26,7 +28,15 @@ class ContactMailer extends Mailer {
 			$invitation->sent_date = \Carbon::now()->toDateTimeString();
 			$invitation->save();
 	
-			$data = array('link' => URL::to('view') . '/' . $invitation->invitation_key);		
+			$data = [
+				'link' => URL::to('view') . '/' . $invitation->invitation_key,
+				'clientName' => $invoice->client->getDisplayName(),
+				'accountName' => $invoice->account->getDisplayName(),
+				'contactName'	=> $invitation->contact->getDisplayName(),
+				'invoiceAmount' => Utils::formatMoney($invoice->amount, $invoice->client->currency_id),
+				'emailFooter' => $invoice->account->email_footer
+			];
+
 			$this->sendTo($invitation->contact->email, $invitation->user->email, $subject, $view, $data);
 
 			Activity::emailInvoice($invitation);
@@ -39,5 +49,20 @@ class ContactMailer extends Mailer {
 		}
 
 		\Event::fire('invoice.sent', $invoice);
+	}
+
+	public function sendPaymentConfirmation(Payment $payment)
+	{
+		$view = 'payment_confirmation';
+		$subject = 'Payment confirmation';
+
+		$data = [
+			'accountName' => $payment->account->getDisplayName(),
+			'clientName' => $payment->client->getDisplayName(),
+			'emailFooter' => $payment->account->email_footer,
+			'paymentAmount' => Utils::formatMoney($payment->amount, $payment->client->currency_id)
+		];
+
+		$this->sendTo($payment->contact->email, $payment->invitation->user->email, $subject, $view, $data);
 	}
 }

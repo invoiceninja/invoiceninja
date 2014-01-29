@@ -427,6 +427,8 @@ class AccountController extends \BaseController {
 			$account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
 
 			$account->invoice_terms = Input::get('invoice_terms');
+			$account->email_footer = Input::get('email_footer');
+
 			$account->save();
 
 			$user = Auth::user();

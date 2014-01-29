@@ -26,6 +26,7 @@ Clone the Github project
     cd ninja
 
 Install Laravel packages using Composer
+Note: you may be prompted for your Github user/pass due to their API limits. 
 
     composer install
 

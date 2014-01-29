@@ -1,14 +1,17 @@
 <?php
 
-use ninja\mailers\UserMailer as Mailer;
+use ninja\mailers\UserMailer;
+use ninja\mailers\ContactMailer;
 
 class InvoiceEventHandler
 {
-	protected $mailer;
+	protected $userMailer;
+	protected $contactMailer;
 
-	public function __construct(Mailer $mailer)
+	public function __construct(UserMailer $userMailer, ContactMailer $contactMailer)
 	{
-		$this->mailer = $mailer;
+		$this->userMailer = $userMailer;
+		$this->contactMailer = $contactMailer;
 	}	
 
 	public function subscribe($events)
@@ -28,18 +31,20 @@ class InvoiceEventHandler
 		$this->sendNotifications($invoice, 'viewed');
 	}
 
-	public function onPaid($invoice)
+	public function onPaid($payment)
 	{
-		$this->sendNotifications($invoice, 'paid');
+		$this->contactMailer->sendPaymentConfirmation($payment);
+
+		$this->sendNotifications($payment->invoice, 'paid', $payment);		
 	}
 
-	private function sendNotifications($invoice, $type)
+	private function sendNotifications($invoice, $type, $payment = null)
 	{
 		foreach ($invoice->account->users as $user)
 		{
 			if ($user->{'notify_' . $type})
 			{
-				$this->mailer->sendNotification($user, $invoice, $type);
+				$this->userMailer->sendNotification($user, $invoice, $type, $payment);
 			}
 		}
 	}

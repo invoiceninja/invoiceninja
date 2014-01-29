@@ -143,6 +143,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('postal_code');
             $t->unsignedInteger('country_id')->nullable();     
             $t->text('invoice_terms');
+            $t->text('email_footer');
             $t->unsignedInteger('industry_id')->nullable();
             $t->unsignedInteger('size_id')->nullable();
 

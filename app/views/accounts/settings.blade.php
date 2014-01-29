@@ -61,8 +61,9 @@
 	{{ Former::checkbox('notify_viewed')->label('&nbsp;')->text('Email me when an invoice is <b>viewed</b>') }}
 	{{ Former::checkbox('notify_paid')->label('&nbsp;')->text('Email me when an invoice is <b>paid</b>') }}
 
-	{{ Former::legend('Invoice Terms') }}
-	{{ Former::textarea('invoice_terms')->label('Terms') }}
+	{{ Former::legend('Custom messages') }}
+	{{ Former::textarea('invoice_terms') }}
+	{{ Former::textarea('email_footer') }}
 
 	{{ Former::actions( Button::lg_primary_submit('Save') ) }}
 	{{ Former::close() }}

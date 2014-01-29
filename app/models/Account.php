@@ -73,6 +73,19 @@ class Account extends Eloquent
 		}
 	}
 
+	public function getDisplayName()
+	{
+		if ($this->name) 
+		{
+			return $this->name;
+		}
+
+		$this->load('users');
+		$user = $this->users()->first();
+		
+		return $user->getDisplayName();
+	}
+
 	public function getTimezone()
 	{
 		if ($this->timezone)

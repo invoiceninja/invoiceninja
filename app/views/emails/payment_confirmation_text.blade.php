@@ -1,8 +1,6 @@
 {{ $clientName }},
 
-To view your invoice for {{ $invoiceAmount }}, click the link below:
-
-{{ $link }}
+Thank you for your payment of {{ $paymentAmount }}.
 
 @if ($emailFooter)
 {{ $emailFooter }}
