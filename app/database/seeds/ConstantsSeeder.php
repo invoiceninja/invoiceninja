@@ -148,9 +148,6 @@ class ConstantsSeeder extends Seeder
 		$gateways = [
 			array('name'=>'Authorize.Net AIM', 'provider'=>'AuthorizeNet_AIM'),
 			array('name'=>'Authorize.Net SIM', 'provider'=>'AuthorizeNet_SIM'),
-			array('name'=>'Buckaroo', 'provider'=>'Buckaroo'),
-			array('name'=>'Buckaroo Ideal', 'provider'=>'Buckaroo_Ideal'),
-			array('name'=>'Buckaroo PayPal', 'provider'=>'Buckaroo_PayPal'),
 			array('name'=>'CardSave', 'provider'=>'CardSave'),
 			array('name'=>'Eway Rapid', 'provider'=>'Eway_Rapid'),
 			array('name'=>'FirstData Connect', 'provider'=>'FirstData_Connect'),
