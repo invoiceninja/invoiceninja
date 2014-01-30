@@ -1,9 +1,8 @@
 @extends('master')
 
-	
+
 
 @section('head')
-
 	<meta name="csrf-token" content="<?= csrf_token() ?>">
 
 	<script src="{{ asset('vendor/jquery-ui/ui/minified/jquery-ui.min.js') }}" type="text/javascript"></script>				
@@ -33,12 +32,10 @@
 		
 	<style type="text/css">
 
-	@if (!Auth::check() || Auth::user()->showGreyBackground())
 	body {
 		/* background-color: #F6F6F6; */
 		background-color: #EEEEEE;
 	}
-	@endif
 
 	</style>
 
@@ -56,8 +53,6 @@
 			return accounting.formatMoney(value, hide_symbol ? '' : currency.symbol, currency.precision, currency.thousand_separator, currency.decimal_separator);
 		}
 	</script>
-
-
 @stop
 
 @section('body')
@@ -89,17 +84,19 @@
 
 		<div class="navbar-form navbar-right">
 			@if (Auth::check() && !Auth::user()->registered)
-				{{ Button::sm_success_primary('Sign up', array('data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
+				{{ Button::sm_success_primary('Sign up', array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
 			@endif
 			
 			@if (Auth::check())
 			<div class="btn-group">
 			  <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-			  @if (Auth::check() && Auth::user()->registered)
-			  {{ Auth::user()->getFullName() }}
-			  @else			  
-			    My Account 
-			  @endif
+        <span id="myAccountButton">
+  			  @if (Auth::check() && Auth::user()->registered)
+  			  {{ Auth::user()->getFullName() }}
+  			  @else			  
+  			    My Account 
+  			  @endif
+        </span>
 			  <span class="caret"></span>
 			  </button>			
 			  <ul class="dropdown-menu" role="menu">
@@ -218,12 +215,20 @@
 		  	<h3>Working...</h3>
 		  	<div class="progress progress-striped active">
 	  			<div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-			</div>
-		  </div>
+  			</div>
+      </div>
+
+      <div style="background-color: #EEEEEE; padding-right:20px;padding-left:20px; display:none" id="signUpSuccessDiv">
+      <br/>
+      <h3>Success</h3>
+      You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.
+      <br/>&nbsp;
+      </div>
+
 
 	      <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">	      	
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	        <button type="button" class="btn btn-primary" onclick="submitSignUp()">Save</button>	      	
+	        <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()">Save</button>	      	
 	      </div>
 	    </div>
 	  </div>
@@ -289,7 +294,7 @@
   			return isFormValid;
   		}
 
-  		function submitSignUp()
+  		function validateServerSignUp()
   		{
   			if (!validateSignUp(true)) {
   				return;
@@ -298,36 +303,58 @@
   			$('#signUpDiv, #signUpFooter').hide();
   			$('#working').show();
 
-			$.ajax({
-				type: 'POST',
-				url: '{{ URL::to('signup/validate') }}',
-				data: 'email=' + $('form.signUpForm #new_email').val() + '&path={{ Request::path() }}',
-				success: function(result) { 
-					if (result == 'available') {
-						$('.signUpForm').submit();
-					} else {
-						$('#errorTaken').show();
-  						$('form.signUpForm #new_email').closest('div.form-group').removeClass('has-success').addClass('has-error');
-  						$('#signUpDiv, #signUpFooter').show();
-			  			$('#working').hide();
-					}
-				}
-			});			
+  			$.ajax({
+  				type: 'POST',
+  				url: '{{ URL::to('signup/validate') }}',
+  				data: 'email=' + $('form.signUpForm #new_email').val(),
+  				success: function(result) { 
+  					if (result == 'available') {						
+              submitSignUp();
+  					} else {
+  						$('#errorTaken').show();
+    						$('form.signUpForm #new_email').closest('div.form-group').removeClass('has-success').addClass('has-error');
+    						$('#signUpDiv, #signUpFooter').show();
+  			  			$('#working').hide();
+  					}
+  				}
+  			});			
   		}
+
+      function submitSignUp() {
+        $.ajax({
+          type: 'POST',
+          url: '{{ URL::to('signup/submit') }}',
+          data: 'new_email=' + $('form.signUpForm #new_email').val() + 
+                  '&new_password=' + $('form.signUpForm #new_password').val() + 
+                  '&new_first_name=' + $('form.signUpForm #new_first_name').val() + 
+                  '&new_last_name=' + $('form.signUpForm #new_last_name').val(),
+          success: function(result) { 
+            if (result) {
+              localStorage.setItem('guest_key', '');
+              isRegistered = true;
+              $('#signUpButton').hide();
+              $('#myAccountButton').html(result);                            
+            }            
+            $('#signUpSuccessDiv, #signUpFooter').show();
+            $('#working, #saveSignUpButton').hide();
+          }
+        });     
+      }      
 
   		function checkForEnter(event)
   		{
 			if (event.keyCode === 13){
 				event.preventDefault();		     	
-	            submitSignUp();
+	            validateServerSignUp();
 	            return false;
 	        }
         }
   		@endif
 
+      window.isRegistered = {{ Auth::check() && Auth::user()->registered ? 'true' : 'false' }};
   		function logout(force)
   		{
-  			if (force || {{ !Auth::check() || Auth::user()->registered ? 'true' : 'false' }}) {
+  			if (force || isRegistered) {
   				window.location = '{{ URL::to('logout') }}';
   			} else {
   				$('#logoutModal').modal('show');	
@@ -365,8 +392,6 @@
 	      	if (isStorageSupported()) {
 	  			@if (Auth::check() && !Auth::user()->registered)
 	        		localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
-	        	@elseif (Session::get('clearGuestKey'))
-	        		localStorage.setItem('guest_key', '');
 				@endif
         	}
   	

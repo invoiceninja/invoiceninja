@@ -54,7 +54,7 @@ class ContactMailer extends Mailer {
 	public function sendPaymentConfirmation(Payment $payment)
 	{
 		$view = 'payment_confirmation';
-		$subject = 'Payment confirmation';
+		$subject = 'Payment Received ' . $payment->invoice->invoice_number;
 
 		$data = [
 			'accountName' => $payment->account->getDisplayName(),

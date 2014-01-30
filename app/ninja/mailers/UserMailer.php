@@ -31,8 +31,20 @@ class UserMailer extends Mailer {
 			$data['paymentAmount'] = Utils::formatMoney($payment->amount, $invoice->client->currency_id);
 		}
 
-		$prep = $type == 'sent' ? 'to' : 'by';
-		$subject = "Invoice {$invoice->invoice_number} was $type $prep {$invoice->client->getDisplayName()}";
+		if ($type == 'paid') 
+		{
+			$action = 'paid by';
+		}
+		else if ($type == 'sent')
+		{
+			$subject = 'sent to';
+		}
+		else
+		{
+			$subject = 'viewed by';
+		}
+
+		$subject = "Invoice {$invoice->invoice_number} was $action {$invoice->client->getDisplayName()}";	
 
 		$this->sendTo($user->email, CONTACT_EMAIL, $subject, $view, $data);
 	}

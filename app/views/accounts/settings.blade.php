@@ -5,9 +5,9 @@
 
 	{{ Former::open()->addClass('col-md-8 col-md-offset-2') }}	
 	{{ Former::populate($account) }}
-	{{ Former::populateField('notify_sent', Auth::user()->notify_sent) }}
-	{{ Former::populateField('notify_viewed', Auth::user()->notify_viewed) }}
-	{{ Former::populateField('notify_paid', Auth::user()->notify_paid) }}
+	{{ Former::populateField('notify_sent', intval(Auth::user()->notify_sent)) }}
+	{{ Former::populateField('notify_viewed', intval(Auth::user()->notify_viewed)) }}
+	{{ Former::populateField('notify_paid', intval(Auth::user()->notify_paid)) }}
 
 	{{ Former::legend('Payment Gateway') }}
 

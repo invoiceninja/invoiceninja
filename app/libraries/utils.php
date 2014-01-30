@@ -23,6 +23,7 @@ class Utils
 		$data = [
 			'context' => $context,
 			'user_id' => Auth::check() ? Auth::user()->id : 0,
+			'user_name' => Auth::check() ? Auth::user()->getDisplayName() : '',
 			'url' => Input::get('url', Request::url()),
 			'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
 			'ip' => Request::getClientIp(),

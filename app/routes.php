@@ -12,6 +12,7 @@
 */
 
 //apc_clear_cache();
+//Cache::flush();
 
 //dd(DB::getQueryLog());
 //dd(Client::getPrivateId(1));

@@ -519,7 +519,8 @@ class AccountController extends \BaseController {
 		{
 			return "taken";
 		} 
-		else {
+		else 
+		{
 			return "available";
 		}
 	}
@@ -537,7 +538,7 @@ class AccountController extends \BaseController {
 
 		if ($validator->fails()) 
 		{
-			return Redirect::to(Input::get('path'));
+			return '';
 		} 
 
 		$user = Auth::user();
@@ -556,15 +557,6 @@ class AccountController extends \BaseController {
 			$activity->save();
 		}
 
-		/*
-		Mail::send(array('html'=>'emails.welcome_html','text'=>'emails.welcome_text'), $data, function($message) use ($user)
-		{
-		    $message->from('hillelcoren@gmail.com', 'Hillel Coren');
-		    $message->to($user->email);
-		});
-		*/
-
-		Session::flash('message', 'Successfully registered');		
-		return Redirect::to(Input::get('path'))->with('clearGuestKey', true);
+		return "{$user->first_name} {$user->last_name}";
 	}
 }

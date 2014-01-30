@@ -12,7 +12,7 @@ class UserEventHandler
 
 	public function onSignup()
 	{
-		dd('user signed up');
+		
 	}
 
 	public function onLogin()
