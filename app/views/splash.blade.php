@@ -96,12 +96,8 @@
             <div class="col-md-3 one">
               <div class="box">
                 <div class="icon"><img src="images/icon-free.png"></div>
-                <h2>100% free (ALWAYS)</h2>
-                <p>Donec id elit non mi porta gravida at eget metus.
-                  Fusce dapibus, tellus ac cursus commodo, tortor mauris
-                  condimentum nibh, ut fermentum massa justo sit amet
-                  risus. Etiam porta sem malesuada magna mollis euismod.
-                  Donec sed odio dui.</p>
+                <h2>100% FREE, ALWAYS</h2>
+                <p>Invoicing with no monthly fee, because you have enough bills already!  It’s free, now and forever!  Quality invoicing, build business and get paid.</p>
                 </div>
               </div>
 
@@ -109,24 +105,16 @@
                 <div class="box">
                   <div class="icon"><img src=
                     "images/icon-opensource.png"></div>
-                    <h2>100% free (ALWAYS)</h2>
-                    <p>Donec id elit non mi porta gravida at eget metus.
-                      Fusce dapibus, tellus ac cursus commodo, tortor mauris
-                      condimentum nibh, ut fermentum massa justo sit amet
-                      risus. Etiam porta sem malesuada magna mollis euismod.
-                      Donec sed odio dui.</p>
+                    <h2>OPEN-SOURCE</h2>
+                    <p>Cloud-based, super secure, and user-developed.  Open source platforms are a better way to do business (and save the world). Need we say more?</p>
                     </div>
                   </div>
 
                   <div class="col-md-3 three">
                     <div class="box">
                       <div class="icon"><img src="images/icon-pdf.png"></div>
-                      <h2>100% free (ALWAYS)</h2>
-                      <p>Donec id elit non mi porta gravida at eget metus.
-                        Fusce dapibus, tellus ac cursus commodo, tortor mauris
-                        condimentum nibh, ut fermentum massa justo sit amet
-                        risus. Etiam porta sem malesuada magna mollis euismod.
-                        Donec sed odio dui.</p>
+                      <h2>LIVE .PDF VIEW</h2>
+                      <p>Beautiful email-ready .PDF invoices created instantly as you type.  Our ‘Save & send’ functionality to saves you time and impresses clients.</p>
                       </div>
                     </div>
 
@@ -134,12 +122,8 @@
                       <div class="box">
                         <div class="icon"><img src=
                           "images/icon-payment.png"></div>
-                          <h2>100% free (ALWAYS)</h2>
-                          <p>Donec id elit non mi porta gravida at eget metus.
-                            Fusce dapibus, tellus ac cursus commodo, tortor mauris
-                            condimentum nibh, ut fermentum massa justo sit amet
-                            risus. Etiam porta sem malesuada magna mollis euismod.
-                            Donec sed odio dui.</p>
+                          <h2>SUPPORTS ALL PAYMENT PORTALS</h2>
+                          <p>PayPal? Authorize.Net?  BeanStream? Stripe?  We support all payment technologies and if you need help we’ll lend a hand (we’re pretty friendly).</p>
                           </div>
                         </div>
                       </div>
