@@ -324,9 +324,10 @@ class InvoiceController extends \BaseController {
 		$invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
 		$account = Account::with('country')->findOrFail(Auth::user()->account_id);
 
-		if ($clientPublicId) {
+		if ($clientPublicId) 
+		{
 			$client = Client::scope($clientPublicId)->firstOrFail();
-        }
+    }
 
 		$data = array(
 				'account' => $account,

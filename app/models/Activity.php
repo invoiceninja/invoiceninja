@@ -105,12 +105,18 @@ class Activity extends Eloquent
 			$message = Utils::encodeActivity(Auth::user(), 'created', $invoice);
 		}
 
+		$client = $invoice->client;
+		$adjustment = $invoice->amount;
+		$client->balance = $client->balance + $adjustment;
+		$client->save();
+
 		$activity = Activity::getBlank($invoice);
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $invoice->client_id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_INVOICE;
 		$activity->message = $message;
-		$activity->balance = $invoice->client->balance;
+		$activity->balance = $client->balance;
+		$activity->adjustment = $adjustment;
 		$activity->save();
 	}	
 
@@ -147,13 +153,6 @@ class Activity extends Eloquent
 		$adjustment = 0;
 		$client = $invitation->invoice->client;
 
-		if (!$invitation->invoice->isSent())
-		{
-			$adjustment = $invitation->invoice->amount;
-			$client->balance = $client->balance + $adjustment;
-			$client->save();
-		}
-
 		$activity = Activity::getBlank($invitation);
 		$activity->client_id = $invitation->invoice->client_id;
 		$activity->invoice_id = $invitation->invoice_id;
@@ -161,17 +160,11 @@ class Activity extends Eloquent
 		$activity->activity_type_id = ACTIVITY_TYPE_EMAIL_INVOICE;
 		$activity->message = Utils::encodeActivity(Auth::check() ? Auth::user() : null, 'emailed', $invitation->invoice, $invitation->contact);
 		$activity->balance = $client->balance;
-		$activity->adjustment = $adjustment;
 		$activity->save();
 	}
 
 	public static function updateInvoice($invoice)
 	{
-		if ($invoice->invoice_status_id < INVOICE_STATUS_SENT)
-		{
-			return;
-		}
-
 		if ($invoice->is_deleted && !$invoice->getOriginal('is_deleted'))
 		{
 			if ($invoice->balance > 0)

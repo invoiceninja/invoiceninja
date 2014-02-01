@@ -22,7 +22,6 @@
 //dd(gethostname());
 //Log::error('test');
 
-
 /*
 Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 {
@@ -185,6 +184,7 @@ define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
 define('LOGGED_ERROR_LIMIT', 100);
 define('RANDOM_KEY_LENGTH', 32);
+define('MAX_NUM_CLIENTS', 3);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);

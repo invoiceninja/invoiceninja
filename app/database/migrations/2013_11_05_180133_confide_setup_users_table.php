@@ -414,7 +414,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->softDeletes();
 
             $t->string('product_key');
-            $t->string('notes');
+            $t->text('notes');
             $t->decimal('cost', 13, 4);
             $t->decimal('qty', 13, 4);            
 

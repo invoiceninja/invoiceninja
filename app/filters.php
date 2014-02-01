@@ -13,7 +13,13 @@
 
 App::before(function($request)
 {
-	//
+  if (App::environment() == ENV_PRODUCTION)
+  {
+    if (!Request::secure()) 
+    {
+      return Redirect::secure(Request::getRequestUri());      
+    }
+  }
 });
 
 
@@ -75,7 +81,9 @@ Route::filter('csrf', function()
 {
 	$token = Request::ajax() ? Request::header('X-CSRF-Token') : Input::get('_token');
 	
-   	if (Session::token() != $token) {
-		throw new Illuminate\Session\TokenMismatchException;
+   	if (Session::token() != $token) 
+   	{
+   		return Redirect::to('/');
+			//throw new Illuminate\Session\TokenMismatchException;
    	}
 });

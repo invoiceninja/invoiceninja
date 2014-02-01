@@ -935,8 +935,22 @@
     	});
 
 		self.clientLinkText = ko.computed(function() {
-			return self.invoice().client().public_id() ? 'Edit client details' : 'Create new client';
-    	});
+			if (self.invoice().client().public_id())
+			{
+				return 'Edit client details';
+			}
+			else
+			{
+				if (clients.length > {{ MAX_NUM_CLIENTS}})
+				{
+					return '';
+				}
+				else
+				{
+					return 'Create new client';
+				}
+			}
+    });
 	}
 
 	function InvoiceModel(data) {

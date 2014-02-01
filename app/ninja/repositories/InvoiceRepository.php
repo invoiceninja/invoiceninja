@@ -134,9 +134,6 @@ class InvoiceRepository
 			$invoice->tax_name = '';
 		}
 		
-		$invoice->save();
-		$invoice->invoice_items()->forceDelete();
-
 		$total = 0;						
 		
 		foreach ($data['invoice_items'] as $item) 
@@ -146,43 +143,17 @@ class InvoiceRepository
 				continue;
 			}
 
-			if ($item->product_key)
-			{
-				$product = Product::findProductByKey(trim($item->product_key));
-
-				if (!$product)
-				{
-					$product = Product::createNew();						
-					$product->product_key = trim($item->product_key);
-				}
-
-				/*
-				$product->notes = $item->notes;
-				$product->cost = $item->cost;
-				$product->qty = $item->qty;
-				*/
-				
-				$product->save();
-			}
-
-			$invoiceItem = InvoiceItem::createNew();
-			$invoiceItem->product_id = isset($product) ? $product->id : null;
-			$invoiceItem->product_key = trim($item->product_key);
-			$invoiceItem->notes = trim($item->notes);
-			$invoiceItem->cost = Utils::parseFloat($item->cost);
-			$invoiceItem->qty = Utils::parseFloat($item->qty);
-			$invoiceItem->tax_rate = 0;
+			$invoiceItemCost = Utils::parseFloat($item->cost);
+			$invoiceItemQty = Utils::parseFloat($item->qty);
+			$invoiceItemTaxRate = 0;
 
 			if (isset($item->tax_rate) && Utils::parseFloat($item->tax_rate) > 0)
 			{
-				$invoiceItem->tax_rate = Utils::parseFloat($item->tax_rate);
-				$invoiceItem->tax_name = trim($item->tax_name);
+				$invoiceItemTaxRate = Utils::parseFloat($item->tax_rate);				
 			}
 
-			$invoice->invoice_items()->save($invoiceItem);
-
-			$lineTotal = $invoiceItem->cost * $invoiceItem->qty;
-			$total += $lineTotal + ($lineTotal * $invoiceItem->tax_rate / 100);
+			$lineTotal = $invoiceItemCost * $invoiceItemQty;
+			$total += $lineTotal + ($lineTotal * $invoiceItemTaxRate / 100);
 		}
 
 		if ($invoice->discount > 0)
@@ -195,6 +166,51 @@ class InvoiceRepository
 		$invoice->amount = $total;
 		$invoice->balance = $total;
 		$invoice->save();
+
+    $invoice->invoice_items()->forceDelete();
+    
+    foreach ($data['invoice_items'] as $item) 
+    {
+      if (!$item->cost && !$item->qty && !$item->product_key && !$item->notes)
+      {
+        continue;
+      }
+
+      if ($item->product_key)
+      {
+        $product = Product::findProductByKey(trim($item->product_key));
+
+        if (!$product)
+        {
+          $product = Product::createNew();            
+          $product->product_key = trim($item->product_key);
+        }
+
+        /*
+        $product->notes = $item->notes;
+        $product->cost = $item->cost;
+        $product->qty = $item->qty;
+        */
+        
+        $product->save();
+      }
+
+      $invoiceItem = InvoiceItem::createNew();
+      $invoiceItem->product_id = isset($product) ? $product->id : null;
+      $invoiceItem->product_key = trim($item->product_key);
+      $invoiceItem->notes = trim($item->notes);
+      $invoiceItem->cost = Utils::parseFloat($item->cost);
+      $invoiceItem->qty = Utils::parseFloat($item->qty);
+      $invoiceItem->tax_rate = 0;
+
+      if (isset($item->tax_rate) && Utils::parseFloat($item->tax_rate) > 0)
+      {
+        $invoiceItem->tax_rate = Utils::parseFloat($item->tax_rate);
+        $invoiceItem->tax_name = trim($item->tax_name);
+      }
+
+      $invoice->invoice_items()->save($invoiceItem);
+    }
 
 		if ($data['set_default_terms'])
 		{

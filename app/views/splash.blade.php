@@ -1,6 +1,7 @@
 @extends('master')
 
 @section('head')    
+<link href="{{ asset('css/bootstrap.splash.css') }}" rel="stylesheet" type="text/css"/> 
 <link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>    
 <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,900,100' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Roboto+Slab:400,300,700' rel='stylesheet' type='text/css'>
@@ -68,7 +69,7 @@
             <h1>THE <span style="color:#2299c0">SIMPLE</span> &amp;
               <span style="color:#edd71e">FREE</span> WAY TO INVOICE
               CLIENTS</h1>
-              <p>It's just that easy. Stop spending time on
+              <p>It's that easy. Stop spending time on
                 complicated and expensive invoicing.<br>
                 No fuss, just get started and <span style=
                 "color:#2299c0">get paid.</span></p>
@@ -122,8 +123,8 @@
                       <div class="box">
                         <div class="icon"><img src=
                           "images/icon-payment.png"></div>
-                          <h2>SUPPORTS ALL PAYMENT PORTALS</h2>
-                          <p>PayPal? Authorize.Net?  BeanStream? Stripe?  We support all payment technologies and if you need help we’ll lend a hand (we’re pretty friendly).</p>
+                          <h2>ONLINE PAYMENTS</h2>
+                          <p>PayPal? Authorize.Net? Stripe? We support all payment technologies and if you need help we’ll lend a hand (we’re pretty friendly).</p>
                           </div>
                         </div>
                       </div>
@@ -134,10 +135,10 @@
                     <div class="container">
                       <div class="row">
                         <div class="col-md-6">
-                          <h1>2.500 <span>sent invoices</span></h1>
+                          <!--<h1>2.500 <span>sent invoices</span></h1>-->
                         </div>
                         <div class="col-md-6">
-                          <h1>$350.456 <span>billed</span></h1>
+                          <!--<h1>$350.456 <span>billed</span></h1>-->
                         </div>
                       </div>
                     </div>

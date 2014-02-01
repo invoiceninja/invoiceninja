@@ -130,7 +130,7 @@ class Account extends Eloquent
 
 	public function getNextInvoiceNumber()
 	{			
-		$invoices = Invoice::withTrashed()->scope(false, $this->id)->get();
+		$invoices = Invoice::withTrashed()->scope(false, $this->id)->get(['invoice_number']);
 
 		$max = 0;
 

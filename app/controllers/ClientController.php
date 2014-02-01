@@ -67,6 +67,11 @@ class ClientController extends \BaseController {
 	 */
 	public function create()
 	{		
+		if (Client::scope()->count() > MAX_NUM_CLIENTS)
+		{
+			return View::make('error', ['error' => "Sorry, you've exceeded the limit of " . MAX_NUM_CLIENTS . " clients"]);
+		}
+
 		$data = array(
 			'client' => null, 
 			'method' => 'POST', 
@@ -152,15 +157,21 @@ class ClientController extends \BaseController {
 		);
 		$validator = Validator::make(Input::all(), $rules);
 
-		if ($validator->fails()) {
+		if ($validator->fails()) 
+		{
 			$url = $publicId ? 'clients/' . $publicId . '/edit' : 'clients/create';
 			return Redirect::to($url)
 				->withErrors($validator)
 				->withInput(Input::except('password'));
-		} else {			
-			if ($publicId) {
+		} 
+		else 
+		{			
+			if ($publicId) 
+			{
 				$client = Client::scope($publicId)->firstOrFail();
-			} else {
+			} 
+			else 
+			{
 				$client = Client::createNew();
 			}
 

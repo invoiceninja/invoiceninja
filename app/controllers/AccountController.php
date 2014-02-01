@@ -302,6 +302,12 @@ class AccountController extends \BaseController {
 		$csv = new parseCSV();
 		$csv->heading = false;
 		$csv->auto($name);
+		
+		if (count($csv->data) + Client::scope()->count() > MAX_NUM_CLIENTS)
+		{
+			Session::flash('error', "Sorry, this wll exceed the limit of " . MAX_NUM_CLIENTS . " clients");
+			return Redirect::to('account/import');
+		}
 
 		Session::put('data', $csv->data);
 

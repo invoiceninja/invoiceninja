@@ -138,6 +138,10 @@ table.invoice-table tbody tr:hover {
     vertical-align: middle !important;
 }
 
+.invoice-table tfoot tr {
+    height: 30px;
+}
+
 .fa-bars {
     cursor: move !important;
 }
