@@ -124,7 +124,7 @@
                         <div class="icon"><img src=
                           "images/icon-payment.png"></div>
                           <h2>ONLINE PAYMENTS</h2>
-                          <p>PayPal? Authorize.Net? Stripe? We support all payment technologies and if you need help we’ll lend a hand (we’re pretty friendly).</p>
+                          <p>PayPal? Authorize.Net? Stripe? We support many payment technologies and if you need help we’ll lend a hand (we’re pretty friendly).</p>
                           </div>
                         </div>
                       </div>
