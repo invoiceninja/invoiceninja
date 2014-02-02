@@ -611,10 +611,15 @@
 	}
 
 	function onEmailClick() {
+		@if (Auth::user()->confirmed)
 		if (confirm('Are you sure you want to email this invoice?')) {
 			$('#action').val('email');
 			$('.main_form').submit();
 		}
+		@else
+			$('#action').val('email');
+			$('.main_form').submit();
+		@endif
 	}
 
 	function onSaveClick() {
