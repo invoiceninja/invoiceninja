@@ -220,7 +220,7 @@ class PaymentController extends \BaseController
 
                 if ($response->isSuccessful())
                 {
-                    self::createPayment($invitation, $ref);
+                    $payment = self::createPayment($invitation, $ref);
 
                     $invoice->invoice_status_id = INVOICE_STATUS_PAID;
                     $invoice->save();
