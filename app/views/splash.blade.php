@@ -98,7 +98,7 @@
               <div class="box">
                 <div class="icon"><img src="images/icon-free.png"></div>
                 <h2>100% FREE, ALWAYS</h2>
-                <p>Invoicing with no monthly fee, because you have enough bills already!  It’s free, now and forever!  Quality invoicing, build business and get paid.</p>
+                <p>Invoicing with no monthly fee, because you have enough bills already! Free, now and forever! Quality invoicing to build your business and get paid.</p>
                 </div>
               </div>
 
@@ -107,7 +107,7 @@
                   <div class="icon"><img src=
                     "images/icon-opensource.png"></div>
                     <h2>OPEN-SOURCE</h2>
-                    <p>Cloud-based, super secure, and user-developed.  Open source platforms are a better way to do business (and save the world). Need we say more?</p>
+                    <p>Cloud-based, super secure, and user-developed. Open source platforms are a better way to do business (and save the world). Need we say more?</p>
                     </div>
                   </div>
 
@@ -115,7 +115,7 @@
                     <div class="box">
                       <div class="icon"><img src="images/icon-pdf.png"></div>
                       <h2>LIVE .PDF VIEW</h2>
-                      <p>Beautiful email-ready .PDF invoices created instantly as you type.  Our ‘Save & send’ functionality to saves you time and impresses clients.</p>
+                      <p>Create beautiful email-ready .PDF invoices created instantly as you type. Our ‘Save & send’ feature saves you time and impresses clients.</p>
                       </div>
                     </div>
 
@@ -124,7 +124,7 @@
                         <div class="icon"><img src=
                           "images/icon-payment.png"></div>
                           <h2>ONLINE PAYMENTS</h2>
-                          <p>PayPal? Authorize.Net? Stripe? We support many payment technologies and if you need help we’ll lend a hand (we’re pretty friendly).</p>
+                          <p>PayPal? Authorize.Net? Stripe? We support many payment technologies and if you need help or advise we’ll lend a hand (we’re pretty friendly).</p>
                           </div>
                         </div>
                       </div>
@@ -147,7 +147,7 @@
                   <section class="hero2">
                     <div class="container">
                       <div class="caption">
-                        <h1>Wherever you are, invoice the easy way.</h1>
+                        <h1>SIMPLE, INTUITIVE INVOICING</h1>
                       </div>
                     </div>
                   </section>

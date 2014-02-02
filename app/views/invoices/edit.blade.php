@@ -20,7 +20,7 @@
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-5" id="col_1">
 
-    		@if ($invoice && $invoice->isSent())
+    		@if ($invoice)
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
 					<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
@@ -38,7 +38,7 @@
 				</div>
 			</div>
 
-			@if ($invoice && $invoice->isSent())
+			@if ($invoice)
 				</div>
 			@endif
 

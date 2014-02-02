@@ -70,7 +70,7 @@
 	      <span class="icon-bar"></span>
 	      <span class="icon-bar"></span>
 	    </button>
-	    {{ link_to('/', 'Invoice Ninja', array('class'=>'navbar-brand')) }}
+      <a href="{{ URL::to('/rocksteady') }}" class='navbar-brand'>Invoice Ninja <sup><small>BETA</small></sup></a>	    
 	  </div>
 
 	  <div class="collapse navbar-collapse" id="navbar-collapse-1">

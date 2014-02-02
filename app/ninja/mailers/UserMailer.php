@@ -37,11 +37,11 @@ class UserMailer extends Mailer {
 		}
 		else if ($type == 'sent')
 		{
-			$subject = 'sent to';
+			$action = 'sent to';
 		}
 		else
 		{
-			$subject = 'viewed by';
+			$action = 'viewed by';
 		}
 
 		$subject = "Invoice {$invoice->invoice_number} was $action {$invoice->client->getDisplayName()}";	
