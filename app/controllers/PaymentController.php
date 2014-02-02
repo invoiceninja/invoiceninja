@@ -239,7 +239,7 @@ class PaymentController extends \BaseController
                 }
                 else
                 {
-                    return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>');
+                    return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
                 }
             } 
             catch (\Exception $e) 
@@ -307,7 +307,7 @@ class PaymentController extends \BaseController
             }
             else
             {
-                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());             
+                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
             }
         } 
         catch (\Exception $e) 
