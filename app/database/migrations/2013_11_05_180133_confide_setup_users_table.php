@@ -106,6 +106,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('precision');
             $t->string('thousand_separator');
             $t->string('decimal_separator');
+            $t->string('code');
         });  
 
         Schema::create('sizes', function($t)
@@ -230,7 +231,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();            
-            $t->unsignedInteger('currency_id')->default(1)->nullable();
+            $t->unsignedInteger('currency_id')->default(1);
             $t->timestamps();
             $t->softDeletes();
 
@@ -353,6 +354,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
+            $t->string('transaction_reference');
             $t->timestamp('sent_date');
             $t->timestamp('viewed_date');
 

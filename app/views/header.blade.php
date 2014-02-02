@@ -70,7 +70,7 @@
 	      <span class="icon-bar"></span>
 	      <span class="icon-bar"></span>
 	    </button>
-      <a href="{{ URL::to('/rocksteady') }}" class='navbar-brand'>Invoice Ninja <sup><small>BETA</small></sup></a>	    
+      <a href="{{ URL::to('/rocksteady') }}" class='navbar-brand'>Invoice Ninja</a>	    
 	  </div>
 
 	  <div class="collapse navbar-collapse" id="navbar-collapse-1">

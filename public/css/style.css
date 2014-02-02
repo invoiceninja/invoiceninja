@@ -7,7 +7,7 @@ div.required > label {
 }
 
 label.checkbox,
-label.control-label {
+div > label.control-label {
     font-weight: normal !important;
 }
 

@@ -53,7 +53,7 @@ class ClientRepository
 		$client->private_notes = trim($data['private_notes']);
 		$client->size_id = $data['size_id'] ? $data['size_id'] : null;
 		$client->industry_id = $data['industry_id'] ? $data['industry_id'] : null;
-		$client->currency_id = $data['currency_id'] ? $data['currency_id'] : null;
+		$client->currency_id = $data['currency_id'] ? $data['currency_id'] : 1;
 		$client->payment_terms = $data['payment_terms'];
 		$client->website = trim($data['website']);
 		$client->save();

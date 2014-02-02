@@ -430,7 +430,7 @@ class AccountController extends \BaseController {
 			$account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
 			$account->date_format_id = Input::get('date_format_id') ? Input::get('date_format_id') : null;
 			$account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
-			$account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : null;
+			$account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1;
 
 			$account->invoice_terms = Input::get('invoice_terms');
 			$account->email_footer = Input::get('email_footer');

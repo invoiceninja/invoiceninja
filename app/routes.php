@@ -64,9 +64,10 @@ Route::get('/rocksteady', 'HomeController@showWelcome');
 Route::get('log_error', 'HomeController@logError');
 Route::post('get_started', 'AccountController@getStarted');
 
-Route::get('view/{invoice_key}', 'InvoiceController@view');
-Route::get('payment/{invoice_key}', 'InvoiceController@show_payment');
-Route::get('complete', 'InvoiceController@do_payment');
+Route::get('view/{invitation_key}', 'InvoiceController@view');
+Route::get('payment/{invitation_key}', 'PaymentController@show_payment');
+Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
+Route::get('complete', 'PaymentController@offsite_payment');
 
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');

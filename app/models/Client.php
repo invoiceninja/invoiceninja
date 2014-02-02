@@ -37,6 +37,11 @@ class Client extends EntityModel
 		return $this->belongsTo('Country');
 	}
 
+	public function currency()
+	{
+		return $this->belongsTo('Currency');
+	}
+
 	public function size()
 	{
 		return $this->belongsTo('Size');	

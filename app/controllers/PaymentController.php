@@ -95,6 +95,228 @@ class PaymentController extends \BaseController
         return View::make('payments.edit', $data);
     }
 
+    private function createGateway($accountGateway)
+    {
+        $gateway = Omnipay::create($accountGateway->gateway->provider); 
+        $config = json_decode($accountGateway->config);
+        
+        /*
+        $gateway->setSolutionType ("Sole");
+        $gateway->setLandingPage("Billing");
+        */
+        
+        foreach ($config as $key => $val)
+        {
+            if (!$val)
+            {
+                continue;
+            }
+
+            $function = "set" . ucfirst($key);
+            $gateway->$function($val);
+        }
+        
+        return $gateway;        
+    }
+
+    private function getPaymentDetails($invoice, $input = null)
+    {
+        if ($input)
+        {
+            $data = [
+                'firstName' => $input['first_name'],
+                'lastName' => $input['last_name'],
+                'number' => $input['card_number'],
+                'expiryMonth' => $input['expiration_month'],
+                'expiryYear' => $input['expiration_year'],
+                'cvv' => $input['cvv'],
+                'billingAddress1' => $input['address1'],
+                'billingAddress2' => $input['address2'],
+                'billingCity' => $input['city'],
+                'billingState' => $input['state'],
+                'billingPostcode' => $input['postal_code'],
+                'shippingAddress1' => $input['address1'],
+                'shippingAddress2' => $input['address2'],
+                'shippingCity' => $input['city'],
+                'shippingState' => $input['state'],
+                'shippingPostcode' => $input['postal_code'],
+            ];
+
+            Session::put($invoice->invoice_number . '_details', $data);
+        }
+        else
+        {
+            $data = Session::get($invoice->invoice_number . '_details');
+        }
+
+        $card = new CreditCard($data);
+        
+        return [
+            'amount' => $invoice->amount,
+            'card' => $card,
+            'currency' => $invoice->client->currency->code,
+            'returnUrl' => URL::to('complete'),
+            'cancelUrl' => URL::to('/'),
+        ];
+    }
+
+    public function show_payment($invitationKey)
+    {
+        $invitation = Invitation::with('contact', 'invoice.client')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        $invoice = $invitation->invoice;        
+        $client = $invoice->client;
+
+        $data = [
+            'invitationKey' => $invitationKey,
+            'invoice' => $invoice,
+            'client' => $client,
+            'contact' => $invitation->contact            
+        ];
+
+        return View::make('payments.payment', $data);
+    }
+
+    public function do_payment($invitationKey)
+    {
+        $rules = array(
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'card_number' => 'required',
+            'expiration_month' => 'required',
+            'expiration_year' => 'required',
+            'cvv' => 'required',
+            'address1' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'postal_code' => 'required',
+        );
+
+        $validator = Validator::make(Input::all(), $rules);
+
+        if ($validator->fails()) 
+        {
+            return Redirect::to('payment/' . $invitationKey)
+                ->withErrors($validator);
+        } 
+        else 
+        {           
+            $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+            $invoice = $invitation->invoice;        
+            $accountGateway = $invoice->client->account->account_gateways[0];
+            $gateway = self::createGateway($accountGateway);
+
+            try
+            {
+                $details = self::getPaymentDetails($invoice, Input::all());
+                $response = $gateway->purchase($details)->send();           
+                $ref = $response->getTransactionReference();
+
+                if (!$ref)
+                {
+                    Session::flash('error', $response->getMessage());  
+                    return Redirect::to('payment/' . $invitationKey)
+                        ->withInput();
+                }
+
+                if ($response->isSuccessful())
+                {
+                    self::createPayment($invitation, $ref);
+
+                    $invoice->invoice_status_id = INVOICE_STATUS_PAID;
+                    $invoice->save();
+
+                    Event::fire('invoice.paid', $payment);
+
+                    Session::flash('message', 'Successfully applied payment');  
+                    return Redirect::to('view/' . $payment->invitation->invitation_key);                                    
+                }
+                else if ($response->isRedirect()) 
+                {
+                    $invitation->transaction_reference = $ref;
+                    $invitation->save();
+
+                    $response->redirect();          
+                }
+                else
+                {
+                    return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>');
+                }
+            } 
+            catch (\Exception $e) 
+            {
+                Session::flash('error', $e->getMessage());  
+                return Redirect::to('payment/' . $invitationKey)
+                    ->withInput();
+            }
+        }
+    }
+
+    private function createPayment($invitation, $ref, $payerId = null)
+    {
+        $invoice = $invitation->invoice;
+        $accountGateway = $invoice->client->account->account_gateways[0];
+            
+        $payment = Payment::createNew();
+        $payment->invitation_id = $invitation->id;
+        $payment->account_gateway_id = $accountGateway->id;
+        $payment->invoice_id = $invoice->id;
+        $payment->amount = $invoice->amount;            
+        $payment->client_id = $invoice->client_id;
+        $payment->contact_id = $invitation->contact_id;
+        $payment->transaction_reference = $ref;
+        $payment->payment_date = date_create()->format('Y-m-d');
+
+        if ($payerId)
+        {
+            $payment->payer_id = $payerId;                
+        }
+
+        $payment->save();
+
+        return $payment;
+    }
+
+    public function offsite_payment()
+    {
+        $payerId = Request::query('PayerID');
+        $token = Request::query('token');               
+
+        $invitation = Invitation::with('invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('transaction_reference', '=', $token)->firstOrFail();
+        $invoice = $invitation->invoice;
+
+        $accountGateway = $invoice->client->account->account_gateways[0];
+        $gateway = self::createGateway($accountGateway);
+
+        try
+        {
+            $details = self::getPaymentDetails($invoice);
+            $response = $gateway->completePurchase($details)->send();
+            $ref = $response->getTransactionReference();
+
+            if ($response->isSuccessful())
+            {
+                $payment = self::createPayment($invitation, $ref, $payerId);
+                
+                $invoice->invoice_status_id = INVOICE_STATUS_PAID;
+                $invoice->save();
+
+                Event::fire('invoice.paid', $payment);
+
+                Session::flash('message', 'Successfully applied payment');  
+                return Redirect::to('view/' . $invitation->invitation_key);                
+            }
+            else
+            {
+                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());             
+            }
+        } 
+        catch (\Exception $e) 
+        {
+            return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $e);
+        }
+    }
+
+
     public function store()
     {
         return $this->save();
