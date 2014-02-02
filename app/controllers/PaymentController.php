@@ -156,7 +156,7 @@ class PaymentController extends \BaseController
             'card' => $card,
             'currency' => $invoice->client->currency->code,
             'returnUrl' => URL::to('complete'),
-            'cancelUrl' => URL::to('/'),
+            'cancelUrl' => URL::to('/')
         ];
     }
 
@@ -204,6 +204,14 @@ class PaymentController extends \BaseController
             $invoice = $invitation->invoice;        
             $accountGateway = $invoice->client->account->account_gateways[0];
             $gateway = self::createGateway($accountGateway);
+
+            $client = $invoice->client;
+            $client->address1 = trim(Input::get('address1'));
+            $client->address2 = trim(Input::get('address2'));
+            $client->city = trim(Input::get('city'));
+            $client->state = trim(Input::get('state'));
+            $client->postal_code = trim(Input::get('postal_code'));
+            $client->save();
 
             try
             {

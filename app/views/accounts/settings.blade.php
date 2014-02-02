@@ -16,7 +16,7 @@
 		@foreach ($accountGateway->fields as $field => $junk)
 			@if ($field == 'testMode' || $field == 'developerMode')
 				@if ($config->$field)
-					{{ Former::populateField($accountGateway->gateway_id.'_'.$field, true ) }}
+					{{-- Former::populateField($accountGateway->gateway_id.'_'.$field, true ) --}}
 				@endif
 			@else
 				{{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}
@@ -35,7 +35,7 @@
 				@if ($field == 'solutionType' || $field == 'landingPage')
 					{{-- do nothing --}}
 				@elseif ($field == 'testMode' || $field == 'developerMode') 
-					{{ Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable') }}				
+					{{-- Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable') --}}				
 				@else
 					{{ Former::text($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field)) }}				
 				@endif

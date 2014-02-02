@@ -347,7 +347,7 @@ function generatePDF(invoice, checkMath) {
 
 	x += 16;
 
-	if (checkMath && parseFloat(total) != parseFloat(invoice.amount)) 
+	if (checkMath && parseFloat(total).toFixed(4) != parseFloat(invoice.amount).toFixed(4)) 
 	{
 		var doc = new jsPDF('p', 'pt');
 		doc.setFont('Helvetica','');
