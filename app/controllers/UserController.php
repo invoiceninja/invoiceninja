@@ -75,7 +75,17 @@ class UserController extends BaseController {
         if( Confide::user() )
         {
             Event::fire('user.login'); 
-            return Redirect::to('/invoices/create');
+
+            $invoice = Invoice::scope()->orderBy('id', 'desc')->first();
+            
+            if ($invoice)
+            {
+                return Redirect::to('/invoices/' . $invoice->public_id);
+            }
+            else
+            {
+                return Redirect::to('/invoices/create');
+            }
         }
         else
         {

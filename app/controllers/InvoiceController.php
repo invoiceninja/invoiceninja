@@ -315,9 +315,17 @@ class InvoiceController extends \BaseController {
 				return InvoiceController::cloneInvoice($publicId);
 			}
 			else if ($action == 'email') 
-			{							
-				$this->mailer->sendInvoice($invoice);
-				Session::flash('message', 'Successfully emailed invoice'.$message);
+			{	
+				if (Auth::user()->confirmed)
+				{
+					$this->mailer->sendInvoice($invoice);
+					Session::flash('message', 'Successfully emailed invoice'.$message);
+				}
+				else
+				{
+					Session::flash('message', 'Successfully saved invoice'.$message);
+					Session::flash('error', 'Please sign up to email an invoice');
+				}
 			} 
 			else 
 			{				

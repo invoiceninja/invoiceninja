@@ -406,37 +406,6 @@
 	  </div>
 	</div>
 
-
-	<div class="modal fade" id="notSignedUpModal" tabindex="-1" role="dialog" aria-labelledby="notSignedUpModalLabel" aria-hidden="true">
-	  <div class="modal-dialog" style="min-width:150px">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="notSignedUpModalLabel">Email Invoice</h4>
-	      </div>
-
-	    <div style="background-color: #EEEEEE; padding-left: 16px; padding-right: 16px">
-	    	<br/>
-	    	@if (Auth::user()->registered)
-	    		Please confirm your account to email an invoice.
-	    	@else
-	    		Please sign up to email an invoice.
-	    	@endif
-	    	<br/>&nbsp;
-		</div>
-
-	     <div class="modal-footer" style="margin-top: 0px">
-	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	      	@if (!Auth::user()->registered)
-	        	<button type="button" class="btn btn-primary" onclick="showSignUp()">Sign Up</button>	      	
-	        @endif
-	     </div>
-	  		
-	    </div>
-	  </div>
-	</div>
-
-
 	<div class="modal fade" id="recurringModal" tabindex="-1" role="dialog" aria-labelledby="recurringModalLabel" aria-hidden="true">
 	  <div class="modal-dialog" style="min-width:150px">
 	    <div class="modal-content">
@@ -469,7 +438,6 @@
 	<script type="text/javascript">
 	
 	function showSignUp() {
-		$('#notSignedUpModal').modal('hide');	
 		$('#signUpModal').modal('show');		
 	}
 
@@ -643,13 +611,9 @@
 	}
 
 	function onEmailClick() {
-		if ({{ !Auth::user()->confirmed ? 'true' : 'false' }}) {
-			$('#notSignedUpModal').modal('show');	
-		} else {
-			if (confirm('Are you sure you want to email this invoice?')) {
-				$('#action').val('email');
-				$('.main_form').submit();
-			}
+		if (confirm('Are you sure you want to email this invoice?')) {
+			$('#action').val('email');
+			$('.main_form').submit();
 		}
 	}
 
