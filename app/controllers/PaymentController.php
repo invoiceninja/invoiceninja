@@ -237,8 +237,9 @@ class PaymentController extends \BaseController
 
                     $response->redirect();          
                 }
-                else
+                else                    
                 {
+                    Session::flash('error', $response->getMessage());  
                     return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
                 }
             } 
@@ -307,11 +308,13 @@ class PaymentController extends \BaseController
             }
             else
             {
+                Session::flash('error', $response->getMessage());  
                 return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
             }
         } 
         catch (\Exception $e) 
         {
+            Session::flash('error', $e->getMessage());  
             return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $e);
         }
     }
