@@ -974,11 +974,9 @@
 		if (data) {
 			ko.mapping.fromJS(data, self.mapping, self);			
 			self.is_recurring(parseInt(data.is_recurring));
-			//console.log('is rec %s', parseInt(data.is_recurring));
 		} else {
 			self.addItem();
 		}
-		//console.log('test')
 
 		self._tax = ko.observable();
 		this.tax = ko.computed({
@@ -1420,6 +1418,9 @@
 		@if ($invoice)
 			var invoice = {{ $invoice }};
 			ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);			
+			if (model.invoice().is_recurring() === '0') {
+				model.invoice().is_recurring(false);
+			}
 			var invitationContactIds = {{ json_encode($invitationContactIds) }};		
 			var client = clientMap[invoice.client.public_id];
 			for (var i=0; i<client.contacts.length; i++) {
@@ -1442,6 +1443,7 @@
 	if (!model.invoice().discount()) model.invoice().discount('');
 
 	ko.applyBindings(model);	
+
 
 	</script>
 
