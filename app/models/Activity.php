@@ -47,7 +47,7 @@ class Activity extends Eloquent
 			$activity->user_id = $entity->user_id;
 			$activity->account_id = $entity->account_id;
 		} 
-		else if (Auth::check()) 
+		else if (Auth::check())
 		{
 			$activity->user_id = Auth::user()->id;
 			$activity->account_id = Auth::user()->account_id;	
@@ -257,17 +257,17 @@ class Activity extends Eloquent
 		$client->paid_to_date = $client->paid_to_date + $payment->amount;
 		$client->save();
 
-		if (Auth::check())
-		{
-			$activity = Activity::getBlank();
-			$message = $payment->payment_type_id == PAYMENT_TYPE_CREDIT ? 'applied credit' : 'entered payment';
-			$activity->message = Utils::encodeActivity(Auth::user(), $message);
-		}
-		else
+		if ($payment->contact_id)
 		{
 			$activity = new Activity;
 			$activity->contact_id = $payment->contact_id;
 			$activity->message = Utils::encodeActivity($payment->invitation->contact, 'entered payment');			
+		}
+		else
+		{
+			$activity = Activity::getBlank();
+			$message = $payment->payment_type_id == PAYMENT_TYPE_CREDIT ? 'applied credit' : 'entered payment';
+			$activity->message = Utils::encodeActivity(Auth::user(), $message);
 		}
 
 		$activity->payment_id = $payment->id;

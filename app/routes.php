@@ -217,7 +217,8 @@ define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
 define('DEFAULT_QUERY_CACHE', 120);
 
 
-if (Auth::check() && !Session::has(SESSION_TIMEZONE)) {
+if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
+{
 	Event::fire('user.refresh');
 }
 

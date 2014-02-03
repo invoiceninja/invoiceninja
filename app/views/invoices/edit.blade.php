@@ -113,7 +113,7 @@
 	    <tbody data-bind="sortable: { data: invoice_items, afterMove: onDragged }">
 	    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
 	        	<td style="min-width:20px;" class="hide-border td-icon">
-	        		<i data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
+	        		<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 	        	</td>
 	            <td style="min-width:160px">	            	
 	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'key')->onkeyup('onItemChange()')
@@ -128,13 +128,13 @@
 	            <td style="min-width:120px">
 	            	<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
 	            </td>
-	            <td style="min-width:120px; vertical-align:middle" data-bind="visible: $root.invoice_item_taxes.show">
+	            <td style="display:none" style="min-width:120px; vertical-align:middle" data-bind="visible: $root.invoice_item_taxes.show">
 	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select>
 	            </td>
 	        	<td style="min-width:120px;text-align: right;padding-top:9px !important">
 	            	<span data-bind="text: totals.total"></span>
 	            </td>
-	        	<td style="min-width:20px; cursor:pointer" class="hide-border td-icon">
+	        	<td style="display:none" style="min-width:20px; cursor:pointer" class="hide-border td-icon">
 	        		&nbsp;<i data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-minus-circle" title="Remove item"/>
 	        	</td>
 	        </tr>
@@ -157,17 +157,17 @@
 				<td colspan="2">Subtotal</td>
 				<td style="text-align: right"><span data-bind="text: totals.subtotal"/></td>
 	        </tr>
-	        <tr data-bind="visible: discount() > 0">
+	        <tr style="display:none" data-bind="visible: discount() > 0">
 	        	<td class="hide-border" colspan="3"/>
 	        	<td class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
 				<td colspan="2">Discount</td>
 				<td style="text-align: right"><span data-bind="text: totals.discounted"/></td>
 	        </tr>
-	        <tr data-bind="visible: $root.invoice_taxes.show">
+	        <tr style="display:none" data-bind="visible: $root.invoice_taxes.show">
 	        	<td class="hide-border" colspan="3"/>
 	        	<td class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td style="vertical-align: middle">Tax</td>
-				<td><select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select></td>
+				<td style="min-width:120px"><select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select></td>
 				<td style="vertical-align: middle; text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 	        </tr>
 	        <tr>
@@ -973,9 +973,12 @@
 
 		if (data) {
 			ko.mapping.fromJS(data, self.mapping, self);			
+			self.is_recurring(parseInt(data.is_recurring));
+			console.log('is rec %s', parseInt(data.is_recurring));
 		} else {
 			self.addItem();
 		}
+		console.log('test')
 
 		self._tax = ko.observable();
 		this.tax = ko.computed({

@@ -147,7 +147,7 @@
                   <section class="hero2">
                     <div class="container">
                       <div class="caption">
-                        <h1>SIMPLE, INTUITIVE INVOICING</h1>
+                        <h1>SIMPLE, INTUITIVE INVOICING.</h1>
                       </div>
                     </div>
                   </section>

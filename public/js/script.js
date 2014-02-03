@@ -294,7 +294,7 @@ function generatePDF(invoice, checkMath) {
 
 	doc.setLineWidth(1);
 	doc.line(tableLeft - tablePadding, x, lineTotalRight+tablePadding, x);
-	console.log('%s %s %s', lineTotalRight, tableLeft, (lineTotalRight-tableLeft));
+	//console.log('%s %s %s', lineTotalRight, tableLeft, (lineTotalRight-tableLeft));
 
 	doc.text(tableLeft, x+16, invoice.public_notes);
 	if (invoice.terms) {
@@ -369,9 +369,6 @@ function generatePDF(invoice, checkMath) {
 	doc.setFontType("bold");
 	doc.text(footerLeft, x, 'Balance Due');
 	
-	console.log('total %s', total);
-	console.log('inovice.amount %s', invoice.amount);
-	console.log('invoice.blance %s', invoice.balance);
 	total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
 	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
 	doc.text(totalX, x, total);		
@@ -872,7 +869,7 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
 	if (invoiceId) {
 		var invoice = invoiceMap[invoiceId];
 		var client = clientMap[invoice.client.public_id];
-		console.log(invoice);
+		//console.log(invoice);
 		setComboboxValue($('.invoice-select'), invoice.public_id, (invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' + getClientDisplayName(client) + ' - ' + formatMoney(invoice.amount, invoice.currency_id) + ' | ' + formatMoney(invoice.balance, invoice.currency_id)));
 		$invoiceSelect.trigger('change');
 	} else if (clientId) {
