@@ -175,9 +175,9 @@
                     "socicon">c</span></a> 
                   -->
                   <a href=
-                  "http://twitter.com/invoiceninja" target="_blank"><span class=
-                  "socicon">b</span></a> <a href=
                   "http://facebook.com/invoiceninja" target="_blank"><span class=
+                  "socicon">b</span></a> <a href=
+                  "http://twitter.com/invoiceninja" target="_blank"><span class=
                   "socicon">a</span></a>
                   <p>Copyright © 2014 InvoiceNinja. All rights reserved.</p>
                 </div>
