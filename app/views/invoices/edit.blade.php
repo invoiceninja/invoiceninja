@@ -134,8 +134,8 @@
 	        	<td style="min-width:120px;text-align: right;padding-top:9px !important">
 	            	<span data-bind="text: totals.total"></span>
 	            </td>
-	        	<td style="display:none" style="min-width:20px; cursor:pointer" class="hide-border td-icon">
-	        		&nbsp;<i data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-minus-circle" title="Remove item"/>
+	        	<td style="min-width:20px; cursor:pointer" class="hide-border td-icon">
+	        		&nbsp;<i style="display:none" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-minus-circle" title="Remove item"/>
 	        	</td>
 	        </tr>
 		</tbody>
@@ -974,11 +974,11 @@
 		if (data) {
 			ko.mapping.fromJS(data, self.mapping, self);			
 			self.is_recurring(parseInt(data.is_recurring));
-			console.log('is rec %s', parseInt(data.is_recurring));
+			//console.log('is rec %s', parseInt(data.is_recurring));
 		} else {
 			self.addItem();
 		}
-		console.log('test')
+		//console.log('test')
 
 		self._tax = ko.observable();
 		this.tax = ko.computed({
