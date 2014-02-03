@@ -14,7 +14,8 @@
 		"omnipay/omnipay": "2.x",
 		"intervention/image": "dev-master",
 		"webpatser/laravel-countries": "dev-master",
-		"anahkiasen/rocketeer": "dev-develop"
+		"anahkiasen/rocketeer": "dev-develop",
+		"codeception/codeception": "*"
 	},
 	"autoload": {
 		"classmap": [

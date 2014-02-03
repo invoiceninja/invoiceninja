@@ -206,12 +206,14 @@
 	    		{{ Former::populateField('new_last_name', Auth::user()->last_name); }}
 	    		{{ Former::populateField('new_email', Auth::user()->email); }}	    		
 	    	@endif
+
 	    	{{ Former::hidden('path')->value(Request::path()) }}
 	    	{{ Former::text('new_first_name')->label('First name') }}
 	    	{{ Former::text('new_last_name')->label('Last name') }}
-	    	{{ Former::text('new_email')->label('Email') }}	    	
-			{{ Former::password('new_password')->label('Password') }}
-			{{ Former::close() }}
+	      {{ Former::text('new_email')->label('Email') }}	    	
+	      {{ Former::password('new_password')->label('Password') }}
+			  {{ Former::close() }}
+        
 			<center><div id="errorTaken" style="display:none">&nbsp;<br/>The email address is already regiestered</div></center>
 			<br/>
 		  </div>

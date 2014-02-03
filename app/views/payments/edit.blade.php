@@ -39,7 +39,7 @@
 	</div>
 
 	<center style="margin-top:16px">
-		{{ Button::lg_primary_submit('Save') }} &nbsp;|&nbsp;
+		{{ Button::lg_primary_submit_success('Save') }} &nbsp;|&nbsp;
 		{{ link_to('payments/' . ($payment ? $payment->public_id : ''), 'Cancel') }}	
 	</center>
 

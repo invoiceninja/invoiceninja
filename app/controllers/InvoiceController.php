@@ -246,6 +246,7 @@ class InvoiceController extends \BaseController {
 		}
 
 		$input = json_decode(Input::get('data'));					
+		
 		$invoice = $input->invoice;
 
 		if ($errors = $this->invoiceRepo->getErrors($invoice))

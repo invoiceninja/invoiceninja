@@ -24,7 +24,7 @@
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
 					<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
-						<a href="#" data-bind="click: $root.showClientForm">{{ $client->getDisplayName() }}</a>
+						<a id="editClientLink" href="#" data-bind="click: $root.showClientForm">{{ $client->getDisplayName() }}</a>
 					</div>
 				</div>    				
 				<div style="display:none">
@@ -34,7 +34,7 @@
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-					<a href="#" data-bind="click: $root.showClientForm, text: $root.clientLinkText"></a>					
+					<a id="createClientLink" data-bind="click: $root.showClientForm, text: $root.clientLinkText"></a>					
 				</div>
 			</div>
 
@@ -208,7 +208,7 @@
 					<span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu">
-					<li><a href="javascript:onSaveClick()">Save Invoice</a></li>
+					<li><a href="javascript:onSaveClick()" id="saveButton">Save Invoice</a></li>
 					<li><a href="javascript:onCloneClick()">Clone Invoice</a></li>
 					<li class="divider"></li>
 					<li><a href="javascript:onArchiveClick()">Archive Invoice</a></li>
@@ -240,7 +240,7 @@
 				  )
 				, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); --}}				
 		@else
-			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save')) }}			
+			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save', 'id' => 'saveButton')) }}			
 		@endif
 
 		{{ Button::primary('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email')) }}		
@@ -346,7 +346,7 @@
 	     <div class="modal-footer" style="margin-top: 0px">
 	      	<span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">Please provide a valid email address.</span><span>&nbsp;</span>
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-	        <button type="button" class="btn btn-primary" data-bind="click: $root.clientFormComplete">Done</button>	      	
+	        <button id="clientDoneButton" type="button" class="btn btn-primary" data-bind="click: $root.clientFormComplete">Done</button>	      	
 	     </div>
 	  		
 	    </div>

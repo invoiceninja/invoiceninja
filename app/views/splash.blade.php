@@ -83,7 +83,7 @@
             <div class="col-md-3 center-block">
               <a href="#">
                 <div class="cta">
-                  <h2 onclick="getStarted()">Invoice Now <span>+</span></h2>
+                  <h2 id="startButton" onclick="getStarted()">Invoice Now <span>+</span></h2>
                 </div>
               </a>
             </div>
