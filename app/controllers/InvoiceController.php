@@ -51,11 +51,11 @@ class InvoiceController extends \BaseController {
     	$table->addColumn('invoice_number', function($model) { return link_to('invoices/' . $model->public_id . '/edit', $model->invoice_number); });
 
     	if (!$clientPublicId) {
-    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
+    		$table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
     	}
     	
     	return $table->addColumn('invoice_date', function($model) { return Utils::fromSqlDate($model->invoice_date); })    	    
-    		->addColumn('total', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
+    		->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
     		->addColumn('balance', function($model) { return Utils::formatMoney($model->balance, $model->currency_id); })
     	    ->addColumn('due_date', function($model) { return Utils::fromSqlDate($model->due_date); })
     	    ->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
