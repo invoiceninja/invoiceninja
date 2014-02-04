@@ -1,11 +1,12 @@
 <?php
 
 $I = new WebGuy($scenario);
-$I->wantTo('ensure that frontpage works');
+$I->wantTo('click invoice now');
 $I->amOnPage('/rocksteady'); 
 $I->click('#startButton');
 $I->seeInDatabase('users', ['id' => 1]);
 
+$I->wantTo('create a client');
 $I->click('#createClientLink');
 $I->fillField('input#email', 'test@aol.com');
 $I->click('#clientDoneButton');

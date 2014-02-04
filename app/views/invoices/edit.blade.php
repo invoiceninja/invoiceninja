@@ -1090,7 +1090,7 @@
 
 			var taxRate = parseFloat(self.tax_rate());
 			if (taxRate > 0) {
-        		total = parseFloat(total) + (total * (taxRate/100));
+        		total = NINJA.parseFloat(total) + (total * (taxRate/100));
         	}        	
 
         	var paid = self.totals.rawPaidToDate();
@@ -1276,7 +1276,7 @@
 
 		this.prettyQty = ko.computed({
 	        read: function () {
-	            return parseFloat(this.qty()) ? parseFloat(this.qty()) : '';
+	            return NINJA.parseFloat(this.qty()) ? NINJA.parseFloat(this.qty()) : '';
 	        },
 	        write: function (value) {
 	            this.qty(value);
@@ -1322,9 +1322,9 @@
 		this.totals = ko.observable();
 
 		this.totals.rawTotal = ko.computed(function() {
-			var cost = parseFloat(self.cost());
-			var qty = parseFloat(self.qty());
-			var taxRate = parseFloat(self.tax_rate());
+			var cost = NINJA.parseFloat(self.cost());
+			var qty = NINJA.parseFloat(self.qty());
+			var taxRate = NINJA.parseFloat(self.tax_rate());
         	var value = cost * qty;        	
         	if (taxRate > 0) {
         		value += value * (taxRate/100);
@@ -1436,7 +1436,7 @@
 	for (var i=0; i<model.invoice().invoice_items().length; i++) {
 		var item = model.invoice().invoice_items()[i];
 		item.tax(model.getTaxRate(item.tax_name(), item.tax_rate()));
-		item.cost(parseFloat(item.cost()) > 0 ? formatMoney(item.cost(), model.invoice().client().currency_id(), true) : '');
+		item.cost(NINJA.parseFloat(item.cost()) > 0 ? formatMoney(item.cost(), model.invoice().client().currency_id(), true) : '');
 	}
 	onTaxRateChange();
 

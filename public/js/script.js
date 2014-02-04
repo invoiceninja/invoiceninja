@@ -5,7 +5,6 @@ var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Const
 var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
 var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
-var NINJA = {};
 
 function generatePDF(invoice, checkMath) {
 	var client = invoice.client;
@@ -378,11 +377,6 @@ function generatePDF(invoice, checkMath) {
 	doc.text(marginLeft, 790, "Created by InvoiceNinja.com");
 
 	return doc;		
-}
-
-NINJA.parseFloat = function(str) {
-	str = str.replace(/[^0-9\.\-]/g, '');
-	return window.parseFloat(str);
 }
 
 

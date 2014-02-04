@@ -48,7 +48,14 @@
 			var currency = currencies[i];
 			currencyMap[currency.id] = currency;
 		}				
+    var NINJA = {};
+    NINJA.parseFloat = function(str) {
+      if (!str) return '';
+      str = (str+'').replace(/[^0-9\.\-]/g, '');
+      return window.parseFloat(str);
+    }
 		function formatMoney(value, currency_id, hide_symbol) {
+      value = NINJA.parseFloat(value);
 			if (!currency_id) currency_id = {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY); }};
 			var currency = currencyMap[currency_id];
 			return accounting.formatMoney(value, hide_symbol ? '' : currency.symbol, currency.precision, currency.thousand_separator, currency.decimal_separator);
