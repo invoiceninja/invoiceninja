@@ -296,10 +296,6 @@ class InvoiceController extends \BaseController {
 					$invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
 					$invitation->save();
 				}				
-				else if (!in_array($contact->id, $sendInvoiceIds) && $invitation)
-				{
-					$invitation->delete();
-				}
 			}						
 
 			$message = '';
