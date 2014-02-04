@@ -162,7 +162,7 @@ function generatePDF(invoice, checkMath) {
 			tax = parseFloat(item.tax_rate);
 		}		
 
-		var lineTotal = item.cost * item.qty;
+		var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
 		if (tax) {
 			lineTotal += lineTotal * tax / 100;
 		}
