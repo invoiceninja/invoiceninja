@@ -30,7 +30,7 @@ class Utils
 			'count' => Session::get('error_count', 0)
 		];
 
-		Log::error($error, $data);
+		Log::error('\n'.$error, $data);
 
 		/*
 		Mail::queue('emails.error', ['message'=>$error.' '.json_encode($data)], function($message)
