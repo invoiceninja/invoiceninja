@@ -225,7 +225,7 @@ function generatePDF(invoice, checkMath) {
 	for (var i=0; i<invoice.invoice_items.length; i++) {
 		var item = invoice.invoice_items[i];
 		var cost = formatMoney(item.cost, currencyId, true);
-		var qty = parseFloat(item.qty) ? parseFloat(item.qty) + '' : '';
+		var qty = NINJA.parseFloat(item.qty) ? NINJA.parseFloat(item.qty) + '' : '';
 		var notes = item.notes;
 		var productKey = item.product_key;
 		var tax = 0;
@@ -245,7 +245,7 @@ function generatePDF(invoice, checkMath) {
 		notes = processVariables(notes);
 		productKey = processVariables(productKey);
 
-		var lineTotal = item.cost * item.qty;
+		var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
 		if (tax) {
 			lineTotal += lineTotal * tax / 100;
 		}
@@ -346,7 +346,7 @@ function generatePDF(invoice, checkMath) {
 
 	x += 16;
 
-	if (checkMath && parseFloat(total).toFixed(4) != parseFloat(invoice.amount).toFixed(4)) 
+	if (checkMath && NINJA.parseFloat(total).toFixed(4) != NINJA.parseFloat(invoice.amount).toFixed(4)) 
 	{
 		var doc = new jsPDF('p', 'pt');
 		doc.setFont('Helvetica','');
