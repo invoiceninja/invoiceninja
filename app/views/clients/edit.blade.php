@@ -48,7 +48,7 @@
 				{{ Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('email')->data_bind('value: email, valueUpdate: \'afterkeydown\', attr: {id:\'email\'+$index()}') }}
 				{{ Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") }}	
 
 				<div class="form-group">
