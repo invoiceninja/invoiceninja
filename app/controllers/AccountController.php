@@ -280,7 +280,7 @@ class AccountController extends \BaseController {
 				}
 				else if ($field == Contact::$fieldEmail && !$contact->email)
 				{
-					$contact->email = $value;
+					$contact->email = strtolower($value);
 				}				
 			}
 
@@ -500,7 +500,7 @@ class AccountController extends \BaseController {
 			$user->first_name = trim(Input::get('first_name'));
 			$user->last_name = trim(Input::get('last_name'));
 			$user->username = trim(Input::get('email'));
-			$user->email = trim(Input::get('email'));
+			$user->email = trim(strtolower(Input::get('email')));
 			$user->phone = trim(Input::get('phone'));				
 			$user->save();
 
@@ -550,7 +550,7 @@ class AccountController extends \BaseController {
 		$user = Auth::user();
 		$user->first_name = trim(Input::get('new_first_name'));
 		$user->last_name = trim(Input::get('new_last_name'));
-		$user->email = trim(Input::get('new_email'));
+		$user->email = trim(strtolower(Input::get('new_email')));
 		$user->password = trim(Input::get('new_password'));
 		$user->password_confirmation = trim(Input::get('new_password'));
 		$user->registered = true;

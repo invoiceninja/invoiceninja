@@ -74,7 +74,7 @@ class ClientRepository
 				$contact = Contact::createNew();
 			}
 
-			$contact->email = trim($record['email']);
+			$contact->email = trim(strtolower($record['email']));
 			$contact->first_name = trim($record['first_name']);
 			$contact->last_name = trim($record['last_name']);
 			$contact->phone = trim($record['phone']);
