@@ -17,7 +17,7 @@ modules:
     config:
         Selenium2:
          url: 'http://ninja.dev/'
-         delay: 2000
+         delay: 400
          browser: phantomjs
          capabilities:
              webStorageEnabled: true
