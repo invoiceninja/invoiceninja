@@ -22,7 +22,7 @@ Most online invoicing sites are expensive. They shouldn't be. The aim of this pr
 
 Fork the Github project
 
-    https://help.github.com/articles/fork-a-repo
+https://help.github.com/articles/fork-a-repo
 
 Install Laravel packages using Composer
 
