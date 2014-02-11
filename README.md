@@ -20,10 +20,9 @@ Most online invoicing sites are expensive. They shouldn't be. The aim of this pr
 
 ### Steps to setup
 
-Clone the Github project
+Fork the Github project
 
-    git clone git@github.com:hillelcoren/invoice-ninja.git ninja
-    cd ninja
+    https://help.github.com/articles/fork-a-repo
 
 Install Laravel packages using Composer
 
