@@ -15,7 +15,8 @@
 		"intervention/image": "dev-master",
 		"webpatser/laravel-countries": "dev-master",
 		"anahkiasen/rocketeer": "dev-develop",
-		"codeception/codeception": "dev-master"
+		"codeception/codeception": "dev-master",
+		"davejamesmiller/laravel-breadcrumbs": "~2"
 	},
 	"autoload": {
 		"classmap": [

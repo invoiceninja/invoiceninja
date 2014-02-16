@@ -11,6 +11,7 @@
 /bootstrap/environment.php
 /vendor
 /composer.phar
+/composer.lock
 /.DS_Store
 /Thumbs.db
 /app.yaml

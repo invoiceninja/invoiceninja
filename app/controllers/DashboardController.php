@@ -6,16 +6,17 @@ class DashboardController extends \BaseController {
   {
     // total_income, billed_clients, invoice_sent and active_clients
     $select = DB::raw('SUM(clients.paid_to_date) total_income, 
-                        COUNT(DISTINCT CASE WHEN invoices.id IS NOT NULL THEN clients.id ELSE null END) - 1 billed_clients,
+                        COUNT(DISTINCT CASE WHEN invoices.id IS NOT NULL THEN clients.id ELSE null END) billed_clients,
                         SUM(CASE WHEN invoices.invoice_status_id >= '.INVOICE_STATUS_SENT.' THEN 1 ELSE 0 END) invoices_sent,
                         COUNT(DISTINCT clients.id) active_clients');
 
-    $metrics = DB::table('clients')
+    $metrics = DB::table('accounts')
             ->select($select)
+            ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
             ->leftJoin('invoices', 'clients.id', '=', 'invoices.client_id')
-            ->where('clients.account_id', '=', Auth::user()->account_id)
+            ->where('accounts.id', '=', Auth::user()->account_id)
             ->where('clients.deleted_at', '=', null)
-            ->groupBy('clients.account_id')
+            ->groupBy('accounts.id')
             ->first();
     
     $invoiceAvg = DB::table('invoices')

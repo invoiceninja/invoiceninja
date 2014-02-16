@@ -18,7 +18,7 @@
 
 	<div data-bind="with: invoice">
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
-    	<div class="col-md-5" id="col_1">
+    	<div class="col-md-4" id="col_1">
 
     		@if ($invoice)
 				<div class="form-group">
@@ -77,7 +77,7 @@
 			
 		</div>
 
-		<div class="col-md-3" id="col_2">
+		<div class="col-md-4" id="col_2">
 			{{ Former::text('invoice_number')->label('Invoice #')->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
 			{{ Former::text('po_number')->label('PO #')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
 			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")->append('%') }}			
