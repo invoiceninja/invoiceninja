@@ -167,6 +167,7 @@ class PaymentController extends \BaseController
         $client = $invoice->client;
 
         $data = [
+            'showBreadcrumbs' => false,
             'invitationKey' => $invitationKey,
             'invoice' => $invoice,
             'client' => $client,

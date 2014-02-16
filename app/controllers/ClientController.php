@@ -108,6 +108,7 @@ class ClientController extends \BaseController {
 		Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 		
 		$data = array(
+			'showBreadcrumbs' => false,
 			'client' => $client,
 			'credit' => $client->getTotalCredit(),
 			'title' => '- ' . $client->getDisplayName(),

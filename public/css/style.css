@@ -11,8 +11,10 @@ label.control-label {
     font-weight: normal !important;
 }
 
-
-
+.breadcrumb {
+    background-color: inherit;
+    font-size: 22px;
+}
 
 div.panel {
     padding-left: 0px !important;
@@ -47,11 +49,8 @@ table td {
     max-width: 250px;
 }
 
-/*
-table.dataTable tr.odd {  background-color: white; }
-table.dataTable tr.even { background-color: #f9f9f9; }
-*/
-
+/* hide table sorting indicators */
+table.table thead .sorting { background: url('') no-repeat center right; }
 table.dataTable tr.odd td.sorting_1 { background-color: white; }
 table.dataTable tr.odd td.sorting_2 { background-color: white; }
 table.dataTable tr.odd td.sorting_3 { background-color: white; }
@@ -59,10 +58,6 @@ table.dataTable tr.even td.sorting_1 { background-color: white; }
 table.dataTable tr.even td.sorting_2 { background-color: white; }
 table.dataTable tr.even td.sorting_3 { background-color: white; }
 
-
-
-/* hide table sorting indicators */
-table.table thead .sorting { background: url('') no-repeat center right; }
 
 
 /* Hover nav */
@@ -123,9 +118,9 @@ table.table thead .sorting { background: url('') no-repeat center right; }
 }
 
 
-/*******************
+/***********************************************
    Dashboard 
- *******************/
+************************************************/
 
 .in-bold {
     font-size: 26px;
@@ -172,6 +167,11 @@ table.table thead .sorting { background: url('') no-repeat center right; }
 .invoice-table tbody {
     border-style: none !important;
 }
+
+/***********************************************
+   New/edit invoice page
+************************************************/
+
 
 /*
 table.invoice-table tbody tr:hover {
@@ -225,7 +225,9 @@ body {
 
 
 
-
+/***********************************************
+   Add mouse over drop down to header menu
+************************************************/
 
 .navbar-default {
     background-color: #428bff;

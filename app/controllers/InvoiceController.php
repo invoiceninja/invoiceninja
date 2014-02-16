@@ -141,6 +141,7 @@ class InvoiceController extends \BaseController {
 		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
 
 		$data = array(
+			'showBreadcrumbs' => false,
 			'invoice' => $invoice->hidePrivateFields(),
 			'invitation' => $invitation
 		);
@@ -166,6 +167,7 @@ class InvoiceController extends \BaseController {
     				->select('contacts.public_id')->lists('public_id');
     	
 		$data = array(
+				'showBreadcrumbs' => false,
 				'account' => $invoice->account,
 				'invoice' => $invoice, 
 				'data' => false,

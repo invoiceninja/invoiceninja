@@ -17,12 +17,6 @@
 	<div class="row">
 		<div class="col-md-8">
 
-			@if ($payment)
-				{{ Former::legend('Edit Payment') }}
-			@else
-				{{ Former::legend('New Payment') }}
-			@endif
-
 			{{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
 			{{ Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') }}
 			{{ Former::text('amount') }}

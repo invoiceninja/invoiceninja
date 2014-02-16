@@ -5,7 +5,7 @@ class DashboardController extends \BaseController {
   public function index()
   {
     // total_income, billed_clients, invoice_sent and active_clients
-    $select = DB::raw('SUM(clients.paid_to_date) total_income, 
+    $select = DB::raw('SUM(DISTINCT clients.paid_to_date) total_income, 
                         COUNT(DISTINCT CASE WHEN invoices.id IS NOT NULL THEN clients.id ELSE null END) billed_clients,
                         SUM(CASE WHEN invoices.invoice_status_id >= '.INVOICE_STATUS_SENT.' THEN 1 ELSE 0 END) invoices_sent,
                         COUNT(DISTINCT clients.id) active_clients');

@@ -16,12 +16,6 @@
 	<div class="row">
 		<div class="col-md-8">
 
-			@if ($credit)
-				{{ Former::legend('Edit Credit') }}
-			@else
-				{{ Former::legend('New Credit') }}
-			@endif
-
 			{{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
 			{{ Former::text('amount') }}
 			{{ Former::text('credit_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}

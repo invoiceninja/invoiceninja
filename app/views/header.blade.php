@@ -148,9 +148,14 @@
 	</nav>
 	
 	
-	<p>&nbsp;</p>
+
+	<br/>
 	<div class="container">	
 	
+  @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
+    {{ HTML::breadcrumbs() }}
+  @endif
+
   @if (Session::has('message'))
     <div class="alert alert-info">{{ Session::get('message') }}</div>
   @endif

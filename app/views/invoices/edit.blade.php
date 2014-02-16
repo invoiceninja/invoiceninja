@@ -9,6 +9,12 @@
 
 @section('content')
 	
+	@if ($invoice)
+		<ol class="breadcrumb">
+			<li>{{ link_to('invoices', 'Invoices') }}</li>
+			<li class='active'>{{ $invoice->invoice_number }}</li>
+		</ol>  
+	@endif
 
 	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
 		'client' => 'required',

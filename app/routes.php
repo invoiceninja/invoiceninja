@@ -159,6 +159,26 @@ HTML::macro('image_data', function($imagePath) {
 });
 
 
+HTML::macro('breadcrumbs', function() {
+  $str = '<ol class="breadcrumb">';
+  $crumbs = explode('/', $_SERVER['REQUEST_URI']);
+  for ($i=0; $i<count($crumbs); $i++) {
+    $crumb = trim($crumbs[$i]);
+    if (!$crumb) continue;
+    if ($crumb == 'account') return '';
+    $name = ucwords($crumb);
+    if ($i==count($crumbs)-1) 
+    {
+      $str .= "<li class='active'>$name</li>";  
+    }
+    else
+    {
+      $str .= '<li>'.link_to($crumb, $name).'</li>';   
+    }
+  }
+  return $str . '</ol>';
+});
+
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
 
 define('ENV_DEVELOPMENT', 'local');
