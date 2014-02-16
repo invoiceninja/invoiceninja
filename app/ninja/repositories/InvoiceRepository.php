@@ -12,14 +12,14 @@ class InvoiceRepository
 	{
     	$query = \DB::table('invoices')
     				->join('clients', 'clients.id', '=','invoices.client_id')
-					->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
-					->join('contacts', 'contacts.client_id', '=', 'clients.id')
-					->where('invoices.account_id', '=', $accountId)
+  					->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
+  					->join('contacts', 'contacts.client_id', '=', 'clients.id')
+  					->where('invoices.account_id', '=', $accountId)
     				->where('invoices.deleted_at', '=', null)
     				->where('clients.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', false)    			
     				->where('contacts.is_primary', '=', true)	
-					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
+  					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
 
     	if ($clientPublicId) 
     	{

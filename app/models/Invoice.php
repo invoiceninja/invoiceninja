@@ -32,6 +32,11 @@ class Invoice extends EntityModel
 		return $this->invoice_number;
 	}
 
+	public function getLink()
+	{
+		return link_to('invoices/' . $this->public_id, $this->invoice_number);
+	}
+
 	public function getEntityType()
 	{
 		return ENTITY_INVOICE;

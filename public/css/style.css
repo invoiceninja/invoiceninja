@@ -19,6 +19,10 @@ div.panel {
     padding-right: 0px !important;
 }
 
+.pointer {
+    cursor: pointer;
+}
+
 .form-actions {
     margin: 0;
     background-color: transparent;
@@ -86,6 +90,20 @@ table.table thead .sorting { background: url('') no-repeat center right; }
     margin-top: 0;
 }
 
+.navbar {
+  background-color: #0b4d78 !important;
+  background-image: none;
+  background-repeat: no-repeat;
+  filter: none;
+}
+
+.navbar .active > a {
+  background-color: #09334f !important;
+  background-image: none;
+  background-repeat: no-repeat;
+  filter: none;
+}
+
 .navbar .sub-menu:before {
     border-bottom: 7px solid transparent;
     border-left: none;
@@ -104,6 +122,52 @@ table.table thead .sorting { background: url('') no-repeat center right; }
     left: -6px;
 }
 
+
+/*******************
+   Dashboard 
+ *******************/
+
+.in-bold {
+    font-size: 26px;
+    font-weight: bold;;
+}
+
+
+.in-thin {
+    font-size: 26px;
+    color: #888;
+}
+
+.in-bold-white {
+    font-weight: bold;
+    color: white;
+}
+
+.in-image {
+    float:left;padding-right:16px;
+}
+
+.in-white {
+    color: white;
+}
+
+
+.active-clients {
+    background-color: #2299c0;
+    background-image:url('../images/activeclients.png');
+    background-position:center;
+    background-repeat: no-repeat;
+    height: 200px;
+    padding-top: 44px;
+    text-align: center;
+}
+
+.average-invoice {
+    background-color: #ecd817;
+    height: 200px;
+    padding-top: 60px;
+    text-align: center;
+}
 
 .invoice-table tbody {
     border-style: none !important;

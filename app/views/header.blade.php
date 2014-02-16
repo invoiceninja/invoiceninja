@@ -77,12 +77,14 @@
 	      <span class="icon-bar"></span>
 	      <span class="icon-bar"></span>
 	    </button>
-      <a href="{{ URL::to('/rocksteady') }}" class='navbar-brand'>Invoice Ninja</a>	    
+      <a href="{{ URL::to('/rocksteady') }}" class='navbar-brand'>
+        <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:18px;width:auto"/>
+      </a>	    
 	  </div>
 
 	  <div class="collapse navbar-collapse" id="navbar-collapse-1">
 	    <ul class="nav navbar-nav" style="font-weight: bold">
-	    	{{-- HTML::nav_link('home', 'Home') --}}
+	    	{{ HTML::nav_link('dashboard', 'Dashboard') }}
 	    	{{ HTML::menu_link('client') }}
 	    	{{ HTML::menu_link('invoice') }}
 	    	{{ HTML::menu_link('payment') }}
@@ -121,7 +123,7 @@
 
 		<ul class="nav navbar-nav navbar-right">	      
 	      <li class="dropdown">
-	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Recently Viewed <b class="caret"></b></a>
+	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">History <b class="caret"></b></a>
 	        <ul class="dropdown-menu">	        		        	
 	        	@if (count(Session::get(RECENTLY_VIEWED)) == 0)
 	          		<li><a href="#">No items</a></li>

@@ -24,7 +24,7 @@
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
 					<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
-						<a id="editClientLink" href="#" data-bind="click: $root.showClientForm">{{ $client->getDisplayName() }}</a>
+						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ $client->getDisplayName() }}</a>
 					</div>
 				</div>    				
 				<div style="display:none">
@@ -34,7 +34,7 @@
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-					<a id="createClientLink" data-bind="click: $root.showClientForm, text: $root.clientLinkText"></a>					
+					<a id="createClientLink" class="pointer" data-bind="click: $root.showClientForm, text: $root.clientLinkText"></a>					
 				</div>
 			</div>
 

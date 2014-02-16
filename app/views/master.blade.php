@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+
+    <title>Invoice Ninja {{ isset($title) ? $title : '' }}</title>
+    <link rel="canonical" href="https://www.invoiceninja.com"></link>
+    <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">    
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta property="og:site_name" content="Invoice Ninja"></meta>
+    <meta property="og:url" content="https://www.invoiceninja.com"></meta>
+    <meta property="og:title" content="Invoice Ninja"></meta>
+    <meta property="og:image" content="https://fbcdn-sphotos-b-a.akamaihd.net/hphotos-ak-ash3/t31/1548037_274756319355261_10423754_o.jpg"></meta>
+    <meta property="og:description" content="Simple, Intuitive Invoicing."></meta>
+    <meta name="keywords" content="Invoice Ninja"></meta>
     
-    <title>Invoice Ninja {{ isset($title) ? $title : '' }}</title>
-
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}" type="text/javascript"></script>  
     <script type="text/javascript">
     window.onerror = function(e) {

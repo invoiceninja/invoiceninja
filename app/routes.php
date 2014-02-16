@@ -85,7 +85,7 @@ Route::get('logout', 'UserController@logout');
 
 Route::group(array('before' => 'auth'), function()
 {   
-	Route::get('home', function() { return View::make('header'); });
+	Route::get('dashboard', 'DashboardController@index');
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
 	Route::get('account/{section?}', 'AccountController@showSection');	
 	Route::post('account/{section?}', 'AccountController@doSection');
