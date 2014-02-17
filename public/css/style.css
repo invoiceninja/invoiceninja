@@ -172,41 +172,24 @@ table.dataTable tr.even td.sorting_3 { background-color: white; }
    New/edit invoice page
 ************************************************/
 
-
-/*
-table.invoice-table tbody tr:hover {
-    background-color: #FFFFFF !important;
-}
-*/
-
-.invoice-table td {
-    padding: 2px !important;
+.invoice-table td.hide-border,
+.invoice-table th.hide-border {
+    border-style: none !important;
 }
 
-.invoice-table td input,
-.invoice-table td textarea {
-    border: none !important;
-    width: 100%;
+.invoice-table .line-total {
+    padding-top: 6px;
 }
 
 .invoice-table th {
     border-top: 1px solid #ddd !important;      
 }
 
-.invoice-table td.hide-border,
-.invoice-table th.hide-border {
-    border-style: none !important;
-}
-
 .invoice-table td.td-icon {
     vertical-align: middle !important;
 }
 
-.invoice-table tfoot tr {
-    height: 30px;
-}
-
-.fa-bars {
+.fa-sort {
     cursor: move !important;
 }
 

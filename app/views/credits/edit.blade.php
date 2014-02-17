@@ -18,7 +18,7 @@
 
 			{{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
 			{{ Former::text('amount') }}
-			{{ Former::text('credit_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT)) }}
+			{{ Former::text('credit_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') }}
 			{{-- Former::select('currency_id')->addOption('','')->label('Currency')
 				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) --}}
 			{{ Former::textarea('private_notes') }}
