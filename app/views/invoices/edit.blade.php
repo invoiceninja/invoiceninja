@@ -110,41 +110,41 @@
 	<table class="table invoice-table" style="margin-bottom: 0px !important">
 	    <thead>
 	        <tr>
-	        	<th class="hide-border"></th>
-	        	<th>Item</th>
-	        	<th>Description</th>
-	        	<th>Unit Cost</th>
-	        	<th>Quantity</th>
-	        	<th data-bind="visible: $root.invoice_item_taxes.show">Tax</th>
-	        	<th>Line&nbsp;Total</th>
-	        	<th class="hide-border"></th>
+	        	<th style="min-width:32px;" class="hide-border"></th>
+	        	<th style="min-width:160px">Item</th>
+	        	<th style="width:100%">Description</th>
+	        	<th style="min-width:120px">Unit Cost</th>
+	        	<th style="min-width:120px">Quantity</th>
+	        	<th style="min-width:120px;" data-bind="visible: $root.invoice_item_taxes.show">Tax</th>
+	        	<th style="min-width:120px;">Line&nbsp;Total</th>
+	        	<th style="min-width:32px;" class="hide-border"></th>
 	        </tr>
 	    </thead>
 	    <tbody data-bind="sortable: { data: invoice_items, afterMove: onDragged }">
 	    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
-	        	<td style="min-width:32px;" class="hide-border td-icon">
+	        	<td class="hide-border td-icon">
 	        		<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 	        	</td>
-	            <td style="min-width:160px">	            	
+	            <td>	            	
 	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'key')->onkeyup('onItemChange()')
 	            		->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 	            </td>
-	            <td style="width:100%">
+	            <td>
 	            	<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap"></textarea>
 	            </td>
-	            <td style="min-width:120px">
+	            <td>
 	            	<input onkeyup="onItemChange()" data-bind="value: prettyCost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
 	            </td>
-	            <td style="min-width:120px">
+	            <td>
 	            	<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
 	            </td>
-	            <td style="display:none" style="min-width:120px; vertical-align:middle" data-bind="visible: $root.invoice_item_taxes.show">
+	            <td style="display:none;vertical-align:middle" data-bind="visible: $root.invoice_item_taxes.show">
 	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select>
 	            </td>
-		        	<td style="min-width:120px;text-align: right;padding-top:9px !important">
+		        	<td style="text-align:right;padding-top:9px !important">
 	            	<div class="line-total" data-bind="text: totals.total"></div>
 	            </td>
-	        	<td style="min-width:32px; cursor:pointer" class="hide-border td-icon">
+	        	<td style="cursor:pointer" class="hide-border td-icon">
 	        		&nbsp;<i style="display:none" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-minus-circle" title="Remove item"/>
 	        	</td>
 	        </tr>

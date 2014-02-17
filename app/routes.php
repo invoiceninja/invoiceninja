@@ -49,7 +49,6 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 */
 
 /*
-// TODO_FIX replace with cron
 Route::get('/send_emails', function() {
 	Artisan::call('ninja:send-invoices');	
 });
