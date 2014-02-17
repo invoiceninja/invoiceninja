@@ -115,7 +115,7 @@
 	        	<th style="width:100%">Description</th>
 	        	<th style="min-width:120px">Unit Cost</th>
 	        	<th style="min-width:120px">Quantity</th>
-	        	<th style="min-width:120px;" data-bind="visible: $root.invoice_item_taxes.show">Tax</th>
+	        	<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">Tax</th>
 	        	<th style="min-width:120px;">Line&nbsp;Total</th>
 	        	<th style="min-width:32px;" class="hide-border"></th>
 	        </tr>
