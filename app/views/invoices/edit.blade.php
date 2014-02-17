@@ -163,32 +163,32 @@
 						<input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>Save as default terms
 					</label>
 	        	</td>
-	        	<td data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+	        	<td style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2">Subtotal</td>
 				<td style="text-align: right"><span data-bind="text: totals.subtotal"/></td>
 	        </tr>
 	        <tr style="display:none" data-bind="visible: discount() > 0">
 	        	<td class="hide-border" colspan="3"/>
-	        	<td class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
+	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
 				<td colspan="2">Discount</td>
 				<td style="text-align: right"><span data-bind="text: totals.discounted"/></td>
 	        </tr>
 	        <tr style="display:none" data-bind="visible: $root.invoice_taxes.show">
 	        	<td class="hide-border" colspan="3"/>
-	        	<td class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td style="vertical-align: middle">Tax</td>
 				<td style="min-width:120px"><select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select></td>
 				<td style="vertical-align: middle; text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 	        </tr>
 	        <tr>
 	        	<td class="hide-border" colspan="3"/>
-	        	<td class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2">Paid to Date</td>
 				<td style="text-align: right" data-bind="text: totals.paidToDate"></td>
 	        </tr>	        
 	        <tr>
 	        	<td class="hide-border" colspan="3"/>
-	        	<td class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2"><b>Balance Due</b></td>
 				<td style="text-align: right"><span data-bind="text: totals.total"/></td>
 	        </tr>
