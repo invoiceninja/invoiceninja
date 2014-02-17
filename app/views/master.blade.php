@@ -12,7 +12,7 @@
     <meta property="og:site_name" content="Invoice Ninja"></meta>
     <meta property="og:url" content="https://www.invoiceninja.com/rocksteady"></meta>
     <meta property="og:title" content="Invoice Ninja"></meta>
-    <meta property="og:image" content="https://fbcdn-sphotos-b-a.akamaihd.net/hphotos-ak-ash3/t31/1548037_274756319355261_10423754_o.jpg"></meta>
+    <meta property="og:image" content="https://www.invoiceninja.com/images/facebook.jpg"></meta>
     <meta property="og:description" content="Simple, Intuitive Invoicing."></meta>
     <meta name="keywords" content="Invoice Ninja"></meta>
     
