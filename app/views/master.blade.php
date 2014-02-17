@@ -3,7 +3,7 @@
   <head>
 
     <title>Invoice Ninja {{ isset($title) ? $title : '' }}</title>
-    <link rel="canonical" href="https://www.invoiceninja.com"></link>
+    <link rel="canonical" href="https://www.invoiceninja.com/rocksteady"></link>
     <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">    
 
     <meta charset="utf-8">
