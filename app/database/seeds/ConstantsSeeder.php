@@ -103,6 +103,7 @@ class ConstantsSeeder extends Seeder
 		Industry::create(array('name' => 'Sports'));
 		Industry::create(array('name' => 'Transportation'));
 		Industry::create(array('name' => 'Travel & Luxury'));
+		Industry::create(array('name' => 'Other'));
 
 		Size::create(array('name' => '1 = 3'));
 		Size::create(array('name' => '4 - 10'));

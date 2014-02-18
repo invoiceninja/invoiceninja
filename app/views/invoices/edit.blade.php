@@ -208,79 +208,64 @@
 
 
 		{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
-			
-		@if ($invoice)		
+		
+		@if (!$invoice || !$invoice->trashed())						
+			@if ($invoice)		
+
+				<div id="primaryActions" style="text-align:left" data-bind="css: $root.enable.save" class="btn-group">
+					<button class="btn-primary btn" type="button" data-bind="css: $root.enable.save">Save Invoice</button>
+					<button class="btn-primary btn dropdown-toggle" type="button" data-toggle="dropdown" data-bind="css: $root.enable.save"> 
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu">
+						<li><a href="javascript:onSaveClick()" id="saveButton">Save Invoice</a></li>
+						<li><a href="javascript:onCloneClick()">Clone Invoice</a></li>
+						<li class="divider"></li>
+						<li><a href="javascript:onArchiveClick()">Archive Invoice</a></li>
+						<li><a href="javascript:onDeleteClick()">Delete Invoice</a></li>
+					</ul>
+				</div>		
 
 
-			<div id="primaryActions" style="text-align:left" data-bind="css: $root.enable.save" class="btn-group">
-				<button class="btn-primary btn" type="button" data-bind="css: $root.enable.save">Save Invoice</button>
-				<button class="btn-primary btn dropdown-toggle" type="button" data-toggle="dropdown" data-bind="css: $root.enable.save"> 
-					<span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu">
-					<li><a href="javascript:onSaveClick()" id="saveButton">Save Invoice</a></li>
-					<li><a href="javascript:onCloneClick()">Clone Invoice</a></li>
-					<li class="divider"></li>
-					<li><a href="javascript:onArchiveClick()">Archive Invoice</a></li>
-					<li><a href="javascript:onDeleteClick()">Delete Invoice</a></li>
-				</ul>
-			</div>		
+				{{-- DropdownButton::normal('Download PDF',
+					  Navigation::links(
+					    array(
+					    	array('Download PDF', "javascript:onDownloadClick()"),
+					     	array(Navigation::DIVIDER),
+					     	array('Create Payment', "javascript:onPaymentClick()"),
+					     	array('Create Credit', "javascript:onCreditClick()"),
+					    )
+					  )
+					, array('id'=>'relatedActions', 'style'=>'text-align:left'))->split(); --}}				
 
+				{{-- DropdownButton::primary('Save Invoice',
+					  Navigation::links(
+					    array(
+					    	array('Save Invoice', "javascript:onSaveClick()"),
+					     	array('Clone Invoice', "javascript:onCloneClick()"),
+					     	array(Navigation::DIVIDER),
+					     	array('Archive Invoice', "javascript:onArchiveClick()"),
+					     	array('Delete Invoice', "javascript:onDeleteClick()"),
+					    )
+					  )
+					, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); --}}				
+			@else
+				{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save', 'id' => 'saveButton')) }}			
+			@endif
 
-			{{-- DropdownButton::normal('Download PDF',
-				  Navigation::links(
-				    array(
-				    	array('Download PDF', "javascript:onDownloadClick()"),
-				     	array(Navigation::DIVIDER),
-				     	array('Create Payment', "javascript:onPaymentClick()"),
-				     	array('Create Credit', "javascript:onCreditClick()"),
-				    )
-				  )
-				, array('id'=>'relatedActions', 'style'=>'text-align:left'))->split(); --}}				
+			{{ Button::primary('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email')) }}		
 
-			{{-- DropdownButton::primary('Save Invoice',
-				  Navigation::links(
-				    array(
-				    	array('Save Invoice', "javascript:onSaveClick()"),
-				     	array('Clone Invoice', "javascript:onCloneClick()"),
-				     	array(Navigation::DIVIDER),
-				     	array('Archive Invoice', "javascript:onArchiveClick()"),
-				     	array('Delete Invoice', "javascript:onDeleteClick()"),
-				    )
-				  )
-				, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); --}}				
-		@else
-			{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save', 'id' => 'saveButton')) }}			
+			@if ($invoice)		
+				{{ Button::success('Enter Payment', array('onclick' => 'onPaymentClick()')) }}		
+			@endif
 		@endif
-
-		{{ Button::primary('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email')) }}		
-
-		@if ($invoice)		
-
-			{{ Button::success('Enter Payment', array('onclick' => 'onPaymentClick()')) }}		
-
-			<!--
-			<div id="relatedActions" style="text-align:left" class="btn-group">
-				<button class="btn-success btn" type="button">Enter Payment</button>
-				<button class="btn-success btn dropdown-toggle" type="button" data-toggle="dropdown"> 
-					<span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu">
-					<li><a href="javascript:onPaymentClick()">Enter Payment</a></li>
-					<li><a href="javascript:onCreditClick()">Enter Credit</a></li>
-				</ul>
-			</div>				
-			-->
-
-		@endif
-
 
 	</div>
 	<p>&nbsp;</p>
 	
 	<!-- <textarea rows="20" cols="120" id="pdfText" onkeyup="runCode()"></textarea> -->
 	<!-- <iframe frameborder="1" width="100%" height="600" style="display:block;margin: 0 auto"></iframe>	-->
-	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="1150"></iframe>
+	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="1180"></iframe>
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
 
@@ -946,7 +931,7 @@
 		self.discount = ko.observable('');
 		self.frequency_id = ko.observable('');
 		//self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
-		self.terms = ko.observable(wordWrapText('{{ str_replace("\n", '\n', $account->invoice_terms) }}', 340));
+		self.terms = ko.observable(wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', $account->invoice_terms) }}', 340));
 		self.set_default_terms = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');

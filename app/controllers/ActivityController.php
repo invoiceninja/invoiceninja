@@ -11,6 +11,7 @@ class ActivityController extends \BaseController {
                     ->select('activities.message', 'activities.created_at', 'clients.currency_id', 'activities.balance', 'activities.adjustment');
     	
         return Datatable::query($query)
+            //->addColumn('blank', function($model) { return ''; })
     	    ->addColumn('created_at', function($model) { return Utils::timestampToDateTimeString(strtotime($model->created_at)); })
             ->addColumn('message', function($model) { return Utils::decodeActivity($model->message); })
             ->addColumn('balance', function($model) { return Utils::formatMoney($model->balance, $model->currency_id); })

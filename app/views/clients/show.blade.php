@@ -3,6 +3,7 @@
 @section('content') 
 	
 	
+	@if (!$client->trashed())		
 	<div class="pull-right">
 		{{ Former::open('clients/bulk')->addClass('mainForm') }}
 		<div style="display:none">
@@ -31,9 +32,9 @@
 			  )
 			, ['id'=>'primaryDropDown'])->split(); }}
 
-	    {{ Former::close() }}
-		
+	    {{ Former::close() }}		
 	</div>
+	@endif
 
 	<h2>{{ $client->getDisplayName() }}</h2>
 	@if ($client->last_login > 0)
@@ -102,6 +103,7 @@
 		    	->setUrl(url('api/activities/'. $client->public_id))    	
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
+		    	->setOptions('aaSorting', [['0', 'desc']])
 		    	->render('datatable') }}
 
         </div>
@@ -114,6 +116,7 @@
 			    	->setUrl(url('api/recurring_invoices/' . $client->public_id))    	
 			    	->setOptions('sPaginationType', 'bootstrap')
 			    	->setOptions('bFilter', false)
+			    	->setOptions('aaSorting', [['0', 'asc']])
 			    	->render('datatable') }}
 			@endif
 
@@ -122,6 +125,7 @@
 		    	->setUrl(url('api/invoices/' . $client->public_id))    	
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
+		    	->setOptions('aaSorting', [['0', 'asc']])
 		    	->render('datatable') }}
             
         </div>
@@ -132,6 +136,7 @@
 				->setUrl(url('api/payments/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
+				->setOptions('aaSorting', [['0', 'asc']])
 				->render('datatable') }}
             
         </div>
@@ -142,6 +147,7 @@
 				->setUrl(url('api/credits/' . $client->public_id))    	
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
+				->setOptions('aaSorting', [['0', 'asc']])
 				->render('datatable') }}
             
         </div>

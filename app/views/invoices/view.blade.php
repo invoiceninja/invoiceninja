@@ -22,7 +22,7 @@
 	
 	<div class="clearfix"></div><p>&nbsp;</p>
 
-	<iframe id="theFrame" frameborder="1" width="100%" height="650" style="display:none;margin: 0 auto"></iframe>
+	<iframe id="theFrame" frameborder="1" width="100%" height="1180" style="display:none;margin: 0 auto"></iframe>
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
 	<script type="text/javascript">

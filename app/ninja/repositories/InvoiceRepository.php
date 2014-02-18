@@ -15,11 +15,15 @@ class InvoiceRepository
   					->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
   					->join('contacts', 'contacts.client_id', '=', 'clients.id')
   					->where('invoices.account_id', '=', $accountId)
-    				->where('invoices.deleted_at', '=', null)
     				->where('clients.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', false)    			
     				->where('contacts.is_primary', '=', true)	
   					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
+
+      if (!\Session::get('trash_invoice'))
+      {
+        $query->where('invoices.deleted_at', '=', null);
+      }
 
     	if ($clientPublicId) 
     	{
@@ -46,7 +50,7 @@ class InvoiceRepository
 					->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
 					->join('contacts', 'contacts.client_id', '=', 'clients.id')
 					->where('invoices.account_id', '=', $accountId)
-    				->where('invoices.deleted_at', '=', null)
+            ->where('clients.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', true)
     				->where('contacts.is_primary', '=', true)	
 					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
@@ -55,6 +59,11 @@ class InvoiceRepository
     	{
     		$query->where('clients.public_id', '=', $clientPublicId);
     	}
+
+      if (!\Session::get('trash_invoice'))
+      {
+        $query->where('invoices.deleted_at', '=', null);
+      }
 
     	if ($filter)
     	{

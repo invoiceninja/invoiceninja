@@ -115,7 +115,7 @@ class InvoiceController extends \BaseController {
 
 	public function view($invitationKey)
 	{
-		$invitation = Invitation::with('user', 'invoice.invoice_items', 'invoice.account.country', 'invoice.client.contacts', 'invoice.client.country')
+		$invitation = Invitation::withTrashed()->with('user', 'invoice.invoice_items', 'invoice.account.country', 'invoice.client.contacts', 'invoice.client.country')
 			->where('invitation_key', '=', $invitationKey)->firstOrFail();
 
 		$invoice = $invitation->invoice;
@@ -151,7 +151,7 @@ class InvoiceController extends \BaseController {
 
 	public function edit($publicId)
 	{
-		$invoice = Invoice::scope($publicId)->with('account.country', 'client.contacts', 'client.country', 'invoice_items')->firstOrFail();
+		$invoice = Invoice::scope($publicId)->withTrashed()->with('account.country', 'client.contacts', 'client.country', 'invoice_items')->firstOrFail();
 		Utils::trackViewed($invoice->invoice_number . ' - ' . $invoice->client->getDisplayName(), ENTITY_INVOICE);
 	
 		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
@@ -215,7 +215,7 @@ class InvoiceController extends \BaseController {
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
+			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),				
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',

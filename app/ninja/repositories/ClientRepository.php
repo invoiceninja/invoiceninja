@@ -10,9 +10,13 @@ class ClientRepository
     	$query = \DB::table('clients')
     				->join('contacts', 'contacts.client_id', '=', 'clients.id')
     				->where('clients.account_id', '=', \Auth::user()->account_id)
-    				->where('clients.deleted_at', '=', null)
     				->where('contacts.is_primary', '=', true)
     				->select('clients.public_id','clients.name','contacts.first_name','contacts.last_name','clients.balance','clients.last_login','clients.created_at','clients.work_phone','contacts.email','clients.currency_id');
+
+    	if (!\Session::get('trash_client'))
+    	{
+    		$query->where('clients.deleted_at', '=', null);
+    	}
 
     	if ($filter)
     	{

@@ -35,13 +35,13 @@
     jQuery(document).ready(function(){
         // dynamic table
         jQuery('.{{ $class }}').dataTable({
-            // Disable sorting on the first column
-            "aaSorting": [],
-            "bAutoWidth": false,
+            "bAutoWidth": false,            
             @if (isset($hasCheckboxes) && $hasCheckboxes)
-            "aoColumnDefs" : [ {
-                'bSortable' : false,
-                'aTargets' : [ 0, {{ count($columns) - 1 }} ]
+            'aaSorting': [['1', 'asc']],
+            // Disable sorting on the first column
+            "aoColumnDefs": [ {
+                'bSortable': false,
+                'aTargets': [ 0, {{ count($columns) - 1 }} ]                
             } ],
             @endif
             @foreach ($options as $k => $o)

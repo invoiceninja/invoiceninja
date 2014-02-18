@@ -58,6 +58,12 @@ class AccountController extends \BaseController {
 		return Redirect::to('invoices/create');		
 	}
 
+	public function setTrashVisible($entityType, $visible)
+	{
+		Session::put("trash_{$entityType}", $visible == 'true');		
+		return Redirect::to("{$entityType}s");
+	}
+
 	public function getSearchData()
 	{
 		$data = $this->accountRepo->getSearchData();
@@ -73,7 +79,7 @@ class AccountController extends \BaseController {
 				'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
 				'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 				'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-				'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
+				'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),				
 				'timezones' => Timezone::remember(DEFAULT_QUERY_CACHE)->orderBy('location')->get(),
 				'dateFormats' => DateFormat::remember(DEFAULT_QUERY_CACHE)->get(),
 				'datetimeFormats' => DatetimeFormat::remember(DEFAULT_QUERY_CACHE)->get(),

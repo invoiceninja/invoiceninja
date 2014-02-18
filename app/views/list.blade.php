@@ -17,6 +17,10 @@
 		  )
 		, array('id'=>'archive'))->split(); }}
 	
+	&nbsp;<label for="trashed" style="font-weight:normal">
+		<input id="trashed" type="checkbox" onclick="setTrashVisible()" 
+			{{ Session::get("trash_{$entityType}") ? 'checked' : ''}}/> Show archived/deleted
+	</label>
 
 	<div id="top_right_buttons" class="pull-right">
 		<input id="tableFilter" type="text" style="width:140px;margin-right:4px" class="form-control pull-left" placeholder="Filter"/> 
@@ -60,6 +64,11 @@
 	function archiveEntity(id) {
 		$('#id').val(id);
 		submitForm('archive');
+	}
+
+	function setTrashVisible() {
+		var checked = $('#trashed').is(':checked');
+		window.location = '{{ URL::to('view_archive/' . $entityType) }}' + (checked ? '/true' : '/false');
 	}
 
     </script>

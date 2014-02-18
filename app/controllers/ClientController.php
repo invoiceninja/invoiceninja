@@ -78,7 +78,7 @@ class ClientController extends \BaseController {
 			'url' => 'clients', 
 			'title' => '- New Client',
 			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get());
@@ -104,7 +104,7 @@ class ClientController extends \BaseController {
 	 */
 	public function show($publicId)
 	{
-		$client = Client::scope($publicId)->with('contacts', 'size', 'industry')->firstOrFail();
+		$client = Client::withTrashed()->scope($publicId)->with('contacts', 'size', 'industry')->firstOrFail();
 		Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 		
 		$data = array(
@@ -134,7 +134,7 @@ class ClientController extends \BaseController {
 			'title' => '- ' . $client->name,
 			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get());
 		return View::make('clients.edit', $data);

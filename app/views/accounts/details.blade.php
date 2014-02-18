@@ -25,19 +25,20 @@
 	<div class="row">
 		<div class="col-md-5">
 
-			{{ Former::legend('Account') }}
+			{{ Former::legend('Details') }}
 			{{ Former::text('name') }}
-			{{ Former::file('logo')->max(2, 'MB')->accept('image')->wrap('test')->inlineHelp('Recommnded size: 120px width, 80px height') }}
-			{{ Former::select('size_id')->addOption('','')->label('Size')
-				->fromQuery($sizes, 'name', 'id') }}
-			{{ Former::select('industry_id')->addOption('','')->label('Industry')
-				->fromQuery($industries, 'name', 'id') }}
+			{{ Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp('Supported: JPEG, GIF and PNG. Recommnded size: 120px width, 80px height') }}
 
 			@if (file_exists($account->getLogoPath()))
 				<center>
 					{{ HTML::image($account->getLogoPath(), "Logo") }}
-				</center>
+				</center><br/>
 			@endif
+
+			{{ Former::select('size_id')->addOption('','')->label('Size')
+				->fromQuery($sizes, 'name', 'id') }}
+			{{ Former::select('industry_id')->addOption('','')->label('Industry')
+				->fromQuery($industries, 'name', 'id') }}
 
 			{{ Former::legend('Address') }}	
 			{{ Former::text('address1')->label('Street') }}

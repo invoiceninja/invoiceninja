@@ -14,7 +14,6 @@ class CreditRepository
 	                ->join('contacts', 'contacts.client_id', '=', 'clients.id')
 	                ->where('clients.account_id', '=', \Auth::user()->account_id)
 	                ->where('clients.deleted_at', '=', null)
-	                ->where('credits.deleted_at', '=', null)
 	                ->where('contacts.is_primary', '=', true)   
 	                ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.balance', 'credits.credit_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'credits.private_notes');        
 
@@ -22,6 +21,11 @@ class CreditRepository
 	    {
 	        $query->where('clients.public_id', '=', $clientPublicId);
 	    }
+
+        if (!\Session::get('trash_credit'))
+        {
+            $query->where('credits.deleted_at', '=', null);
+        }
 
 	    if ($filter)
 	    {

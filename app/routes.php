@@ -85,6 +85,8 @@ Route::get('logout', 'UserController@logout');
 Route::group(array('before' => 'auth'), function()
 {   
 	Route::get('dashboard', 'DashboardController@index');
+  Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
+
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
 	Route::get('company/{section?}', 'AccountController@showSection');	
 	Route::post('company/{section?}', 'AccountController@doSection');
