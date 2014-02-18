@@ -104,16 +104,17 @@
   			  @if (Auth::check() && Auth::user()->registered)
   			  {{ Auth::user()->getFullName() }}
   			  @else			  
-  			    My Account 
+  			    My Company 
   			  @endif
         </span>
 			  <span class="caret"></span>
 			  </button>			
 			  <ul class="dropdown-menu" role="menu">
-			    <li>{{ link_to('account/details', 'Details') }}</li>
-			    <li>{{ link_to('account/settings', 'Settings') }}</li>
-			    <li>{{ link_to('account/import', 'Import') }}</li>
-			    <li>{{ link_to('account/export', 'Export') }}</li>
+			    <li>{{ link_to('company/details', 'Company Details') }}</li>
+			    <li>{{ link_to('company/payments', 'Online Payments') }}</li>
+          <li>{{ link_to('company/notifications', 'Notifications') }}</li>
+          <li>{{ link_to('company/import_export', 'Import/Export') }}</li>
+			    
 			    <li class="divider"></li>
 			    <li>{{ link_to('#', 'Logout', array('onclick'=>'logout()')) }}</li>
 			  </ul>

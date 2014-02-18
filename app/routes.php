@@ -86,8 +86,8 @@ Route::group(array('before' => 'auth'), function()
 {   
 	Route::get('dashboard', 'DashboardController@index');
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
-	Route::get('account/{section?}', 'AccountController@showSection');	
-	Route::post('account/{section?}', 'AccountController@doSection');
+	Route::get('company/{section?}', 'AccountController@showSection');	
+	Route::post('company/{section?}', 'AccountController@doSection');
 	Route::post('user/setTheme', 'UserController@setTheme');
 
 	Route::resource('clients', 'ClientController');
@@ -164,7 +164,7 @@ HTML::macro('breadcrumbs', function() {
   for ($i=0; $i<count($crumbs); $i++) {
     $crumb = trim($crumbs[$i]);
     if (!$crumb) continue;
-    if ($crumb == 'account') return '';
+    if ($crumb == 'company') return '';
     $name = ucwords($crumb);
     if ($i==count($crumbs)-1) 
     {
@@ -195,8 +195,9 @@ define('PERSON_CONTACT', 'contact');
 define('PERSON_USER', 'user');
 
 define('ACCOUNT_DETAILS', 'details');
-define('ACCOUNT_SETTINGS', 'settings');
-define('ACCOUNT_IMPORT', 'import');
+define('ACCOUNT_NOTIFICATIONS', 'notifications');
+define('ACCOUNT_IMPORT_EXPORT', 'import_export');
+define('ACCOUNT_PAYMENTS', 'payments');
 define('ACCOUNT_MAP', 'import_map');
 define('ACCOUNT_EXPORT', 'export');
 

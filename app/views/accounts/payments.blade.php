@@ -45,26 +45,6 @@
 		
 	@endforeach
 
-
-	{{ Former::legend('Localization') }}
-	{{ Former::select('currency_id')->addOption('','')->label('Currency')
-		->fromQuery($currencies, 'name', 'id') }}			
-	{{ Former::select('timezone_id')->addOption('','')->label('Timezone')
-		->fromQuery($timezones, 'location', 'id') }}
-	{{ Former::select('date_format_id')->addOption('','')->label('Date Format')
-		->fromQuery($dateFormats, 'label', 'id') }}
-	{{ Former::select('datetime_format_id')->addOption('','')->label('Date/Time Format')
-		->fromQuery($datetimeFormats, 'label', 'id') }}
-
-	{{ Former::legend('Email Notifications') }}
-	{{ Former::checkbox('notify_sent')->label('&nbsp;')->text('Email me when an invoice is <b>sent</b>') }}
-	{{ Former::checkbox('notify_viewed')->label('&nbsp;')->text('Email me when an invoice is <b>viewed</b>') }}
-	{{ Former::checkbox('notify_paid')->label('&nbsp;')->text('Email me when an invoice is <b>paid</b>') }}
-
-	{{ Former::legend('Custom messages') }}
-	{{ Former::textarea('invoice_terms') }}
-	{{ Former::textarea('email_footer') }}
-
 	{{ Former::actions( Button::lg_primary_submit('Save') ) }}
 	{{ Former::close() }}
 

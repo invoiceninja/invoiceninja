@@ -12,7 +12,7 @@
   To view your client invoice click the link below: <br/>
   {{ $invoiceLink }} <p/>
 
-  To adjust your email notification settings please <a href="http://www.invoiceninja.com/account/settings">click here</a>.
+  To adjust your email notification settings please <a href="http://www.invoiceninja.com/company/settings">click here</a>.
 
 </body>
 </html>

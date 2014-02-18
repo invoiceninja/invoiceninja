@@ -5,6 +5,9 @@
     <title>Invoice Ninja {{ isset($title) ? $title : '' }}</title>
     <link rel="canonical" href="https://www.invoiceninja.com/rocksteady"></link>
     <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">    
+    
+    <link href='//fonts.googleapis.com/css?family=Roboto:400,700,900,100' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700' rel='stylesheet' type='text/css'>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

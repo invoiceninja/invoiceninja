@@ -74,11 +74,15 @@ class AccountController extends \BaseController {
 				'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 				'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 				'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
+				'timezones' => Timezone::remember(DEFAULT_QUERY_CACHE)->orderBy('location')->get(),
+				'dateFormats' => DateFormat::remember(DEFAULT_QUERY_CACHE)->get(),
+				'datetimeFormats' => DatetimeFormat::remember(DEFAULT_QUERY_CACHE)->get(),
+				'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
 			];
 
 			return View::make('accounts.details', $data);
 		}
-		else if ($section == ACCOUNT_SETTINGS)
+		else if ($section == ACCOUNT_PAYMENTS)
 		{
 			$account = Account::with('account_gateways')->findOrFail(Auth::user()->account_id);
 			$accountGateway = null;
@@ -95,10 +99,6 @@ class AccountController extends \BaseController {
 				'accountGateway' => $accountGateway,
 				'config' => json_decode($config),
 				'gateways' => Gateway::remember(DEFAULT_QUERY_CACHE)->get(),
-				'timezones' => Timezone::remember(DEFAULT_QUERY_CACHE)->orderBy('location')->get(),
-				'dateFormats' => DateFormat::remember(DEFAULT_QUERY_CACHE)->get(),
-				'datetimeFormats' => DatetimeFormat::remember(DEFAULT_QUERY_CACHE)->get(),
-				'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
 			];
 			
 			foreach ($data['gateways'] as $gateway)
@@ -111,15 +111,19 @@ class AccountController extends \BaseController {
 				}
 			}	
 
-			return View::make('accounts.settings', $data);
+			return View::make('accounts.payments', $data);
 		}
-		else if ($section == ACCOUNT_IMPORT)
+		else if ($section == ACCOUNT_NOTIFICATIONS)
 		{
-			return View::make('accounts.import');
+			$data = [
+				'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+			];
+
+			return View::make('accounts.notifications', $data);
 		}
-		else if ($section == ACCOUNT_EXPORT)
+		else if ($section == ACCOUNT_IMPORT_EXPORT)
 		{
-			return View::make('accounts.export');	
+			return View::make('accounts.import_export');	
 		}	
 	}
 
@@ -129,11 +133,11 @@ class AccountController extends \BaseController {
 		{
 			return AccountController::saveDetails();
 		}
-		else if ($section == ACCOUNT_SETTINGS)
+		else if ($section == ACCOUNT_PAYMENTS)
 		{
-			return AccountController::saveSettings();
+			return AccountController::savePayments();
 		}
-		else if ($section == ACCOUNT_IMPORT)
+		else if ($section == ACCOUNT_IMPORT_EXPORT)
 		{
 			return AccountController::importFile();
 		}
@@ -141,6 +145,10 @@ class AccountController extends \BaseController {
 		{
 			return AccountController::mapFile();
 		}
+		else if ($section == ACCOUNT_NOTIFICATIONS)
+		{
+			return AccountController::saveNotifications();
+		}		
 		else if ($section == ACCOUNT_EXPORT)
 		{
 			return AccountController::export();
@@ -306,7 +314,7 @@ class AccountController extends \BaseController {
 		if (count($csv->data) + Client::scope()->count() > MAX_NUM_CLIENTS)
 		{
 			Session::flash('error', "Sorry, this wll exceed the limit of " . MAX_NUM_CLIENTS . " clients");
-			return Redirect::to('account/import');
+			return Redirect::to('company/import_export');
 		}
 
 		Session::put('data', $csv->data);
@@ -396,7 +404,24 @@ class AccountController extends \BaseController {
 		return View::make('accounts.import_map', $data);
 	}
 
-	private function saveSettings()
+	private function saveNotifications()
+	{
+		$account = Account::findOrFail(Auth::user()->account_id);			
+		$account->invoice_terms = Input::get('invoice_terms');
+		$account->email_footer = Input::get('email_footer');
+		$account->save();
+
+		$user = Auth::user();
+		$user->notify_sent = Input::get('notify_sent');
+		$user->notify_viewed = Input::get('notify_viewed');
+		$user->notify_paid = Input::get('notify_paid');
+		$user->save();
+		
+		Session::flash('message', 'Successfully updated settings');
+		return Redirect::to('company/notifications');
+	}
+
+	private function savePayments()
 	{
 		$rules = array();
 
@@ -418,32 +443,14 @@ class AccountController extends \BaseController {
 
 		if ($validator->fails()) 
 		{
-			return Redirect::to('account/settings')
+			return Redirect::to('company/settings')
 				->withErrors($validator)
 				->withInput();
 		} 
 		else 
 		{
-			$account = Account::findOrFail(Auth::user()->account_id);			
+			$account = Account::findOrFail(Auth::user()->account_id);						
 			$account->account_gateways()->forceDelete();			
-
-			$account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
-			$account->date_format_id = Input::get('date_format_id') ? Input::get('date_format_id') : null;
-			$account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
-			$account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1;
-
-			$account->invoice_terms = Input::get('invoice_terms');
-			$account->email_footer = Input::get('email_footer');
-
-			$account->save();
-
-			$user = Auth::user();
-			$user->notify_sent = Input::get('notify_sent');
-			$user->notify_viewed = Input::get('notify_viewed');
-			$user->notify_paid = Input::get('notify_paid');
-			$user->save();
-
-			Event::fire('user.refresh');
 
 			if ($gatewayId) 
 			{
@@ -455,15 +462,13 @@ class AccountController extends \BaseController {
 				{
 					$config->$field = trim(Input::get($gateway->id.'_'.$field));
 				}			
-				//dd(Input::all());
-				//dd($config);
 				
 				$accountGateway->config = json_encode($config);
 				$account->account_gateways()->save($accountGateway);
 			}
 
 			Session::flash('message', 'Successfully updated settings');
-			return Redirect::to('account/settings');
+			return Redirect::to('company/payments');
 		}				
 	}
 
@@ -478,7 +483,7 @@ class AccountController extends \BaseController {
 
 		if ($validator->fails()) 
 		{
-			return Redirect::to('account/details')
+			return Redirect::to('company/details')
 				->withErrors($validator)
 				->withInput();
 		} 
@@ -494,6 +499,10 @@ class AccountController extends \BaseController {
 			$account->country_id = Input::get('country_id') ? Input::get('country_id') : null;
 			$account->size_id = Input::get('size_id') ? Input::get('size_id') : null;
 			$account->industry_id = Input::get('industry_id') ? Input::get('industry_id') : null;
+			$account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
+			$account->date_format_id = Input::get('date_format_id') ? Input::get('date_format_id') : null;
+			$account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
+			$account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1;
 			$account->save();
 
 			$user = Auth::user();
@@ -512,8 +521,10 @@ class AccountController extends \BaseController {
 				Image::make($path)->resize(120, 80, true, false)->save('logo/' . $account->account_key . '.jpg');
 			}
 
+			Event::fire('user.refresh');
+
 			Session::flash('message', 'Successfully updated details');
-			return Redirect::to('account/details');
+			return Redirect::to('company/details');
 		}
 	}
 

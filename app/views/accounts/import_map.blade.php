@@ -3,7 +3,7 @@
 @section('content')
 	@parent
 
-	{{ Former::open('account/import') }}
+	{{ Former::open('company/import_export') }}
 	{{ Former::legend('Import Clients') }}
 
 	@if ($headers)
@@ -33,7 +33,7 @@
 	@endif
 
 
-	{{ Former::actions( Button::lg_primary_submit('Import'), '&nbsp;|&nbsp;', link_to('account/import', 'Cancel') ) }}
+	{{ Former::actions( Button::lg_primary_submit('Import'), '&nbsp;|&nbsp;', link_to('company/import', 'Cancel') ) }}
 	{{ Former::close() }}
 
 	<script type="text/javascript">

@@ -23,11 +23,15 @@
 	{{ Former::populateField('phone', $account->users()->first()->phone) }}
 
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-md-5">
 
 			{{ Former::legend('Account') }}
 			{{ Former::text('name') }}
 			{{ Former::file('logo')->max(2, 'MB')->accept('image')->wrap('test')->inlineHelp('Recommnded size: 120px width, 80px height') }}
+			{{ Former::select('size_id')->addOption('','')->label('Size')
+				->fromQuery($sizes, 'name', 'id') }}
+			{{ Former::select('industry_id')->addOption('','')->label('Industry')
+				->fromQuery($industries, 'name', 'id') }}
 
 			@if (file_exists($account->getLogoPath()))
 				<center>
@@ -46,7 +50,7 @@
 
 		</div>
 	
-		<div class="col-md-6">		
+		<div class="col-md-5 col-md-offset-1">		
 
 			{{ Former::legend('Users') }}
 			{{ Former::text('first_name') }}
@@ -54,11 +58,17 @@
 			{{ Former::text('email') }}
 			{{ Former::text('phone') }}
 
-			{{ Former::legend('Additional Info') }}
-			{{ Former::select('size_id')->addOption('','')->label('Size')
-				->fromQuery($sizes, 'name', 'id') }}
-			{{ Former::select('industry_id')->addOption('','')->label('Industry')
-				->fromQuery($industries, 'name', 'id') }}
+
+			{{ Former::legend('Localization') }}
+			{{ Former::select('currency_id')->addOption('','')->label('Currency')
+				->fromQuery($currencies, 'name', 'id') }}			
+			{{ Former::select('timezone_id')->addOption('','')->label('Timezone')
+				->fromQuery($timezones, 'location', 'id') }}
+			{{ Former::select('date_format_id')->addOption('','')->label('Date Format')
+				->fromQuery($dateFormats, 'label', 'id') }}
+			{{ Former::select('datetime_format_id')->addOption('','')->label('Date/Time Format')
+				->fromQuery($datetimeFormats, 'label', 'id') }}
+
 
 		</div>
 	</div>
