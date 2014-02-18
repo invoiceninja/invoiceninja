@@ -469,7 +469,6 @@
 		var $input = $('select#client');
 		$input.combobox().on('change', function(e) {
 			var clientId = parseInt($('input[name=client]').val(), 10);		
-			console.log('CHANGE: %s', clientId);
 			if (clientId > 0) { 
 				model.loadClient(clientMap[clientId]);				
 			} else {
