@@ -469,6 +469,7 @@
 		var $input = $('select#client');
 		$input.combobox().on('change', function(e) {
 			var clientId = parseInt($('input[name=client]').val(), 10);		
+			console.log('CHANGE: %s', clientId);
 			if (clientId > 0) { 
 				model.loadClient(clientMap[clientId]);				
 			} else {
@@ -580,6 +581,7 @@
 	*/
 
 	var isRefreshing = false;
+	var needsRefresh = false;
 	function refreshPDF() {
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice);		
@@ -590,6 +592,7 @@
 			$('#theFrame').attr('src', string).show();		
 		} else {			
 			if (isRefreshing) {
+				needsRefresh = true;
 				return;
 			}
 			isRefreshing = true;
@@ -609,6 +612,10 @@
 		        page.render({canvasContext: context, viewport: viewport});
 		      	$('#theCanvas').show();
 		      	isRefreshing = false;
+		      	if (needsRefresh) {
+		      		needsRefresh = false;
+		      		refreshPDF();
+		      	}
 		      });
 		    });	
 		}

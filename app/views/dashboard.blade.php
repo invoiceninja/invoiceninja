@@ -11,7 +11,7 @@
           {{ $totalIncome }}
         </div>
         <div class="in-thin">
-          in total income
+          in total revenue
         </div>
       </div>
     </div>
