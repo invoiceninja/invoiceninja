@@ -20,7 +20,7 @@ class InvoiceRepository
     				->where('contacts.is_primary', '=', true)	
   					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
 
-      if (!\Session::get('trash_invoice'))
+      if (!\Session::get('show_trash'))
       {
         $query->where('invoices.deleted_at', '=', null);
       }
@@ -60,7 +60,7 @@ class InvoiceRepository
     		$query->where('clients.public_id', '=', $clientPublicId);
     	}
 
-      if (!\Session::get('trash_invoice'))
+      if (!\Session::get('show_trash'))
       {
         $query->where('invoices.deleted_at', '=', null);
       }
@@ -131,7 +131,8 @@ class InvoiceRepository
 		$invoice->terms = trim($data['terms']);
 		$invoice->public_notes = trim($data['public_notes']);
 		$invoice->po_number = trim($data['po_number']);
-		
+    $invoice->invoice_design_id = $data['invoice_design_id'];
+
 		if (isset($data['tax_rate']) && Utils::parseFloat($data['tax_rate']) > 0)
 		{
 			$invoice->tax_rate = Utils::parseFloat($data['tax_rate']);

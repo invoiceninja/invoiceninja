@@ -20,7 +20,7 @@ class PaymentRepository
                     ->where('contacts.is_primary', '=', true)   
                     ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type');        
 
-        if (!\Session::get('trash_payment'))
+        if (!\Session::get('show_trash'))
         {
             $query->where('payments.deleted_at', '=', null);
         }

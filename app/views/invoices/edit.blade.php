@@ -207,6 +207,11 @@
 		</div>
 
 
+		<div style="display:none">
+		{{ Former::select('invoice_design_id')->label('Design')->style('display:inline;width:120px')->raw()
+					->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") }}
+		</div>
+				
 		{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
 		
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))						
@@ -462,7 +467,7 @@
 			refreshPDF();
 		}); //.trigger('change');		
 
-		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id').change(function() {
+		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id').change(function() {
 			refreshPDF();
 		});
 
@@ -947,6 +952,7 @@
 		self.invoice_items = ko.observableArray();
 		self.amount = ko.observable(0);
 		self.balance = ko.observable(0);
+		self.invoice_design_id = ko.observable({{ $account->invoice_design_id }});
 
 		self.mapping = {
 			'client': {

@@ -60,7 +60,7 @@ class AccountController extends \BaseController {
 
 	public function setTrashVisible($entityType, $visible)
 	{
-		Session::put("trash_{$entityType}", $visible == 'true');		
+		Session::put('show_trash', $visible == 'true');		
 		return Redirect::to("{$entityType}s");
 	}
 
@@ -300,6 +300,7 @@ class AccountController extends \BaseController {
 
 			$client->save();
 			$client->contacts()->save($contact);		
+			Activity::createClient($client);
 		}
 
 		$message = Utils::pluralize('Successfully created ? client', $count);

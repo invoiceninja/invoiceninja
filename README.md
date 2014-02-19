@@ -9,14 +9,9 @@ Most online invoicing sites are expensive. They shouldn't be. The aim of this pr
 ### Features
 * Core application built using Laravel 4.1
 * Invoice PDF generation directly in the browser
-* Tax rates and payment terms
 * Integrates with many payment providers
 * Recurring invoices
-
-### Remaining Work
-* Home dashboard
-* Multiple language support
-* Reports
+* Tax rates and payment terms
 
 ### Steps to setup
 
