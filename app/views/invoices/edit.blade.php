@@ -209,7 +209,7 @@
 
 		{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
 		
-		@if (!$invoice || !$invoice->trashed())						
+		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))						
 			@if ($invoice)		
 
 				<div id="primaryActions" style="text-align:left" data-bind="css: $root.enable.save" class="btn-group">

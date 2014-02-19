@@ -9,7 +9,7 @@ class Invoice extends EntityModel
 
 	public function client()
 	{
-		return $this->belongsTo('Client');
+		return $this->belongsTo('Client')->withTrashed();
 	}
 
 	public function invoice_items()

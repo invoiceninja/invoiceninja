@@ -4,7 +4,7 @@ class Payment extends EntityModel
 {
 	public function invoice()
 	{
-		return $this->belongsTo('Invoice');
+		return $this->belongsTo('Invoice')->withTrashed();;
 	}
 
 	public function invitation()
@@ -14,7 +14,7 @@ class Payment extends EntityModel
 
 	public function client()
 	{
-		return $this->belongsTo('Client');
+		return $this->belongsTo('Client')->withTrashed();;
 	}
 
 	public function account()

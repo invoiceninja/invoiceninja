@@ -66,4 +66,3 @@ Configure config/database.php and then initialize the database
 * [nnnick/Chart.js](https://github.com/nnnick/Chart.js) - Simple HTML5 Charts using the <canvas> tag
 * [josscrowcroft/accounting.js](https://github.com/josscrowcroft/accounting.js) - A lightweight JavaScript library for number, money and currency formatting
 * [jashkenas/underscore](https://github.com/jashkenas/underscore) - JavaScript's utility _ belt 
-* [davejamesmiller/laravel-breadcrumbs](https://github.com/davejamesmiller/laravel-breadcrumbs) - A simple Laravel-style way to create breadcrumbs in Laravel 4

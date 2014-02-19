@@ -14,8 +14,6 @@
 /composer.lock
 /.DS_Store
 /Thumbs.db
-/app.yaml
-/database.sql
 /ninja.sublime-project
 /ninja.sublime-workspace
 /tests/_log

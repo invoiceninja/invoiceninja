@@ -12,7 +12,7 @@
       {{ $link }}<p/>
 
       @if ($emailFooter)
-      {{ $emailFooter }}
+      {{ nl2br($emailFooter) }}
       @else
       Best regards,<br/>
       {{ $accountName }}

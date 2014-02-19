@@ -11,7 +11,9 @@ abstract class Mailer {
 			'emails.'.$view.'_text'
 		];
 
-		Mail::queue($views, $data, function($message) use ($toEmail, $fromEmail, $subject)
+		$view = 'emails.' . $view;
+
+		Mail::queue($view, $data, function($message) use ($toEmail, $fromEmail, $subject)
 		{			
 			$message->to($toEmail)->replyTo($fromEmail)->subject($subject);
 		});		
