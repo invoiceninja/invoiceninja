@@ -216,6 +216,7 @@ class InvoiceController extends \BaseController {
 			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
 			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),				
+			'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',
@@ -266,12 +267,15 @@ class InvoiceController extends \BaseController {
 			$invoiceData = (array) $invoice;
 			$invoiceData['client_id'] = $client->id;
 			$invoice = $this->invoiceRepo->save($publicId, $invoiceData);
-
+			
 			$account = Auth::user()->account;
-			if ($account->invoice_taxes != $input->invoice_taxes || $account->invoice_item_taxes != $input->invoice_item_taxes)
+			if ($account->invoice_taxes != $input->invoice_taxes 
+						|| $account->invoice_item_taxes != $input->invoice_item_taxes
+						|| $account->invoice_design_id != $input->invoice->invoice_design_id)
 			{
 				$account->invoice_taxes = $input->invoice_taxes;
 				$account->invoice_item_taxes = $input->invoice_item_taxes;
+				$account->invoice_design_id = $input->invoice->invoice_design_id;
 				$account->save();
 			}
 

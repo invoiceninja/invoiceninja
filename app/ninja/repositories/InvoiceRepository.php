@@ -131,7 +131,8 @@ class InvoiceRepository
 		$invoice->terms = trim($data['terms']);
 		$invoice->public_notes = trim($data['public_notes']);
 		$invoice->po_number = trim($data['po_number']);
-		
+    $invoice->invoice_design_id = $data['invoice_design_id'];
+
 		if (isset($data['tax_rate']) && Utils::parseFloat($data['tax_rate']) > 0)
 		{
 			$invoice->tax_rate = Utils::parseFloat($data['tax_rate']);

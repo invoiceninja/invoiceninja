@@ -300,6 +300,7 @@ class AccountController extends \BaseController {
 
 			$client->save();
 			$client->contacts()->save($contact);		
+			Activity::createClient($client);
 		}
 
 		$message = Utils::pluralize('Successfully created ? client', $count);
