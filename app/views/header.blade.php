@@ -151,7 +151,7 @@
 	
 
 	<br/>
-	<div class="container">	
+	<div class="container">		
 	
   @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
     {{ HTML::breadcrumbs() }}
@@ -166,7 +166,6 @@
   @endif
 
 	@yield('content')		
-
 
 		</div>
 		<div class="container">

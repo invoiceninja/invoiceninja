@@ -6,17 +6,16 @@
 @stop
 
 @section('content')
-
+<div class="row">
 	<!--<h3>{{ $title }} Client</h3>-->
 	
-	{{ Former::open($url)->addClass('col-md-10 col-md-offset-1 main_form')->method($method)->rules(array(
+	{{ Former::open($url)->addClass('col-md-12 main_form')->method($method)->rules(array(
   		'email' => 'email|required'  		
 	)); }}
 
 	@if ($client)
 		{{ Former::populate($client) }}
 	@endif
-
 
 	<div class="row">
 		<div class="col-md-6">
@@ -52,12 +51,12 @@
 				{{ Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") }}	
 
 				<div class="form-group">
-					<div class="col-lg-8 col-lg-offset-4">
-						<span data-bind="visible: $parent.contacts().length > 1">
-							{{ link_to('#', 'Remove contact', array('data-bind'=>'click: $parent.removeContact')) }}
+					<div class="col-lg-8 col-lg-offset-4 bold">
+						<span class="redlink" data-bind="visible: $parent.contacts().length > 1">
+							{{ link_to('#', 'Remove contact -', array('data-bind'=>'click: $parent.removeContact')) }}
 						</span>					
-						<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right">
-							{{ link_to('#', 'Add contact', array('onclick'=>'return addContact()')) }}
+						<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right greenlink bold">
+							{{ link_to('#', 'Add contact +', array('onclick'=>'return addContact()')) }}
 						</span>
 					</div>
 				</div>
@@ -151,11 +150,11 @@
 
 
 
-	<center style="margin-top:16px">
-		{{ Button::lg_primary_submit('Save') }} &nbsp;|&nbsp;
-		{{ link_to('clients/' . ($client ? $client->public_id : ''), 'Cancel') }}	
+	<center class="buttons">
+		{{ Button::lg_primary_submit('Save')->append_with_icon('floppy-disk') }}
+        {{ Button::lg_default_link('clients/' . ($client ? $client->public_id : ''), 'Cancel')->append_with_icon('remove-circle'); }}
 	</center>
 
 	{{ Former::close() }}
-
+</div>
 @stop

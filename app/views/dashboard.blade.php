@@ -50,7 +50,7 @@
 <div class="row">
   <div class="col-md-6">  
     <div class="panel panel-default" style="min-height:320px">
-      <div class="panel-heading" style="background-color:#2299c0">
+      <div class="panel-heading" style="background-color:#0b4d78">
         <h3 class="panel-title in-bold-white">
           <i class="glyphicon glyphicon-exclamation-sign"></i> Notifications
         </h3>

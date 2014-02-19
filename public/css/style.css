@@ -1,3 +1,110 @@
+body { background: #f5f6f7 !important;
+    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', sans-serif;
+}
+.bold { font-weight: 700; }
+a:hover { text-decoration: none; }
+.breadcrumb {
+padding: 8px 0!important;
+}
+legend {
+padding-bottom: 10px;
+margin-bottom: 20px;
+font-size: 20px;
+font-weight: 700;
+line-height: inherit;
+color: #333;
+border-bottom: 1px solid #dfe0e1;
+}
+
+.greenlink a { color:#36c157; }
+.greenlink a:hover { color:#2e9e49; }
+.redlink a { color:#da4830; }
+.redlink a:hover { color:#c13b25; }
+
+.buttons { margin: 25px 0;  }
+.buttons .btn { margin: 0 6px;  }
+
+/*forms*/
+.form-group {
+margin-bottom: 17px;
+}
+.form-control {
+display: block;
+width: 100%;
+height: 40px;
+padding: 6px 12px;
+font-size: 14px;
+line-height: 1.42857143;
+color: #555;
+background-color: #fff;
+background-image: none;
+border: 1px solid #dfe0e1;
+border-radius: 2px;
+-webkit-box-shadow: none;
+box-shadow: none;
+-webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+.form-horizontal .control-label, .form-horizontal .radio, .form-horizontal .checkbox, .form-horizontal .radio-inline, .form-horizontal .checkbox-inline {
+margin-top: 0;
+margin-bottom: 0;
+padding-top: 10px;
+}
+/*buttons*/
+.btn { font-weight: bold; }
+.btn-success {
+background-color: #36c157 !important;
+border-color: #36c157 !important;
+}
+.btn-success:hover,.btn-success:focus,.btn-success:active,.btn-success.active,.open .dropdown-toggle.btn-success{background-color:#2e9e49 !important; border-color:#2e9e49 !important;}
+.btn-sm, .btn-group-sm>.btn {
+border-radius: 2px;
+}
+.btn-group.open .dropdown-toggle {
+-webkit-box-shadow: none;
+box-shadow: none;
+}
+.btn-primary {
+background-color: #0b4d78;
+border-color: #0b4d78;
+}
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
+background-color: #09334f;
+border-color: #09334f;
+}
+.btn-default {background-color: #9f9f9f;
+border-color: #9f9f9f;
+    color: #fff;
+}
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
+color: #fff;
+background-color: #737373;
+border-color: #737373;
+}
+.btn-lg, .btn-group-lg>.btn {
+padding: 10px 16px;
+font-size: 18px;
+line-height: 1.33;
+border-radius: 2px;
+
+}
+.input-group-addon {
+background-color: #f4f4f4;
+border: 1px solid #dfe0e1;
+border-radius: 2px;
+    cursor:pointer;
+}
+.caret {
+margin-left: 0px;
+}
+.btn i.glyphicon {  font-size: 16px; margin-left:7px; top: 2px; }
+.btn-primary i{
+border-color: #0b4d78;
+}
+
+/*new*/
+
 div {
     word-break: break-word;
 }
@@ -19,6 +126,11 @@ label.control-label {
 div.panel {
     padding-left: 0px !important;
     padding-right: 0px !important;
+}
+.panel {
+border-radius: 2px;
+-webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+box-shadow: 0 1px 1px rgba(0,0,0,.05);
 }
 
 .pointer {
@@ -60,7 +172,7 @@ table.dataTable tr.even td.sorting_3 { background-color: white; }
 
 
 
-/* Hover nav */
+/* navigation */
 .sidebar-nav {
     padding: 9px 0;
 }
@@ -68,9 +180,7 @@ table.dataTable tr.even td.sorting_3 { background-color: white; }
 .dropdown-menu .sub-menu {
     left: 100%;
     position: absolute;
-    top: 0;
     visibility: hidden;
-    margin-top: -1px;
 }
 
 .dropdown-menu li:hover .sub-menu {
@@ -116,6 +226,19 @@ table.dataTable tr.even td.sorting_3 { background-color: white; }
     top: 11px;
     left: -6px;
 }
+.dropdown-menu {
+left: 0;
+top: 100%
+min-width: 160px;
+padding: 5px 0;
+font-size: 14px;
+border: none;
+    border-top: 1px solid #0b4d78;
+border-radius: 2px;
+-webkit-box-shadow: 0 6px 12px rgba(0,0,0,.05);
+box-shadow: 0 6px 12px rgba(0,0,0,.05);
+background-clip: padding-box;
+}
 
 
 /***********************************************
@@ -148,7 +271,7 @@ table.dataTable tr.even td.sorting_3 { background-color: white; }
 
 
 .active-clients {
-    background-color: #2299c0;
+    background-color: #0b4d78;
     background-image:url('../images/activeclients.png');
     background-position:center;
     background-repeat: no-repeat;
@@ -214,7 +337,7 @@ body {
 
 .navbar-default {
     background-color: #428bff;
-    border-color: #3276b1;
+    border-color: transparent;
 }
 .navbar-default .navbar-brand {
     color: #ecf0f1;
@@ -267,6 +390,19 @@ body {
 .navbar-default .navbar-toggle .icon-bar {
     background-color: #ecf0f1;
 }
+.navbar-form { margin-top: 10px; }
+.navbar-form .form-control { height: 30px; }
+.navbar-form .btn-default {
+color: #fff;
+background-color: #09334f;
+border-color: #09334f;
+}
+.navbar-form .dropdown-toggle.btn-default {
+color: #fff;
+background-color: #08273c;
+border-color: #08273c;
+}
+
 @media (max-width: 767px) {
     .navbar-default .navbar-nav .open .dropdown-menu > li > a {
         color: #ecf0f1;
