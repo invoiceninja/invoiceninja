@@ -2,6 +2,8 @@
 
 @section('head')	
 
+	  <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
+
     <style type="text/css">
 		body {
 		  padding-top: 40px;

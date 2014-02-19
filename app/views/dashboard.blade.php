@@ -132,7 +132,7 @@
       <div class="in-thin in-white">{{ Utils::pluralize('active client', $activeClients) }}</div>
     </div>
     <div class="col-md-6 average-invoice">  
-      <div><b>average invoice</b></div>
+      <div><b>Average invoice</b></div>
       <div class="in-bold in-white" style="font-size:42px">{{ $invoiceAvg }}</div>
     </div>
   </div> 

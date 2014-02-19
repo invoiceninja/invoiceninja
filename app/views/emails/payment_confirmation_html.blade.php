@@ -10,7 +10,7 @@
       Thank you for your payment of {{ $paymentAmount }}.<p/>
 
       @if ($emailFooter)
-      {{ $emailFooter }}
+      {{ nl2br($emailFooter) }}
       @else
       Best regards,<br/>
       {{ $accountName }}

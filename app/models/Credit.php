@@ -4,12 +4,12 @@ class Credit extends EntityModel
 {	
 	public function invoice()
 	{
-		return $this->belongsTo('Invoice');
+		return $this->belongsTo('Invoice')->withTrashed();
 	}
 
 	public function client()
 	{
-		return $this->belongsTo('Client');
+		return $this->belongsTo('Client')->withTrashed();
 	}
 
 	public function getName()
