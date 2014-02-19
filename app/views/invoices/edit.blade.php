@@ -207,9 +207,11 @@
 		</div>
 
 
-		{{ Former::select('invoice_design_id')->label('Design')->style('display:inline;width:100px')->raw()
+		<div style="display:none">
+		{{ Former::select('invoice_design_id')->label('Design')->style('display:inline;width:120px')->raw()
 					->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") }}
-		
+		</div>
+				
 		{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
 		
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))						

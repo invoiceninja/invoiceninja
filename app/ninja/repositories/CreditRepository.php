@@ -22,7 +22,7 @@ class CreditRepository
 	        $query->where('clients.public_id', '=', $clientPublicId);
 	    }
 
-        if (!\Session::get('trash_credit'))
+        if (!\Session::get('show_trash'))
         {
             $query->where('credits.deleted_at', '=', null);
         }

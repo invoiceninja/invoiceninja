@@ -13,7 +13,7 @@ class ClientRepository
     				->where('contacts.is_primary', '=', true)
     				->select('clients.public_id','clients.name','contacts.first_name','contacts.last_name','clients.balance','clients.last_login','clients.created_at','clients.work_phone','contacts.email','clients.currency_id');
 
-    	if (!\Session::get('trash_client'))
+    	if (!\Session::get('show_trash'))
     	{
     		$query->where('clients.deleted_at', '=', null);
     	}
