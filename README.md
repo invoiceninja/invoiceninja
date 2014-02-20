@@ -1,7 +1,7 @@
 # Invoice Ninja
 ## Simple, Intuitive Invoicing
 
-### [https://www.invoiceninja.com/rocksteady](https://www.invoiceninja.com/rocksteady)
+### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 ### Introduction
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is this codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
