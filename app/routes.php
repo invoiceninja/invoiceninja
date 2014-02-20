@@ -159,7 +159,15 @@ HTML::macro('image_data', function($imagePath) {
 
 HTML::macro('breadcrumbs', function() {
   $str = '<ol class="breadcrumb">';
-  $crumbs = explode('/', $_SERVER['REQUEST_URI']);
+  $crumbs = explode('/', $_SERVER['REQUEST_URI']);  
+
+  foreach ($crumbs as $key => $val)
+  {
+    if (is_numeric($val))
+    {
+      unset($crumbs[$key]);
+    }
+  }
   for ($i=0; $i<count($crumbs); $i++) {
     $crumb = trim($crumbs[$i]);
     if (!$crumb) continue;

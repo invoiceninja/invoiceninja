@@ -388,10 +388,11 @@ class InvoiceController extends \BaseController {
 		$invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();		
 
 		$clone = Invoice::createNew();		
-		foreach (['client_id', 'discount', 'invoice_date', 'due_date', 'is_recurring', 'frequency_id', 'start_date', 'end_date', 'terms'] as $field) 
+		$clone->balance = $invoice->amount;
+		foreach (['client_id', 'discount', 'invoice_date', 'due_date', 'is_recurring', 'frequency_id', 'start_date', 'end_date', 'terms', 'public_notes', 'invoice_design_id', 'tax_name', 'tax_rate', 'amount'] as $field) 
 		{
 			$clone->$field = $invoice->$field;	
-		}
+		}		
 
 		if (!$clone->is_recurring)
 		{
