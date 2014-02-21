@@ -1063,7 +1063,7 @@ GlobalY=GlobalY+14; //padding from top
     // var dueDateX = headerRight - (doc.getStringUnitWidth(dueDate) * doc.internal.getFontSize());
     x += 16+50;
 
-
+    doc.setFontType("bold");
     MsgRightAlign=400;
 
     Msg='Total';
@@ -1071,6 +1071,8 @@ GlobalY=GlobalY+14; //padding from top
     doc.text(TmpMsgX, x, Msg);
 
 
+
+    doc.setFontType("normal");
     AmountText = formatMoney(total , currencyId);
     headerLeft=headerRight+400;
     var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
@@ -1098,15 +1100,18 @@ GlobalY=GlobalY+14; //padding from top
 
 
 
-
+    doc.setFontSize(10);
     x += doc.internal.getFontSize()*4;
     //doc.text(footerLeft, x, '');
     Msg='Amount Due';
     var TmpMsgX =  MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
+
+
+
     doc.text(TmpMsgX, x, Msg);
 
 
-
+    SetPdfColor('LightBlue',doc);
     AmountText = formatMoney(balance , currencyId);
     headerLeft=headerRight+400;
     var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
