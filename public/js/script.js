@@ -6,391 +6,21 @@ var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
 var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
+
+
+
+
 function generatePDF(invoice, checkMath) {
 
 
-console.log ('DESIGN:'+invoice.invoice_design_id);
+    console.log ('DESIGN:'+invoice.invoice_design_id);
 
     report_id=invoice.invoice_design_id;
 
     doc= GetPdf(invoice,checkMath,report_id);
 
     return doc;
-
-
-	var client = invoice.client;
-	var account = invoice.account;
-	var currencyId = client.currency_id;
-	var invoiceNumber = invoice.invoice_number;
-	var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
-	var dueDate = invoice.due_date ? invoice.due_date : '';
-
-	var marginLeft = 50;
-	var accountTop = 30;
-	var headerTop = 140;
-	var headerLeft = 360;
-	var headerRight = 550;
-	var rowHeight = 15;
-	var tableRowHeight = 20;
-	var footerLeft = 420;
-	var tablePadding = 6;
-
-	var tableTop = 240;
-	var tableLeft = 50;
-	var descriptionLeft = 162;
-	var unitCostRight = 410;
-	var qtyRight = 480;
-	var taxRight = 480;
-	var lineTotalRight = 550;
-	
-
-	var hasTaxes = false;
-	for (var i=0; i<invoice.invoice_items.length; i++) 
-	{
-		var item = invoice.invoice_items[i];		
-		if ((item.tax && item.tax.rate > 0) || (item.tax_rate && parseFloat(item.tax_rate) > 0)) {
-			hasTaxes = true;
-			break;
-		}
-	}	
-	if (hasTaxes)
-	{
-		descriptionLeft -= 20;
-		unitCostRight -= 40;
-		qtyRight -= 40;
-	}	
-
-
-	var doc = new jsPDF('p', 'pt');
-	doc.setFont('Helvetica','');
-	doc.setFontSize(10);
-	
-	if (invoice.image)
-	{
-		var left = headerRight - invoice.imageWidth;
-		doc.addImage(invoice.image, 'JPEG', left, 30, invoice.imageWidth, invoice.imageHeight);
-	}	
-	
-	/* table header */
-	doc.setDrawColor(200,200,200);
-	doc.setFillColor(230,230,230);
-	var x1 = headerLeft - tablePadding;
-	var y1 = headerTop + rowHeight + 4;
-	var x2 = headerRight - headerLeft + 11;
-	var y2 = rowHeight + 1;
-	if (invoice.po_number) {
-		y1 += rowHeight;
-	}
-	if (dueDate) {
-		y1 += rowHeight;
-	}
-	doc.rect(x1, y1, x2, y2, 'FD'); 
-
-	var invoiceNumberX = headerRight - (doc.getStringUnitWidth(invoiceNumber, false) * doc.internal.getFontSize());
-	var invoiceDateX = headerRight - (doc.getStringUnitWidth(invoiceDate) * doc.internal.getFontSize());	
-	var dueDateX = headerRight - (doc.getStringUnitWidth(dueDate) * doc.internal.getFontSize());	
-	var poNumberX = headerRight - (doc.getStringUnitWidth(invoice.po_number) * doc.internal.getFontSize());
-
-	doc.setFontType("normal");
-
-	var y = accountTop;
-	var left = marginLeft;
-	
-	if (account.name) {
-		y += rowHeight;
-		doc.text(left, y, account.name);
-	}
-	if (account.address1) {
-		y += rowHeight;
-		doc.text(left, y, account.address1);
-	}
-	if (account.address2) {
-		y += rowHeight;
-		doc.text(left, y, account.address2);
-	}
-	if (account.city || account.state || account.postal_code) {
-		y += rowHeight;
-		doc.text(left, y, account.city + ', ' + account.state + ' ' + account.postal_code);
-	}
-	if (account.country) {
-		y += rowHeight;
-		doc.text(left, y, account.country.name);
-	}
-
-	if (client) {
-		var y = headerTop;
-		doc.text(marginLeft, y, getClientDisplayName(client));
-		if (client.address1) {
-			y += rowHeight;
-			doc.text(marginLeft, y, client.address1);
-		}
-		if (client.address2) {
-			y += rowHeight;
-			doc.text(marginLeft, y, client.address2);
-		}
-		if (client.city || client.state || client.postal_code) {
-			y += rowHeight;
-			doc.text(marginLeft, y, client.city + ', ' + client.state + ' ' + client.postal_code);
-		}
-		if (client.country) {
-			y += rowHeight;
-			doc.text(marginLeft, y, client.country.name);
-		}
-	}
-
-	var headerY = headerTop;
-	doc.text(headerLeft, headerY, 'Invoice Number');
-	doc.text(invoiceNumberX, headerY, invoiceNumber);
-
-	if (invoice.po_number) {
-		headerY += rowHeight;
-		doc.text(headerLeft, headerY, 'PO Number');
-		doc.text(poNumberX, headerY, invoice.po_number);		
-	}
-
-	headerY += rowHeight;
-	doc.text(headerLeft, headerY, 'Invoice Date');
-	doc.text(invoiceDateX, headerY, invoiceDate);
-	
-	if (dueDate) {
-		headerY += rowHeight;
-		doc.text(headerLeft, headerY, 'Due Date');
-		doc.text(dueDateX, headerY, dueDate);				
-	}	
-	
-	headerY += rowHeight;
-	doc.setFontType("bold");
-	doc.text(headerLeft, headerY, 'Balance Due');
-
-	var total = 0;
-
-	for (var i=0; i<invoice.invoice_items.length; i++) {
-		var item = invoice.invoice_items[i];
-		var tax = 0;
-		if (item.tax && parseFloat(item.tax.rate)) {
-			tax = parseFloat(item.tax.rate);
-		} else if (item.tax_rate && parseFloat(item.tax_rate)) {
-			tax = parseFloat(item.tax_rate);
-		}		
-
-		var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
-		if (tax) {
-			lineTotal += lineTotal * tax / 100;
-		}
-		if (lineTotal) {
-			total += lineTotal;
-		}
-	}
-
-	if (invoice.discount > 0) {
-
-		var discount = total * (invoice.discount/100);
-		total -= discount;
-	}
-
-	var tax = 0;
-	if (invoice.tax && parseFloat(invoice.tax.rate)) {
-		tax = parseFloat(invoice.tax.rate);
-	} else if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
-		tax = parseFloat(invoice.tax_rate);
-	}		
-
-	if (tax) {
-		var tax = total * (tax/100);
-		total = parseFloat(total) + parseFloat(tax);
-	}
-
-	total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
-
-	var balance = formatMoney(total, currencyId);
-	balanceX = headerRight - (doc.getStringUnitWidth(balance) * doc.internal.getFontSize());
-	doc.text(balanceX, headerY, balance);
-
-
-	doc.setDrawColor(200,200,200);
-	doc.setFillColor(230,230,230);
-	doc.rect(tableLeft - tablePadding, tableTop - 12, headerRight - tableLeft + 12, rowHeight + 2, 'FD');
-
-	var costX = unitCostRight - (doc.getStringUnitWidth('Unit Cost') * doc.internal.getFontSize());
-	var qtyX = qtyRight - (doc.getStringUnitWidth('Quantity') * doc.internal.getFontSize());
-	var taxX = taxRight - (doc.getStringUnitWidth('Tax') * doc.internal.getFontSize());
-	var totalX = lineTotalRight - (doc.getStringUnitWidth('Line Total') * doc.internal.getFontSize());
-
-	doc.text(tableLeft, tableTop, 'Item');
-	doc.text(descriptionLeft, tableTop, 'Description');
-	doc.text(costX, tableTop, 'Unit Cost');
-	doc.text(qtyX, tableTop, 'Quantity');
-	doc.text(totalX, tableTop, 'Line Total');
-
-	if (hasTaxes)
-	{
-		doc.text(taxX, tableTop, 'Tax');
-	}
-
-	/* line items */
-	doc.setFontType("normal");
-	var line = 1;
-	var total = 0;
-	var shownItem = false;
-
-	for (var i=0; i<invoice.invoice_items.length; i++) {
-		var item = invoice.invoice_items[i];
-		var cost = formatMoney(item.cost, currencyId, true);
-		var qty = NINJA.parseFloat(item.qty) ? NINJA.parseFloat(item.qty) + '' : '';
-		var notes = item.notes;
-		var productKey = item.product_key;
-		var tax = 0;
-		if (item.tax && parseFloat(item.tax.rate)) {
-			tax = parseFloat(item.tax.rate);
-		} else if (item.tax_rate && parseFloat(item.tax_rate)) {
-			tax = parseFloat(item.tax_rate);
-		}		
-
-		// show at most one blank line
-		if (shownItem && (!cost || cost == '0.00') && !qty && !notes && !productKey) {
-			continue;
-		}		
-		shownItem = true;
-
-		// process date variables
-		notes = processVariables(notes);
-		productKey = processVariables(productKey);
-
-		var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
-		if (tax) {
-			lineTotal += lineTotal * tax / 100;
-		}
-		if (lineTotal) {
-			total += lineTotal;
-		}
-		lineTotal = formatMoney(lineTotal, currencyId, true);
-		
-		var costX = unitCostRight - (doc.getStringUnitWidth(cost) * doc.internal.getFontSize());
-		var qtyX = qtyRight - (doc.getStringUnitWidth(qty) * doc.internal.getFontSize());
-		var taxX = taxRight - (doc.getStringUnitWidth(tax+'%') * doc.internal.getFontSize());
-		var totalX = lineTotalRight - (doc.getStringUnitWidth(lineTotal) * doc.internal.getFontSize());
-		var x = tableTop + (line * tableRowHeight) + 6;
-		if (i==0) x -= 4;
-
-		doc.text(tableLeft, x, productKey);
-		doc.text(descriptionLeft, x, notes);
-		doc.text(costX, x, cost);
-		doc.text(qtyX, x, qty);
-		doc.text(totalX, x, lineTotal);
-
-		if (tax) {
-			doc.text(taxX, x, tax+'%');
-		}
-
-		line += (doc.splitTextToSize(item.notes, 200).length * .6) + .4;
-
-		if (i < invoice.invoice_items.length - 2) {
-			doc.setLineWidth(0.5);
-			doc.setDrawColor(220,220,220);
-			doc.line(tableLeft - tablePadding, tableTop + (line * tableRowHeight) - 8, 
-				lineTotalRight+tablePadding, tableTop + (line * tableRowHeight) - 8);
-		}
-
-		if (line > 20) {
-			line = 0;
-			tableTop = 60;
-			doc.addPage();
-		}
-	}
-	
-	/* table footer */
-	doc.setDrawColor(200,200,200);
-	var x = tableTop + (line * tableRowHeight) - 6;
-
-	doc.setLineWidth(1);
-	doc.line(tableLeft - tablePadding, x, lineTotalRight+tablePadding, x);
-	//console.log('%s %s %s', lineTotalRight, tableLeft, (lineTotalRight-tableLeft));
-
-	doc.text(tableLeft, x+16, invoice.public_notes);
-	if (invoice.terms) {
-		var termsX = x+16 + (doc.splitTextToSize(invoice.public_notes, 340).length * rowHeight) + (rowHeight/2);
-		doc.setFontType("bold");
-		doc.text(tableLeft, termsX, "Terms");
-		doc.setFontType("normal");
-		doc.text(tableLeft, termsX + rowHeight, invoice.terms);
-	}
-
-	x += 16;
-	doc.text(footerLeft, x, 'Subtotal');
-	var prettyTotal = formatMoney(total, currencyId, true);
-	var totalX = headerRight - (doc.getStringUnitWidth(prettyTotal) * doc.internal.getFontSize());
-	doc.text(totalX, x, prettyTotal);		
-
-	if (invoice.discount > 0) {
-
-		x += 16;
-		doc.text(footerLeft, x, 'Discount');
-		var discount = total * (invoice.discount/100);
-		total -= discount;
-		discount = formatMoney(discount, currencyId, true);
-		var discountX = headerRight - (doc.getStringUnitWidth(discount) * doc.internal.getFontSize());
-		doc.text(discountX, x, discount);		
-	}
-
-	var tax = 0;
-	if (invoice.tax && parseFloat(invoice.tax.rate)) {
-		tax = parseFloat(invoice.tax.rate);
-	} else if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
-		tax = parseFloat(invoice.tax_rate);
-	}		
-
-	if (tax) {
-		x += 16;
-		doc.text(footerLeft, x, 'Tax ' + tax + '%');
-		var tax = total * (tax/100);
-		total = parseFloat(total) + parseFloat(tax);
-		tax = formatMoney(tax, currencyId, true);
-		var taxX = headerRight - (doc.getStringUnitWidth(tax) * doc.internal.getFontSize());
-		doc.text(taxX, x, tax);		
-	}
-
-	x += 16;
-	doc.text(footerLeft, x, 'Paid to Date');
-	var paid = formatMoney(invoice.amount - invoice.balance, currencyId, true);
-	var paidX = headerRight - (doc.getStringUnitWidth(paid) * doc.internal.getFontSize());
-	doc.text(paidX, x, paid);		
-
-	x += 16;
-
-	if (checkMath && NINJA.parseFloat(total).toFixed(4) != NINJA.parseFloat(invoice.amount).toFixed(4)) 
-	{
-		var doc = new jsPDF('p', 'pt');
-		doc.setFont('Helvetica','');
-		doc.setFontSize(10);
-		doc.text(100, 100, "An error occurred, please try again later.");
-		onerror('Failed to generate PDF ' + total + ', ' + invoice.amount );
-		return doc;		
-	}	
-
-
-	doc.setDrawColor(200,200,200);
-	doc.setFillColor(230,230,230);
-	var x1 = footerLeft - tablePadding;
-	var y1 = x - 11;
-	var x2 = headerRight - footerLeft + 11;
-	var y2 = 16;
-	doc.rect(x1, y1, x2, y2, 'FD'); 
-
-	doc.setFontType("bold");
-	doc.text(footerLeft, x, 'Balance Due');
-	
-	total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
-	var totalX = headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
-	doc.text(totalX, x, total);		
-
-	
-	doc.setFontType("normal");
-	doc.text(marginLeft, 790, "Created by InvoiceNinja.com");
-
-	return doc;		
 }
-
-
 
 /* Handle converting variables in the invoices (ie, MONTH+1) */
 function processVariables(str) {
@@ -924,8 +554,8 @@ function GetReportTemplate1 (invoice,checkMath)
 {
     var doc=false;
 
-    var MaxWidth=550;
-    var MaxHeight=800;
+//    var MaxWidth=550;
+//    var MaxHeight=800;
 //    return generatePdf2(invoice,checkMath);
 
     var GlobalY=0;//Y position of line at current page
@@ -935,9 +565,6 @@ function GetReportTemplate1 (invoice,checkMath)
     var client = invoice.client;
     var account = invoice.account;
 
-    console.log(client);
-    console.log(account);
-
 
     var currencyId = client.currency_id;
     var invoiceNumber = invoice.invoice_number;
@@ -945,12 +572,10 @@ function GetReportTemplate1 (invoice,checkMath)
     var dueDate = invoice.due_date ? invoice.due_date : '';
 
     var paid_to_date=client.paid_to_date;
-  //  var balance=client.balance;
 
 
 
 
-    //var headerLeft = 360;
     var headerRight = 150;
     var accountTop = 30;
     var marginLeft = 180;
@@ -970,24 +595,6 @@ function GetReportTemplate1 (invoice,checkMath)
 
     var tableRowHeight = 18;
     var tablePadding = 6;
-    /*
-
-
-
-
-
-        var footerLeft = 420;
-
-
-
-
-        var descriptionLeft = 162;
-        var unitCostRight = 410;
-
-
-
-    */
-
 
 
 
@@ -1032,20 +639,6 @@ function GetReportTemplate1 (invoice,checkMath)
     total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
 
     var balance = formatMoney(total, currencyId);
-    //  balanceX = headerRight - (doc.getStringUnitWidth(balance) * doc.internal.getFontSize());
-//    doc.text(balanceX, headerY, balance);
-
-    //------------------------------
-
-
-    console.log (total);
-    console.log (tax);
-    console.log (balance);
-    console.log (paid_to_date);
-
-
-
-
 
 
 
@@ -1115,7 +708,7 @@ function GetReportTemplate1 (invoice,checkMath)
     }
     else
     {
-        console.log('account.email NOT DEFINED !');
+        //console.log('account.email NOT DEFINED !');
     }
 
 //TODO:NOT AVAILEABLE FROM DATAMOEL
@@ -1126,7 +719,7 @@ function GetReportTemplate1 (invoice,checkMath)
     }
     else
     {
-        console.log('account.phone NOT DEFINED !');
+        //console.log('account.phone NOT DEFINED !');
     }
 
 
@@ -1370,8 +963,6 @@ GlobalY=GlobalY+14; //padding from top
         var taxX = taxRight - (doc.getStringUnitWidth(tax+'%') * doc.internal.getFontSize());
         var totalX = lineTotalRight - (doc.getStringUnitWidth(lineTotal) * doc.internal.getFontSize());
 
-        //var x = tableTop + (line * tableRowHeight) + 6;
-        //if (i==0) x -= 4;
 
         x=GlobalY;
 
@@ -1396,7 +987,7 @@ GlobalY=GlobalY+14; //padding from top
             var w2 =  510+tablePadding*2;//lineTotalRight-tablePadding*5;
             var h2 =  doc.internal.getFontSize()*length+length*1.1;//+h;//+tablePadding;
 
-            console.log(length);
+
 
             doc.rect(x1, y1, w2, h2, 'FD');
         }
@@ -1420,69 +1011,14 @@ GlobalY=GlobalY+14; //padding from top
         if (tax) {
             doc.text(taxX, x, tax+'%');
         }
-        /////line += (doc.splitTextToSize(item.notes, 200).length * .6) + .4;
 
 
-    //    console.log(length);
         line=line+length;
 
 
 
 
-
-
-
-
-        //GlobalY=h+GlobalY;//
-
-
-
-
-      //  doc.setDrawColor(220,220,220);
-        //doc.line(tableLeft - tablePadding, GlobalY,
-        //  lineTotalRight+tablePadding, GlobalY+h);
-
-        /*doc.line(tableLeft - tablePadding, GlobalY-FontSize,
-        lineTotalRight+tablePadding, GlobalY+h);
-*/
-
-//        if (((i)%2)===0){
-//
-//            //console.log (i);
-//            doc.setDrawColor(200,200,200);
-//         //   doc.setFillColor(230,230,230);
-//
-//            var x1 = tableLeft-tablePadding ;
-//            var y1 = GlobalY-5;//FontSize;
-//
-//            var x2 =  lineTotalRight-tablePadding*5;
-//            var y2 =  GlobalY+5;
-//
-//           // doc.rect(x1, y1, x2, y2, 'FD');
-//        }
-
-
-
         GlobalY=GlobalY+h+tablePadding*2;
-
-        //lines = doc.splitTextToSize(item.notes, 7.5);
-        //line=line+lines;
-
-
-
-
-
-/*
-        if (i < invoice.invoice_items.length - 2) {
-            doc.setLineWidth(0.5);
-            doc.setDrawColor(220,220,220);
-            doc.line(tableLeft - tablePadding, tableTop + (line * tableRowHeight) - 8,
-                lineTotalRight+tablePadding, tableTop + (line * tableRowHeight) - 8);
-        }
-
-*/
-
-
 
 
 
@@ -1491,8 +1027,6 @@ GlobalY=GlobalY+14; //padding from top
 
             tableTop = 40;
             GlobalY=tableTop;
-
-
 
 
 
@@ -1516,9 +1050,6 @@ GlobalY=GlobalY+14; //padding from top
 
 
     }
-
-
-
 
 
 
