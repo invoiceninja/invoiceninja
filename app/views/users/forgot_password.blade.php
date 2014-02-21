@@ -53,7 +53,7 @@
     <div class="container">
 
 		{{ Former::open('forgot_password')->addClass('form-signin') }}
-			<h2 class="form-signin-heading">Passord Recovery</h2>
+			<h2 class="form-signin-heading">Password Recovery</h2>
 
 			<p>
 				{{ Form::text('email', Input::old('email'), array('placeholder' => 'Email address')) }}

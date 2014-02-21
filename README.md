@@ -1,7 +1,7 @@
 # Invoice Ninja
 ## Simple, Intuitive Invoicing
 
-### [https://www.invoiceninja.com/rocksteady](https://www.invoiceninja.com/rocksteady)
+### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 ### Introduction
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is this codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
@@ -15,9 +15,10 @@ Most online invoicing sites are expensive. They shouldn't be. The aim of this pr
 
 ### Steps to setup
 
-Fork the Github project
+If you plan on submitting changes it's best to fork the repo (https://help.github.com/articles/fork-a-repo), otherwise you can just checkout the code.
 
-https://help.github.com/articles/fork-a-repo
+    git clone git@github.com:hillelcoren/invoice-ninja.git ninja
+    cd ninja
 
 Install Laravel packages using Composer
 

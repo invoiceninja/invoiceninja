@@ -438,7 +438,7 @@
 				*/
   			@endif
 
-  			@if (Session::has('message'))
+  			@if (false && Session::has('message'))
   				setTimeout(function() {
   					$('.alert-info').fadeOut();
   				}, 3000);

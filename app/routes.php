@@ -54,10 +54,7 @@ Route::get('/send_emails', function() {
 });
 */
 
-Route::get('/', function() {
-	return Redirect::to('http://signup.invoiceninja.com');
-});
-
+Route::get('/', 'HomeController@showWelcome');
 Route::get('/rocksteady', 'HomeController@showWelcome');
 
 Route::get('log_error', 'HomeController@logError');
@@ -162,7 +159,15 @@ HTML::macro('image_data', function($imagePath) {
 
 HTML::macro('breadcrumbs', function() {
   $str = '<ol class="breadcrumb">';
-  $crumbs = explode('/', $_SERVER['REQUEST_URI']);
+  $crumbs = explode('/', $_SERVER['REQUEST_URI']);  
+
+  foreach ($crumbs as $key => $val)
+  {
+    if (is_numeric($val))
+    {
+      unset($crumbs[$key]);
+    }
+  }
   for ($i=0; $i<count($crumbs); $i++) {
     $crumb = trim($crumbs[$i]);
     if (!$crumb) continue;
@@ -207,7 +212,7 @@ define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
 define('LOGGED_ERROR_LIMIT', 100);
 define('RANDOM_KEY_LENGTH', 32);
-define('MAX_NUM_CLIENTS', 2000);
+define('MAX_NUM_CLIENTS', 1000);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);
