@@ -207,10 +207,10 @@
 		</div>
 
 
-		<div style="display:none">
+
 		{{ Former::select('invoice_design_id')->label('Design')->style('display:inline;width:120px')->raw()
 					->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") }}
-		</div>
+
 				
 		{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
 		
@@ -558,6 +558,15 @@
 			invoice.imageWidth = {{ $account->getLogoWidth() }};
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
+
+
+    //define logo images
+
+
+    invoice.imageLogo1 = "{{ HTML::image_data('images/report_logo1.jpg') }}";
+    invoice.imageLogoWidth1 =120;
+    invoice.imageLogoHeight1 = 40
+
 		return invoice;
 	}
 
