@@ -1,9 +1,10 @@
-body { background: #f5f6f7 !important;
+body { background: #f8f8f8 !important;
     font-family: 'Roboto', sans-serif;
     font-family: 'Roboto', sans-serif;
 }
 .bold { font-weight: 700; }
-a:hover { text-decoration: none; }
+a {color:#0b4d78;}
+a:hover { text-decoration: none; color: #0a3857;}
 .breadcrumb {
 padding: 8px 0!important;
 }
@@ -33,7 +34,7 @@ margin-bottom: 17px;
 display: block;
 width: 100%;
 height: 40px;
-padding: 6px 12px;
+padding: 9px 12px;
 font-size: 14px;
 line-height: 1.42857143;
 color: #555;
@@ -51,11 +52,15 @@ margin-top: 0;
 margin-bottom: 0;
 padding-top: 10px;
 }
+textarea.form-control {
+height: auto !important;
+}
 /*tables*/
-table { border-radius: 3px; color:#fff; border-collapse: collapse;
+table.dataTable { border-radius: 3px; color:#fff; border-collapse: collapse;
     /*border-spacing: 0;*/}
-thead {
+.dataTable thead, .invoice-table thead {
     background: #e37329;
+    color:#fff;
 }
 th:first-child {
     border-radius: 3px 0 0 0;
@@ -69,12 +74,21 @@ th {border-left: 1px solid #d26b26; }
 .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
 vertical-align: middle;
 border-top: none;
-border-bottom: 1px solid #ddd;
-    padding-left: 18px;
+border-bottom: 1px solid #dfe0e1;
 }
 table.dataTable.no-footer {
 border-bottom: none;
 }
+.table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th {
+background-color: #fff;
+}
+table.table thead .sorting_asc {
+background: url('../images/sort_asc.png') no-repeat 90% 50%;
+}
+table.table thead .sorting_desc {
+background: url('../images/sort_desc.png') no-repeat 90% 50%;
+}
+.datepicker table {font-size: 12px;}
 /*buttons*/
 .btn { font-weight: bold; 
     border-radius: 3px;
@@ -84,7 +98,7 @@ border-bottom: none;
 background-color: #36c157 !important;
 border-color: #36c157 !important;
 }
-.btn-success:hover,.btn-success:focus,.btn-success:active,.btn-success.active,.open .dropdown-toggle.btn-success{background-color:#33b151 !important; border-color:#33b151 !important;}
+.btn-success:hover,.btn-success:focus,.btn-success:active,.btn-success.active,.open .dropdown-toggle.btn-success{background-color:#33b753 !important; border-color:#33b753 !important;}
 .btn-sm, .btn-group-sm>.btn {
 padding: 5px 10px;
 }
@@ -97,11 +111,11 @@ background-color: #0b4d78;
 border-color: #0b4d78;
 }
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
-background-color: #09334f;
-border-color: #09334f;
+background-color: #0a456c;
+border-color: #0a456c;
 }
-.btn-default {background-color: #9f9f9f;
-border-color: #9f9f9f;
+.btn-default {background-color: #808080;
+border-color: #808080;
     color: #fff;
 }
 .btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
@@ -109,11 +123,23 @@ color: #fff;
 background-color: #737373;
 border-color: #737373;
 }
+.btn-info {background-color: #e27329;
+border-color: #e27329;
+    color: #fff;
+}
+.btn-info:hover, .btn-info:focus, .btn-info:active, .btn-info.active, .open .dropdown-toggle.btn-info {
+color: #fff;
+background-color: #d66d27;
+border-color: #d66d27;
+}
 .btn-lg, .btn-group-lg>.btn {
 padding: 10px 16px;
 font-size: 18px;
     height: auto;
-
+}
+.btn-default.disabled, .btn-default[disabled], fieldset[disabled] .btn-default, .btn-default.disabled:hover, .btn-default[disabled]:hover, fieldset[disabled] .btn-default:hover, .btn-default.disabled:focus, .btn-default[disabled]:focus, fieldset[disabled] .btn-default:focus, .btn-default.disabled:active, .btn-default[disabled]:active, fieldset[disabled] .btn-default:active, .btn-default.disabled.active, .btn-default[disabled].active, fieldset[disabled] .btn-default.active {
+background-color: #b5b5b5;
+border-color: #b5b5b5;
 }
 .input-group-addon {
 background-color: #f4f4f4;
@@ -127,6 +153,11 @@ margin-left: 0px;
 .btn i.glyphicon {  font-size: 16px; margin-left:7px; top: 2px; }
 .btn-primary i{
 border-color: #0b4d78;
+}
+.form-actions .btn { margin-left: 10px; }
+
+.form-actions .btn.btn-success:first-child {
+margin-left: 10px !important;
 }
 
 /*new*/
@@ -337,6 +368,15 @@ background-clip: padding-box;
    New/edit invoice page
 ************************************************/
 
+table.invoice-table { color:#333; }
+
+table.invoice-table th:first-child {
+    border-radius: 3px 0 0 3px;
+}
+table.invoice-table th:last-child {
+    border-radius: 0 3px 3px 0;
+}
+
 .invoice-table td.hide-border,
 .invoice-table th.hide-border {
     border-style: none !important;
@@ -346,9 +386,6 @@ background-clip: padding-box;
     padding-top: 6px;
 }
 
-.invoice-table th {
-    border-top: 1px solid #ddd !important;      
-}
 
 .invoice-table td.td-icon {
     vertical-align: middle !important;

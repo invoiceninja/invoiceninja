@@ -212,14 +212,14 @@
 					->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") }}
 		</div>
 				
-		{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()')) }}	
-		
+		{{ Button::primary('Download PDF', array('onclick' => 'onDownloadClick()'))->append_with_icon('download-alt'); }}	
+        
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))						
 			@if ($invoice)		
 
 				<div id="primaryActions" style="text-align:left" data-bind="css: $root.enable.save" class="btn-group">
-					<button class="btn-primary btn" type="button" data-bind="css: $root.enable.save">Save Invoice</button>
-					<button class="btn-primary btn dropdown-toggle" type="button" data-toggle="dropdown" data-bind="css: $root.enable.save"> 
+					<button class="btn-success btn" type="button" data-bind="css: $root.enable.save">Save Invoice</button>
+					<button class="btn-success btn dropdown-toggle" type="button" data-toggle="dropdown" data-bind="css: $root.enable.save"> 
 						<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu">
@@ -255,13 +255,13 @@
 					  )
 					, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); --}}				
 			@else
-				{{ Button::primary_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save', 'id' => 'saveButton')) }}			
+				{{ Button::success_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save', 'id' => 'saveButton')) }}			
 			@endif
 
-			{{ Button::primary('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email')) }}		
+			{{ Button::normal('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email'))->append_with_icon('send'); }}		
 
 			@if ($invoice)		
-				{{ Button::success('Enter Payment', array('onclick' => 'onPaymentClick()')) }}		
+				{{ Button::info('Enter Payment', array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
 			@endif
 		@endif
 

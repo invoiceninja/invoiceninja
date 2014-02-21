@@ -17,7 +17,7 @@
 		  )
 		, array('id'=>'archive'))->split(); }}
 	
-	&nbsp;<label for="trashed" style="font-weight:normal">
+	&nbsp;<label for="trashed" style="font-weight:normal; margin-left: 10px;">
 		<input id="trashed" type="checkbox" onclick="setTrashVisible()" 
 			{{ Session::get('show_trash') ? 'checked' : ''}}/> Show archived/deleted
 	</label>
