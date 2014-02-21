@@ -964,7 +964,6 @@ GlobalY=GlobalY+14; //padding from top
         var totalX = lineTotalRight - (doc.getStringUnitWidth(lineTotal) * doc.internal.getFontSize());
 
 
-        x=GlobalY;
 
 
 
@@ -975,7 +974,37 @@ GlobalY=GlobalY+14; //padding from top
         length=doc.splitTextToSize(item.notes, 200).length;
         var h=length*FontSize;
 
-        if ((i%2)===0){
+
+        MaxGlobalY=760;
+
+        if (h+GlobalY > MaxGlobalY) {
+
+
+            tableTop = 40;
+            GlobalY=tableTop;
+
+
+
+
+            //var MaxLinesPerPage=70;
+
+            doc.addPage();
+            if (invoice.imageLogo1)
+            {
+                pageHeight=820;
+                var left = headerRight ;
+                y=pageHeight-invoice.imageLogoHeight1;
+
+
+                var left = headerRight - invoice.imageLogoWidth1;
+                doc.addImage(invoice.imageLogo1, 'JPEG', left, y, invoice.imageLogoWidth1, invoice.imageLogoHeight1);
+
+
+            }
+
+        }
+
+            if ((i%2)===0){
             doc.setLineWidth(0.5);
             doc.setDrawColor(200,200,200);
             doc.setFillColor(230,230,230);
@@ -991,7 +1020,9 @@ GlobalY=GlobalY+14; //padding from top
 
             doc.rect(x1, y1, w2, h2, 'FD');
         }
+        x=GlobalY;
 
+        GlobalY=GlobalY+h+tablePadding*2;
 
 
 
@@ -1018,9 +1049,10 @@ GlobalY=GlobalY+14; //padding from top
 
 
 
-        GlobalY=GlobalY+h+tablePadding*2;
 
 
+
+/*
 
         if (line > MaxLinesPerPage) {
             line = 0;
@@ -1047,6 +1079,7 @@ GlobalY=GlobalY+14; //padding from top
 
             }
         }
+        */
 
 
     }
