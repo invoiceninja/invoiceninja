@@ -7,6 +7,17 @@ var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
 function generatePDF(invoice, checkMath) {
+
+
+console.log ('DESIGN:'+invoice.invoice_design_id);
+
+    report_id=invoice.invoice_design_id;
+
+    doc= GetPdf(invoice,checkMath,report_id);
+
+    return doc;
+
+
 	var client = invoice.client;
 	var account = invoice.account;
 	var currencyId = client.currency_id;
@@ -78,7 +89,7 @@ function generatePDF(invoice, checkMath) {
 	var invoiceNumberX = headerRight - (doc.getStringUnitWidth(invoiceNumber, false) * doc.internal.getFontSize());
 	var invoiceDateX = headerRight - (doc.getStringUnitWidth(invoiceDate) * doc.internal.getFontSize());	
 	var dueDateX = headerRight - (doc.getStringUnitWidth(dueDate) * doc.internal.getFontSize());	
-	var poNumberX = headerRight - (doc.getStringUnitWidth(invoice.po_number) * doc.internal.getFontSize());	
+	var poNumberX = headerRight - (doc.getStringUnitWidth(invoice.po_number) * doc.internal.getFontSize());
 
 	doc.setFontType("normal");
 
@@ -463,7 +474,7 @@ $.extend( true, $.fn.dataTable.defaults, {
 		//"sLengthMenu": "_MENU_ records per page"
 		"sLengthMenu": "_MENU_",
 		"sSearch": ""
-	},
+	}
 	//"sScrollY": "500px",	
 } );
 
@@ -840,7 +851,9 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
 		for (var i=0; i<list.length; i++) {
 			var invoice = list[i];
 			var client = clientMap[invoice.client.public_id];
-			$invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' + getClientDisplayName(client) + ' - ' + formatMoney(invoice.amount, invoice.currency_id) + ' | ' + formatMoney(invoice.balance, invoice.currency_id),  invoice.public_id));		
+			$invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' +
+                getClientDisplayName(client) + ' - ' + formatMoney(invoice.amount, invoice.currency_id) + ' | ' +
+                formatMoney(invoice.balance, invoice.currency_id),  invoice.public_id));
 		}
 		$('select#invoice').combobox('refresh');
 	});
@@ -864,7 +877,9 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
 		var invoice = invoiceMap[invoiceId];
 		var client = clientMap[invoice.client.public_id];
 		//console.log(invoice);
-		setComboboxValue($('.invoice-select'), invoice.public_id, (invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' + getClientDisplayName(client) + ' - ' + formatMoney(invoice.amount, invoice.currency_id) + ' | ' + formatMoney(invoice.balance, invoice.currency_id)));
+		setComboboxValue($('.invoice-select'), invoice.public_id, (invoice.invoice_number + ' - ' +
+            invoice.invoice_status.name + ' - ' + getClientDisplayName(client) + ' - ' +
+            formatMoney(invoice.amount, invoice.currency_id) + ' | ' + formatMoney(invoice.balance, invoice.currency_id)));
 		$invoiceSelect.trigger('change');
 	} else if (clientId) {
 		var client = clientMap[clientId];
@@ -885,3 +900,728 @@ CONSTS.INVOICE_STATUS_PAID = 5;
 
 $.fn.datepicker.defaults.autoclose = true;
 $.fn.datepicker.defaults.todayHighlight = true;
+
+
+//====================================================================================================================
+
+function GetPdf(invoice,checkMath,report_id){
+
+
+    if (report_id==1) return GetReportTemplate1(invoice,checkMath);
+    //if (report_id==2) return GetReportTemplate1(invoice,checkMath);
+    //if (report_id==3) return GetReportTemplate1(invoice,checkMath);
+
+
+    alert('report template not implemented yet');
+    return false;
+
+}
+
+
+
+
+function GetReportTemplate1 (invoice,checkMath)
+{
+    var doc=false;
+
+    var MaxWidth=550;
+    var MaxHeight=800;
+//    return generatePdf2(invoice,checkMath);
+
+    var GlobalY=0;//Y position of line at current page
+
+
+
+    var client = invoice.client;
+    var account = invoice.account;
+
+    console.log(client);
+    console.log(account);
+
+
+    var currencyId = client.currency_id;
+    var invoiceNumber = invoice.invoice_number;
+    var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
+    var dueDate = invoice.due_date ? invoice.due_date : '';
+
+    var paid_to_date=client.paid_to_date;
+  //  var balance=client.balance;
+
+
+
+
+    //var headerLeft = 360;
+    var headerRight = 150;
+    var accountTop = 30;
+    var marginLeft = 180;
+    var rowHeight = 10;
+    var headerTop = 125; //height of HEADER //should be dynamic !
+
+
+    var descriptionLeft = 162;
+    var unitCostRight = 410;
+    var qtyRight = 480;
+    var taxRight = 480;
+    var lineTotalRight = 550;
+    var tableLeft = 50;
+
+
+    var tableTop = 240+100;
+
+    var tableRowHeight = 18;
+    var tablePadding = 6;
+    /*
+
+
+
+
+
+        var footerLeft = 420;
+
+
+
+
+        var descriptionLeft = 162;
+        var unitCostRight = 410;
+
+
+
+    */
+
+
+
+
+//------------------------------ move to functions !
+    var total = 0;
+    for (var i=0; i<invoice.invoice_items.length; i++) {
+        var item = invoice.invoice_items[i];
+        var tax = 0;
+        if (item.tax && parseFloat(item.tax.rate)) {
+            tax = parseFloat(item.tax.rate);
+        } else if (item.tax_rate && parseFloat(item.tax_rate)) {
+            tax = parseFloat(item.tax_rate);
+        }
+
+        var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
+        if (tax) {
+            lineTotal += lineTotal * tax / 100;
+        }
+        if (lineTotal) {
+            total += lineTotal;
+        }
+    }
+
+    if (invoice.discount > 0) {
+
+        var discount = total * (invoice.discount/100);
+        total -= discount;
+    }
+
+    var tax = 0;
+    if (invoice.tax && parseFloat(invoice.tax.rate)) {
+        tax = parseFloat(invoice.tax.rate);
+    } else if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
+        tax = parseFloat(invoice.tax_rate);
+    }
+
+    if (tax) {
+        var tax = total * (tax/100);
+        total = parseFloat(total) + parseFloat(tax);
+    }
+
+    total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
+
+    var balance = formatMoney(total, currencyId);
+    //  balanceX = headerRight - (doc.getStringUnitWidth(balance) * doc.internal.getFontSize());
+//    doc.text(balanceX, headerY, balance);
+
+    //------------------------------
+
+
+    console.log (total);
+    console.log (tax);
+    console.log (balance);
+    console.log (paid_to_date);
+
+
+
+
+
+
+
+
+
+
+    var doc = new jsPDF('p', 'pt');
+
+  //set default style for report
+    doc.setFont('Helvetica','');
+    doc.setFontSize(7);
+
+//----------------------------------------------------------------------------------------------------
+    //Print header on document
+    //for now we will put static header
+    //but later this could be changed to more flexible solution
+
+    if (invoice.image)
+    {
+        var left = headerRight - invoice.imageWidth;
+        doc.addImage(invoice.image, 'JPEG', left, 30, invoice.imageWidth, invoice.imageHeight);
+    }
+
+
+
+    if (invoice.imageLogo1)
+    {
+        pageHeight=820;
+        var left = headerRight ;
+        y=pageHeight-invoice.imageLogoHeight1;
+
+
+        var left = headerRight - invoice.imageLogoWidth1;
+        doc.addImage(invoice.imageLogo1, 'JPEG', left, y, invoice.imageLogoWidth1, invoice.imageLogoHeight1);
+
+
+    }
+
+
+    var invoiceNumberX = headerRight - (doc.getStringUnitWidth(invoiceNumber, false) * doc.internal.getFontSize());
+    var invoiceDateX = headerRight - (doc.getStringUnitWidth(invoiceDate) * doc.internal.getFontSize());
+    var dueDateX = headerRight - (doc.getStringUnitWidth(dueDate) * doc.internal.getFontSize());
+    var poNumberX = headerRight - (doc.getStringUnitWidth(invoice.po_number) * doc.internal.getFontSize());
+
+ //   doc.setFontType("normal");
+
+    var y = accountTop;
+    var left = marginLeft;
+
+
+    doc.setFontSize(7);
+
+    SetPdfColor('LightBlue',doc);
+    if (account.name) {
+        y += rowHeight;
+        doc.text(left, y, account.name);
+    }
+
+    SetPdfColor('GrayText',doc);
+    doc.setFontSize(6);
+
+//TODO:NOT AVAILEABLE FROM DATAMOEL
+    //account.email='email N/A';
+    if (account.email) {
+        y += rowHeight;
+        doc.text(left, y, account.email);
+    }
+    else
+    {
+        console.log('account.email NOT DEFINED !');
+    }
+
+//TODO:NOT AVAILEABLE FROM DATAMOEL
+    //account.phone='phone N/A';
+    if (account.phone) {
+        y += rowHeight;
+        doc.text(left, y, account.phone);
+    }
+    else
+    {
+        console.log('account.phone NOT DEFINED !');
+    }
+
+
+
+    var HeaderMarginThirdColumn=70;//should be dynamic and dependent on 1st image and 2nd column width
+
+    var y = accountTop;
+    var left = marginLeft+HeaderMarginThirdColumn;
+
+    if (account.address1) {
+        y += rowHeight;
+        doc.text(left, y, account.address1);
+    }
+    if (account.address2) {
+        y += rowHeight;
+        doc.text(left, y, account.address2);
+    }
+
+    if (account.city || account.state || account.postal_code) {
+        y += rowHeight;
+        doc.text(left, y, account.city + ', ' + account.state + ' ' + account.postal_code);
+    }
+        if (account.country) {
+     y += rowHeight;
+     doc.text(left, y, account.country.name);
+     }
+
+
+
+
+
+//-----------------------------Publish Client Details block--------------------------------------------
+
+
+    var y = accountTop;
+    var left = marginLeft;
+
+    var headerY = headerTop;
+
+
+
+
+    SetPdfColor('LightBlue',doc);
+    doc.setFontSize(8);
+
+    //doc.setFontType("bold");
+
+    doc.text(50, headerTop, 'Invoice');
+
+
+
+
+
+    SetPdfColor('GrayLogo',doc); //set black color
+    y=130;
+    doc.line(30, y, 560, y); // horizontal line
+
+
+
+    var line1=headerTop+16;
+    var line2=headerTop+16*2;
+    var line21=headerTop+16*1.6;
+    var line22=headerTop+16*2.2;
+
+    var line3=headerTop+16*3;
+    var line31=headerTop+16*3.6;
+
+    var marginLeft1=50;
+    var marginLeft2=120;
+    var marginLeft3=180;
+
+    SetPdfColor('Black',doc); //set black color
+
+    doc.setFontSize(6);
+    doc.text(marginLeft1, line1, 'Invoice Number');
+    doc.text(marginLeft1, line2, 'Invoice date');
+    doc.text(marginLeft1, line3, 'Amount Due');
+
+
+
+
+
+    //  invoiceNumber='12345'
+    //   invoiceDate='12345'
+    //invoiceAmount='12345'
+
+    doc.setFontType("bold");
+    doc.text(marginLeft2, line1, invoiceNumber);
+    doc.setFontType("normal");
+    doc.text(marginLeft2, line2, invoiceDate);
+
+
+    SetPdfColor('LightBlue',doc); //set black color
+    doc.text(marginLeft2, line3, balance);
+
+    ClientCompanyName=client.name;
+    ClientCompanyEmail='';//client.email;//'22222222';
+    ClientCompanyPhone=client.work_phone;
+
+    ClientCompanyAddress1=client.address1;
+    ClientCompanyAddress2=client.address2+'  '+client.postal_code;
+
+
+    SetPdfColor('Black',doc); //set black color
+
+    doc.setFontType("bold");
+
+    doc.text(marginLeft3, line1, ClientCompanyName);
+    doc.setFontType("normal");
+
+
+
+    if(client)
+    {
+        ClientCompanyName=getClientDisplayName(client);
+        ClientCompanyPhone=client.work_phone;
+        ClientCompanyEmail=client.contacts[0].email;
+
+    }
+
+
+    doc.text(marginLeft3, line21, ClientCompanyAddress1);
+    doc.text(marginLeft3, line22, ClientCompanyAddress2);
+
+
+    doc.text(marginLeft3, line3, ClientCompanyEmail);
+    doc.text(marginLeft3, line31, ClientCompanyPhone);
+
+
+    SetPdfColor('GrayLogo',doc); //set black color
+    y=195;
+    doc.line(30, y, 560, y); // horizontal line
+
+
+//--------------------------------Publishing Table--------------------------------------------------
+    GlobalY=y+30;
+
+
+    SetPdfColor('Black',doc);
+    doc.setFontSize(7);
+
+    var hasTaxes = false;
+    for (var i=0; i<invoice.invoice_items.length; i++)
+    {
+        var item = invoice.invoice_items[i];
+        if ((item.tax && item.tax.rate > 0) || (item.tax_rate && parseFloat(item.tax_rate) > 0)) {
+            hasTaxes = true;
+            break;
+        }
+    }
+    if (hasTaxes)
+    {
+        descriptionLeft -= 20;
+        unitCostRight -= 40;
+        qtyRight -= 40;
+    }
+
+
+
+    var costX = unitCostRight - (doc.getStringUnitWidth('Unit Cost') * doc.internal.getFontSize());
+    var qtyX = qtyRight - (doc.getStringUnitWidth('Quantity') * doc.internal.getFontSize());
+    var taxX = taxRight - (doc.getStringUnitWidth('Tax') * doc.internal.getFontSize());
+    var totalX = lineTotalRight - (doc.getStringUnitWidth('Line Total') * doc.internal.getFontSize());
+
+
+
+    tableTop=GlobalY;//redefine this to dynamic value
+
+    doc.setFontSize(9);
+
+    doc.text(tableLeft, tableTop, 'Item');
+    doc.text(descriptionLeft, tableTop, 'Description');
+    doc.text(costX, tableTop, 'Unit Cost');
+    doc.text(qtyX, tableTop, 'Quantity');
+    doc.text(totalX, tableTop, 'Line Total');
+
+    if (hasTaxes)
+    {
+        doc.text(taxX, tableTop, 'Tax');
+    }
+
+
+    doc.setFontSize(7);
+
+    /* line items */
+    //doc.setFontType("normal");
+    var line = 1;
+    var total = 0;
+    var shownItem = false;
+
+
+
+
+GlobalY=GlobalY+14; //padding from top
+
+    var FontSize=7;
+    doc.setFontSize(FontSize);
+
+
+    var MaxLinesPerPage=40;
+
+
+
+    for (var i=0; i<invoice.invoice_items.length; i++) {
+
+        var item = invoice.invoice_items[i];
+
+
+        var cost = formatMoney(item.cost, currencyId, true);
+        var qty = NINJA.parseFloat(item.qty) ? NINJA.parseFloat(item.qty) + '' : '';
+        var notes = item.notes;
+        var productKey = item.product_key;
+        var tax = 0;
+        if (item.tax && parseFloat(item.tax.rate)) {
+            tax = parseFloat(item.tax.rate);
+        } else if (item.tax_rate && parseFloat(item.tax_rate)) {
+            tax = parseFloat(item.tax_rate);
+        }
+
+        // show at most one blank line
+        if (shownItem && (!cost || cost == '0.00') && !qty && !notes && !productKey) {
+            continue;
+        }
+        shownItem = true;
+
+        // process date variables
+        notes = processVariables(notes);
+        productKey = processVariables(productKey);
+
+        var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
+        if (tax) {
+            lineTotal += lineTotal * tax / 100;
+        }
+        if (lineTotal) {
+            total += lineTotal;
+        }
+        lineTotal = formatMoney(lineTotal, currencyId, true);
+
+        var costX = unitCostRight - (doc.getStringUnitWidth(cost) * doc.internal.getFontSize());
+        var qtyX = qtyRight - (doc.getStringUnitWidth(qty) * doc.internal.getFontSize());
+        var taxX = taxRight - (doc.getStringUnitWidth(tax+'%') * doc.internal.getFontSize());
+        var totalX = lineTotalRight - (doc.getStringUnitWidth(lineTotal) * doc.internal.getFontSize());
+
+        //var x = tableTop + (line * tableRowHeight) + 6;
+        //if (i==0) x -= 4;
+
+        x=GlobalY;
+
+
+
+
+
+
+
+        length=doc.splitTextToSize(item.notes, 200).length;
+        var h=length*FontSize;
+
+        if ((i%2)===0){
+            doc.setLineWidth(0.5);
+            doc.setDrawColor(200,200,200);
+            doc.setFillColor(230,230,230);
+
+            var x1 = tableLeft-tablePadding ;
+
+            var y1 = GlobalY-FontSize;
+
+            var w2 =  510+tablePadding*2;//lineTotalRight-tablePadding*5;
+            var h2 =  doc.internal.getFontSize()*length+length*1.1;//+h;//+tablePadding;
+
+            console.log(length);
+
+            doc.rect(x1, y1, w2, h2, 'FD');
+        }
+
+
+
+
+
+
+
+        SetPdfColor('LightBlue',doc);
+        doc.text(tableLeft, x, productKey);
+
+        SetPdfColor('Black',doc);
+        doc.text(descriptionLeft, x, notes);
+
+        doc.text(costX, x, cost);
+        doc.text(qtyX, x, qty);
+        doc.text(totalX, x, lineTotal);
+
+        if (tax) {
+            doc.text(taxX, x, tax+'%');
+        }
+        /////line += (doc.splitTextToSize(item.notes, 200).length * .6) + .4;
+
+
+    //    console.log(length);
+        line=line+length;
+
+
+
+
+
+
+
+
+        //GlobalY=h+GlobalY;//
+
+
+
+
+      //  doc.setDrawColor(220,220,220);
+        //doc.line(tableLeft - tablePadding, GlobalY,
+        //  lineTotalRight+tablePadding, GlobalY+h);
+
+        /*doc.line(tableLeft - tablePadding, GlobalY-FontSize,
+        lineTotalRight+tablePadding, GlobalY+h);
+*/
+
+//        if (((i)%2)===0){
+//
+//            //console.log (i);
+//            doc.setDrawColor(200,200,200);
+//         //   doc.setFillColor(230,230,230);
+//
+//            var x1 = tableLeft-tablePadding ;
+//            var y1 = GlobalY-5;//FontSize;
+//
+//            var x2 =  lineTotalRight-tablePadding*5;
+//            var y2 =  GlobalY+5;
+//
+//           // doc.rect(x1, y1, x2, y2, 'FD');
+//        }
+
+
+
+        GlobalY=GlobalY+h+tablePadding*2;
+
+        //lines = doc.splitTextToSize(item.notes, 7.5);
+        //line=line+lines;
+
+
+
+
+
+/*
+        if (i < invoice.invoice_items.length - 2) {
+            doc.setLineWidth(0.5);
+            doc.setDrawColor(220,220,220);
+            doc.line(tableLeft - tablePadding, tableTop + (line * tableRowHeight) - 8,
+                lineTotalRight+tablePadding, tableTop + (line * tableRowHeight) - 8);
+        }
+
+*/
+
+
+
+
+
+        if (line > MaxLinesPerPage) {
+            line = 0;
+
+            tableTop = 40;
+            GlobalY=tableTop;
+
+
+
+
+
+
+            var MaxLinesPerPage=70;
+
+            doc.addPage();
+            if (invoice.imageLogo1)
+            {
+                pageHeight=820;
+                var left = headerRight ;
+                y=pageHeight-invoice.imageLogoHeight1;
+
+
+                var left = headerRight - invoice.imageLogoWidth1;
+                doc.addImage(invoice.imageLogo1, 'JPEG', left, y, invoice.imageLogoWidth1, invoice.imageLogoHeight1);
+
+
+            }
+        }
+
+
+    }
+
+
+
+
+
+
+
+
+//-------------------------------Publishing Document balance------------------------------------------
+
+
+
+
+    // var dueDateX = headerRight - (doc.getStringUnitWidth(dueDate) * doc.internal.getFontSize());
+    x += 16+50;
+
+
+    MsgRightAlign=400;
+
+    Msg='Total';
+    var TmpMsgX =  MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
+    doc.text(TmpMsgX, x, Msg);
+
+
+    AmountText = formatMoney(total , currencyId);
+    headerLeft=headerRight+400;
+    var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
+    doc.text(AmountX, x, AmountText);
+
+
+
+
+    x += doc.internal.getFontSize()*2;
+    //doc.text(footerLeft, x, '');
+
+    Msg='Amount Payed';
+    var TmpMsgX =  MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
+    doc.text(TmpMsgX, x, Msg);
+
+
+
+    AmountText = formatMoney(paid_to_date , currencyId);
+    headerLeft=headerRight+400;
+    var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
+    doc.text(AmountX, x, AmountText);
+
+
+
+
+
+
+
+    x += doc.internal.getFontSize()*4;
+    //doc.text(footerLeft, x, '');
+    Msg='Amount Due';
+    var TmpMsgX =  MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
+    doc.text(TmpMsgX, x, Msg);
+
+
+
+    AmountText = formatMoney(balance , currencyId);
+    headerLeft=headerRight+400;
+    var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
+    doc.text(AmountX, x, AmountText);
+
+
+
+
+
+
+    return doc;
+}
+
+
+function SetPdfColor(color,doc)
+{
+
+    if (color=='LightBlue') {
+       return doc.setTextColor(41,156, 194);
+    }
+
+    if (color=='Black') {
+        return doc.setTextColor(0,0,0);//select color black
+    }
+    if (color=='GrayLogo') {
+        return doc.setTextColor(207,209, 210);//select color Custom Report GRAY
+    }
+
+    if (color=='GrayText') {
+        return doc.setTextColor(161,160,160);//select color Custom Report GRAY Colour
+    }
+
+
+    alert('color is not defined');
+    return false;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
