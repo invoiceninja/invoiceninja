@@ -210,7 +210,7 @@
 	        <h4 class="modal-title" id="myModalLabel">Sign up</h4>
 	      </div>
 
-	      <div style="background-color: #EEEEEE; padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onkeydown="checkForEnter(event)">
+	      <div style="background-color: #fff; padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onkeydown="checkForEnter(event)">
 	    	<br/>
 	    	
 	    	{{ Former::open('signup/submit')->addClass('signUpForm') }}
@@ -239,7 +239,7 @@
   			</div>
       </div>
 
-      <div style="background-color: #EEEEEE; padding-right:20px;padding-left:20px; display:none" id="signUpSuccessDiv">
+      <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="signUpSuccessDiv">
       <br/>
       <h3>Success</h3>
       You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.
@@ -248,8 +248,8 @@
 
 
 	      <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">	      	
-	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	        <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()">Save</button>	      	
+	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close <i class="glyphicon glyphicon-remove-circle"></i></button>
+	        <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()">Save <i class="glyphicon glyphicon-floppy-disk"></i></button>	      	
 	      </div>
 	    </div>
 	  </div>

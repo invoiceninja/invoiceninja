@@ -377,7 +377,7 @@ background-clip: padding-box;
 
 .in-thin {
     font-size: 26px;
-    color: #888;
+    font-weight: 100;
 }
 
 .in-bold-white {
@@ -386,7 +386,7 @@ background-clip: padding-box;
 }
 
 .in-image {
-    float:left;padding-right:16px;
+    float:left;padding-right:25px;
 }
 
 .in-white {
@@ -414,6 +414,25 @@ background-clip: padding-box;
 .invoice-table tbody {
     border-style: none !important;
 }
+.panel-body {padding: 25px;}
+
+.dashboard .panel-body {padding: 0;}
+
+.dashboard .table-striped>tbody>tr>td, .table-striped>tbody>tr>th { background-color: #fbfbfb;}
+.dashboard .table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th {
+background-color: #fff;
+} 
+.dashboard th {
+border-left: none;
+    background-color: #fbfbfb;
+    border-bottom: 1px solid #dfe0e1;
+}
+.dashboard table.table thead > tr > th {
+border-bottom-width: 1px;
+}
+
+.dashboard .table-striped>tbody>tr>td:first-child { padding-left: 15px;  }
+.dashboard .table-striped>thead>tr>th:first-child { padding-left: 15px;  }
 
 /***********************************************
    New/edit invoice page

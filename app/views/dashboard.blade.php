@@ -49,7 +49,7 @@
 
 <div class="row">
   <div class="col-md-6">  
-    <div class="panel panel-default" style="min-height:320px">
+    <div class="panel panel-default dashboard" style="min-height:320px">
       <div class="panel-heading" style="background-color:#0b4d78">
         <h3 class="panel-title in-bold-white">
           <i class="glyphicon glyphicon-exclamation-sign"></i> Notifications
@@ -66,14 +66,14 @@
     </div>  
   </div>
   <div class="col-md-6">  
-    <div class="panel panel-default" style="min-height:320px">
+    <div class="panel panel-default dashboard" style="min-height:320px">
       <div class="panel-heading" style="background-color:#e37329">
         <h3 class="panel-title in-bold-white">
           <i class="glyphicon glyphicon-time"></i> Invoices Past Due
         </h3>
       </div>
       <div class="panel-body">
-        <table class="table">
+        <table class="table table-striped">
           <thead>
             <th>Invoice #</th>
             <th>Client</th>
@@ -98,14 +98,14 @@
 
 <div class="row">
   <div class="col-md-6">  
-    <div class="panel panel-default" style="min-height:320px">
+    <div class="panel panel-default dashboard" style="min-height:320px">
       <div class="panel-heading">
         <h3 class="panel-title">
           <i class="glyphicon glyphicon-time"></i> Upcoming invoices
         </h3>
       </div>
       <div class="panel-body">
-        <table class="table">
+        <table class="table table-striped">
           <thead>
             <th>Invoice #</th>
             <th>Client</th>
@@ -126,15 +126,18 @@
       </div>
     </div>
   </div>
-  <div class="col-md-6">
-    <div class="col-md-6 active-clients">      
+  <div class="col-md-3">
+    <div class="active-clients">      
       <div class="in-bold in-white" style="font-size:42px">{{ $activeClients }}</div>
       <div class="in-thin in-white">{{ Utils::pluralize('active client', $activeClients) }}</div>
     </div>
-    <div class="col-md-6 average-invoice">  
+      </div>
+    <div class="col-md-3">
+    <div class="average-invoice">  
       <div><b>Average invoice</b></div>
       <div class="in-bold in-white" style="font-size:42px">{{ $invoiceAvg }}</div>
     </div>
+      
   </div> 
 </div>
 
