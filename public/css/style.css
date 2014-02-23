@@ -88,6 +88,13 @@ background: url('../images/sort_asc.png') no-repeat 90% 50%;
 table.table thead .sorting_desc {
 background: url('../images/sort_desc.png') no-repeat 90% 50%;
 }
+table.dataTable thead th, table.dataTable thead td, table.invoice-table thead th, table.invoice-table thead td {
+padding: 12px 10px;
+}
+table.dataTable tbody th, table.dataTable tbody td {
+padding: 10px;
+}
+
 .datepicker {
 padding: 4px !important;
 margin-top: 1px;
