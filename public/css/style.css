@@ -120,6 +120,26 @@ background-color: #0b4d78;
 color: #333;
 }
 
+/*modals*/
+
+.modal-header {
+border-bottom: 1px solid #dfe0e1;
+background-color: #f8f8f8;
+}
+.modal-footer {
+background-color: #f8f8f8;
+border-top: 1px solid #dfe0e1;
+}
+.modal thead {
+background: #fff;
+color: #333;
+}
+.modal .table>thead>tr>th {
+border-bottom: 1px solid #dfe0e1 !important; padding-top: 30px;
+}
+.modal .table>thead>tr>th:first-child, .modal .table>thead>tr>th:last-child {
+border-bottom: none !important;
+}
 /*buttons*/
 .btn { font-weight: bold; 
     border-radius: 3px;

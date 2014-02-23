@@ -283,7 +283,7 @@
 	      </div>
 
 	      <div class="container" style="width: 100%">
-		<div style="background-color: #EEEEEE" class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
+		<div style="background-color: #fff" class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
 			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
 
 				{{ Former::legend('Organization') }}
@@ -361,7 +361,7 @@
 	        <h4 class="modal-title" id="taxModalLabel">Tax Rates</h4>
 	      </div>
 
-	      <div style="background-color: #EEEEEE" onkeypress="taxModalEnterClick(event)">
+	      <div style="background-color: #fff" onkeypress="taxModalEnterClick(event)">
 			<table class="table invoice-table sides-padded" style="margin-bottom: 0px !important">
 			    <thead>
 			        <tr>
@@ -414,7 +414,7 @@
 	        <h4 class="modal-title" id="recurringModalLabel">Recurring Invoices</h4>
 	      </div>
 
-	    <div style="background-color: #EEEEEE; padding-left: 16px; padding-right: 16px">
+	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
 	    	&nbsp;
 	    	<p>Recurring invoices are automatically sent.</p>
 	    	<p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. </p>
