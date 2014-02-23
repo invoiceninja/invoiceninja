@@ -88,7 +88,38 @@ background: url('../images/sort_asc.png') no-repeat 90% 50%;
 table.table thead .sorting_desc {
 background: url('../images/sort_desc.png') no-repeat 90% 50%;
 }
-.datepicker table {font-size: 12px;}
+.datepicker {
+padding: 4px !important;
+margin-top: 1px;
+-webkit-border-radius: 3px;
+-moz-border-radius: 3px;
+border-radius: 3px;
+}
+.datepicker.dropdown-menu {
+border: 1px solid #dfe0e1;
+-webkit-border-radius: 5px;
+-moz-border-radius: 5px;
+border-radius: 5px;
+-webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+-moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+color: #333333;
+font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 13px;
+line-height: 20px;
+}
+.datepicker table {font-size: 12px; border-spacing:2px;}
+.datepicker td, .datepicker th { width:30px; }
+.datepicker table tr td.active.active, .datepicker table tr td.active:hover.active {
+background-color: #0b4d78;
+    background-image:none;
+}
+.datepicker table tr td.today { color: #333; background-color: #edd71e !important; background-image:none; text-shadow:none;}
+.datepicker table tr td.today:hover { color: #333; background-color: #edd71e !important; background-image:none; text-shadow:none;}
+.datepicker table tr td.today.active:hover {
+color: #333;
+}
+
 /*buttons*/
 .btn { font-weight: bold; 
     border-radius: 3px;
@@ -302,7 +333,7 @@ padding-top:20px;
 }
 .dropdown-menu {
 left: 0;
-top: 100%
+top: 100%;
 min-width: 160px;
 padding: 5px 0;
 font-size: 14px;
