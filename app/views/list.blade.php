@@ -17,14 +17,15 @@
 		  )
 		, array('id'=>'archive'))->split(); }}
 	
-	&nbsp;<label for="trashed" style="font-weight:normal">
+	&nbsp;<label for="trashed" style="font-weight:normal; margin-left: 10px;">
 		<input id="trashed" type="checkbox" onclick="setTrashVisible()" 
 			{{ Session::get('show_trash') ? 'checked' : ''}}/> Show archived/deleted {{ $entityType }}s
 	</label>
 
 	<div id="top_right_buttons" class="pull-right">
-		<input id="tableFilter" type="text" style="width:140px;margin-right:4px" class="form-control pull-left" placeholder="Filter"/> 
-		{{ Button::primary_link(URL::to($entityType . 's/create'), 'New ' . Utils::getEntityName($entityType), array('class' => 'pull-right')) }}	
+		<input id="tableFilter" type="text" style="width:140px;margin-right:17px" class="form-control pull-left" placeholder="Filter"/> 
+		{{ Button::success_link(URL::to($entityType . 's/create'), 'New ' . Utils::getEntityName($entityType), array('class' => 'pull-right'))->append_with_icon('plus-sign'); }}	
+        
 	</div>
 
     @if (isset($secEntityType))

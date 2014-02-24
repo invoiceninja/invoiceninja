@@ -75,7 +75,7 @@
 	</div>
 	
 	<center>
-		{{ Button::lg_primary_submit('Save') }}
+		{{ Button::lg_primary_submit('Save')->append_with_icon('floppy-disk') }}
 	</center>
 
 	{{ Former::close() }}
