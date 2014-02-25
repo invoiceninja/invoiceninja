@@ -567,7 +567,12 @@
     invoice.imageLogoWidth1 =120;
     invoice.imageLogoHeight1 = 40
 
-		return invoice;
+    invoice.imageLogo2 = "{{ HTML::image_data('images/report_logo2.jpg') }}";
+    invoice.imageLogoWidth2 =325/2;
+    invoice.imageLogoHeight2 = 81/2;
+
+
+    return invoice;
 	}
 
 	/*
