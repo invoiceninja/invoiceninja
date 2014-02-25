@@ -13,7 +13,7 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 function generatePDF(invoice, checkMath) {
 
 
-    console.log ('DESIGN:'+invoice.invoice_design_id);
+    //console.log ('DESIGN:'+invoice.invoice_design_id);
 
     report_id=invoice.invoice_design_id;
 
@@ -481,6 +481,7 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
 		for (var i=0; i<list.length; i++) {
 			var invoice = list[i];
 			var client = clientMap[invoice.client.public_id];
+      if (!client) continue; // client is deleted/archived
 			$invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' +
                 getClientDisplayName(client) + ' - ' + formatMoney(invoice.amount, invoice.currency_id) + ' | ' +
                 formatMoney(invoice.balance, invoice.currency_id),  invoice.public_id));

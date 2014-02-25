@@ -168,6 +168,7 @@ HTML::macro('breadcrumbs', function() {
       unset($crumbs[$key]);
     }
   }
+  $crumbs = array_values($crumbs);
   for ($i=0; $i<count($crumbs); $i++) {
     $crumb = trim($crumbs[$i]);
     if (!$crumb) continue;
