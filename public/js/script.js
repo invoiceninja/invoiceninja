@@ -762,7 +762,7 @@ function GetReportTemplate2 (invoice,checkMath)
     }
     if (account.country) {
         y += rowHeight;
-        doc.text(left, y, account.country.name);
+        doc.text(left, y, account.country ? account.country.name : '');
     }
 
 //-----------------------------Publish Client Details block--------------------------------------------
@@ -1316,7 +1316,7 @@ function GetReportTemplate1 (invoice,checkMath)
     doc.setFontType("normal");
 
 
-    var LineTwo= account.address1+' '+account.address2+account.city+' '+account.country.name;
+    var LineTwo= account.address1+' '+account.address2+account.city+' '+(account.country ? account.country.name : '');
 
     var AlignLine = MaxWidth-30- (doc.getStringUnitWidth(LineTwo) * doc.internal.getFontSize());
     y += rowHeight;
