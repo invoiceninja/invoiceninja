@@ -91,8 +91,7 @@
 	    	{{ HTML::menu_link('credit') }}
 	    	{{-- HTML::nav_link('reports', 'Reports') --}}
 	    </ul>
-
-		<div class="navbar-form navbar-right">
+<div class="navbar-form navbar-right">
 			@if (Auth::check() && !Auth::user()->registered)
 				{{ Button::sm_success_primary('Sign up', array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
 			@endif
@@ -121,8 +120,15 @@
 			</div>
 			@endif			
 		</div>	
-
-		<ul class="nav navbar-nav navbar-right">	      
+          
+         
+        <form class="navbar-form navbar-right" role="search">
+	      <div class="form-group">
+	        <input type="text" id="search" class="form-control" placeholder="Search">
+	      </div>
+	    </form>
+          
+           <ul class="nav navbar-nav navbar-right">	      
 	      <li class="dropdown">
 	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">History <b class="caret"></b></a>
 	        <ul class="dropdown-menu">	        		        	
@@ -135,12 +141,13 @@
 	          	@endif
 	        </ul>
 	      </li>
-	    <form class="navbar-form navbar-left" role="search">
-	      <div class="form-group">
-	        <input type="text" id="search" class="form-control" placeholder="Search">
-	      </div>
-	    </form>
-	    </ul>	    
+        </ul>
+          
+		
+        
+		
+	   
+	    	    
 
 
 
