@@ -27,6 +27,9 @@ a, a .cta h2, .socicon {
 a:hover {
 text-decoration: none;
 }
+.center { text-align:center; }
+
+.white-bg { background-color:#fff; }
 
 .navbar {
 	background: #2e2b2b;
@@ -127,7 +130,15 @@ a .cta:hover span {
     background-position: bottom center;
     background-size: cover;    
 }
-.hero2 h1 {
+.hero3 {
+	text-align: center;
+	background-image: url(/images/hero-bg-3.jpg);
+	padding: 150px 0;
+	background-repeat: no-repeat;
+    background-position: bottom center;
+    background-size: cover;    
+}
+.hero2 h1, .hero3 h1 {
 	color: #fff;
 	margin: 0;
 }
@@ -185,6 +196,10 @@ section.blue .col-md-6 h1 span {
 	display: block;
 	text-transform: lowercase;
 }
+
+section.about { padding: 70px 0; }
+section.about h2 { margin: 0 0 25px 0; font-size: 25px; text-transform:none;}
+section.about .screendump { background-color:#ccc; height:220px;}
 
 footer .navbar-inner {
 	float: right;
@@ -296,9 +311,10 @@ margin-bottom: 10px;
 		margin-bottom: 10px;
 		text-align: center;
 	}
-	.hero2 {
+	.hero2, .hero3 {
 	padding: 50px 0;
-}
+    }
+    
 	.background {
 		background-attachment: scroll;
 		background-size: cover;    
@@ -308,8 +324,8 @@ margin-bottom: 10px;
 		padding: 50px 0;
 	}
 	section.features, section.upper-footer { 
-margin: 30px 0;
-}
+        margin: 30px 0;
+    }
 
 section.features .col-md-3  .box{
 margin-bottom: 10px;
@@ -326,6 +342,25 @@ section.blue .col-md-6 h1 span {
 	display: block;
 	text-transform: lowercase;
 }
+section.about {
+    padding: 30px 0;
+    text-align: center;
+}
+section.about p {
+    margin-bottom: 0;
+    margin-top: 10px;
+}
+section.about .screendump {
+    margin-top: 25px;
+}
+section.about.white-bg .screendump {
+    margin-top: 0;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+section.about h2 {
+    margin: 0 0 15px 0;
+}
 footer .navbar-inner {
 	float: none;
 }
@@ -341,6 +376,7 @@ footer .social .socicon {
 }
 	
 }
+
 
 @font-face {
     font-family: 'socicon';
