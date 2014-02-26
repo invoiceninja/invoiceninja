@@ -178,7 +178,7 @@
                   "http://twitter.com/invoiceninja" target="_blank"><span class=
                   "socicon">a</span></a>
                   <p>Copyright © 2014 InvoiceNinja. All rights reserved.</p>
-                </div>
+                </div> 
 
                 <div class="navbar-inner">
                   <ul class="navbar-list">
@@ -198,4 +198,5 @@
             </div>
           </footer><script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script>
 
+		  
           @stop
