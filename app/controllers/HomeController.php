@@ -9,6 +9,11 @@ class HomeController extends BaseController {
 		return View::make('splash');
 	}
 
+	public function showAboutUs()
+	{
+		return View::make('about_us');
+	}
+
 	public function showComingSoon()
 	{
 		return View::make('coming_soon');	
