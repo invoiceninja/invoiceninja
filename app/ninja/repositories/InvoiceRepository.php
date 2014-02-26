@@ -36,7 +36,10 @@ class InvoiceRepository
             {
             	$query->where('clients.name', 'like', '%'.$filter.'%')
             		  ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%')
-            		  ->orWhere('invoice_statuses.name', 'like', '%'.$filter.'%');
+            		  ->orWhere('invoice_statuses.name', 'like', '%'.$filter.'%')
+                  ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+                  ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+                  ->orWhere('contacts.email', 'like', '%'.$filter.'%');
             });
     	}
 
