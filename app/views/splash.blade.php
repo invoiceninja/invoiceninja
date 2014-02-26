@@ -178,7 +178,7 @@
                   "http://twitter.com/invoiceninja" target="_blank"><span class=
                   "socicon">a</span></a>
                   <p>Copyright © 2014 InvoiceNinja. All rights reserved.</p>
-                </div>
+                </div> 
 
                 <div class="navbar-inner">
                   <ul class="navbar-list">
