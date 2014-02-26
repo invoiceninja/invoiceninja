@@ -14,6 +14,11 @@ class HomeController extends BaseController {
 		return View::make('about_us');
 	}
 
+	public function showContactUs()
+	{
+		return View::make('contact_us');
+	}
+
 	public function showComingSoon()
 	{
 		return View::make('coming_soon');	
