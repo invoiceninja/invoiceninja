@@ -56,14 +56,15 @@ textarea.form-control {
 height: auto !important;
 }
 /*tables*/
-table.dataTable { border-radius: 3px; color:#fff; border-collapse: collapse;
+table.dataTable { border-radius: 3px; border-collapse: collapse;
     /*border-spacing: 0;*/}
-.dataTable thead, .invoice-table thead {
-    background: #e37329;
+table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
+        background: #e37329 !important;
     color:#fff;
 }
 th:first-child {
     border-radius: 3px 0 0 0;
+    border-left: none;
 }
 th:last-child {
     border-radius: 0 3px 0 0;
@@ -321,6 +322,30 @@ padding-bottom: 20px;
     margin-top: 0;
 }
 
+.nav-tabs { color:#fff; }
+.nav-tabs.nav-justified>li>a {
+border: none;
+border-radius: 0;
+color: #fff;
+background-color: #9b9b9b;
+ 
+}
+.nav-tabs.nav-justified>li:first-child>a {
+    border-radius: 3px 0 0 3px;
+    border-left: none;
+}
+.nav-tabs.nav-justified>li:last-child>a {
+    border-radius: 0 3px 3px 0;
+}
+.nav-tabs.nav-justified>li>a:hover {
+    background-color:#8a8a8a;
+}
+.nav-tabs.nav-justified>.active>a, .nav-tabs.nav-justified>.active>a:hover, .nav-tabs.nav-justified>.active>a:focus {
+    border: none;
+background-color: #808080;
+font-weight: bold;
+    color: #fff;
+}
 .navbar {
   background-color: #0b4d78 !important;
   background-image: none;
@@ -546,8 +571,13 @@ body {
 .navbar-default .navbar-toggle .icon-bar {
     background-color: #ecf0f1;
 }
-.navbar-form { margin-top: 15px; }
+.navbar-form { margin-top: 15px; padding-right:0; }
+.navbar-form:first-child { padding-right: 0; }
 .navbar-form .form-control { height: 30px; }
+.twitter-typeahead .tt-hint {
+height: 30px;
+border-radius: 3px;
+}
 .navbar-form .btn-default {
 color: #fff;
 background-color: #09334f;
