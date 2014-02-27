@@ -2215,7 +2215,7 @@ function GetReportTemplate3 (invoice,checkMath)
 
         length=doc.splitTextToSize(item.notes, 200).length;
         var h=length*FontSize;
-        MaxGlobalY=750;
+        MaxGlobalY=730;
         if (h+GlobalY > MaxGlobalY) {
 
             tableTop = 40;
@@ -2412,12 +2412,6 @@ function SetPdfColor(color,doc)
 
 
 
-
-
-function Report1AddFooter (doc)
-{
-}
-
 function Report2AddFooter (invoice,doc)
 {
 
@@ -2464,8 +2458,6 @@ function Report3AddFooter (invoice,doc)
 {
 
     doc.setLineWidth(0.5);
-//    doc.setDrawColor(41,37,37);
-//    doc.setFillColor(41,37,37);
     doc.setDrawColor(242,101,34);
     doc.setFillColor(242,101,34);
 
