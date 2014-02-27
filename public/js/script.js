@@ -535,9 +535,9 @@ $.fn.datepicker.defaults.todayHighlight = true;
 function GetPdf(invoice,checkMath,report_id){
 
 
-    if (report_id==2) return GetReportTemplate1(invoice,checkMath);
-    if (report_id==3) return GetReportTemplate2(invoice,checkMath);
-    if (report_id==1) return GetReportTemplate3(invoice,checkMath);
+    if (report_id==1) return GetReportTemplate1(invoice,checkMath);
+    if (report_id==2) return GetReportTemplate2(invoice,checkMath);
+    if (report_id==3) return GetReportTemplate3(invoice,checkMath);
 
 
     alert('report template not implemented yet');
