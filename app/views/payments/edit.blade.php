@@ -32,9 +32,9 @@
 		</div>
 	</div>
 
-	<center style="margin-top:16px">
-		{{ Button::lg_primary_submit_success('Save') }} &nbsp;|&nbsp;
-		{{ link_to('payments/' . ($payment ? $payment->public_id : ''), 'Cancel') }}	
+	<center class="buttons">
+        {{ Button::lg_primary_submit_success('Save')->append_with_icon('floppy-disk') }}
+         {{ Button::lg_default_link('payments/' . ($payment ? $payment->public_id : ''), 'Cancel')->append_with_icon('remove-circle'); }}
 	</center>
 
 	{{ Former::close() }}

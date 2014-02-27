@@ -98,8 +98,8 @@
 
 <div class="row">
   <div class="col-md-6">  
-    <div class="panel panel-default dashboard" style="min-height:320px">
-      <div class="panel-heading">
+    <div class="panel panel-default dashboard" style="min-height:320px;">
+      <div class="panel-heading" style="margin:0;">
         <h3 class="panel-title">
           <i class="glyphicon glyphicon-time"></i> Upcoming invoices
         </h3>

@@ -45,7 +45,7 @@
 		
 	@endforeach
 
-	{{ Former::actions( Button::lg_primary_submit('Save')->append_with_icon('floppy-disk') ) }}
+	{{ Former::actions( Button::lg_success_submit('Save')->append_with_icon('floppy-disk') ) }}
 	{{ Former::close() }}
 
 
