@@ -18,7 +18,7 @@
 	{{ Former::textarea('invoice_terms')->label('Set default invoice terms') }}
 	{{ Former::textarea('email_footer')->label('Set default email signature') }}
 
-	{{ Former::actions( Button::lg_primary_submit('Save')->append_with_icon('floppy-disk') ) }}
+	{{ Former::actions( Button::lg_success_submit('Save')->append_with_icon('floppy-disk') ) }}
 	{{ Former::close() }}
 
 @stop

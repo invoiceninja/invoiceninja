@@ -448,6 +448,8 @@ background-clip: padding-box;
 }
 .panel-body {padding: 25px;}
 
+.dashboard .panel-heading { margin: -1px; }
+
 .dashboard .panel-body {padding: 0;}
 
 .dashboard .table-striped>tbody>tr>td, .table-striped>tbody>tr>th { background-color: #fbfbfb;}
