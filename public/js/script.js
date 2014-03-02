@@ -1839,7 +1839,7 @@ function Report2AddFooter (invoice,doc)
 
 }
 
-function Report3AddFooter (invoice,doc)
+function Report3AddFooter (invoice,account,doc)
 {
 
     doc.setLineWidth(0.5);
@@ -1875,6 +1875,73 @@ function Report3AddFooter (invoice,doc)
 
 
     }
+
+
+
+
+
+
+
+    var LineOne= account.name;
+
+    MaxWidth=440;
+    var AlignLine = MaxWidth-30- (doc.getStringUnitWidth(LineOne) * doc.internal.getFontSize());
+
+    if (account.name) {
+
+        y =780;
+
+        doc.setFontSize(12);
+        //doc.setFontType("normal");
+        doc.setFontType("bold");
+        SetPdfColor('White',doc);
+
+
+        doc.text(AlignLine, y, LineOne);
+
+        doc.setFontSize(7);
+    }
+
+
+var    y =780;
+
+    var AlignLine2=AlignLine+110;
+    if (account.address1) {
+
+        doc.setFontSize(12);
+        doc.setFontType("normal");
+        SetPdfColor('White',doc);
+        doc.text(AlignLine2, y,account.address1);
+        doc.setFontSize(7);
+
+        y=y+18;
+    }
+
+
+
+    if (account.address2) {
+
+        doc.setFontSize(12);
+        doc.setFontType("normal");
+        SetPdfColor('White',doc);
+        doc.text(AlignLine2, y,account.address2);
+        doc.setFontSize(7);
+
+        y=y+18;
+    }
+
+
+
+        doc.setFontSize(12);
+        doc.setFontType("normal");
+        SetPdfColor('White',doc);
+
+
+        var LineTwo= account.city+' '+(account.country ? account.country.name : '');
+
+        doc.text(AlignLine2, y,LineTwo);
+        doc.setFontSize(7);
+
 
 
 
@@ -2023,7 +2090,7 @@ function GetReportTemplate3 (invoice,checkMath)
         doc.addImage(invoice.image, 'JPEG', left, y, invoice.imageWidth, invoice.imageHeight);
     }
 
-    Report3AddFooter (invoice,doc);
+    Report3AddFooter (invoice,account,doc);
 
     var invoiceNumberX = headerRight - (doc.getStringUnitWidth(invoiceNumber, false) * doc.internal.getFontSize());
     var invoiceDateX = headerRight - (doc.getStringUnitWidth(invoiceDate) * doc.internal.getFontSize());
@@ -2407,7 +2474,7 @@ function GetReportTemplate3 (invoice,checkMath)
             GlobalY=tableTop;
 
             doc.addPage();
-            Report3AddFooter(invoice,doc);
+            Report3AddFooter(invoice,account,doc);
         }
 
         if ((i%2)===0){
@@ -2523,7 +2590,7 @@ function GetReportTemplate3 (invoice,checkMath)
     doc.text(TmpMsgX, x, Msg);
 
 
-    SetPdfColor('LightBlue',doc);
+   // SetPdfColor('LightBlue',doc);
     AmountText = formatMoney(balance , currencyId);
     headerLeft=headerRight+400;
     var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
