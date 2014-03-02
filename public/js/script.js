@@ -1,4 +1,4 @@
-GetReportTemplate3// http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
+// http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
 var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
 var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
@@ -1053,7 +1053,7 @@ function GetReportTemplate1 (invoice,checkMath)
     doc.setLineWidth(0.3);
     doc.setDrawColor(200,200,200);
     doc.setFillColor(251,251,251);
-    var x1 = tableLeft-tablePadding*2 ;
+    var x1 = tableLeft-tablePadding*2+14 ;
     var y1 = GlobalY-FontSize-tablePadding;
     var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
     var h2 = doc.internal.getFontSize()*3+tablePadding*2;
@@ -1553,7 +1553,6 @@ function GetReportTemplate2 (invoice,checkMath)
     var MaxLinesPerPage=40;
 
 
-
     for (var i=0; i<invoice.invoice_items.length; i++) {
 
         var item = invoice.invoice_items[i];
@@ -1672,7 +1671,7 @@ function GetReportTemplate2 (invoice,checkMath)
 
     doc.setDrawColor(251,251,251);
     doc.setFillColor(251,251,251);
-    var x1 = tableLeft-tablePadding*2 ;
+    var x1 = tableLeft-tablePadding*2 +14;
     var y1 = GlobalY-FontSize-tablePadding;
     var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
     var h2 = doc.internal.getFontSize()*3+tablePadding*2;
