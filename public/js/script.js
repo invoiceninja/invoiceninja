@@ -2120,7 +2120,7 @@ function GetReportTemplate3 (invoice,checkMath)
     var line3=headerTop+16*3;
     var line31=headerTop+16*3.6;
 
-    var marginLeft1=50;
+    var marginLeft1=394;
 
 
     SetPdfColor('Black',doc); //set black color
@@ -2149,29 +2149,28 @@ function GetReportTemplate3 (invoice,checkMath)
 
 
 //publish filled box
-    doc.setDrawColor(200,200,200);
-    doc.setFillColor(54,164,152);
+//    doc.setDrawColor(200,200,200);
+//    doc.setFillColor(54,164,152);
 
     GlobalY=190;
-    doc.setLineWidth(0.5);
-
-    var BlockLenght=220;
-    var x1 =595-BlockLenght;
-    var y1 = GlobalY-12;
-    var w2 = BlockLenght;
-    var h2 = 90;
-    doc.rect(x1, y1, w2, h2, 'FD');
-
+    //doc.setLineWidth(0.5);
+//    var BlockLenght=220;
+//    var x1 =595-BlockLenght;
+//    var y1 = GlobalY-12;
+//    var w2 = BlockLenght;
+//    var h2 = 90;
+//   // doc.rect(x1, y1, w2, h2, 'FD');
 
 
-    SetPdfColor('SomeGreen',doc);
-    doc.setFontSize('14');
-    doc.setFontType("bold");
-    doc.text(50, GlobalY, 'YOUR INVOICE');
 
-
+//    SetPdfColor('SomeGreen',doc);
+//    doc.setFontSize('14');
+//    doc.setFontType("bold");
+//    doc.text(50, GlobalY, 'YOUR INVOICE');
+//
+//
     var z=GlobalY;
-    z=z+30;
+//    z=z+30;
 
 
     SetPdfColor('Black',doc);
@@ -2297,7 +2296,7 @@ function GetReportTemplate3 (invoice,checkMath)
 
     y=z+60;
 //--------------------------------Publishing Table--------------------------------------------------
-    GlobalY=y+30;
+    GlobalY=y+130;
     GlobalY=GlobalY+70;//y+30;
     SetPdfColor('Black',doc);
     doc.setFontSize(7);
