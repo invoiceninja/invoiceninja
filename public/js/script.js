@@ -2420,7 +2420,7 @@ function GetReportTemplate3 (invoice,checkMath)
         doc.text(taxX, tableTop, 'Tax');
     }
 
-
+    SetPdfColor('Black',doc);
     doc.setFontSize(7);
 
     /* line items */
