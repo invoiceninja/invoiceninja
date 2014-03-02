@@ -2059,25 +2059,10 @@ function GetReportTemplate3 (invoice,checkMath)
     doc.setFont('Helvetica','');
     doc.setFontSize(7);
 
-    doc.setLineWidth(0.5);
-
-    //doc.setFillColor( 46,43,43);
-    //doc.setFillColor( 46,43,43);
-
-    doc.setDrawColor(242,101,34);
-    doc.setFillColor(242,101,34);
-
-
-    var x1 =0;
-
-    var y1 = 0;
-
-    var w2 = 595;
-    var h2 = 140;// doc.internal.getFontSize()*length+length*1.1;//+h;//+tablePadding;
-    doc.rect(x1, y1, w2, h2, 'FD');
 
 
 
+    Report3AddHeader (invoice,account,doc);
 
 
 
@@ -2132,40 +2117,8 @@ function GetReportTemplate3 (invoice,checkMath)
 
     var HeaderMarginThirdColumn=70;
 
-    //second column
-    doc.setFontType("bold");
-    var MaxWidth=594;
-
-    var LineOne= account.name;
-
-    var AlignLine = MaxWidth-30- (doc.getStringUnitWidth(LineOne) * doc.internal.getFontSize());
-
-    if (account.name) {
-
-       //SetPdfColor('SomeGreen',doc);
-        doc.setFontSize('36');
-        doc.setFontType("bold");
-        doc.text(40,50, LineOne);
-
-        doc.setFontType("normal");
-        doc.setFontSize('7');
-    }
 
 
-
- /*
-
-    y += rowHeight;
-
-    doc.setFontType("normal");
-
-
-    var LineTwo= account.address1+' '+account.address2+account.city+' '+(account.country ? account.country.name : '');
-
-    var AlignLine = MaxWidth-30- (doc.getStringUnitWidth(LineTwo) * doc.internal.getFontSize());
-    y += rowHeight;
-    doc.text(AlignLine, y, LineTwo);
-*/
 
 //-----------------------------Publish Client Details block--------------------------------------------
 
@@ -2484,17 +2437,23 @@ function GetReportTemplate3 (invoice,checkMath)
         length=doc.splitTextToSize(item.notes, 200).length;
         var h=length*FontSize;
         MaxGlobalY=730;
+
+
+
         if (h+GlobalY > MaxGlobalY) {
 
-            tableTop = 40;
+            tableTop = 180;
             GlobalY=tableTop;
 
             doc.addPage();
+            Report3AddHeader(invoice,account,doc);
             Report3AddFooter(invoice,account,doc);
+            NewPageFlag=1;
         }
+        else  NewPageFlag=0;
 
 
-if (i!=0)
+if (i!=0&NewPageFlag==0)
 {
         doc.setDrawColor(0,0,0); // draw red lines
         doc.setLineWidth(0.1);
@@ -2535,12 +2494,17 @@ if (i!=0)
         line=line+length;
     }
 
-//------------------------------
 
-    var x1 = tableLeft-tablePadding ;
-    var y1 = GlobalY-FontSize;
-    var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
-    doc.line(x1, y1,x1+w2, y1); // horizontal line
+    if (GlobalY>600)
+    {
+        GlobalY=150;
+        x=150;
+        doc.addPage();
+        Report3AddHeader(invoice,account,doc);
+        Report3AddFooter(invoice,account,doc);
+    }
+
+
 
 
 //-------------------------------Publishing Document balance------------------------------------------
@@ -2555,17 +2519,8 @@ if (i!=0)
 
     GlobalY=x;
 
-//    doc.setLineWidth(0.3);
-//
-//    doc.setDrawColor(251,251,251);
-//    doc.setFillColor(251,251,251);
-//    var x1 = tableLeft-tablePadding*2 ;
-//    var y1 = GlobalY-FontSize-tablePadding;
-//    var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
-//    var h2 = doc.internal.getFontSize()*3+tablePadding*2;
-//    doc.rect(x1, y1, w2, h2, 'FD');
 
-
+    SetPdfColor('Black',doc);
     Msg='Total';
     var TmpMsgX = MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
     doc.text(TmpMsgX, x, Msg);
@@ -2644,4 +2599,49 @@ if (i!=0)
 
 
     return doc;
+}
+
+
+
+
+function Report3AddHeader (invoice,account,doc)
+{
+    doc.setLineWidth(0.5);
+
+    //doc.setFillColor( 46,43,43);
+    //doc.setFillColor( 46,43,43);
+
+    doc.setDrawColor(242,101,34);
+    doc.setFillColor(242,101,34);
+
+
+    var x1 =0;
+
+    var y1 = 0;
+
+    var w2 = 595;
+    var h2 = 140;
+    doc.rect(x1, y1, w2, h2, 'FD');
+
+    SetPdfColor('White',doc);
+    //second column
+    doc.setFontType("bold");
+    var MaxWidth=594;
+
+    var LineOne= account.name;
+
+    var AlignLine = MaxWidth-30- (doc.getStringUnitWidth(LineOne) * doc.internal.getFontSize());
+
+    if (account.name) {
+
+        //SetPdfColor('SomeGreen',doc);
+        doc.setFontSize('36');
+        doc.setFontType("bold");
+        doc.text(40,50, LineOne);
+
+        doc.setFontType("normal");
+        doc.setFontSize('7');
+    }
+
+
 }
