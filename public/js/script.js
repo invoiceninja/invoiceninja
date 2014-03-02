@@ -2214,7 +2214,7 @@ function GetReportTemplate3 (invoice,checkMath)
     SetPdfColor('Black',doc); //set black color
     doc.setFontType("normal");
 
-    GlobalY=190;
+    GlobalY=170;
 
     var z=GlobalY;
 
@@ -2359,15 +2359,55 @@ function GetReportTemplate3 (invoice,checkMath)
         qtyRight -= 40;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     var costX = unitCostRight - (doc.getStringUnitWidth('Unit Cost') * doc.internal.getFontSize());
     var qtyX = qtyRight - (doc.getStringUnitWidth('Quantity') * doc.internal.getFontSize());
     var taxX = taxRight - (doc.getStringUnitWidth('Tax') * doc.internal.getFontSize());
-    var totalX = lineTotalRight - (doc.getStringUnitWidth('Line Total') * doc.internal.getFontSize());
+    var totalX = lineTotalRight - (doc.getStringUnitWidth('Line Total') * doc.internal.getFontSize()) -15;
 
     tableTop=GlobalY;//redefine this to dynamic value
 
+
     doc.setFontSize(12);
     doc.setFontType("bold");
+
+
+
+
+
+
+
+
+
+
+    doc.setLineWidth(0.3);
+
+    doc.setDrawColor(63,60,60);
+    doc.setFillColor(63,60,60);
+    var x1 = tableLeft-tablePadding*2+5 ;
+    var y1 = GlobalY-doc.internal.getFontSize()-15;
+    var w2 = 515+tablePadding*2-3;//lineTotalRight-tablePadding*5;
+    var h2 = doc.internal.getFontSize()+15*2;
+    doc.rect(x1, y1, w2, h2, 'FD');
+
+
+    SetPdfColor('White',doc);
+
+
 
     doc.text(tableLeft, tableTop, 'Item');
     doc.text(descriptionLeft, tableTop, 'Description');
