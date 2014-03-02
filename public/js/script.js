@@ -2473,10 +2473,15 @@ function GetReportTemplate3 (invoice,checkMath)
 
 
 //        SetPdfColor('SomeGreen',doc);
+
+        doc.setFontType("bold");
         doc.text(tableLeft, x, productKey);
 
+        doc.setFontType("normal");
         SetPdfColor('Black',doc);
         doc.text(descriptionLeft, x, notes);
+
+
 
         doc.text(costX, x, cost);
         doc.text(qtyX, x, qty);
