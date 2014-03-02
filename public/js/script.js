@@ -2453,32 +2453,19 @@ function GetReportTemplate3 (invoice,checkMath)
             Report3AddFooter(invoice,account,doc);
         }
 
-        if ((i%2)===0){
-            doc.setLineWidth(0.5);
-            doc.setDrawColor(240,240,240);
-            doc.setFillColor(240,240,240);
 
 
 
-            var x1 = tableLeft-tablePadding ;
-            var y1 = GlobalY-FontSize;
-            var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
-            var h2 = doc.internal.getFontSize()*length+length*1.1;//+h;//+tablePadding;
-            doc.rect(x1, y1, w2, h2, 'FD');
-        }
-        else
-        {
-            doc.setLineWidth(0.5);
-            doc.setDrawColor(251,251,251);
-            doc.setFillColor(251,251,251);
+        doc.setDrawColor(0,0,0); // draw red lines
+        doc.setLineWidth(0.1);
+
+        var x1 = tableLeft-tablePadding ;
+        var y1 = GlobalY-FontSize;
+        var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
+        doc.line(x1, y1,x1+w2, y1); // horizontal line
 
 
-            var x1 = tableLeft-tablePadding ;
-            var y1 = GlobalY-FontSize;
-            var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
-            var h2 = doc.internal.getFontSize()*length+length*1.1;//+h;//+tablePadding;
-            doc.rect(x1, y1, w2, h2, 'FD');
-        }
+
 
         x=GlobalY;
 
@@ -2502,6 +2489,15 @@ function GetReportTemplate3 (invoice,checkMath)
 
         line=line+length;
     }
+
+//------------------------------
+
+    var x1 = tableLeft-tablePadding ;
+    var y1 = GlobalY-FontSize;
+    var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
+    doc.line(x1, y1,x1+w2, y1); // horizontal line
+
+
 //-------------------------------Publishing Document balance------------------------------------------
 
 
@@ -2514,15 +2510,15 @@ function GetReportTemplate3 (invoice,checkMath)
 
     GlobalY=x;
 
-    doc.setLineWidth(0.3);
-
-    doc.setDrawColor(251,251,251);
-    doc.setFillColor(251,251,251);
-    var x1 = tableLeft-tablePadding*2 ;
-    var y1 = GlobalY-FontSize-tablePadding;
-    var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
-    var h2 = doc.internal.getFontSize()*3+tablePadding*2;
-    doc.rect(x1, y1, w2, h2, 'FD');
+//    doc.setLineWidth(0.3);
+//
+//    doc.setDrawColor(251,251,251);
+//    doc.setFillColor(251,251,251);
+//    var x1 = tableLeft-tablePadding*2 ;
+//    var y1 = GlobalY-FontSize-tablePadding;
+//    var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
+//    var h2 = doc.internal.getFontSize()*3+tablePadding*2;
+//    doc.rect(x1, y1, w2, h2, 'FD');
 
 
     Msg='Total';
@@ -2554,8 +2550,33 @@ function GetReportTemplate3 (invoice,checkMath)
 
 
 
-    doc.setFontType("bold");
 
+
+
+
+
+
+        doc.setLineWidth(0.3);
+
+    doc.setDrawColor(63,60,60);
+    doc.setFillColor(63,60,60);
+    var x1 = tableLeft-tablePadding*2 ;
+    var y1 = x+ doc.internal.getFontSize()*4;
+    var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
+    var h2 = doc.internal.getFontSize()*3+tablePadding*2;
+    doc.rect(x1, y1, w2, h2, 'FD');
+
+
+
+
+
+
+
+
+
+
+    doc.setFontType("bold");
+    SetPdfColor('White',doc);
     doc.setFontSize(12);
     x += doc.internal.getFontSize()*4;
     Msg='Amount Due';
@@ -2566,7 +2587,7 @@ function GetReportTemplate3 (invoice,checkMath)
     doc.text(TmpMsgX, x, Msg);
 
 
-
+    doc.setFontType("normal");
     AmountText = formatMoney(balance , currencyId);
     headerLeft=headerRight+400;
     var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
