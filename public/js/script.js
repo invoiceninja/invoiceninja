@@ -1720,7 +1720,7 @@ function GetReportTemplate2 (invoice,checkMath)
     doc.text(TmpMsgX, x, Msg);
 
 
-    SetPdfColor('LightBlue',doc);
+    //SetPdfColor('LightBlue',doc);
     AmountText = formatMoney(balance , currencyId);
     headerLeft=headerRight+400;
     var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
@@ -1866,12 +1866,12 @@ function Report3AddFooter (invoice,doc)
     if (invoice.imageLogo3)
     {
         pageHeight=820;
-        var left = 250;//headerRight ;
+      // var left = 25;//250;//headerRight ;
         y=pageHeight-invoice.imageLogoHeight3;
-        var headerRight=370;
+        //var headerRight=370;
 
-        var left = headerRight - invoice.imageLogoWidth3;
-        doc.addImage(invoice.imageLogo3, 'JPEG', left, y, invoice.imageLogoWidth3, invoice.imageLogoHeight3);
+        //var left = headerRight - invoice.imageLogoWidth3;
+        doc.addImage(invoice.imageLogo3, 'JPEG', 40, y, invoice.imageLogoWidth3, invoice.imageLogoHeight3);
 
 
     }
