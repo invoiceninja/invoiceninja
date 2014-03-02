@@ -1989,7 +1989,7 @@ function GetReportTemplate3 (invoice,checkMath)
     //var tableTop = 240+100;
 
     //var tableRowHeight = 18;
-    var tablePadding = 6;
+    var tablePadding = 14;
 
 
 
@@ -2461,7 +2461,7 @@ if (i!=0&NewPageFlag==0)
         var x1 = tableLeft-tablePadding ;
         var y1 = GlobalY-FontSize;
         var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
-        doc.line(x1, y1,x1+w2, y1); // horizontal line
+        doc.line(x1, y1-10,x1+w2, y1-10); // horizontal line
 }
 
 
@@ -2489,6 +2489,7 @@ if (i!=0&NewPageFlag==0)
         if (tax) {
             doc.text(taxX, x, tax+'%');
         }
+
 
 
         line=line+length;
