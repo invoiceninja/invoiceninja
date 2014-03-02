@@ -2505,6 +2505,22 @@ if (i!=0&NewPageFlag==0)
     }
 
 
+    else
+
+    {
+
+        //put line separator
+
+        doc.setDrawColor(0,0,0); // draw red lines
+        doc.setLineWidth(0.1);
+
+        var x1 = tableLeft-tablePadding ;
+        var y1 = GlobalY-FontSize;
+        var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
+        doc.line(x1, y1,x1+w2, y1); // horizontal line
+
+    }
+
 
 
 //-------------------------------Publishing Document balance------------------------------------------
