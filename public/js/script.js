@@ -2570,20 +2570,6 @@ if (i!=0&NewPageFlag==0)
 
 
 
-<<<<<<< HEAD
-
-
-        doc.setLineWidth(0.3);
-
-    doc.setDrawColor(63,60,60);
-    doc.setFillColor(63,60,60);
-    var x1 = tableLeft-tablePadding*2 +14;
-    var y1 = x+ doc.internal.getFontSize()*4;
-    var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
-    var h2 = doc.internal.getFontSize()*3+tablePadding*2;
-    doc.rect(x1, y1, w2, h2, 'FD');
-=======
->>>>>>> 39774ccaaf7f263310fd072be78ec5508a4188bf
 
 
         doc.setLineWidth(0.3);
@@ -2602,12 +2588,9 @@ if (i!=0&NewPageFlag==0)
 
 
 
-<<<<<<< HEAD
-=======
 
 
 
->>>>>>> 39774ccaaf7f263310fd072be78ec5508a4188bf
     doc.setFontType("bold");
     SetPdfColor('White',doc);
     doc.setFontSize(12);
