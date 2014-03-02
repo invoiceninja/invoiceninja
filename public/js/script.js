@@ -535,9 +535,9 @@ $.fn.datepicker.defaults.todayHighlight = true;
 function GetPdf(invoice,checkMath,report_id){
 
 
-    if (report_id==1) return GetReportTemplate3(invoice,checkMath);
+    if (report_id==1) return GetReportTemplate1(invoice,checkMath);
     if (report_id==2) return GetReportTemplate2(invoice,checkMath);
-    if (report_id==3) return GetReportTemplate1(invoice,checkMath);
+    if (report_id==3) return GetReportTemplate3(invoice,checkMath);
 
 
     alert('report template not implemented yet');
@@ -592,7 +592,7 @@ function GetReportTemplate1 (invoice,checkMath)
     var tableTop = 240+100;
 
     var tableRowHeight = 18;
-    var tablePadding = 6;
+    var tablePadding = 14;
 
 
 
@@ -992,10 +992,10 @@ function GetReportTemplate1 (invoice,checkMath)
 
             var x1 = tableLeft-tablePadding ;
 
-            var y1 = GlobalY-FontSize;
+            var y1 = GlobalY-FontSize-5;
 
             var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
-            var h2 = doc.internal.getFontSize()*length+length*1.1;//+h;//+tablePadding;
+            var h2 = doc.internal.getFontSize()*length+length*1.1+10;//+h;//+tablePadding;
 
 
 
