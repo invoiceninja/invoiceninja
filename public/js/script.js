@@ -1160,7 +1160,7 @@ function GetReportTemplate2 (invoice,checkMath)
     //var tableTop = 240+100;
 
     //var tableRowHeight = 18;
-    var tablePadding = 6;
+    var tablePadding = 14;
 
 
 
@@ -1597,7 +1597,7 @@ function GetReportTemplate2 (invoice,checkMath)
 
         length=doc.splitTextToSize(item.notes, 200).length;
         var h=length*FontSize;
-        MaxGlobalY=750;
+        MaxGlobalY=740;
         if (h+GlobalY > MaxGlobalY) {
 
             tableTop = 40;
@@ -1615,9 +1615,9 @@ function GetReportTemplate2 (invoice,checkMath)
 
 
             var x1 = tableLeft-tablePadding ;
-            var y1 = GlobalY-FontSize;
+            var y1 = GlobalY-FontSize-5;
             var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
-            var h2 = doc.internal.getFontSize()*length+length*1.1;//+h;//+tablePadding;
+            var h2 = doc.internal.getFontSize()*length+length*1.1+10;//+h;//+tablePadding;
             doc.rect(x1, y1, w2, h2, 'FD');
         }
         else
@@ -1628,9 +1628,9 @@ function GetReportTemplate2 (invoice,checkMath)
 
 
             var x1 = tableLeft-tablePadding ;
-            var y1 = GlobalY-FontSize;
+            var y1 = GlobalY-FontSize-5;
             var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
-            var h2 = doc.internal.getFontSize()*length+length*1.1;//+h;//+tablePadding;
+            var h2 = doc.internal.getFontSize()*length+length*1.1+10;//+h;//+tablePadding;
             doc.rect(x1, y1, w2, h2, 'FD');
         }
 
