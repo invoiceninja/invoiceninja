@@ -2383,7 +2383,7 @@ function GetReportTemplate3 (invoice,checkMath)
     var shownItem = false;
 
 
-    GlobalY=GlobalY+24; //padding from top
+    GlobalY=GlobalY+24+10; //padding from top
 
     var FontSize=7;
     doc.setFontSize(FontSize);
