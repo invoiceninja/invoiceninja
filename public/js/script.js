@@ -2214,30 +2214,10 @@ function GetReportTemplate3 (invoice,checkMath)
     SetPdfColor('Black',doc); //set black color
     doc.setFontType("normal");
 
-
-//publish filled box
-//    doc.setDrawColor(200,200,200);
-//    doc.setFillColor(54,164,152);
-
     GlobalY=190;
-    //doc.setLineWidth(0.5);
-//    var BlockLenght=220;
-//    var x1 =595-BlockLenght;
-//    var y1 = GlobalY-12;
-//    var w2 = BlockLenght;
-//    var h2 = 90;
-//   // doc.rect(x1, y1, w2, h2, 'FD');
 
-
-
-//    SetPdfColor('SomeGreen',doc);
-//    doc.setFontSize('14');
-//    doc.setFontType("bold");
-//    doc.text(50, GlobalY, 'YOUR INVOICE');
-//
-//
     var z=GlobalY;
-//    z=z+30;
+
 
 
     SetPdfColor('Black',doc);
@@ -2282,10 +2262,6 @@ function GetReportTemplate3 (invoice,checkMath)
         doc.text(marginLeft1, z, ClientCompanyPhone);
         z=z+15;////z=z+doc.internal.getFontSize();
     }
-
-
-
-
 
 
 
@@ -2509,7 +2485,7 @@ function GetReportTemplate3 (invoice,checkMath)
         GlobalY=GlobalY+h+tablePadding*2;
 
 
-        SetPdfColor('SomeGreen',doc);
+//        SetPdfColor('SomeGreen',doc);
         doc.text(tableLeft, x, productKey);
 
         SetPdfColor('Black',doc);
@@ -2590,7 +2566,7 @@ function GetReportTemplate3 (invoice,checkMath)
     doc.text(TmpMsgX, x, Msg);
 
 
-   // SetPdfColor('LightBlue',doc);
+
     AmountText = formatMoney(balance , currencyId);
     headerLeft=headerRight+400;
     var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
