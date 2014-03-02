@@ -2340,7 +2340,7 @@ function GetReportTemplate3 (invoice,checkMath)
     y=z+60;
 //--------------------------------Publishing Table--------------------------------------------------
     GlobalY=y+130;
-    GlobalY=GlobalY+70;//y+30;
+    GlobalY=GlobalY+30;//y+30;
     SetPdfColor('Black',doc);
     doc.setFontSize(7);
     var hasTaxes = false;
@@ -2494,8 +2494,8 @@ function GetReportTemplate3 (invoice,checkMath)
         }
 
 
-
-
+if (i!=0)
+{
         doc.setDrawColor(0,0,0); // draw red lines
         doc.setLineWidth(0.1);
 
@@ -2503,7 +2503,7 @@ function GetReportTemplate3 (invoice,checkMath)
         var y1 = GlobalY-FontSize;
         var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
         doc.line(x1, y1,x1+w2, y1); // horizontal line
-
+}
 
 
 
