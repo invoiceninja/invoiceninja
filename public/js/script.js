@@ -2576,7 +2576,7 @@ if (i!=0&NewPageFlag==0)
 
     doc.setDrawColor(63,60,60);
     doc.setFillColor(63,60,60);
-    var x1 = tableLeft-tablePadding*2 ;
+    var x1 = tableLeft-tablePadding*2 +14;
     var y1 = x+ doc.internal.getFontSize()*4;
     var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
     var h2 = doc.internal.getFontSize()*3+tablePadding*2;
