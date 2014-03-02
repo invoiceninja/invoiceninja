@@ -20,10 +20,10 @@ function generatePDF(invoice, checkMath) {
 
 /* Handle converting variables in the invoices (ie, MONTH+1) */
 function processVariables(str) {
-	if (!str) return '';
-	var variables = ['MONTH','QUARTER','YEAR'];
-	for (var i=0; i<variables.length; i++) {
-		var variable = variables[i];        
+  if (!str) return '';
+  var variables = ['MONTH','QUARTER','YEAR'];
+  for (var i=0; i<variables.length; i++) {
+    var variable = variables[i];        
         var regexp = new RegExp(':' + variable + '[+-]?[\\d]*', 'g');
         var matches = str.match(regexp);        
         if (!matches) {
@@ -39,9 +39,9 @@ function processVariables(str) {
             }
             str = str.replace(match, getDatePart(variable, offset));            
         }
-	}		
-	
-	return str;
+  }   
+  
+  return str;
 }
 
 function getDatePart(part, offset) {
@@ -49,38 +49,38 @@ function getDatePart(part, offset) {
     if (!offset) {
         offset = 0;
     }
-	if (part == 'MONTH') {
-		return getMonth(offset);
-	} else if (part == 'QUARTER') {
-		return getQuarter(offset);
-	} else if (part == 'YEAR') {
-		return getYear(offset);
-	}
+  if (part == 'MONTH') {
+    return getMonth(offset);
+  } else if (part == 'QUARTER') {
+    return getQuarter(offset);
+  } else if (part == 'YEAR') {
+    return getYear(offset);
+  }
 }
 
 function getMonth(offset) {
-	var today = new Date();
-	var months = [ "January", "February", "March", "April", "May", "June",
-    				"July", "August", "September", "October", "November", "December" ];
-	var month = today.getMonth();
+  var today = new Date();
+  var months = [ "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December" ];
+  var month = today.getMonth();
     month = parseInt(month) + offset;    
     month = month % 12;
     if (month < 0) {
-    	month += 12;
+      month += 12;
     }
     return months[month];
 }
 
 function getYear(offset) {
-	var today = new Date();
-	var year = today.getFullYear();
-	return parseInt(year) + offset;
+  var today = new Date();
+  var year = today.getFullYear();
+  return parseInt(year) + offset;
 }
 
 function getQuarter(offset) {
-	var today = new Date();
-	var quarter = Math.floor((today.getMonth() + 3) / 3);
-	quarter += offset;
+  var today = new Date();
+  var quarter = Math.floor((today.getMonth() + 3) / 3);
+  quarter += offset;
     quarter = quarter % 4;
     if (quarter == 0) {
          quarter = 4;   
@@ -90,119 +90,119 @@ function getQuarter(offset) {
 
 /* Set the defaults for DataTables initialisation */
 $.extend( true, $.fn.dataTable.defaults, {
-	"sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
-	//"sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",		
-	"sPaginationType": "bootstrap",
-	//"bProcessing": true,            
-	//"iDisplayLength": 50,
-	"bInfo": true,
-	"oLanguage": {
-		//"sLengthMenu": "_MENU_ records per page"
-		"sLengthMenu": "_MENU_",
-		"sSearch": ""
-	}
-	//"sScrollY": "500px",	
+  "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
+  //"sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",   
+  "sPaginationType": "bootstrap",
+  //"bProcessing": true,            
+  //"iDisplayLength": 50,
+  "bInfo": true,
+  "oLanguage": {
+    //"sLengthMenu": "_MENU_ records per page"
+    "sLengthMenu": "_MENU_",
+    "sSearch": ""
+  }
+  //"sScrollY": "500px",  
 } );
 
 
 /* Default class modification */
 $.extend( $.fn.dataTableExt.oStdClasses, {
-	"sWrapper": "dataTables_wrapper form-inline"
+  "sWrapper": "dataTables_wrapper form-inline"
 } );
 
 
 /* API method to get paging information */
 $.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings )
 {
-	return {
-		"iStart":         oSettings._iDisplayStart,
-		"iEnd":           oSettings.fnDisplayEnd(),
-		"iLength":        oSettings._iDisplayLength,
-		"iTotal":         oSettings.fnRecordsTotal(),
-		"iFilteredTotal": oSettings.fnRecordsDisplay(),
-		"iPage":          oSettings._iDisplayLength === -1 ?
-			0 : Math.ceil( oSettings._iDisplayStart / oSettings._iDisplayLength ),
-		"iTotalPages":    oSettings._iDisplayLength === -1 ?
-			0 : Math.ceil( oSettings.fnRecordsDisplay() / oSettings._iDisplayLength )
-	};
+  return {
+    "iStart":         oSettings._iDisplayStart,
+    "iEnd":           oSettings.fnDisplayEnd(),
+    "iLength":        oSettings._iDisplayLength,
+    "iTotal":         oSettings.fnRecordsTotal(),
+    "iFilteredTotal": oSettings.fnRecordsDisplay(),
+    "iPage":          oSettings._iDisplayLength === -1 ?
+      0 : Math.ceil( oSettings._iDisplayStart / oSettings._iDisplayLength ),
+    "iTotalPages":    oSettings._iDisplayLength === -1 ?
+      0 : Math.ceil( oSettings.fnRecordsDisplay() / oSettings._iDisplayLength )
+  };
 };
 
 
 /* Bootstrap style pagination control */
 $.extend( $.fn.dataTableExt.oPagination, {
-	"bootstrap": {
-		"fnInit": function( oSettings, nPaging, fnDraw ) {
-			var oLang = oSettings.oLanguage.oPaginate;
-			var fnClickHandler = function ( e ) {
-				e.preventDefault();
-				if ( oSettings.oApi._fnPageChange(oSettings, e.data.action) ) {
-					fnDraw( oSettings );
-				}
-			};
+  "bootstrap": {
+    "fnInit": function( oSettings, nPaging, fnDraw ) {
+      var oLang = oSettings.oLanguage.oPaginate;
+      var fnClickHandler = function ( e ) {
+        e.preventDefault();
+        if ( oSettings.oApi._fnPageChange(oSettings, e.data.action) ) {
+          fnDraw( oSettings );
+        }
+      };
 
-			$(nPaging).addClass('pagination').append(
-				'<ul class="pagination">'+
-					'<li class="prev disabled"><a href="#">&laquo;</a></li>'+
-					'<li class="next disabled"><a href="#">&raquo;</a></li>'+
-				'</ul>'
-			);
-			var els = $('a', nPaging);
-			$(els[0]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
-			$(els[1]).bind( 'click.DT', { action: "next" }, fnClickHandler );
-		},
+      $(nPaging).addClass('pagination').append(
+        '<ul class="pagination">'+
+          '<li class="prev disabled"><a href="#">&laquo;</a></li>'+
+          '<li class="next disabled"><a href="#">&raquo;</a></li>'+
+        '</ul>'
+      );
+      var els = $('a', nPaging);
+      $(els[0]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
+      $(els[1]).bind( 'click.DT', { action: "next" }, fnClickHandler );
+    },
 
-		"fnUpdate": function ( oSettings, fnDraw ) {
-			var iListLength = 5;
-			var oPaging = oSettings.oInstance.fnPagingInfo();
-			var an = oSettings.aanFeatures.p;
-			var i, ien, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
+    "fnUpdate": function ( oSettings, fnDraw ) {
+      var iListLength = 5;
+      var oPaging = oSettings.oInstance.fnPagingInfo();
+      var an = oSettings.aanFeatures.p;
+      var i, ien, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
 
-			if ( oPaging.iTotalPages < iListLength) {
-				iStart = 1;
-				iEnd = oPaging.iTotalPages;
-			}
-			else if ( oPaging.iPage <= iHalf ) {
-				iStart = 1;
-				iEnd = iListLength;
-			} else if ( oPaging.iPage >= (oPaging.iTotalPages-iHalf) ) {
-				iStart = oPaging.iTotalPages - iListLength + 1;
-				iEnd = oPaging.iTotalPages;
-			} else {
-				iStart = oPaging.iPage - iHalf + 1;
-				iEnd = iStart + iListLength - 1;
-			}
+      if ( oPaging.iTotalPages < iListLength) {
+        iStart = 1;
+        iEnd = oPaging.iTotalPages;
+      }
+      else if ( oPaging.iPage <= iHalf ) {
+        iStart = 1;
+        iEnd = iListLength;
+      } else if ( oPaging.iPage >= (oPaging.iTotalPages-iHalf) ) {
+        iStart = oPaging.iTotalPages - iListLength + 1;
+        iEnd = oPaging.iTotalPages;
+      } else {
+        iStart = oPaging.iPage - iHalf + 1;
+        iEnd = iStart + iListLength - 1;
+      }
 
-			for ( i=0, ien=an.length ; i<ien ; i++ ) {
-				// Remove the middle elements
-				$('li:gt(0)', an[i]).filter(':not(:last)').remove();
+      for ( i=0, ien=an.length ; i<ien ; i++ ) {
+        // Remove the middle elements
+        $('li:gt(0)', an[i]).filter(':not(:last)').remove();
 
-				// Add the new list items and their event handlers
-				for ( j=iStart ; j<=iEnd ; j++ ) {
-					sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
-					$('<li '+sClass+'><a href="#">'+j+'</a></li>')
-						.insertBefore( $('li:last', an[i])[0] )
-						.bind('click', function (e) {
-							e.preventDefault();
-							oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
-							fnDraw( oSettings );
-						} );
-				}
+        // Add the new list items and their event handlers
+        for ( j=iStart ; j<=iEnd ; j++ ) {
+          sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
+          $('<li '+sClass+'><a href="#">'+j+'</a></li>')
+            .insertBefore( $('li:last', an[i])[0] )
+            .bind('click', function (e) {
+              e.preventDefault();
+              oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+              fnDraw( oSettings );
+            } );
+        }
 
-				// Add / remove disabled classes from the static elements
-				if ( oPaging.iPage === 0 ) {
-					$('li:first', an[i]).addClass('disabled');
-				} else {
-					$('li:first', an[i]).removeClass('disabled');
-				}
+        // Add / remove disabled classes from the static elements
+        if ( oPaging.iPage === 0 ) {
+          $('li:first', an[i]).addClass('disabled');
+        } else {
+          $('li:first', an[i]).removeClass('disabled');
+        }
 
-				if ( oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0 ) {
-					$('li:last', an[i]).addClass('disabled');
-				} else {
-					$('li:last', an[i]).removeClass('disabled');
-				}
-			}
-		}
-	}
+        if ( oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0 ) {
+          $('li:last', an[i]).addClass('disabled');
+        } else {
+          $('li:last', an[i]).removeClass('disabled');
+        }
+      }
+    }
+  }
 } );
 
 
@@ -211,47 +211,47 @@ $.extend( $.fn.dataTableExt.oPagination, {
  * Required TableTools 2.1+
  */
 if ( $.fn.DataTable.TableTools ) {
-	// Set the classes that TableTools uses to something suitable for Bootstrap
-	$.extend( true, $.fn.DataTable.TableTools.classes, {
-		"container": "DTTT btn-group",
-		"buttons": {
-			"normal": "btn",
-			"disabled": "disabled"
-		},
-		"collection": {
-			"container": "DTTT_dropdown dropdown-menu",
-			"buttons": {
-				"normal": "",
-				"disabled": "disabled"
-			}
-		},
-		"print": {
-			"info": "DTTT_print_info modal"
-		},
-		"select": {
-			"row": "active"
-		}
-	} );
+  // Set the classes that TableTools uses to something suitable for Bootstrap
+  $.extend( true, $.fn.DataTable.TableTools.classes, {
+    "container": "DTTT btn-group",
+    "buttons": {
+      "normal": "btn",
+      "disabled": "disabled"
+    },
+    "collection": {
+      "container": "DTTT_dropdown dropdown-menu",
+      "buttons": {
+        "normal": "",
+        "disabled": "disabled"
+      }
+    },
+    "print": {
+      "info": "DTTT_print_info modal"
+    },
+    "select": {
+      "row": "active"
+    }
+  } );
 
-	// Have the collection use a bootstrap compatible dropdown
-	$.extend( true, $.fn.DataTable.TableTools.DEFAULTS.oTags, {
-		"collection": {
-			"container": "ul",
-			"button": "li",
-			"liner": "a"
-		}
-	} );
+  // Have the collection use a bootstrap compatible dropdown
+  $.extend( true, $.fn.DataTable.TableTools.DEFAULTS.oTags, {
+    "collection": {
+      "container": "ul",
+      "button": "li",
+      "liner": "a"
+    }
+  } );
 }
 
 /*
 $(document).ready(function() {
-	$('#example').dataTable( {
-		"sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
-		"sPaginationType": "bootstrap",
-		"oLanguage": {
-			"sLengthMenu": "_MENU_ records per page"
-		}
-	} );
+  $('#example').dataTable( {
+    "sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+    "sPaginationType": "bootstrap",
+    "oLanguage": {
+      "sLengthMenu": "_MENU_ records per page"
+    }
+  } );
 } );
 */
 
@@ -278,45 +278,45 @@ $(function() {
 
 
 function enableHoverClick($combobox, $entityId, url) {
-	/*
-	$combobox.mouseleave(function() {
-		$combobox.css('text-decoration','none');
-	}).on('mouseenter', function(e) {
-		setAsLink($combobox, $combobox.closest('.combobox-container').hasClass('combobox-selected'));
-	}).on('focusout mouseleave', function(e) {
-		setAsLink($combobox, false);
-	}).on('click', function() {
-		var clientId = $entityId.val();
-		if ($(combobox).closest('.combobox-container').hasClass('combobox-selected')) {				
-			if (parseInt(clientId) > 0) {
-				window.open(url + '/' + clientId, '_blank');
-			} else {
-				$('#myModal').modal('show');
-			}
-		};
-	});
+  /*
+  $combobox.mouseleave(function() {
+    $combobox.css('text-decoration','none');
+  }).on('mouseenter', function(e) {
+    setAsLink($combobox, $combobox.closest('.combobox-container').hasClass('combobox-selected'));
+  }).on('focusout mouseleave', function(e) {
+    setAsLink($combobox, false);
+  }).on('click', function() {
+    var clientId = $entityId.val();
+    if ($(combobox).closest('.combobox-container').hasClass('combobox-selected')) {       
+      if (parseInt(clientId) > 0) {
+        window.open(url + '/' + clientId, '_blank');
+      } else {
+        $('#myModal').modal('show');
+      }
+    };
+  });
 */
 }
 
 function setAsLink($input, enable) {
-	if (enable) {
-		$input.css('text-decoration','underline');
-		$input.css('cursor','pointer');	
-	} else {
-		$input.css('text-decoration','none');
-		$input.css('cursor','text');	
-	}
+  if (enable) {
+    $input.css('text-decoration','underline');
+    $input.css('cursor','pointer'); 
+  } else {
+    $input.css('text-decoration','none');
+    $input.css('cursor','text');  
+  }
 }
 
 function setComboboxValue($combobox, id, name) {
-	$combobox.find('input').val(id);
-	$combobox.find('input.form-control').val(name);
-	if (id && name) {
-		$combobox.find('select').combobox('setSelected');
-		$combobox.find('.combobox-container').addClass('combobox-selected');
-	} else {
-		$combobox.find('.combobox-container').removeClass('combobox-selected');
-	}
+  $combobox.find('input').val(id);
+  $combobox.find('input.form-control').val(name);
+  if (id && name) {
+    $combobox.find('select').combobox('setSelected');
+    $combobox.find('.combobox-container').addClass('combobox-selected');
+  } else {
+    $combobox.find('.combobox-container').removeClass('combobox-selected');
+  }
 }
 
 
@@ -346,24 +346,24 @@ ko.bindingHandlers.dropdown = {
 
        /*
         ko.utils.registerEventHandler(element, "change", function () {
-        	console.log("change: %s", $(element).val());
-	       	var  
-	       	valueAccessor($(element).val());
+          console.log("change: %s", $(element).val());
+          var  
+          valueAccessor($(element).val());
             //$(element).combobox('refresh');
         });
-			*/
+      */
     },
-    update: function (element, valueAccessor) {    	
-    	var value = ko.utils.unwrapObservable(valueAccessor());
-    	var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
-       	//console.log("combo-update: %s", id);
-    	if (id) { 
-    		$(element).val(id);       
-    		$(element).combobox('refresh');
-    	} else {
-    		$(element).combobox('clearTarget');    		
-    		$(element).combobox('clearElement');    		
-    	}       
+    update: function (element, valueAccessor) {     
+      var value = ko.utils.unwrapObservable(valueAccessor());
+      var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
+        //console.log("combo-update: %s", id);
+      if (id) { 
+        $(element).val(id);       
+        $(element).combobox('refresh');
+      } else {
+        $(element).combobox('clearTarget');       
+        $(element).combobox('clearElement');        
+      }       
     }    
 };
 
@@ -373,11 +373,11 @@ ko.bindingHandlers.datePicker = {
        var value = ko.utils.unwrapObservable(valueAccessor());       
        if (value) $(element).datepicker('update', value);
        $(element).change(function() { 
-       		var value = valueAccessor();
+          var value = valueAccessor();
             value($(element).val());
        })
     },
-    update: function (element, valueAccessor) {    	
+    update: function (element, valueAccessor) {     
        var value = ko.utils.unwrapObservable(valueAccessor());
        if (value) $(element).datepicker('update', value);
     }    
@@ -386,14 +386,14 @@ ko.bindingHandlers.datePicker = {
 
 function wordWrapText(value, width)
 {
-	if (!width) width = 200;
-	var doc = new jsPDF('p', 'pt');
-	doc.setFont('Helvetica','');
-	doc.setFontSize(10);
+  if (!width) width = 200;
+  var doc = new jsPDF('p', 'pt');
+  doc.setFont('Helvetica','');
+  doc.setFontSize(10);
 
-	var lines = value.split("\n");
+  var lines = value.split("\n");
     for (var i = 0; i < lines.length; i++) {
-    	var numLines = doc.splitTextToSize(lines[i], width).length;
+      var numLines = doc.splitTextToSize(lines[i], width).length;
         if (numLines <= 1) continue;
         var j = 0; space = lines[i].length;
         while (j++ < lines[i].length) {
@@ -406,9 +406,9 @@ function wordWrapText(value, width)
     var newValue = (lines.join("\n")).trim();
 
     if (value == newValue) {
-    	return newValue;
+      return newValue;
     } else {
-    	return wordWrapText(newValue, width);
+      return wordWrapText(newValue, width);
     }
 }
 
@@ -416,105 +416,105 @@ function wordWrapText(value, width)
 
 function getClientDisplayName(client)
 {
-	var contact = client.contacts[0];
-	if (client.name) {
-		return client.name;
-	} else if (contact.first_name || contact.last_name) {
-		return contact.first_name + ' ' + contact.last_name;
-	} else {
-		return contact.email;
-	}
+  var contact = client.contacts[0];
+  if (client.name) {
+    return client.name;
+  } else if (contact.first_name || contact.last_name) {
+    return contact.first_name + ' ' + contact.last_name;
+  } else {
+    return contact.email;
+  }
 }
 
 
 function populateInvoiceComboboxes(clientId, invoiceId) {
-	var clientMap = {};
-	var invoiceMap = {};
-	var invoicesForClientMap = {};
-	var $clientSelect = $('select#client');		
-	
-	for (var i=0; i<invoices.length; i++) {
-		var invoice = invoices[i];
-		var client = invoice.client;			
+  var clientMap = {};
+  var invoiceMap = {};
+  var invoicesForClientMap = {};
+  var $clientSelect = $('select#client');   
+  
+  for (var i=0; i<invoices.length; i++) {
+    var invoice = invoices[i];
+    var client = invoice.client;      
 
-		if (!invoicesForClientMap.hasOwnProperty(client.public_id)) {
-			invoicesForClientMap[client.public_id] = [];				
-		}
+    if (!invoicesForClientMap.hasOwnProperty(client.public_id)) {
+      invoicesForClientMap[client.public_id] = [];        
+    }
 
-		invoicesForClientMap[client.public_id].push(invoice);
-		invoiceMap[invoice.public_id] = invoice;
-	}
+    invoicesForClientMap[client.public_id].push(invoice);
+    invoiceMap[invoice.public_id] = invoice;
+  }
 
-	for (var i=0; i<clients.length; i++) {
-		var client = clients[i];
-		clientMap[client.public_id] = client;
-	}
+  for (var i=0; i<clients.length; i++) {
+    var client = clients[i];
+    clientMap[client.public_id] = client;
+  }
 
-	$clientSelect.append(new Option('', ''));	
-	for (var i=0; i<clients.length; i++) {
-		var client = clients[i];
-		$clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
-	}	
+  $clientSelect.append(new Option('', '')); 
+  for (var i=0; i<clients.length; i++) {
+    var client = clients[i];
+    $clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
+  } 
 
-	if (clientId) {
-		$clientSelect.val(clientId);
-	}
+  if (clientId) {
+    $clientSelect.val(clientId);
+  }
 
-	$clientSelect.combobox();
-	$clientSelect.on('change', function(e) {						
-		var clientId = $('input[name=client]').val();
-		var invoiceId = $('input[name=invoice]').val();						
-		var invoice = invoiceMap[invoiceId];
-		if (invoice && invoice.client.public_id == clientId) {
-			e.preventDefault();
-			return;
-		}
-		setComboboxValue($('.invoice-select'), '', '');				
-		$invoiceCombobox = $('select#invoice');
-		$invoiceCombobox.find('option').remove().end().combobox('refresh');			
-		$invoiceCombobox.append(new Option('', ''));
-		var list = clientId ? (invoicesForClientMap.hasOwnProperty(clientId) ? invoicesForClientMap[clientId] : []) : invoices;
-		for (var i=0; i<list.length; i++) {
-			var invoice = list[i];
-			var client = clientMap[invoice.client.public_id];
+  $clientSelect.combobox();
+  $clientSelect.on('change', function(e) {            
+    var clientId = $('input[name=client]').val();
+    var invoiceId = $('input[name=invoice]').val();           
+    var invoice = invoiceMap[invoiceId];
+    if (invoice && invoice.client.public_id == clientId) {
+      e.preventDefault();
+      return;
+    }
+    setComboboxValue($('.invoice-select'), '', '');       
+    $invoiceCombobox = $('select#invoice');
+    $invoiceCombobox.find('option').remove().end().combobox('refresh');     
+    $invoiceCombobox.append(new Option('', ''));
+    var list = clientId ? (invoicesForClientMap.hasOwnProperty(clientId) ? invoicesForClientMap[clientId] : []) : invoices;
+    for (var i=0; i<list.length; i++) {
+      var invoice = list[i];
+      var client = clientMap[invoice.client.public_id];
       if (!client) continue; // client is deleted/archived
-			$invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' +
+      $invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' +
                 getClientDisplayName(client) + ' - ' + formatMoney(invoice.amount, invoice.currency_id) + ' | ' +
                 formatMoney(invoice.balance, invoice.currency_id),  invoice.public_id));
-		}
-		$('select#invoice').combobox('refresh');
-	});
+    }
+    $('select#invoice').combobox('refresh');
+  });
 
-	var $invoiceSelect = $('select#invoice').on('change', function(e) {			
-		$clientCombobox = $('select#client');
-		var invoiceId = $('input[name=invoice]').val();						
-		if (invoiceId) {
-			var invoice = invoiceMap[invoiceId];				
-			var client = clientMap[invoice.client.public_id];
-			setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
-			if (!parseFloat($('#amount').val())) {
-				$('#amount').val(formatMoney(invoice.balance, invoice.currency_id, true));
-			}
-		}
-	});
+  var $invoiceSelect = $('select#invoice').on('change', function(e) {     
+    $clientCombobox = $('select#client');
+    var invoiceId = $('input[name=invoice]').val();           
+    if (invoiceId) {
+      var invoice = invoiceMap[invoiceId];        
+      var client = clientMap[invoice.client.public_id];
+      setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
+      if (!parseFloat($('#amount').val())) {
+        $('#amount').val(formatMoney(invoice.balance, invoice.currency_id, true));
+      }
+    }
+  });
 
-	$invoiceSelect.combobox();	
+  $invoiceSelect.combobox();  
 
-	if (invoiceId) {
-		var invoice = invoiceMap[invoiceId];
-		var client = clientMap[invoice.client.public_id];
-		//console.log(invoice);
-		setComboboxValue($('.invoice-select'), invoice.public_id, (invoice.invoice_number + ' - ' +
+  if (invoiceId) {
+    var invoice = invoiceMap[invoiceId];
+    var client = clientMap[invoice.client.public_id];
+    //console.log(invoice);
+    setComboboxValue($('.invoice-select'), invoice.public_id, (invoice.invoice_number + ' - ' +
             invoice.invoice_status.name + ' - ' + getClientDisplayName(client) + ' - ' +
             formatMoney(invoice.amount, invoice.currency_id) + ' | ' + formatMoney(invoice.balance, invoice.currency_id)));
-		$invoiceSelect.trigger('change');
-	} else if (clientId) {
-		var client = clientMap[clientId];
-		setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
-		$clientSelect.trigger('change');
-	} else {
-		$clientSelect.trigger('change');
-	}	
+    $invoiceSelect.trigger('change');
+  } else if (clientId) {
+    var client = clientMap[clientId];
+    setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
+    $clientSelect.trigger('change');
+  } else {
+    $clientSelect.trigger('change');
+  } 
 }
 
 
@@ -2570,6 +2570,20 @@ if (i!=0&NewPageFlag==0)
 
 
 
+<<<<<<< HEAD
+
+
+        doc.setLineWidth(0.3);
+
+    doc.setDrawColor(63,60,60);
+    doc.setFillColor(63,60,60);
+    var x1 = tableLeft-tablePadding*2 +14;
+    var y1 = x+ doc.internal.getFontSize()*4;
+    var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
+    var h2 = doc.internal.getFontSize()*3+tablePadding*2;
+    doc.rect(x1, y1, w2, h2, 'FD');
+=======
+>>>>>>> 39774ccaaf7f263310fd072be78ec5508a4188bf
 
 
         doc.setLineWidth(0.3);
@@ -2588,9 +2602,12 @@ if (i!=0&NewPageFlag==0)
 
 
 
+<<<<<<< HEAD
+=======
 
 
 
+>>>>>>> 39774ccaaf7f263310fd072be78ec5508a4188bf
     doc.setFontType("bold");
     SetPdfColor('White',doc);
     doc.setFontSize(12);
