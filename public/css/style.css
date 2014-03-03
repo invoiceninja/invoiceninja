@@ -53,7 +53,7 @@ margin-bottom: 0;
 padding-top: 10px;
 }
 textarea.form-control {
-height: auto !important;
+/*height: auto !important;*/
 }
 /*tables*/
 table.dataTable { border-radius: 3px; border-collapse: collapse;
@@ -73,7 +73,7 @@ th:last-child {
 tr {border: none;}
 th {border-left: 1px solid #d26b26; }
 .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
-vertical-align: middle;
+vertical-align: top;
 border-top: none;
 border-bottom: 1px solid #dfe0e1;
 }

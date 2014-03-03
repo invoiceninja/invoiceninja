@@ -569,8 +569,7 @@ function GetReportTemplate1 (invoice,checkMath)
     var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
     var dueDate = invoice.due_date ? invoice.due_date : '';
 
-    var paid_to_date=client.paid_to_date;
-
+    var paid_to_date = invoice.amount - invoice.balance;
 
 
 
@@ -1140,7 +1139,7 @@ function GetReportTemplate2 (invoice,checkMath)
     var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
     var dueDate = invoice.due_date ? invoice.due_date : '';
 
-    var paid_to_date=client.paid_to_date;
+    var paid_to_date = invoice.amount - invoice.balance;
 
     var headerRight = 150;
     var accountTop = 30;
@@ -1968,7 +1967,7 @@ function GetReportTemplate3 (invoice,checkMath)
     var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
     var dueDate = invoice.due_date ? invoice.due_date : '';
 
-    var paid_to_date=client.paid_to_date;
+    var paid_to_date = invoice.amount - invoice.balance;
 
     var headerRight = 150;
     var accountTop = 30;
