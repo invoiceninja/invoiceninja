@@ -960,14 +960,16 @@ function GetReportTemplate1 (invoice,checkMath)
         if (h+GlobalY > MaxGlobalY) {
 
 
-            tableTop = 40;
-            GlobalY=tableTop;
+            //tableTop = 40;
+            //GlobalY=tableTop;
 
 
 
 
             //var MaxLinesPerPage=70;
+            GlobalY=Report1AddNewPage(invoice,account,doc);
 
+            /*
             doc.addPage();
             if (invoice.imageLogo1)
             {
@@ -980,7 +982,7 @@ function GetReportTemplate1 (invoice,checkMath)
                 doc.addImage(invoice.imageLogo1, 'JPEG', left, y, invoice.imageLogoWidth1, invoice.imageLogoHeight1);
 
 
-            }
+            }*/
 
         }
 
@@ -2649,18 +2651,12 @@ if (i!=0&NewPageFlag==0)
 function Report3AddHeader (invoice,account,doc)
 {
     doc.setLineWidth(0.5);
-
     //doc.setFillColor( 46,43,43);
     //doc.setFillColor( 46,43,43);
-
     doc.setDrawColor(242,101,34);
     doc.setFillColor(242,101,34);
-
-
     var x1 =0;
-
     var y1 = 0;
-
     var w2 = 595;
     var h2 = 140;
     doc.rect(x1, y1, w2, h2, 'FD');
@@ -2669,11 +2665,8 @@ function Report3AddHeader (invoice,account,doc)
     //second column
     doc.setFontType("bold");
     var MaxWidth=594;
-
     var LineOne= account.name;
-
     var AlignLine = MaxWidth-30- (doc.getStringUnitWidth(LineOne) * doc.internal.getFontSize());
-
     if (account.name) {
 
         //SetPdfColor('SomeGreen',doc);
@@ -2691,14 +2684,16 @@ function Report3AddHeader (invoice,account,doc)
 
 function Report1AddNewPage(invoice,account,doc)
 {
- //alert(1);
     doc.addPage();
+    if (invoice.imageLogo1)
+    {
+        pageHeight=820;
+        y=pageHeight-invoice.imageLogoHeight1;
+        var left = 20;//headerRight - invoice.imageLogoWidth1;
+        doc.addImage(invoice.imageLogo1, 'JPEG', left, y, invoice.imageLogoWidth1, invoice.imageLogoHeight1);
+
+    }
 
     GlobalY = 40;
     return GlobalY;
-}
-
-function Report1AddFooter(invoice,account,doc)
-{
-    alert(2);
 }
