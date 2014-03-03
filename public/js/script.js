@@ -900,7 +900,7 @@ function GetReportTemplate1 (invoice,checkMath)
     var shownItem = false;
 
 
-    GlobalY=GlobalY+14; //padding from top
+    GlobalY=GlobalY+14+10; //padding from top
 
     var FontSize=7;
     doc.setFontSize(FontSize);
@@ -1034,7 +1034,19 @@ function GetReportTemplate1 (invoice,checkMath)
 
 
 
+
+
+
 //-------------------------------Publishing Document balance------------------------------------------
+
+//check do we need to go to next page
+    MinHeight=700;
+
+    if (GlobalY > MinHeight) {
+
+
+        GlobalY=Report1AddNewPage(invoice,account,doc);
+    }
 
 
 
@@ -1047,19 +1059,22 @@ function GetReportTemplate1 (invoice,checkMath)
 
 
 
-    GlobalY=x;
+  //  GlobalY=x;
+
+    GlobalY=GlobalY+25;
 
     doc.setLineWidth(0.3);
     doc.setDrawColor(251,251,251);
     doc.setFillColor(251,251,251);
     var x1 = tableLeft-tablePadding*2+14 ;
     var y1 = GlobalY-FontSize-tablePadding;
+
     var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
     var h2 = doc.internal.getFontSize()*3+tablePadding*2;
     doc.rect(x1, y1, w2, h2, 'FD');
 
 
-
+    x=y1+FontSize+tablePadding;
 
 
     Msg='Subtotal';
@@ -1120,6 +1135,19 @@ function GetReportTemplate1 (invoice,checkMath)
 
     return doc;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function GetReportTemplate2 (invoice,checkMath)
@@ -1792,7 +1820,6 @@ function SetPdfColor(color,doc)
     return false;
 
 }
-
 
 
 function Report2AddFooter (invoice,doc)
@@ -2659,4 +2686,19 @@ function Report3AddHeader (invoice,account,doc)
     }
 
 
+}
+
+
+function Report1AddNewPage(invoice,account,doc)
+{
+ //alert(1);
+    doc.addPage();
+
+    GlobalY = 40;
+    return GlobalY;
+}
+
+function Report1AddFooter(invoice,account,doc)
+{
+    alert(2);
 }
