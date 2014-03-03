@@ -54,6 +54,7 @@ padding-top: 10px;
 }
 textarea.form-control {
 /*height: auto !important;*/
+min-height: 38px;
 }
 /*tables*/
 table.dataTable { border-radius: 3px; border-collapse: collapse;
