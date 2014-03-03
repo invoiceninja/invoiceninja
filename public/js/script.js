@@ -797,8 +797,8 @@ function GetReportTemplate1 (invoice,checkMath)
 
     doc.setFontSize(7);
     doc.text(marginLeft1, line1, 'Invoice Number');
-    doc.text(marginLeft1, line2, 'Invoice date');
-    doc.text(marginLeft1, line3, 'Amount Due');
+    doc.text(marginLeft1, line2, 'Invoice Date');
+    doc.text(marginLeft1, line3, 'Balance Due');
 
 
     doc.setFontType("bold");
@@ -986,7 +986,7 @@ function GetReportTemplate1 (invoice,checkMath)
 
         if ((i%2)===0){
             doc.setLineWidth(0.5);
-            doc.setDrawColor(200,200,200);
+            doc.setDrawColor(230,230,230);
             doc.setFillColor(230,230,230);
 
             var x1 = tableLeft-tablePadding ;
@@ -1050,7 +1050,7 @@ function GetReportTemplate1 (invoice,checkMath)
     GlobalY=x;
 
     doc.setLineWidth(0.3);
-    doc.setDrawColor(200,200,200);
+    doc.setDrawColor(251,251,251);
     doc.setFillColor(251,251,251);
     var x1 = tableLeft-tablePadding*2+14 ;
     var y1 = GlobalY-FontSize-tablePadding;
@@ -1062,7 +1062,7 @@ function GetReportTemplate1 (invoice,checkMath)
 
 
 
-    Msg='Total';
+    Msg='Subtotal';
     var TmpMsgX = MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
     doc.text(TmpMsgX, x, Msg);
 
@@ -1080,7 +1080,7 @@ function GetReportTemplate1 (invoice,checkMath)
     x += doc.internal.getFontSize()*2;
     //doc.text(footerLeft, x, '');
 
-    Msg='Amount Payed';
+    Msg='Paid to Date';
     var TmpMsgX = MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
     doc.text(TmpMsgX, x, Msg);
 
@@ -1099,7 +1099,7 @@ function GetReportTemplate1 (invoice,checkMath)
     doc.setFontSize(10);
     x += doc.internal.getFontSize()*4;
     //doc.text(footerLeft, x, '');
-    Msg='Amount Due';
+    Msg='Balance Due';
     var TmpMsgX = MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
 
 
