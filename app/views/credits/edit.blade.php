@@ -28,10 +28,9 @@
 
 		</div>
 	</div>
-
-	<center style="margin-top:16px">
-		{{ Button::lg_primary_submit('Save') }} &nbsp;|&nbsp;
-		{{ link_to('credits/' . ($credit ? $credit->public_id : ''), 'Cancel') }}	
+	<center class="buttons">
+		{{ Button::lg_primary_submit_success('Save')->append_with_icon('floppy-disk') }}
+        {{ Button::lg_default_link('credits/' . ($credit ? $credit->public_id : ''), 'Cancel')->append_with_icon('remove-circle'); }}
 	</center>
 
 	{{ Former::close() }}

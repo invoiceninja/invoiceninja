@@ -148,10 +148,8 @@
 
 	</script>
 
-
-
 	<center class="buttons">
-		{{ Button::lg_primary_submit('Save')->append_with_icon('floppy-disk') }}
+		{{ Button::lg_primary_submit_success('Save')->append_with_icon('floppy-disk') }}
         {{ Button::lg_default_link('clients/' . ($client ? $client->public_id : ''), 'Cancel')->append_with_icon('remove-circle'); }}
 	</center>
 

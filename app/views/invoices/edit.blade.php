@@ -571,6 +571,10 @@
     invoice.imageLogoWidth2 =325/2;
     invoice.imageLogoHeight2 = 81/2;
 
+    invoice.imageLogo3 = "{{ HTML::image_data('images/report_logo3.jpg') }}";
+    invoice.imageLogoWidth3 =325/2;
+    invoice.imageLogoHeight3 = 81/2;
+
 
     return invoice;
 	}
@@ -1393,7 +1397,7 @@
 		}
 
 		$('.word-wrap').each(function(index, input) {
-			$(input).height($(input).val().split('\n').length * 22);
+			$(input).height($(input).val().split('\n').length * 20);
 		});
 	}
 
@@ -1464,7 +1468,7 @@
 	if (!model.invoice().discount()) model.invoice().discount('');
 
 	ko.applyBindings(model);	
-
+	onItemChange();
 
 	</script>
 
