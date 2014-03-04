@@ -261,7 +261,7 @@
 			{{ Button::normal('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email'))->append_with_icon('send'); }}		
 
 			@if ($invoice)		
-				{{ Button::info('Enter Payment', array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
+				{{ Button::primary('Enter Payment', array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
 			@endif
 		@endif
 
