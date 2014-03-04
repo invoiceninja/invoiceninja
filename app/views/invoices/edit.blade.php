@@ -1397,7 +1397,7 @@
 		}
 
 		$('.word-wrap').each(function(index, input) {
-			$(input).height($(input).val().split('\n').length * 22);
+			$(input).height($(input).val().split('\n').length * 20);
 		});
 	}
 
@@ -1468,7 +1468,7 @@
 	if (!model.invoice().discount()) model.invoice().discount('');
 
 	ko.applyBindings(model);	
-
+	onItemChange();
 
 	</script>
 

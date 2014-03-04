@@ -498,12 +498,14 @@ class AccountController extends \BaseController {
 		{
 			$account = Account::findOrFail(Auth::user()->account_id);
 			$account->name = trim(Input::get('name'));
+			$account->work_email = trim(Input::get('work_email'));
+			$account->work_phone = trim(Input::get('work_phone'));
 			$account->address1 = trim(Input::get('address1'));
 			$account->address2 = trim(Input::get('address2'));
 			$account->city = trim(Input::get('city'));
 			$account->state = trim(Input::get('state'));
 			$account->postal_code = trim(Input::get('postal_code'));
-			$account->country_id = Input::get('country_id') ? Input::get('country_id') : null;
+			$account->country_id = Input::get('country_id') ? Input::get('country_id') : null;			
 			$account->size_id = Input::get('size_id') ? Input::get('size_id') : null;
 			$account->industry_id = Input::get('industry_id') ? Input::get('industry_id') : null;
 			$account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
