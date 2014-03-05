@@ -965,12 +965,12 @@ y2=GlobalY;
     doc.text(costX, tableTop, 'Unit Cost');
     doc.text(qtyX, tableTop, 'Quantity');
     doc.text(totalX, tableTop, 'Line Total');
-    doc.setFontType("normal");
+
     if (hasTaxes)
     {
         doc.text(taxX, tableTop, 'Tax');
     }
-
+    doc.setFontType("normal");
 
     doc.setFontSize(7);
 
