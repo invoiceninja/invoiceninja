@@ -965,12 +965,12 @@ y2=GlobalY;
     doc.text(costX, tableTop, 'Unit Cost');
     doc.text(qtyX, tableTop, 'Quantity');
     doc.text(totalX, tableTop, 'Line Total');
-    doc.setFontType("normal");
+
     if (hasTaxes)
     {
         doc.text(taxX, tableTop, 'Tax');
     }
-
+    doc.setFontType("normal");
 
     doc.setFontSize(7);
 
@@ -1215,10 +1215,7 @@ y2=GlobalY;
     Msg='Balance Due';
     var TmpMsgX = MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
 
-
-
     doc.text(TmpMsgX, x, Msg);
-
 
     SetPdfColor('LightBlue',doc);
     AmountText = formatMoney(balance , currencyId);
@@ -1231,6 +1228,47 @@ y2=GlobalY;
 
 
 
+    if (terms )
+    {
+
+    GlobalY=GlobalY+100;
+
+    length=doc.splitTextToSize( terms, 200).length;
+    FontSize=10;
+    var h=length*FontSize;
+
+    //check do we need to go to next page
+    MinHeight=700;
+
+    if (GlobalY+h > MinHeight) {
+        GlobalY=Report1AddNewPage(invoice,account,doc);
+    }
+
+    SetPdfColor('Black',doc);
+    doc.text(40, GlobalY, terms);
+    GlobalY=GlobalY+h;
+
+    }
+    if (public_notes )
+    {
+
+    //GlobalY=GlobalY+100;
+    length=doc.splitTextToSize( public_notes, 200).length;
+    FontSize=10;
+    var h=length*FontSize;
+
+    //check do we need to go to next page
+    MinHeight=700;
+    if (GlobalY+h > MinHeight) {
+        GlobalY=Report1AddNewPage(invoice,account,doc);
+    }
+
+    SetPdfColor('Black',doc);
+    doc.text(40, GlobalY, public_notes);
+    GlobalY=GlobalY+h;
+
+
+}
     return doc;
 }
 
