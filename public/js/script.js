@@ -558,6 +558,19 @@ function GetReportTemplate1 (invoice,checkMath)
     var client = invoice.client;
     var account = invoice.account;
 
+
+
+
+    console.log(invoice);
+
+
+    var po_number=   invoice.po_number ? invoice.po_number : '';
+    var public_notes=invoice.public_notes ? invoice.public_notes : '';
+    var terms=invoice.terms ? invoice.terms : '';
+
+
+
+
     var currencyId = client.currency_id;
     var invoiceNumber = invoice.invoice_number;
     var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
@@ -754,8 +767,11 @@ function GetReportTemplate1 (invoice,checkMath)
     doc.setFontSize('11');
     doc.text(50, headerTop, 'INVOICE');
 
-    SetPdfColor('GrayLogo',doc); //set black color
+    //SetPdfColor('GrayLogo',doc); //set black color
     y=130;
+
+
+    doc.setDrawColor(220,220,220);
     doc.line(30, y, 560, y); // horizontal line
 
 
@@ -771,6 +787,21 @@ function GetReportTemplate1 (invoice,checkMath)
     var marginLeft1=50;
     var marginLeft2=120;
     var marginLeft3=180;
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
 
     SetPdfColor('Black',doc); //set black color
 
@@ -825,6 +856,165 @@ function GetReportTemplate1 (invoice,checkMath)
     SetPdfColor('GrayLogo',doc); //set black color
     y=195;
     doc.line(30, y, 560, y); // horizontal line
+
+
+
+
+*/
+
+
+
+    GlobalY=line1;
+
+    SetPdfColor('Black',doc); //set black color
+    doc.setFontSize(7);
+
+
+
+    if(invoiceNumber){
+    //inv number
+    doc.text(marginLeft1, GlobalY, 'Invoice Number');
+    doc.setFontType("bold");
+    doc.text(marginLeft2, GlobalY, invoiceNumber);
+    doc.setFontType("normal");
+
+
+        GlobalY=GlobalY+16;
+    }
+
+    doc.setFontType("normal");
+    //PO#
+    if(po_number){
+        //inv number
+        doc.text(marginLeft1, GlobalY, 'PO Number');
+      //  doc.setFontType("bold");
+        doc.text(marginLeft2, GlobalY,po_number);
+        doc.setFontType("normal");
+        GlobalY=GlobalY+16;
+    }
+
+    //PO#
+    if(invoiceDate){
+        //inv number
+        doc.text(marginLeft1, GlobalY, 'Invoice Date');
+      //  doc.setFontType("bold");
+        doc.text(marginLeft2, GlobalY,invoiceDate);
+        doc.setFontType("normal");
+        GlobalY=GlobalY+16;
+    }
+
+    //PO#
+    if(dueDate){
+        //inv number
+        doc.text(marginLeft1, GlobalY, 'Due Date');
+      //  doc.setFontType("bold");
+        doc.text(marginLeft2, GlobalY,dueDate);
+        doc.setFontType("normal");
+        GlobalY=GlobalY+16;
+    }
+
+    //PO#
+    if(balance){
+        //inv number
+        doc.text(marginLeft1, GlobalY, 'Balance ');
+      //  doc.setFontType("bold");
+        doc.text(marginLeft2, GlobalY,balance);
+        doc.setFontType("normal");
+        GlobalY=GlobalY+16;
+    }
+
+
+
+
+
+
+
+    y=GlobalY;
+
+    y1=GlobalY;
+
+
+    GlobalY=line1;
+
+
+
+    //SetPdfColor('LightBlue',doc); //set black color
+    //doc.text(marginLeft2, line3, balance);
+
+    ClientCompanyName=client.name;
+    ClientCompanyEmail='';
+    ClientCompanyPhone=client.work_phone;
+
+    ClientCompanyAddress1=client.address1;
+    ClientCompanyAddress2=client.address2+' '+client.postal_code;
+
+
+    SetPdfColor('Black',doc); //set black color
+
+    doc.setFontType("bold");
+    doc.text(marginLeft3, GlobalY, ClientCompanyName);
+    doc.setFontType("normal");
+    GlobalY=GlobalY+16;
+
+
+    if(client)
+    {
+        ClientCompanyName=getClientDisplayName(client);
+        ClientCompanyPhone=client.work_phone;
+        ClientCompanyEmail=client.contacts[0].email;
+
+    }
+
+
+    doc.text(marginLeft3, GlobalY, ClientCompanyAddress1);
+    GlobalY=GlobalY+8;
+
+    doc.text(marginLeft3, GlobalY, ClientCompanyAddress2);
+    GlobalY=GlobalY+16;
+
+    doc.text(marginLeft3, GlobalY, ClientCompanyEmail);
+    GlobalY=GlobalY+8;
+    doc.text(marginLeft3, GlobalY, ClientCompanyPhone);
+
+    GlobalY=GlobalY+16;
+
+    //doc.text(marginLeft3, line21, ClientCompanyAddress1);
+    //doc.text(marginLeft3, line22, ClientCompanyAddress2);
+
+    //doc.text(marginLeft3, line3, ClientCompanyEmail);//
+    //doc.text(marginLeft3, line31, ClientCompanyPhone);
+
+
+
+y2=GlobalY;
+
+
+
+    if (y2>y1) {GlobalY=y2;y=y2;}
+
+//
+//
+//    var po_number=   invoice.po_number ? invoice.po_number : '';
+//    var public_notes=invoice.public_notes ? invoice.public_notes : '';
+//    var terms=invoice.terms ? invoice.terms : '';
+//
+
+
+  //  SetPdfColor('GrayLogo',doc); //set black color
+    //y=195;
+
+    doc.setDrawColor(220,220,220);
+    //doc.setFillColor(230,230,230);
+
+    doc.line(30, y-8, 560, y-8); // horizontal line
+
+
+
+
+
+
+
+
 
 //--------------------------------Publishing Table--------------------------------------------------
     GlobalY=y+30;
