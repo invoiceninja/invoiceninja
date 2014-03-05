@@ -561,7 +561,7 @@ function GetReportTemplate1 (invoice,checkMath)
 
 
 
-    console.log(invoice);
+
 
 
     var po_number=   invoice.po_number ? invoice.po_number : '';
