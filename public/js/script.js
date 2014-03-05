@@ -791,7 +791,6 @@ function wordWrapText(value, width)
 
 function getClientDisplayName(client)
 {
-  console.log(client);
   var contact = client.contacts[0];
   if (client.name) {
     return client.name;
