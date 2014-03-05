@@ -959,13 +959,13 @@ y2=GlobalY;
     tableTop=GlobalY;//redefine this to dynamic value
 
     doc.setFontSize(10);
-
+    doc.setFontType("bold");
     doc.text(tableLeft, tableTop, 'Item');
     doc.text(descriptionLeft, tableTop, 'Description');
     doc.text(costX, tableTop, 'Unit Cost');
     doc.text(qtyX, tableTop, 'Quantity');
     doc.text(totalX, tableTop, 'Line Total');
-
+    doc.setFontType("normal");
     if (hasTaxes)
     {
         doc.text(taxX, tableTop, 'Tax');
@@ -1048,8 +1048,8 @@ y2=GlobalY;
 
         if ((i%2)===0){
             doc.setLineWidth(0.5);
-            doc.setDrawColor(230,230,230);
-            doc.setFillColor(230,230,230);
+            doc.setDrawColor(251,251,251);
+            doc.setFillColor(251,251,251);
 
             var x1 = tableLeft-tablePadding ;
 
