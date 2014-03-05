@@ -564,12 +564,16 @@ function GetReportTemplate1 (invoice,checkMath)
     var account = invoice.account;
 
 
+
     var currencyId = client.currency_id;
     var invoiceNumber = invoice.invoice_number;
     var invoiceDate = invoice.invoice_date ? invoice.invoice_date : '';
     var dueDate = invoice.due_date ? invoice.due_date : '';
 
     var paid_to_date = invoice.amount - invoice.balance;
+
+    //var work_email = account.work_email ? account.work_email : '';
+    //var work_phone =account.work_phone ? account.work_phone : '';
 
 
 
@@ -588,9 +592,9 @@ function GetReportTemplate1 (invoice,checkMath)
     var tableLeft = 50;
 
 
-    var tableTop = 240+100;
+    //var tableTop = 240+100;
 
-    var tableRowHeight = 18;
+    //var tableRowHeight = 18;
     var tablePadding = 14;
 
 
@@ -717,31 +721,24 @@ function GetReportTemplate1 (invoice,checkMath)
     SetPdfColor('GrayText',doc);
     doc.setFontSize(7);
 
-//TODO:NOT AVAILEABLE FROM DATAMODEL
+
     //account.email='email N/A';
-    if (account.email) {
+    if (account.work_email) {
         y += rowHeight;
-        doc.text(left, y, account.email);
-    }
-    else
-    {
-        //console.log('account.email NOT DEFINED !');
+        doc.text(left, y, account.work_email);
     }
 
-//TODO:NOT AVAILEABLE FROM DATAMODEL
+
     //account.phone='phone N/A';
-    if (account.phone) {
+    if (account.work_phone) {
         y += rowHeight;
-        doc.text(left, y, account.phone);
-    }
-    else
-    {
-        //console.log('account.phone NOT DEFINED !');
+        doc.text(left, y, account.work_phone);
     }
 
 
 
-    var HeaderMarginThirdColumn=70;//should be dynamic and dependent on 1st image and 2nd column width
+
+    var HeaderMarginThirdColumn=90;//should be dynamic and dependent on 1st image and 2nd column width
 
     var y = accountTop;
     var left = marginLeft+HeaderMarginThirdColumn;
