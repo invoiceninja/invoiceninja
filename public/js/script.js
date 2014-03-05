@@ -552,18 +552,11 @@ function GetReportTemplate1 (invoice,checkMath)
 {
     var doc=false;
 
-// var MaxWidth=550;
-// var MaxHeight=800;
-// return generatePdf2(invoice,checkMath);
-
     var GlobalY=0;//Y position of line at current page
-
 
 
     var client = invoice.client;
     var account = invoice.account;
-
-
 
     var currencyId = client.currency_id;
     var invoiceNumber = invoice.invoice_number;
@@ -571,11 +564,6 @@ function GetReportTemplate1 (invoice,checkMath)
     var dueDate = invoice.due_date ? invoice.due_date : '';
 
     var paid_to_date = invoice.amount - invoice.balance;
-
-    //var work_email = account.work_email ? account.work_email : '';
-    //var work_phone =account.work_phone ? account.work_phone : '';
-
-
 
     var headerRight = 150;
     var accountTop = 30;
@@ -591,10 +579,6 @@ function GetReportTemplate1 (invoice,checkMath)
     var lineTotalRight = 550;
     var tableLeft = 50;
 
-
-    //var tableTop = 240+100;
-
-    //var tableRowHeight = 18;
     var tablePadding = 14;
 
 
@@ -722,14 +706,12 @@ function GetReportTemplate1 (invoice,checkMath)
     doc.setFontSize(7);
 
 
-    //account.email='email N/A';
     if (account.work_email) {
         y += rowHeight;
         doc.text(left, y, account.work_email);
     }
 
 
-    //account.phone='phone N/A';
     if (account.work_phone) {
         y += rowHeight;
         doc.text(left, y, account.work_phone);
@@ -770,7 +752,7 @@ function GetReportTemplate1 (invoice,checkMath)
 
     SetPdfColor('LightBlue',doc);
     doc.setFontSize('11');
-    doc.text(50, headerTop, 'Invoice');
+    doc.text(50, headerTop, 'INVOICE');
 
     SetPdfColor('GrayLogo',doc); //set black color
     y=130;
@@ -808,7 +790,7 @@ function GetReportTemplate1 (invoice,checkMath)
     doc.text(marginLeft2, line3, balance);
 
     ClientCompanyName=client.name;
-    ClientCompanyEmail='';//client.email;//'22222222';
+    ClientCompanyEmail='';
     ClientCompanyPhone=client.work_phone;
 
     ClientCompanyAddress1=client.address1;
@@ -956,30 +938,9 @@ function GetReportTemplate1 (invoice,checkMath)
 
         if (h+GlobalY > MaxGlobalY) {
 
-
-            //tableTop = 40;
-            //GlobalY=tableTop;
-
-
-
-
-            //var MaxLinesPerPage=70;
             GlobalY=Report1AddNewPage(invoice,account,doc);
 
-            /*
-            doc.addPage();
-            if (invoice.imageLogo1)
-            {
-                pageHeight=820;
-                var left = headerRight ;
-                y=pageHeight-invoice.imageLogoHeight1;
 
-
-                var left = headerRight - invoice.imageLogoWidth1;
-                doc.addImage(invoice.imageLogo1, 'JPEG', left, y, invoice.imageLogoWidth1, invoice.imageLogoHeight1);
-
-
-            }*/
 
         }
 
