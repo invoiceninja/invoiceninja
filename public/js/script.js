@@ -1061,6 +1061,15 @@ y2=GlobalY;
 
 
             doc.rect(x1, y1, w2, h2, 'FD');
+
+            doc.setDrawColor(220,220,220);
+            doc.line(x1, y1, x1+w2, y1); // horizontal line
+
+            doc.line(x1, y1+h2, x1+w2, y1+h2); // horizontal line
+
+
+
+
         }
         x=GlobalY;
 
@@ -1160,7 +1169,6 @@ y2=GlobalY;
     x += doc.internal.getFontSize()*2;
 
 
-//alert(invoice.discount!='');
 
     if (invoice.discount>0 )
     {
@@ -1170,7 +1178,7 @@ y2=GlobalY;
 
 
         discount=invoice.discount/100;
-        //alert (discount);
+
         d=total*discount;
 
 
