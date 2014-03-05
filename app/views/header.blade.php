@@ -285,7 +285,11 @@
 	</div>
 	@endif
 	
-		
+  @if (App::environment() != ENV_PRODUCTION)    
+  	<div class="container">Powered by <a href="https://www.invoiceninja.com/" target="_blank">InvoiceNinja.com</a></div>
+  @endif
+
+  <p>&nbsp;</p>
 
   </body>
 
