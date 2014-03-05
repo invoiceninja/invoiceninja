@@ -767,7 +767,7 @@ function GetReportTemplate1 (invoice,checkMath)
     doc.setFontSize('11');
     doc.text(50, headerTop, 'INVOICE');
 
-    //SetPdfColor('GrayLogo',doc); //set black color
+
     y=130;
 
 
@@ -790,77 +790,6 @@ function GetReportTemplate1 (invoice,checkMath)
 
 
 
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-    SetPdfColor('Black',doc); //set black color
-
-    doc.setFontSize(7);
-    doc.text(marginLeft1, line1, 'Invoice Number');
-    doc.text(marginLeft1, line2, 'Invoice Date');
-    doc.text(marginLeft1, line3, 'Balance Due');
-
-
-    doc.setFontType("bold");
-    doc.text(marginLeft2, line1, invoiceNumber);
-    doc.setFontType("normal");
-    doc.text(marginLeft2, line2, invoiceDate);
-
-
-    SetPdfColor('LightBlue',doc); //set black color
-    doc.text(marginLeft2, line3, balance);
-
-    ClientCompanyName=client.name;
-    ClientCompanyEmail='';
-    ClientCompanyPhone=client.work_phone;
-
-    ClientCompanyAddress1=client.address1;
-    ClientCompanyAddress2=client.address2+' '+client.postal_code;
-
-
-    SetPdfColor('Black',doc); //set black color
-
-    doc.setFontType("bold");
-
-    doc.text(marginLeft3, line1, ClientCompanyName);
-    doc.setFontType("normal");
-
-
-
-    if(client)
-    {
-        ClientCompanyName=getClientDisplayName(client);
-        ClientCompanyPhone=client.work_phone;
-        ClientCompanyEmail=client.contacts[0].email;
-
-    }
-
-
-    doc.text(marginLeft3, line21, ClientCompanyAddress1);
-    doc.text(marginLeft3, line22, ClientCompanyAddress2);
-
-    doc.text(marginLeft3, line3, ClientCompanyEmail);
-    doc.text(marginLeft3, line31, ClientCompanyPhone);
-
-
-    SetPdfColor('GrayLogo',doc); //set black color
-    y=195;
-    doc.line(30, y, 560, y); // horizontal line
-
-
-
-
-*/
 
 
 
@@ -938,9 +867,6 @@ function GetReportTemplate1 (invoice,checkMath)
 
 
 
-    //SetPdfColor('LightBlue',doc); //set black color
-    //doc.text(marginLeft2, line3, balance);
-
     ClientCompanyName=client.name;
     ClientCompanyEmail='';
     ClientCompanyPhone=client.work_phone;
@@ -978,11 +904,6 @@ function GetReportTemplate1 (invoice,checkMath)
 
     GlobalY=GlobalY+16;
 
-    //doc.text(marginLeft3, line21, ClientCompanyAddress1);
-    //doc.text(marginLeft3, line22, ClientCompanyAddress2);
-
-    //doc.text(marginLeft3, line3, ClientCompanyEmail);//
-    //doc.text(marginLeft3, line31, ClientCompanyPhone);
 
 
 
@@ -992,19 +913,10 @@ y2=GlobalY;
 
     if (y2>y1) {GlobalY=y2;y=y2;}
 
-//
-//
-//    var po_number=   invoice.po_number ? invoice.po_number : '';
-//    var public_notes=invoice.public_notes ? invoice.public_notes : '';
-//    var terms=invoice.terms ? invoice.terms : '';
-//
 
-
-  //  SetPdfColor('GrayLogo',doc); //set black color
-    //y=195;
 
     doc.setDrawColor(220,220,220);
-    //doc.setFillColor(230,230,230);
+
 
     doc.line(30, y-8, 560, y-8); // horizontal line
 
