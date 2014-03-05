@@ -1160,8 +1160,9 @@ y2=GlobalY;
     x += doc.internal.getFontSize()*2;
 
 
+//alert(invoice.discount!='');
 
-    if (invoice.discount)
+    if (invoice.discount>0 )
     {
         Msg='Discount';
         var TmpMsgX = MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
