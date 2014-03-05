@@ -1133,6 +1133,12 @@ y2=GlobalY;
 
     var w2 = 510+tablePadding*2;//lineTotalRight-tablePadding*5;
     var h2 = doc.internal.getFontSize()*3+tablePadding*2;
+
+    if (invoice.discount)
+    {
+        var h2 =   doc.internal.getFontSize()*4+tablePadding*2;
+    }
+
     doc.rect(x1, y1, w2, h2, 'FD');
 
 
@@ -1151,11 +1157,32 @@ y2=GlobalY;
     var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
     doc.text(AmountX, x, AmountText);
 
-
-
-
     x += doc.internal.getFontSize()*2;
-    //doc.text(footerLeft, x, '');
+
+
+
+    if (invoice.discount)
+    {
+        Msg='Discount';
+        var TmpMsgX = MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
+        doc.text(TmpMsgX, x, Msg);
+
+
+        discount=invoice.discount/100;
+        //alert (discount);
+        d=total*discount;
+
+
+        doc.setFontType("normal");
+        AmountText = formatMoney(d , currencyId);
+        headerLeft=headerRight+400;
+        var AmountX = headerLeft - (doc.getStringUnitWidth(AmountText) * doc.internal.getFontSize());
+        doc.text(AmountX, x, AmountText);
+        x += doc.internal.getFontSize()*2;
+    }
+
+
+
 
     Msg='Paid to Date';
     var TmpMsgX = MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
