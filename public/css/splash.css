@@ -186,6 +186,7 @@ margin-top: -20px;
 text-align: left;
 }
 section.blue {
+    display: none;
 	background: #2299c0;
 	color: #fff;
 }
