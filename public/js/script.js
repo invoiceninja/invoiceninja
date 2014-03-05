@@ -1224,6 +1224,13 @@ y2=GlobalY;
     doc.text(AmountX, x, AmountText);
 
 
+
+
+
+
+    if (terms )
+    {
+
     GlobalY=GlobalY+100;
 
     length=doc.splitTextToSize( terms, 200).length;
@@ -1241,6 +1248,9 @@ y2=GlobalY;
     doc.text(40, GlobalY, terms);
     GlobalY=GlobalY+h;
 
+    }
+    if (public_notes )
+    {
 
     //GlobalY=GlobalY+100;
     length=doc.splitTextToSize( public_notes, 200).length;
@@ -1258,7 +1268,7 @@ y2=GlobalY;
     GlobalY=GlobalY+h;
 
 
-
+}
     return doc;
 }
 
