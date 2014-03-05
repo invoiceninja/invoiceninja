@@ -27,7 +27,8 @@ class Utils
 			'url' => Input::get('url', Request::url()),
 			'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
 			'ip' => Request::getClientIp(),
-			'count' => Session::get('error_count', 0)
+			'count' => Session::get('error_count', 0),
+			'input' => Input::all()
 		];
 
 		Log::error('\n'.$error, $data);

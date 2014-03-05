@@ -2,7 +2,7 @@
 
 use Mail;
 
-abstract class Mailer {
+class Mailer {
 
 	public function sendTo($toEmail, $fromEmail, $subject, $view, $data = [])
 	{

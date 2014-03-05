@@ -30,7 +30,7 @@
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
 					<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
-						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ $client->getDisplayName() }}</a>
+						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm, text: getClientDisplayName(ko.toJS(client()))"></a>
 					</div>
 				</div>    				
 				<div style="display:none">
@@ -217,9 +217,9 @@
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))						
 			@if ($invoice)		
 
-				<div id="primaryActions" style="text-align:left" data-bind="css: $root.enable.save" class="btn-group">
-					<button class="btn-success btn" type="button" data-bind="css: $root.enable.save">Save Invoice</button>
-					<button class="btn-success btn dropdown-toggle" type="button" data-toggle="dropdown" data-bind="css: $root.enable.save"> 
+				<div id="primaryActions" style="text-align:left" class="btn-group">
+					<button class="btn-success btn" type="button">Save Invoice</button>
+					<button class="btn-success btn dropdown-toggle" type="button" data-toggle="dropdown"> 
 						<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu">
@@ -255,10 +255,10 @@
 					  )
 					, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); --}}				
 			@else
-				{{ Button::success_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save', 'id' => 'saveButton')) }}			
+				{{ Button::success_submit('Save Invoice', array('id' => 'saveButton')) }}			
 			@endif
 
-			{{ Button::normal('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email'))->append_with_icon('send'); }}		
+			{{ Button::normal('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->append_with_icon('send'); }}		
 
 			@if ($invoice)		
 				{{ Button::primary('Enter Payment', array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
@@ -684,9 +684,6 @@
 			}
 			event.preventDefault();		     				
 
-			if (model.enable.save() != 'enabled') {
-				return;
-			}
 
 			$('.main_form').submit();
 			return false;
@@ -892,40 +889,6 @@
 
 			$('#invoice_number').focus();
 		}		
-
-		self.enable = {};
-		self.enable.save = ko.computed(function() {
-			var isValid = false;
-        	for (var i=0; i<self.invoice().client().contacts().length; i++) {
-        		var contact = self.invoice().client().contacts()[i];
-        		if (isValidEmailAddress(contact.email())) {
-        			isValid = true;
-        		} else {
-        			isValid = false;
-        			break;
-        		}
-        	}
-        	return isValid ? "enabled" : "disabled";
-    	});
-
-		self.enable.email = ko.computed(function() {
-			var isValid = false;
-			var sendTo = false;
-			var client = self.invoice().client();
-        	for (var i=0; i<client.contacts().length; i++) {
-        		var contact = client.contacts()[i];        		
-        		if (isValidEmailAddress(contact.email())) {
-        			isValid = true;
-        			if (contact.send_invoice() || client.contacts().length == 1) {
-        				sendTo = true;
-        			}
-        		} else {
-        			isValid = false;
-        			break;
-        		}
-        	}
-        	return isValid && sendTo ? "enabled" : "disabled";
-    	});
 
 		self.clientLinkText = ko.computed(function() {
 			if (self.invoice().client().public_id())

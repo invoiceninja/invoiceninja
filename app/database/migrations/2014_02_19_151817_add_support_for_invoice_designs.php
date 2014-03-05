@@ -21,6 +21,7 @@ class AddSupportForInvoiceDesigns extends Migration {
     DB::table('invoice_designs')->insert(['name' => 'Clean']);
 		DB::table('invoice_designs')->insert(['name' => 'Bold']);
 		DB::table('invoice_designs')->insert(['name' => 'Modern']);
+		DB::table('invoice_designs')->insert(['name' => 'Plain']);
 
 		Schema::table('invoices', function($table)
 		{

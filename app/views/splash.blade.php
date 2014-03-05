@@ -48,12 +48,12 @@
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-inner">
-      <a class="brand" href="#"><img src=
+      <a class="brand" href="/"><img src=
         "images/invoiceninja-logo.png"></a>
         <ul class="navbar-list">
-          <!--<li>{{ link_to('about_us', 'About Us' ) }}</li>-->
-          <!--<li>{{ link_to('contact_us', 'Contact Us' ) }}</li>-->
-          <li>{{ link_to('login', Auth::check() ? 'Continue' : 'Login' ) }}</li>
+          <li>{{ link_to('about', 'About Us' ) }}</li>
+          <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+          <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
         </ul>
       </div>
     </div>
@@ -184,7 +184,9 @@
 
                 <div class="navbar-inner">
                   <ul class="navbar-list">
-                    <li>{{ link_to('login', Auth::check() ? 'Continue' : 'Login' ) }}</li>
+                    <li>{{ link_to('about', 'About Us' ) }}</li>
+                    <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+                    <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
                   </ul>
 
                     <!--
