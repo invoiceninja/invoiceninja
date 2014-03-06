@@ -154,13 +154,9 @@ var contactForm = {
                     <div class="col-md-4 col-md-offset-1 address">
                         <h2>Other ways to reach us</h2>
                         <p><span class="glyphicon glyphicon-send"></span><a href="mailto:contact@invoiceninja.com">contact@invoiceninja.com</a></p>
-                        <p><span class="glyphicon glyphicon-earphone"></span>+524 975 502</p>
-                        <address>
-                          <span class="glyphicon glyphicon-pencil"></span><strong>InvoiceNinja</strong><br>
-                          <span class="push">795 Folsom Ave, Suite 600<br></span>
-                          <span class="push">San Francisco, CA 94107<br></span>
-                        </address>
-                        </p>
+                        <p><span class="glyphicon glyphicon-earphone"></span>(800) 763-1948</p>
+                        <p><span class="github"></span><div style="padding-top:10px"> &nbsp;&nbsp;<a href="https://github.com/hillelcoren/invoice-ninja" target="_blank">GitHub Project</a></div></p>
+
                     </div>
                 </div>
                 </div>
