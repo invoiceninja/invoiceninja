@@ -1637,15 +1637,39 @@ y2=GlobalY;
 
 
 
+    //put terms and notes on free little block
+    lengthTerms=doc.splitTextToSize( terms, 200).length;
+    lengthNotes=doc.splitTextToSize( public_notes, 200).length;
 
-
-    if (terms )
+    if (lengthTerms<4)
     {
+
+        SetPdfColor('Black',doc);
+        doc.text(40, GlobalY, terms);
+        GlobalY=GlobalY+h;
+
+
+    }
+
+    if (lengthNotes<4)
+    {    GlobalY=GlobalY+48;
+
+        SetPdfColor('Black',doc);
+        doc.text(40, GlobalY, public_notes);
+        GlobalY=GlobalY+h;
+
+    }
 
     GlobalY=GlobalY+100;
 
+    if (lengthTerms>3)
+    if (terms )
+    {
+
+    //GlobalY=GlobalY+100;
+
     length=doc.splitTextToSize( terms, 200).length;
-    FontSize=10;
+    FontSize=9;
     var h=length*FontSize;
 
     //check do we need to go to next page
@@ -1658,20 +1682,24 @@ y2=GlobalY;
     SetPdfColor('Black',doc);
     doc.text(40, GlobalY, terms);
     GlobalY=GlobalY+h;
-
+        GlobalY=GlobalY+20;
     }
+
+
+    if (lengthNotes>3)
     if (public_notes )
     {
 
-    //GlobalY=GlobalY+100;
+
     length=doc.splitTextToSize( public_notes, 200).length;
-    FontSize=10;
+    FontSize=9;
     var h=length*FontSize;
 
     //check do we need to go to next page
     MinHeight=700;
     if (GlobalY+h > MinHeight) {
         GlobalY=Report1AddNewPage(invoice,account,doc);
+        GlobalY=GlobalY+20;
     }
 
     SetPdfColor('Black',doc);
