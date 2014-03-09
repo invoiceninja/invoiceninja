@@ -749,10 +749,6 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
     doc.setFontSize(9);
 
     doc.setFontType("bold");
-    MsgRightAlign=400;
-
-
-  //  GlobalY=x;
 
     GlobalY=GlobalY+25;
 
@@ -777,12 +773,12 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
 
     doc.setFontSize(9);
     displayNotesAndTerms(doc, layout, invoice, y);
-    y += displaySubtotals(doc, layout, invoice, y, MsgRightAlign);
+    y += displaySubtotals(doc, layout, invoice, y, layout.unitCostRight);
 
 
     doc.setFontSize(10);
     Msg='Balance Due';
-    var TmpMsgX = MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
+    var TmpMsgX = layout.unitCostRight-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
     
     doc.text(TmpMsgX, y, Msg);
 
@@ -927,9 +923,8 @@ function GetReportTemplate2(doc, invoice, layout, checkMath)
 
   x = GlobalY + 100;
   
-
   doc.setFontType("bold");
-  MsgRightAlign=400;
+
 
 
   doc.setFontSize(12);
@@ -953,14 +948,14 @@ function GetReportTemplate2(doc, invoice, layout, checkMath)
   */
 
   displayNotesAndTerms(doc, layout, invoice, y);
-  y += displaySubtotals(doc, layout, invoice, y, MsgRightAlign);
+  y += displaySubtotals(doc, layout, invoice, y, layout.unitCostRight);
 
   doc.setFontType("bold");
 
   doc.setFontSize(12);
   x += doc.internal.getFontSize()*4;
   Msg='Balance Due';
-  var TmpMsgX = MsgRightAlign-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
+  var TmpMsgX = layout.unitCostRight-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
 
 
 
