@@ -1280,7 +1280,7 @@ function GetReportTemplate1 (invoice,checkMath)
 
     doc.text(marginLeft3, GlobalY, ClientCompanyName);
     doc.setFontType("normal");
-    GlobalY=GlobalY+15;
+    GlobalY=GlobalY+16;
 
     }
 
@@ -1295,25 +1295,25 @@ function GetReportTemplate1 (invoice,checkMath)
 
     if (ClientCompanyAddress1!='') {
     doc.text(marginLeft3, GlobalY, ClientCompanyAddress1);
-    GlobalY=GlobalY+15;
+    GlobalY=GlobalY+16;
     }
 
     if (ClientCompanyAddress2!='') {
     doc.text(marginLeft3, GlobalY, ClientCompanyAddress2);
-    GlobalY=GlobalY+15;
+    GlobalY=GlobalY+16;
 
     }
 
     if ( ClientCompanyEmail!='') {
     doc.text(marginLeft3, GlobalY, ClientCompanyEmail);
-   GlobalY=GlobalY+15;
+   GlobalY=GlobalY+16;
 
     }
 
     if (ClientCompanyPhone) {
     doc.text(marginLeft3, GlobalY, ClientCompanyPhone);
 
-    GlobalY=GlobalY+15;
+    GlobalY=GlobalY+16;
     }
 
 
