@@ -1082,33 +1082,54 @@ function GetReportTemplate1 (invoice,checkMath)
     var left = marginLeft;
 
 
-    doc.setFontSize(7);
+
+
+    doc.setFontSize(9);
+
+    var MaxLen=0;
+
+
 
     SetPdfColor('LightBlue',doc);
     if (account.name) {
         y += rowHeight;
         doc.text(left, y, account.name);
+
+
+
+
+        test=(doc.getStringUnitWidth(account.name) * doc.internal.getFontSize());
+        if (MaxLen<test)MaxLen=test;
+
     }
 
     SetPdfColor('GrayText',doc);
-    doc.setFontSize(7);
+    //doc.setFontSize(9);
 
 
     if (account.work_email) {
         y += rowHeight;
         doc.text(left, y, account.work_email);
+
+
+        test=(doc.getStringUnitWidth(account.work_email) * doc.internal.getFontSize());
+        if (MaxLen<test)MaxLen=test;
+
     }
 
 
     if (account.work_phone) {
         y += rowHeight;
         doc.text(left, y, account.work_phone);
+
+        test=(doc.getStringUnitWidth(account.work_phone) * doc.internal.getFontSize());
+        if (MaxLen<test)MaxLen=test;
     }
 
 
 
 
-    var HeaderMarginThirdColumn=90;//should be dynamic and dependent on 1st image and 2nd column width
+    var HeaderMarginThirdColumn=MaxLen+30;//should be dynamic and dependent on 1st image and 2nd column width
 
     var y = accountTop;
     var left = marginLeft+HeaderMarginThirdColumn;
