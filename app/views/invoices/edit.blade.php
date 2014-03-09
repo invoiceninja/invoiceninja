@@ -650,6 +650,39 @@
 		$('.main_form').submit();
 	}
 
+	function isSaveValid() {
+		var isValid = false;
+		for (var i=0; i<self.invoice().client().contacts().length; i++) {
+			var contact = self.invoice().client().contacts()[i];
+			if (isValidEmailAddress(contact.email())) {
+				isValid = true;
+			} else {
+				isValid = false;
+				break;
+			}
+		}
+		return isValid;
+	}
+	
+	function isEmailValid() {
+		var isValid = false;
+		var sendTo = false;
+		var client = self.invoice().client();
+		for (var i=0; i<client.contacts().length; i++) {
+			var contact = client.contacts()[i];        		
+			if (isValidEmailAddress(contact.email())) {
+				isValid = true;
+				if (contact.send_invoice() || client.contacts().length == 1) {
+					sendTo = true;
+				}
+			} else {
+				isValid = false;
+				break;
+			}
+		}
+		return (isValid && sendTo)
+	}
+
 	function onCloneClick() {
 		$('#action').val('clone');
 		$('.main_form').submit();
@@ -917,7 +950,7 @@
 		self.discount = ko.observable('');
 		self.frequency_id = ko.observable('');
 		//self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
-		self.terms = ko.observable(wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', $account->invoice_terms) }}', 340));
+		self.terms = ko.observable(wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', $account->invoice_terms) }}', 300));
 		self.set_default_terms = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
@@ -990,7 +1023,7 @@
 				return this.terms();
 			},
 			write: function(value) {
-				value = wordWrapText(value, 340);
+				value = wordWrapText(value, 300);
 				self.terms(value);
 				$('#terms').height(value.split('\n').length * 36);
 			},
@@ -1004,7 +1037,7 @@
 				return this.public_notes();
 			},
 			write: function(value) {
-				value = wordWrapText(value, 340);
+				value = wordWrapText(value, 300);
 				self.public_notes(value);
 				$('#public_notes').height(value.split('\n').length * 36);
 			},
@@ -1300,7 +1333,7 @@
 				return this.notes();
 			},
 			write: function(value) {
-				value = wordWrapText(value);
+				value = wordWrapText(value, 235);
 				self.notes(value);
 				onItemChange();
 			},
