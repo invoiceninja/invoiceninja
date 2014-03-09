@@ -956,8 +956,8 @@ function GetReportTemplate1 (invoice,checkMath)
     var headerRight = 150;
     var accountTop = 30;
     var marginLeft = 180;
-    var rowHeight = 10;
-    var headerTop = 125; //height of HEADER //should be dynamic !
+    var rowHeight = 16;
+    var headerTop = 120; //height of HEADER //should be dynamic !
 
 
     var descriptionLeft = 162;
@@ -1041,7 +1041,7 @@ function GetReportTemplate1 (invoice,checkMath)
 
     //set default style for report
     doc.setFont('Helvetica','');
-    doc.setFontSize(7);
+    doc.setFontSize(9);
 
 
 //----------------------------------------------------------------------------------------------------
@@ -1082,33 +1082,54 @@ function GetReportTemplate1 (invoice,checkMath)
     var left = marginLeft;
 
 
-    doc.setFontSize(7);
+
+
+    doc.setFontSize(9);
+
+    var MaxLen=0;
+
+
 
     SetPdfColor('LightBlue',doc);
     if (account.name) {
         y += rowHeight;
         doc.text(left, y, account.name);
+
+
+
+
+        test=(doc.getStringUnitWidth(account.name) * doc.internal.getFontSize());
+        if (MaxLen<test)MaxLen=test;
+
     }
 
     SetPdfColor('GrayText',doc);
-    doc.setFontSize(7);
+    //doc.setFontSize(9);
 
 
     if (account.work_email) {
         y += rowHeight;
         doc.text(left, y, account.work_email);
+
+
+        test=(doc.getStringUnitWidth(account.work_email) * doc.internal.getFontSize());
+        if (MaxLen<test)MaxLen=test;
+
     }
 
 
     if (account.work_phone) {
         y += rowHeight;
         doc.text(left, y, account.work_phone);
+
+        test=(doc.getStringUnitWidth(account.work_phone) * doc.internal.getFontSize());
+        if (MaxLen<test)MaxLen=test;
     }
 
 
 
 
-    var HeaderMarginThirdColumn=90;//should be dynamic and dependent on 1st image and 2nd column width
+    var HeaderMarginThirdColumn=MaxLen+30;
 
     var y = accountTop;
     var left = marginLeft+HeaderMarginThirdColumn;
@@ -1143,7 +1164,7 @@ function GetReportTemplate1 (invoice,checkMath)
     doc.text(50, headerTop, 'INVOICE');
 
 
-    y=130;
+    y=128;
 
 
     doc.setDrawColor(220,220,220);
@@ -1151,7 +1172,7 @@ function GetReportTemplate1 (invoice,checkMath)
 
 
 
-    var line1=headerTop+16;
+    var line1=headerTop+16*1.4;
     var line2=headerTop+16*2;
     var line21=headerTop+16*1.6;
     var line22=headerTop+16*2.2;
@@ -1159,9 +1180,9 @@ function GetReportTemplate1 (invoice,checkMath)
     var line3=headerTop+16*3;
     var line31=headerTop+16*3.6;
 
-    var marginLeft1=50;
-    var marginLeft2=120;
-    var marginLeft3=180;
+    var marginLeft1=60;
+    var marginLeft2=140;
+    var marginLeft3=200;
 
 
 
@@ -1171,7 +1192,7 @@ function GetReportTemplate1 (invoice,checkMath)
     GlobalY=line1;
 
     SetPdfColor('Black',doc); //set black color
-    doc.setFontSize(7);
+    doc.setFontSize(9);
 
 
 
@@ -1253,10 +1274,15 @@ function GetReportTemplate1 (invoice,checkMath)
     SetPdfColor('Black',doc); //set black color
 
     doc.setFontType("bold");
+
+    if(ClientCompanyName)
+    {
+
     doc.text(marginLeft3, GlobalY, ClientCompanyName);
     doc.setFontType("normal");
     GlobalY=GlobalY+16;
 
+    }
 
     if(client)
     {
@@ -1267,18 +1293,28 @@ function GetReportTemplate1 (invoice,checkMath)
     }
 
 
+    if (ClientCompanyAddress1!='') {
     doc.text(marginLeft3, GlobalY, ClientCompanyAddress1);
-    GlobalY=GlobalY+8;
+    GlobalY=GlobalY+16;
+    }
 
+    if (ClientCompanyAddress2!='') {
     doc.text(marginLeft3, GlobalY, ClientCompanyAddress2);
     GlobalY=GlobalY+16;
 
+    }
+
+    if ( ClientCompanyEmail!='') {
     doc.text(marginLeft3, GlobalY, ClientCompanyEmail);
-    GlobalY=GlobalY+8;
+   GlobalY=GlobalY+16;
+
+    }
+
+    if (ClientCompanyPhone) {
     doc.text(marginLeft3, GlobalY, ClientCompanyPhone);
 
     GlobalY=GlobalY+16;
-
+    }
 
 
 
@@ -1308,7 +1344,7 @@ y2=GlobalY;
 
 
     SetPdfColor('Black',doc);
-    doc.setFontSize(7);
+    doc.setFontSize(9);
 
     var hasTaxes = false;
     for (var i=0; i<invoice.invoice_items.length; i++)
@@ -1347,7 +1383,7 @@ y2=GlobalY;
     }
     doc.setFontType("normal");
 
-    doc.setFontSize(7);
+    doc.setFontSize(9);
 
     /* line items */
 
@@ -1358,7 +1394,7 @@ y2=GlobalY;
 
     GlobalY=GlobalY+14+10; //padding from top
 
-    var FontSize=7;
+    var FontSize=9;
     doc.setFontSize(FontSize);
 
 
@@ -1601,15 +1637,39 @@ y2=GlobalY;
 
 
 
+    //put terms and notes on free little block
+    lengthTerms=doc.splitTextToSize( terms, 200).length;
+    lengthNotes=doc.splitTextToSize( public_notes, 200).length;
 
-
-    if (terms )
+    if (lengthTerms<4)
     {
+
+        SetPdfColor('Black',doc);
+        doc.text(40, GlobalY, terms);
+        GlobalY=GlobalY+h;
+
+
+    }
+
+    if (lengthNotes<4)
+    {    GlobalY=GlobalY+48;
+
+        SetPdfColor('Black',doc);
+        doc.text(40, GlobalY, public_notes);
+        GlobalY=GlobalY+h;
+
+    }
 
     GlobalY=GlobalY+100;
 
+    if (lengthTerms>3)
+    if (terms )
+    {
+
+    //GlobalY=GlobalY+100;
+
     length=doc.splitTextToSize( terms, 200).length;
-    FontSize=10;
+    FontSize=9;
     var h=length*FontSize;
 
     //check do we need to go to next page
@@ -1622,20 +1682,24 @@ y2=GlobalY;
     SetPdfColor('Black',doc);
     doc.text(40, GlobalY, terms);
     GlobalY=GlobalY+h;
-
+        GlobalY=GlobalY+20;
     }
+
+
+    if (lengthNotes>3)
     if (public_notes )
     {
 
-    //GlobalY=GlobalY+100;
+
     length=doc.splitTextToSize( public_notes, 200).length;
-    FontSize=10;
+    FontSize=9;
     var h=length*FontSize;
 
     //check do we need to go to next page
     MinHeight=700;
     if (GlobalY+h > MinHeight) {
         GlobalY=Report1AddNewPage(invoice,account,doc);
+        GlobalY=GlobalY+20;
     }
 
     SetPdfColor('Black',doc);
