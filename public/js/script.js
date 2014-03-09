@@ -956,8 +956,8 @@ function GetReportTemplate1 (invoice,checkMath)
     var headerRight = 150;
     var accountTop = 30;
     var marginLeft = 180;
-    var rowHeight = 10;
-    var headerTop = 125; //height of HEADER //should be dynamic !
+    var rowHeight = 16;
+    var headerTop = 120; //height of HEADER //should be dynamic !
 
 
     var descriptionLeft = 162;
@@ -1041,7 +1041,7 @@ function GetReportTemplate1 (invoice,checkMath)
 
     //set default style for report
     doc.setFont('Helvetica','');
-    doc.setFontSize(7);
+    doc.setFontSize(9);
 
 
 //----------------------------------------------------------------------------------------------------
@@ -1129,7 +1129,7 @@ function GetReportTemplate1 (invoice,checkMath)
 
 
 
-    var HeaderMarginThirdColumn=MaxLen+30;//should be dynamic and dependent on 1st image and 2nd column width
+    var HeaderMarginThirdColumn=MaxLen+30;
 
     var y = accountTop;
     var left = marginLeft+HeaderMarginThirdColumn;
@@ -1164,7 +1164,7 @@ function GetReportTemplate1 (invoice,checkMath)
     doc.text(50, headerTop, 'INVOICE');
 
 
-    y=130;
+    y=128;
 
 
     doc.setDrawColor(220,220,220);
@@ -1172,7 +1172,7 @@ function GetReportTemplate1 (invoice,checkMath)
 
 
 
-    var line1=headerTop+16;
+    var line1=headerTop+16*1.4;
     var line2=headerTop+16*2;
     var line21=headerTop+16*1.6;
     var line22=headerTop+16*2.2;
@@ -1180,9 +1180,9 @@ function GetReportTemplate1 (invoice,checkMath)
     var line3=headerTop+16*3;
     var line31=headerTop+16*3.6;
 
-    var marginLeft1=50;
-    var marginLeft2=120;
-    var marginLeft3=180;
+    var marginLeft1=60;
+    var marginLeft2=140;
+    var marginLeft3=200;
 
 
 
@@ -1274,10 +1274,15 @@ function GetReportTemplate1 (invoice,checkMath)
     SetPdfColor('Black',doc); //set black color
 
     doc.setFontType("bold");
+
+    if(ClientCompanyName)
+    {
+
     doc.text(marginLeft3, GlobalY, ClientCompanyName);
     doc.setFontType("normal");
-    GlobalY=GlobalY+16;
+    GlobalY=GlobalY+15;
 
+    }
 
     if(client)
     {
@@ -1288,18 +1293,28 @@ function GetReportTemplate1 (invoice,checkMath)
     }
 
 
+    if (ClientCompanyAddress1!='') {
     doc.text(marginLeft3, GlobalY, ClientCompanyAddress1);
-    GlobalY=GlobalY+8;
+    GlobalY=GlobalY+15;
+    }
 
+    if (ClientCompanyAddress2!='') {
     doc.text(marginLeft3, GlobalY, ClientCompanyAddress2);
-    GlobalY=GlobalY+16;
+    GlobalY=GlobalY+15;
 
+    }
+
+    if ( ClientCompanyEmail!='') {
     doc.text(marginLeft3, GlobalY, ClientCompanyEmail);
-    GlobalY=GlobalY+8;
+   GlobalY=GlobalY+15;
+
+    }
+
+    if (ClientCompanyPhone) {
     doc.text(marginLeft3, GlobalY, ClientCompanyPhone);
 
-    GlobalY=GlobalY+16;
-
+    GlobalY=GlobalY+15;
+    }
 
 
 
