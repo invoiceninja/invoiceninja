@@ -1594,7 +1594,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     if (invoice.invoice_design_id == 1) {
       if (i%2 == 0) {      
         doc.setDrawColor(255,255,255);
-        doc.setFillColor(245,245,245);
+        doc.setFillColor(246,246,246);
         doc.rect(left, top, width-left, newTop-top, 'FD');
 
         doc.setLineWidth(0.3);        
