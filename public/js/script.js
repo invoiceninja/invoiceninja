@@ -1192,7 +1192,7 @@ function GetReportTemplate1 (invoice,checkMath)
     GlobalY=line1;
 
     SetPdfColor('Black',doc); //set black color
-    doc.setFontSize(7);
+    doc.setFontSize(9);
 
 
 
@@ -1329,7 +1329,7 @@ y2=GlobalY;
 
 
     SetPdfColor('Black',doc);
-    doc.setFontSize(7);
+    doc.setFontSize(9);
 
     var hasTaxes = false;
     for (var i=0; i<invoice.invoice_items.length; i++)
@@ -1368,7 +1368,7 @@ y2=GlobalY;
     }
     doc.setFontType("normal");
 
-    doc.setFontSize(7);
+    doc.setFontSize(9);
 
     /* line items */
 
@@ -1379,7 +1379,7 @@ y2=GlobalY;
 
     GlobalY=GlobalY+14+10; //padding from top
 
-    var FontSize=7;
+    var FontSize=9;
     doc.setFontSize(FontSize);
 
 
