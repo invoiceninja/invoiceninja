@@ -9,68 +9,44 @@
 @stop
 
 @section('body')
-
-{{ Form::open(array('url' => 'get_started', 'id' => 'startForm')) }}
-{{ Form::hidden('guest_key') }}
-{{ Form::close() }}
-
-<script>
-  $(document).ready(function () {
-
-    
-    if (isStorageSupported()) {
-      $('[name="guest_key"]').val(localStorage.getItem('guest_key'));          
-    }
-
+ <!--<script>
+        $(document).ready(function () {
     var $window = $(window);
     $('section[data-type="background"]').each(function () {
-      var $bgobj = $(this);
-      $(window).scroll(function () {
-        var yPos = -($window.scrollTop() / $bgobj.data('speed'));
-        var coords = '50% ' + yPos + 'px';
-        $bgobj.css({ backgroundPosition: coords });
-      });
+        var $bgobj = $(this);
+        $(window).scroll(function () {
+            var yPos = -($window.scrollTop() / $bgobj.data('speed'));
+            var coords = '50% ' + yPos + 'px';
+            $bgobj.css({ backgroundPosition: coords });
+        });
     });
-  });
-
-  function isStorageSupported() {
-    try {
-      return 'localStorage' in window && window['localStorage'] !== null;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function getStarted() {
-    $('#startForm').submit();
-  }
-
-</script>
-<div class="navbar" style="margin-bottom:0px">
-  <div class="container">
-    <div class="navbar-inner">
-      <a class="brand" href="/"><img src=
-        "images/invoiceninja-logo.png"></a>
-        <ul class="navbar-list">
-          <li>{{ link_to('about', 'About Us' ) }}</li>
-          <li>{{ link_to('contact', 'Contact Us' ) }}</li>
-          <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
-        </ul>
+    });
+  </script>-->
+  <div class="navbar" style="margin-bottom:0px">
+    <div class="container">
+      <div class="navbar-inner">
+        <a class="brand" href="#"><img src=
+          "images/invoiceninja-logo.png"></a>
+          <ul class="navbar-list">
+            <li>{{ link_to('about_us', 'About Us' ) }}</li>
+            <li>{{ link_to('contact_us', 'Contact Us' ) }}</li>
+            <li>{{ link_to('login', Auth::check() ? 'Continue' : 'Login' ) }}</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<section class="hero3" data-speed="2" data-type="background">
-  <div class="container">
-    <div class="caption">
-     <h1>WHY INVOICE NINJA?
-     </h1>
+  <section class="hero3" data-speed="2" data-type="background">
+    <div class="container">
+      <div class="caption">
+       <h1>WHY INVOICE NINJA?
+       </h1>
+     </div>
    </div>
- </div>
-</section>
+ </section>
 
-<section class="about center">
+ <section class="about center">
   <div class="container">
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
@@ -86,6 +62,7 @@
     <div class="row">
       <div class="col-md-5">
         <div class="screendump">
+          <img src="images/about1.jpg">
         </div>
       </div>
       <div class="col-md-7">
@@ -105,27 +82,26 @@
       </div>
       <div class="col-md-5">
         <div class="screendump">
+          <img src="images/about2.jpg">
         </div>
       </div>
     </div>
   </div>
 </section>
-    <!--
-    <section class="about center white-bg">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8 col-md-offset-2">
-                        <h2>Info about the company/story</h2>
-                        <p>Donec id elit non mi porta gravida at eget metus.
-                        Fusce dapibus, tellus ac cursus commodo, tortor mauris
-                        condimentum nibh, ut fermentum massa justo sit amet
-                        risus. Etiam porta sem malesuada magna mollis euismod.
-                        Donec sed odio dui.</p>
-                </div>
-            </div>
+<section class="about center white-bg">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <h2>Info about the company/story</h2>
+        <p>Donec id elit non mi porta gravida at eget metus.
+          Fusce dapibus, tellus ac cursus commodo, tortor mauris
+          condimentum nibh, ut fermentum massa justo sit amet
+          risus. Etiam porta sem malesuada magna mollis euismod.
+          Donec sed odio dui.</p>
         </div>
-    </section>
-  -->
+      </div>
+    </div>
+  </section>
   <section class="upper-footer">
    <div class="container">
     <div class="row">
@@ -158,9 +134,7 @@
 
                 <div class="navbar-inner">
                   <ul class="navbar-list">
-                    <li>{{ link_to('about', 'About Us' ) }}</li>
-                    <li>{{ link_to('contact', 'Contact Us' ) }}</li>
-                    <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
+                    <li>{{ link_to('login', Auth::check() ? 'Continue' : 'Login' ) }}</li>
                   </ul>
 
                     <!--

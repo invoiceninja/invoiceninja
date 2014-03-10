@@ -137,7 +137,7 @@ a .cta:hover span {
 	background-image: url(/images/hero-bg-3.jpg);
 	padding: 150px 0;
 	background-repeat: no-repeat;
-    background-position: bottom center;
+    background-position: center center;
     background-size: cover;    
 }
 .hero4 {
@@ -145,7 +145,7 @@ a .cta:hover span {
 	background-image: url(/images/hero-bg-4.jpg);
 	padding: 150px 0;
 	background-repeat: no-repeat;
-    background-position: bottom center;
+    background-position: center center;
     background-size: cover;    
 }
 .hero2 h1, .hero3 h1, .hero4 h1 {
@@ -154,8 +154,8 @@ a .cta:hover span {
 }
 .background {
     background-repeat: no-repeat;
-    background-position: top center;
-    background-attachment: fixed;
+    background-position: center center;
+    background-attachment: static;
     background-size: cover;    
     min-height: 500px;
 }
