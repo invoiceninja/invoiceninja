@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "3630c03bc1f8da2e4855eb259f430c71",
+    "hash": "b306f3209c9e8e892376f06c452c16d8",
     "packages": [
         {
             "name": "anahkiasen/former",
@@ -107,12 +107,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Anahkiasen/rocketeer.git",
-                "reference": "cc287bee0344b64e09eb970a357387c01db327bf"
+                "reference": "c0ecd5773611c65256fbc7e1dea4e3780a19c743"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Anahkiasen/rocketeer/zipball/cc287bee0344b64e09eb970a357387c01db327bf",
-                "reference": "cc287bee0344b64e09eb970a357387c01db327bf",
+                "url": "https://api.github.com/repos/Anahkiasen/rocketeer/zipball/c0ecd5773611c65256fbc7e1dea4e3780a19c743",
+                "reference": "c0ecd5773611c65256fbc7e1dea4e3780a19c743",
                 "shasum": ""
             },
             "require": {
@@ -170,7 +170,7 @@
                 "laravel",
                 "ssh"
             ],
-            "time": "2014-03-08 19:06:58"
+            "time": "2014-03-10 14:56:07"
         },
         {
             "name": "anahkiasen/underscore-php",
@@ -264,16 +264,16 @@
         },
         {
             "name": "chumper/datatable",
-            "version": "dev-master",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Chumper/Datatable.git",
-                "reference": "c3aa3f189a8b75efdb049210d39898cc9a8caafe"
+                "reference": "0252085dc04db6e511bf3ac833fd11150d8e6a2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Chumper/Datatable/zipball/c3aa3f189a8b75efdb049210d39898cc9a8caafe",
-                "reference": "c3aa3f189a8b75efdb049210d39898cc9a8caafe",
+                "url": "https://api.github.com/repos/Chumper/Datatable/zipball/0252085dc04db6e511bf3ac833fd11150d8e6a2b",
+                "reference": "0252085dc04db6e511bf3ac833fd11150d8e6a2b",
                 "shasum": ""
             },
             "require": {
@@ -312,7 +312,7 @@
                 "jquery",
                 "laravel"
             ],
-            "time": "2014-02-23 17:47:19"
+            "time": "2014-03-10 20:12:28"
         },
         {
             "name": "classpreloader/classpreloader",
@@ -1137,12 +1137,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "85428c311b38cf91d6a80a22712a65643920fed4"
+                "reference": "cdfd959d4bf48404a0c46985da801d46c67c6391"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/85428c311b38cf91d6a80a22712a65643920fed4",
-                "reference": "85428c311b38cf91d6a80a22712a65643920fed4",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/cdfd959d4bf48404a0c46985da801d46c67c6391",
+                "reference": "cdfd959d4bf48404a0c46985da801d46c67c6391",
                 "shasum": ""
             },
             "require": {
@@ -1246,7 +1246,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2014-03-09 03:15:08"
+            "time": "2014-03-10 20:05:42"
         },
         {
             "name": "laravelbook/ardent",
@@ -4870,7 +4870,6 @@
         "patricktalmadge/bootstrapper": 20,
         "anahkiasen/former": 20,
         "barryvdh/laravel-debugbar": 20,
-        "chumper/datatable": 20,
         "intervention/image": 20,
         "webpatser/laravel-countries": 20,
         "anahkiasen/rocketeer": 20,
