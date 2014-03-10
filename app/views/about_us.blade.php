@@ -9,7 +9,7 @@
 @stop
 
 @section('body')
- <script>
+ <!--<script>
         $(document).ready(function () {
     var $window = $(window);
     $('section[data-type="background"]').each(function () {
@@ -21,7 +21,7 @@
         });
     });
     });
-</script>
+</script>-->
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-inner">
@@ -62,6 +62,7 @@
             <div class="row">
                 <div class="col-md-5">
                     <div class="screendump">
+                        <img src="images/about1.jpg">
                     </div>
                 </div>
                 <div class="col-md-7">
@@ -81,6 +82,7 @@
                 </div>
                 <div class="col-md-5">
                     <div class="screendump">
+                        <img src="images/about2.jpg">
                     </div>
                 </div>
             </div>
