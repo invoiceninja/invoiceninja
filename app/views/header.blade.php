@@ -217,7 +217,7 @@
 	        <h4 class="modal-title" id="myModalLabel">Sign up</h4>
 	      </div>
 
-	      <div style="background-color: #fff; padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onkeydown="checkForEnter(event)">
+	      <div style="background-color: #fff; padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onclick="validateSignUp()" onkeydown="checkForEnter(event)">
 	    	<br/>
 	    	
 	    	{{ Former::open('signup/submit')->addClass('signUpForm') }}
@@ -232,11 +232,16 @@
 	    	{{ Former::text('new_first_name')->label('First name') }}
 	    	{{ Former::text('new_last_name')->label('Last name') }}
 	      {{ Former::text('new_email')->label('Email') }}	    	
-	      {{ Former::password('new_password')->label('Password') }}
+	      {{ Former::password('new_password')->label('Password') }}        
+        {{ Former::checkbox('terms_checkbox')->label(' ')->text('I agree to the Invoice Ninja <a href="#" target="_blank">Terms of Service</a>') }}
 			  {{ Former::close() }}
-        
-			<center><div id="errorTaken" style="display:none">&nbsp;<br/>The email address is already regiestered</div></center>
-			<br/>
+
+			 <center><div id="errorTaken" style="display:none">&nbsp;<br/>The email address is already regiestered</div></center>
+			 <br/>
+
+
+
+
 		  </div>
 
 		  <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="working">
@@ -255,8 +260,8 @@
 
 
 	      <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">	      	
-	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close <i class="glyphicon glyphicon-remove-circle"></i></button>
-	        <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()">Save <i class="glyphicon glyphicon-floppy-disk"></i></button>	      	
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close <i class="glyphicon glyphicon-remove-circle"></i></button>
+	        <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()" disabled>Save <i class="glyphicon glyphicon-floppy-disk"></i></button>	      	
 	      </div>
 	    </div>
 	  </div>
@@ -285,7 +290,7 @@
 	</div>
 	@endif
 	
-  @if (App::environment() != ENV_PRODUCTION)    
+  @if ($_SERVER['SERVER_NAME'] != 'www.invoiceninja.com')    
   	<div class="container">Powered by <a href="https://www.invoiceninja.com/" target="_blank">InvoiceNinja.com</a></div>
   @endif
 
@@ -323,6 +328,13 @@
   					}
   				}
   			});
+
+        if (!$('#terms_checkbox').is(':checked')) {
+          isFormValid = false;
+        }
+        
+        $('#saveSignUpButton').prop('disabled', !isFormValid);
+
   			return isFormValid;
   		}
 

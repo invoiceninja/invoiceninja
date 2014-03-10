@@ -625,7 +625,6 @@ $.fn.datepicker.defaults.todayHighlight = true;
 //====================================================================================================================
 
 function GetPdf(invoice,checkMath,report_id){
-
   var layout = {
     accountTop: 30,
     marginLeft: 50,
@@ -1534,7 +1533,7 @@ function displayInvoiceItems(doc, invoice, layout) {
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];
     var numLines = doc.splitTextToSize(item.notes, 200).length + 2;
-    console.log('num lines %s', numLines);
+    //console.log('num lines %s', numLines);
 
     var y = tableTop + (line * layout.tableRowHeight) + (2 * layout.tablePadding);
     var top = y - layout.tablePadding;

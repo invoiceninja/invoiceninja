@@ -63,16 +63,16 @@
 		<div class="col-md-4" id="col_2">
 			<div data-bind="visible: !is_recurring()">
 				{{ Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') }}
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'invoice_date\')"></i>') }}
 				{{ Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') }}							
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') }}							
 			</div>
 			<div data-bind="visible: is_recurring" style="display: none">
 				{{ Former::select('frequency_id')->label('How often')->options($frequencies)->data_bind("value: frequency_id") }}
 				{{ Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') }}
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') }}
 				{{ Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') }}
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') }}
 			</div>
 			@if ($invoice && $invoice->recurring_invoice_id)
 				<div class="pull-right" style="padding-top: 6px">
@@ -138,7 +138,7 @@
 	            <td>
 	            	<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
 	            </td>
-	            <td style="display:none;vertical-align:middle" data-bind="visible: $root.invoice_item_taxes.show">
+	            <td style="display:none;" data-bind="visible: $root.invoice_item_taxes.show">
 	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select>
 	            </td>
 		        	<td style="text-align:right;padding-top:9px !important">
@@ -176,9 +176,9 @@
 	        <tr style="display:none" data-bind="visible: $root.invoice_taxes.show">
 	        	<td class="hide-border" colspan="3"/>
 	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
-				<td style="vertical-align: middle">Tax</td>
+				<td>Tax</td>
 				<td style="min-width:120px"><select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select></td>
-				<td style="vertical-align: middle; text-align: right"><span data-bind="text: totals.taxAmount"/></td>
+				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 	        </tr>
 	        <tr>
 	        	<td class="hide-border" colspan="3"/>
@@ -579,6 +579,10 @@
     return invoice;
 	}
 
+	function toggleDatePicker(field) {
+		$('#'+field).datepicker('show');
+	}
+
 	/*
 	function refreshPDF() {
 		setTimeout(function() {
@@ -589,13 +593,15 @@
 
 	var isRefreshing = false;
 	var needsRefresh = false;
-	function refreshPDF() {
+	function getPDFString() {
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice);		
 		if (!doc) return;
-		var string = doc.output('datauristring');
-
+		return doc.output('datauristring');
+	}
+	function refreshPDF() {
 		if (isFirefox || (isChrome && !isChromium)) {
+			var string = getPDFString();
 			$('#theFrame').attr('src', string).show();		
 		} else {			
 			if (isRefreshing) {
@@ -603,7 +609,7 @@
 				return;
 			}
 			isRefreshing = true;
-
+			var string = getPDFString();
 			var pdfAsArray = convertDataURIToBinary(string);	
 		    PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
 

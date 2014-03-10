@@ -60,7 +60,7 @@ min-height: 40px;
 table.dataTable { border-radius: 3px; border-collapse: collapse;
     /*border-spacing: 0;*/}
 table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
-        background: #e37329 !important;
+    background-color: #e37329 !important;
     color:#fff;
 }
 th:first-child {
@@ -223,7 +223,7 @@ margin-left: 10px !important;
 /*new*/
 
 div {
-    word-break: break-word;
+    word-break: break-all;
 }
 
 div.required > label {
