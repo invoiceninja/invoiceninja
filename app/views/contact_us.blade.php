@@ -16,29 +16,34 @@
 {{ Form::close() }}
 
  <script>
-        $(document).ready(function () {
-      $("#feedbackSubmit").click(function() {
-    //clear any errors
-    contactForm.clearErrors();
- 
-    //do a little client-side validation -- check that each field has a value and e-mail field is in proper format
-    var hasErrors = false;
-    $('.feedbackForm input,textarea').each(function() {
-      if (!$(this).val()) {
-        hasErrors = true;
-        contactForm.addError($(this));
+    $(document).ready(function () {
+
+      if (isStorageSupported()) {
+        $('[name="guest_key"]').val(localStorage.getItem('guest_key'));          
       }
-    });
-    var $email = $('#email');
-    if (!contactForm.isValidEmail($email.val())) {
-      hasErrors = true;
-      contactForm.addError($email);
-    }
- 
-    //if there are any errors return without sending e-mail
-    if (hasErrors) {
-      return false;
-    }
+
+        $("#feedbackSubmit").click(function() {
+      //clear any errors
+      contactForm.clearErrors();
+   
+      //do a little client-side validation -- check that each field has a value and e-mail field is in proper format
+      var hasErrors = false;
+      $('.feedbackForm input,textarea').each(function() {
+        if (!$(this).val()) {
+          hasErrors = true;
+          contactForm.addError($(this));
+        }
+      });
+      var $email = $('#email');
+      if (!contactForm.isValidEmail($email.val())) {
+        hasErrors = true;
+        contactForm.addError($email);
+      }
+   
+      //if there are any errors return without sending e-mail
+      if (hasErrors) {
+        return false;
+      }
  
   }); 
     

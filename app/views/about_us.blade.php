@@ -9,28 +9,41 @@
 @stop
 
 @section('body')
- <!--<script>
-        $(document).ready(function () {
-    var $window = $(window);
-    $('section[data-type="background"]').each(function () {
-        var $bgobj = $(this);
-        $(window).scroll(function () {
-            var yPos = -($window.scrollTop() / $bgobj.data('speed'));
-            var coords = '50% ' + yPos + 'px';
-            $bgobj.css({ backgroundPosition: coords });
-        });
-    });
-    });
-  </script>-->
+
+{{ Form::open(array('url' => 'get_started', 'id' => 'startForm')) }}
+{{ Form::hidden('guest_key') }}
+{{ Form::close() }}
+
+ <script>
+
+  $(document).ready(function () {
+    if (isStorageSupported()) {
+      $('[name="guest_key"]').val(localStorage.getItem('guest_key'));          
+    }
+  });
+
+  function isStorageSupported() {
+    try {
+      return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function getStarted() {
+    $('#startForm').submit();
+  }
+
+  </script>
   <div class="navbar" style="margin-bottom:0px">
     <div class="container">
       <div class="navbar-inner">
         <a class="brand" href="#"><img src=
           "images/invoiceninja-logo.png"></a>
           <ul class="navbar-list">
-            <li>{{ link_to('about_us', 'About Us' ) }}</li>
-            <li>{{ link_to('contact_us', 'Contact Us' ) }}</li>
-            <li>{{ link_to('login', Auth::check() ? 'Continue' : 'Login' ) }}</li>
+            <li>{{ link_to('about', 'About Us' ) }}</li>
+            <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+            <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
           </ul>
         </div>
       </div>
@@ -88,6 +101,7 @@
     </div>
   </div>
 </section>
+<!--
 <section class="about center white-bg">
   <div class="container">
     <div class="row">
@@ -102,6 +116,7 @@
       </div>
     </div>
   </section>
+  -->
   <section class="upper-footer">
    <div class="container">
     <div class="row">
@@ -134,7 +149,9 @@
 
                 <div class="navbar-inner">
                   <ul class="navbar-list">
-                    <li>{{ link_to('login', Auth::check() ? 'Continue' : 'Login' ) }}</li>
+                    <li>{{ link_to('about', 'About Us' ) }}</li>
+                    <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+                    <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
                   </ul>
 
                     <!--
