@@ -111,7 +111,7 @@ return array(
     | table, otherwise they will not be able to login after the payment.
     |
     */
-    'signup_email'      => true,
-    'signup_confirm'    => true,
+    'signup_email'      => false,
+    'signup_confirm'    => false,
 
 );

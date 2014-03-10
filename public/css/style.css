@@ -223,7 +223,7 @@ margin-left: 10px !important;
 /*new*/
 
 div {
-    word-break: break-all;
+    word-break: break-word;
 }
 
 div.required > label {

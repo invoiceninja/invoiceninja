@@ -1,16 +1,19 @@
 <?php
 
 use ninja\repositories\AccountRepository;
+use ninja\mailers\UserMailer as Mailer;
 
 class AccountController extends \BaseController {
 
 	protected $accountRepo;
+	protected $mailer;
 
-	public function __construct(AccountRepository $accountRepo)
+	public function __construct(AccountRepository $accountRepo, Mailer $mailer)
 	{
 		parent::__construct();
 
 		$this->accountRepo = $accountRepo;
+		$this->mailer = $mailer;
 	}	
 
 	public function getStarted()
@@ -571,10 +574,13 @@ class AccountController extends \BaseController {
 		$user->first_name = trim(Input::get('new_first_name'));
 		$user->last_name = trim(Input::get('new_last_name'));
 		$user->email = trim(strtolower(Input::get('new_email')));
+		$user->username = $user->email;
 		$user->password = trim(Input::get('new_password'));
 		$user->password_confirmation = trim(Input::get('new_password'));
 		$user->registered = true;
 		$user->amend();
+
+		$this->mailer->sendConfirmation($user);
 
 		$activities = Activity::scope()->get();
 		foreach ($activities as $activity) 
