@@ -450,7 +450,7 @@ class AccountController extends \BaseController {
 
 		if ($validator->fails()) 
 		{
-			return Redirect::to('company/settings')
+			return Redirect::to('company/payments')
 				->withErrors($validator)
 				->withInput();
 		} 

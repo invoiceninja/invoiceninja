@@ -1586,7 +1586,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     var qtyX = layout.qtyRight - (doc.getStringUnitWidth(qty) * doc.internal.getFontSize());
     var taxX = layout.taxRight - (doc.getStringUnitWidth(tax+'%') * doc.internal.getFontSize());
     var totalX = layout.lineTotalRight - (doc.getStringUnitWidth(lineTotal) * doc.internal.getFontSize());
-    if (i==0) y -= 4;
+    //if (i==0) y -= 4;
 
     line += numLines;
 
@@ -1629,18 +1629,18 @@ function displayInvoiceItems(doc, invoice, layout) {
     } else {
       SetPdfColor('Black', doc);
     }
-    doc.text(layout.marginLeft, y, productKey);
+    doc.text(layout.marginLeft, y+2, productKey);
     
     SetPdfColor('Black', doc);
     doc.setFontType('normal');
 
-    doc.text(layout.descriptionLeft, y, notes);
-    doc.text(costX, y, cost);
-    doc.text(qtyX, y, qty);
-    doc.text(totalX, y, lineTotal);
+    doc.text(layout.descriptionLeft, y+2, notes);
+    doc.text(costX, y+2, cost);
+    doc.text(qtyX, y+2, qty);
+    doc.text(totalX, y+2, lineTotal);
 
     if (tax) {
-      doc.text(taxX, y, tax+'%');
+      doc.text(taxX, y+2, tax+'%');
     }
   }  
 
