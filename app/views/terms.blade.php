@@ -73,7 +73,7 @@
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <h2>Data Ownership</h2>
-        <p>The User Accounts owns all data generated in their invoicenin.com account. Invoiceninja.com will not modify or distribute User Account data. Invoiceninja.com will store and access data solely for the purpose of providing services to User Accounts.</p>
+        <p>The User Accounts owns all data generated in their invoiceninja.com account. Invoiceninja.com will not modify or distribute User Account data. Invoiceninja.com will store and access data solely for the purpose of providing services to User Accounts.</p>
         <p>User Accounts are responsible for their data. Invoiceninja.com has no responsibility or liability for User Account data or Client experience. User Accounts are responsible for any loss or damage a User Account may cause to their Clients or other people. Although we have no obligation to do so, if deemed legally necessary invoiceninja.com has absolute discretion to remove or edit User Account data without notice or penalty.</p>
         <p>Invoiceninja.com does not own User Account data, but we do reserve the right to use User Account data as necessary to operate invoiceninja.com and improve User Account services.</p>
       </div>
@@ -111,7 +111,7 @@
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <h2>User Account Limited License </h2>
-        <p>Invoiceninja.com grants User Accounts & Clients a limited license to access the invoiceninj.com services such as User Account creation and all invoiceninja.om services, and Client services such as viewing invoices, downloading invoices, and printing invoices. This limited license may be revoked if deemed legally necessary without notice or penalty.</p>
+        <p>Invoiceninja.com grants User Accounts & Clients a limited license to access the invoiceninja.com services such as User Account creation and all invoiceninja.om services, and Client services such as viewing invoices, downloading invoices, and printing invoices. This limited license may be revoked if deemed legally necessary without notice or penalty.</p>
       </div>
     </div>
   </div>
