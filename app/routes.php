@@ -57,6 +57,7 @@ Route::get('/send_emails', function() {
 Route::get('/', 'HomeController@showWelcome');
 Route::get('/rocksteady', 'HomeController@showWelcome');
 Route::get('/about', 'HomeController@showAboutUs');
+Route::get('/terms', 'HomeController@showTerms');
 Route::get('/contact', 'HomeController@showContactUs');
 Route::post('/contact', 'HomeController@doContactUs');
 

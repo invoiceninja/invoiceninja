@@ -233,7 +233,7 @@
 	    	{{ Former::text('new_last_name')->label('Last name') }}
 	      {{ Former::text('new_email')->label('Email') }}	    	
 	      {{ Former::password('new_password')->label('Password') }}        
-        {{ Former::checkbox('terms_checkbox')->label(' ')->text('I agree to the Invoice Ninja <a href="#" target="_blank">Terms of Service</a>') }}
+        {{ Former::checkbox('terms_checkbox')->label(' ')->text('I agree to the Invoice Ninja <a href="'.URL::to('terms').'" target="_blank">Terms of Service</a>') }}
 			  {{ Former::close() }}
 
 			 <center><div id="errorTaken" style="display:none">&nbsp;<br/>The email address is already regiestered</div></center>

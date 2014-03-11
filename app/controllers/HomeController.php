@@ -29,6 +29,11 @@ class HomeController extends BaseController {
 		return View::make('contact_us');
 	}
 
+	public function showTerms()
+	{
+		return View::make('terms');
+	}
+
 	public function doContactUs()
 	{
 		$email = Input::get('email');
