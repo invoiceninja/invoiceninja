@@ -10,6 +10,11 @@
 @stop
 
 @section('body')
+
+{{ Form::open(array('url' => 'get_started', 'id' => 'startForm')) }}
+{{ Form::hidden('guest_key') }}
+{{ Form::close() }}
+
  <script>
         $(document).ready(function () {
       $("#feedbackSubmit").click(function() {
@@ -18,7 +23,7 @@
  
     //do a little client-side validation -- check that each field has a value and e-mail field is in proper format
     var hasErrors = false;
-    $('#feedbackForm input,textarea').each(function() {
+    $('.feedbackForm input,textarea').each(function() {
       if (!$(this).val()) {
         hasErrors = true;
         contactForm.addError($(this));
@@ -35,23 +40,6 @@
       return false;
     }
  
-    //send the feedback e-mail
-    $.ajax({
-      type: "POST",
-      url: "library/sendmail.php",
-      data: $("#feedbackForm").serialize(),
-      success: function(data)
-      {
-        contactForm.addAjaxMessage(data.message, false);
-        //get new Captcha on success
-        $('#captcha').attr('src', '/vendor/securimage/securimage_show.php?' + Math.random());
-      },
-      error: function(response)
-      {
-        contactForm.addAjaxMessage(response.responseJSON.message, true);
-      }
-   });
-    return false;
   }); 
     
 });
@@ -64,8 +52,8 @@ var contactForm = {
   },
   clearErrors: function () {
     $('#emailAlert').remove();
-    $('#feedbackForm .help-block').hide();
-    $('#feedbackForm .form-group').removeClass('has-error');
+    $('.feedbackForm .help-block').hide();
+    $('.feedbackForm .form-group').removeClass('has-error');
   },
   addError: function ($input) {
     $input.siblings('.help-block').show();
@@ -75,16 +63,29 @@ var contactForm = {
     $("#feedbackSubmit").after('<div id="emailAlert" class="alert alert-' + (isError ? 'danger' : 'success') + '" style="margin-top: 5px;">' + $('<div/>').text(msg).html() + '</div>');
   }
     };
+
+  function isStorageSupported() {
+    try {
+      return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function getStarted() {
+    $('#startForm').submit();
+  }
+    
 </script>
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-inner">
-      <a class="brand" href="#"><img src=
+      <a class="brand" href="/"><img src=
         "images/invoiceninja-logo.png"></a>
         <ul class="navbar-list">
-          <li>{{ link_to('about_us', 'About Us' ) }}</li>
-          <li>{{ link_to('contact_us', 'Contact Us' ) }}</li>
-          <li>{{ link_to('login', Auth::check() ? 'Continue' : 'Login' ) }}</li>
+          <li>{{ link_to('about', 'About Us' ) }}</li>
+          <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+          <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
         </ul>
       </div>
     </div>
@@ -103,13 +104,23 @@ var contactForm = {
     <section class="about contact">
         <div class="container">
             <div id="contact_form" class="row">
+
+
+                @if (Session::has('message'))
+                  <div class="alert alert-info">{{ Session::get('message') }}</div>
+                @endif
+
+                @if (Session::has('error'))
+                  <div class="alert alert-danger">{{ Session::get('error') }}</div>
+                @endif
+
                      
                 <div class="row">              
                     <div class="col-md-7">
                         <h2>Have a question or just want to say hi?</h2>
                         <p>Fill in the form below and we'll get back to you as soon as possible (within 24 hours). Hope to hear from you.</p>
-                        
-                        <form role="form" id="feedbackForm">
+                                                
+                        {{ Former::open('contact')->addClass('feedbackForm') }}
                             <div class="form-group">
                                 <input type="text" class="form-control" id="name" name="name" placeholder="Name">
                                 <span class="help-block" style="display: none;">Please enter your name.</span>
@@ -127,19 +138,16 @@ var contactForm = {
                                     <button type="submit" id="feedbackSubmit" class="btn btn-primary btn-lg">Send Message <span class="glyphicon glyphicon-send"></span></button>
                                 </div>
                             </div>
-                        </form>
+
+                        {{ Former::close() }}
+                        
                     </div>
                     <div class="col-md-4 col-md-offset-1 address">
                         <h2>Other ways to reach us</h2>
-                        <p><span class="glyphicon glyphicon-send"></span><a href="mailto:hello@invoiceninja.com">hello@invoiceninja.com</a></p>
-                        <p><span class="glyphicon glyphicon-earphone"></span>+524 975 502</p>
-                        <address>
-                          <span class="glyphicon glyphicon-pencil"></span><strong>InvoiceNinja</strong><br>
-                          <span class="push">795 Folsom Ave, Suite 600<br></span>
-                          <span class="push">San Francisco, CA 94107<br></span>
-                          <span class="push">Isarel</span>
-                        </address>
-                        </p>
+                        <p><span class="glyphicon glyphicon-send"></span><a href="mailto:contact@invoiceninja.com">contact@invoiceninja.com</a></p>
+                        <p><span class="glyphicon glyphicon-earphone"></span>(800) 763-1948</p>
+                        <p><span class="github"></span><div style="padding-top:10px"> &nbsp;&nbsp;<a href="https://github.com/hillelcoren/invoice-ninja" target="_blank">GitHub Project</a></div></p>
+
                     </div>
                 </div>
                 </div>
@@ -182,7 +190,9 @@ var contactForm = {
 
                 <div class="navbar-inner">
                   <ul class="navbar-list">
-                    <li>{{ link_to('login', Auth::check() ? 'Continue' : 'Login' ) }}</li>
+                    <li>{{ link_to('about', 'About Us' ) }}</li>
+                    <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+                    <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
                   </ul>
 
                     <!--

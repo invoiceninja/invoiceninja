@@ -60,7 +60,7 @@ class AccountController extends \BaseController {
 
 	public function setTrashVisible($entityType, $visible)
 	{
-		Session::put('show_trash', $visible == 'true');		
+		Session::put('show_trash', $visible == 'true');
 		return Redirect::to("{$entityType}s");
 	}
 
@@ -450,7 +450,7 @@ class AccountController extends \BaseController {
 
 		if ($validator->fails()) 
 		{
-			return Redirect::to('company/settings')
+			return Redirect::to('company/payments')
 				->withErrors($validator)
 				->withInput();
 		} 

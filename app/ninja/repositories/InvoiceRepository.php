@@ -93,7 +93,7 @@ class InvoiceRepository
 
     	$invoice = (array) $input;
     	$invoiceId = isset($invoice['public_id']) && $invoice['public_id'] ? Invoice::getPrivateId($invoice['public_id']) : null;
-    	$rules = ['invoice_number' => 'unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . \Auth::user()->account_id];    	
+    	$rules = ['invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . \Auth::user()->account_id];    	
 
     	if ($invoice['is_recurring'] && $invoice['start_date'] && $invoice['end_date'])
     	{
