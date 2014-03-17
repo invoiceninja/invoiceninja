@@ -440,12 +440,12 @@ ko.bindingHandlers.dropdown = {
 
        /*
         ko.utils.registerEventHandler(element, "change", function () {
-          console.log("change: %s", $(element).val());
-          var  
+          console.log("change: %s", $(element).val());          
+          //var  
           valueAccessor($(element).val());
             //$(element).combobox('refresh');
         });
-      */
+        */
     },
     update: function (element, valueAccessor) {     
       var value = ko.utils.unwrapObservable(valueAccessor());
@@ -1290,11 +1290,12 @@ function displayClient(doc, invoice, x, y, layout) {
   if (!client) {
     return;
   }
-
+  console.log('=== country: ' + (client.country ? client.country.name : false));
   var data = [
     getClientDisplayName(client),
     concatStrings(client.address1, client.address2),
     concatStrings(client.city, client.state, client.postal_code),
+    client.country ? client.country.name : false,
     client.contacts[0].email
   ];
 
@@ -1335,21 +1336,23 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
 }
 
 function concatStrings() {
-  var hasValue = false;
   var concatStr = '';
+  var data = [];
   for (var i=0; i<arguments.length; i++) {
     var string = arguments[i];
     if (string) {
-      hasValue = true;
+      data.push(string);
     }
-    concatStr += string;
-    if (i == 0) {
+  }
+  for (var i=0; i<data.length; i++) {
+    concatStr += data[i];
+    if (i == 0 && data.length > 1) {
       concatStr += ', ';
-    } else if (i < arguments.length -1) {
+    } else if (i < data.length -1) {
       concatStr += ' ';
     }
   }
-  return hasValue ? concatStr : false;
+  return data.length ? concatStr : false;
 }
 
 function displayGrid(doc, invoice, data, x, y, layout, hasheader, rightAlignX, rightAlignTitleX)  {

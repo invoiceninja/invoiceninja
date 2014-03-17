@@ -22,6 +22,8 @@
 		'product_key' => 'max:20',
 	)); }}	
 
+	<input type="submit" style="display:none" name="submitButton" id="submitButton">
+
 	<div data-bind="with: invoice">
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-4" id="col_1">
@@ -255,7 +257,7 @@
 					  )
 					, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); --}}				
 			@else
-				{{ Button::success_submit('Save Invoice', array('id' => 'saveButton')) }}			
+				{{ Button::success('Save Invoice', array('id' => 'saveButton', 'onclick' => 'onSaveClick()')) }}			
 			@endif
 
 			{{ Button::normal('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->append_with_icon('send'); }}		
@@ -423,7 +425,7 @@
 				<p>Examples of dynamic invoice variables:</p>
 				<ul>
 					<li>"Gym membership for the month of :MONTH" => "Gym membership for the month of July"</li>
-					<li>":YEAR+1 yearly subscription" => "2014 Yearly Subscription"</li>
+					<li>":YEAR+1 yearly subscription" => "2015 Yearly Subscription"</li>
 					<li>"Retainer payment for :QUARTER+1" => "Retainer payment for Q2"</li>
 				</ul>				
 	    	&nbsp;
@@ -454,7 +456,26 @@
 
 	$(function() {
 
-		$('#country_id').combobox();
+		$('#country_id').combobox().on('change', function(e) {
+			console.log('changed country');
+			var countryId = parseInt($('input[name=country_id]').val(), 10);	
+			var foundMatch = false;
+			$('#country_id option').each(function() {
+				var itemId = parseInt($(this).val(), 10);					
+				if (countryId === itemId) {
+					foundMatch = true;
+					var country = {id:countryId, name:$(this).text()};
+					model.invoice().client().country = country;
+					model.invoice().client().country_id(countryId);
+					return;					
+				}
+			});
+			if (!foundMatch) {
+				model.invoice().client().country = false;
+				model.invoice().client().country_id(0);
+			}
+		});
+
 		$('[rel=tooltip]').tooltip();
 
 		$('#invoice_date, #due_date, #start_date, #end_date').datepicker();
@@ -470,19 +491,15 @@
 				model.loadClient(clientMap[clientId]);				
 			} else {
 				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));
+				model.invoice().client().country = false;				
 			}
 			refreshPDF();
-		}); //.trigger('change');		
+		}); //.trigger('change');				
 
 		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id').change(function() {
 			refreshPDF();
 		});
 
-		$('.country_select input.form-control').on('change', function(e) {
-			var countryId = parseInt($('input[name=country_id]').val(), 10);	
-			model.invoice().client().country_id(countryId);
-		});		
-		
 		@if ($client || $invoice)
 			$('#invoice_number').focus();
 		@else
@@ -651,16 +668,17 @@
 		@if (Auth::user()->confirmed)
 		if (confirm('Are you sure you want to email this invoice?')) {
 			$('#action').val('email');
-			$('.main_form').submit();
+			$('#submitButton').click();
 		}
 		@else
 			$('#action').val('email');
-			$('.main_form').submit();
+			$('#submitButton').click();
 		@endif
 	}
 
 	function onSaveClick() {
-		$('.main_form').submit();
+		$('#action').val('');
+		$('#submitButton').click();
 	}
 
 	function isSaveValid() {
@@ -698,7 +716,7 @@
 
 	function onCloneClick() {
 		$('#action').val('clone');
-		$('.main_form').submit();
+		$('#submitButton').click();
 	}
 
 	@if ($client && $invoice)
@@ -713,13 +731,13 @@
 
 	function onArchiveClick() {
 		$('#action').val('archive');
-		$('.main_form').submit();
+		$('#submitButton').click();		
 	}
 
 	function onDeleteClick() {
 		if (confirm('Are you sure you want to delete this invoice?')) {
 			$('#action').val('delete');
-			$('.main_form').submit();
+			$('#submitButton').click();			
 		}		
 	}
 
@@ -730,8 +748,8 @@
 			}
 			event.preventDefault();		     				
 
-
-			$('.main_form').submit();
+			$('#action').val('');
+			$('#submitButton').click();
 			return false;
 		}
 	}
@@ -1430,6 +1448,7 @@
 	var clients = {{ $clients }};	
 	var clientMap = {};
 	var $clientSelect = $('select#client');
+
 
 	for (var i=0; i<clients.length; i++) {
 		var client = clients[i];

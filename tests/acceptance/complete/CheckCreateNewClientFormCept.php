@@ -11,7 +11,7 @@ $I->wantTo('Test Form:New Client. /clients/create');
 
 
 
-$I->amOnPage('/rocksteady'); 
+$I->amOnPage('/'); 
 $I->click('#startButton');
 
 

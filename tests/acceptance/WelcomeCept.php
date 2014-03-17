@@ -2,7 +2,7 @@
 
 $I = new WebGuy($scenario);
 $I->wantTo('click invoice now');
-$I->amOnPage('/rocksteady'); 
+$I->amOnPage('/'); 
 $I->click('#startButton');
 $I->seeInDatabase('users', ['id' => 1]);
 
