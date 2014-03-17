@@ -253,7 +253,9 @@ class InvoiceController extends \BaseController {
 		$invoice = $input->invoice;
 
 		if ($errors = $this->invoiceRepo->getErrors($invoice))
-		{
+		{					
+			Session::flash('error', 'Please make sure to select a client and correct any errors');
+
 			return Redirect::to('invoices/create')
 				->withInput()->withErrors($errors);
 		} 

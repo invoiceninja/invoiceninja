@@ -9,7 +9,7 @@
 
   The following client {{ $clientName }} was emailed Invoice {{ $invoiceNumber }} for {{ $invoiceAmount}}.<p/>
 
-  To adjust your email notification settings please <a href="http://www.invoiceninja.com/company/settings">click here</a>.<p/>
+  To adjust your email notification settings please <a href="http://www.invoiceninja.com/company/notifications">click here</a>.<p/>
 
 </body>
 </html>

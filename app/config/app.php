@@ -65,7 +65,7 @@ return array(
 	|
 	*/
 
-	'key' => 'a2jfy6HtBEdNtJnRSOC7vIM3UVhxZ1BB',
+	'key' => '',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -214,7 +214,7 @@ return array(
 		'Typography'      => 'Bootstrapper\Typography',
 		'Confide'    	    => 'Zizaco\Confide\ConfideFacade',
 		'Former'          => 'Former\Facades\Former',
-		'Datatable'       => 'Chumper\Datatable\Facades\Datatable',
+		'Datatable'       => 'Chumper\Datatable\Facades\DatatableFacade',
 		'Omnipay'         => 'Omnipay\Omnipay',
 		'CreditCard'      => 'Omnipay\Common\CreditCard',
 		'Image'           => 'Intervention\Image\Facades\Image',

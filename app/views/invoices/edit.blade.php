@@ -30,7 +30,7 @@
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
 					<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
-						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ $client->getDisplayName() }}</a>
+						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm, text: getClientDisplayName(ko.toJS(client()))"></a>
 					</div>
 				</div>    				
 				<div style="display:none">
@@ -63,16 +63,16 @@
 		<div class="col-md-4" id="col_2">
 			<div data-bind="visible: !is_recurring()">
 				{{ Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') }}
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'invoice_date\')"></i>') }}
 				{{ Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') }}							
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') }}							
 			</div>
 			<div data-bind="visible: is_recurring" style="display: none">
 				{{ Former::select('frequency_id')->label('How often')->options($frequencies)->data_bind("value: frequency_id") }}
 				{{ Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') }}
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') }}
 				{{ Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') }}
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') }}
 			</div>
 			@if ($invoice && $invoice->recurring_invoice_id)
 				<div class="pull-right" style="padding-top: 6px">
@@ -138,7 +138,7 @@
 	            <td>
 	            	<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
 	            </td>
-	            <td style="display:none;vertical-align:middle" data-bind="visible: $root.invoice_item_taxes.show">
+	            <td style="display:none;" data-bind="visible: $root.invoice_item_taxes.show">
 	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select>
 	            </td>
 		        	<td style="text-align:right;padding-top:9px !important">
@@ -176,9 +176,9 @@
 	        <tr style="display:none" data-bind="visible: $root.invoice_taxes.show">
 	        	<td class="hide-border" colspan="3"/>
 	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
-				<td style="vertical-align: middle">Tax</td>
+				<td>Tax</td>
 				<td style="min-width:120px"><select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select></td>
-				<td style="vertical-align: middle; text-align: right"><span data-bind="text: totals.taxAmount"/></td>
+				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 	        </tr>
 	        <tr>
 	        	<td class="hide-border" colspan="3"/>
@@ -217,9 +217,9 @@
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))						
 			@if ($invoice)		
 
-				<div id="primaryActions" style="text-align:left" data-bind="css: $root.enable.save" class="btn-group">
-					<button class="btn-success btn" type="button" data-bind="css: $root.enable.save">Save Invoice</button>
-					<button class="btn-success btn dropdown-toggle" type="button" data-toggle="dropdown" data-bind="css: $root.enable.save"> 
+				<div id="primaryActions" style="text-align:left" class="btn-group">
+					<button class="btn-success btn" type="button">Save Invoice</button>
+					<button class="btn-success btn dropdown-toggle" type="button" data-toggle="dropdown"> 
 						<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu">
@@ -255,10 +255,10 @@
 					  )
 					, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); --}}				
 			@else
-				{{ Button::success_submit('Save Invoice', array('data-bind'=>'css: $root.enable.save', 'id' => 'saveButton')) }}			
+				{{ Button::success_submit('Save Invoice', array('id' => 'saveButton')) }}			
 			@endif
 
-			{{ Button::normal('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()', 'data-bind' => 'css: $root.enable.email'))->append_with_icon('send'); }}		
+			{{ Button::normal('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->append_with_icon('send'); }}		
 
 			@if ($invoice)		
 				{{ Button::primary('Enter Payment', array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
@@ -416,9 +416,16 @@
 
 	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
 	    	&nbsp;
-	    	<p>Recurring invoices are automatically sent.</p>
-	    	<p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. </p>
-	    	<p>Basic math works as well. ie, :MONTH-1. </p>
+	    	<p>Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. </p>
+
+				<p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
+
+				<p>Examples of dynamic invoice variables:</p>
+				<ul>
+					<li>"Gym membership for the month of :MONTH" => "Gym membership for the month of July"</li>
+					<li>":YEAR+1 yearly subscription" => "2014 Yearly Subscription"</li>
+					<li>"Retainer payment for :QUARTER+1" => "Retainer payment for Q2"</li>
+				</ul>				
 	    	&nbsp;
 		</div>
 
@@ -579,6 +586,10 @@
     return invoice;
 	}
 
+	function toggleDatePicker(field) {
+		$('#'+field).datepicker('show');
+	}
+
 	/*
 	function refreshPDF() {
 		setTimeout(function() {
@@ -589,13 +600,15 @@
 
 	var isRefreshing = false;
 	var needsRefresh = false;
-	function refreshPDF() {
+	function getPDFString() {
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice);		
 		if (!doc) return;
-		var string = doc.output('datauristring');
-
+		return doc.output('datauristring');
+	}
+	function refreshPDF() {
 		if (isFirefox || (isChrome && !isChromium)) {
+			var string = getPDFString();
 			$('#theFrame').attr('src', string).show();		
 		} else {			
 			if (isRefreshing) {
@@ -603,7 +616,7 @@
 				return;
 			}
 			isRefreshing = true;
-
+			var string = getPDFString();
 			var pdfAsArray = convertDataURIToBinary(string);	
 		    PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
 
@@ -650,6 +663,39 @@
 		$('.main_form').submit();
 	}
 
+	function isSaveValid() {
+		var isValid = false;
+		for (var i=0; i<self.invoice().client().contacts().length; i++) {
+			var contact = self.invoice().client().contacts()[i];
+			if (isValidEmailAddress(contact.email())) {
+				isValid = true;
+			} else {
+				isValid = false;
+				break;
+			}
+		}
+		return isValid;
+	}
+	
+	function isEmailValid() {
+		var isValid = false;
+		var sendTo = false;
+		var client = self.invoice().client();
+		for (var i=0; i<client.contacts().length; i++) {
+			var contact = client.contacts()[i];        		
+			if (isValidEmailAddress(contact.email())) {
+				isValid = true;
+				if (contact.send_invoice() || client.contacts().length == 1) {
+					sendTo = true;
+				}
+			} else {
+				isValid = false;
+				break;
+			}
+		}
+		return (isValid && sendTo)
+	}
+
 	function onCloneClick() {
 		$('#action').val('clone');
 		$('.main_form').submit();
@@ -684,9 +730,6 @@
 			}
 			event.preventDefault();		     				
 
-			if (model.enable.save() != 'enabled') {
-				return;
-			}
 
 			$('.main_form').submit();
 			return false;
@@ -893,40 +936,6 @@
 			$('#invoice_number').focus();
 		}		
 
-		self.enable = {};
-		self.enable.save = ko.computed(function() {
-			var isValid = false;
-        	for (var i=0; i<self.invoice().client().contacts().length; i++) {
-        		var contact = self.invoice().client().contacts()[i];
-        		if (isValidEmailAddress(contact.email())) {
-        			isValid = true;
-        		} else {
-        			isValid = false;
-        			break;
-        		}
-        	}
-        	return isValid ? "enabled" : "disabled";
-    	});
-
-		self.enable.email = ko.computed(function() {
-			var isValid = false;
-			var sendTo = false;
-			var client = self.invoice().client();
-        	for (var i=0; i<client.contacts().length; i++) {
-        		var contact = client.contacts()[i];        		
-        		if (isValidEmailAddress(contact.email())) {
-        			isValid = true;
-        			if (contact.send_invoice() || client.contacts().length == 1) {
-        				sendTo = true;
-        			}
-        		} else {
-        			isValid = false;
-        			break;
-        		}
-        	}
-        	return isValid && sendTo ? "enabled" : "disabled";
-    	});
-
 		self.clientLinkText = ko.computed(function() {
 			if (self.invoice().client().public_id())
 			{
@@ -954,7 +963,7 @@
 		self.discount = ko.observable('');
 		self.frequency_id = ko.observable('');
 		//self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
-		self.terms = ko.observable(wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', $account->invoice_terms) }}', 340));
+		self.terms = ko.observable(wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', $account->invoice_terms) }}', 300));
 		self.set_default_terms = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
@@ -1027,7 +1036,7 @@
 				return this.terms();
 			},
 			write: function(value) {
-				value = wordWrapText(value, 340);
+				value = wordWrapText(value, 300);
 				self.terms(value);
 				$('#terms').height(value.split('\n').length * 36);
 			},
@@ -1041,7 +1050,7 @@
 				return this.public_notes();
 			},
 			write: function(value) {
-				value = wordWrapText(value, 340);
+				value = wordWrapText(value, 300);
 				self.public_notes(value);
 				$('#public_notes').height(value.split('\n').length * 36);
 			},
@@ -1337,7 +1346,7 @@
 				return this.notes();
 			},
 			write: function(value) {
-				value = wordWrapText(value);
+				value = wordWrapText(value, 235);
 				self.notes(value);
 				onItemChange();
 			},

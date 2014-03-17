@@ -5,7 +5,7 @@ body {
 
 .center-block { margin: 0 auto!; float: none; }
 
-h1, h2 {
+h1, h2, .btn {
 font-family: 'Roboto', sans-serif;
 font-weight: 900;
 line-height: 1.1;
@@ -18,7 +18,7 @@ font-size: 45px;
 h2 {
 font-size: 20px;
 }
-a, a .cta h2, .socicon {
+a, a .cta h2, .socicon, .btn {
 -webkit-transition: all 0.3s ease-in-out;
   -moz-transition: all 0.3s ease-in-out;
   -o-transition: all 0.3s ease-in-out;
@@ -34,6 +34,8 @@ text-decoration: none;
 .navbar {
 	background: #2e2b2b;
 	padding: 30px 0;
+    border: none;
+    border-radius: 0;
 }
 ul.navbar-list {
 	float: right;
@@ -135,24 +137,35 @@ a .cta:hover span {
 	background-image: url(/images/hero-bg-3.jpg);
 	padding: 150px 0;
 	background-repeat: no-repeat;
-    background-position: bottom center;
+    background-position: center center;
     background-size: cover;    
 }
-.hero2 h1, .hero3 h1 {
+.hero4 {
+	text-align: center;
+	background-image: url(/images/hero-bg-4.jpg);
+	padding: 150px 0;
+	background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;    
+}
+.hero2 h1, .hero3 h1, .hero4 h1 {
 	color: #fff;
 	margin: 0;
 }
 .background {
     background-repeat: no-repeat;
-    background-position: top center;
-    background-attachment: fixed;
+    background-position: center center;
+    background-attachment: static;
     background-size: cover;    
     min-height: 500px;
 }
 section.features, section.upper-footer { 
 margin: 60px 0;
 }
-
+section.upper-footer.white-bg {
+margin: 0;
+padding: 60px 0;
+}
 section.features .col-md-3  .box{
 	padding: 20px;
 	background: #ebbe09;
@@ -173,6 +186,7 @@ margin-top: -20px;
 text-align: left;
 }
 section.blue {
+    display: none;
 	background: #2299c0;
 	color: #fff;
 }
@@ -200,6 +214,108 @@ section.blue .col-md-6 h1 span {
 section.about { padding: 70px 0; }
 section.about h2 { margin: 0 0 25px 0; font-size: 25px; text-transform:none;}
 section.about .screendump { background-color:#ccc; height:220px;}
+
+
+section.contact .address .glyphicon {
+    background: #edd71e;
+    height: 40px;
+    width: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50px;
+    color: #1a1818;
+    margin-right: 15px;
+}
+section.contact .address p {
+    margin-bottom: 20px;   
+}
+section.contact .address span.push {
+    margin-left: 55px;
+    line-height: 25px;
+}
+
+section.contact .form-control {
+display: block;
+width: 100%;
+height: 40px;
+padding: 6px 12px;
+font-size: 14px;
+line-height: 1.42857143;
+color: #555;
+background-color: #fff;
+background-image: none;
+border: none;
+border-radius: 0;
+-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+-webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+section.contact textarea.form-control {
+height: auto;
+}
+
+.btn-primary {
+color: #fff;
+background-color: #2299c0;
+border: none;
+text-align: center;
+    border-radius: 0;
+    height: 63px;
+line-height: 63px;
+    padding: 0;
+    width: 100%;
+    text-align: center;
+}
+.btn-primary:hover {background-color: #2299c0;}
+section.contact button span.glyphicon {
+    background-color: transparent;
+    color: #fff;
+    float: right;
+}
+section.contact .btn span.glyphicon {
+    background-color: #1e84a5;
+     height: 63px;
+    line-height: 63px;
+    width: 63px;
+    margin-top: -1px;
+    -webkit-transition: all 0.1s ease-in-out;
+-moz-transition: all 0.1s ease-in-out;
+-o-transition: all 0.1s ease-in-out;
+transition: all 0.1s ease-in-out;
+}
+section.contact .btn:hover span.glyphicon {
+    font-size: 25px;   
+}
+
+
+section.contact textarea:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="datetime"]:focus,
+input[type="datetime-local"]:focus,
+input[type="date"]:focus,
+input[type="month"]:focus,
+input[type="time"]:focus,
+input[type="week"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+input[type="tel"]:focus,
+input[type="color"]:focus,
+.uneditable-input:focus {
+  border-color: rgba(0, 0, 0, 0.8);
+  outline: 0;
+  outline: thin dotted \9;
+  /* IE6-9 */
+
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0), 0 0 8px rgba(0,0,0,.2) !important;
+  -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0), 0 0 8px rgba(0,0,0,.2) !important;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0), 0 0 8px rgba(0,0,0,.2) !important;
+}
+section.contact address { display: inline-block;}
 
 footer .navbar-inner {
 	float: right;
@@ -284,7 +400,7 @@ margin-bottom: 10px;
 
 
 @media (max-width: 768px) {
-	
+    
 	h1 {  
 		font-size: 30px;
 	}
@@ -311,7 +427,7 @@ margin-bottom: 10px;
 		margin-bottom: 10px;
 		text-align: center;
 	}
-	.hero2, .hero3 {
+	.hero2, .hero3, .hero4 {
 	padding: 50px 0;
     }
     
@@ -325,6 +441,9 @@ margin-bottom: 10px;
 	}
 	section.features, section.upper-footer { 
         margin: 30px 0;
+    }
+    section.upper-footer.white-bg { 
+        padding: 30px 0;
     }
 
 section.features .col-md-3  .box{
@@ -346,6 +465,20 @@ section.about {
     padding: 30px 0;
     text-align: center;
 }
+section.about.contact {
+    padding: 30px 0 0 0;
+}
+section.contact .address {margin: 0;}
+section.contact .address p {text-align:center;}
+section.contact .address .glyphicon {
+display:block;
+margin: 0 auto 7px auto;
+        float: none;
+}
+section.contact .address span.push {
+margin-left: 0;
+}
+section.contact .btn { margin-bottom: 5px; }
 section.about p {
     margin-bottom: 0;
     margin-top: 10px;
@@ -361,6 +494,12 @@ section.about.white-bg .screendump {
 section.about h2 {
     margin: 0 0 15px 0;
 }
+#contact_form {
+    margin: 0;
+    }
+#feedbackForm {
+    margin-top: 15px;
+}
 footer .navbar-inner {
 	float: none;
 }
@@ -374,7 +513,19 @@ footer .social {
 footer .social .socicon {
 	margin-right: 8px;
 }
+
 	
+}
+
+.github {
+    background-image: url('../images/GitHub.png');    
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 40px;    
+    height: 40px;
+    display: inline-block;
+    margin-right: 10px;
+    float: left;    
 }
 
 

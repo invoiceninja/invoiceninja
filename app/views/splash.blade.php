@@ -16,16 +16,6 @@
 
 <script>
   $(document).ready(function () {
-    var $window = $(window);
-    $('section[data-type="background"]').each(function () {
-      var $bgobj = $(this);
-      $(window).scroll(function () {
-        var yPos = -($window.scrollTop() / $bgobj.data('speed'));
-        var coords = '50% ' + yPos + 'px';
-        $bgobj.css({ backgroundPosition: coords });
-      });
-    });
-
     if (isStorageSupported()) {
       $('[name="guest_key"]').val(localStorage.getItem('guest_key'));          
     }
@@ -48,10 +38,12 @@
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-inner">
-      <a class="brand" href="#"><img src=
+      <a class="brand" href="/"><img src=
         "images/invoiceninja-logo.png"></a>
         <ul class="navbar-list">
-          <li>{{ link_to('login', Auth::check() ? 'Continue' : 'Login' ) }}</li>
+          <li>{{ link_to('about', 'About Us' ) }}</li>
+          <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+          <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
         </ul>
       </div>
     </div>
@@ -182,7 +174,9 @@
 
                 <div class="navbar-inner">
                   <ul class="navbar-list">
-                    <li>{{ link_to('login', Auth::check() ? 'Continue' : 'Login' ) }}</li>
+                    <li>{{ link_to('about', 'About Us' ) }}</li>
+                    <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+                    <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
                   </ul>
 
                     <!--
