@@ -163,8 +163,16 @@ HTML::macro('image_data', function($imagePath) {
 
 HTML::macro('breadcrumbs', function() {
   $str = '<ol class="breadcrumb">';
-  $crumbs = explode('/', $_SERVER['REQUEST_URI']);  
 
+  // Get the breadcrumbs by exploding the current path.
+  $crumbs = explode('/', str_replace(Utils::basePath(), '', $_SERVER['REQUEST_URI']));
+
+  // Include the link to Dashboard by default only if the user is not on the
+  // dashboard page.
+  if (!Request::is('dashboard')) {
+    $str .= '<li>' . link_to('dashboard', 'Dashboard') . '</li>';
+  }
+  
   foreach ($crumbs as $key => $val)
   {
     if (is_numeric($val))
