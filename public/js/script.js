@@ -1289,8 +1289,7 @@ function displayClient(doc, invoice, x, y, layout) {
   var client = invoice.client;
   if (!client) {
     return;
-  }
-  console.log('=== country: ' + (client.country ? client.country.name : false));
+  }  
   var data = [
     getClientDisplayName(client),
     concatStrings(client.address1, client.address2),
