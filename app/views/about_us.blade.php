@@ -38,7 +38,7 @@
   <div class="navbar" style="margin-bottom:0px">
     <div class="container">
       <div class="navbar-inner">
-        <a class="brand" href="#"><img src=
+        <a class="brand" href="/"><img src=
           "images/invoiceninja-logo.png"></a>
           <ul class="navbar-list">
             <li>{{ link_to('about', 'About Us' ) }}</li>
