@@ -124,7 +124,7 @@
       <div class="col-md-8 col-md-offset-2">
         <h2>Use of Emailing Services</h2>
         <p>Keep it legal and clean. Any User Account emailing invoices data, hyper-links, or other material that is unlawful, libelous, defamatory, pornographic, harassing, invasive, fraudulent or otherwise objectionable will be deactivated.</p>
-        <p>Content that would constitute criminal offense or create legal liability, violate copyright, trademark, or intellectual property will be deleted or provided to legal authorities.</p>
+        <p>Content that would constitute criminal offence or create legal liability, violate copyright, trademark, or intellectual property will be deleted or provided to legal authorities.</p>
       </div>
     </div>
   </div>
@@ -149,7 +149,7 @@
       <div class="col-md-8 col-md-offset-2">
         <h2>Limited Liability</h2>
         <p>User Accounts and Clients agree to indemnify, defend, and hold invoiceninja.com, its directors or employees harmless against any and all liability and cost as a result of using invoiceninja.com. User Accounts and Clients shall not assert any claim or allegation of any nature whatsoever against invoiceninja.com, its directors or employees. </p>
-        <p>Invoiceninja.com shall not be liable for damages of any kind, including but not limited to loss of site use, loss of profits or loss of data, tort or otherwise, arising out of or in any way connected with the use of or inability to use invoicenin.com.</p>
+        <p>Invoiceninja.com shall not be liable for damages of any kind, including but not limited to loss of site use, loss of profits or loss of data, tort or otherwise, arising out of or in any way connected with the use of or inability to use invoiceninja.com.</p>
         <p>You shall defend, indemnify and hold harmless invoiceninja.com from any loss, damages, liabilities, expenses, claims and proceedings arising out of your use of invoiceninja.com.</p>
       </div>
     </div>

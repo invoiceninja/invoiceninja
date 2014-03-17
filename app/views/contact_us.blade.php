@@ -122,8 +122,8 @@ var contactForm = {
                      
                 <div class="row">              
                     <div class="col-md-7">
-                        <h2>Have a question or just want to say hi?</h2>
-                        <p>Fill in the form below and we'll get back to you as soon as possible (within 24 hours). Hope to hear from you.</p>
+                        <h2>Questions, special requests, or just want to say hi?</h2>
+                        <p>Fill in the form below and we'll get back to you as soon as possible. Hope to hear from you!</p>
                                                 
                         {{ Former::open('contact')->addClass('feedbackForm') }}
                             <div class="form-group">
@@ -150,7 +150,7 @@ var contactForm = {
                     <div class="col-md-4 col-md-offset-1 address">
                         <h2>Other ways to reach us</h2>
                         <p><span class="glyphicon glyphicon-send"></span><a href="mailto:contact@invoiceninja.com">contact@invoiceninja.com</a></p>
-                        <p><span class="glyphicon glyphicon-earphone"></span>(800) 763-1948</p>
+                        <p><span class="glyphicon glyphicon-earphone"></span>+1-800-763-1948</p>
                         <p><span class="github"></span><div style="padding-top:10px"> &nbsp;&nbsp;<a href="https://github.com/hillelcoren/invoice-ninja" target="_blank">GitHub Project</a></div></p>
 
                     </div>
