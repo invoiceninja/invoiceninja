@@ -36,6 +36,8 @@
 					{{-- do nothing --}}
 				@elseif ($field == 'testMode' || $field == 'developerMode') 
 					{{-- Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable') --}}				
+				@elseif ($field == 'username' || $field == 'password') 
+					{{ Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) }}				
 				@else
 					{{ Former::text($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field)) }}				
 				@endif

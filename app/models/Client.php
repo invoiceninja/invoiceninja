@@ -162,7 +162,17 @@ class Client extends EntityModel
 			return '';
 		}
 
-		return link_to($this->website, $this->website, array('target'=>'_blank'));
+		$link = $this->website;
+		$title = $this->website;
+		$prefix = 'http://';
+
+		if (strlen($link) > 7 && substr($link, 0, 7) === $prefix) {
+			$title = substr($title, 7);
+		} else {
+			$link = $prefix . $link;
+		}
+
+		return link_to($link, $title, array('target'=>'_blank'));
 	}
 
 	public function getDateCreated()

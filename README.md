@@ -4,7 +4,11 @@
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 ### Introduction
 
-Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is this codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
+Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is the codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
+
+For updates follow [@invoiceninja](https://twitter.com/invoiceninja) and [@hillelcoren](https://twitter.com/hillelcoren)
+
+Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
 
 ### Features
 * Core application built using Laravel 4.1
@@ -15,7 +19,7 @@ Most online invoicing sites are expensive. They shouldn't be. The aim of this pr
 
 ### Steps to setup
 
-If you plan on submitting changes it's best to fork the repo (https://help.github.com/articles/fork-a-repo), otherwise you can just checkout the code.
+If you plan on submitting changes it's best to [fork the repo](https://help.github.com/articles/fork-a-repo), otherwise you can just checkout the code.
 
     git clone git@github.com:hillelcoren/invoice-ninja.git ninja
     cd ninja

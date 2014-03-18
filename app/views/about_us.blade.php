@@ -38,7 +38,11 @@
   <div class="navbar" style="margin-bottom:0px">
     <div class="container">
       <div class="navbar-inner">
+<<<<<<< HEAD
         <a class="brand" href="#"><img src=
+=======
+        <a class="brand" href="/"><img src=
+>>>>>>> upstream/master
           "images/invoiceninja-logo.png"></a>
           <ul class="navbar-list">
             <li>{{ link_to('about', 'About Us' ) }}</li>
@@ -64,7 +68,7 @@
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <h2>Open Source Platform</h2>
-        <p>Free yourself from online invoicing platforms with high monthly fees and limited functionality.  Being open source allows us fast app development, security audits by the open-course community, and we can keep it <span style="color:#2299c0"><strong>FREE!</strong></span></p>
+        <p>Free yourself from online invoicing platforms with high monthly fees and limited functionality.  Being <a href="https://github.com/hillelcoren/invoice-ninja" target="_blank">open source</a> allows us fast app development, security audits by the open-course community, and we can keep it <strong>FREE!</strong></p>
       </div>
     </div>
   </div>

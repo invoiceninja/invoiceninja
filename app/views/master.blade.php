@@ -3,7 +3,7 @@
   <head>
 
     <title>Invoice Ninja {{ isset($title) ? $title : '' }}</title>
-    <link rel="canonical" href="https://www.invoiceninja.com/rocksteady"></link>
+    <link rel="canonical" href="https://www.invoiceninja.com"></link>
     <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">    
     
     <link href='//fonts.googleapis.com/css?family=Roboto:400,700,900,100' rel='stylesheet' type='text/css'>
@@ -13,7 +13,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:site_name" content="Invoice Ninja"></meta>
-    <meta property="og:url" content="https://www.invoiceninja.com/rocksteady"></meta>
+    <meta property="og:url" content="https://www.invoiceninja.com"></meta>
     <meta property="og:title" content="Invoice Ninja"></meta>
     <meta property="og:image" content="https://www.invoiceninja.com/images/facebook.jpg"></meta>
     <meta property="og:description" content="Simple, Intuitive Invoicing."></meta>

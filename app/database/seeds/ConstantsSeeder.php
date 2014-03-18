@@ -105,7 +105,7 @@ class ConstantsSeeder extends Seeder
 		Industry::create(array('name' => 'Travel & Luxury'));
 		Industry::create(array('name' => 'Other'));
 
-		Size::create(array('name' => '1 = 3'));
+		Size::create(array('name' => '1 - 3'));
 		Size::create(array('name' => '4 - 10'));
 		Size::create(array('name' => '11 - 50'));
 		Size::create(array('name' => '51 - 100'));
@@ -122,6 +122,7 @@ class ConstantsSeeder extends Seeder
 		Currency::create(array('name' => 'US Dollar', 'code' => 'USD', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 		Currency::create(array('name' => 'Pound Sterling', 'code' => 'GBP', 'symbol' => '£', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 		Currency::create(array('name' => 'Euro', 'code' => 'EUR', 'symbol' => '€', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
+		Currency::create(array('name' => 'Rand', 'code' => 'ZAR', 'symbol' => 'R', 'precision' => '2', 'thousand_separator' => ' ', 'decimal_separator' => '.'));
 
 
 		DatetimeFormat::create(array('format' => 'd/M/Y g:i a', 'label' => '10/Mar/2013'));
