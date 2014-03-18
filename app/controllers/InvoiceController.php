@@ -206,6 +206,12 @@ class InvoiceController extends \BaseController {
 
 	public static function getViewModel()
 	{
+		// Temporary fix to let users know to re-upload their logos for higher res
+		if (Auth::user()->account->getLogoHeight() == 80)
+		{
+			Session::flash('warning', "We've increased the logo resolution in the PDF. Please re-upload your logo to take advantage of it.");
+		}
+
 		return [
 			'account' => Auth::user()->account,
 			'products' => Product::scope()->orderBy('id')->get(array('product_key','notes','cost','qty')),

@@ -530,7 +530,7 @@ class AccountController extends \BaseController {
 			{
 				$path = Input::file('logo')->getRealPath();
 				File::delete('logo/' . $account->account_key . '.jpg');				
-				Image::make($path)->resize(120, 80, true, false)->save('logo/' . $account->account_key . '.jpg');
+				Image::make($path)->resize(null, 120, true, false)->save('logo/' . $account->account_key . '.jpg');				
 			}
 
 			Event::fire('user.refresh');

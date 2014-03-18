@@ -15,7 +15,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   if (invoice.image)
   {
     var left = layout.headerRight - invoice.imageWidth;
-    doc.addImage(invoice.image, 'JPEG', left, 30, invoice.imageWidth, invoice.imageHeight);
+    doc.addImage(invoice.image, 'JPEG', left, 20);
   } 
   
   /* table header */
@@ -700,7 +700,7 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
     if (invoice.image)
     {
       var left = layout.headerRight - invoice.imageWidth;
-      doc.addImage(invoice.image, 'JPEG', layout.marginLeft, layout.accountTop, invoice.imageWidth, invoice.imageHeight);
+      doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 20);
     }
 
     if (invoice.imageLogo1)
@@ -822,7 +822,7 @@ function GetReportTemplate2(doc, invoice, layout, checkMath)
   if (invoice.image)
   {
       var left = layout.headerRight - invoice.imageWidth;
-      doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 30, invoice.imageWidth, invoice.imageHeight);
+      doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 30);
   }
 
   Report2AddFooter (invoice,doc);
@@ -1140,7 +1140,7 @@ function GetReportTemplate3(doc, invoice, layout, checkMath)
     {
         y=130;
         var left = layout.headerRight - invoice.imageWidth;
-        doc.addImage(invoice.image, 'JPEG', layout.marginLeft, y, invoice.imageWidth, invoice.imageHeight);
+        doc.addImage(invoice.image, 'JPEG', layout.marginLeft, y);
     }
 
     Report3AddFooter (invoice, account, doc, layout);

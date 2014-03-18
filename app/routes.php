@@ -166,7 +166,13 @@ HTML::macro('breadcrumbs', function() {
   $str = '<ol class="breadcrumb">';
 
   // Get the breadcrumbs by exploding the current path.
-  $crumbs = explode('/', str_replace(Utils::basePath(), '', $_SERVER['REQUEST_URI']));
+  $basePath = Utils::basePath();
+  $path = $_SERVER['REQUEST_URI'];
+  if ($basePath != '/')
+  {
+    $path = str_replace($basePath, '', $path);
+  }
+  $crumbs = explode('/', $path);
 
   foreach ($crumbs as $key => $val)
   {
@@ -175,6 +181,7 @@ HTML::macro('breadcrumbs', function() {
       unset($crumbs[$key]);
     }
   }
+
   $crumbs = array_values($crumbs);
   for ($i=0; $i<count($crumbs); $i++) {
     $crumb = trim($crumbs[$i]);
