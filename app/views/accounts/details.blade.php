@@ -29,7 +29,7 @@
 			{{ Former::text('name') }}
 			{{ Former::text('work_email')->label('Email') }}
 			{{ Former::text('work_phone')->label('Phone') }}
-			{{ Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp('Supported: JPEG, GIF and PNG. Recommended size: 120px width, 80px height') }}
+			{{ Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp('Supported: JPEG, GIF and PNG. Recommended height: 120px') }}
 
 			@if (file_exists($account->getLogoPath()))
 				<center>
