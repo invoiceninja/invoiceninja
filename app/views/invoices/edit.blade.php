@@ -319,11 +319,11 @@
 
 					<div class="form-group">
 						<div class="col-lg-8 col-lg-offset-4">
-							<span data-bind="visible: $parent.contacts().length > 1">
-								{{ link_to('#', 'Remove contact', array('data-bind'=>'click: $parent.removeContact')) }}
+							<span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
+								{{ link_to('#', 'Remove contact -', array('data-bind'=>'click: $parent.removeContact')) }}
 							</span>					
-							<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right">
-								{{ link_to('#', 'Add contact', array('data-bind'=>'click: $parent.addContact')) }}
+							<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right greenlink bold">
+								{{ link_to('#', 'Add contact +', array('data-bind'=>'click: $parent.addContact')) }}
 							</span>
 						</div>
 					</div>

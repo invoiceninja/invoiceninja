@@ -1,5 +1,4 @@
-body { background: #fff !important;
-    font-family: 'Roboto', sans-serif;
+body { background: #f8f8f8 !important;
     font-family: 'Roboto', sans-serif;
 }
 .bold { font-weight: 700; }
@@ -130,14 +129,18 @@ color: #333;
 }
 
 /*modals*/
-
+.modal .container {
+padding: 20px;
+}
 .modal-header {
-border-bottom: 1px solid #dfe0e1;
-background-color: #f8f8f8;
+border-bottom: none;
+background-color: #0b4d78;
+    padding: 20px;
+    color: #fff;
 }
 .modal-footer {
 background-color: #f8f8f8;
-border-top: 1px solid #dfe0e1;
+border-top: none;
 }
 .modal thead {
 background: #fff;
@@ -145,9 +148,21 @@ color: #333;
 }
 .modal .table>thead>tr>th {
 border-bottom: 1px solid #dfe0e1 !important; padding-top: 30px;
+    background: #fff !important;
+    color: #333 !important;
 }
 .modal .table>thead>tr>th:first-child, .modal .table>thead>tr>th:last-child {
 border-bottom: none !important;
+}
+.modal .close {
+color: #fff;
+text-shadow: none;
+opacity: .8;
+filter: alpha(opacity=80);
+}
+.modal .close:hover {
+opacity: 1;
+filter: alpha(opacity=100);
 }
 /*buttons*/
 .btn { font-weight: bold; 
