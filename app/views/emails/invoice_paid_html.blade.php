@@ -14,5 +14,9 @@
 
   To adjust your email notification settings please <a href="http://www.invoiceninja.com/company/notifications">click here</a>.
 
+  Regards,
+
+  The InvoiceNinja Team
+  
 </body>
 </html>

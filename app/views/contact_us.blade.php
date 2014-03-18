@@ -16,29 +16,34 @@
 {{ Form::close() }}
 
  <script>
-        $(document).ready(function () {
-      $("#feedbackSubmit").click(function() {
-    //clear any errors
-    contactForm.clearErrors();
- 
-    //do a little client-side validation -- check that each field has a value and e-mail field is in proper format
-    var hasErrors = false;
-    $('.feedbackForm input,textarea').each(function() {
-      if (!$(this).val()) {
-        hasErrors = true;
-        contactForm.addError($(this));
+    $(document).ready(function () {
+
+      if (isStorageSupported()) {
+        $('[name="guest_key"]').val(localStorage.getItem('guest_key'));          
       }
-    });
-    var $email = $('#email');
-    if (!contactForm.isValidEmail($email.val())) {
-      hasErrors = true;
-      contactForm.addError($email);
-    }
- 
-    //if there are any errors return without sending e-mail
-    if (hasErrors) {
-      return false;
-    }
+
+        $("#feedbackSubmit").click(function() {
+      //clear any errors
+      contactForm.clearErrors();
+   
+      //do a little client-side validation -- check that each field has a value and e-mail field is in proper format
+      var hasErrors = false;
+      $('.feedbackForm input,textarea').each(function() {
+        if (!$(this).val()) {
+          hasErrors = true;
+          contactForm.addError($(this));
+        }
+      });
+      var $email = $('#email');
+      if (!contactForm.isValidEmail($email.val())) {
+        hasErrors = true;
+        contactForm.addError($email);
+      }
+   
+      //if there are any errors return without sending e-mail
+      if (hasErrors) {
+        return false;
+      }
  
   }); 
     
@@ -117,8 +122,8 @@ var contactForm = {
                      
                 <div class="row">              
                     <div class="col-md-7">
-                        <h2>Have a question or just want to say hi?</h2>
-                        <p>Fill in the form below and we'll get back to you as soon as possible (within 24 hours). Hope to hear from you.</p>
+                        <h2>Questions, special requests, or just want to say hi?</h2>
+                        <p>Fill in the form below and we'll get back to you as soon as possible. Hope to hear from you!</p>
                                                 
                         {{ Former::open('contact')->addClass('feedbackForm') }}
                             <div class="form-group">
@@ -145,7 +150,7 @@ var contactForm = {
                     <div class="col-md-4 col-md-offset-1 address">
                         <h2>Other ways to reach us</h2>
                         <p><span class="glyphicon glyphicon-send"></span><a href="mailto:contact@invoiceninja.com">contact@invoiceninja.com</a></p>
-                        <p><span class="glyphicon glyphicon-earphone"></span>(800) 763-1948</p>
+                        <p><span class="glyphicon glyphicon-earphone"></span>+1-800-763-1948</p>
                         <p><span class="github"></span><div style="padding-top:10px"> &nbsp;&nbsp;<a href="https://github.com/hillelcoren/invoice-ninja" target="_blank">GitHub Project</a></div></p>
 
                     </div>

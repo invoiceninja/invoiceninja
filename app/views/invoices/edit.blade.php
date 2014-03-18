@@ -416,9 +416,16 @@
 
 	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
 	    	&nbsp;
-	    	<p>Recurring invoices are automatically sent.</p>
-	    	<p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. </p>
-	    	<p>Basic math works as well. ie, :MONTH-1. </p>
+	    	<p>Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. </p>
+
+				<p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
+
+				<p>Examples of dynamic invoice variables:</p>
+				<ul>
+					<li>"Gym membership for the month of :MONTH" => "Gym membership for the month of July"</li>
+					<li>":YEAR+1 yearly subscription" => "2014 Yearly Subscription"</li>
+					<li>"Retainer payment for :QUARTER+1" => "Retainer payment for Q2"</li>
+				</ul>				
 	    	&nbsp;
 		</div>
 

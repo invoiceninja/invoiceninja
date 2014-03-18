@@ -8,6 +8,23 @@ use Utils;
 
 class UserMailer extends Mailer {
 
+	public function sendConfirmation(User $user)
+	{
+		if (!$user->email)
+		{
+			return;
+		}
+
+		$view = 'confirm';
+		$subject = 'Invoice Ninja Account Confirmation';
+
+		$data = [
+			'user' => $user
+		];
+
+		$this->sendTo($user->email, CONTACT_EMAIL, $subject, $view, $data);		
+	}
+
 	public function sendNotification(User $user, Invoice $invoice, $type, Payment $payment = null)
 	{
 		if (!$user->email)

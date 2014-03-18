@@ -220,10 +220,18 @@ border-color: #0b4d78;
 margin-left: 10px !important;
 }
 
+/*alerts*/
+
+.alert {
+padding: 15px;
+border: none;
+border-radius: 3px;
+}
+
 /*new*/
 
 div {
-    word-break: break-all;
+    word-break: break-word;
 }
 
 div.required > label {

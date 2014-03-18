@@ -127,7 +127,7 @@ class InvoiceRepository
 		$invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
 		$invoice->due_date = Utils::toSqlDate($data['due_date']);					
 
-		$invoice->is_recurring = $data['is_recurring'];
+		$invoice->is_recurring = $data['is_recurring'] ? true : false;
 		$invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
 		$invoice->start_date = Utils::toSqlDate($data['start_date']);
 		$invoice->end_date = Utils::toSqlDate($data['end_date']);
