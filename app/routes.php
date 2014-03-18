@@ -164,7 +164,9 @@ HTML::macro('image_data', function($imagePath) {
 
 HTML::macro('breadcrumbs', function() {
   $str = '<ol class="breadcrumb">';
-  $crumbs = explode('/', $_SERVER['REQUEST_URI']);  
+
+  // Get the breadcrumbs by exploding the current path.
+  $crumbs = explode('/', str_replace(Utils::basePath(), '', $_SERVER['REQUEST_URI']));
 
   foreach ($crumbs as $key => $val)
   {
