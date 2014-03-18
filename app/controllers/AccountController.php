@@ -442,7 +442,7 @@ class AccountController extends \BaseController {
 			
 			foreach ($fields as $field => $details)
 			{
-				if (!in_array($field, ['testMode', 'developerMode', 'headerImageUrl', 'solutionType', 'landingPage']))
+				if (!in_array($field, ['testMode', 'developerMode', 'headerImageUrl', 'solutionType', 'landingPage', 'brandName']))
 				{
 					$rules[$gateway->id.'_'.$field] = 'required';
 				}				

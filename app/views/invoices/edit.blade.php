@@ -578,8 +578,8 @@
 		
 		@if (file_exists($account->getLogoPath()))
 			invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
-			invoice.imageWidth = {{ $account->getLogoWidth() * (72/96) }};
-			invoice.imageHeight = {{ $account->getLogoHeight() * (72/96) }};
+			invoice.imageWidth = {{ $account->getLogoWidth() }};
+			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
 
 
