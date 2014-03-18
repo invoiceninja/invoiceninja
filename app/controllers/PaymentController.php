@@ -176,7 +176,9 @@ class PaymentController extends \BaseController
     public function show_payment($invitationKey)
     {
         // For PayPal Express we redirect straight to their site
-        if (Auth::user()->account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS))
+        $invitation = Invitation::with('invoice.client.account')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        $account = $invitation->invoice->client->account;
+        if ($account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS))
         {
             return self::do_payment($invitationKey, false);        
         }
