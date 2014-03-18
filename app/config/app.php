@@ -121,8 +121,7 @@ return array(
 		'Barryvdh\Debugbar\ServiceProvider',
 		'Chumper\Datatable\DatatableServiceProvider',
 		'Intervention\Image\ImageServiceProvider',
-		'Webpatser\Countries\CountriesServiceProvider',
-		'Rocketeer\RocketeerServiceProvider',
+		'Webpatser\Countries\CountriesServiceProvider'
 	),
 
 	/*

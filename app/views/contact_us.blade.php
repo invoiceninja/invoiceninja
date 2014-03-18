@@ -125,7 +125,7 @@ var contactForm = {
                         <h2>Questions, special requests, or just want to say hi?</h2>
                         <p>Fill in the form below and we'll get back to you as soon as possible. Hope to hear from you!</p>
                                                 
-                        {{ Former::open('contact')->addClass('feedbackForm') }}
+                        {{ Form::open(['url' => 'contact', 'class' => 'feedbackForm']) }}
                             <div class="form-group">
                                 <input type="text" class="form-control" id="name" name="name" placeholder="Name">
                                 <span class="help-block" style="display: none;">Please enter your name.</span>
@@ -144,7 +144,7 @@ var contactForm = {
                                 </div>
                             </div>
 
-                        {{ Former::close() }}
+                        {{ Form::close() }}
                         
                     </div>
                     <div class="col-md-4 col-md-offset-1 address">
