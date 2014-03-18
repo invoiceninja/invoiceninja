@@ -18,8 +18,8 @@
 	<script src="{{ asset('vendor/accounting/accounting.min.js') }}" type="text/javascript"></script>		
 	<script src="{{ asset('js/bootstrap-combobox.js') }}" type="text/javascript"></script>		
 	<script src="{{ asset('js/jspdf.source.js') }}" type="text/javascript"></script>		
-	<script src="{{ asset('js/jspdf.plugin.split_text_to_size.js') }}" type="text/javascript"></script>		
-	<script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
+  <script src="{{ asset('js/jspdf.plugin.split_text_to_size.js') }}" type="text/javascript"></script>   
+  <script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
 
   <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
 	<link href="{{ asset('vendor/datatables/media/css/jquery.dataTables.css') }}" rel="stylesheet" type="text/css">

@@ -529,7 +529,7 @@ class AccountController extends \BaseController {
 			if ($file = Input::file('logo'))
 			{
 				$path = Input::file('logo')->getRealPath();
-				File::delete('logo/' . $account->account_key . '.jpg');
+				File::delete('logo/' . $account->account_key . '.jpg');				
 				Image::make($path)->resize(120, 80, true, false)->save('logo/' . $account->account_key . '.jpg');
 			}
 
@@ -538,6 +538,14 @@ class AccountController extends \BaseController {
 			Session::flash('message', 'Successfully updated details');
 			return Redirect::to('company/details');
 		}
+	}
+
+	public function removeLogo() {
+
+		File::delete('logo/' . Auth::user()->account->account_key . '.jpg');
+
+		Session::flash('message', 'Successfully removed logo');
+		return Redirect::to('company/details');		
 	}
 
 	public function checkEmail()

@@ -33,7 +33,8 @@
 
 			@if (file_exists($account->getLogoPath()))
 				<center>
-					{{ HTML::image($account->getLogoPath(), "Logo") }}
+					{{ HTML::image($account->getLogoPath(), "Logo") }} &nbsp;
+					<a href="#" onclick="deleteLogo()">Remove logo</a>
 				</center><br/>
 			@endif
 
@@ -82,12 +83,22 @@
 
 	{{ Former::close() }}
 
+	{{ Form::open(['url' => 'remove_logo', 'class' => 'removeLogoForm']) }}	
+	{{ Form::close() }}
+
+
 	<script type="text/javascript">
 
 		$(function() {
 			$('#country_id').combobox();
 		});
 		
+		function deleteLogo() {
+			if (confirm('Are you sure?')) {
+				$('.removeLogoForm').submit();
+			}
+		}
+
 	</script>
 
 @stop

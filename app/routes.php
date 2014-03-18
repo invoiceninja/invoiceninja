@@ -92,6 +92,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('company/{section?}', 'AccountController@showSection');	
 	Route::post('company/{section?}', 'AccountController@doSection');
 	Route::post('user/setTheme', 'UserController@setTheme');
+  Route::post('remove_logo', 'AccountController@removeLogo');
 
 	Route::resource('clients', 'ClientController');
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
