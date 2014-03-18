@@ -2,6 +2,10 @@
 
 class Utils
 {
+	public static function basePath() {
+		return substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/') + 1);
+	}
+	
 	public static function fatalError($message = false, $exception = false)
 	{
 		if (!$message)
