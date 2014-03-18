@@ -147,7 +147,7 @@
 	            	<div class="line-total" data-bind="text: totals.total"></div>
 	            </td>
 	        	<td style="cursor:pointer" class="hide-border td-icon">
-	        		&nbsp;<i style="display:none" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-minus-circle" title="Remove item"/>
+	        		&nbsp;<i style="display:none" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-minus-circle redlink" title="Remove item"/>
 	        	</td>
 	        </tr>
 		</tbody>
@@ -319,11 +319,11 @@
 
 					<div class="form-group">
 						<div class="col-lg-8 col-lg-offset-4">
-							<span data-bind="visible: $parent.contacts().length > 1">
-								{{ link_to('#', 'Remove contact', array('data-bind'=>'click: $parent.removeContact')) }}
+							<span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
+								{{ link_to('#', 'Remove contact -', array('data-bind'=>'click: $parent.removeContact')) }}
 							</span>					
-							<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right">
-								{{ link_to('#', 'Add contact', array('data-bind'=>'click: $parent.addContact')) }}
+							<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right greenlink bold">
+								{{ link_to('#', 'Add contact +', array('data-bind'=>'click: $parent.addContact')) }}
 							</span>
 						</div>
 					</div>
@@ -375,15 +375,15 @@
 			    </thead>
 			    <tbody data-bind="foreach: $root.tax_rates.filtered">
 			    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }">
-			    		<td style="width:10px" class="hide-border"></td>
+			    		<td style="width:30px" class="hide-border"></td>
 			            <td style="width:60px">
 			            	<input onkeyup="onTaxRateChange()" data-bind="value: name, valueUpdate: 'afterkeydown'" class="form-control" onchange="refreshPDF()"//>			            	
 			            </td>
 			            <td style="width:60px">
 			            	<input onkeyup="onTaxRateChange()" data-bind="value: prettyRate, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
 			            </td>
-			        	<td style="width:10px; cursor:pointer" class="hide-border td-icon">
-			        		&nbsp;<i data-bind="click: $root.removeTaxRate, visible: actionsVisible() &amp;&amp; !isEmpty()" class="fa fa-minus-circle" title="Remove item"/>
+			        	<td style="width:30px; cursor:pointer" class="hide-border td-icon">
+			        		&nbsp;<i style="width:12px;" data-bind="click: $root.removeTaxRate, visible: actionsVisible() &amp;&amp; !isEmpty()" class="fa fa-minus-circle redlink" title="Remove item"/>
 			        	</td>
 			        </tr>
 				</tbody>
