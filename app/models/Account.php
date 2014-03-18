@@ -118,14 +118,22 @@ class Account extends Eloquent
 
 	public function getLogoWidth()
 	{
-		list($width, $height) = getimagesize($this->getLogoPath());
+		$path = $this->getLogoPath();
+		if (!file_exists($path)) {
+			return 0;
+		}
+		list($width, $height) = getimagesize($path);
 		return $width;
 	}
 
 	public function getLogoHeight()
 	{
-		list($width, $height) = getimagesize($this->getLogoPath());
-		return $height;	
+		$path = $this->getLogoPath();
+		if (!file_exists($path)) {
+			return 0;
+		}
+		list($width, $height) = getimagesize($path);
+		return $height;
 	}
 
 	public function getNextInvoiceNumber()

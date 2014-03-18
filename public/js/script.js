@@ -15,7 +15,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   if (invoice.image)
   {
     var left = layout.headerRight - invoice.imageWidth;
-    doc.addImage(invoice.image, 'JPEG', left, 20);
+    doc.addImage(invoice.image, 'JPEG', left, 30);
   } 
   
   /* table header */
@@ -91,8 +91,8 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   
   doc.setFontType("bold");
   doc.text(layout.footerLeft, y, 'Balance Due');
-  
-  total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
+
+  total = formatMoney(invoice.balance_amount, currencyId)  
   var totalX = layout.headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
   doc.text(totalX, y, total);   
 
@@ -626,17 +626,17 @@ $.fn.datepicker.defaults.todayHighlight = true;
 
 function GetPdf(invoice,checkMath,report_id){
   var layout = {
-    accountTop: 30,
+    accountTop: 40,
     marginLeft: 50,
     marginRight: 550,
-    headerTop: 140,
+    headerTop: 150,
     headerLeft: 360,
     headerRight: 550,
     rowHeight: 15,
     tableRowHeight: 10,
     footerLeft: 420,
     tablePadding: 12,
-    tableTop: 250,
+    tableTop: 260,
     descriptionLeft: 162,
     unitCostRight: 410,
     qtyRight: 480,
@@ -691,7 +691,6 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
     var account = invoice.account;
     var currencyId = client.currency_id;
 
-    layout.headerTop = 140;
     layout.headerRight = 550;
     layout.rowHeight = 15;
 
@@ -700,7 +699,7 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
     if (invoice.image)
     {
       var left = layout.headerRight - invoice.imageWidth;
-      doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 20);
+      doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 30);
     }
 
     if (invoice.imageLogo1)
@@ -726,8 +725,8 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
     SetPdfColor('Black',doc); //set black color
     doc.setFontSize(9);
 
-    displayInvoice(doc, invoice, 50, 160, layout);
-    displayClient(doc, invoice, 220, 160, layout);
+    displayInvoice(doc, invoice, 50, 170, layout);
+    displayClient(doc, invoice, 220, 170, layout);
 
     doc.setLineWidth(0.3);        
     doc.setDrawColor(200,200,200);

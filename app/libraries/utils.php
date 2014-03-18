@@ -2,7 +2,13 @@
 
 class Utils
 {
-	public static function basePath() {
+	public static function isProd()
+	{
+		return App::environment() == ENV_PRODUCTION;
+	}
+
+	public static function basePath() 
+	{
 		return substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/') + 1);
 	}
 	

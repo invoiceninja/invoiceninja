@@ -258,6 +258,8 @@ define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
 define('DEFAULT_QUERY_CACHE', 120);
 
+define('GATEWAY_PAYPAL_EXPRESS', 17);
+
 
 if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
 {
