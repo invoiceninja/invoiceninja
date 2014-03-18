@@ -1,4 +1,4 @@
-body { background: #f8f8f8 !important;
+body { background: #fff !important;
     font-family: 'Roboto', sans-serif;
     font-family: 'Roboto', sans-serif;
 }
@@ -218,6 +218,14 @@ border-color: #0b4d78;
 
 .form-actions .btn.btn-success:first-child {
 margin-left: 10px !important;
+}
+
+/*alerts*/
+
+.alert {
+padding: 15px;
+border: none;
+border-radius: 3px;
 }
 
 /*new*/
