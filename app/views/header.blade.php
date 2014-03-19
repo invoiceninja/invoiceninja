@@ -95,10 +95,19 @@
 			@if (Auth::check() && !Auth::user()->registered)
 				{{ Button::sm_success_primary('Sign up', array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
 
-        @if (false)
+        @if (Auth::user()->showSignUpPopOver())
           <button id="signUpPopOver" type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="Sign up to set your login credentials." data-html="true">
             Sign Up
           </button>
+
+          <script>
+            $(function() {
+              $('#signUpPopOver').popover('show').hide();
+              $('body').click(function() {
+                $('#signUpPopOver').popover('hide');
+              });    
+            });
+          </script>
         @endif
 
 			@endif
@@ -477,13 +486,6 @@
   					$('.alert-info').fadeOut();
   				}, 3000);
   			@endif		
-
-        @if (false)
-          $('#signUpPopOver').popover('show').hide();
-          $('body').click(function() {
-            $('#signUpPopOver').popover('hide');
-          });        
-        @endif
 
   			@yield('onReady')
   		});
