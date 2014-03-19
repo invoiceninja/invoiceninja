@@ -86,7 +86,8 @@ class AccountController extends \BaseController {
 				'timezones' => Timezone::remember(DEFAULT_QUERY_CACHE)->orderBy('location')->get(),
 				'dateFormats' => DateFormat::remember(DEFAULT_QUERY_CACHE)->get(),
 				'datetimeFormats' => DatetimeFormat::remember(DEFAULT_QUERY_CACHE)->get(),
-				'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
+				'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+				'languages' => Language::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			];
 
 			return View::make('accounts.details', $data);
@@ -514,7 +515,8 @@ class AccountController extends \BaseController {
 			$account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
 			$account->date_format_id = Input::get('date_format_id') ? Input::get('date_format_id') : null;
 			$account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
-			$account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1;
+			$account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1; // US Dollar
+			$account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
 			$account->save();
 
 			$user = Auth::user();

@@ -169,7 +169,9 @@ HTML::macro('breadcrumbs', function() {
   return $str . '</ol>';
 });
 
+
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
+define('ANALYTICS_KEY', 'UA-46031341-1');
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');

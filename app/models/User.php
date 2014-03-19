@@ -104,6 +104,12 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 		}
 	}	
 
+	public function getLocale()
+	{
+		$language = Language::remember(DEFAULT_QUERY_CACHE)->where('id', '=', $this->account->language_id)->first();		
+		return $language->locale;
+	}
+
 	public function showGreyBackground()
 	{
 		return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);

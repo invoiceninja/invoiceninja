@@ -20,7 +20,7 @@
 		'client' => 'required',
 		'email' => 'required',
 		'product_key' => 'max:20',
-	)); }}	
+	)) }}	
 
 	<input type="submit" style="display:none" name="submitButton" id="submitButton">
 
