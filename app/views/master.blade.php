@@ -55,12 +55,6 @@
       ga('create', 'UA-46031341-1');
       ga('send', 'pageview');
     </script>
-  @else
-    <style>
-    .navbar {
-      background-color: #006600 !important;
-    }
-    </style>
   @endif
 
     @yield('body')
