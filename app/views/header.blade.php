@@ -95,7 +95,7 @@
 			@if (Auth::check() && !Auth::user()->registered)
 				{{ Button::sm_success_primary('Sign up', array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
 
-        @if ($showSignUpPopOver = Auth::user()->showSignUpPopOver())
+        @if (false)
           <button id="signUpPopOver" type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="Sign up to set your login credentials." data-html="true">
             Sign Up
           </button>
@@ -478,7 +478,7 @@
   				}, 3000);
   			@endif		
 
-        @if ($showSignUpPopOver)
+        @if (false)
           $('#signUpPopOver').popover('show').hide();
           $('body').click(function() {
             $('#signUpPopOver').popover('hide');
