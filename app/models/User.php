@@ -109,6 +109,14 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 		return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
 	}
 
+	public function showSignUpPopOver()
+	{
+		$count = Session::get(SESSION_COUNTER, 0);
+		Session::put(SESSION_COUNTER, ++$count);
+
+		return $count == 1 || $count % 7 == 0;
+	}
+
 	public function afterSave($success=true, $forced = false)
 	{
 		if ($this->email)

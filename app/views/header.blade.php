@@ -94,6 +94,13 @@
 <div class="navbar-form navbar-right">
 			@if (Auth::check() && !Auth::user()->registered)
 				{{ Button::sm_success_primary('Sign up', array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
+
+        @if ($showSignUpPopOver = Auth::user()->showSignUpPopOver())
+          <button id="signUpPopOver" type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="Sign up to set your login credentials." data-html="true">
+            Sign Up
+          </button>
+        @endif
+
 			@endif
 			
 			@if (Auth::check())
@@ -103,7 +110,7 @@
   			  @if (Auth::check() && Auth::user()->registered)
   			  {{ Auth::user()->getFullName() }}
   			  @else			  
-  			    My Company 
+  			    Guest
   			  @endif
         </span>
 			  <span class="caret"></span>
@@ -471,9 +478,17 @@
   				}, 3000);
   			@endif		
 
+        @if ($showSignUpPopOver)
+          $('#signUpPopOver').popover('show').hide();
+          $('body').click(function() {
+            $('#signUpPopOver').popover('hide');
+          });        
+        @endif
+
   			@yield('onReady')
   		});
 
   </script>  
+
 
 @stop
