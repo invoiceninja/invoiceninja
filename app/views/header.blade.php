@@ -95,7 +95,7 @@
 			@if (Auth::check() && !Auth::user()->registered)
 				{{ Button::sm_success_primary('Sign up', array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
 
-        @if (Auth::user()->showSignUpPopOver())
+        @if (Auth::check() && Auth::user()->showSignUpPopOver())
           <button id="signUpPopOver" type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="Sign up to save your work" data-html="true" style="display:none">
             Sign Up
           </button>
