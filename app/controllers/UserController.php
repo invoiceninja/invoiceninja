@@ -249,10 +249,13 @@ class UserController extends BaseController {
      */
     public function logout()
     {
-        if (!Auth::user()->registered)
+        if (Auth::check())
         {
-            $account = Auth::user()->account;
-            $account->forceDelete();
+            if (!Auth::user()->registered)
+            {
+                $account = Auth::user()->account;
+                $account->forceDelete();
+            }
         }
 
         Confide::logout();        

@@ -16,22 +16,22 @@ class HomeController extends BaseController {
 
 	public function showWelcome()
 	{
-		return View::make('splash');
+		return View::make('public.splash');
 	}
 
 	public function showAboutUs()
 	{
-		return View::make('about_us');
+		return View::make('public.about_us');
 	}
 
 	public function showContactUs()
 	{
-		return View::make('contact_us');
+		return View::make('public.contact_us');
 	}
 
 	public function showTerms()
 	{
-		return View::make('terms');
+		return View::make('public.terms');
 	}
 
 	public function doContactUs()

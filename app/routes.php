@@ -136,7 +136,9 @@ HTML::macro('breadcrumbs', function() {
 
   // Get the breadcrumbs by exploding the current path.
   $basePath = Utils::basePath();
-  $path = $_SERVER['REQUEST_URI'];
+  $parts = explode('?', $_SERVER['REQUEST_URI']);
+  $path = $parts[0];
+  
   if ($basePath != '/')
   {
     $path = str_replace($basePath, '', $path);

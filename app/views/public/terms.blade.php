@@ -1,29 +1,6 @@
-@extends('master')
+@extends('public.header')
 
-@section('head')    
-<link href="{{ asset('css/bootstrap.splash.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>    
-<link href="{{ asset('images/apple-touch-icon-114x114-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="114x114">
-<link href="{{ asset('images/apple-touch-icon-72x72-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="72x72">
-<link href="{{ asset('images/apple-touch-icon-57x57-precomposed.png') }}" rel="apple-touch-icon-precomposed">
-@stop
-
-@section('body')
-
-  <div class="navbar" style="margin-bottom:0px">
-    <div class="container">
-      <div class="navbar-inner">
-        <a class="brand" href="#"><img src=
-          "images/invoiceninja-logo.png"></a>
-          <ul class="navbar-list">
-            <li>{{ link_to('about', 'About Us' ) }}</li>
-            <li>{{ link_to('contact', 'Contact Us' ) }}</li>
-            <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+@section('content')
 
   <section class="hero3" data-speed="2" data-type="background">
     <div class="container">
@@ -170,41 +147,4 @@
   <p>&nbsp;</p>
   <p>&nbsp;</p>
 
-
-<footer>
-  <div class="navbar" style="margin-bottom:0px">
-    <div class="container">
-      <div class="social">
-                    <!--
-                    <a href="http://twitter.com/eas_id"><span class=
-                    "socicon">c</span></a> 
-                  -->
-                  <a href=
-                  "http://facebook.com/invoiceninja" target="_blank"><span class=
-                  "socicon">b</span></a> <a href=
-                  "http://twitter.com/invoiceninja" target="_blank"><span class=
-                  "socicon">a</span></a>
-                  <p>Copyright © 2014 InvoiceNinja. All rights reserved.</p>
-                </div>
-
-                <div class="navbar-inner">
-                  <ul class="navbar-list">
-                    <li>{{ link_to('about', 'About Us' ) }}</li>
-                    <li>{{ link_to('contact', 'Contact Us' ) }}</li>
-                    <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
-                  </ul>
-
-                    <!--
-                    <ul class="navbar-list">
-                        <li><a href="#">For developers</a></li>
-                        <li><a href="#">Jobs</a></li>
-                        <li><a href="#">Terms &amp; Conditions</a></li>
-                        <li><a href="#">Our Blog</a></li>
-                    </ul>
-                  -->
-                </div>
-              </div>
-            </div>
-          </footer><script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script>
-
-          @stop
+@stop
