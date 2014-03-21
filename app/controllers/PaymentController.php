@@ -180,7 +180,15 @@ class PaymentController extends \BaseController
         $account = $invitation->invoice->client->account;
         if ($account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS))
         {
-            return self::do_payment($invitationKey, false);        
+            if (Session::has('error'))
+            {                
+                Session::reflash();
+                return Redirect::to('view/' . $invitationKey);
+            }
+            else
+            {
+                return self::do_payment($invitationKey, false);
+            }            
         }
 
         $invitation = Invitation::with('contact', 'invoice.client')->where('invitation_key', '=', $invitationKey)->firstOrFail();
@@ -291,7 +299,7 @@ class PaymentController extends \BaseController
         $invoice = $invitation->invoice;
         $accountGateway = $invoice->client->account->account_gateways[0];
             
-        $payment = Payment::createNew();
+        $payment = Payment::createNew($invitation);
         $payment->invitation_id = $invitation->id;
         $payment->account_gateway_id = $accountGateway->id;
         $payment->invoice_id = $invoice->id;
@@ -334,7 +342,7 @@ class PaymentController extends \BaseController
                 
                 $invoice->invoice_status_id = INVOICE_STATUS_PAID;
                 $invoice->save();
-
+                
                 Event::fire('invoice.paid', $payment);
 
                 Session::flash('message', 'Successfully applied payment');  

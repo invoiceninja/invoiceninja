@@ -22,37 +22,6 @@
 //dd(gethostname());
 //Log::error('test');
 
-/*
-Event::listen('illuminate.query', function($query, $bindings, $time, $name)
-{
-    $data = compact('bindings', 'time', 'name');
-
-    // Format binding data for sql insertion
-    foreach ($bindings as $i => $binding)
-    {   
-        if ($binding instanceof \DateTime)
-        {   
-            $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
-        }
-        else if (is_string($binding))
-        {   
-            $bindings[$i] = "'$binding'";
-        }   
-    }       
-
-    // Insert bindings into query
-    $query = str_replace(array('%', '?'), array('%%', '%s'), $query);
-    $query = vsprintf($query, $bindings); 
-
-    Log::info($query, $data);
-});
-*/
-
-/*
-Route::get('/send_emails', function() {
-	Artisan::call('ninja:send-invoices');	
-});
-*/
 
 Route::get('/', 'HomeController@showWelcome');
 Route::get('/rocksteady', 'HomeController@showWelcome');
@@ -167,7 +136,9 @@ HTML::macro('breadcrumbs', function() {
 
   // Get the breadcrumbs by exploding the current path.
   $basePath = Utils::basePath();
-  $path = $_SERVER['REQUEST_URI'];
+  $parts = explode('?', $_SERVER['REQUEST_URI']);
+  $path = $parts[0];
+  
   if ($basePath != '/')
   {
     $path = str_replace($basePath, '', $path);
@@ -200,7 +171,9 @@ HTML::macro('breadcrumbs', function() {
   return $str . '</ol>';
 });
 
+
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
+define('ANALYTICS_KEY', 'UA-46031341-1');
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');
@@ -250,13 +223,14 @@ define('SESSION_CURRENCY', 'currency');
 define('SESSION_DATE_FORMAT', 'dateFormat');
 define('SESSION_DATE_PICKER_FORMAT', 'datePickerFormat');
 define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
+define('SESSION_COUNTER', 'sessionCounter');
 
 define('DEFAULT_TIMEZONE', 'US/Eastern');
 define('DEFAULT_CURRENCY', 1); // US Dollar
 define('DEFAULT_DATE_FORMAT', 'M j, Y');
 define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
-define('DEFAULT_QUERY_CACHE', 120);
+define('DEFAULT_QUERY_CACHE', 120); // minutes
 
 define('GATEWAY_PAYPAL_EXPRESS', 17);
 
@@ -265,7 +239,6 @@ if (Auth::check() && !Session::has(SESSION_TIMEZONE))
 {
 	Event::fire('user.refresh');
 }
-
 
 Validator::extend('positive', function($attribute, $value, $parameters)
 {
@@ -282,3 +255,30 @@ Validator::extend('has_credit', function($attribute, $value, $parameters)
     
     return $credit >= $amount;
 });
+
+
+/*
+Event::listen('illuminate.query', function($query, $bindings, $time, $name)
+{
+    $data = compact('bindings', 'time', 'name');
+
+    // Format binding data for sql insertion
+    foreach ($bindings as $i => $binding)
+    {   
+        if ($binding instanceof \DateTime)
+        {   
+            $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
+        }
+        else if (is_string($binding))
+        {   
+            $bindings[$i] = "'$binding'";
+        }   
+    }       
+
+    // Insert bindings into query
+    $query = str_replace(array('%', '?'), array('%%', '%s'), $query);
+    $query = vsprintf($query, $bindings); 
+
+    Log::info($query, $data);
+});
+*/
