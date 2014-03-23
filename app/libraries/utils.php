@@ -41,7 +41,7 @@ class Utils
 			'input' => Input::all()
 		];
 
-		Log::error('\n'.$error, $data);
+		Log::error($error."\n", $data);
 
 		/*
 		Mail::queue('emails.error', ['message'=>$error.' '.json_encode($data)], function($message)
