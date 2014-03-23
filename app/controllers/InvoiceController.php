@@ -335,7 +335,15 @@ class InvoiceController extends \BaseController {
 				else
 				{
 					Session::flash('message', 'Successfully saved invoice'.$message);
-					Session::flash('error', 'Please sign up to email an invoice');
+
+					if (Auth::user()->registered)
+					{
+						Session::flash('error', 'Please confirm your email address');
+					}
+					else
+					{
+						Session::flash('error', 'Please sign up to email an invoice');
+					}
 				}
 			} 
 			else 

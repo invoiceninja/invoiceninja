@@ -528,6 +528,17 @@ footer .social .socicon {
     float: left;    
 }
 
+div.fb_iframe_widget {
+    position: absolute !important;
+    display: inline-block;
+}
+
+div.fb_iframe_widget > span {
+    vertical-align: top !important;  
+}
+
+
+
 
 @font-face {
     font-family: 'socicon';

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
 
-    <title>Invoice Ninja {{ isset($title) ? $title : '' }}</title>
+    <title>Invoice Ninja {{ isset($title) ? $title : ' - Free Online Invoicing' }}</title>
     <link rel="canonical" href="https://www.invoiceninja.com"></link>
     <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">    
     
