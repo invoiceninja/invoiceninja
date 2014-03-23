@@ -27,22 +27,31 @@
 
 
 <script>
-  $(document).ready(function () {
+  $(document).ready(function () {      
     if (isStorageSupported()) {
       $('[name="guest_key"]').val(localStorage.getItem('guest_key'));          
     }
   });
 
   function isStorageSupported() {
-    try {
-      return 'localStorage' in window && window['localStorage'] !== null;
-    } catch (e) {
+    if ('localStorage' in window && window['localStorage'] !== null) {
+      var storage = window.localStorage;
+    } else {
       return false;
     }
+    var testKey = 'test';
+    try {
+      storage.setItem(testKey, '1');
+      storage.removeItem(testKey);
+      return true;
+    } catch (error) {
+      return false;
+    }    
   }
 
   function getStarted() {
     $('#startForm').submit();
+    return false;
   }
 
 </script>    

@@ -793,8 +793,6 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
 
 
 
-
-
 function GetReportTemplate2(doc, invoice, layout, checkMath)
 {
   var GlobalY=0;//Y position of line at current page
