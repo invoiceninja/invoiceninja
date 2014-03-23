@@ -19,18 +19,15 @@
     <meta property="og:description" content="Simple, Intuitive Invoicing."></meta>
     <meta name="keywords" content="Invoice Ninja"></meta>    
     
-    <script src="{{ asset('js/stacktrace.js') }}" type="text/javascript"></script>  
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}" type="text/javascript"></script>  
 
     <script type="text/javascript">
     window.onerror = function(e) {
-      var trace = printStackTrace();
-      var string = trace.join(' => ');
       try {
         $.ajax({
           type: 'GET',
           url: '{{ URL::to('log_error') }}',
-          data: 'error='+encodeURIComponent(e+': '+string)+'&url='+encodeURIComponent(window.location)
+          data: 'error='+encodeURIComponent(e)+'&url='+encodeURIComponent(window.location)
         });     
       } catch(err) {}
       return false;
