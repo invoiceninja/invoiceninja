@@ -6,7 +6,7 @@
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is the codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
 
-Highlevel instructions for setting up the site are below but there's also [setup guide](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). For discussion of the code please use the [Google Group](https://groups.google.com/d/forum/invoiceninja).
+The high level instructions for setting up the site are below but there's also [setup guide](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). For discussion of the code please use the [Google Group](https://groups.google.com/d/forum/invoiceninja).
 
 For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja).
 
