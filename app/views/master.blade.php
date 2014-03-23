@@ -15,7 +15,7 @@
     <meta property="og:site_name" content="Invoice Ninja"></meta>
     <meta property="og:url" content="https://www.invoiceninja.com"></meta>
     <meta property="og:title" content="Invoice Ninja"></meta>
-    <meta property="og:image" content="https://www.invoiceninja.com/images/facebook.jpg"></meta>
+    <meta property="og:image" content="https://www.invoiceninja.com/images/social.jpg"></meta>
     <meta property="og:description" content="Simple, Intuitive Invoicing."></meta>
     <meta name="keywords" content="Invoice Ninja"></meta>
     
