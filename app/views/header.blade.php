@@ -388,10 +388,10 @@
         $.ajax({
           type: 'POST',
           url: '{{ URL::to('signup/submit') }}',
-          data: 'new_email=' + $('form.signUpForm #new_email').val() + 
-                  '&new_password=' + $('form.signUpForm #new_password').val() + 
-                  '&new_first_name=' + $('form.signUpForm #new_first_name').val() + 
-                  '&new_last_name=' + $('form.signUpForm #new_last_name').val(),
+          data: 'new_email=' + encodeURIComponent($('form.signUpForm #new_email').val()) + 
+                  '&new_password=' + encodeURIComponent($('form.signUpForm #new_password').val()) + 
+                  '&new_first_name=' + encodeURIComponent($('form.signUpForm #new_first_name').val()) + 
+                  '&new_last_name=' + encodeURIComponent($('form.signUpForm #new_last_name').val()),
           success: function(result) { 
             if (result) {
               localStorage.setItem('guest_key', '');

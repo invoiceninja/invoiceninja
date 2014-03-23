@@ -1,5 +1,7 @@
 <?php
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -21,7 +23,6 @@
 //dd(App::environment());
 //dd(gethostname());
 //Log::error('test');
-
 
 Route::get('/', 'HomeController@showWelcome');
 Route::get('/rocksteady', 'HomeController@showWelcome');
@@ -56,6 +57,7 @@ Route::group(array('before' => 'auth'), function()
 {   
 	Route::get('dashboard', 'DashboardController@index');
   Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
+  Route::get('force_inline_pdf', 'UserController@forcePDFJS');
 
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
 	Route::get('company/{section?}', 'AccountController@showSection');	
@@ -281,4 +283,11 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 
     Log::info($query, $data);
 });
+*/
+
+/*
+if (Auth::check() && Auth::user()->id === 1)
+{
+  Auth::loginUsingId(1);
+}
 */

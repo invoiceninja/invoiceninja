@@ -461,7 +461,7 @@ class AccountController extends \BaseController {
 		else 
 		{
 			$account = Account::findOrFail(Auth::user()->account_id);						
-			$account->account_gateways()->forceDelete();			
+			$account->account_gateways()->delete();
 
 			if ($gatewayId) 
 			{

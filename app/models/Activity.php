@@ -96,13 +96,13 @@ class Activity extends Eloquent
 
 	public static function createInvoice($invoice)
 	{
-		if ($invoice->is_recurring) 
+		if (Auth::check()) 
 		{
-			$message = Utils::encodeActivity(null, 'created recurring', $invoice);
+			$message = Utils::encodeActivity(Auth::user(), 'created', $invoice);			
 		} 
 		else 
 		{
-			$message = Utils::encodeActivity(Auth::user(), 'created', $invoice);
+			$message = Utils::encodeActivity(null, 'created', $invoice);
 		}
 
 		$client = $invoice->client;

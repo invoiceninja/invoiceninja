@@ -623,7 +623,7 @@
 		return doc.output('datauristring');
 	}
 	function refreshPDF() {
-		if (isFirefox || (isChrome && !isChromium)) {
+		if ({{ Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChromium))) {
 			var string = getPDFString();
 			$('#theFrame').attr('src', string).show();		
 		} else {			

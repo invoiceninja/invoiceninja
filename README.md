@@ -6,6 +6,8 @@
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is the codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
 
+For discussion of the code please use the [Google Group](https://groups.google.com/d/forum/invoiceninja).
+
 For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja)
 
 Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
