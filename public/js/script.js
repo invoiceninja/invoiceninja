@@ -69,6 +69,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
 
   y += displaySubtotals(doc, layout, invoice, y+20, 480) + 20;
 
+  /*
   if (checkMath && NINJA.parseFloat(total).toFixed(4) != NINJA.parseFloat(invoice.amount).toFixed(4)) 
   {
     var doc = new jsPDF('p', 'pt');
@@ -78,7 +79,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
     onerror('Failed to generate PDF ' + total + ', ' + invoice.amount );
     return doc;   
   } 
-
+  */
 
   doc.setDrawColor(200,200,200);
   doc.setFillColor(230,230,230);
