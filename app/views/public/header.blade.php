@@ -102,10 +102,13 @@
           </script>       
           &nbsp;
 
+          <!--
           <script src="//platform.linkedin.com/in.js" type="text/javascript">
             lang: en_US
           </script>
           <script type="IN/Share" data-url="https://www.invoiceninja.com/"></script>
+          -->
+                    
           <!--<iframe src="http://ghbtns.com/github-btn.html?user=hillelcoren&repo=invoice-ninja&type=watch" allowtransparency="true" frameborder="0" scrolling="0" width="62" height="20"></iframe>-->
 
   <p>&nbsp;</p>
