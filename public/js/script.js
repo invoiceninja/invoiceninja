@@ -716,7 +716,7 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
 
     SetPdfColor('LightBlue',doc);
     doc.setFontSize('11');
-    doc.text(50, layout.headerTop, 'INVOICE');
+    doc.text(50, layout.headerTop, invoiceLabels.invoice.toUpperCase());
 
     //doc.setDrawColor(220,220,220);
     //doc.line(30, y, 560, y); // horizontal line
@@ -896,7 +896,7 @@ function GetReportTemplate2(doc, invoice, layout, checkMath)
   SetPdfColor('SomeGreen',doc);
   doc.setFontSize('14');
   doc.setFontType("bold");
-  doc.text(50, GlobalY, 'YOUR INVOICE');
+  doc.text(50, GlobalY, invoiceLabels.your_invoice.toUpperCase());
 
 
   var z=GlobalY;
@@ -1306,11 +1306,11 @@ function displayInvoice(doc, invoice, x, y, layout, rightAlignX) {
   }
 
   var data = [
-    {'Invoice Number': invoice.invoice_number},
-    {'PO Number': invoice.po_number},
-    {'Invoice Date': invoice.invoice_date},
-    {'Due Date': invoice.due_date},
-    {'Balance Due': formatMoney(invoice.balance_amount, invoice.client.currency_id)}
+    {'invoice_number': invoice.invoice_number},
+    {'po_number': invoice.po_number},
+    {'invoice_date': invoice.invoice_date},
+    {'due_date': invoice.due_date},
+    {'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)}
   ];  
 
   displayGrid(doc, invoice, data, x, y, layout, true, rightAlignX);
@@ -1324,10 +1324,10 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
 
   //var taxTitle = 'Tax ' + getInvoiceTaxRate(invoice) + '%';
   var data = [
-    {'Subtotal': formatMoney(invoice.subtotal_amount, invoice.client.currency_id)},
-    {'Discount': invoice.discount_amount > 0 ? formatMoney(invoice.discount_amount, invoice.client.currency_id) : false},
-    {'Tax': invoice.tax_amount > 0 ? formatMoney(invoice.tax_amount, invoice.client.currency_id) : false},
-    {'Paid to Date': formatMoney(invoice.amount - invoice.balance, invoice.client.currency_id)}
+    {'subtotal': formatMoney(invoice.subtotal_amount, invoice.client.currency_id)},
+    {'discount': invoice.discount_amount > 0 ? formatMoney(invoice.discount_amount, invoice.client.currency_id) : false},
+    {'tax': invoice.tax_amount > 0 ? formatMoney(invoice.tax_amount, invoice.client.currency_id) : false},
+    {'paid_to_date': formatMoney(invoice.amount - invoice.balance, invoice.client.currency_id)}
   ];
 
   return displayGrid(doc, invoice, data, 300, y, layout, true, 550, rightAlignTitleX) + 10;
@@ -1390,12 +1390,17 @@ function displayGrid(doc, invoice, data, x, y, layout, hasheader, rightAlignX, r
       }
       doc.text(marginLeft, y, value);        
 
+      /*
       if (rightAlignTitleX && i === 0) {
         doc.setFontType('bold');
       } else {
         doc.setFontType('normal');
       }
+      */
+      
+      doc.setFontType('normal');
 
+      key = invoiceLabels[key];
       if (rightAlignTitleX) {
         marginLeft = rightAlignTitleX - (doc.getStringUnitWidth(key) * doc.internal.getFontSize());
       } else {
@@ -1426,7 +1431,7 @@ function displayNotesAndTerms(doc, layout, invoice, y)
     
   if (invoice.terms) {
     doc.setFontType("bold");
-    doc.text(layout.marginLeft, y, "Terms");
+    doc.text(layout.marginLeft, y, invoiceLabels.terms);
     y += 16;
     doc.setFontType("normal");
     doc.text(layout.marginLeft, y, invoice.terms);
@@ -1502,26 +1507,25 @@ function getInvoiceTaxRate(invoice) {
 
 function displayInvoiceHeader(doc, invoice, layout) {
 
-  var costX = layout.unitCostRight - (doc.getStringUnitWidth('Unit Cost') * doc.internal.getFontSize());
-  var qtyX = layout.qtyRight - (doc.getStringUnitWidth('Quantity') * doc.internal.getFontSize());
-  var taxX = layout.taxRight - (doc.getStringUnitWidth('Tax') * doc.internal.getFontSize());
-  var totalX = layout.lineTotalRight - (doc.getStringUnitWidth('Line Total') * doc.internal.getFontSize());
+  var costX = layout.unitCostRight - (doc.getStringUnitWidth(invoiceLabels.unit_cost) * doc.internal.getFontSize());
+  var qtyX = layout.qtyRight - (doc.getStringUnitWidth(invoiceLabels.quantity) * doc.internal.getFontSize());
+  var taxX = layout.taxRight - (doc.getStringUnitWidth(invoiceLabels.tax) * doc.internal.getFontSize());
+  var totalX = layout.lineTotalRight - (doc.getStringUnitWidth(invoiceLabels.line_total) * doc.internal.getFontSize());
 
-  doc.text(layout.marginLeft, layout.tableTop, 'Item');
-  doc.text(layout.descriptionLeft, layout.tableTop, 'Description');
-  doc.text(costX, layout.tableTop, 'Unit Cost');
-  doc.text(qtyX, layout.tableTop, 'Quantity');
-  doc.text(totalX, layout.tableTop, 'Line Total');
+  doc.text(layout.marginLeft, layout.tableTop, invoiceLabels.item);
+  doc.text(layout.descriptionLeft, layout.tableTop, invoiceLabels.description);
+  doc.text(costX, layout.tableTop, invoiceLabels.unit_cost);
+  doc.text(qtyX, layout.tableTop, invoiceLabels.quantity);
+  doc.text(totalX, layout.tableTop, invoiceLabels.line_total);
 
   if (invoice.has_taxes)
   {
-    doc.text(taxX, layout.tableTop, 'Tax');
+    doc.text(taxX, layout.tableTop, invoiceLabels.tax);
   }
 
 }
 
 function displayInvoiceItems(doc, invoice, layout) {
- 
   doc.setFontType("normal");
 
   var line = 1;

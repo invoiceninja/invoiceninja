@@ -29,6 +29,19 @@
 
 		$(function() {
 			window.invoice = {{ $invoice->toJson() }};
+
+	    invoice.imageLogo1 = "{{ HTML::image_data('images/report_logo1.jpg') }}";
+	    invoice.imageLogoWidth1 =120;
+	    invoice.imageLogoHeight1 = 40
+
+	    invoice.imageLogo2 = "{{ HTML::image_data('images/report_logo2.jpg') }}";
+	    invoice.imageLogoWidth2 =325/2;
+	    invoice.imageLogoHeight2 = 81/2;
+
+	    invoice.imageLogo3 = "{{ HTML::image_data('images/report_logo3.jpg') }}";
+	    invoice.imageLogoWidth3 =325/2;
+	    invoice.imageLogoHeight3 = 81/2;
+
 			@if (file_exists($invoice->client->account->getLogoPath()))
 				invoice.image = "{{ HTML::image_data($invoice->client->account->getLogoPath()) }}";
 				invoice.imageWidth = {{ $invoice->client->account->getLogoWidth() }};
@@ -59,6 +72,8 @@
 			    });				
 			 }
 		});
+		
+		var invoiceLabels = {{ json_encode($invoiceLabels) }};
 
 		function onDownloadClick() {
 			var doc = generatePDF(invoice);

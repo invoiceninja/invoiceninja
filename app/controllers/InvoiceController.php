@@ -143,7 +143,8 @@ class InvoiceController extends \BaseController {
 		$data = array(
 			'showBreadcrumbs' => false,
 			'invoice' => $invoice->hidePrivateFields(),
-			'invitation' => $invitation
+			'invitation' => $invitation,
+			'invoiceLabels' => $client->account->getInvoiceLabels(),
 		);
 
 		return View::make('invoices.view', $data);
@@ -223,6 +224,7 @@ class InvoiceController extends \BaseController {
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
 			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),				
 			'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',
@@ -335,7 +337,15 @@ class InvoiceController extends \BaseController {
 				else
 				{
 					Session::flash('message', 'Successfully saved invoice'.$message);
-					Session::flash('error', 'Please sign up to email an invoice');
+
+					if (Auth::user()->registered)
+					{
+						Session::flash('error', 'Please confirm your email address');
+					}
+					else
+					{
+						Session::flash('error', 'Please sign up to email an invoice');
+					}
 				}
 			} 
 			else 

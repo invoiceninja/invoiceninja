@@ -20,6 +20,17 @@ class UserController extends BaseController {
         return Redirect::to(Input::get('path'));
     }
 
+    public function forcePDFJS()
+    {
+        $user = Auth::user();
+        $user->force_pdfjs = true;
+        $user->save();
+
+        Session::flash('message', 'Successfully updated PDF settings');
+
+        return Redirect::to('/invoices/create'); 
+    }
+
     /**
      * Displays the form for account creation
      *
@@ -110,18 +121,18 @@ class UserController extends BaseController {
         // with the second parameter as true.
         // logAttempt will check if the 'email' perhaps is the username.
         // Get the value from the config file instead of changing the controller
-        if ( Confide::logAttempt( $input, false ) ) 
+        if ( Input::get( 'login_email' ) && Confide::logAttempt( $input, false ) ) 
         {            
             Event::fire('user.login');
             // Redirect the user to the URL they were trying to access before
             // caught by the authentication filter IE Redirect::guest('user/login').
             // Otherwise fallback to '/'
             // Fix pull #145
-            return Redirect::intended('/clients'); // change it to '/admin', '/dashboard' or something
+            return Redirect::intended('/dashboard'); // change it to '/admin', '/dashboard' or something
         }
         else
         {
-            $user = new User;
+            //$user = new User;
 
             // Check if there was too many login attempts
             if( Confide::isThrottled( $input ) )

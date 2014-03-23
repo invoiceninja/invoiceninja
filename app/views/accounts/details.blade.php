@@ -63,8 +63,8 @@
 			{{ Former::text('phone') }}
 
 			{{ Former::legend('Localization') }}
-			{{ Former::select('language_id')->addOption('','')->label('Language')
-				->fromQuery($languages, 'name', 'id') }}			
+			{{-- Former::select('language_id')->addOption('','')->label('Language')
+				->fromQuery($languages, 'name', 'id') --}}			
 			{{ Former::select('currency_id')->addOption('','')->label('Currency')
 				->fromQuery($currencies, 'name', 'id') }}			
 			{{ Former::select('timezone_id')->addOption('','')->label('Timezone')

@@ -70,7 +70,7 @@
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') }}							
 			</div>
 			<div data-bind="visible: is_recurring" style="display: none">
-				{{ Former::select('frequency_id')->label('How often')->options($frequencies)->data_bind("value: frequency_id") }}
+				{{ Former::select('frequency_id')->options($frequencies)->data_bind("value: frequency_id") }}
 				{{ Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') }}
 				{{ Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
@@ -90,10 +90,10 @@
 		</div>
 
 		<div class="col-md-4" id="col_2">
-			{{ Former::text('invoice_number')->label('Invoice #')->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
-			{{ Former::text('po_number')->label('PO #')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
+			{{ Former::text('invoice_number')->label(trans('fields.invoice_number_short'))->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
+			{{ Former::text('po_number')->label(trans('fields.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
 			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")->append('%') }}			
-			{{-- Former::select('currency_id')->label('Currency')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") --}}
+			{{-- Former::select('currency_id')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") --}}
 			
 			<div class="form-group" style="margin-bottom: 8px">
 				<label for="recurring" class="control-label col-lg-4 col-sm-4">Taxes</label>
@@ -210,7 +210,7 @@
 
 
 
-		{{ Former::select('invoice_design_id')->label('Design')->style('display:inline;width:120px')->raw()
+		{{ Former::select('invoice_design_id')->style('display:inline;width:120px')->raw()
 					->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") }}
 
 				
@@ -291,16 +291,16 @@
 				{{ Former::legend('Organization') }}
 				{{ Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }") }}
 				{{ Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'")->label('Phone') }}
+				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") }}
 				
 				
 				{{ Former::legend('Address') }}
-				{{ Former::text('address1')->label('Street')->data_bind("value: address1, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('address2')->label('Apt/Suite')->data_bind("value: address2, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('address1')->data_bind("value: address1, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('address2')->data_bind("value: address2, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('state')->label('State/Province')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") }}
-				{{ Former::select('country_id')->addOption('','')->label('Country')->addGroupClass('country_select')
+				{{ Former::select('country_id')->addOption('','')->addGroupClass('country_select')
 					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") }}
 					
 			</div>
@@ -332,11 +332,11 @@
 				{{ Former::legend('Additional Info') }}
 				{{ Former::select('payment_terms')->addOption('','0')->data_bind('value: payment_terms')
 					->fromQuery($paymentTerms, 'name', 'num_days') }}
-				{{ Former::select('currency_id')->addOption('','')->label('Currency')->data_bind('value: currency_id')
+				{{ Former::select('currency_id')->addOption('','')->data_bind('value: currency_id')
 					->fromQuery($currencies, 'name', 'id') }}
-				{{ Former::select('size_id')->addOption('','')->label('Size')->data_bind('value: size_id')
+				{{ Former::select('size_id')->addOption('','')->data_bind('value: size_id')
 					->fromQuery($sizes, 'name', 'id') }}
-				{{ Former::select('industry_id')->addOption('','')->label('Industry')->data_bind('value: industry_id')
+				{{ Former::select('industry_id')->addOption('','')->data_bind('value: industry_id')
 					->fromQuery($industries, 'name', 'id') }}
 				{{ Former::textarea('private_notes')->data_bind('value: private_notes') }}
 
@@ -616,14 +616,15 @@
 
 	var isRefreshing = false;
 	var needsRefresh = false;
+
 	function getPDFString() {
 		var invoice = createInvoiceModel();
-		var doc = generatePDF(invoice);		
+		var doc = generatePDF(invoice, invoiceLabels);
 		if (!doc) return;
 		return doc.output('datauristring');
 	}
 	function refreshPDF() {
-		if (isFirefox || (isChrome && !isChromium)) {
+		if ({{ Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChromium))) {
 			var string = getPDFString();
 			$('#theFrame').attr('src', string).show();		
 		} else {			
@@ -1445,10 +1446,10 @@
 
 	var products = {{ $products }};
 	var clients = {{ $clients }};	
+	var invoiceLabels = {{ json_encode($invoiceLabels) }};
 	var clientMap = {};
 	var $clientSelect = $('select#client');
-
-
+	
 	for (var i=0; i<clients.length; i++) {
 		var client = clients[i];
 		for (var j=0; j<client.contacts.length; j++) {
