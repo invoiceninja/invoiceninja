@@ -1390,11 +1390,15 @@ function displayGrid(doc, invoice, data, x, y, layout, hasheader, rightAlignX, r
       }
       doc.text(marginLeft, y, value);        
 
+      /*
       if (rightAlignTitleX && i === 0) {
         doc.setFontType('bold');
       } else {
         doc.setFontType('normal');
       }
+      */
+      
+      doc.setFontType('normal');
 
       key = invoiceLabels[key];
       if (rightAlignTitleX) {

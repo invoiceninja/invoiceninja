@@ -168,4 +168,37 @@ class Account extends Eloquent
 		Session::put(SESSION_DATETIME_FORMAT, $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT);			
 		Session::put(SESSION_CURRENCY, $this->currency_id ? $this->currency_id : DEFAULT_CURRENCY);					
 	}
+
+	public function getInvoiceLabels()
+	{
+		$data = [];
+		$fields = [ 
+			'invoice',  		
+  		'invoice_date',
+  		'due_date',
+  		'invoice_number',
+		  'po_number',
+		  'dicount',
+  		'taxes',
+  		'tax',
+  		'item',
+  		'description',
+  		'unit_cost',
+  		'quantity',
+  		'line_total',
+  		'subtotal',
+  		'paid_to_date',
+  		'balance_due',
+  		'terms',
+  		'your_invoice',
+		];
+
+		foreach ($fields as $field)
+		{
+			$data[$field] = trans("fields.$field");
+		}
+
+		return $data;
+	}
+	
 }

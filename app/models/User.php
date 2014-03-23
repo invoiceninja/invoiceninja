@@ -110,38 +110,6 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 		return $language->locale;
 	}
 
-	public function getInvoiceLabels()
-	{
-		$data = [];
-		$fields = [ 
-			'invoice',  		
-  		'invoice_date',
-  		'due_date',
-  		'invoice_number',
-		  'po_number',
-		  'dicount',
-  		'taxes',
-  		'tax',
-  		'item',
-  		'description',
-  		'unit_cost',
-  		'quantity',
-  		'line_total',
-  		'subtotal',
-  		'paid_to_date',
-  		'balance_due',
-  		'terms',
-  		'your_invoice',
-		];
-
-		foreach ($fields as $field)
-		{
-			$data[$field] = trans("fields.$field");
-		}
-
-		return $data;
-	}
-
 	public function showGreyBackground()
 	{
 		return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);

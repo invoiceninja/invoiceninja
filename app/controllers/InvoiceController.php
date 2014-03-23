@@ -143,7 +143,8 @@ class InvoiceController extends \BaseController {
 		$data = array(
 			'showBreadcrumbs' => false,
 			'invoice' => $invoice->hidePrivateFields(),
-			'invitation' => $invitation
+			'invitation' => $invitation,
+			'invoiceLabels' => $client->account->getInvoiceLabels(),
 		);
 
 		return View::make('invoices.view', $data);
@@ -223,7 +224,7 @@ class InvoiceController extends \BaseController {
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
 			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),				
 			'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-			'invoiceLabels' => Auth::user()->getInvoiceLabels(),
+			'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',
