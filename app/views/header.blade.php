@@ -385,8 +385,6 @@
   		}
 
       function submitSignUp() {
-        var d;
-        console.log(d.test());
         $.ajax({
           type: 'POST',
           url: '{{ URL::to('signup/submit') }}',
