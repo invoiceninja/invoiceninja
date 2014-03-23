@@ -89,7 +89,7 @@ class InvoiceController extends \BaseController {
     	$table->addColumn('frequency', function($model) { return link_to('invoices/' . $model->public_id, $model->frequency); });
 
     	if (!$clientPublicId) {
-    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
+    		$table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
     	}
     	
     	return $table->addColumn('start_date', function($model) { return Utils::fromSqlDate($model->start_date); })
