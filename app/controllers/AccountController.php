@@ -516,7 +516,7 @@ class AccountController extends \BaseController {
 			$account->date_format_id = Input::get('date_format_id') ? Input::get('date_format_id') : null;
 			$account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
 			$account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1; // US Dollar
-			$account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
+			//$account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
 			$account->save();
 
 			$user = Auth::user();

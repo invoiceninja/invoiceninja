@@ -1,7 +1,6 @@
 <?php
 
 
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -175,7 +174,7 @@ HTML::macro('breadcrumbs', function() {
 
 
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
-define('ANALYTICS_KEY', 'UA-46031341-1');
+//define('ANALYTICS_KEY', 'UA-46031341-1');
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');

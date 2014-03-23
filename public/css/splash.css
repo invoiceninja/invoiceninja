@@ -529,10 +529,8 @@ footer .social .socicon {
 }
 
 div.fb_iframe_widget {
-    position: absolute !important;
-    display: inline-block;
+    display: inline;
 }
-
 div.fb_iframe_widget > span {
     vertical-align: top !important;  
 }
