@@ -178,7 +178,7 @@ class Account extends Eloquent
   		'due_date',
   		'invoice_number',
 		  'po_number',
-		  'dicount',
+		  'discount',
   		'taxes',
   		'tax',
   		'item',

@@ -36,7 +36,7 @@ return array(
   'po_number' => 'Numéro du bon de commande',
   'po_number_short' => 'Bon de commande #',
   'frequency_id' => 'Fréquence', //litteral translation : Combien de fois 
-  'dicount' => 'Remise', //can be "rabais" or "réduction"
+  'discount' => 'Remise', //can be "rabais" or "réduction"
   'taxes' => 'Taxes',
   'tax' => 'Taxe',
   'item' => 'Ligne', //I'm not sure, I need the context : screenshot ? 
