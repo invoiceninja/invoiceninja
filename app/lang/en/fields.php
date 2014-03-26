@@ -36,7 +36,7 @@ return array(
   'po_number' => 'PO Number',
   'po_number_short' => 'PO #',
   'frequency_id' => 'How often',
-  'dicount' => 'Discount',
+  'discount' => 'Discount',
   'taxes' => 'Taxes',
   'tax' => 'Tax',
   'item' => 'Item',

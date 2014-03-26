@@ -37,11 +37,10 @@ class Utils
 			'url' => Input::get('url', Request::url()),
 			'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
 			'ip' => Request::getClientIp(),
-			'count' => Session::get('error_count', 0),
-			'input' => Input::all()
+			'count' => Session::get('error_count', 0)
 		];
 
-		Log::error('\n'.$error, $data);
+		Log::error($error."\n", $data);
 
 		/*
 		Mail::queue('emails.error', ['message'=>$error.' '.json_encode($data)], function($message)

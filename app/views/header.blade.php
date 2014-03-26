@@ -456,7 +456,7 @@
 	      	if (isStorageSupported()) {
 	  			@if (Auth::check() && !Auth::user()->registered)
 	        		localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
-				@endif
+  				@endif
         	}
   	
 			@if (!Auth::check() || !Auth::user()->registered)

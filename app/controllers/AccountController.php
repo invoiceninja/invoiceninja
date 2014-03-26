@@ -532,7 +532,7 @@ class AccountController extends \BaseController {
 		} 
 		else 
 		{
-			$account = Account::findOrFail(Auth::user()->account_id);
+			$account = Auth::user()->account;
 			$account->name = trim(Input::get('name'));
 			$account->work_email = trim(Input::get('work_email'));
 			$account->work_phone = trim(Input::get('work_phone'));

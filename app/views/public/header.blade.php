@@ -27,22 +27,31 @@
 
 
 <script>
-  $(document).ready(function () {
+  $(document).ready(function () {      
     if (isStorageSupported()) {
       $('[name="guest_key"]').val(localStorage.getItem('guest_key'));          
     }
   });
 
   function isStorageSupported() {
-    try {
-      return 'localStorage' in window && window['localStorage'] !== null;
-    } catch (e) {
+    if ('localStorage' in window && window['localStorage'] !== null) {
+      var storage = window.localStorage;
+    } else {
       return false;
     }
+    var testKey = 'test';
+    try {
+      storage.setItem(testKey, '1');
+      storage.removeItem(testKey);
+      return true;
+    } catch (error) {
+      return false;
+    }    
   }
 
   function getStarted() {
     $('#startForm').submit();
+    return false;
   }
 
 </script>    
@@ -93,6 +102,13 @@
           </script>       
           &nbsp;
 
+          <!--
+          <script src="//platform.linkedin.com/in.js" type="text/javascript">
+            lang: en_US
+          </script>
+          <script type="IN/Share" data-url="https://www.invoiceninja.com/"></script>
+          -->
+                    
           <!--<iframe src="http://ghbtns.com/github-btn.html?user=hillelcoren&repo=invoice-ninja&type=watch" allowtransparency="true" frameborder="0" scrolling="0" width="62" height="20"></iframe>-->
 
   <p>&nbsp;</p>

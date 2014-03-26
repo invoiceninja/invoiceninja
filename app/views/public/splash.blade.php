@@ -27,7 +27,7 @@
           <div class="col-md-3 center-block">
             <a href="#">
               <div class="cta">
-                <h2 id="startButton" onclick="getStarted()">Invoice Now <span>+</span></h2>
+                <h2 id="startButton" onclick="return getStarted()">Invoice Now <span>+</span></h2>
               </div>
             </a>
           </div>
@@ -40,7 +40,7 @@
         <div class="row">
           <div class="col-md-3 one">
             <div class="box">
-              <div class="icon"><img src="images/icon-free.png"></div>
+              <div class="icon"><img src="{{ asset('images/icon-free.png') }}"></div>
               <h2>100% FREE, ALWAYS</h2>
               <p>Invoicing with no monthly fee, because you have enough bills already! Free, now and forever! Quality invoicing to build your business and get paid.</p>
             </div>
@@ -48,8 +48,7 @@
 
           <div class="col-md-3 two">
             <div class="box">
-              <div class="icon"><img src=
-                "images/icon-opensource.png"></div>
+              <div class="icon"><img src="{{ asset('images/icon-opensource.png') }}"></div>
                 <h2>OPEN-SOURCE</h2>
                 <p>Cloud-based, super secure, and user-developed. Open source platforms are a better way to do business (and save the world). Need we say more?</p>
               </div>
@@ -57,7 +56,7 @@
 
             <div class="col-md-3 three">
               <div class="box">
-                <div class="icon"><img src="images/icon-pdf.png"></div>
+                <div class="icon"><img src="{{ asset('images/icon-pdf.png') }}"></div>
                 <h2>LIVE .PDF VIEW</h2>
                 <p>Create beautiful email-ready .PDF invoices created instantly as you type. Our ‘Save & send’ feature saves you time and impresses clients.</p>
               </div>
@@ -65,8 +64,7 @@
 
             <div class="col-md-3 four">
               <div class="box">
-                <div class="icon"><img src=
-                  "images/icon-payment.png"></div>
+                <div class="icon"><img src="{{ asset('images/icon-payment.png') }}"></div>
                   <h2>ONLINE PAYMENTS</h2>
                   <p>PayPal? Authorize.Net? Stripe? We support many payment technologies and if you need help or advice we’ll lend a hand (we’re pretty friendly).</p>
                 </div>
@@ -102,7 +100,7 @@
               <div class="col-md-3 center-block">
                 <a href="#">
                   <div class="cta">
-                    <h2 onclick="getStarted()">Invoice Now <span>+</span></h2>
+                    <h2 onclick="return getStarted()">Invoice Now <span>+</span></h2>
                   </div>
                 </a>
               </div>

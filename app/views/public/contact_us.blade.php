@@ -53,18 +53,6 @@ var contactForm = {
   }
 };
 
-function isStorageSupported() {
-  try {
-    return 'localStorage' in window && window['localStorage'] !== null;
-  } catch (e) {
-    return false;
-  }
-}
-
-function getStarted() {
-  $('#startForm').submit();
-}
-
 </script>
 
 <section class="hero4" data-speed="2" data-type="background">
@@ -139,7 +127,7 @@ function getStarted() {
     <div class="col-md-3 center-block">
       <a href="#">
         <div class="cta">
-          <h2 onclick="getStarted()">Invoice Now <span>+</span></h2>
+          <h2 onclick="return getStarted()">Invoice Now <span>+</span></h2>
         </div>
       </a>
     </div>

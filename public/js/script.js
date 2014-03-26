@@ -793,8 +793,6 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
 
 
 
-
-
 function GetReportTemplate2(doc, invoice, layout, checkMath)
 {
   var GlobalY=0;//Y position of line at current page
@@ -1357,9 +1355,10 @@ function concatStrings() {
 function displayGrid(doc, invoice, data, x, y, layout, hasheader, rightAlignX, rightAlignTitleX)  {
   var numLines = 0;
   var origY = y;
+
   for (var i=0; i<data.length; i++) {
     doc.setFontType('normal');
-    
+      
     if (invoice.invoice_design_id == 1 && i > 0 && origY === layout.accountTop) {
       SetPdfColor('GrayText',doc);
     }
@@ -1400,8 +1399,8 @@ function displayGrid(doc, invoice, data, x, y, layout, hasheader, rightAlignX, r
       */
       
       doc.setFontType('normal');
-
       key = invoiceLabels[key];
+
       if (rightAlignTitleX) {
         marginLeft = rightAlignTitleX - (doc.getStringUnitWidth(key) * doc.internal.getFontSize());
       } else {
