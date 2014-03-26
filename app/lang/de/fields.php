@@ -20,7 +20,7 @@ return array(
   'phone' => 'Telefon',
   'email' => 'Email',
   'additional_info' => 'Zusätzliche Info',
-  'payment_terms' => 'Payment Terms',
+  'payment_terms' => 'Zahlungsbedingungen',
   'currency_id' => 'Währung',
   'size_id' => 'Größe',
   'industry_id' => 'Kategorie',
