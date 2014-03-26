@@ -7,7 +7,13 @@ class PaymentLibrariesSeeder extends Seeder
 	{
 		$gateways = [
 			array('name'=>'BeanStream', 'provider'=>'BeanStream', 'payment_library_id' => 2),
-			array('name'=>'iTransact', 'provider'=>'iTransact', 'payment_library_id' => 2)
+			array('name'=>'iTransact', 'provider'=>'iTransact', 'payment_library_id' => 2),
+			array('name'=>'Amazon_Simplepay', 'provider'=>'Amazon Simplepay', 'payment_library_id' => 2),
+			array('name'=>'Bluepay', 'provider'=>'Bluepay', 'payment_library_id' => 2),
+			array('name'=>'Braintree', 'provider'=>'Braintree', 'payment_library_id' => 2),
+			array('name'=>'Google_Checkout', 'provider'=>'Google Checkout', 'payment_library_id' => 2),
+			array('name'=>'Psigate', 'provider'=>'Psigate', 'payment_library_id' => 2),
+			array('name'=>'Quickbooksms', 'provider'=>'Quickbooksms', 'payment_library_id' => 2)
 		];
 		
 		$updateProviders = array(
