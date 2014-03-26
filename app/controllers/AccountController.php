@@ -115,11 +115,6 @@ class AccountController extends \BaseController {
 				$newRow = count($recommendedGatewayArray) + 1  == round(count($recommendedGateways) / 2);
 				
 				$arrayItem = array(
-					$recommendedGateway->name => $recommendedGateway->provider,
-					'data-name' => $recommendedGateway->name,
-					'data-id' => $recommendedGateway->id,
-					'data-label' => $recommendedGateway->provider,
-					'data-value' => $recommendedGateway->name,
 					'value' => $recommendedGateway->id,
 					'data-imageUrl' => $recommendedGateway->getLogoUrl(),
 					'data-siteUrl' => $recommendedGateway->site_url,
