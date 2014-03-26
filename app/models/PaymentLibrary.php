@@ -6,6 +6,6 @@ class PaymentLibrary extends Eloquent
 
 	public function gateways()
 	{
-		return $this->hasMany('Gateway');
+		return $this->hasMany('Gateway', 'payment_library_id');
 	}
 }

@@ -7,6 +7,11 @@ class Gateway extends Eloquent
 
 	public function paymentlibrary()
 	{
-		return $this->belongsTo('PaymentLibrary');
+		return $this->belongsTo('PaymentLibrary', 'payment_library_id');
+	}
+	
+	public function getLogoUrl()
+	{
+		return '/images/gateways/logo_'.$this->provider.'.png';
 	}
 }
