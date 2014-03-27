@@ -11,6 +11,25 @@ class Utils
 	{
 		return substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/') + 1);
 	}
+
+	public static function trans($input)
+	{
+		$data = [];
+
+		foreach ($input as $field)
+		{
+			if ($field == "checkbox")
+			{
+				$data[] = $field;
+			}
+			else
+			{
+				$data[] = trans("texts.$field");
+			}
+		}
+
+		return $data;
+	}
 	
 	public static function fatalError($message = false, $exception = false)
 	{
@@ -104,7 +123,8 @@ class Utils
 	public static function pluralize($string, $count) 
 	{
 		$string = str_replace('?', $count, $string);
-		return $count == 1 ? $string : $string . 's';
+		$field = $count == 1 ? $string : $string . 's';
+		return trans("texts.$field");
 	}
 
 	public static function toArray($data)

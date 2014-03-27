@@ -98,7 +98,7 @@ Route::group(array('before' => 'auth'), function()
 
 HTML::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
     $class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2) ) ? ' class="active"' : '';
-    return '<li'.$class.'><a href="'.URL::to($url).'" '.$extra.'>'.$text.'</a></li>';
+    return '<li'.$class.'><a href="'.URL::to($url).'" '.$extra.'>'.trans("texts.$text").'</a></li>';
 });
 
 HTML::macro('tab_link', function($url, $text, $active = false) {
@@ -174,7 +174,8 @@ HTML::macro('breadcrumbs', function() {
 
 
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
-//define('ANALYTICS_KEY', 'UA-46031341-1');
+define('CONTACT_NAME', 'Invoice Ninja');
+
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');

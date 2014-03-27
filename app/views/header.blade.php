@@ -60,6 +60,19 @@
 			var currency = currencyMap[currency_id];
 			return accounting.formatMoney(value, hide_symbol ? '' : currency.symbol, currency.precision, currency.thousand_separator, currency.decimal_separator);
 		}
+
+    /* Set the defaults for DataTables initialisation */
+    $.extend( true, $.fn.dataTable.defaults, {
+      "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
+      "sPaginationType": "bootstrap",
+      "bInfo": true,
+      "oLanguage": {
+        'sEmptyTable': "{{ trans('texts.empty_table') }}",
+        'sLengthMenu': '_MENU_',
+        'sSearch': ''
+      }
+    } );
+
 	</script>
 @stop
 
@@ -84,7 +97,7 @@
 
 	  <div class="collapse navbar-collapse" id="navbar-collapse-1">
 	    <ul class="nav navbar-nav" style="font-weight: bold">
-	    	{{ HTML::nav_link('dashboard', 'Dashboard') }}
+	    	{{ HTML::nav_link('dashboard', 'dashboard') }}
 	    	{{ HTML::menu_link('client') }}
 	    	{{ HTML::menu_link('invoice') }}
 	    	{{ HTML::menu_link('payment') }}
@@ -140,16 +153,16 @@
          
         <form class="navbar-form navbar-right" role="search">
 	      <div class="form-group">
-	        <input type="text" id="search" class="form-control" placeholder="Search">
+	        <input type="text" id="search" class="form-control" placeholder="{{ trans('texts.search') }}">
 	      </div>
 	    </form>
           
            <ul class="nav navbar-nav navbar-right">	      
 	      <li class="dropdown">
-	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">History <b class="caret"></b></a>
+	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ trans('texts.history') }} <b class="caret"></b></a>
 	        <ul class="dropdown-menu">	        		        	
 	        	@if (count(Session::get(RECENTLY_VIEWED)) == 0)
-	          		<li><a href="#">No items</a></li>
+	          		<li><a href="#">{{ trans('texts.no_items') }}</a></li>
 	          	@else
 	          		@foreach (Session::get(RECENTLY_VIEWED) as $link)
 	          			<li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
@@ -311,7 +324,7 @@
 	@endif
 	
   @if ($_SERVER['SERVER_NAME'] != 'www.invoiceninja.com')    
-  	<div class="container">Powered by <a href="https://www.invoiceninja.com/" target="_blank">InvoiceNinja.com</a></div>
+  	<div class="container">{{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/" target="_blank">InvoiceNinja.com</a></div>
   @endif
 
   <p>&nbsp;</p>

@@ -195,7 +195,7 @@ class Account extends Eloquent
 
 		foreach ($fields as $field)
 		{
-			$data[$field] = trans("fields.$field");
+			$data[$field] = trans("texts.$field");
 		}
 
 		return $data;

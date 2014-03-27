@@ -46,7 +46,7 @@ class HomeController extends BaseController {
 			'text' => $message
 		];
 
-		$this->mailer->sendTo(CONTACT_EMAIL, CONTACT_EMAIL, 'Invoice Ninja Feedback', 'contact', $data);
+		$this->mailer->sendTo(CONTACT_EMAIL, CONTACT_EMAIL, CONTACT_NAME, 'Invoice Ninja Feedback', 'contact', $data);
 
 		Session::flash('message', 'Successfully sent message');
 		return Redirect::to('/contact');

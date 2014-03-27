@@ -37,7 +37,10 @@ class ContactMailer extends Mailer {
 				'emailFooter' => $invoice->account->email_footer
 			];
 
-			$this->sendTo($invitation->contact->email, $invitation->user->email, $subject, $view, $data);
+			$fromEmail = $invitation->user->email;
+			$fromName = $invitation->user->getDisplayName();
+
+			$this->sendTo($invitation->contact->email, $fromEmail, $fromName, $subject, $view, $data);
 
 			Activity::emailInvoice($invitation);
 		}
@@ -63,6 +66,7 @@ class ContactMailer extends Mailer {
 			'paymentAmount' => Utils::formatMoney($payment->amount, $payment->client->currency_id)
 		];
 
-		$this->sendTo($payment->contact->email, $payment->invitation->user->email, $subject, $view, $data);
+		$user = $payment->invitation->user;
+		$this->sendTo($payment->contact->email, $user->email, $user->getDisplayName(), $subject, $view, $data);
 	}
 }

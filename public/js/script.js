@@ -183,22 +183,6 @@ function getQuarter(offset) {
     return 'Q' + quarter;
 }
 
-/* Set the defaults for DataTables initialisation */
-$.extend( true, $.fn.dataTable.defaults, {
-  "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
-  //"sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",   
-  "sPaginationType": "bootstrap",
-  //"bProcessing": true,            
-  //"iDisplayLength": 50,
-  "bInfo": true,
-  "oLanguage": {
-    //"sLengthMenu": "_MENU_ records per page"
-    "sLengthMenu": "_MENU_",
-    "sSearch": ""
-  }
-  //"sScrollY": "500px",  
-} );
-
 
 /* Default class modification */
 $.extend( $.fn.dataTableExt.oStdClasses, {

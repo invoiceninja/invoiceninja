@@ -23,7 +23,7 @@ class CreditController extends \BaseController {
         return View::make('list', array(
             'entityType'=>ENTITY_CREDIT, 
             'title' => '- Credits',
-            'columns'=>['checkbox', 'Client', 'Credit Amount', 'Credit Balance', 'Credit Date', 'Private Notes', 'Action']
+            'columns'=>Utils::trans(['checkbox', 'client', 'credit_amount', 'credit_balance', 'credit_date', 'private_notes', 'action'])
         ));
     }
 
@@ -47,11 +47,11 @@ class CreditController extends \BaseController {
             { 
                 return '<div class="btn-group tr-action" style="visibility:hidden;">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                                Select <span class="caret"></span>
+                                '.trans('texts.select').' <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                            <li><a href="javascript:archiveEntity(' . $model->public_id. ')">Archive Credit</a></li>
-                            <li><a href="javascript:deleteEntity(' . $model->public_id. ')">Delete Credit</a></li>                          
+                            <li><a href="javascript:archiveEntity(' . $model->public_id. ')">'.trans('texts.archive_credit').'</a></li>
+                            <li><a href="javascript:deleteEntity(' . $model->public_id. ')">'.trans('texts.delete_credit').'</a></li>                          
                           </ul>
                         </div>';
             })         

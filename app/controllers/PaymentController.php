@@ -18,7 +18,7 @@ class PaymentController extends \BaseController
         return View::make('list', array(
             'entityType'=>ENTITY_PAYMENT, 
             'title' => '- Payments',
-            'columns'=>['checkbox', 'Invoice', 'Client', 'Transaction Reference', 'Method', 'Payment Amount', 'Payment Date', 'Action']
+            'columns'=>Utils::trans(['checkbox', 'invoice', 'client', 'transaction_reference', 'method', 'payment_amount', 'payment_date', 'action'])
         ));
 	}
 
@@ -46,11 +46,11 @@ class PaymentController extends \BaseController
             { 
                 return '<div class="btn-group tr-action" style="visibility:hidden;">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                                Select <span class="caret"></span>
+                            '.trans('texts.select').' <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                            <li><a href="javascript:archiveEntity(' . $model->public_id. ')">Archive Payment</a></li>
-                            <li><a href="javascript:deleteEntity(' . $model->public_id. ')">Delete Payment</a></li>                          
+                            <li><a href="javascript:archiveEntity(' . $model->public_id. ')">'.trans('texts.archive_payment').'</a></li>
+                            <li><a href="javascript:deleteEntity(' . $model->public_id. ')">'.trans('texts.delete_payment').'</a></li>                          
                           </ul>
                         </div>';
             })         

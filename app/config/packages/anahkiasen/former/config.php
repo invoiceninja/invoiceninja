@@ -48,7 +48,7 @@
   ////////////////////////////////////////////////////////////////////
 
   // Where Former should look for translations
-  'translate_from'    => 'fields',
+  'translate_from'    => 'texts',
 
   // An array of attributes to automatically translate
   'translatable'      => array(

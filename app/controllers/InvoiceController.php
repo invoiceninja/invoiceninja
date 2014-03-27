@@ -27,13 +27,13 @@ class InvoiceController extends \BaseController {
 		$data = [
 			'title' => '- Invoices',
 			'entityType'=>ENTITY_INVOICE, 
-			'columns'=>['checkbox', 'Invoice Number', 'Client', 'Invoice Date', 'Invoice Total', 'Balance Due', 'Due Date', 'Status', 'Action']
+			'columns'=>Utils::trans(['checkbox', 'invoice_number', 'client', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status', 'action'])
 		];
 
 		if (Invoice::scope()->where('is_recurring', '=', true)->count() > 0)
 		{
 			$data['secEntityType'] = ENTITY_RECURRING_INVOICE;
-			$data['secColumns'] = ['checkbox', 'Frequency', 'Client', 'Start Date', 'End Date', 'Invoice Total', 'Action'];
+			$data['secColumns'] = Utils::trans(['checkbox', 'frequency', 'client', 'start_date', 'end_date', 'invoice_total', 'action']);
 		}
 
 		return View::make('list', $data);
@@ -63,14 +63,14 @@ class InvoiceController extends \BaseController {
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
   							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-    							Select <span class="caret"></span>
+    							'.trans('texts.select').' <span class="caret"></span>
   							</button>
   							<ul class="dropdown-menu" role="menu">
-						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">Edit Invoice</a></li>
-						    <li><a href="' . URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">Enter Payment</a></li>
+						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">'.trans('texts.edit_invoice').'</a></li>
+						    <li><a href="' . URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">'.trans('texts.enter_payment').'</a></li>
 						    <li class="divider"></li>
-						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">Archive Invoice</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">Delete Invoice</a></li>						    
+						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans('texts.archive_invoice').'</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans('texts.delete_invoice').'</a></li>						    
 						  </ul>
 						</div>';
     	    })    	       	    
@@ -99,13 +99,13 @@ class InvoiceController extends \BaseController {
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
   							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-    							Select <span class="caret"></span>
+    						'.trans('texts.select').' <span class="caret"></span>
   							</button>
   							<ul class="dropdown-menu" role="menu">
-						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">Edit Invoice</a></li>
+						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">'.trans('texts.edit_invoice').'</a></li>
 						    <li class="divider"></li>
-						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">Archive Invoice</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">Delete Invoice</a></li>						    
+						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans('texts.archive_invoice').'</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans('texts.delete_invoice').'</a></li>						    
 						  </ul>
 						</div>';
     	    })    	       	    
