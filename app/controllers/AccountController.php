@@ -86,7 +86,8 @@ class AccountController extends \BaseController {
 				'timezones' => Timezone::remember(DEFAULT_QUERY_CACHE)->orderBy('location')->get(),
 				'dateFormats' => DateFormat::remember(DEFAULT_QUERY_CACHE)->get(),
 				'datetimeFormats' => DatetimeFormat::remember(DEFAULT_QUERY_CACHE)->get(),
-				'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
+				'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+				'languages' => Language::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			];
 
 			return View::make('accounts.details', $data);
@@ -442,7 +443,7 @@ class AccountController extends \BaseController {
 			
 			foreach ($fields as $field => $details)
 			{
-				if (!in_array($field, ['testMode', 'developerMode', 'headerImageUrl', 'solutionType', 'landingPage']))
+				if (!in_array($field, ['testMode', 'developerMode', 'headerImageUrl', 'solutionType', 'landingPage', 'brandName']))
 				{
 					$rules[$gateway->id.'_'.$field] = 'required';
 				}				
@@ -460,7 +461,7 @@ class AccountController extends \BaseController {
 		else 
 		{
 			$account = Account::findOrFail(Auth::user()->account_id);						
-			$account->account_gateways()->forceDelete();			
+			$account->account_gateways()->delete();
 
 			if ($gatewayId) 
 			{
@@ -499,7 +500,7 @@ class AccountController extends \BaseController {
 		} 
 		else 
 		{
-			$account = Account::findOrFail(Auth::user()->account_id);
+			$account = Auth::user()->account;
 			$account->name = trim(Input::get('name'));
 			$account->work_email = trim(Input::get('work_email'));
 			$account->work_phone = trim(Input::get('work_phone'));
@@ -514,7 +515,8 @@ class AccountController extends \BaseController {
 			$account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
 			$account->date_format_id = Input::get('date_format_id') ? Input::get('date_format_id') : null;
 			$account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
-			$account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1;
+			$account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1; // US Dollar
+			$account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
 			$account->save();
 
 			$user = Auth::user();
@@ -529,8 +531,8 @@ class AccountController extends \BaseController {
 			if ($file = Input::file('logo'))
 			{
 				$path = Input::file('logo')->getRealPath();
-				File::delete('logo/' . $account->account_key . '.jpg');
-				Image::make($path)->resize(120, 80, true, false)->save('logo/' . $account->account_key . '.jpg');
+				File::delete('logo/' . $account->account_key . '.jpg');				
+				Image::make($path)->resize(null, 120, true, false)->save('logo/' . $account->account_key . '.jpg');				
 			}
 
 			Event::fire('user.refresh');
@@ -538,6 +540,14 @@ class AccountController extends \BaseController {
 			Session::flash('message', 'Successfully updated details');
 			return Redirect::to('company/details');
 		}
+	}
+
+	public function removeLogo() {
+
+		File::delete('logo/' . Auth::user()->account->account_key . '.jpg');
+
+		Session::flash('message', 'Successfully removed logo');
+		return Redirect::to('company/details');		
 	}
 
 	public function checkEmail()

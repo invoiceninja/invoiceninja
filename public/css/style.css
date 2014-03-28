@@ -616,6 +616,16 @@ color: #fff;
 background-color: #08273c;
 border-color: #08273c;
 }
+#signUpPopOver {
+    cursor: pointer;
+}
+div.fb_iframe_widget {
+    display: inline;
+}
+div.fb_iframe_widget > span {
+    vertical-align: top !important;  
+}
+
 @media (max-width: 767px) {
     .navbar-default .navbar-nav .open .dropdown-menu > li > a {
         color: #ecf0f1;

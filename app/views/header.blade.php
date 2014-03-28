@@ -18,8 +18,8 @@
 	<script src="{{ asset('vendor/accounting/accounting.min.js') }}" type="text/javascript"></script>		
 	<script src="{{ asset('js/bootstrap-combobox.js') }}" type="text/javascript"></script>		
 	<script src="{{ asset('js/jspdf.source.js') }}" type="text/javascript"></script>		
-	<script src="{{ asset('js/jspdf.plugin.split_text_to_size.js') }}" type="text/javascript"></script>		
-	<script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
+  <script src="{{ asset('js/jspdf.plugin.split_text_to_size.js') }}" type="text/javascript"></script>   
+  <script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
 
   <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
 	<link href="{{ asset('vendor/datatables/media/css/jquery.dataTables.css') }}" rel="stylesheet" type="text/css">
@@ -60,6 +60,19 @@
 			var currency = currencyMap[currency_id];
 			return accounting.formatMoney(value, hide_symbol ? '' : currency.symbol, currency.precision, currency.thousand_separator, currency.decimal_separator);
 		}
+
+    /* Set the defaults for DataTables initialisation */
+    $.extend( true, $.fn.dataTable.defaults, {
+      "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
+      "sPaginationType": "bootstrap",
+      "bInfo": true,
+      "oLanguage": {
+        'sEmptyTable': "{{ trans('texts.empty_table') }}",
+        'sLengthMenu': '_MENU_',
+        'sSearch': ''
+      }
+    } );
+
 	</script>
 @stop
 
@@ -84,7 +97,7 @@
 
 	  <div class="collapse navbar-collapse" id="navbar-collapse-1">
 	    <ul class="nav navbar-nav" style="font-weight: bold">
-	    	{{ HTML::nav_link('dashboard', 'Dashboard') }}
+	    	{{ HTML::nav_link('dashboard', 'dashboard') }}
 	    	{{ HTML::menu_link('client') }}
 	    	{{ HTML::menu_link('invoice') }}
 	    	{{ HTML::menu_link('payment') }}
@@ -94,6 +107,22 @@
 <div class="navbar-form navbar-right">
 			@if (Auth::check() && !Auth::user()->registered)
 				{{ Button::sm_success_primary('Sign up', array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
+
+        @if (Auth::check() && Auth::user()->showSignUpPopOver())
+          <button id="signUpPopOver" type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="Sign up to save your work" data-html="true" style="display:none">
+            Sign Up
+          </button>
+
+          <script>
+            $(function() {
+              $('#signUpPopOver').show().popover('show').hide();
+              $('body').click(function() {
+                $('#signUpPopOver').popover('hide');
+              });    
+            });
+          </script>
+        @endif
+
 			@endif
 			
 			@if (Auth::check())
@@ -103,7 +132,7 @@
   			  @if (Auth::check() && Auth::user()->registered)
   			  {{ Auth::user()->getFullName() }}
   			  @else			  
-  			    My Company 
+  			    Guest
   			  @endif
         </span>
 			  <span class="caret"></span>
@@ -124,16 +153,16 @@
          
         <form class="navbar-form navbar-right" role="search">
 	      <div class="form-group">
-	        <input type="text" id="search" class="form-control" placeholder="Search">
+	        <input type="text" id="search" class="form-control" placeholder="{{ trans('texts.search') }}">
 	      </div>
 	    </form>
           
            <ul class="nav navbar-nav navbar-right">	      
 	      <li class="dropdown">
-	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">History <b class="caret"></b></a>
+	        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ trans('texts.history') }} <b class="caret"></b></a>
 	        <ul class="dropdown-menu">	        		        	
 	        	@if (count(Session::get(RECENTLY_VIEWED)) == 0)
-	          		<li><a href="#">No items</a></li>
+	          		<li><a href="#">{{ trans('texts.no_items') }}</a></li>
 	          	@else
 	          		@foreach (Session::get(RECENTLY_VIEWED) as $link)
 	          			<li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
@@ -162,6 +191,10 @@
 	
   @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
     {{ HTML::breadcrumbs() }}
+  @endif
+
+  @if (Session::has('warning'))
+    <div class="alert alert-warning">{{ Session::get('warning') }}</div>
   @endif
 
   @if (Session::has('message'))
@@ -291,7 +324,7 @@
 	@endif
 	
   @if ($_SERVER['SERVER_NAME'] != 'www.invoiceninja.com')    
-  	<div class="container">Powered by <a href="https://www.invoiceninja.com/" target="_blank">InvoiceNinja.com</a></div>
+  	<div class="container">{{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/" target="_blank">InvoiceNinja.com</a></div>
   @endif
 
   <p>&nbsp;</p>
@@ -368,10 +401,10 @@
         $.ajax({
           type: 'POST',
           url: '{{ URL::to('signup/submit') }}',
-          data: 'new_email=' + $('form.signUpForm #new_email').val() + 
-                  '&new_password=' + $('form.signUpForm #new_password').val() + 
-                  '&new_first_name=' + $('form.signUpForm #new_first_name').val() + 
-                  '&new_last_name=' + $('form.signUpForm #new_last_name').val(),
+          data: 'new_email=' + encodeURIComponent($('form.signUpForm #new_email').val()) + 
+                  '&new_password=' + encodeURIComponent($('form.signUpForm #new_password').val()) + 
+                  '&new_first_name=' + encodeURIComponent($('form.signUpForm #new_first_name').val()) + 
+                  '&new_last_name=' + encodeURIComponent($('form.signUpForm #new_last_name').val()),
           success: function(result) { 
             if (result) {
               localStorage.setItem('guest_key', '');
@@ -436,7 +469,7 @@
 	      	if (isStorageSupported()) {
 	  			@if (Auth::check() && !Auth::user()->registered)
 	        		localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
-				@endif
+  				@endif
         	}
   	
 			@if (!Auth::check() || !Auth::user()->registered)
@@ -471,5 +504,6 @@
   		});
 
   </script>  
+
 
 @stop

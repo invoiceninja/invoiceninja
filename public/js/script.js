@@ -15,7 +15,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   if (invoice.image)
   {
     var left = layout.headerRight - invoice.imageWidth;
-    doc.addImage(invoice.image, 'JPEG', left, 30, invoice.imageWidth, invoice.imageHeight);
+    doc.addImage(invoice.image, 'JPEG', left, 30);
   } 
   
   /* table header */
@@ -69,6 +69,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
 
   y += displaySubtotals(doc, layout, invoice, y+20, 480) + 20;
 
+  /*
   if (checkMath && NINJA.parseFloat(total).toFixed(4) != NINJA.parseFloat(invoice.amount).toFixed(4)) 
   {
     var doc = new jsPDF('p', 'pt');
@@ -78,7 +79,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
     onerror('Failed to generate PDF ' + total + ', ' + invoice.amount );
     return doc;   
   } 
-
+  */
 
   doc.setDrawColor(200,200,200);
   doc.setFillColor(230,230,230);
@@ -91,8 +92,8 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   
   doc.setFontType("bold");
   doc.text(layout.footerLeft, y, 'Balance Due');
-  
-  total = formatMoney(total - (invoice.amount - invoice.balance), currencyId);
+
+  total = formatMoney(invoice.balance_amount, currencyId)  
   var totalX = layout.headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
   doc.text(totalX, y, total);   
 
@@ -181,22 +182,6 @@ function getQuarter(offset) {
     }
     return 'Q' + quarter;
 }
-
-/* Set the defaults for DataTables initialisation */
-$.extend( true, $.fn.dataTable.defaults, {
-  "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
-  //"sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",   
-  "sPaginationType": "bootstrap",
-  //"bProcessing": true,            
-  //"iDisplayLength": 50,
-  "bInfo": true,
-  "oLanguage": {
-    //"sLengthMenu": "_MENU_ records per page"
-    "sLengthMenu": "_MENU_",
-    "sSearch": ""
-  }
-  //"sScrollY": "500px",  
-} );
 
 
 /* Default class modification */
@@ -626,17 +611,17 @@ $.fn.datepicker.defaults.todayHighlight = true;
 
 function GetPdf(invoice,checkMath,report_id){
   var layout = {
-    accountTop: 30,
+    accountTop: 40,
     marginLeft: 50,
     marginRight: 550,
-    headerTop: 140,
+    headerTop: 150,
     headerLeft: 360,
     headerRight: 550,
     rowHeight: 15,
     tableRowHeight: 10,
     footerLeft: 420,
     tablePadding: 12,
-    tableTop: 250,
+    tableTop: 260,
     descriptionLeft: 162,
     unitCostRight: 410,
     qtyRight: 480,
@@ -691,7 +676,6 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
     var account = invoice.account;
     var currencyId = client.currency_id;
 
-    layout.headerTop = 140;
     layout.headerRight = 550;
     layout.rowHeight = 15;
 
@@ -700,7 +684,7 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
     if (invoice.image)
     {
       var left = layout.headerRight - invoice.imageWidth;
-      doc.addImage(invoice.image, 'JPEG', layout.marginLeft, layout.accountTop, invoice.imageWidth, invoice.imageHeight);
+      doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 30);
     }
 
     if (invoice.imageLogo1)
@@ -717,7 +701,7 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
 
     SetPdfColor('LightBlue',doc);
     doc.setFontSize('11');
-    doc.text(50, layout.headerTop, 'INVOICE');
+    doc.text(50, layout.headerTop, invoiceLabels.invoice.toUpperCase());
 
     //doc.setDrawColor(220,220,220);
     //doc.line(30, y, 560, y); // horizontal line
@@ -726,8 +710,8 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
     SetPdfColor('Black',doc); //set black color
     doc.setFontSize(9);
 
-    displayInvoice(doc, invoice, 50, 160, layout);
-    displayClient(doc, invoice, 220, 160, layout);
+    displayInvoice(doc, invoice, 50, 170, layout);
+    displayClient(doc, invoice, 220, 170, layout);
 
     doc.setLineWidth(0.3);        
     doc.setDrawColor(200,200,200);
@@ -793,8 +777,6 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
 
 
 
-
-
 function GetReportTemplate2(doc, invoice, layout, checkMath)
 {
   var GlobalY=0;//Y position of line at current page
@@ -822,7 +804,7 @@ function GetReportTemplate2(doc, invoice, layout, checkMath)
   if (invoice.image)
   {
       var left = layout.headerRight - invoice.imageWidth;
-      doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 30, invoice.imageWidth, invoice.imageHeight);
+      doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 30);
   }
 
   Report2AddFooter (invoice,doc);
@@ -897,7 +879,7 @@ function GetReportTemplate2(doc, invoice, layout, checkMath)
   SetPdfColor('SomeGreen',doc);
   doc.setFontSize('14');
   doc.setFontType("bold");
-  doc.text(50, GlobalY, 'YOUR INVOICE');
+  doc.text(50, GlobalY, invoiceLabels.your_invoice.toUpperCase());
 
 
   var z=GlobalY;
@@ -1140,7 +1122,7 @@ function GetReportTemplate3(doc, invoice, layout, checkMath)
     {
         y=130;
         var left = layout.headerRight - invoice.imageWidth;
-        doc.addImage(invoice.image, 'JPEG', layout.marginLeft, y, invoice.imageWidth, invoice.imageHeight);
+        doc.addImage(invoice.image, 'JPEG', layout.marginLeft, y);
     }
 
     Report3AddFooter (invoice, account, doc, layout);
@@ -1307,11 +1289,11 @@ function displayInvoice(doc, invoice, x, y, layout, rightAlignX) {
   }
 
   var data = [
-    {'Invoice Number': invoice.invoice_number},
-    {'PO Number': invoice.po_number},
-    {'Invoice Date': invoice.invoice_date},
-    {'Due Date': invoice.due_date},
-    {'Balance Due': formatMoney(invoice.balance_amount, invoice.client.currency_id)}
+    {'invoice_number': invoice.invoice_number},
+    {'po_number': invoice.po_number},
+    {'invoice_date': invoice.invoice_date},
+    {'due_date': invoice.due_date},
+    {'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)}
   ];  
 
   displayGrid(doc, invoice, data, x, y, layout, true, rightAlignX);
@@ -1325,10 +1307,10 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
 
   //var taxTitle = 'Tax ' + getInvoiceTaxRate(invoice) + '%';
   var data = [
-    {'Subtotal': formatMoney(invoice.subtotal_amount, invoice.client.currency_id)},
-    {'Discount': invoice.discount_amount > 0 ? formatMoney(invoice.discount_amount, invoice.client.currency_id) : false},
-    {'Tax': invoice.tax_amount > 0 ? formatMoney(invoice.tax_amount, invoice.client.currency_id) : false},
-    {'Paid to Date': formatMoney(invoice.amount - invoice.balance, invoice.client.currency_id)}
+    {'subtotal': formatMoney(invoice.subtotal_amount, invoice.client.currency_id)},
+    {'discount': invoice.discount_amount > 0 ? formatMoney(invoice.discount_amount, invoice.client.currency_id) : false},
+    {'tax': invoice.tax_amount > 0 ? formatMoney(invoice.tax_amount, invoice.client.currency_id) : false},
+    {'paid_to_date': formatMoney(invoice.amount - invoice.balance, invoice.client.currency_id)}
   ];
 
   return displayGrid(doc, invoice, data, 300, y, layout, true, 550, rightAlignTitleX) + 10;
@@ -1357,9 +1339,10 @@ function concatStrings() {
 function displayGrid(doc, invoice, data, x, y, layout, hasheader, rightAlignX, rightAlignTitleX)  {
   var numLines = 0;
   var origY = y;
+
   for (var i=0; i<data.length; i++) {
     doc.setFontType('normal');
-    
+      
     if (invoice.invoice_design_id == 1 && i > 0 && origY === layout.accountTop) {
       SetPdfColor('GrayText',doc);
     }
@@ -1391,11 +1374,16 @@ function displayGrid(doc, invoice, data, x, y, layout, hasheader, rightAlignX, r
       }
       doc.text(marginLeft, y, value);        
 
+      /*
       if (rightAlignTitleX && i === 0) {
         doc.setFontType('bold');
       } else {
         doc.setFontType('normal');
       }
+      */
+      
+      doc.setFontType('normal');
+      key = invoiceLabels[key];
 
       if (rightAlignTitleX) {
         marginLeft = rightAlignTitleX - (doc.getStringUnitWidth(key) * doc.internal.getFontSize());
@@ -1427,7 +1415,7 @@ function displayNotesAndTerms(doc, layout, invoice, y)
     
   if (invoice.terms) {
     doc.setFontType("bold");
-    doc.text(layout.marginLeft, y, "Terms");
+    doc.text(layout.marginLeft, y, invoiceLabels.terms);
     y += 16;
     doc.setFontType("normal");
     doc.text(layout.marginLeft, y, invoice.terms);
@@ -1503,26 +1491,25 @@ function getInvoiceTaxRate(invoice) {
 
 function displayInvoiceHeader(doc, invoice, layout) {
 
-  var costX = layout.unitCostRight - (doc.getStringUnitWidth('Unit Cost') * doc.internal.getFontSize());
-  var qtyX = layout.qtyRight - (doc.getStringUnitWidth('Quantity') * doc.internal.getFontSize());
-  var taxX = layout.taxRight - (doc.getStringUnitWidth('Tax') * doc.internal.getFontSize());
-  var totalX = layout.lineTotalRight - (doc.getStringUnitWidth('Line Total') * doc.internal.getFontSize());
+  var costX = layout.unitCostRight - (doc.getStringUnitWidth(invoiceLabels.unit_cost) * doc.internal.getFontSize());
+  var qtyX = layout.qtyRight - (doc.getStringUnitWidth(invoiceLabels.quantity) * doc.internal.getFontSize());
+  var taxX = layout.taxRight - (doc.getStringUnitWidth(invoiceLabels.tax) * doc.internal.getFontSize());
+  var totalX = layout.lineTotalRight - (doc.getStringUnitWidth(invoiceLabels.line_total) * doc.internal.getFontSize());
 
-  doc.text(layout.marginLeft, layout.tableTop, 'Item');
-  doc.text(layout.descriptionLeft, layout.tableTop, 'Description');
-  doc.text(costX, layout.tableTop, 'Unit Cost');
-  doc.text(qtyX, layout.tableTop, 'Quantity');
-  doc.text(totalX, layout.tableTop, 'Line Total');
+  doc.text(layout.marginLeft, layout.tableTop, invoiceLabels.item);
+  doc.text(layout.descriptionLeft, layout.tableTop, invoiceLabels.description);
+  doc.text(costX, layout.tableTop, invoiceLabels.unit_cost);
+  doc.text(qtyX, layout.tableTop, invoiceLabels.quantity);
+  doc.text(totalX, layout.tableTop, invoiceLabels.line_total);
 
   if (invoice.has_taxes)
   {
-    doc.text(taxX, layout.tableTop, 'Tax');
+    doc.text(taxX, layout.tableTop, invoiceLabels.tax);
   }
 
 }
 
 function displayInvoiceItems(doc, invoice, layout) {
- 
   doc.setFontType("normal");
 
   var line = 1;

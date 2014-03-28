@@ -29,11 +29,12 @@
 			{{ Former::text('name') }}
 			{{ Former::text('work_email')->label('Email') }}
 			{{ Former::text('work_phone')->label('Phone') }}
-			{{ Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp('Supported: JPEG, GIF and PNG. Recommnded size: 120px width, 80px height') }}
+			{{ Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp('Supported: JPEG, GIF and PNG. Recommended height: 120px') }}
 
 			@if (file_exists($account->getLogoPath()))
 				<center>
-					{{ HTML::image($account->getLogoPath(), "Logo") }}
+					{{ HTML::image($account->getLogoPath(), "Logo") }} &nbsp;
+					<a href="#" onclick="deleteLogo()">Remove logo</a>
 				</center><br/>
 			@endif
 
@@ -61,8 +62,9 @@
 			{{ Former::text('email') }}
 			{{ Former::text('phone') }}
 
-
 			{{ Former::legend('Localization') }}
+			{{ Former::select('language_id')->addOption('','')->label('Language')
+				->fromQuery($languages, 'name', 'id') }}			
 			{{ Former::select('currency_id')->addOption('','')->label('Currency')
 				->fromQuery($currencies, 'name', 'id') }}			
 			{{ Former::select('timezone_id')->addOption('','')->label('Timezone')
@@ -82,12 +84,22 @@
 
 	{{ Former::close() }}
 
+	{{ Form::open(['url' => 'remove_logo', 'class' => 'removeLogoForm']) }}	
+	{{ Form::close() }}
+
+
 	<script type="text/javascript">
 
 		$(function() {
 			$('#country_id').combobox();
 		});
 		
+		function deleteLogo() {
+			if (confirm('Are you sure?')) {
+				$('.removeLogoForm').submit();
+			}
+		}
+
 	</script>
 
 @stop

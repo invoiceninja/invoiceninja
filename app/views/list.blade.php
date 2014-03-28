@@ -8,23 +8,23 @@
 		{{ Former::text('id') }}
 	</div>
 
-	{{ DropdownButton::normal('Archive',
+	{{ DropdownButton::normal(trans('texts.archive'),
 		  Navigation::links(
 		    array(
-		      array('Archive '.ucwords($entityType), "javascript:submitForm('archive')"),
-		      array('Delete '.ucwords($entityType), "javascript:submitForm('delete')"),
+		      array(trans('texts.archive_'.$entityType), "javascript:submitForm('archive')"),
+		      array(trans('texts.delete_'.$entityType), "javascript:submitForm('delete')"),
 		    )
 		  )
 		, array('id'=>'archive'))->split(); }}
 	
 	&nbsp;<label for="trashed" style="font-weight:normal; margin-left: 10px;">
 		<input id="trashed" type="checkbox" onclick="setTrashVisible()" 
-			{{ Session::get('show_trash') ? 'checked' : ''}}/> Show archived/deleted {{ $entityType }}s
+			{{ Session::get('show_trash') ? 'checked' : ''}}/> {{ trans('texts.show_archived_deleted')}} {{ strtolower(trans('texts.'.$entityType.'s')) }}
 	</label>
 
 	<div id="top_right_buttons" class="pull-right">
-		<input id="tableFilter" type="text" style="width:140px;margin-right:17px" class="form-control pull-left" placeholder="Filter"/> 
-		{{ Button::success_link(URL::to($entityType . 's/create'), 'New ' . Utils::getEntityName($entityType), array('class' => 'pull-right'))->append_with_icon('plus-sign'); }}	
+		<input id="tableFilter" type="text" style="width:140px;margin-right:17px" class="form-control pull-left" placeholder="{{ trans('texts.filter') }}"/> 
+		{{ Button::success_link(URL::to($entityType . 's/create'), trans("texts.new_$entityType"), array('class' => 'pull-right'))->append_with_icon('plus-sign'); }}	
         
 	</div>
 

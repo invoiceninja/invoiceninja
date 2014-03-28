@@ -118,14 +118,22 @@ class Account extends Eloquent
 
 	public function getLogoWidth()
 	{
-		list($width, $height) = getimagesize($this->getLogoPath());
+		$path = $this->getLogoPath();
+		if (!file_exists($path)) {
+			return 0;
+		}
+		list($width, $height) = getimagesize($path);
 		return $width;
 	}
 
 	public function getLogoHeight()
 	{
-		list($width, $height) = getimagesize($this->getLogoPath());
-		return $height;	
+		$path = $this->getLogoPath();
+		if (!file_exists($path)) {
+			return 0;
+		}
+		list($width, $height) = getimagesize($path);
+		return $height;
 	}
 
 	public function getNextInvoiceNumber()
@@ -158,6 +166,39 @@ class Account extends Eloquent
 		Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
 		Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
 		Session::put(SESSION_DATETIME_FORMAT, $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT);			
-		Session::put(SESSION_CURRENCY, $this->currency_id ? $this->currency_id : DEFAULT_CURRENCY);					
+		Session::put(SESSION_CURRENCY, $this->currency_id ? $this->currency_id : DEFAULT_CURRENCY);		
 	}
+
+	public function getInvoiceLabels()
+	{
+		$data = [];
+		$fields = [ 
+			'invoice',  		
+  		'invoice_date',
+  		'due_date',
+  		'invoice_number',
+		  'po_number',
+		  'discount',
+  		'taxes',
+  		'tax',
+  		'item',
+  		'description',
+  		'unit_cost',
+  		'quantity',
+  		'line_total',
+  		'subtotal',
+  		'paid_to_date',
+  		'balance_due',
+  		'terms',
+  		'your_invoice',
+		];
+
+		foreach ($fields as $field)
+		{
+			$data[$field] = trans("texts.$field");
+		}
+
+		return $data;
+	}
+	
 }

@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -21,38 +22,6 @@
 //dd(App::environment());
 //dd(gethostname());
 //Log::error('test');
-
-/*
-Event::listen('illuminate.query', function($query, $bindings, $time, $name)
-{
-    $data = compact('bindings', 'time', 'name');
-
-    // Format binding data for sql insertion
-    foreach ($bindings as $i => $binding)
-    {   
-        if ($binding instanceof \DateTime)
-        {   
-            $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
-        }
-        else if (is_string($binding))
-        {   
-            $bindings[$i] = "'$binding'";
-        }   
-    }       
-
-    // Insert bindings into query
-    $query = str_replace(array('%', '?'), array('%%', '%s'), $query);
-    $query = vsprintf($query, $bindings); 
-
-    Log::info($query, $data);
-});
-*/
-
-/*
-Route::get('/send_emails', function() {
-	Artisan::call('ninja:send-invoices');	
-});
-*/
 
 Route::get('/', 'HomeController@showWelcome');
 Route::get('/rocksteady', 'HomeController@showWelcome');
@@ -87,11 +56,13 @@ Route::group(array('before' => 'auth'), function()
 {   
 	Route::get('dashboard', 'DashboardController@index');
   Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
+  Route::get('force_inline_pdf', 'UserController@forcePDFJS');
 
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
 	Route::get('company/{section?}', 'AccountController@showSection');	
 	Route::post('company/{section?}', 'AccountController@doSection');
 	Route::post('user/setTheme', 'UserController@setTheme');
+  Route::post('remove_logo', 'AccountController@removeLogo');
 
 	Route::resource('clients', 'ClientController');
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
@@ -127,7 +98,7 @@ Route::group(array('before' => 'auth'), function()
 
 HTML::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
     $class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2) ) ? ' class="active"' : '';
-    return '<li'.$class.'><a href="'.URL::to($url).'" '.$extra.'>'.$text.'</a></li>';
+    return '<li'.$class.'><a href="'.URL::to($url).'" '.$extra.'>'.trans("texts.$text").'</a></li>';
 });
 
 HTML::macro('tab_link', function($url, $text, $active = false) {
@@ -163,7 +134,17 @@ HTML::macro('image_data', function($imagePath) {
 
 HTML::macro('breadcrumbs', function() {
   $str = '<ol class="breadcrumb">';
-  $crumbs = explode('/', $_SERVER['REQUEST_URI']);  
+
+  // Get the breadcrumbs by exploding the current path.
+  $basePath = Utils::basePath();
+  $parts = explode('?', $_SERVER['REQUEST_URI']);
+  $path = $parts[0];
+  
+  if ($basePath != '/')
+  {
+    $path = str_replace($basePath, '', $path);
+  }
+  $crumbs = explode('/', $path);
 
   foreach ($crumbs as $key => $val)
   {
@@ -172,6 +153,7 @@ HTML::macro('breadcrumbs', function() {
       unset($crumbs[$key]);
     }
   }
+
   $crumbs = array_values($crumbs);
   for ($i=0; $i<count($crumbs); $i++) {
     $crumb = trim($crumbs[$i]);
@@ -190,7 +172,10 @@ HTML::macro('breadcrumbs', function() {
   return $str . '</ol>';
 });
 
+
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
+define('CONTACT_NAME', 'Invoice Ninja');
+
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');
@@ -240,20 +225,22 @@ define('SESSION_CURRENCY', 'currency');
 define('SESSION_DATE_FORMAT', 'dateFormat');
 define('SESSION_DATE_PICKER_FORMAT', 'datePickerFormat');
 define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
+define('SESSION_COUNTER', 'sessionCounter');
 
 define('DEFAULT_TIMEZONE', 'US/Eastern');
 define('DEFAULT_CURRENCY', 1); // US Dollar
 define('DEFAULT_DATE_FORMAT', 'M j, Y');
 define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
-define('DEFAULT_QUERY_CACHE', 120);
+define('DEFAULT_QUERY_CACHE', 120); // minutes
+
+define('GATEWAY_PAYPAL_EXPRESS', 17);
 
 
 if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
 {
 	Event::fire('user.refresh');
 }
-
 
 Validator::extend('positive', function($attribute, $value, $parameters)
 {
@@ -270,3 +257,37 @@ Validator::extend('has_credit', function($attribute, $value, $parameters)
     
     return $credit >= $amount;
 });
+
+
+/*
+Event::listen('illuminate.query', function($query, $bindings, $time, $name)
+{
+    $data = compact('bindings', 'time', 'name');
+
+    // Format binding data for sql insertion
+    foreach ($bindings as $i => $binding)
+    {   
+        if ($binding instanceof \DateTime)
+        {   
+            $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
+        }
+        else if (is_string($binding))
+        {   
+            $bindings[$i] = "'$binding'";
+        }   
+    }       
+
+    // Insert bindings into query
+    $query = str_replace(array('%', '?'), array('%%', '%s'), $query);
+    $query = vsprintf($query, $bindings); 
+
+    Log::info($query, $data);
+});
+*/
+
+/*
+if (Auth::check() && Auth::user()->id === 1)
+{
+  Auth::loginUsingId(1);
+}
+*/

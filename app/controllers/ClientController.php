@@ -23,7 +23,7 @@ class ClientController extends \BaseController {
 		return View::make('list', array(
 			'entityType'=>ENTITY_CLIENT, 
 			'title' => '- Clients',
-			'columns'=>['checkbox', 'Client', 'Contact', 'Email', 'Date Created', 'Last Login', 'Balance', 'Action']
+			'columns'=>Utils::trans(['checkbox', 'client', 'contact', 'email', 'date_created', 'last_login', 'balance', 'action'])
 		));		
 	}
 
@@ -43,17 +43,17 @@ class ClientController extends \BaseController {
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
   							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-    							Select <span class="caret"></span>
+    							'.trans('texts.select').' <span class="caret"></span>
   							</button>
   							<ul class="dropdown-menu" role="menu">
-  							<li><a href="' . URL::to('clients/'.$model->public_id.'/edit') . '">Edit Client</a></li>
+  							<li><a href="' . URL::to('clients/'.$model->public_id.'/edit') . '">'.trans('texts.edit_client').'</a></li>
 						    <li class="divider"></li>
-						    <li><a href="' . URL::to('invoices/create/'.$model->public_id) . '">New Invoice</a></li>						    
-						    <li><a href="' . URL::to('payments/create/'.$model->public_id) . '">New Payment</a></li>						    
-						    <li><a href="' . URL::to('credits/create/'.$model->public_id) . '">New Credit</a></li>						    
+						    <li><a href="' . URL::to('invoices/create/'.$model->public_id) . '">'.trans('texts.new_invoice').'</a></li>						    
+						    <li><a href="' . URL::to('payments/create/'.$model->public_id) . '">'.trans('texts.new_payment').'</a></li>						    
+						    <li><a href="' . URL::to('credits/create/'.$model->public_id) . '">'.trans('texts.new_credit').'</a></li>						    
 						    <li class="divider"></li>
-						    <li><a href="javascript:archiveEntity(' . $model->public_id. ')">Archive Client</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->public_id. ')">Delete Client</a></li>						    
+						    <li><a href="javascript:archiveEntity(' . $model->public_id. ')">'.trans('texts.archive_client').'</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->public_id. ')">'.trans('texts.delete_client').'</a></li>						    
 						  </ul>
 						</div>';
     	    })    	   

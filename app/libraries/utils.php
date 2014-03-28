@@ -2,6 +2,35 @@
 
 class Utils
 {
+	public static function isProd()
+	{
+		return App::environment() == ENV_PRODUCTION;
+	}
+
+	public static function basePath() 
+	{
+		return substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/') + 1);
+	}
+
+	public static function trans($input)
+	{
+		$data = [];
+
+		foreach ($input as $field)
+		{
+			if ($field == "checkbox")
+			{
+				$data[] = $field;
+			}
+			else
+			{
+				$data[] = trans("texts.$field");
+			}
+		}
+
+		return $data;
+	}
+	
 	public static function fatalError($message = false, $exception = false)
 	{
 		if (!$message)
@@ -27,11 +56,10 @@ class Utils
 			'url' => Input::get('url', Request::url()),
 			'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
 			'ip' => Request::getClientIp(),
-			'count' => Session::get('error_count', 0),
-			'input' => Input::all()
+			'count' => Session::get('error_count', 0)
 		];
 
-		Log::error('\n'.$error, $data);
+		Log::error($error."\n", $data);
 
 		/*
 		Mail::queue('emails.error', ['message'=>$error.' '.json_encode($data)], function($message)
@@ -95,7 +123,8 @@ class Utils
 	public static function pluralize($string, $count) 
 	{
 		$string = str_replace('?', $count, $string);
-		return $count == 1 ? $string : $string . 's';
+		$field = $count == 1 ? $string : $string . 's';
+		return trans("texts.$field");
 	}
 
 	public static function toArray($data)

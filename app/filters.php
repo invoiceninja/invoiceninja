@@ -20,6 +20,11 @@ App::before(function($request)
       return Redirect::secure(Request::getRequestUri());      
     }
   }
+
+  if (Auth::check())
+  {      
+    App::setLocale(Auth::user()->getLocale());
+  }
 });
 
 

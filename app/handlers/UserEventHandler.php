@@ -17,11 +17,11 @@ class UserEventHandler
 
 	public function onLogin()
 	{
-        $account = Auth::user()->account;
-        $account->last_login = Carbon::now()->toDateTimeString();
-        $account->save();
+    $account = Auth::user()->account;
+    $account->last_login = Carbon::now()->toDateTimeString();
+    $account->save();
 
-        Event::fire('user.refresh');
+    Event::fire('user.refresh');
 	}
 
 	public function onRefresh()

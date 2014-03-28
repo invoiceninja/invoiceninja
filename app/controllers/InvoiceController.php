@@ -27,13 +27,13 @@ class InvoiceController extends \BaseController {
 		$data = [
 			'title' => '- Invoices',
 			'entityType'=>ENTITY_INVOICE, 
-			'columns'=>['checkbox', 'Invoice Number', 'Client', 'Invoice Date', 'Invoice Total', 'Balance Due', 'Due Date', 'Status', 'Action']
+			'columns'=>Utils::trans(['checkbox', 'invoice_number', 'client', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status', 'action'])
 		];
 
 		if (Invoice::scope()->where('is_recurring', '=', true)->count() > 0)
 		{
 			$data['secEntityType'] = ENTITY_RECURRING_INVOICE;
-			$data['secColumns'] = ['checkbox', 'Frequency', 'Client', 'Start Date', 'End Date', 'Invoice Total', 'Action'];
+			$data['secColumns'] = Utils::trans(['checkbox', 'frequency', 'client', 'start_date', 'end_date', 'invoice_total', 'action']);
 		}
 
 		return View::make('list', $data);
@@ -63,14 +63,14 @@ class InvoiceController extends \BaseController {
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
   							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-    							Select <span class="caret"></span>
+    							'.trans('texts.select').' <span class="caret"></span>
   							</button>
   							<ul class="dropdown-menu" role="menu">
-						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">Edit Invoice</a></li>
-						    <li><a href="' . URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">Enter Payment</a></li>
+						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">'.trans('texts.edit_invoice').'</a></li>
+						    <li><a href="' . URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">'.trans('texts.enter_payment').'</a></li>
 						    <li class="divider"></li>
-						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">Archive Invoice</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">Delete Invoice</a></li>						    
+						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans('texts.archive_invoice').'</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans('texts.delete_invoice').'</a></li>						    
 						  </ul>
 						</div>';
     	    })    	       	    
@@ -89,7 +89,7 @@ class InvoiceController extends \BaseController {
     	$table->addColumn('frequency', function($model) { return link_to('invoices/' . $model->public_id, $model->frequency); });
 
     	if (!$clientPublicId) {
-    		$table->addColumn('client', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
+    		$table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
     	}
     	
     	return $table->addColumn('start_date', function($model) { return Utils::fromSqlDate($model->start_date); })
@@ -99,13 +99,13 @@ class InvoiceController extends \BaseController {
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
   							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-    							Select <span class="caret"></span>
+    						'.trans('texts.select').' <span class="caret"></span>
   							</button>
   							<ul class="dropdown-menu" role="menu">
-						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">Edit Invoice</a></li>
+						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">'.trans('texts.edit_invoice').'</a></li>
 						    <li class="divider"></li>
-						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">Archive Invoice</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">Delete Invoice</a></li>						    
+						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans('texts.archive_invoice').'</a></li>
+						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans('texts.delete_invoice').'</a></li>						    
 						  </ul>
 						</div>';
     	    })    	       	    
@@ -143,7 +143,8 @@ class InvoiceController extends \BaseController {
 		$data = array(
 			'showBreadcrumbs' => false,
 			'invoice' => $invoice->hidePrivateFields(),
-			'invitation' => $invitation
+			'invitation' => $invitation,
+			'invoiceLabels' => $client->account->getInvoiceLabels(),
 		);
 
 		return View::make('invoices.view', $data);
@@ -206,6 +207,12 @@ class InvoiceController extends \BaseController {
 
 	public static function getViewModel()
 	{
+		// Temporary fix to let users know to re-upload their logos for higher res
+		if (Auth::user()->account->getLogoHeight() == 80)
+		{
+			Session::flash('warning', "We've increased the logo resolution in the PDF. Please re-upload your logo to take advantage of it.");
+		}
+
 		return [
 			'account' => Auth::user()->account,
 			'products' => Product::scope()->orderBy('id')->get(array('product_key','notes','cost','qty')),
@@ -217,6 +224,7 @@ class InvoiceController extends \BaseController {
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
 			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),				
 			'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',
@@ -329,7 +337,15 @@ class InvoiceController extends \BaseController {
 				else
 				{
 					Session::flash('message', 'Successfully saved invoice'.$message);
-					Session::flash('error', 'Please sign up to email an invoice');
+
+					if (Auth::user()->registered)
+					{
+						Session::flash('error', 'Please confirm your email address');
+					}
+					else
+					{
+						Session::flash('error', 'Please sign up to email an invoice');
+					}
 				}
 			} 
 			else 

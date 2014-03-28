@@ -20,7 +20,7 @@
 		'client' => 'required',
 		'email' => 'required',
 		'product_key' => 'max:20',
-	)); }}	
+	)) }}	
 
 	<input type="submit" style="display:none" name="submitButton" id="submitButton">
 
@@ -70,7 +70,7 @@
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') }}							
 			</div>
 			<div data-bind="visible: is_recurring" style="display: none">
-				{{ Former::select('frequency_id')->label('How often')->options($frequencies)->data_bind("value: frequency_id") }}
+				{{ Former::select('frequency_id')->options($frequencies)->data_bind("value: frequency_id") }}
 				{{ Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') }}
 				{{ Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
@@ -82,7 +82,7 @@
 				</div>
 			@else 
 			<div data-bind="visible: invoice_status_id() < CONSTS.INVOICE_STATUS_SENT">
-				{{ Former::checkbox('recurring')->text('Enable &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> Learn more</a>')->data_bind("checked: is_recurring")
+				{{ Former::checkbox('recurring')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
 					->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::dateToString($invoice->last_sent_date) : '') }}
 			</div>			
 			@endif
@@ -90,15 +90,15 @@
 		</div>
 
 		<div class="col-md-4" id="col_2">
-			{{ Former::text('invoice_number')->label('Invoice #')->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
-			{{ Former::text('po_number')->label('PO #')->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
+			{{ Former::text('invoice_number')->label(trans('texts.invoice_number_short'))->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
+			{{ Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
 			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")->append('%') }}			
-			{{-- Former::select('currency_id')->label('Currency')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") --}}
+			{{-- Former::select('currency_id')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") --}}
 			
 			<div class="form-group" style="margin-bottom: 8px">
-				<label for="recurring" class="control-label col-lg-4 col-sm-4">Taxes</label>
+				<label for="recurring" class="control-label col-lg-4 col-sm-4">{{ trans('texts.taxes') }}</label>
 				<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
-					<a href="#" data-bind="click: $root.showTaxesForm"><i class="glyphicon glyphicon-list-alt"></i> Manage rates</a>
+					<a href="#" data-bind="click: $root.showTaxesForm"><i class="glyphicon glyphicon-list-alt"></i> {{ trans('texts.manage_rates') }}</a>
 				</div>
 			</div>
 
@@ -113,12 +113,12 @@
 	    <thead>
 	        <tr>
 	        	<th style="min-width:32px;" class="hide-border"></th>
-	        	<th style="min-width:160px">Item</th>
-	        	<th style="width:100%">Description</th>
-	        	<th style="min-width:120px">Unit Cost</th>
-	        	<th style="min-width:120px">Quantity</th>
-	        	<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">Tax</th>
-	        	<th style="min-width:120px;">Line&nbsp;Total</th>
+	        	<th style="min-width:160px">{{ trans('texts.item') }}</th>
+	        	<th style="width:100%">{{ trans('texts.description') }}</th>
+	        	<th style="min-width:120px">{{ trans('texts.unit_cost') }}</th>
+	        	<th style="min-width:120px">{{ trans('texts.quantity') }}</th>
+	        	<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
+	        	<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
 	        	<th style="min-width:32px;" class="hide-border"></th>
 	        </tr>
 	    </thead>
@@ -128,7 +128,7 @@
 	        		<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 	        	</td>
 	            <td>	            	
-	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'key')->onkeyup('onItemChange()')
+	            	{{ Former::text('product_key')->useDatalist(Product::getProductKeys($products), 'product_key')->onkeyup('onItemChange()')
 	            		->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 	            </td>
 	            <td>
@@ -157,41 +157,41 @@
 	        	<td colspan="2" rowspan="5">
 	        		<br/>
 					{{ Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
-						->label(false)->placeholder('Note to client')->style('width: 520px; resize: none') }}			
+						->label(false)->placeholder(trans('texts.note_to_client'))->style('width: 520px; resize: none') }}			
 					{{ Former::textarea('terms')->data_bind("value: wrapped_terms, valueUpdate: 'afterkeydown'")
-						->label(false)->placeholder('Invoice terms')->style('width: 520px; resize: none')
+						->label(false)->placeholder(trans('texts.invoice_terms'))->style('width: 520px; resize: none')
 						->addGroupClass('less-space-bottom') }}
 					<label class="checkbox" style="width: 200px">
-						<input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>Save as default terms
+						<input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>{{ trans('texts.save_as_default_terms') }}
 					</label>
 	        	</td>
 	        	<td style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
-				<td colspan="2">Subtotal</td>
+				<td colspan="2">{{ trans('texts.subtotal') }}</td>
 				<td style="text-align: right"><span data-bind="text: totals.subtotal"/></td>
 	        </tr>
 	        <tr style="display:none" data-bind="visible: discount() > 0">
 	        	<td class="hide-border" colspan="3"/>
 	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
-				<td colspan="2">Discount</td>
+				<td colspan="2">{{ trans('texts.discount') }}</td>
 				<td style="text-align: right"><span data-bind="text: totals.discounted"/></td>
 	        </tr>
 	        <tr style="display:none" data-bind="visible: $root.invoice_taxes.show">
 	        	<td class="hide-border" colspan="3"/>
 	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
-				<td>Tax</td>
+				<td>{{ trans('texts.tax') }}</td>
 				<td style="min-width:120px"><select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select></td>
 				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 	        </tr>
 	        <tr>
 	        	<td class="hide-border" colspan="3"/>
 	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
-				<td colspan="2">Paid to Date</td>
+				<td colspan="2">{{ trans('texts.paid_to_date') }}</td>
 				<td style="text-align: right" data-bind="text: totals.paidToDate"></td>
 	        </tr>	        
 	        <tr>
 	        	<td class="hide-border" colspan="3"/>
 	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
-				<td colspan="2"><b>Balance Due</b></td>
+				<td colspan="2"><b>{{ trans('texts.balance_due') }}</b></td>
 				<td style="text-align: right"><span data-bind="text: totals.total"/></td>
 	        </tr>
 	    </tfoot>
@@ -210,29 +210,28 @@
 
 
 
-		{{ Former::select('invoice_design_id')->label('Design')->style('display:inline;width:120px')->raw()
+		{{ Former::select('invoice_design_id')->style('display:inline;width:120px')->raw()
 					->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") }}
 
 				
-		{{ Button::primary('Download PDF', array('onclick' => 'onDownloadClick()'))->append_with_icon('download-alt'); }}	
+		{{ Button::primary(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()'))->append_with_icon('download-alt'); }}	
         
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))						
 			@if ($invoice)		
 
 				<div id="primaryActions" style="text-align:left" class="btn-group">
-					<button class="btn-success btn" type="button">Save Invoice</button>
+					<button class="btn-success btn" type="button">{{ trans('texts.save_invoice') }}</button>
 					<button class="btn-success btn dropdown-toggle" type="button" data-toggle="dropdown"> 
 						<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu">
-						<li><a href="javascript:onSaveClick()" id="saveButton">Save Invoice</a></li>
-						<li><a href="javascript:onCloneClick()">Clone Invoice</a></li>
+						<li><a href="javascript:onSaveClick()" id="saveButton">{{ trans('texts.save_invoice') }}</a></li>
+						<li><a href="javascript:onCloneClick()">{{ trans('texts.clone_invoice') }}</a></li>
 						<li class="divider"></li>
-						<li><a href="javascript:onArchiveClick()">Archive Invoice</a></li>
-						<li><a href="javascript:onDeleteClick()">Delete Invoice</a></li>
+						<li><a href="javascript:onArchiveClick()">{{ trans('texts.archive_invoice') }}</a></li>
+						<li><a href="javascript:onDeleteClick()">{{ trans('texts.delete_invoice') }}</a></li>
 					</ul>
 				</div>		
-
 
 				{{-- DropdownButton::normal('Download PDF',
 					  Navigation::links(
@@ -257,13 +256,13 @@
 					  )
 					, array('id'=>'primaryActions', 'style'=>'text-align:left', 'data-bind'=>'css: $root.enable.save'))->split(); --}}				
 			@else
-				{{ Button::success('Save Invoice', array('id' => 'saveButton', 'onclick' => 'onSaveClick()')) }}			
+				{{ Button::success(trans('texts.save_invoice'), array('id' => 'saveButton', 'onclick' => 'onSaveClick()')) }}			
 			@endif
 
-			{{ Button::normal('Email Invoice', array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->append_with_icon('send'); }}		
+			{{ Button::normal(trans('texts.email_invoice'), array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->append_with_icon('send'); }}		
 
 			@if ($invoice)		
-				{{ Button::primary('Enter Payment', array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
+				{{ Button::primary(trans('texts.enter_payment'), array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
 			@endif
 		@endif
 
@@ -281,33 +280,33 @@
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="clientModalLabel">Client</h4>
+	        <h4 class="modal-title" id="clientModalLabel">{{ trans('texts.client') }}</h4>
 	      </div>
 
 	      <div class="container" style="width: 100%">
 		<div style="background-color: #fff" class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
 			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
 
-				{{ Former::legend('Organization') }}
+				{{ Former::legend('organization') }}
 				{{ Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }") }}
 				{{ Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'")->label('Phone') }}
+				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") }}
 				
 				
-				{{ Former::legend('Address') }}
-				{{ Former::text('address1')->label('Street')->data_bind("value: address1, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('address2')->label('Apt/Suite')->data_bind("value: address2, valueUpdate: 'afterkeydown'") }}
+				{{ Former::legend('address') }}
+				{{ Former::text('address1')->data_bind("value: address1, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('address2')->data_bind("value: address2, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('state')->label('State/Province')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
+				{{ Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") }}
-				{{ Former::select('country_id')->addOption('','')->label('Country')->addGroupClass('country_select')
+				{{ Former::select('country_id')->addOption('','')->addGroupClass('country_select')
 					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") }}
 					
 			</div>
 			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
 
 
-				{{ Former::legend('Contacts') }}
+				{{ Former::legend('contacts') }}
 				<div data-bind='template: { foreach: contacts,
 			                            beforeRemove: hideContact,
 			                            afterAdd: showContact }'>
@@ -320,23 +319,23 @@
 					<div class="form-group">
 						<div class="col-lg-8 col-lg-offset-4">
 							<span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
-								{{ link_to('#', 'Remove contact -', array('data-bind'=>'click: $parent.removeContact')) }}
+								{{ link_to('#', trans('texts.remove_contact').' -', array('data-bind'=>'click: $parent.removeContact')) }}
 							</span>					
 							<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right greenlink bold">
-								{{ link_to('#', 'Add contact +', array('data-bind'=>'click: $parent.addContact')) }}
+								{{ link_to('#', trans('texts.add_contact').' +', array('data-bind'=>'click: $parent.addContact')) }}
 							</span>
 						</div>
 					</div>
 				</div>
 
-				{{ Former::legend('Additional Info') }}
+				{{ Former::legend('additional_info') }}
 				{{ Former::select('payment_terms')->addOption('','0')->data_bind('value: payment_terms')
 					->fromQuery($paymentTerms, 'name', 'num_days') }}
-				{{ Former::select('currency_id')->addOption('','')->label('Currency')->data_bind('value: currency_id')
+				{{ Former::select('currency_id')->addOption('','')->data_bind('value: currency_id')
 					->fromQuery($currencies, 'name', 'id') }}
-				{{ Former::select('size_id')->addOption('','')->label('Size')->data_bind('value: size_id')
+				{{ Former::select('size_id')->addOption('','')->data_bind('value: size_id')
 					->fromQuery($sizes, 'name', 'id') }}
-				{{ Former::select('industry_id')->addOption('','')->label('Industry')->data_bind('value: industry_id')
+				{{ Former::select('industry_id')->addOption('','')->data_bind('value: industry_id')
 					->fromQuery($industries, 'name', 'id') }}
 				{{ Former::textarea('private_notes')->data_bind('value: private_notes') }}
 
@@ -346,9 +345,9 @@
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">
-	      	<span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">Please provide a valid email address.</span><span>&nbsp;</span>
-	      	<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-	        <button id="clientDoneButton" type="button" class="btn btn-primary" data-bind="click: $root.clientFormComplete">Done</button>	      	
+	      	<span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">{{ trans('texts.provide_email') }}</span><span>&nbsp;</span>
+	      	<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
+	        <button id="clientDoneButton" type="button" class="btn btn-primary" data-bind="click: $root.clientFormComplete">{{ trans('texts.done') }}</button>	      	
 	     </div>
 	  		
 	    </div>
@@ -360,7 +359,7 @@
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="taxModalLabel">Tax Rates</h4>
+	        <h4 class="modal-title" id="taxModalLabel">{{ trans('texts.tax_rates') }}</h4>
 	      </div>
 
 	      <div style="background-color: #fff" onkeypress="taxModalEnterClick(event)">
@@ -368,8 +367,8 @@
 			    <thead>
 			        <tr>
 			        	<th class="hide-border"></th>
-			        	<th class="hide-border">Name</th>
-			        	<th class="hide-border">Rate</th>
+			        	<th class="hide-border">{{ trans('texts.name') }}</th>
+			        	<th class="hide-border">{{ trans('texts.rate') }}</th>
 			        	<th class="hide-border"></th>
 			        </tr>
 			    </thead>
@@ -390,9 +389,9 @@
 			</table>
 			&nbsp;
 
-			{{ Former::checkbox('invoice_taxes')->text('Enable specifying an <b>invoice tax</b>')
-				->label('Settings')->data_bind('checked: $root.invoice_taxes, enable: $root.tax_rates().length > 1') }}
-			{{ Former::checkbox('invoice_item_taxes')->text('Enable specifying <b>line item taxes</b>')
+			{{ Former::checkbox('invoice_taxes')->text(trans('texts.enable_invoice_tax'))
+				->label(trans('texts.settings'))->data_bind('checked: $root.invoice_taxes, enable: $root.tax_rates().length > 1') }}
+			{{ Former::checkbox('invoice_item_taxes')->text(trans('texts.enable_line_item_tax'))
 				->label('&nbsp;')->data_bind('checked: $root.invoice_item_taxes, enable: $root.tax_rates().length > 1') }}
 
 			<br/>
@@ -401,7 +400,7 @@
 
 	     <div class="modal-footer" style="margin-top: 0px">
 	      	<!-- <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button> -->
-	        <button type="button" class="btn btn-primary" data-bind="click: $root.taxFormComplete">Done</button>	      	
+	        <button type="button" class="btn btn-primary" data-bind="click: $root.taxFormComplete">{{ trans('texts.done') }}</button>	      	
 	     </div>
 	  		
 	    </div>
@@ -413,22 +412,11 @@
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="recurringModalLabel">Recurring Invoices</h4>
+	        <h4 class="modal-title" id="recurringModalLabel">{{ trans('texts.recurring_invoices') }}</h4>
 	      </div>
 
 	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
-	    	&nbsp;
-	    	<p>Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. </p>
-
-				<p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
-
-				<p>Examples of dynamic invoice variables:</p>
-				<ul>
-					<li>"Gym membership for the month of :MONTH" => "Gym membership for the month of July"</li>
-					<li>":YEAR+1 yearly subscription" => "2015 Yearly Subscription"</li>
-					<li>"Retainer payment for :QUARTER+1" => "Retainer payment for Q2"</li>
-				</ul>				
-	    	&nbsp;
+	    	&nbsp; {{ trans('texts.recurring_help') }} &nbsp;
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">
@@ -616,14 +604,15 @@
 
 	var isRefreshing = false;
 	var needsRefresh = false;
+
 	function getPDFString() {
 		var invoice = createInvoiceModel();
-		var doc = generatePDF(invoice);		
+		var doc = generatePDF(invoice, invoiceLabels);
 		if (!doc) return;
 		return doc.output('datauristring');
 	}
 	function refreshPDF() {
-		if (isFirefox || (isChrome && !isChromium)) {
+		if ({{ Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChromium))) {
 			var string = getPDFString();
 			$('#theFrame').attr('src', string).show();		
 		} else {			
@@ -956,7 +945,7 @@
 		self.clientLinkText = ko.computed(function() {
 			if (self.invoice().client().public_id())
 			{
-				return 'Edit client details';
+				return "{{ trans('texts.edit_client_details') }}";
 			}
 			else
 			{
@@ -966,7 +955,7 @@
 				}
 				else
 				{
-					return 'Create new client';
+					return "{{ trans('texts.create_new_client') }}";
 				}
 			}
     });
@@ -980,7 +969,7 @@
 		self.discount = ko.observable('');
 		self.frequency_id = ko.observable('');
 		//self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
-		self.terms = ko.observable(wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', $account->invoice_terms) }}', 300));
+		self.terms = ko.observable(wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300));
 		self.set_default_terms = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
@@ -1445,10 +1434,10 @@
 
 	var products = {{ $products }};
 	var clients = {{ $clients }};	
+	var invoiceLabels = {{ json_encode($invoiceLabels) }};
 	var clientMap = {};
 	var $clientSelect = $('select#client');
-
-
+	
 	for (var i=0; i<clients.length; i++) {
 		var client = clients[i];
 		for (var j=0; j<client.contacts.length; j++) {

@@ -43,11 +43,11 @@ class DashboardController extends \BaseController {
                   ->orderBy('due_date', 'asc')->take(6)->get();
 
     $data = [
-      'totalIncome' => Utils::formatMoney($totalIncome->value, Session::get(SESSION_CURRENCY)),
-      'billedClients' => $metrics->billed_clients,
-      'invoicesSent' => $metrics->invoices_sent,
-      'activeClients' => $metrics->active_clients,
-      'invoiceAvg' => Utils::formatMoney($metrics->invoice_avg, Session::get(SESSION_CURRENCY)),
+      'totalIncome' => Utils::formatMoney($totalIncome ? $totalIncome->value : 0, Session::get(SESSION_CURRENCY)),
+      'billedClients' => $metrics ? $metrics->billed_clients : 0,
+      'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
+      'activeClients' => $metrics ? $metrics->active_clients : 0,
+      'invoiceAvg' => Utils::formatMoney(($metrics ? $metrics->invoice_avg : 0), Session::get(SESSION_CURRENCY)),
       'activities' => $activities,
       'pastDue' => $pastDue,
       'upcoming' => $upcoming

@@ -22,7 +22,7 @@ class UserMailer extends Mailer {
 			'user' => $user
 		];
 
-		$this->sendTo($user->email, CONTACT_EMAIL, $subject, $view, $data);		
+		$this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);		
 	}
 
 	public function sendNotification(User $user, Invoice $invoice, $type, Payment $payment = null)
@@ -63,6 +63,6 @@ class UserMailer extends Mailer {
 
 		$subject = "Invoice {$invoice->invoice_number} was $action {$invoice->client->getDisplayName()}";	
 
-		$this->sendTo($user->email, CONTACT_EMAIL, $subject, $view, $data);
+		$this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
 	}
 }

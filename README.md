@@ -6,7 +6,9 @@
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is the codebase will serve as a sample site for Laravel as well as other JavaScript technologies. 
 
-For updates follow [@invoiceninja](https://twitter.com/invoiceninja) and [@hillelcoren](https://twitter.com/hillelcoren)
+The high level instructions for setting up the site are below but there's also a [setup guide](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). For discussion of the code please use the [Google Group](https://groups.google.com/d/forum/invoiceninja).
+
+For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja).
 
 Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
 
@@ -66,3 +68,4 @@ Configure config/database.php and then initialize the database
 * [nnnick/Chart.js](https://github.com/nnnick/Chart.js) - Simple HTML5 Charts using the <canvas> tag
 * [josscrowcroft/accounting.js](https://github.com/josscrowcroft/accounting.js) - A lightweight JavaScript library for number, money and currency formatting
 * [jashkenas/underscore](https://github.com/jashkenas/underscore) - JavaScript's utility _ belt 
+* [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) - List of languages ​​for Laravel4

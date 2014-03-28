@@ -50,13 +50,13 @@ class InvoiceRepository
 	{
     	$query = \DB::table('invoices')
     				->join('clients', 'clients.id', '=','invoices.client_id')
-					->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
-					->join('contacts', 'contacts.client_id', '=', 'clients.id')
-					->where('invoices.account_id', '=', $accountId)
+  					->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
+	   				->join('contacts', 'contacts.client_id', '=', 'clients.id')
+		  			->where('invoices.account_id', '=', $accountId)
             ->where('clients.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', true)
     				->where('contacts.is_primary', '=', true)	
-					->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
+			   		->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
 
     	if ($clientPublicId) 
     	{

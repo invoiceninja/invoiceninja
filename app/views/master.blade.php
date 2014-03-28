@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
 
-    <title>Invoice Ninja {{ isset($title) ? $title : '' }}</title>
+    <title>Invoice Ninja {{ isset($title) ? $title : ' - Free Online Invoicing' }}</title>
     <link rel="canonical" href="https://www.invoiceninja.com"></link>
     <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">    
     
@@ -15,18 +15,19 @@
     <meta property="og:site_name" content="Invoice Ninja"></meta>
     <meta property="og:url" content="https://www.invoiceninja.com"></meta>
     <meta property="og:title" content="Invoice Ninja"></meta>
-    <meta property="og:image" content="https://www.invoiceninja.com/images/facebook.jpg"></meta>
+    <meta property="og:image" content="https://www.invoiceninja.com/images/social.jpg"></meta>
     <meta property="og:description" content="Simple, Intuitive Invoicing."></meta>
-    <meta name="keywords" content="Invoice Ninja"></meta>
+    <meta name="keywords" content="Invoice Ninja"></meta>    
     
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}" type="text/javascript"></script>  
+
     <script type="text/javascript">
     window.onerror = function(e) {
       try {
         $.ajax({
           type: 'GET',
           url: '{{ URL::to('log_error') }}',
-          data: 'error='+e+'&url='+window.location
+          data: 'error='+encodeURIComponent(e)+'&url='+encodeURIComponent(window.location)
         });     
       } catch(err) {}
       return false;
@@ -45,22 +46,16 @@
 
   <body>
 
-  @if (App::environment() == ENV_PRODUCTION)  
+  @if (App::environment() == ENV_PRODUCTION && isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])  
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-      ga('create', 'UA-46031341-1');
+      ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}');
       ga('send', 'pageview');
     </script>
-  @else
-    <style>
-    .navbar {
-      background-color: #006600 !important;
-    }
-    </style>
   @endif
 
     @yield('body')

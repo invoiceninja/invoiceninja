@@ -96,13 +96,13 @@ class Activity extends Eloquent
 
 	public static function createInvoice($invoice)
 	{
-		if ($invoice->is_recurring) 
+		if (Auth::check()) 
 		{
-			$message = Utils::encodeActivity(null, 'created recurring', $invoice);
+			$message = Utils::encodeActivity(Auth::user(), 'created', $invoice);			
 		} 
 		else 
 		{
-			$message = Utils::encodeActivity(Auth::user(), 'created', $invoice);
+			$message = Utils::encodeActivity(null, 'created', $invoice);
 		}
 
 		$client = $invoice->client;
@@ -235,9 +235,7 @@ class Activity extends Eloquent
 		$client->last_login = $now;
 		$client->save();
 
-		$activity = new Activity;
-		$activity->user_id = $invitation->user_id;
-		$activity->account_id = $invitation->user->account_id;
+		$activity = Activity::getBlank($invitation);
 		$activity->client_id = $invitation->invoice->client_id;
 		$activity->invitation_id = $invitation->id;
 		$activity->contact_id = $invitation->contact_id;
@@ -259,7 +257,7 @@ class Activity extends Eloquent
 
 		if ($payment->contact_id)
 		{
-			$activity = new Activity;
+			$activity = Activity::getBlank($client);
 			$activity->contact_id = $payment->contact_id;
 			$activity->message = Utils::encodeActivity($payment->invitation->contact, 'entered payment');			
 		}

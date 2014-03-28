@@ -13,8 +13,9 @@
 		"chumper/datatable": "2.x",
 		"omnipay/omnipay": "2.x",
 		"intervention/image": "dev-master",
-		"webpatser/laravel-countries": "dev-master",
-		"anahkiasen/rocketeer": "dev-develop",
+		"webpatser/laravel-countries": "dev-master"		
+	},
+	"require-dev": {
 		"codeception/codeception": "dev-master"
 	},
 	"autoload": {

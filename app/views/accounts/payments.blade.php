@@ -14,10 +14,8 @@
 	@if ($accountGateway)
 		{{ Former::populateField('gateway_id', $accountGateway->gateway_id) }}
 		@foreach ($accountGateway->fields as $field => $junk)
-			@if ($field == 'testMode' || $field == 'developerMode')
-				@if ($config->$field)
-					{{-- Former::populateField($accountGateway->gateway_id.'_'.$field, true ) --}}
-				@endif
+			@if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
+				{{-- do nothing --}}
 			@else
 				{{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}
 			@endif
@@ -32,7 +30,7 @@
 		<div id="gateway_{{ $gateway->id }}_div" style="display: none">
 			@foreach ($gateway->fields as $field => $details)
 
-				@if ($field == 'solutionType' || $field == 'landingPage')
+				@if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
 					{{-- do nothing --}}
 				@elseif ($field == 'testMode' || $field == 'developerMode') 
 					{{-- Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable') --}}				

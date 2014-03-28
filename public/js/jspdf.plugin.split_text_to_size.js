@@ -39,7 +39,6 @@ cell ocupied by the width of the char in that position.
 @returns {Array}
 */
 var getCharWidthsArray = API.getCharWidthsArray = function(text, options){
-
 	if (!options) {
 		options = {}
 	}
