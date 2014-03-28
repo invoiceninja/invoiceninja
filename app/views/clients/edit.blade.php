@@ -8,7 +8,7 @@
 @section('content')
 <div class="row">
 	<!--<h3>{{ $title }} Client</h3>-->
-	
+
 	{{ Former::open($url)->addClass('col-md-12 main_form')->method($method)->rules(array(
   		'email' => 'email|required'  		
 	)); }}
@@ -21,26 +21,26 @@
 		<div class="col-md-6">
 
 
-			{{ Former::legend('Organization') }}
+			{{ Former::legend('organization') }}
 			{{ Former::text('name')->data_bind("attr { placeholder: placeholderName }") }}
 			{{ Former::text('website') }}
-			{{ Former::text('work_phone')->label('Phone') }}
-			
-			
-			{{ Former::legend('Address') }}
-			{{ Former::text('address1')->label('Street') }}
-			{{ Former::text('address2')->label('Apt/Suite') }}
+			{{ Former::text('work_phone') }}
+
+
+			{{ Former::legend('address') }}
+			{{ Former::text('address1') }}
+			{{ Former::text('address2') }}
 			{{ Former::text('city') }}
-			{{ Former::text('state')->label('State/Province') }}
+			{{ Former::text('state') }}
 			{{ Former::text('postal_code') }}
-			{{ Former::select('country_id')->addOption('','')->label('Country')
+			{{ Former::select('country_id')->addOption('','')
 				->fromQuery($countries, 'name', 'id') }}
 
 
 		</div>
 		<div class="col-md-6">
 
-			{{ Former::legend('Contacts') }}
+			{{ Former::legend('contacts') }}
 			<div data-bind='template: { foreach: contacts,
 		                            beforeRemove: hideContact,
 		                            afterAdd: showContact }'>
@@ -62,14 +62,14 @@
 				</div>
 			</div>
 
-			{{ Former::legend('Additional Info') }}
+			{{ Former::legend('additional_info') }}
 			{{ Former::select('payment_terms')->addOption('','')
 				->fromQuery($paymentTerms, 'name', 'num_days') }}
-			{{ Former::select('currency_id')->addOption('','')->label('Currency')
+			{{ Former::select('currency_id')->addOption('','')
 				->fromQuery($currencies, 'name', 'id') }}
-			{{ Former::select('size_id')->addOption('','')->label('Size')
+			{{ Former::select('size_id')->addOption('','')
 				->fromQuery($sizes, 'name', 'id') }}
-			{{ Former::select('industry_id')->addOption('','')->label('Industry')
+			{{ Former::select('industry_id')->addOption('','')
 				->fromQuery($industries, 'name', 'id') }}
 			{{ Former::textarea('private_notes') }}
 
