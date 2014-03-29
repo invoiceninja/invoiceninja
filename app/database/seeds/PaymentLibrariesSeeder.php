@@ -7,11 +7,10 @@ class PaymentLibrariesSeeder extends Seeder
 	{
 		$gateways = [
 			array('name'=>'BeanStream', 'provider'=>'BeanStream', 'payment_library_id' => 2),
-			array('name'=>'iTransact', 'provider'=>'iTransact', 'payment_library_id' => 2),
-			array('name'=>'Amazon_Simplepay', 'provider'=>'Amazon Simplepay', 'payment_library_id' => 2),
+			array('name'=>'Amazon Simplepay', 'provider'=>'Amazon_Simplepay', 'payment_library_id' => 2),
 			array('name'=>'Bluepay', 'provider'=>'Bluepay', 'payment_library_id' => 2),
 			array('name'=>'Braintree', 'provider'=>'Braintree', 'payment_library_id' => 2),
-			array('name'=>'Google_Checkout', 'provider'=>'Google Checkout', 'payment_library_id' => 2),
+			array('name'=>'Google Checkout', 'provider'=>'Google_Checkout', 'payment_library_id' => 2),
 			array('name'=>'Psigate', 'provider'=>'Psigate', 'payment_library_id' => 2),
 			array('name'=>'Quickbooksms', 'provider'=>'Quickbooksms', 'payment_library_id' => 2)
 		];
@@ -34,7 +33,6 @@ class PaymentLibrariesSeeder extends Seeder
 		
 		Gateway::where('provider', '=', 'AuthorizeNet_AIM')->update(array('sort_order' => 5, 'site_url' => 'http://www.authorize.net/'));
 		Gateway::where('provider', '=', 'BeanStream')->update(array('sort_order' => 10, 'site_url' => 'http://www.beanstream.com/'));
-		Gateway::where('provider', '=', 'iTransact')->update(array('sort_order' => 15, 'site_url' => 'http://itransact.com/'));
 		Gateway::where('provider', '=', 'FirstData_Connect')->update(array('sort_order' => 20, 'site_url' => 'https://www.firstdata.com/'));
 		Gateway::where('provider', '=', 'PayPal_Pro')->update(array('sort_order' => 25, 'site_url' => 'https://www.paypal.com/'));
 		Gateway::where('provider', '=', 'TwoCheckout')->update(array('sort_order' => 30, 'site_url' => 'https://www.2checkout.com/'));

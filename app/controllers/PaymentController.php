@@ -174,8 +174,8 @@ class PaymentController extends \BaseController
                 'ship_to_state' => $input['state'],
                 'ship_to_postal_code' => $input['postal_code'],
             	'currency_code' => $invoice->client->currency->code,
-            'returnUrl' => URL::to('complete'),
-            'cancelUrl' => URL::to('/')
+	            'returnUrl' => URL::to('complete'),
+	            'cancelUrl' => URL::to('/')
             ];
 
             Session::put($key, $data);
@@ -190,15 +190,22 @@ class PaymentController extends \BaseController
             $data = [];
         }
 
-        $card = new CreditCard($data);
-        
-        return [
-            'amount' => $invoice->amount,
-            'card' => $card,
-            'currency' => $invoice->client->currency->code,
-            'returnUrl' => URL::to('complete'),
-            'cancelUrl' => URL::to('/')
-        ];
+		if($paymentLibrary->name == "Omnipay")
+		{
+	        $card = new CreditCard($data);
+	        
+	        return [
+	            'amount' => $invoice->amount,
+	            'card' => $card,
+	            'currency' => $invoice->client->currency->code,
+	            'returnUrl' => URL::to('complete'),
+	            'cancelUrl' => URL::to('/')
+	        ];
+		}
+		else 
+		{
+			return $data;
+		}
     }
 
     public function show_payment($invitationKey)
@@ -320,14 +327,13 @@ class PaymentController extends \BaseController
             }
 			else if ($input && $paymentLibrary->name == "PHP-Payments")
 	        {
+	        	$provider = $accountGateway->gateway->provider;
 				$p = new PHP_Payments;
 				
-				$config = Payment_Utility::load('config', '/path/to/your/gateway/config'); 
+				$config = Payment_Utility::load('config', 'drivers/'.$provider);
 	            $details = self::getPaymentDetails($invoice, Input::all());
 				
-				
-				
-$response = $p->oneoff_payment('name_of_payment_driver', $details, $config);
+				$response = $p->oneoff_payment($provider, $details, $config);
 
 	            if ($response->status == 'Success')
 	            {
@@ -341,17 +347,10 @@ $response = $p->oneoff_payment('name_of_payment_driver', $details, $config);
 	                Session::flash('message', 'Successfully applied payment');  
 	                return Redirect::to('view/' . $payment->invitation->invitation_key);                                    
 	            }
-	            else if ($response->isRedirect()) 
-	            {
-	                $invitation->transaction_reference = $ref;
-	                $invitation->save();
-	
-	                $response->redirect();          
-	            }
 	            else                    
 	            {
-	                Session::flash('error', $response->getMessage());  
-	                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
+	                Session::flash('error', $response->details);  
+	                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->reason);
 	            }
 	        }
         } 

@@ -12,12 +12,12 @@
 	{{ Former::legend('Payment Gateway') }}
 	
 	{{Former::label('Lorem Ipsum goes here.')}}
-	
+	<div class="two-column">
 	{{ Former::radios('recommendedGateway_id')
 		->label('Recommended Gateways')
 		->radios($recommendedGateways)
 		->class('recommended-gateway')}}
-
+	</div>
 
 	@if ($accountGateway)
 		{{ Former::populateField('gateway_id', $accountGateway->gateway_id) }}
@@ -63,8 +63,16 @@
 
 	function setFieldsShown() {
 		var val = $('#gateway_id').val();
+		var activeElement = $('.recommended-gateway[value=' + val + ']');
+		var recommendedRadios = $('#recommendedGateway_id');
+		
 		$('.gateway-fields').hide();
 		$('#gateway_' + val + '_div').show();
+		
+		if(activeElement && !activeElement.attr('checked'))
+		{
+			activeElement.attr('checked', true);
+		}
 	}
 
 	$(document).ready(function() {

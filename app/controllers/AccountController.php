@@ -121,8 +121,6 @@ class AccountController extends \BaseController {
 					'data-newRow' => $newRow
 				);
 				$recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
-				
-				
 			}
 
 			$data = [
@@ -138,14 +136,8 @@ class AccountController extends \BaseController {
 			foreach ($data['gateways'] as $gateway)
 			{
 				$paymentLibrary =  $gateway->paymentlibrary;
-				
-				if($paymentLibrary->name == 'Omnipay')
-				{
-					$gateway->fields = Omnipay::create($gateway->provider)->getDefaultParameters();	
-				}
-				else {
-					$gateway->fields = array();
-				}			
+
+				$gateway->fields = $gateway->getFields();	
 	
 				if ($accountGateway && $accountGateway->gateway_id == $gateway->id)
 				{
@@ -471,7 +463,10 @@ class AccountController extends \BaseController {
 		if ($gatewayId = Input::get('gateway_id')) 
 		{
 			$gateway = Gateway::findOrFail($gatewayId);
-			$fields = Omnipay::create($gateway->provider)->getDefaultParameters();
+			
+			$paymentLibrary =  $gateway->paymentlibrary;
+			
+			$fields = $gateway->getFields();
 			
 			foreach ($fields as $field => $details)
 			{

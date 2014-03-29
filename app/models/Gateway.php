@@ -14,4 +14,25 @@ class Gateway extends Eloquent
 	{
 		return '/images/gateways/logo_'.$this->provider.'.png';
 	}
+	
+	public function getFields()
+	{
+		$paymentLibrary =  $this->paymentlibrary;
+		
+		if($paymentLibrary->name == 'Omnipay')
+		{
+			$fields = Omnipay::create($this->provider)->getDefaultParameters();	
+		}
+		else 
+		{
+			$fields = Payment_Utility::load('config', 'drivers/'.$this->provider);
+		}		
+
+		if($fields == null)
+		{
+			$fields = array();
+		}
+		
+		return $fields;
+	}
 }
