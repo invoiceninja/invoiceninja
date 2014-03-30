@@ -12,6 +12,7 @@
 	{{ Former::legend('Payment Gateway') }}
 	
 	{{Former::label('Lorem Ipsum goes here.')}}
+	
 	<div class="two-column">
 	{{ Former::radios('recommendedGateway_id')
 		->label('Recommended Gateways')
@@ -107,6 +108,8 @@
 		
 
 		setFieldsShown();
+		$('.two-column .form-group .col-lg-8').removeClass('col-lg-8');
+		$('.two-column .form-group .col-sm-8').removeClass('col-sm-8');
 	});
 
 	</script>
