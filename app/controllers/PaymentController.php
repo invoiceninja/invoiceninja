@@ -129,8 +129,9 @@ class PaymentController extends \BaseController
     private function getPaymentDetails($invoice, $input = null)
     {
         $key = $invoice->invoice_number . '_details';
+        $paymentLibrary = $invoice->client->account->account_gateways[0]->gateway->paymentlibrary;
 
-        if ($input)
+        if ($input && $paymentLibrary->name == "Omnipay")
         {
             $data = [
                 'firstName' => $input['first_name'],
@@ -153,6 +154,33 @@ class PaymentController extends \BaseController
 
             Session::put($key, $data);
         }
+		else if ($input && $paymentLibrary->name == "PHP-Payments")
+        {
+        	$input = Input::all();
+            $data = [
+                'first_name' => $input['first_name'],
+                'last_name' => $input['last_name'],
+                'cc_number' => $input['card_number'],
+                'cc_exp' => $input['expiration_month'].$input['expiration_year'],
+                'cc_code' => $input['cvv'],
+                'street' => $input['address1'],
+                'street2' => $input['address2'],
+                'city' => $input['city'],
+                'state' => $input['state'],
+                'postal_code' => $input['postal_code'],
+                'amt' => $invoice->amount,
+                'ship_to_street' => $input['address1'],
+                'ship_to_city' => $input['city'],
+                'ship_to_state' => $input['state'],
+                'ship_to_postal_code' => $input['postal_code'],
+            	'currency_code' => $invoice->client->currency->code,
+	            'returnUrl' => URL::to('complete'),
+	            'cancelUrl' => URL::to('/')
+            ];
+
+            Session::put($key, $data);
+			return $data;
+        }
         else if (Session::get($key))
         {
             $data = Session::get($key);
@@ -162,15 +190,22 @@ class PaymentController extends \BaseController
             $data = [];
         }
 
-        $card = new CreditCard($data);
-        
-        return [
-            'amount' => $invoice->amount,
-            'card' => $card,
-            'currency' => $invoice->client->currency->code,
-            'returnUrl' => URL::to('complete'),
-            'cancelUrl' => URL::to('/')
-        ];
+		if($paymentLibrary->name == "Omnipay")
+		{
+	        $card = new CreditCard($data);
+	        
+	        return [
+	            'amount' => $invoice->amount,
+	            'card' => $card,
+	            'currency' => $invoice->client->currency->code,
+	            'returnUrl' => URL::to('complete'),
+	            'cancelUrl' => URL::to('/')
+	        ];
+		}
+		else 
+		{
+			return $data;
+		}
     }
 
     public function show_payment($invitationKey)
@@ -235,7 +270,7 @@ class PaymentController extends \BaseController
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;        
         $accountGateway = $invoice->client->account->account_gateways[0];
-        $gateway = self::createGateway($accountGateway);
+        $paymentLibrary = $accountGateway->gateway->paymentlibrary;
 
         if ($onSite)
         {
@@ -247,44 +282,77 @@ class PaymentController extends \BaseController
             $client->postal_code = trim(Input::get('postal_code'));
             $client->save();
         }
+		
 
         try
         {
-            $details = self::getPaymentDetails($invoice, Input::all());
-            $response = $gateway->purchase($details)->send();           
-            $ref = $response->getTransactionReference();
-
-            if (!$ref)
-            {
-                Session::flash('error', $response->getMessage());  
-                return Redirect::to('payment/' . $invitationKey)
-                    ->withInput();
+        	if($paymentLibrary->name == "Omnipay")
+			{
+	        	$gateway = self::createGateway($accountGateway);
+	            $details = self::getPaymentDetails($invoice, Input::all());
+	            $response = $gateway->purchase($details)->send();           
+	            $ref = $response->getTransactionReference();
+	
+	            if (!$ref)
+	            {
+	                Session::flash('error', $response->getMessage());  
+	                return Redirect::to('payment/' . $invitationKey)
+	                    ->withInput();
+	            }
+	
+	            if ($response->isSuccessful())
+	            {
+	                $payment = self::createPayment($invitation, $ref);
+	
+	                $invoice->invoice_status_id = INVOICE_STATUS_PAID;
+	                $invoice->save();
+	
+	                Event::fire('invoice.paid', $payment);
+	
+	                Session::flash('message', 'Successfully applied payment');  
+	                return Redirect::to('view/' . $payment->invitation->invitation_key);                                    
+	            }
+	            else if ($response->isRedirect()) 
+	            {
+	                $invitation->transaction_reference = $ref;
+	                $invitation->save();
+	
+	                $response->redirect();          
+	            }
+	            else                    
+	            {
+	                Session::flash('error', $response->getMessage());  
+	                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
+	            }
             }
+			else if ($input && $paymentLibrary->name == "PHP-Payments")
+	        {
+	        	$provider = $accountGateway->gateway->provider;
+				$p = new PHP_Payments;
+				
+				$config = Payment_Utility::load('config', 'drivers/'.$provider);
+	            $details = self::getPaymentDetails($invoice, Input::all());
+				
+				$response = $p->oneoff_payment($provider, $details, $config);
 
-            if ($response->isSuccessful())
-            {
-                $payment = self::createPayment($invitation, $ref);
-
-                $invoice->invoice_status_id = INVOICE_STATUS_PAID;
-                $invoice->save();
-
-                Event::fire('invoice.paid', $payment);
-
-                Session::flash('message', 'Successfully applied payment');  
-                return Redirect::to('view/' . $payment->invitation->invitation_key);                                    
-            }
-            else if ($response->isRedirect()) 
-            {
-                $invitation->transaction_reference = $ref;
-                $invitation->save();
-
-                $response->redirect();          
-            }
-            else                    
-            {
-                Session::flash('error', $response->getMessage());  
-                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
-            }
+	            if ($response->status == 'Success')
+	            {
+	                $payment = self::createPayment($invitation, $ref);
+	
+	                $invoice->invoice_status_id = INVOICE_STATUS_PAID;
+	                $invoice->save();
+	
+	                Event::fire('invoice.paid', $payment);
+	
+	                Session::flash('message', 'Successfully applied payment');  
+	                return Redirect::to('view/' . $payment->invitation->invitation_key);                                    
+	            }
+	            else                    
+	            {
+	                Session::flash('error', $response->details);  
+	                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->reason);
+	            }
+	        }
         } 
         catch (\Exception $e) 
         {

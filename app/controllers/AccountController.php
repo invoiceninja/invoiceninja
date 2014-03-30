@@ -102,19 +102,43 @@ class AccountController extends \BaseController {
 			{
 				$accountGateway = $account->account_gateways[0];
 				$config = $accountGateway->config;
-			}			
+			}
+			
+			$recommendedGateways = Gateway::remember(DEFAULT_QUERY_CACHE)
+					->where('recommended', '=', '1')
+					->orderBy('sort_order')
+					->get();
+			$recommendedGatewayArray = array();
+			
+			foreach($recommendedGateways as $recommendedGateway)
+			{
+				$newRow = count($recommendedGatewayArray) + 1  == round(count($recommendedGateways) / 2);
+				
+				$arrayItem = array(
+					'value' => $recommendedGateway->id,
+					'data-imageUrl' => $recommendedGateway->getLogoUrl(),
+					'data-siteUrl' => $recommendedGateway->site_url,
+					'data-newRow' => $newRow
+				);
+				$recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
+			}
 
 			$data = [
 				'account' => $account,
 				'accountGateway' => $accountGateway,
 				'config' => json_decode($config),
-				'gateways' => Gateway::remember(DEFAULT_QUERY_CACHE)->get(),
+				'gateways' => Gateway::remember(DEFAULT_QUERY_CACHE)
+					->orderBy('name')
+					->get(),
+				'recommendedGateways' => $recommendedGatewayArray,
 			];
 			
 			foreach ($data['gateways'] as $gateway)
 			{
-				$gateway->fields = Omnipay::create($gateway->provider)->getDefaultParameters();				
+				$paymentLibrary =  $gateway->paymentlibrary;
 
+				$gateway->fields = $gateway->getFields();	
+	
 				if ($accountGateway && $accountGateway->gateway_id == $gateway->id)
 				{
 					$accountGateway->fields = $gateway->fields;						
@@ -439,7 +463,10 @@ class AccountController extends \BaseController {
 		if ($gatewayId = Input::get('gateway_id')) 
 		{
 			$gateway = Gateway::findOrFail($gatewayId);
-			$fields = Omnipay::create($gateway->provider)->getDefaultParameters();
+			
+			$paymentLibrary =  $gateway->paymentlibrary;
+			
+			$fields = $gateway->getFields();
 			
 			foreach ($fields as $field => $details)
 			{
