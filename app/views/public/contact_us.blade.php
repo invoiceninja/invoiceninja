@@ -55,14 +55,20 @@ var contactForm = {
 
 </script>
 
-<section class="hero4" data-speed="2" data-type="background">
+@section('content')
+
+<section class="hero background hero4" data-speed="2" data-type="background">
+  <div class="caption-side"></div>
   <div class="container">
-    <div class="caption">
-     <h1>Contact us
-     </h1>
-   </div>
- </div>
-</section>
+    <div class="row" style="margin:0;">
+      <div class="caption-wrap">
+        <div class="caption">
+          <h1>Contact<span style="color:#ecd816"> us</span></h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
 <section class="about contact">
   <div class="container">
