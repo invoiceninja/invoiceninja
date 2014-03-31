@@ -29,6 +29,8 @@ Route::get('/about', 'HomeController@showAboutUs');
 Route::get('/terms', 'HomeController@showTerms');
 Route::get('/contact', 'HomeController@showContactUs');
 Route::post('/contact', 'HomeController@doContactUs');
+Route::get('/faq', 'HomeController@showFaq');
+Route::get('/features', 'HomeController@showFeatures');
 
 Route::get('log_error', 'HomeController@logError');
 Route::post('get_started', 'AccountController@getStarted');
