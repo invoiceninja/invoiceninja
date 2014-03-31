@@ -35,6 +35,10 @@ a:hover {
     text-decoration: none;
 }
 
+.blue-text {
+    color: #2299c0;
+}
+
 .center {
     text-align: center;
 }
@@ -143,6 +147,7 @@ a .cta:hover span {
     padding: 10px 35px 20px;
     height: 109px;
     border-left: 1px dotted #ccc;
+    text-align: left;
    
 }
 
@@ -296,8 +301,15 @@ section.about h2 {
 }
 
 section.about .screendump {
-    background-color: #ccc;
     height: 220px;
+}
+section.about .col-md-5 {
+    padding-right: 15px;
+    padding-left: 43px;
+}
+section.about.white-bg .col-md-5 {
+    padding-right: 43px;
+    padding-left: 15px;
 }
 
 section.contact .address .glyphicon {
