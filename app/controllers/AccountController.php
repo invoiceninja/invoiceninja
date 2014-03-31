@@ -171,26 +171,22 @@ class AccountController extends \BaseController {
 		header("Content-Type:application/csv"); 
 		header("Content-Disposition:attachment;filename=export.csv"); 
 		
-		$clients = Client::where('account_id','=',Auth::user()->account_id)->get();
+		$clients = Client::scope()->get();
 		AccountController::exportData($output, $clients->toArray());
 
-		$contacts = DB::table('contacts')->whereIn('client_id', function($query){
-            $query->select('client_id')->from('clients')->where('account_id','=',Auth::user()->account_id);
-	    })->get();
-		AccountController::exportData($output, Utils::toArray($contacts));
-		
-		$invoices = Invoice::where('account_id','=',Auth::user()->account_id)->get();
-		AccountController::exportData($output, $invoices->toArray());		
+		$contacts = Contact::scope()->get();
+		AccountController::exportData($output, $contacts->toArray());
 
-		$invoiceItems = DB::table('invoice_items')->whereIn('invoice_id', function($query){
-            $query->select('invoice_id')->from('invoices')->where('account_id','=',Auth::user()->account_id);
-	    })->get();
-		AccountController::exportData($output, Utils::toArray($invoiceItems));
+		$invoices = Invoice::scope()->get();
+		AccountController::exportData($output, $invoices->toArray());
 
-		$payments = Payment::where('account_id','=',Auth::user()->account_id)->get();
+		$invoiceItems = InvoiceItem::scope()->get();
+		AccountController::exportData($output, $invoiceItems->toArray());
+
+		$payments = Payment::scope()->get();
 		AccountController::exportData($output, $payments->toArray());
 
-		$credits = Credit::where('account_id','=',Auth::user()->account_id)->get();
+		$credits = Credit::scope()->get();
 		AccountController::exportData($output, $credits->toArray());
 
 		fclose($output);
