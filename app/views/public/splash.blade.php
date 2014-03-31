@@ -3,7 +3,7 @@
 @section('content') 
 
 
-<section class="hero background" data-speed="2" data-type="background">
+<section class="hero background hero1" data-speed="2" data-type="background">
   <div class="caption-side"></div>
 
   <div class="container">

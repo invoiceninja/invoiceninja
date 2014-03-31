@@ -33,6 +33,15 @@ class HomeController extends BaseController {
 	{
 		return View::make('public.terms');
 	}
+    	public function showFaq()
+	{
+		return View::make('public.faq');
+	}
+	public function showFeatures()
+	{
+		return View::make('public.features');
+	}
+
 
 	public function doContactUs()
 	{
