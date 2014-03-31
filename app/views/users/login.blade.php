@@ -3,48 +3,50 @@
 @section('head')	
 
   <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
+  <link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>    
 
   <style type="text/css">
 		body {
 		  padding-top: 40px;
 		  padding-bottom: 40px;
-		  background-color: #eee !important;
 		}
-
-		.form-signin {
-		  max-width: 330px;
-		  padding: 15px;
+       .modal-header {
+          border-top-left-radius: 3px;
+          border-top-right-radius: 3px;
+       }
+       .modal-header h4 {
+          margin:0;
+       }
+       .modal-header img {
+          float: left; 
+          margin-right: 20px;
+       }
+       .form-signin {
+		  max-width: 400px;
 		  margin: 0 auto;
-		}
-		.form-signin .form-signin-heading,
-		.form-signin .checkbox {
-		  margin-bottom: 10px;
+          background: #fff;
+       }
+       p.link a {
+          font-size: 11px;
+       }
+       .form-signin .inner {
+		  padding: 20px;
+          border-bottom-right-radius: 3px;
+          border-bottom-left-radius: 3px;
+          border-left: 1px solid #ddd;
+          border-right: 1px solid #ddd;
+          border-bottom: 1px solid #ddd;
 		}
 		.form-signin .checkbox {
 		  font-weight: normal;
 		}
 		.form-signin .form-control {
-		  position: relative;
-		  font-size: 16px;
-		  height: auto;
-		  padding: 10px;
-		  -webkit-box-sizing: border-box;
-		     -moz-box-sizing: border-box;
-		          box-sizing: border-box;
+		 margin-bottom: 17px !important;
 		}
 		.form-signin .form-control:focus {
 		  z-index: 2;
 		}
-		.form-signin input[type="text"] {
-		  margin-bottom: -1px;
-		  border-bottom-left-radius: 0;
-		  border-bottom-right-radius: 0;
-		}
-		.form-signin input[type="password"] {
-		  margin-bottom: 10px;
-		  border-top-left-radius: 0;
-		  border-top-right-radius: 0;
-		}
+		
   </style>
 
 @stop
@@ -53,8 +55,10 @@
     <div class="container">
 
 		{{ Former::open('login')->addClass('form-signin') }}
-			<h2 class="form-signin-heading">Please sign in</h2>
-
+			<div class="modal-header">
+                <img src="{{ asset('images/icon-login.png') }}" />
+                <h4>Invoice Ninja Account Login</h4></div>
+            <div class="inner">
 			<p>
 				{{ $errors->first('login_email') }}
 				{{ $errors->first('login_password') }}
@@ -65,9 +69,10 @@
 				{{ Form::password('login_password', array('placeholder' => 'Password')) }}
 			</p>
 
-			<p>{{ Button::primary_submit('Sign In', array('class' => 'btn-lg'))->block() }}</p>
-
-			{{ link_to('forgot_password', 'Recover your password') }}
+			<p>{{ Button::success_submit('Let’s go', array('class' => 'btn-lg'))->block() }}</p>
+            <p class="link">
+			{{ link_to('forgot_password', 'Forgot your password?') }}
+            </p>
 		
 			<!-- if there are login errors, show them here -->
 			@if ( Session::get('error') )
@@ -77,7 +82,7 @@
 	        @if ( Session::get('notice') )
     	        <div class="alert">{{{ Session::get('notice') }}}</div>
 	        @endif
-
+            </div>
 
 		{{ Former::close() }}
 
