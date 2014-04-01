@@ -167,9 +167,9 @@ class AccountController extends \BaseController {
 
 	private function export()
 	{
-		$output = fopen("php://output",'w') or die("Can't open php://output");
-		header("Content-Type:application/csv"); 
-		header("Content-Disposition:attachment;filename=export.csv"); 
+		$output = fopen('php://output','w') or Utils::fatalError();
+		header('Content-Type:application/csv'); 
+		header('Content-Disposition:attachment;filename=export.csv');
 		
 		$clients = Client::scope()->get();
 		AccountController::exportData($output, $clients->toArray());
@@ -303,14 +303,21 @@ class AccountController extends \BaseController {
 			Activity::createClient($client);
 		}
 
-		$message = Utils::pluralize('Successfully created ? client', $count);
+		$message = Utils::pluralize('created_client', $count);
 		Session::flash('message', $message);
 		return Redirect::to('clients');
 	}
 
 	private function mapFile()
-	{
+	{		
 		$file = Input::file('file');
+
+		if ($file == null)
+		{
+			Session::flash('error', trans('texts.select_file'));
+			return Redirect::to('company/import_export');			
+		}
+
 		$name = $file->getRealPath();
 
 		require_once(app_path().'/includes/parsecsv.lib.php');
@@ -320,7 +327,8 @@ class AccountController extends \BaseController {
 		
 		if (count($csv->data) + Client::scope()->count() > MAX_NUM_CLIENTS)
 		{
-			Session::flash('error', "Sorry, this wll exceed the limit of " . MAX_NUM_CLIENTS . " clients");
+			$message = Utils::pluralize('limit_clients', MAX_NUM_CLIENTS);
+			Session::flash('error', $message);
 			return Redirect::to('company/import_export');
 		}
 
@@ -424,7 +432,7 @@ class AccountController extends \BaseController {
 		$user->notify_paid = Input::get('notify_paid');
 		$user->save();
 		
-		Session::flash('message', 'Successfully updated settings');
+		Session::flash('message', trans('texts.updated_settings'));
 		return Redirect::to('company/notifications');
 	}
 
@@ -474,7 +482,7 @@ class AccountController extends \BaseController {
 				$account->account_gateways()->save($accountGateway);
 			}
 
-			Session::flash('message', 'Successfully updated settings');
+			Session::flash('message', trans('texts.updated_settings'));
 			return Redirect::to('company/payments');
 		}				
 	}
@@ -533,7 +541,7 @@ class AccountController extends \BaseController {
 
 			Event::fire('user.refresh');
 
-			Session::flash('message', 'Successfully updated details');
+			Session::flash('message', trans('texts.updated_settings'));
 			return Redirect::to('company/details');
 		}
 	}
@@ -542,7 +550,7 @@ class AccountController extends \BaseController {
 
 		File::delete('logo/' . Auth::user()->account->account_key . '.jpg');
 
-		Session::flash('message', 'Successfully removed logo');
+		Session::flash('message', trans('texts.removed_logo'));
 		return Redirect::to('company/details');		
 	}
 
