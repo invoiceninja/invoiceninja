@@ -277,5 +277,15 @@ return array(
   'expiration_year' => 'Expiration year',
   'cvv' => 'CVV',
   
+  // Security alerts
+  'confide' => array(
+    'too_many_attempts' => 'Too many attempts. Try again in few minutes.',
+    'wrong_credentials' => 'Incorrect email or password.',
+    'confirmation' => 'Your account has been confirmed!',
+    'wrong_confirmation' => 'Wrong confirmation code.',
+    'password_forgot' => 'The information regarding password reset was sent to your email.',
+    'password_reset' => 'Your password has been changed successfully.',
+    'wrong_password_reset' => 'Invalid password. Try again',
+  ),
     
 );

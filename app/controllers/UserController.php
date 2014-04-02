@@ -26,9 +26,9 @@ class UserController extends BaseController {
         $user->force_pdfjs = true;
         $user->save();
 
-        Session::flash('message', 'Successfully updated PDF settings');
+        Session::flash('message', trans('texts.confide.updated_settings'));
 
-        return Redirect::to('/invoices/create'); 
+        return Redirect::to('/dashboard'); 
     }
 
     /**
@@ -86,6 +86,7 @@ class UserController extends BaseController {
         if( Confide::user() )
         {
             Event::fire('user.login'); 
+            Session::reflash();
 
             $invoice = Invoice::scope()->orderBy('id', 'desc')->first();
             
@@ -95,7 +96,7 @@ class UserController extends BaseController {
             }
             else
             {
-                return Redirect::to('/invoices/create');
+                return Redirect::to('/dashboard');
             }
         }
         else
@@ -137,7 +138,7 @@ class UserController extends BaseController {
             // Check if there was too many login attempts
             if( Confide::isThrottled( $input ) )
             {
-                $err_msg = Lang::get('confide::confide.alerts.too_many_attempts');
+                $err_msg = trans('texts.confide.too_many_attempts');
             }
             /*
             elseif( $user->checkUserExists( $input ) and ! $user->isConfirmed( $input ) )
@@ -147,7 +148,7 @@ class UserController extends BaseController {
             */
             else
             {
-                $err_msg = Lang::get('confide::confide.alerts.wrong_credentials');
+                $err_msg = trans('texts.confide.wrong_credentials');
             }
 
             return Redirect::action('UserController@login')
@@ -165,15 +166,13 @@ class UserController extends BaseController {
     {
         if ( Confide::confirm( $code ) )
         {
-            $notice_msg = Lang::get('confide::confide.alerts.confirmation');
-                        return Redirect::action('UserController@login')
-                            ->with( 'notice', $notice_msg );
+            $notice_msg = trans('texts.confide.confirmation');
+            return Redirect::action('UserController@login')->with( 'message', $notice_msg );
         }
         else
         {
-            $error_msg = Lang::get('confide::confide.alerts.wrong_confirmation');
-                        return Redirect::action('UserController@login')
-                            ->with( 'error', $error_msg );
+            $error_msg = trans('texts.confide.wrong_confirmation');
+            return Redirect::action('UserController@login')->with( 'error', $error_msg );
         }
     }
 
@@ -194,9 +193,9 @@ class UserController extends BaseController {
     {
         Confide::forgotPassword( Input::get( 'email' ) );
 
-        $notice_msg = Lang::get('confide::confide.alerts.password_forgot');
-                    return Redirect::action('UserController@login')
-                        ->with( 'notice', $notice_msg );
+        $notice_msg = trans('texts.confide.password_forgot');
+        return Redirect::action('UserController@login')
+            ->with( 'notice', $notice_msg );
 
 
         /*
@@ -241,15 +240,15 @@ class UserController extends BaseController {
         // By passing an array with the token, password and confirmation
         if( Confide::resetPassword( $input ) )
         {
-            $notice_msg = Lang::get('confide::confide.alerts.password_reset');
-                        return Redirect::action('UserController@login')
-                            ->with( 'notice', $notice_msg );
+            $notice_msg = trans('texts.confide.password_reset');
+            return Redirect::action('UserController@login')
+                ->with( 'notice', $notice_msg );
         }
         else
         {
-            $error_msg = Lang::get('confide::confide.alerts.wrong_password_reset');
-                        return Redirect::action('UserController@reset_password', array('token'=>$input['token']))
-                            ->withInput()
+            $error_msg = trans('texts.confide.wrong_password_reset');
+            return Redirect::action('UserController@reset_password', array('token'=>$input['token']))
+                ->withInput()
                 ->with( 'error', $error_msg );
         }
     }
