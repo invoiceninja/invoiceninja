@@ -123,8 +123,7 @@ class Utils
 	public static function pluralize($string, $count) 
 	{
 		$field = $count == 1 ? $string : $string . 's';		
-		$string = trans("texts.$field");
-		$string = str_replace('?', $count, $string);
+		$string = trans("texts.$field", ['count' => $count]);		
 		return $string;
 	}
 

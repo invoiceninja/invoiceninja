@@ -39,6 +39,11 @@ class Account extends Eloquent
 		return $this->belongsTo('Timezone');
 	}
 
+	public function language()
+	{
+		return $this->belongsTo('Language');
+	}
+
 	public function date_format()
 	{
 		return $this->belongsTo('DateFormat');	
@@ -158,15 +163,22 @@ class Account extends Eloquent
 		}
 	}
 
+	public function getLocale() 
+	{
+		$language = Language::remember(DEFAULT_QUERY_CACHE)->where('id', '=', $this->account->language_id)->first();		
+		return $language->locale;		
+	}
+
 	public function loadLocalizationSettings()
 	{
-		$this->load('timezone', 'date_format', 'datetime_format');
+		$this->load('timezone', 'date_format', 'datetime_format', 'language');
 
 		Session::put(SESSION_TIMEZONE, $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE);
 		Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
 		Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
 		Session::put(SESSION_DATETIME_FORMAT, $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT);			
 		Session::put(SESSION_CURRENCY, $this->currency_id ? $this->currency_id : DEFAULT_CURRENCY);		
+		Session::put(SESSION_LOCALE, $this->language_id ? $this->language->locale : DEFUALT_LOCALE);
 	}
 
 	public function getInvoiceLabels()

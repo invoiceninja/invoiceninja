@@ -10,7 +10,10 @@ The high level instructions for setting up the site are below but there's also a
 
 For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja).
 
+If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
+
 Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
+
 
 ### Features
 * Core application built using Laravel 4.1

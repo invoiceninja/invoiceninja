@@ -26,8 +26,9 @@ App::before(function($request)
     App::setLocale(Input::get('lang'));
   } 
   else if (Auth::check())
-  {      
-    App::setLocale(Auth::user()->getLocale());
+  {
+    $locale = Session::get(SESSION_LOCALE, DEFUALT_LOCALE);
+    App::setLocale($locale);    
   }
 });
 

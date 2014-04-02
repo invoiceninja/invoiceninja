@@ -29,10 +29,12 @@
   <div class="row">
     <div class="col-md-6 col-md-offset-2">
 
-      {{ Former::legend('Secure Payment') }}
+      {{ Former::legend('secure_payment') }}
       {{ Former::text('first_name') }}
       {{ Former::text('last_name') }}
+
       <p>&nbsp;<p/>
+      
       {{ Former::text('card_number') }}
       {{ Former::select('expiration_month')->addOption('','')
             ->addOption('01 - January', '1')
@@ -58,15 +60,17 @@
             ->addOption('2020', '2020')
       }}
 
-      {{ Former::text('cvv')->label('CVV') }}
+      {{ Former::text('cvv') }}
+
       <p>&nbsp;<p/>
+
       {{ Former::text('address1')->label('Street') }}
       {{ Former::text('address2')->label('Apt/Suite') }}
       {{ Former::text('city') }}
       {{ Former::text('state')->label('State/Province') }}
       {{ Former::text('postal_code') }}
 
-      {{ Former::actions( Button::primary_submit_lg('Pay Now - ' . Utils::formatMoney($invoice->amount, $client->currency_id) )) }}
+      {{ Former::actions( Button::primary_submit_lg(trans('texts.pay_now') . ' - ' . Utils::formatMoney($invoice->amount, $client->currency_id) )) }}
 
     </div>
   </div>    

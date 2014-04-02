@@ -228,6 +228,7 @@ define('SESSION_DATE_FORMAT', 'dateFormat');
 define('SESSION_DATE_PICKER_FORMAT', 'datePickerFormat');
 define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
 define('SESSION_COUNTER', 'sessionCounter');
+define('SESSION_LOCALE', 'sessionLocale');
 
 define('DEFAULT_TIMEZONE', 'US/Eastern');
 define('DEFAULT_CURRENCY', 1); // US Dollar
@@ -235,6 +236,7 @@ define('DEFAULT_DATE_FORMAT', 'M j, Y');
 define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
 define('DEFAULT_QUERY_CACHE', 120); // minutes
+define('DEFUALT_LOCALE', 'en');
 
 define('GATEWAY_PAYPAL_EXPRESS', 17);
 

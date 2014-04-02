@@ -11,8 +11,8 @@
 
 	@if ($invoice->client->account->isGatewayConfigured())
 		<div class="pull-right" style="width:270px">
-			{{ Button::normal('Download PDF', array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
-			{{ Button::primary_link(URL::to('payment/' . $invitation->invitation_key), 'Pay Now', array('class' => 'btn-lg pull-right')) }}
+			{{ Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
+			{{ Button::primary_link(URL::to('payment/' . $invitation->invitation_key), trans('texts.pay_now'), array('class' => 'btn-lg pull-right')) }}
 		</div>		
 	@else 
 		<div class="pull-right">

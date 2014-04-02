@@ -62,6 +62,7 @@ return array(
   'invoice_terms' => 'Invoice terms',
   'save_as_default_terms' => 'Save as default terms',
   'download_pdf' => 'Download PDF',
+  'pay_now' => 'Pay Now',
   'save_invoice' => 'Save Invoice',
   'clone_invoice' => 'Clone Invoice',
   'archive_invoice' => 'Archive Invoice',
@@ -207,12 +208,12 @@ return array(
 
   // application messages
   'created_client' => 'Successfully created client',
-  'created_clients' => 'Successfully created ? clients',
+  'created_clients' => 'Successfully created :count clients',
   'updated_settings' => 'Successfully updated settings',
   'removed_logo' => 'Successfully removed logo',
   'sent_message' => 'Successfully sent message',
   'invoice_error' => 'Please make sure to select a client and correct any errors',
-  'limit_clients' => 'Sorry, this will exceed the limit of ? clients',
+  'limit_clients' => 'Sorry, this will exceed the limit of :count clients',
   'payment_error' => 'There was an error processing your payment. Please try again later.',
   'registration_required' => 'Please sign up to email an invoice',
   'confirmation_required' => 'Please confirm your email address',
@@ -220,9 +221,9 @@ return array(
   'updated_client' => 'Successfully updated client',
   'created_client' => 'Successfully created client',
   'archived_client' => 'Successfully archived client',
-  'archived_clients' => 'Successfully archived ? clients',
+  'archived_clients' => 'Successfully archived :count clients',
   'deleted_client' => 'Successfully deleted client',
-  'deleted_clients' => 'Successfully deleted ? clients',
+  'deleted_clients' => 'Successfully deleted :count clients',
 
   'updated_invoice' => 'Successfully updated invoice',
   'created_invoice' => 'Successfully created invoice',
@@ -230,22 +231,22 @@ return array(
   'emailed_invoice' => 'Successfully emailed invoice',
   'and_created_client' => 'and created client',
   'archived_invoice' => 'Successfully archived credit',
-  'archived_invoices' => 'Successfully archived ? credits',
+  'archived_invoices' => 'Successfully archived :count credits',
   'deleted_invoice' => 'Successfully deleted credit',
-  'deleted_invoices' => 'Successfully deleted ? credits',
+  'deleted_invoices' => 'Successfully deleted :count credits',
 
   'created_payment' => 'Successfully created payment',
   'archived_payment' => 'Successfully archived payment',
-  'archived_payments' => 'Successfully archived ? payments',
+  'archived_payments' => 'Successfully archived :count payments',
   'deleted_payment' => 'Successfully deleted payment',
-  'deleted_payments' => 'Successfully deleted ? payments',
+  'deleted_payments' => 'Successfully deleted :count payments',
   'applied_payment' => 'Successfully applied payment',
 
   'created_credit' => 'Successfully created credit',
   'archived_credit' => 'Successfully archived credit',
-  'archived_credits' => 'Successfully archived ? credits',
+  'archived_credits' => 'Successfully archived :count credits',
   'deleted_credit' => 'Successfully deleted credit',
-  'deleted_credits' => 'Successfully deleted ? credits',
+  'deleted_credits' => 'Successfully deleted :count credits',
 
   // Emails
   'confirmation_subject' => 'Invoice Ninja Account Confirmation',
@@ -268,5 +269,14 @@ return array(
   'notification_viewed' => 'The following client :client viewed Invoice :invoice for :amount.',
   'reset_password' => 'You can reset your account password by clicking the following link:',
   'reset_password_footer' => 'If you did not request this password reset please email our support: ' . CONTACT_EMAIL,
+
+  // Payment page
+  'secure_payment' => 'Secure Payment',
+  'card_number' => 'Card number',
+  'expiration_month' => 'Expiration month',  
+  'expiration_year' => 'Expiration year',
+  'cvv' => 'CVV',
+  
+  
 
 );
