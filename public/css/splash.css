@@ -182,6 +182,11 @@ a .cta:hover span {
     background-size: cover;
 }
 
+.hero2 h1 {
+    color: #fff;
+    margin: 0;
+}
+
 .hero3 {
     text-align: center;
     background-image: url(/images/hero-bg-3.jpg);
@@ -192,7 +197,6 @@ a .cta:hover span {
 }
 
 .hero4 {
-    text-align: center;
     background-image: url(/images/hero-bg-4.jpg);
     padding: 150px 0;
     background-repeat: no-repeat;
@@ -206,11 +210,6 @@ a .cta:hover span {
     background-repeat: no-repeat;
     background-position: center center;
     background-size: cover;
-}
-
-.hero2 h1,.hero3 h1,.hero4 h1 {
-    color: #fff;
-    margin: 0;
 }
 
 .hero1.background {
@@ -310,6 +309,10 @@ section.about .col-md-5 {
 section.about.white-bg .col-md-5 {
     padding-right: 43px;
     padding-left: 15px;
+}
+section.about img {
+    width: 100%;
+    min-width: 100%;
 }
 
 section.contact .address .glyphicon {
@@ -546,6 +549,13 @@ footer .social p {
 @media max-width 768px {
     h1 {
         font-size: 30px;
+    }
+    
+    section.about .col-md-5 {
+    padding-left: 15px !important;
+    }
+    section.about.white-bg .col-md-5 {
+    padding-right: 15px !important;
     }
     
     .navbar {
