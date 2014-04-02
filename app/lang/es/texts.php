@@ -261,7 +261,7 @@ return array(
   'user_email_footer' => 'To adjust your email notification settings please visit http://www.invoiceninja.com/company/notifications',
   'invoice_link_message' => 'To view your client invoice click the link below:',
   'notification_paid_subject' => 'Invoice :invoice was paid by :client',
-  'notification_sent_subject' => 'Invoice :invoice was sent by :client',
+  'notification_sent_subject' => 'Invoice :invoice was sent to :client',
   'notification_viewed_subject' => 'Invoice :invoice was viewed by :client',
   'notification_paid' => 'A payment of :amount was made by client :client towards Invoice :invoice.',
   'notification_sent' => 'The following client :client was emailed Invoice :invoice for :amount.',

@@ -132,8 +132,11 @@ class InvoiceController extends \BaseController {
 			return View::make('invoices.deleted');
 		}
 
-		Activity::viewInvoice($invitation);	
-		Event::fire('invoice.viewed', $invoice);
+		if (!Auth::check() || Auth::user()->account_id != $invoice->account_id)
+		{
+			Activity::viewInvoice($invitation);	
+			Event::fire('invoice.viewed', $invoice);
+		}
 
 		$client->account->loadLocalizationSettings();		
 

@@ -471,6 +471,12 @@
 			$('input[name=client]').val({{ $client->public_id }});
 		@endif
 
+		/*
+		if (clients.length == 0) {
+			$('.client_select input.form-control').prop('disabled', true);
+		}
+		*/
+		
 		var $input = $('select#client');
 		$input.combobox().on('change', function(e) {
 			var clientId = parseInt($('input[name=client]').val(), 10);		
@@ -481,7 +487,7 @@
 				model.invoice().client().country = false;				
 			}
 			refreshPDF();
-		}); //.trigger('change');				
+		}); //.trigger('change');						
 
 		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id').change(function() {
 			refreshPDF();
