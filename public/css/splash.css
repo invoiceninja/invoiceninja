@@ -310,6 +310,10 @@ section.about.white-bg .col-md-5 {
     padding-right: 43px;
     padding-left: 15px;
 }
+section.about img {
+    width: 100%;
+    min-width: 100%;
+}
 
 section.contact .address .glyphicon {
     background: #edd71e;
@@ -545,6 +549,13 @@ footer .social p {
 @media max-width 768px {
     h1 {
         font-size: 30px;
+    }
+    
+    section.about .col-md-5 {
+    padding-left: 15px !important;
+    }
+    section.about.white-bg .col-md-5 {
+    padding-right: 15px !important;
     }
     
     .navbar {
