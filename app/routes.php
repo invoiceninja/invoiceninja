@@ -161,7 +161,7 @@ HTML::macro('breadcrumbs', function() {
     $crumb = trim($crumbs[$i]);
     if (!$crumb) continue;
     if ($crumb == 'company') return '';
-    $name = ucwords($crumb);
+    $name = trans("texts.$crumb");
     if ($i==count($crumbs)-1) 
     {
       $str .= "<li class='active'>$name</li>";  

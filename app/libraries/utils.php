@@ -35,7 +35,7 @@ class Utils
 	{
 		if (!$message)
 		{
-			$message = "An error occurred, please try again later";
+			$message = "An error occurred, please try again later.";
 		}
 
 		static::logError($message . ' ' . $exception);		
@@ -122,9 +122,10 @@ class Utils
 
 	public static function pluralize($string, $count) 
 	{
+		$field = $count == 1 ? $string : $string . 's';		
+		$string = trans("texts.$field");
 		$string = str_replace('?', $count, $string);
-		$field = $count == 1 ? $string : $string . 's';
-		return trans("texts.$field");
+		return $string;
 	}
 
 	public static function toArray($data)

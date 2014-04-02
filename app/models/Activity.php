@@ -423,7 +423,7 @@ class Activity extends Eloquent
 		}
 	
 		$activity = Activity::getBlank();
-		$activity->client_id = $client->id;
+		$activity->client_id = $credit->client_id;
 		$activity->credit_id = $credit->id;
 		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_CREDIT;
 		$activity->message = Utils::encodeActivity(Auth::user(), 'archived ' . Utils::formatMoney($credit->balance, $credit->client->currency_id) . ' credit');

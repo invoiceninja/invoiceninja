@@ -229,17 +229,16 @@ class ClientController extends \BaseController {
 						
 			if ($publicId) 
 			{
-				Session::flash('message', 'Successfully updated client');
+				Session::flash('message', trans('texts.updated_client'));
 			} 
 			else 
 			{
 				Activity::createClient($client);
-				Session::flash('message', 'Successfully created client');
+				Session::flash('message', trans('texts.created_client'));
 			}
 
 			return Redirect::to('clients/' . $client->public_id);
 		}
-
 	}
 
 	public function bulk()
@@ -248,7 +247,7 @@ class ClientController extends \BaseController {
 		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');		
 		$count = $this->clientRepo->bulk($ids, $action);
 
-		$message = Utils::pluralize('Successfully '.$action.'d ? client', $count);
+		$message = Utils::pluralize($action.'d_client', $count);
 		Session::flash('message', $message);
 
 		return Redirect::to('clients');

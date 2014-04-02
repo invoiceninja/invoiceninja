@@ -9,12 +9,12 @@
 	{{ Former::populateField('notify_viewed', intval(Auth::user()->notify_viewed)) }}
 	{{ Former::populateField('notify_paid', intval(Auth::user()->notify_paid)) }}
 
-	{{ Former::legend('Email Notifications') }}
-	{{ Former::checkbox('notify_sent')->label('&nbsp;')->text('Email me when an invoice is <b>sent</b>') }}
-	{{ Former::checkbox('notify_viewed')->label('&nbsp;')->text('Email me when an invoice is <b>viewed</b>') }}
-	{{ Former::checkbox('notify_paid')->label('&nbsp;')->text('Email me when an invoice is <b>paid</b>') }}
+	{{ Former::legend('email_notifications') }}
+	{{ Former::checkbox('notify_sent')->label('&nbsp;')->text(trans('texts.email_sent')) }}
+	{{ Former::checkbox('notify_viewed')->label('&nbsp;')->text(trans('texts.email_viewed')) }}
+	{{ Former::checkbox('notify_paid')->label('&nbsp;')->text(trans('texts.email_paid')) }}
 
-	{{ Former::legend('Site Updates') }}
+	{{ Former::legend('site_updates') }}
 
 	<div class="form-group">
 		<label for="invoice_terms" class="control-label col-lg-4 col-sm-4"></label>
@@ -36,11 +36,11 @@
 
   </div></div>
 
-	{{ Former::legend('Custom Messages') }}
-	{{ Former::textarea('invoice_terms')->label('Set default invoice terms') }}
-	{{ Former::textarea('email_footer')->label('Set default email signature') }}
+	{{ Former::legend('custom_messages') }}
+	{{ Former::textarea('invoice_terms')->label(trans('texts.default_invoice_terms')) }}
+	{{ Former::textarea('email_footer')->label(trans('texts.default_email_footer')) }} 
 
-	{{ Former::actions( Button::lg_success_submit('Save')->append_with_icon('floppy-disk') ) }}
+	{{ Former::actions( Button::lg_success_submit(trans('texts.save'))->append_with_icon('floppy-disk') ) }}
 	{{ Former::close() }}
 
 @stop
