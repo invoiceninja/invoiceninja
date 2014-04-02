@@ -14,7 +14,7 @@ class ContactMailer extends Mailer {
 	public function sendInvoice(Invoice $invoice)
 	{
 		$view = 'invoice';
-		$subject = 'New invoice ' . $invoice->invoice_number;
+		$subject = trans('texts.invoice_subject', ['invoice' => $invoice->invoice_number]);
 
 		$invoice->load('invitations', 'client', 'account');
 
@@ -57,7 +57,7 @@ class ContactMailer extends Mailer {
 	public function sendPaymentConfirmation(Payment $payment)
 	{
 		$view = 'payment_confirmation';
-		$subject = 'Payment Received ' . $payment->invoice->invoice_number;
+		$subject = trans('texts.payment_subject', ['invoice' => $payment->invoice->invoice_number]);
 
 		$data = [
 			'accountName' => $payment->account->getDisplayName(),

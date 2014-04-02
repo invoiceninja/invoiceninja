@@ -1,6 +1,7 @@
-{{ Lang::get('confide::confide.email.account_confirmation.subject') }}
+{{ trans('texts.confirmation_header') }}
 
-{{ Lang::get('confide::confide.email.account_confirmation.body') }}
+{{ trans('texts.confirmation_message') }}
 {{{ URL::to("user/confirm/{$user->confirmation_code}") }}}
 
-{{ Lang::get('confide::confide.email.account_confirmation.farewell') }}
+{{ trans('texts.email_signature') }}
+{{ trans('texts.email_from') }}

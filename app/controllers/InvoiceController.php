@@ -207,12 +207,6 @@ class InvoiceController extends \BaseController {
 
 	public static function getViewModel()
 	{
-		// Temporary fix to let users know to re-upload their logos for higher res
-		if (Auth::user()->account->getLogoHeight() == 80)
-		{
-			Session::flash('warning', "We've increased the logo resolution in the PDF. Please re-upload your logo to take advantage of it.");
-		}
-
 		return [
 			'account' => Auth::user()->account,
 			'products' => Product::scope()->orderBy('id')->get(array('product_key','notes','cost','qty')),
@@ -262,7 +256,7 @@ class InvoiceController extends \BaseController {
 
 		if ($errors = $this->invoiceRepo->getErrors($invoice))
 		{					
-			Session::flash('error', 'Please make sure to select a client and correct any errors');
+			Session::flash('error', trans('texts.invoice_error'));
 
 			return Redirect::to('invoices/create')
 				->withInput()->withErrors($errors);
@@ -314,12 +308,12 @@ class InvoiceController extends \BaseController {
 				}				
 			}						
 
-			$message = '';
+			$message = trans($publicId ? 'texts.updated_invoice' : 'texts.created_invoice');
 			if ($input->invoice->client->public_id == '-1')
 			{
-				$message = ' and created client';
-				$url = URL::to('clients/' . $client->public_id);
+				$message = $message . ' ' . trans('texts.and_created_client');
 
+				$url = URL::to('clients/' . $client->public_id);
 				Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
 			}
 			
@@ -332,25 +326,18 @@ class InvoiceController extends \BaseController {
 				if (Auth::user()->confirmed)
 				{
 					$this->mailer->sendInvoice($invoice);
-					Session::flash('message', 'Successfully emailed invoice'.$message);
+					Session::flash('message', $message);
 				}
 				else
 				{
-					Session::flash('message', 'Successfully saved invoice'.$message);
-
-					if (Auth::user()->registered)
-					{
-						Session::flash('error', 'Please confirm your email address');
-					}
-					else
-					{
-						Session::flash('error', 'Please sign up to email an invoice');
-					}
+					$errorMessage = trans(Auth::user()->registered ? 'texts.confirmation_required' : 'texts.registration_required');
+					Session::flash('error', $errorMessage);
+					Session::flash('message', $message);					
 				}
 			} 
 			else 
 			{				
-				Session::flash('message', 'Successfully saved invoice'.$message);
+				Session::flash('message', $message);
 			}
 
 			$url = 'invoices/' . $invoice->public_id . '/edit';
@@ -431,7 +418,7 @@ class InvoiceController extends \BaseController {
 			$clone->invoice_items()->save($cloneItem);			
 		}		
 
-		Session::flash('message', 'Successfully cloned invoice');
+		Session::flash('message', trans('texts.cloned_invoice'));
 		return Redirect::to('invoices/' . $clone->public_id);
 	}
 }

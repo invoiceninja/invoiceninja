@@ -16,7 +16,7 @@ class UserMailer extends Mailer {
 		}
 
 		$view = 'confirm';
-		$subject = 'Invoice Ninja Account Confirmation';
+		$subject = trans('texts.confirmation_subject');
 
 		$data = [
 			'user' => $user
@@ -48,20 +48,7 @@ class UserMailer extends Mailer {
 			$data['paymentAmount'] = Utils::formatMoney($payment->amount, $invoice->client->currency_id);
 		}
 
-		if ($type == 'paid') 
-		{
-			$action = 'paid by';
-		}
-		else if ($type == 'sent')
-		{
-			$action = 'sent to';
-		}
-		else
-		{
-			$action = 'viewed by';
-		}
-
-		$subject = "Invoice {$invoice->invoice_number} was $action {$invoice->client->getDisplayName()}";	
+		$subject = trans('texts.notification_'.$type.'_subject', ['invoice'=>$invoice->invoice_number, 'client'=>$invoice->client->getDisplayName()]);
 
 		$this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
 	}

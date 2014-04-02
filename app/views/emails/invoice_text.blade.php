@@ -1,12 +1,11 @@
 {{ $clientName }},
 
-To view your invoice for {{ $invoiceAmount }}, click the link below:
-
+{{ trans('texts.invoice_message', ['amount' => $invoiceAmount]) }}
 {{ $link }}
 
 @if ($emailFooter)
 {{ $emailFooter }}
 @else
-Best regards,
+{{ trans('texts.email_signature') }}
 {{ $accountName }}
 @endif

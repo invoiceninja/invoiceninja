@@ -5,15 +5,14 @@
 </head>
 <body>
 
-  Dear {{ $userName }},<p/>
+  {{ trans('texts.email_salutation', ['name' => $userName]) }} <p/>
 
-  The following client {{ $clientName }} viewed Invoice {{ $invoiceNumber }} for {{ $invoiceAmount}}.<p/>
+  {{ trans('texts.notification_viewed', ['amount' => $invoiceAmount, 'client' => $clientName, 'invoice' => $invoiceNumber]) }} <p/>
 
-  Regards,<p/>
-
-  The InvoiceNinja Team<p/>
-
-  To adjust your email notification settings please <a href="http://www.invoiceninja.com/company/notifications">click here</a>.<p/>
+  {{ trans('texts.email_signature') }} <br/>
+  {{ trans('texts.email_from') }} <p/>
+  
+  {{ trans('texts.user_email_footer') }} <p/>
 
 </body>
 </html>

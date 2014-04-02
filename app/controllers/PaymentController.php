@@ -270,7 +270,7 @@ class PaymentController extends \BaseController
 
                 Event::fire('invoice.paid', $payment);
 
-                Session::flash('message', 'Successfully applied payment');  
+                Session::flash('message', trans('texts.applied_payment'));  
                 return Redirect::to('view/' . $payment->invitation->invitation_key);                                    
             }
             else if ($response->isRedirect()) 
@@ -282,13 +282,17 @@ class PaymentController extends \BaseController
             }
             else                    
             {
-                Session::flash('error', $response->getMessage());  
-                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
+                $errorMessage = trans('texts.payment_error') . "\n\n" . $response->getMessage();
+                Session::flash('error', $errorMessage);  
+                Utils::logError($errorMessage);
+                return Redirect::to('view/' . $payment->invitation->invitation_key);   
             }
         } 
         catch (\Exception $e) 
         {
-            Session::flash('error', $e->getMessage());  
+            $errorMessage = trans('texts.payment_error');
+            Session::flash('error', $errorMessage);  
+            Utils::logError($e->getMessage());
             return Redirect::to('payment/' . $invitationKey)
                 ->withInput();
         }
@@ -345,19 +349,23 @@ class PaymentController extends \BaseController
                 
                 Event::fire('invoice.paid', $payment);
 
-                Session::flash('message', 'Successfully applied payment');  
+                Session::flash('message', trans('texts.applied_payment'));  
                 return Redirect::to('view/' . $invitation->invitation_key);                
             }
             else
             {
-                Session::flash('error', $response->getMessage());  
-                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
+                $errorMessage = trans('texts.payment_error') . "\n\n" . $response->getMessage();
+                Session::flash('error', $errorMessage);  
+                Utils::logError($errorMessage);
+                return Redirect::to('view/' . $invitation->invitation_key);   
             }
         } 
         catch (\Exception $e) 
         {
-            Session::flash('error', $e->getMessage());  
-            return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $e);
+            $errorMessage = trans('texts.payment_error');
+            Session::flash('error', $errorMessage);  
+            Utils::logError($errorMessage . "\n\n" . $e->getMessage());
+            return Redirect::to('view/' . $invitation->invitation_key);
         }
     }
 
@@ -385,8 +393,7 @@ class PaymentController extends \BaseController
         {            
             $this->paymentRepo->save($publicId, Input::all());
 
-            $message = $publicId ? 'Successfully updated payment' : 'Successfully created payment';
-            Session::flash('message', $message);
+            Session::flash('message', trans('texts.created_payment'));
             return Redirect::to('clients/' . Input::get('client'));
         }
     }
@@ -399,11 +406,10 @@ class PaymentController extends \BaseController
 
         if ($count > 0)
         {
-            $message = Utils::pluralize('Successfully '.$action.'d ? payment', $count);
+            $message = Utils::pluralize($action.'d_payment', $count);            
             Session::flash('message', $message);
         }
         
         return Redirect::to('payments');
     }
-
 }

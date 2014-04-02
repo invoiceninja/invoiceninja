@@ -170,7 +170,7 @@ return array(
   'adjustment' => 'Adjustment',
   'are_you_sure' => 'Are you sure?',
 
-  // new payment page
+  // payment pages
   'payment_type_id' => 'Payment type',
   'amount' => 'Amount',
 
@@ -208,10 +208,15 @@ return array(
   // application messages
   'created_client' => 'Successfully created client',
   'created_clients' => 'Successfully created ? clients',
-  'limit_clients' => 'Sorry, this will exceed the limit of ? clients',
   'updated_settings' => 'Successfully updated settings',
   'removed_logo' => 'Successfully removed logo',
-  
+  'sent_message' => 'Successfully sent message',
+  'invoice_error' => 'Please make sure to select a client and correct any errors',
+  'limit_clients' => 'Sorry, this will exceed the limit of ? clients',
+  'payment_error' => 'There was an error processing your payment. Please try again later.',
+  'registration_required' => 'Please sign up to email an invoice',
+  'confirmation_required' => 'Please confirm your email address',
+
   'updated_client' => 'Successfully updated client',
   'created_client' => 'Successfully created client',
   'archived_client' => 'Successfully archived client',
@@ -221,6 +226,9 @@ return array(
 
   'updated_invoice' => 'Successfully updated invoice',
   'created_invoice' => 'Successfully created invoice',
+  'cloned_invoice' => 'Successfully cloned invoice',
+  'emailed_invoice' => 'Successfully emailed invoice',
+  'and_created_client' => 'and created client',
   'archived_invoice' => 'Successfully archived credit',
   'archived_invoices' => 'Successfully archived ? credits',
   'deleted_invoice' => 'Successfully deleted credit',
@@ -231,6 +239,7 @@ return array(
   'archived_payments' => 'Successfully archived ? payments',
   'deleted_payment' => 'Successfully deleted payment',
   'deleted_payments' => 'Successfully deleted ? payments',
+  'applied_payment' => 'Successfully applied payment',
 
   'created_credit' => 'Successfully created credit',
   'archived_credit' => 'Successfully archived credit',
@@ -238,6 +247,26 @@ return array(
   'deleted_credit' => 'Successfully deleted credit',
   'deleted_credits' => 'Successfully deleted ? credits',
 
-
+  // Emails
+  'confirmation_subject' => 'Invoice Ninja Account Confirmation',
+  'confirmation_header' => 'Account Confirmation',
+  'confirmation_message' => 'Please access the link below to confirm your account.',
+  'invoice_subject' => 'New invoice :invoice',
+  'invoice_message' => 'To view your invoice for :amount, click the link below.',
+  'payment_subject' => 'Payment Received :invoice',
+  'payment_message' => 'Thank you for your payment of :amount.',
+  'email_salutation' => 'Dear :name,',
+  'email_signature' => 'Regards,',
+  'email_from' => 'The InvoiceNinja Team',
+  'user_email_footer' => 'To adjust your email notification settings please visit http://www.invoiceninja.com/company/notifications',
+  'invoice_link_message' => 'To view your client invoice click the link below:',
+  'notification_paid_subject' => 'Invoice :invoice was paid by :client',
+  'notification_sent_subject' => 'Invoice :invoice was sent by :client',
+  'notification_viewed_subject' => 'Invoice :invoice was viewed by :client',
+  'notification_paid' => 'A payment of :amount was made by client :client towards Invoice :invoice.',
+  'notification_sent' => 'The following client :client was emailed Invoice :invoice for :amount.',
+  'notification_viewed' => 'The following client :client viewed Invoice :invoice for :amount.',
+  'reset_password' => 'You can reset your account password by clicking the following link:',
+  'reset_password_footer' => 'If you did not request this password reset please email our support: ' . CONTACT_EMAIL,
 
 );

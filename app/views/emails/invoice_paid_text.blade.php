@@ -1,9 +1,11 @@
-Dear {{ $userName }},
+{{ trans('texts.email_salutation', ['name' => $userName]) }}
 
-A payment of {{ $paymentAmount }} was made by client {{ $clientName }} towards invoice {{ $invoiceNumber }}.
+{{ trans('texts.notification_paid', ['amount' => $paymentAmount, 'client' => $clientName, 'invoice' => $invoiceNumber]) }}
 
-
-To view your client invoice click the link below:
+{{ trans('texts.invoice_link_message') }}
 {{ $invoiceLink }}
 
-To adjust your email notification settings please visit http://www.invoiceninja.com/company/notifications
+{{ trans('texts.email_signature') }}
+{{ trans('texts.email_from') }}
+
+{{ trans('texts.user_email_footer') }}

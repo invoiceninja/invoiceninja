@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html>
     <head>
         <meta charset="utf-8">
     </head>
@@ -7,14 +7,13 @@
 
       {{ $clientName }},<p/>
 
-      To view your invoice for {{ $invoiceAmount }}, click the link below:<p/>
-
+      {{ trans('texts.invoice_message', ['amount' => $invoiceAmount]) }}<p/>      
       {{ $link }}<p/>
 
       @if ($emailFooter)
       {{ nl2br($emailFooter) }}
       @else
-      Best regards,<br/>
+      {{ trans('texts.email_signature') }}<br/>
       {{ $accountName }}
       @endif
 

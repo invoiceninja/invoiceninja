@@ -21,7 +21,11 @@ App::before(function($request)
     }
   }
 
-  if (Auth::check())
+  if (Input::has('lang'))
+  {
+    App::setLocale(Input::get('lang'));
+  } 
+  else if (Auth::check())
   {      
     App::setLocale(Auth::user()->getLocale());
   }
