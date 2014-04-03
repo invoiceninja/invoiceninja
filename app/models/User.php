@@ -104,6 +104,16 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 		}
 	}	
 
+	public function isPro()
+	{
+		if (!Auth::check()) 
+		{
+			return false;
+		}
+
+		return $this->account->pro_plan;
+	}
+
 	public function showGreyBackground()
 	{
 		return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);

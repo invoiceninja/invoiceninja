@@ -288,6 +288,12 @@ return array(
     'wrong_password_reset' => 'Invalid password. Try again',
   ),
   
+  // Pro Plan
+  'pro_plan' => [
+    'remove_logo' => ':link to remove the Invoice Ninja logo by joining the pro plan',
+    'remove_logo_link' => 'Click here',
+  ],
+
   
   
 );

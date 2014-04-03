@@ -62,13 +62,17 @@ class AccountController extends \BaseController {
 	}
 
 	public function enableProPlan()
-	{
-		$account = Auth::user()->account;
-		dd(Request::all());
-		if ($account->pro_plan)
+	{		
+		if (Auth::user()->isPro())
 		{
 			return Redirect::to('/dashboard');		
 		}
+
+		$account = Auth::user()->account;
+
+		$client = new Client;
+
+		
 	}
 
 	public function setTrashVisible($entityType, $visible)

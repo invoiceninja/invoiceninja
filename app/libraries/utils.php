@@ -5,6 +5,11 @@ class Utils
 	public static function isProd()
 	{
 		return App::environment() == ENV_PRODUCTION;
+	}	
+
+	public static function isNinjaProd()
+	{
+		return $_SERVER['SERVER_NAME'] == 'www.invoiceninja.com';
 	}
 
 	public static function basePath() 

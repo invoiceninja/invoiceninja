@@ -287,5 +287,11 @@ return array(
     'password_reset' => 'Dein Passwort wurde erfolgreich geändert.',
     'wrong_password_reset' => 'Ungültiges Passwort. Versuche es erneut',
   ),
+
+  // Pro Plan
+  'pro_plan' => [
+    'remove_logo' => ':link to remove the Invoice Ninja logo by joining the pro plan',
+    'remove_logo_link' => 'Click here',
+  ],
     
 );

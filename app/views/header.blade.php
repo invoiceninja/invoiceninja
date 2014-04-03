@@ -318,7 +318,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 </div>
 @endif
 
-@if ($_SERVER['SERVER_NAME'] != 'www.invoiceninja.com')    
+@if (!Utils::isNinjaProd())    
 <div class="container">{{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/" target="_blank">InvoiceNinja.com</a></div>
 @endif
 

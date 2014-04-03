@@ -14,7 +14,7 @@ class AddProPlan extends Migration {
 	{
 		Schema::table('accounts', function($table)
 		{
-			$table->boolean('pro_plan');
+			$table->timestamp('pro_plan_paid');
 		});		
 	}
 
@@ -27,7 +27,7 @@ class AddProPlan extends Migration {
 	{
 		Schema::table('accounts', function($table)
 		{			
-			$table->dropColumn('pro_plan');
+			$table->dropColumn('pro_plan_paid');
 		});
 	}
 
