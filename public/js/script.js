@@ -93,7 +93,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   doc.setFontType("bold");
   doc.text(layout.footerLeft, y, 'Balance Due');
 
-  total = formatMoney(invoice.balance_amount, currencyId)  
+  total = formatMoney(invoice.balance_amount, currencyId);
   var totalX = layout.headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
   doc.text(totalX, y, total);   
 
