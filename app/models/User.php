@@ -111,7 +111,7 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 			return false;
 		}
 
-		return $this->account->pro_plan;
+		return $this->account->pro_plan_paid;
 	}
 
 	public function showGreyBackground()
