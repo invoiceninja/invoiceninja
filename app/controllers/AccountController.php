@@ -61,6 +61,16 @@ class AccountController extends \BaseController {
 		return Redirect::to('invoices/create');		
 	}
 
+	public function enableProPlan()
+	{
+		$account = Auth::user()->account;
+		dd(Request::all());
+		if ($account->pro_plan)
+		{
+			return Redirect::to('/dashboard');		
+		}
+	}
+
 	public function setTrashVisible($entityType, $visible)
 	{
 		Session::put('show_trash', $visible == 'true');

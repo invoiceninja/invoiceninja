@@ -61,6 +61,7 @@ Route::group(array('before' => 'auth'), function()
   Route::get('force_inline_pdf', 'UserController@forcePDFJS');
 
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
+  Route::get('account/enable_pro_plan', 'AccountController@enableProPlan');
 	Route::get('company/{section?}', 'AccountController@showSection');	
 	Route::post('company/{section?}', 'AccountController@doSection');
 	Route::post('user/setTheme', 'UserController@setTheme');

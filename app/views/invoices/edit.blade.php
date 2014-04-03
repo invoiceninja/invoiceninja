@@ -274,6 +274,9 @@
 	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="1180"></iframe>
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
+	@if (!Auth::user()->account->pro_plan)
+		Enable the pro plan by {{ link_to('account/enable_pro_plan', 'clicking here') }} to remove the Invoice Ninja logo
+	@endif
 
 	<div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
 	  <div class="modal-dialog" style="min-width:1000px">
