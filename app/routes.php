@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -240,6 +239,7 @@ define('DEFAULT_QUERY_CACHE', 120); // minutes
 define('DEFUALT_LOCALE', 'en');
 
 define('GATEWAY_PAYPAL_EXPRESS', 17);
+define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 
 
 if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 

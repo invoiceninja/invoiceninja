@@ -14,7 +14,7 @@ class AddProPlan extends Migration {
 	{
 		Schema::table('accounts', function($table)
 		{
-			$table->timestamp('pro_plan_paid');
+			$table->date('pro_plan_paid');
 		});		
 	}
 

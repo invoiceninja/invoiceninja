@@ -70,9 +70,73 @@ class AccountController extends \BaseController {
 
 		$account = Auth::user()->account;
 
-		$client = new Client;
+		$ninjaAccount = $this->getNinjaAccount();
+		$ninjaClient = $this->getNinjaClient($ninjaAccount);
 
 		
+
+	}
+
+	private function getNinjaAccount()
+	{
+		$account = Account::whereAccountKey(NINJA_ACCOUNT_KEY)->first();
+
+		if ($account)
+		{
+			return $account;	
+		}
+		else
+		{
+			$account = new Account();
+			$account->name = 'Invoice Ninja';
+			$account->work_email = 'contact@invoiceninja.com';
+			$account->work_phone = '(800) 763-1948';
+			$account->account_key = NINJA_ACCOUNT_KEY;
+			$account->save();
+
+			$random = str_random(RANDOM_KEY_LENGTH);
+
+			$user = new User();
+			$user->email = 'contact@invoiceninja.com';
+			$user->password = $random;
+			$user->password_confirmation = $random;			
+			$user->username = $random;
+			$user->notify_sent = false;
+			$user->notify_paid = false;
+			$account->users()->save($user);			
+		}
+
+		return $account;
+	}
+
+	private function getNinjaClient($ninjaAccount)
+	{
+		$client = Client::whereAccountId($ninjaAccount->id)->wherePublicId(Auth::user()->account_id)->first();
+
+		if ($client)
+		{
+			return $client;
+		}
+		else
+		{			
+			$client = new Client;		
+			$client->public_id = Auth::user()->account_id;
+			$client->user_id = $ninjaAccount->users()->first()->id;
+			foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone'] as $field) 
+			{
+				$client->$field = Auth::user()->account->$field;
+			}		
+			$ninjaAccount->clients()->save($client);
+
+			$contact = new Contact;
+			$contact->user_id = $ninjaAccount->users()->first()->id;
+			$contact->is_primary = true;
+			foreach (['first_name', 'last_name', 'email', 'phone'] as $field) 
+			{
+				$contact->$field = Auth::user()->$field;	
+			}		
+			$client->contacts()->save($contact);
+		}
 	}
 
 	public function setTrashVisible($entityType, $visible)
