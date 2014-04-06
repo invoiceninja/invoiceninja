@@ -4,6 +4,7 @@
 /app/config/ubuntu
 /app/config/packages/anahkiasen/rocketeer/
 /app/storage
+/public/logo
 /public/build
 /public/vendor
 /bootstrap/compiled.php

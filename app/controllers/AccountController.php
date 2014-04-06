@@ -73,8 +73,8 @@ class AccountController extends \BaseController {
 		$ninjaAccount = $this->getNinjaAccount();
 		$ninjaClient = $this->getNinjaClient($ninjaAccount);
 
-		
-
+		//$invoice = new Invoice();
+		//$ninjaClient->invoices()->save($invoice);
 	}
 
 	private function getNinjaAccount()
