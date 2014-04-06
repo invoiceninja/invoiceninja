@@ -95,6 +95,7 @@ return array(
   'import' => 'Import',
   'download' => 'Download',
   'cancel' => 'Cancel',
+  'close' => 'Close',
   'provide_email' => 'Please provide a valid email address',
   'powered_by' => 'Powered by',
   'no_items' => 'No items',
@@ -253,7 +254,7 @@ return array(
   'confirmation_message' => 'Please access the link below to confirm your account.',
   'invoice_subject' => 'New invoice from :account',
   'invoice_message' => 'To view your invoice for :amount, click the link below.',
-  'payment_subject' => 'Payment Received :invoice',
+  'payment_subject' => 'Payment Received',
   'payment_message' => 'Thank you for your payment of :amount.',
   'email_salutation' => 'Dear :name,',
   'email_signature' => 'Regards,',
@@ -303,6 +304,6 @@ return array(
   'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
   'erase_data' => 'This will permanently erase your data.',
   'password' => 'Password',
-  
+    
     
 );

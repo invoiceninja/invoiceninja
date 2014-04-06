@@ -253,7 +253,7 @@ return array(
   'confirmation_header' => 'Konto Bestätigung',
   'confirmation_message' => 'Bitte klicke auf den folgenden Link um dein Konto zu bestätigen.',
   'invoice_message' => 'Um Ihre Rechnung über :amount einzusehen, klicken Sie bitte auf den folgenden Link.',
-  'payment_subject' => 'Zahlungseingang :invoice',
+  'payment_subject' => 'Zahlungseingang',
   'payment_message' => 'Vielen Dank für Ihre Zahlung von :amount.',
   'email_salutation' => 'Sehr geehrte/r :name,',
   'email_signature' => 'Freundliche Grüße,',
@@ -304,6 +304,6 @@ return array(
   'erase_data' => 'This will permanently erase your data.',
   'password' => 'Password',
   'invoice_subject' => 'New invoice from :account',
-  
+  'close' => 'Close',  
       
 );

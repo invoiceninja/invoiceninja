@@ -24,6 +24,8 @@ class AddLanguageSupport extends Migration {
     DB::table('languages')->insert(['name' => 'German', 'locale' => 'de']);
     DB::table('languages')->insert(['name' => 'French', 'locale' => 'fr']);
     DB::table('languages')->insert(['name' => 'Brazilian Portuguese', 'locale' => 'pt_BR']);
+    DB::table('languages')->insert(['name' => 'Dutch', 'locale' => 'nl']);
+    DB::table('languages')->insert(['name' => 'Spanish', 'locale' => 'es']);
 
 		Schema::table('accounts', function($table)
 		{

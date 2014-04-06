@@ -252,7 +252,6 @@ return array(
   'confirmation_header' => 'Confirmação de Conta',
   'confirmation_message' => 'Favor acessar o link abaixo para confirmar a sua conta.',
   'invoice_message' => 'Para visualizar a sua fatura de :amount, clique no link abaixo.',
-  'payment_subject' => 'Recebido Pagamento de :invoice',
   'payment_message' => 'Obrigado pelo seu pagamento de :amount.',
   'email_salutation' => 'Caro :name,',
   'email_signature' => 'Até mais,',
@@ -291,6 +290,8 @@ return array(
   'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
   'erase_data' => 'This will permanently erase your data.',
   'password' => 'Password',
+  'close' => 'Close',
   'invoice_subject' => 'New invoice from :account',
-
+  'payment_subject' => 'Recebido Pagamento de',  // I remove the invoice number, is it still correct? Thanks!
+  
 );

@@ -261,13 +261,11 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         {{ Former::text('new_last_name')->label(trans('texts.last_name')) }}
         {{ Former::text('new_email')->label(trans('texts.email')) }}	    	
         {{ Former::password('new_password')->label(trans('texts.password')) }}        
-        {{ Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms').' <a href="'.URL::to('terms').'" target="_blank">'.trans('texts.terms_of_service').'</a>') }}
+        {{ Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.URL::to('terms').'" target="_blank">'.trans('texts.terms_of_service').'</a>'])) }}
         {{ Former::close() }}
 
         <center><div id="errorTaken" style="display:none">&nbsp;<br/>{{ trans('texts.email_taken') }}</div></center>
         <br/>
-
-
 
 
       </div>
@@ -287,7 +285,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 
 
       <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">	      	
-        <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }} <i class="glyphicon glyphicon-remove-circle"></i></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} <i class="glyphicon glyphicon-remove-circle"></i></button>
         <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()" disabled>{{ trans('texts.save') }} <i class="glyphicon glyphicon-floppy-disk"></i></button>	      	
       </div>
     </div>

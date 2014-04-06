@@ -253,7 +253,7 @@ return array(
   'confirmation_header' => 'Bevestiging Account',
   'confirmation_message' => 'Ga alstublieft naar onderstaande link om je account te bevestiging.',
   'invoice_message' => 'Om je factuur voor :amount te bekijken, klik op onderstaande link.',
-  'payment_subject' => 'Betaling ontvangen :invoice',
+  'payment_subject' => 'Betaling ontvangen',
   'payment_message' => 'Bedankt voor je betaling van :amount.',
   'email_salutation' => 'Beste :name,',
   'email_signature' => 'Met vriendelijke groeten,',
@@ -304,5 +304,6 @@ return array(
   'erase_data' => 'This will permanently erase your data.',
   'password' => 'Password',
   'invoice_subject' => 'New invoice from :account',
+  'close' => 'Close',  
   
 );
