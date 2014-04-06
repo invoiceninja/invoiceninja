@@ -289,14 +289,19 @@ section.blue .col-md-6 h1 span {
     text-transform: lowercase;
 }
 
-section.about {
+section.about, section.team {
     padding: 70px 0;
 }
 
-section.about h2 {
-    margin: 0 0 25px;
+section.about h2, section.team h2 {
     font-size: 25px;
+    margin: 0 0 25px;
     text-transform: none;
+}
+section.team .col-md-3 h2 {
+    font-size: 20px;
+    margin-top: 20px;
+margin-bottom: 10px;
 }
 
 section.about .screendump {
@@ -310,9 +315,25 @@ section.about.white-bg .col-md-5 {
     padding-right: 43px;
     padding-left: 15px;
 }
-section.about img {
+section.about img, section.team img {
     width: 100%;
     min-width: 100%;
+    padding: 0 30px;
+}
+section.team .col-md-3 {
+ margin-top: 25px;
+}
+section.team .col-md-3 p {
+    font-size: 12px;
+}
+
+section.team .social {
+    width: 30px;
+    display:inline-block;
+    margin: 3px 3px 0 3px;
+}
+section.team .social img{
+   padding: 0;
 }
 
 section.contact .address .glyphicon {
