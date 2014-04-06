@@ -252,7 +252,6 @@ return array(
   'confirmation_subject' => 'Invoice Ninja Bevestiging Account',
   'confirmation_header' => 'Bevestiging Account',
   'confirmation_message' => 'Ga alstublieft naar onderstaande link om je account te bevestiging.',
-  'invoice_subject' => 'Nieuwe factuur :invoice',
   'invoice_message' => 'Om je factuur voor :amount te bekijken, klik op onderstaande link.',
   'payment_subject' => 'Betaling ontvangen :invoice',
   'payment_message' => 'Bedankt voor je betaling van :amount.',
@@ -303,7 +302,7 @@ return array(
   'success' => 'Success',
   'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
   'erase_data' => 'This will permanently erase your data.',
-
-
-
+  'password' => 'Password',
+  'invoice_subject' => 'New invoice from :account',
+  
 );

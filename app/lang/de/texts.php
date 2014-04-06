@@ -252,7 +252,6 @@ return array(
   'confirmation_subject' => 'Invoice Ninja Konto Bestätigung',
   'confirmation_header' => 'Konto Bestätigung',
   'confirmation_message' => 'Bitte klicke auf den folgenden Link um dein Konto zu bestätigen.',
-  'invoice_subject' => 'Neue Rechnung :invoice',
   'invoice_message' => 'Um Ihre Rechnung über :amount einzusehen, klicken Sie bitte auf den folgenden Link.',
   'payment_subject' => 'Zahlungseingang :invoice',
   'payment_message' => 'Vielen Dank für Ihre Zahlung von :amount.',
@@ -303,6 +302,8 @@ return array(
   'success' => 'Success',
   'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
   'erase_data' => 'This will permanently erase your data.',
-
-    
+  'password' => 'Password',
+  'invoice_subject' => 'New invoice from :account',
+  
+      
 );

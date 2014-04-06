@@ -252,7 +252,7 @@ return array(
   'confirmation_subject' => 'Invoice Ninja Account Confirmation',
   'confirmation_header' => 'Account Confirmation',
   'confirmation_message' => 'Please access the link below to confirm your account.',
-  'invoice_subject' => 'New invoice :invoice',
+  'invoice_subject' => 'New invoice from :account',
   'invoice_message' => 'To view your invoice for :amount, click the link below.',
   'payment_subject' => 'Payment Received :invoice',
   'payment_message' => 'Thank you for your payment of :amount.',
@@ -303,7 +303,7 @@ return array(
   'success' => 'Success',
   'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
   'erase_data' => 'This will permanently erase your data.',
-
+  'password' => 'Password',
 
 
 );
