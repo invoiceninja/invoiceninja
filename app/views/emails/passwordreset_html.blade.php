@@ -1,8 +1,9 @@
-Hi there! {{ $user->username }}<p/>
+{{ trans('texts.email_salutation', ['name' => $user->username]) }} <p/>
 
-You can reset your account password by clicking the following link {{{ (Confide::checkAction('UserController@reset_password', array($token))) ? : URL::to('user/reset/'.$token)  }}}<p/>
+{{ trans('texts.reset_password') }} <br/> 
+{{{ (Confide::checkAction('UserController@reset_password', array($token))) ? : URL::to('user/reset/'.$token)  }}}<p/>
 
-Regards, <br/>
-The InvoiceNinja Team <p/>
+{{ trans('texts.email_signature') }} <br/>
+{{ trans('texts.email_from') }} <p/>
 
-If you did not request this password reset please email our support: admin@invoiceninja.com <p/>
+{{ trans('texts.reset_password_footer') }} <p/>

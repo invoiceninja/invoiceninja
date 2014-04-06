@@ -1,9 +1,8 @@
-Dear {{ $userName }},
+{{ trans('texts.email_salutation', ['name' => $userName]) }}
 
-The following client {{ $clientName }} viewed Invoice {{ $invoiceNumber }} for {{ $invoiceAmount }}.
+{{ trans('texts.notification_viewed', ['amount' => $invoiceAmount, 'client' => $clientName, 'invoice' => $invoiceNumber]) }}
 
-Regards,
+{{ trans('texts.email_signature') }}
+{{ trans('texts.email_from') }}
 
-The InvoiceNinja Team
-
-To adjust your email notification settings visit this link http://www.invoiceninja.com/company/notifications
+{{ trans('texts.user_email_footer') }}

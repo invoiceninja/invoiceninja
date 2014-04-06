@@ -1,10 +1,10 @@
 {{ $clientName }},
 
-Thank you for your payment of {{ $paymentAmount }}.
+{{ trans('texts.payment_message', ['amount' => $paymentAmount]) }}
 
 @if ($emailFooter)
 {{ $emailFooter }}
 @else
-Best regards,
+{{ trans('texts.email_signature') }}
 {{ $accountName }}
 @endif

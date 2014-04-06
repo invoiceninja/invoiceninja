@@ -121,7 +121,7 @@ class CreditController extends \BaseController {
         {            
             $this->creditRepo->save($publicId, Input::all());
 
-            $message = $publicId ? 'Successfully updated credit' : 'Successfully created credit';
+            $message = trans('texts.created_credit');
             Session::flash('message', $message);
             return Redirect::to('clients/' . Input::get('client'));
         }
@@ -135,7 +135,7 @@ class CreditController extends \BaseController {
 
         if ($count > 0)
         {
-            $message = Utils::pluralize('Successfully '.$action.'d ? credit', $count);
+            $message = Utils::pluralize($action.'d_credit', $count);            
             Session::flash('message', $message);
         }
 

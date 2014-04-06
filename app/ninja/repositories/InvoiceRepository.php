@@ -176,8 +176,16 @@ class InvoiceRepository
 
 		$total += $total * $invoice->tax_rate / 100;
 
-		$invoice->amount = $total;
-		$invoice->balance = $total;
+    if ($publicId)    
+    {
+		  $invoice->balance = $total - ($invoice->amount - $invoice->balance);
+    }
+    else
+    {
+      $invoice->balance = $total; 
+    }
+
+    $invoice->amount = $total;
 		$invoice->save();
 
     $invoice->invoice_items()->forceDelete();

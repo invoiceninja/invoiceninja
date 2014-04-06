@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -29,6 +28,8 @@ Route::get('/about', 'HomeController@showAboutUs');
 Route::get('/terms', 'HomeController@showTerms');
 Route::get('/contact', 'HomeController@showContactUs');
 Route::post('/contact', 'HomeController@doContactUs');
+Route::get('/faq', 'HomeController@showFaq');
+Route::get('/features', 'HomeController@showFeatures');
 
 Route::get('log_error', 'HomeController@logError');
 Route::post('get_started', 'AccountController@getStarted');
@@ -59,6 +60,7 @@ Route::group(array('before' => 'auth'), function()
   Route::get('force_inline_pdf', 'UserController@forcePDFJS');
 
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
+  Route::get('account/enable_pro_plan', 'AccountController@enableProPlan');
 	Route::get('company/{section?}', 'AccountController@showSection');	
 	Route::post('company/{section?}', 'AccountController@doSection');
 	Route::post('user/setTheme', 'UserController@setTheme');
@@ -159,7 +161,7 @@ HTML::macro('breadcrumbs', function() {
     $crumb = trim($crumbs[$i]);
     if (!$crumb) continue;
     if ($crumb == 'company') return '';
-    $name = ucwords($crumb);
+    $name = trans("texts.$crumb");
     if ($i==count($crumbs)-1) 
     {
       $str .= "<li class='active'>$name</li>";  
@@ -226,6 +228,7 @@ define('SESSION_DATE_FORMAT', 'dateFormat');
 define('SESSION_DATE_PICKER_FORMAT', 'datePickerFormat');
 define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
 define('SESSION_COUNTER', 'sessionCounter');
+define('SESSION_LOCALE', 'sessionLocale');
 
 define('DEFAULT_TIMEZONE', 'US/Eastern');
 define('DEFAULT_CURRENCY', 1); // US Dollar
@@ -233,8 +236,10 @@ define('DEFAULT_DATE_FORMAT', 'M j, Y');
 define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
 define('DEFAULT_QUERY_CACHE', 120); // minutes
+define('DEFUALT_LOCALE', 'en');
 
 define('GATEWAY_PAYPAL_EXPRESS', 17);
+define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 
 
 if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 

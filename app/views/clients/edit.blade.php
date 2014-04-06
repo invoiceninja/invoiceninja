@@ -8,7 +8,7 @@
 @section('content')
 <div class="row">
 	<!--<h3>{{ $title }} Client</h3>-->
-	
+
 	{{ Former::open($url)->addClass('col-md-12 main_form')->method($method)->rules(array(
   		'email' => 'email|required'  		
 	)); }}
@@ -25,8 +25,8 @@
 			{{ Former::text('name')->data_bind("attr { placeholder: placeholderName }") }}
 			{{ Former::text('website') }}
 			{{ Former::text('work_phone') }}
-			
-			
+
+
 			{{ Former::legend('address') }}
 			{{ Former::text('address1') }}
 			{{ Former::text('address2') }}

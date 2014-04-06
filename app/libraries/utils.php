@@ -5,6 +5,11 @@ class Utils
 	public static function isProd()
 	{
 		return App::environment() == ENV_PRODUCTION;
+	}	
+
+	public static function isNinjaProd()
+	{
+		return $_SERVER['SERVER_NAME'] == 'www.invoiceninja.com';
 	}
 
 	public static function basePath() 
@@ -35,7 +40,7 @@ class Utils
 	{
 		if (!$message)
 		{
-			$message = "An error occurred, please try again later";
+			$message = "An error occurred, please try again later.";
 		}
 
 		static::logError($message . ' ' . $exception);		
@@ -122,9 +127,9 @@ class Utils
 
 	public static function pluralize($string, $count) 
 	{
-		$string = str_replace('?', $count, $string);
-		$field = $count == 1 ? $string : $string . 's';
-		return trans("texts.$field");
+		$field = $count == 1 ? $string : $string . 's';		
+		$string = trans("texts.$field", ['count' => $count]);		
+		return $string;
 	}
 
 	public static function toArray($data)

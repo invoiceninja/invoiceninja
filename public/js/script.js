@@ -93,7 +93,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   doc.setFontType("bold");
   doc.text(layout.footerLeft, y, 'Balance Due');
 
-  total = formatMoney(invoice.balance_amount, currencyId)  
+  total = formatMoney(invoice.balance_amount, currencyId);
   var totalX = layout.headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
   doc.text(totalX, y, total);   
 
@@ -470,24 +470,25 @@ function wordWrapText(value, width)
   doc.setFontSize(10);
 
   var lines = value.split("\n");
-    for (var i = 0; i < lines.length; i++) {
-      var numLines = doc.splitTextToSize(lines[i], width).length;
-        if (numLines <= 1) continue;
-        var j = 0; space = lines[i].length;
-        while (j++ < lines[i].length) {
-            if (lines[i].charAt(j) === " ") space = j;
-        }
-        lines[i + 1] = lines[i].substring(space + 1) + ' ' + (lines[i + 1] || "");
-        lines[i] = lines[i].substring(0, space);
+  for (var i = 0; i < lines.length; i++) {
+    var numLines = doc.splitTextToSize(lines[i], width).length;
+    if (numLines <= 1) continue;
+    var j = 0; space = lines[i].length;
+    while (j++ < lines[i].length) {
+      if (lines[i].charAt(j) === ' ') space = j;
     }
-    
-    var newValue = (lines.join("\n")).trim();
+    if (space == lines[i].length) space = width/6;    
+    lines[i + 1] = lines[i].substring(space + 1) + ' ' + (lines[i + 1] || '');
+    lines[i] = lines[i].substring(0, space);
+  }
+  
+  var newValue = (lines.join("\n")).trim();
 
-    if (value == newValue) {
-      return newValue;
-    } else {
-      return wordWrapText(newValue, width);
-    }
+  if (value == newValue) {
+    return newValue;
+  } else {
+    return wordWrapText(newValue, width);
+  }
 }
 
 

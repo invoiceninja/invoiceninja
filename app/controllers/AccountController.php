@@ -61,6 +61,84 @@ class AccountController extends \BaseController {
 		return Redirect::to('invoices/create');		
 	}
 
+	public function enableProPlan()
+	{		
+		if (Auth::user()->isPro())
+		{
+			return Redirect::to('/dashboard');		
+		}
+
+		$account = Auth::user()->account;
+
+		$ninjaAccount = $this->getNinjaAccount();
+		$ninjaClient = $this->getNinjaClient($ninjaAccount);
+
+		
+
+	}
+
+	private function getNinjaAccount()
+	{
+		$account = Account::whereAccountKey(NINJA_ACCOUNT_KEY)->first();
+
+		if ($account)
+		{
+			return $account;	
+		}
+		else
+		{
+			$account = new Account();
+			$account->name = 'Invoice Ninja';
+			$account->work_email = 'contact@invoiceninja.com';
+			$account->work_phone = '(800) 763-1948';
+			$account->account_key = NINJA_ACCOUNT_KEY;
+			$account->save();
+
+			$random = str_random(RANDOM_KEY_LENGTH);
+
+			$user = new User();
+			$user->email = 'contact@invoiceninja.com';
+			$user->password = $random;
+			$user->password_confirmation = $random;			
+			$user->username = $random;
+			$user->notify_sent = false;
+			$user->notify_paid = false;
+			$account->users()->save($user);			
+		}
+
+		return $account;
+	}
+
+	private function getNinjaClient($ninjaAccount)
+	{
+		$client = Client::whereAccountId($ninjaAccount->id)->wherePublicId(Auth::user()->account_id)->first();
+
+		if ($client)
+		{
+			return $client;
+		}
+		else
+		{			
+			$client = new Client;		
+			$client->public_id = Auth::user()->account_id;
+			$client->user_id = $ninjaAccount->users()->first()->id;
+			foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone'] as $field) 
+			{
+				$client->$field = Auth::user()->account->$field;
+			}		
+			$ninjaAccount->clients()->save($client);
+
+			$contact = new Contact;
+			$contact->user_id = $ninjaAccount->users()->first()->id;
+			$contact->is_primary = true;
+			foreach (['first_name', 'last_name', 'email', 'phone'] as $field) 
+			{
+				$contact->$field = Auth::user()->$field;	
+			}		
+			$client->contacts()->save($contact);
+		}
+	}
+
 	public function setTrashVisible($entityType, $visible)
 	{
 		Session::put('show_trash', $visible == 'true');
@@ -191,30 +269,26 @@ class AccountController extends \BaseController {
 
 	private function export()
 	{
-		$output = fopen("php://output",'w') or die("Can't open php://output");
-		header("Content-Type:application/csv"); 
-		header("Content-Disposition:attachment;filename=export.csv"); 
+		$output = fopen('php://output','w') or Utils::fatalError();
+		header('Content-Type:application/csv'); 
+		header('Content-Disposition:attachment;filename=export.csv');
 		
-		$clients = Client::where('account_id','=',Auth::user()->account_id)->get();
+		$clients = Client::scope()->get();
 		AccountController::exportData($output, $clients->toArray());
 
-		$contacts = DB::table('contacts')->whereIn('client_id', function($query){
-            $query->select('client_id')->from('clients')->where('account_id','=',Auth::user()->account_id);
-	    })->get();
-		AccountController::exportData($output, Utils::toArray($contacts));
-		
-		$invoices = Invoice::where('account_id','=',Auth::user()->account_id)->get();
-		AccountController::exportData($output, $invoices->toArray());		
+		$contacts = Contact::scope()->get();
+		AccountController::exportData($output, $contacts->toArray());
 
-		$invoiceItems = DB::table('invoice_items')->whereIn('invoice_id', function($query){
-            $query->select('invoice_id')->from('invoices')->where('account_id','=',Auth::user()->account_id);
-	    })->get();
-		AccountController::exportData($output, Utils::toArray($invoiceItems));
+		$invoices = Invoice::scope()->get();
+		AccountController::exportData($output, $invoices->toArray());
 
-		$payments = Payment::where('account_id','=',Auth::user()->account_id)->get();
+		$invoiceItems = InvoiceItem::scope()->get();
+		AccountController::exportData($output, $invoiceItems->toArray());
+
+		$payments = Payment::scope()->get();
 		AccountController::exportData($output, $payments->toArray());
 
-		$credits = Credit::where('account_id','=',Auth::user()->account_id)->get();
+		$credits = Credit::scope()->get();
 		AccountController::exportData($output, $credits->toArray());
 
 		fclose($output);
@@ -331,14 +405,21 @@ class AccountController extends \BaseController {
 			Activity::createClient($client);
 		}
 
-		$message = Utils::pluralize('Successfully created ? client', $count);
+		$message = Utils::pluralize('created_client', $count);
 		Session::flash('message', $message);
 		return Redirect::to('clients');
 	}
 
 	private function mapFile()
-	{
+	{		
 		$file = Input::file('file');
+
+		if ($file == null)
+		{
+			Session::flash('error', trans('texts.select_file'));
+			return Redirect::to('company/import_export');			
+		}
+
 		$name = $file->getRealPath();
 
 		require_once(app_path().'/includes/parsecsv.lib.php');
@@ -348,7 +429,8 @@ class AccountController extends \BaseController {
 		
 		if (count($csv->data) + Client::scope()->count() > MAX_NUM_CLIENTS)
 		{
-			Session::flash('error', "Sorry, this wll exceed the limit of " . MAX_NUM_CLIENTS . " clients");
+			$message = Utils::pluralize('limit_clients', MAX_NUM_CLIENTS);
+			Session::flash('error', $message);
 			return Redirect::to('company/import_export');
 		}
 
@@ -452,7 +534,7 @@ class AccountController extends \BaseController {
 		$user->notify_paid = Input::get('notify_paid');
 		$user->save();
 		
-		Session::flash('message', 'Successfully updated settings');
+		Session::flash('message', trans('texts.updated_settings'));
 		return Redirect::to('company/notifications');
 	}
 
@@ -515,7 +597,7 @@ class AccountController extends \BaseController {
 				$account->account_gateways()->save($accountGateway);
 			}
 
-			Session::flash('message', 'Successfully updated settings');
+			Session::flash('message', trans('texts.updated_settings'));
 			return Redirect::to('company/payments');
 		}				
 	}
@@ -574,7 +656,7 @@ class AccountController extends \BaseController {
 
 			Event::fire('user.refresh');
 
-			Session::flash('message', 'Successfully updated details');
+			Session::flash('message', trans('texts.updated_settings'));
 			return Redirect::to('company/details');
 		}
 	}
@@ -583,7 +665,7 @@ class AccountController extends \BaseController {
 
 		File::delete('logo/' . Auth::user()->account->account_key . '.jpg');
 
-		Session::flash('message', 'Successfully removed logo');
+		Session::flash('message', trans('texts.removed_logo'));
 		return Redirect::to('company/details');		
 	}
 

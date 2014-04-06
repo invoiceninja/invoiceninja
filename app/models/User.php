@@ -104,10 +104,25 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 		}
 	}	
 
-	public function getLocale()
+	public function isPro()
 	{
-		$language = Language::remember(DEFAULT_QUERY_CACHE)->where('id', '=', $this->account->language_id)->first();		
-		return $language->locale;
+		if (!Auth::check()) 
+		{
+			return false;
+		}
+
+		$datePaid = $this->account->pro_plan_paid;
+
+		if (!$datePaid || $datePaid == '0000-00-00')
+		{
+			return false;
+		}
+
+		$today = new DateTime('now');
+		$datePaid = DateTime::createFromFormat('Y-m-d', $datePaid);		
+		$interval = $today->diff($datePaid);
+		
+		return $interval->y == 0;
 	}
 
 	public function showGreyBackground()

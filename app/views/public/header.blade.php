@@ -7,11 +7,13 @@
 <link href="{{ asset('images/apple-touch-icon-114x114-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="114x114">
 <link href="{{ asset('images/apple-touch-icon-72x72-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="72x72">
 <link href="{{ asset('images/apple-touch-icon-57x57-precomposed.png') }}" rel="apple-touch-icon-precomposed">
+<script src="{{ asset('js/simpleexpand.js') }}" type="text/javascript"></script>
 @stop
 
 @section('body')
 
 <div id="fb-root"></div>
+   
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
@@ -62,7 +64,8 @@
       <a class="brand" href="/"><img src=
         "images/invoiceninja-logo.png"></a>
         <ul class="navbar-list">
-          <li>{{ link_to('about', 'About Us' ) }}</li>
+          <li>{{ link_to('features', 'Features' ) }}</li>
+          <li>{{ link_to('faq', 'FAQ' ) }}</li>
           <li>{{ link_to('contact', 'Contact Us' ) }}</li>
           <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
         </ul>
@@ -118,7 +121,8 @@
 
 <div class="navbar-inner">
   <ul class="navbar-list">
-    <li>{{ link_to('about', 'About Us' ) }}</li>
+    <li>{{ link_to('features', 'Features' ) }}</li>
+    <li>{{ link_to('faq', 'FAQ' ) }}</li>
     <li>{{ link_to('contact', 'Contact Us' ) }}</li>
     <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
   </ul>
@@ -135,6 +139,9 @@
 </div>
 </div>
 </footer><script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script>
+<script type="text/javascript">
+    $('.expander').simpleexpand();
+</script>
 
 
 

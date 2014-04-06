@@ -274,6 +274,9 @@
 	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="1180"></iframe>
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
+	@if (!Auth::user()->isPro())
+		{{ trans('texts.pro_plan.remove_logo', ['link'=>link_to('account/enable_pro_plan', trans('texts.pro_plan.remove_logo_link'))]) }}		
+	@endif
 
 	<div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
 	  <div class="modal-dialog" style="min-width:1000px">
@@ -471,6 +474,12 @@
 			$('input[name=client]').val({{ $client->public_id }});
 		@endif
 
+		/*
+		if (clients.length == 0) {
+			$('.client_select input.form-control').prop('disabled', true);
+		}
+		*/
+		
 		var $input = $('select#client');
 		$input.combobox().on('change', function(e) {
 			var clientId = parseInt($('input[name=client]').val(), 10);		
@@ -481,7 +490,7 @@
 				model.invoice().client().country = false;				
 			}
 			refreshPDF();
-		}); //.trigger('change');				
+		}); //.trigger('change');						
 
 		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id').change(function() {
 			refreshPDF();
