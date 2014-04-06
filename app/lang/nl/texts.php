@@ -294,4 +294,16 @@ return array(
     'remove_logo_link' => 'Klik hier',
   ],
 
+  'logout' => 'Log Out',    
+  'sign_up_to_save' => 'Sign up to save your work',  
+  'agree_to_terms' =>'I agree to the Invoice Ninja :terms',
+  'terms_of_service' => 'Terms of Service',
+  'email_taken' => 'The email address is already regiestered',
+  'working' => 'Working',
+  'success' => 'Success',
+  'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
+  'erase_data' => 'This will permanently erase your data.',
+
+
+
 );

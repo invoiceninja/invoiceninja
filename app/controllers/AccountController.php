@@ -39,18 +39,8 @@ class AccountController extends \BaseController {
 
 		if (!$user)
 		{
-			$account = new Account;
-			$account->ip = Request::getClientIp();
-			$account->account_key = str_random(RANDOM_KEY_LENGTH);
-			$account->save();
-			
-			$random = str_random(RANDOM_KEY_LENGTH);
-
-			$user = new User;
-			$user->password = $random;
-			$user->password_confirmation = $random;			
-			$user->username = $random;
-			$account->users()->save($user);			
+			$account = $this->accountRepo->create();
+			$user = $account->users()->first();
 			
 			Session::forget(RECENTLY_VIEWED);
 		}
