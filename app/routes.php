@@ -241,6 +241,8 @@ define('DEFUALT_LOCALE', 'en');
 define('GATEWAY_PAYPAL_EXPRESS', 17);
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 
+define('PAYMENT_LIBRARY_OMNIPAY', 1);
+define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
 
 if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
 {

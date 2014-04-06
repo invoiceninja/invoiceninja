@@ -19,7 +19,7 @@ class Gateway extends Eloquent
 	{
 		$paymentLibrary =  $this->paymentlibrary;
 		
-		if($paymentLibrary->name == 'Omnipay')
+		if($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
 		{
 			$fields = Omnipay::create($this->provider)->getDefaultParameters();	
 		}

@@ -132,7 +132,7 @@ class PaymentController extends \BaseController
 		$gateway = $invoice->client->account->account_gateways[0]->gateway;
         $paymentLibrary = $gateway->paymentlibrary;
 
-        if ($input && $paymentLibrary->name == "Omnipay")
+        if ($input && $paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
         {
             $data = [
                 'firstName' => $input['first_name'],
@@ -155,7 +155,7 @@ class PaymentController extends \BaseController
 
             Session::put($key, $data);
         }
-		else if ($input && $paymentLibrary->name == "PHP-Payments")
+		else if ($input && $paymentLibrary->id == PAYMENT_LIBRARY_PHP_PAYMENTS)
         {
         	$input = Input::all();
             $data = [
@@ -202,7 +202,7 @@ class PaymentController extends \BaseController
             $data = [];
         }
 
-		if($paymentLibrary->name == "Omnipay")
+		if($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
 		{
 	        $card = new CreditCard($data);
 	        
@@ -304,7 +304,7 @@ class PaymentController extends \BaseController
 
         try
         {
-        	if($paymentLibrary->name == "Omnipay")
+        	if($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
 			{
 	        	$gateway = self::createGateway($accountGateway);
 	            $details = self::getPaymentDetails($invoice, Input::all());
@@ -317,7 +317,7 @@ class PaymentController extends \BaseController
 	                return Redirect::to('payment/' . $invitationKey)
 	                    ->withInput();
 	            }
-	
+
 	            if ($response->isSuccessful())
 	            {
 	                $payment = self::createPayment($invitation, $ref);
@@ -343,7 +343,7 @@ class PaymentController extends \BaseController
 	                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
 	            }
             }
-			else if ($paymentLibrary->name == "PHP-Payments")
+			else if ($paymentLibrary->id == PAYMENT_LIBRARY_PHP_PAYMENTS)
 	        {
 	        	$provider = $accountGateway->gateway->provider;
 				$p = new PHP_Payments;
