@@ -129,7 +129,8 @@ class PaymentController extends \BaseController
     private function getPaymentDetails($invoice, $input = null)
     {
         $key = $invoice->invoice_number . '_details';
-        $paymentLibrary = $invoice->client->account->account_gateways[0]->gateway->paymentlibrary;
+		$gateway = $invoice->client->account->account_gateways[0]->gateway;
+        $paymentLibrary = $gateway->paymentlibrary;
 
         if ($input && $paymentLibrary->name == "Omnipay")
         {
@@ -174,9 +175,20 @@ class PaymentController extends \BaseController
                 'ship_to_state' => $input['state'],
                 'ship_to_postal_code' => $input['postal_code'],
             	'currency_code' => $invoice->client->currency->code,
-	            'returnUrl' => URL::to('complete'),
-	            'cancelUrl' => URL::to('/')
             ];
+			
+			if(strtolower($gateway->name) == 'beanstream')
+			{
+            	$data['phone'] = $input['phone'];
+            	$data['email'] = $input['email'];
+            	$data['country'] = $input['country'];
+				$data['ship_to_country'] = $input['country'];
+			}
+			
+			if(strlen($data['cc_exp']) == 5)
+			{
+				$data['cc_exp'] = '0'.$data['cc_exp'];
+			}
 
             Session::put($key, $data);
 			return $data;
@@ -211,8 +223,9 @@ class PaymentController extends \BaseController
     public function show_payment($invitationKey)
     {
         // For PayPal Express we redirect straight to their site
-        $invitation = Invitation::with('invoice.client.account')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        $invitation = Invitation::with('invoice.client.account', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $account = $invitation->invoice->client->account;
+        
         if ($account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS))
         {
             if (Session::has('error'))
@@ -226,16 +239,21 @@ class PaymentController extends \BaseController
             }            
         }
 
-        $invitation = Invitation::with('contact', 'invoice.client')->where('invitation_key', '=', $invitationKey)->firstOrFail();
-        $invoice = $invitation->invoice;        
-        $client = $invoice->client;
+        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        $invoice = $invitation->invoice;         
+        $client = $invoice->client;    
+        $gateway = $invoice->client->account->account_gateways[0]->gateway;
+        $paymentLibrary = $gateway->paymentlibrary;
 
         $data = [
             'showBreadcrumbs' => false,
             'invitationKey' => $invitationKey,
             'invoice' => $invoice,
             'client' => $client,
-            'contact' => $invitation->contact            
+            'contact' => $invitation->contact,
+            'paymentLibrary' => $paymentLibrary ,
+            'gateway' => $gateway,     
+			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),     
         ];
 
         return View::make('payments.payment', $data);
@@ -325,7 +343,7 @@ class PaymentController extends \BaseController
 	                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
 	            }
             }
-			else if ($input && $paymentLibrary->name == "PHP-Payments")
+			else if ($paymentLibrary->name == "PHP-Payments")
 	        {
 	        	$provider = $accountGateway->gateway->provider;
 				$p = new PHP_Payments;
@@ -335,9 +353,9 @@ class PaymentController extends \BaseController
 				
 				$response = $p->oneoff_payment($provider, $details, $config);
 
-	            if ($response->status == 'Success')
+	            if (strtolower($response->status) == 'success')
 	            {
-	                $payment = self::createPayment($invitation, $ref);
+	                $payment = self::createPayment($invitation, $response->response_message);
 	
 	                $invoice->invoice_status_id = INVOICE_STATUS_PAID;
 	                $invoice->save();
@@ -349,8 +367,8 @@ class PaymentController extends \BaseController
 	            }
 	            else                    
 	            {
-	                Session::flash('error', $response->details);  
-	                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->reason);
+	                Session::flash('error', $response->response_message);  
+	                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->response_message);
 	            }
 	        }
         } 

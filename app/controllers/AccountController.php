@@ -472,7 +472,17 @@ class AccountController extends \BaseController {
 			{
 				if (!in_array($field, ['testMode', 'developerMode', 'headerImageUrl', 'solutionType', 'landingPage', 'brandName']))
 				{
-					$rules[$gateway->id.'_'.$field] = 'required';
+					if(strtolower($gateway->name) == 'beanstream')
+					{
+						if(in_array($field, ['merchant_id', 'passCode']))
+						{
+							$rules[$gateway->id.'_'.$field] = 'required';
+						}
+					} 
+					else 
+					{
+						$rules[$gateway->id.'_'.$field] = 'required';
+					}
 				}				
 			}			
 		}
