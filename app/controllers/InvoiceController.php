@@ -356,6 +356,8 @@ class InvoiceController extends \BaseController {
 	 */
 	public function show($publicId)
 	{
+		Session::reflash();
+		
 		return Redirect::to('invoices/'.$publicId.'/edit');
 	}
 

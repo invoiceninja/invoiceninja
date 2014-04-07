@@ -2,9 +2,44 @@
 
 use Client;
 use Contact;
+use Account;
+use Request;
+use Session;
+use Language;
+use User;
 
 class AccountRepository
 {
+	public function create()
+	{
+		$account = new Account;
+		$account->ip = Request::getClientIp();
+		$account->account_key = str_random(RANDOM_KEY_LENGTH);
+
+		if (Session::has(SESSION_LOCALE))
+		{
+			$locale = Session::get(SESSION_LOCALE);
+			$language = Language::whereLocale($locale)->first();
+
+			if ($language)
+			{
+				$account->language_id = $language->id;
+			}
+		}
+
+		$account->save();
+		
+		$random = str_random(RANDOM_KEY_LENGTH);
+
+		$user = new User;
+		$user->password = $random;
+		$user->password_confirmation = $random;			
+		$user->username = $random;
+		$account->users()->save($user);			
+		
+		return $account;
+	}
+
 	public function getSearchData()
 	{
     	$clients = \DB::table('clients')

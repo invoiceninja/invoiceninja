@@ -13,10 +13,10 @@ class ContactMailer extends Mailer {
 
 	public function sendInvoice(Invoice $invoice)
 	{
-		$view = 'invoice';
-		$subject = trans('texts.invoice_subject', ['invoice' => $invoice->invoice_number]);
-
 		$invoice->load('invitations', 'client', 'account');
+
+		$view = 'invoice';
+		$subject = trans('texts.invoice_subject', ['invoice' => $invoice->invoice_number, 'account' => $invoice->account->getDisplayName()]);
 
 		foreach ($invoice->invitations as $invitation)
 		{

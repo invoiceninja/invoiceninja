@@ -64,8 +64,9 @@
       <a class="brand" href="/"><img src=
         "images/invoiceninja-logo.png"></a>
         <ul class="navbar-list">
-          <li>{{ link_to('features', 'Features' ) }}</li>
-          <li>{{ link_to('faq', 'FAQ' ) }}</li>
+          <!-- <li>{{ link_to('features', 'Features' ) }}</li> -->
+          <!-- <li>{{ link_to('faq', 'FAQ' ) }}</li> -->
+          <li>{{ link_to('about', 'About Us' ) }}</li>
           <li>{{ link_to('contact', 'Contact Us' ) }}</li>
           <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
         </ul>
@@ -121,8 +122,9 @@
 
 <div class="navbar-inner">
   <ul class="navbar-list">
-    <li>{{ link_to('features', 'Features' ) }}</li>
-    <li>{{ link_to('faq', 'FAQ' ) }}</li>
+    <!-- <li>{{ link_to('features', 'Features' ) }}</li> -->
+    <!-- <li>{{ link_to('faq', 'FAQ' ) }}</li> -->
+    <li>{{ link_to('about', 'About Us' ) }}</li>
     <li>{{ link_to('contact', 'Contact Us' ) }}</li>
     <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
   </ul>
@@ -138,7 +140,9 @@
 </div>
 </div>
 </div>
-</footer><script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script>
+</footer>
+
+<script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script>
 <script type="text/javascript">
     $('.expander').simpleexpand();
 </script>

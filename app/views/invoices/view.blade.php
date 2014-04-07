@@ -9,7 +9,7 @@
 
 @section('content')
 
-	@if ($invoice->client->account->isGatewayConfigured())
+	@if ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid())
 		<div class="pull-right" style="width:270px">
 			{{ Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
 			{{ Button::primary_link(URL::to('payment/' . $invitation->invitation_key), trans('texts.pay_now'), array('class' => 'btn-lg pull-right')) }}

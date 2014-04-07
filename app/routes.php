@@ -113,20 +113,13 @@ HTML::macro('menu_link', function($type) {
 	$Type = ucfirst($type);
 	$Types = ucfirst($types);
 	$class = ( Request::is($types) || Request::is('*'.$type.'*')) ? ' active' : '';
-    $str= '<li class="dropdown '.$class.'">
-			  <a href="'.URL::to($types).'" class="dropdown-toggle">'.$Types.'</a>
-			  <ul class="dropdown-menu" id="menu1">
-			  <li><a href="'.URL::to($types.'/create').'">New '.$Type.'</a></li>';
-			    //<li><a href="'.URL::to($types).'">View '.$Types.'</a></li>';
-			  
-	/*
-	if ($Type == 'Invoice') {
-		$str .= '<li><a href="'.URL::to('recurring_invoices').'">Recurring Invoices</a></li>';
-	}
-	*/
-	
-	return $str . '</ul>
-			</li>';
+
+  return '<li class="dropdown '.$class.'">
+			     <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>
+			     <ul class="dropdown-menu" id="menu1">
+			       <li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>
+            </ul>
+          </li>';
 });
 
 HTML::macro('image_data', function($imagePath) {

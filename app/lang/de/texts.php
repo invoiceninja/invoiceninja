@@ -252,9 +252,8 @@ return array(
   'confirmation_subject' => 'Invoice Ninja Konto Bestätigung',
   'confirmation_header' => 'Konto Bestätigung',
   'confirmation_message' => 'Bitte klicke auf den folgenden Link um dein Konto zu bestätigen.',
-  'invoice_subject' => 'Neue Rechnung :invoice',
   'invoice_message' => 'Um Ihre Rechnung über :amount einzusehen, klicken Sie bitte auf den folgenden Link.',
-  'payment_subject' => 'Zahlungseingang :invoice',
+  'payment_subject' => 'Zahlungseingang',
   'payment_message' => 'Vielen Dank für Ihre Zahlung von :amount.',
   'email_salutation' => 'Sehr geehrte/r :name,',
   'email_signature' => 'Freundliche Grüße,',
@@ -293,5 +292,18 @@ return array(
     'remove_logo' => ':link to remove the Invoice Ninja logo by joining the pro plan',
     'remove_logo_link' => 'Click here',
   ],
-    
+
+  'logout' => 'Log Out',    
+  'sign_up_to_save' => 'Sign up to save your work',
+  'agree_to_terms' =>'I agree to the Invoice Ninja :terms',
+  'terms_of_service' => 'Terms of Service',
+  'email_taken' => 'The email address is already regiestered',
+  'working' => 'Working',
+  'success' => 'Success',
+  'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
+  'erase_data' => 'This will permanently erase your data.',
+  'password' => 'Password',
+  'invoice_subject' => 'New invoice from :account',
+  'close' => 'Close',  
+      
 );

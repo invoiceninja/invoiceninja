@@ -52,6 +52,13 @@ class Invoice extends EntityModel
 		return $this->invoice_status_id >= INVOICE_STATUS_VIEWED;	
 	}	
 
+	public function isPaid()
+	{
+		return $this->invoice_status_id >= INVOICE_STATUS_PAID;	
+	}	
+
+
+
 	public function hidePrivateFields()
 	{
 		$this->setVisible(['invoice_number', 'discount', 'po_number', 'invoice_date', 'due_date', 'terms', 'public_notes', 'amount', 'balance', 'invoice_items', 'client', 'tax_name', 'tax_rate', 'account', 'invoice_design_id']);

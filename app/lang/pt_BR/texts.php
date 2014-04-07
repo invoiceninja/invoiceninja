@@ -229,10 +229,10 @@ return array(
   'cloned_invoice' => 'Fatura clonada com sucesso',
   'emailed_invoice' => 'Fatura enviada por email com sucesso',
   'and_created_client' => 'e o cliente foi criado',
-  'archived_invoice' => 'Crédito arquivado com sucesso',
-  'archived_invoices' => ':count créditos arquivados com sucesso',
-  'deleted_invoice' => 'Créditos apagados com sucesso',
-  'deleted_invoices' => ':count créditos apagados com sucesso',
+  'archived_invoice' => 'Fatura arquivado com sucesso',
+  'archived_invoices' => ':count faturas arquivados com sucesso',
+  'deleted_invoice' => 'Fatura apagados com sucesso',
+  'deleted_invoices' => ':count faturas apagados com sucesso',
 
   'created_payment' => 'Pagamento criado com sucesso',
   'archived_payment' => 'Pagamento arquivado com sucesso',
@@ -251,9 +251,7 @@ return array(
   'confirmation_subject' => 'Confirmação de Conta do Invoice Ninja',
   'confirmation_header' => 'Confirmação de Conta',
   'confirmation_message' => 'Favor acessar o link abaixo para confirmar a sua conta.',
-  'invoice_subject' => 'Nova fatura :invoice',
   'invoice_message' => 'Para visualizar a sua fatura de :amount, clique no link abaixo.',
-  'payment_subject' => 'Recebido Pagamento de :invoice',
   'payment_message' => 'Obrigado pelo seu pagamento de :amount.',
   'email_salutation' => 'Caro :name,',
   'email_signature' => 'Até mais,',
@@ -282,5 +280,18 @@ return array(
     'remove_logo_link' => 'Click here',
   ],
 
-
+  'logout' => 'Log Out',    
+  'sign_up_to_save' => 'Sign up to save your work',  
+  'agree_to_terms' =>'I agree to the Invoice Ninja :terms',
+  'terms_of_service' => 'Terms of Service',
+  'email_taken' => 'The email address is already regiestered',
+  'working' => 'Working',
+  'success' => 'Success',
+  'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
+  'erase_data' => 'This will permanently erase your data.',
+  'password' => 'Password',
+  'close' => 'Close',
+  'invoice_subject' => 'New invoice from :account',
+  'payment_subject' => 'Recebido Pagamento de',  // I remove the invoice number, is it still correct? Thanks!
+  
 );

@@ -91,7 +91,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   doc.rect(left, top, width, height, 'FD'); 
   
   doc.setFontType("bold");
-  doc.text(layout.footerLeft, y, 'Balance Due');
+  doc.text(layout.footerLeft, y, invoiceLabels.balance_due);
 
   total = formatMoney(invoice.balance_amount, currencyId);
   var totalX = layout.headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
@@ -761,7 +761,7 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
 
 
     doc.setFontSize(10);
-    Msg='Balance Due';
+    Msg = invoiceLabels.balance_due;
     var TmpMsgX = layout.unitCostRight-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
     
     doc.text(TmpMsgX, y, Msg);
@@ -936,7 +936,7 @@ function GetReportTemplate2(doc, invoice, layout, checkMath)
 
   doc.setFontSize(12);
   x += doc.internal.getFontSize()*4;
-  Msg='Balance Due';
+  Msg = invoiceLabels.balance_due;
   var TmpMsgX = layout.unitCostRight-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
 
 
@@ -1172,7 +1172,7 @@ function GetReportTemplate3(doc, invoice, layout, checkMath)
     SetPdfColor('White', doc);
     doc.setFontSize(12);
     
-    var label='Balance Due';
+    var label = invoiceLabels.balance_due;
     var labelX = layout.unitCostRight-(doc.getStringUnitWidth(label) * doc.internal.getFontSize());
     doc.text(labelX, y+2, label);
 

@@ -108,11 +108,11 @@
 
       <div class="navbar-form navbar-right">
         @if (Auth::check() && !Auth::user()->registered)
-        {{ Button::sm_success_primary('Sign up', array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
+        {{ Button::sm_success_primary(trans('texts.sign_up'), array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
 
         @if (Auth::check() && Auth::user()->showSignUpPopOver())
-        <button id="signUpPopOver" type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="Sign up to save your work" data-html="true" style="display:none">
-          Sign Up
+        <button id="signUpPopOver" type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="{{ trans('texts.sign_up_to_save') }}" data-html="true" style="display:none">
+          {{ trans('texts.sign_up') }}
         </button>
 
         <script>
@@ -133,19 +133,19 @@
               @if (Auth::user()->registered)
               {{ Auth::user()->getFullName() }}
               @else			  
-              Guest
+              {{ trans('texts.guest') }}
               @endif
             </span>
             <span class="caret"></span>
           </button>			
           <ul class="dropdown-menu" role="menu">
-            <li>{{ link_to('company/details', 'Company Details') }}</li>
-            <li>{{ link_to('company/payments', 'Online Payments') }}</li>
-            <li>{{ link_to('company/notifications', 'Notifications') }}</li>
-            <li>{{ link_to('company/import_export', 'Import/Export') }}</li>
+            <li>{{ link_to('company/details', trans('texts.company_details')) }}</li>
+            <li>{{ link_to('company/payments', trans('texts.online_payments')) }}</li>
+            <li>{{ link_to('company/notifications', trans('texts.notifications')) }}</li>
+            <li>{{ link_to('company/import_export', trans('texts.import_export')) }}</li>
 
             <li class="divider"></li>
-            <li>{{ link_to('#', 'Logout', array('onclick'=>'logout()')) }}</li>
+            <li>{{ link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) }}</li>
           </ul>
         </div>
       </div>	
@@ -242,7 +242,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">Sign up</h4>
+        <h4 class="modal-title" id="myModalLabel">{{ trans('texts.sign_up') }}</h4>
       </div>
 
       <div style="background-color: #fff; padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onclick="validateSignUp()" onkeydown="checkForEnter(event)">
@@ -257,23 +257,21 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         @endif
 
         {{ Former::hidden('path')->value(Request::path()) }}
-        {{ Former::text('new_first_name')->label('First name') }}
-        {{ Former::text('new_last_name')->label('Last name') }}
-        {{ Former::text('new_email')->label('Email') }}	    	
-        {{ Former::password('new_password')->label('Password') }}        
-        {{ Former::checkbox('terms_checkbox')->label(' ')->text('I agree to the Invoice Ninja <a href="'.URL::to('terms').'" target="_blank">Terms of Service</a>') }}
+        {{ Former::text('new_first_name')->label(trans('texts.first_name')) }}
+        {{ Former::text('new_last_name')->label(trans('texts.last_name')) }}
+        {{ Former::text('new_email')->label(trans('texts.email')) }}	    	
+        {{ Former::password('new_password')->label(trans('texts.password')) }}        
+        {{ Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.URL::to('terms').'" target="_blank">'.trans('texts.terms_of_service').'</a>'])) }}
         {{ Former::close() }}
 
-        <center><div id="errorTaken" style="display:none">&nbsp;<br/>The email address is already regiestered</div></center>
+        <center><div id="errorTaken" style="display:none">&nbsp;<br/>{{ trans('texts.email_taken') }}</div></center>
         <br/>
-
-
 
 
       </div>
 
       <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="working">
-        <h3>Working...</h3>
+        <h3>{{ trans('texts.working') }}...</h3>
         <div class="progress progress-striped active">
           <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
         </div>
@@ -281,15 +279,14 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 
       <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="signUpSuccessDiv">
         <br/>
-        <h3>Success</h3>
-        You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.
-        <br/>&nbsp;
+        <h3>{{ trans('texts.success') }}</h3>
+        {{ trans('texts.success_message') }}<br/>&nbsp;
       </div>
 
 
       <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">	      	
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close <i class="glyphicon glyphicon-remove-circle"></i></button>
-        <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()" disabled>Save <i class="glyphicon glyphicon-floppy-disk"></i></button>	      	
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} <i class="glyphicon glyphicon-remove-circle"></i></button>
+        <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()" disabled>{{ trans('texts.save') }} <i class="glyphicon glyphicon-floppy-disk"></i></button>	      	
       </div>
     </div>
   </div>
@@ -301,17 +298,17 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">Logout</h4>
+        <h4 class="modal-title" id="myModalLabel">{{ trans('texts.logout') }}</h4>
       </div>
 
       <div class="container">	     
-        <h3>Are you sure?</h3>
-        <p>This will permanently erase your data.</p>	      	
+        <h3>{{ trans('texts.are_you_sure') }}</h3>
+        <p>{{ trans('texts.erase_data') }}</p>	      	
       </div>
 
       <div class="modal-footer" id="signUpFooter">	      	
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="logout(true)">Logout</button>	      	
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
+        <button type="button" class="btn btn-primary" onclick="logout(true)">{{ trans('texts.logout') }}</button>	      	
       </div>
     </div>
   </div>

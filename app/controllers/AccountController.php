@@ -39,18 +39,8 @@ class AccountController extends \BaseController {
 
 		if (!$user)
 		{
-			$account = new Account;
-			$account->ip = Request::getClientIp();
-			$account->account_key = str_random(RANDOM_KEY_LENGTH);
-			$account->save();
-			
-			$random = str_random(RANDOM_KEY_LENGTH);
-
-			$user = new User;
-			$user->password = $random;
-			$user->password_confirmation = $random;			
-			$user->username = $random;
-			$account->users()->save($user);			
+			$account = $this->accountRepo->create();
+			$user = $account->users()->first();
 			
 			Session::forget(RECENTLY_VIEWED);
 		}
@@ -73,8 +63,8 @@ class AccountController extends \BaseController {
 		$ninjaAccount = $this->getNinjaAccount();
 		$ninjaClient = $this->getNinjaClient($ninjaAccount);
 
-		
-
+		//$invoice = new Invoice();
+		//$ninjaClient->invoices()->save($invoice);
 	}
 
 	private function getNinjaAccount()
@@ -651,7 +641,7 @@ class AccountController extends \BaseController {
 			{
 				$path = Input::file('logo')->getRealPath();
 				File::delete('logo/' . $account->account_key . '.jpg');				
-				Image::make($path)->resize(null, 120, true, false)->save('logo/' . $account->account_key . '.jpg');				
+				Image::make($path)->resize(200, 120, true, false)->save('logo/' . $account->account_key . '.jpg');				
 			}
 
 			Event::fire('user.refresh');
