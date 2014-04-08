@@ -72,8 +72,8 @@ return array(
   'tax_rates' => 'Steuersätze',
   'rate' => 'Satz',
   'settings' => 'Einstellungen',
-  'enable_invoice_tax' => 'Enable specifying an <b>invoice tax</b>',
-  'enable_line_item_tax' => 'Enable specifying <b>line item taxes</b>',
+  'enable_invoice_tax' => 'Ermögliche das bestimmen einer <strong>Rechnungssteuer</strong>',
+  'enable_line_item_tax' => 'Ermögliche das bestimmen von <strong>Steuern für Belegpositionen</strong>',
 
   // navigation
   'dashboard' => 'Dashboard',
@@ -289,21 +289,21 @@ return array(
 
   // Pro Plan
   'pro_plan' => [
-    'remove_logo' => ':link to remove the Invoice Ninja logo by joining the pro plan',
-    'remove_logo_link' => 'Click here',
+    'remove_logo' => ':link um das Invoice Ninja Logo zu entfernen, indem du dem Pro Plan beitrittst',
+    'remove_logo_link' => 'Klicke hier',
   ],
 
-  'logout' => 'Log Out',    
-  'sign_up_to_save' => 'Sign up to save your work',
-  'agree_to_terms' =>'I agree to the Invoice Ninja :terms',
-  'terms_of_service' => 'Terms of Service',
-  'email_taken' => 'The email address is already regiestered',
-  'working' => 'Working',
-  'success' => 'Success',
-  'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
-  'erase_data' => 'This will permanently erase your data.',
-  'password' => 'Password',
-  'invoice_subject' => 'New invoice from :account',
-  'close' => 'Close',  
+  'logout' => 'Ausloggen',    
+  'sign_up_to_save' => 'Melde dich an, um deine Arbeit zu speichern',
+  'agree_to_terms' =>'Ich akzeptiere die Invoice Ninja :terms',
+  'terms_of_service' => 'Service-Bedingungen',
+  'email_taken' => 'Diese E-Mail Adresse ist bereits registriert',
+  'working' => 'Wird bearbeitet',
+  'success' => 'Erfolg',
+  'success_message' => 'Du hast dich erfolgreich registriert. Bitte besuche den Link in deiner Bestätigungsmail um deine E-Mail Adresse zu verfizieren.',
+  'erase_data' => 'Diese Aktion wird deine Daten dauerhaft entfernen.',
+  'password' => 'Passwort',
+  'invoice_subject' => 'Neue Rechnung von :account',
+  'close' => 'Schließen',  
       
 );
