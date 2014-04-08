@@ -276,22 +276,21 @@ return array(
 
   // Pro Plan
   'pro_plan' => [
-    'remove_logo' => ':link to remove the Invoice Ninja logo by joining the pro plan',
-    'remove_logo_link' => 'Click here',
+    'remove_logo' => ':link para remover a logo do Invoice Ninja contratando o plano profissional',
+    'remove_logo_link' => 'Clique aqui',
   ],
 
-  'logout' => 'Log Out',    
-  'sign_up_to_save' => 'Sign up to save your work',  
-  'agree_to_terms' =>'I agree to the Invoice Ninja :terms',
-  'terms_of_service' => 'Terms of Service',
-  'email_taken' => 'The email address is already regiestered',
-  'working' => 'Working',
-  'success' => 'Success',
-  'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
-  'erase_data' => 'This will permanently erase your data.',
-  'password' => 'Password',
-  'close' => 'Close',
-  'invoice_subject' => 'New invoice from :account',
-  'payment_subject' => 'Recebido Pagamento de',  // I remove the invoice number, is it still correct? Thanks!
-  
+  'logout' => 'Sair',
+  'sign_up_to_save' => 'Faça login para salvar o seu trabalho',  
+  'agree_to_terms' =>'Eu concordo com os :terms do Invoice Ninja',
+  'terms_of_service' => 'Termos do Serviço',
+  'email_taken' => 'O endereço de e-mail já está registrado',
+  'working' => 'Processando',
+  'success' => 'Successo',
+  'success_message' => 'Você se registrou com sucesso. Por favor acesse o link de confirmação recebido para confirmar o seu endereço de e-mail.',
+  'erase_data' => 'Isto irá apagar completamente todos os seus dados.',
+  'password' => 'Senha',
+  'close' => 'Fechar',
+  'invoice_subject' => 'Nova fatura de :account',
+  'payment_subject' => 'Recebido Pagamento de',
 );
