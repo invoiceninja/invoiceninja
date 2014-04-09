@@ -12,7 +12,7 @@
 <script src="{{ asset('vendor/knockout.js/knockout.js') }}" type="text/javascript"></script>
 <script src="{{ asset('vendor/knockout-mapping/build/output/knockout.mapping-latest.js') }}" type="text/javascript"></script>
 <script src="{{ asset('vendor/knockout-sortable/build/knockout-sortable.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/underscore/underscore-min.js') }}" type="text/javascript"></script>		
+<script src="{{ asset('vendor/underscore/underscore.js') }}" type="text/javascript"></script>		
 <script src="{{ asset('vendor/bootstrap-datepicker/js/bootstrap-datepicker.js') }}" type="text/javascript"></script>		
 <script src="{{ asset('vendor/typeahead.js/dist/typeahead.min.js') }}" type="text/javascript"></script>	
 <script src="{{ asset('vendor/accounting/accounting.min.js') }}" type="text/javascript"></script>		
