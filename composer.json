@@ -3,6 +3,12 @@
 	"description": "An open-source invoicing site built with Laravel",
 	"keywords": ["invoice", "laravel"],
 	"license": "Attribution Assurance License",
+    "authors": [
+        {
+            "name": "Hillel Coren",
+            "email": "hillelcoren@gmail.com"
+        }
+    ],	
 	"require": {
 		"laravel/framework": "4.1.*",
 		"jasonlewis/basset": "dev-master",
@@ -34,11 +40,13 @@
 	},
 	"scripts": {
 		"post-install-cmd": [
-			"php artisan optimize"
+			"php artisan optimize",
+			"php artisan debugbar:publish"
 		],
 		"post-update-cmd": [
 			"php artisan clear-compiled",
-			"php artisan optimize"
+			"php artisan optimize",
+			"php artisan debugbar:publish"
 		],
 		"post-create-project-cmd": [
 			"php artisan key:generate"

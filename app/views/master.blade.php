@@ -19,7 +19,7 @@
     <meta property="og:description" content="Simple, Intuitive Invoicing."></meta>
     <meta name="keywords" content="Invoice Ninja"></meta>    
     
-    <script src="{{ asset('vendor/jquery/jquery.min.js') }}" type="text/javascript"></script>  
+    <script src="{{ asset('vendor/jquery/dist/jquery.min.js') }}" type="text/javascript"></script>  
 
     <script type="text/javascript">
     window.onerror = function(e) {
