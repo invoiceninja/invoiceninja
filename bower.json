@@ -19,6 +19,6 @@
     "pdfjs": "*"
   },
   "resolutions": {
-    "jquery": "~1.*"
+    "jquery": "~1.10.*"
   }
 }
