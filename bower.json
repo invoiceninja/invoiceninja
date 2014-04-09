@@ -17,8 +17,5 @@
     "typeahead.js": "~0.9.3",
     "accounting": "~0.*",
     "pdfjs": "*"
-  },
-  "resolutions": {
-    "jquery": "~1.11.*"
   }
 }
