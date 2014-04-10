@@ -229,7 +229,7 @@ define('DEFAULT_DATE_FORMAT', 'M j, Y');
 define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
 define('DEFAULT_QUERY_CACHE', 120); // minutes
-define('DEFUALT_LOCALE', 'en');
+define('DEFAULT_LOCALE', 'en');
 
 define('GATEWAY_PAYPAL_EXPRESS', 17);
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
