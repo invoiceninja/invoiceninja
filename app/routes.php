@@ -60,12 +60,12 @@ Route::group(array('before' => 'auth'), function()
   Route::get('force_inline_pdf', 'UserController@forcePDFJS');
 
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
-  Route::get('account/enable_pro_plan', 'AccountController@enableProPlan');
-	Route::get('company/{section?}', 'AccountController@showSection');	
+  Route::get('company/{section?}', 'AccountController@showSection');	
 	Route::post('company/{section?}', 'AccountController@doSection');
 	Route::post('user/setTheme', 'UserController@setTheme');
   Route::post('remove_logo', 'AccountController@removeLogo');
-
+  Route::post('account/go_pro', 'AccountController@enableProPlan');
+  
 	Route::resource('clients', 'ClientController');
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
 	Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));	
