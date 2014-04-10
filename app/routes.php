@@ -60,12 +60,12 @@ Route::group(array('before' => 'auth'), function()
   Route::get('force_inline_pdf', 'UserController@forcePDFJS');
 
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
-  Route::get('account/enable_pro_plan', 'AccountController@enableProPlan');
-	Route::get('company/{section?}', 'AccountController@showSection');	
+  Route::get('company/{section?}', 'AccountController@showSection');	
 	Route::post('company/{section?}', 'AccountController@doSection');
 	Route::post('user/setTheme', 'UserController@setTheme');
   Route::post('remove_logo', 'AccountController@removeLogo');
-
+  Route::post('account/go_pro', 'AccountController@enableProPlan');
+  
 	Route::resource('clients', 'ClientController');
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
 	Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));	
@@ -229,7 +229,7 @@ define('DEFAULT_DATE_FORMAT', 'M j, Y');
 define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
 define('DEFAULT_QUERY_CACHE', 120); // minutes
-define('DEFUALT_LOCALE', 'en');
+define('DEFAULT_LOCALE', 'en');
 
 define('GATEWAY_PAYPAL_EXPRESS', 17);
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');

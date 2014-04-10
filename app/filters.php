@@ -29,7 +29,7 @@ App::before(function($request)
   } 
   else if (Auth::check())
   {
-    $locale = Session::get(SESSION_LOCALE, DEFUALT_LOCALE);
+    $locale = Session::get(SESSION_LOCALE, DEFAULT_LOCALE);
     App::setLocale($locale);    
   }
 });

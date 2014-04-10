@@ -145,7 +145,7 @@ return array(
   'status' => 'Stato',
   'invoice_total' => 'Totale Fattura',
   'frequency' => 'Frequenza',
-  'start_date' => 'Daata Inizio',
+  'start_date' => 'Data Inizio',
   'end_date' => 'Data Fine',
   'transaction_reference' => 'Riferimento Transazione',
   'method' => 'Metodo',

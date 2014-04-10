@@ -274,8 +274,9 @@
 	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="1180"></iframe>
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
-	@if (false && !Auth::user()->isPro())
-		{{ trans('texts.pro_plan.remove_logo', ['link'=>link_to('account/enable_pro_plan', trans('texts.pro_plan.remove_logo_link'))]) }}		
+	@if (!Auth::user()->isPro())
+		<a href="#" onclick="showProPlan()">{{ trans('texts.pro_plan.remove_logo_link') }}</a>
+		{{ trans('texts.pro_plan.remove_logo') }}
 	@endif
 
 	<div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
@@ -423,16 +424,40 @@
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">
-	      	<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+	      	<button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
 	     </div>
 	  		
 	    </div>
 	  </div>
 	</div>
 
-
-
 	{{ Former::close() }}
+
+
+	{{ Former::open('account/go_pro') }}	      
+	<div class="modal fade" id="proPlanModal" tabindex="-1" role="dialog" aria-labelledby="proPlanModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" style="min-width:150px">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	        <h4 class="modal-title" id="proPlanModalLabel">{{ trans('texts.sign_up') }}</h4>
+	      </div>
+
+		    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
+		    	&nbsp; 
+
+		    	&nbsp;
+				</div>
+
+	     <div class="modal-footer" style="margin-top: 0px">
+	      	<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>	      	
+	      	{{ Button::primary_submit(trans('texts.sign_up')) }}	      		      	
+	     </div>	  	
+	    </div>
+	  </div>
+	</div>
+	{{ Former::close() }}
+
 	</div>
 
 	<script type="text/javascript">
@@ -443,6 +468,10 @@
 
 	function showLearnMore() {
 		$('#recurringModal').modal('show');			
+	}
+
+	function showProPlan() {
+		$('#proPlanModal').modal('show');				
 	}
 
 	$(function() {

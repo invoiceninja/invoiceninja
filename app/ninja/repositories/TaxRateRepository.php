@@ -16,7 +16,7 @@ class TaxRateRepository
 				continue;
 			}
 
-			if (!Utils::parseFloat($record->rate) || !trim($record->name))
+			if (!isset($record->name) || !Utils::parseFloat($record->rate) || !trim($record->name))
 			{
 				continue;
 			}
