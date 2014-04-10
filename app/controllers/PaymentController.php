@@ -177,12 +177,17 @@ class PaymentController extends \BaseController
             	'currency_code' => $invoice->client->currency->code,
             ];
 			
-			if(strtolower($gateway->name) == 'beanstream')
+			switch($gateway->id)
 			{
-            	$data['phone'] = $input['phone'];
-            	$data['email'] = $input['email'];
-            	$data['country'] = $input['country'];
-				$data['ship_to_country'] = $input['country'];
+				case GATEWAY_BEANSTREAM:
+	            	$data['phone'] = $input['phone'];
+	            	$data['email'] = $input['email'];
+	            	$data['country'] = $input['country'];
+					$data['ship_to_country'] = $input['country'];
+					break;
+				case GATEWAY_BRAINTREE:
+					$data['ship_to_state'] = 'Ohio'; //$input['state'];
+					break;
 			}
 			
 			if(strlen($data['cc_exp']) == 5)
@@ -345,10 +350,28 @@ class PaymentController extends \BaseController
             }
 			else if ($paymentLibrary->id == PAYMENT_LIBRARY_PHP_PAYMENTS)
 	        {
-	        	$provider = $accountGateway->gateway->provider;
-				$p = new PHP_Payments;
+	        	$gateway = $accountGateway->gateway;
+	        	$provider = $gateway->provider;
+				$p = new PHP_Payments(array('mode' => 'test'));
 				
 				$config = Payment_Utility::load('config', 'drivers/'.$provider);
+				
+				switch($gateway->id)
+				{
+					case GATEWAY_BEANSTREAM:
+						$config['delay_charge'] = FALSE;
+						$config['bill_outstanding'] = TRUE;
+						break;
+					case GATEWAY_AMAZON:
+			            $config['return_url'] = URL::to('complete');
+			            $config['abandon_url'] = URL::to('/');
+						$config['immediate_return'] = 0;
+						$config['process_immediate'] = 1;
+						$config['ipn_url'] = URL::to('ipn');
+						$config['collect_shipping_address'] = false;
+						break;
+				}
+				
 	            $details = self::getPaymentDetails($invoice, Input::all());
 				
 				$response = $p->oneoff_payment($provider, $details, $config);

@@ -191,10 +191,17 @@ class AccountController extends \BaseController {
 				$recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
 			}
 
+			$configFields = json_decode($config);
+			
+			foreach($configFields as $configField => $value)
+			{
+				$configFields->$configField = str_repeat('*', strlen($value));
+			}
+			
 			$data = [
 				'account' => $account,
 				'accountGateway' => $accountGateway,
-				'config' => json_decode($config),
+				'config' => $configFields,
 				'gateways' => Gateway::remember(DEFAULT_QUERY_CACHE)
 					->orderBy('name')
 					->get(),
