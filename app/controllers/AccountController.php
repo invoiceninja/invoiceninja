@@ -165,11 +165,19 @@ class AccountController extends \BaseController {
 			$account = Account::with('account_gateways')->findOrFail(Auth::user()->account_id);
 			$accountGateway = null;
 			$config = null;
+			$configFields = null;
 
 			if (count($account->account_gateways) > 0)
 			{
 				$accountGateway = $account->account_gateways[0];
 				$config = $accountGateway->config;
+
+				$configFields = json_decode($config);
+				
+				foreach($configFields as $configField => $value)
+				{
+					$configFields->$configField = str_repeat('*', strlen($value));
+				}
 			}
 			
 			$recommendedGateways = Gateway::remember(DEFAULT_QUERY_CACHE)
@@ -189,13 +197,6 @@ class AccountController extends \BaseController {
 					'data-newRow' => $newRow
 				);
 				$recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
-			}
-
-			$configFields = json_decode($config);
-			
-			foreach($configFields as $configField => $value)
-			{
-				$configFields->$configField = str_repeat('*', strlen($value));
 			}
 			
 			$data = [
