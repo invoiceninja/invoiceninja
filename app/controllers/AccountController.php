@@ -165,24 +165,56 @@ class AccountController extends \BaseController {
 			$account = Account::with('account_gateways')->findOrFail(Auth::user()->account_id);
 			$accountGateway = null;
 			$config = null;
+			$configFields = null;
 
 			if (count($account->account_gateways) > 0)
 			{
 				$accountGateway = $account->account_gateways[0];
 				$config = $accountGateway->config;
-			}			
 
+				$configFields = json_decode($config);
+				
+				foreach($configFields as $configField => $value)
+				{
+					$configFields->$configField = str_repeat('*', strlen($value));
+				}
+			}
+			
+			$recommendedGateways = Gateway::remember(DEFAULT_QUERY_CACHE)
+					->where('recommended', '=', '1')
+					->orderBy('sort_order')
+					->get();
+			$recommendedGatewayArray = array();
+			
+			foreach($recommendedGateways as $recommendedGateway)
+			{
+				$newRow = count($recommendedGatewayArray) + 1  == round(count($recommendedGateways) / 2);
+				
+				$arrayItem = array(
+					'value' => $recommendedGateway->id,
+					'data-imageUrl' => $recommendedGateway->getLogoUrl(),
+					'data-siteUrl' => $recommendedGateway->site_url,
+					'data-newRow' => $newRow
+				);
+				$recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
+			}
+			
 			$data = [
 				'account' => $account,
 				'accountGateway' => $accountGateway,
-				'config' => json_decode($config),
-				'gateways' => Gateway::remember(DEFAULT_QUERY_CACHE)->get(),
+				'config' => $configFields,
+				'gateways' => Gateway::remember(DEFAULT_QUERY_CACHE)
+					->orderBy('name')
+					->get(),
+				'recommendedGateways' => $recommendedGatewayArray,
 			];
 			
 			foreach ($data['gateways'] as $gateway)
 			{
-				$gateway->fields = Omnipay::create($gateway->provider)->getDefaultParameters();				
+				$paymentLibrary =  $gateway->paymentlibrary;
 
+				$gateway->fields = $gateway->getFields();	
+	
 				if ($accountGateway && $accountGateway->gateway_id == $gateway->id)
 				{
 					$accountGateway->fields = $gateway->fields;						
@@ -511,13 +543,26 @@ class AccountController extends \BaseController {
 		if ($gatewayId = Input::get('gateway_id')) 
 		{
 			$gateway = Gateway::findOrFail($gatewayId);
-			$fields = Omnipay::create($gateway->provider)->getDefaultParameters();
+			
+			$paymentLibrary =  $gateway->paymentlibrary;
+			
+			$fields = $gateway->getFields();
 			
 			foreach ($fields as $field => $details)
 			{
 				if (!in_array($field, ['testMode', 'developerMode', 'headerImageUrl', 'solutionType', 'landingPage', 'brandName']))
 				{
-					$rules[$gateway->id.'_'.$field] = 'required';
+					if(strtolower($gateway->name) == 'beanstream')
+					{
+						if(in_array($field, ['merchant_id', 'passCode']))
+						{
+							$rules[$gateway->id.'_'.$field] = 'required';
+						}
+					} 
+					else 
+					{
+						$rules[$gateway->id.'_'.$field] = 'required';
+					}
 				}				
 			}			
 		}

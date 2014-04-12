@@ -538,7 +538,19 @@ body {
     transition: all 0.5s ease;
 }
 
+/***********************************************
+   New/edit invoice page
+************************************************/
 
+.two-column .form-group div {
+	-webkit-column-count:2; /* Chrome, Safari, Opera */
+	-moz-column-count:2; /* Firefox */
+	column-count:2;
+}
+
+.two-column .form-group div .radio {
+	margin-left:10px;
+}
 
 /***********************************************
    Add mouse over drop down to header menu
