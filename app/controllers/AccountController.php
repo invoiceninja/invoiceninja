@@ -229,22 +229,31 @@ class AccountController extends \BaseController {
 			
 			foreach($recommendedGateways as $recommendedGateway)
 			{
-				$newRow = count($recommendedGatewayArray) + 1  == round(count($recommendedGateways) / 2);
-				
 				$arrayItem = array(
 					'value' => $recommendedGateway->id,
+					'other' => 'false',
 					'data-imageUrl' => $recommendedGateway->getLogoUrl(),
-					'data-siteUrl' => $recommendedGateway->site_url,
-					'data-newRow' => $newRow
+					'data-siteUrl' => $recommendedGateway->site_url
 				);
 				$recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
 			}
+				$otherItem = array(
+					'value' => 1000000,
+					'other' => 'true',
+					'data-imageUrl' => '',
+					'data-siteUrl' => ''
+				);
+				$recommendedGatewayArray['other'] = $otherItem;
 			
 			$data = [
 				'account' => $account,
 				'accountGateway' => $accountGateway,
 				'config' => $configFields,
 				'gateways' => Gateway::remember(DEFAULT_QUERY_CACHE)
+					->orderBy('name')
+					->get(),
+				'dropdownGateways' => Gateway::remember(DEFAULT_QUERY_CACHE)
+					->where('recommended', '=', '0')
 					->orderBy('name')
 					->get(),
 				'recommendedGateways' => $recommendedGatewayArray,
@@ -580,8 +589,9 @@ class AccountController extends \BaseController {
 	private function savePayments()
 	{
 		$rules = array();
+		$recommendedId = Input::get('recommendedGateway_id');
 
-		if ($gatewayId = Input::get('gateway_id')) 
+		if ($gatewayId = $recommendedId == 1000000 ? Input::get('gateway_id') : $recommendedId) 
 		{
 			$gateway = Gateway::findOrFail($gatewayId);
 			
