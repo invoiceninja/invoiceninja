@@ -19,7 +19,10 @@
       'address1' => 'required',
       'city' => 'required',
       'state' => 'required',
-      'postal_code' => 'required'     
+      'postal_code' => 'required',
+      'country' => 'required',
+      'phone' => 'required',
+      'email' => 'required'   
   )) }}
   {{ Former::populate($client) }}
   {{ Former::populateField('first_name', $contact->first_name) }}
@@ -69,7 +72,15 @@
       {{ Former::text('city') }}
       {{ Former::text('state')->label('State/Province') }}
       {{ Former::text('postal_code') }}
-
+      
+      <?php if(strtolower($gateway->name) == 'beanstream') { ?>
+		{{ Former::select('country')->addOption('','')->label('Country')
+			->fromQuery($countries, 'name', 'iso_3166_2') }}
+	  	{{ Former::text('phone') }}
+	  	{{ Former::text('email') }}
+	  <?php } ?>
+	  
+	  <?php echo($gateway->name); ?>
       {{ Former::actions( Button::primary_submit_lg(trans('texts.pay_now') . ' - ' . Utils::formatMoney($invoice->amount, $client->currency_id) )) }}
 
     </div>

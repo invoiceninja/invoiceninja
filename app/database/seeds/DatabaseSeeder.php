@@ -18,6 +18,9 @@ class DatabaseSeeder extends Seeder {
 
 		$this->call('CountriesSeeder');
 		$this->command->info('Seeded the countries!'); 
+
+		$this->call('PaymentLibrariesSeeder');
+		$this->command->info('Seeded the Payment Libraries!'); 
 	}
 
 }

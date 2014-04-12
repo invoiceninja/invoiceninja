@@ -239,6 +239,16 @@ define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('PRO_PLAN_PRICE', 40); 
 
 
+define('PAYMENT_LIBRARY_OMNIPAY', 1);
+define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
+
+define('GATEWAY_BEANSTREAM', 29);
+define('GATEWAY_AMAZON', 30);
+define('GATEWAY_BLUEPAY', 31);
+define('GATEWAY_BRAINTREE', 32);
+define('GATEWAY_GOOGLE', 33);
+define('GATEWAY_PSIGATE', 34);
+define('GATEWAY_QUICKBOOKS', 35);
 
 if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
 {
