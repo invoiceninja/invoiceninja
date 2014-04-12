@@ -243,7 +243,7 @@ class AccountController extends \BaseController {
 					'data-imageUrl' => '',
 					'data-siteUrl' => ''
 				);
-				$recommendedGatewayArray['other'] = $otherItem;
+				$recommendedGatewayArray['Other Options'] = $otherItem;
 			
 			$data = [
 				'account' => $account,
