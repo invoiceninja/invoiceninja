@@ -75,6 +75,11 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 		return $this->email;
 	}
 
+	public function isPro()
+	{
+		return $this->account->isPro();
+	}
+
 	public function getDisplayName()
 	{
 		if ($this->getFullName())
@@ -103,27 +108,6 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 			return '';
 		}
 	}	
-
-	public function isPro()
-	{
-		if (!Auth::check()) 
-		{
-			return false;
-		}
-
-		$datePaid = $this->account->pro_plan_paid;
-
-		if (!$datePaid || $datePaid == '0000-00-00')
-		{
-			return false;
-		}
-
-		$today = new DateTime('now');
-		$datePaid = DateTime::createFromFormat('Y-m-d', $datePaid);		
-		$interval = $today->diff($datePaid);
-		
-		return $interval->y == 0;
-	}
 
 	public function showGreyBackground()
 	{

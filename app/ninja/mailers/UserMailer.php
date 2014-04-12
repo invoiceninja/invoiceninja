@@ -21,7 +21,7 @@ class UserMailer extends Mailer {
 		$data = [
 			'user' => $user
 		];
-
+		
 		$this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);		
 	}
 

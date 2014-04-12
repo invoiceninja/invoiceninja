@@ -231,8 +231,13 @@ define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
 define('DEFAULT_QUERY_CACHE', 120); // minutes
 define('DEFAULT_LOCALE', 'en');
 
+define('RESULT_SUCCESS', 'success');
+define('RESULT_FAILURE', 'failure');
+
 define('GATEWAY_PAYPAL_EXPRESS', 17);
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
+define('PRO_PLAN_PRICE', 40); 
+
 
 
 if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 

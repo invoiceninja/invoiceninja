@@ -1,19 +1,22 @@
 <?php
 
 use ninja\repositories\AccountRepository;
-use ninja\mailers\UserMailer as Mailer;
+use ninja\mailers\UserMailer;
+use ninja\mailers\ContactMailer;
 
 class AccountController extends \BaseController {
 
 	protected $accountRepo;
-	protected $mailer;
+	protected $userMailer;
+	protected $contactMailer;
 
-	public function __construct(AccountRepository $accountRepo, Mailer $mailer)
+	public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer)
 	{
 		parent::__construct();
 
 		$this->accountRepo = $accountRepo;
-		$this->mailer = $mailer;
+		$this->userMailer = $userMailer;
+		$this->contactMailer = $contactMailer;
 	}	
 
 	public function getStarted()
@@ -28,7 +31,6 @@ class AccountController extends \BaseController {
 
 		if ($guestKey) 
 		{
-			//$user = User::where('password', '=', $guestKey)->firstOrFail();
 			$user = User::where('password', '=', $guestKey)->first();
 
 			if ($user && $user->registered)
@@ -62,9 +64,48 @@ class AccountController extends \BaseController {
 
 		$ninjaAccount = $this->getNinjaAccount();
 		$ninjaClient = $this->getNinjaClient($ninjaAccount);
+		$invoice = $this->createNinjaInvoice($ninjaAccount, $ninjaClient);
 
-		//$invoice = new Invoice();
-		//$ninjaClient->invoices()->save($invoice);
+		$this->contactMailer->sendInvoice($invoice);
+
+		return RESULT_SUCCESS;		
+	}
+
+	private function createNinjaInvoice($account, $client)
+	{
+		$lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
+		$publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
+
+		$invoice = new Invoice();
+		$invoice->account_id = $account->id;
+		$invoice->user_id = $account->users()->first()->id;
+		$invoice->public_id = $publicId;
+		$invoice->client_id = $client->id;
+		$invoice->invoice_number = $account->getNextInvoiceNumber();
+		$invoice->invoice_date = date_create()->format('Y-m-d');
+		$invoice->amount = PRO_PLAN_PRICE;
+		$invoice->balance = PRO_PLAN_PRICE;
+		$invoice->save();
+
+		$item = new InvoiceItem();
+		$item->account_id = $account->id;
+		$item->user_id = $account->users()->first()->id;
+		$item->public_id = $publicId;
+		$item->qty = 1;
+		$item->cost = PRO_PLAN_PRICE;
+		$item->notes = trans('texts.pro_plan_description');
+		$item->product_key = trans('texts.pro_plan_product');				
+		$invoice->invoice_items()->save($item);
+
+		$invitation = new Invitation();
+		$invitation->account_id = $account->id;
+		$invitation->user_id = $account->users()->first()->id;
+		$invitation->invoice_id = $invoice->id;
+		$invitation->contact_id = $client->contacts()->first()->id;
+		$invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
+		$invitation->save();
+
+		return $invoice;
 	}
 
 	private function getNinjaAccount()
@@ -87,6 +128,8 @@ class AccountController extends \BaseController {
 			$random = str_random(RANDOM_KEY_LENGTH);
 
 			$user = new User();
+			$user->registered = true;
+			$user->confirmed = true;
 			$user->email = 'contact@invoiceninja.com';
 			$user->password = $random;
 			$user->password_confirmation = $random;			
@@ -103,12 +146,8 @@ class AccountController extends \BaseController {
 	{
 		$client = Client::whereAccountId($ninjaAccount->id)->wherePublicId(Auth::user()->account_id)->first();
 
-		if ($client)
+		if (!$client)
 		{
-			return $client;
-		}
-		else
-		{			
 			$client = new Client;		
 			$client->public_id = Auth::user()->account_id;
 			$client->user_id = $ninjaAccount->users()->first()->id;
@@ -125,8 +164,10 @@ class AccountController extends \BaseController {
 			{
 				$contact->$field = Auth::user()->$field;	
 			}		
-			$client->contacts()->save($contact);
+			$client->contacts()->save($contact);			
 		}
+
+		return $client;
 	}
 
 	public function setTrashVisible($entityType, $visible)
@@ -662,7 +703,7 @@ class AccountController extends \BaseController {
 		$user->registered = true;
 		$user->amend();
 
-		$this->mailer->sendConfirmation($user);
+		$this->userMailer->sendConfirmation($user);
 
 		$activities = Activity::scope()->get();
 		foreach ($activities as $activity) 

@@ -10,10 +10,8 @@ class Mailer {
 			'emails.'.$view.'_html',
 			'emails.'.$view.'_text'
 		];
-
-		//$view = 'emails.' . $view;
-
-		Mail::queue($views, $data, function($message) use ($toEmail, $fromEmail, $fromName, $subject)
+		
+		Mail::send($views, $data, function($message) use ($toEmail, $fromEmail, $fromName, $subject)
 		{			
 			$message->to($toEmail)->from($fromEmail, $fromName)->sender($fromEmail, $fromName)
 				->replyTo($fromEmail, $fromName)->returnPath($fromEmail)->subject($subject);

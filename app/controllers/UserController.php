@@ -88,6 +88,9 @@ class UserController extends BaseController {
             Event::fire('user.login'); 
             Session::reflash();
 
+            return Redirect::to('/dashboard');
+            
+            /*
             $invoice = Invoice::scope()->orderBy('id', 'desc')->first();
             
             if ($invoice)
@@ -98,6 +101,7 @@ class UserController extends BaseController {
             {
                 return Redirect::to('/dashboard');
             }
+            */
         }
         else
         {

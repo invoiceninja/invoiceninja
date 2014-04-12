@@ -274,9 +274,8 @@
 	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="1180"></iframe>
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
-	@if (!Auth::user()->isPro())
-		<a href="#" onclick="showProPlan()">{{ trans('texts.pro_plan.remove_logo_link') }}</a>
-		{{ trans('texts.pro_plan.remove_logo') }}
+	@if (!Auth::user()->account->isPro())
+		{{ trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="showProPlan()">'.trans('texts.pro_plan.remove_logo_link').'</a>']) }}
 	@endif
 
 	<div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
@@ -434,7 +433,6 @@
 	{{ Former::close() }}
 
 
-	{{ Former::open('account/go_pro') }}	      
 	<div class="modal fade" id="proPlanModal" tabindex="-1" role="dialog" aria-labelledby="proPlanModalLabel" aria-hidden="true">
 	  <div class="modal-dialog" style="min-width:150px">
 	    <div class="modal-content">
@@ -443,20 +441,34 @@
 	        <h4 class="modal-title" id="proPlanModalLabel">{{ trans('texts.sign_up') }}</h4>
 	      </div>
 
-		    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
+		    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px" id="proPlanDiv">
 		    	&nbsp; 
 
 		    	&nbsp;
 				</div>
 
-	     <div class="modal-footer" style="margin-top: 0px">
+
+      <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="proPlanWorking">
+        <h3>{{ trans('texts.working') }}...</h3>
+        <div class="progress progress-striped active">
+          <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+        </div>
+      </div>
+
+      <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="proPlanSuccessDiv">
+        <br/>
+        <h3>{{ trans('texts.success') }}</h3>
+        {{ trans('texts.pro_plan_succes') }}<br/>&nbsp;
+      </div>
+
+
+	     <div class="modal-footer" style="margin-top: 0px" id="proPlanFooter">
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>	      	
-	      	{{ Button::primary_submit(trans('texts.sign_up')) }}	      		      	
+	      	<button type="button" class="btn btn-primary" data-dismiss="modal" id="proPlanButton" onclick="submitProPlan()">{{ trans('texts.sign_up') }}</button>	      		      	
 	     </div>	  	
 	    </div>
 	  </div>
 	</div>
-	{{ Former::close() }}
 
 	</div>
 
@@ -472,6 +484,22 @@
 
 	function showProPlan() {
 		$('#proPlanModal').modal('show');				
+	}
+
+	function submitProPlan() {
+
+    $('#proPlanDiv, #proPlanFooter').hide();
+    $('#proPlanWorking').show();
+
+    $.ajax({
+      type: 'POST',
+      url: '{{ URL::to('account/go_pro') }}',
+      success: function(result) { 
+        $('#proPlanSuccessDiv, #proPlanFooter').show();
+        $('#proPlanWorking, #proPlanButton').hide();
+      }
+    });     
+
 	}
 
 	$(function() {

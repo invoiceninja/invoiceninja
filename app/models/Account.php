@@ -213,4 +213,30 @@ class Account extends Eloquent
 		return $data;
 	}
 	
+	public function isPro()
+	{
+		if ($this->account_key == NINJA_ACCOUNT_KEY)
+		{
+			return true;
+		}
+
+		if (!Auth::check()) 
+		{
+			return false;
+		}
+
+		$datePaid = $this->pro_plan_paid;
+
+		if (!$datePaid || $datePaid == '0000-00-00')
+		{
+			return false;
+		}
+
+		$today = new DateTime('now');
+		$datePaid = DateTime::createFromFormat('Y-m-d', $datePaid);		
+		$interval = $today->diff($datePaid);
+		
+		return $interval->y == 0;
+	}
+
 }
