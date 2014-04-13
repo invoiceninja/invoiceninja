@@ -10,9 +10,7 @@
 	{{ Former::populateField('notify_paid', intval(Auth::user()->notify_paid)) }}
 
 	{{ Former::legend('Payment Gateway') }}
-	
-	{{Former::label('Lorem Ipsum goes here.')}}
-
+		
 	@if ($accountGateway)
 		{{ Former::populateField('gateway_id', $accountGateway->gateway_id) }}
 		{{ Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) }}

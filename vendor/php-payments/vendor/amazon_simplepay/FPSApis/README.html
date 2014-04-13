@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+  <title>Amazon FPS PHP Library Ver-2008-09-17</title>
+  <style type="text/css">
+    body, div, p, td, th {
+      font-family : helvetica,sans-serif, arial;
+      font-size : 12px;
+      color : #000000;
+    }
+
+    .aws-h1, h1{
+      font-family: verdana, arial, helvetica, sans-serif;
+      font-size: 18px;
+      font-weight: bold;
+      color: #000000;
+    }
+    .aws-h2, h2{
+      font-family: verdana, arial, helvetica, sans-serif;
+      font-size: 14px;
+      color: #c60;
+    }
+    .aws-h3, h3{
+      font-family: verdana, arial, helvetica, sans-serif;
+      font-size: 12px;
+      font-weight: bold;
+      color: #333333;
+    }
+
+    /*table ID selector styles*/
+    #aws-table {
+      border-top: 1px solid #cccccc;
+      border-left: 1px solid #cccccc;
+      width:95%;
+    }
+
+    #aws-table td{
+      font-size: 12px;
+      padding: 5px 5px 5px 5px;
+      border-bottom: 1px solid #cccccc;
+      border-right: 1px solid #cccccc;
+      vertical-align:top;
+    }
+
+    #aws-table th {
+      font-size: 12px;
+      padding: 5px 5px 5px 5px;
+      border-bottom: 1px solid #cccccc;
+      border-right: 1px solid #cccccc;
+      vertical-align:top;
+      background-color: #eeeeee;
+      color: #333333;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: left;
+    }
+
+    /*code, note, and example styles*/
+    pre {
+      font-family: "Courier New", Courier, mono;
+      font-size: 12px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      color: #000066;
+      padding: 5px;
+      background-color: #eff7ff;
+      border: 1px dashed #333;
+      width:75%;
+      display:block;
+    }
+
+  </style>
+</head>
+<body>
+<h2>About this Library</h2>
+<ul>
+<li>Based on the 2008-09-17 API version.</li>
+<li>Version 2.0</li>
+<li>Release Date : 2009-11-03</li>
+</ul>
+
+<h2>Prerequisites</h2>
+<ul>
+<li>Amazon FPS Sandbox Account (<a href="https://developer.payments-sandbox.amazon.com/landingpage/">Click here to sign up</a>).</li>
+<li>Amazon FPS Developer Account (<a href="http://aws.amazon.com/fps">Click here to sign up</a>).</li>
+</ul>
+
+<h2>Package Content</h2>
+
+<table id="aws-table">
+
+  <tbody>
+    <tr>
+      <th>Directory</th>
+      <th>Overview</th>
+    </tr>
+    <tr>
+      <td>
+        src
+      </td>
+      <td>
+        Source distribution of the library. All sources including code samples that demonstrate the use of the library located under this directory.
+      </td>
+    </tr>
+  </tbody>
+
+</table>
+
+<h2>Steps to make a sample (Refund) API call</h2>
+    <ul>
+        <li> Open RefundSample.php in src/Amazon/FPS/Samples </li>
+    </ul>
+    <ul>
+        <li> Set request parameters. For example, find following pre-generated snippet:</li>
+        <pre>
+// @TODO: set request. Action can be passed as Amazon_FPS_Model_RefundRequest
+// object or array of parameters
+// invokeRefund($service, $request);
+        </pre>
+    </ul>
+    <ul>
+        <li>Uncomment third line and set Refund request parameters</li>
+        <pre>
+$request = new Amazon_FPS_Model_RefundRequest();
+$request->setTransactionId("YourOriginalTransactionIdForWhichYouWantTheRefund");
+$amount = new Amazon_FPS_Model_Amount();
+$amount->setCurrencyCode(CurrencyCode.USD);
+$amount->setValue("1");
+$request->setRefundAmount(amount);
+$request->setCallerReference("ABCDEFGHIJKL12345");
+$request->setCallerDescription("Ecommerce Merchant - FPSBuy.com");
+        </pre>
+    <li>run sample. You should see the output similar to the following:</li>
+    <pre>
+RefundResponse
+	RefundResult
+		TransactionId
+			14GK6F2QU755ODS27SGHEURLKPG72Z54KMF
+		TransactionStatus
+			Pending
+	ResponseMetadata
+		RequestId
+			1a146b9a-b37b-4f5f-bda6-012a5b9e45c3:0
+    </pre>
+    <li>Experiment with other samples, examine samples sources. When ready, add library project to your solution, and use it</li>
+	<li>If the response status is Pending, you can use <tt>GetTransactionStatus</tt> API to get latest transaction status</li>
+	<li>Use the samples in IPNAndReturnURLValidator package for validating and receiving IPNs for this refund transaction</li>
+    </ul>
+
+</ol>
+
+
+<h2>Related resources</h2>
+<a href="http://aws.amazon.com/fps/">More about Amazon FPS</a>
+<br/>
+<a href="http://developer.amazonwebservices.com/connect/entry.jspa?externalID=2022&categoryID=277">Documentation</a>
+<br/>
+<a href="http://developer.amazonwebservices.com/connect/kbcategory.jspa?categoryID=126">Code samples</a>
+<br/>
+<a href="http://developer.amazonwebservices.com/connect/forum.jspa?forumID=35">Contact us for technical issues</a>
+<br/>
+
+<h2>Comments, Questions or Feedback</h2>
+
+If you have any comments, questions or feedback on the library, please start discussion here (<a href="http://developer.amazonwebservices.com/connect/forum.jspa?forumID=35">Amazon FPS forum</a>).
+</body>
+</html>

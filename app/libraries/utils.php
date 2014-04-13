@@ -2,6 +2,11 @@
 
 class Utils
 {
+	public static function isRegistered()
+	{
+		return Auth::check() && Auth::user()->registered;
+	}
+
 	public static function isProd()
 	{
 		return App::environment() == ENV_PRODUCTION;

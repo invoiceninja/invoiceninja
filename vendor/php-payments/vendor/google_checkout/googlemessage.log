@@ -1,0 +1,85 @@
+
+Thu Jun 24 18:52:26 MST 2010:- 
+<?xml version="1.0" encoding="UTF-8"?>
+<authorization-amount-notification xmlns="http://checkout.google.com/schema/2" serial-number="919108550269385-00005-6">
+  <authorization-amount currency="USD">16.49</authorization-amount>
+  <authorization-expiration-date>2010-07-02T01:30:42.000Z</authorization-expiration-date>
+  <avs-response>Y</avs-response>
+  <cvn-response>M</cvn-response>
+  <timestamp>2010-06-25T01:31:41.528Z</timestamp>
+  <google-order-number>919108550269385</google-order-number>
+  <order-summary>
+    <total-chargeback-amount currency="USD">0.0</total-chargeback-amount>
+    <google-order-number>919108550269385</google-order-number>
+    <total-charge-amount currency="USD">0.0</total-charge-amount>
+    <total-refund-amount currency="USD">0.0</total-refund-amount>
+    <risk-information>
+      <ip-address>172.24.6.38</ip-address>
+      <billing-address>
+        <email>peng-b50abu3dud4@sandbox.google.com</email>
+        <company-name></company-name>
+        <contact-name>UK</contact-name>
+        <address1>1 main st</address1>
+        <address2></address2>
+        <phone>123 456-7890</phone>
+        <fax></fax>
+        <country-code>GB</country-code>
+        <postal-code>E8 3BH</postal-code>
+        <city>london</city>
+        <region>UK</region>
+      </billing-address>
+      <avs-response>Y</avs-response>
+      <cvn-response>M</cvn-response>
+      <eligible-for-protection>true</eligible-for-protection>
+      <partial-cc-number>4444</partial-cc-number>
+      <buyer-account-age>1207</buyer-account-age>
+    </risk-information>
+    <authorization>
+      <authorization-amount currency="USD">16.49</authorization-amount>
+      <authorization-expiration-date>2010-07-02T01:30:42.000Z</authorization-expiration-date>
+    </authorization>
+    <purchase-date>2010-06-25T01:30:40.000Z</purchase-date>
+    <archived>false</archived>
+    <shopping-cart>
+      <items>
+        <item>
+          <item-weight value="2.0" unit="LB" />
+          <item-name>Google T-Shirt</item-name>
+          <item-description></item-description>
+          <unit-price currency="USD">14.99</unit-price>
+          <quantity>1</quantity>
+        </item>
+      </items>
+    </shopping-cart>
+    <order-adjustment>
+      <merchant-codes />
+      <total-tax currency="USD">1.5</total-tax>
+      <adjustment-total currency="USD">1.5</adjustment-total>
+    </order-adjustment>
+    <buyer-id>122414308041109</buyer-id>
+    <buyer-marketing-preferences>
+      <email-allowed>false</email-allowed>
+    </buyer-marketing-preferences>
+    <buyer-shipping-address>
+      <email>peng-b50abu3dud4@sandbox.google.com</email>
+      <company-name></company-name>
+      <contact-name>peng ying</contact-name>
+      <address1>1600 ampitheatre pkwy</address1>
+      <address2></address2>
+      <phone>800 555-5555</phone>
+      <fax></fax>
+      <structured-name>
+        <first-name>peng</first-name>
+        <last-name>ying</last-name>
+      </structured-name>
+      <country-code>US</country-code>
+      <postal-code>94043</postal-code>
+      <city>mountain view</city>
+      <region>CA</region>
+    </buyer-shipping-address>
+    <order-total currency="USD">16.49</order-total>
+    <fulfillment-order-state>NEW</fulfillment-order-state>
+    <financial-order-state>CHARGEABLE</financial-order-state>
+  </order-summary>
+</authorization-amount-notification>
+

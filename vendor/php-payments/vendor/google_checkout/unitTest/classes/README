@@ -1,0 +1,24 @@
+DEPENDENCIES
+
+phpUnit runs on PHP3 or PHP4.
+
+phpUnit uses PCRE (Perl Compatible Regular Expressions).  PCRE is
+normally compiled into PHP, but it might be missing from custom builds
+of PHP.
+
+
+INSTALLATION
+
+Place the phpunit.php file so that it is in the PHP include_path for
+the PHP code to be tested.  Installing it in the same directory as the
+code-under-test should work.
+
+The same phpunit.php file can be shared by any number of test suites.
+You may wish to install phpunit.php in just one place and adjust the
+PHP include_path to include that place.
+
+
+EXAMPLES
+
+The self-test suite for phpUnit itself is currently the best (only)
+example distributed with phpUnit.  See phpunit_test.php.

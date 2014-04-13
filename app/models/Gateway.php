@@ -25,7 +25,7 @@ class Gateway extends Eloquent
 		}
 		else 
 		{
-			$fields = Payment_Utility::load('config', 'drivers/'.$this->provider);
+			$fields = Payment_Utility::load('config', 'drivers/'.strtolower($this->provider));
 		}		
 
 		if($fields == null)

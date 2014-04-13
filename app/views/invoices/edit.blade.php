@@ -438,7 +438,7 @@
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="proPlanModalLabel">{{ trans('texts.sign_up') }}</h4>
+	        <h4 class="modal-title" id="proPlanModalLabel">{{ trans('texts.pro_plan_product') }}</h4>
 	      </div>
 
 		    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px" id="proPlanDiv">
@@ -455,16 +455,15 @@
         </div>
       </div>
 
-      <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="proPlanSuccessDiv">
+      <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="proPlanSuccess">
         <br/>
         <h3>{{ trans('texts.success') }}</h3>
         {{ trans('texts.pro_plan_succes') }}<br/>&nbsp;
       </div>
 
-
 	     <div class="modal-footer" style="margin-top: 0px" id="proPlanFooter">
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>	      	
-	      	<button type="button" class="btn btn-primary" data-dismiss="modal" id="proPlanButton" onclick="submitProPlan()">{{ trans('texts.sign_up') }}</button>	      		      	
+	      	<button type="button" class="btn btn-primary" id="proPlanButton" onclick="submitProPlan()">{{ trans('texts.sign_up') }}</button>	      		      	
 	     </div>	  	
 	    </div>
 	  </div>
@@ -488,18 +487,23 @@
 
 	function submitProPlan() {
 
-    $('#proPlanDiv, #proPlanFooter').hide();
-    $('#proPlanWorking').show();
+		if ({{ Utils::isRegistered() ? 'true' : 'false' }}) {
+	    $('#proPlanDiv, #proPlanFooter').hide();
+	    $('#proPlanWorking').show();
 
-    $.ajax({
-      type: 'POST',
-      url: '{{ URL::to('account/go_pro') }}',
-      success: function(result) { 
-        $('#proPlanSuccessDiv, #proPlanFooter').show();
-        $('#proPlanWorking, #proPlanButton').hide();
-      }
-    });     
-
+	    $.ajax({
+	      type: 'POST',
+	      url: '{{ URL::to('account/go_pro') }}',
+	      success: function(result) { 
+	        $('#proPlanSuccess, #proPlanFooter').show();
+	        $('#proPlanWorking, #proPlanButton').hide();
+	      }
+	    });     
+		} else {
+			$('#proPlanModal').modal('hide');
+			$('#go_pro').val('true');
+			showSignUp();
+   	}
 	}
 
 	$(function() {

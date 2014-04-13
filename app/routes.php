@@ -11,6 +11,8 @@
 |
 */
 
+
+
 //apc_clear_cache();
 //Cache::flush();
 
@@ -237,7 +239,7 @@ define('RESULT_FAILURE', 'failure');
 define('GATEWAY_PAYPAL_EXPRESS', 17);
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('PRO_PLAN_PRICE', 40); 
-
+define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
 
 define('PAYMENT_LIBRARY_OMNIPAY', 1);
 define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
@@ -304,3 +306,5 @@ if (Auth::check() && Auth::user()->id === 1)
   Auth::loginUsingId(1);
 }
 */
+
+//dd(Session::has(REQUESTED_PRO_PLAN));
