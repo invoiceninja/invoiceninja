@@ -11,15 +11,9 @@
 
 	{{ Former::legend('Payment Gateway') }}
 		
-	<div class="two-column">
-	{{ Former::radios('recommendedGateway_id')
-		->label('Recommended Gateways')
-		->radios($recommendedGateways)
-		->class('recommended-gateway')}}
-	</div>
-
 	@if ($accountGateway)
 		{{ Former::populateField('gateway_id', $accountGateway->gateway_id) }}
+		{{ Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) }}
 		@foreach ($accountGateway->fields as $field => $junk)
 			@if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
 				{{-- do nothing --}}
@@ -28,10 +22,17 @@
 			@endif
 		@endforeach
 	@endif
+	
+	<div class="two-column">
+	{{ Former::radios('recommendedGateway_id')
+		->label('Recommended Gateways')
+		->radios($recommendedGateways)
+		->class('recommended-gateway')}}
+	</div>
 
 	{{ Former::select('gateway_id')->label('PayPal & Other Gateways')->addOption('', '')
 		->dataClass('gateway-dropdown')
-		->fromQuery($gateways, 'name', 'id')
+		->fromQuery($dropdownGateways, 'name', 'id')
 		->onchange('setFieldsShown()'); }}
 
 	@foreach ($gateways as $gateway)
@@ -61,16 +62,18 @@
 	<script type="text/javascript">
 
 	function setFieldsShown() {
-		var val = $('#gateway_id').val();
-		var activeElement = $('.recommended-gateway[value=' + val + ']');
-		var recommendedRadios = $('#recommendedGateway_id');
+		var recommendedVal = $('input:radio[name=recommendedGateway_id]:checked').val();
+		var gatewayVal = $('#gateway_id').val();
+		var val = recommendedVal && recommendedVal != 1000000 ? recommendedVal : gatewayVal;
 		
 		$('.gateway-fields').hide();
 		$('#gateway_' + val + '_div').show();
 		
-		if(activeElement && !activeElement.attr('checked'))
+		$('#gateway_id').parent().parent().hide();
+		if(!$('input:radio[name=recommendedGateway_id][value!=1000000]:checked').val())
 		{
-			activeElement.attr('checked', true);
+			$('.recommended-gateway[value=1000000]').attr('checked', true);
+			$('#gateway_id').parent().parent().show();
 		}
 	}
 
@@ -78,30 +81,25 @@
 		$('.recommended-gateway').change(
 			function(){
 				var recVal = $(this).val();
-				$('#gateway_id').val(recVal);
+				
+				if(recVal == 1000000)
+				{
+					$('#gateway_id').parent().parent().show();
+				}
+				else
+				{
+					$('#gateway_id').parent().parent().hide();
+				}
+				
 				setFieldsShown();
 			}
 		);
 		
-		$('select[data-class=gateway-dropdown]').change(function(){
-			$('.recommended-gateway').attr('checked', false);
-			var activeElement = $('.recommended-gateway[value=' + $(this).val() + ']');
-			
-			if(activeElement)
-			{
-				activeElement.attr('checked', true);
-			}
-		});
-		
-		$('.recommended-gateway').each(function(){
+		$('.recommended-gateway[other != true]').each(function(){
 			var contents = $(this).parent().contents();
 			contents[contents.length - 1].nodeValue = '';
 			$(this).after('<img src="' +$(this).attr('data-imageUrl') + '" /><br />');
 			$(this).parent().children().last().after('<a href="' + $(this).attr('data-siteUrl') + '">Create an account</a>');
-			if($(this).attr('data-newRow') && true)
-			{
-				
-			}
 		});
 		
 
