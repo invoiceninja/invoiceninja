@@ -11,6 +11,7 @@ use Auth;
 use Invitation;
 use Invoice;
 use InvoiceItem;
+use AccountGateway;
 
 class AccountRepository
 {
@@ -104,19 +105,18 @@ class AccountRepository
 		}
 
 		$account = Auth::user()->account;
+		$lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
+		$publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
 
-		$ninjaAccount = $this->getNinjaAccount();
+		$ninjaAccount = $this->getNinjaAccount($publicId);
 		$ninjaClient = $this->getNinjaClient($ninjaAccount);
-		$invoice = $this->createNinjaInvoice($ninjaAccount, $ninjaClient);
+		$invoice = $this->createNinjaInvoice($publicId, $ninjaAccount, $ninjaClient);
 
 		return $invoice;
 	}
 
-	private function createNinjaInvoice($account, $client)
+	private function createNinjaInvoice($publicId, $account, $client)
 	{
-		$lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
-		$publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
-
 		$invoice = new Invoice();
 		$invoice->account_id = $account->id;
 		$invoice->user_id = $account->users()->first()->id;
@@ -150,7 +150,7 @@ class AccountRepository
 		return $invoice;
 	}
 
-	private function getNinjaAccount()
+	private function getNinjaAccount($publicId)
 	{
 		$account = Account::whereAccountKey(NINJA_ACCOUNT_KEY)->first();
 
@@ -168,7 +168,6 @@ class AccountRepository
 			$account->save();
 
 			$random = str_random(RANDOM_KEY_LENGTH);
-
 			$user = new User();
 			$user->registered = true;
 			$user->confirmed = true;
@@ -181,6 +180,13 @@ class AccountRepository
 			$user->notify_sent = false;
 			$user->notify_paid = false;
 			$account->users()->save($user);			
+
+			$accountGateway = new AccountGateway();
+			$accountGateway->user_id = $user->id;
+			$accountGateway->gateway_id = NINJA_GATEWAY_ID;
+			$accountGateway->public_id = $publicId;
+			$accountGateway->config = isset($_ENV['NINJA_GATEWAY_CONFIG']) ? $_ENV['NINJA_GATEWAY_CONFIG'] : null;
+			$account->account_gateways()->save($accountGateway);
 		}
 
 		return $account;

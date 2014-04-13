@@ -133,4 +133,9 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 			return true;
 		}	
 	}
+
+	public function getMaxNumClients()
+	{
+		return $this->isPro() ? MAX_NUM_CLIENTS_PRO : MAX_NUM_CLIENTS;
+	}
 }

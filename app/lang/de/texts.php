@@ -305,5 +305,10 @@ return array(
   'password' => 'Passwort',
   'invoice_subject' => 'Neue Rechnung von :account',
   'close' => 'Schließen',  
+
+  'pro_plan_product' => 'Pro Plan',
+  'pro_plan_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
+  'pro_plan_succes' => 'Thanks for joining! Once the invoice is paid your Pro Plan membership will begin.',
+
       
 );

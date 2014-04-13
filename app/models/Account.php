@@ -220,11 +220,6 @@ class Account extends Eloquent
 			return true;
 		}
 
-		if (!Auth::check()) 
-		{
-			return false;
-		}
-
 		$datePaid = $this->pro_plan_paid;
 
 		if (!$datePaid || $datePaid == '0000-00-00')
