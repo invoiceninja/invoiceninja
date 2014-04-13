@@ -9,7 +9,21 @@
 |
 */
 
+use ninja\repositories\AccountRepository;
+use ninja\mailers\ContactMailer;
+
 class UserController extends BaseController {
+
+    protected $accountRepo;
+    protected $contactMailer;
+
+    public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer)
+    {
+        parent::__construct();
+
+        $this->accountRepo = $accountRepo;
+        $this->contactMailer = $contactMailer;
+    }   
 
     public function setTheme()
     {
@@ -171,6 +185,18 @@ class UserController extends BaseController {
         if ( Confide::confirm( $code ) )
         {
             $notice_msg = trans('texts.confide.confirmation');
+
+            if (Session::has(REQUESTED_PRO_PLAN))
+            {
+                Session::forget(REQUESTED_PRO_PLAN);                
+
+                if ($invoice = $this->accountRepo->enableProPlan())
+                {
+                    $this->contactMailer->sendInvoice($invoice);
+                    $notice_msg = trans('texts.pro_plan_succes');
+                }
+            }            
+
             return Redirect::action('UserController@login')->with( 'message', $notice_msg );
         }
         else

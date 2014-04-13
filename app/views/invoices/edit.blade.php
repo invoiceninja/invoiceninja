@@ -438,7 +438,7 @@
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="proPlanModalLabel">{{ trans('texts.sign_up') }}</h4>
+	        <h4 class="modal-title" id="proPlanModalLabel">{{ trans('texts.pro_plan_product') }}</h4>
 	      </div>
 
 		    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px" id="proPlanDiv">
@@ -487,18 +487,23 @@
 
 	function submitProPlan() {
 
-    $('#proPlanDiv, #proPlanFooter').hide();
-    $('#proPlanWorking').show();
+		if ({{ Utils::isRegistered() ? 'true' : 'false' }}) {
+	    $('#proPlanDiv, #proPlanFooter').hide();
+	    $('#proPlanWorking').show();
 
-    $.ajax({
-      type: 'POST',
-      url: '{{ URL::to('account/go_pro') }}',
-      success: function(result) { 
-        $('#proPlanSuccess, #proPlanFooter').show();
-        $('#proPlanWorking, #proPlanButton').hide();
-      }
-    });     
-
+	    $.ajax({
+	      type: 'POST',
+	      url: '{{ URL::to('account/go_pro') }}',
+	      success: function(result) { 
+	        $('#proPlanSuccess, #proPlanFooter').show();
+	        $('#proPlanWorking, #proPlanButton').hide();
+	      }
+	    });     
+		} else {
+			$('#proPlanModal').modal('hide');
+			$('#go_pro').val('true');
+			showSignUp();
+   	}
 	}
 
 	$(function() {

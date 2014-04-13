@@ -256,7 +256,11 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         {{ Former::populateField('new_email', Auth::user()->email); }}	    		
         @endif
 
-        {{ Former::hidden('path')->value(Request::path()) }}
+        <div style="display:none">
+        {{ Former::text('path')->value(Request::path()) }}
+        {{ Former::text('go_pro') }}
+        </div>
+
         {{ Former::text('new_first_name')->label(trans('texts.first_name')) }}
         {{ Former::text('new_last_name')->label(trans('texts.last_name')) }}
         {{ Former::text('new_email')->label(trans('texts.email')) }}	    	
@@ -396,7 +400,8 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
       data: 'new_email=' + encodeURIComponent($('form.signUpForm #new_email').val()) + 
       '&new_password=' + encodeURIComponent($('form.signUpForm #new_password').val()) + 
       '&new_first_name=' + encodeURIComponent($('form.signUpForm #new_first_name').val()) + 
-      '&new_last_name=' + encodeURIComponent($('form.signUpForm #new_last_name').val()),
+      '&new_last_name=' + encodeURIComponent($('form.signUpForm #new_last_name').val()) +
+      '&go_pro=' + $('#go_pro').val(),
       success: function(result) { 
         if (result) {
           localStorage.setItem('guest_key', '');
