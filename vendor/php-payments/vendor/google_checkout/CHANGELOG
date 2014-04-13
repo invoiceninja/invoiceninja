@@ -1,0 +1,62 @@
+Google Checkout PHP Sample Code
+
+CHANGELOG:
+==========
+
+v1.3.1 09/13/2010 (pying)
+  - Fixed require_once path issue
+  - Fixed generated HTML to be w3c compliant
+  - Modifed S2S post error messages to return error message instead of 
+    full response body
+  
+v1.3 06/29/2010(pying)
+  - Fixed server to server posting bug
+  - Added polling api beta
+  - Added subscriptions beta
+  - Added notification history api beta
+  - Added support for API V2.5
+  - Added option to generate signed HTML API carts
+  
+v1.2.5a 09/27/2007 (ropu)  
+  - Fixed bugs in Line-Item Shipping
+  - Added Line-Item Shipping demos
+
+v1.2.5 09/25/2007 (ropu)  
+  - Added Carrier Calculation Support
+  - Added Line-Item Shipping
+  - Updated posting URLs
+  - Added PHP Docs
+  - Modified xml-processing/* class names to avoid conflics
+  - Added buyNow button support CheckoutButtonNowCode()
+
+v1.2.1 beta 07/17/2007 (ropu)
+  - Added Digital Delivery support
+  - Added server 2 server Checkout API Requests    
+  - Improved demo/* files
+  - Added digital and server 2 server examples (digitalCart.php and DigitalUsecase())
+  - Minor bug fixes
+
+v1.2 beta 06/12/2007 (ropu)
+  - Added a log class with log levels (error, request, response) (GoogleLog)
+  - Split log file into error and response log files
+  - Added Correct HTTP status (2xx, 4xx, 5xx) return when errors occurrs with 
+      the correct message
+  - Added Google Analytics Tracking
+  - Added 3rd party Tracking
+  - Added CheckoutAcceptanceLogo() to GoogleCart class
+  - Changed the XMLParser
+  - Added CheckoutHTMLButtonCode() to print a HTML API Google Checkout Button
+  - Added the "What is Google Checkout?" text under the GButton (configurable)
+  - Splited GoogleReponse class into GoogleResponse and GoogleRequest
+  - Improved the HttpAuthentication() method in the GoogleResponse class to 
+      handle apache and ISS Basic authentication. Remove GetAllHeaders().
+  - Escape and chunk GoogleMessages to avoid errors
+  - Added proxy support for GoogleRequest class (Order Processing API)
+  - Added MerchantPrivateData and MerchantPrivateItemData classes to allow
+      sending XML tags inside those tags.
+  - Added the AddAllowed*() and AddExcluded*() methods to GoogleShippingFilters
+      class
+  - Added CHANGELOG file
+  - Added TODO file
+  - Changed demo/* files to show the usage of v1.2
+  - Added unitTest (everyone is invited to add more test to improve coverage :)

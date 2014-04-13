@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ErrorResponse xmlns="http://fps.amazonaws.com/doc/2008-09-17/">
+  <!--1 or more repetitions:-->
+  <Error>
+    <Type>string</Type>
+    <Code>string</Code>
+    <Message>string</Message>
+    <!--Optional:-->
+    <Detail>
+      <!--You may enter ANY elements at this point-->
+      <AnyElement xmlns=""/>
+    </Detail>
+  </Error>
+  <RequestId>string</RequestId>
+</ErrorResponse>

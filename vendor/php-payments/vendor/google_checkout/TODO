@@ -1,0 +1,7 @@
+Google Checkout PHP Sample Code (v1.3.0) (06/29/2010)
+
+TODO:
+=====
+
+  - Add more Unit Tests
+  - Compartmentalize code and add XML generation to each component

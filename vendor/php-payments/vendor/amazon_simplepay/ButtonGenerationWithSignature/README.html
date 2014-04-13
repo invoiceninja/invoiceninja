@@ -1,0 +1,174 @@
+<title>Amazon Simple Pay Standard Readme</title>
+  <style type="text/css">
+    body, div, p, td, th {
+      font-family : helvetica,sans-serif, arial;
+      font-size : 12px;
+      color : #000000;
+    }
+
+    .aws-h1, h1{
+      font-family: verdana, arial, helvetica, sans-serif;
+      font-size: 18px;
+      font-weight: bold;
+      color: #000000;
+    }
+    .aws-h2, h2{
+      font-family: verdana, arial, helvetica, sans-serif;
+      font-size: 14px;
+      color: #c60;
+    }
+    .aws-h3, h3{
+      font-family: verdana, arial, helvetica, sans-serif;
+      font-size: 12px;
+      font-weight: bold;
+      color: #333333;
+    }
+
+    /*table ID selector styles*/
+    #aws-table {
+      border-top: 1px solid #cccccc;
+      border-left: 1px solid #cccccc;
+      width:95%;
+    }
+
+    #aws-table td{
+      font-size: 12px;
+      padding: 5px 5px 5px 5px;
+      border-bottom: 1px solid #cccccc;
+      border-right: 1px solid #cccccc;
+      vertical-align:top;
+    }
+
+    #aws-table th {
+      font-size: 12px;
+      padding: 5px 5px 5px 5px;
+      border-bottom: 1px solid #cccccc;
+      border-right: 1px solid #cccccc;
+      vertical-align:top;
+      background-color: #eeeeee;
+      color: #333333;
+      font-size: 12px;
+      font-weight: bold;
+      text-align: left;
+    }
+
+    /*code, note, and example styles*/
+    pre {
+      font-family: "Courier New", Courier, mono;
+      font-size: 12px;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      color: #000066;
+      padding: 5px;
+      background-color: #eff7ff;
+      border: 1px dashed #333;
+      width:75%;
+      display:block;
+    }
+
+  </style>
+</head>
+                                                  
+<body>
+<h2>About this Library</h2>
+<ul>
+  <li>Dynamic button generation  helper for Amazon Simple Pay Standard using signature version 2.</li>
+  <li>Sample Code Version 2.0</li>
+  <li>Release Date : 2009-11-03</li>
+</ul>
+
+<h2>Prerequisites</h2>
+<ul>
+ <li>You must have an Amazon Web Services developer account.<a href="http://aws.amazon.com/fps/">click here</a></li>
+  <li>You must have an Amazon Payments <b>Sandbox</b> Business Account.<a href="https://payments-sandbox.amazon.com/sdui/sdui/standardbutton">Click here</a></li>
+  <li>You must use the same email address and password for your Amazon Payments Sandbox Business Account and your Amazon Web Services developer account.</li>
+  <li>You must have PHP 5.2.10 or later installed</li>
+  <li>If you want to use this sdk to generate buttons for Production environment then you need to create a Amazon Payments Buisness Account <a href="https://payments.amazon.com/sdui/sdui/index.htm">Click here</a></li>
+</ul>
+
+<h2>Contents of sample codes:</h2>
+<p>This package contains the following files for helping you to generate Dynamic Buttons for Amazon Simple Pay Standard .</p>
+<ol>
+ <li>SignatureUtils.php - This class contains the following helper functions for calculating signature.</li>
+ <ul>
+	<li>signParameters - Takes a map of all the request parameters and
+returns base64 encoded signature. Takes additional parameters like httpMethod, (GET or POST), host (e.g.
+authorize.payments-sandbox.amazon.com) and requestURI (e.g. /pba/paypipeline) for
+signature version 2. The input map should contain signature version parameter
+depending on which it computes the signature.</li>
+	
+	<li>_calculateStringToSignV2 - Takes a map of all the
+request parameters along with httpMethod, hostName, requestURL and returns
+string-to-sign calculated using signature version 2.</li>
+	<li>_sign - Takes string-to-sign, aws secret key and signature algorithm (HmacSHA256/HmacSHA1) as inputs and returns base64 encoded signature.</li>
+
+  </ul>
+  
+  <li>ButtonGenerator.php - Generate the html form </li>
+<ul>
+<li> getSimplePayStandardParams - Takes all the parameters passed by user as input and returns a Map of key-value pairs </li>
+<li> getSimplePayStandardForm - Takes a Map of key-value pair as input and returns the html form </li>
+<li> GenerateForm - This function takes all the parameters from user, call appropriate function to get signature and generate html form. 
+It prints the html form on console. </li>
+</ul>
+<li> StandardButtonSample.php - Sample file to show how to generate buttons using ButtonGenerator.php	</li>
+<ul><li>It has only main method which makes a call to ButtonGenerator::GenerateForm()with appropriate parameters. </li><ul>
+</ol>
+
+
+
+<h2>Steps to use this sample:</h2>
+
+<h3>How to Populate the input in StandardButtonSample.php </h3>
+<ol>
+
+<li>Sign into your Amazon Web Services developer account and retrieve your Access Key ID and Secret Access Key from <a href="https://aws-portal.amazon.com/gp/aws/developer/account/index.html/?action=access-key">here.</a>	
+
+<li> Replace the value of the accessKey constant in the code sample with your Access Key ID</li>
+
+ <li> Replace the value of the secretKey constant in the code sample with your Secret Access Key</li>
+
+<li> Replace the values of the following parameters of the Button: </li>
+
+<b>Required Parameters:</b>
+<ul>
+<li>amount - Enter the amount you want to collect for the item</li>
+<li>description - Enter a description of the item</li>
+</ul>
+
+<b> Optional Parameters:</b>
+<ul>
+<li>referenceId - Optionally enter an ID that uniquely identifies this transaction for your records</li>
+<li>abandonUrl - Optionally, enter the URL where senders should be redirected if they cancel their transaction</li>
+<li>returnUrl - Optionally enter the URL where buyers should be redirected after they complete the transaction</li>
+<li>immediateReturn - Optionally, enter "1" if you want to skip the final status page in Amazon Payments</li>
+<li>processImmediate - Optionally, enter "1" if you want to settle the transaction immediately else "0". Default value is "1"</li>
+<li>ipnUrl - Optionally, type the URL of your host page to which Amazon Payments should send the IPN transaction information.</li>
+<li> collectShippingAddress - Optionally, enter "1" if you want Amazon Payments to return the buyer's shipping address as part of the transaction information</li>
+</ul>
+
+ <li> Set the environment to "sandbox" or "prod". (For testing use sandbox)</li>
+
+ <li> You can also set the SignatureMethod to either "HmacSHA256" and "HmacSHA1".</li>
+</ol>
+
+<h3>How to compile and run the code </h3>
+<ol>
+<li>Run the code sample as a php application:</li>
+<pre>
+$php StandardButtonSample.php
+</pre>
+
+<li>The code sample will output the HTML for the ' Amazon Simple Pay Standard' widget to the ConsoleYou can now integrate this code into your website.</li>
+</ol>
+<b>Note:</b>You cannot use your Amazon Payments Business Account as a buyer while testing your ' Amazon Simple Pay Standard' Widgets. You should create a new Amazon Payments Personal Account which you can use as a buyer.
+
+<h2>Examples</h2>
+
+<p><a href="Examples-ASP.html">Examples</a></p>
+
+
+
+</body>
+</html>
+
