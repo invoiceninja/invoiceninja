@@ -455,16 +455,15 @@
         </div>
       </div>
 
-      <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="proPlanSuccessDiv">
+      <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="proPlanSuccess">
         <br/>
         <h3>{{ trans('texts.success') }}</h3>
         {{ trans('texts.pro_plan_succes') }}<br/>&nbsp;
       </div>
 
-
 	     <div class="modal-footer" style="margin-top: 0px" id="proPlanFooter">
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>	      	
-	      	<button type="button" class="btn btn-primary" data-dismiss="modal" id="proPlanButton" onclick="submitProPlan()">{{ trans('texts.sign_up') }}</button>	      		      	
+	      	<button type="button" class="btn btn-primary" id="proPlanButton" onclick="submitProPlan()">{{ trans('texts.sign_up') }}</button>	      		      	
 	     </div>	  	
 	    </div>
 	  </div>
@@ -495,7 +494,7 @@
       type: 'POST',
       url: '{{ URL::to('account/go_pro') }}',
       success: function(result) { 
-        $('#proPlanSuccessDiv, #proPlanFooter').show();
+        $('#proPlanSuccess, #proPlanFooter').show();
         $('#proPlanWorking, #proPlanButton').hide();
       }
     });     

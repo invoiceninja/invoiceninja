@@ -308,6 +308,6 @@ return array(
 
   'pro_plan_product' => 'Pro Plan',
   'pro_plan_description' => 'One year enrollment in the Invoice Ninja Pro Plan',
-  'pro_plan_succes' => 'We\'ve sent you an invoice. Once paid the kfeatures will be enabled.',
+  'pro_plan_succes' => 'Thanks for joining! Once the invoice is paid your membership will begin.',
 
 );

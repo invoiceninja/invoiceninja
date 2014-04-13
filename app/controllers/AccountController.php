@@ -100,6 +100,7 @@ class AccountController extends \BaseController {
 		$invitation = new Invitation();
 		$invitation->account_id = $account->id;
 		$invitation->user_id = $account->users()->first()->id;
+		$invitation->public_id = $publicId;
 		$invitation->invoice_id = $invoice->id;
 		$invitation->contact_id = $client->contacts()->first()->id;
 		$invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
@@ -134,6 +135,8 @@ class AccountController extends \BaseController {
 			$user->password = $random;
 			$user->password_confirmation = $random;			
 			$user->username = $random;
+			$user->first_name = 'Invoice';
+			$user->last_name = 'Ninja';
 			$user->notify_sent = false;
 			$user->notify_paid = false;
 			$account->users()->save($user);			

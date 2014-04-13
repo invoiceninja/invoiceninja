@@ -10,9 +10,7 @@
 	{{ Former::populateField('notify_paid', intval(Auth::user()->notify_paid)) }}
 
 	{{ Former::legend('Payment Gateway') }}
-	
-	{{Former::label('Lorem Ipsum goes here.')}}
-	
+		
 	<div class="two-column">
 	{{ Former::radios('recommendedGateway_id')
 		->label('Recommended Gateways')
