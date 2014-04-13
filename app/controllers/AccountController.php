@@ -608,11 +608,13 @@ class AccountController extends \BaseController {
 						if(in_array($field, ['merchant_id', 'passCode']))
 						{
 							$rules[$gateway->id.'_'.$field] = 'required';
+							$rules[$gateway->id.'_'.$field] = 'match:/?![*]+/';
 						}
 					} 
 					else 
 					{
 						$rules[$gateway->id.'_'.$field] = 'required';
+						$rules[$gateway->id.'_'.$field] = 'match:/?![*]+/';
 					}
 				}				
 			}			
