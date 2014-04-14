@@ -108,16 +108,9 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
 
 var invoiceOld;
 function generatePDF(invoice, checkMath) {
-  console.log('generatePDF: %s', (JSON.stringify(invoice) == invoiceOld));
-  //console.log(JSON.stringify(invoice));
-  //console.log(invoiceOld);
-  invoice = calculateAmounts(invoice);
-  
+  invoice = calculateAmounts(invoice);  
   var a = copyInvoice(invoice);
   var b = copyInvoice(invoiceOld);
-
-  console.log(JSON.stringify(a));
-  console.log(JSON.stringify(b));
   if (_.isEqual(a, b)) {
     return;
   }
@@ -130,9 +123,7 @@ function generatePDF(invoice, checkMath) {
 function copyInvoice(orig) {
   if (!orig) return false;
   var copy = JSON.stringify(orig);
-  //console.log(copy);
   var copy = JSON.parse(copy);
-  //console.log(copy);
   return copy;
 }
 
