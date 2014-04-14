@@ -483,6 +483,11 @@ class AccountController extends \BaseController {
 
 	private function savePayments()
 	{
+		Validator::extend('notmasked', function($attribute, $value, $parameters)
+		{
+		    return $value != str_repeat('*', strlen($value));
+		});
+		
 		$rules = array();
 		$recommendedId = Input::get('recommendedGateway_id');
 
@@ -502,14 +507,12 @@ class AccountController extends \BaseController {
 					{
 						if(in_array($field, ['merchant_id', 'passCode']))
 						{
-							$rules[$gateway->id.'_'.$field] = 'required';
-							$rules[$gateway->id.'_'.$field] = 'match:/?![*]+/';
+							$rules[$gateway->id.'_'.$field] = 'required|notmasked';
 						}
 					} 
 					else 
 					{
-						$rules[$gateway->id.'_'.$field] = 'required';
-						$rules[$gateway->id.'_'.$field] = 'match:/?![*]+/';
+						$rules[$gateway->id.'_'.$field] = 'required|notmasked';
 					}
 				}				
 			}			
