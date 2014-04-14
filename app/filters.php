@@ -24,8 +24,18 @@ App::before(function($request)
   if (Input::has('lang'))
   {
     $locale = Input::get('lang');
-    Session::set(SESSION_LOCALE, $locale);
     App::setLocale($locale);
+    Session::set(SESSION_LOCALE, $locale);    
+
+    if (Auth::check())
+    {
+      if ($language = Language::whereLocale($locale)->first())
+      {
+        $account = Auth::user()->account;
+        $account->language_id = $language->id;
+        $account->save();
+      }
+    }
   } 
   else if (Auth::check())
   {

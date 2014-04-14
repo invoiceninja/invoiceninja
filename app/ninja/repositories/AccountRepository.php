@@ -24,9 +24,7 @@ class AccountRepository
 		if (Session::has(SESSION_LOCALE))
 		{
 			$locale = Session::get(SESSION_LOCALE);
-			$language = Language::whereLocale($locale)->first();
-
-			if ($language)
+			if ($language = Language::whereLocale($locale)->first())
 			{
 				$account->language_id = $language->id;
 			}

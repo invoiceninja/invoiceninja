@@ -106,13 +106,35 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
 }
 
 
+var invoiceOld;
 function generatePDF(invoice, checkMath) {
-    invoice = calculateAmounts(invoice);
-    report_id=invoice.invoice_design_id;
-    doc= GetPdf(invoice,checkMath,report_id);
-    return doc;
+  console.log('generatePDF: %s', (JSON.stringify(invoice) == invoiceOld));
+  //console.log(JSON.stringify(invoice));
+  //console.log(invoiceOld);
+  invoice = calculateAmounts(invoice);
+  
+  var a = copyInvoice(invoice);
+  var b = copyInvoice(invoiceOld);
+
+  console.log(JSON.stringify(a));
+  console.log(JSON.stringify(b));
+  if (_.isEqual(a, b)) {
+    return;
+  }
+  invoiceOld = invoice;
+  report_id = invoice.invoice_design_id;
+  doc = GetPdf(invoice, checkMath, report_id);
+  return doc;
 }
 
+function copyInvoice(orig) {
+  if (!orig) return false;
+  var copy = JSON.stringify(orig);
+  //console.log(copy);
+  var copy = JSON.parse(copy);
+  //console.log(copy);
+  return copy;
+}
 
 /* Handle converting variables in the invoices (ie, MONTH+1) */
 function processVariables(str) {
@@ -689,11 +711,11 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
       doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 30);
     }
 
-    if (!invoice.is_pro && invoice.imageLogo1)
+    if (!invoice.is_pro && logoImages.imageLogo1)
     {
       pageHeight=820;
-      y=pageHeight-invoice.imageLogoHeight1;
-      doc.addImage(invoice.imageLogo1, 'JPEG', layout.marginLeft, y, invoice.imageLogoWidth1, invoice.imageLogoHeight1);
+      y=pageHeight-logoImages.imageLogoHeight1;
+      doc.addImage(logoImages.imageLogo1, 'JPEG', layout.marginLeft, y, logoImages.imageLogoWidth1, logoImages.imageLogoHeight1);
     }
 
 
@@ -1044,15 +1066,15 @@ function Report2AddFooter (invoice,doc)
     doc.rect(x1, y1, w2, h2, 'FD');
 
 
-    if (!invoice.is_pro && invoice.imageLogo2)
+    if (!invoice.is_pro && logoImages.imageLogo2)
     {
         pageHeight=820;
         var left = 250;//headerRight ;
-        y=pageHeight-invoice.imageLogoHeight2;
+        y=pageHeight-logoImages.imageLogoHeight2;
         var headerRight=370;
 
-        var left = headerRight - invoice.imageLogoWidth2;
-        doc.addImage(invoice.imageLogo2, 'JPEG', left, y, invoice.imageLogoWidth2, invoice.imageLogoHeight2);
+        var left = headerRight - logoImages.imageLogoWidth2;
+        doc.addImage(logoImages.imageLogo2, 'JPEG', left, y, logoImages.imageLogoWidth2, logoImages.imageLogoHeight2);
 
 
     }
@@ -1085,17 +1107,15 @@ function Report3AddFooter (invoice, account, doc, layout)
     doc.rect(x1, y1, w2, h2, 'FD');
 
 
-    if (!invoice.is_pro && invoice.imageLogo3)
+    if (!invoice.is_pro && logoImages.imageLogo3)
     {
         pageHeight=820;
       // var left = 25;//250;//headerRight ;
-        y=pageHeight-invoice.imageLogoHeight3;
+        y=pageHeight-logoImages.imageLogoHeight3;
         //var headerRight=370;
 
         //var left = headerRight - invoice.imageLogoWidth3;
-        doc.addImage(invoice.imageLogo3, 'JPEG', 40, y, invoice.imageLogoWidth3, invoice.imageLogoHeight3);
-
-
+        doc.addImage(logoImages.imageLogo3, 'JPEG', 40, y, logoImages.imageLogoWidth3, logoImages.imageLogoHeight3);
     }
 
 
@@ -1227,12 +1247,12 @@ function Report3AddHeader (invoice,account,doc)
 function Report1AddNewPage(invoice,account,doc)
 {
     doc.addPage();
-    if (invoice.imageLogo1)
+    if (logoImages.imageLogo1)
     {
         pageHeight=820;
-        y=pageHeight-invoice.imageLogoHeight1;
+        y=pageHeight-logoImages.imageLogoHeight1;
         var left = 20;//headerRight - invoice.imageLogoWidth1;
-        doc.addImage(invoice.imageLogo1, 'JPEG', left, y, invoice.imageLogoWidth1, invoice.imageLogoHeight1);
+        doc.addImage(logoImages.imageLogo1, 'JPEG', left, y, logoImages.imageLogoWidth1, logoImages.imageLogoHeight1);
 
     }
 
@@ -1649,4 +1669,29 @@ function displayInvoiceItems(doc, invoice, layout) {
   }
 
   return y;
+}
+
+// http://stackoverflow.com/questions/1068834/object-comparison-in-javascript
+function objectEquals(x, y) {
+    // if both are function
+    if (x instanceof Function) {
+        if (y instanceof Function) {
+            return x.toString() === y.toString();
+        }
+        return false;
+    }
+    if (x === null || x === undefined || y === null || y === undefined) { return x === y; }
+    if (x === y || x.valueOf() === y.valueOf()) { return true; }
+
+    // if one of them is date, they must had equal valueOf
+    if (x instanceof Date) { return false; }
+    if (y instanceof Date) { return false; }
+
+    // if they are not function or strictly equal, they both need to be Objects
+    if (!(x instanceof Object)) { return false; }
+    if (!(y instanceof Object)) { return false; }
+
+    var p = Object.keys(x);
+    return Object.keys(y).every(function (i) { return p.indexOf(i) !== -1; }) ?
+            p.every(function (i) { return objectEquals(x[i], y[i]); }) : false;
 }
