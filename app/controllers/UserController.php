@@ -193,7 +193,7 @@ class UserController extends BaseController {
                 if ($invoice = $this->accountRepo->enableProPlan())
                 {
                     $this->contactMailer->sendInvoice($invoice);
-                    $notice_msg = trans('texts.pro_plan_succes');
+                    $notice_msg = trans('texts.pro_plan_success');
                 }
             }            
 

@@ -5,9 +5,6 @@
 
 	{{ Former::open()->addClass('col-md-8 col-md-offset-2') }}	
 	{{ Former::populate($account) }}
-	{{ Former::populateField('notify_sent', intval(Auth::user()->notify_sent)) }}
-	{{ Former::populateField('notify_viewed', intval(Auth::user()->notify_viewed)) }}
-	{{ Former::populateField('notify_paid', intval(Auth::user()->notify_paid)) }}
 
 	{{ Former::legend('Payment Gateway') }}
 		
@@ -24,10 +21,9 @@
 	@endif
 	
 	<div class="two-column">
-	{{ Former::radios('recommendedGateway_id')
-		->label('Recommended Gateways')
-		->radios($recommendedGateways)
-		->class('recommended-gateway')}}
+	{{ Former::radios('recommendedGateway_id')->label('Recommended Gateways')
+			->radios($recommendedGateways)->class('recommended-gateway')
+	}}
 	</div>
 
 	{{ Former::select('gateway_id')->label('PayPal & Other Gateways')->addOption('', '')

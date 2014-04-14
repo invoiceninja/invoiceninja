@@ -633,16 +633,13 @@
 
 	function createInvoiceModel() {
 		var invoice = ko.toJS(model).invoice;		
-		
+		invoice.is_pro = {{ Auth::user()->isPro() }};
+
 		@if (file_exists($account->getLogoPath()))
 			invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
 			invoice.imageWidth = {{ $account->getLogoWidth() }};
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
-
-
-    //define logo images
-
 
     invoice.imageLogo1 = "{{ HTML::image_data('images/report_logo1.jpg') }}";
     invoice.imageLogoWidth1 =120;
@@ -1019,7 +1016,7 @@
 			}
 			else
 			{
-				if (clients.length > {{ MAX_NUM_CLIENTS}})
+				if (clients.length > {{ Auth::user()->getMaxNumClients() }})
 				{
 					return '';
 				}

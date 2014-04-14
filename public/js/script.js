@@ -97,9 +97,10 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   var totalX = layout.headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
   doc.text(totalX, y, total);   
 
-  
-  doc.setFontType("normal");
-  doc.text(layout.marginLeft, 790, "Created by InvoiceNinja.com");
+  if (!invoice.is_pro) {
+    doc.setFontType("normal");
+    doc.text(layout.marginLeft, 790, "Created by InvoiceNinja.com");
+  }
 
   return doc;     
 }
@@ -688,7 +689,7 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
       doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 30);
     }
 
-    if (invoice.imageLogo1)
+    if (!invoice.is_pro && invoice.imageLogo1)
     {
       pageHeight=820;
       y=pageHeight-invoice.imageLogoHeight1;
@@ -1043,7 +1044,7 @@ function Report2AddFooter (invoice,doc)
     doc.rect(x1, y1, w2, h2, 'FD');
 
 
-    if (invoice.imageLogo2)
+    if (!invoice.is_pro && invoice.imageLogo2)
     {
         pageHeight=820;
         var left = 250;//headerRight ;
@@ -1084,7 +1085,7 @@ function Report3AddFooter (invoice, account, doc, layout)
     doc.rect(x1, y1, w2, h2, 'FD');
 
 
-    if (invoice.imageLogo3)
+    if (!invoice.is_pro && invoice.imageLogo3)
     {
         pageHeight=820;
       // var left = 25;//250;//headerRight ;

@@ -305,5 +305,9 @@ return array(
   'erase_data' => 'This will permanently erase your data.',
   'password' => 'Password',
     
+  'pro_plan_product' => 'Pro Plan',
+  'pro_plan_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
+  'pro_plan_success' => 'Thanks for joining! Once the invoice is paid your Pro Plan membership will begin.',
+
     
 );

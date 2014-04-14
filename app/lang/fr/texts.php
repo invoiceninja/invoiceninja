@@ -102,25 +102,25 @@ return array(
   'no_items' => 'Aucun élément',
 
   // recurring invoices
-  'recurring_invoices' => 'Recurring Invoices',
-  'recurring_help' => '<p>Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. </p>
-        <p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
-        <p>Examples of dynamic invoice variables:</p>
+  'recurring_invoices' => 'Factures récurrentes',
+  'recurring_help' => '<p>Envoyer automatiquement la même facture à vos clients de façon hebdomadaire, bimensuelle, mensuelle, trimestrielle ou annuelle.</p>
+        <p>Utiliser :MONTH, :QUARTER ou :YEAR pour des dates dynamiques. Les opérations simples fonctionnent également, par exemple :MONTH-1.</p>
+        <p>Exemples de variables dynamiques pour les factures:</p>
         <ul>
-          <li>"Gym membership for the month of :MONTH" => "Gym membership for the month of July"</li>
-          <li>":YEAR+1 yearly subscription" => "2015 Yearly Subscription"</li>
-          <li>"Retainer payment for :QUARTER+1" => "Retainer payment for Q2"</li>
+          <li>"Adhésion au club de gym pour le mois de :MONTH" => "Adhésion au club de gym pour le mois de Juillet"</li>
+          <li>":YEAR+1 - abonnement annuel" => "2015 - abonnement annuel"</li>
+          <li>"Acompte pour le :QUARTER+1" => "Acompte pour le Q2"</li>
         </ul>',
 
   // dashboard
-  'in_total_revenue' => 'in total revenue',
-  'billed_client' => 'billed client',
-  'billed_clients' => 'billed clients',
-  'active_client' => 'active client',
-  'active_clients' => 'active clients',  
-  'invoices_past_due' => 'Invoices Past Due',
-  'upcoming_invoices' => 'Upcoming invoices',
-  'average_invoice' => 'Average invoice',
+  'in_total_revenue' => 'de bénéfice total',
+  'billed_client' => 'client facturé',
+  'billed_clients' => 'clients facturés',
+  'active_client' => 'client actif',
+  'active_clients' => 'clients actifs',  
+  'invoices_past_due' => 'Date limite de paiement dépassée',
+  'upcoming_invoices' => 'Factures à venir',
+  'average_invoice' => 'Moyenne de facturation',
   
   // list pages
   'archive' => 'Archive',
@@ -305,6 +305,10 @@ return array(
   'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
   'erase_data' => 'This will permanently erase your data.',
   'password' => 'Password',
+
+  'pro_plan_product' => 'Pro Plan',
+  'pro_plan_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
+  'pro_plan_success' => 'Thanks for joining! Once the invoice is paid your Pro Plan membership will begin.',
   
     
 );

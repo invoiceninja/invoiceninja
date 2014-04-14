@@ -142,6 +142,7 @@ class InvoiceController extends \BaseController {
 
 		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
 		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
+		$invoice->is_pro = $client->account->isPro();
 
 		$data = array(
 			'showBreadcrumbs' => false,
@@ -162,6 +163,7 @@ class InvoiceController extends \BaseController {
 		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
 		$invoice->start_date = Utils::fromSqlDate($invoice->start_date);
 		$invoice->end_date = Utils::fromSqlDate($invoice->end_date);
+		$invoice->is_pro = Auth::user()->isPro();
 
     	$contactIds = DB::table('invitations')
     				->join('contacts', 'contacts.id', '=','invitations.contact_id')

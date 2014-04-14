@@ -370,9 +370,9 @@ class AccountController extends \BaseController {
 		$csv->heading = false;
 		$csv->auto($name);
 		
-		if (count($csv->data) + Client::scope()->count() > MAX_NUM_CLIENTS)
+		if (count($csv->data) + Client::scope()->count() > Auth::user()->getMaxNumClients())
 		{
-			$message = Utils::pluralize('limit_clients', MAX_NUM_CLIENTS);
+			$message = Utils::pluralize('limit_clients', Auth::user()->getMaxNumClients());
 			Session::flash('error', $message);
 			return Redirect::to('company/import_export');
 		}

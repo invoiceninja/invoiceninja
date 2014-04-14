@@ -116,12 +116,10 @@ class PaymentController extends \BaseController
             $gateway->$function($val);
         }
 
-        /*
         if (!Utils::isProd())
         {
             $gateway->setTestMode(true);   
-        }
-        */
+        }        
         
         return $gateway;        
     }
@@ -426,6 +424,13 @@ class PaymentController extends \BaseController
         }
 
         $payment->save();
+
+        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY)
+        {
+            $account = Account::find($invoice->client->public_id);
+            $account->pro_plan_paid = date_create()->format('Y-m-d');
+            $account->save();
+        }
 
         return $payment;
     }

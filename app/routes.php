@@ -200,6 +200,7 @@ define('RECENTLY_VIEWED_LIMIT', 8);
 define('LOGGED_ERROR_LIMIT', 100);
 define('RANDOM_KEY_LENGTH', 32);
 define('MAX_NUM_CLIENTS', 1000);
+define('MAX_NUM_CLIENTS_PRO', 5000);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);
@@ -236,21 +237,27 @@ define('DEFAULT_LOCALE', 'en');
 define('RESULT_SUCCESS', 'success');
 define('RESULT_FAILURE', 'failure');
 
-define('GATEWAY_PAYPAL_EXPRESS', 17);
-define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
-define('PRO_PLAN_PRICE', 40); 
-define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
 
 define('PAYMENT_LIBRARY_OMNIPAY', 1);
 define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
 
+define('GATEWAY_PAYPAL_EXPRESS', 17);
 define('GATEWAY_BEANSTREAM', 29);
+define('GATEWAY_PSIGATE', 30);
+
+define('PRO_PLAN_PRICE', 40); 
+define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
+define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
+define('NINJA_GATEWAY_ID', GATEWAY_PAYPAL_EXPRESS);
+
+
+/*
 define('GATEWAY_AMAZON', 30);
 define('GATEWAY_BLUEPAY', 31);
 define('GATEWAY_BRAINTREE', 32);
 define('GATEWAY_GOOGLE', 33);
-define('GATEWAY_PSIGATE', 34);
 define('GATEWAY_QUICKBOOKS', 35);
+*/
 
 if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
 {
