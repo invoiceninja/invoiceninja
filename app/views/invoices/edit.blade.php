@@ -274,7 +274,7 @@
 	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="1180"></iframe>
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
-	@if (!Auth::user()->account->isPro())
+	@if (false && !Auth::user()->account->isPro())
 		{{ trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="showProPlan()">'.trans('texts.pro_plan.remove_logo_link').'</a>']) }}
 	@endif
 

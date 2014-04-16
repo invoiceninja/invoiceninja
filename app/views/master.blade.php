@@ -19,7 +19,13 @@
     <meta property="og:description" content="Simple, Intuitive Invoicing."></meta>
     <meta name="keywords" content="Invoice Ninja"></meta>    
     
-    <script src="{{ asset('vendor/jquery/jquery.min.js') }}" type="text/javascript"></script>  
+    @if (File::exists('vendor/jquery/jquery.js'))
+      <script src="{{ asset('vendor/jquery/jquery.js') }}" type="text/javascript"></script>  
+    @elseif (File::exists('vendor/jquery/dist/jquery.js'))
+      <script src="{{ asset('vendor/jquery/dist/jquery.js') }}" type="text/javascript"></script>  
+    @else
+      {{ die('Error: Failed to find jQuery') }}
+    @endif
 
     <script type="text/javascript">
     window.onerror = function(e) {
