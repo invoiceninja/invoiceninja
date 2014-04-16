@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 return array(
 
@@ -117,11 +117,11 @@ return array(
   'billed_client' => 'billed client',
   'billed_clients' => 'billed clients',
   'active_client' => 'active client',
-  'active_clients' => 'active clients',  
+  'active_clients' => 'active clients',
   'invoices_past_due' => 'Invoices Past Due',
   'upcoming_invoices' => 'Upcoming invoices',
   'average_invoice' => 'Average invoice',
-  
+
   // list pages
   'archive' => 'Archive',
   'delete' => 'Delete',
@@ -274,10 +274,10 @@ return array(
   // Payment page
   'secure_payment' => 'Secure Payment',
   'card_number' => 'Card number',
-  'expiration_month' => 'Expiration month',  
+  'expiration_month' => 'Expiration month',
   'expiration_year' => 'Expiration year',
   'cvv' => 'CVV',
-  
+
   // Security alerts
   'confide' => [
     'too_many_attempts' => 'Too many attempts. Try again in few minutes.',
@@ -288,7 +288,7 @@ return array(
     'password_reset' => 'Your password has been changed successfully.',
     'wrong_password_reset' => 'Invalid password. Try again',
   ],
-  
+
   // Pro Plan
   'pro_plan' => [
     'remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
@@ -302,7 +302,7 @@ return array(
   'email_taken' => 'The email address is already registered',
   'working' => 'Working',
   'success' => 'Success',
-  'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
+  'success_message' => 'You have successfully registered. Please visit the link in the account confirmation email to verify your email address.',
   'erase_data' => 'This will permanently erase your data.',
   'password' => 'Password',
 
