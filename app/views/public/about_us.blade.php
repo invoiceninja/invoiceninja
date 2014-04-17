@@ -41,16 +41,14 @@
           <p class="blue-text">Co-Founder, CEO</p>
           <p>Shalom has specialized in small business development for nearly 10 years.  In addition to InvoiceNinja.com Shalom is CEO of a leading tour agency in Israel.</p>
           <p><span class="social"><a href="https://twitter.com/shalomstark" target="_blank"><img src="images/twitter.svg" alt="Twitter"></a></span>
-          <span class="social"><a href="https://twitter.com/shalomstark" target="_blank"><img src="images/linkedin.svg" alt="LinkedIn"></a></span>
           </p>
-              <p class="blue-text" style="margin-bottom: 2px;"><a href="http://shalomisraeltours.com/">shalomisraeltours.com</a></p>
-          <p class="blue-text"><a href="http://shalomholytours.com/" target="_blank">shalomholytours.com</a></p>
+              <p class="blue-text" style="margin-bottom: 2px;"><a href="http://shalomisraeltours.com/" target="_blank">shalomisraeltours.com</a></p>
       </div>
     <div class="col-md-3">
           <img src="images/hillelcoren.jpg" alt="Hillel Coren" class="img-circle">
           <h2>HILLEL COREN</h2>
           <p class="blue-text">Co-Founder, CTO</p>
-          <p>Hillel has been developing enterprise applications for nearly 15 years. His open-source <a href="http://www.adobe.com/cfusion/exchange/index.cfm?event=extensionDetail&extid=1721530">AutoComplete component</a> has been used by thousands of developers around the world.</p>
+          <p>Hillel has been developing enterprise applications for 15 years. His open-source <a href="http://www.adobe.com/cfusion/exchange/index.cfm?event=extensionDetail&extid=1721530" target="_blank">AutoComplete</a> component has been used by thousands of developers around the world.</p>
           <p><span class="social"><a href="https://twitter.com/hillelcoren" target="_blank"><img src="images/twitter.svg" alt="Twitter"></a></span>
           <span class="social"><a href="http://www.linkedin.com/profile/view?id=105143214" target="_blank"><img src="images/linkedin.svg" alt="LinkedIn"></a></span>
           </p>
@@ -72,7 +70,7 @@
           <img src="images/benjacobson.jpg" alt="Ben Jacobsen" class="img-circle">
           <h2>BEN JACOBSON</h2>
           <p class="blue-text">Marketing</p>
-          <p>A veteran digital marketer and content strategist, Ben specializes in building communities around brands that make business easier for freelancers, SMBs and micro-entrepreneurs. Ben issues electronic invoices like they were free. 
+          <p>A veteran digital marketer and content strategist, Ben specializes in building communities around brands that make business easier for freelancers, SMBs and micro-entrepreneurs.
 </p>
           <p><span class="social"><a href="https://twitter.com/osbennn" target="_blank"><img src="images/twitter.svg" alt="Twitter"></a></span>
           <span class="social"><a href="https://www.linkedin.com/pub/razi-kantorp/35/368/973" target="_blank"><img src="images/linkedin.svg" alt="LinkedIn"></a></span>

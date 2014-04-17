@@ -8,7 +8,7 @@
 @section('content')
 
 	
-	{{ Former::open($url)->addClass('col-md-10 col-md-offset-1 main_form')->method($method)->rules(array(
+	{{ Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
 		'client' => 'required',
   		'amount' => 'required',		
 	)); }}

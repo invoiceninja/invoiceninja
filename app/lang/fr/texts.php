@@ -309,6 +309,8 @@ return array(
   'pro_plan_product' => 'Plan Pro',
   'pro_plan_description' => 'Inscription d\'une durée d\'un an au Plan Pro d\'Invoice ninja',
   'pro_plan_success' => 'Merci pour votre inscription ! Une fois la facture réglée, votre adhésion au Plan Pro commencera.',
+
+  'unsaved_changes' => 'You have unsaved changes',
   
     
 );

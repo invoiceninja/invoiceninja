@@ -48,7 +48,7 @@
     var currency = currencies[i];
     currencyMap[currency.id] = currency;
   }				
-  var NINJA = {};
+  var NINJA = NINJA || {};
   NINJA.parseFloat = function(str) {
     if (!str) return '';
     str = (str+'').replace(/[^0-9\.\-]/g, '');
@@ -319,7 +319,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 </div>
 @endif
 
-@if (!Utils::isNinjaProd())    
+@if (!Utils::isNinjaProd() && !Utils::isNinjaDev())    
 <div class="container">{{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/" target="_blank">InvoiceNinja.com</a></div>
 @endif
 
@@ -435,8 +435,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
     }
   }
 
-  $(function() 
-  {
+  $(function() {
     $('#search').focus(function(){
       if (!window.hasOwnProperty('searchData')) {
         $.get('{{ URL::route('getSearchData') }}', function(data) {  						
@@ -482,13 +481,6 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
       });
     })
 
-/*
-$(window).on('beforeunload', function() {
-return true;
-});	
-$('form').submit(function() { $(window).off('beforeunload') });
-$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });
-*/
 @endif
 
 @if (false && Session::has('message'))

@@ -17,6 +17,11 @@ class Utils
 		return $_SERVER['SERVER_NAME'] == 'www.invoiceninja.com';
 	}
 
+	public static function isNinjaDev()
+	{
+		return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'];
+	}
+
 	public static function basePath() 
 	{
 		return substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/') + 1);

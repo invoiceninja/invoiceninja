@@ -138,4 +138,19 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 	{
 		return $this->isPro() ? MAX_NUM_CLIENTS_PRO : MAX_NUM_CLIENTS;
 	}
+
+	public function getRememberToken()
+	{
+	    return $this->remember_token;
+	}
+
+	public function setRememberToken($value)
+	{
+	    $this->remember_token = $value;
+	}
+
+	public function getRememberTokenName()
+	{
+	    return 'remember_token';
+	}	
 }

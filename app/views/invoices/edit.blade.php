@@ -16,7 +16,7 @@
 		</ol>  
 	@endif
 
-	{{ Former::open($url)->method($method)->addClass('main_form')->rules(array(
+	{{ Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
 		'client' => 'required',
 		'email' => 'required',
 		'product_key' => 'max:20',
@@ -274,7 +274,7 @@
 	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="1180"></iframe>
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
-	@if (false && !Auth::user()->account->isPro())
+	@if (Utils::isNinjaDev() && !Auth::user()->account->isPro())
 		{{ trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="showProPlan()">'.trans('texts.pro_plan.remove_logo_link').'</a>']) }}
 	@endif
 
@@ -443,9 +443,9 @@
 
 		    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px" id="proPlanDiv">
 		    	&nbsp; 
-
+		    	{{-- trans('texts.') --}}
 		    	&nbsp;
-				</div>
+			</div>
 
 
       <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="proPlanWorking">

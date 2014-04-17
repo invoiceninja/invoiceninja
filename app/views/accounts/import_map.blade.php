@@ -3,7 +3,7 @@
 @section('content')
 	@parent
 
-	{{ Former::open('company/import_export') }}
+	{{ Former::open('company/import_export')->addClass('warn-on-exit') }}
 	{{ Former::legend('import_clients') }}
 
 	@if ($headers)

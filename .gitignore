@@ -12,8 +12,6 @@
 /bootstrap/environment.php
 /vendor
 /.env.development.php
-/composer.phar
-/composer.lock
 /.DS_Store
 /Thumbs.db
 /ninja.sublime-project

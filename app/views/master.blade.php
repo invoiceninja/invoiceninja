@@ -26,7 +26,7 @@
     @else
       {{ die('Error: Failed to find jQuery') }}
     @endif
-
+ 
     <script type="text/javascript">
     window.onerror = function(e) {
       try {
@@ -52,19 +52,35 @@
 
   <body>
 
-  @if (App::environment() == ENV_PRODUCTION && isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])  
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    @if (App::environment() == ENV_PRODUCTION && isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])  
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-      ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}');
-      ga('send', 'pageview');
-    </script>
-  @endif
+        ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}');
+        ga('send', 'pageview');
+      </script>
+    @endif
 
     @yield('body')
+
+    <script type="text/javascript">
+      var NINJA = NINJA || {};
+      NINJA.formIsChanged = false;
+      $(function() {      
+        $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').on('change', function() {
+          NINJA.formIsChanged = true;          
+        }); 
+      });
+      $(window).on('beforeunload', function() {
+        if (NINJA.formIsChanged) {
+          return "{{ trans('texts.unsaved_changes') }}";
+        }
+      }); 
+      //$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });
+    </script> 
 
   </body>
 
