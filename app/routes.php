@@ -99,80 +99,9 @@ Route::group(array('before' => 'auth'), function()
 
 
 
-
-HTML::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
-    $class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2) ) ? ' class="active"' : '';
-    return '<li'.$class.'><a href="'.URL::to($url).'" '.$extra.'>'.trans("texts.$text").'</a></li>';
-});
-
-HTML::macro('tab_link', function($url, $text, $active = false) {
-    $class = $active ? ' class="active"' : '';
-    return '<li'.$class.'><a href="'.URL::to($url).'" data-toggle="tab">'.$text.'</a></li>';
-});
-
-HTML::macro('menu_link', function($type) {
-	$types = $type.'s';
-	$Type = ucfirst($type);
-	$Types = ucfirst($types);
-	$class = ( Request::is($types) || Request::is('*'.$type.'*')) ? ' active' : '';
-
-  return '<li class="dropdown '.$class.'">
-			     <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>
-			     <ul class="dropdown-menu" id="menu1">
-			       <li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>
-            </ul>
-          </li>';
-});
-
-HTML::macro('image_data', function($imagePath) {
-	return 'data:image/jpeg;base64,' . base64_encode(file_get_contents($imagePath));
-});
-
-
-HTML::macro('breadcrumbs', function() {
-  $str = '<ol class="breadcrumb">';
-
-  // Get the breadcrumbs by exploding the current path.
-  $basePath = Utils::basePath();
-  $parts = explode('?', $_SERVER['REQUEST_URI']);
-  $path = $parts[0];
-  
-  if ($basePath != '/')
-  {
-    $path = str_replace($basePath, '', $path);
-  }
-  $crumbs = explode('/', $path);
-
-  foreach ($crumbs as $key => $val)
-  {
-    if (is_numeric($val))
-    {
-      unset($crumbs[$key]);
-    }
-  }
-
-  $crumbs = array_values($crumbs);
-  for ($i=0; $i<count($crumbs); $i++) {
-    $crumb = trim($crumbs[$i]);
-    if (!$crumb) continue;
-    if ($crumb == 'company') return '';
-    $name = trans("texts.$crumb");
-    if ($i==count($crumbs)-1) 
-    {
-      $str .= "<li class='active'>$name</li>";  
-    }
-    else
-    {
-      $str .= '<li>'.link_to($crumb, $name).'</li>';   
-    }
-  }
-  return $str . '</ol>';
-});
-
-
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
 define('CONTACT_NAME', 'Invoice Ninja');
-
+define('NINJA_URL', 'https://www.invoiceninja.com');
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');
@@ -194,6 +123,7 @@ define('ACCOUNT_IMPORT_EXPORT', 'import_export');
 define('ACCOUNT_PAYMENTS', 'payments');
 define('ACCOUNT_MAP', 'import_map');
 define('ACCOUNT_EXPORT', 'export');
+define('ACCOUNT_CUSTOM_FIELDS', 'custom_fields');
 
 define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
@@ -259,6 +189,84 @@ define('GATEWAY_GOOGLE', 33);
 define('GATEWAY_QUICKBOOKS', 35);
 */
 
+
+
+HTML::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
+    $class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2) ) ? ' class="active"' : '';
+    $title = ucwords(trans("texts.$text")) . Utils::getProLabel($text);
+    return '<li'.$class.'><a href="'.URL::to($url).'" '.$extra.'>'.$title.'</a></li>';
+});
+
+HTML::macro('tab_link', function($url, $text, $active = false) {
+    $class = $active ? ' class="active"' : '';
+    return '<li'.$class.'><a href="'.URL::to($url).'" data-toggle="tab">'.$text.'</a></li>';
+});
+
+HTML::macro('menu_link', function($type) {
+  $types = $type.'s';
+  $Type = ucfirst($type);
+  $Types = ucfirst($types);
+  $class = ( Request::is($types) || Request::is('*'.$type.'*')) ? ' active' : '';
+
+  return '<li class="dropdown '.$class.'">
+           <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>
+           <ul class="dropdown-menu" id="menu1">
+             <li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>
+            </ul>
+          </li>';
+});
+
+HTML::macro('image_data', function($imagePath) {
+  return 'data:image/jpeg;base64,' . base64_encode(file_get_contents($imagePath));
+});
+
+
+HTML::macro('breadcrumbs', function() {
+  $str = '<ol class="breadcrumb">';
+
+  // Get the breadcrumbs by exploding the current path.
+  $basePath = Utils::basePath();
+  $parts = explode('?', $_SERVER['REQUEST_URI']);
+  $path = $parts[0];
+  
+  if ($basePath != '/')
+  {
+    $path = str_replace($basePath, '', $path);
+  }
+  $crumbs = explode('/', $path);
+
+  foreach ($crumbs as $key => $val)
+  {
+    if (is_numeric($val))
+    {
+      unset($crumbs[$key]);
+    }
+  }
+
+  $crumbs = array_values($crumbs);
+  for ($i=0; $i<count($crumbs); $i++) {
+    $crumb = trim($crumbs[$i]);
+    if (!$crumb) continue;
+    if ($crumb == 'company') return '';
+    $name = trans("texts.$crumb");
+    if ($i==count($crumbs)-1) 
+    {
+      $str .= "<li class='active'>$name</li>";  
+    }
+    else
+    {
+      $str .= '<li>'.link_to($crumb, $name).'</li>';   
+    }
+  }
+  return $str . '</ol>';
+});
+
+function uctrans($text)
+{
+  return ucwords(trans($text));
+}
+
+
 if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
 {
 	Event::fire('user.refresh');
@@ -276,8 +284,8 @@ Validator::extend('has_credit', function($attribute, $value, $parameters)
 	
 	$client = Client::scope($publicClientId)->firstOrFail();
 	$credit = $client->getTotalCredit();
-    
-    return $credit >= $amount;
+  
+  return $credit >= $amount;
 });
 
 

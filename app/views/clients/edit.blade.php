@@ -25,7 +25,15 @@
 			{{ Former::text('name')->data_bind("attr { placeholder: placeholderName }") }}
 			{{ Former::text('website') }}
 			{{ Former::text('work_phone') }}
-
+			
+			@if (Auth::user()->isPro())				
+				@if ($customLabel1)
+					{{ Former::text('custom_value1')->label($customLabel1) }}
+				@endif
+				@if ($customLabel2)
+					{{ Former::text('custom_value2')->label($customLabel2) }}
+				@endif
+			@endif
 
 			{{ Former::legend('address') }}
 			{{ Former::text('address1') }}

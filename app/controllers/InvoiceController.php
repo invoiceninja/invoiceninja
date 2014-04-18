@@ -182,7 +182,7 @@ class InvoiceController extends \BaseController {
 				'url' => 'invoices/' . $publicId, 
 				'title' => '- ' . $invoice->invoice_number,
 				'client' => $invoice->client);
-		$data = array_merge($data, InvoiceController::getViewModel());
+		$data = array_merge($data, self::getViewModel());
 		return View::make('invoices.edit', $data);
 	}
 
@@ -206,11 +206,11 @@ class InvoiceController extends \BaseController {
 				'url' => 'invoices', 
 				'title' => '- New Invoice',
 				'client' => $client);
-		$data = array_merge($data, InvoiceController::getViewModel());				
+		$data = array_merge($data, self::getViewModel());				
 		return View::make('invoices.edit', $data);
 	}
 
-	public static function getViewModel()
+	private static function getViewModel()
 	{
 		return [
 			'account' => Auth::user()->account,

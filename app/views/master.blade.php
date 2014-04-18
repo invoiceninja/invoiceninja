@@ -70,16 +70,17 @@
       var NINJA = NINJA || {};
       NINJA.formIsChanged = false;
       $(function() {      
-        $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').on('change', function() {
-          NINJA.formIsChanged = true;          
+        $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function() {
+          NINJA.formIsChanged = true;      
         }); 
       });
+      $('form').submit(function() {
+        NINJA.formIsChanged = false;
+      });
       $(window).on('beforeunload', function() {
-        /*
         if (NINJA.formIsChanged) {
           return "{{ trans('texts.unsaved_changes') }}";
         }
-        */
       }); 
       //$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });
     </script> 

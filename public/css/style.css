@@ -637,6 +637,9 @@ div.fb_iframe_widget {
 div.fb_iframe_widget > span {
     vertical-align: top !important;  
 }
+.pro-label {
+    font-size:9px;
+}
 
 @media (max-width: 767px) {
     .navbar-default .navbar-nav .open .dropdown-menu > li > a {

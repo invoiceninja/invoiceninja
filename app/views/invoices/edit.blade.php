@@ -294,7 +294,17 @@
 				{{ Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }") }}
 				{{ Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") }}
-				
+
+				@if (Auth::user()->isPro())				
+					@if ($account->custom_client_label1)
+						{{ Former::text('custom_value1')->label($account->custom_client_label1)
+							->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") }}
+					@endif
+					@if ($account->custom_client_label2)
+						{{ Former::text('custom_value2')->label($account->custom_client_label2)
+							->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") }}
+					@endif
+				@endif				
 				
 				{{ Former::legend('address') }}
 				{{ Former::text('address1')->data_bind("value: address1, valueUpdate: 'afterkeydown'") }}
@@ -1217,6 +1227,8 @@
 		self.public_id = ko.observable(0);
 		self.name = ko.observable('');
 		self.work_phone = ko.observable('');
+		self.custom_value1 = ko.observable('');
+		self.custom_value2 = ko.observable('');
 		self.private_notes = ko.observable('');
 		self.address1 = ko.observable('');
 		self.address2 = ko.observable('');

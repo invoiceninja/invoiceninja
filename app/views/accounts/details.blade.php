@@ -14,7 +14,7 @@
 	{{ Former::open_for_files()->addClass('col-md-10 col-md-offset-1 warn-on-exit')->rules(array(
   		'name' => 'required',
   		'email' => 'email|required'
-	)); }}
+	)) }}
 
 	{{ Former::populate($account) }}
 	{{ Former::populateField('first_name', $account->users()->first()->first_name) }}

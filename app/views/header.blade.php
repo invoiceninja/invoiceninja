@@ -1,7 +1,6 @@
 @extends('master')
 
 
-
 @section('head')
 <meta name="csrf-token" content="<?= csrf_token() ?>">
 
@@ -90,7 +89,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a href="{{ URL::to('/') }}" class='navbar-brand'>
+      <a href="{{ Utils::isNinja() || Auth::check() ? URL::to('/') : NINJA_URL }}" class='navbar-brand'>
         <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:18px;width:auto"/>
       </a>	    
     </div>
@@ -139,10 +138,11 @@
             <span class="caret"></span>
           </button>			
           <ul class="dropdown-menu" role="menu">
-            <li>{{ link_to('company/details', trans('texts.company_details')) }}</li>
-            <li>{{ link_to('company/payments', trans('texts.online_payments')) }}</li>
-            <li>{{ link_to('company/notifications', trans('texts.notifications')) }}</li>
-            <li>{{ link_to('company/import_export', trans('texts.import_export')) }}</li>
+            <li>{{ link_to('company/details', uctrans('texts.company_details')) }}</li>
+            <li>{{ link_to('company/payments', uctrans('texts.online_payments')) }}</li>
+            <li>{{ link_to('company/notifications', uctrans('texts.notifications')) }}</li>
+            <li>{{ link_to('company/import_export', uctrans('texts.import_export')) }}</li>
+            <!--<li><a href="{{ url('company/custom_fields') }}">{{ uctrans('texts.custom_fields') . Utils::getProLabel(ACCOUNT_CUSTOM_FIELDS) }}</a></li>-->
 
             <li class="divider"></li>
             <li>{{ link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) }}</li>

@@ -215,6 +215,11 @@ class Account extends Eloquent
 	
 	public function isPro()
 	{
+		if (Utils::isNinja())
+		{
+			return true;
+		}
+
 		if ($this->account_key == NINJA_ACCOUNT_KEY)
 		{
 			return true;

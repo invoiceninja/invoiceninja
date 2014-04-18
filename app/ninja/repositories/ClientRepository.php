@@ -46,8 +46,11 @@ class ClientRepository
 			$contact = $client->contacts()->where('is_primary', '=', true)->firstOrFail();
 		}
 		
+
 		$client->name = trim($data['name']);
-		$client->work_phone = trim($data['work_phone']);
+		$client->work_phone = trim($data['work_phone']);		
+		$client->custom_value1 = trim($data['custom_value1']);
+		$client->custom_value2 = trim($data['custom_value2']);
 		$client->address1 = trim($data['address1']);
 		$client->address2 = trim($data['address2']);
 		$client->city = trim($data['city']);

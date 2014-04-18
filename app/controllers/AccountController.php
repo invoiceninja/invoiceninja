@@ -132,13 +132,14 @@ class AccountController extends \BaseController {
 				);
 				$recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
 			}
-				$otherItem = array(
-					'value' => 1000000,
-					'other' => 'true',
-					'data-imageUrl' => '',
-					'data-siteUrl' => ''
-				);
-				$recommendedGatewayArray['Other Options'] = $otherItem;
+
+			$otherItem = array(
+				'value' => 1000000,
+				'other' => 'true',
+				'data-imageUrl' => '',
+				'data-siteUrl' => ''
+			);
+			$recommendedGatewayArray['Other Options'] = $otherItem;
 			
 			$data = [
 				'account' => $account,
@@ -180,6 +181,14 @@ class AccountController extends \BaseController {
 		{
 			return View::make('accounts.import_export');	
 		}	
+		else if ($section == ACCOUNT_CUSTOM_FIELDS)
+		{
+			$data = [
+				'account' => Auth::user()->account
+			];
+
+			return View::make('accounts.custom_fields', $data);	
+		}
 	}
 
 	public function doSection($section = ACCOUNT_DETAILS)
@@ -208,6 +217,26 @@ class AccountController extends \BaseController {
 		{
 			return AccountController::export();
 		}		
+		else if ($section == ACCOUNT_CUSTOM_FIELDS)
+		{
+			return AccountController::saveCustomFields();
+		}
+	}
+
+	private function saveCustomFields()
+	{
+		$account = Auth::user()->account;
+
+		$account->custom_label1 = Input::get('custom_label1');
+		$account->custom_value1 = Input::get('custom_value1');
+		$account->custom_label2 = Input::get('custom_label2');
+		$account->custom_value2 = Input::get('custom_value2');
+		$account->custom_client_label1 = Input::get('custom_client_label1');
+		$account->custom_client_label2 = Input::get('custom_client_label2');		
+		$account->save();
+
+		Session::flash('message', trans('texts.updated_settings'));
+		return Redirect::to('company/custom_fields');		
 	}
 
 	private function export()
@@ -466,7 +495,7 @@ class AccountController extends \BaseController {
 
 	private function saveNotifications()
 	{
-		$account = Account::findOrFail(Auth::user()->account_id);			
+		$account = Auth::user()->account;
 		$account->invoice_terms = Input::get('invoice_terms');
 		$account->email_footer = Input::get('email_footer');
 		$account->save();

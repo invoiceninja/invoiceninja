@@ -12,6 +12,11 @@ class Utils
 		return App::environment() == ENV_PRODUCTION;
 	}	
 
+	public static function isNinja()
+	{
+		return self::isNinjaProd() || self::isNinjaDev();
+	}
+
 	public static function isNinjaProd()
 	{
 		return $_SERVER['SERVER_NAME'] == 'www.invoiceninja.com';
@@ -20,6 +25,20 @@ class Utils
 	public static function isNinjaDev()
 	{
 		return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'];
+	}
+
+	public static function getProLabel($feature)
+	{
+		if (Auth::check() 
+				&& !Auth::user()->isPro() 
+				&& $feature == 'custom_fields')
+		{
+			return '&nbsp;<sup class="pro-label">PRO</sup>';
+		}
+		else
+		{
+			return '';
+		}
 	}
 
 	public static function basePath() 
