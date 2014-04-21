@@ -311,6 +311,12 @@ return array(
   'pro_plan_success' => 'Merci pour votre inscription ! Une fois la facture réglée, votre adhésion au Plan Pro commencera.',
 
   'unsaved_changes' => 'You have unsaved changes',
+  'custom_fields' => 'Custom fields',
+  'company_fields' => 'Company Fields',
+  'client_fields' => 'Client Fields',
+  'field_label' => 'Field Label',
+  'field_value' => 'Field Value',
+  'edit' => 'Edit',
   
     
 );

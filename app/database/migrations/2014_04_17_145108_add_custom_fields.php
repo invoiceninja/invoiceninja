@@ -24,6 +24,7 @@ class AddCustomFields extends Migration {
 			$table->string('custom_client_label2');
 		});	
 
+
 		Schema::table('clients', function($table)
 		{
 			$table->string('custom_value1');

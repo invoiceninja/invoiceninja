@@ -330,6 +330,7 @@ class InvoiceController extends \BaseController {
 			{	
 				if (Auth::user()->confirmed)
 				{
+					$message = trans('texts.emailed_invoice');
 					$this->mailer->sendInvoice($invoice);
 					Session::flash('message', $message);
 				}
