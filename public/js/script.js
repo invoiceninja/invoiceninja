@@ -22,17 +22,11 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   doc.setDrawColor(200,200,200);
   doc.setFillColor(230,230,230);
   
+  var detailsHeight = getInvoiceDetailsHeight(invoice, layout)
   var left = layout.headerLeft - layout.tablePadding;
-  var top = layout.headerTop + layout.rowHeight + 4;
+  var top = layout.headerTop + detailsHeight - layout.rowHeight - layout.tablePadding;
   var width = layout.headerRight - layout.headerLeft + (2 * layout.tablePadding);
   var height = layout.rowHeight + 1;
-
-  if (invoice.po_number) {
-    top += layout.rowHeight;
-  }
-  if (invoice.due_date) {
-    top += layout.rowHeight;
-  }
   doc.rect(left, top, width, height, 'FD'); 
 
   doc.setFontSize(10);
@@ -40,7 +34,9 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
 
   displayAccount(doc, invoice, layout.marginLeft, layout.accountTop, layout);
   displayClient(doc, invoice, layout.marginLeft, layout.headerTop, layout);
+
   displayInvoice(doc, invoice, layout.headerLeft, layout.headerTop, layout, layout.headerRight);
+  layout.tableTop = Math.max(layout.tableTop, layout.headerTop + detailsHeight + (2 * layout.tablePadding));
 
   var headerY = layout.headerTop;
   var total = 0;
@@ -636,7 +632,7 @@ function GetPdf(invoice,checkMath,report_id){
     tableRowHeight: 10,
     footerLeft: 420,
     tablePadding: 12,
-    tableTop: 260,
+    tableTop: 250,
     descriptionLeft: 162,
     unitCostRight: 410,
     qtyRight: 480,
@@ -725,13 +721,15 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
     SetPdfColor('Black',doc); //set black color
     doc.setFontSize(9);
 
-    displayInvoice(doc, invoice, 50, 170, layout);
+    var detailsHeight = displayInvoice(doc, invoice, 50, 170, layout);
+    layout.tableTop = Math.max(layout.tableTop, layout.headerTop + detailsHeight + (3 * layout.rowHeight));
+
     displayClient(doc, invoice, 220, 170, layout);
 
     doc.setLineWidth(0.3);        
     doc.setDrawColor(200,200,200);
     doc.line(layout.marginLeft - layout.tablePadding, layout.headerTop + 6, layout.marginRight + layout.tablePadding, layout.headerTop + 6);
-    doc.line(layout.marginLeft - layout.tablePadding, layout.tableTop - 20, layout.marginRight + layout.tablePadding, layout.tableTop - 20);
+    doc.line(layout.marginLeft - layout.tablePadding, layout.headerTop + detailsHeight + 14, layout.marginRight + layout.tablePadding, layout.headerTop + detailsHeight + 14);
  
 
     //doc.setDrawColor(220,220,220);
@@ -880,15 +878,9 @@ function GetReportTemplate2(doc, invoice, layout, checkMath)
   var x1 =595-BlockLenght;
   var y1 = GlobalY-12;
   var w2 = BlockLenght;
-  var h2 = 60;
-  if (invoice.due_date) {
-    h2 += 15;
-  }
-  if (invoice.po_number) {
-    h2 += 15;
-  }
-  doc.rect(x1, y1, w2, h2, 'FD');
+  var h2 = getInvoiceDetailsHeight(invoice, layout) + layout.tablePadding + 2;
 
+  doc.rect(x1, y1, w2, h2, 'FD');
 
 
   SetPdfColor('SomeGreen',doc);
@@ -912,7 +904,8 @@ function GetReportTemplate2(doc, invoice, layout, checkMath)
 
   SetPdfColor('White',doc);
   doc.setFontSize('8');
-  displayInvoice(doc, invoice, marginLeft2, z-25, layout);
+  var detailsHeight = displayInvoice(doc, invoice, marginLeft2, z-25, layout) + 75;
+  layout.tableTop = Math.max(layout.tableTop, layout.headerTop + detailsHeight + (2 * layout.tablePadding));
 
   y=z+60;
 
@@ -1129,7 +1122,7 @@ function GetReportTemplate3(doc, invoice, layout, checkMath)
 
     doc.setFontSize(7);
 
-    Report3AddHeader (invoice,account,doc);
+    Report3AddHeader(invoice, layout, doc);
 
     if (invoice.image)
     {
@@ -1141,18 +1134,21 @@ function GetReportTemplate3(doc, invoice, layout, checkMath)
     Report3AddFooter (invoice, account, doc, layout);
 
 
+    SetPdfColor('White',doc);    
+    doc.setFontSize('8');
+    var detailsHeight = displayInvoice(doc, invoice, layout.headerRight, layout.accountTop-10, layout);
+    layout.headerTop = Math.max(layout.headerTop, detailsHeight + 50);
+    layout.tableTop = Math.max(layout.tableTop, detailsHeight + 150);
+
     SetPdfColor('Black',doc); //set black color
     doc.setFontSize(7);
     doc.setFontType("normal");
     displayClient(doc, invoice, layout.headerRight, layout.headerTop, layout);
 
-    SetPdfColor('White',doc);    
-    doc.setFontSize('8');
-    displayInvoice(doc, invoice, layout.headerRight, layout.accountTop, layout);
-
 
       
-    doc.setFontType("bold");
+    SetPdfColor('White',doc);    
+    doc.setFontType('bold');
 
     doc.setLineWidth(0.3);
     doc.setDrawColor(63,60,60);
@@ -1201,37 +1197,30 @@ function GetReportTemplate3(doc, invoice, layout, checkMath)
 
 
 
-function Report3AddHeader (invoice,account,doc)
+function Report3AddHeader (invoice, layout, doc)
 {
     doc.setLineWidth(0.5);
-    //doc.setFillColor( 46,43,43);
-    //doc.setFillColor( 46,43,43);
     doc.setDrawColor(242,101,34);
     doc.setFillColor(242,101,34);
+
     var x1 =0;
     var y1 = 0;
     var w2 = 595;
-    var h2 = 110;
+    var h2 = Math.max(110, getInvoiceDetailsHeight(invoice, layout) + 30);
     doc.rect(x1, y1, w2, h2, 'FD');
 
     SetPdfColor('White',doc);
+
     //second column
-    doc.setFontType("bold");
+    doc.setFontType('bold');
     var MaxWidth=594;
-    var LineOne= account.name;
+    var LineOne= invoice.account.name;
     var AlignLine = MaxWidth-30- (doc.getStringUnitWidth(LineOne) * doc.internal.getFontSize());
-    if (account.name) {
-
-        //SetPdfColor('SomeGreen',doc);
+    if (LineOne) {
         doc.setFontSize('36');
-        doc.setFontType("bold");
-        doc.text(40,50, LineOne);
-
-        doc.setFontType("normal");
-        doc.setFontSize('7');
+        doc.setFontType('bold');
+        doc.text(40, 50, LineOne);
     }
-
-
 }
 
 
@@ -1301,15 +1290,42 @@ function displayInvoice(doc, invoice, x, y, layout, rightAlignX) {
     return;
   }
 
-  var data = [
+  var data = getInvoiceDetails(invoice);
+  return displayGrid(doc, invoice, data, x, y, layout, true, rightAlignX);
+}
+
+function getInvoiceDetails(invoice) {
+  return [
     {'invoice_number': invoice.invoice_number},
     {'po_number': invoice.po_number},
     {'invoice_date': invoice.invoice_date},
     {'due_date': invoice.due_date},
-    {'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)}
-  ];  
+    {'custom_label1': invoice.account.custom_value1},
+    {'custom_label2': invoice.account.custom_value2},
+    {'custom_client_label1': invoice.client.custom_value1},
+    {'custom_client_label2': invoice.client.custom_value2},
+    {'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)},
+  ]; 
+}
 
-  displayGrid(doc, invoice, data, x, y, layout, true, rightAlignX);
+function getInvoiceDetailsHeight(invoice, layout) {
+  var data = getInvoiceDetails(invoice);
+  var count = 0;
+  for (var key in data) {
+    if (!data.hasOwnProperty(key)) {
+      continue;
+    }
+    var obj = data[key];
+    for (var subKey in obj) {
+      if (!obj.hasOwnProperty(subKey)) {
+        continue;
+      }
+      if (obj[subKey]) {
+        count++;
+      }
+    }
+  }
+  return count * layout.rowHeight;
 }
 
 function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
@@ -1352,7 +1368,6 @@ function concatStrings() {
 function displayGrid(doc, invoice, data, x, y, layout, hasheader, rightAlignX, rightAlignTitleX)  {
   var numLines = 0;
   var origY = y;
-
   for (var i=0; i<data.length; i++) {
     doc.setFontType('normal');
       
@@ -1385,18 +1400,14 @@ function displayGrid(doc, invoice, data, x, y, layout, hasheader, rightAlignX, r
       } else {
         marginLeft = x + 80;
       }
-      doc.text(marginLeft, y, value);        
-
-      /*
-      if (rightAlignTitleX && i === 0) {
-        doc.setFontType('bold');
-      } else {
-        doc.setFontType('normal');
-      }
-      */
+      doc.text(marginLeft, y, value);       
       
       doc.setFontType('normal');
-      key = invoiceLabels[key];
+      if (key.substring(0, 6) === 'custom') {
+        key = invoice.account[key];
+      } else {
+        key = invoiceLabels[key];
+      }
 
       if (rightAlignTitleX) {
         marginLeft = rightAlignTitleX - (doc.getStringUnitWidth(key) * doc.internal.getFontSize());
