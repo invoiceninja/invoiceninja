@@ -48,7 +48,7 @@
 				invoice.imageWidth = {{ $invoice->client->account->getLogoWidth() }};
 				invoice.imageHeight = {{ $invoice->client->account->getLogoHeight() }};
 			@endif
-			var doc = generatePDF(invoice, true);
+			var doc = generatePDF(invoice);
 			if (!doc) return;
 			var string = doc.output('datauristring');
 						
@@ -77,7 +77,7 @@
 		var invoiceLabels = {{ json_encode($invoiceLabels) }};
 
 		function onDownloadClick() {
-			var doc = generatePDF(invoice);
+			var doc = generatePDF(invoice, true);
 			doc.save('Invoice-' + invoice.invoice_number + '.pdf');
 		}
 

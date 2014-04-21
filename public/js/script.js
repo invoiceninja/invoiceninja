@@ -103,16 +103,16 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
 
 
 var invoiceOld;
-function generatePDF(invoice, checkMath) {
+function generatePDF(invoice, force) {
   invoice = calculateAmounts(invoice);  
   var a = copyInvoice(invoice);
   var b = copyInvoice(invoiceOld);
-  if (_.isEqual(a, b)) {
+  if (!force && _.isEqual(a, b)) {
     return;
   }
   invoiceOld = invoice;
   report_id = invoice.invoice_design_id;
-  doc = GetPdf(invoice, checkMath, report_id);
+  doc = GetPdf(invoice, false, report_id);
   return doc;
 }
 

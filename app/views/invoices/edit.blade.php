@@ -680,7 +680,7 @@
 
 	function getPDFString() {		
 		var invoice = createInvoiceModel();
-		var doc = generatePDF(invoice, invoiceLabels);
+		var doc = generatePDF(invoice);
 		if (!doc) return;
 		return doc.output('datauristring');
 	}
@@ -724,7 +724,7 @@
 
 	function onDownloadClick() {
 		var invoice = createInvoiceModel();
-		var doc = generatePDF(invoice);
+		var doc = generatePDF(invoice, true);
 		doc.save('Invoice-' + $('#invoice_number').val() + '.pdf');
 	}
 
