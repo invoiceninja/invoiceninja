@@ -6,7 +6,6 @@
 /app/storage
 /public/logo
 /public/build
-/public/vendor
 /public/packages
 /bootstrap/compiled.php
 /bootstrap/environment.php

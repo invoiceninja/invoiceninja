@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Jasmine Test Runner</title>
+        <link rel="stylesheet" href="lib/jasmine/jasmine.css">
+        <script src="lib/jasmine/jasmine.js"></script>
+        <script src="lib/jasmine/jasmine-html.js"></script>
+
+		<script src="../../accounting.js"></script>
+
+        <script src="core/formatNumberSpec.js"></script>
+        <script src="core/unformatSpec.js"></script>
+        <script src="core/formatMoneySpec.js"></script>
+    </head>
+    <body>
+        <script>
+            //run specs and add reporter
+            jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+            jasmine.getEnv().execute();
+        </script>
+    </body>
+</html>

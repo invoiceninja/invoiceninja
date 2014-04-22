@@ -1,0 +1,21 @@
+{
+  "name": "pdf.js",
+  "version": "0.8.0",
+  "dependencies": {
+    "jshint": "2.4.x",
+    "yargs": "~1.2.1"
+  },
+  "scripts": {
+    "test": "node make lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mozilla/pdf.js.git"
+  },
+  "licenses": [
+    {
+      "type": "Apache v2",
+      "url": "https://github.com/mozilla/pdf.js/blob/master/LICENSE"
+    }
+  ]
+}

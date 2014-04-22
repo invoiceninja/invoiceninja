@@ -1,0 +1,11 @@
+{
+	"name": "DataTables",
+	"version": "1.9.4",
+	"main": [
+		"./media/js/jquery.dataTables.js",
+		"./media/css/jquery.dataTables.css"
+	],
+	"dependencies": {
+		"jquery": "~1.8.0"
+	}
+}

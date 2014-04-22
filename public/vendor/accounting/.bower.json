@@ -1,0 +1,14 @@
+{
+  "name": "accounting",
+  "homepage": "https://github.com/josscrowcroft/accounting.js",
+  "version": "0.3.2",
+  "_release": "0.3.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.3.2",
+    "commit": "b14638fbec7a06cc7e87de0d7d7c8ea2a38d67f5"
+  },
+  "_source": "git://github.com/josscrowcroft/accounting.js.git",
+  "_target": "~0.*",
+  "_originalSource": "accounting"
+}

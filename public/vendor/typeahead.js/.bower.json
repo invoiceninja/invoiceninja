@@ -1,0 +1,20 @@
+{
+  "name": "typeahead.js",
+  "version": "0.9.3",
+  "main": [
+    "dist/typeahead.js"
+  ],
+  "dependencies": {
+    "jquery": "~1.9"
+  },
+  "homepage": "https://github.com/twitter/typeahead.js",
+  "_release": "0.9.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.9.3",
+    "commit": "04068560b2ee15e60a7a8122039fc5b4375612a3"
+  },
+  "_source": "git://github.com/twitter/typeahead.js.git",
+  "_target": "~0.9.3",
+  "_originalSource": "typeahead.js"
+}

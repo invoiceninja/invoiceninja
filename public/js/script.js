@@ -463,7 +463,7 @@ ko.bindingHandlers.datePicker = {
        if (value) $(element).datepicker('update', value);
        $(element).change(function() { 
           var value = valueAccessor();
-            value($(element).val());
+          value($(element).val());
        })
     },
     update: function (element, valueAccessor) {     

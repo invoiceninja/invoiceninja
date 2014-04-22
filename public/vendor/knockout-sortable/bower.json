@@ -1,0 +1,15 @@
+{
+    "name": "knockout-sortable",
+    "version": "0.8.6",
+    "main": "./build/knockout-sortable.min.js",
+    "ignore": [
+        "examples",
+        "ext",
+        "reports",
+        "spec",
+        "src",
+        "Gruntfile.js",
+        "package.json",
+        ".gitignore"
+    ]
+}

@@ -35,10 +35,6 @@ Note: you may be prompted for your Github user/pass due to their API limits.
 
     composer install
 
-Install JavaScript packages using Bower
-
-    bower install
-
 Configure config/database.php and then initialize the database
 
     php artisan migrate --seed

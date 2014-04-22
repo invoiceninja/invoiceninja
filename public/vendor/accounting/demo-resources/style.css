@@ -1,0 +1,186 @@
+/* Borrowed from Markdown.css: http://kevinburke.bitbucket.org/markdowncss/markdown.css */
+body{
+    margin: 0 auto;
+    font-family: Georgia, Palatino, serif;
+    color: #444444;
+    line-height: 1;
+    max-width: 960px;
+    padding: 30px;
+}
+h1, h2, h3, h4 {
+    color: #111111;
+    font-weight: 400;
+}
+h1, h2, h3, h4, h5, p, ul, ol {
+    margin-bottom: 24px;
+    padding: 0;
+}
+h1 {
+    font-size: 48px;
+}
+h2 {
+    font-size: 36px;
+    margin: 24px 0 6px;
+}
+h3 {
+    font-size: 24px;
+}
+h4 {
+    font-size: 21px;
+}
+h5 {
+    font-size: 18px;
+}
+a {
+    color: #0099ff;
+    margin: 0;
+    padding: 0;
+    vertical-align: baseline;
+}
+li {
+    line-height: 24px;
+}
+li ul, li ul {
+	margin-left: 24px;
+}
+p, ul, ol {
+    font-size: 16px;
+    line-height: 24px;
+    max-width: 540px;
+}
+pre {
+    padding: 0px 24px;
+    max-width: 800px;
+    white-space: pre-wrap;
+}
+code {
+    font-family: Consolas, Monaco, Andale Mono, monospace;
+    line-height: 1.5;
+    font-size: 13px;
+}
+aside {
+    display: block;
+    float: right;
+    width: 390px;
+}
+blockquote {
+    margin: 1em 2em;
+    max-width: 476px;
+}
+blockquote p {
+    color: #666;
+    max-width: 460px;
+}
+hr {
+    margin: 0;
+    padding:0;
+    border:0;
+    outline:0;
+    height:2px;
+    background: #bbb;
+}
+
+
+/* Some overrides: */
+/* Thx to http://twitter.github.com/bootstrap/ */
+
+h1 { font-size:40px; }
+h2 { font-size:30px; }
+h3 { font-size:22px; }
+h4 { font-size:18px; padding-top:10px;}
+h5 { font-size:1em; margin-bottom:1em; }
+p, ul, ol { max-width: 580px; }
+ol, ul { padding-left:24px; font-size:0.85em }
+ol#list { font-size:1em }
+a:hover, a:focus { outline:none; color:#e25525 }
+
+section {
+	padding:0 0 10px;
+}
+table{width:100%;margin-bottom:18px;padding:0;text-align:left;border-collapse:separate;font-size:13px;}table th,table td{padding:10px 10px 9px;line-height:13.5px;vertical-align:middle;border-bottom:1px solid #ddd;}
+table th{padding-top:9px;font-weight:bold;border-bottom-width:2px;}
+
+td {
+	white-space:pre;
+	font-family:monospace;
+}
+
+pre {
+	background-color: whiteSmoke;
+	display: block;
+	padding: 17px;
+	margin: 0 0 22px;
+	line-height: 18px;
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	white-space: pre-wrap;
+	overflow:hidden;
+}
+code, pre {
+	padding: 0 3px 2px;
+	font-family: Consolas, Monaco, "Andale Mono", "Courier New", monospace;
+	font-size: 13px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+
+pre.prettyprint {
+  background: #fefbf3;
+  padding: 9px;
+  border: 1px solid rgba(0,0,0,.2);
+  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.1);
+  -moz-box-shadow: 0 1px 2px rgba(0,0,0,.1);
+  box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+
+.pln{color:#222}
+@media screen{
+    .str{color:#080}
+    .kwd{color:#008}
+    .com{color:#800}
+    .typ{color:#606}
+    .lit{color:#066}
+    .pun,
+    .opn,
+    .clo{color:#660}
+    .tag{color:#008}
+    .atn{color:#606}
+    .atv{color:#080}
+    .dec,
+    .var{color:#606}
+    .fun{color:red}
+}
+@media print,projection{
+    .str{color:#060}
+    .kwd{color:#006;font-weight:bold}
+    .com{color:#600;font-style:italic}
+    .typ{color:#404;font-weight:bold}
+    .lit{color:#044}
+    .pun,
+    .opn,
+    .clo{color:#440}
+    .tag{color:#006;font-weight:bold}
+    .atn{color:#404}
+    .atv{color:#060}
+}
+
+
+div.well {
+	background: whiteSmoke;
+	margin: 20px 0;
+	padding: 5px 12px;
+	min-height: 20px;
+	border: 1px solid #DDD;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+	-moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+.well p {
+	max-width:100%;
+}

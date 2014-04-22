@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="vendor/jquery-1.9.1.js"></script>
+    <script src="../dist/typeahead.js"></script>
+
+    <style>
+      .container {
+        width: 800px;
+        margin: 50px auto;
+      }
+
+      .typeahead-wrapper {
+        display: block;
+        margin: 50px 0;
+      }
+
+      .tt-dropdown-menu {
+        background-color: #fff;
+        border: 1px solid #000;
+      }
+
+      .tt-suggestion.tt-is-under-cursor {
+        background-color: #ccc;
+      }
+
+      .triggered-events {
+        float: right;
+        width: 500px;
+        height: 300px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <textarea class="triggered-events"></textarea>
+      <div class="typeahead-wrapper">
+        <input class="states" type="text" placeholder="states" value="Michigan">
+      </div>
+      <div class="typeahead-wrapper">
+        <input class="bad-tokens" type="text" placeholder="bad tokens">
+      </div>
+      <div class="typeahead-wrapper">
+        <input class="regex-symbols" type="text" placeholder="regex symbols">
+      </div>
+      <div class="typeahead-wrapper">
+        <input class="header-footer" type="text" placeholder="header footer">
+      </div>
+    </div>
+
+    <script>
+      $('.states').typeahead({
+        valueKey: 'state',
+        minLength: 3,
+        local: [
+          "Alabama",
+          "Alaska",
+          "Arizona",
+          "Arkansas",
+          "California",
+          "Colorado",
+          "Connecticut",
+          "Delaware",
+          "Florida",
+          "Georgia",
+          "Hawaii",
+          "Idaho",
+          "Illinois",
+          "Indiana",
+          "Iowa",
+          "Kansas",
+          "Kentucky",
+          "Louisiana",
+          "Maine",
+          "Maryland",
+          "Massachusetts",
+          "Michigan",
+          "Minnesota",
+          "Mississippi",
+          "Missouri",
+          "Montana",
+          "Nebraska",
+          "Nevada",
+          "New Hampshire",
+          "New Jersey",
+          "New Mexico",
+          "New York",
+          "North Carolina",
+          "North Dakota",
+          "Ohio",
+          "Oklahoma",
+          "Oregon",
+          "Pennsylvania",
+          "Rhode Island",
+          "South Carolina",
+          "South Dakota",
+          "Tennessee",
+          "Texas",
+          "Utah",
+          "Vermont",
+          "Virginia",
+          "Washington",
+          "West Virginia",
+          "Wisconsin",
+          "Wyoming"
+        ]
+      });
+
+      $('.bad-tokens').typeahead({
+        local: [
+          {
+            value: 'all bad',
+            tokens: ['  ', ' ', null, undefined, false, 'all', 'bad']
+          },
+          {
+            value: 'whitespace',
+            tokens: ['  ', ' ', '\t', '\n', 'whitespace']
+          },
+          {
+            value: 'undefined',
+            tokens: [undefined, 'undefined']
+          },
+          {
+            value: 'null',
+            tokens: [null, 'null']
+          },
+          {
+            value: 'false',
+            tokens: [false, 'false']
+          }
+        ]
+      });
+
+      $('.regex-symbols').typeahead({
+        local: [
+          '*.js',
+          '[Tt]ypeahead.js',
+          '^typeahead.js$',
+          'typeahead.js(0.8.2)',
+          'typeahead.js(@\\d.\\d.\\d)',
+          'typeahead.js@0.8.2'
+        ]
+      });
+      
+      $('.header-footer').typeahead([
+        {
+          header: '<h3>Header</h3>',
+          footer: '<h3>Footer</h3>',
+          local: ['a', 'ab', 'abc', 'abcd', 'abcde']
+        },
+        {
+          header: '<h3>Start</h3>',
+          footer: '<h3>End</h3>',
+          local: ['abc', 'bcd', 'cde', 'def', 'efg']
+        }
+      ]);
+
+      $('input').on([
+        'typeahead:initialized',
+        'typeahead:selected',
+        'typeahead:autocompleted',
+        'typeahead:opened',
+        'typeahead:closed'
+      ].join(' '), logToTextarea);
+
+      function logToTextarea($e) {
+        var $textarea = $('.triggered-events'),
+            val = $textarea.val(),
+            args = [].slice.call(arguments, 1)
+            type = $e.type,
+            stringifiedArgs = window.JSON ? JSON.stringify(args) : '';
+
+        $textarea.val([val, type, stringifiedArgs, '\n'].join('\n'));
+        $textarea[0].scrollTop = $textarea[0].scrollHeight;
+      }
+    </script>
+  </body>
+</html>

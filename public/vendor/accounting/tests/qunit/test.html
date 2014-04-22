@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+	<title>accounting.js test suite</title>
+	<link rel="stylesheet" href="vendor/qunit.css" type="text/css" media="screen" />
+	<script type="text/javascript" src="vendor/jquery.js"></script>
+	<script type="text/javascript" src="vendor/qunit.js"></script>
+	<script type="text/javascript" src="vendor/jslitmus.js"></script>
+	<script type="text/javascript" src="../../accounting.js"></script>
+	
+	<script type="text/javascript" src="methods.js"></script>
+	<script type="text/javascript" src="speed.js"></script>
+</head>
+<body>
+  <div class="accountingjs-test">
+    <h1 id="qunit-header">accounting.js tests</h1>
+    <h2 id="qunit-banner"></h2>
+    <h2 id="qunit-userAgent"></h2>
+    <ol id="qunit-tests"></ol>
+    <br />
+    <h1 class="qunit-header">accounting.js speed tests</h1>
+    <p>Each library method is represented here running on predefined random numbers/strings, with default parameters, to provide a sense of how fast they might run in different browsers.</p>
+    <br />
+
+    <script type="text/html" id="template">
+      <%
+      if (data) { data += 12345; }; %>
+      <li><%= data %></li>
+    </script>
+  </div>
+</body>
+</html>
