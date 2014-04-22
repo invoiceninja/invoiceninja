@@ -71,6 +71,10 @@ return array(
     "unique"           => ":attribute ist schon vergeben.",
     "url"              => "Das Format von :attribute ist ungültig.",
 
+    "positive" => "The :attribute must be greater than zero.",
+    "has_credit" => "The client does not have enough credit.",
+    "notmasked" => "The values are masked",
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

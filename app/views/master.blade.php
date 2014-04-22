@@ -30,7 +30,7 @@
     <script type="text/javascript">
     var NINJA = NINJA || {};      
     NINJA.isRegistered = {{ Utils::isRegistered() ? 'true' : 'false' }};    
-
+    
     window.onerror = function(e) {
       try {
         $.ajax({

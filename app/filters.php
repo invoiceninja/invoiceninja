@@ -13,6 +13,9 @@
 
 App::before(function($request)
 {
+  $count = Session::get(SESSION_COUNTER, 0);
+  Session::put(SESSION_COUNTER, ++$count);
+  
   if (App::environment() == ENV_PRODUCTION)
   {
     if (!Request::secure()) 

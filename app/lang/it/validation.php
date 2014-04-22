@@ -70,6 +70,10 @@ return array(
     "unique"           => ":attribute è stato già utilizzato.",
     "url"              => ":attribute deve essere un URL.",
 
+    "positive" => "The :attribute must be greater than zero.",
+    "has_credit" => "The client does not have enough credit.",
+    "notmasked" => "The values are masked",
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

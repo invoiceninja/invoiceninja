@@ -114,12 +114,32 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 		return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
 	}
 
-	public function showSignUpPopOver()
+	public function getRequestsCount()
 	{
-		$count = Session::get(SESSION_COUNTER, 0);
-		Session::put(SESSION_COUNTER, ++$count);
+		return Session::get(SESSION_COUNTER, 0);
+	}
 
-		return $count == 1 || $count % 7 == 0;
+	public function getPopOverText()
+	{
+		if (!Auth::check())
+		{
+			return false;
+		}
+
+		$count = self::getRequestsCount();
+		if ($count == 1 || $count % 5 == 0)
+		{
+			if (!Utils::isRegistered())
+			{
+				return trans('texts.sign_up_to_save');
+			}
+			else if (!Auth::user()->account->name)
+			{
+				return trans('texts.set_name');
+			}
+		}
+
+		return false;
 	}
 
 	public function afterSave($success=true, $forced = false)

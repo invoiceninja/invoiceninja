@@ -701,6 +701,8 @@ class AccountController extends \BaseController {
 			Session::set(REQUESTED_PRO_PLAN, true);
 		}
 
+		Session::set(SESSION_COUNTER, -1);
+
 		return "{$user->first_name} {$user->last_name}";
 	}
 }

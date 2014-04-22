@@ -72,6 +72,10 @@ return array(
 "positive" => ":attribute deve ser maior que zero.",
 "has_credit" => "O cliente não possui crédito suficiente.",
 
+"positive" => "The :attribute must be greater than zero.",
+"has_credit" => "The client does not have enough credit.",
+"notmasked" => "The values are masked",
+
 
 /*
 |--------------------------------------------------------------------------

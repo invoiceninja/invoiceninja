@@ -323,7 +323,7 @@ return array(
   'field_label' => 'Field Label',
   'field_value' => 'Field Value',
   'edit' => 'Edit',
-
+  'set_name' => 'Set your company name',
 
 
 
