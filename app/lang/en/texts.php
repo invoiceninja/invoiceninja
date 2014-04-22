@@ -308,7 +308,13 @@ return array(
 
   'pro_plan_product' => 'Pro Plan',
   'pro_plan_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
-  'pro_plan_success' => 'Thanks for joining! Once the invoice is paid your Pro Plan membership will begin.',
+  'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!<p/>
+                          <b>Next Steps</b><p/>A payable invoice has been sent to the email 
+                          address associated with your account. To unlock all of the awesome 
+                          Pro features, please follow the instructions on the invoice to pay 
+                          for a year of Pro-level invoicing.<p/>
+                          Can\'t find the invoice? Need further assistance? We\'re happy to help 
+                          -- email us at contact@invoiceninja.com',
 
   'unsaved_changes' => 'You have unsaved changes',
   'custom_fields' => 'Custom fields',
@@ -317,5 +323,9 @@ return array(
   'field_label' => 'Field Label',
   'field_value' => 'Field Value',
   'edit' => 'Edit',
+
+
+
+
 
 );

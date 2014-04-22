@@ -102,11 +102,10 @@ class AccountRepository
 			return false;
 		}
 
-		$account = Auth::user()->account;
-		$lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
+		$ninjaAccount = $this->getNinjaAccount();		
+		$lastInvoice = Invoice::withTrashed()->whereAccountId($ninjaAccount->id)->orderBy('public_id', 'DESC')->first();
 		$publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
 
-		$ninjaAccount = $this->getNinjaAccount($publicId);
 		$ninjaClient = $this->getNinjaClient($ninjaAccount);
 		$invoice = $this->createNinjaInvoice($publicId, $ninjaAccount, $ninjaClient);
 
@@ -148,7 +147,7 @@ class AccountRepository
 		return $invoice;
 	}
 
-	private function getNinjaAccount($publicId)
+	private function getNinjaAccount()
 	{
 		$account = Account::whereAccountKey(NINJA_ACCOUNT_KEY)->first();
 
@@ -182,7 +181,7 @@ class AccountRepository
 			$accountGateway = new AccountGateway();
 			$accountGateway->user_id = $user->id;
 			$accountGateway->gateway_id = NINJA_GATEWAY_ID;
-			$accountGateway->public_id = $publicId;
+			$accountGateway->public_id = 1;
 			$accountGateway->config = isset($_ENV['NINJA_GATEWAY_CONFIG']) ? $_ENV['NINJA_GATEWAY_CONFIG'] : null;
 			$account->account_gateways()->save($accountGateway);
 		}

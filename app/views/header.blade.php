@@ -257,8 +257,8 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         @endif
 
         <div style="display:none">
-        {{ Former::text('path')->value(Request::path()) }}
-        {{ Former::text('go_pro') }}
+          {{ Former::text('path')->value(Request::path()) }}
+          {{ Former::text('go_pro') }}
         </div>
 
         {{ Former::text('new_first_name')->label(trans('texts.first_name')) }}
@@ -317,6 +317,46 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
     </div>
   </div>
 </div>
+@endif
+
+@if (Auth::check() && !Auth::user()->isPro())
+  <div class="modal fade" id="proPlanModal" tabindex="-1" role="dialog" aria-labelledby="proPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="min-width:150px">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="proPlanModalLabel">{{ trans('texts.pro_plan_product') }}</h4>
+        </div>
+
+        <div style="background-color: #fff; padding-left: 16px; padding-right: 16px" id="proPlanDiv">
+          &nbsp; 
+          {{-- trans('texts.') --}}
+          &nbsp;
+      </div>
+
+
+      <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="proPlanWorking">
+        <h3>{{ trans('texts.working') }}...</h3>
+        <div class="progress progress-striped active">
+          <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+        </div>
+      </div>
+
+      <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="proPlanSuccess">
+        &nbsp;<br/>
+        {{ trans('texts.pro_plan_success') }}
+        <br/>&nbsp;
+      </div>
+
+       <div class="modal-footer" style="margin-top: 0px" id="proPlanFooter">
+          <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>          
+          <button type="button" class="btn btn-primary" id="proPlanButton" onclick="submitProPlan()">{{ trans('texts.sign_up') }}</button>                    
+       </div>     
+      </div>
+    </div>
+  </div>
+
+
 @endif
 
 @if (!Utils::isNinjaProd() && !Utils::isNinjaDev())    
@@ -405,7 +445,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
       success: function(result) { 
         if (result) {
           localStorage.setItem('guest_key', '');
-          isRegistered = true;
+          NINJA.isRegistered = true;
           $('#signUpButton').hide();
           $('#myAccountButton').html(result);                            
         }            
@@ -425,15 +465,46 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
   }
   @endif
 
-  window.isRegistered = {{ Auth::check() && Auth::user()->registered ? 'true' : 'false' }};
   function logout(force)
   {
-    if (force || isRegistered) {
+    if (force) {
+      NINJA.formIsChanged = false;
+    }
+
+    if (force || NINJA.isRegistered) {            
       window.location = '{{ URL::to('logout') }}';
     } else {
       $('#logoutModal').modal('show');	
     }
   }
+
+  @if (Auth::check() && !Auth::user()->isPro())
+  function showProPlan() {
+    $('#proPlanModal').modal('show');       
+  }
+
+  function submitProPlan() {
+
+    if (NINJA.isRegistered) {
+      $('#proPlanDiv, #proPlanFooter').hide();
+      $('#proPlanWorking').show();
+
+      $.ajax({
+        type: 'POST',
+        url: '{{ URL::to('account/go_pro') }}',
+        success: function(result) { 
+          $('#proPlanSuccess, #proPlanFooter').show();
+          $('#proPlanWorking, #proPlanButton').hide();
+        }
+      });     
+    } else {
+      $('#proPlanModal').modal('hide');
+      $('#go_pro').val('true');
+      showSignUp();
+    }
+  }
+  @endif
+
 
   $(function() {
     $('#search').focus(function(){
@@ -480,17 +551,11 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         }
       });
     })
+    @endif
 
-@endif
+    @yield('onReady')
 
-@if (false && Session::has('message'))
-setTimeout(function() {
-  $('.alert-info').fadeOut();
-}, 3000);
-@endif		
-
-@yield('onReady')
-});
+  });
 
 </script>  
 

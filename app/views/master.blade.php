@@ -28,6 +28,9 @@
     @endif
  
     <script type="text/javascript">
+    var NINJA = NINJA || {};      
+    NINJA.isRegistered = {{ Utils::isRegistered() ? 'true' : 'false' }};    
+
     window.onerror = function(e) {
       try {
         $.ajax({
@@ -67,7 +70,6 @@
     @yield('body')
 
     <script type="text/javascript">
-      var NINJA = NINJA || {};
       NINJA.formIsChanged = false;
       $(function() {      
         $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function() {
