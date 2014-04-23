@@ -145,6 +145,7 @@ class InvoiceController extends \BaseController {
 		$invoice->is_pro = $client->account->isPro();
 
 		$data = array(
+			'hideHeader' => true,
 			'showBreadcrumbs' => false,
 			'invoice' => $invoice->hidePrivateFields(),
 			'invitation' => $invitation,

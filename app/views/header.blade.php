@@ -94,8 +94,8 @@
       </a>	    
     </div>
 
-    @if (Auth::check())
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
+      @if (Auth::check() && !isset($hideHeader))
       <ul class="nav navbar-nav" style="font-weight: bold">
         {{ HTML::nav_link('dashboard', 'dashboard') }}
         {{ HTML::menu_link('client') }}
@@ -178,8 +178,11 @@
           </ul>
         </li>
       </ul>
-      @endif      
-
+      @else
+        <div style="height:60px"/>
+      @endif  
+      
+      
     </div><!-- /.navbar-collapse -->
 
 

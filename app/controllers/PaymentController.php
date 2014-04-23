@@ -250,6 +250,7 @@ class PaymentController extends \BaseController
 
         $data = [
             'showBreadcrumbs' => false,
+            'hideHeader' => true,
             'invitationKey' => $invitationKey,
             'invoice' => $invoice,
             'client' => $client,

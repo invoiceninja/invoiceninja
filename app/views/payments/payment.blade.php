@@ -73,14 +73,13 @@
       {{ Former::text('state')->label('State/Province') }}
       {{ Former::text('postal_code') }}
       
-      <?php if(strtolower($gateway->name) == 'beanstream') { ?>
-		{{ Former::select('country')->addOption('','')->label('Country')
-			->fromQuery($countries, 'name', 'iso_3166_2') }}
-	  	{{ Former::text('phone') }}
-	  	{{ Former::text('email') }}
-	  <?php } ?>
-	  
-	  <?php echo($gateway->name); ?>
+      @if(strtolower($gateway->name) == 'beanstream')
+		    {{ Former::select('country')->addOption('','')->label('Country')
+			       ->fromQuery($countries, 'name', 'iso_3166_2') }}
+	  	  {{ Former::text('phone') }}
+	  	  {{ Former::text('email') }}
+	    @endif
+	  	  
       {{ Former::actions( Button::primary_submit_lg(trans('texts.pay_now') . ' - ' . Utils::formatMoney($invoice->amount, $client->currency_id) )) }}
 
     </div>
