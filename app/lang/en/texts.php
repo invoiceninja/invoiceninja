@@ -324,7 +324,7 @@ return array(
   'field_value' => 'Field Value',
   'edit' => 'Edit',
   'set_name' => 'Set your company name',
-  'view_invoice' => 'View invoice',
+  'view_as_recipient' => 'View as recipient',
 
 
 
