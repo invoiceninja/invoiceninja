@@ -207,9 +207,13 @@ class InvoiceRepository
           $product->product_key = trim($item->product_key);
         }
 
-        $product->notes = $item->notes;
-        $product->cost = $item->cost;
-        //$product->qty = $item->qty;        
+        if (\Auth::user()->account->update_products)
+        {
+          $product->notes = $item->notes;
+          $product->cost = $item->cost;
+          //$product->qty = $item->qty;
+        }
+        
         $product->save();
       }
 

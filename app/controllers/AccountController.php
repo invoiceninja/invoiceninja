@@ -199,34 +199,6 @@ class AccountController extends \BaseController {
 		}
 	}
 
-	public function getProducts()
-	{
-    $query = DB::table('products')
-                ->where('products.account_id', '=', Auth::user()->account_id)
-                ->where('products.deleted_at', '=', null)
-                ->select('products.public_id', 'products.product_key', 'products.notes', 'products.cost');
-
-
-    return Datatable::query($query)
-	    ->addColumn('product_key', function($model) { return link_to('company/products/' . $model->public_id . '/edit', $model->product_key); })
-	    ->addColumn('notes', function($model) { return $model->notes; })
-	    ->addColumn('cost', function($model) { return Utils::formatMoney($model->cost); })
-	    ->addColumn('dropdown', function($model) 
-	    { 
-	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
-						<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-							'.trans('texts.select').' <span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu" role="menu">
-				    <li><a href="' . URL::to('company/products/'.$model->public_id) . '/edit">'.uctrans('texts.edit_product').'</a></li>						    
-				    <li class="divider"></li>
-				    <li><a href="' . URL::to('company/products/'.$model->public_id) . '/archive">'.uctrans('texts.archive_product').'</a></li>
-				  </ul>
-				</div>';
-	    })    	   
-	    ->make();    	    	
-	}
-
 	public function doSection($section = ACCOUNT_DETAILS)
 	{
 		if ($section == ACCOUNT_DETAILS)
@@ -261,59 +233,6 @@ class AccountController extends \BaseController {
 		{
 			return AccountController::saveProducts();
 		}
-	}
-
-	public function showProduct($productPublicId)
-	{
-		$data = [
-			'product' => Product::scope($productPublicId)->firstOrFail(),
-			'url' => 'company/products/' . $productPublicId, 
-			'title' => trans('texts.edit_product')
-		];
-
-		return View::make('accounts.product', $data);		
-	}
-
-	public function createProduct()
-	{
-		$data = [
-			'product' => null,
-			'url' => 'company/products/', 
-			'title' => trans('texts.create_product')
-		];
-
-		return View::make('accounts.product', $data);				
-	}
-
-	public function saveProduct($productPublicId = false)
-	{
-		if ($productPublicId)
-		{
-			$product = Product::scope($productPublicId)->firstOrFail();
-		}
-		else
-		{
-			$product = Product::createNew();
-		}
-
-		$product->product_key = trim(Input::get('product_key'));
-		$product->notes = trim(Input::get('notes'));
-		$product->cost = trim(Input::get('cost'));
-		$product->save();
-
-		$message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
-		Session::flash('message', $message);
-
-		return Redirect::to('company/products');		
-	}
-
-	public function archiveProduct($productPublicId)
-	{
-		$product = Product::scope($productPublicId)->firstOrFail();
-		$product->delete();
-
-		Session::flash('message', trans('texts.archived_product'));
-		return Redirect::to('company/products');				
 	}
 
 	private function saveProducts()

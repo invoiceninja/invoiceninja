@@ -562,19 +562,21 @@
 			refreshPDF();
 		});
 
-		$('.datalist').on('input', function() {			
-			var key = $(this).val();
-			for (var i=0; i<products.length; i++) {
-				var product = products[i];
-				if (product.product_key == key) {
-					var model = ko.dataFor(this);
-					//model.notes(product.notes);
-					//model.cost(product.cost);
-					//model.qty(product.qty);
-					break;
+		@if (Auth::user()->account->fill_products)
+			$('.datalist').on('input', function() {			
+				var key = $(this).val();
+				for (var i=0; i<products.length; i++) {
+					var product = products[i];
+					if (product.product_key == key) {
+						var model = ko.dataFor(this);					
+						model.notes(product.notes);
+						model.cost(accounting.toFixed(product.cost,2));
+						//model.qty(product.qty);
+						break;
+					}
 				}
-			}
-		});
+			});
+		@endif
 	}
 
 	function createInvoiceModel() {

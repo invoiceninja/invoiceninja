@@ -61,11 +61,16 @@ Route::group(array('before' => 'auth'), function()
   Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
   Route::get('force_inline_pdf', 'UserController@forcePDFJS');
   
-  Route::get('api/products', array('as'=>'api.products', 'uses'=>'AccountController@getProducts'));
-  Route::get('company/products/{product_id}/edit', 'AccountController@showProduct');
-  Route::get('company/products/{product_id}/archive', 'AccountController@archiveProduct');
-  Route::get('company/products/create', 'AccountController@createProduct');
+  Route::get('api/products', array('as'=>'api.products', 'uses'=>'ProductController@getDatatable'));
+  Route::resource('products', 'ProductController');
+  Route::get('products/{product_id}/archive', 'ProductController@archive');
+
+  /*
+  Route::get('company/products/{product_id}/edit', 'ProductController@showProduct');
+  Route::get('company/products/{product_id}/archive', 'ProductController@archiveProduct');
+  Route::get('company/products/create', 'ProductController@createProduct');
   Route::post('company/products/{product_id?}', 'AccountController@saveProduct');
+  */
 
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
   Route::get('company/{section?}', 'AccountController@showSection');	

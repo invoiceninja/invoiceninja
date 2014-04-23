@@ -15,7 +15,7 @@
   {{ Former::actions( Button::lg_success_submit(trans('texts.save'))->append_with_icon('floppy-disk') ) }}
   {{ Former::close() }}
 
-  {{ Button::success_link(URL::to('company/products/create'), trans("texts.create_product"), array('class' => 'pull-right'))->append_with_icon('plus-sign') }} 
+  {{ Button::success_link(URL::to('products/create'), trans("texts.create_product"), array('class' => 'pull-right'))->append_with_icon('plus-sign') }} 
 
   {{ Datatable::table()   
       ->addColumn(
