@@ -207,12 +207,9 @@ class InvoiceRepository
           $product->product_key = trim($item->product_key);
         }
 
-        /*
         $product->notes = $item->notes;
         $product->cost = $item->cost;
-        $product->qty = $item->qty;
-        */
-        
+        //$product->qty = $item->qty;        
         $product->save();
       }
 

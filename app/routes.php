@@ -60,6 +60,12 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('dashboard', 'DashboardController@index');
   Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
   Route::get('force_inline_pdf', 'UserController@forcePDFJS');
+  
+  Route::get('api/products', array('as'=>'api.products', 'uses'=>'AccountController@getProducts'));
+  Route::get('company/products/{product_id}/edit', 'AccountController@showProduct');
+  Route::get('company/products/{product_id}/archive', 'AccountController@archiveProduct');
+  Route::get('company/products/create', 'AccountController@createProduct');
+  Route::post('company/products/{product_id?}', 'AccountController@saveProduct');
 
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
   Route::get('company/{section?}', 'AccountController@showSection');	
@@ -67,7 +73,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::post('user/setTheme', 'UserController@setTheme');
   Route::post('remove_logo', 'AccountController@removeLogo');
   Route::post('account/go_pro', 'AccountController@enableProPlan');
-  
+
 	Route::resource('clients', 'ClientController');
 	Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
 	Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));	
@@ -124,6 +130,7 @@ define('ACCOUNT_PAYMENTS', 'payments');
 define('ACCOUNT_MAP', 'import_map');
 define('ACCOUNT_EXPORT', 'export');
 define('ACCOUNT_CUSTOM_FIELDS', 'custom_fields');
+define('ACCOUNT_PRODUCTS', 'products');
 
 define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);

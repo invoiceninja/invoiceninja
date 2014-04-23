@@ -147,8 +147,13 @@ class Utils
 	    return $phoneNumber;
 	}
 
-	public static function formatMoney($value, $currencyId)
+	public static function formatMoney($value, $currencyId = false)
 	{
+		if (!$currencyId)
+		{
+			$currencyId = Session::get(SESSION_CURRENCY);
+		}
+
 		$currency = Currency::remember(DEFAULT_QUERY_CACHE)->find($currencyId);		
 
 		if (!$currency) 

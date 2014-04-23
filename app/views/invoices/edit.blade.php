@@ -1198,9 +1198,7 @@
 
 		self.addContact = function() {
 			var contact = new ContactModel();
-			if (self.contacts().length == 0) {
-				contact.send_invoice(true);
-			}
+			contact.send_invoice(true);
 			self.contacts.push(contact);
 			return false;
 		}
