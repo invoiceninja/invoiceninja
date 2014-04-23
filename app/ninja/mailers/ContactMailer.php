@@ -29,7 +29,7 @@ class ContactMailer extends Mailer {
 			$invitation->save();
 	
 			$data = [
-				'link' => URL::to('view') . '/' . $invitation->invitation_key,
+				'link' => $invitation->getLink(),
 				'clientName' => $invoice->client->getDisplayName(),
 				'accountName' => $invoice->account->getDisplayName(),
 				'contactName'	=> $invitation->contact->getDisplayName(),

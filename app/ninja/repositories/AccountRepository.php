@@ -174,8 +174,8 @@ class AccountRepository
 			$user->username = $random;
 			$user->first_name = 'Invoice';
 			$user->last_name = 'Ninja';
-			$user->notify_sent = false;
-			$user->notify_paid = false;
+			$user->notify_sent = true;
+			$user->notify_paid = true;
 			$account->users()->save($user);			
 
 			$accountGateway = new AccountGateway();

@@ -1245,16 +1245,22 @@
 		self.email = ko.observable('');
 		self.phone = ko.observable('');		
 		self.send_invoice = ko.observable(false);
+		self.invitation_link = ko.observable('');		
 
 		self.email.display = ko.computed(function() {
 			var str = '';
 			if (self.first_name() || self.last_name()) {
 				str += self.first_name() + ' ' + self.last_name() + '<br/>';
 			}			
-			return str + self.email();
+			str += self.email();
+
+			if (self.invitation_link()) {
+				str += '<br/><a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_invoice') }}</a>';
+			}
+			
+			return str;
 		});		
 		
-
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);		
 		}		

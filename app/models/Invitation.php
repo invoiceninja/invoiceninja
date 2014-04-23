@@ -16,4 +16,9 @@ class Invitation extends EntityModel
 	{
 		return $this->belongsTo('User');
 	}	
+
+	public function getLink()
+	{
+		return URL::to('view') . '/' . $this->invitation_key;
+	}
 }
