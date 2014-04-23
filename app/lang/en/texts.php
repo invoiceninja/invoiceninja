@@ -326,6 +326,7 @@ return array(
   'set_name' => 'Set your company name',
   'view_as_recipient' => 'View as recipient',
 
+  // product management
   'product' => 'Product',
   'products' => 'Products',
   'fill_products' => 'Auto-fill products',

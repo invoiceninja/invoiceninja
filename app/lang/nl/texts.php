@@ -319,5 +319,19 @@ return array(
   'edit' => 'Edit',
   'view_invoice' => 'View invoice',
   'view_as_recipient' => 'View as recipient',
+
+  // product management
+  'product' => 'Product',
+  'products' => 'Products',
+  'fill_products' => 'Auto-fill products',
+  'fill_products_help' => 'Selecting a product will automatically <b>set the description and cost</b>',
+  'update_products' => 'Auto-update products',
+  'update_products_help' => 'Updating an invoice will automatically <b>update the products</b>',
+  'create_product' => 'Create Product',
+  'edit_product' => 'Edit Product',
+  'archive_product' => 'Archive Product',
+  'updated_product' => 'Successfully updated product',
+  'created_product' => 'Successfully created product',
+  'archived_product' => 'Successfully archived product',
   
 );

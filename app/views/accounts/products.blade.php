@@ -25,7 +25,9 @@
         trans('texts.action'))
       ->setUrl(url('api/products/'))      
       ->setOptions('sPaginationType', 'bootstrap')
-      ->setOptions('bFilter', false)
+      ->setOptions('bFilter', false)      
+      ->setOptions('bAutoWidth', false)      
+      ->setOptions('aoColumns', [[ "sWidth"=> "20%" ], [ "sWidth"=> "45%" ], ["sWidth"=> "20%"], ["sWidth"=> "15%" ]])      
       ->render('datatable') }}
 
   <script>

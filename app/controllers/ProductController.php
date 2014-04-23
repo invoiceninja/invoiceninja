@@ -12,7 +12,7 @@ class ProductController extends \BaseController {
 
     return Datatable::query($query)
       ->addColumn('product_key', function($model) { return link_to('products/' . $model->public_id . '/edit', $model->product_key); })
-      ->addColumn('notes', function($model) { return $model->notes; })
+      ->addColumn('notes', function($model) { return nl2br(Str::limit($model->notes, 100)); })
       ->addColumn('cost', function($model) { return Utils::formatMoney($model->cost); })
       ->addColumn('dropdown', function($model) 
       { 
