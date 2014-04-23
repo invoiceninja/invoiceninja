@@ -7,6 +7,11 @@ class Utils
 		return Auth::check() && Auth::user()->registered;
 	}
 
+	public static function isConfirmed()
+	{
+		return Auth::check() && Auth::user()->confirmed;
+	}
+
 	public static function isProd()
 	{
 		return App::environment() == ENV_PRODUCTION;

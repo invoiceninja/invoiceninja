@@ -1254,9 +1254,11 @@
 			}			
 			str += self.email();
 
+			@if (Utils::isConfirmed())
 			if (self.invitation_link()) {
 				str += '<br/><a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_invoice') }}</a>';
 			}
+			@endif
 			
 			return str;
 		});		
