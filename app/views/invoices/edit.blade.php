@@ -275,7 +275,9 @@
 	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
 	@if (!Auth::user()->account->isPro())
-		{{ trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="showProPlan()">'.trans('texts.pro_plan.remove_logo_link').'</a>']) }}
+		<div style="font-size:larger">
+			{{ trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="showProPlan()">'.trans('texts.pro_plan.remove_logo_link').'</a>']) }}
+		</div>
 	@endif
 
 	<div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
@@ -1255,7 +1257,7 @@
 			str += self.email();
 
 			if (self.invitation_link()) {
-				str += '<br/><a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_invoice') }}</a>';
+				str += '<br/><a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_as_recipient') }}</a>';
 			}
 			
 			return str;

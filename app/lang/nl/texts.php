@@ -318,5 +318,6 @@ return array(
   'field_value' => 'Field Value',
   'edit' => 'Edit',
   'view_invoice' => 'View invoice',
+  'view_as_recipient' => 'View as recipient',
   
 );
