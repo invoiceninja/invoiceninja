@@ -327,12 +327,13 @@ return array(
   'view_as_recipient' => 'View as recipient',
 
   // product management
+  'product_library' => 'Product Library',
   'product' => 'Product',
   'products' => 'Products',
   'fill_products' => 'Auto-fill products',
-  'fill_products_help' => 'Selecting a product will automatically <b>set the description and cost</b>',
+  'fill_products_help' => 'Selecting a product will automatically <b>fill in the description and cost</b>',
   'update_products' => 'Auto-update products',
-  'update_products_help' => 'Updating an invoice will automatically <b>update the products</b>',
+  'update_products_help' => 'Updating an invoice will automatically <b>update the product library</b>',
   'create_product' => 'Create Product',
   'edit_product' => 'Edit Product',
   'archive_product' => 'Archive Product',

@@ -8,10 +8,10 @@
   {{ Former::populateField('update_products', intval($account->update_products)) }}
 
 
-  {{ Former::legend('products') }}
+  {{ Former::legend('product_library') }}
   {{ Former::checkbox('fill_products')->text(trans('texts.fill_products_help')) }}
   {{ Former::checkbox('update_products')->text(trans('texts.update_products_help')) }}
-
+  &nbsp;
   {{ Former::actions( Button::lg_success_submit(trans('texts.save'))->append_with_icon('floppy-disk') ) }}
   {{ Former::close() }}
 

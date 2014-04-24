@@ -137,7 +137,7 @@
           <ul class="dropdown-menu" role="menu">
             <li>{{ link_to('company/details', uctrans('texts.company_details')) }}</li>
             <li>{{ link_to('company/payments', uctrans('texts.online_payments')) }}</li>
-            <!--<li>{{ link_to('company/products', uctrans('texts.products')) }}</li>-->
+            <!--<li>{{ link_to('company/products', uctrans('texts.product_library')) }}</li>-->
             <li>{{ link_to('company/notifications', uctrans('texts.notifications')) }}</li>
             <li>{{ link_to('company/import_export', uctrans('texts.import_export')) }}</li>
             <!--<li><a href="{{ url('company/custom_fields') }}">{{ uctrans('texts.custom_fields') . Utils::getProLabel(ACCOUNT_CUSTOM_FIELDS) }}</a></li>-->

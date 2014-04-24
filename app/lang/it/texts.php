@@ -320,6 +320,7 @@ return array(
   'view_as_recipient' => 'View as recipient',
 
   // product management
+  'product_library' => 'Product Library',
   'product' => 'Product',
   'products' => 'Products',
   'fill_products' => 'Auto-fill products',
