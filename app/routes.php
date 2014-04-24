@@ -29,6 +29,7 @@ Route::get('/rocksteady', 'HomeController@showWelcome');
 Route::get('/about', 'HomeController@showAboutUs');
 Route::get('/terms', 'HomeController@showTerms');
 Route::get('/contact', 'HomeController@showContactUs');
+Route::get('/plans', 'HomeController@showPlans');
 Route::post('/contact', 'HomeController@doContactUs');
 Route::get('/faq', 'HomeController@showFaq');
 Route::get('/features', 'HomeController@showFeatures');
