@@ -12,7 +12,7 @@
 	"require": {
 		"laravel/framework": "4.1.*",
 		"patricktalmadge/bootstrapper": "dev-develop",
-		"zizaco/confide": "3.1.x",
+		"zizaco/confide": "3.2.x",
 		"anahkiasen/former": "dev-master",
 		"barryvdh/laravel-debugbar": "dev-master",
 		"chumper/datatable": "2.x",
