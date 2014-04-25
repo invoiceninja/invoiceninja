@@ -82,6 +82,8 @@
       $(window).on('beforeunload', function() {
         if (NINJA.formIsChanged) {
           return "{{ trans('texts.unsaved_changes') }}";
+        } else {
+          return undefined;
         }
       }); 
       //$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });

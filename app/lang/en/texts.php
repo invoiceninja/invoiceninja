@@ -341,4 +341,5 @@ return array(
   'created_product' => 'Successfully created product',
   'archived_product' => 'Successfully archived product',
   
+  'pro_plan_custom_fields' => ':link to enable custom fields by joining the Pro Plan'
 );

@@ -3,6 +3,16 @@
 @section('content')	
 	@parent
 
+	@if (!Auth::user()->account->isPro())
+  <div class="container">
+    <div class="row">
+			<div style="font-size:larger;" class="col-md-8 col-md-offset-2">{{ trans('texts.pro_plan_custom_fields', ['link'=>'<a href="#" onclick="showProPlan()">'.trans('texts.pro_plan.remove_logo_link').'</a>']) }}</div>
+			&nbsp;<p/>&nbsp;
+		</div>		
+	</div>
+	@endif
+
+
 	{{ Former::open()->addClass('col-md-8 col-md-offset-2 warn-on-exit') }}
 	{{ Former::populate($account) }}
 

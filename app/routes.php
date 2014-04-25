@@ -192,6 +192,7 @@ define('PRO_PLAN_PRICE', 50);
 define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_PAYPAL_EXPRESS);
+define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
 
 
 /*

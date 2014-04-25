@@ -119,6 +119,7 @@
         @if (Auth::user()->getPopOverText())
         <script>
           $(function() {
+            if (screen.width < 1170) return;
             $('#ninjaPopOver').show().popover('show').hide();
             $('body').click(function() {
               $('#ninjaPopOver').popover('hide');
@@ -137,10 +138,10 @@
           <ul class="dropdown-menu" role="menu">
             <li>{{ link_to('company/details', uctrans('texts.company_details')) }}</li>
             <li>{{ link_to('company/payments', uctrans('texts.online_payments')) }}</li>
-            <!--<li>{{ link_to('company/products', uctrans('texts.product_library')) }}</li>-->
+            <li>{{ link_to('company/products', uctrans('texts.product_library')) }}</li>
             <li>{{ link_to('company/notifications', uctrans('texts.notifications')) }}</li>
             <li>{{ link_to('company/import_export', uctrans('texts.import_export')) }}</li>
-            <!--<li><a href="{{ url('company/custom_fields') }}">{{ uctrans('texts.custom_fields') . Utils::getProLabel(ACCOUNT_CUSTOM_FIELDS) }}</a></li>-->
+            <li><a href="{{ url('company/custom_fields') }}">{{ uctrans('texts.custom_fields') . Utils::getProLabel(ACCOUNT_CUSTOM_FIELDS) }}</a></li>
 
             <li class="divider"></li>
             <li>{{ link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) }}</li>
@@ -332,7 +333,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 
 @if (Auth::check() && !Auth::user()->isPro())
   <div class="modal fade" id="proPlanModal" tabindex="-1" role="dialog" aria-labelledby="proPlanModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="min-width:150px">
+    <div class="modal-dialog" style="min-width:1000px">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -340,8 +341,15 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         </div>
 
         <div style="background-color: #fff; padding-left: 16px; padding-right: 16px" id="proPlanDiv">
-          &nbsp; 
-          {{-- trans('texts.') --}}
+          &nbsp;<p/>          
+          <b>Go Pro to Unlock Premium Invoice Ninja Features</b><p/>          
+          We believe that the free version of Invoice Ninja is a truly awesome product loaded 
+          with the key features you need to bill your clients electronically. But for those who 
+          crave still more Ninja awesomeness, we've unmasked the Invoice Ninja Pro plan, which 
+          offers more versatility, power and customization options for just $50 per year.          
+          <br/>&nbsp;<br/>
+          <img src="{{ asset('images/pro-plan-chart.png') }}"/>
+
           &nbsp;
       </div>
 
