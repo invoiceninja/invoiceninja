@@ -184,6 +184,7 @@ define('RESULT_FAILURE', 'failure');
 define('PAYMENT_LIBRARY_OMNIPAY', 1);
 define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
 
+define('GATEWAY_AUTHORIZE_NET', 1);
 define('GATEWAY_PAYPAL_EXPRESS', 17);
 define('GATEWAY_BEANSTREAM', 29);
 define('GATEWAY_PSIGATE', 30);
@@ -191,7 +192,7 @@ define('GATEWAY_PSIGATE', 30);
 define('PRO_PLAN_PRICE', 50); 
 define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
-define('NINJA_GATEWAY_ID', GATEWAY_PAYPAL_EXPRESS);
+define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
 
 

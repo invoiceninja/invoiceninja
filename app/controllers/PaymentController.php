@@ -116,10 +116,12 @@ class PaymentController extends \BaseController
             $gateway->$function($val);
         }
 
+        /*
         if (!Utils::isProd())
         {
             $gateway->setTestMode(true);   
         }        
+        */
         
         return $gateway;        
     }

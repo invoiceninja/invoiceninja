@@ -308,7 +308,7 @@ return array(
 
   'pro_plan_product' => 'Pro Plan',
   'pro_plan_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
-  'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!<p/>
+  'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!<p/>&nbsp;<br/>
                           <b>Next Steps</b><p/>A payable invoice has been sent to the email 
                           address associated with your account. To unlock all of the awesome 
                           Pro features, please follow the instructions on the invoice to pay 
