@@ -67,7 +67,7 @@
           <!-- <li>{{ link_to('features', 'Features' ) }}</li> -->
           <!-- <li>{{ link_to('faq', 'FAQ' ) }}</li> -->
           <li>{{ link_to('about', 'About Us' ) }}</li>
-          <!--<li>{{ link_to('plans', 'Plans' ) }}</li>-->
+          <li>{{ link_to('plans', 'Plans' ) }}</li>
           <li>{{ link_to('contact', 'Contact Us' ) }}</li>
           <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
         </ul>
@@ -126,7 +126,7 @@
     <!-- <li>{{ link_to('features', 'Features' ) }}</li> -->
     <!-- <li>{{ link_to('faq', 'FAQ' ) }}</li> -->
     <li>{{ link_to('about', 'About Us' ) }}</li>
-    <!--<li>{{ link_to('plans', 'Plans' ) }}</li>    -->
+    <li>{{ link_to('plans', 'Plans' ) }}</li>
     <li>{{ link_to('contact', 'Contact Us' ) }}</li>
     <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
   </ul>

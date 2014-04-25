@@ -19,8 +19,15 @@
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <h2>What is Invoice Ninja?</h2>
-        <p>Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system. </p>
-          <p>Yeah, there are other tools that do similar things, but ours is easier to use, better looking, faster, more powerful, more secure and costs less. In fact, you can use Invoice Ninja 100% free of charge. <strong>Forever</strong>.</p>
+        <p>Invoice Ninja is a free, open-source solution for invoicing and billing 
+        customers. With Invoice Ninja, you can easily build and send beautiful invoices 
+        from any device that has access to the web. Your clients can print your invoices, 
+        download them as pdf files, and even pay you online from within the system. </p>
+        &nbsp;
+       <h2>Team Ninja</h2>
+        <p>Invoice Ninja is managed by a team of seasoned web workers. We 
+        launched in early 2014 and have been thrilled by the enthusiastic response we’ve 
+        received from our growing community of users.</p>
       </div>
     </div>
   </div>
@@ -30,8 +37,7 @@
   <div class="container">
       <div class="row">
       <div class="col-md-8 col-md-offset-2">
-           <h2>Team Ninja</h2>
-        <p>Invoice Ninja is managed by a team of seasoned web workers. We’ve worked plenty with the other products out there, and we thought it was high time that a better, more powerful, lighter and less evil online invoicing tool became available. We launched in early 2014 and have been thrilled by the enthusiastic response we’ve received from our growing community of users.</p>
+
           </div>
            </div>
     <div class="row">
