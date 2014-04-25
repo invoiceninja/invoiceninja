@@ -35,7 +35,7 @@ Note: you may be prompted for your Github user/pass due to their API limits.
 
     composer install
 
-Configure config/database.php and then initialize the database
+Configure config/database.php and config/mail.php and initialize the database.
 
     php artisan migrate --seed
 

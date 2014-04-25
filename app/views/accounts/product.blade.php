@@ -13,7 +13,7 @@
     {{ Former::populateField('cost', number_format($product->cost, 2)) }}
   @endif
 
-  {{ Former::text('product_key') }}
+  {{ Former::text('product_key')->label('texts.product') }}
   {{ Former::textarea('notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'") }}
   {{ Former::text('cost') }}
 
