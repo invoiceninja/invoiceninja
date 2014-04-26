@@ -721,10 +721,12 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
     SetPdfColor('Black',doc); //set black color
     doc.setFontSize(9);
 
-    var detailsHeight = displayInvoice(doc, invoice, 50, 170, layout);
+    var invoiceHeight = displayInvoice(doc, invoice, 50, 170, layout);
+    var clientHeight = displayClient(doc, invoice, 220, 170, layout);
+    var detailsHeight = Math.max(invoiceHeight, clientHeight);
     layout.tableTop = Math.max(layout.tableTop, layout.headerTop + detailsHeight + (3 * layout.rowHeight));
 
-    displayClient(doc, invoice, 220, 170, layout);
+    
 
     doc.setLineWidth(0.3);        
     doc.setDrawColor(200,200,200);
@@ -1282,7 +1284,7 @@ function displayClient(doc, invoice, x, y, layout) {
     client.contacts[0].email
   ];
 
-  displayGrid(doc, invoice, data, x, y, layout, true);
+  return displayGrid(doc, invoice, data, x, y, layout, true);
 }
 
 function displayInvoice(doc, invoice, x, y, layout, rightAlignX) {

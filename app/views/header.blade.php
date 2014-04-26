@@ -333,7 +333,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 
 @if (Auth::check() && !Auth::user()->isPro())
   <div class="modal fade" id="proPlanModal" tabindex="-1" role="dialog" aria-labelledby="proPlanModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="min-width:1000px">
+    <div class="modal-dialog" style="min-width:1040px">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
