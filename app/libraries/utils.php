@@ -79,7 +79,11 @@ class Utils
 
 		static::logError($message . ' ' . $exception);		
 
-		return View::make('error')->with('error', $message);
+		$data = [
+			'showBreadcrumbs' => false
+		];
+
+		return View::make('error', $data)->with('error', $message);
 	}
 
 	public static function logError($error, $context = 'PHP')
