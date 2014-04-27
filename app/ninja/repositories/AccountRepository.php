@@ -206,6 +206,7 @@ class AccountRepository
 
 			$contact = new Contact;
 			$contact->user_id = $ninjaAccount->users()->first()->id;
+			$contact->account_id = $ninjaAccount->id;
 			$contact->public_id = Auth::user()->account_id;
 			$contact->is_primary = true;
 			foreach (['first_name', 'last_name', 'email', 'phone'] as $field) 
