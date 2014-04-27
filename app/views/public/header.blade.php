@@ -144,7 +144,7 @@
 </div>
 </footer>
 
-<script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script>
+<!-- <script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script> -->
 <script type="text/javascript">
     $('.expander').simpleexpand();
 </script>
