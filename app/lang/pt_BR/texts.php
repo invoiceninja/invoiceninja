@@ -256,7 +256,7 @@ return array(
   'email_salutation' => 'Caro :name,',
   'email_signature' => 'Até mais,',
   'email_from' => 'Equipe InvoiceNinja',
-  'user_email_footer' => 'Para ajustar suas configurações de notificações de email acesse http://www.invoiceninja.com/company/notifications',
+  'user_email_footer' => 'Para ajustar suas configurações de notificações de email acesse '.SITE_URL.'/company/notifications',
   'invoice_link_message' => 'Para visualizar a fatura do seu cliente clique no link abaixo:',
   'notification_paid_subject' => 'Fatura :invoice foi pago por :client',
   'notification_sent_subject' => 'Fatura :invoice foi enviado por :client',

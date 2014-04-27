@@ -258,7 +258,7 @@ return array(
   'email_salutation' => 'Sehr geehrte/r :name,',
   'email_signature' => 'Freundliche Grüße,',
   'email_from' => 'Das InvoiceNinja Team',
-  'user_email_footer' => 'Um deine E-Mail Benachrichtigungen anzupassen besuche bitte http://www.invoiceninja.com/company/notifications',
+  'user_email_footer' => 'Um deine E-Mail Benachrichtigungen anzupassen besuche bitte '.SITE_URL.'/company/notifications',
   'invoice_link_message' => 'Um deine Kundenrechnung anzuschauen, klicke auf den folgenden Link:',
   'notification_paid_subject' => 'Die Rechnung :invoice wurde von :client bezahlt',
   'notification_sent_subject' => 'Die Rechnung :invoice wurde an :client versendet',

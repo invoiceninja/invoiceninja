@@ -113,7 +113,8 @@ Route::group(array('before' => 'auth'), function()
 
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
 define('CONTACT_NAME', 'Invoice Ninja');
-define('NINJA_URL', 'https://www.invoiceninja.com');
+define('SITE_URL', 'https://www.invoiceninja.com');
+
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');
@@ -194,6 +195,7 @@ define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
+define('NINJA_URL', 'https://www.invoiceninja.com');
 
 
 /*

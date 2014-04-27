@@ -260,7 +260,7 @@ return array(
   'email_salutation' => 'Cher :name,',
   'email_signature' => 'Cordialement,',
   'email_from' => 'L\'équipe InvoiceNinja',
-  'user_email_footer' => 'Pour modifier vos paramètres de notification par email, veuillez visiter http://www.invoiceninja.com/company/notifications',
+  'user_email_footer' => 'Pour modifier vos paramètres de notification par email, veuillez visiter '.SITE_URL.'/company/notifications',
   'invoice_link_message' => 'Pour voir la facture de votre client cliquez sur le lien ci-après :',
   'notification_paid_subject' => 'La facture :invoice a été payée par le client :client',
   'notification_sent_subject' => 'La facture :invoice a été envoyée au client :client',

@@ -40,7 +40,7 @@ class UserMailer extends Mailer {
 			'userName' => $user->getDisplayName(),
 			'invoiceAmount' => Utils::formatMoney($invoice->amount, $invoice->client->currency_id),
 			'invoiceNumber' => $invoice->invoice_number,
-			'invoiceLink' => "http://".$_SERVER['SERVER_NAME']."/invoices/{$invoice->public_id}"			
+			'invoiceLink' => SITE_URL . "/invoices/{$invoice->public_id}"			
 		];
 
 		if ($payment)

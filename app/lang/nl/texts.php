@@ -258,7 +258,7 @@ return array(
   'email_salutation' => 'Beste :name,',
   'email_signature' => 'Met vriendelijke groeten,',
   'email_from' => 'Het InvoiceNinja Team',
-  'user_email_footer' => 'Ga alstublieft naar http://www.invoiceninja.com/company/notifications om je e-mail notificatie instellingen aan te passen ',
+  'user_email_footer' => 'Ga alstublieft naar '.SITE_URL.'/company/notifications om je e-mail notificatie instellingen aan te passen ',
   'invoice_link_message' => 'Klik op volgende link om de Factuur van je klant te bekijken:',
   'notification_paid_subject' => 'Factuur :invoice is betaald door :client',
   'notification_sent_subject' => 'Factuur :invoice is gezonden door :client',
