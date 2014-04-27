@@ -125,10 +125,6 @@ a .cta:hover span {
     background: #f2c40a;
 }
 
-.hero {
-    background-image: url(/images/hero-bg-1.jpg);
-}
-
 .hero .caption-side {
     background: #fff;
     width: 50%;
@@ -173,9 +169,9 @@ a .cta:hover span {
     margin-top: 100px;
 }
 
+
 .hero2 {
     text-align: center;
-    background-image: url(/images/hero-bg-2.jpg);
     padding: 225px 0;
     background-repeat: no-repeat;
     background-position: bottom center;
@@ -189,7 +185,6 @@ a .cta:hover span {
 
 .hero3 {
     text-align: center;
-    background-image: url(/images/hero-bg-3.jpg);
     padding: 150px 0;
     background-repeat: no-repeat;
     background-position: center center;
@@ -197,7 +192,6 @@ a .cta:hover span {
 }
 
 .hero4 {
-    background-image: url(/images/hero-bg-4.jpg);
     padding: 150px 0;
     background-repeat: no-repeat;
     background-position: center center;
@@ -205,7 +199,6 @@ a .cta:hover span {
 }
 .hero5 {
     text-align: center;
-    background-image: url(/images/hero-bg-3.jpg);
     padding: 150px 0;
     background-repeat: no-repeat;
     background-position: center center;
