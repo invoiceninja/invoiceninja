@@ -1263,8 +1263,10 @@ function displayAccount(doc, invoice, x, y, layout) {
     account.country ? account.country.name : false
   ];
 
-  var width = doc.getStringUnitWidth(account.name) * doc.internal.getFontSize() * 1.1;
-  width = Math.max(120, width);
+  var nameWidth = doc.getStringUnitWidth(account.name) * doc.internal.getFontSize() * 1.1;
+  var emailWidth = doc.getStringUnitWidth(account.work_email) * doc.internal.getFontSize() * 1.1;
+  width = Math.max(emailWidth, nameWidth, 120);
+
   x += width;
 
   displayGrid(doc, invoice, data, x, y, layout);  

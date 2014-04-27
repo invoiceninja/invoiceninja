@@ -67,7 +67,7 @@
           <p class="blue-text">Designer</p>
           <p>Razi is a pixel nerd with a great deal of experience in design for web sites and applications. When she isn't busy with InvoiceNinja she runs a small web agency in Stockholm called kantorp-wegl.in</p>
           <p><span class="social"><a href="https://twitter.com/kantorpweglin" target="_blank"><img src="images/twitter.svg" alt="Twitter"></a></span>
-          <span class="social"><a href="http://www.linkedin.com/profile/view?id=105143214" target="_blank"><img src="images/linkedin.svg" alt="LinkedIn"></a></span>
+          <span class="social"><a href="https://www.linkedin.com/pub/razi-kantorp/35/368/973" target="_blank"><img src="images/linkedin.svg" alt="LinkedIn"></a></span>
               <span class="social"><a href="http://instagram.com/kantorpweglin" target="_blank"><img src="images/instagram.svg" alt="Twitter"></a>
           </p>
           <p class="blue-text"><a href="http://kantorp-wegl.in/" target="_blank">kantorp-wegl.in</a></p>
@@ -79,8 +79,8 @@
           <p>A veteran digital marketer and content strategist, Ben specializes in building communities around brands that make business easier for freelancers, SMBs and micro-entrepreneurs.
 </p>
           <p><span class="social"><a href="https://twitter.com/osbennn" target="_blank"><img src="images/twitter.svg" alt="Twitter"></a></span>
-          <span class="social"><a href="https://www.linkedin.com/pub/razi-kantorp/35/368/973" target="_blank"><img src="images/linkedin.svg" alt="LinkedIn"></a></span>
-               <span class="social"><a href="http://about.me/osbennn" target="_blank"><img src="images/me.svg" alt="about.me"></a></span>
+          <span class="social"><a href="http://www.linkedin.com/in/osbennn" target="_blank"><img src="images/linkedin.svg" alt="LinkedIn"></a></span>
+          <span class="social"><a href="http://about.me/osbennn" target="_blank"><img src="images/me.svg" alt="about.me"></a></span>
           </p>
           <p class="blue-text"><a href="http://actionpackedmedia.com/" target="_blank">actionpackedmedia.com</a></p>
       </div>
