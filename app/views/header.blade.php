@@ -4,8 +4,9 @@
 @section('head')
 <meta name="csrf-token" content="<?= csrf_token() ?>">
 
-<!--<link href="{{ asset('built.css') }}" rel="stylesheet" type="text/css"/> -->
+<link href="{{ asset('built.css') }}" rel="stylesheet" type="text/css"/>    
 
+<!--
 <script src="{{ asset('vendor/jquery-ui/ui/minified/jquery-ui.min.js') }}" type="text/javascript"></script>				
 <script src="{{ asset('vendor/bootstrap/dist/js/bootstrap.min.js') }}" type="text/javascript"></script>				
 <script src="{{ asset('vendor/datatables/media/js/jquery.dataTables.js') }}" type="text/javascript"></script>
@@ -21,7 +22,9 @@
 <script src="{{ asset('js/jspdf.source.js') }}" type="text/javascript"></script>		
 <script src="{{ asset('js/jspdf.plugin.split_text_to_size.js') }}" type="text/javascript"></script>   
 <script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
+-->
 
+<!--
 <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
 <link href="{{ asset('vendor/datatables/media/css/jquery.dataTables.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ asset('vendor/datatables-bootstrap3/BS3/assets/css/datatables.css') }}" rel="stylesheet" type="text/css">    
@@ -30,6 +33,7 @@
 <link href="{{ asset('css/bootstrap-combobox.css') }}" rel="stylesheet" type="text/css"/>	
 <link href="{{ asset('css/typeahead.js-bootstrap.css') }}" rel="stylesheet" type="text/css"/>			
 <link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>    
+-->
 
 <style type="text/css">
 
