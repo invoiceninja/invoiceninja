@@ -1,13 +1,18 @@
 @extends('master')
 
 @section('head')    
+<link href="{{ asset('built.public.css') }}" rel="stylesheet" type="text/css"/>    
+
+<!--
 <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
 <link href="{{ asset('css/bootstrap.splash.css') }}" rel="stylesheet" type="text/css"/> 
 <link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>    
+-->
+
 <link href="{{ asset('images/apple-touch-icon-114x114-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="114x114">
 <link href="{{ asset('images/apple-touch-icon-72x72-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="72x72">
 <link href="{{ asset('images/apple-touch-icon-57x57-precomposed.png') }}" rel="apple-touch-icon-precomposed">
-<script src="{{ asset('js/simpleexpand.js') }}" type="text/javascript"></script>
+<!-- <script src="{{ asset('js/simpleexpand.js') }}" type="text/javascript"></script> -->
 @stop
 
 @section('body')
@@ -145,10 +150,11 @@
 </footer>
 
 <!-- <script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script> -->
+<!--
 <script type="text/javascript">
     $('.expander').simpleexpand();
 </script>
-
+-->
 
 
 @stop
