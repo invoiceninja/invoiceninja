@@ -36,7 +36,7 @@ return array(
   'po_number' => 'Bestellnummer',
   'po_number_short' => 'BN #',
   'frequency_id' => 'Wie oft',
-  'dicount' => 'Rabatt',
+  'discount' => 'Rabatt',
   'taxes' => 'Steuern',
   'tax' => 'Steuer',
   'item' => 'Artikel',
