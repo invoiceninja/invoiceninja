@@ -181,13 +181,13 @@ class AccountController extends \BaseController {
 		{
 			return View::make('accounts.import_export');	
 		}	
-		else if ($section == ACCOUNT_CUSTOM_FIELDS)
+		else if ($section == ACCOUNT_ADVANCED_SETTINGS)
 		{
 			$data = [
 				'account' => Auth::user()->account
 			];
 
-			return View::make('accounts.custom_fields', $data);	
+			return View::make('accounts.advanced_settings', $data);	
 		}
 		else if ($section == ACCOUNT_PRODUCTS)
 		{
@@ -225,9 +225,9 @@ class AccountController extends \BaseController {
 		{
 			return AccountController::export();
 		}		
-		else if ($section == ACCOUNT_CUSTOM_FIELDS)
+		else if ($section == ACCOUNT_ADVANCED_SETTINGS)
 		{
-			return AccountController::saveCustomFields();
+			return AccountController::saveAdvancedSettings();
 		}
 		else if ($section == ACCOUNT_PRODUCTS)
 		{
@@ -247,7 +247,7 @@ class AccountController extends \BaseController {
 		return Redirect::to('company/products');		
 	}
 
-	private function saveCustomFields()
+	private function saveAdvancedSettings()
 	{
 		$account = Auth::user()->account;
 
@@ -257,10 +257,14 @@ class AccountController extends \BaseController {
 		$account->custom_value2 = Input::get('custom_value2');
 		$account->custom_client_label1 = Input::get('custom_client_label1');
 		$account->custom_client_label2 = Input::get('custom_client_label2');		
+
+		$account->primary_color = Input::get('primary_color');// ? Input::get('primary_color') : null;
+		$account->secondary_color = Input::get('secondary_color');// ? Input::get('secondary_color') : null;
+
 		$account->save();
 
 		Session::flash('message', trans('texts.updated_settings'));
-		return Redirect::to('company/custom_fields');		
+		return Redirect::to('company/advanced_settings');		
 	}
 
 	private function export()

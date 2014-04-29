@@ -17,6 +17,7 @@ module.exports = function(grunt) {
           'public/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js',
           'public/vendor/typeahead.js/dist/typeahead.min.js',
           'public/vendor/accounting/accounting.min.js',
+          'public/vendor/spectrum/spectrum.js',
           'public/js/bootstrap-combobox.js',
           'public/js/jspdf.source.js',
           'public/js/jspdf.plugin.split_text_to_size.js',
@@ -31,13 +32,13 @@ module.exports = function(grunt) {
           'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',
           'public/vendor/font-awesome/css/font-awesome.min.css',
           'public/vendor/bootstrap-datepicker/css/datepicker.css',
+          'public/vendor/spectrum/spectrum.css',
           'public/css/bootstrap-combobox.css',
           'public/css/typeahead.js-bootstrap.css',
           'public/css/style.css',
         ],        
         dest: 'public/built.css'
       },
-      /*
       css_public: {
         src: [
           'public/vendor/bootstrap/dist/css/bootstrap.min.css',
@@ -46,7 +47,6 @@ module.exports = function(grunt) {
         ],
         dest: 'public/built.public.css'
       }
-      */
     }
   });  
 

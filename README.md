@@ -69,3 +69,4 @@ Configure config/database.php and config/mail.php and initialize the database.
 * [jashkenas/underscore](https://github.com/jashkenas/underscore) - JavaScript's utility _ belt 
 * [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) - List of languages ​​for Laravel4
 * [calvinfroedge/PHP-Payments](https://github.com/calvinfroedge/PHP-Payments) - A uniform payments interface for PHP
+* [bgrins/spectrum](https://github.com/bgrins/spectrum) - The No Hassle JavaScript Colorpicker

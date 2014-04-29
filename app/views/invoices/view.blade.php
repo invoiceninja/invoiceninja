@@ -48,6 +48,11 @@
 				invoice.imageWidth = {{ $invoice->client->account->getLogoWidth() }};
 				invoice.imageHeight = {{ $invoice->client->account->getLogoHeight() }};
 			@endif
+
+		  var NINJA = NINJA || {};
+	    NINJA.primaryColor = "{{ $invoice->client->account->primary_color }}";
+  	  NINJA.secondaryColor = "{{ $invoice->client->account->secondary_color }}";
+
 			var doc = generatePDF(invoice);
 			if (!doc) return;
 			var string = doc.output('datauristring');

@@ -17,7 +17,8 @@
 <script src="{{ asset('vendor/underscore/underscore.js') }}" type="text/javascript"></script>		
 <script src="{{ asset('vendor/bootstrap-datepicker/js/bootstrap-datepicker.js') }}" type="text/javascript"></script>		
 <script src="{{ asset('vendor/typeahead.js/dist/typeahead.min.js') }}" type="text/javascript"></script>	
-<script src="{{ asset('vendor/accounting/accounting.min.js') }}" type="text/javascript"></script>		
+<script src="{{ asset('vendor/accounting/accounting.min.js') }}" type="text/javascript"></script>   
+<script src="{{ asset('vendor/spectrum/spectrum.js') }}" type="text/javascript"></script>   
 <script src="{{ asset('js/bootstrap-combobox.js') }}" type="text/javascript"></script>		
 <script src="{{ asset('js/jspdf.source.js') }}" type="text/javascript"></script>		
 <script src="{{ asset('js/jspdf.plugin.split_text_to_size.js') }}" type="text/javascript"></script>   
@@ -29,7 +30,8 @@
 <link href="{{ asset('vendor/datatables/media/css/jquery.dataTables.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ asset('vendor/datatables-bootstrap3/BS3/assets/css/datatables.css') }}" rel="stylesheet" type="text/css">    
 <link href="{{ asset('vendor/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css"/>
-<link href="{{ asset('vendor/bootstrap-datepicker/css/datepicker.css') }}" rel="stylesheet" type="text/css"/>	
+<link href="{{ asset('vendor/bootstrap-datepicker/css/datepicker.css') }}" rel="stylesheet" type="text/css"/> 
+<link href="{{ asset('vendor/spectrum/spectrum.css') }}" rel="stylesheet" type="text/css"/> 
 <link href="{{ asset('css/bootstrap-combobox.css') }}" rel="stylesheet" type="text/css"/>	
 <link href="{{ asset('css/typeahead.js-bootstrap.css') }}" rel="stylesheet" type="text/css"/>			
 <link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>    
@@ -53,6 +55,10 @@
     currencyMap[currency.id] = currency;
   }				
   var NINJA = NINJA || {};
+  @if (Auth::check())
+    NINJA.primaryColor = "{{ Auth::user()->account->primary_color }}";
+    NINJA.secondaryColor = "{{ Auth::user()->account->secondary_color }}";
+  @endif
   NINJA.parseFloat = function(str) {
     if (!str) return '';
     str = (str+'').replace(/[^0-9\.\-]/g, '');
@@ -146,7 +152,7 @@
             <li>{{ link_to('company/products', uctrans('texts.product_library')) }}</li>
             <li>{{ link_to('company/notifications', uctrans('texts.notifications')) }}</li>
             <li>{{ link_to('company/import_export', uctrans('texts.import_export')) }}</li>
-            <li><a href="{{ url('company/custom_fields') }}">{{ uctrans('texts.custom_fields') . Utils::getProLabel(ACCOUNT_CUSTOM_FIELDS) }}</a></li>
+            <li><a href="{{ url('company/advanced_settings') }}">{{ uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) }}</a></li>
 
             <li class="divider"></li>
             <li>{{ link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) }}</li>

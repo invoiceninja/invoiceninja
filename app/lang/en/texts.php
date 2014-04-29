@@ -339,7 +339,15 @@ return array(
   'archive_product' => 'Archive Product',
   'updated_product' => 'Successfully updated product',
   'created_product' => 'Successfully created product',
-  'archived_product' => 'Successfully archived product',
-  
-  'pro_plan_custom_fields' => ':link to enable custom fields by joining the Pro Plan'
+  'archived_product' => 'Successfully archived product',  
+  'pro_plan_custom_fields' => ':link to enable custom fields by joining the Pro Plan',
+
+  'advanced_settings' => 'Advanced Settings',
+  'pro_plan_advanced_settings' => ':link to enable the advanced settings by joining the Pro Plan',
+  'invoice_design' => 'Invoice Design',
+  'specify_colors' => 'Specify colors',
+  'specify_colors_label' => 'Select the colors used in the invoice',
+
+
+
 );

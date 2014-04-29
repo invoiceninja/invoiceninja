@@ -1,0 +1,22 @@
+{
+  "name": "spectrum",
+  "version": "1.3.4",
+  "main": ["./spectrum.css", "./spectrum.js"],
+  "docs": "http://bgrins.github.com/spectrum",
+  "homepage": "http://bgrins.github.com/spectrum",
+  "demo": "http://jsfiddle.net/bgrins/ctkY3/",
+  "dependencies": {
+    "jquery": ">=1.7.2"
+  },
+  "ignore": [
+    ".gitignore",
+    ".travis.yml",
+    "build/",
+    "docs/",
+    "example/",
+    "Gruntfile.js",
+    "LICENSE",
+    "README.md",
+    "test/"
+  ]
+}

@@ -136,7 +136,7 @@ define('ACCOUNT_IMPORT_EXPORT', 'import_export');
 define('ACCOUNT_PAYMENTS', 'payments');
 define('ACCOUNT_MAP', 'import_map');
 define('ACCOUNT_EXPORT', 'export');
-define('ACCOUNT_CUSTOM_FIELDS', 'custom_fields');
+define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
 define('ACCOUNT_PRODUCTS', 'products');
 
 define('DEFAULT_INVOICE_NUMBER', '0001');

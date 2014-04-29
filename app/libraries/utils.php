@@ -36,7 +36,7 @@ class Utils
 	{
 		if (Auth::check() 
 				&& !Auth::user()->isPro() 
-				&& $feature == 'custom_fields')
+				&& $feature == ACCOUNT_ADVANCED_SETTINGS)
 		{
 			return '&nbsp;<sup class="pro-label">PRO</sup>';
 		}
