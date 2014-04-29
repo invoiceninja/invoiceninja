@@ -795,6 +795,8 @@
 				var dueDate = $('#invoice_date').datepicker('getDate');
 				dueDate.setDate(dueDate.getDate() + paymentTerms);
 				self.invoice().due_date(dueDate);	
+				// We're using the datepicker to handle the date formatting 
+				self.invoice().due_date($('#due_date').val());
 			}			
 		}
 
