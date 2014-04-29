@@ -51,6 +51,7 @@
 	    		showInitial: false,
 	    		showInput: true,
 	    		allowEmpty: true,
+	    		clickoutFiresChange: true,
 	    	};
 	    	$('#primary_color').spectrum(options);
 	    	$('#secondary_color').spectrum(options);
