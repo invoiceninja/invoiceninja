@@ -2,23 +2,6 @@
 
 @section('content') 
 
-<style>
-.hero {
-    background-image: url({{ asset('/images/hero-bg-1.jpg') }});
-}
-.hero2 {
-    background-image: url({{ asset('/images/hero-bg-2.jpg') }});
-}
-.hero3 {
-    background-image: url({{ asset('/images/hero-bg-3.jpg') }});
-}
-.hero4 {
-    background-image: url({{ asset('/images/hero-bg-4.jpg') }});
-}
-.hero5 {
-    background-image: url({{ asset('/images/hero-bg-3.jpg') }});
-}
-</style>
 
 
 <section class="hero background hero1" data-speed="2" data-type="background">

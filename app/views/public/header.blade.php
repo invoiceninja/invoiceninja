@@ -13,6 +13,24 @@
 <link href="{{ asset('images/apple-touch-icon-72x72-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="72x72">
 <link href="{{ asset('images/apple-touch-icon-57x57-precomposed.png') }}" rel="apple-touch-icon-precomposed">
 <!-- <script src="{{ asset('js/simpleexpand.js') }}" type="text/javascript"></script> -->
+
+<style>
+.hero {
+    background-image: url({{ asset('/images/hero-bg-1.jpg') }});
+}
+.hero2 {
+    background-image: url({{ asset('/images/hero-bg-2.jpg') }});
+}
+.hero3 {
+    background-image: url({{ asset('/images/hero-bg-3.jpg') }});
+}
+.hero4 {
+    background-image: url({{ asset('/images/hero-bg-4.jpg') }});
+}
+.hero5 {
+    background-image: url({{ asset('/images/hero-bg-3.jpg') }});
+}
+</style>
 @stop
 
 @section('body')
@@ -66,7 +84,7 @@
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-inner">
-      <a class="brand" href="/"><img src=
+      <a class="brand" href="{{ URL::to('/') }}"><img src=
         "images/invoiceninja-logo.png"></a>
         <ul class="navbar-list">
           <!-- <li>{{ link_to('features', 'Features' ) }}</li> -->
