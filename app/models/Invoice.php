@@ -141,6 +141,11 @@ class Invoice extends EntityModel
 			return false;
 		}
 
+		if ($this->end_date && strtotime($this->end_date) < strtotime('now'))
+		{
+			return false;
+		}
+
 		$dayOfWeekToday = date('w');
 		$dayOfWeekStart = date('w', strtotime($this->start_date));
 

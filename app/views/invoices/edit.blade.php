@@ -504,7 +504,7 @@
 			refreshPDF();
 		}); //.trigger('change');						
 
-		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id').change(function() {
+		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring').change(function() {
 			refreshPDF();
 		});
 

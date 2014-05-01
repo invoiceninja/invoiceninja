@@ -37054,9 +37054,11 @@ function displayInvoiceItems(doc, invoice, layout) {
     shownItem = true;
 
     // process date variables
-    notes = processVariables(notes);
-    productKey = processVariables(productKey);
-
+    if (invoice.is_recurring) {
+      notes = processVariables(notes);
+      productKey = processVariables(productKey);
+    }
+    
     var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
     if (tax) {
       lineTotal += lineTotal * tax / 100;
