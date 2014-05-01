@@ -36967,7 +36967,7 @@ function calculateAmounts(invoice) {
     total = parseFloat(total) + parseFloat(tax);
   }
 
-  invoice.balance_amount = total - (invoice.amount - invoice.balance);
+  invoice.balance_amount = total.toFixed(4) - (accounting.toFixed(invoice.amount, 2) - accounting.toFixed(invoice.balance, 2));
   invoice.tax_amount = tax;
   invoice.discount_amount = discount;
   invoice.has_taxes = hasTaxes;
