@@ -45,6 +45,13 @@ class SendRecurringInvoices extends Command {
 			$invoice->amount = $recurInvoice->amount;
 			$invoice->balance = $recurInvoice->amount;
 			$invoice->invoice_date = date_create()->format('Y-m-d');
+			$invoice->discount = $recurInvoice->discount;
+			$invoice->po_number = $recurInvoice->po_number;
+			$invoice->public_notes = $recurInvoice->public_notes;
+			$invoice->terms = $recurInvoice->terms;
+			$invoice->tax_name = $recurInvoice->tax_name;
+			$invoice->tax_rate = $recurInvoice->tax_rate;
+			$invoice->invoice_design_id = $recurInvoice->invoice_design_id;
 
 			if ($invoice->client->payment_terms)
 			{
@@ -61,6 +68,8 @@ class SendRecurringInvoices extends Command {
 				$item->cost = $recurItem->cost;
 				$item->notes = Utils::processVariables($recurItem->notes);
 				$item->product_key = Utils::processVariables($recurItem->product_key);				
+				$item->tax_name = $recurItem->tax_name;
+				$item->tax_rate = $recurItem->tax_rate;
 				$invoice->invoice_items()->save($item);
 			}
 

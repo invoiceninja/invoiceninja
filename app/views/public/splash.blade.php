@@ -42,7 +42,7 @@
           <div class="col-md-3 one">
             <div class="box">
               <div class="icon"><span class="img-wrap"><img src="{{ asset('images/icon-free.png') }}"></span></div>
-              <h2>100% Free. Always.</h2>
+              <h2>Free, Always</h2>
               <p>Invoicing with no monthly fee, because you have enough bills already! Free, now and forever! Quality invoicing to build your business and get paid.</p>
             </div>
           </div>
