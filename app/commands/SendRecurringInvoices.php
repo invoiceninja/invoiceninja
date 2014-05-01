@@ -81,10 +81,10 @@ class SendRecurringInvoices extends Command {
 				$invoice->invitations()->save($invitation);
 			}
 
-			$recurInvoice->last_sent_date = Carbon::now()->toDateTimeString();
-			$recurInvoice->save();
-
 			$this->mailer->sendInvoice($invoice);
+
+			$recurInvoice->last_sent_date = Carbon::now()->toDateTimeString();
+			$recurInvoice->save();			
 		}		
 
 		$this->info('Done');

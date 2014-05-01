@@ -107,7 +107,9 @@ class Invoice extends EntityModel
 			'custom_label2',
 			'custom_value2',
 			'custom_client_label1',
-			'custom_client_label2']);		
+			'custom_client_label2',
+			'primary_color',
+			'secondary_color']);		
 
 		foreach ($this->invoice_items as $invoiceItem) 
 		{
@@ -134,6 +136,11 @@ class Invoice extends EntityModel
 
 	public function shouldSendToday()
 	{
+		if (!$this->start_date || strtotime($this->start_date) > strtotime('now'))
+		{
+			return false;
+		}
+
 		$dayOfWeekToday = date('w');
 		$dayOfWeekStart = date('w', strtotime($this->start_date));
 
@@ -142,8 +149,7 @@ class Invoice extends EntityModel
 		
 		if (!$this->last_sent_date) 
 		{
-			$daysSinceLastSent = 0;
-			$monthsSinceLastSent = 0;
+			return true;
 		} 
 		else 
 		{	
@@ -162,22 +168,21 @@ class Invoice extends EntityModel
 		switch ($this->frequency_id)
 		{
 			case FREQUENCY_WEEKLY:
-				return $dayOfWeekStart == $dayOfWeekToday;
+				return $daysSinceLastSent >= 7;
 			case FREQUENCY_TWO_WEEKS:
-				return $dayOfWeekStart == $dayOfWeekToday && (!$daysSinceLastSent || $daysSinceLastSent == 14);
+				return $daysSinceLastSent >= 14;
 			case FREQUENCY_FOUR_WEEKS:
-				return $dayOfWeekStart == $dayOfWeekToday && (!$daysSinceLastSent || $daysSinceLastSent == 28);
+				return $daysSinceLastSent >= 28;
 			case FREQUENCY_MONTHLY:
-				return $dayOfMonthStart == $dayOfMonthToday || $daysSinceLastSent > 31;
+				return $monthsSinceLastSent >= 1;
 			case FREQUENCY_THREE_MONTHS:
-				return ($dayOfMonthStart == $dayOfMonthToday && (!$daysSinceLastSent || $monthsSinceLastSent == 3)) || $daysSinceLastSent > 92;
+				return $monthsSinceLastSent >= 3;
 			case FREQUENCY_SIX_MONTHS:
-				return ($dayOfMonthStart == $dayOfMonthToday && (!$daysSinceLastSent || $monthsSinceLastSent == 6)) || $daysSinceLastSent > 183;
+				return $monthsSinceLastSent >= 6;
 			case FREQUENCY_ANNUALLY:
-				return ($dayOfMonthStart == $dayOfMonthToday && (!$daysSinceLastSent || $monthsSinceLastSent == 12)) || $daysSinceLastSent > 365;
+				return $monthsSinceLastSent >= 12;
 			default:
-				Utils::fatalError("Invalid frequency supplied: " . $this->frequency_id);
-				break;
+				return false;
 		}
 
 		return false;
