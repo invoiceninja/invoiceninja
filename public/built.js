@@ -36967,7 +36967,7 @@ function calculateAmounts(invoice) {
     total = parseFloat(total) + parseFloat(tax);
   }
 
-  invoice.balance_amount = total - (invoice.amount - invoice.balance);
+  invoice.balance_amount = accounting.toFixed(total,2) - (accounting.toFixed(invoice.amount,2) - accounting.toFixed(invoice.balance,2));
   invoice.tax_amount = tax;
   invoice.discount_amount = discount;
   invoice.has_taxes = hasTaxes;
@@ -37054,9 +37054,11 @@ function displayInvoiceItems(doc, invoice, layout) {
     shownItem = true;
 
     // process date variables
-    notes = processVariables(notes);
-    productKey = processVariables(productKey);
-
+    if (invoice.is_recurring) {
+      notes = processVariables(notes);
+      productKey = processVariables(productKey);
+    }
+    
     var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
     if (tax) {
       lineTotal += lineTotal * tax / 100;

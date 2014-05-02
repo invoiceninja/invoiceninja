@@ -504,7 +504,7 @@
 			refreshPDF();
 		}); //.trigger('change');						
 
-		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id').change(function() {
+		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring').change(function() {
 			refreshPDF();
 		});
 
@@ -1133,7 +1133,7 @@
     	});
 
 		this.totals.rawPaidToDate = ko.computed(function() {
-			return self.amount() - self.balance();		    
+			return accounting.toFixed(self.amount(),2) - accounting.toFixed(self.balance(),2);		    
 		});
 
 		this.totals.paidToDate = ko.computed(function() {
@@ -1142,7 +1142,7 @@
 		});
 
 		this.totals.total = ko.computed(function() {
-		    var total = self.totals.rawSubtotal();
+		    var total = accounting.toFixed(self.totals.rawSubtotal(),2);
 
 		    var discount = parseFloat(self.discount());
 		    if (discount > 0) {
