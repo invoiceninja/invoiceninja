@@ -19,7 +19,7 @@ class ReportController extends \BaseController {
 			$endDate = Utils::today(false);
 		}
 
-		$padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
+		$padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');		
 		$endDate->modify('+1 '.$padding);
 		$datasets = [];
 		$labels = [];
