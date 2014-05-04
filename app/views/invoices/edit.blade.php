@@ -19,6 +19,7 @@
 	{{ Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
 		'client' => 'required',
 		'email' => 'required',
+		'due_date' => 'required',
 		'product_key' => 'max:20',
 	)) }}	
 
