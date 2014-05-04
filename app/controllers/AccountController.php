@@ -35,7 +35,7 @@ class AccountController extends \BaseController {
 
 			if ($user && $user->registered)
 			{
-				exit;
+				return Redirect::to('/');				
 			}
 		}
 
@@ -49,7 +49,7 @@ class AccountController extends \BaseController {
 
 		Auth::login($user, true);
 		Event::fire('user.login');		
-		
+
 		return Redirect::to('invoices/create');		
 	}
 

@@ -129,12 +129,10 @@ class Activity extends Eloquent
 
 		if (!$invoice->is_deleted)
 		{
-			if ($invoice->balance > 0)
-			{
-				$client = $invoice->client;
-				$client->balance = $client->balance - $invoice->balance;
-				$client->save();
-			}			
+			$client = $invoice->client;
+			$client->balance = $client->balance - $invoice->balance;
+			$client->paid_to_date = $client->paid_to_date - ($invoice->amount - $invoice->balance);
+			$client->save();
 
 			$activity = Activity::getBlank();
 			$activity->invoice_id = $invoice->id;
@@ -167,12 +165,10 @@ class Activity extends Eloquent
 	{
 		if ($invoice->is_deleted && !$invoice->getOriginal('is_deleted'))
 		{
-			if ($invoice->balance > 0)
-			{
-				$client = $invoice->client;
-				$client->balance = $client->balance - $invoice->balance;
-				$client->save();
-			}
+			$client = $invoice->client;
+			$client->balance = $client->balance - $invoice->balance;
+			$client->paid_to_date = $client->paid_to_date - ($invoice->amount - $invoice->balance);
+			$client->save();
 
 			$activity = Activity::getBlank();
 			$activity->client_id = $invoice->client_id;

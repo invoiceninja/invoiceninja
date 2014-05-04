@@ -74,6 +74,18 @@ class HomeController extends BaseController {
 		return View::make('coming_soon');	
 	}
 
+	public function invoiceNow()
+	{
+		if (Auth::check())
+		{
+			return Redirect::to('invoices/create');				
+		}
+		else
+		{
+			return View::make('public.header', ['invoiceNow' => true]);
+		}
+	}
+
 	public function logError()
 	{
 		return Utils::logError(Input::get('error'), 'JavaScript');

@@ -74,7 +74,8 @@ class Invoice extends EntityModel
 			'tax_name', 
 			'tax_rate', 
 			'account', 
-			'invoice_design_id']);
+			'invoice_design_id',
+			'is_pro']);
 		
 		$this->client->setVisible([
 			'name', 

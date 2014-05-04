@@ -17,6 +17,12 @@ class AddAdvancedSettings extends Migration {
 			$table->string('primary_color');
 			$table->string('secondary_color');
 		});
+
+		Schema::table('payments', function($table)
+		{
+			$table->dropForeign('payments_invoice_id_foreign');
+			$table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade'); 			
+		});
 	}
 
 	/**

@@ -1640,9 +1640,9 @@ function displayInvoiceItems(doc, invoice, layout) {
     y += 4;
 
     if (invoice.invoice_design_id == 1) {
-      SetPdfColor('LightBlue', doc);
+      SetPdfColor('LightBlue', doc, 'primary');
     } else if (invoice.invoice_design_id == 2) {
-      SetPdfColor('SomeGreen', doc);
+      SetPdfColor('SomeGreen', doc, 'primary');
     } else if (invoice.invoice_design_id == 3) {
       doc.setFontType('bold');
     } else {
