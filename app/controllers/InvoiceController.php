@@ -143,7 +143,7 @@ class InvoiceController extends \BaseController {
 		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
 		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
 		$invoice->is_pro = $client->account->isPro();
-
+		
 		$data = array(
 			'hideHeader' => true,
 			'showBreadcrumbs' => false,
