@@ -298,8 +298,8 @@ class UserController extends BaseController {
             }
         }
 
-        Confide::logout();        
-        
+        Confide::logout();
+
         return Redirect::to('/')->with('clearGuestKey', true);
     }
 }

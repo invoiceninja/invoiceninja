@@ -53,11 +53,13 @@
 
 
 <script>
-  $(document).ready(function () {      
-    if (isStorageSupported()) {
-      $('[name="guest_key"]').val(localStorage.getItem('guest_key'));          
-    }
-  });
+  if (isStorageSupported()) {
+    $('[name="guest_key"]').val(localStorage.getItem('guest_key'));          
+  }
+
+  @if (isset($invoiceNow) && $invoiceNow)
+    getStarted();
+  @endif
 
   function isStorageSupported() {
     if ('localStorage' in window && window['localStorage'] !== null) {

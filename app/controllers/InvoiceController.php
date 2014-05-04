@@ -209,7 +209,7 @@ class InvoiceController extends \BaseController {
 	}
 
 	public function create($clientPublicId = 0)
-	{		
+	{	
 		$client = null;
 		$invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
 		$account = Account::with('country')->findOrFail(Auth::user()->account_id);
@@ -229,6 +229,7 @@ class InvoiceController extends \BaseController {
 				'title' => '- New Invoice',
 				'client' => $client);
 		$data = array_merge($data, self::getViewModel());				
+
 		return View::make('invoices.edit', $data);
 	}
 
