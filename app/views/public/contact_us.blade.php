@@ -57,16 +57,9 @@ var contactForm = {
 
 @section('content')
 
-<section class="hero background hero4" data-speed="2" data-type="background">
-  <div class="caption-side"></div>
+<section class="hero background hero4 center" data-speed="2" data-type="background">
   <div class="container">
-    <div class="row" style="margin:0;">
-      <div class="caption-wrap">
-        <div class="caption">
           <h1>Contact<span style="color:#ecd816"> us</span></h1>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 

@@ -4,15 +4,13 @@
 
 
 
-<section class="hero background hero1" data-speed="2" data-type="background">
+<section class="hero background hero1 center" data-speed="2" data-type="background">
   <div class="caption-side"></div>
 
   <div class="container">
-    <div class="row" style="margin:0;">
-      <div class="caption-wrap">
-        <div class="caption">
+    <div class="row">
           <h1>THE <span style="color:#2299c0">SIMPLE</span> &amp;
-            <span style="color:#edd71e">FREE</span> WAY TO INVOICE
+            <span style="color:#edd71e">FREE</span> WAY TO<br>INVOICE
             CLIENTS</h1>
             <p>It's that easy. Stop spending time on
               complicated and expensive invoicing.<br>
@@ -20,11 +18,7 @@
               "color:#2299c0">get paid.</span></p>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="container">
-        <div class="row">
+      <div class="row">
           <div class="col-md-3 center-block">
             <a href="#">
               <div class="cta">
@@ -34,6 +28,8 @@
           </div>
         </div>
       </div>
+
+  
     </section>
 
     <section class="features-splash">

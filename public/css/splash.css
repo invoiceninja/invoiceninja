@@ -19,7 +19,9 @@ h1,h2,.btn {
 h1 {
     font-size: 56px;
     text-transform: uppercase;
+    color: #fff;
 }
+h1 img {margin-right: 10px;}
 
 h2 {
     font-size: 25px;
@@ -132,70 +134,9 @@ a .cta:hover span {
     font-size: 40px;
     background: #f2c40a;
 }
-
-.hero .caption-side {
-    background: #fff;
-    width: 50%;
-    padding-right: 15px;
-    position: absolute;
-    left: 0;
-    height: 109px;
-    
-}
-
-.hero .caption {
-    width: 61.5%;
-    background: #fff;
-    padding-right: 15px;
-    position: relative;
-    padding: 10px 35px 20px;
-    height: 109px;
-    border-left: 1px dotted #ccc;
-    text-align: left;
-   
-}
-
-
-.hero1 .caption-side {
-    background: #fff;
-    width: 50%;
-    padding-right: 15px;
-    position: absolute;
-    left: 0;
-    height: 212px;
-    margin-top: 100px;
-}
-
-.hero1 .caption {
-    width: 61.5%;
-    background: #fff;
-    padding-right: 15px;
-    position: relative;
-    padding: 10px 35px 20px;
-    height: 212px;
-    border-left: 1px dotted #ccc;
-    margin-top: 100px;
-}
-
-
-.hero2 {
-    text-align: center;
-    padding: 225px 0;
-    background-repeat: no-repeat;
-    background-position: bottom center;
-    background-size: cover;
-}
-
-.hero h1 {
-    color: #fff;
-    margin: 0;
-}
-.hero h1 img {
-    display: inline;
-    margin-right: 10px;
-    margin-top: -6px;
-}
-
+ .hero1 {padding: 130px 0;}
+ .hero h1 {margin: 0;}
+ .hero1 p {color: #fff; margin-bottom: 30px; margin-top: 20px;}
 .hero3 {
     text-align: center;
     padding: 150px 0;
@@ -223,7 +164,6 @@ a .cta:hover span {
     background-position: center center;
     background-attachment: static;
     background-size: cover;
-    min-height: 500px;
 }
 
 section.features-splash, section.upper-footer {
@@ -578,52 +518,6 @@ footer .social p {
     margin: 0;
 }
 
-@media min-width 768px and max-width 1200px {
-    .hero .caption-side {
-        background: #fff;
-        width: 50%;
-        padding-right: 15px;
-        position: absolute;
-        left: 0;
-        height: 283px;
-        margin-top: 70px;
-    }
-    
-    .hero .caption {
-        width: 61.3%;
-        background: #fff;
-        padding-right: 15px;
-        position: relative;
-        padding: 10px 35px 20px;
-        height: 283px;
-        border-left: 1px dotted #ccc;
-        margin-top: 70px;
-    }
-
-}
-
-@media min-width 768px and max-width 992px {
-    .features .col-md-3 {
-        width: 50%;
-        float: left;
-        margin-bottom: 10px;
-    }
-    
-    .hero .caption-side {
-        display: none;
-    }
-    
-    .hero .caption {
-        width: 100%;
-        background: #fff;
-        padding: 10px 35px 20px;
-        height: auto;
-        border-left: none;
-        margin-bottom: 10px;
-        text-align: center;
-    }
-
-}
 
 @media max-width 768px {
     h1 {
@@ -646,22 +540,8 @@ footer .social p {
         float: none;
         margin-top: 10px;
     }
-    
-    .hero .caption-side {
-        display: none;
-    }
-    
-    .hero .caption {
-        width: 100%;
-        background: #fff;
-        padding: 10px 35px 20px;
-        height: auto;
-        border-left: none;
-        margin-top: 0;
-        margin-bottom: 10px;
-        text-align: center;
-    }
-    
+   
+
     .hero2,.hero3,.hero4 {
         padding: 50px 0;
     }
