@@ -641,6 +641,66 @@ div.fb_iframe_widget > span {
     font-size:9px;
 }
 
+
+.plans-table {float: none; margin-top: 10px; }
+.plans-table div {text-align:center; margin: 0 auto; }
+
+.plans-table .free, .plans-table .desc { padding: 0; }
+.plans-table .free .cell { padding-right: 15px; }
+.plans-table .desc .cell { text-align: right; padding-right: 15px; border-left: 1px solid #dfe0e1; font-size: 13px; font-weight: 800; }
+.plans-table .pro .cell { border-left: 1px solid #cccccc; border-right: 1px solid #cccccc;}
+
+
+.plans-table .cell {background-color: #fff; border-top: 1px solid #dfe0e1;padding: 18px 0; font-family: Roboto, sans-serif; height: 60px;}
+.plans-table .cell:nth-child(odd){background-color: #fbfbfb;}
+.plans-table .pro .cell:nth-child(odd){background-color: #f4f4f4;}
+.plans-table .pro {
+    background-color: #2299c0;
+     overflow:hidden;
+    padding: 0;
+-webkit-box-shadow: 0px 0px 15px 0px rgba(0, 5, 5, 0.2);
+-moz-box-shadow:    0px 0px 15px 0px rgba(0, 5, 5, 0.2);
+box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
+}
+
+.plans-table .free .cell:first-child, .plans-table .pro .cell:first-child {color: #fff; text-transform: uppercase; font-size: 24px; font-weight:800; line-height: 60px; padding: 0; position: relative; bottom: -1px; border: none;}
+.plans-table .free .cell:first-child {background-color: #9b9b9b; margin-right: 15px; padding-right: 0;}
+.plans-table .free, .plans-table .desc {border-bottom: 1px solid #dfe0e1;}
+.plans-table .pro .cell:first-child {background-color: #2299c0;}
+.plans-table .pro .cell:last-child {padding: 0; border: none;}
+.plans-table .desc .cell:first-child {background-color: transparent; border: none;}
+
+.plans-table .glyphicon {color: #fff; border-radius: 50px; padding: 5px; font-size: 10px;}
+.plans-table .glyphicon-remove {background-color: #da4830;}
+.plans-table .glyphicon-ok {background-color: #35c156;}
+.plans-table .glyphicon-star {border-radius: 0; background-color: #2e2b2b;
+    display: block;  
+    width: 60px;  
+    height: 30px;  
+    position: absolute;  
+    top: -5px;  
+    right: -20px;  
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+    padding: 13px 0 0 1px;
+}
+
+.plans-table .price {padding: 0; }
+.plans-table .free .price p {color: #35c156;}
+.plans-table .pro .price p {color: #2299c0;}
+.plans-table .price p {font-size: 40px; text-transform: uppercase; font-weight: 800; margin: 0; line-height: 55px;}
+.plans-table .price p span {font-size: 16px; text-transform: none; font-weight: 400;}
+
+.plans-table a .cta h2 {background: #2299c0; color:#fff; margin: 0;}
+.plans-table a .cta h2 span {background: #1e84a5;}
+
+
+@media screen and (min-width: 769px) {
+   .hide-desktop {display: none;}
+}
+
 @media (max-width: 767px) {
     .navbar-default .navbar-nav .open .dropdown-menu > li > a {
         color: #ecf0f1;
@@ -649,4 +709,11 @@ div.fb_iframe_widget > span {
     .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
         color: #ffffff;
     }
+
+    .plans-table .cell {height: auto; padding: 14px 0; }
+    .plans-table .free .cell { padding-right: 0; }
+    .plans-table .free .cell:first-child {margin-right: 0;}
+    .plans-table .cell div:first-child {margin-bottom: 5px;}
+    .plans-table .cell .cta {margin-bottom: 0 !important;}
+    .plans-table .pro {margin-top: 40px;}
 }

@@ -349,5 +349,4 @@ return array(
   'specify_colors_label' => 'Select the colors used in the invoice',
 
 
-
 );

@@ -35,6 +35,7 @@ Route::get('/faq', 'HomeController@showFaq');
 Route::get('/features', 'HomeController@showFeatures');
 
 Route::get('log_error', 'HomeController@logError');
+Route::get('invoice_now', 'HomeController@invoiceNow');
 Route::post('get_started', 'AccountController@getStarted');
 
 Route::get('view/{invitation_key}', 'InvoiceController@view');
@@ -143,7 +144,7 @@ define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
 define('LOGGED_ERROR_LIMIT', 100);
 define('RANDOM_KEY_LENGTH', 32);
-define('MAX_NUM_CLIENTS', 1000);
+define('MAX_NUM_CLIENTS', 500);
 define('MAX_NUM_CLIENTS_PRO', 5000);
 
 define('INVOICE_STATUS_DRAFT', 1);

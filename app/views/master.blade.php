@@ -20,6 +20,7 @@
     <meta name="keywords" content="Invoice Ninja"></meta>    
     
     <script src="{{ asset('built.js') }}" type="text/javascript"></script>  
+
     <!-- <script src="{{ asset('vendor/jquery/jquery.js') }}" type="text/javascript"></script>  -->
     <!-- <script src="{{ asset('vendor/jquery/dist/jquery.js') }}" type="text/javascript"></script>  -->
 
@@ -64,6 +65,7 @@
     @endif
 
     @yield('body')
+
 
     <script type="text/javascript">
       NINJA.formIsChanged = false;

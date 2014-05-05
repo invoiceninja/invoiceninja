@@ -94,7 +94,7 @@ class InvoiceController extends \BaseController {
     	
     	return $table->addColumn('start_date', function($model) { return Utils::fromSqlDate($model->start_date); })
     	    ->addColumn('end_date', function($model) { return Utils::fromSqlDate($model->end_date); })    	    
-    	    ->addColumn('total', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
+    	    ->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
     	    ->addColumn('dropdown', function($model) 
     	    { 
     	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
@@ -143,7 +143,7 @@ class InvoiceController extends \BaseController {
 		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
 		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
 		$invoice->is_pro = $client->account->isPro();
-
+		
 		$data = array(
 			'hideHeader' => true,
 			'showBreadcrumbs' => false,
@@ -209,7 +209,7 @@ class InvoiceController extends \BaseController {
 	}
 
 	public function create($clientPublicId = 0)
-	{		
+	{	
 		$client = null;
 		$invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
 		$account = Account::with('country')->findOrFail(Auth::user()->account_id);
@@ -229,6 +229,7 @@ class InvoiceController extends \BaseController {
 				'title' => '- New Invoice',
 				'client' => $client);
 		$data = array_merge($data, self::getViewModel());				
+
 		return View::make('invoices.edit', $data);
 	}
 
