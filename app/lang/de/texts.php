@@ -332,7 +332,7 @@ return array(
   'updated_product' => 'Produkt erfolgreich aktualisiert',
   'created_product' => 'Produkt erfolgreich erstellt',
   'archived_product' => 'Produkt erfolgreich archiviert',
-  'product_library' => 'Product Library',  
+  'product_library' => 'Produktbibliothek',  
 
 
 );
