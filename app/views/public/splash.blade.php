@@ -8,26 +8,35 @@
   <div class="caption-side"></div>
 
   <div class="container">
-    <div class="row">
-          <h1>THE <span style="color:#2299c0">SIMPLE</span> &amp;
-            <span style="color:#edd71e">FREE</span> WAY TO<br>INVOICE
-            CLIENTS</h1>
-            <p>It's that easy. Stop spending time on
-              complicated and expensive invoicing.<br>
-              No fuss, just get started and <span style=
-              "color:#2299c0">get paid.</span></p>
+      
+        <div class="container">
+            <div class="row" style="margin:0;">
+                <div class="caption-wrap">
+                    <div class="caption">
+                        <h1>THE <span style="color:#2299c0">SIMPLE</span> &amp;
+                        <span style="color:#edd71e">FREE</span> WAY TO INVOICE
+                        CLIENTS</h1>
+                        <p>It's just that easy. Stop spending time on
+                        complicated and expensive invoicing.<br>
+                        No fuss, just get started and <span style=
+                        "color:#2299c0">get paid.</span></p>
+                    </div>
+                </div>
             </div>
-          </div>
-      <div class="row">
-          <div class="col-md-3 center-block">
-            <a href="#">
-              <div class="cta">
-                <h2 id="startButton" onclick="return getStarted()">Invoice Now <span>+</span></h2>
-              </div>
-            </a>
-          </div>
         </div>
-      </div>
+
+      
+    <div class="container">
+            <div class="row">
+                <div class="col-md-3 center-block">
+                    <a href="#">
+                    <div class="cta">
+                        <h2 id="startButton" onclick="return getStarted()">Invoice Now <span>+</span></h2>
+                    </div>
+					</a>
+                </div>
+            </div>
+        </div>
 
   
     </section>

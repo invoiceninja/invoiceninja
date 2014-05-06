@@ -53,9 +53,11 @@ var contactForm = {
 };
 </script>
 
-<section class="hero background hero4 center" data-speed="2" data-type="background">
-  <div class="container">
-          <h1>Contact<span style="color:#ecd816"> us</span></h1>
+<section class="hero background hero-contact center" data-speed="2" data-type="background">
+<div class="container">
+    <div class="row">
+          <h1><img src="{{ asset('images/icon-contact.png') }}">Contact <span class="thin">us</span></h1>
+        </div>
       </div>
     </section>
 

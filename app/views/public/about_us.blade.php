@@ -1,17 +1,13 @@
 @extends('public.header')
 
 @section('content')
-  <section class="hero background hero3" data-speed="2" data-type="background">
-  <div class="caption-side"></div>
-  <div class="container">
-    <div class="row" style="margin:0;">
-      <div class="caption-wrap">
-        <div class="caption">
-          <h1>About <span style="color:#ecd816"> InvoiceNinja</span></h1>
-            </div>
-          </div>
+  <section class="hero background hero-about" data-speed="2" data-type="background">
+ <div class="container">
+    <div class="row">
+          <h1><img src="{{ asset('images/icon-about.png') }}"><span class="thin">About</span> Invoice Ninja</h1>
         </div>
       </div>
+    </section>
     </section>
 
  <section class="about center">
@@ -23,23 +19,20 @@
         customers. With Invoice Ninja, you can easily build and send beautiful invoices 
         from any device that has access to the web. Your clients can print your invoices, 
         download them as pdf files, and even pay you online from within the system. </p>
-        &nbsp;
-       <h2>Team Ninja</h2>
-        <p>Invoice Ninja is managed by a team of seasoned web workers. We 
-        launched in early 2014 and have been thrilled by the enthusiastic response we’ve 
-        received from our growing community of users.</p>
-      </div>
     </div>
   </div>
 </section>
 
-<section class="team white-bg center">
+<section class="team center">
   <div class="container">
       <div class="row">
       <div class="col-md-8 col-md-offset-2">
-
+<h2>Team Ninja</h2>
+        <p>Invoice Ninja is managed by a team of seasoned web workers. We 
+        launched in early 2014 and have been thrilled by the enthusiastic response we’ve 
+        received from our growing community of users.</p>
+      </div>
           </div>
-           </div>
     <div class="row">
       <div class="col-md-3">
           <img src="images/shalomstark.jpg" alt="Shalom Stark" class="img-circle">
