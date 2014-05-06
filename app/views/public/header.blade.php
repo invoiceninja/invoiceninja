@@ -36,8 +36,8 @@
 
 @section('body')
 
+<!--
 <div id="fb-root"></div>
-   
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
   if (d.getElementById(id)) return;
@@ -45,7 +45,7 @@
   js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=635126583203143";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
-
+-->
 
 {{ Form::open(array('url' => 'get_started', 'id' => 'startForm')) }}
 {{ Form::hidden('guest_key') }}
@@ -115,16 +115,15 @@
           <!--<a href="https://twitter.com/invoiceninja" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @invoiceninja</a>
           <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>-->
           <!--<div class="fb-like" data-href="https://www.invoiceninja.com" data-layout="button" data-action="like" data-show-faces="false" data-share="false"></div>          -->
+          <!--
           <div class="fb-share-button" data-href="https://www.invoiceninja.com/" data-type="button"></div>
           &nbsp;
 
           <a href="https://twitter.com/share" class="twitter-share-button" data-url="https://www.invoiceninja.com/" data-via="invoiceninja" data-related="hillelcoren" data-count="none" data-text="Free online invoicing">Tweet</a>
           <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
           &nbsp;
-          <!-- Place this tag where you want the +1 button to render. -->
           <div class="g-plusone" data-size="medium" data-width="300" data-href="https://www.invoiceninja.com/" data-annotation="none" data-count="false" data-recommendations="false"></div>
 
-          <!-- Place this tag after the last +1 button tag. -->
           <script type="text/javascript">
             (function() {
               var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
@@ -133,6 +132,7 @@
             })();
           </script>       
           &nbsp;
+          -->
 
           <!--
           <script src="//platform.linkedin.com/in.js" type="text/javascript">

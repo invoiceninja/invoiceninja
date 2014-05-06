@@ -18,8 +18,8 @@
     <meta property="og:image" content="https://www.invoiceninja.com/images/social.jpg"></meta>
     <meta property="og:description" content="Simple, Intuitive Invoicing."></meta>
     <meta name="keywords" content="Invoice Ninja"></meta>    
-    
-    <script src="{{ asset('built.js') }}" type="text/javascript"></script>  
+
+    <script src="{{ asset('built.js') }}" type="text/javascript"></script>
 
     <!-- <script src="{{ asset('vendor/jquery/jquery.js') }}" type="text/javascript"></script>  -->
     <!-- <script src="{{ asset('vendor/jquery/dist/jquery.js') }}" type="text/javascript"></script>  -->

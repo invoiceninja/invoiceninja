@@ -4,7 +4,7 @@
 @section('content')
 
 <script>
-  $(document).ready(function () {
+  $(function() {
 
     $("#feedbackSubmit").click(function() {
       //clear any errors
@@ -27,10 +27,9 @@
       //if there are any errors return without sending e-mail
       if (hasErrors) {
         return false;
-      }
-      
-    }); 
-    
+      }    
+    });
+         
   });
   
 //namespace as not to pollute global namespace
@@ -52,10 +51,7 @@ var contactForm = {
     $("#feedbackSubmit").after('<div id="emailAlert" class="alert alert-' + (isError ? 'danger' : 'success') + '" style="margin-top: 5px;">' + $('<div/>').text(msg).html() + '</div>');
   }
 };
-
 </script>
-
-@section('content')
 
 <section class="hero background hero4 center" data-speed="2" data-type="background">
   <div class="container">
