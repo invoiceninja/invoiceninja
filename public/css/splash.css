@@ -1,6 +1,7 @@
 body {
     font-family: Roboto, sans-serif;
     line-height: 1.6;
+    background-color: #fff;
 }
 
 .center-block {
@@ -16,13 +17,19 @@ h1,h2,.btn {
 }
 
 h1 {
-    font-size: 45px;
+    font-size: 56px;
     text-transform: uppercase;
+    color: #fff;
 }
+h1 img {margin-right: 10px;}
 
 h2 {
     font-size: 25px;
 }
+.headline { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;}
+.thin {font-weight: 300;}
+
+p.first {font-size: 17px;}
 
 a,a .cta h2,.socicon,.btn {
     -webkit-transition: all .3s ease-in-out;
@@ -127,65 +134,9 @@ a .cta:hover span {
     font-size: 40px;
     background: #f2c40a;
 }
-
-.hero .caption-side {
-    background: #fff;
-    width: 50%;
-    padding-right: 15px;
-    position: absolute;
-    left: 0;
-    height: 109px;
-    
-}
-
-.hero .caption {
-    width: 61.5%;
-    background: #fff;
-    padding-right: 15px;
-    position: relative;
-    padding: 10px 35px 20px;
-    height: 109px;
-    border-left: 1px dotted #ccc;
-    text-align: left;
-   
-}
-
-
-.hero1 .caption-side {
-    background: #fff;
-    width: 50%;
-    padding-right: 15px;
-    position: absolute;
-    left: 0;
-    height: 212px;
-    margin-top: 100px;
-}
-
-.hero1 .caption {
-    width: 61.5%;
-    background: #fff;
-    padding-right: 15px;
-    position: relative;
-    padding: 10px 35px 20px;
-    height: 212px;
-    border-left: 1px dotted #ccc;
-    margin-top: 100px;
-}
-
-
-.hero2 {
-    text-align: center;
-    padding: 225px 0;
-    background-repeat: no-repeat;
-    background-position: bottom center;
-    background-size: cover;
-}
-
-.hero2 h1 {
-    color: #fff;
-    margin: 0;
-}
-
+ .hero1 {padding: 130px 0;}
+ .hero h1 {margin: 0;}
+ .hero1 p {color: #fff; margin-bottom: 30px; margin-top: 20px;}
 .hero3 {
     text-align: center;
     padding: 150px 0;
@@ -213,56 +164,32 @@ a .cta:hover span {
     background-position: center center;
     background-attachment: static;
     background-size: cover;
-    min-height: 500px;
 }
 
-section.features,section.upper-footer {
-    margin: 60px 0;
+section.features-splash, section.upper-footer {
+    margin: 70px 0;
 }
+
+section.features {
+    margin: 0;
+    padding-top: 80px;
+}
+
+
 
 section.upper-footer.white-bg {
     margin: 0;
     padding: 60px 0;
 }
 
-section.features .col-md-3 .box {
+section.features-splash .box {
     padding: 20px;
     text-align: center;
 }
 
-section.features .col-md-3.two .box .icon {
-    background: #32ba8d;
-    border-color: #28ae82;
-}
+/*Icons*/
 
-section.features .col-md-3.two h2 {
-    color: #32ba8d;
-}
-
-section.features .col-md-3.three .box .icon {
-    background: #d2462d;
-    border-color: #c23b23;
-}
-
-section.features .col-md-3.three h2 {
-    color: #d2462d;
-}
-
-section.features .col-md-3.four .box .icon {
-    background: #fad129;
-    border-color: #f0c824;
-}
-
-section.features .col-md-3.four h2 {
-    color: #f0c824;
-}
-
-section.features h2 {
-    margin: 20px 0 15px;
-    color: #2599c0;
-}
-
-section.features .col-md-3 .box .icon {
+section.features-splash .icon {
     background: #2599c0;
     width: 94px;
     height: 94px;
@@ -270,16 +197,65 @@ section.features .col-md-3 .box .icon {
     text-align: center;
     display: table;
     margin: 0 auto;
-    
 }
 
-section.features .col-md-3 .box .icon .img-wrap {
+section.features .icon {
+    background: #2599c0;
+    width: 35px;
+    height: 35px;
+    border: 4px solid #1d8db3;
+    text-align: center;
+    display: table;
+    float: left;
+}
+
+.icon.open  {
+    background: #32ba8d !important;
+    border-color: #28ae82 !important;
+}
+
+section.features .icon.free img {width: 23px;}
+section.features .icon.open img {width: 23px;}
+section.blue .icon.free {background-color: #fff; border-color: #fff;}
+section.features-splash .two .box h2 {
+    color: #32ba8d;
+}
+
+.icon.pdf {
+    background: #d2462d !important;
+    border-color: #c23b23 !important;
+}
+
+section.features-splash .three .box h2 {
+    color: #d2462d;
+}
+
+.icon.pay {
+    background: #fad129 !important;
+    border-color: #f0c824 !important;
+}
+
+section.features-splash .four .box h2 {
+    color: #f0c824;
+}
+
+section.features-splash h2 {
+    margin: 20px 0 15px;
+    color: #2599c0;
+}
+section.features h2 {
+    display: inline-block;
+    margin-top: 5px;
+    padding-left: 15px;
+    color: #1a1818;
+}
+.icon .img-wrap {
   display: table-cell;
    vertical-align: middle;
    height: 100%;
 }
 
-section.features .col-md-3 .box .icon img {
+.icon img {
    vertical-align: middle;
 }
 
@@ -305,6 +281,7 @@ section.blue h1 {
     margin-top: 30px;
     font-size: 65px;
 }
+section.blue h2 {color: #fff;}
 section.blue a {color: #ffffff; text-decoration:underline;}
 
 section.blue p {margin-top: 15px;}
@@ -541,52 +518,6 @@ footer .social p {
     margin: 0;
 }
 
-@media min-width 768px and max-width 1200px {
-    .hero .caption-side {
-        background: #fff;
-        width: 50%;
-        padding-right: 15px;
-        position: absolute;
-        left: 0;
-        height: 283px;
-        margin-top: 70px;
-    }
-    
-    .hero .caption {
-        width: 61.3%;
-        background: #fff;
-        padding-right: 15px;
-        position: relative;
-        padding: 10px 35px 20px;
-        height: 283px;
-        border-left: 1px dotted #ccc;
-        margin-top: 70px;
-    }
-
-}
-
-@media min-width 768px and max-width 992px {
-    .features .col-md-3 {
-        width: 50%;
-        float: left;
-        margin-bottom: 10px;
-    }
-    
-    .hero .caption-side {
-        display: none;
-    }
-    
-    .hero .caption {
-        width: 100%;
-        background: #fff;
-        padding: 10px 35px 20px;
-        height: auto;
-        border-left: none;
-        margin-bottom: 10px;
-        text-align: center;
-    }
-
-}
 
 @media max-width 768px {
     h1 {
@@ -609,22 +540,8 @@ footer .social p {
         float: none;
         margin-top: 10px;
     }
-    
-    .hero .caption-side {
-        display: none;
-    }
-    
-    .hero .caption {
-        width: 100%;
-        background: #fff;
-        padding: 10px 35px 20px;
-        height: auto;
-        border-left: none;
-        margin-top: 0;
-        margin-bottom: 10px;
-        text-align: center;
-    }
-    
+   
+
     .hero2,.hero3,.hero4 {
         padding: 50px 0;
     }
