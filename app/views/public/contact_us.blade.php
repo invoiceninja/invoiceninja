@@ -103,7 +103,6 @@ var contactForm = {
         <div class="col-md-4 col-md-offset-1 address">
           <h2>Other ways to reach us</h2>
           <p><span class="glyphicon glyphicon-send"></span><a href="mailto:contact@invoiceninja.com">contact@invoiceninja.com</a></p>
-          <p><span class="glyphicon glyphicon-earphone"></span>+1-800-763-1948</p>
           <p><span class="glyphicon glyphicon-comment"></span><a href="http://www.invoiceninja.org" target="_blank">Google Group</a></p>        
           <p><span class="github"></span><div style="padding-top:10px"> &nbsp;&nbsp;<a href="https://github.com/hillelcoren/invoice-ninja" target="_blank">GitHub Project</a></div></p>
 
