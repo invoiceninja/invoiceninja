@@ -6,8 +6,8 @@
 <!--
 <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
 <link href="{{ asset('css/bootstrap.splash.css') }}" rel="stylesheet" type="text/css"/> 
--->
-<link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>    
+<link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>  
+-->  
 
 <!--
 <link href="{{ asset('images/apple-touch-icon-114x114-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="114x114">
@@ -15,23 +15,27 @@
 <link href="{{ asset('images/apple-touch-icon-57x57-precomposed.png') }}" rel="apple-touch-icon-precomposed">
 <!-- <script src="{{ asset('js/simpleexpand.js') }}" type="text/javascript"></script> -->
 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="{{ asset('js/valign.js') }}" type="text/javascript"></script>
+
 <style>
 .hero {
     background-image: url({{ asset('/images/hero-bg-1.jpg') }});
 }
-.hero2 {
-    background-image: url({{ asset('/images/hero-bg-2.jpg') }});
+.hero-about {
+    background-image: url({{ asset('/images/hero-bg-3.jpg.jpg') }});
 }
-.hero3 {
-    background-image: url({{ asset('/images/hero-bg-3.jpg') }});
+.hero-plans {
+    background-image: url({{ asset('/images/hero-bg-plans.jpg') }});
 }
-.hero4 {
-    background-image: url({{ asset('/images/hero-bg-4.jpg') }});
+.hero-contact {
+    background-image: url({{ asset('/images/hero-bg-contact.jpg') }});
 }
-.hero5 {
+.hero-features {
     background-image: url({{ asset('/images/hero-bg-3.jpg') }});
 }
 </style>
+
 @stop
 
 @section('body')
@@ -50,7 +54,6 @@
 {{ Form::open(array('url' => 'get_started', 'id' => 'startForm')) }}
 {{ Form::hidden('guest_key') }}
 {{ Form::close() }}
-
 
 <script>
   if (isStorageSupported()) {
@@ -170,12 +173,21 @@
 </div>
 </footer>
 
-<!-- <script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script> -->
+<script type="text/javascript">
+jQuery(document).ready(function($) { 
+	$('.valign').vAlign();
+});
+</script>
+
+<script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script>
+
 <!--
 <script type="text/javascript">
     $('.expander').simpleexpand();
 </script>
 -->
+
+
 
 
 @stop

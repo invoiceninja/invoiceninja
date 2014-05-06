@@ -2,15 +2,10 @@
 
 @section('content')
 
-  <section class="hero background hero3" data-speed="2" data-type="background">
-  <div class="caption-side"></div>
-  <div class="container">
-    <div class="row" style="margin:0;">
-      <div class="caption-wrap">
-        <div class="caption">
-          <h1>The <span style="color:#ecd816"> Plans</span></h1>
-            </div>
-          </div>
+  <section class="hero background hero-plans" data-speed="2" data-type="background">
+ <div class="container">
+    <div class="row">
+          <h1><img src="{{ asset('images/icon-plans.png') }}"><span class="thin">The</span> plans</h1>
         </div>
       </div>
     </section>
