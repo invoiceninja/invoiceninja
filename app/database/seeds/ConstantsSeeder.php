@@ -46,6 +46,7 @@ class ConstantsSeeder extends Seeder
 		PaymentType::create(array('name' => 'Credit Card Other'));
 		PaymentType::create(array('name' => 'PayPal'));
 		PaymentType::create(array('name' => 'Google Wallet'));
+		PaymentType::create(array('name' => 'Check'));
 
 		Theme::create(array('name' => 'amelia'));
 		Theme::create(array('name' => 'cerulean'));

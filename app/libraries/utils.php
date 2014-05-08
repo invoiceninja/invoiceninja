@@ -219,7 +219,7 @@ class Utils
 		return $date->format($format);		
 	}	
 
-	public static function toSqlDate($date)
+	public static function toSqlDate($date, $formatResult = true)
 	{
 		if (!$date)
 		{
@@ -229,10 +229,12 @@ class Utils
 		$timezone = Session::get(SESSION_TIMEZONE);
 		$format = Session::get(SESSION_DATE_FORMAT);
 
-		return DateTime::createFromFormat($format, $date, new DateTimeZone($timezone))->format('Y-m-d');
+
+		$dateTime = DateTime::createFromFormat($format, $date, new DateTimeZone($timezone));
+		return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
 	}
 	
-	public static function fromSqlDate($date)
+	public static function fromSqlDate($date, $formatResult = true)
 	{
 		if (!$date || $date == '0000-00-00')
 		{
@@ -241,8 +243,9 @@ class Utils
 		
 		$timezone = Session::get(SESSION_TIMEZONE);
 		$format = Session::get(SESSION_DATE_FORMAT);
-		
-		return DateTime::createFromFormat('Y-m-d', $date, new DateTimeZone($timezone))->format($format);
+
+		$dateTime = DateTime::createFromFormat('Y-m-d', $date, new DateTimeZone($timezone));
+		return $formatResult ? $dateTime->format($format) : $dateTime;
 	}
 
 	public static function today($formatResult = true)

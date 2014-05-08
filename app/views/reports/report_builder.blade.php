@@ -11,7 +11,7 @@
 	<p>&nbsp;</p>
 	
 	<div class="row">
-		<div class="col-lg-3">
+		<div class="col-lg-4">
 
 			{{ Former::open() }}
 			{{ Former::populateField('start_date', $startDate) }}
@@ -38,7 +38,7 @@
 			</div>
 
 		</div>
-		<div class="col-lg-9">
+		<div class="col-lg-8">
 			<canvas id="monthly-reports" width="850" height="400"></canvas>
 		</div>
 

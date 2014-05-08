@@ -11,7 +11,7 @@
 	{{ Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
 		'client' => 'required',
 		'invoice' => 'required',		
-  		'amount' => 'required',		
+		'amount' => 'required',		
 	)); }}
 	
 	<div class="row">
@@ -23,6 +23,7 @@
 			{{ Former::select('payment_type_id')->addOption('','')
 				->fromQuery($paymentTypes, 'name', 'id') }}			
 			{{ Former::text('payment_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') }}
+			{{ Former::text('transaction_reference') }}
 			{{-- Former::select('currency_id')->addOption('','')
 				->fromQuery($currencies, 'name', 'id')->select(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY)) --}}
 
