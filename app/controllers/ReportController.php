@@ -24,53 +24,57 @@ class ReportController extends \BaseController {
 		$datasets = [];
 		$labels = [];
 		$maxTotals = 0;
-
-		foreach ([ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_CREDIT] as $entityType)
+		$width = 10;
+		
+		if (Auth::user()->account->isPro())
 		{
-			$records = DB::table($entityType.'s')
-						->select(DB::raw('sum(amount) as total, '.$groupBy.'('.$entityType.'_date) as '.$groupBy))
-						->where($entityType.'s.deleted_at', '=', null)
-						->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
-						->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))					
-						->groupBy($groupBy);
-						
-			$totals = $records->lists('total');
-			$dates = $records->lists($groupBy);		
-			$data = array_combine($dates, $totals);
-			
-			$interval = new DateInterval('P1'.substr($groupBy, 0, 1));
-			$period = new DatePeriod($startDate, $interval, $endDate);
-
-			$totals = [];			
-
-			foreach ($period as $d)
+			foreach ([ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_CREDIT] as $entityType)
 			{
-				$dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');				
-				$date = $d->format($dateFormat);		
-				$totals[] = isset($data[$date]) ? $data[$date] : 0;
+				$records = DB::table($entityType.'s')
+							->select(DB::raw('sum(amount) as total, '.$groupBy.'('.$entityType.'_date) as '.$groupBy))
+							->where($entityType.'s.deleted_at', '=', null)
+							->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
+							->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))					
+							->groupBy($groupBy);
+							
+				$totals = $records->lists('total');
+				$dates = $records->lists($groupBy);		
+				$data = array_combine($dates, $totals);
+				
+				$interval = new DateInterval('P1'.substr($groupBy, 0, 1));
+				$period = new DatePeriod($startDate, $interval, $endDate);
 
-				if ($entityType == ENTITY_INVOICE)  
+				$totals = [];			
+
+				foreach ($period as $d)
 				{
-					$labelFormat = $groupBy == 'DAYOFYEAR' ? 'j' : ($groupBy == 'WEEK' ? 'W' : 'F');
-					$label = $d->format($labelFormat);
-					$labels[] = $label;
+					$dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');				
+					$date = $d->format($dateFormat);		
+					$totals[] = isset($data[$date]) ? $data[$date] : 0;
+
+					if ($entityType == ENTITY_INVOICE)  
+					{
+						$labelFormat = $groupBy == 'DAYOFYEAR' ? 'j' : ($groupBy == 'WEEK' ? 'W' : 'F');
+						$label = $d->format($labelFormat);
+						$labels[] = $label;
+					}
+				}
+
+				$max = max($totals);
+
+				if ($max > 0)
+				{
+					$datasets[] = [
+						'totals' => $totals,
+						'colors' => $entityType == ENTITY_INVOICE ? '78,205,196' : ($entityType == ENTITY_CREDIT ? '199,244,100' : '255,107,107')
+					];
+					$maxTotals = max($max, $maxTotals);
 				}
 			}
 
-			$max = max($totals);
-
-			if ($max > 0)
-			{
-				$datasets[] = [
-					'totals' => $totals,
-					'colors' => $entityType == ENTITY_INVOICE ? '78,205,196' : ($entityType == ENTITY_CREDIT ? '199,244,100' : '255,107,107')
-				];
-				$maxTotals = max($max, $maxTotals);
-			}
+			$width = (ceil( $maxTotals / 100 ) * 100) / 10;  
+			$width = max($width, 10);
 		}
-
-		$width = (ceil( $maxTotals / 100 ) * 100) / 10;  
-		$width = max($width, 10);
 
 		$dateTypes = [
 			'DAYOFYEAR' => 'Daily',

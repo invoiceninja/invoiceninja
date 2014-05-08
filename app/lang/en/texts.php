@@ -348,5 +348,7 @@ return array(
   'specify_colors' => 'Specify colors',
   'specify_colors_label' => 'Select the colors used in the invoice',
 
+  'chart_builder' => 'Chart Builder',
 
 );
+

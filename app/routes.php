@@ -74,9 +74,12 @@ Route::group(array('before' => 'auth'), function()
   Route::post('company/products/{product_id?}', 'AccountController@saveProduct');
   */
 
+  Route::get('company/advanced_settings/chart_builder', 'ReportController@report');
+  Route::post('company/advanced_settings/chart_builder', 'ReportController@report');
+
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
-  Route::get('company/{section?}', 'AccountController@showSection');	
-	Route::post('company/{section?}', 'AccountController@doSection');
+  Route::get('company/{section?}/{sub_section?}', 'AccountController@showSection');	
+	Route::post('company/{section?}/{sub_section?}', 'AccountController@doSection');
 	Route::post('user/setTheme', 'UserController@setTheme');
   Route::post('remove_logo', 'AccountController@removeLogo');
   Route::post('account/go_pro', 'AccountController@enableProPlan');
@@ -104,10 +107,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::resource('credits', 'CreditController');
 	Route::get('credits/create/{client_id?}/{invoice_id?}', 'CreditController@create');
 	Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));	
-	Route::post('credits/bulk', 'CreditController@bulk');
-	
-	Route::get('reports', 'ReportController@report');
-	Route::post('reports', 'ReportController@report');
+	Route::post('credits/bulk', 'CreditController@bulk');	
 });
 
 
@@ -137,8 +137,12 @@ define('ACCOUNT_IMPORT_EXPORT', 'import_export');
 define('ACCOUNT_PAYMENTS', 'payments');
 define('ACCOUNT_MAP', 'import_map');
 define('ACCOUNT_EXPORT', 'export');
-define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
 define('ACCOUNT_PRODUCTS', 'products');
+define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
+define('ACCOUNT_CUSTOM_FIELDS', 'custom_fields');
+define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
+define('ACCOUNT_CHART_BUILDER', 'chart_builder');
+
 
 define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
@@ -225,7 +229,7 @@ HTML::macro('menu_link', function($type) {
   $types = $type.'s';
   $Type = ucfirst($type);
   $Types = ucfirst($types);
-  $class = ( Request::is($types) || Request::is('*'.$type.'*')) ? ' active' : '';
+  $class = ( Request::is($types) || Request::is('*'.$type.'*')) && !Request::is('*advanced_settings*') ? ' active' : '';
 
   return '<li class="dropdown '.$class.'">
            <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>

@@ -78,7 +78,7 @@ class AccountController extends \BaseController {
 		return Response::json($data);
 	}
 
-	public function showSection($section = ACCOUNT_DETAILS)  
+	public function showSection($section = ACCOUNT_DETAILS, $subSection = false)  
 	{
 		if ($section == ACCOUNT_DETAILS)
 		{			
@@ -187,7 +187,7 @@ class AccountController extends \BaseController {
 				'account' => Auth::user()->account
 			];
 
-			return View::make('accounts.advanced_settings', $data);	
+			return View::make("accounts.{$subSection}", $data);	
 		}
 		else if ($section == ACCOUNT_PRODUCTS)
 		{
@@ -227,7 +227,14 @@ class AccountController extends \BaseController {
 		}		
 		else if ($section == ACCOUNT_ADVANCED_SETTINGS)
 		{
-			return AccountController::saveAdvancedSettings();
+			if ($subSection == ACCOUNT_CUSTOM_FIELDS) 
+			{
+				return AccountController::saveCustomFields();
+			} 
+			else if ($subSection == ACCOUNT_INVOICE_DESIGN)
+			{
+				return AccountController::saveInvoiceDesign();
+			}
 		}
 		else if ($section == ACCOUNT_PRODUCTS)
 		{
@@ -247,23 +254,37 @@ class AccountController extends \BaseController {
 		return Redirect::to('company/products');		
 	}
 
-	private function saveAdvancedSettings()
+	private function saveCustomFields()
 	{
-		$account = Auth::user()->account;
+		if (!Auth::user()->account->isPro())
+		{
+			$account = Auth::user()->account;
+			$account->custom_label1 = Input::get('custom_label1');
+			$account->custom_value1 = Input::get('custom_value1');
+			$account->custom_label2 = Input::get('custom_label2');
+			$account->custom_value2 = Input::get('custom_value2');
+			$account->custom_client_label1 = Input::get('custom_client_label1');
+			$account->custom_client_label2 = Input::get('custom_client_label2');		
+			$account->save();
 
-		$account->custom_label1 = Input::get('custom_label1');
-		$account->custom_value1 = Input::get('custom_value1');
-		$account->custom_label2 = Input::get('custom_label2');
-		$account->custom_value2 = Input::get('custom_value2');
-		$account->custom_client_label1 = Input::get('custom_client_label1');
-		$account->custom_client_label2 = Input::get('custom_client_label2');		
+			Session::flash('message', trans('texts.updated_settings'));
+		}
 
-		$account->primary_color = Input::get('primary_color');// ? Input::get('primary_color') : null;
-		$account->secondary_color = Input::get('secondary_color');// ? Input::get('secondary_color') : null;
+		return Redirect::to('company/advanced_settings');		
+	}
 
-		$account->save();
+	private function saveInvoiceDesign()
+	{
+		if (!Auth::user()->account->isPro())
+		{
+			$account = Auth::user()->account;
+			$account->primary_color = Input::get('primary_color');// ? Input::get('primary_color') : null;
+			$account->secondary_color = Input::get('secondary_color');// ? Input::get('secondary_color') : null;
+			$account->save();
 
-		Session::flash('message', trans('texts.updated_settings'));
+			Session::flash('message', trans('texts.updated_settings'));
+		}
+		
 		return Redirect::to('company/advanced_settings');		
 	}
 

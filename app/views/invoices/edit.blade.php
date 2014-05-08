@@ -449,10 +449,6 @@
 
 	<script type="text/javascript">
 	
-	function showSignUp() {
-		$('#signUpModal').modal('show');		
-	}
-
 	function showLearnMore() {
 		$('#recurringModal').modal('show');			
 	}
