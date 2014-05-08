@@ -11,8 +11,6 @@
 |
 */
 
-
-
 //apc_clear_cache();
 //Cache::flush();
 
@@ -111,11 +109,12 @@ Route::group(array('before' => 'auth'), function()
 });
 
 
+// If you're self hosting set this to a value you think is fair
+define('PRO_PLAN_PRICE', 50);
 
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
 define('CONTACT_NAME', 'Invoice Ninja');
 define('SITE_URL', 'https://www.invoiceninja.com');
-
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');
@@ -195,7 +194,6 @@ define('GATEWAY_PAYPAL_EXPRESS', 17);
 define('GATEWAY_BEANSTREAM', 29);
 define('GATEWAY_PSIGATE', 30);
 
-define('PRO_PLAN_PRICE', 50);
 define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
