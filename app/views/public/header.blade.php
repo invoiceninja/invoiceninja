@@ -23,7 +23,7 @@
     background-image: url({{ asset('/images/hero-bg-1.jpg') }});
 }
 .hero-about {
-    background-image: url({{ asset('/images/hero-bg-3.jpg.jpg') }});
+    background-image: url({{ asset('/images/hero-bg-4.jpg') }});
 }
 .hero-plans {
     background-image: url({{ asset('/images/hero-bg-plans.jpg') }});
@@ -98,6 +98,7 @@
           <li>{{ link_to('about', 'About Us' ) }}</li>
           <li>{{ link_to('plans', 'Plans' ) }}</li>
           <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+          <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
           <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
         </ul>
       </div>
@@ -157,6 +158,7 @@
     <li>{{ link_to('about', 'About Us' ) }}</li>
     <li>{{ link_to('plans', 'Plans' ) }}</li>
     <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+    <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
     <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
   </ul>
 

@@ -489,6 +489,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
       '&new_last_name=' + encodeURIComponent($('form.signUpForm #new_last_name').val()) +
       '&go_pro=' + $('#go_pro').val(),
       success: function(result) { 
+        trackUrl('/signed_up');
         if (result) {
           localStorage.setItem('guest_key', '');
           NINJA.isRegistered = true;
@@ -526,15 +527,19 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 
   function showSignUp() {
     $('#signUpModal').modal('show');    
+    trackUrl('/view_sign_up');
   }
 
   @if (Auth::check() && !Auth::user()->isPro())
-  function showProPlan() {
+  var proPlanFeature = false;
+  function showProPlan(feature) {
+    proPlanFeature = feature;
     $('#proPlanModal').modal('show');       
+    trackUrl('/view_pro_plan/' + feature);
   }
 
   function submitProPlan() {
-
+    trackUrl('/submit_pro_plan/' + proPlanFeature);
     if (NINJA.isRegistered) {
       $('#proPlanDiv, #proPlanFooter').hide();
       $('#proPlanWorking').show();

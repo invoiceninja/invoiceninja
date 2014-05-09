@@ -184,7 +184,8 @@ class AccountController extends \BaseController {
 		else if ($section == ACCOUNT_ADVANCED_SETTINGS)
 		{
 			$data = [
-				'account' => Auth::user()->account
+				'account' => Auth::user()->account,
+				'feature' => $subSection
 			];
 
 			return View::make("accounts.{$subSection}", $data);	

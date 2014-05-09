@@ -1727,3 +1727,13 @@ function setDocHexDraw(doc, hex) {
   var b = hexToB(hex);
   return doc.setDrawColor(r, g, b);
 }
+
+function openUrl(url) {
+  trackUrl(url);
+  window.open(url, '_blank');
+}
+
+function trackUrl(url) {
+  url = '/track' + url.replace('http:/', '');
+  ga('send', 'pageview', url);  
+}

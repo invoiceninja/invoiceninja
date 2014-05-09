@@ -96,7 +96,8 @@ class ReportController extends \BaseController {
 			'chartType' => $chartType,
 			'startDate' => $startDate->format(Session::get(SESSION_DATE_FORMAT)),
 			'endDate' => $endDate->modify('-1'.$padding)->format(Session::get(SESSION_DATE_FORMAT)),
-			'groupBy' => $groupBy
+			'groupBy' => $groupBy,
+			'feature' => ACCOUNT_CHART_BUILDER,
 		];
 		
 		return View::make('reports.report_builder', $params);

@@ -276,7 +276,7 @@
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
-			{{ trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="showProPlan()">'.trans('texts.pro_plan.remove_logo_link').'</a>']) }}
+			{{ trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="showProPlan(\'remove_logo\')">'.trans('texts.pro_plan.remove_logo_link').'</a>']) }}
 		</div>
 	@endif
 
