@@ -334,5 +334,8 @@ return array(
   'archived_product' => 'Produkt erfolgreich archiviert',
   'product_library' => 'Produktbibliothek',  
 
+  'chart_builder' => 'Chart Builder',
+  'ninja_email_footer' => 'Use :site to invoice your clients and get paid online for free!',
+
 
 );

@@ -1728,12 +1728,7 @@ function setDocHexDraw(doc, hex) {
   return doc.setDrawColor(r, g, b);
 }
 
-function openUrl(url) {
-  trackUrl(url);
+function openUrl(url, track) {
+  trackUrl(track ? track : url);
   window.open(url, '_blank');
-}
-
-function trackUrl(url) {
-  url = '/track' + url.replace('http:/', '');
-  ga('send', 'pageview', url);  
 }

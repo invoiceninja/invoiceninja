@@ -492,6 +492,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         trackUrl('/signed_up');
         if (result) {
           localStorage.setItem('guest_key', '');
+          trackUrl('/user/sign_up');
           NINJA.isRegistered = true;
           $('#signUpButton').hide();
           $('#myAccountButton').html(result);                            

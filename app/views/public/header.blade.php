@@ -181,15 +181,10 @@ jQuery(document).ready(function($) {
 });
 </script>
 
-<script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script>
-
 <!--
-<script type="text/javascript">
-    $('.expander').simpleexpand();
-</script>
+All images in the site need to have retina versions otherwise the log fills up with requests for missing files
+<script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script>
 -->
-
-
 
 
 @stop

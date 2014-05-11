@@ -50,7 +50,7 @@ class AccountController extends \BaseController {
 		Auth::login($user, true);
 		Event::fire('user.login');		
 
-		return Redirect::to('invoices/create');		
+		return Redirect::to('invoices/create');
 	}
 
 	public function enableProPlan()
