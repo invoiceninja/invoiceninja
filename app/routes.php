@@ -11,8 +11,6 @@
 |
 */
 
-
-
 //apc_clear_cache();
 //Cache::flush();
 
@@ -74,9 +72,12 @@ Route::group(array('before' => 'auth'), function()
   Route::post('company/products/{product_id?}', 'AccountController@saveProduct');
   */
 
+  Route::get('company/advanced_settings/chart_builder', 'ReportController@report');
+  Route::post('company/advanced_settings/chart_builder', 'ReportController@report');
+
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
-  Route::get('company/{section?}', 'AccountController@showSection');	
-	Route::post('company/{section?}', 'AccountController@doSection');
+  Route::get('company/{section?}/{sub_section?}', 'AccountController@showSection');	
+	Route::post('company/{section?}/{sub_section?}', 'AccountController@doSection');
 	Route::post('user/setTheme', 'UserController@setTheme');
   Route::post('remove_logo', 'AccountController@removeLogo');
   Route::post('account/go_pro', 'AccountController@enableProPlan');
@@ -104,18 +105,16 @@ Route::group(array('before' => 'auth'), function()
 	Route::resource('credits', 'CreditController');
 	Route::get('credits/create/{client_id?}/{invoice_id?}', 'CreditController@create');
 	Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));	
-	Route::post('credits/bulk', 'CreditController@bulk');
-	
-	Route::get('reports', 'ReportController@report');
-	Route::post('reports', 'ReportController@report');
+	Route::post('credits/bulk', 'CreditController@bulk');	
 });
 
 
+// If you're self hosting set this to a value you think is fair
+define('PRO_PLAN_PRICE', 50);
 
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
 define('CONTACT_NAME', 'Invoice Ninja');
 define('SITE_URL', 'https://www.invoiceninja.com');
-
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');
@@ -137,8 +136,12 @@ define('ACCOUNT_IMPORT_EXPORT', 'import_export');
 define('ACCOUNT_PAYMENTS', 'payments');
 define('ACCOUNT_MAP', 'import_map');
 define('ACCOUNT_EXPORT', 'export');
-define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
 define('ACCOUNT_PRODUCTS', 'products');
+define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
+define('ACCOUNT_CUSTOM_FIELDS', 'custom_fields');
+define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
+define('ACCOUNT_CHART_BUILDER', 'chart_builder');
+
 
 define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
@@ -191,7 +194,6 @@ define('GATEWAY_PAYPAL_EXPRESS', 17);
 define('GATEWAY_BEANSTREAM', 29);
 define('GATEWAY_PSIGATE', 30);
 
-define('PRO_PLAN_PRICE', 50);
 define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
@@ -225,7 +227,7 @@ HTML::macro('menu_link', function($type) {
   $types = $type.'s';
   $Type = ucfirst($type);
   $Types = ucfirst($types);
-  $class = ( Request::is($types) || Request::is('*'.$type.'*')) ? ' active' : '';
+  $class = ( Request::is($types) || Request::is('*'.$type.'*')) && !Request::is('*advanced_settings*') ? ' active' : '';
 
   return '<li class="dropdown '.$class.'">
            <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>

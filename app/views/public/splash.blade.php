@@ -95,7 +95,7 @@
                       </div>
                       </div>
                   <!-- <p>or {{ link_to('features', 'View Our Features' ) }}</a></p> -->
-                   <p><i>No signup needed</i></p>
+                   <p>No signup needed</p>
               </div>
               <div class="col-md-7">
                 <img src="{{ asset('images/devices.png') }}">

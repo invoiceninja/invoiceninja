@@ -198,6 +198,7 @@ class AccountRepository
 			$client = new Client;		
 			$client->public_id = Auth::user()->account_id;
 			$client->user_id = $ninjaAccount->users()->first()->id;
+			$client->currency_id = 1;			
 			foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone'] as $field) 
 			{
 				$client->$field = Auth::user()->account->$field;

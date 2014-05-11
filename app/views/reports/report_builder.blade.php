@@ -1,4 +1,4 @@
-@extends('header')
+@extends('accounts.nav')
 
 @section('head')
 	@parent
@@ -7,20 +7,30 @@
 @stop
 
 @section('content')
-	
-	<p>&nbsp;</p>
-	
-	<div class="row">
-		<div class="col-lg-3">
+	@parent
+	@include('accounts.nav_advanced')
 
-			{{ Former::open() }}
+	<div class="row">
+		<div class="col-lg-4">
+
+			{{ Former::open()->addClass('warn-on-exit') }}
 			{{ Former::populateField('start_date', $startDate) }}
 			{{ Former::populateField('end_date', $endDate) }}
 			{{ Former::select('chart_type')->options($chartTypes, $chartType) }}
 			{{ Former::select('group_by')->options($dateTypes, $groupBy) }}
 			{{ Former::text('start_date') }}
 			{{ Former::text('end_date') }}
-			{{ Former::actions( Button::primary_submit('Generate') ) }}
+
+			@if (Auth::user()->isPro())
+				{{ Former::actions( Button::primary_submit('Generate') ) }}
+			@else
+			<script>
+			    $(function() {   
+			    	$('form.warn-on-exit').find('input, select').prop('disabled', true);
+			    });
+			</script>	
+			@endif
+			
 			{{ Former::close() }}
 
 			<p>&nbsp;</p>
@@ -38,8 +48,8 @@
 			</div>
 
 		</div>
-		<div class="col-lg-9">
-			<canvas id="monthly-reports" width="850" height="400"></canvas>
+		<div class="col-lg-8">
+			<canvas id="monthly-reports" width="772" height="400"></canvas>
 		</div>
 
 	</div>

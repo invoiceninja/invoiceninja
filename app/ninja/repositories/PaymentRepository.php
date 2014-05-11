@@ -99,6 +99,7 @@ class PaymentRepository
         $payment->payment_type_id = $paymentTypeId;
         $payment->payment_date = Utils::toSqlDate($input['payment_date']);
         $payment->amount = $amount;
+        $payment->transaction_reference = trim($input['transaction_reference']);
         $payment->save();
 	
 		return $payment;		
