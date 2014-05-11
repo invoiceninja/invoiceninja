@@ -857,7 +857,7 @@ div.fb_iframe_widget > span {
     padding-right: 0;
 }
 .plans-table .free,
-.plans-table .desc {
+.plans-table .desc, .plans-table .pro {
     border-bottom: 1px solid #dfe0e1;
 }
 .plans-table .pro .cell:first-child {
@@ -865,7 +865,6 @@ div.fb_iframe_widget > span {
 }
 .plans-table .pro .cell:last-child {
     padding: 0;
-
 }
 .plans-table .desc .cell:first-child {
     background-color: transparent;
