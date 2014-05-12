@@ -18,7 +18,7 @@ class PaymentRepository
                     ->where('payments.account_id', '=', \Auth::user()->account_id)
                     ->where('clients.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)   
-                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type');        
+                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type', 'payments.account_gateway_id');        
 
         if (!\Session::get('show_trash'))
         {
@@ -99,6 +99,7 @@ class PaymentRepository
         $payment->payment_type_id = $paymentTypeId;
         $payment->payment_date = Utils::toSqlDate($input['payment_date']);
         $payment->amount = $amount;
+        $payment->transaction_reference = trim($input['transaction_reference']);
         $payment->save();
 	
 		return $payment;		

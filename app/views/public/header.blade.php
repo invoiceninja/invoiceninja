@@ -23,7 +23,11 @@
     background-image: url({{ asset('/images/hero-bg-1.jpg') }});
 }
 .hero-about {
+<<<<<<< HEAD
     background-image: url({{ asset('/images/hero-bg-3.jpg') }});
+=======
+    background-image: url({{ asset('/images/hero-bg-4.jpg') }});
+>>>>>>> upstream/master
 }
 .hero-plans {
     background-image: url({{ asset('/images/hero-bg-plans.jpg') }});
@@ -98,6 +102,7 @@
           <li>{{ link_to('about', 'About Us' ) }}</li>
           <li>{{ link_to('plans', 'Plans' ) }}</li>
           <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+          <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
           <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
         </ul>
       </div>
@@ -157,6 +162,7 @@
     <li>{{ link_to('about', 'About Us' ) }}</li>
     <li>{{ link_to('plans', 'Plans' ) }}</li>
     <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+    <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
     <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
   </ul>
 
@@ -179,15 +185,10 @@ jQuery(document).ready(function($) {
 });
 </script>
 
-<script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script>
-
 <!--
-<script type="text/javascript">
-    $('.expander').simpleexpand();
-</script>
+All images in the site need to have retina versions otherwise the log fills up with requests for missing files
+<script src="{{ asset('/js/retina-1.1.0.min.js') }}" type="text/javascript"></script>
 -->
-
-
 
 
 @stop

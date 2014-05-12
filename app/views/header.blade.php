@@ -113,7 +113,6 @@
         {{ HTML::menu_link('invoice') }}
         {{ HTML::menu_link('payment') }}
         {{ HTML::menu_link('credit') }}
-        {{-- HTML::nav_link('reports', 'Reports') --}}
       </ul>
 
       <div class="navbar-form navbar-right">
@@ -152,7 +151,7 @@
             <li>{{ link_to('company/products', uctrans('texts.product_library')) }}</li>
             <li>{{ link_to('company/notifications', uctrans('texts.notifications')) }}</li>
             <li>{{ link_to('company/import_export', uctrans('texts.import_export')) }}</li>
-            <li><a href="{{ url('company/advanced_settings') }}">{{ uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) }}</a></li>
+            <li><a href="{{ url('company/advanced_settings/custom_fields') }}">{{ uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) }}</a></li>
 
             <li class="divider"></li>
             <li>{{ link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) }}</li>
@@ -376,61 +375,9 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
                 </div>
              </div>
             </div>              
-            <div class="container">
-                <div class="row">
-                  <div class="plans-table col-md-9">
-                    <div class="col-md-4 desc hide-mobile">
-                      <div class="cell"></div>
-                      <div class="cell">Number of clients per account</div>
-                      <div class="cell">Unlimited client invoices</div>
-                      <div class="cell">Add your company logo</div>
-                      <div class="cell">Live .PDF invoice creation </div>
-                      <div class="cell">4 beatiful invoice templates</div>
-                      <div class="cell">Accept credit card payments</div>
-                      <div class="cell">Custom invoice fields</div>
-                      <div class="cell">Priority email support</div>
-                      <div class="cell">Custom invoice colors</div>
-                      <div class="cell">Remove "Created by Invoice Ninja"</div>
-                      <div class="cell">Pricing</div>
 
-
-                    </div>
-                    <div class="free col-md-4">
-                      <div class="cell">Free</div>
-                      <div class="cell"><div class="hide-desktop">Number of clients per account</div><span>500</span></div>
-                      <div class="cell"><div class="hide-desktop">Unlimited client invoices</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">Add your company logo</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">Live .PDF invoice creation</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">4 beatiful invoice templates</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">Accept credit card payments</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">Custom invoice fields</div><span class="glyphicon glyphicon-remove"></div>
-                      <div class="cell"><div class="hide-desktop">Priority email support</div><span class="glyphicon glyphicon-remove"></div>
-                      <div class="cell"><div class="hide-desktop">Custom invoice colors</div><span class="glyphicon glyphicon-remove"></div>
-                      <div class="cell"><div class="hide-desktop">Remove "Created by Invoice Ninja"</div><span class="glyphicon glyphicon-remove"></div>
-                      <div class="cell price"><div class="hide-desktop">Pricing</div><p>Free<span> /Always!</span></p></div>
-                    </div>
-                    <div class="pro col-md-4">
-
-                      <div class="cell">Pro Plan<span class="glyphicon glyphicon-star"></div>
-                      <div class="cell"><div class="hide-desktop">Number of clients per account</div><span style="color: #2299c0; font-size: 16px;">5,000</span></div>
-                      <div class="cell"><div class="hide-desktop">Unlimited client invoices</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">Add your company logo</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">Live .PDF invoice creation</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">4 beatiful invoice templates</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">Accept credit card payments</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">Custom invoice fields</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">Priority email support</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">Custom invoice colors</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell"><div class="hide-desktop">Remove "Created by Invoice Ninja"</div><span class="glyphicon glyphicon-ok"></div>
-                      <div class="cell price"><div class="hide-desktop">Pricing</div><p>$50<span> /Year</span></p></div>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-
-          &nbsp;
+            @include('plans')
+            &nbsp;
       </div>
 
 
@@ -542,8 +489,10 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
       '&new_last_name=' + encodeURIComponent($('form.signUpForm #new_last_name').val()) +
       '&go_pro=' + $('#go_pro').val(),
       success: function(result) { 
+        trackUrl('/signed_up');
         if (result) {
           localStorage.setItem('guest_key', '');
+          trackUrl('/user/sign_up');
           NINJA.isRegistered = true;
           $('#signUpButton').hide();
           $('#myAccountButton').html(result);                            
@@ -577,13 +526,21 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
     }
   }
 
+  function showSignUp() {
+    $('#signUpModal').modal('show');    
+    trackUrl('/view_sign_up');
+  }
+
   @if (Auth::check() && !Auth::user()->isPro())
-  function showProPlan() {
+  var proPlanFeature = false;
+  function showProPlan(feature) {
+    proPlanFeature = feature;
     $('#proPlanModal').modal('show');       
+    trackUrl('/view_pro_plan/' + feature);
   }
 
   function submitProPlan() {
-
+    trackUrl('/submit_pro_plan/' + proPlanFeature);
     if (NINJA.isRegistered) {
       $('#proPlanDiv, #proPlanFooter').hide();
       $('#proPlanWorking').show();

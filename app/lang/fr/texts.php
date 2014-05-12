@@ -333,5 +333,8 @@ return array(
   'updated_product' => 'Successfully updated product',
   'created_product' => 'Successfully created product',
   'archived_product' => 'Successfully archived product',
+
+  'chart_builder' => 'Chart Builder',
+  'ninja_email_footer' => 'Use :site to invoice your clients and get paid online for free!',
   
 );

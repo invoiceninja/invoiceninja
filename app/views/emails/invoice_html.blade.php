@@ -17,5 +17,8 @@
       {{ $accountName }}
       @endif
 
+      <p/>
+      {{ trans('texts.ninja_email_footer', ['site' => '<a href="'.SITE_URL.'">Invoice Ninja</a>']) }}
+
     </body>
 </html>
