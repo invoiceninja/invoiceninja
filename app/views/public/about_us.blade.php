@@ -10,16 +10,18 @@
     </section>
     </section>
 
- <section class="about center">
+ <section class="about">
   <div class="container">
     <div class="row">
-      <div class="col-md-8 col-md-offset-2">
+      <div class="col-md-5 valign">          
+          <div class="headline">
         <h2>What is Invoice Ninja?</h2>
-        <p>Invoice Ninja is a free, open-source solution for invoicing and billing 
-        customers. With Invoice Ninja, you can easily build and send beautiful invoices 
-        from any device that has access to the web. Your clients can print your invoices, 
-        download them as pdf files, and even pay you online from within the system. </p>
+              </div>
+       <p class="first">Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system. </p>
     </div>
+        <div class="col-md-7">
+             <img src="{{ asset('images/devices3.png') }}">
+        </div>
   </div>
 </section>
 
@@ -35,17 +37,21 @@
           </div>
     <div class="row">
       <div class="col-md-3">
-          <img src="images/shalomstark.jpg" alt="Shalom Stark" class="img-circle">
-          <h2>SHALOM STARK</h2>
+          <div class="img-team">
+          <img src="images/shalomstark.jpg" alt="Shalom Stark">
+              </div>
+          <h2>Shalom Stark</h2>
           <p class="blue-text">Co-Founder, CEO</p>
-          <p>Shalom has specialized in small business development for nearly 10 years.  In addition to InvoiceNinja.com Shalom is CEO of a leading tour agency in Israel.</p>
-          <p><span class="social"><a href="https://twitter.com/shalomstark" target="_blank"><img src="images/twitter.svg" alt="Twitter"></a></span>
+          <p class="social blue"><a href="https://twitter.com/shalomstark" target="_blank"><img src="images/twitter.svg" alt="Twitter"></a>
+              <a href="http://shalomisraeltours.com/" target="_blank"><img src="images/website.svg" alt="Twitter"></a>
           </p>
-              <p class="blue-text" style="margin-bottom: 2px;"><a href="http://shalomisraeltours.com/" target="_blank">shalomisraeltours.com</a></p>
+          <p>Shalom has specialized in small business development for nearly 10 years.  In addition to InvoiceNinja.com Shalom is CEO of a leading tour agency in Israel.</p>
       </div>
     <div class="col-md-3">
-          <img src="images/hillelcoren.jpg" alt="Hillel Coren" class="img-circle">
-          <h2>HILLEL COREN</h2>
+        <div class="img-team">
+          <img src="images/hillelcoren.jpg" alt="Hillel Coren">
+            </div>
+          <h2>Hillel Coren</h2>
           <p class="blue-text">Co-Founder, CTO</p>
           <p>Hillel has been developing enterprise applications for 15 years. His open-source <a href="http://www.adobe.com/cfusion/exchange/index.cfm?event=extensionDetail&extid=1721530" target="_blank">AutoComplete</a> component has been used by thousands of developers around the world.</p>
           <p><span class="social"><a href="https://twitter.com/hillelcoren" target="_blank"><img src="images/twitter.svg" alt="Twitter"></a></span>
@@ -56,7 +62,7 @@
         
         <div class="col-md-3">
           <img src="images/razikantorp.jpg" alt="Razi Kantorp" class="img-circle">
-          <h2>RAZI KANTORP</h2>
+          <h2>Razi Kantorp</h2>
           <p class="blue-text">Designer</p>
           <p>Razi is a pixel nerd with a great deal of experience in design for web sites and applications. When she isn't busy with InvoiceNinja she runs a small web agency in Stockholm called kantorp-wegl.in</p>
           <p><span class="social"><a href="https://twitter.com/kantorpweglin" target="_blank"><img src="images/twitter.svg" alt="Twitter"></a></span>
@@ -67,7 +73,7 @@
       </div>
          <div class="col-md-3">
           <img src="images/benjacobson.jpg" alt="Ben Jacobsen" class="img-circle">
-          <h2>BEN JACOBSON</h2>
+          <h2>Ben Jacobson</h2>
           <p class="blue-text">Marketing</p>
           <p>A veteran digital marketer and content strategist, Ben specializes in building communities around brands that make business easier for freelancers, SMBs and micro-entrepreneurs.
 </p>

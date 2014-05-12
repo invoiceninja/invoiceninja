@@ -8,7 +8,7 @@
 <link href="{{ asset('css/bootstrap.splash.css') }}" rel="stylesheet" type="text/css"/> 
 <link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>  
 -->  
-
+<link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>  
 <!--
 <link href="{{ asset('images/apple-touch-icon-114x114-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="114x114">
 <link href="{{ asset('images/apple-touch-icon-72x72-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="72x72">
@@ -23,7 +23,7 @@
     background-image: url({{ asset('/images/hero-bg-1.jpg') }});
 }
 .hero-about {
-    background-image: url({{ asset('/images/hero-bg-3.jpg.jpg') }});
+    background-image: url({{ asset('/images/hero-bg-3.jpg') }});
 }
 .hero-plans {
     background-image: url({{ asset('/images/hero-bg-plans.jpg') }});
