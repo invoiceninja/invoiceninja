@@ -74,6 +74,11 @@ class HomeController extends BaseController {
 		return View::make('coming_soon');	
 	}
 
+	public function showSecurePayment()
+	{
+		return View::make('secure_payment');	
+	}
+
 	public function invoiceNow()
 	{
 		if (Auth::check())
