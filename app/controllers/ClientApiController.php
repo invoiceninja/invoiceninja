@@ -16,12 +16,16 @@ class ClientApiController extends \BaseController {
 
   public function index()
   {    
-    $clients = Client::scope()->get()->toArray();
+    $clients = Client::scope()->get();
     
-    return Response::json(array(
-        'error' => false,
-        'clients' => $clients),
-        200
-    );
+    $response = [
+      'status' => 200,
+      'error' => false,
+      'clients' => $clients->toArray()
+    ];
+
+    $response = json_encode($response, JSON_PRETTY_PRINT);
+
+    return Response::make($response, 200, ['Content-Type' => 'application/json']);
   }
 }
