@@ -6,6 +6,7 @@
   div > label.control-label
   {
     font-weight: bold !important;    
+    /* text-transform:uppercase; */
   }
   </style>
 

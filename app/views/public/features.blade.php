@@ -17,7 +17,7 @@
         <div class="headline">
           <div class="icon open"><span class="img-wrap"><img src="{{ asset('images/icon-opensource.png') }}"></span></div><h2>Open Source Platform</h2>
         </div>
-        <p class="first">Set the code free! Here at Invoice Ninja, we’re all about being non-evil, and providing full code transparency is a central manifestation of this value.</p>
+        <p class="first">Set the code free! Here at Invoice Ninja, we’re all about creating the best possible app, and inviting scrutiny via full code transparency is a central manifestation of this value.</p>
         <p>Our users started seeing the benefits of open source within days of our launch, when we rolled out v1.0.2, which included some key code improvements that our friends on GitHub sent our way.
         </p>
         <p>We firmly believe that being an open source product helps everyone involved. We’re looking forward to seeing what the developers out there can do to take Invoice Ninja into new realms of usefulness.</p>
@@ -43,10 +43,8 @@
         <div class="headline">
           <div class="icon free"><span class="img-wrap"><img src="{{ asset('images/icon-free2.png') }}"></span></div><h2>FREE. Forever.</h2>
         </div>
-        <p class="first">Set the code free! Here at Invoice Ninja, we’re all about being non-evil, and providing full code transparency is a central manifestation of this value.</p>
-        <p>Our users started seeing the benefits of open source within days of our launch, when we rolled out v1.0.2, which included some key code improvements that our friends on GitHub sent our way.
-        </p>
-        <p>We firmly believe that being an open source product helps everyone involved. We’re looking forward to seeing what the developers out there can do to take Invoice Ninja into new realms of usefulness.</p>
+        <p class="first">Yeah, you read that correctly. You don’t have to pay us a cent to use our tools. We know how tough it is to make ends meet as a web-based business, and we’re bent on providing a top-notch product that will do everything you need it to do, without any subscription or opt-in fees. </p>
+        <p>Try Invoice Ninja out. You literally have nothing to lose. We’re confident that you’ll find the experience so positive that you’ll never need to turn elsewhere.</p>      
       </div>
 
     </div>

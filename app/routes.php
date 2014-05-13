@@ -109,6 +109,11 @@ Route::group(array('before' => 'auth'), function()
 	Route::post('credits/bulk', 'CreditController@bulk');	
 });
 
+// Route group for API versioning
+Route::group(array('prefix' => 'api/v1', 'before' => 'auth.basic'), function()
+{
+    Route::resource('clients', 'ClientApiController');
+});
 
 // If you're self hosting set this to a value you think is fair
 define('PRO_PLAN_PRICE', 50);
