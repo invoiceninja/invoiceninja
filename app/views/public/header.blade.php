@@ -93,8 +93,7 @@
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-inner">
-      <a class="brand" href="{{ URL::to('/') }}"><img src=
-        "images/invoiceninja-logo.png"></a>
+      <a class="brand" href="{{ URL::to('/') }}"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
         <ul class="navbar-list">
           <!-- <li>{{ link_to('features', 'Features' ) }}</li> -->
           <!-- <li>{{ link_to('faq', 'FAQ' ) }}</li> -->
@@ -110,7 +109,6 @@
 
 
   @yield('content')   
-
 
 
   <footer class="footer">
@@ -213,9 +211,11 @@
 </footer>
 
 <script type="text/javascript">
-jQuery(document).ready(function($) { 
-	$('.valign').vAlign();
+
+jQuery(document).ready(function($) {   
+	$('.valign').vAlign();  
 });
+
 </script>
 
 <!--
