@@ -15,7 +15,8 @@
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <h2>What is Invoice Ninja?</h2>
-        <p>Invoice Ninja is a free, open-source solution for invoicing and billing 
+        <p>Invoice Ninja is a free, <a href="https://github.com/hillelcoren/invoice-ninja" 
+        target="_blank">open-source</a> solution for invoicing and billing 
         customers. With Invoice Ninja, you can easily build and send beautiful invoices 
         from any device that has access to the web. Your clients can print your invoices, 
         download them as pdf files, and even pay you online from within the system. </p>
