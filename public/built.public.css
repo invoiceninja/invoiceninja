@@ -666,7 +666,7 @@ footer.footer .social .row1 {
     margin-bottom: -8px;
 }
 
-footer.footer form#newsletter button {
+footer.footer form#mad_mimi_signup_form button {
     position: absolute;
     right: 0;
     top: 0;
@@ -679,20 +679,20 @@ footer.footer form#newsletter button {
     text-align: center;
     margin-bottom: 30px;
 }
-footer.footer form#newsletter button:hover {
+footer.footer form#mad_mimi_signup_form button:hover {
     background: #7b7a79;
 }
-footer.footer form#newsletter button .glyphicon {
+footer.footer form#mad_mimi_signup_form button .glyphicon {
     position: static;
         color: #fff;
      font-size: 15px;
 width: auto;
     margin: 0;
 }
-footer.footer form#newsletter .form-group {
+footer.footer form#mad_mimi_signup_form .form-group {
     position: relative;  
 }
-footer.footer form#newsletter input {
+footer.footer form#mad_mimi_signup_form input {
     padding: right: 60px;
     background: #393636;
     border: none;
