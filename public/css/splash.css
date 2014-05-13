@@ -28,6 +28,12 @@ h1 img {
 h2 {
     font-size: 25px;
 }
+h3 {
+    font-size: 16px;
+    margin-top: 0;
+    font-weight: 700;
+    font-family: Roboto, sans-serif;
+}
 .headline {
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
@@ -42,7 +48,9 @@ p.first {
 a,
 a .cta h2,
 .socicon,
-.btn {
+.btn,
+a img
+{
     -webkit-transition: all .3s ease-in-out;
     -moz-transition: all .3s ease-in-out;
     -o-transition: all .3s ease-in-out;
@@ -60,6 +68,22 @@ a:hover {
 .white-bg {
     background-color: #fff;
 }
+.form-group {
+margin-bottom: 25px;
+}
+.form-group  .glyphicon {
+    position: absolute;
+top: 28px;
+left: 15px;
+display: block;
+width: 50px;
+height: 50px;
+line-height: 50px;
+text-align: center;
+    color: #bfbfbf;
+}
+.form-control.with-icon {padding-left: 50px !important;}
+
 .navbar {
     background: #211f1f;
     padding: 30px 0;
@@ -189,11 +213,13 @@ a .cta:hover span {
     text-align: left;
     color: #1a1818;
 }
+.hero-secure p {font-size: 20px; text-transform: uppercase; color: #fff;}
+.hero-secure p img { vertical-align: baseline; padding-right: 5px;}
 section.features-splash,
 section.upper-footer {
     margin: 70px 0;
 }
-section.features, section.about, section.team {
+section.features, section.about, section.team, section.secure {
     margin: 0;
     padding: 100px 0;
 }
@@ -227,7 +253,7 @@ section.features.upper-footer h2.thin {
     margin:0;
     }
 
-section.features4, section.team {
+section.features4, section.team, .card {
 background-color: #f4f3f3;
 }
 section.features4 .col-md-7 img {
@@ -373,7 +399,7 @@ section.plans h2 {
 }
 section.team .col-md-3 h2 {
     margin-top: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 3px;
     font-size: 20px;
 }
 section.about .screendump {
@@ -394,17 +420,22 @@ section.team img {
 }
 section.team .col-md-3 {
     margin-top: 25px;
+    padding: 0 20px;
 }
 section.team .col-md-3 p {
     font-size: 12px;
+    margin-bottom: 20px;
 }
 section.team .social {
     margin: 3px 3px 0 3px;
 }
 section.team .social.blue {background-color: #2599c0;}
+section.team .social.green {background-color: #30ab82;}
+section.team .social.red {background-color: #d2462d;}
+section.team .social.yellow {background-color: #ebbe09;}
 section.team .social img {
     margin: 12px 7px;
-    height: 1$5px;
+    height: 15px;
     display: inline-block;
     width: auto;
     min-width: 1px;
@@ -441,26 +472,36 @@ section.contact .address span.push {
     margin-left: 55px;
     line-height: 25px;
 }
-section.contact .form-control {
+section.contact .form-control, section.secure .form-control, footer.footer .form-control {
     display: block;
     width: 100%;
-    height: 40px;
+    height: 50px;
     padding: 6px 12px;
     font-size: 14px;
     line-height: 1.42857143;
     color: #555;
     background-color: #fff;
     background-image: none;
-    border: none;
+    border: 1px solid #e0e0e1;
     border-radius: 0;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-box-shadow: inset 0px 0px 8px 5px rgba(50, 50, 50, 0.25);
+    -moz-box-shadow:    inset 0px 0px 8px 5px rgba(50, 50, 50, 0.25);
+    box-shadow:         inset 0px 0px 5px 2px rgba(50, 50, 50, 0.05);
     -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 section.contact textarea.form-control {
     height: auto;
 }
+
+section.secure label { text-transform: uppercase; font-size: 12px; font-weight: 800; margin-bottom: 10px; display: block;}  
+
+section.secure .card {padding: 30px; margin-bottom: 50px;}
+section.secure .card p {padding-top: 26px; padding-right: 15px; line-height: 50px;}
+section.secure .info {padding-top: 30px;}
+
+
+
 section.faq {
     padding: 70px 0;
 }
@@ -476,7 +517,7 @@ section.faq .question {
     margin-bottom: 30px;
     border-bottom: 1px solid #e0e0e0;
 }
-section.faq .content {} section.faq .contact-box {
+section.faq .contact-box {
     padding: 20px;
     text-align: center;
     color: #fff;
@@ -507,6 +548,15 @@ section.faq .contact-box p {
 .btn-primary:hover {
     background-color: #2299c0;
 }
+.btn.green {
+    background-color: #30ab82;
+}
+.btn.green:hover {
+    background-color: #2daa81;
+}
+.btn-lg {
+font-size: 18px;
+}
 section.contact button span.glyphicon {
     background-color: transparent;
     color: #fff;
@@ -526,7 +576,8 @@ section.contact .btn span.glyphicon {
 section.contact .btn:hover span.glyphicon {
     font-size: 25px;
 }
-section.contact textarea:focus,
+section.contact textarea:focus, section.secure textarea:focus,
+select:focus,
 input[type=text]:focus,
 input[type=password]:focus,
 input[type=datetime]:focus,
@@ -542,54 +593,94 @@ input[type=search]:focus,
 input[type=tel]:focus,
 input[type=color]:focus,
 .uneditable-input:focus {
-    border-color: rgba(0, 0, 0, 0.8);
-    outline: 0;
-    outline: thin dotted \9;
-    /* IE6-9 */
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0), 0 0 8px rgba(0, 0, 0, .2) !important;
-    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0), 0 0 8px rgba(0, 0, 0, .2) !important;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0), 0 0 8px rgba(0, 0, 0, .2) !important;
+
 }
 section.contact address {
     display: inline-block;
 }
-footer .navbar-inner {
-    float: right;
+footer.footer {
+    background: #211f1f;
+    padding: 50px 0;
+    text-align: center;
 }
-footer ul.navbar-list {
+footer.footer h3 { text-align: left; color: #fff; padding-bottom: 12px; margin-bottom: 25px; border-bottom: 1px solid #2c2a2a;}
+footer.footer hr {
+margin-top: 25px;
+margin-bottom: 25px;
+border: 0;
+border-top: 1px solid #2c2a2a;
+}
+footer.footer .glyphicon {margin-right: 8px; color: #ebbe09; width: 15px; font-size: 14px;}
+footer ul.navbar-vertical {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 30px;
+}
+footer ul.navbar-vertical li {
+    display: block;
+    padding: 2px 0;
+}
+footer ul.navbar-vertical li a {
+    color: #a3a2a2;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+footer ul.navbar-vertical li a:hover {
+    color: #e5e5e5;
+}
+
+footer.footer .social {
+    margin-bottom: 30px;
+    width: 100%;
     clear: both;
+    text-align: center;
 }
-footer ul.navbar-list:last-child {
-    margin-top: 5px;
+
+footer.footer .social img {
+    margin: 0 3px;
 }
-footer ul.navbar-list:last-child li {
-    font-size: 12px;
+footer.footer .social a img:hover {
+    opacity: 0.6;
 }
-footer ul.navbar-list:last-child li {
-    font-size: 12px;
+
+footer.footer .social .row1 {
+    margin-bottom: -8px;
 }
-footer ul.navbar-list:last-child li:last-child a {
-    color: #fff;
+
+footer.footer form#newsletter button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 50px;
+    height: 50px;
+    background: #b7b7b6;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    text-align: center;
+    margin-bottom: 30px;
 }
-footer .social {
-    float: left;
+footer.footer form#newsletter button:hover {
+    background: #7b7a79;
 }
-footer .social .socicon {
-    font-family: socicon !important;
-    font-size: 25px;
-    margin-right: 8px;
-}
-footer .social .socicon {
-    color: #fff;
-}
-footer .social .socicon:hover {
-    color: #edd71e;
-}
-footer .social p {
-    font-size: 12px;
-    font-family: Roboto, sans-serif;
+footer.footer form#newsletter button .glyphicon {
+    position: static;
+        color: #fff;
+     font-size: 15px;
+width: auto;
     margin: 0;
 }
+footer.footer form#newsletter .form-group {
+    position: relative;  
+}
+footer.footer form#newsletter input {
+    padding: right: 60px;
+    background: #393636;
+    border: none;
+    color: #b7b7b6;
+}
+
 @media (max-width: 768px) {
     h1 {
         font-size: 30px;
@@ -599,9 +690,6 @@ footer .social p {
     }
     section.about .col-md-5 {
         padding-left: 15px !important;
-    }
-    section.about.white-bg .col-md-5 {
-        padding-right: 15px !important;
     }
     .navbar {
         text-align: center;
@@ -638,10 +726,6 @@ footer .social p {
         min-height: 1px;
         padding: 50px 0;
     }
-    section.features,
-    section.upper-footer {
-        margin: 30px 0;
-    }
     section.upper-footer.white-bg {
         padding: 30px 0;
     }
@@ -649,10 +733,22 @@ footer .social p {
         margin-bottom: 10px;
     }
     
-    section.features, section.blue, section {
+    section.features, section.blue, section, section.secure, section.about, section.team, section.contact {
         padding: 40px 0;
         margin: 0 !important;
     }
+    section.secure .info {
+padding-top: 0;
+}
+    section.secure .card {
+padding: 15px;
+margin-bottom: 40px;
+}
+    section.secure .card p {
+padding-top: 0;
+padding-right: 15px;
+        line-height: 1;
+}
     section.blue h1 {
 line-height: 1.2;
 margin-bottom: 20px;
@@ -706,13 +802,6 @@ float: none;
         font-weight: 100;
         display: block;
         text-transform: lowercase;
-    }
-    section.about {
-        padding: 30px 0;
-        text-align: center;
-    }
-    section.about.contact {
-        padding: 30px 0 0;
     }
     section.contact .address {
         margin: 0;

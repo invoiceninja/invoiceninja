@@ -23,11 +23,7 @@
     background-image: url({{ asset('/images/hero-bg-1.jpg') }});
 }
 .hero-about {
-<<<<<<< HEAD
     background-image: url({{ asset('/images/hero-bg-3.jpg') }});
-=======
-    background-image: url({{ asset('/images/hero-bg-4.jpg') }});
->>>>>>> upstream/master
 }
 .hero-plans {
     background-image: url({{ asset('/images/hero-bg-plans.jpg') }});
@@ -38,6 +34,9 @@
 .hero-features {
     background-image: url({{ asset('/images/hero-bg-3.jpg') }});
 }
+.hero-secure {
+    background-image: url({{ asset('/images/hero-bg-secure-pay.jpg') }});
+}    
 </style>
 
 @stop
@@ -114,10 +113,10 @@
 
 
 
-  <footer>
-    <div class="navbar" style="margin-bottom:0px">
+  <footer class="footer">
       <div class="container">
-        <div class="social">
+        <div class="row">
+            <div class="col-md-4">
           <!--<div class="fb-follow" data-href="https://www.facebook.com/invoiceninja" data-colorscheme="light" data-layout="button" data-show-faces="false"></div>-->
       
           <!--<a href="https://twitter.com/invoiceninja" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @invoiceninja</a>
@@ -151,12 +150,9 @@
                     
           <!--<iframe src="http://ghbtns.com/github-btn.html?user=hillelcoren&repo=invoice-ninja&type=watch" allowtransparency="true" frameborder="0" scrolling="0" width="62" height="20"></iframe>-->
 
-  <p>&nbsp;</p>
-  <p>Copyright © 2014 InvoiceNinja. All rights reserved.</p>
-</div> 
-
-<div class="navbar-inner">
-  <ul class="navbar-list">
+  <img src="{{ asset('images/footer-logo.png') }}">
+                	<hr>
+  <ul class="navbar-vertical">
     <!-- <li>{{ link_to('features', 'Features' ) }}</li> -->
     <!-- <li>{{ link_to('faq', 'FAQ' ) }}</li> -->
     <li>{{ link_to('about', 'About Us' ) }}</li>
@@ -165,6 +161,42 @@
     <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
     <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
   </ul>
+</div> 
+            
+            <div class="col-md-4">
+                <h3><span class="glyphicon glyphicon-share-alt"></span>Connect with Us</h3>
+                <div class="social">
+                <div class="row1">
+                    <a href="https://www.facebook.com/invoiceninja"><img src="{{ asset('images/hex-facebook.png') }}"></a>
+                    <a href="https://www.facebook.com/invoiceninja"><img src="{{ asset('images/hex-twitter.png') }}"></a>
+                    <a href="https://www.facebook.com/invoiceninja"><img src="{{ asset('images/hex-linkedin.png') }}"></a>
+                    <a href="https://www.facebook.com/invoiceninja"><img src="{{ asset('images/hex-gplus.png') }}"></a>
+                    </div>
+                <div class="row2">
+                    <a href="https://www.facebook.com/invoiceninja"><img src="{{ asset('images/hex-github.png') }}"></a>
+                    <a href="https://www.facebook.com/invoiceninja"><img src="{{ asset('images/hex-pinterest.png') }}"></a>
+                    <a href="https://www.facebook.com/invoiceninja"><img src="{{ asset('images/hex-rss.png') }}"></a>
+                   
+                    </div>
+                </div>
+                <h3><span class="glyphicon glyphicon-envelope"></span>Join Our Free Newsletter</h3>
+                <form id="newsletter">
+                <div class="form-group">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Email Address">
+                    {{ Button::submit('')->append_with_icon('chevron-right') }}
+                    <span class="help-block" style="display: none;">Please enter a valid e-mail address.</span>
+            
+                </div>
+                </form>
+            
+            </div>
+            
+            <div class="col-md-4">
+                <h3><img src="{{ asset('images/icon-secure-footer.png') }}" style="margin-right: 8px; margin-top: -5px;"></span>Safe & Secure</h3>
+            <img src="{{ asset('images/ssl-footer.png') }}">
+            <hr>
+            <img src="{{ asset('images/opensource-footer.png') }}">
+                </div>
 
 <!--
 <ul class="navbar-list">
@@ -174,6 +206,7 @@
 <li><a href="#">Our Blog</a></li>
 </ul>
 -->
+</div>
 </div>
 </div>
 </div>

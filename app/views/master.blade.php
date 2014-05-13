@@ -51,24 +51,45 @@
 
   <body>
 
-    <script>
-    @if (isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])  
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    @if (isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])  
+      <!-- Google Tag Manager -->
+      <noscript><iframe src="//www.googletagmanager.com/ns.html?id={{ $_ENV['TAG_MANAGER_KEY'] }}"
+      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+      <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','{{ $_ENV['TAG_MANAGER_KEY'] }}');</script>      
+      <!-- End Google Tag Manager -->
 
-      ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}');
-      ga('send', 'pageview');
-
-      function trackUrl(url) {
-        url = '/track' + url.replace('http:/', '');
-        ga('send', 'pageview', url);  
-      }
+      <script>
+        function trackUrl(url) {
+          url = '/track' + url.replace('http:/', '');
+          dataLayer.push({'event':url, 'eventLabel':this.src});
+        }
+      </script>
+    @elseif (isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])  
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        
+        ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}');        
+        ga('send', 'pageview');
+        
+        function trackUrl(url) {
+          url = '/track' + url.replace('http:/', '');
+          ga('send', 'pageview', url);  
+          //ga('send', 'event', 'photo', 'hover', this.src);
+        }
+      </script>
     @else
-      function trackUrl(url) {}
+      <script>
+        function trackUrl(url) {}
+      </script>
     @endif
-    </script>
+
 
     @yield('body')
 
