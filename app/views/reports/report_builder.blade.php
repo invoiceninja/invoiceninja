@@ -18,8 +18,10 @@
 			{{ Former::populateField('end_date', $endDate) }}
 			{{ Former::select('chart_type')->options($chartTypes, $chartType) }}
 			{{ Former::select('group_by')->options($dateTypes, $groupBy) }}
-			{{ Former::text('start_date') }}
-			{{ Former::text('end_date') }}
+			{{ Former::text('start_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
+					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') }}
+			{{ Former::text('end_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
+					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') }}
 
 			@if (Auth::user()->isPro())
 				{{ Former::actions( Button::primary_submit('Generate') ) }}

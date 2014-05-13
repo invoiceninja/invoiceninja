@@ -604,10 +604,6 @@
     return invoice;
 	}
 
-	function toggleDatePicker(field) {
-		$('#'+field).datepicker('show');
-	}
-
 	/*
 	function refreshPDF() {
 		setTimeout(function() {
