@@ -211,7 +211,7 @@ section.features-splash,
 section.upper-footer {
     margin: 70px 0;
 }
-section.features {
+section.features, section.about, section.team {
     margin: 0;
     padding: 100px 0;
 }
@@ -380,12 +380,9 @@ section.blue p {
 section.blue img {
     max-width: 100%;
 }
-section.about,
-section.team,
 section.plans {
     padding: 70px 0;
 }
-section.about h2,
 section.team h2,
 section.plans h2 {
     font-size: 25px;
@@ -393,9 +390,9 @@ section.plans h2 {
     text-transform: none;
 }
 section.team .col-md-3 h2 {
-    font-size: 20px;
     margin-top: 20px;
     margin-bottom: 10px;
+    font-size: 20px;
 }
 section.about .screendump {
     height: 220px;
@@ -408,8 +405,7 @@ section.about.white-bg .col-md-5 {
     padding-right: 43px;
     padding-left: 15px;
 }
-section.about img,
-section.team img {
+section.about img {
     width: 100%;
     min-width: 100%;
     padding: 0 30px;
@@ -421,12 +417,13 @@ section.team .col-md-3 p {
     font-size: 12px;
 }
 section.team .social {
-    width: 30px;
-    display: inline-block;
     margin: 3px 3px 0 3px;
 }
+section.team .social.blue {background-color: #2599c0;}
 section.team .social img {
-    padding: 0;
+    margin: 8px;
+    height: 15px;
+    display: inline-block;
 }
 section.contact .address .glyphicon {
     background: #edd71e;
@@ -746,9 +743,6 @@ float: none;
         margin-top: 0;
         margin-top: 0;
         margin-bottom: 20px;
-    }
-    section.about h2 {
-        margin: 0 0 15px;
     }
     #contact_form {
         margin: 0;
