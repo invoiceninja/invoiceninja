@@ -4,7 +4,9 @@
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 ### Introduction
 
-Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. [This guide](http://hillelcoren.com/invoice-ninja/self-hosting/) is the simplest way to setup the site. The high level instructions for setting up the site using Git are below but there's also a more detailed [setup guide](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). 
+Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is the codebase will serve as a sample site for Laravel as well as other JavaScript technologies.
+
+[This guide](http://hillelcoren.com/invoice-ninja/self-hosting/) is the simplest way to setup the site. The high level instructions for setting up the site using Git are below but there's also a more detailed [setup guide](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). 
 
 To connect follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). For discussion of the code please use the [Google Group](https://groups.google.com/d/forum/invoiceninja).
 

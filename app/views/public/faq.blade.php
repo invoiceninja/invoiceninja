@@ -64,8 +64,11 @@
                         free? For how long?</a>
 
                         <div class="content">
-                            <p>Yes, it is 100% free. Forever and ever. For
-                            real.</p>
+                            <p>Yes, our basic app is 100% free. Forever and ever. For real. We 
+                            also offer a paid Pro version of Invoice Ninja (you can learn all about 
+                            its awesome features <a href="https://www.invoiceninja.com/plans">here</a>, but it's 
+                            important to us that the free version have all of the key features people 
+                            need to do business. </p>
                         </div>
                     </div>
 
@@ -75,17 +78,15 @@
                         money?</a>
 
                         <div class="content">
-                            <p>We’re mostly in this line of work because we
-                            believe it’s high time that a good electronic
-                            invoicing tools be available for free. There isn’t
-                            much money in it - yet. When our users open up new
-                            accounts with payment processor gateways by
-                            clicking on links from our site, we make modest
-                            commissions as a gateway affiliate. So if zillions
-                            of freelancers and small businesses start running
-                            credit card charges through Invoice Ninja, there’s
-                            a decent chance we might recover our investment.
-                            Maybe not.</p>
+                            <p>We’re mostly in this line of work because we believe it’s high time that 
+                            a good electronic invoicing tool be available for free. There isn’t much money 
+                            in it - yet. We do offer a paid <a href="https://www.invoiceninja.com/plans">Pro </a> 
+                            version of the app that we've souped up with premium features. And when our users open up new 
+                            accounts with payment processor gateways by clicking on links from our site, we make 
+                            modest commissions as a gateway affiliate. So if zillions of freelancers and small businesses 
+                            start running credit card charges through Invoice Ninja, or if scores of users go
+                            <a href="https://www.invoiceninja.com/plans">Pro</a>, there’s a decent chance we'll 
+                            recover our investment.</p>
                         </div>
                     </div>
 
