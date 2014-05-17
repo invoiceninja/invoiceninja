@@ -32,6 +32,11 @@ class Utils
 		return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'];
 	}
 
+	public static function isPro()
+	{
+		return Auth::check() && Auth::user()->isPro();
+	}
+
 	public static function getProLabel($feature)
 	{
 		if (Auth::check() 

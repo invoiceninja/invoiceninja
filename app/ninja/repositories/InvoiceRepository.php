@@ -80,6 +80,67 @@ class InvoiceRepository
     	return $query;
 	}
 
+  public function getDatatable($accountId, $clientPublicId = null, $entityType, $search)
+  {
+    $query = $this->getInvoices($accountId, $clientPublicId, $search);
+
+    if ($entityType == ENTITY_QUOTE) 
+    {
+      $query->where('invoices.is_quote', '=', true);
+    }
+
+    $table = \Datatable::query($query);      
+
+    if (!$clientPublicId) 
+    {
+      $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
+    }
+    
+    $table->addColumn("invoice_number", function($model) use ($entityType) { return link_to("{$entityType}s/" . $model->public_id . '/edit', $model->invoice_number); });
+
+    if (!$clientPublicId) 
+    {
+      $table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
+    }
+    
+    $table->addColumn("invoice_date", function($model) { return Utils::fromSqlDate($model->invoice_date); })         
+      ->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); });
+
+    if ($entityType == ENTITY_INVOICE)
+    {
+      $table->addColumn('balance', function($model) { return Utils::formatMoney($model->balance, $model->currency_id); });
+    }
+
+    return $table->addColumn('due_date', function($model) { return Utils::fromSqlDate($model->due_date); })
+        ->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
+        ->addColumn('dropdown', function($model) use ($entityType)
+        { 
+          $str = '<div class="btn-group tr-action" style="visibility:hidden;">
+              <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+                '.trans('texts.select').' <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+              <li><a href="' . \URL::to("{$entityType}s/".$model->public_id.'/edit') . '">'.trans("texts.edit_{$entityType}").'</a></li>';
+          
+          if ($entityType == ENTITY_INVOICE)              
+          {
+            $str .= '<li><a href="' . \URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">'.trans('texts.enter_payment').'</a></li>';
+          }
+          else
+          {
+            $str .= '';
+          }
+              
+          return $str . '<li class="divider"></li>
+              <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans("texts.archive_{$entityType}").'</a></li>
+              <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans("texts.delete_{$entityType}").'</a></li>               
+            </ul>
+          </div>';
+        })                  
+        ->make();    
+  }
+
+
 	public function getErrors($input)
 	{
 		$contact = (array) $input->client->contacts[0];

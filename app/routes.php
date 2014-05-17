@@ -91,10 +91,17 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('recurring_invoices', 'InvoiceController@recurringIndex');
 	Route::get('api/recurring_invoices/{client_id?}', array('as'=>'api.recurring_invoices', 'uses'=>'InvoiceController@getRecurringDatatable'));	
 
-	Route::resource('invoices', 'InvoiceController');
-	Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));	
-	Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
-	Route::post('invoices/bulk', 'InvoiceController@bulk');
+  Route::resource('invoices', 'InvoiceController');
+  Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable')); 
+  Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
+  Route::post('invoices/bulk', 'InvoiceController@bulk');
+
+  Route::resource('quotes', 'QuoteController');
+  Route::get('api/quotes/{client_id?}', array('as'=>'api.quotes', 'uses'=>'QuoteController@getDatatable')); 
+  /*
+  Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
+  Route::post('invoices/bulk', 'InvoiceController@bulk');
+  */
 
 	Route::get('payments/{id}/edit', function() { return View::make('header'); });
 	Route::resource('payments', 'PaymentController');
@@ -132,6 +139,7 @@ define('ENTITY_INVOICE', 'invoice');
 define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
 define('ENTITY_PAYMENT', 'payment');
 define('ENTITY_CREDIT', 'credit');
+define('ENTITY_QUOTE', 'quote');
 
 define('PERSON_CONTACT', 'contact');
 define('PERSON_USER', 'user');

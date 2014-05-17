@@ -351,5 +351,25 @@ return array(
   'chart_builder' => 'Chart Builder',
   'ninja_email_footer' => 'Use :site to invoice your clients and get paid online for free!',
 
+  'quote' => 'Quote',
+  'quotes' => 'Quotes',
+  'quote_number' => 'Quote Number',
+  'quote_date' => 'Quote Date',
+  'quote_total' => 'Quote Total',
+
+  'new_quote' => 'New Quote',
+  'edit_quote' => 'Edit Quote',
+  'archive_quote' => 'Archive Quote',
+  'delete_quote' => 'Delete Quote',
+
+  'updated_quote' => 'Successfully updated quote',
+  'created_quote' => 'Successfully created quote',
+  'cloned_quote' => 'Successfully cloned quote',
+  'emailed_quote' => 'Successfully emailed quote',
+  'archived_quote' => 'Successfully archived quote',
+  'archived_quotes' => 'Successfully archived :count quotes',
+  'deleted_quote' => 'Successfully deleted quote',
+  'deleted_quotes' => 'Successfully deleted :count quotes',
+
 );
 

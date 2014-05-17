@@ -89,6 +89,9 @@
       <ul class="nav navbar-nav" style="font-weight: bold">
         {{ HTML::nav_link('dashboard', 'dashboard') }}
         {{ HTML::menu_link('client') }}
+        @if (Utils::isPro())
+          {{ HTML::menu_link('quote') }}
+        @endif
         {{ HTML::menu_link('invoice') }}
         {{ HTML::menu_link('payment') }}
         {{ HTML::menu_link('credit') }}

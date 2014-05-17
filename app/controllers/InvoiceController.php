@@ -40,42 +40,12 @@ class InvoiceController extends \BaseController {
 	}
 
 	public function getDatatable($clientPublicId = null)
-    {
-    	$query = $this->invoiceRepo->getInvoices(Auth::user()->account_id, $clientPublicId, Input::get('sSearch'));
-    	$table = Datatable::query($query);			
+  {
+  	$accountId = Auth::user()->account_id;
+  	$search = Input::get('sSearch');
 
-    	if (!$clientPublicId) {
-    		$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
-    	}
-    	
-    	$table->addColumn('invoice_number', function($model) { return link_to('invoices/' . $model->public_id . '/edit', $model->invoice_number); });
-
-    	if (!$clientPublicId) {
-    		$table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
-    	}
-    	
-    	return $table->addColumn('invoice_date', function($model) { return Utils::fromSqlDate($model->invoice_date); })    	    
-    		->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
-    		->addColumn('balance', function($model) { return Utils::formatMoney($model->balance, $model->currency_id); })
-    	    ->addColumn('due_date', function($model) { return Utils::fromSqlDate($model->due_date); })
-    	    ->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
-    	    ->addColumn('dropdown', function($model) 
-    	    { 
-    	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
-  							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-    							'.trans('texts.select').' <span class="caret"></span>
-  							</button>
-  							<ul class="dropdown-menu" role="menu">
-						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">'.trans('texts.edit_invoice').'</a></li>
-						    <li><a href="' . URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">'.trans('texts.enter_payment').'</a></li>
-						    <li class="divider"></li>
-						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans('texts.archive_invoice').'</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans('texts.delete_invoice').'</a></li>						    
-						  </ul>
-						</div>';
-    	    })    	       	    
-    	    ->make();    	
-    }
+  	return $this->invoiceRepo->getDatatable($accountId, $clientPublicId, ENTITY_INVOICE, $search);
+  }
 
 	public function getRecurringDatatable($clientPublicId = null)
     {
@@ -236,6 +206,7 @@ class InvoiceController extends \BaseController {
 	private static function getViewModel()
 	{
 		return [
+			'entityType' => ENTITY_INVOICE,
 			'account' => Auth::user()->account,
 			'products' => Product::scope()->orderBy('id')->get(array('product_key','notes','cost','qty')),
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
