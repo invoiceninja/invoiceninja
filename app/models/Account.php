@@ -203,6 +203,11 @@ class Account extends Eloquent
   		'balance_due',
   		'terms',
   		'your_invoice',
+  		'quote',
+  		'your_quote',
+  		'quote_date',
+  		'quote_number',
+  		'total'
 		];
 
 		foreach ($fields as $field)

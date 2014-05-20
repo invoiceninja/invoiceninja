@@ -1,8 +1,8 @@
 {{ trans('texts.email_salutation', ['name' => $userName]) }}
 
-{{ trans('texts.notification_paid', ['amount' => $paymentAmount, 'client' => $clientName, 'invoice' => $invoiceNumber]) }}
+{{ trans("texts.notification_{$entityType}_paid", ['amount' => $paymentAmount, 'client' => $clientName, 'invoice' => $invoiceNumber]) }}
 
-{{ trans('texts.invoice_link_message') }}
+{{ trans("texts.{$entityType}_link_message") }}
 {{ $invoiceLink }}
 
 {{ trans('texts.email_signature') }}

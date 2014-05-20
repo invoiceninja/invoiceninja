@@ -82,8 +82,20 @@ class ClientController extends \BaseController {
 	{
 		$client = Client::withTrashed()->scope($publicId)->with('contacts', 'size', 'industry')->firstOrFail();
 		Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
-		
+	
+		$actionLinks = [
+			[trans('texts.create_invoice'), URL::to('invoices/create/' . $client->public_id )],
+     	[trans('texts.enter_payment'), URL::to('payments/create/' . $client->public_id )],
+     	[trans('texts.enter_credit'), URL::to('credits/create/' . $client->public_id )]
+    ];
+
+    if (Utils::isPro())
+    {
+    	array_unshift($actionLinks, [trans('texts.create_quote'), URL::to('quotes/create/' . $client->public_id )]);
+    }
+
 		$data = array(
+			'actionLinks' => $actionLinks,
 			'showBreadcrumbs' => false,
 			'client' => $client,
 			'credit' => $client->getTotalCredit(),

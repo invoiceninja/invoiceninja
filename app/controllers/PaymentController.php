@@ -64,7 +64,8 @@ class PaymentController extends \BaseController
             'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
             'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : $invoicePublicId,
             'invoice' => null,
-            'invoices' => Invoice::scope()->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
+            'invoices' => Invoice::scope()->where('is_recurring', '=', false)->where('is_quote', '=', false)
+                            ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
             'payment' => null, 
             'method' => 'POST', 
             'url' => "payments", 
@@ -84,7 +85,8 @@ class PaymentController extends \BaseController
         $data = array(
             'client' => null,
             'invoice' => null,
-            'invoices' => Invoice::scope()->with('client', 'invoice_status')->orderBy('invoice_number')->get(array('public_id','invoice_number')),
+            'invoices' => Invoice::scope()->where('is_recurring', '=', false)->where('is_quote', '=', false)
+                            ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
             'payment' => $payment, 
             'method' => 'PUT', 
             'url' => 'payments/' . $publicId, 
@@ -116,12 +118,10 @@ class PaymentController extends \BaseController
             $gateway->$function($val);
         }
 
-        /*
         if (!Utils::isProd())
         {
             $gateway->setTestMode(true);   
         }        
-        */
         
         return $gateway;        
     }
@@ -307,7 +307,6 @@ class PaymentController extends \BaseController
             $client->save();
         }
 		
-
         try
         {
         	if($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)

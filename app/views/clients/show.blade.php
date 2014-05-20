@@ -22,17 +22,9 @@
 			  )
 			, ['id'=>'normalDropDown'])->split(); }}
 
-		{{ DropdownButton::primary('Create Invoice',
-			  Navigation::links(
-			    [
-			    	[trans('texts.create_invoice'), URL::to('invoices/create/' . $client->public_id )],
-			     	[trans('texts.enter_payment'), URL::to('payments/create/' . $client->public_id )],
-			     	[trans('texts.enter_credit'), URL::to('credits/create/' . $client->public_id )],
-			    ]
-			  )
-			, ['id'=>'primaryDropDown'])->split(); }}
-
+			{{ DropdownButton::primary('Create Invoice', Navigation::links($actionLinks), ['id'=>'primaryDropDown'])->split(); }}
 	    {{ Former::close() }}		
+
 	</div>
 	@endif
 
@@ -90,6 +82,9 @@
 	
 	<ul class="nav nav-tabs nav-justified">
 		{{ HTML::tab_link('#activity', trans('texts.activity'), true) }}
+		@if (Utils::isPro())
+			{{ HTML::tab_link('#quotes', trans('texts.quotes')) }}
+		@endif
 		{{ HTML::tab_link('#invoices', trans('texts.invoices')) }}
 		{{ HTML::tab_link('#payments', trans('texts.payments')) }}			
 		{{ HTML::tab_link('#credits', trans('texts.credits')) }}			
@@ -112,6 +107,25 @@
 		    	->render('datatable') }}
 
         </div>
+
+    @if (Utils::isPro())
+        <div class="tab-pane" id="quotes">
+
+			{{ Datatable::table()		
+		    	->addColumn(
+	    			trans('texts.quote_number'),
+	    			trans('texts.quote_date'),
+	    			trans('texts.total'),
+	    			trans('texts.due_date'),
+	    			trans('texts.status'))
+		    	->setUrl(url('api/quotes/'. $client->public_id))    	
+		    	->setOptions('sPaginationType', 'bootstrap')
+		    	->setOptions('bFilter', false)
+		    	->setOptions('aaSorting', [['0', 'desc']])
+		    	->render('datatable') }}
+
+        </div>
+    @endif
 
 		<div class="tab-pane" id="invoices">
 

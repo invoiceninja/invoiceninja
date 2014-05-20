@@ -5,7 +5,7 @@
 
 		@include('script')		
 		
-		<link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
+		<link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
 
 		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
 		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
@@ -23,7 +23,7 @@
 
 		<p>&nbsp;</p>
 
-		@if ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid())
+		@if ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_quote && !$invoice->is_recurring)
 			<div class="pull-right" style="width:270px">			
 				{{ Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
 				{{ Button::success_link(URL::to('payment/' . $invitation->invitation_key), trans('texts.pay_now'), array('class' => 'btn-lg pull-right')) }}

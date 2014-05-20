@@ -24,6 +24,11 @@ class QuoteController extends \BaseController {
 
   public function index()
   {
+    if (!Utils::isPro())
+    {
+      return Redirect::to('/invoices/create');
+    }
+
     $data = [
       'title' => '- Quotes',
       'entityType'=>ENTITY_QUOTE, 
@@ -49,6 +54,11 @@ class QuoteController extends \BaseController {
 
   public function create($clientPublicId = 0)
   { 
+    if (!Utils::isPro())
+    {
+      return Redirect::to('/invoices/create');
+    }
+
     $client = null;
     $invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
     $account = Account::with('country')->findOrFail(Auth::user()->account_id);
@@ -64,7 +74,7 @@ class QuoteController extends \BaseController {
         'data' => Input::old('data'), 
         'invoiceNumber' => $invoiceNumber,
         'method' => 'POST', 
-        'url' => 'quotes', 
+        'url' => 'invoices',
         'title' => '- New Quote',
         'client' => $client);
     $data = array_merge($data, self::getViewModel());       
@@ -90,5 +100,18 @@ class QuoteController extends \BaseController {
     ];
   }
 
+  public function bulk()
+  {
+    $action = Input::get('action');
+    $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
+    $count = $this->invoiceRepo->bulk($ids, $action);
 
+    if ($count > 0)   
+    {
+      $message = Utils::pluralize("{$action}d_quote", $count);      
+      Session::flash('message', $message);
+    }
+
+    return Redirect::to('quotes');
+  } 
 }

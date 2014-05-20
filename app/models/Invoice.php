@@ -39,7 +39,7 @@ class Invoice extends EntityModel
 
 	public function getEntityType()
 	{
-		return ENTITY_INVOICE;
+		return $this->is_quote ? ENTITY_QUOTE : ENTITY_INVOICE;
 	}	
 	
 	public function isSent()
@@ -75,7 +75,8 @@ class Invoice extends EntityModel
 			'tax_rate', 
 			'account', 
 			'invoice_design_id',
-			'is_pro']);
+			'is_pro',
+			'is_quote']);
 		
 		$this->client->setVisible([
 			'name', 

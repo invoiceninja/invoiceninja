@@ -1,6 +1,7 @@
 @extends('master')
 
 @section('head')    
+<meta name="csrf-token" content="<?= csrf_token() ?>">
 <link href="{{ asset('built.public.css') }}" rel="stylesheet" type="text/css"/>
 
 <!--
@@ -107,6 +108,19 @@
   </div>
 </div>
 
+<div class="container">   
+  @if (Session::has('warning'))
+    <div class="alert alert-warning">{{ Session::get('warning') }}</div>
+  @endif
+
+  @if (Session::has('message'))
+    <div class="alert alert-info">{{ Session::get('message') }}</div>
+  @endif
+
+  @if (Session::has('error'))
+    <div class="alert alert-danger">{{ Session::get('error') }}</div>
+  @endif
+</div>
 
 @yield('content')   
 

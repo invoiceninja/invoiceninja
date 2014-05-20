@@ -14,9 +14,10 @@ class ContactMailer extends Mailer {
 	public function sendInvoice(Invoice $invoice)
 	{
 		$invoice->load('invitations', 'client', 'account');
+		$entityType = $invoice->getEntityType();
 
 		$view = 'invoice';
-		$subject = trans('texts.invoice_subject', ['invoice' => $invoice->invoice_number, 'account' => $invoice->account->getDisplayName()]);
+		$subject = trans("texts.{$entityType}_subject", ['invoice' => $invoice->invoice_number, 'account' => $invoice->account->getDisplayName()]);
 
 		foreach ($invoice->invitations as $invitation)
 		{
@@ -29,6 +30,7 @@ class ContactMailer extends Mailer {
 			$invitation->save();
 	
 			$data = [
+				'entityType' => $entityType,
 				'link' => $invitation->getLink(),
 				'clientName' => $invoice->client->getDisplayName(),
 				'accountName' => $invoice->account->getDisplayName(),

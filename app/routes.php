@@ -94,14 +94,18 @@ Route::group(array('before' => 'auth'), function()
   Route::resource('invoices', 'InvoiceController');
   Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable')); 
   Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
+  Route::get('invoices/{public_id}/clone', 'InvoiceController@cloneInvoice');
   Route::post('invoices/bulk', 'InvoiceController@bulk');
 
-  Route::resource('quotes', 'QuoteController');
-  Route::get('api/quotes/{client_id?}', array('as'=>'api.quotes', 'uses'=>'QuoteController@getDatatable')); 
-  /*
-  Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
-  Route::post('invoices/bulk', 'InvoiceController@bulk');
-  */
+  Route::get('quotes/create/{client_id?}', 'QuoteController@create');
+  Route::get('quotes/{public_id}/clone', 'InvoiceController@cloneInvoice');
+  Route::get('quotes/{public_id}/edit', 'InvoiceController@edit');
+  Route::put('quotes/{public_id}', 'InvoiceController@update');
+  Route::get('quotes/{public_id}', 'InvoiceController@edit');
+  Route::post('quotes', 'InvoiceController@store');
+  Route::get('quotes', 'QuoteController@index');
+  Route::get('api/quotes/{client_id?}', array('as'=>'api.quotes', 'uses'=>'QuoteController@getDatatable'));   
+  Route::post('quotes/bulk', 'QuoteController@bulk');
 
 	Route::get('payments/{id}/edit', function() { return View::make('header'); });
 	Route::resource('payments', 'PaymentController');

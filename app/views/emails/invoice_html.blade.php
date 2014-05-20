@@ -7,7 +7,7 @@
 
       {{ $clientName }},<p/>
 
-      {{ trans('texts.invoice_message', ['amount' => $invoiceAmount]) }}<p/>      
+      {{ trans("texts.{$entityType}_message", ['amount' => $invoiceAmount]) }}<p/>      
       {{ $link }}<p/>
 
       @if ($emailFooter)

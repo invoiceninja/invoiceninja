@@ -35,11 +35,15 @@ class DashboardController extends \BaseController {
     $pastDue = Invoice::scope()
                 ->where('due_date', '<', date('Y-m-d'))
                 ->where('balance', '>', 0)
+                ->where('is_recurring', '=', false)
+                ->where('is_quote', '=', false)
                 ->orderBy('due_date', 'asc')->take(6)->get();
 
     $upcoming = Invoice::scope()
                   ->where('due_date', '>', date('Y-m-d'))
                   ->where('balance', '>', 0)
+                  ->where('is_recurring', '=', false)
+                  ->where('is_quote', '=', false)
                   ->orderBy('due_date', 'asc')->take(6)->get();
 
     $data = [

@@ -3,7 +3,6 @@
 
 @section('head')
 <meta name="csrf-token" content="<?= csrf_token() ?>">
-
 <link href="{{ asset('built.css') }}" rel="stylesheet" type="text/css"/>    
 
 <!--

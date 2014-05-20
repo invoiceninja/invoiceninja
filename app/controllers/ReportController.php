@@ -32,11 +32,18 @@ class ReportController extends \BaseController {
 			{
 				$records = DB::table($entityType.'s')
 							->select(DB::raw('sum(amount) as total, '.$groupBy.'('.$entityType.'_date) as '.$groupBy))
+							->where('account_id', '=', Auth::user()->account_id)
 							->where($entityType.'s.deleted_at', '=', null)
 							->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
 							->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))					
 							->groupBy($groupBy);
 							
+				if ($entityType == ENTITY_INVOICE)
+				{
+					$records->where('is_quote', '=', false)
+									->where('is_recurring', '=', false);
+				}
+
 				$totals = $records->lists('total');
 				$dates = $records->lists($groupBy);		
 				$data = array_combine($dates, $totals);

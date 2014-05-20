@@ -37738,7 +37738,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   doc.setDrawColor(200,200,200);
   doc.setFillColor(230,230,230);
   
-  var detailsHeight = getInvoiceDetailsHeight(invoice, layout)
+  var detailsHeight = getInvoiceDetailsHeight(invoice, layout);
   var left = layout.headerLeft - layout.tablePadding;
   var top = layout.headerTop + detailsHeight - layout.rowHeight - layout.tablePadding;
   var width = layout.headerRight - layout.headerLeft + (2 * layout.tablePadding);
@@ -37803,7 +37803,7 @@ function GetReportTemplate4(doc, invoice, layout, checkMath) {
   doc.rect(left, top, width, height, 'FD'); 
   
   doc.setFontType("bold");
-  doc.text(layout.footerLeft, y, invoiceLabels.balance_due);
+  doc.text(layout.footerLeft, y, invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due);
 
   total = formatMoney(invoice.balance_amount, currencyId);
   var totalX = layout.headerRight - (doc.getStringUnitWidth(total) * doc.internal.getFontSize());
@@ -38428,7 +38428,7 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
 
     SetPdfColor('LightBlue', doc, 'primary');
     doc.setFontSize('11');
-    doc.text(50, layout.headerTop, invoiceLabels.invoice.toUpperCase());
+    doc.text(50, layout.headerTop, (invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase());
 
     //doc.setDrawColor(220,220,220);
     //doc.line(30, y, 560, y); // horizontal line
@@ -38491,7 +38491,7 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
 
 
     doc.setFontSize(10);
-    Msg = invoiceLabels.balance_due;
+    Msg = invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due;
     var TmpMsgX = layout.unitCostRight-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
     
     doc.text(TmpMsgX, y, Msg);
@@ -38614,7 +38614,7 @@ function GetReportTemplate2(doc, invoice, layout, checkMath)
   SetPdfColor('SomeGreen', doc, 'secondary');
   doc.setFontSize('14');
   doc.setFontType("bold");
-  doc.text(50, GlobalY, invoiceLabels.your_invoice.toUpperCase());
+  doc.text(50, GlobalY, (invoice.is_quote ? invoiceLabels.your_quote : invoiceLabels.your_invoice).toUpperCase());
 
 
   var z=GlobalY;
@@ -38671,7 +38671,7 @@ function GetReportTemplate2(doc, invoice, layout, checkMath)
 
   doc.setFontSize(12);
   x += doc.internal.getFontSize()*4;
-  Msg = invoiceLabels.balance_due;
+  Msg = invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due;
   var TmpMsgX = layout.unitCostRight-(doc.getStringUnitWidth(Msg) * doc.internal.getFontSize());
 
 
@@ -38893,7 +38893,7 @@ function GetReportTemplate3(doc, invoice, layout, checkMath)
     SetPdfColor('White', doc);
     doc.setFontSize(12);
     
-    var label = invoiceLabels.balance_due;
+    var label = invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due;
     var labelX = layout.unitCostRight-(doc.getStringUnitWidth(label) * doc.internal.getFontSize());
     doc.text(labelX, y+2, label);
 
@@ -39124,6 +39124,16 @@ function displayGrid(doc, invoice, data, x, y, layout, hasheader, rightAlignX, r
       doc.text(marginLeft, y, value);       
       
       doc.setFontType('normal');
+      if (invoice.is_quote) {
+        if (key == 'invoice_number') {
+          key = 'quote_number';
+        } else if (key == 'invoice_date') {
+          key = 'quote_date';
+        } else if (key == 'balance_due') {
+          key = 'total';
+        }
+      }
+
       if (key.substring(0, 6) === 'custom') {
         key = invoice.account[key];
       } else {

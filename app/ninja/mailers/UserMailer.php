@@ -25,22 +25,24 @@ class UserMailer extends Mailer {
 		$this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);		
 	}
 
-	public function sendNotification(User $user, Invoice $invoice, $type, Payment $payment = null)
+	public function sendNotification(User $user, Invoice $invoice, $notificationType, Payment $payment = null)
 	{
 		if (!$user->email)
 		{
 			return;
 		}
 
-		$view = 'invoice_' . $type;
+		$view = 'invoice_' . $notificationType;
+		$entityType = $invoice->getEntityType();
 
 		$data = [
+			'entityType' => $entityType,
 			'clientName' => $invoice->client->getDisplayName(),
 			'accountName' => $invoice->account->getDisplayName(),
 			'userName' => $user->getDisplayName(),
 			'invoiceAmount' => Utils::formatMoney($invoice->amount, $invoice->client->currency_id),
 			'invoiceNumber' => $invoice->invoice_number,
-			'invoiceLink' => SITE_URL . "/invoices/{$invoice->public_id}"			
+			'invoiceLink' => SITE_URL . "/{$entityType}s/{$invoice->public_id}"			
 		];
 
 		if ($payment)
@@ -48,7 +50,7 @@ class UserMailer extends Mailer {
 			$data['paymentAmount'] = Utils::formatMoney($payment->amount, $invoice->client->currency_id);
 		}
 
-		$subject = trans('texts.notification_'.$type.'_subject', ['invoice'=>$invoice->invoice_number, 'client'=>$invoice->client->getDisplayName()]);
+		$subject = trans("texts.notification_{$entityType}_{$notificationType}_subject", ['invoice'=>$invoice->invoice_number, 'client'=>$invoice->client->getDisplayName()]);
 
 		$this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
 	}

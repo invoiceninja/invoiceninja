@@ -286,26 +286,29 @@ class Utils
 		$object = new stdClass;
 		$object->url = $url;
 		$object->name = ucwords($type) . ': ' . $name;
-		
+	
+		$data = [];
+
 		for ($i=0; $i<count($viewed); $i++)
 		{
 			$item = $viewed[$i];
 			
-			if ($object->url == $item->url)
+			if ($object->url == $item->url || $object->name == $item->name)
 			{
-				array_splice($viewed, $i, 1);
-				break;
-			}
+				continue;				
+			}	
+
+			array_unshift($data, $item);		
 		}
 
-		array_unshift($viewed, $object);
+		array_unshift($data, $object);
 			
-		if (count($viewed) > RECENTLY_VIEWED_LIMIT)
+		if (count($data) > RECENTLY_VIEWED_LIMIT)
 		{
-			array_pop($viewed);
+			array_pop($data);
 		}
 
-		Session::put(RECENTLY_VIEWED, $viewed);
+		Session::put(RECENTLY_VIEWED, $data);
 	}
 
 	public static function processVariables($str)
