@@ -108,6 +108,7 @@
   </div>
 </div>
 
+<div style="background-color:#211f1f; width:100%">
 <div class="container">   
   @if (Session::has('warning'))
     <div class="alert alert-warning">{{ Session::get('warning') }}</div>
@@ -120,6 +121,7 @@
   @if (Session::has('error'))
     <div class="alert alert-danger">{{ Session::get('error') }}</div>
   @endif
+</div>
 </div>
 
 @yield('content')   

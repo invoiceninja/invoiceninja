@@ -200,7 +200,7 @@ class AccountController extends \BaseController {
 		}
 	}
 
-	public function doSection($section = ACCOUNT_DETAILS)
+	public function doSection($section = ACCOUNT_DETAILS, $subSection = false)
 	{
 		if ($section == ACCOUNT_DETAILS)
 		{
@@ -257,7 +257,7 @@ class AccountController extends \BaseController {
 
 	private function saveCustomFields()
 	{
-		if (!Auth::user()->account->isPro())
+		if (Auth::user()->account->isPro())
 		{
 			$account = Auth::user()->account;
 			$account->custom_label1 = Input::get('custom_label1');
@@ -271,12 +271,12 @@ class AccountController extends \BaseController {
 			Session::flash('message', trans('texts.updated_settings'));
 		}
 
-		return Redirect::to('company/advanced_settings');		
+		return Redirect::to('company/advanced_settings/custom_fields');		
 	}
 
 	private function saveInvoiceDesign()
 	{
-		if (!Auth::user()->account->isPro())
+		if (Auth::user()->account->isPro())
 		{
 			$account = Auth::user()->account;
 			$account->primary_color = Input::get('primary_color');// ? Input::get('primary_color') : null;
@@ -286,7 +286,7 @@ class AccountController extends \BaseController {
 			Session::flash('message', trans('texts.updated_settings'));
 		}
 		
-		return Redirect::to('company/advanced_settings');		
+		return Redirect::to('company/advanced_settings/invoice_design');		
 	}
 
 	private function export()
@@ -679,7 +679,9 @@ class AccountController extends \BaseController {
 			{
 				$path = Input::file('logo')->getRealPath();
 				File::delete('logo/' . $account->account_key . '.jpg');				
-				Image::make($path)->resize(200, 120, true, false)->save('logo/' . $account->account_key . '.jpg');				
+								
+				$image = Image::make($path)->resize(200, 120, true, false);
+				Image::canvas($image->width, $image->height, '#FFFFFF')->insert($image)->save($account->getLogoPath());
 			}
 
 			Event::fire('user.refresh');

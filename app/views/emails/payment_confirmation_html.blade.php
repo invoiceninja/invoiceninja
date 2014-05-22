@@ -17,7 +17,7 @@
       @endif
 
       <p/>
-      {{ trans('texts.ninja_email_footer', ['site' => '<a href="'.SITE_URL.'">Invoice Ninja</a>']) }}
+      {{ trans('texts.ninja_email_footer', ['site' => '<a href="https://www.invoiceninja.com">Invoice Ninja</a>']) }}
 
     </body>
 </html>

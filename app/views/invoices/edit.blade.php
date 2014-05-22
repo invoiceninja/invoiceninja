@@ -112,91 +112,91 @@
 	{{ Former::hidden('data')->data_bind("value: ko.mapping.toJSON(model)") }}	
 
 	<table class="table invoice-table" style="margin-bottom: 0px !important">
-	    <thead>
-	        <tr>
-	        	<th style="min-width:32px;" class="hide-border"></th>
-	        	<th style="min-width:160px">{{ trans('texts.item') }}</th>
-	        	<th style="width:100%">{{ trans('texts.description') }}</th>
-	        	<th style="min-width:120px">{{ trans('texts.unit_cost') }}</th>
-	        	<th style="min-width:120px">{{ trans('texts.quantity') }}</th>
-	        	<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
-	        	<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
-	        	<th style="min-width:32px;" class="hide-border"></th>
-	        </tr>
-	    </thead>
-	    <tbody data-bind="sortable: { data: invoice_items, afterMove: onDragged }">
-	    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
-	        	<td class="hide-border td-icon">
-	        		<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
-	        	</td>
-	            <td>	            	
-	            	{{ Former::text('product_key')->useDatalist($products, 'product_key')->onkeyup('onItemChange()')
-	            		->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
-	            </td>
-	            <td>
-	            	<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap"></textarea>
-	            </td>
-	            <td>
-	            	<input onkeyup="onItemChange()" data-bind="value: prettyCost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
-	            </td>
-	            <td>
-	            	<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
-	            </td>
-	            <td style="display:none;" data-bind="visible: $root.invoice_item_taxes.show">
-	            	<select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select>
-	            </td>
-		        	<td style="text-align:right;padding-top:9px !important">
-	            	<div class="line-total" data-bind="text: totals.total"></div>
-	            </td>
-	        	<td style="cursor:pointer" class="hide-border td-icon">
-	        		&nbsp;<i style="display:none" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-minus-circle redlink" title="Remove item"/>
-	        	</td>
-	        </tr>
+		<thead>
+			<tr>
+				<th style="min-width:32px;" class="hide-border"></th>
+				<th style="min-width:160px">{{ trans('texts.item') }}</th>
+				<th style="width:100%">{{ trans('texts.description') }}</th>
+				<th style="min-width:120px">{{ trans('texts.unit_cost') }}</th>
+				<th style="min-width:120px">{{ trans('texts.quantity') }}</th>
+				<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
+				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
+				<th style="min-width:32px;" class="hide-border"></th>
+			</tr>
+		</thead>
+		<tbody data-bind="sortable: { data: invoice_items, afterMove: onDragged }">
+			<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
+				<td class="hide-border td-icon">
+					<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
+				</td>
+				<td>	            	
+					{{ Former::text('product_key')->useDatalist($products, 'product_key')->onkeyup('onItemChange()')
+					->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
+				</td>
+				<td>
+					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap"></textarea>
+				</td>
+				<td>
+					<input onkeyup="onItemChange()" data-bind="value: prettyCost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
+				</td>
+				<td>
+					<input onkeyup="onItemChange()" data-bind="value: prettyQty, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
+				</td>
+				<td style="display:none;" data-bind="visible: $root.invoice_item_taxes.show">
+					<select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select>
+				</td>
+				<td style="text-align:right;padding-top:9px !important">
+					<div class="line-total" data-bind="text: totals.total"></div>
+				</td>
+				<td style="cursor:pointer" class="hide-border td-icon">
+					&nbsp;<i style="display:none" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-minus-circle redlink" title="Remove item"/>
+				</td>
+			</tr>
 		</tbody>
 		<tfoot>
 			<tr>
-	        	<td class="hide-border"/>
-	        	<td colspan="2" rowspan="5">
-	        		<br/>
+				<td class="hide-border"/>
+				<td colspan="2" rowspan="5">
+					<br/>
 					{{ Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
-						->label(false)->placeholder(trans('texts.note_to_client'))->style('width: 520px; resize: none') }}			
+					->label(false)->placeholder(trans('texts.note_to_client'))->style('width: 520px; resize: none') }}			
 					{{ Former::textarea('terms')->data_bind("value: wrapped_terms, valueUpdate: 'afterkeydown'")
-						->label(false)->placeholder(trans('texts.invoice_terms'))->style('width: 520px; resize: none')
-						->addGroupClass('less-space-bottom') }}
+					->label(false)->placeholder(trans('texts.invoice_terms'))->style('width: 520px; resize: none')
+					->addGroupClass('less-space-bottom') }}
 					<label class="checkbox" style="width: 200px">
 						<input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>{{ trans('texts.save_as_default_terms') }}
 					</label>
-	        	</td>
-	        	<td style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+				</td>
+				<td style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2">{{ trans('texts.subtotal') }}</td>
 				<td style="text-align: right"><span data-bind="text: totals.subtotal"/></td>
-	        </tr>
-	        <tr style="display:none" data-bind="visible: discount() > 0">
-	        	<td class="hide-border" colspan="3"/>
-	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
+			</tr>
+			<tr style="display:none" data-bind="visible: discount() > 0">
+				<td class="hide-border" colspan="3"/>
+				<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
 				<td colspan="2">{{ trans('texts.discount') }}</td>
 				<td style="text-align: right"><span data-bind="text: totals.discounted"/></td>
-	        </tr>
-	        <tr style="display:none" data-bind="visible: $root.invoice_taxes.show">
-	        	<td class="hide-border" colspan="3"/>
-	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+			</tr>
+			<tr style="display:none" data-bind="visible: $root.invoice_taxes.show">
+				<td class="hide-border" colspan="3"/>
+				<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td>{{ trans('texts.tax') }}</td>
 				<td style="min-width:120px"><select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select></td>
 				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
-	        </tr>
-	        <tr>
-	        	<td class="hide-border" colspan="3"/>
-	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+			</tr>
+			<tr>
+				<td class="hide-border" colspan="3"/>
+				<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2">{{ trans('texts.paid_to_date') }}</td>
 				<td style="text-align: right" data-bind="text: totals.paidToDate"></td>
-	        </tr>	        
-	        <tr>
-	        	<td class="hide-border" colspan="3"/>
-	        	<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+			</tr>	        
+			<tr>
+				<td class="hide-border" colspan="3"/>
+				<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="2"><b>{{ trans($entityType == ENTITY_INVOICE ? 'texts.balance_due' : 'texts.total') }}</b></td>
 				<td style="text-align: right"><span data-bind="text: totals.total"/></td>
-	        </tr>
-	    </tfoot>
+			</tr>
+		</tfoot>
 	</table>
 
 	<p>&nbsp;</p>

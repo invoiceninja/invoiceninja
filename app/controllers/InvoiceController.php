@@ -342,7 +342,7 @@ class InvoiceController extends \BaseController {
 			}
 			else if ($action == 'convert')
 			{
-				return $this->convertQuote($publicId);	
+				return $this->convertQuote($publicId);
 			}
 			else if ($action == 'email') 
 			{	

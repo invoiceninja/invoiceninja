@@ -9,7 +9,7 @@
         <div class="cell">Live .PDF invoice creation </div>
         <div class="cell">4 beatiful invoice templates</div>
         <div class="cell">Accept credit card payments</div>
-        <div class="cell">Quotes/Pro-Forma Invoices</div>
+        <div class="cell">Quotes/pro-forma invoices</div>
         <div class="cell">Custom invoice fields and colors</div>
         <div class="cell">Dynamic chart builder</div>
         <div class="cell">Priority email support</div>
@@ -26,7 +26,7 @@
         <div class="cell"><div class="hide-desktop">Live .PDF invoice creation</div><span class="glyphicon glyphicon-ok"></div>
         <div class="cell"><div class="hide-desktop">4 beatiful invoice templates</div><span class="glyphicon glyphicon-ok"></div>
         <div class="cell"><div class="hide-desktop">Accept credit card payments</div><span class="glyphicon glyphicon-ok"></div>
-        <div class="cell"><div class="hide-desktop">Quotes/Pro-Forma Invoices</div><span class="glyphicon glyphicon-remove"></div>
+        <div class="cell"><div class="hide-desktop">Quotes/pro-forma invoices</div><span class="glyphicon glyphicon-remove"></div>
         <div class="cell"><div class="hide-desktop">Custom fields and invoice colors</div><span class="glyphicon glyphicon-remove"></div>
         <div class="cell"><div class="hide-desktop">Dynamic chart builder</div><span class="glyphicon glyphicon-remove"></div>
         <div class="cell"><div class="hide-desktop">Priority email support</div><span class="glyphicon glyphicon-remove"></div>
@@ -43,7 +43,7 @@
         <div class="cell"><div class="hide-desktop">Live .PDF invoice creation</div><span class="glyphicon glyphicon-ok"></div>
         <div class="cell"><div class="hide-desktop">4 beatiful invoice templates</div><span class="glyphicon glyphicon-ok"></div>
         <div class="cell"><div class="hide-desktop">Accept credit card payments</div><span class="glyphicon glyphicon-ok"></div>
-        <div class="cell"><div class="hide-desktop">Quotes/Pro-Forma Invoices</div><span class="glyphicon glyphicon-ok"></div>
+        <div class="cell"><div class="hide-desktop">Quotes/pro-forma invoices</div><span class="glyphicon glyphicon-ok"></div>
         <div class="cell"><div class="hide-desktop">Custom invoice fields and colors</div><span class="glyphicon glyphicon-ok"></div>
         <div class="cell"><div class="hide-desktop">Dynamic chart builder</div><span class="glyphicon glyphicon-ok"></div>
         <div class="cell"><div class="hide-desktop">Priority email support</div><span class="glyphicon glyphicon-ok"></div>

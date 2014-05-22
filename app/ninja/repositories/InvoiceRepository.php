@@ -119,11 +119,12 @@ class InvoiceRepository
               </button>
               <ul class="dropdown-menu" role="menu">
               <li><a href="' . \URL::to("{$entityType}s/".$model->public_id.'/edit') . '">'.trans("texts.edit_{$entityType}").'</a></li>
-              <li><a href="' . \URL::to("{$entityType}s/".$model->public_id.'/clone') . '">'.trans("texts.clone_{$entityType}").'</a></li>';
+              <li><a href="' . \URL::to("{$entityType}s/".$model->public_id.'/clone') . '">'.trans("texts.clone_{$entityType}").'</a></li>
+              <li class="divider"></li><li>';
           
           if ($entityType == ENTITY_INVOICE)              
           {
-            $str .= '<li class="divider"></li><li><a href="' . \URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">'.trans('texts.enter_payment').'</a></li>';
+            $str .= '<a href="' . \URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">'.trans('texts.enter_payment').'</a></li>';
 
             if ($model->quote_id)
             {
@@ -134,7 +135,7 @@ class InvoiceRepository
           {
             if ($model->quote_invoice_id)
             {
-              $str .= '<li class="divider"></li><li><a href="' .  \URL::to("invoices/{$model->quote_invoice_id}/edit") . '">' . trans("texts.view_invoice") . '</a></li>';
+              $str .= '<li><a href="' .  \URL::to("invoices/{$model->quote_invoice_id}/edit") . '">' . trans("texts.view_invoice") . '</a></li>';
             }
           }
           
@@ -324,8 +325,9 @@ class InvoiceRepository
     $clone->invoice_number = $invoice->account->getNextInvoiceNumber();
 
     foreach ([
-      'client_id', 
+      'client_id',       
       'discount', 
+      'shipping',
       'invoice_date', 
       'po_number', 
       'due_date', 
