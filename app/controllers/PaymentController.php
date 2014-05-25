@@ -1,16 +1,18 @@
 <?php
 
 use ninja\repositories\PaymentRepository;
+use ninja\repositories\InvoiceRepository;
 
 class PaymentController extends \BaseController 
 {
     protected $creditRepo;
 
-    public function __construct(PaymentRepository $paymentRepo)
+    public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo)
     {
         parent::__construct();
 
         $this->paymentRepo = $paymentRepo;
+        $this->invoiceRepo = $invoiceRepo;
     }   
 
 	public function index()
@@ -326,12 +328,7 @@ class PaymentController extends \BaseController
 	            if ($response->isSuccessful())
 	            {
 	                $payment = self::createPayment($invitation, $ref);
-	
-	                $invoice->invoice_status_id = INVOICE_STATUS_PAID;
-	                $invoice->save();
-	
-	                Event::fire('invoice.paid', $payment);
-	
+		
 	                Session::flash('message', trans('texts.applied_payment'));  
 	                return Redirect::to('view/' . $payment->invitation->invitation_key);                                    
 	            }
@@ -379,12 +376,7 @@ class PaymentController extends \BaseController
 	            if (strtolower($response->status) == 'success')
 	            {
 	                $payment = self::createPayment($invitation, $response->response_message);
-	
-	                $invoice->invoice_status_id = INVOICE_STATUS_PAID;
-	                $invoice->save();
-	
-	                Event::fire('invoice.paid', $payment);
-	
+		
 	                Session::flash('message', trans('texts.applied_payment'));  
 	                return Redirect::to('view/' . $payment->invitation->invitation_key);                                    
 	            }
@@ -416,12 +408,12 @@ class PaymentController extends \BaseController
             $account->pro_plan_paid = date_create()->format('Y-m-d');
             $account->save();
         }
-
+        
         if ($invoice->is_quote)
         {
-            $invoice = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
+            $invoice = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id, $invitation);
         }
-            
+        
         $payment = Payment::createNew($invitation);
         $payment->invitation_id = $invitation->id;
         $payment->account_gateway_id = $accountGateway->id;
@@ -431,14 +423,19 @@ class PaymentController extends \BaseController
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = date_create()->format('Y-m-d');
-
+        
         if ($payerId)
         {
             $payment->payer_id = $payerId;                
         }
-
+        
         $payment->save();
 
+        $invoice->invoice_status_id = INVOICE_STATUS_PAID;
+        $invoice->save();
+                
+        Event::fire('invoice.paid', $payment);
+        
         return $payment;
     }
 
@@ -461,12 +458,7 @@ class PaymentController extends \BaseController
 
             if ($response->isSuccessful())
             {
-                $payment = self::createPayment($invitation, $ref, $payerId);
-                
-                $invoice->invoice_status_id = INVOICE_STATUS_PAID;
-                $invoice->save();
-                
-                Event::fire('invoice.paid', $payment);
+                $payment = self::createPayment($invitation, $ref, $payerId);                
 
                 Session::flash('message', trans('texts.applied_payment'));  
                 return Redirect::to('view/' . $invitation->invitation_key);                

@@ -67,7 +67,7 @@ class ContactMailer extends Mailer {
 			'clientName' => $payment->client->getDisplayName(),
 			'emailFooter' => $payment->account->email_footer,
 			'paymentAmount' => Utils::formatMoney($payment->amount, $payment->client->currency_id),
-			'showNinjaFooter' => !$invoice->account->isPro() || !Utils::isNinjaProd()			
+			'showNinjaFooter' => !$payment->account->isPro() || !Utils::isNinjaProd()			
 		];
 
 		$user = $payment->invitation->user;

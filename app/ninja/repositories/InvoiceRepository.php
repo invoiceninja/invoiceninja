@@ -318,9 +318,11 @@ class InvoiceRepository
 		return $invoice;
 	}
 
-  public function cloneInvoice($invoice, $quotePublicId = null)
+  public function cloneInvoice($invoice, $quotePublicId = null, $invitation = null)
   {
-    $clone = Invoice::createNew();    
+    $invoice->load('invitations', 'invoice_items');
+
+    $clone = Invoice::createNew($invitation ? $invitation : $invoice);
     $clone->balance = $invoice->amount;
     $clone->invoice_number = $invoice->account->getNextInvoiceNumber();
 
@@ -351,7 +353,7 @@ class InvoiceRepository
       $clone->is_quote = false;
       $clone->quote_id = $quotePublicId;
     }    
-
+    
     $clone->save();
 
     if ($quotePublicId)
@@ -359,7 +361,7 @@ class InvoiceRepository
       $invoice->quote_invoice_id = $clone->public_id;
       $invoice->save();
     }
-
+    
     foreach ($invoice->invoice_items as $item)
     {
       $cloneItem = InvoiceItem::createNew();
