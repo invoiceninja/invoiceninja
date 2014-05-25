@@ -85,8 +85,7 @@ class InvoiceController extends \BaseController {
 
 	public function view($invitationKey)
 	{
-		$invitation = Invitation::withTrashed()->with('user', 'invoice.invoice_items', 'invoice.account.country', 'invoice.client.contacts', 'invoice.client.country')
-			->where('invitation_key', '=', $invitationKey)->firstOrFail();
+		$invitation = Invitation::withTrashed()->where('invitation_key', '=', $invitationKey)->firstOrFail();
 
 		$invoice = $invitation->invoice;
 		
@@ -94,6 +93,18 @@ class InvoiceController extends \BaseController {
 		{
 			return View::make('invoices.deleted');
 		}
+
+		if ($invoice->is_quote && $invoice->quote_invoice_id)
+		{
+			$invoice = Invoice::scope($invoice->quote_invoice_id, $invoice->account_id)->firstOrFail();
+
+			if (!$invoice || $invoice->is_deleted) 
+			{
+				return View::make('invoices.deleted');
+			}
+		}
+
+		$invoice->load('user', 'invoice_items', 'account.country', 'client.contacts', 'client.country');
 
 		$client = $invoice->client;
 		

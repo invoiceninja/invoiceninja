@@ -289,6 +289,7 @@ class Activity extends Eloquent
 
 			$invoice = $payment->invoice;
 			$invoice->balance = $invoice->balance - $payment->amount;
+			$invoice->invoice_status_id = ($invoice->balance > 0) ? INVOICE_STATUS_PARTIAL : INVOICE_STATUS_PAID;
 			$invoice->save();
 		}
 
