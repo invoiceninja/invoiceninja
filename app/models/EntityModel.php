@@ -12,7 +12,7 @@ class EntityModel extends Eloquent
 		$className = get_called_class();
 		$entity = new $className();
 		
-		if ($parent) 
+		if ($parent)
 		{
 			$entity->user_id = $parent->user_id;
 			$entity->account_id = $parent->account_id;

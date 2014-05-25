@@ -411,7 +411,7 @@ class PaymentController extends \BaseController
         
         if ($invoice->is_quote)
         {
-            $invoice = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id, $invitation);
+            $invoice = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
         }
         
         $payment = Payment::createNew($invitation);
@@ -430,10 +430,10 @@ class PaymentController extends \BaseController
         }
         
         $payment->save();
-
+        
         $invoice->invoice_status_id = INVOICE_STATUS_PAID;
         $invoice->save();
-                
+        
         Event::fire('invoice.paid', $payment);
         
         return $payment;

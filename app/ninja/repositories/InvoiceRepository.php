@@ -318,11 +318,11 @@ class InvoiceRepository
 		return $invoice;
 	}
 
-  public function cloneInvoice($invoice, $quotePublicId = null, $invitation = null)
+  public function cloneInvoice($invoice, $quotePublicId = null)
   {
     $invoice->load('invitations', 'invoice_items');
 
-    $clone = Invoice::createNew($invitation ? $invitation : $invoice);
+    $clone = Invoice::createNew($invoice);
     $clone->balance = $invoice->amount;
     $clone->invoice_number = $invoice->account->getNextInvoiceNumber();
 
@@ -364,7 +364,7 @@ class InvoiceRepository
     
     foreach ($invoice->invoice_items as $item)
     {
-      $cloneItem = InvoiceItem::createNew();
+      $cloneItem = InvoiceItem::createNew($invoice);
       
       foreach ([
         'product_id', 
@@ -383,7 +383,7 @@ class InvoiceRepository
 
     foreach ($invoice->invitations as $invitation)
     {
-      $cloneInvitation = Invitation::createNew();
+      $cloneInvitation = Invitation::createNew($invoice);
       $cloneInvitation->contact_id = $invitation->contact_id;
       $cloneInvitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
       $clone->invitations()->save($cloneInvitation);
