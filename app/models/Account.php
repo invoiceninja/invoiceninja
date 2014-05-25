@@ -220,7 +220,7 @@ class Account extends Eloquent
 	
 	public function isPro()
 	{
-		if (Utils::isNinjaDev())
+		if (!Utils::isNinjaProd())
 		{
 			return true;
 		}

@@ -409,6 +409,18 @@ class PaymentController extends \BaseController
     {
         $invoice = $invitation->invoice;
         $accountGateway = $invoice->client->account->account_gateways[0];
+
+        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY)
+        {
+            $account = Account::find($invoice->client->public_id);
+            $account->pro_plan_paid = date_create()->format('Y-m-d');
+            $account->save();
+        }
+
+        if ($invoice->is_quote)
+        {
+            $invoice = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
+        }
             
         $payment = Payment::createNew($invitation);
         $payment->invitation_id = $invitation->id;
@@ -426,13 +438,6 @@ class PaymentController extends \BaseController
         }
 
         $payment->save();
-
-        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY)
-        {
-            $account = Account::find($invoice->client->public_id);
-            $account->pro_plan_paid = date_create()->format('Y-m-d');
-            $account->save();
-        }
 
         return $payment;
     }

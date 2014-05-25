@@ -23,7 +23,7 @@
 
 		<p>&nbsp;</p>
 
-		@if ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_quote && !$invoice->is_recurring)
+		@if ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)
 			<div class="pull-right" style="width:270px">			
 				{{ Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
 				{{ Button::success_link(URL::to('payment/' . $invitation->invitation_key), trans('texts.pay_now'), array('class' => 'btn-lg pull-right')) }}

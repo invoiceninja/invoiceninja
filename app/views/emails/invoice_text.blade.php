@@ -10,5 +10,7 @@
 {{ $accountName }}
 @endif
 
+@if ($showNinjaFooter)
 {{ trans('texts.ninja_email_footer', ['site' => 'Invoice Ninja']) }}
 https://www.invoiceninja.com
+@endif

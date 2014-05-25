@@ -237,6 +237,7 @@
 
 
 <script type="text/javascript">
+/*
 (function() {
   var form = document.getElementById('mad_mimi_signup_form'),
       submit = document.getElementById('webform_submit_button'),
@@ -417,6 +418,7 @@
     }
   }
 })();
+*/
 </script>
 
           </div>
