@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Invoice Ninja {{ isset($title) ? $title : ' - Free Online Invoicing' }}</title>
+    <title>Invoice Ninja {{ isset($title) ? $title : ' - Free and Open-Source Online Invoicing' }}</title>
     
     <meta charset="utf-8">
     <meta property="og:site_name" content="Invoice Ninja"></meta>

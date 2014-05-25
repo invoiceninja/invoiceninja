@@ -62,7 +62,7 @@ class Invoice extends EntityModel
 		$this->setVisible([
 			'invoice_number', 
 			'discount', 
-			'shipping',
+			//'shipping',
 			'po_number', 
 			'invoice_date', 
 			'due_date', 

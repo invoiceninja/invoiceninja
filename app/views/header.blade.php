@@ -78,7 +78,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a href="{{ Utils::isNinja() || Auth::check() ? URL::to('/') : NINJA_URL }}" class='navbar-brand'>
+      <a href="{{ URL::to('/') }}" class='navbar-brand'>
         <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:18px;width:auto"/>
       </a>	    
     </div>
@@ -97,8 +97,12 @@
       </ul>
 
       <div class="navbar-form navbar-right">
-        @if (Auth::check() && !Auth::user()->registered)
-        {{ Button::sm_success_primary(trans('texts.sign_up'), array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
+        @if (Auth::check())
+          @if (!Auth::user()->registered)
+            {{ Button::sm_success_primary(trans('texts.sign_up'), array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
+          @elseif (!Auth::user()->isPro())
+            {{ Button::sm_success_primary(trans('texts.go_pro'), array('id' => 'proPlanButton', 'data-toggle'=>'modal', 'data-target'=>'#proPlanModal')) }} &nbsp;
+          @endif
         @endif
 
         @if (Auth::user()->getPopOverText() && !Utils::isRegistered())
@@ -475,8 +479,10 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
           localStorage.setItem('guest_key', '');
           trackUrl('/user/sign_up');
           NINJA.isRegistered = true;
+          /*
           $('#signUpButton').hide();
           $('#myAccountButton').html(result);                            
+          */
         }            
         $('#signUpSuccessDiv, #signUpFooter').show();
         $('#working, #saveSignUpButton').hide();

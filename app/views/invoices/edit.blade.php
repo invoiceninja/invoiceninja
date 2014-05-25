@@ -243,7 +243,7 @@
 						@elseif ($invoice && $entityType == ENTITY_INVOICE)
 							@if ($invoice->quote_id)
 								<li class="divider"></li>
-								<li><a href="{{ URL::to("invoices/{$invoice->quote_id}/edit") }}">{{ trans("texts.view_quote") }}</a></li>
+								<li><a href="{{ URL::to("quotes/{$invoice->quote_id}/edit") }}">{{ trans("texts.view_quote") }}</a></li>
 							@endif
 						@endif
 
@@ -740,7 +740,7 @@
 	}
 
 	function onDeleteClick() {
-		if (confirm('Are you sure you want to delete this invoice?')) {
+		if (confirm('Are you sure you want to delete this {{ $entityType }}?')) {
 			$('#action').val('delete');
 			$('#submitButton').click();			
 		}		

@@ -94,13 +94,13 @@
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-inner">
-      <a class="brand" href="{{ URL::to('/') }}"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
+      <a class="brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
       <ul class="navbar-list">
-        <!-- <li>{{ link_to('features', 'Features' ) }}</li> -->
-        <!-- <li>{{ link_to('faq', 'FAQ' ) }}</li> -->
-        <li>{{ link_to('about', 'About Us' ) }}</li>
-        <li>{{ link_to('plans', 'Plans' ) }}</li>
-        <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+        <!-- <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li> -->
+        <!-- <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li> -->
+        <li>{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>
         <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
         <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
       </ul>
@@ -167,11 +167,11 @@
         <img src="{{ asset('images/footer-logo.png') }}">
         <hr>
         <ul class="navbar-vertical">
-          <!-- <li>{{ link_to('features', 'Features' ) }}</li> -->
-          <!-- <li>{{ link_to('faq', 'FAQ' ) }}</li> -->
-          <li>{{ link_to('about', 'About Us' ) }}</li>
-          <li>{{ link_to('plans', 'Plans' ) }}</li>
-          <li>{{ link_to('contact', 'Contact Us' ) }}</li>
+          <!-- <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li> -->
+          <!-- <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li> -->
+          <li>{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
+          <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
+          <li>{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>
           <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
           <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
         </ul>

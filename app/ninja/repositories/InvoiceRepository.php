@@ -318,7 +318,7 @@ class InvoiceRepository
 		return $invoice;
 	}
 
-  public function cloneInvoice($invoice, $quoteId = null)
+  public function cloneInvoice($invoice, $quotePublicId = null)
   {
     $clone = Invoice::createNew();    
     $clone->balance = $invoice->amount;
@@ -327,7 +327,7 @@ class InvoiceRepository
     foreach ([
       'client_id',       
       'discount', 
-      'shipping',
+      //'shipping',
       'invoice_date', 
       'po_number', 
       'due_date', 
@@ -346,17 +346,17 @@ class InvoiceRepository
       $clone->$field = $invoice->$field;  
     }   
 
-    if ($quoteId)
+    if ($quotePublicId)
     {
       $clone->is_quote = false;
-      $clone->quote_id = $quoteId;
+      $clone->quote_id = $quotePublicId;
     }    
 
     $clone->save();
 
-    if ($quoteId)
+    if ($quotePublicId)
     {
-      $invoice->quote_invoice_id = $clone->id;      
+      $invoice->quote_invoice_id = $clone->public_id;
       $invoice->save();
     }
 

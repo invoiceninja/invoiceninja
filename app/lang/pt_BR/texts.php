@@ -325,7 +325,7 @@ return array(
 
   'chart_builder' => 'Chart Builder',
   'ninja_email_footer' => 'Use :site to invoice your clients and get paid online for free!',
-
+  'go_pro' => 'Go Pro',
 
   // Quotes
   'quote' => 'Quote',
