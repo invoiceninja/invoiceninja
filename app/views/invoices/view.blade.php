@@ -49,7 +49,7 @@
 		$(function() {
 			window.invoice = {{ $invoice->toJson() }};
 			window.logoImages = {};
-
+			
 	    logoImages.imageLogo1 = "{{ HTML::image_data('images/report_logo1.jpg') }}";
 	    logoImages.imageLogoWidth1 =120;
 	    logoImages.imageLogoHeight1 = 40
@@ -67,6 +67,8 @@
 				invoice.imageWidth = {{ $invoice->client->account->getLogoWidth() }};
 				invoice.imageHeight = {{ $invoice->client->account->getLogoHeight() }};
 			@endif
+
+			invoice.is_quote = {{ $invoice->is_quote ? 'true' : 'false' }};
 
 		  var NINJA = NINJA || {};
 	    NINJA.primaryColor = "{{ $invoice->client->account->primary_color }}";
