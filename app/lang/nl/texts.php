@@ -361,6 +361,7 @@ return array(
   'convert_to_invoice' => 'Convert to Invoice',
   'view_invoice' => 'View Invoice',
   'view_quote' => 'View Quote',
+  'view_client' => 'View Client',
 
   'updated_quote' => 'Successfully updated quote',
   'created_quote' => 'Successfully created quote',

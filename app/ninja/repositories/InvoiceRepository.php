@@ -198,13 +198,24 @@ class InvoiceRepository
 		$invoice->client_id = $data['client_id'];
 		$invoice->discount = Utils::parseFloat($data['discount']);
 		$invoice->invoice_number = trim($data['invoice_number']);
-		$invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
-		$invoice->due_date = Utils::toSqlDate($data['due_date']);					
-
 		$invoice->is_recurring = $data['is_recurring'] ? true : false;
-		$invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
-		$invoice->start_date = Utils::toSqlDate($data['start_date']);
-		$invoice->end_date = Utils::toSqlDate($data['end_date']);
+    $invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
+      
+    if ($invoice->is_recurring)
+    {
+      $invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
+      $invoice->start_date = Utils::toSqlDate($data['start_date']);
+      $invoice->end_date = Utils::toSqlDate($data['end_date']);
+      $invoice->due_date = null;
+    }
+    else
+    {
+      $invoice->due_date = Utils::toSqlDate($data['due_date']);
+      $invoice->frequency_id = 0;
+      $invoice->start_date = null;
+      $invoice->end_date = null;
+    }
+
 		$invoice->terms = trim($data['terms']);
 		$invoice->public_notes = trim($data['public_notes']);
 		$invoice->po_number = trim($data['po_number']);

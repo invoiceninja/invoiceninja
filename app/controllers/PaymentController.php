@@ -105,7 +105,7 @@ class PaymentController extends \BaseController
         $config = json_decode($accountGateway->config);
         
         /*
-        $gateway->setSolutionType ("Sole");
+        $gateway->setSolutionType("Sole");
         $gateway->setLandingPage("Billing");
         */
         
@@ -120,11 +120,13 @@ class PaymentController extends \BaseController
             $gateway->$function($val);
         }
 
+        /*
         if (!Utils::isProd())
         {
             $gateway->setTestMode(true);   
         }        
-        
+        */
+
         return $gateway;        
     }
 

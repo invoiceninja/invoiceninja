@@ -74,8 +74,10 @@
 	}
 
 	function gatewayLink(url) {
-		//if (url.match('authorize'))
-		openUrl(url, '/affiliate/' + new URL(url).hostname);
+		var host = new URL(url).hostname;
+		if (host) {
+			openUrl(url, '/affiliate/' + host);
+		}
 	}
 
 	$(document).ready(function() {

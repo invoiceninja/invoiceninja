@@ -374,6 +374,7 @@ return array(
   'clone_quote' => 'Clone Quote',
   'convert_to_invoice' => 'Convert to Invoice',
   'view_invoice' => 'View Invoice',
+  'view_client' => 'View Client',
   'view_quote' => 'View Quote',
 
   'updated_quote' => 'Successfully updated quote',

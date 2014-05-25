@@ -126,8 +126,6 @@ Route::group(array('prefix' => 'api/v1', 'before' => 'auth.basic'), function()
     Route::resource('clients', 'ClientApiController');
 });
 
-// If you're self hosting set this to a value you think is fair
-define('PRO_PLAN_PRICE', 50);
 
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
 define('CONTACT_NAME', 'Invoice Ninja');
@@ -217,7 +215,8 @@ define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
 define('NINJA_URL', 'https://www.invoiceninja.com');
-define('NINJA_VERSION', '1.1.0');
+define('NINJA_VERSION', '1.2.0');
+define('PRO_PLAN_PRICE', 50);
 
 
 /*

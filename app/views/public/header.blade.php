@@ -430,7 +430,7 @@
         <h3><img src="{{ asset('images/icon-secure-footer.png') }}" style="margin-right: 8px; margin-top: -5px;"></span>Safe & Secure</h3>
         <img src="{{ asset('images/ssl-footer.png') }}">
         <hr>
-        <img src="{{ asset('images/opensource-footer.png') }}">
+        <a href="http://opensource.org/" target="_blank"><img src="{{ asset('images/opensource-footer.png') }}"></a>
       </div>
 
 <!--

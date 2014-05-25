@@ -99,7 +99,7 @@ class ClientController extends \BaseController {
 			'showBreadcrumbs' => false,
 			'client' => $client,
 			'credit' => $client->getTotalCredit(),
-			'title' => '- ' . $client->getDisplayName(),
+			'title' => '- ' . trans('texts.view_client'),
 			'hasRecurringInvoices' => Invoice::scope()->where('is_recurring', '=', true)->whereClientId($client->id)->count() > 0
 		);
 
@@ -142,7 +142,7 @@ class ClientController extends \BaseController {
 			'client' => $client, 
 			'method' => 'PUT', 
 			'url' => 'clients/' . $publicId, 
-			'title' => '- ' . $client->name
+			'title' => '- ' . trans('texts.edit_client')
 		];
 
 		$data = array_merge($data, self::getViewModel());			
