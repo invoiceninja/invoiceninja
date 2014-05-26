@@ -48,7 +48,7 @@
 
 	function submitForm(action) {
 		if (action == 'delete') {
-			if (!confirm('Are you sure')) {
+			if (!confirm('Are you sure?')) {
 				return;
 			}
 		}		

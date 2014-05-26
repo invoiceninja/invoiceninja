@@ -67,7 +67,7 @@
                 <div class="icon pdf"><span class="img-wrap"><img src="{{ asset('images/icon-pdf.png') }}"></span></div>
                 <h2>Live .PDF View</h2>
                 <!--<p>Create beautiful email-ready .PDF invoices created instantly as you type. Our ‘Save & send’ feature saves you time and impresses clients.</p>-->
-                <p>See how your edited invoice will look as a print-friendly pdf while you make the changes. Our pdf generator works in real time while you do, on the same screen. You can even preview four beautiful preset designs. Just create, save, send, and you’re done!</p>
+                <p>See how your edited invoice will look as a print-friendly pdf while you make the changes. Our pdf generator works in real time as you make your changes. You can even preview four beautiful preset designs. Just create, save, send, and you’re done!</p>
               </div>
             </div>
 
