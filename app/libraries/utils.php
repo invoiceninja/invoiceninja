@@ -24,7 +24,7 @@ class Utils
 
 	public static function isNinjaProd()
 	{
-		return $_SERVER['SERVER_NAME'] == 'www.invoiceninja.com';
+		return isset($_ENV['NINJA_PROD']) && $_ENV['NINJA_PROD'];		
 	}
 
 	public static function isNinjaDev()
