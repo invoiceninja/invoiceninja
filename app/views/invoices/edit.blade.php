@@ -1504,7 +1504,7 @@
 	for (var i=0; i<model.invoice().invoice_items().length; i++) {
 		var item = model.invoice().invoice_items()[i];
 		item.tax(model.getTaxRate(item.tax_name(), item.tax_rate()));
-		item.cost(NINJA.parseFloat(item.cost()) > 0 ? formatMoney(item.cost(), model.invoice().client().currency_id(), true) : '');
+		item.cost(NINJA.parseFloat(item.cost()) > 0 ? roundToTwo(item.cost(), true) : '');
 	}
 	onTaxRateChange();
 

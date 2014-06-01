@@ -1510,7 +1510,7 @@ function calculateAmounts(invoice) {
     total = parseFloat(total) + parseFloat(tax);
   }
 
-  invoice.balance_amount = roundToTwo(total) - roundToTwo(invoice.amount) - roundToTwo(invoice.balance);
+  invoice.balance_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
   invoice.tax_amount = tax;
   invoice.discount_amount = discount;
   invoice.has_taxes = hasTaxes;
@@ -1747,6 +1747,7 @@ function toggleDatePicker(field) {
   $('#'+field).datepicker('show');
 }
 
-function roundToTwo(num) {    
-  return +(Math.round(num + "e+2")  + "e-2");
+function roundToTwo(num, toString) {    
+  var val = +(Math.round(num + "e+2")  + "e-2");
+  return toString ? val.toFixed(2) : val;
 }
