@@ -105,6 +105,7 @@ class ConstantsSeeder extends Seeder
 		Industry::create(array('name' => 'Transportation'));
 		Industry::create(array('name' => 'Travel & Luxury'));
 		Industry::create(array('name' => 'Other'));
+		Industry::create(array('name' => 'Photography'));
 
 		Size::create(array('name' => '1 - 3'));
 		Size::create(array('name' => '4 - 10'));
@@ -119,6 +120,7 @@ class ConstantsSeeder extends Seeder
 		PaymentTerm::create(array('num_days' => 15, 'name' => 'Net 15'));
 		PaymentTerm::create(array('num_days' => 30, 'name' => 'Net 30'));
 		PaymentTerm::create(array('num_days' => 60, 'name' => 'Net 60'));
+		PaymentTerm::create(array('num_days' => 90, 'name' => 'Net 90'));
 
 		Currency::create(array('name' => 'US Dollar', 'code' => 'USD', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 		Currency::create(array('name' => 'Pound Sterling', 'code' => 'GBP', 'symbol' => '£', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));

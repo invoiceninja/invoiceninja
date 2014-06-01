@@ -241,7 +241,7 @@ class InvoiceController extends \BaseController {
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),				
+			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
 			'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
 			'frequencies' => array(

@@ -251,7 +251,8 @@ class InvoiceRepository
 			}
 
 			$lineTotal = $invoiceItemCost * $invoiceItemQty;
-			$total += $lineTotal + ($lineTotal * $invoiceItemTaxRate / 100);
+      
+			$total += round($lineTotal + ($lineTotal * $invoiceItemTaxRate / 100), 2);
 		}
 
 		if ($invoice->discount > 0)
@@ -260,6 +261,7 @@ class InvoiceRepository
 		}
 
 		$total += $total * $invoice->tax_rate / 100;
+    $total = round($total, 2);
 
     if ($publicId)    
     {

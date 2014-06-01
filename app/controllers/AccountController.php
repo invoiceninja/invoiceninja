@@ -86,7 +86,7 @@ class AccountController extends \BaseController {
 				'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
 				'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 				'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-				'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),				
+				'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
 				'timezones' => Timezone::remember(DEFAULT_QUERY_CACHE)->orderBy('location')->get(),
 				'dateFormats' => DateFormat::remember(DEFAULT_QUERY_CACHE)->get(),
 				'datetimeFormats' => DatetimeFormat::remember(DEFAULT_QUERY_CACHE)->get(),

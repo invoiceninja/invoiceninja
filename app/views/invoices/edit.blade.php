@@ -1095,7 +1095,7 @@
 		    var total = 0;
 		    for(var p=0; p < self.invoice_items().length; ++p) {
 		    	var item = self.invoice_items()[p];
-		        total += item.totals.rawTotal();
+	        total += item.totals.rawTotal();
 		    }
 		    return total;
 		});
@@ -1106,7 +1106,7 @@
 		});
 
 		this.totals.rawDiscounted = ko.computed(function() {
-			return self.totals.rawSubtotal() * (self.discount()/100);			
+			return roundToTwo(self.totals.rawSubtotal() * (self.discount()/100));			
 		});
 
 		this.totals.discounted = ko.computed(function() {
@@ -1118,12 +1118,12 @@
 
 		    var discount = parseFloat(self.discount());
 		    if (discount > 0) {
-		    	total = total * ((100 - discount)/100);
+		    	total = roundToTwo(total * ((100 - discount)/100));
 		    }
 
 			var taxRate = parseFloat(self.tax_rate());
 			if (taxRate > 0) {
-				var tax = total * (taxRate/100);			
+				var tax = roundToTwo(total * (taxRate/100));			
         		return formatMoney(tax, self.client().currency_id());
         	} else {
         		return formatMoney(0);
@@ -1140,29 +1140,29 @@
 		});
 
 		this.totals.total = ko.computed(function() {
-		    var total = accounting.toFixed(self.totals.rawSubtotal(),2);
+	    var total = accounting.toFixed(self.totals.rawSubtotal(),2);	    
 
-		    var discount = parseFloat(self.discount());
-		    if (discount > 0) {
-		    	total = total * ((100 - discount)/100);
-		    }
+	    var discount = parseFloat(self.discount());
+	    if (discount > 0) {
+	    	total = roundToTwo(total * ((100 - discount)/100));
+	    }
 
 			var taxRate = parseFloat(self.tax_rate());
 			if (taxRate > 0) {
-        		total = NINJA.parseFloat(total) + (total * (taxRate/100));
-        	}        	
+    		total = NINJA.parseFloat(total) + roundToTwo((total * (taxRate/100)));
+    	}        	
 
-        	var paid = self.totals.rawPaidToDate();
-        	if (paid > 0) {
-        		total -= paid;
-        	}
+    	var paid = self.totals.rawPaidToDate();
+    	if (paid > 0) {
+    		total -= paid;
+    	}
 
-		    return total != 0 ? formatMoney(total, self.client().currency_id()) : '';
-    	});
+	    return total != 0 ? formatMoney(total, self.client().currency_id()) : '';
+  	});
 
-    	self.onDragged = function(item) {
-    		refreshPDF();
-    	}	
+  	self.onDragged = function(item) {
+  		refreshPDF();
+  	}	
 	}
 
 	function ClientModel(data) {
@@ -1392,12 +1392,12 @@
 			var cost = NINJA.parseFloat(self.cost());
 			var qty = NINJA.parseFloat(self.qty());
 			var taxRate = NINJA.parseFloat(self.tax_rate());
-        	var value = cost * qty;        	
-        	if (taxRate > 0) {
-        		value += value * (taxRate/100);
-        	}        	
-        	return value ? value : '';
-    	});		
+    	var value = cost * qty;        	
+    	if (taxRate > 0) {
+    		value += value * (taxRate/100);
+    	}    	
+    	return value ? roundToTwo(value) : '';
+  	});		
 
 		this.totals.total = ko.computed(function() {
 			var total = self.totals.rawTotal();
@@ -1406,22 +1406,22 @@
 			} else {
 				return total ? formatMoney(total, 1) : '';
 			}
-    	});
+  	});
 
-    	this.hideActions = function() {
-			this.actionsVisible(false);
-    	}
+  	this.hideActions = function() {
+		this.actionsVisible(false);
+  	}
 
-    	this.showActions = function() {
-			this.actionsVisible(true);
-    	}
+  	this.showActions = function() {
+		this.actionsVisible(true);
+  	}
 
-    	this.isEmpty = function() {
-    		return !self.product_key() && !self.notes() && !self.cost() && !self.qty();
-    	}
+  	this.isEmpty = function() {
+  		return !self.product_key() && !self.notes() && !self.cost() && !self.qty();
+  	}
 
-    	this.onSelect = function(){              
-        }
+  	this.onSelect = function(){              
+    }
 	}
 
 	function onItemChange()

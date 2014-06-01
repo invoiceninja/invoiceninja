@@ -1479,7 +1479,7 @@ function calculateAmounts(invoice) {
 
     var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
     if (tax) {
-      lineTotal += lineTotal * tax / 100;
+      lineTotal += roundToTwo(lineTotal * tax / 100);
     }
     if (lineTotal) {
       total += lineTotal;
@@ -1494,7 +1494,7 @@ function calculateAmounts(invoice) {
 
   if (invoice.discount > 0) {
 
-    var discount = total * (invoice.discount/100);
+    var discount = roundToTwo(total * (invoice.discount/100));
     total -= discount;
   }
 
@@ -1503,14 +1503,14 @@ function calculateAmounts(invoice) {
     tax = parseFloat(invoice.tax.rate);
   } else if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
     tax = parseFloat(invoice.tax_rate);
-  }   
+  }
 
   if (tax) {
-    var tax = total * (tax/100);
+    var tax = roundToTwo(total * (tax/100));
     total = parseFloat(total) + parseFloat(tax);
   }
 
-  invoice.balance_amount = accounting.toFixed(total,2) - (accounting.toFixed(invoice.amount,2) - accounting.toFixed(invoice.balance,2));
+  invoice.balance_amount = roundToTwo(total) - roundToTwo(invoice.amount) - roundToTwo(invoice.balance);
   invoice.tax_amount = tax;
   invoice.discount_amount = discount;
   invoice.has_taxes = hasTaxes;
@@ -1747,3 +1747,6 @@ function toggleDatePicker(field) {
   $('#'+field).datepicker('show');
 }
 
+function roundToTwo(num) {    
+  return +(Math.round(num + "e+2")  + "e-2");
+}

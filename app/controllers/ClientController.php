@@ -154,7 +154,7 @@ class ClientController extends \BaseController {
 		return [		
 			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'customLabel1' => Auth::user()->account->custom_client_label1,
