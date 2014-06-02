@@ -379,5 +379,7 @@ return array(
   'notification_quote_viewed_subject' => 'Quote :invoice was viewed by :client',
   'notification_quote_sent' => 'The following client :client was emailed Quote :invoice for :amount.',
   'notification_quote_viewed' => 'The following client :client viewed Quote :invoice for :amount.',  
-  
+
+  'session_expired' => 'Your session has expired.',
+    
 );

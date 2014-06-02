@@ -58,9 +58,9 @@ $monolog->pushHandler(new Monolog\Handler\SyslogHandler('intranet', 'user', Logg
 
 App::error(function(Exception $exception, $code)
 {
-	//Log::error($exception);
-
 	Utils::logError($exception . ' ' . $code);
+
+  return Response::view('error', ['error' => "A {$code} error occurred."], $code);
 });
 
 /*

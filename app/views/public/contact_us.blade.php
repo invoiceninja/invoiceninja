@@ -64,23 +64,13 @@ var contactForm = {
 <section class="about contact">
   <div class="container">
     <div id="contact_form" class="row">
-
-
-      @if (Session::has('message'))
-      <div class="alert alert-info">{{ Session::get('message') }}</div>
-      @endif
-
-      @if (Session::has('error'))
-      <div class="alert alert-danger">{{ Session::get('error') }}</div>
-      @endif
-
       
       <div class="row">              
         <div class="col-md-7">
           <h2>Questions, special requests, or just want to say hi?</h2>
           <p>Fill in the form below and we'll get back to you as soon as possible. Hope to hear from you!</p>
           
-          {{ Form::open(['url' => 'contact', 'class' => 'feedbackForm']) }}
+          {{ Form::open(['url' => 'contact_submit', 'class' => 'feedbackForm']) }}
           <div class="form-group">
             <input type="text" class="form-control" id="name" name="name" placeholder="Name">
             <span class="help-block" style="display: none;">Please enter your name.</span>

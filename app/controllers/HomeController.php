@@ -21,12 +21,22 @@ class HomeController extends BaseController {
 
 	public function showAboutUs()
 	{
-		return View::make('public.about_us');
+		$data = [
+			'title' => 'About Us',
+			'description' => 'Invoice Ninja is an an open-source solution where you can create, customize, and generate invoices online for free using our templates!'
+		];
+
+		return View::make('public.about_us', $data);
 	}
 
 	public function showContactUs()
 	{
-		return View::make('public.contact_us');
+		$data = [
+			'title' => 'Contact Us',
+			'description' => 'Contact us today and try out our free or premium hassle-free plans. Start your online invoicing today with Invoice Ninja!'
+		];
+
+		return View::make('public.contact_us', $data);
 	}
 
 	public function showTerms()
@@ -46,7 +56,12 @@ class HomeController extends BaseController {
 
 	public function showPlans()
 	{
-		return View::make('public.plans');
+		$data = [
+			'title' => 'Professional Invoicing Software & Templates',
+			'description' => 'Invoice Ninja allows you to create and generate your own custom invoices. Choose from our professional invoice templates or customize your own with our pro plan.'
+		];
+
+		return View::make('public.plans', $data);
 	}
 
 
@@ -66,7 +81,8 @@ class HomeController extends BaseController {
 
 		$message = trans('texts.sent_message');
 		Session::flash('message', $message);
-		return Redirect::to('/contact');
+
+		return View::make('public.contact_us');
 	}
 
 	public function showComingSoon()

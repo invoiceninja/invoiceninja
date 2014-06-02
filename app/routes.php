@@ -28,7 +28,7 @@ Route::get('/about', 'HomeController@showAboutUs');
 Route::get('/terms', 'HomeController@showTerms');
 Route::get('/contact', 'HomeController@showContactUs');
 Route::get('/plans', 'HomeController@showPlans');
-Route::post('/contact', 'HomeController@doContactUs');
+Route::post('/contact_submit', 'HomeController@doContactUs');
 Route::get('/faq', 'HomeController@showFaq');
 Route::get('/features', 'HomeController@showFeatures');
 Route::get('/secure_payment', 'HomeController@showSecurePayment');
