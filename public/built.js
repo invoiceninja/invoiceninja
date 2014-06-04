@@ -38936,7 +38936,7 @@ function Report3AddHeader (invoice, layout, doc)
     var LineOne= invoice.account.name;
     var AlignLine = MaxWidth-30- (doc.getStringUnitWidth(LineOne) * doc.internal.getFontSize());
     if (LineOne) {
-        doc.setFontSize('36');
+        doc.setFontSize('30');
         doc.setFontType('bold');
         doc.text(40, 50, LineOne);
     }
