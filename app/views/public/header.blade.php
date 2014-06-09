@@ -96,7 +96,7 @@
     <div class="navbar-inner">
       <a class="brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
       <ul class="navbar-list">
-        <!-- <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li> -->
+        <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
         <!-- <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li> -->
         <li>{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
@@ -167,7 +167,7 @@
         <img src="{{ asset('images/footer-logo.png') }}">
         <hr>
         <ul class="navbar-vertical">
-          <!-- <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li> -->
+          <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
           <!-- <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li> -->
           <li>{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
           <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
