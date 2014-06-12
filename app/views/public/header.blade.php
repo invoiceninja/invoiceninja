@@ -7,16 +7,17 @@
 <!--
 <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
 <link href="{{ asset('css/bootstrap.splash.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>  
+<link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>   
 -->  
-<link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>  
+
 <!--
 <link href="{{ asset('images/apple-touch-icon-114x114-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="114x114">
 <link href="{{ asset('images/apple-touch-icon-72x72-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="72x72">
 <link href="{{ asset('images/apple-touch-icon-57x57-precomposed.png') }}" rel="apple-touch-icon-precomposed">
-<!-- <script src="{{ asset('js/simpleexpand.js') }}" type="text/javascript"></script> -->
-
+-->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+
+<script src="{{ asset('js/simpleexpand.js') }}" type="text/javascript"></script>
 <script src="{{ asset('js/valign.js') }}" type="text/javascript"></script>
 
 <style>
@@ -37,7 +38,10 @@
   }
   .hero-secure {
     background-image: url({{ asset('/images/hero-bg-secure-pay.jpg') }});
-  }    
+  }
+ .hero-faq {
+    background-image: url({{ asset('/images/hero-bg-faq.jpg') }});
+  }   
 </style>
 
 @stop
@@ -88,8 +92,7 @@
     $('#startForm').submit();
     return false;
   }
-
-</script>    
+</script>
 
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
@@ -448,11 +451,15 @@
 </footer>
 
 <script type="text/javascript">
-
   jQuery(document).ready(function($) {   
    $('.valign').vAlign();  
  });
+</script>
 
+<script type="text/javascript">
+     jQuery(document).ready(function($) {   
+   $('.expander').simpleexpand();
+ });
 </script>
 
 <!--

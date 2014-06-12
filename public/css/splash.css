@@ -3,6 +3,7 @@ body {
     line-height: 1.6;
     background-color: #fff;
     overflow-x: hidden;
+    color: #2e2b2b;
 }
 .center-block {
     margin: 0 auto!;
@@ -15,7 +16,7 @@ h2,
     font-family: Roboto, sans-serif;
     font-weight: 900;
     line-height: 1.1;
-    color: #1a1818;
+    color: #2e2b2b;
 }
 h1 {
     font-size: 56px;
@@ -512,26 +513,46 @@ section.faq a.expander {
     font-weight: 700;
     margin-bottom: 10px;
 }
+section.faq .content{display:none;}
 section.faq .question {
     padding-bottom: 20px;
     margin-bottom: 30px;
     border-bottom: 1px solid #e0e0e0;
 }
 section.faq .contact-box {
-    padding: 20px;
-    text-align: center;
-    color: #fff;
-    background: #2299c0;
+    margin-top: 30px;
+    padding: 40px;
+    color: #4f4747;
+    background: #fad129;
 }
 section.faq .contact-box h2 {
-    margin: 30px 0 15px;
-    color: #fff;
+    text-transform: uppercase;
+    display: block;
+    float: left;
+    width: 60%;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 2px 0;
 }
+section.faq .contact-box img {
+     float: left;
+    display: block;
+    margin-right: 20px;
+    margin-left: 30px;
+    height: 57px;
+}
+section.faq .contact-box .col-md-8 {
+     padding-left: 5px;
+}
+section.faq .contact-box h2 {
+    border-right: 1px solid #e4bf28;
+}
+
 section.faq .contact-box a {
     color: #2e2b2b;
 }
 section.faq .contact-box p {
-    margin-bottom: 30px;
+    
 }
 .btn-primary {
     color: #fff;
@@ -691,6 +712,32 @@ footer.footer form#mad_mimi_signup_form input {
     section.about .col-md-5 {
         padding-left: 15px !important;
     }
+    section.faq .contact-box {
+    margin-top: 20px;
+    padding: 25px;
+    text-align: center;
+    }
+    section.faq .contact-box h2 {
+        float: none;
+        width: 100%;
+        margin: 10px 0;
+    }
+    section.faq .contact-box img {
+         float: none;
+        display: inline-block;
+        margin-right: 0;
+        margin-left: 0;
+        height: 57px;
+    }
+    section.faq .contact-box .col-md-8 {
+         padding-left: 15px;
+    }
+    section.faq .contact-box h2 {
+        border-right: none;
+    }
+    section.faq .contact-box p {
+        margin: 0;
+    }
     .navbar {
         text-align: center;
         padding: 25px 0 18px;
@@ -734,7 +781,7 @@ footer.footer form#mad_mimi_signup_form input {
     }
     
     
-    section.features, section.blue, section, section.secure, section.about, section.team, section.contact {
+    section.features, section.blue, section, section.secure, section.about, section.team, section.contact, section.faq {
         padding: 40px 0;
         margin: 0 !important;
     }
