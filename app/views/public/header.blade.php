@@ -8,8 +8,7 @@
 <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
 <link href="{{ asset('css/bootstrap.splash.css') }}" rel="stylesheet" type="text/css"/> 
 <link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>   
--->  
-<link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
+-->     
 
 <!--
 <link href="{{ asset('images/apple-touch-icon-114x114-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="114x114">
@@ -43,6 +42,9 @@
   }
  .hero-faq {
     background-image: url({{ asset('/images/hero-bg-faq.jpg') }});
+  }   
+  .hero-testi {
+    background-image: url({{ asset('/images/hero-bg-testi.jpg') }});
   }   
 </style>
 

@@ -1,3 +1,4 @@
+
 body {
     font-family: Roboto, sans-serif;
     line-height: 1.6;
@@ -291,7 +292,7 @@ section.features-splash,
 section.upper-footer {
     margin: 70px 0;
 }
-section.features, section.about, section.team, section.secure {
+section.features, section.about, section.team, section.secure, section.testi {
     margin: 0;
     padding: 100px 0;
 }
@@ -364,6 +365,15 @@ section.features .icon {
     float: left;
     line-height: 1;
 }
+    
+section.testi.blue {
+    background-size: auto;
+    background-repeat:no-repeat;
+    background-position:bottom;
+}
+
+.twitter-tweet {margin: 0 auto !important; margin-bottom: 30px !important;}
+    
 .icon.open {
     background: #32ba8d !important;
     border-color: #28ae82 !important;
@@ -427,7 +437,7 @@ section.features h2 {
 }
 section.blue {
     background-image: url('../images/bg-blue.jpg');
-    background-color: #cccccc;
+    background-color: #2387a9;
     background-size: cover;
     color: #fff;
     padding: 140px 0;
@@ -796,6 +806,13 @@ footer.footer form#mad_mimi_signup_form input {
     }
     
     /* Typo */
+    p {
+        font-size: 12px;
+    }
+    p.first {
+        font-size: 14px;
+        margin: 0;
+    }
     h1 {
         font-size: 30px;
     }
@@ -870,6 +887,7 @@ footer.footer form#mad_mimi_signup_form input {
         margin: 0;
     }
     
+    /* Sections */
     section.about .col-md-5 {
         padding-left: 15px !important;
     }
@@ -934,7 +952,7 @@ footer.footer form#mad_mimi_signup_form input {
     }
     
     
-    section.features, section.blue, section, section.secure, section.about, section.team, section.contact, section.faq {
+    section.features, section.blue, section, section.secure, section.about, section.team, section.contact, section.faq, section.testi {
         padding: 40px 0;
         margin: 0 !important;
     }
