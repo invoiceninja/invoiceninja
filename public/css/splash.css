@@ -335,6 +335,10 @@ float: right;
 section.features1 .col-md-7 img, section.features3 .col-md-7 img {
     margin-left: 40px;
 }
+.upper-footer {
+    background-color: #f8f8f8;
+    border-top: 1px solid #e6e6e6;
+}
 
 section.upper-footer.white-bg {
     margin: 0;
@@ -486,10 +490,6 @@ section.team .col-md-3 h2 {
 section.about .screendump {
     height: 220px;
 }
-section.about .col-md-5 {
-    padding-right: 15px;
-    padding-left: 43px;
-}
 section.about.white-bg .col-md-5 {
     padding-right: 43px;
     padding-left: 15px;
@@ -536,7 +536,7 @@ section.team .img-team {
     z-index: 1000; position: relative;
 }
 section.team .img-team img {}
-section.contact .address .glyphicon {
+section.contact .address .glyphicon, section.contact .address .socicon {
     background: #edd71e;
     height: 40px;
     width: 40px;
@@ -545,14 +545,17 @@ section.contact .address .glyphicon {
     border-radius: 50px;
     color: #1a1818;
     margin-right: 15px;
+    display: inline-block;
 }
+
 section.contact .address p {
-    margin-bottom: 20px;
+    margin-top: 20px;
 }
 section.contact .address span.push {
     margin-left: 55px;
     line-height: 25px;
 }
+
 section.contact .form-control, section.secure .form-control, footer.footer .form-control {
     display: block;
     width: 100%;
@@ -573,6 +576,9 @@ section.contact .form-control, section.secure .form-control, footer.footer .form
 }
 section.contact textarea.form-control {
     height: auto;
+}
+section.contact form {
+    margin-top: 30px;
 }
 
 section.secure label { text-transform: uppercase; font-size: 12px; font-weight: 800; margin-bottom: 10px; display: block;}  
@@ -819,6 +825,18 @@ footer.footer form#mad_mimi_signup_form input {
     h2 {
         font-size: 20px;
     }
+    .headline h2 {
+        margin-top: 0;
+    }
+    .headline {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 15px;
+    }
+    section.team h2, section.plans h2 {
+        font-size: 20px;
+        margin: 0 0 15px;
+    }
     
     /* Mobile navigation */
     .navbar {
@@ -888,13 +906,34 @@ footer.footer form#mad_mimi_signup_form input {
     }
     
     /* Sections */
+    section.features, section.blue, section, section.secure, section.about, section.team, section.contact, section.faq, section.testi, section.plans {
+        padding: 40px 0;
+        margin: 0 !important;
+    }
+    
+    section.features-splash .icon {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #1d8db3;
+    }
+    section.features-splash .icon img {
+        width: 30px;
+    }
+    
     section.about .col-md-5 {
         padding-left: 15px !important;
     }
+    section.faq .question {
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    section.faq a.expander {
+        font-size: 14px;
+    }
     section.faq .contact-box {
-    margin-top: 20px;
-    padding: 25px;
-    text-align: center;
+        margin-top: 20px;
+        padding: 25px;
+        text-align: center;
     }
     section.faq .contact-box h2 {
         float: none;
@@ -902,7 +941,7 @@ footer.footer form#mad_mimi_signup_form input {
         margin: 10px 0;
     }
     section.faq .contact-box img {
-         float: none;
+        float: none;
         display: inline-block;
         margin-right: 0;
         margin-left: 0;
@@ -916,6 +955,70 @@ footer.footer form#mad_mimi_signup_form input {
     }
     section.faq .contact-box p {
         margin: 0;
+    }
+    section.plans .plans-table {
+        margin-top: 30px;
+        font-size: 12px;
+    }
+    .plans-table .free .cell {
+        border-left: 1px solid #dfe0e1;
+        border-right: 1px solid #dfe0e1;
+    }
+    .plans-table .free .cell:first-child {
+        border-left: 1px solid #9b9b9b;
+        border-right: 1px solid #9b9b9b;
+    }
+     section.plans .plans-table .cell {
+        display: block;
+        width: 100%;
+    }
+    section.plans .plans-table span {
+        display: inline-block !important;
+    }
+     section.plans .plans-table .hidden-desktop {
+        display: inline-block !important;
+         margin-bottom: 0;
+         margin-right: 10px;
+    }
+    section.plans .plans-table .cell {
+        height: auto;
+        padding: 14px 0;
+    }
+    section.plans .plans-table .free .cell {
+        padding-right: 0;
+    }
+    section.plans .plans-table .free .cell:first-child {
+        margin-right: 0;
+    }
+    section.plans .plans-table .cell .cta {
+        margin-bottom: 0 !important;
+    }
+    section.plans .plans-table .pro {
+        margin-top: 30px;
+    }
+    .plans-table .pro .cell:last-child, .plans-table .free .cell:last-child {
+        padding: 14px 0 0 0 !important;
+    }
+    .plans-table .pro .cell:last-child p {
+        margin: 0;
+        padding: 0;
+    }
+    section.about img {
+        margin-top: 20px;
+    }
+    section.team .img-team {
+        width: 60%;
+        min-width: 60%;
+        margin: 0 auto;
+    }
+    
+    section.team .col-md-3:last-child p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Heros */
+    .hero1.background {
+        min-height: 100px;
     }
     .hero .caption {
         width: 100%;
@@ -952,28 +1055,24 @@ footer.footer form#mad_mimi_signup_form input {
     }
     
     
-    section.features, section.blue, section, section.secure, section.about, section.team, section.contact, section.faq, section.testi {
-        padding: 40px 0;
-        margin: 0 !important;
-    }
     section.secure .info {
-padding-top: 0;
-}
-    section.secure .card {
-padding: 15px;
-margin-bottom: 40px;
-}
-    section.secure .card p {
-padding-top: 0;
-padding-right: 15px;
-        line-height: 1;
-}
-    section.blue h1 {
-line-height: 1.2;
-margin-bottom: 20px;
-margin-top: 0;
-font-size: 30px;
-}
+    padding-top: 0;
+    }
+        section.secure .card {
+    padding: 15px;
+    margin-bottom: 40px;
+    }
+        section.secure .card p {
+    padding-top: 0;
+    padding-right: 15px;
+            line-height: 1;
+    }
+        section.blue h1 {
+    line-height: 1.2;
+    margin-bottom: 20px;
+    margin-top: 0;
+    font-size: 30px;
+    }
     section.blue h1 span {
 font-size: 20px;
 }
@@ -1023,11 +1122,12 @@ float: none;
     }
     section.contact .address {
         margin: 0;
+                text-align: center;
     }
     section.contact .address p {
         text-align: center;
     }
-    section.contact .address .glyphicon {
+    section.contact .address .glyphicon, section.contact .address .socicon {
         display: block;
         margin: 0 auto 7px;
         float: none;
@@ -1056,6 +1156,8 @@ float: none;
     #feedbackForm {
         margin-top: 15px;
     }
+    
+    /* Footer */
     footer .navbar-inner {
         float: none;
     }
@@ -1225,26 +1327,4 @@ div.fb_iframe_widget > span {
 }
 .plans-table a .cta h2 span {
     background: #1e84a5;
-}
-
-@media screen and (max-width: 769px) {
-    .plans-table .cell {
-        height: auto;
-        padding: 14px 0;
-    }
-    .plans-table .free .cell {
-        padding-right: 0;
-    }
-    .plans-table .free .cell:first-child {
-        margin-right: 0;
-    }
-    .plans-table .cell div:first-child {
-        margin-bottom: 5px;
-    }
-    .plans-table .cell .cta {
-        margin-bottom: 0 !important;
-    }
-    .plans-table .pro {
-        margin-top: 40px;
-    }
 }

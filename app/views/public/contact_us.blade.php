@@ -67,9 +67,10 @@ var contactForm = {
       
       <div class="row">              
         <div class="col-md-7">
-          <h2>Questions, special requests, or just want to say hi?</h2>
-          <p>Fill in the form below and we'll get back to you as soon as possible. Hope to hear from you!</p>
-          
+            <div class="headline">
+                <h2>Questions, special requests, or just want to say hi?</h2>
+                <p>Fill in the form below and we'll get back to you as soon as possible. Hope to hear from you!</p>
+            </div>
           {{ Form::open(['url' => 'contact_submit', 'class' => 'feedbackForm']) }}
           <div class="form-group">
             <input type="text" class="form-control" id="name" name="name" placeholder="Name">
@@ -96,7 +97,7 @@ var contactForm = {
           <h2>Other ways to reach us</h2>
           <p><span class="glyphicon glyphicon-send"></span><a href="mailto:contact@invoiceninja.com">contact@invoiceninja.com</a></p>
           <p><span class="glyphicon glyphicon-comment"></span><a href="http://www.invoiceninja.org" target="_blank">Google Group</a></p>        
-          <p><span class="github"></span><div style="padding-top:10px"> &nbsp;&nbsp;<a href="https://github.com/hillelcoren/invoice-ninja" target="_blank">GitHub Project</a></div></p>
+          <p><span class="socicon">Q</span><a href="https://github.com/hillelcoren/invoice-ninja" target="_blank">GitHub Project</a></div></p>
 
         </div>
       </div>
