@@ -63,6 +63,10 @@ class HomeController extends BaseController {
 
 		return View::make('public.plans', $data);
 	}
+    public function showTestimonials()
+	{
+		return View::make('public.testimonials');
+	}
 
 
 	public function doContactUs()
