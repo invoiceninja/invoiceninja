@@ -19,8 +19,9 @@ module.exports = function(grunt) {
           'public/vendor/accounting/accounting.min.js',
           'public/vendor/spectrum/spectrum.js',
           'public/js/bootstrap-combobox.js',
-          'public/js/jspdf.source.js',
-          'public/js/jspdf.plugin.split_text_to_size.js',
+          //'public/js/jspdf.source.js',
+          //'public/js/jspdf.plugin.split_text_to_size.js',
+          'public/vendor/jspdf/dist/jspdf.min.js',
           'public/js/script.js',
         ],
         dest: 'public/built.js'
