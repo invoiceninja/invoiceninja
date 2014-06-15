@@ -185,7 +185,7 @@ return array(
   'users' => 'Users',
   'localization' => 'Localization',
   'remove_logo' => 'Remove logo',
-  'logo_help' => 'Supported: JPEG, GIF and PNG. Recommended height: 120px',
+  'logo_help' => 'Supported: JPEG, GIF and PNG. Recommended size: 200px width by 120px height',
   'payment_gateway' => 'Payment Gateway',
   'gateway_id' => 'Provider',
   'email_notifications' => 'Email Notifications',

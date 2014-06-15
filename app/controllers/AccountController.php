@@ -681,7 +681,7 @@ class AccountController extends \BaseController {
 				File::delete('logo/' . $account->account_key . '.jpg');				
 								
 				$image = Image::make($path)->resize(200, 120, true, false);
-				Image::canvas($image->width, $image->height, '#FFFFFF')->insert($image)->save($account->getLogoPath());
+				Image::canvas($image->width, $image->height, '#FFFFFF')->insert($image)->save($account->getLogoPath());				
 			}
 
 			Event::fire('user.refresh');

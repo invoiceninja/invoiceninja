@@ -20,6 +20,7 @@ body {
     font-family: Roboto, sans-serif;
     line-height: 1.6;
     background-color: #fff;
+    overflow-x: hidden;
 }
 .center-block {
     margin: 0 auto!;
@@ -253,7 +254,6 @@ section.features1 .col-md-5, section.features4 .col-md-5{
 section.features4 {
     padding-bottom: 0;
 }
-
 
 section.features.upper-footer {
         background-color: #fad129;
@@ -751,6 +751,7 @@ footer.footer form#mad_mimi_signup_form input {
         margin-bottom: 10px;
     }
     
+    
     section.features, section.blue, section, section.secure, section.about, section.team, section.contact {
         padding: 40px 0;
         margin: 0 !important;
@@ -782,7 +783,6 @@ padding: 20px 0 0 0;
        section.features-splash {
 margin-top: -20px !important; 
 }
-    
     section.features .col-md-7 img{
        max-width: 100%;
         margin: 0;

@@ -197,7 +197,7 @@
           <div class="row2">
             <a href="https://github.com/hillelcoren/invoice-ninja" target="_blank"><img src="{{ asset('images/hex-github.png') }}"></a>
             <a href="https://www.pinterest.com/invoiceninja" target="_blank"><img src="{{ asset('images/hex-pinterest.png') }}"></a>
-            <a href="http://blog.invoiceninja.com/feed/rss2" target="_blank"><img src="{{ asset('images/hex-rss.png') }}"></a>            
+            <a href="http://feeds.feedburner.com/invoiceninja" target="_blank"><img src="{{ asset('images/hex-rss.png') }}"></a>            
           </div>
         </div>
         <!--<h3><span class="glyphicon glyphicon-envelope"></span>Join Our Free Newsletter</h3>-->
