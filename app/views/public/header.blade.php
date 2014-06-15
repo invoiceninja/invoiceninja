@@ -7,17 +7,18 @@
 <!--
 <link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
 <link href="{{ asset('css/bootstrap.splash.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>  
--->  
-<link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>  
+<link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>   
+-->     
 <!--
 <link href="{{ asset('images/apple-touch-icon-114x114-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="114x114">
 <link href="{{ asset('images/apple-touch-icon-72x72-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="72x72">
 <link href="{{ asset('images/apple-touch-icon-57x57-precomposed.png') }}" rel="apple-touch-icon-precomposed">
-<!-- <script src="{{ asset('js/simpleexpand.js') }}" type="text/javascript"></script> -->
-
+-->
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+
+<script src="{{ asset('js/simpleexpand.js') }}" type="text/javascript"></script>
 <script src="{{ asset('js/valign.js') }}" type="text/javascript"></script>
+<script src="{{ asset('js/bootstrap.min.js') }}" type="text/javascript"></script>
 
 <style>
   .hero {
@@ -37,7 +38,13 @@
   }
   .hero-secure {
     background-image: url({{ asset('/images/hero-bg-secure-pay.jpg') }});
-  }    
+  }
+ .hero-faq {
+    background-image: url({{ asset('/images/hero-bg-faq.jpg') }});
+  }   
+  .hero-testi {
+    background-image: url({{ asset('/images/hero-bg-testi.jpg') }});
+  }   
 </style>
 
 @stop
@@ -88,21 +95,46 @@
     $('#startForm').submit();
     return false;
   }
-
-</script>    
-
-<div class="navbar" style="margin-bottom:0px">
+</script>
+<div class="navbar-top navbar hidden-phone" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-inner">
-      <a class="brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
-      <ul class="navbar-list">
-        <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
-        <!-- <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li> -->
-        <li>{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
-        <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
-        <li>{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>
+      <ul>
+            <li><a href="https://www.facebook.com/invoiceninja" target="_blank"><span class="socicon">b</span></a></li>
+            <li><a href="https://twitter.com/invoiceninja" target="_blank"><span class="socicon">a</span></a></li>
+            <li><a href="https://www.linkedin.com/company/invoice-ninja"><span class="socicon">j</span></a></li>
+            <li><a href="https://plus.google.com/104031016152831072143" target="_blank"><span class="socicon">c</span></a></li>
+            <li><a href="https://github.com/hillelcoren/invoice-ninja"><span class="socicon">Q</span></a></li>
+            <li><a href="https://www.pinterest.com/invoiceninja" target="_blank"><span class="socicon">d</span></a></li>
+            <li><a href="http://blog.invoiceninja.com/feed/rss2" target="_blank"><span class="socicon">,</span></a></li>
         <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
-        <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="navbar" style="margin-bottom:0px">
+  <div class="container">
+      <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
+        </div>
+    <div class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li class="hidden-desktop">{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
+        <li class="hidden-desktop">{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
+        <li class="hidden-desktop">{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>  
+        <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
+        <li><span class="glyphicon glyphicon-user"></span>      
+{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
       </ul>
     </div>
   </div>
@@ -176,14 +208,6 @@
           <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
         </ul>
       </div> 
-
-
-
-
-
-
-
-
 
       <div class="col-md-4">
         <h3><span class="glyphicon glyphicon-share-alt"></span>Connect with Us</h3>
@@ -448,11 +472,15 @@
 </footer>
 
 <script type="text/javascript">
-
   jQuery(document).ready(function($) {   
    $('.valign').vAlign();  
  });
+</script>
 
+<script type="text/javascript">
+     jQuery(document).ready(function($) {   
+   $('.expander').simpleexpand();
+ });
 </script>
 
 <!--
