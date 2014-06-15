@@ -30,7 +30,7 @@ class QuoteController extends \BaseController {
     }
 
     $data = [
-      'title' => '- Quotes',
+      'title' => trans('texts.quotes'),
       'entityType'=>ENTITY_QUOTE, 
       'columns'=>Utils::trans(['checkbox', 'quote_number', 'client', 'quote_date', 'quote_total', 'due_date', 'status', 'action'])
     ];
@@ -75,7 +75,7 @@ class QuoteController extends \BaseController {
         'invoiceNumber' => $invoiceNumber,
         'method' => 'POST', 
         'url' => 'invoices',
-        'title' => '- New Quote',
+        'title' => trans('texts.new_quote'),
         'client' => $client);
     $data = array_merge($data, self::getViewModel());       
 

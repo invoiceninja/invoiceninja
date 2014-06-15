@@ -21,6 +21,7 @@ module.exports = function(grunt) {
           'public/js/bootstrap-combobox.js',
           'public/js/jspdf.source.js',
           'public/js/jspdf.plugin.split_text_to_size.js',
+          'public/js/typedarray.js',
           'public/js/script.js',
         ],
         dest: 'public/built.js'

@@ -19,7 +19,7 @@ class PaymentController extends \BaseController
 	{
         return View::make('list', array(
             'entityType'=>ENTITY_PAYMENT, 
-            'title' => '- Payments',
+            'title' => trans('texts.payments'),
             'columns'=>Utils::trans(['checkbox', 'invoice', 'client', 'transaction_reference', 'method', 'payment_amount', 'payment_date', 'action'])
         ));
 	}
@@ -71,7 +71,7 @@ class PaymentController extends \BaseController
             'payment' => null, 
             'method' => 'POST', 
             'url' => "payments", 
-            'title' => '- New Payment',
+            'title' => trans('texts.new_payment'),
             //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
@@ -92,7 +92,7 @@ class PaymentController extends \BaseController
             'payment' => $payment, 
             'method' => 'PUT', 
             'url' => 'payments/' . $publicId, 
-            'title' => '- Edit Payment',
+            'title' => 'Edit Payment',
             //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get());

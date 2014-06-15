@@ -22,7 +22,7 @@ class ClientController extends \BaseController {
 	{
 		return View::make('list', array(
 			'entityType'=>ENTITY_CLIENT, 
-			'title' => '- Clients',
+			'title' => trans('texts.clients'),
 			'columns'=>Utils::trans(['checkbox', 'client', 'contact', 'email', 'date_created', 'last_login', 'balance', 'action'])
 		));		
 	}
@@ -99,7 +99,7 @@ class ClientController extends \BaseController {
 			'showBreadcrumbs' => false,
 			'client' => $client,
 			'credit' => $client->getTotalCredit(),
-			'title' => '- ' . trans('texts.view_client'),
+			'title' => trans('texts.view_client'),
 			'hasRecurringInvoices' => Invoice::scope()->where('is_recurring', '=', true)->whereClientId($client->id)->count() > 0
 		);
 
@@ -122,7 +122,7 @@ class ClientController extends \BaseController {
 			'client' => null, 
 			'method' => 'POST', 
 			'url' => 'clients', 
-			'title' => '- New Client'
+			'title' => trans('texts.new_client')
 		];
 
 		$data = array_merge($data, self::getViewModel());	
@@ -142,7 +142,7 @@ class ClientController extends \BaseController {
 			'client' => $client, 
 			'method' => 'PUT', 
 			'url' => 'clients/' . $publicId, 
-			'title' => '- ' . trans('texts.edit_client')
+			'title' => trans('texts.edit_client')
 		];
 
 		$data = array_merge($data, self::getViewModel());			

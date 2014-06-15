@@ -25,7 +25,7 @@ class InvoiceController extends \BaseController {
 	public function index()
 	{
 		$data = [
-			'title' => '- Invoices',
+			'title' => trans('texts.invoices'),
 			'entityType'=>ENTITY_INVOICE, 
 			'columns'=>Utils::trans(['checkbox', 'invoice_number', 'client', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status', 'action'])
 		];
@@ -177,7 +177,7 @@ class InvoiceController extends \BaseController {
 				'method' => $method, 
 				'invitationContactIds' => $contactIds,
 				'url' => $url, 
-				'title' => '- ' . trans("texts.edit_{$entityType}"),
+				'title' => trans("texts.edit_{$entityType}"),
 				'client' => $invoice->client);
 		$data = array_merge($data, self::getViewModel());		
 
@@ -223,7 +223,7 @@ class InvoiceController extends \BaseController {
 				'invoiceNumber' => $invoiceNumber,
 				'method' => 'POST', 
 				'url' => 'invoices', 
-				'title' => '- New Invoice',
+				'title' => trans('texts.new_invoice'),
 				'client' => $client);
 		$data = array_merge($data, self::getViewModel());				
 

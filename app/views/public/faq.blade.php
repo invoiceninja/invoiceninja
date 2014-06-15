@@ -152,20 +152,6 @@
                     </div>
                 </div>
                 <div class="question">
-                    <a class="expander" href="#">I’m interested in removing
-                        the small "Created by Invoice Ninja” image from the
-                        bottom of my invoices. Will you one day offer a
-                        premium, non-branded or otherwise white label-able
-                        version of Invoice Ninja?
-                    </a>
-                    <div class="content">
-                        <p>We are considering one day exploring optional
-                            features like this and will be happy to hear from
-                            you with any suggestions.
-                        </p>
-                    </div>
-                </div>
-                <div class="question">
                     <a class="expander" href="#">My question wasn’t covered
                         by any of the content on this FAQ page. How can I get
                         in touch with you?

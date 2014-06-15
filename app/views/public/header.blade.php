@@ -100,16 +100,16 @@
   <div class="container">
     <div class="navbar-inner">
       <ul>
-            <li><a href="https://www.facebook.com/invoiceninja" target="_blank"><span class="socicon">b</span></a></li>
-            <li><a href="https://twitter.com/invoiceninja" target="_blank"><span class="socicon">a</span></a></li>
-            <li><a href="https://www.linkedin.com/company/invoice-ninja"><span class="socicon">j</span></a></li>
-            <li><a href="https://plus.google.com/104031016152831072143" target="_blank"><span class="socicon">c</span></a></li>
-            <li><a href="https://github.com/hillelcoren/invoice-ninja"><span class="socicon">Q</span></a></li>
-            <li><a href="https://www.pinterest.com/invoiceninja" target="_blank"><span class="socicon">d</span></a></li>
-            <li><a href="http://blog.invoiceninja.com/feed/rss2" target="_blank"><span class="socicon">,</span></a></li>
-        <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>
+        <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}&nbsp;&nbsp;</li>
+            <li><a href="https://www.facebook.com/invoiceninja" target="_blank"><span class="socicon">b</span></a></li>
+            <li><a href="https://twitter.com/invoiceninja" target="_blank"><span class="socicon">a</span></a></li>
+            <li><a href="https://www.linkedin.com/company/invoice-ninja" target="_blank"><span class="socicon">j</span></a></li>
+            <li><a href="https://plus.google.com/104031016152831072143" target="_blank"><span class="socicon">c</span></a></li>
+            <li><a href="https://github.com/hillelcoren/invoice-ninja" target="_blank"><span class="socicon">Q</span></a></li>
+            <li><a href="https://www.pinterest.com/invoiceninja" target="_blank"><span class="socicon">d</span></a></li>
+            <li><a href="http://blog.invoiceninja.com/feed/rss2" target="_blank"><span class="socicon">,</span></a></li>
       </ul>
     </div>
   </div>
@@ -131,10 +131,11 @@
         <li class="hidden-desktop">{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
         <li class="hidden-desktop">{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>  
         <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
-        <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/testimonials', 'Testimonials' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li>
         <li><span class="glyphicon glyphicon-user"></span>      
-{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
+          {{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
       </ul>
     </div>
   </div>
@@ -477,11 +478,13 @@
  });
 </script>
 
+<!--
 <script type="text/javascript">
      jQuery(document).ready(function($) {   
    $('.expander').simpleexpand();
  });
 </script>
+-->
 
 <!--
 All images in the site need to have retina versions otherwise the log fills up with requests for missing files
