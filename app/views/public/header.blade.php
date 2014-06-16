@@ -117,22 +117,23 @@
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
       <div class="navbar-header">
+                    <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
-        </div>
+          </button>        </div>
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
         <li class="hidden-desktop">{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
         <li class="hidden-desktop">{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
         <li class="hidden-desktop">{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>  
         <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
-        <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/testimonials', 'Testimonials' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li>
+        
         <li><span class="glyphicon glyphicon-user"></span>      
 {{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
       </ul>
