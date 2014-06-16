@@ -61,7 +61,7 @@
                     <div class="content">
                         <p>Yes, our basic app is 100% free. Forever and ever. For real. We 
                             also offer a paid Pro version of Invoice Ninja (you can learn all about 
-                            its awesome features <a href="https://www.invoiceninja.com/plans">here</a>, but it's 
+                            its awesome features <a href="https://www.invoiceninja.com/plans">here</a>), but it's 
                             important to us that the free version have all of the key features people 
                             need to do business.
                         </p>
@@ -148,6 +148,43 @@
                             It’s fancy stuff that we put in place to make sure
                             no one can gain access to your information except
                             you.
+                        </p>
+                    </div>
+                </div>
+                <div class="question">
+                    <a class="expander" href="#">How do I remove the small 
+                            "Created by Invoice Ninja” image from the bottom of 
+                            my invoices?
+                    </a>
+                    <div class="content">
+                            <p>The amazingly affordable <a href="https://www.invoiceninja.com/plans">Pro</a> 
+                            version of Invoice Ninja allows you to do this and oh so much more.
+                        </p>
+                    </div>
+                </div>
+                <div class="question">
+                    <a class="expander" href="#">I hear that there's a version of Invoice Ninja 
+                    that I can install myself on my own servers? Where can I learn more about this?
+                    </a>
+                    <div class="content">
+                            <p>The rumors are true! Full instructions are available <a href="http://hillelcoren.com/invoice-ninja/self-hosting/" target="_blank">here</a>.
+                        </p>
+                    </div>
+                </div>
+                <div class="question">
+                    <a class="expander" href="#">I'm seeing the options to assign various 
+                            statuses to my invoices, clients, credits and payments. What's 
+                            the difference between "active," "archived" and "deleted"?
+                    </a>
+                    <div class="content">
+                            <p>These three handy statuses for invoices, clients, credits and 
+                            payments allow you to keep your own cash flow management as straightforward 
+                            and accessible as possible from your Invoice Ninja dashboard. None of these 
+                            statuses will actually purge any records from your account - even "deleted" can always 
+                            be recovered at any point in the future. "Active" means the record will appear in the 
+                            relevant queue of records. To stash a record away so it's still fully operational but no 
+                            longer cluttering up your interface, simply set it to be "archived." To deactivate a record 
+                            and render it inaccessible to your clients, mark it "deleted."
                         </p>
                     </div>
                 </div>
