@@ -7,8 +7,6 @@
 <section class="hero background hero1 center" data-speed="2" data-type="background">
   <div class="caption-side"></div>
 
-  <div class="container">
-      
         <div class="container">
             <div class="row" style="margin:0;">
                 <div class="caption-wrap">
