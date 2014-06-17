@@ -229,6 +229,12 @@ define('GATEWAY_GOOGLE', 33);
 define('GATEWAY_QUICKBOOKS', 35);
 */
 
+/** TEST VALUES FOR THE CREDIT CARDS **/
+define('CREDIT_CARD_VISA', 1);
+define('CREDIT_CARD_MASTER_CARD', 2);
+define('CREDIT_CARD_AMERICAN_EXPRESS', 4);
+define('CREDIT_CARD_DINERS', 8);
+define('CREDIT_CARD_DISCOVER', 16);
 
 
 HTML::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {

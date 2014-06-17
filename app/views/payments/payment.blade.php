@@ -41,6 +41,17 @@
   </div>
 </section>
 
+<!-- Only set with inline style CHANGE THIS -->
+<section class="accepted-card-types" style="padding: 10px 0 10px 0; margin-top: 40px;">
+    <div class="container">
+        @if(isset($acceptedCreditCardTypes))
+            @foreach ($acceptedCreditCardTypes as $card)
+                <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}" style="width: 100px; display: inline; margin-right: 20px;"/>
+            @endforeach
+        @endif
+    </div>
+</section>  
+
 <section class="secure">
   <div class="container">
     <div id="secure-form" class="row">          
