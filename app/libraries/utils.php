@@ -440,5 +440,41 @@ class Utils
 		}
 
 		return $message;
-	}	
+	}
+    
+    public static function getCreditcardTypes($mask)
+    {
+        $arrayOfImages = [];
+        
+        $flags = [
+                    CREDIT_CARD_VISA => ['card' => 'Visa', 'text' => 'Visa'],
+                    CREDIT_CARD_MASTER_CARD => ['card' => 'MasterCard', 'text' => 'Master Card'],
+                    CREDIT_CARD_AMERICAN_EXPRESS => ['card' => 'AmericanExpress', 'text' => 'American Express'],
+                    CREDIT_CARD_DINERS => ['card' => 'Diners', 'text' => 'Diners'],
+                    CREDIT_CARD_DISCOVER => ['card' => 'Discover', 'text' => 'Discover']
+                ];
+        
+        foreach ($flags as $card => $name)
+        {
+            if (($mask & $card) == $card)
+                $arrayOfImages[] = ['source' => asset('images/Test-'.$name['card'].'-Icon.png'), 'alt' => $name['text']];
+        }
+        
+        //if($mask & CREDIT_CARD_VISA)
+//            array_push($arrayOfImages, ['source' => asset('images/Test-Visa-Icon.png'), 'alt' => 'Visa']);
+//            
+//        if($mask & CREDIT_CARD_MASTER_CARD)
+//            array_push($arrayOfImages, ['source' => asset('images/Test-MasterCard-Icon.png'), 'alt' => 'Master Card']);
+//        
+//        if($mask & CREDIT_CARD_AMERICAN_EXPRESS)
+//            array_push($arrayOfImages, ['source' => asset('images/Test-AmericanExpress-Icon.png'), 'alt' => 'American Express']);
+//            
+//        if($mask & CREDIT_CARD_DINERS)
+//            array_push($arrayOfImages, ['source' => asset('images/Test-Diners-Icon.png'), 'alt' => 'Diners']);
+//            
+//        if($mask & CREDIT_CARD_DISCOVER)
+//            array_push($arrayOfImages, ['source' => asset('images/Test-Discover-Icon.png'), 'alt' => 'Discover']);    
+
+        return $arrayOfImages;
+    }
 }

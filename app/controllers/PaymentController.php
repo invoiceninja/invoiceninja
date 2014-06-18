@@ -228,7 +228,9 @@ class PaymentController extends \BaseController
 			return $data;
 		}
     }
-
+    
+    
+    /** HÄR SKALL DET HÄMTAS UT BILDER!!!!! **/
     public function show_payment($invitationKey)
     {
         // For PayPal Express we redirect straight to their site
@@ -246,13 +248,16 @@ class PaymentController extends \BaseController
             {
                 return self::do_payment($invitationKey, false);
             }            
-        }
-
+        }  
+                
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;         
         $client = $invoice->client;    
         $gateway = $invoice->client->account->account_gateways[0]->gateway;
         $paymentLibrary = $gateway->paymentlibrary;
+        
+        $mask = $invoice->client->account->account_gateways[0]->accepted_credit_cards;
+        $acceptedCreditCardTypes = Utils::getCreditcardTypes($mask);
 
         $data = [
             'showBreadcrumbs' => false,
@@ -261,8 +266,9 @@ class PaymentController extends \BaseController
             'invoice' => $invoice,
             'client' => $client,
             'contact' => $invitation->contact,
-            'paymentLibrary' => $paymentLibrary ,
-            'gateway' => $gateway,     
+            'paymentLibrary' => $paymentLibrary,
+            'gateway' => $gateway,
+            'acceptedCreditCardTypes' => $acceptedCreditCardTypes,     
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),     
         ];
 
