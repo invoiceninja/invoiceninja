@@ -23,9 +23,9 @@
     <!-- TODO: creditcard-types IS SET IN JS FURTHER DOWN IN THE SCRIPT PART, 
     AND THEN IN INLINE STYLE. REMOVE THIS WHEN RAZI HAS FIXED THE IMAGES AND STYLE -->
     <div class="two-column">
-	{{ Former::radios('creditCardTypes_id')
+	{{ Former::checkboxes('creditCardType_id')
             ->label('Accepted Credit Cards')
-			->radios($creditCardTypes)
+			->checkboxes($creditCardTypes)
             ->class('creditcard-types')
 	}}
 	</div>
