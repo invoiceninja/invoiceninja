@@ -569,7 +569,7 @@ class AccountController extends \BaseController {
 	}
 
 	private function savePayments()
-	{
+	{  
 		Validator::extend('notmasked', function($attribute, $value, $parameters)
 		{
 		    return $value != str_repeat('*', strlen($value));
@@ -604,6 +604,12 @@ class AccountController extends \BaseController {
 				}				
 			}			
 		}
+        
+        $creditcards = Input::get('creditCardTypes');
+        if (count($creditcards) < 1)
+        {
+            $rules['creditCardTypes'] = 'required';
+        }
 		
 		$validator = Validator::make(Input::all(), $rules);
 
@@ -627,9 +633,16 @@ class AccountController extends \BaseController {
 				foreach ($fields as $field => $details)
 				{
 					$config->$field = trim(Input::get($gateway->id.'_'.$field));
-				}			
+				}
+                
+                $cardCount = 0;
+                foreach($creditcards as $card => $value)
+                {
+                    $cardCount += intval($value);
+                }			
 				
 				$accountGateway->config = json_encode($config);
+                $accountGateway->accepted_credit_cards = $cardCount;
 				$account->account_gateways()->save($accountGateway);
 			}
 

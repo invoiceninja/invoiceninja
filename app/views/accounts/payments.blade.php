@@ -23,7 +23,7 @@
     <!-- TODO: creditcard-types IS SET IN JS FURTHER DOWN IN THE SCRIPT PART, 
     AND THEN IN INLINE STYLE. REMOVE THIS WHEN RAZI HAS FIXED THE IMAGES AND STYLE -->
     <div class="two-column">
-	{{ Former::checkboxes('creditCardType_id')
+	{{ Former::checkboxes('creditCardTypes[]')
             ->label('Accepted Credit Cards')
 			->checkboxes($creditCardTypes)
             ->class('creditcard-types')
