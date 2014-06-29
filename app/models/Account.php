@@ -217,7 +217,7 @@ class Account extends Eloquent
 
 		return $data;
 	}
-	
+
 	public function isPro()
 	{
 		if (!Utils::isNinjaProd())

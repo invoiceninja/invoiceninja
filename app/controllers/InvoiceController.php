@@ -126,7 +126,7 @@ class InvoiceController extends \BaseController {
 		$invoice->is_pro = $client->account->isPro();		
 		
 		$data = array(
-			'hideHeader' => true,
+			'hideHeader' => $client->account->isPro() && Utils::isNinjaProd(),
 			'showBreadcrumbs' => false,
 			'invoice' => $invoice->hidePrivateFields(),
 			'invitation' => $invitation,

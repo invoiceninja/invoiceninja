@@ -96,6 +96,7 @@
     return false;
   }
 </script>
+@if (!isset($hideHeader) || !$hideHeader)
 <div class="navbar-top navbar hidden-phone" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-inner">
@@ -139,6 +140,15 @@
     </div>
   </div>
 </div>
+@else
+<div class="navbar" style="margin-bottom:0px">
+  <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
+      </div>
+    </div>
+  </div>
+@endif
 
 <div style="background-color:#211f1f; width:100%">
 <div class="container">   

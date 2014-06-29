@@ -140,21 +140,12 @@ class Activity extends Eloquent
 
 		if (!$invoice->is_deleted)
 		{
-			if (!$invoice->is_quote)
-			{
-				$client = $invoice->client;
-				$client->balance = $client->balance - $invoice->balance;
-				$client->paid_to_date = $client->paid_to_date - ($invoice->amount - $invoice->balance);
-				$client->save();
-			}
-
 			$activity = Activity::getBlank();
 			$activity->invoice_id = $invoice->id;
 			$activity->client_id = $invoice->client_id;
 			$activity->activity_type_id = $invoice->is_quote ? ACTIVITY_TYPE_ARCHIVE_QUOTE : ACTIVITY_TYPE_ARCHIVE_INVOICE;
 			$activity->message = Utils::encodeActivity(Auth::user(), 'archived', $invoice);
 			$activity->balance = $invoice->client->balance;
-			$activity->adjustment = $invoice->is_quote ? 0 : $invoice->balance;
 
 			$activity->save();
 		}
@@ -359,13 +350,7 @@ class Activity extends Eloquent
 		}
 
 		$client = $payment->client;
-		$client->balance = $client->balance + $payment->amount;
-		$client->paid_to_date = $client->paid_to_date - $payment->amount;
-		$client->save();
-
 		$invoice = $payment->invoice;
-		$invoice->balance = $invoice->balance + $payment->amount;
-		$invoice->save();
 
 		$activity = Activity::getBlank();
 		$activity->payment_id = $payment->id;
@@ -374,7 +359,7 @@ class Activity extends Eloquent
 		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_PAYMENT;
 		$activity->message = Utils::encodeActivity(Auth::user(), 'archived payment');
 		$activity->balance = $client->balance;
-		$activity->adjustment = $payment->amount;
+		$activity->adjustment = 0;
 		$activity->save();
 	}	
 

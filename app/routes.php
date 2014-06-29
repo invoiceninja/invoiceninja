@@ -271,7 +271,7 @@ HTML::macro('menu_link', function($type) {
 });
 
 HTML::macro('image_data', function($imagePath) {
-  return 'data:image/jpeg;base64,' . base64_encode(file_get_contents($imagePath));
+  return 'data:image/jpeg;base64,' . base64_encode(file_get_contents(public_path().'/'.$imagePath));
 });
 
 

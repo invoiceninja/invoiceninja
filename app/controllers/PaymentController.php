@@ -258,7 +258,7 @@ class PaymentController extends \BaseController
 
         $data = [
             'showBreadcrumbs' => false,
-            'hideHeader' => true,
+            'hideHeader' => $client->account->isPro() && Utils::isNinjaProd(),
             'invitationKey' => $invitationKey,
             'invoice' => $invoice,
             'client' => $client,
