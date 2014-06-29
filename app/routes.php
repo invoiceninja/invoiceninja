@@ -229,12 +229,20 @@ define('GATEWAY_GOOGLE', 33);
 define('GATEWAY_QUICKBOOKS', 35);
 */
 
-/** TEST VALUES FOR THE CREDIT CARDS **/
-define('CREDIT_CARD_VISA', 1);
-define('CREDIT_CARD_MASTER_CARD', 2);
-define('CREDIT_CARD_AMERICAN_EXPRESS', 4);
-define('CREDIT_CARD_DINERS', 8);
-define('CREDIT_CARD_DISCOVER', 16);
+/** 
+ * TEST VALUES FOR THE CREDIT CARDS
+ * NUMBER IS FOR THE BINARY COUNT FOR WHICH IMAGES TO DISPLAY  
+ * card IS FOR CARD IMAGE AND text IS FOR CARD NAME (TO ADD TO alt FOR IMAGE) 
+**/
+$creditCards = [
+            1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
+            2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
+            4 => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
+            8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
+            16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover']
+        ];
+					
+define('CREDIT_CARDS', serialize($creditCards));
 
 
 HTML::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {

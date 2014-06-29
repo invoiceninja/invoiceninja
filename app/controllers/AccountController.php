@@ -107,9 +107,9 @@ class AccountController extends \BaseController {
 			{
 				$accountGateway = $account->account_gateways[0];
 				$config = $accountGateway->config;
-
+                
 				$configFields = json_decode($config);
-				
+                
 				foreach($configFields as $configField => $value)
 				{
 					$configFields->$configField = str_repeat('*', strlen($value));
@@ -132,6 +132,13 @@ class AccountController extends \BaseController {
 				);
 				$recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
 			}
+            
+            $creditCardsArray = unserialize(CREDIT_CARDS);
+            $creditCards = [];
+			foreach($creditCardsArray as $card => $name)
+			{
+                $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
+			}
 
 			$otherItem = array(
 				'value' => 1000000,
@@ -140,7 +147,7 @@ class AccountController extends \BaseController {
 				'data-siteUrl' => ''
 			);
 			$recommendedGatewayArray['Other Options'] = $otherItem;
-			
+            
 			$data = [
 				'account' => $account,
 				'accountGateway' => $accountGateway,
@@ -153,6 +160,7 @@ class AccountController extends \BaseController {
 					->orderBy('name')
 					->get(),
 				'recommendedGateways' => $recommendedGatewayArray,
+                'creditCardTypes' => $creditCards, 
 			];
 			
 			foreach ($data['gateways'] as $gateway)
@@ -561,7 +569,7 @@ class AccountController extends \BaseController {
 	}
 
 	private function savePayments()
-	{
+	{  
 		Validator::extend('notmasked', function($attribute, $value, $parameters)
 		{
 		    return $value != str_repeat('*', strlen($value));
@@ -596,6 +604,12 @@ class AccountController extends \BaseController {
 				}				
 			}			
 		}
+        
+        $creditcards = Input::get('creditCardTypes');
+        if (count($creditcards) < 1)
+        {
+            $rules['creditCardTypes'] = 'required';
+        }
 		
 		$validator = Validator::make(Input::all(), $rules);
 
@@ -619,9 +633,16 @@ class AccountController extends \BaseController {
 				foreach ($fields as $field => $details)
 				{
 					$config->$field = trim(Input::get($gateway->id.'_'.$field));
-				}			
+				}
+                
+                $cardCount = 0;
+                foreach($creditcards as $card => $value)
+                {
+                    $cardCount += intval($value);
+                }			
 				
 				$accountGateway->config = json_encode($config);
+                $accountGateway->accepted_credit_cards = $cardCount;
 				$account->account_gateways()->save($accountGateway);
 			}
 
