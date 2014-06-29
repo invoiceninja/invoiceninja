@@ -144,9 +144,6 @@ class AccountController extends \BaseController {
                 else
                     $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
 			}
-            
-            //var_dump($creditCards);
-//            exit;
 
 			$otherItem = array(
 				'value' => 1000000,
