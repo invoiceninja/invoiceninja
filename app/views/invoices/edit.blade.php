@@ -659,6 +659,7 @@
 	}
 
 	function onDownloadClick() {
+		trackUrl('/download_pdf');
 		var invoice = createInvoiceModel();
 		var doc = generatePDF(invoice, true);
 		doc.save('Invoice-' + $('#invoice_number').val() + '.pdf');
@@ -906,6 +907,7 @@
 		}
 
 		self.showClientForm = function() {
+			trackUrl('/view_client_form');
 			self.clientBackup = ko.mapping.toJS(self.invoice().client);
 
 			$('#emailError').css( "display", "none" );			
@@ -913,6 +915,7 @@
 		}
 
 		self.clientFormComplete = function() {
+			trackUrl('/save_client_form');
 
 			var isValid = true;
 			$("input[name='email']").each(function(item, value) {

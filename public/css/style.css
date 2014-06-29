@@ -17,6 +17,10 @@ color: #333;
 border-bottom: 1px solid #dfe0e1;
 }
 
+.hidden-desktop {
+    display: none !important;
+}
+
 .greenlink a { color:#36c157; }
 .greenlink a:hover { color:#2e9e49; }
 .redlink a { color:#da4830; }
