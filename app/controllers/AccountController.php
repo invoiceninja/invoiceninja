@@ -107,11 +107,13 @@ class AccountController extends \BaseController {
 			$accountGateway = null;
 			$config = null;
 			$configFields = null;
+            $selectedCards = 0;
 
 			if (count($account->account_gateways) > 0)
 			{
 				$accountGateway = $account->account_gateways[0];
 				$config = $accountGateway->config;
+                $selectedCards = $accountGateway->accepted_credit_cards;
                 
 				$configFields = json_decode($config);
                 
@@ -142,7 +144,10 @@ class AccountController extends \BaseController {
             $creditCards = [];
 			foreach($creditCardsArray as $card => $name)
 			{
-                $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
+                if($selectedCards > 0 && ($selectedCards & $card) == $card)
+                    $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card']), 'checked' => 'checked'];
+                else
+                    $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
 			}
 
 			$otherItem = array(
