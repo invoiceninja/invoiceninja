@@ -55,7 +55,7 @@
 		$clientSelect.combobox();
 		
 		$('#currency_id').combobox();
-		$('#credit_date').datepicker('update', new Date({{ strtotime(Utils::today()) * 1000 }}));
+		$('#credit_date').datepicker('update', new Date());
 
 	});
 

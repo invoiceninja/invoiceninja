@@ -11,7 +11,6 @@
 /bootstrap/compiled.php
 /bootstrap/environment.php
 /vendor
-/.env.development.php
 /.DS_Store
 /Thumbs.db
 /ninja.sublime-project

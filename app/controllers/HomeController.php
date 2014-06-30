@@ -76,12 +76,10 @@ class HomeController extends BaseController {
 		$message = Input::get('message');
 
 		$data = [		
-			'name' => $name,
-			'email' => $email,
 			'text' => $message
 		];
 
-		$this->mailer->sendTo(CONTACT_EMAIL, CONTACT_EMAIL, CONTACT_NAME, 'Invoice Ninja Feedback', 'contact', $data);		
+		$this->mailer->sendTo(CONTACT_EMAIL, $email, $name, 'Invoice Ninja Feedback', 'contact', $data);
 
 		$message = trans('texts.sent_message');
 		Session::flash('message', $message);

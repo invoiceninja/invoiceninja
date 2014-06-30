@@ -8,7 +8,7 @@
       {{ $clientName }},<p/>
 
       {{ trans("texts.{$entityType}_message", ['amount' => $invoiceAmount]) }}<p/>      
-      {{ $link }}<p/>
+      <a href="{{ $link }}">{{ $link }}</a><p/>
 
       @if ($emailFooter)
       {{ nl2br($emailFooter) }}
@@ -19,7 +19,7 @@
 
       @if ($showNinjaFooter)
       <p/>
-      {{ trans('texts.ninja_email_footer', ['site' => '<a href="https://www.invoiceninja.com/?utm_source=view_email_footer">Invoice Ninja</a>']) }}
+      {{ trans('texts.ninja_email_footer', ['site' => '<a href="https://www.invoiceninja.com/?utm_source=invoice_email_footer">Invoice Ninja</a>']) }}
       @endif    
 
     </body>

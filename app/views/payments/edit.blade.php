@@ -50,7 +50,7 @@
 		populateInvoiceComboboxes({{ $clientPublicId }}, {{ $invoicePublicId }});
 
 		$('#payment_type_id').combobox();
-		$('#payment_date').datepicker('update', new Date({{ strtotime(Utils::today()) * 1000 }}));
+		$('#payment_date').datepicker('update', new Date());
 
 	});
 

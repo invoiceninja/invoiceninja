@@ -147,11 +147,12 @@ class InvoiceController extends \BaseController {
 			->where('invitations.account_id', '=', Auth::user()->account_id)
 			->where('invitations.deleted_at', '=', null)
 			->select('contacts.public_id')->lists('public_id');
-	
+		
 		if ($clone)
 		{
 			$invoice->id = null;
-			$invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber();			
+			$invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber();
+			$invoice->balance = $invoice->amount;
 			$method = 'POST';			
 			$url = "{$entityType}s";
 		}
