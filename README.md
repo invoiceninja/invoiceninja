@@ -8,12 +8,11 @@ Most online invoicing sites are expensive. They shouldn't be. The aim of this pr
 
 [This guide](http://hillelcoren.com/invoice-ninja/self-hosting/) is the simplest way to setup the site. The high level instructions for setting up the site using Git are below but there's also a more detailed [setup guide](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). 
 
-If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files. To make changes locally you'll need to run `bowser install` to download the JavaScript dependencies and then `grunt` to build the JS and CSS files.
-
 To connect follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). For discussion of the code please use the [Google Group](https://groups.google.com/d/forum/invoiceninja).
 
-Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
+If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
 
+Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
 
 ### Features
 * Core application built using Laravel 4.1
@@ -26,7 +25,7 @@ Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
 
 If you plan on submitting changes it's best to [fork the repo](https://help.github.com/articles/fork-a-repo), otherwise you can just checkout the code.
 
-    git clone git@github.com:hillelcoren/invoice-ninja.git ninja
+    git clone https://github.com/hillelcoren/invoice-ninja.git ninja
     cd ninja
 
 Install Laravel packages using Composer
@@ -35,10 +34,29 @@ Note: you may be prompted for your Github user/pass due to their API limits.
 
     composer install
 
-Configure config/database.php and config/mail.php and initialize the database.
+Install JavaScript and HTML packages using Bower
+
+    bower install
+
+Create the development environment configurations
+
+    mkdir app/config/development
+    cp app/config/app.php app/config/development/
+    cp app/config/database.php app/config/development/
+    cp app/config/mail.php app/config/development/
+
+Create database user and a database for ninja
+
+    CREATE SCHEMA `ninja` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+    CREATE USER 'ninja'@'localhost' IDENTIFIED BY 'ninja';
+    GRANT ALL PRIVILEGES ON `ninja`.* TO 'ninja'@'localhost';
+    FLUSH PRIVILEGES;
+
+Configure development/config/database.php and development/config/mail.php and initialize the database.
 
     php artisan migrate --seed
 
+Add public/ to your web server root
 
 ### Frameworks/Libraries
 * [laravel/laravel](https://github.com/laravel/laravel) - A PHP Framework For Web Artisans
@@ -70,3 +88,18 @@ Configure config/database.php and config/mail.php and initialize the database.
 * [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) - List of languages ​​for Laravel4
 * [calvinfroedge/PHP-Payments](https://github.com/calvinfroedge/PHP-Payments) - A uniform payments interface for PHP
 * [bgrins/spectrum](https://github.com/bgrins/spectrum) - The No Hassle JavaScript Colorpicker
+
+### Ubuntu Notes
+
+    # Install php-mcrypt
+    apt-get install php5-mcrypt
+    sudo php5enmod mcrypt
+
+    # Install Composer
+    curl -sS https://getcomposer.org/installer | php
+    sudo mv composer.phar /usr/local/bin/composer
+
+    # Install Bower
+    sudo apt-get install npm nodejs-legacy
+    sudo npm install -g bower
+    sudo ln -s /usr/local/lib/node_modules/bower/bin/bower /usr/local/bin/bower
