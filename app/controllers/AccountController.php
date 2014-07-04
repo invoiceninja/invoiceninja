@@ -134,7 +134,7 @@ class AccountController extends \BaseController {
 				$arrayItem = array(
 					'value' => $recommendedGateway->id,
 					'other' => 'false',
-					'data-imageUrl' => $recommendedGateway->getLogoUrl(),
+					'data-imageUrl' => asset($recommendedGateway->getLogoUrl()),
 					'data-siteUrl' => $recommendedGateway->site_url
 				);
 				$recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
