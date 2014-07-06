@@ -1502,10 +1502,10 @@
 			//model.addTaxRate();			
 		@endif
                 // Add the first tax rate for new invoices
-                if(model.invoice_taxes() && model.tax_rates().length > 0) {
-                    var tax = model.tax_rates()[0];
-                    model.invoice().tax(tax);
-                }
+                //if(model.invoice_taxes() && model.tax_rates().length > 0) {
+                //    var tax = model.tax_rates()[0];
+                //    model.invoice().tax(tax);
+                //}
 	@endif
 
 	model.invoice().tax(model.getTaxRate(model.invoice().tax_name(), model.invoice().tax_rate()));			
