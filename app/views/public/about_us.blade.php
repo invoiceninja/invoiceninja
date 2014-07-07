@@ -57,7 +57,7 @@
                     <a href="http://www.linkedin.com/profile/view?id=105143214" target="_blank"><img src="images/linkedin.svg" alt=""></a>
                     <a href="http://hillelcoren.com/" target="_blank"><img src="images/website.svg" alt="Website"></a>
                 </p>
-                <p>Hillel has been developing enterprise applications for 15 years. His open-source <a  href="http://www.adobe.com/cfusion/exchange/index.cfm?event=extensionDetail&extid=1721530" target="_blank">AutoComplete</a> component has been used by  thousands of developers around the world.</p>
+                <p>Hillel has been developing enterprise applications for 15 years. His open-source <a  href="http://hillelcoren.com/flex-autocomplete/" target="_blank">AutoComplete</a> component has been used by  thousands of developers around the world.</p>
             </div>
             <div class="col-md-3">
                 <div class="img-team">

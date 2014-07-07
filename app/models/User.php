@@ -127,6 +127,7 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 		}
 
 		$count = self::getRequestsCount();
+		
 		if ($count == 1 || $count % 5 == 0)
 		{
 			if (!Utils::isRegistered())

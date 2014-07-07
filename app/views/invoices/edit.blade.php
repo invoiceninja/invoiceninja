@@ -496,7 +496,14 @@
 				model.invoice().client().country = false;				
 			}
 			refreshPDF();
-		}); //.trigger('change');						
+		});
+
+		// If no clients exists show the client form when clicking on the client select input
+		if (clients.length === 0) {
+			$('.client_select input.form-control').on('click', function() {
+				model.showClientForm();
+			});
+		}		
 
 		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring').change(function() {
 			setTimeout(function() {
