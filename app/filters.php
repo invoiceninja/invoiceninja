@@ -66,7 +66,13 @@ App::after(function($request, $response)
 
 Route::filter('auth', function()
 {
-	if (Auth::guest()) return Redirect::guest('/');
+    if (Auth::guest()) {
+        if(Utils::isNinja()) {
+            return Redirect::guest('/');
+        } else {
+            return Redirect::guest('/login');
+        }
+    }
 });
 
 
