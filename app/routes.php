@@ -22,7 +22,8 @@
 //dd(gethostname());
 //Log::error('test');
 
-if(Utils::isNinja()) {
+//if(Utils::isNinja()) {
+
     Route::get('/', 'HomeController@showWelcome');
     Route::get('/rocksteady', 'HomeController@showWelcome');
     Route::get('/about', 'HomeController@showAboutUs');
@@ -46,11 +47,15 @@ if(Utils::isNinja()) {
 
     Route::post('signup/validate', 'AccountController@checkEmail');
     Route::post('signup/submit', 'AccountController@submitSignup');
+
+/*    
 } else {
     Route::get('/', function() {
         return Redirect::to('dashboard');
     });
 }
+*/
+
 
 // Confide routes
 Route::get('login', 'UserController@login');
