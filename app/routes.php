@@ -22,30 +22,35 @@
 //dd(gethostname());
 //Log::error('test');
 
+if(Utils::isNinja()) {
+    Route::get('/', 'HomeController@showWelcome');
+    Route::get('/rocksteady', 'HomeController@showWelcome');
+    Route::get('/about', 'HomeController@showAboutUs');
+    Route::get('/terms', 'HomeController@showTerms');
+    Route::get('/contact', 'HomeController@showContactUs');
+    Route::get('/plans', 'HomeController@showPlans');
+    Route::post('/contact_submit', 'HomeController@doContactUs');
+    Route::get('/faq', 'HomeController@showFaq');
+    Route::get('/features', 'HomeController@showFeatures');
+    Route::get('/secure_payment', 'HomeController@showSecurePayment');
+    Route::get('/testimonials', 'HomeController@showTestimonials');
 
-Route::get('/', 'HomeController@showWelcome');
-Route::get('/rocksteady', 'HomeController@showWelcome');
-Route::get('/about', 'HomeController@showAboutUs');
-Route::get('/terms', 'HomeController@showTerms');
-Route::get('/contact', 'HomeController@showContactUs');
-Route::get('/plans', 'HomeController@showPlans');
-Route::post('/contact_submit', 'HomeController@doContactUs');
-Route::get('/faq', 'HomeController@showFaq');
-Route::get('/features', 'HomeController@showFeatures');
-Route::get('/secure_payment', 'HomeController@showSecurePayment');
-Route::get('/testimonials', 'HomeController@showTestimonials');
+    Route::get('log_error', 'HomeController@logError');
+    Route::get('invoice_now', 'HomeController@invoiceNow');
+    Route::post('get_started', 'AccountController@getStarted');
 
-Route::get('log_error', 'HomeController@logError');
-Route::get('invoice_now', 'HomeController@invoiceNow');
-Route::post('get_started', 'AccountController@getStarted');
+    Route::get('view/{invitation_key}', 'InvoiceController@view');
+    Route::get('payment/{invitation_key}', 'PaymentController@show_payment');
+    Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
+    Route::get('complete', 'PaymentController@offsite_payment');
 
-Route::get('view/{invitation_key}', 'InvoiceController@view');
-Route::get('payment/{invitation_key}', 'PaymentController@show_payment');
-Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
-Route::get('complete', 'PaymentController@offsite_payment');
-
-Route::post('signup/validate', 'AccountController@checkEmail');
-Route::post('signup/submit', 'AccountController@submitSignup');
+    Route::post('signup/validate', 'AccountController@checkEmail');
+    Route::post('signup/submit', 'AccountController@submitSignup');
+} else {
+    Route::get('/', function() {
+        return Redirect::to('dashboard');
+    });
+}
 
 // Confide routes
 Route::get('login', 'UserController@login');
@@ -60,7 +65,7 @@ Route::get('logout', 'UserController@logout');
 
 Route::group(array('before' => 'auth'), function()
 {   
-	Route::get('dashboard', 'DashboardController@index');
+  Route::get('dashboard', 'DashboardController@index');
   Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
   Route::get('force_inline_pdf', 'UserController@forcePDFJS');
   

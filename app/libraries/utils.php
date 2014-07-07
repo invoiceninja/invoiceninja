@@ -36,7 +36,7 @@ class Utils
 	{
 		return isset($_ENV['DISABLE_REGISTRATION']) && $_ENV['DISABLE_REGISTRATION'];	
 	}
-
+        
 	public static function isPro()
 	{
 		return Auth::check() && Auth::user()->isPro();

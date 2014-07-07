@@ -3,10 +3,21 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concat: {
+      options: {
+          process: function(src, filepath) {
+              // Fix path for image and font resources
+              if(filepath.indexOf('.css', filepath.length - 4) !== -1) {
+                return src.replace(/\.\.\/(images|fonts)\//g, '$1/');
+              // Don't do anything for unknown file types
+              } else {
+                return src;
+              }
+          },
+      },
       js: {
         src: [
           'public/vendor/jquery/dist/jquery.js',
-          'public/vendor/jquery-ui/ui/minified/jquery-ui.min.js', 
+          'public/vendor/jquery-ui/jquery-ui.min.js',
           'public/vendor/bootstrap/dist/js/bootstrap.min.js',
           'public/vendor/datatables/media/js/jquery.dataTables.js',
           'public/vendor/datatables-bootstrap3/BS3/assets/js/datatables.js',
@@ -24,7 +35,8 @@ module.exports = function(grunt) {
           //'public/js/jspdf.plugin.split_text_to_size.js',
           'public/js/script.js',
         ],
-        dest: 'public/built.js'
+        dest: 'public/built.js',
+        nonull: true
       },
       css: {
         src: [
@@ -37,8 +49,9 @@ module.exports = function(grunt) {
           'public/css/bootstrap-combobox.css',
           'public/css/typeahead.js-bootstrap.css',
           'public/css/style.css',
-        ],        
-        dest: 'public/built.css'
+        ],
+        dest: 'public/built.css',
+        nonull: true
       },
       css_public: {
         src: [
@@ -46,10 +59,11 @@ module.exports = function(grunt) {
           'public/css/bootstrap.splash.css',
           'public/css/splash.css',
         ],
-        dest: 'public/built.public.css'
+        dest: 'public/built.public.css',
+        nonull: true
       }
     }
-  });  
+  });
 
   grunt.loadNpmTasks('grunt-contrib-concat');
 

@@ -63,6 +63,8 @@ return array(
 	| to a random, 32 character string, otherwise these encrypted strings
 	| will not be safe. Please do this before deploying an application!
 	|
+	| Command below will generate a random 32 character alphanumeric string
+	| cat /dev/random | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1
 	*/
 
 	'key' => '',

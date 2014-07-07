@@ -1492,7 +1492,7 @@
 		model.addTaxRate();
 		@foreach ($taxRates as $taxRate)
 			model.addTaxRate({{ $taxRate }});
-		@endforeach	
+		@endforeach
 		@if ($invoice)
 			var invoice = {{ $invoice }};
 			ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);			
@@ -1508,6 +1508,11 @@
 			model.invoice().addItem();
 			//model.addTaxRate();			
 		@endif
+                // Add the first tax rate for new invoices
+                //if(model.invoice_taxes() && model.tax_rates().length > 0) {
+                //    var tax = model.tax_rates()[0];
+                //    model.invoice().tax(tax);
+                //}
 	@endif
 
 	model.invoice().tax(model.getTaxRate(model.invoice().tax_name(), model.invoice().tax_rate()));			
