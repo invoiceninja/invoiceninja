@@ -8,6 +8,8 @@ Most online invoicing sites are expensive. They shouldn't be. The aim of this pr
 
 [This guide](http://hillelcoren.com/invoice-ninja/self-hosting/) is the simplest way to setup the site. The high level instructions for setting up the site using Git are below but there's also a more detailed [setup guide](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). 
 
+To deploy the app with [Docker](http://www.docker.com/) you can use [this project](https://github.com/rollbrettler/Dockerfiles/tree/master/invoice-ninja).
+
 To connect follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). For discussion of the code please use the [Google Group](https://groups.google.com/d/forum/invoiceninja).
 
 If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
