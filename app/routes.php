@@ -22,39 +22,33 @@
 //dd(gethostname());
 //Log::error('test');
 
-//if(Utils::isNinja()) {
+Route::get('/', 'HomeController@showIndex');
+Route::get('/rocksteady', 'HomeController@showIndex');
+Route::get('/about', 'HomeController@showAboutUs');
+Route::get('/terms', 'HomeController@showTerms');
+Route::get('/contact', 'HomeController@showContactUs');
+Route::get('/plans', 'HomeController@showPlans');
+Route::post('/contact_submit', 'HomeController@doContactUs');
+Route::get('/faq', 'HomeController@showFaq');
+Route::get('/features', 'HomeController@showFeatures');
+Route::get('/testimonials', 'HomeController@showTestimonials');
 
-    Route::get('/', 'HomeController@showWelcome');
-    Route::get('/rocksteady', 'HomeController@showWelcome');
-    Route::get('/about', 'HomeController@showAboutUs');
-    Route::get('/terms', 'HomeController@showTerms');
-    Route::get('/contact', 'HomeController@showContactUs');
-    Route::get('/plans', 'HomeController@showPlans');
-    Route::post('/contact_submit', 'HomeController@doContactUs');
-    Route::get('/faq', 'HomeController@showFaq');
-    Route::get('/features', 'HomeController@showFeatures');
-    Route::get('/secure_payment', 'HomeController@showSecurePayment');
-    Route::get('/testimonials', 'HomeController@showTestimonials');
+Route::get('log_error', 'HomeController@logError');
+Route::get('invoice_now', 'HomeController@invoiceNow');
+Route::post('get_started', 'AccountController@getStarted');
 
-    Route::get('log_error', 'HomeController@logError');
-    Route::get('invoice_now', 'HomeController@invoiceNow');
-    Route::post('get_started', 'AccountController@getStarted');
+Route::get('view/{invitation_key}', 'InvoiceController@view');
+Route::get('payment/{invitation_key}', 'PaymentController@show_payment');
+Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
+Route::get('complete', 'PaymentController@offsite_payment');
 
-    Route::get('view/{invitation_key}', 'InvoiceController@view');
-    Route::get('payment/{invitation_key}', 'PaymentController@show_payment');
-    Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
-    Route::get('complete', 'PaymentController@offsite_payment');
+Route::get('license', 'PaymentController@show_license_payment');
+Route::post('license', 'PaymentController@do_license_payment');
+Route::get('claim_license', 'PaymentController@claim_license');
 
-    Route::post('signup/validate', 'AccountController@checkEmail');
-    Route::post('signup/submit', 'AccountController@submitSignup');
+Route::post('signup/validate', 'AccountController@checkEmail');
+Route::post('signup/submit', 'AccountController@submitSignup');
 
-/*    
-} else {
-    Route::get('/', function() {
-        return Redirect::to('dashboard');
-    });
-}
-*/
 
 
 // Confide routes
@@ -227,9 +221,10 @@ define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
 define('NINJA_URL', 'https://www.invoiceninja.com');
-define('NINJA_VERSION', '1.2.0');
-define('PRO_PLAN_PRICE', 50);
+define('NINJA_VERSION', '1.2.2');
 
+define('PRO_PLAN_PRICE', 50);
+define('LICENSE_PRICE', 30);
 
 /*
 define('GATEWAY_AMAZON', 30);

@@ -2,17 +2,19 @@
 
 use ninja\repositories\PaymentRepository;
 use ninja\repositories\InvoiceRepository;
+use ninja\repositories\AccountRepository;
 
 class PaymentController extends \BaseController 
 {
     protected $creditRepo;
 
-    public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo)
+    public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo)
     {
         parent::__construct();
 
         $this->paymentRepo = $paymentRepo;
         $this->invoiceRepo = $invoiceRepo;
+        $this->accountRepo = $accountRepo;
     }   
 
 	public function index()
@@ -120,14 +122,49 @@ class PaymentController extends \BaseController
             $gateway->$function($val);
         }
 
-        /*
         if (!Utils::isProd())
         {
             $gateway->setTestMode(true);   
-        }        
-        */
+        }                
 
         return $gateway;        
+    }
+
+    private function getLicensePaymentDetails($input)
+    {
+        $data = self::convertInputForOmnipay($input);
+        $card = new CreditCard($data);
+        
+        return [
+            'amount' => LICENSE_PRICE,
+            'card' => $card,
+            'currency' => 'USD',
+            'returnUrl' => URL::to('license_complete'),
+            'cancelUrl' => URL::to('/')
+        ];
+
+    }
+
+    private function convertInputForOmnipay($input)
+    {
+        return [
+            'firstName' => $input['first_name'],
+            'lastName' => $input['last_name'],
+            'number' => $input['card_number'],
+            'expiryMonth' => $input['expiration_month'],
+            'expiryYear' => $input['expiration_year'],
+            'cvv' => $input['cvv'],
+            'billingAddress1' => $input['address1'],
+            'billingAddress2' => $input['address2'],
+            'billingCity' => $input['city'],
+            'billingState' => $input['state'],
+            'billingPostcode' => $input['postal_code'],
+            'shippingAddress1' => $input['address1'],
+            'shippingAddress2' => $input['address2'],
+            'shippingCity' => $input['city'],
+            'shippingState' => $input['state'],
+            'shippingPostcode' => $input['postal_code']
+        ];
     }
 
     private function getPaymentDetails($invoice, $input = null)
@@ -138,24 +175,7 @@ class PaymentController extends \BaseController
 
         if ($input && $paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
         {
-            $data = [
-                'firstName' => $input['first_name'],
-                'lastName' => $input['last_name'],
-                'number' => $input['card_number'],
-                'expiryMonth' => $input['expiration_month'],
-                'expiryYear' => $input['expiration_year'],
-                'cvv' => $input['cvv'],
-                'billingAddress1' => $input['address1'],
-                'billingAddress2' => $input['address2'],
-                'billingCity' => $input['city'],
-                'billingState' => $input['state'],
-                'billingPostcode' => $input['postal_code'],
-                'shippingAddress1' => $input['address1'],
-                'shippingAddress2' => $input['address2'],
-                'shippingCity' => $input['city'],
-                'shippingState' => $input['state'],
-                'shippingPostcode' => $input['postal_code'],
-            ];
+            $data = self::convertInputForOmnipay($input);
 
             Session::put($key, $data);
         }
@@ -258,18 +278,166 @@ class PaymentController extends \BaseController
 
         $data = [
             'showBreadcrumbs' => false,
-            'hideHeader' => $client->account->isPro() && Utils::isNinjaProd(),
-            'invitationKey' => $invitationKey,
-            'invoice' => $invoice,
+            'hideHeader' => true,
+            'url' => 'payment/' . $invitationKey,
+            'amount' => $invoice->amount,
             'client' => $client,
             'contact' => $invitation->contact,
             'paymentLibrary' => $paymentLibrary,
             'gateway' => $gateway,
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,     
-			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),     
+            'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+            'currencyId' => $client->currency_id
         ];
 
         return View::make('payments.payment', $data);
+    }
+    
+    public function show_license_payment()
+    {
+        if (Input::has('return_url'))
+        {
+            Session::set('return_url', Input::get('return_url'));
+        } 
+        
+        if (Input::has('affiliate_key'))
+        {
+            if ($affiliate = Affiliate::where('affiliate_key', '=', Input::get('affiliate_key'))->first())
+            {            
+                Session::set('affiliate_id', $affiliate->id);
+            }
+        }
+
+        if (!Session::get('return_url') || !Session::get('affiliate_id'))
+        {
+            return Utils::fatalError();   
+        }
+
+        if (Input::has('test_mode'))
+        {
+            Session::set('test_mode', Input::get('test_mode'));
+        }
+
+        
+        $account = $this->accountRepo->getNinjaAccount();        
+        $account->load('account_gateways.gateway');
+        $accountGateway = $account->account_gateways[0];    
+        $gateway = $accountGateway->gateway;
+        $paymentLibrary = $gateway->paymentlibrary;
+        $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
+
+        $affiliate = Affiliate::find(Session::get('affiliate_id'));
+
+        $data = [
+            'showBreadcrumbs' => false,
+            'hideHeader' => true,
+            'url' => 'license',
+            'amount' => LICENSE_PRICE,
+            'client' => false,
+            'contact' => false,
+            'paymentLibrary' => $paymentLibrary,
+            'gateway' => $gateway,
+            'acceptedCreditCardTypes' => $acceptedCreditCardTypes,     
+            'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),     
+            'currencyId' => 1,
+            'paymentTitle' => $affiliate->payment_title,
+            'paymentSubtitle' => $affiliate->payment_subtitle
+        ];
+
+        return View::make('payments.payment', $data);
+    }
+
+    public function do_license_payment() 
+    {
+        $testMode = Session::get('test_mode') === 'true';
+
+        $rules = array(
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'card_number' => 'required',
+            'expiration_month' => 'required',
+            'expiration_year' => 'required',
+            'cvv' => 'required',
+            'address1' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'postal_code' => 'required',
+        );
+
+        $validator = Validator::make(Input::all(), $rules);
+
+        if ($validator->fails()) 
+        {
+            return Redirect::to('license')
+                ->withErrors($validator);
+        } 
+
+        $account = $this->accountRepo->getNinjaAccount();        
+        $account->load('account_gateways.gateway');
+        $accountGateway = $account->account_gateways[0];    
+
+        try
+        {
+            if ($testMode)
+            {
+                $ref = 'TEST_MODE';
+            }
+            else
+            {
+                $gateway = self::createGateway($accountGateway);
+                $details = self::getLicensePaymentDetails(Input::all());
+                
+                if (!$ref)
+                {
+                    Session::flash('error', $response->getMessage());  
+                    return Redirect::to('license')->withInput();
+                }
+
+                if (!$response->isSuccessful())
+                {
+                    Session::flash('error', $response->getMessage());  
+                    Utils::logError($response->getMessage());
+                    return Redirect::to('license')->withInput();                    
+                }
+
+            }
+
+            $license = new License;
+            $license->first_name = Input::get('first_name');
+            $license->last_name = Input::get('last_name');
+            $license->email = Input::get('email');
+            $license->transaction_reference = $ref;
+            $license->license_key = Utils::generateLicense();
+            $license->affiliate_id = Session::get('affiliate_id');
+            $license->save();                
+
+            return Redirect::away(Session::get('return_url') . "?license_key={$license->license_key}");
+        }        
+        catch (\Exception $e) 
+        {
+            $errorMessage = trans('texts.payment_error');
+            Session::flash('error', $errorMessage);  
+            Utils::logError($e->getMessage());
+            return Redirect::to('license')->withInput();
+        }        
+    }
+
+    public function claim_license()
+    {
+        $license = License::where('license_key', '=', Input::get('key'))
+                    ->where('is_claimed', '=', false)->first();
+
+        if ($license)
+        {
+            $license->is_claimed = true;
+            $license->save();
+
+            return 'valid';
+        }
+        else
+        {
+            return 'invalid';
+        }
     }
 
     public function do_payment($invitationKey, $onSite = true)

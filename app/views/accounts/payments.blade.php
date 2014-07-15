@@ -22,6 +22,7 @@
     
     <!-- TODO: creditcard-types IS SET IN JS FURTHER DOWN IN THE SCRIPT PART, 
     AND THEN IN INLINE STYLE. REMOVE THIS WHEN RAZI HAS FIXED THE IMAGES AND STYLE -->
+    <!--
     <div class="two-column">
 	{{ Former::checkboxes('creditCardTypes[]')
             ->label('Accepted Credit Cards')
@@ -29,6 +30,7 @@
             ->class('creditcard-types')
 	}}
 	</div>
+	-->
 	
 	<div class="two-column">
 	{{ Former::radios('recommendedGateway_id')->label('Recommended Gateways')

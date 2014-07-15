@@ -17,7 +17,7 @@ module.exports = function(grunt) {
       js: {
         src: [
           'public/vendor/jquery/dist/jquery.js',
-          'public/vendor/jquery-ui/jquery-ui.min.js',
+          'public/vendor/jquery-ui/ui/jquery-ui.js',
           'public/vendor/bootstrap/dist/js/bootstrap.min.js',
           'public/vendor/datatables/media/js/jquery.dataTables.js',
           'public/vendor/datatables-bootstrap3/BS3/assets/js/datatables.js',

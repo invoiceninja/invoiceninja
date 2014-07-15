@@ -14,9 +14,23 @@ class HomeController extends BaseController {
 		$this->mailer = $mailer;
 	}	
 
-	public function showWelcome()
+	public function showIndex()
 	{
-		return View::make('public.splash');
+		if (Utils::isNinja())
+		{
+			return View::make('public.splash');
+		}
+		else
+		{
+			if (Account::count() == 0)
+			{
+				return Redirect::to('/invoice_now');
+			}
+			else
+			{
+				return Redirect::to('/login');
+			}
+		}
 	}
 
 	public function showAboutUs()

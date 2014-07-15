@@ -298,9 +298,12 @@ section.features-splash,
 section.upper-footer {
     margin: 70px 0;
 }
-section.features, section.about, section.team, section.secure, section.testi {
+section.features, section.about, section.team, section.testi {
     margin: 0;
     padding: 100px 0;
+}
+section.secure {
+    padding: 50px 0 100px 0;
 }
 section.features1 {
     padding-bottom: 0;

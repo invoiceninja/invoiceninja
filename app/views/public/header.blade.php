@@ -104,13 +104,14 @@
         <li>{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>
         <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}&nbsp;&nbsp;</li>
-            <li><a href="https://www.facebook.com/invoiceninja" target="_blank"><span class="socicon">b</span></a></li>
-            <li><a href="https://twitter.com/invoiceninja" target="_blank"><span class="socicon">a</span></a></li>
-            <li><a href="https://www.linkedin.com/company/invoice-ninja" target="_blank"><span class="socicon">j</span></a></li>
-            <li><a href="https://plus.google.com/104031016152831072143" target="_blank"><span class="socicon">c</span></a></li>
-            <li><a href="https://github.com/hillelcoren/invoice-ninja" target="_blank"><span class="socicon">Q</span></a></li>
-            <li><a href="https://www.pinterest.com/invoiceninja" target="_blank"><span class="socicon">d</span></a></li>
-            <li><a href="http://blog.invoiceninja.com/feed/rss2" target="_blank"><span class="socicon">,</span></a></li>
+        
+        <li><a href="https://www.facebook.com/invoiceninja" target="_blank"><span class="socicon">b</span></a></li>
+        <li><a href="https://twitter.com/invoiceninja" target="_blank"><span class="socicon">a</span></a></li>
+        <li><a href="https://www.linkedin.com/company/invoice-ninja" target="_blank"><span class="socicon">j</span></a></li>
+        <li><a href="https://plus.google.com/104031016152831072143" target="_blank"><span class="socicon">c</span></a></li>
+        <li><a href="https://github.com/hillelcoren/invoice-ninja" target="_blank"><span class="socicon">Q</span></a></li>
+        <li><a href="https://www.pinterest.com/invoiceninja" target="_blank"><span class="socicon">d</span></a></li>
+        <li><a href="http://blog.invoiceninja.com/feed/rss2" target="_blank"><span class="socicon">,</span></a></li>
       </ul>
     </div>
   </div>
@@ -118,7 +119,7 @@
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
       <div class="navbar-header">
-                    <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
+          <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
@@ -206,16 +207,16 @@
 
         <!--<iframe src="http://ghbtns.com/github-btn.html?user=hillelcoren&repo=invoice-ninja&type=watch" allowtransparency="true" frameborder="0" scrolling="0" width="62" height="20"></iframe>-->
 
-        <img src="{{ asset('images/footer-logo.png') }}">
+        <a href="{{ NINJA_URL }}"><img src="{{ asset('images/footer-logo.png') }}"></a>
         <hr>
         <ul class="navbar-vertical">
           <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
-          <!-- <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li> -->
-          <li>{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
           <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
-          <li>{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>
+          <li>{{ link_to('https://www.invoiceninja.com/testimonials', 'Testimonials' ) }}</li>
+          <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li>          
           <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
-          <li>{{ link_to('login', Auth::check() ? 'My Account' : 'Login' ) }}</li>
+          <li>{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
+          <li>{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>          
         </ul>
       </div> 
 
@@ -461,9 +462,13 @@
       </div>
 
       <div class="col-md-4">
+        @if (Request::secure())
         <h3><img src="{{ asset('images/icon-secure-footer.png') }}" style="margin-right: 8px; margin-top: -5px;"></span>Safe & Secure</h3>
         <img src="{{ asset('images/ssl-footer.png') }}">
         <hr>
+        @else
+        <h3>&nbsp;</h3>
+        @endif
         <a href="http://opensource.org/" target="_blank"><img src="{{ asset('images/opensource-footer.png') }}"></a>
       </div>
 
