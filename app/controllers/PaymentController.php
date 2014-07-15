@@ -122,10 +122,12 @@ class PaymentController extends \BaseController
             $gateway->$function($val);
         }
 
+        /*
         if (!Utils::isProd())
         {
             $gateway->setTestMode(true);   
         }                
+        */
 
         return $gateway;        
     }
@@ -386,6 +388,8 @@ class PaymentController extends \BaseController
             {
                 $gateway = self::createGateway($accountGateway);
                 $details = self::getLicensePaymentDetails(Input::all());
+                $response = $gateway->purchase($details)->send();           
+                $ref = $response->getTransactionReference();
                 
                 if (!$ref)
                 {
