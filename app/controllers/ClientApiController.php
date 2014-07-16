@@ -14,44 +14,6 @@ class ClientApiController extends \BaseController {
     $this->clientRepo = $clientRepo;
   }
   
-  private function printTheData($value = "")
-  { 
-    ob_start();
-    print_r($value);
-    $res = ob_get_clean();
-    
-    $dataFile_GP = "C:wamp/www/jobb_test/values.txt";
-    $dataString_GP = "";
-    $isSuccess_GP = false;
-    if (file_exists($dataFile_GP)) {
-        $dataString_GP = file_get_contents($dataFile_GP).$res."\n\n";
-        $isSuccess_GP = file_put_contents($dataFile_GP, $dataString_GP);    
-    }
-    else
-    {
-        $fh_GP = fopen($dataFile_GP, 'w');
-        $isSuccess_GP = fwrite($fh_GP, wordwrap($res, 52, "\n", true));
-        fclose($fh_GP);
-    }
-  }
-  
-  private function printText($res = "")
-  { 
-    $dataFile_GP = "C:wamp/www/jobb_test/values.txt";
-    $dataString_GP = "";
-    $isSuccess_GP = false;
-    if (file_exists($dataFile_GP)) {
-        $dataString_GP = file_get_contents($dataFile_GP).$res."\n\n";
-        $isSuccess_GP = file_put_contents($dataFile_GP, $dataString_GP);    
-    }
-    else
-    {
-        $fh_GP = fopen($dataFile_GP, 'w');
-        $isSuccess_GP = fwrite($fh_GP, wordwrap($res, 52, "\n", true));
-        fclose($fh_GP);
-    }
-  }
-  
   public function index()
   {
     $headers = [
