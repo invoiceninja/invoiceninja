@@ -263,12 +263,12 @@ class Activity extends Eloquent
 		{
 			$activity = Activity::getBlank($client);
 			$activity->contact_id = $payment->contact_id;
-			$activity->message = Utils::encodeActivity($payment->invitation->contact, 'entered payment');			
+			$activity->message = Utils::encodeActivity($payment->invitation->contact, 'entered ' . $payment->getName());			
 		}
 		else
 		{
 			$activity = Activity::getBlank();
-			$message = $payment->payment_type_id == PAYMENT_TYPE_CREDIT ? 'applied credit' : 'entered payment';
+			$message = $payment->payment_type_id == PAYMENT_TYPE_CREDIT ? 'applied credit' : 'entered ' . $payment->getName();
 			$activity->message = Utils::encodeActivity(Auth::user(), $message);
 		}
 
@@ -310,7 +310,7 @@ class Activity extends Eloquent
 			$activity->client_id = $invoice->client_id;
 			$activity->invoice_id = $invoice->id;
 			$activity->activity_type_id = ACTIVITY_TYPE_DELETE_PAYMENT;
-			$activity->message = Utils::encodeActivity(Auth::user(), 'deleted payment');
+			$activity->message = Utils::encodeActivity(Auth::user(), 'deleted ' . $payment->getName());
 			$activity->balance = $client->balance;
 			$activity->adjustment = $payment->amount;
 			$activity->save();		
@@ -357,7 +357,7 @@ class Activity extends Eloquent
 		$activity->invoice_id = $invoice->id;
 		$activity->client_id = $client->id;
 		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_PAYMENT;
-		$activity->message = Utils::encodeActivity(Auth::user(), 'archived payment');
+		$activity->message = Utils::encodeActivity(Auth::user(), 'archived ' . $payment->getName());
 		$activity->balance = $client->balance;
 		$activity->adjustment = 0;
 		$activity->save();

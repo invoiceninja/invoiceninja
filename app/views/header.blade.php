@@ -6,6 +6,7 @@
 <link href="{{ asset('built.css') }}" rel="stylesheet" type="text/css"/>    
 
 <!--
+<script src="{{ asset('vendor/jquery/dist/jquery.js') }}" type="text/javascript"></script>
 <script src="{{ asset('vendor/jquery-ui/ui/minified/jquery-ui.min.js') }}" type="text/javascript"></script>				
 <script src="{{ asset('vendor/bootstrap/dist/js/bootstrap.min.js') }}" type="text/javascript"></script>				
 <script src="{{ asset('vendor/datatables/media/js/jquery.dataTables.js') }}" type="text/javascript"></script>

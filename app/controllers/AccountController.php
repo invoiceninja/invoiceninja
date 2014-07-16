@@ -21,11 +21,6 @@ class AccountController extends \BaseController {
 
 	public function getStarted()
 	{	
-		if (Utils::isRegistrationDisabled())
-		{
-			return Redirect::away(NINJA_URL.'/invoice_now');
-		}
-
 		if (Auth::check())
 		{
 			return Redirect::to('invoices/create');	

@@ -452,7 +452,6 @@
 	}
 
 	$(function() {
-
 		$('#country_id').combobox().on('change', function(e) {
 			var countryId = parseInt($('input[name=country_id]').val(), 10);	
 			var foundMatch = false;

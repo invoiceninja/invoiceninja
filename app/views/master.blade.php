@@ -24,9 +24,6 @@
 
     <script src="{{ asset('built.js') }}" type="text/javascript"></script>
 
-    <!-- <script src="{{ asset('vendor/jquery/jquery.js') }}" type="text/javascript"></script>  -->
-    <!-- <script src="{{ asset('vendor/jquery/dist/jquery.js') }}" type="text/javascript"></script>  -->
-
     <script type="text/javascript">
     var NINJA = NINJA || {};      
     NINJA.isRegistered = {{ Utils::isRegistered() ? 'true' : 'false' }};    

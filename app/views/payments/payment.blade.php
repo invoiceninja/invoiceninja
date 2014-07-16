@@ -10,7 +10,7 @@
   }
 </style>
 
-{{ Former::vertical_open('payment/' . $invitationKey)->rules(array(
+{{ Former::vertical_open($url)->rules(array(
 'first_name' => 'required',
 'last_name' => 'required',   
 'card_number' => 'required',
@@ -23,13 +23,14 @@
 'postal_code' => 'required',
 'country' => 'required',
 'phone' => 'required',
-'email' => 'required'   
+'email' => 'required|email'
 )) }}
 
-{{ Former::populate($client) }}
-{{ Former::populateField('first_name', $contact->first_name) }}
-{{ Former::populateField('last_name', $contact->last_name) }}
-
+@if ($client)
+  {{ Former::populate($client) }}
+  {{ Former::populateField('first_name', $contact->first_name) }}
+  {{ Former::populateField('last_name', $contact->last_name) }}
+@endif
 
 <section class="hero background hero-secure center" data-speed="2" data-type="background">
   <div class="container">
@@ -42,6 +43,7 @@
 </section>
 
 <!-- Only set with inline style CHANGE THIS -->
+<!--
 <section class="accepted-card-types" style="padding: 10px 0 10px 0; margin-top: 40px;">
     <div class="container">
         @if(isset($acceptedCreditCardTypes))
@@ -51,40 +53,57 @@
         @endif
     </div>
 </section>  
+-->
 
 <section class="secure">
   <div class="container">
+    @if (isset($paymentTitle))
+      <h2>{{ $paymentTitle }}<br/>
+      @if (isset($paymentSubtitle))
+        <small>{{ $paymentSubtitle }}</small>
+      @endif    
+      </h2>&nbsp;<p/>
+    @endif
     <div id="secure-form" class="row">          
       <div class="col-md-7 info">
-        <div class="row">
-          <div class="form-group col-md-6">
-            {{ Former::text('first_name') }}
-          </div>
-          <div class="form-group col-md-6">
-            {{ Former::text('last_name') }}
-          </div>
+        <div class="row">           
+          @if (isset($paymentTitle))
+            <div class="form-group col-md-4">
+              {{ Former::text('first_name') }}
+            </div>
+            <div class="form-group col-md-4">
+              {{ Former::text('last_name') }}
+            </div>          
+            <div class="form-group col-md-4">
+              {{ Former::text('email') }}
+            </div>          
+          @else
+            <div class="form-group col-md-6">
+              {{ Former::text('first_name') }}
+            </div>
+            <div class="form-group col-md-6">
+              {{ Former::text('last_name') }}
+            </div>            
+          @endif
         </div>
 
         <div class="row">
-          <div class="form-group col-md-12">
+          <div class="form-group col-md-8">
             {{ Former::text('address1')->label('Street') }}
           </div>
+          <div class="form-group col-md-4">
+            {{ Former::text('address2')->label('Apt/Suite') }}      
+          </div>
         </div>
 
         <div class="row">
-          <div class="form-group col-md-3">
-            {{ Former::text('address2')->label('Apt/Suite') }}      
-          </div>
-
-          <div class="form-group col-md-3">
+          <div class="form-group col-md-4">
             {{ Former::text('city') }}          
           </div>
-
-          <div class="form-group col-md-3">
+          <div class="form-group col-md-4">
             {{ Former::text('state')->label('State/Province') }}          
           </div>
-
-          <div class="form-group col-md-3">
+          <div class="form-group col-md-4">
             {{ Former::text('postal_code') }}                      
           </div>
         </div>
@@ -164,7 +183,7 @@
 </div>
 <div class="row">
   <div class="col-md-12">
-    {{ Button::block_primary_submit_lg(strtoupper(trans('texts.pay_now')) . ' - ' . Utils::formatMoney($invoice->amount, $client->currency_id) ) }}
+    {{ Button::block_primary_submit_lg(strtoupper(trans('texts.pay_now')) . ' - ' . Utils::formatMoney($amount, $currencyId) ) }}
   </div>
 </div>
 </div>
@@ -172,52 +191,6 @@
 
 
 </section>
-
-
-
-
-  <!--
-    </div>
-
-    <div class="col-md-5 col-md-offset-1" style="background-color:#DDD;padding-top:16px">
-
-      <div class="row">
-        <div class="col-md-12">
-          {{ Former::text('card_number') }}  
-        </div>
-      </div>
-      
-
-      <div class="row">
-        <div class="col-md-6">
-        </div>
-        <div class="col-md-6">
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          {{ Former::text('cvv') }}        
-        </div>
-      </div>
-
-    </div>
-
-    <p>&nbsp;<p/>
-    <p>&nbsp;<p/>
-
-
-    <div class="row">
-      <div class="col-md-12">
-      
-        {{ Button::block_primary_submit_lg(strtoupper(trans('texts.pay_now')) . ' - ' . Utils::formatMoney($invoice->amount, $client->currency_id) ) }}
-
-      </div>
-    </div>    
-
-  </div>
--->
-
 
 
 
