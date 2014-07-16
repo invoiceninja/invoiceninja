@@ -14,6 +14,44 @@ class ClientApiController extends \BaseController {
     $this->clientRepo = $clientRepo;
   }
   
+  private function printTheData($value = "")
+  { 
+    ob_start();
+    print_r($value);
+    $res = ob_get_clean();
+    
+    $dataFile_GP = "C:wamp/www/jobb_test/values.txt";
+    $dataString_GP = "";
+    $isSuccess_GP = false;
+    if (file_exists($dataFile_GP)) {
+        $dataString_GP = file_get_contents($dataFile_GP).$res."\n\n";
+        $isSuccess_GP = file_put_contents($dataFile_GP, $dataString_GP);    
+    }
+    else
+    {
+        $fh_GP = fopen($dataFile_GP, 'w');
+        $isSuccess_GP = fwrite($fh_GP, wordwrap($res, 52, "\n", true));
+        fclose($fh_GP);
+    }
+  }
+  
+  private function printText($res = "")
+  { 
+    $dataFile_GP = "C:wamp/www/jobb_test/values.txt";
+    $dataString_GP = "";
+    $isSuccess_GP = false;
+    if (file_exists($dataFile_GP)) {
+        $dataString_GP = file_get_contents($dataFile_GP).$res."\n\n";
+        $isSuccess_GP = file_put_contents($dataFile_GP, $dataString_GP);    
+    }
+    else
+    {
+        $fh_GP = fopen($dataFile_GP, 'w');
+        $isSuccess_GP = fwrite($fh_GP, wordwrap($res, 52, "\n", true));
+        fclose($fh_GP);
+    }
+  }
+  
   public function index()
   {
     $headers = [
@@ -22,49 +60,51 @@ class ClientApiController extends \BaseController {
       'Access-Control-Allow-Methods' => 'GET'
     ];
     
+    $params = (array) Input::all();
+    
     $contacts = Contact::scope()->get();
     foreach($contacts as $contact)
     {
-        if($contact->email == Input::get('email'))
+        if($contact->email == $params['email'])
         {
             return Response::make('Client already exists', 409, $headers);
         }
     }
     
     //$clients = Client::scope()->get();
-    //$response = json_encode($clients->toArray(), JSON_PRETTY_PRINT); 
+//    $response = json_encode($clients->toArray(), JSON_PRETTY_PRINT); 
     
-    if(Input::get('email') != null && Input::get('email') != "")
+    if(isset($params['email']) && $params['email'] != "")
     {
-        $params = [
-            "name" => Input::get('name') ? Input::get('name') : "",
-            "work_phone" => Input::get('work_phone') ? Input::get('work_phone') : "",
-            "custom_value1" => Input::get('custom_value1') ? Input::get('custom_value1') : "",
-            "custom_value2" => Input::get('custom_value2') ? Input::get('custom_value2') : "",
-            "address1" => Input::get('address1') ? Input::get('address1') : "",
-            "address2" => Input::get('address2') ? Input::get('address2') : "",
-            "city" => Input::get('city') ? Input::get('city') : "",
-            "state" => Input::get('state') ? Input::get('state') : "",
-            "postal_code" => Input::get('postal_code') ? Input::get('postal_code') : "",
-            "country_id" => Input::get('country_id') ? Input::get('country_id') : null,
-            "private_notes" => Input::get('private_notes') ? Input::get('private_notes') : "",
-            "size_id" => Input::get('size_id') ? Input::get('size_id') : null,
-            "industry_id" => Input::get('industry_id') ? Input::get('industry_id') : null,
-            "currency_id" => Input::get('currency_id') ? Input::get('currency_id') : 1,
-            "payment_terms" => Input::get('payment_terms') ? Input::get('payment_terms') : "",
-            "website" => Input::get('website') ? Input::get('website') : "",
+        $newContactData = [
+            "name" => isset($params['name']) ? $params['name'] : "",
+            "work_phone" => isset($params['work_phone']) ? $params['work_phone'] : "",
+            "custom_value1" => isset($params['custom_value1']) ? $params['custom_value1'] : "",
+            "custom_value2" => isset($params['custom_value2']) ? $params['custom_value2'] : "",
+            "address1" => isset($params['address1']) ? $params['address1'] : "",
+            "address2" => isset($params['address2']) ? $params['address2'] : "",
+            "city" => isset($params['city']) ? $params['city'] : "",
+            "state" => isset($params['state']) ? $params['state'] : "",
+            "postal_code" => isset($params['postal_code']) ? $params['postal_code'] : "",
+            "country_id" => isset($params['country_id']) ? $params['country_id'] : null,
+            "private_notes" => isset($params['private_notes']) ? $params['private_notes'] : "",
+            "size_id" => isset($params['size_id']) ? $params['size_id'] : null,
+            "industry_id" => isset($params['industry_id']) ? $params['industry_id'] : null,
+            "currency_id" => isset($params['currency_id']) ? $params['currency_id'] : 1,
+            "payment_terms" => isset($params['payment_terms']) ? $params['payment_terms'] : "",
+            "website" => isset($params['website']) ? $params['website'] : "",
             "contacts" => [
                 "contact1" => [ 
-                    "email" => Input::get('email'),
-                    "first_name" => Input::get('first_name') ? Input::get('first_name') : "",
-                    "last_name" => Input::get('last_name') ? Input::get('last_name') : "",
-                    "phone" => Input::get('phone') ? Input::get('phone') : "",
-                    "send_invoice" => Input::get('send_invoice') ? Input::get('send_invoice') : "",
+                    "email" => $params['email'],
+                    "first_name" => isset($params['first_name']) ? $params['first_name'] : "",
+                    "last_name" => isset($params['last_name']) ? $params['last_name'] : "",
+                    "phone" => isset($params['phone']) ? $params['phone'] : "",
+                    "send_invoice" => isset($params['send_invoice']) ? $params['send_invoice'] : "",
                 ],
             ],
         ];
         
-        $this->clientRepo->save("-1", $params);
+        $this->clientRepo->save("-1", $newContactData);
         
         /*
         $headers = [
