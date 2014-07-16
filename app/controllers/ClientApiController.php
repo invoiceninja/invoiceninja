@@ -1,7 +1,7 @@
 <?php
 
 use ninja\repositories\ClientRepository;
-use Client;
+use \Client;
 
 class ClientApiController extends \BaseController {
 
@@ -10,51 +10,100 @@ class ClientApiController extends \BaseController {
   public function __construct(ClientRepository $clientRepo)
   {
     parent::__construct();
-
-    $this->clientRepo = $clientRepo;
-  } 
-
-  public function index()
-  {    
-    $clients = Client::scope()->get();
     
-    /*
-    $response = [
-      'status' => 200,
-      'error' => false,
-      'clients' => $clients->toArray()
-    ];
-    */
-
-    $response = json_encode($clients->toArray(), JSON_PRETTY_PRINT);
+    $this->clientRepo = $clientRepo;
+  }
+  
+  public function index()
+  {
     $headers = [
       'Content-Type' => 'application/json',
       'Access-Control-Allow-Origin' => '*',
-      'Access-Control-Allow-Methods' => 'GET',
-      //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',      
-      //'Access-Control-Allow-Credentials' => 'true',
-      //'X-Total-Count' => 0
-      //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
-      //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
-      //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
+      'Access-Control-Allow-Methods' => 'GET'
     ];
-
-    /*
-    200 OK - Response to a successful GET, PUT, PATCH or DELETE. Can also be used for a POST that doesn't result in a creation.
-    201 Created - Response to a POST that results in a creation. Should be combined with a Location header pointing to the location of the new resource
-    204 No Content - Response to a successful request that won't be returning a body (like a DELETE request)
-    304 Not Modified - Used when HTTP caching headers are in play
-    400 Bad Request - The request is malformed, such as if the body does not parse
-    401 Unauthorized - When no or invalid authentication details are provided. Also useful to trigger an auth popup if the API is used from a browser
-    403 Forbidden - When authentication succeeded but authenticated user doesn't have access to the resource
-    404 Not Found - When a non-existent resource is requested
-    405 Method Not Allowed - When an HTTP method is being requested that isn't allowed for the authenticated user
-    410 Gone - Indicates that the resource at this end point is no longer available. Useful as a blanket response for old API versions
-    415 Unsupported Media Type - If incorrect content type was provided as part of the request
-    422 Unprocessable Entity - Used for validation errors
-    429 Too Many Requests - When a request is rejected due to rate limiting
-    */
-
-    return Response::make($response, 200, $headers);
+    
+    $contacts = Contact::scope()->get();
+    foreach($contacts as $contact)
+    {
+        if($contact->email == Input::get('email'))
+        {
+            return Response::make('Client already exists', 409, $headers);
+        }
+    }
+    
+    //$clients = Client::scope()->get();
+    //$response = json_encode($clients->toArray(), JSON_PRETTY_PRINT); 
+    
+    if(Input::get('email') != null && Input::get('email') != "")
+    {
+        $params = [
+            "name" => Input::get('name') ? Input::get('name') : "",
+            "work_phone" => Input::get('work_phone') ? Input::get('work_phone') : "",
+            "custom_value1" => Input::get('custom_value1') ? Input::get('custom_value1') : "",
+            "custom_value2" => Input::get('custom_value2') ? Input::get('custom_value2') : "",
+            "address1" => Input::get('address1') ? Input::get('address1') : "",
+            "address2" => Input::get('address2') ? Input::get('address2') : "",
+            "city" => Input::get('city') ? Input::get('city') : "",
+            "state" => Input::get('state') ? Input::get('state') : "",
+            "postal_code" => Input::get('postal_code') ? Input::get('postal_code') : "",
+            "country_id" => Input::get('country_id') ? Input::get('country_id') : null,
+            "private_notes" => Input::get('private_notes') ? Input::get('private_notes') : "",
+            "size_id" => Input::get('size_id') ? Input::get('size_id') : null,
+            "industry_id" => Input::get('industry_id') ? Input::get('industry_id') : null,
+            "currency_id" => Input::get('currency_id') ? Input::get('currency_id') : 1,
+            "payment_terms" => Input::get('payment_terms') ? Input::get('payment_terms') : "",
+            "website" => Input::get('website') ? Input::get('website') : "",
+            "contacts" => [
+                "contact1" => [ 
+                    "email" => Input::get('email'),
+                    "first_name" => Input::get('first_name') ? Input::get('first_name') : "",
+                    "last_name" => Input::get('last_name') ? Input::get('last_name') : "",
+                    "phone" => Input::get('phone') ? Input::get('phone') : "",
+                    "send_invoice" => Input::get('send_invoice') ? Input::get('send_invoice') : "",
+                ],
+            ],
+        ];
+        
+        $this->clientRepo->save("-1", $params);
+        
+        /*
+        $headers = [
+          'Content-Type' => 'application/json',
+          'Access-Control-Allow-Origin' => '*',
+          'Access-Control-Allow-Methods' => 'GET'
+          //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',      
+          //'Access-Control-Allow-Credentials' => 'true',
+          //'X-Total-Count' => 0
+          //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
+          //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
+          //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
+        ];
+    
+        409 Conflict - Contact with Email already exists
+        
+        200 OK - Response to a successful GET, PUT, PATCH or DELETE. Can also be used for a POST that doesn't result in a creation.
+        201 Created - Response to a POST that results in a creation. Should be combined with a Location header pointing to the location of the new resource
+        204 No Content - Response to a successful request that won't be returning a body (like a DELETE request)
+        304 Not Modified - Used when HTTP caching headers are in play
+        400 Bad Request - The request is malformed, such as if the body does not parse
+        401 Unauthorized - When no or invalid authentication details are provided. Also useful to trigger an auth popup if the API is used from a browser
+        403 Forbidden - When authentication succeeded but authenticated user doesn't have access to the resource
+        404 Not Found - When a non-existent resource is requested
+        405 Method Not Allowed - When an HTTP method is being requested that isn't allowed for the authenticated user
+        410 Gone - Indicates that the resource at this end point is no longer available. Useful as a blanket response for old API versions
+        415 Unsupported Media Type - If incorrect content type was provided as part of the request
+        422 Unprocessable Entity - Used for validation errors
+        429 Too Many Requests - When a request is rejected due to rate limiting
+        
+        $clients = Client::scope()->get();
+        $response = json_encode($clients->toArray(), JSON_PRETTY_PRINT);
+        */
+        
+        return Response::make('Client added', 200, $headers);
+    }
+    else
+    {
+        return Response::make('Bad Request', 400, $headers);
+    }
   }
 }

@@ -45,7 +45,6 @@ class ClientRepository
 			$client = Client::scope($publicId)->with('contacts')->firstOrFail();
 			$contact = $client->contacts()->where('is_primary', '=', true)->firstOrFail();
 		}
-		
 
 		$client->name = trim($data['name']);
 		$client->work_phone = trim($data['work_phone']);		
