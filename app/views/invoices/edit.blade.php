@@ -111,6 +111,7 @@
 
 	{{ Former::hidden('data')->data_bind("value: ko.mapping.toJSON(model)") }}	
 
+	<div class="table-responsive">
 	<table class="table invoice-table" style="margin-bottom: 0px !important">
 		<thead>
 			<tr>
@@ -159,9 +160,9 @@
 				<td colspan="2" rowspan="5">
 					<br/>
 					{{ Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
-					->label(false)->placeholder(trans('texts.note_to_client'))->style('width: 520px; resize: none') }}			
+					->label(false)->placeholder(trans('texts.note_to_client'))->style('resize: none') }}			
 					{{ Former::textarea('terms')->data_bind("value: wrapped_terms, valueUpdate: 'afterkeydown'")
-					->label(false)->placeholder(trans('texts.invoice_terms'))->style('width: 520px; resize: none')
+					->label(false)->placeholder(trans('texts.invoice_terms'))->style('resize: none')
 					->addGroupClass('less-space-bottom') }}
 					<label class="checkbox" style="width: 200px">
 						<input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>{{ trans('texts.save_as_default_terms') }}
@@ -198,6 +199,7 @@
 			</tr>
 		</tfoot>
 	</table>
+	</div>
 
 	<p>&nbsp;</p>
 	<div class="form-actions">
@@ -279,7 +281,7 @@
 	@endif
 
 	<div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
-	  <div class="modal-dialog" style="min-width:1000px">
+	  <div class="modal-dialog large-dialog">
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -368,7 +370,7 @@
 	</div>
 
 	<div class="modal fade" id="taxModal" tabindex="-1" role="dialog" aria-labelledby="taxModalLabel" aria-hidden="true">
-	  <div class="modal-dialog" style="min-width:150px">
+	  <div class="modal-dialog">
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -401,7 +403,7 @@
 				</tbody>
 			</table>
 			&nbsp;
-
+			
 			{{ Former::checkbox('invoice_taxes')->text(trans('texts.enable_invoice_tax'))
 				->label(trans('texts.settings'))->data_bind('checked: $root.invoice_taxes, enable: $root.tax_rates().length > 1') }}
 			{{ Former::checkbox('invoice_item_taxes')->text(trans('texts.enable_line_item_tax'))

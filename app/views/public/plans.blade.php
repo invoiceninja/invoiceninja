@@ -23,7 +23,9 @@
       </div>
     </div>
 
-    @include('plans')
+    <div class="container">
+      @include('plans')
+    </div>
 
   </div>
 </section>

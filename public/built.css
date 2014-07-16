@@ -1792,10 +1792,6 @@ color: #333;
 border-bottom: 1px solid #dfe0e1;
 }
 
-.hidden-desktop {
-    display: none !important;
-}
-
 .greenlink a { color:#36c157; }
 .greenlink a:hover { color:#2e9e49; }
 .redlink a { color:#da4830; }
@@ -2476,11 +2472,28 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
 .plans-table a .cta h2 span {background: #1e84a5;}
 
 
-@media screen and (min-width: 769px) {
+@media screen and (min-width: 992px) {
    .hide-desktop {display: none;}
 }
 
+@media (max-width: 992px) {
+    .hide-phone {
+        display: none !important;
+    }    
+}
+
+@media screen and (min-width: 992px) {
+   .medium-dialog {
+        width: 760px;
+   }
+   .large-dialog {
+        width: 960px;
+   }   
+}
+
 @media (max-width: 767px) {
+    .test-class{color:black;}
+
     .navbar-default .navbar-nav .open .dropdown-menu > li > a {
         color: #ecf0f1;
     }
@@ -2493,6 +2506,6 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
     .plans-table .free .cell { padding-right: 0; }
     .plans-table .free .cell:first-child {margin-right: 0;}
     .plans-table .cell div:first-child {margin-bottom: 5px;}
-    .plans-table .cell .cta {margin-bottom: 0 !important;}
-    .plans-table .pro {margin-top: 40px;}
+    .plans-table .cell .cta {margin-bottom: 0 !important;}    
+    .plans-table .pro {margin-top: 40px;}    
 }

@@ -310,7 +310,7 @@ class PaymentController extends \BaseController
             }
         }
 
-        if (!Session::get('return_url') || !Session::get('affiliate_id'))
+        if (!Session::get('affiliate_id'))
         {
             return Utils::fatalError();   
         }
@@ -428,7 +428,7 @@ class PaymentController extends \BaseController
 
     public function claim_license()
     {
-        $license = License::where('license_key', '=', Input::get('key'))
+        $license = License::where('license_key', '=', Input::get('license_key'))
                     ->where('is_claimed', '=', false)->first();
 
         if ($license)

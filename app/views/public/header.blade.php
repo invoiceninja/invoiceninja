@@ -97,7 +97,7 @@
   }
 </script>
 @if (!isset($hideHeader) || !$hideHeader)
-<div class="navbar-top navbar hidden-phone" style="margin-bottom:0px">
+<div class="navbar-top navbar hide-phone" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-inner">
       <ul>
@@ -128,9 +128,9 @@
           </button>        </div>
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
-        <li class="hidden-desktop">{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
-        <li class="hidden-desktop">{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
-        <li class="hidden-desktop">{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>  
+        <li class="hide-desktop">{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>
+        <li class="hide-desktop">{{ link_to('https://www.invoiceninja.com/about', 'About Us' ) }}</li>
+        <li class="hide-desktop">{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>  
         <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/testimonials', 'Testimonials' ) }}</li>
