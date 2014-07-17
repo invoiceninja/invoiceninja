@@ -84,8 +84,9 @@ class Utils
 
 		static::logError($message . ' ' . $exception);		
 
-		$data = [
-			'showBreadcrumbs' => false
+		$data = [		
+			'showBreadcrumbs' => false,
+			'hideHeader' => true
 		];
 
 		return View::make('error', $data)->with('error', $message);

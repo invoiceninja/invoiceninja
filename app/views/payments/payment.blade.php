@@ -42,19 +42,6 @@
   </div>
 </section>
 
-<!-- Only set with inline style CHANGE THIS -->
-<!--
-<section class="accepted-card-types" style="padding: 10px 0 10px 0; margin-top: 40px;">
-    <div class="container">
-        @if(isset($acceptedCreditCardTypes))
-            @foreach ($acceptedCreditCardTypes as $card)
-                <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}" style="width: 100px; display: inline; margin-right: 20px;"/>
-            @endforeach
-        @endif
-    </div>
-</section>  
--->
-
 <section class="secure">
   <div class="container">
     @if (isset($paymentTitle))
@@ -176,6 +163,17 @@
           <!-- <p><span class="glyphicon glyphicon-credit-card" style="margin-right: 10px;"></span><a href="#">Where Do I find CVV?</a></p> -->
         </div>
       </div>
+
+      @if(isset($acceptedCreditCardTypes))
+        <div class="row">
+          <div class="form-group col-md-12">
+            @foreach ($acceptedCreditCardTypes as $card)
+              <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}" style="width: 70px; display: inline; margin-right: 6px;"/>
+            @endforeach
+          </div>
+        </div>
+      @endif
+
     </div>
 
 

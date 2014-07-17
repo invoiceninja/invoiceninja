@@ -19,7 +19,7 @@ class Gateway extends Eloquent
 	{
 		$paymentLibrary =  $this->paymentlibrary;
 		
-		if($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
+		if ($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
 		{
 			$fields = Omnipay::create($this->provider)->getDefaultParameters();	
 		}
@@ -28,11 +28,12 @@ class Gateway extends Eloquent
 			$fields = Payment_Utility::load('config', 'drivers/'.strtolower($this->provider));
 		}		
 
-		if($fields == null)
+		if ($fields == null)
 		{
 			$fields = array();
 		}
 		
 		return $fields;
 	}
+	
 }

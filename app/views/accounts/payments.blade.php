@@ -3,7 +3,7 @@
 @section('content')	
 	@parent	
 
-	{{ Former::open()->addClass('col-md-8 col-md-offset-2 warn-on-exit') }}	
+	{{ Former::open()->rule()->addClass('col-md-8 col-md-offset-2 warn-on-exit') }}	
 	{{ Former::populate($account) }}
 
 	{{ Former::legend('Payment Gateway') }}
@@ -20,17 +20,11 @@
 		@endforeach
 	@endif
     
-    <!-- TODO: creditcard-types IS SET IN JS FURTHER DOWN IN THE SCRIPT PART, 
-    AND THEN IN INLINE STYLE. REMOVE THIS WHEN RAZI HAS FIXED THE IMAGES AND STYLE -->
-    <!--
     <div class="two-column">
-	{{ Former::checkboxes('creditCardTypes[]')
-            ->label('Accepted Credit Cards')
-			->checkboxes($creditCardTypes)
-            ->class('creditcard-types')
-	}}
+		{{ Former::checkboxes('creditCardTypes[]')->label('Accepted Credit Cards')
+				->checkboxes($creditCardTypes)->class('creditcard-types')
+		}}
 	</div>
-	-->
 	
 	<div class="two-column">
 	{{ Former::radios('recommendedGateway_id')->label('Recommended Gateways')
@@ -117,8 +111,8 @@
 			$(this).parent().children().last().after('<a href="#" onclick="gatewayLink(\'' + $(this).attr('data-siteUrl') + '\')">Create an account</a>');
 		});
         
-        // TODO: THIS IS JUST TO SHOW THE IMAGES, STYLE IS SET INLINE STYLE
-        $('.creditcard-types').each(function(){
+    // TODO: THIS IS JUST TO SHOW THE IMAGES, STYLE IS SET INLINE STYLE
+    $('.creditcard-types').each(function(){
 			var contents = $(this).parent().contents();
 			contents[contents.length - 1].nodeValue = '';
 			$(this).after('<img style="width: 60px; display: inline;" src="' +$(this).attr('data-imageUrl') + '" /><br />');

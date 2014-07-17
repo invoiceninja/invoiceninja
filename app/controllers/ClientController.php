@@ -115,7 +115,7 @@ class ClientController extends \BaseController {
 	{		
 		if (Client::scope()->count() > Auth::user()->getMaxNumClients())
 		{
-			return View::make('error', ['error' => "Sorry, you've exceeded the limit of " . Auth::user()->getMaxNumClients() . " clients"]);
+			return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . Auth::user()->getMaxNumClients() . " clients"]);
 		}
 
 		$data = [

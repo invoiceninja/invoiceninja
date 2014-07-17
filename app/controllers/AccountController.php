@@ -102,7 +102,7 @@ class AccountController extends \BaseController {
 			$accountGateway = null;
 			$config = null;
 			$configFields = null;
-            $selectedCards = 0;
+      $selectedCards = 0;
 
 			if (count($account->account_gateways) > 0)
 			{
@@ -135,14 +135,14 @@ class AccountController extends \BaseController {
 				$recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
 			}
             
-            $creditCardsArray = unserialize(CREDIT_CARDS);
-            $creditCards = [];
+      $creditCardsArray = unserialize(CREDIT_CARDS);
+      $creditCards = [];
 			foreach($creditCardsArray as $card => $name)
 			{
-                if($selectedCards > 0 && ($selectedCards & $card) == $card)
-                    $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card']), 'checked' => 'checked'];
-                else
-                    $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
+        if($selectedCards > 0 && ($selectedCards & $card) == $card)
+            $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card']), 'checked' => 'checked'];
+        else
+            $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
 			}
 
 			$otherItem = array(
@@ -152,7 +152,7 @@ class AccountController extends \BaseController {
 				'data-siteUrl' => ''
 			);
 			$recommendedGatewayArray['Other Options'] = $otherItem;
-            
+      
 			$data = [
 				'account' => $account,
 				'accountGateway' => $accountGateway,
@@ -165,7 +165,7 @@ class AccountController extends \BaseController {
 					->orderBy('name')
 					->get(),
 				'recommendedGateways' => $recommendedGatewayArray,
-                'creditCardTypes' => $creditCards, 
+        'creditCardTypes' => $creditCards, 
 			];
 			
 			foreach ($data['gateways'] as $gateway)
@@ -575,11 +575,6 @@ class AccountController extends \BaseController {
 
 	private function savePayments()
 	{  
-		Validator::extend('notmasked', function($attribute, $value, $parameters)
-		{
-		    return $value != str_repeat('*', strlen($value));
-		});
-		
 		$rules = array();
 		$recommendedId = Input::get('recommendedGateway_id');
 
@@ -587,7 +582,7 @@ class AccountController extends \BaseController {
 		{
 			$gateway = Gateway::findOrFail($gatewayId);
 			
-			$paymentLibrary =  $gateway->paymentlibrary;
+			$paymentLibrary = $gateway->paymentlibrary;
 			
 			$fields = $gateway->getFields();
 			
@@ -599,23 +594,18 @@ class AccountController extends \BaseController {
 					{
 						if(in_array($field, ['merchant_id', 'passCode']))
 						{
-							$rules[$gateway->id.'_'.$field] = 'required|notmasked';
+							$rules[$gateway->id.'_'.$field] = 'required';
 						}
 					} 
 					else 
 					{
-						$rules[$gateway->id.'_'.$field] = 'required|notmasked';
+						$rules[$gateway->id.'_'.$field] = 'required';
 					}
 				}				
 			}			
 		}
         
-        $creditcards = Input::get('creditCardTypes');
-        if (count($creditcards) < 1)
-        {
-            $rules['creditCardTypes'] = 'required';
-        }
-		
+    $creditcards = Input::get('creditCardTypes');
 		$validator = Validator::make(Input::all(), $rules);
 
 		if ($validator->fails()) 
@@ -627,7 +617,6 @@ class AccountController extends \BaseController {
 		else 
 		{
 			$account = Account::findOrFail(Auth::user()->account_id);						
-			$account->account_gateways()->delete();
 
 			if ($gatewayId) 
 			{
@@ -637,21 +626,36 @@ class AccountController extends \BaseController {
 				$config = new stdClass;
 				foreach ($fields as $field => $details)
 				{
-					$config->$field = trim(Input::get($gateway->id.'_'.$field));
+					$value = trim(Input::get($gateway->id.'_'.$field));
+
+					if ($value && $value === str_repeat('*', strlen($value)))
+					{
+						Session::flash('error', trans('validation.notmasked'));
+						return Redirect::to('company/payments');			
+					}
+
+					$config->$field = $value;
 				}
                 
-                $cardCount = 0;
-                foreach($creditcards as $card => $value)
-                {
-                    $cardCount += intval($value);
-                }			
-				
+        $cardCount = 0;
+        foreach($creditcards as $card => $value)
+        {
+            $cardCount += intval($value);
+        }			
+			
 				$accountGateway->config = json_encode($config);
-                $accountGateway->accepted_credit_cards = $cardCount;
+				$accountGateway->accepted_credit_cards = $cardCount;
+	
+				$account->account_gateways()->delete();
 				$account->account_gateways()->save($accountGateway);
-			}
 
-			Session::flash('message', trans('texts.updated_settings'));
+				Session::flash('message', trans('texts.updated_settings'));
+			}
+			else
+			{
+				Session::flash('error', trans('validation.required', ['attribute' => 'gateway']));
+			}
+			
 			return Redirect::to('company/payments');
 		}				
 	}

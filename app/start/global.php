@@ -60,7 +60,7 @@ App::error(function(Exception $exception, $code)
 {
 	Utils::logError($exception . ' ' . $code);
 
-  return Response::view('error', ['error' => "A {$code} error occurred."], $code);
+  return Response::view('error', ['hideHeader' => true, 'error' => "A {$code} error occurred."], $code);
 });
 
 /*
