@@ -139,6 +139,12 @@ class Utils
 
 	        $phoneNumber = '+'.$countryCode.' ('.$areaCode.') '.$nextThree.'-'.$lastFour;
 	    }
+	    else if(strlen($phoneNumber) == 10 && substr($phoneNumber, 0, 2) == 65) {
+	        $countryCode = substr($phoneNumber, 0, 2);
+	        $nextFour = substr($phoneNumber, 2, 4);
+	        $lastFour = substr($phoneNumber, 6, 4);
+	        $phoneNumber = '+'.$countryCode.' '.$nextFour.' '.$lastFour;
+	    }
 	    else if(strlen($phoneNumber) == 10) {
 	        $areaCode = substr($phoneNumber, 0, 3);
 	        $nextThree = substr($phoneNumber, 3, 3);
