@@ -244,8 +244,8 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('country_id')->nullable();
             $t->string('work_phone');
             $t->text('private_notes');
-            $t->decimal('balance', 13, 4);
-            $t->decimal('paid_to_date', 13, 4);
+            $t->decimal('balance', 13, 2);
+            $t->decimal('paid_to_date', 13, 2);
             $t->timestamp('last_login')->nullable();
             $t->string('website');
             $t->unsignedInteger('industry_id')->nullable();
@@ -326,10 +326,10 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('recurring_invoice_id')->index()->nullable();
 
             $t->string('tax_name');
-            $t->decimal('tax_rate', 13, 4);
+            $t->decimal('tax_rate', 13, 2);
 
-            $t->decimal('amount', 13, 4);
-            $t->decimal('balance', 13, 4);
+            $t->decimal('amount', 13, 2);
+            $t->decimal('balance', 13, 2);
         
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
             $t->foreign('account_id')->references('id')->on('accounts'); 
@@ -375,7 +375,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->softDeletes();
 
             $t->string('name');
-            $t->decimal('rate', 13, 4);
+            $t->decimal('rate', 13, 2);
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
@@ -394,8 +394,8 @@ class ConfideSetupUsersTable extends Migration {
 
             $t->string('product_key');
             $t->text('notes');
-            $t->decimal('cost', 13, 4);
-            $t->decimal('qty', 13, 4);
+            $t->decimal('cost', 13, 2);
+            $t->decimal('qty', 13, 2);
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
@@ -417,11 +417,11 @@ class ConfideSetupUsersTable extends Migration {
 
             $t->string('product_key');
             $t->text('notes');
-            $t->decimal('cost', 13, 4);
-            $t->decimal('qty', 13, 4);            
+            $t->decimal('cost', 13, 2);
+            $t->decimal('qty', 13, 2);            
 
             $t->string('tax_name');
-            $t->decimal('tax_rate', 13, 4);
+            $t->decimal('tax_rate', 13, 2);
 
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('product_id')->references('id')->on('products');
@@ -446,7 +446,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->softDeletes();
 
             $t->boolean('is_deleted');
-            $t->decimal('amount', 13, 4);
+            $t->decimal('amount', 13, 2);
             $t->date('payment_date');
             $t->string('transaction_reference');
             $t->string('payer_id');
@@ -473,8 +473,8 @@ class ConfideSetupUsersTable extends Migration {
             $t->softDeletes();
             
             $t->boolean('is_deleted');
-            $t->decimal('amount', 13, 4);
-            $t->decimal('balance', 13, 4);
+            $t->decimal('amount', 13, 2);
+            $t->decimal('balance', 13, 2);
             $t->date('credit_date')->nullable();
             $t->string('credit_number');
             $t->text('private_notes');
@@ -504,8 +504,8 @@ class ConfideSetupUsersTable extends Migration {
             $t->text('message');
             $t->text('json_backup');
             $t->integer('activity_type_id');            
-            $t->decimal('adjustment', 13, 4);
-            $t->decimal('balance', 13, 4);
+            $t->decimal('adjustment', 13, 2);
+            $t->decimal('balance', 13, 2);
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');

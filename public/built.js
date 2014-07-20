@@ -47256,13 +47256,31 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
     return;
   }
 
-  //var taxTitle = 'Tax ' + getInvoiceTaxRate(invoice) + '%';
   var data = [
     {'subtotal': formatMoney(invoice.subtotal_amount, invoice.client.currency_id)},
-    {'discount': invoice.discount_amount > 0 ? formatMoney(invoice.discount_amount, invoice.client.currency_id) : false},
-    {'tax': invoice.tax_amount > 0 ? formatMoney(invoice.tax_amount, invoice.client.currency_id) : false},
-    {'paid_to_date': formatMoney(invoice.amount - invoice.balance, invoice.client.currency_id)}
+    {'discount': invoice.discount_amount > 0 ? formatMoney(invoice.discount_amount, invoice.client.currency_id) : false}
   ];
+
+  if (NINJA.parseFloat(invoice.custom_value1) && NINJA.parseFloat(invoice.custom_taxes1)) {    
+    data.push({'custom_invoice_label1': formatMoney(invoice.custom_value1, invoice.client.currency_id) })
+  }
+  if (NINJA.parseFloat(invoice.custom_value2) && NINJA.parseFloat(invoice.custom_taxes2)) {
+    data.push({'custom_invoice_label2': formatMoney(invoice.custom_value2, invoice.client.currency_id) }) 
+  }
+
+  data.push({'tax': invoice.tax_amount > 0 ? formatMoney(invoice.tax_amount, invoice.client.currency_id) : false});
+
+  if (NINJA.parseFloat(invoice.custom_value1) && !NINJA.parseFloat(invoice.custom_taxes1)) {    
+    data.push({'custom_invoice_label1': formatMoney(invoice.custom_value1, invoice.client.currency_id) })
+  }
+  if (NINJA.parseFloat(invoice.custom_value2) && !NINJA.parseFloat(invoice.custom_taxes2)) {
+    data.push({'custom_invoice_label2': formatMoney(invoice.custom_value2, invoice.client.currency_id) }) 
+  }
+
+  var paid = invoice.amount - invoice.balance;
+  if (invoice.account.hide_paid_to_date === '0' || paid) {
+    data.push({'paid_to_date': formatMoney(paid, invoice.client.currency_id)});
+  }
 
   return displayGrid(doc, invoice, data, 300, y, layout, true, 550, rightAlignTitleX) + 10;
 }
@@ -47410,9 +47428,16 @@ function calculateAmounts(invoice) {
   invoice.subtotal_amount = total;
 
   if (invoice.discount > 0) {
-
     var discount = roundToTwo(total * (invoice.discount/100));
     total -= discount;
+  }
+
+  // custom fields with taxes
+  if (NINJA.parseFloat(invoice.custom_value1) && NINJA.parseFloat(invoice.custom_taxes1)) {    
+    total += roundToTwo(invoice.custom_value1);    
+  }
+  if (NINJA.parseFloat(invoice.custom_value2) && NINJA.parseFloat(invoice.custom_taxes2)) {
+    total += roundToTwo(invoice.custom_value2);    
   }
 
   var tax = 0;
@@ -47427,9 +47452,17 @@ function calculateAmounts(invoice) {
     total = parseFloat(total) + parseFloat(tax);
   }
 
+  // custom fields w/o with taxes
+  if (NINJA.parseFloat(invoice.custom_value1) && !NINJA.parseFloat(invoice.custom_taxes1)) {    
+    total += roundToTwo(invoice.custom_value1);    
+  }
+  if (NINJA.parseFloat(invoice.custom_value2) && !NINJA.parseFloat(invoice.custom_taxes2)) {
+    total += roundToTwo(invoice.custom_value2);    
+  }
+
   invoice.balance_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
-  invoice.tax_amount = tax;
   invoice.discount_amount = discount;
+  invoice.tax_amount = tax;
   invoice.has_taxes = hasTaxes;
 
   return invoice;
@@ -47455,7 +47488,9 @@ function displayInvoiceHeader(doc, invoice, layout) {
   doc.text(layout.marginLeft, layout.tableTop, invoiceLabels.item);
   doc.text(layout.descriptionLeft, layout.tableTop, invoiceLabels.description);
   doc.text(costX, layout.tableTop, invoiceLabels.unit_cost);
-  doc.text(qtyX, layout.tableTop, invoiceLabels.quantity);
+  if (invoice.account.hide_quantity === '0') {
+    doc.text(qtyX, layout.tableTop, invoiceLabels.quantity);
+  }
   doc.text(totalX, layout.tableTop, invoiceLabels.line_total);
 
   if (invoice.has_taxes)
@@ -47470,8 +47505,9 @@ function displayInvoiceItems(doc, invoice, layout) {
   var line = 1;
   var total = 0;
   var shownItem = false;
-  var currencyId = invoice && invoice.client ? invoice.client.currency_id : 1;
+  var currencyId = invoice && invoice.client ? invoice.client.currency_id : 1;  
   var tableTop = layout.tableTop;
+  var hideQuantity = invoice.account.hide_quantity === '1';  
 
   doc.setFontSize(8);
   for (var i=0; i<invoice.invoice_items.length; i++) {
@@ -47507,7 +47543,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     }   
 
     // show at most one blank line
-    if (shownItem && (!cost || cost == '0.00') && !qty && !notes && !productKey) {
+    if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
       continue;
     }   
     shownItem = true;
@@ -47581,7 +47617,9 @@ function displayInvoiceItems(doc, invoice, layout) {
 
     doc.text(layout.descriptionLeft, y+2, notes);
     doc.text(costX, y+2, cost);
-    doc.text(qtyX, y+2, qty);
+    if (!hideQuantity) {
+      doc.text(qtyX, y+2, qty);
+    }
     doc.text(totalX, y+2, lineTotal);
 
     if (tax) {
@@ -47838,7 +47876,7 @@ function toggleDatePicker(field) {
   $('#'+field).datepicker('show');
 }
 
-function roundToTwo(num, toString) {    
+function roundToTwo(num, toString) {
   var val = +(Math.round(num + "e+2")  + "e-2");
   return toString ? val.toFixed(2) : val;
 }

@@ -6,6 +6,13 @@
 
 	{{ Former::open()->addClass('col-md-8 col-md-offset-2 warn-on-exit') }}
 	{{ Former::populate($account) }}
+	{{ Former::populateField('hide_quantity', intval($account->hide_quantity)) }}
+	{{ Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) }}
+
+	{{ Former::legend('invoice_options') }}
+	{{ Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) }}
+	{{ Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help')) }}
+	<p>&nbsp;</p>
 
 	{{ Former::legend('invoice_design') }}
 	{{ Former::text('primary_color') }}

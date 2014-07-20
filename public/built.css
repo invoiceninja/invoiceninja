@@ -2269,6 +2269,12 @@ border-bottom-width: 1px;
 .dashboard .table-striped>tbody>tr>td:first-child { padding-left: 15px;  }
 .dashboard .table-striped>thead>tr>th:first-child { padding-left: 15px;  }
 
+
+.invoice-table tfoot input {
+    text-align: right;
+}
+
+
 /***********************************************
    New/edit invoice page
 ************************************************/

@@ -397,6 +397,14 @@ return array(
   
   'session_expired' => 'Your session has expired.',
 
+  'invoice_fields' => 'Invoice Fields',
+  'invoice_options' => 'Invoice Options',
+  'hide_quantity' => 'Hide quantity',
+  'hide_quantity_help' => 'All line items will have a quantity of one',
+  'hide_paid_to_date' => 'Hide paid to date',
+  'hide_paid_to_date_help' => 'Hide until a payment is made',
+
+  'charge_taxes' => 'Charge taxes',
 
 );
 

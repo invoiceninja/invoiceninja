@@ -273,12 +273,16 @@ class AccountController extends \BaseController {
 		if (Auth::user()->account->isPro())
 		{
 			$account = Auth::user()->account;
-			$account->custom_label1 = Input::get('custom_label1');
-			$account->custom_value1 = Input::get('custom_value1');
-			$account->custom_label2 = Input::get('custom_label2');
-			$account->custom_value2 = Input::get('custom_value2');
-			$account->custom_client_label1 = Input::get('custom_client_label1');
-			$account->custom_client_label2 = Input::get('custom_client_label2');		
+			$account->custom_label1 = trim(Input::get('custom_label1'));
+			$account->custom_value1 = trim(Input::get('custom_value1'));
+			$account->custom_label2 = trim(Input::get('custom_label2'));
+			$account->custom_value2 = trim(Input::get('custom_value2'));
+			$account->custom_client_label1 = trim(Input::get('custom_client_label1'));
+			$account->custom_client_label2 = trim(Input::get('custom_client_label2'));		
+			$account->custom_invoice_label1 = trim(Input::get('custom_invoice_label1'));
+			$account->custom_invoice_label2 = trim(Input::get('custom_invoice_label2'));
+			$account->custom_invoice_taxes1 = Input::get('custom_invoice_taxes1') ? true : false;
+			$account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;			
 			$account->save();
 
 			Session::flash('message', trans('texts.updated_settings'));
@@ -292,6 +296,8 @@ class AccountController extends \BaseController {
 		if (Auth::user()->account->isPro())
 		{
 			$account = Auth::user()->account;
+			$account->hide_quantity = Input::get('hide_quantity') ? true : false;
+			$account->hide_paid_to_date = Input::get('hide_paid_to_date') ? true : false;
 			$account->primary_color = Input::get('primary_color');// ? Input::get('primary_color') : null;
 			$account->secondary_color = Input::get('secondary_color');// ? Input::get('secondary_color') : null;
 			$account->save();

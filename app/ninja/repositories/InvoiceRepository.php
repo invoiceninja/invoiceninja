@@ -237,7 +237,7 @@ class InvoiceRepository
 		
 		foreach ($data['invoice_items'] as $item) 
 		{
-			if (!$item->cost && !$item->qty && !$item->product_key && !$item->notes)
+			if (!$item->cost && !$item->product_key && !$item->notes)
 			{
 				continue;
 			}
@@ -261,8 +261,29 @@ class InvoiceRepository
 			$total *= (100 - $invoice->discount) / 100;
 		}
 
+    $invoice->custom_value1 = $data['custom_value1'];
+    $invoice->custom_value2 = $data['custom_value2'];
+    $invoice->custom_taxes1 = $data['custom_taxes1'] ? true : false;
+    $invoice->custom_taxes2 = $data['custom_taxes2'] ? true : false;
+
+    // custom fields charged taxes
+    if ($invoice->custom_value1 && $invoice->custom_taxes1) {
+      $total += $invoice->custom_value1;
+    }
+    if ($invoice->custom_value2 && $invoice->custom_taxes2) {
+      $total += $invoice->custom_value2;
+    }
+
 		$total += $total * $invoice->tax_rate / 100;
     $total = round($total, 2);
+
+    // custom fields not charged taxes
+    if ($invoice->custom_value1 && !$invoice->custom_taxes1) {
+      $total += $invoice->custom_value1;
+    }
+    if ($invoice->custom_value2 && !$invoice->custom_taxes2) {
+      $total += $invoice->custom_value2;
+    }
 
     if ($publicId)    
     {
@@ -280,7 +301,7 @@ class InvoiceRepository
     
     foreach ($data['invoice_items'] as $item) 
     {
-      if (!$item->cost && !$item->qty && !$item->product_key && !$item->notes)
+      if (!$item->cost && !$item->product_key && !$item->notes)
       {
         continue;
       }
