@@ -139,10 +139,17 @@ class Utils
 
 	        $phoneNumber = '+'.$countryCode.' ('.$areaCode.') '.$nextThree.'-'.$lastFour;
 	    }
-	    else if(strlen($phoneNumber) == 10 && substr($phoneNumber, 0, 2) == 65) {
+	    else if(strlen($phoneNumber) == 10 && in_array(substr($phoneNumber, 0, 3), array(653, 656, 658, 659))) {
+	        /**
+	         * SG country code are 653, 656, 658, 659
+	         * US area code consist of 650, 651 and 657
+	         * @see http://en.wikipedia.org/wiki/Telephone_numbers_in_Singapore#Numbering_plan
+	         * @see http://www.bennetyee.org/ucsd-pages/area.html
+	         */
 	        $countryCode = substr($phoneNumber, 0, 2);
 	        $nextFour = substr($phoneNumber, 2, 4);
 	        $lastFour = substr($phoneNumber, 6, 4);
+
 	        $phoneNumber = '+'.$countryCode.' '.$nextFour.' '.$lastFour;
 	    }
 	    else if(strlen($phoneNumber) == 10) {
