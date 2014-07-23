@@ -298,7 +298,7 @@ a .cta:hover span {
     padding-right: 15px;
     position: relative;
     padding: 10px 35px 20px 35px;
-    height: 212px;
+    xheight: 212px;
     border-left: 1px dotted #ccc;
     margin-top: 100px;
     text-align: left;

@@ -184,6 +184,13 @@
     {{ Button::block_primary_submit_lg(strtoupper(trans('texts.pay_now')) . ' - ' . Utils::formatMoney($amount, $currencyId) ) }}
   </div>
 </div>
+<div class="row">
+  <div class="col-md-12">
+    <p>&nbsp;</p>
+    <a href="https://www.invoiceninja.com/terms" target="_blank">Click here</a> to view our terms of service.
+  </div>
+</div>
+
 </div>
 </div>
 

@@ -4,7 +4,9 @@
 	@parent
 	@include('accounts.nav_advanced')
 
-  {{ Button::success_link(URL::to('users/create'), trans("texts.add_user"), array('class' => 'pull-right'))->append_with_icon('plus-sign') }} 
+  @if (Utils::isPro())
+    {{ Button::success_link(URL::to('users/create'), trans("texts.add_user"), array('class' => 'pull-right'))->append_with_icon('plus-sign') }} 
+  @endif
 
   {{ Datatable::table()   
       ->addColumn(
