@@ -381,5 +381,28 @@ return array(
   'notification_quote_viewed' => 'Der folgende Kunde :client schaute das Angebot :client über :amount an.',  
 
   'session_expired' => 'Deine Sitzung ist abgelaufen.',
+
+  'invoice_fields' => 'Invoice Fields',
+  'invoice_options' => 'Invoice Options',
+  'hide_quantity' => 'Hide quantity',
+  'hide_quantity_help' => 'If your line items quantities are always 1, then you can declutter invoices by no longer displaying this field.',
+  'hide_paid_to_date' => 'Hide paid to date',
+  'hide_paid_to_date_help' => 'Only display the "Paid to Date" area on your invoices once a payment has been received.',
+
+  'charge_taxes' => 'Charge taxes',
+  'user_management' => 'User Management',
+  'add_user' => 'Add User',
+  'send_invite' => 'Send invitation',
+  'sent_invite' => 'Successfully sent invitation',
+  'updated_user' => 'Successfully updated user',
+  'invitation_message' => 'You\'ve been invited by :invitor. ',
+  'register_to_add_user' => 'Please sign up to add a user',
+  'user_state' => 'State',
+  'edit_user' => 'Edit User',
+  'delete_user' => 'Delete User',
+  'active' => 'Active',
+  'pending' => 'Pending',
+  'deleted_user' => 'Successfully deleted user',
+  'limit_users' => 'Sorry, this will exceed the limit of ' . MAX_NUM_USERS . ' users',
   
 );
