@@ -1336,19 +1336,19 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
     {'discount': invoice.discount_amount > 0 ? formatMoney(invoice.discount_amount, invoice.client.currency_id) : false}
   ];
 
-  if (NINJA.parseFloat(invoice.custom_value1) && NINJA.parseFloat(invoice.custom_taxes1)) {    
+  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {    
     data.push({'custom_invoice_label1': formatMoney(invoice.custom_value1, invoice.client.currency_id) })
   }
-  if (NINJA.parseFloat(invoice.custom_value2) && NINJA.parseFloat(invoice.custom_taxes2)) {
+  if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 == '1') {
     data.push({'custom_invoice_label2': formatMoney(invoice.custom_value2, invoice.client.currency_id) }) 
   }
 
   data.push({'tax': invoice.tax_amount > 0 ? formatMoney(invoice.tax_amount, invoice.client.currency_id) : false});
 
-  if (NINJA.parseFloat(invoice.custom_value1) && !NINJA.parseFloat(invoice.custom_taxes1)) {    
+  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {    
     data.push({'custom_invoice_label1': formatMoney(invoice.custom_value1, invoice.client.currency_id) })
   }
-  if (NINJA.parseFloat(invoice.custom_value2) && !NINJA.parseFloat(invoice.custom_taxes2)) {
+  if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 != '1') {
     data.push({'custom_invoice_label2': formatMoney(invoice.custom_value2, invoice.client.currency_id) }) 
   }
 
@@ -1508,10 +1508,10 @@ function calculateAmounts(invoice) {
   }
 
   // custom fields with taxes
-  if (NINJA.parseFloat(invoice.custom_value1) && NINJA.parseFloat(invoice.custom_taxes1)) {    
+  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {    
     total += roundToTwo(invoice.custom_value1);    
   }
-  if (NINJA.parseFloat(invoice.custom_value2) && NINJA.parseFloat(invoice.custom_taxes2)) {
+  if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 == '1') {
     total += roundToTwo(invoice.custom_value2);    
   }
 
@@ -1528,10 +1528,10 @@ function calculateAmounts(invoice) {
   }
 
   // custom fields w/o with taxes
-  if (NINJA.parseFloat(invoice.custom_value1) && !NINJA.parseFloat(invoice.custom_taxes1)) {    
+  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {    
     total += roundToTwo(invoice.custom_value1);    
   }
-  if (NINJA.parseFloat(invoice.custom_value2) && !NINJA.parseFloat(invoice.custom_taxes2)) {
+  if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 != '1') {
     total += roundToTwo(invoice.custom_value2);    
   }
 

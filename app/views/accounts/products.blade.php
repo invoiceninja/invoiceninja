@@ -28,10 +28,10 @@
       ->setOptions('bFilter', false)      
       ->setOptions('bAutoWidth', false)      
       ->setOptions('aoColumns', [[ "sWidth"=> "20%" ], [ "sWidth"=> "45%" ], ["sWidth"=> "20%"], ["sWidth"=> "15%" ]])      
+      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[3]]])
       ->render('datatable') }}
 
   <script>
-
   window.onDatatableReady = function() {        
     $('tbody tr').mouseover(function() {
       $(this).closest('tr').find('.tr-action').css('visibility','visible');
@@ -42,8 +42,6 @@
       }     
     });
   } 
-
-
   </script>  
 
 

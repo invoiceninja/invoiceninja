@@ -9,7 +9,7 @@
 
 	
 	{{ Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
-		'client' => 'required',
+			'client' => 'required',
   		'amount' => 'required',		
 	)); }}
 	

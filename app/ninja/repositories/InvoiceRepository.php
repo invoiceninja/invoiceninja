@@ -261,8 +261,8 @@ class InvoiceRepository
 			$total *= (100 - $invoice->discount) / 100;
 		}
 
-    $invoice->custom_value1 = $data['custom_value1'];
-    $invoice->custom_value2 = $data['custom_value2'];
+    $invoice->custom_value1 = round($data['custom_value1'], 2);
+    $invoice->custom_value2 = round($data['custom_value2'], 2);
     $invoice->custom_taxes1 = $data['custom_taxes1'] ? true : false;
     $invoice->custom_taxes2 = $data['custom_taxes2'] ? true : false;
 

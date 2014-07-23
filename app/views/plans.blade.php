@@ -36,7 +36,7 @@
   <div class="pro col-md-4">
 
     <div class="cell">Pro Plan<span class="glyphicon glyphicon-star"></div>
-    <div class="cell"><div class="hide-desktop">Number of clients per account</div><span style="color: #2299c0; font-size: 16px;">5,000</span></div>
+    <div class="cell"><div class="hide-desktop">Number of clients per account</div><span style="color: #2299c0; font-size: 16px;">Unlimited</span></div>
     <div class="cell"><div class="hide-desktop">Unlimited client invoices</div><span class="glyphicon glyphicon-ok"></div>
     <div class="cell"><div class="hide-desktop">Add your company logo</div><span class="glyphicon glyphicon-ok"></div>
     <div class="cell"><div class="hide-desktop">Live .PDF invoice creation</div><span class="glyphicon glyphicon-ok"></div>

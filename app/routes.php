@@ -57,7 +57,7 @@ Route::post('login', 'UserController@do_login');
 Route::get('user/confirm/{code}', 'UserController@confirm');
 Route::get('forgot_password', 'UserController@forgot_password');
 Route::post('forgot_password', 'UserController@do_forgot_password');
-Route::get('user/reset/{token}', 'UserController@reset_password');
+Route::get('user/reset/{token?}', 'UserController@reset_password');
 Route::post('user/reset', 'UserController@do_reset_password');
 Route::get('logout', 'UserController@logout');
 
@@ -67,17 +67,14 @@ Route::group(array('before' => 'auth'), function()
   Route::get('dashboard', 'DashboardController@index');
   Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
   Route::get('force_inline_pdf', 'UserController@forcePDFJS');
+
+  Route::get('api/users', array('as'=>'api.users', 'uses'=>'UserController@getDatatable'));
+  Route::resource('users', 'UserController');
+  Route::post('users/delete', 'UserController@delete');
   
   Route::get('api/products', array('as'=>'api.products', 'uses'=>'ProductController@getDatatable'));
   Route::resource('products', 'ProductController');
   Route::get('products/{product_id}/archive', 'ProductController@archive');
-
-  /*
-  Route::get('company/products/{product_id}/edit', 'ProductController@showProduct');
-  Route::get('company/products/{product_id}/archive', 'ProductController@archiveProduct');
-  Route::get('company/products/create', 'ProductController@createProduct');
-  Route::post('company/products/{product_id?}', 'AccountController@saveProduct');
-  */
 
   Route::get('company/advanced_settings/chart_builder', 'ReportController@report');
   Route::post('company/advanced_settings/chart_builder', 'ReportController@report');
@@ -163,14 +160,16 @@ define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
 define('ACCOUNT_CUSTOM_FIELDS', 'custom_fields');
 define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
 define('ACCOUNT_CHART_BUILDER', 'chart_builder');
-
+define('ACCOUNT_USER_MANAGEMENT', 'user_management');
+                
 
 define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
 define('LOGGED_ERROR_LIMIT', 100);
 define('RANDOM_KEY_LENGTH', 32);
 define('MAX_NUM_CLIENTS', 500);
-define('MAX_NUM_CLIENTS_PRO', 5000);
+define('MAX_NUM_CLIENTS_PRO', 20000);
+define('MAX_NUM_USERS', 5);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);

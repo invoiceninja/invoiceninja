@@ -8,7 +8,7 @@ use Utils;
 
 class UserMailer extends Mailer {
 
-	public function sendConfirmation(User $user)
+	public function sendConfirmation(User $user, User $invitor = null)
 	{
 		if (!$user->email)
 		{
@@ -19,7 +19,8 @@ class UserMailer extends Mailer {
 		$subject = trans('texts.confirmation_subject');
 
 		$data = [
-			'user' => $user
+			'user' => $user,
+			'invitationMessage' => $invitor ? trans('texts.invitation_message', ['invitor' => $invitor->getDisplayName()]) : ''
 		];
 		
 		$this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);		

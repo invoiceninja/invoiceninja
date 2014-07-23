@@ -57,8 +57,8 @@
 	        'password_confirmation' => 'required',        
 		)); }}
 
-			<h2 class="form-signin-heading">Passord Reset</h2>
-    		<input type="hidden" name="token" value="{{{ $token }}}">
+			<h2 class="form-signin-heading">Set Passord</h2><p/>&nbsp;
+    	<input type="hidden" name="token" value="{{{ $token }}}">
 
 			<p>
 				{{ Former::password('password') }}				
