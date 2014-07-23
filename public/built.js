@@ -47278,7 +47278,7 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
   }
 
   var paid = invoice.amount - invoice.balance;
-  if (invoice.account.hide_paid_to_date === '0' || paid) {
+  if (invoice.account.hide_paid_to_date != '1' || paid) {
     data.push({'paid_to_date': formatMoney(paid, invoice.client.currency_id)});
   }
 
