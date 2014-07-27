@@ -20,6 +20,7 @@ Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
 * Integrates with many payment providers
 * Recurring invoices
 * Tax rates and payment terms
+* Multi-user support
 
 ### Steps to setup
 

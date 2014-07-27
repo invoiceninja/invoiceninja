@@ -51,7 +51,7 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 	 * @return mixed
 	 */
 	public function getAuthIdentifier()
-	{
+	{		
 		return $this->getKey();
 	}
 
@@ -173,5 +173,5 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 	public function getRememberTokenName()
 	{
 	    return 'remember_token';
-	}	
+	}
 }

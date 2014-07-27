@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -21,6 +22,7 @@
 //dd(App::environment());
 //dd(gethostname());
 //Log::error('test');
+
 
 Route::get('/', 'HomeController@showIndex');
 Route::get('/rocksteady', 'HomeController@showIndex');
@@ -123,12 +125,20 @@ Route::group(array('before' => 'auth'), function()
 	Route::post('credits/bulk', 'CreditController@bulk');	
 });
 
-// Route group for API versioning
+// Route group for API
 Route::group(array('prefix' => 'api/v1', 'before' => 'auth.basic'), function()
 {
-    Route::resource('clients', 'ClientApiController');
+  Route::resource('ping', 'ClientApiController@ping');
+  Route::resource('clients', 'ClientApiController');
+  Route::resource('invoices', 'InvoiceApiController');
+  Route::resource('quotes', 'QuoteApiController');
+  Route::resource('payments', 'PaymentApiController');
 });
 
+Route::group(array('before' => 'auth.basic'), function()
+{
+  Route::post('api/hooks', 'IntegrationController@subscribe');
+});
 
 define('CONTACT_EMAIL', 'contact@invoiceninja.com');
 define('CONTACT_NAME', 'Invoice Ninja');
@@ -215,12 +225,17 @@ define('GATEWAY_PAYPAL_EXPRESS', 17);
 define('GATEWAY_BEANSTREAM', 29);
 define('GATEWAY_PSIGATE', 30);
 
+define('EVENT_CREATE_CLIENT', 1);
+define('EVENT_CREATE_INVOICE', 2);
+define('EVENT_CREATE_QUOTE', 3);
+define('EVENT_CREATE_PAYMENT', 4);
+
 define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
 define('NINJA_URL', 'https://www.invoiceninja.com');
-define('NINJA_VERSION', '1.3.0');
+define('NINJA_VERSION', '1.3.1');
 
 define('PRO_PLAN_PRICE', 50);
 define('LICENSE_PRICE', 30);
@@ -379,4 +394,6 @@ if (Auth::check() && Auth::user()->id === 1)
   Auth::loginUsingId(1);
 }
 */
+
+
 

@@ -57,7 +57,7 @@
 	        'password_confirmation' => 'required',        
 		)); }}
 
-			<h2 class="form-signin-heading">Set Passord</h2><p/>&nbsp;
+			<h2 class="form-signin-heading">Set Password</h2><p/>&nbsp;
     	<input type="hidden" name="token" value="{{{ $token }}}">
 
 			<p>

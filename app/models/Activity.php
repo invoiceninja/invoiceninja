@@ -67,13 +67,18 @@ class Activity extends Eloquent
 		return $activity;
 	}
 
-	public static function createClient($client)
+	public static function createClient($client, $notify = true)
 	{		
 		$activity = Activity::getBlank();
 		$activity->client_id = $client->id;
 		$activity->activity_type_id = ACTIVITY_TYPE_CREATE_CLIENT;
 		$activity->message = Utils::encodeActivity(Auth::user(), 'created', $client);
 		$activity->save();		
+
+		if ($notify)
+		{
+			Activity::checkSubscriptions(EVENT_CREATE_CLIENT, $client);
+		}
 	}
 
 	public static function updateClient($client)
@@ -129,6 +134,8 @@ class Activity extends Eloquent
 		$activity->balance = $client->balance;
 		$activity->adjustment = $adjustment;
 		$activity->save();
+
+		Activity::checkSubscriptions($invoice->is_quote ? EVENT_CREATE_QUOTE : EVENT_CREATE_INVOICE, $invoice);
 	}	
 
 	public static function archiveInvoice($invoice)
@@ -290,6 +297,8 @@ class Activity extends Eloquent
 		$activity->balance = $client->balance;
 		$activity->adjustment = $payment->amount * -1;
 		$activity->save();
+
+		Activity::checkSubscriptions(EVENT_CREATE_PAYMENT, $payment);
 	}	
 
 	public static function updatePayment($payment)
@@ -428,5 +437,15 @@ class Activity extends Eloquent
 		$activity->message = Utils::encodeActivity(Auth::user(), 'archived ' . Utils::formatMoney($credit->balance, $credit->client->currency_id) . ' credit');
 		$activity->balance = $credit->client->balance;
 		$activity->save();
+	}
+
+	private static function checkSubscriptions($event, $data)
+	{
+		$subscription = Auth::user()->account->getSubscription($event);
+		
+		if ($subscription)
+		{
+			Utils::notifyZapier($subscription, $data);
+		}
 	}
 }

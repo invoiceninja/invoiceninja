@@ -119,11 +119,11 @@ Route::filter('csrf', function()
 {
 	$token = Request::ajax() ? Request::header('X-CSRF-Token') : Input::get('_token');
 	
-   	if (Session::token() != $token) 
-   	{      
-      Session::flash('warning', trans('texts.session_expired'));   
+ 	if (Session::token() != $token) 
+ 	{      
+    Session::flash('warning', trans('texts.session_expired'));   
 
-   		return Redirect::to('/');
-			//throw new Illuminate\Session\TokenMismatchException;
-   	}
+ 		return Redirect::to('/');
+		//throw new Illuminate\Session\TokenMismatchException;
+ 	}
 });

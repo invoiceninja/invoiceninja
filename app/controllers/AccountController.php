@@ -379,6 +379,7 @@ class AccountController extends \BaseController {
 			$client = Client::createNew();		
 			$contact = Contact::createNew();
 			$contact->is_primary = true;
+			$contact->send_invoice = true;
 			$count++;
 
 			foreach ($row as $index => $value)
@@ -443,7 +444,7 @@ class AccountController extends \BaseController {
 
 			$client->save();
 			$client->contacts()->save($contact);		
-			Activity::createClient($client);
+			Activity::createClient($client, false);
 		}
 
 		$message = Utils::pluralize('created_client', $count);
@@ -470,7 +471,7 @@ class AccountController extends \BaseController {
 		
 		if (count($csv->data) + Client::scope()->count() > Auth::user()->getMaxNumClients())
 		{
-			$message = Utils::pluralize('limit_clients', Auth::user()->getMaxNumClients());
+      $message = trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]);
 			Session::flash('error', $message);
 			return Redirect::to('company/import_export');
 		}

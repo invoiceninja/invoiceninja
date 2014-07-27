@@ -32,13 +32,22 @@ class ClientRepository
     	return $query;
 	}
 
-	public function save($publicId, $data)
-	{			
-		if ($publicId == "-1") 
+	public function save($publicId, $data, $notify = true)
+	{
+		$contact = isset($data['contacts']) ? (array)$data['contacts'][0] : (isset($data['contact']) ? $data['contact'] : []);
+		$validator = \Validator::make($contact, ['email' => 'required|email']);
+		if ($validator->fails()) {
+			dd($validator->messages());
+			return false;
+		}
+
+		if (!$publicId || $publicId == "-1") 
 		{
 			$client = Client::createNew();
+			$client->currency_id = 1;
 			$contact = Contact::createNew();
 			$contact->is_primary = true;			
+			$contact->send_invoice = true;
 		}
 		else
 		{
@@ -46,66 +55,128 @@ class ClientRepository
 			$contact = $client->contacts()->where('is_primary', '=', true)->firstOrFail();
 		}
 		
+		if (isset($data['name'])) {
+			$client->name = trim($data['name']);
+		}
+		if (isset($data['work_phone'])) {
+			$client->work_phone = trim($data['work_phone']);
+		}
+		if (isset($data['custom_value1'])) {			
+			$client->custom_value1 = trim($data['custom_value1']);
+		}
+		if (isset($data['custom_value2'])) {
+			$client->custom_value2 = trim($data['custom_value2']);
+		}
+		if (isset($data['address1'])) {
+			$client->address1 = trim($data['address1']);
+		}
+		if (isset($data['address2'])) {
+			$client->address2 = trim($data['address2']);
+		}
+		if (isset($data['city'])) {
+			$client->city = trim($data['city']);
+		}
+		if (isset($data['state'])) {
+			$client->state = trim($data['state']);
+		}
+		if (isset($data['postal_code'])) {
+			$client->postal_code = trim($data['postal_code']);
+		}
+		if (isset($data['country_id'])) {
+			$client->country_id = $data['country_id'] ? $data['country_id'] : null;
+		}
+		if (isset($data['private_notes'])) {
+			$client->private_notes = trim($data['private_notes']);
+		}
+		if (isset($data['size_id'])) {
+			$client->size_id = $data['size_id'] ? $data['size_id'] : null;
+		}
+		if (isset($data['industry_id'])) {
+			$client->industry_id = $data['industry_id'] ? $data['industry_id'] : null;
+		}
+		if (isset($data['currency_id'])) {
+			$client->currency_id = $data['currency_id'] ? $data['currency_id'] : 1;
+		}
+		if (isset($data['payment_terms'])) {
+			$client->payment_terms = $data['payment_terms'];
+		}
+		if (isset($data['website'])) {
+			$client->website = trim($data['website']);
+		}
 
-		$client->name = trim($data['name']);
-		$client->work_phone = trim($data['work_phone']);		
-		$client->custom_value1 = trim($data['custom_value1']);
-		$client->custom_value2 = trim($data['custom_value2']);
-		$client->address1 = trim($data['address1']);
-		$client->address2 = trim($data['address2']);
-		$client->city = trim($data['city']);
-		$client->state = trim($data['state']);
-		$client->postal_code = trim($data['postal_code']);
-		$client->country_id = $data['country_id'] ? $data['country_id'] : null;
-		$client->private_notes = trim($data['private_notes']);
-		$client->size_id = $data['size_id'] ? $data['size_id'] : null;
-		$client->industry_id = $data['industry_id'] ? $data['industry_id'] : null;
-		$client->currency_id = $data['currency_id'] ? $data['currency_id'] : 1;
-		$client->payment_terms = $data['payment_terms'];
-		$client->website = trim($data['website']);
 		$client->save();
 		
 		$isPrimary = true;
 		$contactIds = [];
 
-		foreach ($data['contacts'] as $record)
+		if (isset($data['contact']))
 		{
-			$record = (array) $record;
-
-			if ($publicId != "-1" && isset($record['public_id']) && $record['public_id'])
-			{
-				$contact = Contact::scope($record['public_id'])->firstOrFail();
+			$info = $data['contact'];
+			if (isset($info['email'])) {
+				$contact->email = trim(strtolower($info['email']));
 			}
-			else
-			{
-				$contact = Contact::createNew();
+			if (isset($info['first_name'])) {
+				$contact->first_name = trim($info['first_name']);
 			}
-
-			$contact->email = trim(strtolower($record['email']));
-			$contact->first_name = trim($record['first_name']);
-			$contact->last_name = trim($record['last_name']);
-			$contact->phone = trim($record['phone']);
-			$contact->is_primary = $isPrimary;
-			$contact->send_invoice = $record['send_invoice'];
-			$isPrimary = false;
-
+			if (isset($info['last_name'])) {				
+				$contact->last_name = trim($info['last_name']);
+			}
+			if (isset($info['phone'])) {
+				$contact->phone = trim($info['phone']);
+			}
+			$contact->is_primary = true;
+			$contact->send_invoice = true;
 			$client->contacts()->save($contact);
-			$contactIds[] = $contact->public_id;
 		}
-		
-		foreach ($client->contacts as $contact)
+		else
 		{
-			if (!in_array($contact->public_id, $contactIds))
-			{	
-				$contact->delete();
+			foreach ($data['contacts'] as $record)
+			{
+				$record = (array) $record;
+
+				if ($publicId != "-1" && isset($record['public_id']) && $record['public_id'])
+				{
+					$contact = Contact::scope($record['public_id'])->firstOrFail();
+				}
+				else
+				{
+					$contact = Contact::createNew();
+				}
+
+				if (isset($record['email'])) {
+					$contact->email = trim(strtolower($record['email']));
+				}
+				if (isset($record['first_name'])) {				
+					$contact->first_name = trim($record['first_name']);
+				}
+				if (isset($record['last_name'])) {
+					$contact->last_name = trim($record['last_name']);
+				}
+				if (isset($record['phone'])) {
+					$contact->phone = trim($record['phone']);
+				}
+				$contact->is_primary = $isPrimary;
+				$contact->send_invoice = isset($record['send_invoice']) ? $record['send_invoice'] : true;
+				$isPrimary = false;
+
+				$client->contacts()->save($contact);
+				$contactIds[] = $contact->public_id;
+			}
+			
+			foreach ($client->contacts as $contact)
+			{
+				if (!in_array($contact->public_id, $contactIds))
+				{	
+					$contact->delete();
+				}
 			}
 		}
 
 		$client->save();
 		
-		if ($publicId == "-1")
+		if (!$publicId || $publicId == "-1")
 		{
-			\Activity::createClient($client);
+			\Activity::createClient($client, $notify);
 		}
 
 		return $client;

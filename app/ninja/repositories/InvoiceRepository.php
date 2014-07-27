@@ -154,30 +154,30 @@ class InvoiceRepository
 	{
 		$contact = (array) $input->client->contacts[0];
 		$rules = ['email' => 'required|email'];
-    	$validator = \Validator::make($contact, $rules);
+  	$validator = \Validator::make($contact, $rules);
 
-    	if ($validator->fails())
-    	{
-    		return $validator;
-    	}
+  	if ($validator->fails())
+  	{
+  		return $validator;
+  	}
 
-    	$invoice = (array) $input;
-    	$invoiceId = isset($invoice['public_id']) && $invoice['public_id'] ? Invoice::getPrivateId($invoice['public_id']) : null;
-    	$rules = ['invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . \Auth::user()->account_id];    	
+  	$invoice = (array) $input;
+  	$invoiceId = isset($invoice['public_id']) && $invoice['public_id'] ? Invoice::getPrivateId($invoice['public_id']) : null;
+  	$rules = ['invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . \Auth::user()->account_id];    	
 
-    	if ($invoice['is_recurring'] && $invoice['start_date'] && $invoice['end_date'])
-    	{
-    		$rules['end_date'] = 'after:' . $invoice['start_date'];
-    	}
+  	if ($invoice['is_recurring'] && $invoice['start_date'] && $invoice['end_date'])
+  	{
+  		$rules['end_date'] = 'after:' . $invoice['start_date'];
+  	}
 
-    	$validator = \Validator::make($invoice, $rules);
+  	$validator = \Validator::make($invoice, $rules);
 
-    	if ($validator->fails())
-    	{
-    		return $validator;
-    	}
+  	if ($validator->fails())
+  	{
+  		return $validator;
+  	}
 
-    	return false;
+  	return false;
 	}
 
 	public function save($publicId, $data, $entityType)

@@ -463,4 +463,76 @@ class Utils
 		}
 		return join('-', $parts);
 	}
+
+	public static function lookupEventId($eventName) 
+	{
+		if ($eventName == 'create_client') {
+			return EVENT_CREATE_CLIENT;
+		} else if ($eventName == 'create_invoice') {
+			return EVENT_CREATE_INVOICE;
+		} else if ($eventName == 'create_quote') {
+			return EVENT_CREATE_QUOTE;
+		} else if ($eventName == 'create_payment') {
+			return EVENT_CREATE_PAYMENT;
+		} else {
+			return false;
+		}
+	}
+
+	public static function notifyZapier($subscription, $data) {
+    $curl = curl_init();
+
+		$jsonEncodedData = json_encode($data->toJson());
+		$opts = [
+	    CURLOPT_URL => $subscription->target_url,
+	    CURLOPT_RETURNTRANSFER => true,
+	    CURLOPT_CUSTOMREQUEST => 'POST',
+	    CURLOPT_POST => 1,
+	    CURLOPT_POSTFIELDS => $jsonEncodedData,
+	    CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: ' . strlen($jsonEncodedData)]
+		];
+
+    curl_setopt_array($curl, $opts);
+    
+    $result = curl_exec($curl);
+    $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+    curl_close($curl);
+
+    if ($status == 410)
+    {
+    	$subscription->delete();
+    }
+	}
+
+	public static function remapPublicIds($data) {
+    foreach ($data as $index => $record) {
+    	if (!isset($data[$index]['public_id'])) {
+    		continue;
+    	}
+      $data[$index]['id'] = $data[$index]['public_id'];
+      unset($data[$index]['public_id']);
+
+      foreach ($record as $key => $val) {
+      	if (is_array($val)) {      		
+      		$data[$index][$key] = Utils::remapPublicIds($val);
+      	}
+      }
+    }
+    return $data;
+	}
+
+	public static function getApiHeaders($count = 0) {
+    return [
+      'Content-Type' => 'application/json',
+      //'Access-Control-Allow-Origin' => '*',
+      //'Access-Control-Allow-Methods' => 'GET',
+      //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',      
+      //'Access-Control-Allow-Credentials' => 'true',
+      'X-Total-Count' => $count,
+      //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
+      //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
+      //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
+    ];
+	}	
 }

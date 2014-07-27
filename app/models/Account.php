@@ -248,4 +248,8 @@ class Account extends Eloquent
 		return $interval->y == 0;
 	}
 
+	public function getSubscription($eventId) 
+	{
+		return Subscription::where('account_id', '=', $this->id)->where('event_id', '=', $eventId)->first();
+	}
 }
