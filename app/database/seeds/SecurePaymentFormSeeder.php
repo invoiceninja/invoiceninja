@@ -36,7 +36,7 @@ class SecurePaymentFormSeeder extends Seeder
 //            'account_id' => 1,
 //            'user_id' => 1,
 //            'gateway_id' => 4,
-//            'config' => '{"bla":"vla","bli":"cla"}',
+//            'config' => '{"apiLoginId":"ab","transactionKey":"ab","testMode":"","developerMode":""}',
 //            'public_id' => 1,
 //            'accepted_credit_cards' => 8
 //        ));
@@ -45,7 +45,7 @@ class SecurePaymentFormSeeder extends Seeder
 //            'account_id' => 2,
 //            'user_id' => 2,
 //            'gateway_id' => 5,
-//            'config' => '{"bla":"vla","bli":"cla"}',
+//            'config' => '{"apiLoginId":"ba","transactionKey":"ba","testMode":"","developerMode":""}',
 //            'public_id' => 2,
 //            'accepted_credit_cards' => 7
 //        ));
