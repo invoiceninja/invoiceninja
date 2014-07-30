@@ -406,16 +406,26 @@ class PaymentController extends \BaseController
 
             }
 
+            $licenseKey = Utils::generateLicense();
+
             $license = new License;
             $license->first_name = Input::get('first_name');
             $license->last_name = Input::get('last_name');
             $license->email = Input::get('email');
             $license->transaction_reference = $ref;
-            $license->license_key = Utils::generateLicense();
+            $license->license_key = $licenseKey;
             $license->affiliate_id = Session::get('affiliate_id');
             $license->save();                
 
-            return Redirect::away(Session::get('return_url') . "?license_key={$license->license_key}");
+
+            $data = [
+                'license' => $licenseKey,
+                'hideHeader' => true
+            ];
+
+            return View::make('public.license', $data);
+
+            //return Redirect::away(Session::get('return_url') . "?license_key={$license->license_key}");
         }        
         catch (\Exception $e) 
         {
