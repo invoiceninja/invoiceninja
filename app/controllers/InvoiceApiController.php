@@ -15,7 +15,7 @@ class InvoiceApiController extends Controller {
   public function index()
   {    
     if (!Utils::isPro()) {
-      Redirect::to('/');
+      return Redirect::to('/');
     }
     
     $invoices = Invoice::scope()->where('invoices.is_quote', '=', false)->orderBy('created_at', 'desc')->get();

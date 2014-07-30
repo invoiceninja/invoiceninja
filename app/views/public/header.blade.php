@@ -45,6 +45,8 @@
   .hero-testi {
     background-image: url({{ asset('/images/hero-bg-testi.jpg') }});
   }   
+
+
 </style>
 
 @stop

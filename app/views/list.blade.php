@@ -19,7 +19,7 @@
 	
 	&nbsp;<label for="trashed" style="font-weight:normal; margin-left: 10px;">
 		<input id="trashed" type="checkbox" onclick="setTrashVisible()" 
-			{{ Session::get('show_trash') ? 'checked' : ''}}/> {{ trans('texts.show_archived_deleted')}} {{ strtolower(trans('texts.'.$entityType.'s')) }}
+			{{ Session::get("show_trash:{$entityType}") ? 'checked' : ''}}/> {{ trans('texts.show_archived_deleted')}} {{ strtolower(trans('texts.'.$entityType.'s')) }}
 	</label>
 
 	<div id="top_right_buttons" class="pull-right">

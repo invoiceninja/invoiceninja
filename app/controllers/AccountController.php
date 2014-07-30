@@ -67,7 +67,7 @@ class AccountController extends \BaseController {
 
 	public function setTrashVisible($entityType, $visible)
 	{
-		Session::put('show_trash', $visible == 'true');
+		Session::put("show_trash:{$entityType}", $visible == 'true');
 		return Redirect::to("{$entityType}s");
 	}
 

@@ -1293,15 +1293,19 @@ div.fb_iframe_widget > span {
     background-color: transparent;
     border: none;
 }
+
+.compare-table .glyphicon,
 .plans-table .glyphicon {
     color: #fff;
     border-radius: 50px;
     padding: 5px;
     font-size: 10px;
 }
+.compare-table .glyphicon-remove,
 .plans-table .glyphicon-remove {
     background-color: #da4830;
 }
+.compare-table .glyphicon-ok,
 .plans-table .glyphicon-ok {
     background-color: #35c156;
 }
@@ -1349,6 +1353,28 @@ div.fb_iframe_widget > span {
 .plans-table a .cta h2 span {
     background: #1e84a5;
 }
+
+
+table.compare-table td {
+  height: 70px;
+  vertical-align: middle !important;
+}
+table.compare-table th {
+  height: 70px;
+  vertical-align: middle !important;
+  text-align: center;
+  color: white;
+}
+table.compare-table td:first-child {
+  text-align: left;
+}
+table.compare-table-free th {
+  background-color: #0b4d78;
+}
+table.compare-table-paid th {
+  background-color: #e37329;
+}
+
 
 @media (min-width: 992px) {
    .hide-desktop {display: none !important;}

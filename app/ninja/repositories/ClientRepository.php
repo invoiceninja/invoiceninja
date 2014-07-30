@@ -13,7 +13,7 @@ class ClientRepository
     				->where('contacts.is_primary', '=', true)
     				->select('clients.public_id','clients.name','contacts.first_name','contacts.last_name','clients.balance','clients.last_login','clients.created_at','clients.work_phone','contacts.email','clients.currency_id');
 
-    	if (!\Session::get('show_trash'))
+    	if (!\Session::get('show_trash:client'))
     	{
     		$query->where('clients.deleted_at', '=', null);
     	}
@@ -32,15 +32,19 @@ class ClientRepository
     	return $query;
 	}
 
-	public function save($publicId, $data, $notify = true)
+	public function getErrors($data)
 	{
 		$contact = isset($data['contacts']) ? (array)$data['contacts'][0] : (isset($data['contact']) ? $data['contact'] : []);
 		$validator = \Validator::make($contact, ['email' => 'required|email']);
 		if ($validator->fails()) {
-			dd($validator->messages());
-			return false;
+			return $validator->messages();
 		}
+		
+		return false;		
+	}
 
+	public function save($publicId, $data, $notify = true)
+	{
 		if (!$publicId || $publicId == "-1") 
 		{
 			$client = Client::createNew();

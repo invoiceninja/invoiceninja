@@ -111,6 +111,11 @@ class HomeController extends BaseController {
 		return View::make('secure_payment');	
 	}
 
+	public function showCompare()
+	{
+		return View::make('public.compare');	
+	}
+
 	public function invoiceNow()
 	{
 		if (Auth::check())

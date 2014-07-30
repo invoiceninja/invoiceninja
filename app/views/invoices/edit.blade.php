@@ -725,24 +725,30 @@
 	function onEmailClick() {
 		@if (Auth::user()->confirmed)
 		if (confirm('Are you sure you want to email this {{ $entityType }}?')) {
-			$('#action').val('email');
-			$('#submitButton').click();
+			submitAction('email');
 		}
 		@else
-			$('#action').val('email');
-			$('#submitButton').click();
+			submitAction('email');
 		@endif
 	}
 
 	function onSaveClick() {
-		$('#action').val('');
-		$('#submitButton').click();
+		submitAction('');
+	}
+
+	function submitAction(value) {
+		if (!isSaveValid()) {
+			model.showClientForm();
+			return;
+		}
+		$('#action').val(value);
+		$('#submitButton').click();		
 	}
 
 	function isSaveValid() {
 		var isValid = false;
-		for (var i=0; i<self.invoice().client().contacts().length; i++) {
-			var contact = self.invoice().client().contacts()[i];
+		for (var i=0; i<model.invoice().client().contacts().length; i++) {
+			var contact = model.invoice().client().contacts()[i];
 			if (isValidEmailAddress(contact.email())) {
 				isValid = true;
 			} else {
@@ -773,13 +779,11 @@
 	}
 
 	function onCloneClick() {
-		$('#action').val('clone');
-		$('#submitButton').click();
+		submitAction('clone');
 	}
 
 	function onConvertClick() {
-		$('#action').val('convert');
-		$('#submitButton').click();		
+		submitAction('convert');		
 	}
 
 	@if ($client && $invoice)
@@ -793,14 +797,12 @@
 	@endif
 
 	function onArchiveClick() {
-		$('#action').val('archive');
-		$('#submitButton').click();		
+		submitAction('archive');			
 	}
 
 	function onDeleteClick() {
 		if (confirm('Are you sure you want to delete this {{ $entityType }}?')) {
-			$('#action').val('delete');
-			$('#submitButton').click();			
+			submitAction('delete');		
 		}		
 	}
 
@@ -811,8 +813,7 @@
 			}
 			event.preventDefault();		     				
 
-			$('#action').val('');
-			$('#submitButton').click();
+			submitAction('');		
 			return false;
 		}
 	}
@@ -1099,8 +1100,6 @@
 		if (data) {
 			ko.mapping.fromJS(data, self.mapping, self);			
 			self.is_recurring(parseInt(data.is_recurring));
-			self.is_recurring(parseInt(data.is_recurring) == 1);
-			self.is_recurring(parseInt(data.is_recurring) == 1);
 		} else {
 			self.addItem();
 		}
@@ -1590,10 +1589,12 @@
 			}
 			var invitationContactIds = {{ json_encode($invitationContactIds) }};		
 			var client = clientMap[invoice.client.public_id];
-			for (var i=0; i<client.contacts.length; i++) {
-				var contact = client.contacts[i];
-				contact.send_invoice = invitationContactIds.indexOf(contact.public_id) >= 0;
-			}			
+			if (client) { // in case it's deleted
+				for (var i=0; i<client.contacts.length; i++) {
+					var contact = client.contacts[i];
+					contact.send_invoice = invitationContactIds.indexOf(contact.public_id) >= 0;
+				}			
+			}
 			model.invoice().addItem();
 			//model.addTaxRate();			
 		@else 

@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -34,6 +33,7 @@ Route::post('/contact_submit', 'HomeController@doContactUs');
 Route::get('/faq', 'HomeController@showFaq');
 Route::get('/features', 'HomeController@showFeatures');
 Route::get('/testimonials', 'HomeController@showTestimonials');
+Route::get('/compare-online-invoicing-sites', 'HomeController@showCompare');
 
 Route::get('log_error', 'HomeController@logError');
 Route::get('invoice_now', 'HomeController@invoiceNow');
@@ -133,10 +133,6 @@ Route::group(array('prefix' => 'api/v1', 'before' => 'auth.basic'), function()
   Route::resource('invoices', 'InvoiceApiController');
   Route::resource('quotes', 'QuoteApiController');
   Route::resource('payments', 'PaymentApiController');
-});
-
-Route::group(array('before' => 'auth.basic'), function()
-{
   Route::post('api/hooks', 'IntegrationController@subscribe');
 });
 

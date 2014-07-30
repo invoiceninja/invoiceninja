@@ -47488,7 +47488,7 @@ function displayInvoiceHeader(doc, invoice, layout) {
   doc.text(layout.marginLeft, layout.tableTop, invoiceLabels.item);
   doc.text(layout.descriptionLeft, layout.tableTop, invoiceLabels.description);
   doc.text(costX, layout.tableTop, invoiceLabels.unit_cost);
-  if (invoice.account.hide_quantity === '0') {
+  if (invoice.account.hide_quantity != '1') {
     doc.text(qtyX, layout.tableTop, invoiceLabels.quantity);
   }
   doc.text(totalX, layout.tableTop, invoiceLabels.line_total);
@@ -47507,7 +47507,7 @@ function displayInvoiceItems(doc, invoice, layout) {
   var shownItem = false;
   var currencyId = invoice && invoice.client ? invoice.client.currency_id : 1;  
   var tableTop = layout.tableTop;
-  var hideQuantity = invoice.account.hide_quantity === '1';  
+  var hideQuantity = invoice.account.hide_quantity == '1';  
 
   doc.setFontSize(8);
   for (var i=0; i<invoice.invoice_items.length; i++) {
@@ -47561,7 +47561,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     if (lineTotal) {
       total += lineTotal;
     }
-    lineTotal = formatMoney(lineTotal, currencyId, true);
+    lineTotal = formatMoney(lineTotal, currencyId);
     
     var costX = layout.unitCostRight - (doc.getStringUnitWidth(cost) * doc.internal.getFontSize());
     var qtyX = layout.qtyRight - (doc.getStringUnitWidth(qty) * doc.internal.getFontSize());

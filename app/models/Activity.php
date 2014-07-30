@@ -441,6 +441,10 @@ class Activity extends Eloquent
 
 	private static function checkSubscriptions($event, $data)
 	{
+		if (!Auth::check()) {
+			return;
+		}
+		
 		$subscription = Auth::user()->account->getSubscription($event);
 		
 		if ($subscription)

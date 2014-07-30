@@ -15,7 +15,7 @@ class PaymentApiController extends Controller {
   public function index()
   {    
     if (!Utils::isPro()) {
-      Redirect::to('/');
+      return Redirect::to('/');
     }
     
     $payments = Payment::scope()->orderBy('created_at', 'desc')->get();
