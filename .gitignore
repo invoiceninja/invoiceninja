@@ -18,4 +18,5 @@
 /tests/_log
 .idea
 .project
-/nbproject/private/
+/nbproject/
+/node_modules/
