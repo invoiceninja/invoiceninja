@@ -94,7 +94,7 @@
           <div class="icon pay"><span class="img-wrap"><img src="{{ asset('images/icon-payment.png') }}"></span></div><h2>Online Payments</h2>
         </div>
         <p class="first">Invoice Ninja seamlessly integrates with all of the top internet payment processors and gateways so you can get paid for your work quickly and easily.</p>
-        <p>Invoices crated with our tools aren’t just for bookkeeping purposes - they bring in the Benjamins. We also make it super easy to choose the right gateway for the specific needs of your business and are happy to help you to get started working with the gateway of your choice. What’s more, we’re constantly working on rolling out additional gateway integrations, so if you don’t see the one you use here, just let us know, and there’s a good chance we’ll add it for you. </p>
+        <p>Invoices created with our tools aren’t just for bookkeeping purposes - they bring in the Benjamins. We also make it super easy to choose the right gateway for the specific needs of your business and are happy to help you to get started working with the gateway of your choice. What’s more, we’re constantly working on rolling out additional gateway integrations, so if you don’t see the one you use here, just let us know, and there’s a good chance we’ll add it for you. </p>
       </div>
       <div class="col-md-7">
         <img src="{{ asset('images/features5.jpg') }}">
