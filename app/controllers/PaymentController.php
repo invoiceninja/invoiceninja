@@ -417,8 +417,10 @@ class PaymentController extends \BaseController
             $license->affiliate_id = Session::get('affiliate_id');
             $license->save();                
 
+            $affiliate = Affiliate::find(Session::get('affiliate_id'));
 
             $data = [
+                'message' => $affiliate->payment_subtitle,
                 'license' => $licenseKey,
                 'hideHeader' => true
             ];
@@ -443,8 +445,11 @@ class PaymentController extends \BaseController
 
         if ($license)
         {
-            $license->is_claimed = true;
-            $license->save();
+            if ($license->transaction_reference != 'TEST_MODE')
+            {
+                $license->is_claimed = true;
+                $license->save();
+            }
 
             return 'valid';
         }
