@@ -250,13 +250,13 @@ return array(
   'deleted_credits' => 'Slettet :count kreditter',
 
   // Emails
-  'confirmation_subject' => 'Invoice Ninja Account bekreftelse',
+  'confirmation_subject' => 'Invoice Ninja kontobekreftelse',
   'confirmation_header' => 'Kontobekreftelse',
   'confirmation_message' => 'Vennligst åpne koblingen nedenfor for å bekrefte kontoen din.',
   'invoice_subject' => 'Ny faktura fra :account',
   'invoice_message' => 'Sor å se din faktura på :amount, klikk linken nedenfor.',
   'payment_subject' => 'Betaling mottatt',
-  'payment_message' => 'Takk for din betaling pålydende :amount.',
+  'payment_message' => 'Fakk for din betaling pålydende :amount.',
   'email_salutation' => 'Kjære :name,',
   'email_signature' => 'Med vennlig hilsen,',
   'email_from' => 'The InvoiceNinja Team',
@@ -265,57 +265,57 @@ return array(
   'notification_invoice_paid_subject' => 'Faktura :invoice betalt av :client',
   'notification_invoice_sent_subject' => 'Faktura :invoice sendt til :client',
   'notification_invoice_viewed_subject' => 'Faktura :invoice sett av :client',
-  'notification_invoice_paid' => 'A payment of :amount was made by client :client towards Invoice :invoice.',
-  'notification_invoice_sent' => 'The following client :client was emailed Invoice :invoice for :amount.',
-  'notification_invoice_viewed' => 'The following client :client viewed Invoice :invoice for :amount.',  
-  'reset_password' => 'You can reset your account password by clicking the following link:',
-  'reset_password_footer' => 'If you did not request this password reset please email our support: ' . CONTACT_EMAIL,
+  'notification_invoice_paid' => 'En betaling pålydende :amount ble gjort av :client for faktura :invoice.',
+  'notification_invoice_sent' => 'Email har blitt sendt til :client - Faktura :invoice pålydende :amount.',
+  'notification_invoice_viewed' => ':client har nå sett faktura :invoice pålydende :amount.',  
+  'reset_password' => 'Du kan nullstille ditt passord ved å besøke følgende link:',
+  'reset_password_footer' => 'Hvis du ikke ba om å få nullstillt ditt passord, vennligst kontakt kundeservice: ' . CONTACT_EMAIL,
 
 
   // Payment page
-  'secure_payment' => 'Secure Payment',
-  'card_number' => 'Card number',
-  'expiration_month' => 'Expiration month',  
-  'expiration_year' => 'Expiration year',
+  'secure_payment' => 'Sikker betaling',
+  'card_number' => 'Kortnummer',
+  'expiration_month' => 'Utløpsdato',  
+  'expiration_year' => 'Utløpsår',
   'cvv' => 'CVV',
   
   // Security alerts
   'confide' => [
-    'too_many_attempts' => 'Too many attempts. Try again in few minutes.',
-    'wrong_credentials' => 'Incorrect email or password.',
-    'confirmation' => 'Your account has been confirmed!',
-    'wrong_confirmation' => 'Wrong confirmation code.',
-    'password_forgot' => 'The information regarding password reset was sent to your email.',
-    'password_reset' => 'Your password has been changed successfully.',
-    'wrong_password_reset' => 'Invalid password. Try again',
+    'too_many_attempts' => 'For mange forsøk. Prøv igjen om noen få minutter.',
+    'wrong_credentials' => 'Feil e-post eller passord.',
+    'confirmation' => 'Din konto har blitt bekreftet!',
+    'wrong_confirmation' => 'Feil bekreftelseskode.',
+    'password_forgot' => 'Informasjonen om tilbakestilling av passord ble sendt til e-postadressen.',
+    'password_reset' => 'Passordet ditt er endret.',
+    'wrong_password_reset' => 'Ugyldig passord. Prøv på nytt',
   ],
   
   // Pro Plan
   'pro_plan' => [
-    'remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
-    'remove_logo_link' => 'Click here',
+    'remove_logo' => ':link for å fjerne Invoice Ninja-logoen, oppgrader til en Pro Plan',
+    'remove_logo_link' => 'Klikk her',
   ],
 
-  'logout' => 'Log Out',
-  'sign_up_to_save' => 'Sign up to save your work',
-  'agree_to_terms' =>'I agree to the Invoice Ninja :terms',
-  'terms_of_service' => 'Terms of Service',
-  'email_taken' => 'The email address is already registered',
-  'working' => 'Working',
-  'success' => 'Success',
-  'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
-  'erase_data' => 'This will permanently erase your data.',
-  'password' => 'Password',
+  'logout' => 'Logg ut',
+  'sign_up_to_save' => 'Registrer deg for å lagre arbeidet ditt',
+  'agree_to_terms' =>'Jeg godtar Invoice Ninja :terms',
+  'terms_of_service' => 'vilkår for bruk',
+  'email_taken' => 'Epost-adressen er allerede registrert',
+  'working' => 'Jobber',
+  'success' => 'Suksess',
+  'success_message' => 'Du har nå blitt registrert. Vennligst gå inn på linken som du har mottatt i e-postbekreftelsen for å bekrefte e-postadressen.',
+  'erase_data' => 'Dette vil permanent slette dine data.',
+  'password' => 'Passord',
 
   'pro_plan_product' => 'Pro Plan',
-  'pro_plan_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
-  'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!<p/>&nbsp;<br/>
-                          <b>Next Steps</b><p/>A payable invoice has been sent to the email 
-                          address associated with your account. To unlock all of the awesome 
-                          Pro features, please follow the instructions on the invoice to pay 
-                          for a year of Pro-level invoicing.<p/>
-                          Can\'t find the invoice? Need further assistance? We\'re happy to help 
-                          -- email us at contact@invoiceninja.com',
+  'pro_plan_description' => 'Ett års innmelding i Invoice Ninja Pro Plan.',
+  'pro_plan_success' => 'Takk for at du valgte Invoice Ninja\'s Pro plan!<p/>&nbsp;<br/>
+                          <b>Neste steg</b><p/>en betalbar faktura er send til e-postadressen 
+                          som er tilknyttet knotoen din. For å låse opp alle de utrolige  
+                          Pro-funksjonene, kan du følge instruksjonene på fakturaen til å 
+                          betale for et år med Pro-nivå funksjonerer.<p/>
+                          Finner du ikke fakturaen? Trenger du mer hjelp? Vi hjelper deg gjerne om det skulle være noe 
+                          -- kontakt oss på contact@invoiceninja.com',
 
   'unsaved_changes' => 'You have unsaved changes',
   'custom_fields' => 'Custom fields',
