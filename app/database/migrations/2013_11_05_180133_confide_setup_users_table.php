@@ -132,19 +132,19 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
-            $t->string('name');
+            $t->string('name')->nullable();
             $t->string('ip');
             $t->string('account_key')->unique();
             $t->timestamp('last_login');
             
-            $t->string('address1');
-            $t->string('address2');
-            $t->string('city');
-            $t->string('state');
-            $t->string('postal_code');
+            $t->string('address1')->nullable();
+            $t->string('address2')->nullable();
+            $t->string('city')->nullable();
+            $t->string('state')->nullable();
+            $t->string('postal_code')->nullable();
             $t->unsignedInteger('country_id')->nullable();     
-            $t->text('invoice_terms');
-            $t->text('email_footer');
+            $t->text('invoice_terms')->nullable();
+            $t->text('email_footer')->nullable();
             $t->unsignedInteger('industry_id')->nullable();
             $t->unsignedInteger('size_id')->nullable();
 
@@ -177,16 +177,16 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
-            $t->string('first_name');
-            $t->string('last_name');
-            $t->string('phone');
+            $t->string('first_name')->nullable();
+            $t->string('last_name')->nullable();
+            $t->string('phone')->nullable();
             $t->string('username')->unique();
-            $t->string('email');
+            $t->string('email')->nullable();
             $t->string('password');
             $t->string('confirmation_code');
             $t->boolean('registered')->default(false);
             $t->boolean('confirmed')->default(false);
-            $t->integer('theme_id');
+            $t->integer('theme_id')->nullable();
 
             $t->boolean('notify_sent')->default(true);
             $t->boolean('notify_viewed')->default(false);
@@ -194,7 +194,7 @@ class ConfideSetupUsersTable extends Migration {
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
 
-            $t->unsignedInteger('public_id');
+            $t->unsignedInteger('public_id')->nullable();
             $t->unique( array('account_id','public_id') );
         });
 
@@ -202,7 +202,7 @@ class ConfideSetupUsersTable extends Migration {
         {
             $t->increments('id');
             $t->unsignedInteger('account_id');
-            $t->unsignedInteger('user_id');            
+            $t->unsignedInteger('user_id');
             $t->unsignedInteger('gateway_id');
             $t->timestamps();
             $t->softDeletes();
