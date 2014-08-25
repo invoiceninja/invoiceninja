@@ -26,8 +26,8 @@ class AddCustomFields extends Migration {
 
 		Schema::table('clients', function($table)
 		{
-			$table->string('custom_value1');
-			$table->string('custom_value2');
+			$table->string('custom_value1')->nullable();
+			$table->string('custom_value2')->nullable();
 		});
 	}
 
