@@ -20,9 +20,9 @@ return array(
   'phone' => 'Telefon',
   'email' => 'Email',
   'additional_info' => 'Tilleggsinfo',
-  'payment_terms' => 'Betalingsvilkår',
+  'payment_terms' => 'Betalingsvilk&#229;r',
   'currency_id' => 'Valuta',
-  'size_id' => 'Størrelse',
+  'size_id' => 'St&#248;rrelse',
   'industry_id' => 'Sektor',
   'private_notes' => 'Private notater',
 
@@ -39,16 +39,16 @@ return array(
   'discount' => 'Rabatt',
   'taxes' => 'Skatter',
   'tax' => 'Skatt',
-  'item' => 'Beløpstype',
+  'item' => 'Bel&#248;pstype',
   'description' => 'Beskrivese',
   'unit_cost' => 'á pris',
   'quantity' => 'STK',
   'line_total' => 'Sum',
-  'subtotal' => 'Totalbeløp',
+  'subtotal' => 'Totalbel&#248;p',
   'paid_to_date' => 'Betalt',
-  'balance_due' => 'Gjenstående',
+  'balance_due' => 'Gjenst&#229;ende',
   'invoice_design_id' => 'Design',
-  'terms' => 'Vilkår',
+  'terms' => 'Vilk&#229;r',
   'your_invoice' => 'Din faktura',
 
   'remove_contact' => 'Fjern kontakt',
@@ -56,24 +56,24 @@ return array(
   'create_new_client' => 'Opprett ny klient',
   'edit_client_details' => 'Endre klientdetaljer',
   'enable' => 'Aktiver',
-  'learn_more' => 'Lær mer',
+  'learn_more' => 'L&#230;r mer',
   'manage_rates' => 'Administrer priser',
   'note_to_client' => 'Merknad til klient',
-  'invoice_terms' => 'Vilkår for fakturaen',
-  'save_as_default_terms' => 'Lagre som standard vilkår',
+  'invoice_terms' => 'Vilk&#229;r for fakturaen',
+  'save_as_default_terms' => 'Lagre som standard vilk&#229;r',
   'download_pdf' => 'Last ned PDF',
-  'pay_now' => 'Betal nå',
+  'pay_now' => 'Betal n&#229;',
   'save_invoice' => 'Lagre faktura',
   'clone_invoice' => 'Kopier faktura',
   'archive_invoice' => 'Arkiver faktura',
   'delete_invoice' => 'Slett faktura',
-  'email_invoice' => 'Send faktura på epost',
+  'email_invoice' => 'Send faktura p&#229; epost',
   'enter_payment' => 'Oppgi betaling',
   'tax_rates' => 'Skattesatser',
   'rate' => 'Sats',
   'settings' => 'Innstillinger',
-  'enable_invoice_tax' => 'Aktiver for å spesifisere en <b>faktura skatt</b>',
-  'enable_line_item_tax' => 'Aktiver for å spesifisere <b>artikkel skatt</b>',
+  'enable_invoice_tax' => 'Aktiver for &#229; spesifisere en <b>faktura skatt</b>',
+  'enable_line_item_tax' => 'Aktiver for &#229; spesifisere <b>artikkel skatt</b>',
 
   // navigation
   'dashboard' => 'Dashboard',
@@ -82,7 +82,7 @@ return array(
   'payments' => 'Betalinger',
   'credits' => 'Kreditter',
   'history' => 'Historie',
-  'search' => 'Søk',
+  'search' => 'S&#248;k',
   'sign_up' => 'Registrer deg',
   'guest' => 'Gjest',
   'company_details' => 'Firmainformasjon',
@@ -103,13 +103,13 @@ return array(
 
   // recurring invoices
   'recurring_invoices' => 'Gjentakende fakturaer',
-  'recurring_help' => '<p>Automatisk send klienter de samme fakturaene ukentlig, bi-månedlig, månedlig, kvartalsvis eller årlig.</p>
-        <p>Bruk :MONTH, :QUARTER eller :YEAR for dynamiske datoer. Grunnleggende matematikk fungerer også, for eksempel :MONTH-1.</p>
-        <p>Eksempler på dynamiske faktura variabler:</p>
+  'recurring_help' => '<p>Automatisk send klienter de samme fakturaene ukentlig, bi-m&#229;nedlig, m&#229;nedlig, kvartalsvis eller &#229;rlig.</p>
+        <p>Bruk :MONTH, :QUARTER eller :YEAR for dynamiske datoer. Grunnleggende matematikk fungerer ogs&#229;, for eksempel :MONTH-1.</p>
+        <p>Eksempler p&#229; dynamiske faktura variabler:</p>
         <ul>
-          <li>"Treningsmedlemskap for måneden :MONTH" => "Treningsmedlemskap for måneden Juli"</li>
-          <li>":YEAR+1 årlig abonnement" => "2015 årlig abonnement"</li>
-          <li>"Forhåndsbetaling for :QUARTER+1" => "Forhåndsbetaling for Q2"</li>
+          <li>"Treningsmedlemskap for m&#229;neden :MONTH" => "Treningsmedlemskap for m&#229;neden Juli"</li>
+          <li>":YEAR+1 &#229;rlig abonnement" => "2015 &#229;rlig abonnement"</li>
+          <li>"Forh&#229;ndsbetaling for :QUARTER+1" => "Forh&#229;ndsbetaling for Q2"</li>
         </ul>',
 
   // dashboard
@@ -119,7 +119,7 @@ return array(
   'active_client' => 'aktiv klient',
   'active_clients' => 'aktive klienter',  
   'invoices_past_due' => 'Fakturaer forfalt',
-  'upcoming_invoices' => 'Forestående fakturaer',
+  'upcoming_invoices' => 'Forest&#229;ende fakturaer',
   'average_invoice' => 'Gjennomsnittlige fakturaer',
   
   // list pages
@@ -139,7 +139,7 @@ return array(
   'new_credit' => 'Ny kreditt',
   'contact' => 'Kontakt',
   'date_created' => 'Dato opprettet',
-  'last_login' => 'Siste pålogging',
+  'last_login' => 'Siste p&#229;logging',
   'balance' => 'Balanse',
   'action' => 'Handling',
   'status' => 'Status',
@@ -148,10 +148,10 @@ return array(
   'start_date' => 'Startdato',
   'end_date' => 'Sluttdato',
   'transaction_reference' => 'Transaksjonsreferanse',
-  'method' => 'Betalingsmåte',
-  'payment_amount' => 'Beløp',
+  'method' => 'Betalingsm&#229;te',
+  'payment_amount' => 'Bel&#248;p',
   'payment_date' => 'Betalingsdato',
-  'credit_amount' => 'Kredittbeløp',
+  'credit_amount' => 'Kredittbel&#248;p',
   'credit_balance' => 'Kreditsaldo',
   'credit_date' => 'Kredittdato',
   'empty_table' => 'Ingen data er tilgjengelige i tabellen',
@@ -162,9 +162,9 @@ return array(
   // client view page
   'create_invoice' => 'Lag faktura',
   'enter_credit' => 'Oppgi kreditt',
-  'last_logged_in' => 'Sist pålogget',
+  'last_logged_in' => 'Sist p&#229;logget',
   'details' => 'Detaljer',
-  'standing' => 'Stående',
+  'standing' => 'St&#229;ende',
   'credit' => 'Kreditt',
   'activity' => 'Aktivitet',
   'date' => 'Dato',
@@ -174,33 +174,33 @@ return array(
 
   // payment pages
   'payment_type_id' => 'Betalingsmetode',
-  'amount' => 'Beløp',
+  'amount' => 'Bel&#248;p',
 
   // account/company pages
   'work_email' => 'Email',
-  'language_id' => 'Språk',
+  'language_id' => 'Spr&#229;k',
   'timezone_id' => 'Tidssone',
   'date_format_id' => 'Dato format',
   'datetime_format_id' => 'Dato/Tidsformat',
   'users' => 'Brukere',
   'localization' => 'Lokaliseing',
   'remove_logo' => 'Fjern logo',
-  'logo_help' => 'Støttedefiltyper: JPEG, GIF og PNG. Anbefalt størrelse: 200px bredde by 120px høyde',
-  'payment_gateway' => 'Betalingsløsning',
+  'logo_help' => 'St&#248;ttedefiltyper: JPEG, GIF og PNG. Anbefalt st&#248;rrelse: 200px bredde by 120px h&#248;yde',
+  'payment_gateway' => 'Betalingsl&#248;sning',
   'gateway_id' => 'Tilbyder',
   'email_notifications' => 'Varsel via email',
-  'email_sent' => 'Varsle når en faktura er <b>sendt</b>',
-  'email_viewed' => 'Varsle når en faktura er <b>sett</b>',
-  'email_paid' => 'Varsle når en faktura er <b>betalt</b>',
+  'email_sent' => 'Varsle n&#229;r en faktura er <b>sendt</b>',
+  'email_viewed' => 'Varsle n&#229;r en faktura er <b>sett</b>',
+  'email_paid' => 'Varsle n&#229;r en faktura er <b>betalt</b>',
   'site_updates' => 'Nettsted oppdateringer',
   'custom_messages' => 'Tilpassede meldinger',
-  'default_invoice_terms' => 'Sett standard fakturavilkår',
+  'default_invoice_terms' => 'Sett standard fakturavilk&#229;r',
   'default_email_footer' => 'Sett standard emailsignatur',
   'import_clients' => 'Importer klientdata',
   'csv_file' => 'Velg CSV-fil',
   'export_clients' => 'Exporter klientdata',
   'select_file' => 'Vennligst velg en fil',
-  'first_row_headers' => 'Bruk første rad som overskrifter',
+  'first_row_headers' => 'Bruk f&#248;rste rad som overskrifter',
   'column' => 'Kolonne',
   'sample' => 'Eksempel',
   'import_to' => 'Importer til',
@@ -213,10 +213,10 @@ return array(
   'updated_settings' => 'Innstillger oppdatert',
   'removed_logo' => 'Logo fjernet',
   'sent_message' => 'Melding sendt',
-  'invoice_error' => 'Vennligst sørg for å velge en klient og rette eventuelle feil',
-  'limit_clients' => 'Dessverre, dette vil overstige grensen på :count klienter',
-  'payment_error' => 'Det oppstod en feil under din betaling. Vennligst prøv igjen senere.',
-  'registration_required' => 'Vennligst registrer deg for å sende e-postfaktura',
+  'invoice_error' => 'Vennligst s&#248;rg for &#229; velge en klient og rette eventuelle feil',
+  'limit_clients' => 'Dessverre, dette vil overstige grensen p&#229; :count klienter',
+  'payment_error' => 'Det oppstod en feil under din betaling. Vennligst pr&#248;v igjen senere.',
+  'registration_required' => 'Vennligst registrer deg for &#229; sende e-postfaktura',
   'confirmation_required' => 'Vennligst bekreft din e-postadresse',
 
   'updated_client' => 'Klient oppdatert',
@@ -252,70 +252,70 @@ return array(
   // Emails
   'confirmation_subject' => 'Invoice Ninja kontobekreftelse',
   'confirmation_header' => 'Kontobekreftelse',
-  'confirmation_message' => 'Vennligst åpne koblingen nedenfor for å bekrefte kontoen din.',
+  'confirmation_message' => 'Vennligst &#229;pne koblingen nedenfor for &#229; bekrefte kontoen din.',
   'invoice_subject' => 'Ny faktura fra :account',
-  'invoice_message' => 'Sor å se din faktura på :amount, klikk linken nedenfor.',
+  'invoice_message' => 'Sor &#229; se din faktura p&#229; :amount, klikk linken nedenfor.',
   'payment_subject' => 'Betaling mottatt',
-  'payment_message' => 'Fakk for din betaling pålydende :amount.',
-  'email_salutation' => 'Kjære :name,',
+  'payment_message' => 'Fakk for din betaling p&#229;lydende :amount.',
+  'email_salutation' => 'Kj&#230;re :name,',
   'email_signature' => 'Med vennlig hilsen,',
   'email_from' => 'The InvoiceNinja Team',
-  'user_email_footer' => 'For å justere varslingsinnstillingene vennligst besøk '.SITE_URL.'/company/notifications',
-  'invoice_link_message' => 'Hvis du vil se din klientfaktura klikk på linken under:',
+  'user_email_footer' => 'For &#229; justere varslingsinnstillingene vennligst bes&#248;k '.SITE_URL.'/company/notifications',
+  'invoice_link_message' => 'Hvis du vil se din klientfaktura klikk p&#229; linken under:',
   'notification_invoice_paid_subject' => 'Faktura :invoice betalt av :client',
   'notification_invoice_sent_subject' => 'Faktura :invoice sendt til :client',
   'notification_invoice_viewed_subject' => 'Faktura :invoice sett av :client',
-  'notification_invoice_paid' => 'En betaling pålydende :amount ble gjort av :client for faktura :invoice.',
-  'notification_invoice_sent' => 'Email har blitt sendt til :client - Faktura :invoice pålydende :amount.',
-  'notification_invoice_viewed' => ':client har nå sett faktura :invoice pålydende :amount.',  
-  'reset_password' => 'Du kan nullstille ditt passord ved å besøke følgende link:',
-  'reset_password_footer' => 'Hvis du ikke ba om å få nullstillt ditt passord, vennligst kontakt kundeservice: ' . CONTACT_EMAIL,
+  'notification_invoice_paid' => 'En betaling p&#229;lydende :amount ble gjort av :client for faktura :invoice.',
+  'notification_invoice_sent' => 'Email har blitt sendt til :client - Faktura :invoice p&#229;lydende :amount.',
+  'notification_invoice_viewed' => ':client har n&#229; sett faktura :invoice p&#229;lydende :amount.',  
+  'reset_password' => 'Du kan nullstille ditt passord ved &#229; bes&#248;ke f&#248;lgende link:',
+  'reset_password_footer' => 'Hvis du ikke ba om &#229; f&#229; nullstillt ditt passord, vennligst kontakt kundeservice: ' . CONTACT_EMAIL,
 
 
   // Payment page
   'secure_payment' => 'Sikker betaling',
   'card_number' => 'Kortnummer',
-  'expiration_month' => 'Utløpsdato',  
-  'expiration_year' => 'Utløpsår',
+  'expiration_month' => 'Utl&#248;psdato',  
+  'expiration_year' => 'Utl&#248;ps&#229;r',
   'cvv' => 'CVV',
   
   // Security alerts
   'confide' => [
-    'too_many_attempts' => 'For mange forsøk. Prøv igjen om noen få minutter.',
+    'too_many_attempts' => 'For mange fors&#248;k. Pr&#248;v igjen om noen f&#229; minutter.',
     'wrong_credentials' => 'Feil e-post eller passord.',
     'confirmation' => 'Din konto har blitt bekreftet!',
     'wrong_confirmation' => 'Feil bekreftelseskode.',
     'password_forgot' => 'Informasjonen om tilbakestilling av passord ble sendt til e-postadressen.',
     'password_reset' => 'Passordet ditt er endret.',
-    'wrong_password_reset' => 'Ugyldig passord. Prøv på nytt',
+    'wrong_password_reset' => 'Ugyldig passord. Pr&#248;v p&#229; nytt',
   ],
   
   // Pro Plan
   'pro_plan' => [
-    'remove_logo' => ':link for å fjerne Invoice Ninja-logoen, oppgrader til en Pro Plan',
+    'remove_logo' => ':link for &#229; fjerne Invoice Ninja-logoen, oppgrader til en Pro Plan',
     'remove_logo_link' => 'Klikk her',
   ],
 
   'logout' => 'Logg ut',
-  'sign_up_to_save' => 'Registrer deg for å lagre arbeidet ditt',
+  'sign_up_to_save' => 'Registrer deg for &#229; lagre arbeidet ditt',
   'agree_to_terms' =>'Jeg godtar Invoice Ninja :terms',
-  'terms_of_service' => 'vilkår for bruk',
+  'terms_of_service' => 'vilk&#229;r for bruk',
   'email_taken' => 'Epost-adressen er allerede registrert',
   'working' => 'Jobber',
   'success' => 'Suksess',
-  'success_message' => 'Du har nå blitt registrert. Vennligst gå inn på linken som du har mottatt i e-postbekreftelsen for å bekrefte e-postadressen.',
+  'success_message' => 'Du har n&#229; blitt registrert. Vennligst g&#229; inn p&#229; linken som du har mottatt i e-postbekreftelsen for &#229; bekrefte e-postadressen.',
   'erase_data' => 'Dette vil permanent slette dine data.',
   'password' => 'Passord',
 
   'pro_plan_product' => 'Pro Plan',
-  'pro_plan_description' => 'Ett års innmelding i Invoice Ninja Pro Plan.',
+  'pro_plan_description' => 'Ett &#229;rs innmelding i Invoice Ninja Pro Plan.',
   'pro_plan_success' => 'Takk for at du valgte Invoice Ninja\'s Pro plan!<p/>&nbsp;<br/>
                           <b>Neste steg</b><p/>en betalbar faktura er send til e-postadressen 
-                          som er tilknyttet knotoen din. For å låse opp alle de utrolige  
-                          Pro-funksjonene, kan du følge instruksjonene på fakturaen til å 
-                          betale for et år med Pro-nivå funksjonerer.<p/>
-                          Finner du ikke fakturaen? Trenger du mer hjelp? Vi hjelper deg gjerne om det skulle være noe 
-                          -- kontakt oss på contact@invoiceninja.com',
+                          som er tilknyttet knotoen din. For &#229; l&#229;se opp alle de utrolige  
+                          Pro-funksjonene, kan du f&#248;lge instruksjonene p&#229; fakturaen til &#229; 
+                          betale for et &#229;r med Pro-niv&#229; funksjonerer.<p/>
+                          Finner du ikke fakturaen? Trenger du mer hjelp? Vi hjelper deg gjerne om det skulle v&#230;re noe 
+                          -- kontakt oss p&#229; contact@invoiceninja.com',
 
   'unsaved_changes' => 'Du har ulagrede endringer',
   'custom_fields' => 'Egendefinerte felt',
@@ -334,23 +334,23 @@ return array(
   'fill_products' => 'Automatisk-fyll produkter',
   'fill_products_help' => 'Valg av produkt vil automatisk fylle ut <b>beskrivelse og kostnaden</b>',
   'update_products' => 'Automatisk oppdater produkter',
-  'update_products_help' => 'Å endre en faktura vil automatisk <b>oppdatere produktbilioteket</b>',
+  'update_products_help' => '&#197; endre en faktura vil automatisk <b>oppdatere produktbilioteket</b>',
   'create_product' => 'Lag nytt produkt',
   'edit_product' => 'Endre produkt',
   'archive_product' => 'Arkiver produkt',
   'updated_product' => 'Produkt oppdatert',
   'created_product' => 'Produkt lagret',
   'archived_product' => 'Produkt arkivert',  
-  'pro_plan_custom_fields' => ':link for å aktivere egendefinerte felt ved å delta i Pro Plan',
+  'pro_plan_custom_fields' => ':link for &#229; aktivere egendefinerte felt ved &#229; delta i Pro Plan',
 
   'advanced_settings' => 'Avanserte innstillinger',
-  'pro_plan_advanced_settings' => ':link for å aktivere avanserte innstillinger ved å delta i en Pro Plan',
+  'pro_plan_advanced_settings' => ':link for &#229; aktivere avanserte innstillinger ved &#229; delta i en Pro Plan',
   'invoice_design' => 'Fakturadesign',
   'specify_colors' => 'Egendefinerte farger',
   'specify_colors_label' => 'Velg farger som brukes i fakturaen',
 
   'chart_builder' => 'Diagram bygger',
-  'ninja_email_footer' => 'Bruk :site til å fakturere kundene dine og få betalt på nettet - gratis!',
+  'ninja_email_footer' => 'Bruk :site til &#229; fakturere kundene dine og f&#229; betalt p&#229; nettet - gratis!',
   'go_pro' => 'Velg Pro',
 
   // Quotes
@@ -388,36 +388,36 @@ return array(
   'converted_to_invoice' => 'Tilbud konvertert til faktura',
 
   'quote_subject' => 'Nytt tilbud fra :account',
-  'quote_message' => 'For å se ditt tilbud pålydende :amount, klikk linken nedenfor.',
-  'quote_link_message' => 'Hvis du vil se din klients tilbud, klikk på linken under:',
+  'quote_message' => 'For &#229; se ditt tilbud p&#229;lydende :amount, klikk linken nedenfor.',
+  'quote_link_message' => 'Hvis du vil se din klients tilbud, klikk p&#229; linken under:',
   'notification_quote_sent_subject' => 'Tilbud :invoice sendt til :client',
-  'notification_quote_viewed_subject' => 'Tilbudet :invoice er nå sett av :client',
-  'notification_quote_sent' => 'Følgende klient :client ble sendt tilbudsfaktura :invoice pålydende :amount.',
-  'notification_quote_viewed' => 'Følgende klient :client har nå sett tilbudsfakturaen :invoice pålydende :amount.',  
+  'notification_quote_viewed_subject' => 'Tilbudet :invoice er n&#229; sett av :client',
+  'notification_quote_sent' => 'F&#248;lgende klient :client ble sendt tilbudsfaktura :invoice p&#229;lydende :amount.',
+  'notification_quote_viewed' => 'F&#248;lgende klient :client har n&#229; sett tilbudsfakturaen :invoice p&#229;lydende :amount.',  
   
-  'session_expired' => 'Økten er utløpt.',
+  'session_expired' => '&#216;kten er utl&#248;pt.',
 
   'invoice_fields' => 'Faktura felt',
   'invoice_options' => 'Faktura alternativer',
   'hide_quantity' => 'Skjul antall',
-  'hide_quantity_help' => 'Hvis du alltid har 1 (en) av hvert element på fakturaen, kan du velge dette alternativet for å ikke vise antall på fakturaen.',
+  'hide_quantity_help' => 'Hvis du alltid har 1 (en) av hvert element p&#229; fakturaen, kan du velge dette alternativet for &#229; ikke vise antall p&#229; fakturaen.',
   'hide_paid_to_date' => 'Skjul delbetalinger',
   'hide_paid_to_date_help' => 'Bare vis delbetalinger om det har forekommet en delbetaling.',
 
   'charge_taxes' => 'Inkluder skatt',
-  'user_management' => 'Brukerhåndtering',
+  'user_management' => 'Brukerh&#229;ndtering',
   'add_user' => 'Legg til bruker',
   'send_invite' => 'Send invitasjon',
   'sent_invite' => 'Invitasjon sendt',
   'updated_user' => 'Bruker oppdatert',
   'invitation_message' => 'Du har blitt invitert av :invitor. ',
-  'register_to_add_user' => 'Vennligst registrer deg for å legge til en bruker',
+  'register_to_add_user' => 'Vennligst registrer deg for &#229; legge til en bruker',
   'user_state' => 'Status',
   'edit_user' => 'Endre bruker',
   'delete_user' => 'Slett bruker',
   'active' => 'Aktiv',
   'pending' => 'Avventer',
   'deleted_user' => 'Bruker slettet',
-  'limit_users' => 'Dessverre, vil dette overstiger grensen på ' . MAX_NUM_USERS . ' brukere',
+  'limit_users' => 'Dessverre, vil dette overstiger grensen p&#229; ' . MAX_NUM_USERS . ' brukere',
 
 );

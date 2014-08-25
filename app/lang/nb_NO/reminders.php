@@ -13,12 +13,12 @@ return array(
 	|
 	*/
 
-	"password" => "Passord må være minst seks tegn og samsvare med bekreftelsen.",
+	"password" => "Passord m&#229; v&#230;re minst seks tegn og samsvare med bekreftelsen.",
 
 	"user" => "Vi kan ikke finne en bruker med den e-postadressen.",
 
-	"token" => "Denne tilbakestillingsnøkkelen er ugyldig.",
+	"token" => "Denne tilbakestillingsn&#248;kkelen er ugyldig.",
 
-	"sent" => "Passord påminnelse sendt!",
+	"sent" => "Passord p&#229;minnelse sendt!",
 
 );
