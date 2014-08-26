@@ -3,7 +3,7 @@
 
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
-> **If you'd like to use our code to build and sell your own invoicing app get in touch.**
+**If you'd like to use our code to sell your own invoicing app get in touch.**
 
 ### Introduction
 
