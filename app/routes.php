@@ -136,9 +136,9 @@ Route::group(array('prefix' => 'api/v1', 'before' => 'auth.basic'), function()
   Route::post('api/hooks', 'IntegrationController@subscribe');
 });
 
-define('CONTACT_EMAIL', 'contact@invoiceninja.com');
-define('CONTACT_NAME', 'Invoice Ninja');
-define('SITE_URL', 'https://www.invoiceninja.com');
+define('CONTACT_EMAIL', Config::get('mail.from.address'));
+define('CONTACT_NAME', Config::get('mail.from.name'));
+define('SITE_URL', Config::get('app.url'));
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');
