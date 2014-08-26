@@ -644,11 +644,14 @@ class AccountController extends \BaseController {
 					$config->$field = $value;
 				}
                 
-        $cardCount = 0;
-        foreach($creditcards as $card => $value)
-        {
-            $cardCount += intval($value);
-        }			
+		        $cardCount = 0;
+		        if ($creditcards) 
+		        {
+			        foreach($creditcards as $card => $value)
+			        {
+			            $cardCount += intval($value);
+			        }			
+		        }
 			
 				$accountGateway->config = json_encode($config);
 				$accountGateway->accepted_credit_cards = $cardCount;

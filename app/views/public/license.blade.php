@@ -13,19 +13,20 @@
 </section>
 
 <p>&nbsp;</p>
-<p>&nbsp;</p>
 
 <section class="faq">
   <div class="container">
     <div class="row">
       <div class="col-md-12">
+      <h3 style="text-align:center">{{ $message }}</h3>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
       <h2 style="text-align:center">{{ $license }}</h2>      
       </div>
     </div>
   </div>
 </section>
 
-<p>&nbsp;</p>
 <p>&nbsp;</p>
 
 
