@@ -2,6 +2,9 @@
 ## Simple, Intuitive Invoicing
 
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
+
+> **If you'd like to use our code to build and sell your own invoicing app get in touch.**
+
 ### Introduction
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is the codebase will serve as a sample site for Laravel as well as other JavaScript technologies.
