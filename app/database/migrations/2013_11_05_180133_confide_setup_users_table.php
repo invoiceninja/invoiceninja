@@ -395,7 +395,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('product_key');
             $t->text('notes');
             $t->decimal('cost', 13, 2);
-            $t->decimal('qty', 13, 2);
+            $t->decimal('qty', 13, 2)->nullable();
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
@@ -418,10 +418,10 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('product_key');
             $t->text('notes');
             $t->decimal('cost', 13, 2);
-            $t->decimal('qty', 13, 2);            
+            $t->decimal('qty', 13, 2)->nullable();            
 
-            $t->string('tax_name');
-            $t->decimal('tax_rate', 13, 2);
+            $t->string('tax_name')->nullable();
+            $t->decimal('tax_rate', 13, 2)->nullable();
 
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('product_id')->references('id')->on('products');
@@ -447,9 +447,9 @@ class ConfideSetupUsersTable extends Migration {
 
             $t->boolean('is_deleted')->default(false);
             $t->decimal('amount', 13, 2);
-            $t->date('payment_date');
-            $t->string('transaction_reference');
-            $t->string('payer_id');
+            $t->date('payment_date')->nullable();
+            $t->string('transaction_reference')->nullable();
+            $t->string('payer_id')->nullable();
 
             $t->foreign('invoice_id')->references('id')->on('invoices');
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
@@ -476,7 +476,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
             $t->date('credit_date')->nullable();
-            $t->string('credit_number');
+            $t->string('credit_number')->nullable();
             $t->text('private_notes');
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
