@@ -140,11 +140,6 @@ class Activity extends Eloquent
 
 	public static function archiveInvoice($invoice)
 	{
-		if ($invoice->invoice_status_id < INVOICE_STATUS_SENT)
-		{
-			return;
-		}
-
 		if (!$invoice->is_deleted)
 		{
 			$activity = Activity::getBlank();

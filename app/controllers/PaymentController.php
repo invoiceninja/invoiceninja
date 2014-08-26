@@ -417,7 +417,6 @@ class PaymentController extends \BaseController
             $license->affiliate_id = Session::get('affiliate_id');
             $license->save();                
 
-
             $data = [
                 'license' => $licenseKey,
                 'hideHeader' => true

@@ -234,7 +234,7 @@ define('NINJA_URL', 'https://www.invoiceninja.com');
 define('NINJA_VERSION', '1.3.1');
 
 define('PRO_PLAN_PRICE', 50);
-define('LICENSE_PRICE', 30);
+define('LICENSE_PRICE', 30.00);
 
 /*
 define('GATEWAY_AMAZON', 30);
