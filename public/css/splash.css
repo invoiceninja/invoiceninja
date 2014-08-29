@@ -6,7 +6,7 @@ body {
     color: #2e2b2b;
 }
 .center-block {
-    margin: 0 auto!;
+    margin: 0 auto !important;
     float: none;
 }
 .valgin {padding: 0; margin: 0;}
@@ -254,7 +254,7 @@ a .cta:hover span {
 .hero1.background {
     background-repeat: no-repeat;
     background-position: center center;
-    background-attachment: static;
+    background-attachment: fixed;
     background-size: cover;
     min-height: 500px;
 }
@@ -280,7 +280,7 @@ a .cta:hover span {
     padding-right: 15px;
     position: relative;
     padding: 10px 35px 20px 35px;
-    xheight: 212px;
+    height: 212px;
     border-left: 1px dotted #ccc;
     margin-top: 100px;
     text-align: left;
@@ -785,7 +785,7 @@ footer.footer form#mad_mimi_signup_form .form-group {
     position: relative;  
 }
 footer.footer form#mad_mimi_signup_form input {
-    padding: right: 60px;
+    padding-right: 60px;
     background: #393636;
     border: none;
     color: #b7b7b6;
