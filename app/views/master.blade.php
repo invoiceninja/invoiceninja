@@ -22,7 +22,7 @@
     <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">    
     <link href="https://www.invoiceninja.com" rel="canonical"></link>
 
-    <script src="{{ asset('built.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('built.min.js') }}" type="text/javascript"></script>
 
     <script type="text/javascript">
     var NINJA = NINJA || {};      

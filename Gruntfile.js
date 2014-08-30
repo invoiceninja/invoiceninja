@@ -62,11 +62,22 @@ module.exports = function(grunt) {
         dest: 'public/built.public.css',
         nonull: true
       }
+    },
+    uglify: {
+    options: {
+      mangle: false
+    },
+    my_target: {
+      files: {
+        'public/built.min.js': ['public/built.js']
+      }
     }
+  }
   });
 
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
 
-  grunt.registerTask('default', ['concat']);
+  grunt.registerTask('default', ['concat', 'uglify']);
 
 };
