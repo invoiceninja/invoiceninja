@@ -26,6 +26,7 @@
               <th>Custom Logo</th>
               <th>Multiple Templates</th>
               <th>Recurring Payments</th>
+              <th>Open Source</th>
             </tr>            
           </thead>
           <tbody>
@@ -35,6 +36,7 @@
               <td>500</td>
               <td>Unlimited</td>
               <td>23</td>
+              <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
@@ -48,6 +50,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://www.waveapps.com" target="_blank">Wave</a></td>
@@ -58,6 +61,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://www.nutcache.com" target="_blank">NutCache</a></td>
@@ -68,6 +72,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://curdbee.com/" target="_blank">CurdBee</a></td>
@@ -78,6 +83,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="https://www.zoho.com/invoice/" target="_blank">Zoho Invoice</a></td>
@@ -88,6 +94,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://www.roninapp.com/" target="_blank">Ronin</a></td>
@@ -98,6 +105,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://invoiceable.co/" target="_blank">Invoiceable</a></td>
@@ -108,6 +116,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://www.getharvest.com/" target="_blank">Harvest</a></td>
@@ -118,6 +127,7 @@
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://invoiceocean.com/" target="_blank">InvoiceOcean</a></td>
@@ -128,6 +138,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
           </tbody>
         </table>
@@ -147,6 +158,7 @@
               <th>Custom Logo</th>
               <th>Multiple Templates</th>
               <th>Recurring Payments</th>
+              <th>Open Source</th>
             </tr>            
           </thead>
           <tbody>
@@ -156,6 +168,7 @@
               <td>Unlimited</td>
               <td>Unlimited</td>
               <td>23</td>
+              <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
@@ -169,6 +182,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="https://www.xero.com/" target="_blank">Xero</a></td>
@@ -179,6 +193,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://www.invoice2go.com" target="_blank">Invoice2go</a></td>
@@ -189,6 +204,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://invoicemachine.com/" target="_blank">Invoice Machine</a></td>
@@ -199,6 +215,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://www.freshbooks.com" target="_blank">FreshBooks</a></td>
@@ -209,6 +226,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://curdbee.com" target="_blank">CurdBee</a></td>
@@ -219,6 +237,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="https://www.zoho.com/invoice/" target="_blank">Zoho Invoice</a></td>
@@ -229,6 +248,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://www.roninapp.com/" target="_blank">Ronin</a></td>
@@ -239,6 +259,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://www.getharvest.com/" target="_blank">Harvest</a></td>
@@ -249,6 +270,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://invoiceocean.com/" target="_blank">Invoice Ocean</a></td>
@@ -259,6 +281,7 @@
               <td><span class="glyphicon glyphicon-ok"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
             <tr>
               <td><a href="http://www.apptivo.com/" target="_blank">Apptivo</a></td>
@@ -269,6 +292,7 @@
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-remove"/></td>
               <td><span class="glyphicon glyphicon-ok"/></td>
+              <td><span class="glyphicon glyphicon-remove"/></td>              
             </tr>            
           </tbody>
         </table>        
