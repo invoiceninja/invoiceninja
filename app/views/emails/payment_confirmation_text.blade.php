@@ -11,5 +11,5 @@
 
 @if ($showNinjaFooter)
 {{ trans('texts.ninja_email_footer', ['site' => 'Invoice Ninja']) }}
-{{ SITE_URL }}
+{{ NINJA_URL }}
 @endif

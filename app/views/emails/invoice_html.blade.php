@@ -19,7 +19,7 @@
 
       @if ($showNinjaFooter)
       <p/>
-      {{ trans('texts.ninja_email_footer', ['site' => '<a href="' . SITE_URL . '/?utm_source=invoice_email_footer">Invoice Ninja</a>']) }}
+      {{ trans('texts.ninja_email_footer', ['site' => '<a href="' . NINJA_URL . '/?utm_source=invoice_email_footer">Invoice Ninja</a>']) }}
       @endif    
 
     </body>
