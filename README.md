@@ -66,7 +66,7 @@ Add public/ to your web server root
 ### Deleveloper Notes
 
 * If you make any changes to the JavaScript files you need to run grunt to create the built files. See Gruntfile.js for more details.
-* The lookup tables are cached in memory (ie, Currencies, Timezones, Languages, etc). If you a record to the database you need to clear the cache by uncommenting Cache::flush() in app/routes.php.
+* The lookup tables are cached in memory (ie, Currencies, Timezones, Languages, etc). If you add a record to the database you need to clear the cache by uncommenting Cache::flush() in app/routes.php.
 * If you run into any composer errors try running composer dump-autoload. 
 
 ### Ubuntu Notes
