@@ -9,7 +9,7 @@
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is the codebase will serve as a sample site for Laravel as well as other JavaScript technologies.
 
-[This guide](http://hillelcoren.com/invoice-ninja/self-hosting/) is the simplest way to setup the site. The high level instructions for setting up the site using Git are below but there's also a more detailed [setup guide](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). To deploy the app with [Docker](http://www.docker.com/) you can use [this project](https://github.com/rollbrettler/Dockerfiles/tree/master/invoice-ninja).
+To setup the site you can either use this [zip file](http://hillelcoren.com/invoice-ninja/self-hosting/) (easier to setup) or checkout the code from GitHub following the instructions below (easier to stay up to date). There's also a more detailed setup guide [available here](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). To deploy the app with [Docker](http://www.docker.com/) you can use [this project](https://github.com/rollbrettler/Dockerfiles/tree/master/invoice-ninja).
 
 To connect follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). For discussion of the code please use the [Google Group](https://groups.google.com/d/forum/invoiceninja).
 
@@ -18,6 +18,7 @@ If you'd like to translate the site please use [caouecs/Laravel4-long](https://g
 Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
 
 ### Features
+
 * Core application built using Laravel 4.1
 * Invoice PDF generation directly in the browser
 * Integrates with many payment providers
@@ -62,6 +63,27 @@ Configure development/config/database.php and development/config/mail.php and in
 
 Add public/ to your web server root
 
+### Deleveloper Notes
+
+* If you make any changes to the JavaScript files you need to run grunt to create the built files. See Gruntfile.js for more details.
+* The lookup tables are cached in memory (ie, Currencies, Timezones, Languages, etc). If you a record to the database you need to clear the cache by uncommenting Cache::flush() in app/routes.php.
+* If you run into any composer errors try running composer dump-autoload. 
+
+### Ubuntu Notes
+
+    # Install php-mcrypt
+    apt-get install php5-mcrypt
+    sudo php5enmod mcrypt
+
+    # Install Composer
+    curl -sS https://getcomposer.org/installer | php
+    sudo mv composer.phar /usr/local/bin/composer
+
+    # Install Bower
+    sudo apt-get install npm nodejs-legacy
+    sudo npm install -g bower
+    sudo ln -s /usr/local/lib/node_modules/bower/bin/bower /usr/local/bin/bower
+
 ### Frameworks/Libraries
 * [laravel/laravel](https://github.com/laravel/laravel) - A PHP Framework For Web Artisans
 * [twbs/bootstrap](https://github.com/twbs/bootstrap) - Sleek, intuitive, and powerful front-end framework for faster and easier web development.
@@ -86,24 +108,9 @@ Add public/ to your web server root
 * [briannesbitt/Carbon](https://github.com/briannesbitt/Carbon) - A simple API extension for DateTime with PHP 5.3+
 * [thomaspark/bootswatch](https://github.com/thomaspark/bootswatch) - Themes for Bootstrap
 * [mozilla/pdf.js](https://github.com/mozilla/pdf.js) - PDF Reader in JavaScript
-* [nnnick/Chart.js](https://github.com/nnnick/Chart.js) - Simple HTML5 Charts using the <canvas> tag
+* [nnnick/Chart.js](https://github.com/nnnick/Chart.js) - Simple HTML5 Charts using the canvas tag
 * [josscrowcroft/accounting.js](https://github.com/josscrowcroft/accounting.js) - A lightweight JavaScript library for number, money and currency formatting
 * [jashkenas/underscore](https://github.com/jashkenas/underscore) - JavaScript's utility _ belt 
 * [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) - List of languages ​​for Laravel4
 * [calvinfroedge/PHP-Payments](https://github.com/calvinfroedge/PHP-Payments) - A uniform payments interface for PHP
 * [bgrins/spectrum](https://github.com/bgrins/spectrum) - The No Hassle JavaScript Colorpicker
-
-### Ubuntu Notes
-
-    # Install php-mcrypt
-    apt-get install php5-mcrypt
-    sudo php5enmod mcrypt
-
-    # Install Composer
-    curl -sS https://getcomposer.org/installer | php
-    sudo mv composer.phar /usr/local/bin/composer
-
-    # Install Bower
-    sudo apt-get install npm nodejs-legacy
-    sudo npm install -g bower
-    sudo ln -s /usr/local/lib/node_modules/bower/bin/bower /usr/local/bin/bower

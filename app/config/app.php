@@ -26,7 +26,7 @@ return array(
 	|
 	*/
 
-	'url' => 'http://www.invoiceninja.com',
+	'url' => 'https://www.invoiceninja.com',
 
 	/*
 	|--------------------------------------------------------------------------
