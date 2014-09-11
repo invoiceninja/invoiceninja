@@ -46614,14 +46614,13 @@ function GetReportTemplate1(doc, invoice, layout, checkMath)
       var left = layout.headerRight - invoice.imageWidth;
       doc.addImage(invoice.image, 'JPEG', layout.marginLeft, 30);
     }
-
+  
     if (!invoice.is_pro && logoImages.imageLogo1)
     {
       pageHeight=820;
       y=pageHeight-logoImages.imageLogoHeight1;
       doc.addImage(logoImages.imageLogo1, 'JPEG', layout.marginLeft, y, logoImages.imageLogoWidth1, logoImages.imageLogoHeight1);
     }
-
 
     doc.setFontSize(9);
     SetPdfColor('LightBlue', doc, 'primary');
@@ -47181,8 +47180,8 @@ function displayAccount(doc, invoice, x, y, layout) {
     account.country ? account.country.name : false
   ];
 
-  var nameWidth = doc.getStringUnitWidth(account.name) * doc.internal.getFontSize() * 1.1;
-  var emailWidth = doc.getStringUnitWidth(account.work_email) * doc.internal.getFontSize() * 1.1;
+  var nameWidth = account.name ? (doc.getStringUnitWidth(account.name) * doc.internal.getFontSize() * 1.1) : 0;
+  var emailWidth = account.work_email ? (doc.getStringUnitWidth(account.work_email) * doc.internal.getFontSize() * 1.1) : 0;
   width = Math.max(emailWidth, nameWidth, 120);
 
   x += width;

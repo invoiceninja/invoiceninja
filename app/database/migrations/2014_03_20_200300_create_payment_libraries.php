@@ -12,19 +12,16 @@ class CreatePaymentLibraries extends Migration {
 	 */
 	public function up()
 	{ 
-        Schema::dropIfExists('payment_libraries');  
+    Schema::dropIfExists('payment_libraries');  
 
-        Schema::create('payment_libraries', function($t)
-        {
-            $t->increments('id');
-            $t->timestamps();            
+    Schema::create('payment_libraries', function($t)
+    {
+        $t->increments('id');
+        $t->timestamps();
 
-            $t->string('name');
-            $t->boolean('visible')->default(true);
-        }); 
-
-		DB::table('payment_libraries')->insert(['name' => 'Omnipay']);
-		DB::table('payment_libraries')->insert(['name' => 'PHP-Payments']);
+        $t->string('name');
+        $t->boolean('visible')->default(true);
+    }); 
 
 		Schema::table('gateways', function($table)
 		{
@@ -35,7 +32,7 @@ class CreatePaymentLibraries extends Migration {
 
 		Schema::table('gateways', function($table)
 		{
-            $table->foreign('payment_library_id')->references('id')->on('payment_libraries')->onDelete('cascade');
+      $table->foreign('payment_library_id')->references('id')->on('payment_libraries')->onDelete('cascade');
 		});
 	}
 

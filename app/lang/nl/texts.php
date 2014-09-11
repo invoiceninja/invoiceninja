@@ -405,5 +405,8 @@ return array(
   'pending' => 'Pending',
   'deleted_user' => 'Successfully deleted user',
   'limit_users' => 'Sorry, this will exceed the limit of ' . MAX_NUM_USERS . ' users',
+
+  'confirm_email_invoice' => 'Confirm emailing this invoice',
+  'confirm_email_quote' => 'Confirm emailing this quote',
   
 );

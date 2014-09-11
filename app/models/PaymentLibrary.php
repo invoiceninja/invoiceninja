@@ -3,6 +3,7 @@
 class PaymentLibrary extends Eloquent
 {
 	protected $table = 'payment_libraries';
+  public $timestamps = true;
 
 	public function gateways()
 	{

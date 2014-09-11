@@ -135,6 +135,7 @@
         <li class="hide-desktop">{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>  
         <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/compare-online-invoicing', 'Compare' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/testimonials', 'Testimonials' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li>
         <li><span class="glyphicon glyphicon-user"></span>      
@@ -214,6 +215,7 @@
         <ul class="navbar-vertical">
           <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
           <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
+          <li>{{ link_to('https://www.invoiceninja.com/compare-online-invoicing', 'Compare' ) }}</li>
           <li>{{ link_to('https://www.invoiceninja.com/testimonials', 'Testimonials' ) }}</li>
           <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li>          
           <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>

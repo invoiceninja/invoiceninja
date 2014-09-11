@@ -420,4 +420,7 @@ return array(
   'deleted_user' => 'Bruker slettet',
   'limit_users' => 'Dessverre, vil dette overstiger grensen p&#229; ' . MAX_NUM_USERS . ' brukere',
 
+  'confirm_email_invoice' => 'Confirm emailing this invoice',
+  'confirm_email_quote' => 'Confirm emailing this quote',
+
 );

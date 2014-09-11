@@ -32,7 +32,7 @@
         $.ajax({
           type: 'GET',
           url: '{{ URL::to('log_error') }}',
-          data: 'error='+encodeURIComponent(e)+'&url='+encodeURIComponent(window.location)
+          data: 'error='+encodeURIComponent(e.message + ' - ' + e.filename + ': ' + e.lineno)+'&url='+encodeURIComponent(window.location)
         });     
       } catch(err) {}
       return false;

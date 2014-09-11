@@ -33,7 +33,7 @@ Route::post('/contact_submit', 'HomeController@doContactUs');
 Route::get('/faq', 'HomeController@showFaq');
 Route::get('/features', 'HomeController@showFeatures');
 Route::get('/testimonials', 'HomeController@showTestimonials');
-Route::get('/compare-online-invoicing-sites', 'HomeController@showCompare');
+Route::get('/compare-online-invoicing', 'HomeController@showCompare');
 
 Route::get('log_error', 'HomeController@logError');
 Route::get('invoice_now', 'HomeController@invoiceNow');
