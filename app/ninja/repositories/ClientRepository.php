@@ -188,7 +188,7 @@ class ClientRepository
 
 	public function bulk($ids, $action)
 	{
-		$clients = Client::scope($ids)->get();
+		$clients = Client::withTrashed()->scope($ids)->get();
 
 		foreach ($clients as $client) 
 		{			

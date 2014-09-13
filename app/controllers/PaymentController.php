@@ -122,12 +122,10 @@ class PaymentController extends \BaseController
             $gateway->$function($val);
         }
 
-        /*
-        if (!Utils::isProd())
+        if (Utils::isNinjaDev())
         {
             $gateway->setTestMode(true);   
-        }                
-        */
+        }        
 
         return $gateway;        
     }

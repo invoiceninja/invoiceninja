@@ -93,7 +93,6 @@
 
     @yield('body')
 
-
     <script type="text/javascript">
       NINJA.formIsChanged = false;
       $(function() {      

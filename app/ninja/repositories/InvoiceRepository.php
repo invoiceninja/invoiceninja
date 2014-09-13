@@ -435,7 +435,7 @@ class InvoiceRepository
 			return 0;
 		}
 
-		$invoices = Invoice::scope($ids)->get();
+		$invoices = Invoice::withTrashed()->scope($ids)->get();
 
 		foreach ($invoices as $invoice) 
 		{

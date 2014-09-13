@@ -121,6 +121,7 @@
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
       <div class="navbar-header">
+          {{-- Per our license, please do not remove or modify this link. --}}                  
           <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
             <span class="sr-only">Toggle navigation</span>
