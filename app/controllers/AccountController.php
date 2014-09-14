@@ -623,12 +623,13 @@ class AccountController extends \BaseController {
 		} 
 		else 
 		{
-			$account = Account::findOrFail(Auth::user()->account_id);						
+			$account = Account::with('account_gateways')->findOrFail(Auth::user()->account_id);						
 
 			if ($gatewayId) 
 			{
 				$accountGateway = AccountGateway::createNew();
 				$accountGateway->gateway_id = $gatewayId;
+				$isMasked = false;
 
 				$config = new stdClass;
 				foreach ($fields as $field => $details)
@@ -637,27 +638,35 @@ class AccountController extends \BaseController {
 
 					if ($value && $value === str_repeat('*', strlen($value)))
 					{
-						Session::flash('error', trans('validation.notmasked'));
-						return Redirect::to('company/payments');			
+						$isMasked = true;
 					}
 
 					$config->$field = $value;
 				}
                 
-		        $cardCount = 0;
-		        if ($creditcards) 
-		        {
-			        foreach($creditcards as $card => $value)
-			        {
-			            $cardCount += intval($value);
-			        }			
-		        }
-			
-				$accountGateway->config = json_encode($config);
-				$accountGateway->accepted_credit_cards = $cardCount;
+        $cardCount = 0;
+        if ($creditcards) 
+        {
+	        foreach($creditcards as $card => $value)
+	        {
+            $cardCount += intval($value);
+	        }			
+        }
+				
+				if ($isMasked && count($account->account_gateways)) 
+				{
+					$currentGateway = $account->account_gateways[0];
+					$currentGateway->accepted_credit_cards = $cardCount;
+					$currentGateway->save();
+				} 
+				else 
+				{
+					$accountGateway->config = json_encode($config);
+					$accountGateway->accepted_credit_cards = $cardCount;
 	
-				$account->account_gateways()->delete();
-				$account->account_gateways()->save($accountGateway);
+					$account->account_gateways()->delete();
+					$account->account_gateways()->save($accountGateway);
+				}
 
 				Session::flash('message', trans('texts.updated_settings'));
 			}
