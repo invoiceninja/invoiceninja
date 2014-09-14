@@ -815,4 +815,14 @@ class AccountController extends \BaseController {
 
 		return "{$user->first_name} {$user->last_name}";
 	}
+
+	public function cancelAccount()
+	{
+		$account = Auth::user()->account;
+		$account->forceDelete();
+
+		Confide::logout();
+
+		return Redirect::to('/')->with('clearGuestKey', true);
+	}
 }

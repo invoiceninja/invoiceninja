@@ -81,6 +81,7 @@ Route::group(array('before' => 'auth'), function()
   Route::get('company/advanced_settings/chart_builder', 'ReportController@report');
   Route::post('company/advanced_settings/chart_builder', 'ReportController@report');
 
+  Route::post('company/cancel_account', 'AccountController@cancelAccount');
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
   Route::get('company/{section?}/{sub_section?}', 'AccountController@showSection');	
 	Route::post('company/{section?}/{sub_section?}', 'AccountController@doSection');

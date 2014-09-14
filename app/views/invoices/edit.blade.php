@@ -730,7 +730,7 @@
 
 	function onSaveClick() {
 		if (model.invoice().is_recurring()) {
-			if (confirm('{{ trans("texts.confirm_email_$entityType") }}')) {		
+			if (confirm('{{ trans("texts.confirm_recurring_email_$entityType") }}')) {		
 				submitAction('');
 			}			
 		} else {
