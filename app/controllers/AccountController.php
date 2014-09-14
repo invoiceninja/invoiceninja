@@ -92,6 +92,7 @@ class AccountController extends \BaseController {
 				'datetimeFormats' => DatetimeFormat::remember(DEFAULT_QUERY_CACHE)->get(),
 				'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 				'languages' => Language::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+				'showUser' => Auth::user()->id === Auth::user()->account->users()->first()->id,
 			];
 
 			return View::make('accounts.details', $data);
@@ -683,8 +684,14 @@ class AccountController extends \BaseController {
 	{
 		$rules = array(
 			'name' => 'required',
-			'email' => 'email|required|unique:users,email,' . Auth::user()->id . ',id'
 		);
+
+		$user = Auth::user()->account->users()->first();
+
+		if (Auth::user()->id === $user->id)		
+		{
+			$rules['email'] = 'email|required|unique:users,email,' . $user->id . ',id';
+		}
 
 		$validator = Validator::make(Input::all(), $rules);
 
@@ -715,13 +722,15 @@ class AccountController extends \BaseController {
 			$account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
 			$account->save();
 
-			$user = Auth::user();
-			$user->first_name = trim(Input::get('first_name'));
-			$user->last_name = trim(Input::get('last_name'));
-			$user->username = trim(Input::get('email'));
-			$user->email = trim(strtolower(Input::get('email')));
-			$user->phone = trim(Input::get('phone'));				
-			$user->save();
+			if (Auth::user()->id === $user->id)
+			{
+				$user->first_name = trim(Input::get('first_name'));
+				$user->last_name = trim(Input::get('last_name'));
+				$user->username = trim(Input::get('email'));
+				$user->email = trim(strtolower(Input::get('email')));
+				$user->phone = trim(Input::get('phone'));				
+				$user->save();
+			}
 
 			/* Logo image file */
 			if ($file = Input::file('logo'))
