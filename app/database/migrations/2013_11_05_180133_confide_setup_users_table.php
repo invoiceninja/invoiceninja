@@ -331,11 +331,11 @@ class ConfideSetupUsersTable extends Migration {
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
         
-            $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
+            $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $t->foreign('account_id')->references('id')->on('accounts'); 
-            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');; 
+            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); 
             $t->foreign('invoice_status_id')->references('id')->on('invoice_statuses');
-            $t->foreign('recurring_invoice_id')->references('id')->on('invoices');
+            $t->foreign('recurring_invoice_id')->references('id')->on('invoices')->onDelete('cascade');
 
             $t->unsignedInteger('public_id')->index();
             $t->unique( array('account_id','public_id') );

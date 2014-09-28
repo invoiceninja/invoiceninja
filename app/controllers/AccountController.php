@@ -19,6 +19,49 @@ class AccountController extends \BaseController {
 		$this->contactMailer = $contactMailer;
 	}	
 
+	public function install()
+	{
+		if (!Utils::isNinja() && !Schema::hasTable('accounts')) {
+			try {
+				Artisan::call('migrate');
+				Artisan::call('db:seed');		
+			} catch (Exception $e) {
+	      Response::make($e->getMessage(), 500);
+	    }
+		}
+
+		return Redirect::to('/');
+	}
+
+	public function update()
+	{
+		if (!Utils::isNinja()) {
+			try {
+				Artisan::call('migrate');			
+			} catch (Exception $e) {
+	      Response::make($e->getMessage(), 500);
+	    }
+	  }
+
+    return Redirect::to('/');
+	}
+
+	public function reset()
+	{
+		if (Utils::isNinjaDev()) {			
+			Confide::logout();
+			try {
+				Artisan::call('migrate:reset');
+				Artisan::call('migrate');				
+				Artisan::call('db:seed');		
+			} catch (Exception $e) {
+	      Response::make($e->getMessage(), 500);
+	    }
+		}
+
+		return Redirect::to('/');
+	}
+
 	public function getStarted()
 	{	
 		if (Auth::check())

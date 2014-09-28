@@ -3,7 +3,9 @@
 @section('content') 
   @parent
 
-  {{ Former::open($url)->method($method)->addClass('col-md-8 col-md-offset-2 warn-on-exit') }}
+  {{ Former::open($url)->method($method)
+      ->rules(['product_key' => 'required|max:20'])
+      ->addClass('col-md-8 col-md-offset-2 warn-on-exit') }}
 
 
   {{ Former::legend($title) }}

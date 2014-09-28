@@ -22,6 +22,9 @@
 //dd(gethostname());
 //Log::error('test');
 
+Route::get('install', 'AccountController@install');
+Route::get('update', 'AccountController@update');
+Route::get('reset', 'AccountController@reset');
 
 Route::get('/', 'HomeController@showIndex');
 Route::get('/rocksteady', 'HomeController@showIndex');
@@ -50,7 +53,6 @@ Route::get('claim_license', 'PaymentController@claim_license');
 
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
-
 
 
 // Confide routes
