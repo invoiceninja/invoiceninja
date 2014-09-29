@@ -2026,6 +2026,10 @@ div {
     word-break: break-word;
 }
 
+div.input-group {
+    word-break: normal;
+}
+
 div.required > label {
     font-weight: bold !important;
 }

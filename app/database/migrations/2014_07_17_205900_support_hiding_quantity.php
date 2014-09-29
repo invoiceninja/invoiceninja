@@ -14,14 +14,14 @@ class SupportHidingQuantity extends Migration {
 	{
 		Schema::table('accounts', function($table)
 		{
-			$table->boolean('hide_quantity');
-			$table->boolean('hide_paid_to_date');
+			$table->boolean('hide_quantity')->default(0);
+			$table->boolean('hide_paid_to_date')->default(0);
 
-			$table->string('custom_invoice_label1');
-			$table->string('custom_invoice_label2');			
+			$table->string('custom_invoice_label1')->nullable();
+			$table->string('custom_invoice_label2')->nullable();			
 
-			$table->boolean('custom_invoice_taxes1');
-			$table->boolean('custom_invoice_taxes2');
+			$table->boolean('custom_invoice_taxes1')->nullable();
+			$table->boolean('custom_invoice_taxes2')->nullable();
 		});
 
 		Schema::table('invoices', function($table)

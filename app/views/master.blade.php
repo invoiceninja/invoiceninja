@@ -9,9 +9,9 @@
 
     <meta charset="utf-8">
     <meta property="og:site_name" content="Invoice Ninja"></meta>
-    <meta property="og:url" content="https://www.invoiceninja.com"></meta>
+    <meta property="og:url" content="{{ SITE_URL }}"></meta>
     <meta property="og:title" content="Invoice Ninja"></meta>
-    <meta property="og:image" content="https://www.invoiceninja.com/images/social.jpg"></meta>
+    <meta property="og:image" content="{{ SITE_URL }}/images/social.jpg"></meta>
     <meta property="og:description" content="Simple, Intuitive Invoicing."></meta>
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +20,6 @@
     <link href='//fonts.googleapis.com/css?family=Roboto:400,700,900,100' rel='stylesheet' type='text/css'>
     <link href='//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700' rel='stylesheet' type='text/css'>
     <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">    
-    <link href="https://www.invoiceninja.com" rel="canonical"></link>
 
     <script src="{{ asset('built.js') }}" type="text/javascript"></script>
 
@@ -33,7 +32,7 @@
         $.ajax({
           type: 'GET',
           url: '{{ URL::to('log_error') }}',
-          data: 'error='+encodeURIComponent(e)+'&url='+encodeURIComponent(window.location)
+          data: 'error='+encodeURIComponent(e.message + ' - ' + e.filename + ': ' + e.lineno)+'&url='+encodeURIComponent(window.location)
         });     
       } catch(err) {}
       return false;
@@ -93,7 +92,6 @@
 
 
     @yield('body')
-
 
     <script type="text/javascript">
       NINJA.formIsChanged = false;

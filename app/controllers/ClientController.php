@@ -207,12 +207,12 @@ class ClientController extends \BaseController {
 			$client->city = trim(Input::get('city'));
 			$client->state = trim(Input::get('state'));
 			$client->postal_code = trim(Input::get('postal_code'));			
-			$client->country_id = Input::get('country_id') ? Input::get('country_id') : null;
+			$client->country_id = Input::get('country_id') ? : null;
 			$client->private_notes = trim(Input::get('private_notes'));
-			$client->size_id = Input::get('size_id') ? Input::get('size_id') : null;
-			$client->industry_id = Input::get('industry_id') ? Input::get('industry_id') : null;
-			$client->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1;
-			$client->payment_terms = Input::get('payment_terms');
+			$client->size_id = Input::get('size_id') ? : null;
+			$client->industry_id = Input::get('industry_id') ? : null;
+			$client->currency_id = Input::get('currency_id') ? : 1;
+			$client->payment_terms = Input::get('payment_terms') ? : 0;
 			$client->website = trim(Input::get('website'));
 
 			$client->save();

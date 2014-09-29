@@ -404,5 +404,13 @@ return array(
   'pending' => 'Pending',
   'deleted_user' => 'Successfully deleted user',
   'limit_users' => 'Sorry, this will exceed the limit of ' . MAX_NUM_USERS . ' users',
-    
+
+  'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
+  'confirm_email_quote' => 'Are you sure you want to email this quote?',
+  'confirm_recurring_email_invoice' => 'Are you sure you want this invoice emailed?',
+
+  'cancel_account' => 'Cancel Account',
+  'cancel_account_message' => 'Warning: This will permanently erase all of your data, there is no undo.',
+  'go_back' => 'Go Back',
+
 );

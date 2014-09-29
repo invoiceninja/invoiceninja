@@ -19,6 +19,49 @@ class AccountController extends \BaseController {
 		$this->contactMailer = $contactMailer;
 	}	
 
+	public function install()
+	{
+		if (!Utils::isNinja() && !Schema::hasTable('accounts')) {
+			try {
+				Artisan::call('migrate');
+				Artisan::call('db:seed');		
+			} catch (Exception $e) {
+	      Response::make($e->getMessage(), 500);
+	    }
+		}
+
+		return Redirect::to('/');
+	}
+
+	public function update()
+	{
+		if (!Utils::isNinja()) {
+			try {
+				Artisan::call('migrate');			
+			} catch (Exception $e) {
+	      Response::make($e->getMessage(), 500);
+	    }
+	  }
+
+    return Redirect::to('/');
+	}
+
+	public function reset()
+	{
+		if (Utils::isNinjaDev()) {			
+			Confide::logout();
+			try {
+				Artisan::call('migrate:reset');
+				Artisan::call('migrate');				
+				Artisan::call('db:seed');		
+			} catch (Exception $e) {
+	      Response::make($e->getMessage(), 500);
+	    }
+		}
+
+		return Redirect::to('/');
+	}
+
 	public function getStarted()
 	{	
 		if (Auth::check())
@@ -92,6 +135,7 @@ class AccountController extends \BaseController {
 				'datetimeFormats' => DatetimeFormat::remember(DEFAULT_QUERY_CACHE)->get(),
 				'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 				'languages' => Language::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+				'showUser' => Auth::user()->id === Auth::user()->account->users()->first()->id,
 			];
 
 			return View::make('accounts.details', $data);
@@ -623,12 +667,13 @@ class AccountController extends \BaseController {
 		} 
 		else 
 		{
-			$account = Account::findOrFail(Auth::user()->account_id);						
+			$account = Account::with('account_gateways')->findOrFail(Auth::user()->account_id);						
 
 			if ($gatewayId) 
 			{
 				$accountGateway = AccountGateway::createNew();
 				$accountGateway->gateway_id = $gatewayId;
+				$isMasked = false;
 
 				$config = new stdClass;
 				foreach ($fields as $field => $details)
@@ -637,27 +682,35 @@ class AccountController extends \BaseController {
 
 					if ($value && $value === str_repeat('*', strlen($value)))
 					{
-						Session::flash('error', trans('validation.notmasked'));
-						return Redirect::to('company/payments');			
+						$isMasked = true;
 					}
 
 					$config->$field = $value;
 				}
                 
-		        $cardCount = 0;
-		        if ($creditcards) 
-		        {
-			        foreach($creditcards as $card => $value)
-			        {
-			            $cardCount += intval($value);
-			        }			
-		        }
-			
-				$accountGateway->config = json_encode($config);
-				$accountGateway->accepted_credit_cards = $cardCount;
+        $cardCount = 0;
+        if ($creditcards) 
+        {
+	        foreach($creditcards as $card => $value)
+	        {
+            $cardCount += intval($value);
+	        }			
+        }
+				
+				if ($isMasked && count($account->account_gateways)) 
+				{
+					$currentGateway = $account->account_gateways[0];
+					$currentGateway->accepted_credit_cards = $cardCount;
+					$currentGateway->save();
+				} 
+				else 
+				{
+					$accountGateway->config = json_encode($config);
+					$accountGateway->accepted_credit_cards = $cardCount;
 	
-				$account->account_gateways()->delete();
-				$account->account_gateways()->save($accountGateway);
+					$account->account_gateways()->delete();
+					$account->account_gateways()->save($accountGateway);
+				}
 
 				Session::flash('message', trans('texts.updated_settings'));
 			}
@@ -674,8 +727,14 @@ class AccountController extends \BaseController {
 	{
 		$rules = array(
 			'name' => 'required',
-			'email' => 'email|required|unique:users,email,' . Auth::user()->id . ',id'
 		);
+
+		$user = Auth::user()->account->users()->first();
+
+		if (Auth::user()->id === $user->id)		
+		{
+			$rules['email'] = 'email|required|unique:users,email,' . $user->id . ',id';
+		}
 
 		$validator = Validator::make(Input::all(), $rules);
 
@@ -706,13 +765,15 @@ class AccountController extends \BaseController {
 			$account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
 			$account->save();
 
-			$user = Auth::user();
-			$user->first_name = trim(Input::get('first_name'));
-			$user->last_name = trim(Input::get('last_name'));
-			$user->username = trim(Input::get('email'));
-			$user->email = trim(strtolower(Input::get('email')));
-			$user->phone = trim(Input::get('phone'));				
-			$user->save();
+			if (Auth::user()->id === $user->id)
+			{
+				$user->first_name = trim(Input::get('first_name'));
+				$user->last_name = trim(Input::get('last_name'));
+				$user->username = trim(Input::get('email'));
+				$user->email = trim(strtolower(Input::get('email')));
+				$user->phone = trim(Input::get('phone'));				
+				$user->save();
+			}
 
 			/* Logo image file */
 			if ($file = Input::file('logo'))
@@ -796,5 +857,15 @@ class AccountController extends \BaseController {
 		Session::set(SESSION_COUNTER, -1);
 
 		return "{$user->first_name} {$user->last_name}";
+	}
+
+	public function cancelAccount()
+	{
+		$account = Auth::user()->account;
+		$account->forceDelete();
+
+		Confide::logout();
+
+		return Redirect::to('/')->with('clearGuestKey', true);
 	}
 }

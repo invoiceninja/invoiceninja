@@ -112,7 +112,7 @@ class PaymentRepository
             return 0;
         }
 
-        $payments = Payment::scope($ids)->get();
+        $payments = Payment::withTrashed()->scope($ids)->get();
 
         foreach ($payments as $payment) 
         {            

@@ -23,7 +23,18 @@ class UserMailer extends Mailer {
 			'invitationMessage' => $invitor ? trans('texts.invitation_message', ['invitor' => $invitor->getDisplayName()]) : ''
 		];
 		
-		$this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);		
+		if ($invitor)
+		{
+			$fromEmail = $invitor->email;
+			$fromName = $invitor->getDisplayName();
+		}
+		else
+		{
+			$fromEmail = CONTACT_EMAIL;
+			$fromName = CONTACT_NAME;
+		}
+
+		$this->sendTo($user->email, $fromEmail, $fromName, $subject, $view, $data);		
 	}
 
 	public function sendNotification(User $user, Invoice $invoice, $notificationType, Payment $payment = null)
@@ -46,7 +57,7 @@ class UserMailer extends Mailer {
 			'invoiceLink' => SITE_URL . "/{$entityType}s/{$invoice->public_id}"			
 		];
 
-		if ($payment)
+		if ($payment)				
 		{
 			$data['paymentAmount'] = Utils::formatMoney($payment->amount, $invoice->client->currency_id);
 		}

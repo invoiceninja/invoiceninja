@@ -17,11 +17,13 @@
 	)) }}
 
 	{{ Former::populate($account) }}
-	{{ Former::populateField('first_name', $account->users()->first()->first_name) }}
-	{{ Former::populateField('last_name', $account->users()->first()->last_name) }}
-	{{ Former::populateField('email', $account->users()->first()->email) }}	
-	{{ Former::populateField('phone', $account->users()->first()->phone) }}
-
+	@if ($showUser)
+		{{ Former::populateField('first_name', $account->users()->first()->first_name) }}
+		{{ Former::populateField('last_name', $account->users()->first()->last_name) }}
+		{{ Former::populateField('email', $account->users()->first()->email) }}	
+		{{ Former::populateField('phone', $account->users()->first()->phone) }}
+	@endif
+	
 	<div class="row">
 		<div class="col-md-5">
 
@@ -56,11 +58,13 @@
 	
 		<div class="col-md-5 col-md-offset-1">		
 
-			{{ Former::legend('users') }}
-			{{ Former::text('first_name') }}
-			{{ Former::text('last_name') }}
-			{{ Former::text('email') }}
-			{{ Former::text('phone') }}
+			@if ($showUser)
+				{{ Former::legend('users') }}
+				{{ Former::text('first_name') }}
+				{{ Former::text('last_name') }}
+				{{ Former::text('email') }}
+				{{ Former::text('phone') }}
+			@endif
 
 			{{ Former::legend('localization') }}
 			{{ Former::select('language_id')->addOption('','')

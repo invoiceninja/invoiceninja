@@ -132,19 +132,19 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
-            $t->string('name');
+            $t->string('name')->nullable();
             $t->string('ip');
             $t->string('account_key')->unique();
             $t->timestamp('last_login');
             
-            $t->string('address1');
-            $t->string('address2');
-            $t->string('city');
-            $t->string('state');
-            $t->string('postal_code');
+            $t->string('address1')->nullable();
+            $t->string('address2')->nullable();
+            $t->string('city')->nullable();
+            $t->string('state')->nullable();
+            $t->string('postal_code')->nullable();
             $t->unsignedInteger('country_id')->nullable();     
-            $t->text('invoice_terms');
-            $t->text('email_footer');
+            $t->text('invoice_terms')->nullable();
+            $t->text('email_footer')->nullable();
             $t->unsignedInteger('industry_id')->nullable();
             $t->unsignedInteger('size_id')->nullable();
 
@@ -177,16 +177,16 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
-            $t->string('first_name');
-            $t->string('last_name');
-            $t->string('phone');
+            $t->string('first_name')->nullable();
+            $t->string('last_name')->nullable();
+            $t->string('phone')->nullable();
             $t->string('username')->unique();
-            $t->string('email');
+            $t->string('email')->nullable();
             $t->string('password');
             $t->string('confirmation_code');
             $t->boolean('registered')->default(false);
             $t->boolean('confirmed')->default(false);
-            $t->integer('theme_id');
+            $t->integer('theme_id')->nullable();
 
             $t->boolean('notify_sent')->default(true);
             $t->boolean('notify_viewed')->default(false);
@@ -194,7 +194,7 @@ class ConfideSetupUsersTable extends Migration {
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
 
-            $t->unsignedInteger('public_id');
+            $t->unsignedInteger('public_id')->nullable();
             $t->unique( array('account_id','public_id') );
         });
 
@@ -202,7 +202,7 @@ class ConfideSetupUsersTable extends Migration {
         {
             $t->increments('id');
             $t->unsignedInteger('account_id');
-            $t->unsignedInteger('user_id');            
+            $t->unsignedInteger('user_id');
             $t->unsignedInteger('gateway_id');
             $t->timestamps();
             $t->softDeletes();
@@ -235,23 +235,23 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
-            $t->string('name');
-            $t->string('address1');
-            $t->string('address2');
-            $t->string('city');
-            $t->string('state');
-            $t->string('postal_code');
+            $t->string('name')->nullable();
+            $t->string('address1')->nullable();
+            $t->string('address2')->nullable();
+            $t->string('city')->nullable();
+            $t->string('state')->nullable();
+            $t->string('postal_code')->nullable();
             $t->unsignedInteger('country_id')->nullable();
-            $t->string('work_phone');
-            $t->text('private_notes');
-            $t->decimal('balance', 13, 2);
-            $t->decimal('paid_to_date', 13, 2);
+            $t->string('work_phone')->nullable();
+            $t->text('private_notes')->nullable();
+            $t->decimal('balance', 13, 2)->nullable();
+            $t->decimal('paid_to_date', 13, 2)->nullable();
             $t->timestamp('last_login')->nullable();
-            $t->string('website');
+            $t->string('website')->nullable();
             $t->unsignedInteger('industry_id')->nullable();
             $t->unsignedInteger('size_id')->nullable();
-            $t->boolean('is_deleted');
-            $t->integer('payment_terms');
+            $t->boolean('is_deleted')->default(false);
+            $t->integer('payment_terms')->nullable();
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -273,18 +273,18 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
-            $t->boolean('is_primary');
-            $t->boolean('send_invoice');
-            $t->string('first_name');
-            $t->string('last_name');
-            $t->string('email');
-            $t->string('phone');
+            $t->boolean('is_primary')->default(0);
+            $t->boolean('send_invoice')->default(0);
+            $t->string('first_name')->nullable();
+            $t->string('last_name')->nullable();
+            $t->string('email')->nullable();
+            $t->string('phone')->nullable();
             $t->timestamp('last_login');            
 
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
 
-            $t->unsignedInteger('public_id');
+            $t->unsignedInteger('public_id')->nullable();
             $t->unique( array('account_id','public_id') );
         });     
 
@@ -317,7 +317,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->date('due_date')->nullable();
             $t->text('terms');
             $t->text('public_notes');
-            $t->boolean('is_deleted');            
+            $t->boolean('is_deleted')->default(false);            
             $t->boolean('is_recurring');
             $t->unsignedInteger('frequency_id');
             $t->date('start_date')->nullable();
@@ -331,11 +331,11 @@ class ConfideSetupUsersTable extends Migration {
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
         
-            $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
+            $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $t->foreign('account_id')->references('id')->on('accounts'); 
-            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');; 
+            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); 
             $t->foreign('invoice_status_id')->references('id')->on('invoice_statuses');
-            $t->foreign('recurring_invoice_id')->references('id')->on('invoices');
+            $t->foreign('recurring_invoice_id')->references('id')->on('invoices')->onDelete('cascade');
 
             $t->unsignedInteger('public_id')->index();
             $t->unique( array('account_id','public_id') );
@@ -354,7 +354,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
-            $t->string('transaction_reference');
+            $t->string('transaction_reference')->nullable();
             $t->timestamp('sent_date');
             $t->timestamp('viewed_date');
 
@@ -395,7 +395,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('product_key');
             $t->text('notes');
             $t->decimal('cost', 13, 2);
-            $t->decimal('qty', 13, 2);
+            $t->decimal('qty', 13, 2)->nullable();
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
@@ -418,10 +418,10 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('product_key');
             $t->text('notes');
             $t->decimal('cost', 13, 2);
-            $t->decimal('qty', 13, 2);            
+            $t->decimal('qty', 13, 2)->nullable();            
 
-            $t->string('tax_name');
-            $t->decimal('tax_rate', 13, 2);
+            $t->string('tax_name')->nullable();
+            $t->decimal('tax_rate', 13, 2)->nullable();
 
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('product_id')->references('id')->on('products');
@@ -445,11 +445,11 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
 
-            $t->boolean('is_deleted');
+            $t->boolean('is_deleted')->default(false);
             $t->decimal('amount', 13, 2);
-            $t->date('payment_date');
-            $t->string('transaction_reference');
-            $t->string('payer_id');
+            $t->date('payment_date')->nullable();
+            $t->string('transaction_reference')->nullable();
+            $t->string('payer_id')->nullable();
 
             $t->foreign('invoice_id')->references('id')->on('invoices');
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
@@ -472,11 +472,11 @@ class ConfideSetupUsersTable extends Migration {
             $t->timestamps();
             $t->softDeletes();
             
-            $t->boolean('is_deleted');
+            $t->boolean('is_deleted')->default(false);
             $t->decimal('amount', 13, 2);
             $t->decimal('balance', 13, 2);
             $t->date('credit_date')->nullable();
-            $t->string('credit_number');
+            $t->string('credit_number')->nullable();
             $t->text('private_notes');
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
@@ -495,17 +495,17 @@ class ConfideSetupUsersTable extends Migration {
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('client_id');
             $t->unsignedInteger('user_id');
-            $t->unsignedInteger('contact_id');
-            $t->unsignedInteger('payment_id');
-            $t->unsignedInteger('invoice_id');
-            $t->unsignedInteger('credit_id');
-            $t->unsignedInteger('invitation_id');
+            $t->unsignedInteger('contact_id')->nullable();
+            $t->unsignedInteger('payment_id')->nullable();
+            $t->unsignedInteger('invoice_id')->nullable();
+            $t->unsignedInteger('credit_id')->nullable();
+            $t->unsignedInteger('invitation_id')->nullable();
             
-            $t->text('message');
-            $t->text('json_backup');
+            $t->text('message')->nullable();
+            $t->text('json_backup')->nullable();
             $t->integer('activity_type_id');            
-            $t->decimal('adjustment', 13, 2);
-            $t->decimal('balance', 13, 2);
+            $t->decimal('adjustment', 13, 2)->nullable();
+            $t->decimal('balance', 13, 2)->nullable();
             
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');

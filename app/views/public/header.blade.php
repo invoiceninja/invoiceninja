@@ -121,6 +121,7 @@
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
       <div class="navbar-header">
+          {{-- Per our license, please do not remove or modify this link. --}}                  
           <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
             <span class="sr-only">Toggle navigation</span>
@@ -135,6 +136,7 @@
         <li class="hide-desktop">{{ link_to('https://www.invoiceninja.com/contact', 'Contact Us' ) }}</li>  
         <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
+        <li>{{ link_to('https://www.invoiceninja.com/compare-online-invoicing', 'Compare' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/testimonials', 'Testimonials' ) }}</li>
         <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li>
         <li><span class="glyphicon glyphicon-user"></span>      
@@ -214,6 +216,7 @@
         <ul class="navbar-vertical">
           <li>{{ link_to('https://www.invoiceninja.com/features', 'Features' ) }}</li>
           <li>{{ link_to('https://www.invoiceninja.com/plans', 'Plans' ) }}</li>
+          <li>{{ link_to('https://www.invoiceninja.com/compare-online-invoicing', 'Compare' ) }}</li>
           <li>{{ link_to('https://www.invoiceninja.com/testimonials', 'Testimonials' ) }}</li>
           <li>{{ link_to('https://www.invoiceninja.com/faq', 'FAQ' ) }}</li>          
           <li>{{ link_to('http://blog.invoiceninja.com', 'Blog' ) }}</li>

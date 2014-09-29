@@ -16,6 +16,7 @@
 /ninja.sublime-project
 /ninja.sublime-workspace
 /tests/_log
+.env.development.php
 .idea
 .project
 /nbproject/private/

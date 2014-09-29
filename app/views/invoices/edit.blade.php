@@ -723,17 +723,19 @@
 	}
 
 	function onEmailClick() {
-		@if (Auth::user()->confirmed)
-		if (confirm('Are you sure you want to email this {{ $entityType }}?')) {
+		if (confirm('{{ trans("texts.confirm_email_$entityType") }}')) {		
 			submitAction('email');
 		}
-		@else
-			submitAction('email');
-		@endif
 	}
 
 	function onSaveClick() {
-		submitAction('');
+		if (model.invoice().is_recurring()) {
+			if (confirm('{{ trans("texts.confirm_recurring_email_$entityType") }}')) {		
+				submitAction('');
+			}			
+		} else {
+			submitAction('');
+		}
 	}
 
 	function submitAction(value) {

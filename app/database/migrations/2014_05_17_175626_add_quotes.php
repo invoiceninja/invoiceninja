@@ -14,7 +14,7 @@ class AddQuotes extends Migration {
 	{
 		Schema::table('invoices', function($table)
 		{
-			$table->boolean('is_quote');			
+			$table->boolean('is_quote')->default(0);			
 			$table->unsignedInteger('quote_id')->nullable();
 			$table->unsignedInteger('quote_invoice_id')->nullable();			
 		});

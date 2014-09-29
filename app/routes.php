@@ -22,6 +22,9 @@
 //dd(gethostname());
 //Log::error('test');
 
+Route::get('install', 'AccountController@install');
+Route::get('update', 'AccountController@update');
+Route::get('reset', 'AccountController@reset');
 
 Route::get('/', 'HomeController@showIndex');
 Route::get('/rocksteady', 'HomeController@showIndex');
@@ -33,7 +36,7 @@ Route::post('/contact_submit', 'HomeController@doContactUs');
 Route::get('/faq', 'HomeController@showFaq');
 Route::get('/features', 'HomeController@showFeatures');
 Route::get('/testimonials', 'HomeController@showTestimonials');
-Route::get('/compare-online-invoicing-sites', 'HomeController@showCompare');
+Route::get('/compare-online-invoicing', 'HomeController@showCompare');
 
 Route::get('log_error', 'HomeController@logError');
 Route::get('invoice_now', 'HomeController@invoiceNow');
@@ -50,7 +53,6 @@ Route::get('claim_license', 'PaymentController@claim_license');
 
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
-
 
 
 // Confide routes
@@ -81,6 +83,7 @@ Route::group(array('before' => 'auth'), function()
   Route::get('company/advanced_settings/chart_builder', 'ReportController@report');
   Route::post('company/advanced_settings/chart_builder', 'ReportController@report');
 
+  Route::post('company/cancel_account', 'AccountController@cancelAccount');
 	Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
   Route::get('company/{section?}/{sub_section?}', 'AccountController@showSection');	
 	Route::post('company/{section?}/{sub_section?}', 'AccountController@doSection');
@@ -136,9 +139,9 @@ Route::group(array('prefix' => 'api/v1', 'before' => 'auth.basic'), function()
   Route::post('api/hooks', 'IntegrationController@subscribe');
 });
 
-define('CONTACT_EMAIL', 'contact@invoiceninja.com');
-define('CONTACT_NAME', 'Invoice Ninja');
-define('SITE_URL', 'https://www.invoiceninja.com');
+define('CONTACT_EMAIL', Config::get('mail.from.address'));
+define('CONTACT_NAME', Config::get('mail.from.name'));
+define('SITE_URL', Config::get('app.url'));
 
 define('ENV_DEVELOPMENT', 'local');
 define('ENV_STAGING', 'staging');
@@ -231,7 +234,7 @@ define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
 define('NINJA_URL', 'https://www.invoiceninja.com');
-define('NINJA_VERSION', '1.3.1');
+define('NINJA_VERSION', '1.3.3');
 
 define('PRO_PLAN_PRICE', 50);
 define('LICENSE_PRICE', 30.00);

@@ -420,4 +420,12 @@ return array(
   'deleted_user' => 'Bruker slettet',
   'limit_users' => 'Dessverre, vil dette overstiger grensen p&#229; ' . MAX_NUM_USERS . ' brukere',
 
+  'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
+  'confirm_email_quote' => 'Are you sure you want to email this quote?',
+  'confirm_recurring_email_invoice' => 'Are you sure you want this invoice emailed?',
+
+  'cancel_account' => 'Cancel Account',
+  'cancel_account_message' => 'Warning: This will permanently erase all of your data, there is no undo.',
+  'go_back' => 'Go Back',
+
 );

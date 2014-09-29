@@ -15,8 +15,8 @@ class AddSortAndRecommendedToGateways extends Migration {
 		Schema::table('gateways', function($table)
 		{
 			$table->unsignedInteger('sort_order')->default(10000);
-			$table->boolean('recommended');
-			$table->string('site_url', 200);
+			$table->boolean('recommended')->default(0);
+			$table->string('site_url', 200)->nullable();
 		});
 	}
 	

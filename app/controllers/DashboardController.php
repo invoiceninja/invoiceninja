@@ -15,7 +15,7 @@ class DashboardController extends \BaseController {
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
             ->leftJoin('invoices', 'clients.id', '=', 'invoices.client_id')
             ->where('accounts.id', '=', Auth::user()->account_id)
-            ->where('clients.deleted_at', '=', null)
+            ->where('clients.is_deleted', '=', false)
             ->groupBy('accounts.id')
             ->first();
     
@@ -25,7 +25,7 @@ class DashboardController extends \BaseController {
             ->select($select)
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
             ->where('accounts.id', '=', Auth::user()->account_id)
-            ->where('clients.deleted_at', '=', null)
+            ->where('clients.is_deleted', '=', false)
             ->groupBy('accounts.id')
             ->first();
 
@@ -37,6 +37,7 @@ class DashboardController extends \BaseController {
                 ->where('balance', '>', 0)
                 ->where('is_recurring', '=', false)
                 ->where('is_quote', '=', false)
+                ->where('is_deleted', '=', false)
                 ->orderBy('due_date', 'asc')->take(6)->get();
 
     $upcoming = Invoice::scope()
@@ -44,6 +45,7 @@ class DashboardController extends \BaseController {
                   ->where('balance', '>', 0)
                   ->where('is_recurring', '=', false)
                   ->where('is_quote', '=', false)
+                  ->where('is_deleted', '=', false)
                   ->orderBy('due_date', 'asc')->take(6)->get();
 
     $data = [

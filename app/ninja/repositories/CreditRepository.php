@@ -66,7 +66,7 @@ class CreditRepository
             return 0;
         }
 
-       	$credits = Credit::scope($ids)->get();
+       	$credits = Credit::withTrashed()->scope($ids)->get();
 
         foreach ($credits as $credit) 
         {
