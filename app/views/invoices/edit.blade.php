@@ -1599,15 +1599,15 @@
 			}
 			model.invoice().addItem();
 			//model.addTaxRate();			
-		@else 
+		@else
+            // Add the first tax rate for new invoices
+            if(model.invoice_taxes() && model.tax_rates().length > 2) {
+                var tax = model.tax_rates()[1];
+                model.invoice().tax(tax);
+            }
 			model.invoice().custom_taxes1({{ $account->custom_invoice_taxes1 ? 'true' : 'false' }});
 			model.invoice().custom_taxes2({{ $account->custom_invoice_taxes2 ? 'true' : 'false' }});
 		@endif
-                // Add the first tax rate for new invoices
-                //if(model.invoice_taxes() && model.tax_rates().length > 0) {
-                //    var tax = model.tax_rates()[0];
-                //    model.invoice().tax(tax);
-                //}
 	@endif
 
 	model.invoice().tax(model.getTaxRate(model.invoice().tax_name(), model.invoice().tax_rate()));			
