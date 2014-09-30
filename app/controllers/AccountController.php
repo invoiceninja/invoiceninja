@@ -48,6 +48,7 @@ class AccountController extends \BaseController {
 
 	public function reset()
 	{
+		/*
 		if (Utils::isNinjaDev()) {			
 			Confide::logout();
 			try {
@@ -58,7 +59,7 @@ class AccountController extends \BaseController {
 	      Response::make($e->getMessage(), 500);
 	    }
 		}
-
+		*/
 		return Redirect::to('/');
 	}
 
