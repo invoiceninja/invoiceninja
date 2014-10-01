@@ -1,6 +1,6 @@
 <?php
 
-class TimeSheet extends Eloquent
+class TimeSheetEventSource extends Eloquent
 {
 	public $timestamps = false;
 	protected $softDelete = false;
@@ -13,10 +13,5 @@ class TimeSheet extends Eloquent
 	public function user()
 	{
 		return $this->belongsTo('User');
-	}
-    
-    public function timesheet_events()
-	{
-		return $this->hasMany('TimeSheetEvent');
 	}
 }
