@@ -19,7 +19,8 @@
 		"omnipay/omnipay": "~2.0",
 		"intervention/image": "1.x",
 		"webpatser/laravel-countries": "dev-master",
-		"barryvdh/laravel-ide-helper": "1.*"
+		"barryvdh/laravel-ide-helper": "1.*",
+        "doctrine/dbal": "~2.3"
 	},
 	"require-dev": {
 		"codeception/codeception": "dev-master"
