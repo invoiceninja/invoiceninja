@@ -71,7 +71,7 @@ class AddTimesheets extends Migration {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();
-            $t->unsignedInteger('timesheet_source_id');
+            $t->unsignedInteger('timesheet_event_source_id');
             $t->unsignedInteger('timesheet_id')->nullable()->index();
             $t->unsignedInteger('project_id')->nullable()->index();
             $t->unsignedInteger('project_code_id')->nullable()->index();            
@@ -97,12 +97,12 @@ class AddTimesheets extends Migration {
                         
             $t->foreign('account_id')->references('id')->on('accounts'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $t->foreign('timesheet_source_id')->references('id')->on('timesheets')->onDelete('cascade');
+            $t->foreign('timesheet_event_source_id')->references('id')->on('timesheet_event_sources')->onDelete('cascade');
 
             $t->unique( array('timesheet_source_id', 'uid') );
         });
         
-        Schema::create('timesheet_sources', function($t) {
+        Schema::create('timesheet_event_sources', function($t) {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();
@@ -111,7 +111,7 @@ class AddTimesheets extends Migration {
             
             $t->string('name');
             $t->string('url');
-            $t->enum('type', array('ical', 'googlexml'));
+            $t->enum('type', array('ical', 'googlejson'));
             $t->string('owner');
             
             $t->foreign('account_id')->references('id')->on('accounts'); 
