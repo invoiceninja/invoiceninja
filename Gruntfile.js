@@ -17,7 +17,7 @@ module.exports = function(grunt) {
       js: {
         src: [
           'public/vendor/jquery/dist/jquery.js',
-          'public/vendor/jquery-ui/ui/jquery-ui.js',
+          'public/vendor/jquery-ui/jquery-ui.min.js',
           'public/vendor/bootstrap/dist/js/bootstrap.min.js',
           'public/vendor/datatables/media/js/jquery.dataTables.js',
           'public/vendor/datatables-bootstrap3/BS3/assets/js/datatables.js',
@@ -31,6 +31,7 @@ module.exports = function(grunt) {
           'public/vendor/spectrum/spectrum.js',
           'public/js/bootstrap-combobox.js',
           'public/vendor/jspdf/dist/jspdf.min.js',
+          'public/vendor/handsontable/dist/jquery.handsontable.full.min.js',
           //'public/js/jspdf.source.js',
           //'public/js/jspdf.plugin.split_text_to_size.js',
           'public/js/script.js',
@@ -48,6 +49,7 @@ module.exports = function(grunt) {
           'public/vendor/spectrum/spectrum.css',
           'public/css/bootstrap-combobox.css',
           'public/css/typeahead.js-bootstrap.css',
+          'public/vendor/handsontable/dist/jquery.handsontable.full.css',
           'public/css/style.css',
         ],
         dest: 'public/built.css',

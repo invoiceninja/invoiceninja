@@ -29,6 +29,7 @@
 
 			{{ Former::legend('details') }}
 			{{ Former::text('name') }}
+            {{ Former::text('vat_number') }}
 			{{ Former::text('work_email') }}
 			{{ Former::text('work_phone') }}
 			{{ Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp(trans('texts.logo_help')) }}

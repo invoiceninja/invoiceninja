@@ -17,7 +17,8 @@
     "typeahead.js": "~0.9.3",
     "accounting": "~0.*",
     "pdfjs": "*",
-    "spectrum": "~1.3.4"
+    "spectrum": "~1.3.4",
+    "handsontable": "*"
   },
   "resolutions": {
     "datatables": "~1.*",
