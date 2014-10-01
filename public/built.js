@@ -32202,6 +32202,7 @@ function displayAccount(doc, invoice, x, y, layout) {
 
   var data = [
     account.name,
+    account.vat_number,
     account.work_email,
     account.work_phone
   ];
