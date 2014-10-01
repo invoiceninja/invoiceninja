@@ -67,6 +67,22 @@ class AddTimesheets extends Migration {
             $t->unique( array('account_id','public_id') );
         });
         
+        Schema::create('timesheet_event_sources', function($t) {
+            $t->increments('id');
+            $t->unsignedInteger('user_id');
+            $t->unsignedInteger('account_id')->index();
+            $t->timestamps();
+            $t->softDeletes();
+            
+            $t->string('name');
+            $t->string('url');
+            $t->enum('type', array('ical', 'googlejson'));
+            $t->string('owner');
+            
+            $t->foreign('account_id')->references('id')->on('accounts'); 
+            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        });
+        
         Schema::create('timesheet_events', function($t) {
             $t->increments('id');
             $t->unsignedInteger('user_id');
@@ -99,25 +115,8 @@ class AddTimesheets extends Migration {
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $t->foreign('timesheet_event_source_id')->references('id')->on('timesheet_event_sources')->onDelete('cascade');
 
-            $t->unique( array('timesheet_source_id', 'uid') );
+            $t->unique( array('timesheet_event_source_id', 'uid') );
         });
-        
-        Schema::create('timesheet_event_sources', function($t) {
-            $t->increments('id');
-            $t->unsignedInteger('user_id');
-            $t->unsignedInteger('account_id')->index();
-            $t->timestamps();
-            $t->softDeletes();
-            
-            $t->string('name');
-            $t->string('url');
-            $t->enum('type', array('ical', 'googlejson'));
-            $t->string('owner');
-            
-            $t->foreign('account_id')->references('id')->on('accounts'); 
-            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-        });
-        
     }
 
 	/**
@@ -127,11 +126,11 @@ class AddTimesheets extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('projects');
-        Schema::drop('project_codes');
-        Schema::drop('timesheets');
         Schema::drop('timesheet_events');
         Schema::drop('timesheet_sources');
+        Schema::drop('timesheets');
+        Schema::drop('project_codes');
+        Schema::drop('projects');
 	}
 
 }
