@@ -252,4 +252,47 @@ class Account extends Eloquent
 	{
 		return Subscription::where('account_id', '=', $this->id)->where('event_id', '=', $eventId)->first();
 	}
+
+	public function hideFieldsForViz()
+	{
+		foreach ($this->clients as $client)
+		{
+			$client->setVisible([
+				'name', 
+				'balance',
+				'paid_to_date',
+				'invoices',
+				'contacts',
+			]);
+			
+			foreach ($client->invoices as $invoice) 
+			{
+				$invoice->setVisible([
+					'invoice_number',
+					'amount',
+					'balance',
+					'invoice_status_id',
+					'invoice_items',
+					'created_at',
+				]);
+
+				foreach ($invoice->invoice_items as $invoiceItem) 
+				{
+					$invoiceItem->setVisible([
+						'product_key',
+						'cost', 
+						'qty',
+					]);
+				}			
+			}
+
+			foreach ($client->contacts as $contact) 
+			{
+				$contact->setVisible(['public_id']);
+			}						
+		}
+
+		return $this;
+	}
+
 }

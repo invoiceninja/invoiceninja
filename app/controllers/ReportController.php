@@ -2,6 +2,23 @@
 
 class ReportController extends \BaseController {
 
+	public function d3()
+	{
+		$account = Auth::user()->account;
+		$account = $account->with(['clients.invoices.invoice_items', 'clients.contacts'])->first();
+
+		$account = $account->hideFieldsForViz();
+		$clients = $account->clients;
+		//dd($clients->toJson());
+
+		$data = [
+			'feature' => ACCOUNT_DATA_VISUALIZER,
+			'clients' => $clients
+		];
+
+		return View::make('reports.d3', $data);
+	}
+
 	public function report()
 	{
 		if (Input::all())

@@ -204,6 +204,7 @@ class Client extends EntityModel
 			return $this->created_at->format('m/d/y h:i a');
 		}
 	}
+
 }
 
 /*

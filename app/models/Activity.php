@@ -51,7 +51,7 @@ class Activity extends Eloquent
 
 		if ($entity) 
 		{
-			$activity->user_id = $entity->user_id;
+			$activity->user_id = $entity instanceof User ? $entity->id : $entity->user_id;
 			$activity->account_id = $entity->account_id;
 		} 
 		else if (Auth::check())
@@ -272,7 +272,7 @@ class Activity extends Eloquent
 		}
 		else
 		{
-			$activity = Activity::getBlank();
+			$activity = Activity::getBlank($client);
 			$message = $payment->payment_type_id == PAYMENT_TYPE_CREDIT ? 'applied credit for ' : 'entered ' . $payment->getName() . ' for ';
 			$activity->message = Utils::encodeActivity(Auth::user(), $message, $payment->invoice);
 		}

@@ -17,10 +17,10 @@
     "typeahead.js": "~0.9.3",
     "accounting": "~0.*",
     "pdfjs": "*",
-    "spectrum": "~1.3.4"
+    "spectrum": "~1.3.4",
+    "d3": "~3.4.11"
   },
   "resolutions": {
-    "datatables": "~1.*",
     "jquery": "~1.11"
   }
 }
