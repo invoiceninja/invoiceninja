@@ -205,7 +205,7 @@
           visibleTooltip = d.displayName;
         }
 
-        d3.select("#tooltipTitle").text(d.displayName);
+        d3.select("#tooltipTitle").text(truncate(d.displayName, 18));
         d3.select("#tooltipTotal").text(formatMoney(d.displayTotal));
         d3.select("#tooltipBalance").text(formatMoney(d.displayBalance));      
         d3.select("#tooltipAge").text(pluralize('? day', parseInt(d.displayAge)));  

@@ -1887,4 +1887,6 @@ function roundToTwo(num, toString) {
   return toString ? val.toFixed(2) : val;
 }
 
-
+function truncate(str, length) {  
+  return (str && str.length > length) ? (str.substr(0, length-1) + '...') : str;
+}
