@@ -73,4 +73,21 @@ class ContactMailer extends Mailer {
 		$user = $payment->invitation->user;
 		$this->sendTo($payment->contact->email, $user->email, $user->getDisplayName(), $subject, $view, $data);
 	}
+
+	public function sendLicensePaymentConfirmation($name, $email, $amount, $license)
+	{
+		$view = 'payment_confirmation';
+		$subject = trans('texts.payment_subject');
+
+		$data = [
+			'accountName' => trans('texts.email_from'),
+			'clientName' => $name,
+			'emailFooter' => false,
+			'paymentAmount' => Utils::formatMoney($amount, 1),
+			'showNinjaFooter' => false,
+			'emailMessage' => "Your license: $license",
+		];
+
+		$this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+	}	
 }
