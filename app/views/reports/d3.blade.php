@@ -106,16 +106,16 @@
       client.displayBalance = +client.balance;
       client.displayPercent = (+client.paid_to_date / (+client.paid_to_date + +client.balance)).toFixed(2);
       var oldestInvoice = _.max(client.invoices, function(invoice) { return calculateInvoiceAge(invoice) });      
-      client.displayAge = oldestInvoice ? calculateInvoiceAge(oldestInvoice) : 0;
-    })    
+      client.displayAge = oldestInvoice ? calculateInvoiceAge(oldestInvoice) : -1;
+    });    
     
     _.each(invoices, function(invoice) {
       invoice.displayName = invoice.invoice_number;
       invoice.displayTotal = +invoice.amount;
       invoice.displayBalance = +invoice.balance;
-      invoice.displayPercent = parseInt((+invoice.amount - +invoice.balance) / +invoice.amount);
+      invoice.displayPercent = (+invoice.amount - +invoice.balance) / +invoice.amount;
       invoice.displayAge = calculateInvoiceAge(invoice);
-    })
+    });
 
     _.each(products, function(product) {
       product.displayName = product.key;
@@ -123,7 +123,7 @@
       product.displayBalance = product.values.amount - product.values.paid;
       product.displayPercent = (product.values.paid / product.values.amount).toFixed(2);
       product.displayAge = product.values.age;
-    })
+    });
 
     /*
     _.each(clients, function(client) { 
@@ -210,7 +210,7 @@
         d3.select("#tooltipTitle").text(truncate(d.displayName, 18));
         d3.select("#tooltipTotal").text(formatMoney(d.displayTotal));
         d3.select("#tooltipBalance").text(formatMoney(d.displayBalance));      
-        d3.select("#tooltipAge").text(pluralize('? day', parseInt(d.displayAge)));  
+        d3.select("#tooltipAge").text(pluralize('? day', parseInt(Math.max(0, d.displayAge))));  
 
         if (groupBy == "products" || !d.public_id) {
           d3.select("#tooltip a").classed("hidden", true);
@@ -260,7 +260,7 @@
         .transition()
         .duration(1000)      
         .style("fill", function(d, i) { 
-          return d.displayAge ? color(d.displayAge) : 'grey';
+          return d.displayAge == -1 ? 'grey' : color(d.displayAge);
         });                
 
       selection.exit().remove();
@@ -281,7 +281,7 @@
 
     function calculateInvoiceAge(invoice) {
       if (!invoice || invoice.invoice_status_id == 5) {
-        return 0;
+        return -1;
       }
       
       return parseInt((new Date().getTime() - Date.parse(invoice.created_at)) / (1000*60*60*24));       

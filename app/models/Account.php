@@ -290,7 +290,11 @@ class Account extends Eloquent
 
 			foreach ($client->contacts as $contact) 
 			{
-				$contact->setVisible(['public_id']);
+				$contact->setVisible([
+					'public_id',
+					'first_name',
+					'last_name',
+					'email']);
 			}						
 		}
 

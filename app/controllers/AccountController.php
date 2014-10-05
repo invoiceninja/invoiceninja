@@ -36,20 +36,9 @@ class AccountController extends \BaseController {
 	public function update()
 	{		
 		if (!Utils::isNinja()) {
-			// populate migrations if the application was initially setup using database.sql 
-			$migrations = DB::table('migrations')->get();
-			if (Schema::hasTable('accounts') && count($migrations) == 0) {
-				$migrations = ['2013_11_05_180133_confide_setup_users_table', '2013_11_28_195703_setup_countries_table', '2014_02_13_151500_add_cascase_drops', '2014_02_19_151817_add_support_for_invoice_designs', '2014_03_03_155556_add_phone_to_account', '2014_03_19_201454_add_language_support', '2014_03_20_200300_create_payment_libraries', '2014_03_23_051736_enable_forcing_jspdf', '2014_03_25_102200_add_sort_and_recommended_to_gateways', '2014_04_03_191105_add_pro_plan', '2014_04_17_100523_add_remember_token', '2014_04_17_145108_add_custom_fields', '2014_04_23_170909_add_products_settings', '2014_04_29_174315_add_advanced_settings', '2014_05_17_175626_add_quotes', '2014_06_17_131940_add_accepted_credit_cards_to_account_gateways', '2014_07_13_142654_one_click_install', '2014_07_17_205900_support_hiding_quantity', '2014_07_24_171214_add_zapier_support'];
-				foreach ($migrations as $migration) {
-					DB::table('migrations')->insert([
-						'migration' => $migration,
-						'batch' => 1
-					]);
-				}
-			}
-					
 			try {
-				Artisan::call('migrate');			
+				Artisan::call('migrate');
+				Cache::flush();
 			} catch (Exception $e) {
 	      Response::make($e->getMessage(), 500);
 	    }

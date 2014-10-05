@@ -197,7 +197,14 @@
   @endif
 
   @if (Session::has('message'))
-  <div class="alert alert-info">{{ Session::get('message') }}</div>
+    <div class="alert alert-info">
+      {{ Session::get('message') }}
+    </div>
+  @elseif (Session::has('news_feed_message'))
+    <div class="alert alert-info">
+      {{ Session::get('news_feed_message') }}      
+      <a href="#" onclick="hideMessage()" class="pull-right">{{ trans('texts.hide') }}</a>      
+    </div>
   @endif
 
   @if (Session::has('error'))
@@ -542,6 +549,12 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
   }
   @endif
 
+  function hideMessage() {
+    $('.alert-info').fadeOut();
+    $.get('/hide_message', function(response) {
+      console.log('Reponse: %s', response);
+    });
+  }
 
   $(function() {
     $('#search').focus(function(){

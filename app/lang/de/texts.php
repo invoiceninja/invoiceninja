@@ -422,5 +422,7 @@ return array(
 
   'data_visualizations' => 'Data Visualizations',
   'sample_data' => 'Sample data shown',
+  'hide' => 'Hide',
+  'new_version_available' => 'A new version of :releases_link is available. You\'re running v:user_version, the latest is v:latest_version',
     
 );

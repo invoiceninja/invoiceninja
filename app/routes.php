@@ -36,7 +36,7 @@ Route::post('/contact_submit', 'HomeController@doContactUs');
 Route::get('/faq', 'HomeController@showFaq');
 Route::get('/features', 'HomeController@showFeatures');
 Route::get('/testimonials', 'HomeController@showTestimonials');
-Route::get('/compare-online-invoicing', 'HomeController@showCompare');
+Route::get('/compare-online-invoicing{sites?}', 'HomeController@showCompare');
 
 Route::get('log_error', 'HomeController@logError');
 Route::get('invoice_now', 'HomeController@invoiceNow');
@@ -54,7 +54,6 @@ Route::get('claim_license', 'PaymentController@claim_license');
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
 
-
 // Confide routes
 Route::get('login', 'UserController@login');
 Route::post('login', 'UserController@do_login');
@@ -65,11 +64,15 @@ Route::get('user/reset/{token?}', 'UserController@reset_password');
 Route::post('user/reset', 'UserController@do_reset_password');
 Route::get('logout', 'UserController@logout');
 
+if (Utils::isNinja()) {
+  Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
+}
 
 Route::group(array('before' => 'auth'), function()
 {   
   Route::get('dashboard', 'DashboardController@index');
   Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
+  Route::get('hide_message', 'HomeController@hideMessage');
   Route::get('force_inline_pdf', 'UserController@forcePDFJS');
 
   Route::get('api/users', array('as'=>'api.users', 'uses'=>'UserController@getDatatable'));
@@ -236,10 +239,15 @@ define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
 define('NINJA_URL', 'https://www.invoiceninja.com');
-define('NINJA_VERSION', '1.3.3');
+define('NINJA_VERSION', '1.4.0');
+define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
 
 define('PRO_PLAN_PRICE', 50);
 define('LICENSE_PRICE', 30.00);
+
+define('USER_TYPE_SELF_HOST', 'SELF_HOST');
+define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
+define('NEW_VERSION_AVAILABLE', 'NEW_VERSION_AVAILABLE');
 
 /*
 define('GATEWAY_AMAZON', 30);
