@@ -428,6 +428,8 @@ return array(
   'cancel_account_message' => 'Warning: This will permanently erase all of your data, there is no undo.',
   'go_back' => 'Go Back',
 
-  'data_visualizer' => 'Data Visualizer',
-  
+  'data_visualizations' => 'Data Visualizations',
+  'sample_data' => 'Sample data shown',
+
+
 );

@@ -258,6 +258,7 @@ class Account extends Eloquent
 		foreach ($this->clients as $client)
 		{
 			$client->setVisible([
+				'public_id',
 				'name', 
 				'balance',
 				'paid_to_date',
@@ -268,6 +269,7 @@ class Account extends Eloquent
 			foreach ($client->invoices as $invoice) 
 			{
 				$invoice->setVisible([
+					'public_id',
 					'invoice_number',
 					'amount',
 					'balance',

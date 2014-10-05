@@ -11,7 +11,7 @@
     <div class="cell">Multi-user support</div>
     <div class="cell">Quotes/pro-forma invoices</div>
     <div class="cell">Custom invoice fields and colors</div>
-    <div class="cell">Dynamic chart builder</div>
+    <div class="cell">Dynamic data vizualizations</div>
     <div class="cell">Priority email support</div>
     <div class="cell">Remove "Created by Invoice Ninja"</div>
     <div class="cell">Latest and greatest features</div>
@@ -29,7 +29,7 @@
     <div class="cell"><div class="hide-desktop">Multi-user support</div><span class="glyphicon glyphicon-remove"></div>
     <div class="cell"><div class="hide-desktop">Quotes/pro-forma invoices</div><span class="glyphicon glyphicon-remove"></div>
     <div class="cell"><div class="hide-desktop">Custom fields and invoice colors</div><span class="glyphicon glyphicon-remove"></div>
-    <div class="cell"><div class="hide-desktop">Dynamic chart builder</div><span class="glyphicon glyphicon-remove"></div>
+    <div class="cell"><div class="hide-desktop">Dynamic data vizualizations</div><span class="glyphicon glyphicon-remove"></div>
     <div class="cell"><div class="hide-desktop">Priority email support</div><span class="glyphicon glyphicon-remove"></div>
     <div class="cell"><div class="hide-desktop">Remove "Created by Invoice Ninja"</div><span class="glyphicon glyphicon-remove"></div>
     <div class="cell"><div class="hide-desktop">Latest and greatest features</div><span class="glyphicon glyphicon-remove"></div>
@@ -47,7 +47,7 @@
     <div class="cell"><div class="hide-desktop">Multi-user support</div><span class="glyphicon glyphicon-ok"></div>
     <div class="cell"><div class="hide-desktop">Quotes/pro-forma invoices</div><span class="glyphicon glyphicon-ok"></div>
     <div class="cell"><div class="hide-desktop">Custom invoice fields and colors</div><span class="glyphicon glyphicon-ok"></div>
-    <div class="cell"><div class="hide-desktop">Dynamic chart builder</div><span class="glyphicon glyphicon-ok"></div>
+    <div class="cell"><div class="hide-desktop">Dynamic data vizualizations</div><span class="glyphicon glyphicon-ok"></div>
     <div class="cell"><div class="hide-desktop">Priority email support</div><span class="glyphicon glyphicon-ok"></div>
     <div class="cell"><div class="hide-desktop">Remove "Created by Invoice Ninja"</div><span class="glyphicon glyphicon-ok"></div>
     <div class="cell"><div class="hide-desktop">Latest and greatest features</div><span class="glyphicon glyphicon-ok"></div>

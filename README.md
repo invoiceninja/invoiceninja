@@ -17,7 +17,7 @@ To connect follow [@invoiceninja](https://twitter.com/invoiceninja) or join the 
 
 If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
 
-Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
+Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kantorp-wegl.in](http://kantorp-wegl.in/).
 
 ### Features
 
@@ -27,6 +27,8 @@ Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
 * Recurring invoices
 * Tax rates and payment terms
 * Multi-user support
+* [Zapier](https://zapier.com/) integration
+* [D3.js](http://d3js.org/) visualizations
 
 ### Steps to setup
 

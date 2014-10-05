@@ -10,6 +10,10 @@
 	@parent
 	@include('accounts.nav_advanced')
 
+  {{ Former::open() }}
+  {{ Former::legend('chart_builder') }}
+  {{ Former::close() }}
+
 	<div class="row">
 		<div class="col-lg-4">
 

@@ -4,16 +4,24 @@ class ReportController extends \BaseController {
 
 	public function d3()
 	{
-		$account = Auth::user()->account;
-		$account = $account->with(['clients.invoices.invoice_items', 'clients.contacts'])->first();
+		$message = '';
 
-		$account = $account->hideFieldsForViz();
-		$clients = $account->clients;
-		//dd($clients->toJson());
+		if (Auth::user()->account->isPro()) {
+			$account = Auth::user()->account;
+			$account = $account->with(['clients.invoices.invoice_items', 'clients.contacts'])->first();
+			$account = $account->hideFieldsForViz();
+			$clients = $account->clients->toJson();			
+		} else if (isset($_ENV['DATA_VIZ_SAMPLE'])) {
+			$clients = $_ENV['DATA_VIZ_SAMPLE'];
+			$message = trans('texts.sample_data');
+		} else {
+			$clients = '[]';
+		}
 
 		$data = [
-			'feature' => ACCOUNT_DATA_VISUALIZER,
-			'clients' => $clients
+			'feature' => ACCOUNT_DATA_VISUALIZATIONS,
+			'clients' => $clients,
+			'message' => $message
 		];
 
 		return View::make('reports.d3', $data);

@@ -32,6 +32,10 @@
   @parent
   @include('accounts.nav_advanced')
 
+  {{ Former::open() }}
+  {{ Former::legend('data_visualizations') }}
+  {{ Former::close() }}
+
   <div id="tooltip" class="hidden">
     <p>
       <strong><span id="tooltipTitle"></span></strong>
@@ -49,7 +53,7 @@
       <option>Invoices</option>
       <option>Products</option>
     </select>
-
+    &nbsp;&nbsp; {{ $message }}
   </form>
 
   <p>&nbsp;</p>
@@ -59,7 +63,7 @@
   <script type="text/javascript">
 
     // store data as JSON
-    var data = {{ $clients->toJson() }};
+    var data = {{ $clients }};
 
     _.each(data, function(client) { 
       _.each(client.invoices, function(invoice) { 
@@ -73,12 +77,10 @@
     var clients = data.concat();
     var invoices = _.flatten(_.pluck(clients, 'invoices'));
 
-    /*
     // remove quotes and recurring invoices
     invoices = _.filter(invoices, function(invoice) {       
       return !parseInt(invoice.is_quote) && !parseInt(invoice.is_recurring); 
     });    
-    */
 
     var products = _.flatten(_.pluck(invoices, 'invoice_items'));
     products = d3.nest()
@@ -210,7 +212,7 @@
         d3.select("#tooltipBalance").text(formatMoney(d.displayBalance));      
         d3.select("#tooltipAge").text(pluralize('? day', parseInt(d.displayAge)));  
 
-        if (groupBy == "products") {
+        if (groupBy == "products" || !d.public_id) {
           d3.select("#tooltip a").classed("hidden", true);
         } else {
           d3.select("#tooltip a").classed("hidden", false);
@@ -259,7 +261,6 @@
         .duration(1000)      
         .style("fill", function(d, i) { 
           return d.displayAge ? color(d.displayAge) : 'grey';
-          //return 'red'; 
         });                
 
       selection.exit().remove();

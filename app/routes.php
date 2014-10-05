@@ -80,7 +80,7 @@ Route::group(array('before' => 'auth'), function()
   Route::resource('products', 'ProductController');
   Route::get('products/{product_id}/archive', 'ProductController@archive');
 
-  Route::get('company/advanced_settings/data_visualizer', 'ReportController@d3');
+  Route::get('company/advanced_settings/data_visualizations', 'ReportController@d3');
   Route::get('company/advanced_settings/chart_builder', 'ReportController@report');
   Route::post('company/advanced_settings/chart_builder', 'ReportController@report');
 
@@ -171,7 +171,7 @@ define('ACCOUNT_CUSTOM_FIELDS', 'custom_fields');
 define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
 define('ACCOUNT_CHART_BUILDER', 'chart_builder');
 define('ACCOUNT_USER_MANAGEMENT', 'user_management');
-define('ACCOUNT_DATA_VISUALIZER', 'data_visualizer');
+define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
 
 define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
