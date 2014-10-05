@@ -80,6 +80,7 @@ Route::group(array('before' => 'auth'), function()
   Route::resource('products', 'ProductController');
   Route::get('products/{product_id}/archive', 'ProductController@archive');
 
+  Route::get('company/advanced_settings/data_visualizations', 'ReportController@d3');
   Route::get('company/advanced_settings/chart_builder', 'ReportController@report');
   Route::post('company/advanced_settings/chart_builder', 'ReportController@report');
 
@@ -170,7 +171,7 @@ define('ACCOUNT_CUSTOM_FIELDS', 'custom_fields');
 define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
 define('ACCOUNT_CHART_BUILDER', 'chart_builder');
 define('ACCOUNT_USER_MANAGEMENT', 'user_management');
-                
+define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
 
 define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
@@ -223,6 +224,7 @@ define('GATEWAY_AUTHORIZE_NET', 1);
 define('GATEWAY_PAYPAL_EXPRESS', 17);
 define('GATEWAY_BEANSTREAM', 29);
 define('GATEWAY_PSIGATE', 30);
+define('GATEWAY_MOOLAH', 31);
 
 define('EVENT_CREATE_CLIENT', 1);
 define('EVENT_CREATE_INVOICE', 2);

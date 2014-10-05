@@ -333,6 +333,13 @@ return array(
   'updated_product' => 'Prodotto aggiornato con successo',
   'created_product' => 'Prodotto creato con successo',
   'archived_product' => 'Prodotto archiviato con successo',
+  'pro_plan_custom_fields' => ':link to enable custom fields by joining the Pro Plan',
+
+  'advanced_settings' => 'Advanced Settings',
+  'pro_plan_advanced_settings' => ':link to enable the advanced settings by joining the Pro Plan',
+  'invoice_design' => 'Invoice Design',
+  'specify_colors' => 'Specify colors',
+  'specify_colors_label' => 'Select the colors used in the invoice',
 
   'chart_builder' => 'Creatore grafico',
   'ninja_email_footer' => 'Usa :site per fatturare ai tuoi clienti e venire pagato online gratis!',
@@ -407,10 +414,13 @@ return array(
 
   'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
   'confirm_email_quote' => 'Are you sure you want to email this quote?',
-  'confirm_recurring_email_invoice' => 'Are you sure you want this invoice emailed?',
+  'confirm_recurring_email_invoice' => 'Recurring is enabled, are you sure you want this invoice emailed?',
 
   'cancel_account' => 'Cancel Account',
   'cancel_account_message' => 'Warning: This will permanently erase all of your data, there is no undo.',
   'go_back' => 'Go Back',
-  
+
+  'data_visualizations' => 'Data Visualizations',
+  'sample_data' => 'Sample data shown',
+    
 );

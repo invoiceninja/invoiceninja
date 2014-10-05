@@ -11,28 +11,32 @@
 	@if ($accountGateway)
 		{{ Former::populateField('gateway_id', $accountGateway->gateway_id) }}
 		{{ Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) }}
-		@foreach ($accountGateway->fields as $field => $junk)
-			@if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
-				{{-- do nothing --}}
-			@else
-				{{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}
-			@endif
-		@endforeach
+		@if ($config)
+			@foreach ($accountGateway->fields as $field => $junk)
+				@if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
+					{{-- do nothing --}}
+				@else
+					{{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}
+				@endif
+			@endforeach
+		@endif
 	@endif
     
-    <div class="two-column">
+  <div class="two-column">
 		{{ Former::checkboxes('creditCardTypes[]')->label('Accepted Credit Cards')
 				->checkboxes($creditCardTypes)->class('creditcard-types')
 		}}
 	</div>
+
+	<p/>&nbsp;<p/>
 	
 	<div class="two-column">
-	{{ Former::radios('recommendedGateway_id')->label('Recommended Gateways')
+	{{ Former::radios('recommendedGateway_id')->label('Recommended Gateway')
 			->radios($recommendedGateways)->class('recommended-gateway')
 	}}
 	</div>
 
-	{{ Former::select('gateway_id')->label('PayPal & Other Gateways')->addOption('', '')
+	{{ Former::select('gateway_id')->label('Select Gateway')->addOption('', '')
 		->dataClass('gateway-dropdown')
 		->fromQuery($dropdownGateways, 'name', 'id')
 		->onchange('setFieldsShown()'); }}
@@ -56,6 +60,8 @@
 		</div>
 		
 	@endforeach
+
+	<p/>&nbsp;<p/>
 
 	{{ Former::actions( Button::lg_success_submit('Save')->append_with_icon('floppy-disk') ) }}
 	{{ Former::close() }}

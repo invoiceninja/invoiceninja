@@ -2,6 +2,10 @@
 
 {{ trans('texts.payment_message', ['amount' => $paymentAmount]) }}
 
+@if (isset($emailMessage) && $emailMessage)
+{{ $emailMessage }}
+@endif
+
 @if ($emailFooter)
 {{ $emailFooter }}
 @else

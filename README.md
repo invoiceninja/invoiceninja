@@ -9,13 +9,15 @@ If you'd like to use our code to sell your own invoicing app get in touch.
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is the codebase will serve as a sample site for Laravel as well as other JavaScript technologies.
 
-To setup the site you can either use this [zip file](http://hillelcoren.com/invoice-ninja/self-hosting/) (easier to setup) or checkout the code from GitHub following the instructions below (easier to stay up to date). There's also a more detailed setup guide [available here](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). To deploy the app with [Docker](http://www.docker.com/) you can use [this project](https://github.com/rollbrettler/Dockerfiles/tree/master/invoice-ninja).
+To setup the site you can either use this [zip file](http://hillelcoren.com/invoice-ninja/self-hosting/) (easier to setup) or checkout the code from GitHub following the instructions below (easier to stay up to date). There's also a more detailed setup guide [available here](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). 
+
+For a WAMP/MAMP/LAMP setup you can one-click install using Softaculous's [AMPPS](http://www.ampps.com/). To deploy the app with [Docker](http://www.docker.com/) you can use [this project](https://github.com/rollbrettler/Dockerfiles/tree/master/invoice-ninja).
 
 To connect follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). For discussion of the code please use the [Google Group](https://groups.google.com/d/forum/invoiceninja).
 
 If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
 
-Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
+Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kantorp-wegl.in](http://kantorp-wegl.in/).
 
 ### Features
 
@@ -25,6 +27,8 @@ Site design by [kantorp-wegl.in](http://kantorp-wegl.in/)
 * Recurring invoices
 * Tax rates and payment terms
 * Multi-user support
+* [Zapier](https://zapier.com/) integration
+* [D3.js](http://d3js.org/) visualizations
 
 ### Steps to setup
 

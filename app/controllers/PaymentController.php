@@ -3,18 +3,20 @@
 use ninja\repositories\PaymentRepository;
 use ninja\repositories\InvoiceRepository;
 use ninja\repositories\AccountRepository;
+use ninja\mailers\ContactMailer;
 
 class PaymentController extends \BaseController 
 {
     protected $creditRepo;
 
-    public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo)
+    public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer)
     {
         parent::__construct();
 
         $this->paymentRepo = $paymentRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->accountRepo = $accountRepo;
+        $this->contactMailer = $contactMailer;
     }   
 
 	public function index()
@@ -423,6 +425,9 @@ class PaymentController extends \BaseController
                 'hideHeader' => true
             ];
 
+            $name = "{$license->first_name} {$license->last_name}";
+            $this->contactMailer->sendLicensePaymentConfirmation($name, $license->email, LICENSE_PRICE, $license->license_key);
+            
             return View::make('public.license', $data);
 
             //return Redirect::away(Session::get('return_url') . "?license_key={$license->license_key}");
