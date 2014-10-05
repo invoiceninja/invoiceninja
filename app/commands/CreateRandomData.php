@@ -23,16 +23,16 @@ class CreateRandomData extends Command {
     $productNames = ['Arkansas', 'New York', 'Arizona', 'California', 'Colorado', 'Alabama', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'Alaska', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
     $clientNames = ['IBM', 'Nestle', 'Mitsubishi UFJ Financial', 'Vodafone', 'Eni', 'Procter & Gamble', 'Johnson & Johnson', 'American International Group', 'Banco Santander', 'BHP Billiton', 'Pfizer', 'Itaú Unibanco Holding', 'Ford Motor', 'BMW Group', 'Commonwealth Bank', 'EDF', 'Statoil', 'Google', 'Siemens', 'Novartis', 'Royal Bank of Canada', 'Sumitomo Mitsui Financial', 'Comcast', 'Sberbank', 'Goldman Sachs Group', 'Westpac Banking Group', 'Nippon Telegraph & Tel', 'Ping An Insurance Group', 'Banco Bradesco', 'Anheuser-Busch InBev', 'Bank of Communications', 'China Life Insurance', 'General Motors', 'Telefónica', 'MetLife', 'Honda Motor', 'Enel', 'BASF', 'Softbank', 'National Australia Bank', 'ANZ', 'ConocoPhillips', 'TD Bank Group', 'Intel', 'UBS', 'Hewlett-Packard', 'Coca-Cola', 'Cisco Systems', 'UnitedHealth Group', 'Boeing', 'Zurich Insurance Group', 'Hyundai Motor', 'Sanofi', 'Credit Agricole', 'United Technologies', 'Roche Holding', 'Munich Re', 'PepsiCo', 'Oracle', 'Bank of Nova Scotia'];
 
-    for ($i=1; $i<=40; $i++) {
+    foreach ($productNames as $i => $value) {
       $product = Product::createNew($user);
-      $product->id = $i;
-      $product->product_key = $productNames[$i-1];
+      $product->id = $i+1;
+      $product->product_key = $value;
       $product->save();        
     }
 
-    for ($i=0; $i<60; $i++) {
+    foreach ($clientNames as $i => $value) {
       $client = Client::createNew($user);
-      $client->name = $clientNames[$i];
+      $client->name = $value;
       $client->save();
 
       $contact = Contact::createNew($user);
