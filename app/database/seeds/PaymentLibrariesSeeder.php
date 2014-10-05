@@ -12,6 +12,20 @@ class PaymentLibrariesSeeder extends Seeder
 			array('name'=>'Psigate', 'provider'=>'Psigate', 'payment_library_id' => 2)
 		];
 		
+		foreach ($gateways as $gateway)
+		{
+			Gateway::create($gateway);
+		}
+
+		Gateway::create([
+			'name' => 'moolah',
+			'provider' => 'AuthorizeNet_AIM',
+			'sort_order' => 1,
+			'recommended' => 1,
+			'site_url' => 'https://invoiceninja.mymoolah.com/',
+		]);
+
+		/*
 		$updateProviders = array(
 			0 => 'AuthorizeNet_AIM', 
 			//1 => 'BeanStream', 
@@ -21,11 +35,6 @@ class PaymentLibrariesSeeder extends Seeder
 			5 => 'TwoCheckout'
 		);
 
-		foreach ($gateways as $gateway)
-		{
-			Gateway::create($gateway);
-		}
-		
 		Gateway::whereIn('provider', $updateProviders)->update(array('recommended' => 1));
 		
 		Gateway::where('provider', '=', 'AuthorizeNet_AIM')->update(array('sort_order' => 5, 'site_url' => 'http://reseller.authorize.net/application/?id=5560364'));
@@ -33,5 +42,7 @@ class PaymentLibrariesSeeder extends Seeder
 		//Gateway::where('provider', '=', 'FirstData_Connect')->update(array('sort_order' => 20, 'site_url' => 'https://www.firstdata.com/'));
 		Gateway::where('provider', '=', 'PayPal_Pro')->update(array('sort_order' => 25, 'site_url' => 'https://www.paypal.com/'));
 		Gateway::where('provider', '=', 'TwoCheckout')->update(array('sort_order' => 30, 'site_url' => 'https://www.2checkout.com/referral?r=2c37ac2298'));
+		*/
+
 	}
 }

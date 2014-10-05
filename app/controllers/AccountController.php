@@ -166,7 +166,7 @@ class AccountController extends \BaseController {
 			{
 				$accountGateway = $account->account_gateways[0];
 				$config = $accountGateway->config;
-                $selectedCards = $accountGateway->accepted_credit_cards;
+				$selectedCards = $accountGateway->accepted_credit_cards;
                 
 				$configFields = json_decode($config);
                 
@@ -174,6 +174,9 @@ class AccountController extends \BaseController {
 				{
 					$configFields->$configField = str_repeat('*', strlen($value));
 				}
+			} else {
+				$accountGateway = AccountGateway::createNew();
+				$accountGateway->gateway_id = GATEWAY_MOOLAH;				
 			}
 			
 			$recommendedGateways = Gateway::remember(DEFAULT_QUERY_CACHE)
@@ -191,8 +194,8 @@ class AccountController extends \BaseController {
 					'data-siteUrl' => $recommendedGateway->site_url
 				);
 				$recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
-			}
-            
+			}      
+
       $creditCardsArray = unserialize(CREDIT_CARDS);
       $creditCards = [];
 			foreach($creditCardsArray as $card => $name)
@@ -210,25 +213,12 @@ class AccountController extends \BaseController {
 				'data-siteUrl' => ''
 			);
 			$recommendedGatewayArray['Other Options'] = $otherItem;
-      
-			$data = [
-				'account' => $account,
-				'accountGateway' => $accountGateway,
-				'config' => $configFields,
-				'gateways' => Gateway::remember(DEFAULT_QUERY_CACHE)
-					->orderBy('name')
-					->get(),
-				'dropdownGateways' => Gateway::remember(DEFAULT_QUERY_CACHE)
-					->where('recommended', '=', '0')
-					->orderBy('name')
-					->get(),
-				'recommendedGateways' => $recommendedGatewayArray,
-        'creditCardTypes' => $creditCards, 
-			];
-			
-			foreach ($data['gateways'] as $gateway)
+
+			$gateways = Gateway::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get();
+
+			foreach ($gateways as $gateway)
 			{
-				$paymentLibrary =  $gateway->paymentlibrary;
+				$paymentLibrary = $gateway->paymentlibrary;
 
 				$gateway->fields = $gateway->getFields();	
 	
@@ -237,7 +227,20 @@ class AccountController extends \BaseController {
 					$accountGateway->fields = $gateway->fields;						
 				}
 			}	
-
+      
+      $data = [
+				'account' => $account,
+				'accountGateway' => $accountGateway,
+				'config' => $configFields,
+				'gateways' => $gateways,
+				'dropdownGateways' => Gateway::remember(DEFAULT_QUERY_CACHE)
+					->where('recommended', '=', '0')
+					->orderBy('name')
+					->get(),
+				'recommendedGateways' => $recommendedGatewayArray,
+        'creditCardTypes' => $creditCards, 
+			];
+			
 			return View::make('accounts.payments', $data);
 		}
 		else if ($section == ACCOUNT_NOTIFICATIONS)
