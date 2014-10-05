@@ -3,7 +3,7 @@
 @section('head')
   @parent
 
-  <script src="{{ asset('vendor/d3/d3.min.js') }}" type="text/javascript"></script>   
+  <script src="{{ asset('js/d3.min.js') }}" type="text/javascript"></script>   
 
   <style type="text/css">
 
