@@ -27,13 +27,13 @@ class ImportTimesheetData extends Command {
         
         // TODO: Populate with own test data until test data has been created
         // Truncate the tables
-        $this->info("Truncate tables");
+        /*$this->info("Truncate tables");
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('projects')->truncate();
         DB::table('project_codes')->truncate();
         DB::table('timesheet_event_sources')->truncate();
         DB::table('timesheet_events')->truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;'); */
         
         if (!Project::find(1)) {
             $this->info("Import old project codes");
@@ -206,7 +206,7 @@ class ImportTimesheetData extends Command {
                                 }
 
                                 try {
-                                    //$this->info("Save event: ".$event->summary);
+                                    $this->info("Save event: ".$event->summary);
                                     //if($event->uid == '2nvv4qjnlc293vq3h2833uslhc@google.com') {
                                         //var_dump($event);
                                         $event->save();
