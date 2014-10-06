@@ -8,28 +8,23 @@ class ImportTimesheetData extends Command {
 
     protected $name = 'ninja:import-timesheet-data';
     protected $description = 'Import timesheet data';
-
+    
     public function fire() {
         $this->info(date('Y-m-d') . ' Running ImportTimesheetData...');
-
-        /* try {
-          $dt = new DateTime("now");
-          var_dump($dt);
-          echo "1:".$dt."\n";
-          echo $dt->getTimestamp()."\n";
-          } catch (Exception $ex) {
-          echo $ex->getMessage();
-          echo $ex->getTraceAsString();
-          }
-          exit(0); */
-
+        
+        // Seems we are using the console timezone
+        DB::statement("SET SESSION time_zone = '+00:00'");
+        
+        // Get the Unix epoch
+        $unix_epoch = new DateTime('1970-01-01T00:00:01', new DateTimeZone("UTC"));
+        
         // Create some initial sources we can test with
         $user = User::first();
         if (!$user) {
             $this->error("Error: please create user account by logging in");
             return;
         }
-
+        
         // TODO: Populate with own test data until test data has been created
         // Truncate the tables
         $this->info("Truncate tables");
@@ -39,7 +34,7 @@ class ImportTimesheetData extends Command {
         DB::table('timesheet_event_sources')->truncate();
         DB::table('timesheet_events')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
+        
         if (!Project::find(1)) {
             $this->info("Import old project codes");
             $oldcodes = json_decode(file_get_contents("/home/tlb/git/itktime/codes.json"), true);
@@ -89,7 +84,7 @@ class ImportTimesheetData extends Command {
         ProjectCode::all()->map(function($item) use(&$codes) {
             $codes[$item->name] = $item;
         });
-
+    
         //FIXME: Make sure we keep track of duplicate UID's so we don't fail when inserting them to the database
         $this->info("Start parsing ICAL files");
         foreach ($event_sources as $i => $event_source) {
@@ -97,7 +92,14 @@ class ImportTimesheetData extends Command {
                 $this->info("Find events in " . $event_source->name);
                 file_put_contents("/tmp/" . $event_source->name . ".ical", $results[$i]);
                 if (preg_match_all('/BEGIN:VEVENT\r?\n(.+?)\r?\nEND:VEVENT/s', $results[$i], $icalmatches)) {
+                    $this->info("Found ".(count($icalmatches[1])-1)." events\n");
+                    // Fetch all uids so we can do a quick lookup
                     $uids = [];
+                    $event_source->events()->get(['uid', 'org_updated_at'])->map(function($item) use(&$uids) {                        
+                        $uids[$item->uid] = $item->org_updated_at;
+                    });
+
+                    // Loop over all the found events
                     foreach ($icalmatches[1] as $eventstr) {
                         //print "---\n";
                         //print $eventstr."\n";
@@ -113,37 +115,27 @@ class ImportTimesheetData extends Command {
                             if ($codename != null) {
                                 $event = TimesheetEvent::createNew($user);
                                 $event->uid = $data['uid'];
-
+                                
                                 # Add RECURRENCE-ID to the UID to make sure the event is unique
                                 if (isset($data['recurrence-id'])) {
-                                    $event->uid .= $data['recurrence-id'];
+                                    $event->uid .= "::".$data['recurrence-id'];
                                 }
+                                
+                                //FIXME: Bail on RRULE as we don't support that
 
-                                // Check for duplicate events in the feed
-                                if (isset($uids[$event->uid])) {
-                                    echo "Duplicate event found:";
-                                    echo "org:\n";
-                                    var_dump($uids[$event->uid]);
-                                    echo "new:\n";
-                                    var_dump($data);
-                                    continue;
-                                }
-                                $uids[$event->uid] = $data;
-
-                                //TODO: Bail on RRULE as we don't support that
                                 // Convert to DateTime objects
                                 foreach (['dtstart', 'dtend', 'created', 'last-modified'] as $key) {
                                     // Parse and create DataTime object from ICAL format
                                     list($dt, $timezone) = TimesheetUtils::parseICALDate($data[$key]);
 
                                     // Handle bad dates in created and last-modified
-                                    if ($dt == null) {
+                                    if ($dt == null || $dt < $unix_epoch) {
                                         if ($key == 'created' || $key == 'last-modified') {
-                                            $dt = new DateTime('1970-01-01T00:00:00', new DateTimeZone("UTC")); // Default to UNIX epoc
-                                            echo "Could not parse date for $key: '" . $data[$key] . "' so default to UNIX Epoc\n"; // TODO write to error table
+                                            $dt = $unix_epoch; // Default to UNIX epoch
+                                            $event->import_error = "Could not parse date for $key: '" . $data[$key] . "' so default to UNIX Epoc\n";
                                         } else {
-                                            echo "Could not parse date for $key: '" . $data[$key] . "'\n"; // TODO write to error table
-                                            exit(255); // TODO: Bail on this event
+                                            echo "Could not parse date for $key: '" . $data[$key] . "'\n";
+                                            exit(255); // TODO: Bail on this event or write to error table
                                         }
                                     }
 
@@ -157,9 +149,11 @@ class ImportTimesheetData extends Command {
                                             $event->end_date = $dt;
                                             $event->org_end_date_timezone = $timezone;
                                             break;
-                                        case 'created': $event->org_created_at = $dt;
+                                        case 'created': 
+                                            $event->org_created_at = $dt;
                                             break;
-                                        case 'last-modified': $event->org_updated_at = $dt;
+                                        case 'last-modified': 
+                                            $event->org_updated_at = $dt;
                                             break;
                                     }
                                 }
@@ -173,7 +167,25 @@ class ImportTimesheetData extends Command {
                                         continue;
                                     }
                                 }
-
+                                
+                                // Check for events we allready have
+                                if (isset($uids[$event->uid])) {
+                                    $db_event_org_updated_at = new DateTime($uids[$event->uid], new DateTimeZone('UTC'));
+                                    if($event->org_updated_at <= $db_event_org_updated_at) {
+                                        // Same or older version of new event so skip
+                                        continue;
+                                        
+                                    } else {
+                                        var_dump($event->uid);
+                                        var_dump($uids[$event->uid]);
+                                        var_dump($event);
+                                        // updated version of the event
+                                        echo "update version of the event\n";
+                                        
+                                    }
+                                }
+                                $uids[$event->uid] = $event->org_updated_at;
+                                
                                 // Calculate number of hours 
                                 $di = $event->end_date->diff($event->start_date);
                                 $event->hours = $di->h + $di->i / 60;
@@ -182,7 +194,7 @@ class ImportTimesheetData extends Command {
                                 $event->org_data = $eventstr;
                                 $event->summary = $title;
                                 $event->description = $title;
-                                $event->org_code = $code;
+                                $event->org_code = $codename;
                                 $event->owner = $event_source->owner;
                                 $event->timesheet_event_source_id = $event_source->id;
                                 if (isset($codes[$codename])) {
@@ -194,14 +206,17 @@ class ImportTimesheetData extends Command {
                                 }
 
                                 try {
-                                    // Save event
-                                    $event->save();
+                                    //$this->info("Save event: ".$event->summary);
+                                    //if($event->uid == '2nvv4qjnlc293vq3h2833uslhc@google.com') {
+                                        //var_dump($event);
+                                        $event->save();
+                                    //}
                                 } catch (Exception $ex) {
                                     echo "'" . $event->summary . "'\n";
                                     var_dump($data);
                                     echo $ex->getMessage();
                                     echo $ex->getTraceAsString();
-                                    //exit();
+                                    exit(0);
                                 }
                             }
                         }

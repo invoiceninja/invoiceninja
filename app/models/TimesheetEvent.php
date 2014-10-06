@@ -5,6 +5,18 @@ class TimesheetEvent extends Eloquent
 	public $timestamps = true;
 	protected $softDelete = true;
     
+    /* protected $dates = array('org_updated_at');
+    
+    public function getDates() {
+        return array('created_at', 'updated_at', 'deleted_at');
+    } */
+
+    /* public function setOrgUpdatedAtAttribute($value)
+    {
+        var_dump($value);
+        $this->attributes['org_updated_at'] = $value->getTimestamp();
+    }*/
+    
     public function account()
 	{
 		return $this->belongsTo('Account');

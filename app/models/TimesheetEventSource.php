@@ -15,6 +15,11 @@ class TimesheetEventSource extends Eloquent
 		return $this->belongsTo('User');
 	}
     
+    public function events()
+	{
+		return $this->hasMany('TimesheetEvent');
+	}
+    
     public static function createNew($parent = false)
 	{		
 		$className = get_called_class();
