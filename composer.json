@@ -48,6 +48,7 @@
 		"post-update-cmd": [
 			"php artisan clear-compiled",
             "php artisan ide-helper:generate",
+            "php artisan ide-helper:models -N",
 			"php artisan optimize",
 			"php artisan debugbar:publish"
 		],
