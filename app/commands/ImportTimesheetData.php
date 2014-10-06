@@ -97,11 +97,14 @@ class ImportTimesheetData extends Command {
             $codes[$item->name] = $item;
         });
                 
+        //FIXME: Make sure we keep track of duplicate UID's so we don't fail when inserting them to the database
         $this->info("Start parsing ICAL files");
         foreach($event_sources as $i => $event_source) {
             if(!is_array($results[$i])) {
                 $this->info("Find events in ".$event_source->name);
+                file_put_contents("/tmp/".$event_source->name.".ical", $results[$i]);
                 if(preg_match_all('/BEGIN:VEVENT\r?\n(.+?)\r?\nEND:VEVENT/s', $results[$i], $icalmatches)) {
+                    $uids = [];
                     foreach($icalmatches[1] as $eventstr) {
                         //print "---\n";
                         //print $eventstr."\n";
@@ -140,6 +143,25 @@ class ImportTimesheetData extends Command {
                                     $event->project_id = $code->project_id;
                                     $event->project_code_id = $code->id;                                    
                                     $event->uid = $data['uid'];
+                                            
+                                    # Add RECURRENCE-ID to the UID to make sure the event is unique
+                                    if(isset($data['recurrence-id'])) {
+                                        $event->uid .= $data['recurrence-id'];
+                                    }
+                                    
+                                    // Check for duplicate events in the feed
+                                    if (isset($uids[$event->uid])) {
+                                        echo "Duplicate event found:";
+                                        echo "org:\n";
+                                        var_dump($uids[$event->uid]);
+                                        echo "new:\n";
+                                        var_dump($data);
+                                        continue;
+                                    }
+                                    $uids[$event->uid] = $data;
+
+                                    //TODO: Bail on RRULE as we don't support that
+                                    
                                     //$event->org_data = $eventstr;
                                     
                                     if(isset($data['location'])) {
@@ -188,25 +210,26 @@ class ImportTimesheetData extends Command {
                                     exit();*/
                                     
                                     // Save event
-                                    echo "'".$event->summary."'\n";
-                                    if(preg_match("/forbered møde med Peter Pietras - nyt sjovt projekt./", $event->summary)) {
+                                    
+                                    //if(!preg_match("/forbered møde med Peter Pietras - nyt sjovt projekt./", $event->summary)) {
+                                        
                                         try {
                                             //$event->start_date = new DateTime("");
                                             $event->save();
                                         } catch (Exception $ex) {
+                                            echo "'".$event->summary."'\n";
                                             var_dump($data);
                                             echo $ex->getMessage();
                                             echo $ex->getTraceAsString();
-                                            exit();
+                                            //exit();
                                         }
-                                    }
+                                    //}
                                     
                                 } else {
                                     //TODO: Add to error table so we can show user
                                     echo "Code not found: $codename\n";
                                 }
                             }
-                            
                         }
                     }
                     
