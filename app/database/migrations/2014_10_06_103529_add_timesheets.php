@@ -79,6 +79,9 @@ class AddTimesheets extends Migration {
             $t->string('url');
             $t->enum('type', array('ical', 'googlejson'));
             
+            $t->dateTime('from_date')->nullable();
+            $t->dateTime('to_date')->nullable();
+            
             $t->foreign('account_id')->references('id')->on('accounts'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
@@ -94,23 +97,31 @@ class AddTimesheets extends Migration {
             $t->timestamps();
             $t->softDeletes();
             
-            $t->string('summary');
+            // Basic fields
             $t->string('uid');
+            $t->string('summary');
             $t->text('description');
             $t->string('location');
             $t->string('owner');
-            
             $t->dateTime('start_date');
             $t->dateTime('end_date');
+            
+            # Calculated values
             $t->decimal('hours');
             $t->float('discount');
             
+            // Original data
+            $t->string('org_code');
             $t->timeStamp('org_created_at');
             $t->timeStamp('org_updated_at');
             $t->string('org_start_date_timezone')->nullable();
             $t->string('org_end_date_timezone')->nullable();
             $t->text('org_data');
-                        
+            
+            // Error and merge handling
+            $t->string('import_error')->nullable();
+            $t->text('updated_data')->nullable();
+            
             $t->foreign('account_id')->references('id')->on('accounts'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $t->foreign('timesheet_event_source_id')->references('id')->on('timesheet_event_sources')->onDelete('cascade');

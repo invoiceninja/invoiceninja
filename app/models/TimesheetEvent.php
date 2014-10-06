@@ -35,6 +35,9 @@ class TimesheetEvent extends Eloquent
 		return $this->belongsTo('ProjectCode');
 	}
     
+    /**
+     * @return TimesheetEvent
+     */
     public static function createNew($parent = false)
 	{		
 		$className = get_called_class();
