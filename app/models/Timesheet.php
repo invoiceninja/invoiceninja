@@ -1,9 +1,9 @@
 <?php
 
-class TimeSheet extends Eloquent
+class Timesheet extends Eloquent
 {
-	public $timestamps = false;
-	protected $softDelete = false;
+	public $timestamps = true;
+	protected $softDelete = true;
     
     public function account()
 	{

@@ -74,10 +74,10 @@ class AddTimesheets extends Migration {
             $t->timestamps();
             $t->softDeletes();
             
+            $t->string('owner');
             $t->string('name');
             $t->string('url');
             $t->enum('type', array('ical', 'googlejson'));
-            $t->string('owner');
             
             $t->foreign('account_id')->references('id')->on('accounts'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -107,8 +107,8 @@ class AddTimesheets extends Migration {
             
             $t->timeStamp('org_created_at');
             $t->timeStamp('org_updated_at');
-            $t->string('org_start_date_timezone');
-            $t->string('org_end_date_timezone');
+            $t->string('org_start_date_timezone')->nullable();
+            $t->string('org_end_date_timezone')->nullable();
             $t->text('org_data');
                         
             $t->foreign('account_id')->references('id')->on('accounts'); 
@@ -127,7 +127,7 @@ class AddTimesheets extends Migration {
 	public function down()
 	{
         Schema::drop('timesheet_events');
-        Schema::drop('timesheet_sources');
+        Schema::drop('timesheet_event_sources');
         Schema::drop('timesheets');
         Schema::drop('project_codes');
         Schema::drop('projects');

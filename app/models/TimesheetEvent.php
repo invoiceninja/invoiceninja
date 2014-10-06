@@ -1,6 +1,6 @@
 <?php
 
-class Project extends Eloquent
+class TimesheetEvent extends Eloquent
 {
 	public $timestamps = true;
 	protected $softDelete = true;
@@ -15,9 +15,24 @@ class Project extends Eloquent
 		return $this->belongsTo('User');
 	}
     
-    public function codes()
+    public function source()
 	{
-		return $this->hasMany('ProjectCode');
+		return $this->belongsTo('TimesheetEventSource');
+	}
+    
+    public function timesheet()
+	{
+		return $this->belongsTo('Timesheet');
+	}	
+
+	public function project()
+	{
+		return $this->belongsTo('Project');
+	}
+    
+    public function project_code()
+	{
+		return $this->belongsTo('ProjectCode');
 	}
     
     public static function createNew($parent = false)
@@ -42,5 +57,5 @@ class Project extends Eloquent
 		
 		return $entity;
 	}
+    
 }
-
