@@ -268,6 +268,7 @@ class ImportTimesheetData extends Command {
                     }
                     $this->info("Deleted ".count($deleted). " events");
                     foreach($deleted as $uid => $lastupdated_date) {
+                        // FIXME: Delete events in database
                         echo "$uid: $lastupdated_date\n";
                     }
                     
