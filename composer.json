@@ -20,7 +20,8 @@
 		"intervention/image": "1.x",
 		"webpatser/laravel-countries": "dev-master",
 		"barryvdh/laravel-ide-helper": "1.*",
-        "doctrine/dbal": "~2.3"
+        "doctrine/dbal": "~2.3",
+        "jsanc623/phpbenchtime": "2.x"
 	},
 	"require-dev": {
 		"codeception/codeception": "dev-master"
@@ -48,9 +49,8 @@
 		"post-update-cmd": [
 			"php artisan clear-compiled",
             "php artisan ide-helper:generate",
-            "php artisan ide-helper:models -N",
-			"php artisan optimize",
-			"php artisan debugbar:publish"
+			"php artisan debugbar:publish",
+			"php artisan optimize"
 		],
 		"post-create-project-cmd": [
 			"php artisan key:generate"

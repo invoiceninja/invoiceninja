@@ -1189,6 +1189,7 @@ namespace {
  * @property string $to_date
  * @property-read \Account $account
  * @property-read \User $user
+ * @property-read \Illuminate\Database\Eloquent\Collection|\TimesheetEvent[] $events
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEventSource whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEventSource whereUserId($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEventSource whereAccountId($value)

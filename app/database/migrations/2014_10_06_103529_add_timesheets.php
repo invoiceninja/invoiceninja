@@ -109,6 +109,7 @@ class AddTimesheets extends Migration {
             # Calculated values
             $t->decimal('hours');
             $t->float('discount');
+            $t->boolean('manualedit');
             
             // Original data
             $t->string('org_code');
@@ -120,7 +121,9 @@ class AddTimesheets extends Migration {
             
             // Error and merge handling
             $t->string('import_error')->nullable();
+            $t->string('import_warning')->nullable();
             $t->text('updated_data')->nullable();
+            $t->timeStamp('updated_data_at')->default('0000-00-00T00:00:00');
             
             $t->foreign('account_id')->references('id')->on('accounts'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

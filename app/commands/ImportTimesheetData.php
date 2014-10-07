@@ -3,6 +3,7 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use PHPBenchTime\Timer;
 
 class ImportTimesheetData extends Command {
 
@@ -11,7 +12,7 @@ class ImportTimesheetData extends Command {
     
     public function fire() {
         $this->info(date('Y-m-d') . ' Running ImportTimesheetData...');
-        
+                
         // Seems we are using the console timezone
         DB::statement("SET SESSION time_zone = '+00:00'");
         
@@ -47,16 +48,12 @@ class ImportTimesheetData extends Command {
                 $code->name = $name;
                 $project->codes()->save($code);
             }
-            #Project::createNew($user);
         }
 
         if (!TimesheetEventSource::find(1)) {
             $this->info("Import old event sources");
 
             $oldevent_sources = json_decode(file_get_contents("/home/tlb/git/itktime/employes.json"), true);
-
-            //array_shift($oldevent_sources);
-            //array_pop($oldevent_sources);
 
             foreach ($oldevent_sources as $source) {
                 $event_source = TimesheetEventSource::createNew($user);
@@ -71,35 +68,46 @@ class ImportTimesheetData extends Command {
 
         // Add all URL's to Curl
         $this->info("Download ICAL feeds");
-        $event_sources = TimesheetEventSource::all(); // TODO: Filter based on ical feeds
+        $T = new Timer;
+        $T->start();
 
+        $T->lap("Get Event Sources");
+        $event_sources = TimesheetEventSource::all(); // TODO: Filter based on ical feeds
+        
+        $T->lap("Get ICAL responses");
         $urls = [];
         $event_sources->map(function($item) use(&$urls) {
             $urls[] = $item->url;
         });
-        $results = $this->curlGetUrls($urls);
-
-        // Fetch all codes so we can do a quick lookup
+        $icalresponses = TimesheetUtils::curlGetUrls($urls);
+        
+        $T->lap("Fetch all codes so we can do a quick lookup");
         $codes = array();
         ProjectCode::all()->map(function($item) use(&$codes) {
             $codes[$item->name] = $item;
         });
-    
-        //FIXME: Make sure we keep track of duplicate UID's so we don't fail when inserting them to the database
+        
         $this->info("Start parsing ICAL files");
         foreach ($event_sources as $i => $event_source) {
-            if (!is_array($results[$i])) {
+            if (!is_array($icalresponses[$i])) {
                 $this->info("Find events in " . $event_source->name);
-                file_put_contents("/tmp/" . $event_source->name . ".ical", $results[$i]);
-                if (preg_match_all('/BEGIN:VEVENT\r?\n(.+?)\r?\nEND:VEVENT/s', $results[$i], $icalmatches)) {
-                    $this->info("Found ".(count($icalmatches[1])-1)." events\n");
-                    // Fetch all uids so we can do a quick lookup
+                file_put_contents("/tmp/" . $event_source->name . ".ical", $icalresponses[$i]); // FIXME: Remove
+                $T->lap("Split on events for ".$event_source->name);
+                if (preg_match_all('/BEGIN:VEVENT\r?\n(.+?)\r?\nEND:VEVENT/s', $icalresponses[$i], $icalmatches)) {
+                    $this->info("Found ".(count($icalmatches[1])-1)." events");    
+                    $T->lap("Fetch all uids so we can do a quick lookup ".$event_source->name);
                     $uids = [];
-                    $event_source->events()->get(['uid', 'org_updated_at'])->map(function($item) use(&$uids) {                        
-                        $uids[$item->uid] = $item->org_updated_at;
+                    $event_source->events()->get(['uid', 'org_updated_at', 'updated_data_at'])->map(function($item) use(&$uids) {                        
+                        if($item->org_updated_at > $item->updated_data_at) {
+                            $uids[$item->uid] = $item->org_updated_at;
+                        } else {
+                            $uids[$item->uid] = $item->updated_data_at;
+                        }
                     });
-
+                    $deleted = $uids;
+                    
                     // Loop over all the found events
+                    $T->lap("Parse events for ".$event_source->name);
                     foreach ($icalmatches[1] as $eventstr) {
                         //print "---\n";
                         //print $eventstr."\n";
@@ -143,11 +151,15 @@ class ImportTimesheetData extends Command {
                                     switch ($key) {
                                         case 'dtstart':
                                             $event->start_date = $dt;
-                                            $event->org_start_date_timezone = $timezone;
+                                            if($timezone) {
+                                                $event->org_start_date_timezone = $timezone;
+                                            }
                                             break;
                                         case 'dtend':
                                             $event->end_date = $dt;
-                                            $event->org_end_date_timezone = $timezone;
+                                            if($timezone) {
+                                                $event->org_end_date_timezone = $timezone;
+                                            }
                                             break;
                                         case 'created': 
                                             $event->org_created_at = $dt;
@@ -167,25 +179,7 @@ class ImportTimesheetData extends Command {
                                         continue;
                                     }
                                 }
-                                
-                                // Check for events we allready have
-                                if (isset($uids[$event->uid])) {
-                                    $db_event_org_updated_at = new DateTime($uids[$event->uid], new DateTimeZone('UTC'));
-                                    if($event->org_updated_at <= $db_event_org_updated_at) {
-                                        // Same or older version of new event so skip
-                                        continue;
-                                        
-                                    } else {
-                                        var_dump($event->uid);
-                                        var_dump($uids[$event->uid]);
-                                        var_dump($event);
-                                        // updated version of the event
-                                        echo "update version of the event\n";
-                                        
-                                    }
-                                }
-                                $uids[$event->uid] = $event->org_updated_at;
-                                
+
                                 // Calculate number of hours 
                                 $di = $event->end_date->diff($event->start_date);
                                 $event->hours = $di->h + $di->i / 60;
@@ -193,7 +187,9 @@ class ImportTimesheetData extends Command {
                                 // Copy data to new object
                                 $event->org_data = $eventstr;
                                 $event->summary = $title;
-                                $event->description = $title;
+                                if(isset($data['description'])) {
+                                    $event->description = $data['description'];
+                                }
                                 $event->org_code = $codename;
                                 $event->owner = $event_source->owner;
                                 $event->timesheet_event_source_id = $event_source->id;
@@ -204,96 +200,91 @@ class ImportTimesheetData extends Command {
                                 if (isset($data['location'])) {
                                     $event->location = $data['location'];
                                 }
-
-                                try {
-                                    $this->info("Save event: ".$event->summary);
-                                    //if($event->uid == '2nvv4qjnlc293vq3h2833uslhc@google.com') {
-                                        //var_dump($event);
+                                
+                                // Check for events we already have
+                                if (isset($uids[$event->uid])) {
+                                    // Remove from deleted list
+                                    unset($deleted[$event->uid]);
+                                    
+                                    // See if the event has been updated compared to the one in the database
+                                    $db_event_org_updated_at = new DateTime($uids[$event->uid], new DateTimeZone('UTC'));
+                                    
+                                    // Check if same or older version of new event so skip
+                                    if($event->org_updated_at <= $db_event_org_updated_at) {
+                                        // SKIP
+ 
+                                    // Updated version of the event
+                                    } else {
+                                        // Get the old event from the database
+                                        /* @var $db_event TimesheetEvent */
+                                        $db_event = $event_source->events()->where('uid', $event->uid)->firstOrFail();
+                                        $changes = $db_event->toChangesArray($event);
+                                        
+                                        // Make sure it's more than the org_updated_at that has been changed
+                                        if (count($changes) > 1) {
+                                            // Check if we have changed the event in the database or used it in a timesheet
+                                            if ($db_event->manualedit || $db_event->timesheet) {
+                                                $this->info("Updated Data");
+                                                $db_event->updated_data = $event->org_data;
+                                                $db_event->updated_data_at = $event->org_updated_at;
+                                                
+                                            // Update the db_event with the changes
+                                            } else {
+                                                $this->info("Updated Event");
+                                                foreach ($changes as $key => $value) {
+                                                    if($value == null) {
+                                                        unset($db_event->$key);
+                                                    } else {
+                                                        $db_event->$key = $value;
+                                                    }
+                                                }
+                                            }
+                                            
+                                        } else {
+                                            $this->info("Nothing Changed");
+                                            // Nothing has been changed so update the org_updated_at
+                                            $db_event->org_updated_at = $changes['org_updated_at'];
+                                        }
+                                        $db_event->save();
+                                    }
+                                    
+                                } else {
+                                    try {
+                                        $this->info("New event: " . $event->summary);
                                         $event->save();
-                                    //}
-                                } catch (Exception $ex) {
-                                    echo "'" . $event->summary . "'\n";
-                                    var_dump($data);
-                                    echo $ex->getMessage();
-                                    echo $ex->getTraceAsString();
-                                    exit(0);
+                                        
+                                    } catch (Exception $ex) {
+                                        echo "'" . $event->summary . "'\n";
+                                        var_dump($data);
+                                        echo $ex->getMessage();
+                                        echo $ex->getTraceAsString();
+                                        exit(0);
+                                    }
                                 }
+                                // Add new uid to know uids
+                                $uids[$event->uid] = $event->org_updated_at;
                             }
                         }
                     }
+                    $this->info("Deleted ".count($deleted). " events");
+                    foreach($deleted as $uid => $lastupdated_date) {
+                        echo "$uid: $lastupdated_date\n";
+                    }
+                    
                 } else {
                     // Parse error
                 }
+                
             } else {
                 // Curl Error
             }
         }
 
-        $this->info('Done');
-    }
-
-    private function curlGetUrls($urls = [], $timeout = 30) {
-        // Create muxer
-        $results = [];
-        $multi = curl_multi_init();
-        $handles = [];
-        $ch2idx = [];
-        try {
-            foreach ($urls as $i => $url) {
-                // Create new handle and add to muxer
-                $ch = curl_init($url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_ENCODING, "gzip");
-                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-                curl_setopt($ch, CURLOPT_TIMEOUT, $timeout); //timeout in seconds
-
-                curl_multi_add_handle($multi, $ch);
-                $handles[(int) $ch] = $ch;
-                $ch2idx[(int) $ch] = $i;
-            }
-
-            // Do initial connect
-            $still_running = true;
-            while ($still_running) {
-                // Do curl stuff
-                while (($mrc = curl_multi_exec($multi, $still_running)) === CURLM_CALL_MULTI_PERFORM);
-                if ($mrc !== CURLM_OK) {
-                    break;
-                }
-
-                // Try to read from handles that are ready
-                while ($info = curl_multi_info_read($multi)) {
-                    if ($info["result"] == CURLE_OK) {
-                        $results[$ch2idx[(int) $info["handle"]]] = curl_multi_getcontent($info["handle"]);
-                    } else {
-                        if (CURLE_UNSUPPORTED_PROTOCOL == $info["result"]) {
-                            $results[$ch2idx[(int) $info["handle"]]] = [$info["result"], "Unsupported protocol"];
-                        } else if (CURLE_URL_MALFORMAT == $info["result"]) {
-                            $results[$ch2idx[(int) $info["handle"]]] = [$info["result"], "Malform url"];
-                        } else if (CURLE_COULDNT_RESOLVE_HOST == $info["result"]) {
-                            $results[$ch2idx[(int) $info["handle"]]] = [$info["result"], "Could not resolve host"];
-                        } else if (CURLE_OPERATION_TIMEDOUT == $info["result"]) {
-                            $results[$ch2idx[(int) $info["handle"]]] = [$info["result"], "Timed out waiting for operations to finish"];
-                        } else {
-                            $results[$ch2idx[(int) $info["handle"]]] = [$info["result"], "Unknown curl error code"];
-                        }
-                    }
-                }
-
-                // Sleep until
-                if (($rs = curl_multi_select($multi)) === -1) {
-                    usleep(20); // select failed for some reason, so we sleep for 20ms and run some more curl stuff
-                }
-            }
-        } finally {
-            foreach ($handles as $chi => $ch) {
-                curl_multi_remove_handle($multi, $ch);
-            }
-
-            curl_multi_close($multi);
+        foreach($T->end()['laps'] as $lap) {
+            echo number_format($lap['total'], 3)." : {$lap['name']}\n";
         }
-
-        return $results;
+        
+        $this->info('Done');
     }
 
     protected function getArguments() {
