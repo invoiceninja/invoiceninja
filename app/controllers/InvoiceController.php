@@ -104,7 +104,7 @@ class InvoiceController extends \BaseController {
 			}
 		}
 
-		$invoice->load('user', 'invoice_items', 'account.country', 'client.contacts', 'client.country');
+		$invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
 
 		$client = $invoice->client;
 		
@@ -244,7 +244,6 @@ class InvoiceController extends \BaseController {
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
 			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
 			'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-			'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',

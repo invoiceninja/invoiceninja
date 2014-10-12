@@ -53,7 +53,7 @@
       <option>Invoices</option>
       <option>Products</option>
     </select>
-    &nbsp;&nbsp; {{ $message }}
+    &nbsp;&nbsp; <b>{{ $message }}</b>
   </form>
 
   <p>&nbsp;</p>
@@ -169,7 +169,7 @@
 
     var svg = d3.select(".svg-div").append("svg")
       .attr("width", "100%")
-      .attr("height", "100%")
+      .attr("height", "1140px")
       .attr("class", "bubble");
 
     svg.append("rect")

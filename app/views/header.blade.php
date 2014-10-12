@@ -2,40 +2,8 @@
 
 
 @section('head')
-<meta name="csrf-token" content="<?= csrf_token() ?>">
-<link href="{{ asset('built.css') }}" rel="stylesheet" type="text/css"/>    
 
-<!--
-<script src="{{ asset('vendor/jquery/dist/jquery.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/jquery-ui/ui/minified/jquery-ui.min.js') }}" type="text/javascript"></script>				
-<script src="{{ asset('vendor/bootstrap/dist/js/bootstrap.min.js') }}" type="text/javascript"></script>				
-<script src="{{ asset('vendor/datatables/media/js/jquery.dataTables.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/datatables-bootstrap3/BS3/assets/js/datatables.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/knockout.js/knockout.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/knockout-mapping/build/output/knockout.mapping-latest.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/knockout-sortable/build/knockout-sortable.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/underscore/underscore.js') }}" type="text/javascript"></script>		
-<script src="{{ asset('vendor/bootstrap-datepicker/js/bootstrap-datepicker.js') }}" type="text/javascript"></script>		
-<script src="{{ asset('vendor/typeahead.js/dist/typeahead.min.js') }}" type="text/javascript"></script>	
-<script src="{{ asset('vendor/accounting/accounting.min.js') }}" type="text/javascript"></script>   
-<script src="{{ asset('vendor/spectrum/spectrum.js') }}" type="text/javascript"></script>   
-<script src="{{ asset('js/bootstrap-combobox.js') }}" type="text/javascript"></script>		
-<script src="{{ asset('js/jspdf.source.js') }}" type="text/javascript"></script>		
-<script src="{{ asset('js/jspdf.plugin.split_text_to_size.js') }}" type="text/javascript"></script>   
-<script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
--->
-
-<!--
-<link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('vendor/datatables/media/css/jquery.dataTables.css') }}" rel="stylesheet" type="text/css">
-<link href="{{ asset('vendor/datatables-bootstrap3/BS3/assets/css/datatables.css') }}" rel="stylesheet" type="text/css">    
-<link href="{{ asset('vendor/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css"/>
-<link href="{{ asset('vendor/bootstrap-datepicker/css/datepicker.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('vendor/spectrum/spectrum.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('css/bootstrap-combobox.css') }}" rel="stylesheet" type="text/css"/>	
-<link href="{{ asset('css/typeahead.js-bootstrap.css') }}" rel="stylesheet" type="text/css"/>			
-<link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>    
--->
+<link href="{{ asset('built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>    
 
 <style type="text/css">
 

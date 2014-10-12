@@ -38,6 +38,16 @@ module.exports = function(grunt) {
         dest: 'public/built.js',
         nonull: true
       },
+      js_public: {
+        src: [
+          'public/js/simpleexpand.js',
+          'public/js/valign.js',
+          'public/js/bootstrap.min.js',
+          'public/js/simpleexpand.js',          
+        ],
+        dest: 'public/js/built.public.js',
+        nonull: true
+      },
       css: {
         src: [
           'public/vendor/bootstrap/dist/css/bootstrap.min.css',

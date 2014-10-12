@@ -251,6 +251,30 @@ class AccountController extends \BaseController {
 				'feature' => $subSection
 			];
 
+			if ($subSection == ACCOUNT_INVOICE_DESIGN) 
+			{			
+				$invoice = new stdClass();
+				$client = new stdClass();
+				$invoiceItem = new stdClass();				
+
+				$client->name = 'Sample Client';
+
+				$invoice->invoice_date = date_create()->format('Y-m-d');
+				$invoice->account = Auth::user()->account;				
+				$invoice->amount = $invoice->balance = 100;
+
+				$invoiceItem->cost = 100;
+				$invoiceItem->qty = 1;
+				$invoiceItem->notes = 'Notes';
+				$invoiceItem->product_key = 'Item';				
+
+				$invoice->client = $client;
+				$invoice->invoice_items = [$invoiceItem];			
+				
+				$data['invoice'] = $invoice;
+				$data['invoiceDesigns'] = InvoiceDesign::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get();				
+			}
+
 			return View::make("accounts.{$subSection}", $data);	
 		}
 		else if ($section == ACCOUNT_PRODUCTS)
@@ -348,8 +372,9 @@ class AccountController extends \BaseController {
 			$account = Auth::user()->account;
 			$account->hide_quantity = Input::get('hide_quantity') ? true : false;
 			$account->hide_paid_to_date = Input::get('hide_paid_to_date') ? true : false;
-			$account->primary_color = Input::get('primary_color');// ? Input::get('primary_color') : null;
-			$account->secondary_color = Input::get('secondary_color');// ? Input::get('secondary_color') : null;
+			$account->primary_color = Input::get('primary_color');
+			$account->secondary_color = Input::get('secondary_color');
+			$account->invoice_design_id =  Input::get('invoice_design_id');
 			$account->save();
 
 			Session::flash('message', trans('texts.updated_settings'));

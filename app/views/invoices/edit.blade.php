@@ -317,11 +317,8 @@
 
 	</div>
 	<p>&nbsp;</p>
-	
-	<!-- <textarea rows="20" cols="120" id="pdfText" onkeyup="runCode()"></textarea> -->
-	<!-- <iframe frameborder="1" width="100%" height="600" style="display:block;margin: 0 auto"></iframe>	-->
-	<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="1180"></iframe>
-	<canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
+
+	@include('invoices.pdf', ['account' => Auth::user()->account])
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
@@ -643,76 +640,20 @@
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
 
-		window.logoImages = {};
-    logoImages.imageLogo1 = "{{ HTML::image_data('images/report_logo1.jpg') }}";
-		logoImages.imageLogoWidth1 =120;
-    logoImages.imageLogoHeight1 = 40
-
-    logoImages.imageLogo2 = "{{ HTML::image_data('images/report_logo2.jpg') }}";
-    logoImages.imageLogoWidth2 =325/2;
-    logoImages.imageLogoHeight2 = 81/2;
-
-    logoImages.imageLogo3 = "{{ HTML::image_data('images/report_logo3.jpg') }}";
-    logoImages.imageLogoWidth3 =325/2;
-    logoImages.imageLogoHeight3 = 81/2;
-
-
     return invoice;
 	}
 
-	/*
-	function refreshPDF() {
-		setTimeout(function() {
-			_refreshPDF();
-		}, 100);
-	}	
-	*/
-
-	var isRefreshing = false;
-	var needsRefresh = false;
-
 	function getPDFString() {		
 		var invoice = createInvoiceModel();
-		var doc = generatePDF(invoice);
+		var design  = getDesignJavascript();
+		var doc = generatePDF(invoice, design);
 		if (!doc) return;
 		return doc.output('datauristring');
 	}
 
-	function refreshPDF() {
-		if ({{ Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChromium))) {
-			var string = getPDFString();
-			if (!string) return;
-			$('#theFrame').attr('src', string).show();		
-		} else {			
-			if (isRefreshing) {
-				needsRefresh = true;
-				return;
-			}
-			var string = getPDFString();
-			if (!string) return;
-			isRefreshing = true;
-			var pdfAsArray = convertDataURIToBinary(string);	
-	    PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
-
-	      pdf.getPage(1).then(function getPageHelloWorld(page) {
-	        var scale = 1.5;
-	        var viewport = page.getViewport(scale);
-
-	        var canvas = document.getElementById('theCanvas');
-	        var context = canvas.getContext('2d');
-	        canvas.height = viewport.height;
-	        canvas.width = viewport.width;
-
-	        page.render({canvasContext: context, viewport: viewport});
-	      	$('#theCanvas').show();
-	      	isRefreshing = false;
-	      	if (needsRefresh) {
-	      		needsRefresh = false;
-	      		refreshPDF();
-	      	}
-	      });
-	    });	
-		}
+	function getDesignJavascript() {
+		var id = $('#invoice_design_id').val();
+		return invoiceDesigns[id-1].javascript;
 	}
 
 	function onDownloadClick() {
@@ -1561,10 +1502,11 @@
 
 	var products = {{ $products }};
 	var clients = {{ $clients }};	
-	var invoiceLabels = {{ json_encode($invoiceLabels) }};
+	
 	var clientMap = {};
 	var $clientSelect = $('select#client');
-	
+	var invoiceDesigns = {{ $invoiceDesigns }};
+
 	for (var i=0; i<clients.length; i++) {
 		var client = clients[i];
 		for (var j=0; j<client.contacts.length; j++) {

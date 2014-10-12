@@ -27,6 +27,11 @@ class Invoice extends EntityModel
 		return $this->belongsTo('InvoiceStatus');
 	}
 
+	public function invoice_design()
+	{
+		return $this->belongsTo('InvoiceDesign');
+	}
+
 	public function invitations()
 	{
 		return $this->hasMany('Invitation');
@@ -79,6 +84,7 @@ class Invoice extends EntityModel
 			'tax_name', 
 			'tax_rate', 
 			'account', 
+			'invoice_design',
 			'invoice_design_id',
 			'is_pro',
 			'is_quote',
