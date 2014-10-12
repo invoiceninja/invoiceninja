@@ -11,6 +11,50 @@
 	@parent
 	@include('accounts.nav_advanced')
 
+  <script>
+    var invoiceDesigns = {{ $invoiceDesigns }};
+    var invoice = {{ json_encode($invoice) }};      
+      
+    function getDesignJavascript() {
+      var id = $('#invoice_design_id').val();
+      return invoiceDesigns[id-1].javascript;
+    }
+
+    function getPDFString() {
+      invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
+      invoice.account.hide_quantity = $('#hide_quantity').is(":checked");
+      invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
+      invoice.invoice_design_id = $('#invoice_design_id').val();
+
+      NINJA.primaryColor = $('#primary_color').val();
+      NINJA.secondaryColor = $('#secondary_color').val();
+
+      var doc = generatePDF(invoice, getDesignJavascript(), true);
+      if (!doc) {
+        return;
+      }
+      return doc.output('datauristring');
+    }
+
+    $(function() {   
+      var options = {
+        preferredFormat: 'hex',
+        disabled: {{ Auth::user()->isPro() ? 'false' : 'true' }},
+        showInitial: false,
+        showInput: true,
+        allowEmpty: true,
+        clickoutFiresChange: true,
+      };
+
+      $('#primary_color').spectrum(options);
+      $('#secondary_color').spectrum(options);
+
+      refreshPDF();
+    });
+
+  </script> 
+
+
   <div class="row">
     <div class="col-md-6">
 
@@ -55,49 +99,5 @@
 
     </div>
   </div>
-
-
-	<script>
-		var invoiceDesigns = {{ $invoiceDesigns }};
-
-		function getDesignJavascript() {
-			var id = $('#invoice_design_id').val();
-			return invoiceDesigns[id-1].javascript;
-		}
-
-		function getPDFString() {
-      var invoice = {{ json_encode($invoice) }};      
-      invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
-      invoice.account.hide_quantity = $('#hide_quantity').is(":checked");
-      invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
-      invoice.invoice_design_id = $('#invoice_design_id').val();
-
-      NINJA.primaryColor = $('#primary_color').val();
-      NINJA.secondaryColor = $('#secondary_color').val();
-
-  	  var doc = generatePDF(invoice, getDesignJavascript(), true);
-			if (!doc) {
-        return;
-      }
-			return doc.output('datauristring');
-		}
-
-    $(function() {   
-    	var options = {
-    		preferredFormat: 'hex',
-    		disabled: {{ Auth::user()->isPro() ? 'false' : 'true' }},
-    		showInitial: false,
-    		showInput: true,
-    		allowEmpty: true,
-    		clickoutFiresChange: true,
-    	};
-
-    	$('#primary_color').spectrum(options);
-    	$('#secondary_color').spectrum(options);
-
-    	refreshPDF();
-    });
-	</script>	
-
 
 @stop

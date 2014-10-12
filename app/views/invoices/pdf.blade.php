@@ -18,8 +18,8 @@
 
   @if (file_exists($account->getLogoPath()))
     invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
-    invoice.imageWidth = {{ $invoice->client->account->getLogoWidth() }};
-    invoice.imageHeight = {{ $invoice->client->account->getLogoHeight() }};
+    invoice.imageWidth = {{ $account->getLogoWidth() }};
+    invoice.imageHeight = {{ $account->getLogoHeight() }};
   @endif  
 
   var NINJA = NINJA || {};
