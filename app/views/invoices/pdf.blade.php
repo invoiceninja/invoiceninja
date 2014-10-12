@@ -32,7 +32,6 @@
   var needsRefresh = false;
 
   function refreshPDF() {
-    console.log('refreshPDF');
     if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChromium))) {
       var string = getPDFString();
       if (!string) return;

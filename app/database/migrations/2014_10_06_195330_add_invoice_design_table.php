@@ -224,9 +224,9 @@ class AddInvoiceDesignTable extends Migration {
 			  z=z+30;
 
 			  doc.setFontSize('8');        
-			  SetPdfColor('Black',doc);
-			  displayClient(doc, invoice, layout.marginLeft, z, layout);
-
+			  SetPdfColor('Black',doc);			  
+        var clientHeight = displayClient(doc, invoice, layout.marginLeft, z, layout);
+        layout.tableTop += Math.max(0, clientHeight - 75);
 			  marginLeft2=395;
 
 			  //publish left side information

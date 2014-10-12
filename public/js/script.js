@@ -637,7 +637,9 @@ function displayAccount(doc, invoice, x, y, layout) {
   data = [
     concatStrings(account.address1, account.address2),
     concatStrings(account.city, account.state, account.postal_code),    
-    account.country ? account.country.name : false
+    account.country ? account.country.name : false,
+    invoice.account.custom_value1 ? invoice.account['custom_label1'] + ' ' + invoice.account.custom_value1 : false, 
+    invoice.account.custom_value2 ? invoice.account['custom_label2'] + ' ' + invoice.account.custom_value2 : false,     
   ];
 
   var nameWidth = account.name ? (doc.getStringUnitWidth(account.name) * doc.internal.getFontSize() * 1.1) : 0;
@@ -660,7 +662,9 @@ function displayClient(doc, invoice, x, y, layout) {
     concatStrings(client.address1, client.address2),
     concatStrings(client.city, client.state, client.postal_code),
     client.country ? client.country.name : false,
-    client.contacts ? client.contacts[0].email : false
+    client.contacts ? client.contacts[0].email : false,
+    invoice.client.custom_value1 ? invoice.account['custom_client_label1'] + ' ' + invoice.client.custom_value1 : false, 
+    invoice.client.custom_value2 ? invoice.account['custom_client_label2'] + ' ' + invoice.client.custom_value2 : false, 
   ];
   return displayGrid(doc, invoice, data, x, y, layout, {hasheader:true});
 }
@@ -685,10 +689,6 @@ function getInvoiceDetails(invoice) {
     {'po_number': invoice.po_number},
     {'invoice_date': invoice.invoice_date},
     {'due_date': invoice.due_date},
-    {'custom_label1': invoice.account.custom_value1},
-    {'custom_label2': invoice.account.custom_value2},
-    {'custom_client_label1': invoice.client.custom_value1},
-    {'custom_client_label2': invoice.client.custom_value2},
     {'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)},
   ]; 
 }
