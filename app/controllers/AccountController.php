@@ -315,9 +315,9 @@ class AccountController extends \BaseController {
 		}		
 		else if ($section == ACCOUNT_ADVANCED_SETTINGS)
 		{
-			if ($subSection == ACCOUNT_CUSTOM_FIELDS) 
+			if ($subSection == ACCOUNT_INVOICE_SETTINGS) 
 			{
-				return AccountController::saveCustomFields();
+				return AccountController::saveInvoiceSettings();
 			} 
 			else if ($subSection == ACCOUNT_INVOICE_DESIGN)
 			{
@@ -342,11 +342,12 @@ class AccountController extends \BaseController {
 		return Redirect::to('company/products');		
 	}
 
-	private function saveCustomFields()
+	private function saveInvoiceSettings()
 	{
 		if (Auth::user()->account->isPro())
 		{
 			$account = Auth::user()->account;
+			
 			$account->custom_label1 = trim(Input::get('custom_label1'));
 			$account->custom_value1 = trim(Input::get('custom_value1'));
 			$account->custom_label2 = trim(Input::get('custom_label2'));
@@ -357,12 +358,26 @@ class AccountController extends \BaseController {
 			$account->custom_invoice_label2 = trim(Input::get('custom_invoice_label2'));
 			$account->custom_invoice_taxes1 = Input::get('custom_invoice_taxes1') ? true : false;
 			$account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;			
-			$account->save();
 
-			Session::flash('message', trans('texts.updated_settings'));
+			$account->invoice_number_prefix = Input::get('invoice_number_prefix');
+			$account->invoice_number_counter = Input::get('invoice_number_counter');
+			$account->quote_number_prefix = Input::get('quote_number_prefix');
+			$account->share_counter = Input::get('share_counter') ? true : false;
+
+			if (!$account->share_counter) {
+				$account->quote_number_counter = Input::get('quote_number_counter');			
+			}
+
+			if (!$account->share_counter && $account->invoice_number_prefix == $account->quote_number_prefix) {
+				Session::flash('error', trans('texts.invalid_counter'));
+				return Redirect::to('company/advanced_settings/invoice_settings')->withInput();
+			} else {
+				$account->save();
+				Session::flash('message', trans('texts.updated_settings'));
+			}
 		}
 
-		return Redirect::to('company/advanced_settings/custom_fields');		
+		return Redirect::to('company/advanced_settings/invoice_settings');		
 	}
 
 	private function saveInvoiceDesign()

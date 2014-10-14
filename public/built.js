@@ -46052,6 +46052,10 @@ function SetPdfColor(color, doc, role)
       return doc.setTextColor(251,251,251);//select color Custom Report GRAY Colour
   }
 
+  if (color=='orange') {
+      return doc.setTextColor(234,121,45);//select color Custom Report GRAY Colour
+  }
+
 }
 
 
@@ -46127,105 +46131,106 @@ function getQuarter(offset) {
 
 
 /* Default class modification */
-$.extend( $.fn.dataTableExt.oStdClasses, {
-  "sWrapper": "dataTables_wrapper form-inline"
-} );
+if ($.fn.dataTableExt) {
+  $.extend( $.fn.dataTableExt.oStdClasses, {
+    "sWrapper": "dataTables_wrapper form-inline"
+  } );
 
 
-/* API method to get paging information */
-$.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings )
-{
-  return {
-    "iStart":         oSettings._iDisplayStart,
-    "iEnd":           oSettings.fnDisplayEnd(),
-    "iLength":        oSettings._iDisplayLength,
-    "iTotal":         oSettings.fnRecordsTotal(),
-    "iFilteredTotal": oSettings.fnRecordsDisplay(),
-    "iPage":          oSettings._iDisplayLength === -1 ?
-      0 : Math.ceil( oSettings._iDisplayStart / oSettings._iDisplayLength ),
-    "iTotalPages":    oSettings._iDisplayLength === -1 ?
-      0 : Math.ceil( oSettings.fnRecordsDisplay() / oSettings._iDisplayLength )
+  /* API method to get paging information */
+  $.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings )
+  {
+    return {
+      "iStart":         oSettings._iDisplayStart,
+      "iEnd":           oSettings.fnDisplayEnd(),
+      "iLength":        oSettings._iDisplayLength,
+      "iTotal":         oSettings.fnRecordsTotal(),
+      "iFilteredTotal": oSettings.fnRecordsDisplay(),
+      "iPage":          oSettings._iDisplayLength === -1 ?
+        0 : Math.ceil( oSettings._iDisplayStart / oSettings._iDisplayLength ),
+      "iTotalPages":    oSettings._iDisplayLength === -1 ?
+        0 : Math.ceil( oSettings.fnRecordsDisplay() / oSettings._iDisplayLength )
+    };
   };
-};
 
 
-/* Bootstrap style pagination control */
-$.extend( $.fn.dataTableExt.oPagination, {
-  "bootstrap": {
-    "fnInit": function( oSettings, nPaging, fnDraw ) {
-      var oLang = oSettings.oLanguage.oPaginate;
-      var fnClickHandler = function ( e ) {
-        e.preventDefault();
-        if ( oSettings.oApi._fnPageChange(oSettings, e.data.action) ) {
-          fnDraw( oSettings );
+  /* Bootstrap style pagination control */
+  $.extend( $.fn.dataTableExt.oPagination, {
+    "bootstrap": {
+      "fnInit": function( oSettings, nPaging, fnDraw ) {
+        var oLang = oSettings.oLanguage.oPaginate;
+        var fnClickHandler = function ( e ) {
+          e.preventDefault();
+          if ( oSettings.oApi._fnPageChange(oSettings, e.data.action) ) {
+            fnDraw( oSettings );
+          }
+        };
+
+        $(nPaging).addClass('pagination').append(
+          '<ul class="pagination">'+
+            '<li class="prev disabled"><a href="#">&laquo;</a></li>'+
+            '<li class="next disabled"><a href="#">&raquo;</a></li>'+
+          '</ul>'
+        );
+        var els = $('a', nPaging);
+        $(els[0]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
+        $(els[1]).bind( 'click.DT', { action: "next" }, fnClickHandler );
+      },
+
+      "fnUpdate": function ( oSettings, fnDraw ) {
+        var iListLength = 5;
+        var oPaging = oSettings.oInstance.fnPagingInfo();
+        var an = oSettings.aanFeatures.p;
+        var i, ien, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
+
+        if ( oPaging.iTotalPages < iListLength) {
+          iStart = 1;
+          iEnd = oPaging.iTotalPages;
         }
-      };
-
-      $(nPaging).addClass('pagination').append(
-        '<ul class="pagination">'+
-          '<li class="prev disabled"><a href="#">&laquo;</a></li>'+
-          '<li class="next disabled"><a href="#">&raquo;</a></li>'+
-        '</ul>'
-      );
-      var els = $('a', nPaging);
-      $(els[0]).bind( 'click.DT', { action: "previous" }, fnClickHandler );
-      $(els[1]).bind( 'click.DT', { action: "next" }, fnClickHandler );
-    },
-
-    "fnUpdate": function ( oSettings, fnDraw ) {
-      var iListLength = 5;
-      var oPaging = oSettings.oInstance.fnPagingInfo();
-      var an = oSettings.aanFeatures.p;
-      var i, ien, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
-
-      if ( oPaging.iTotalPages < iListLength) {
-        iStart = 1;
-        iEnd = oPaging.iTotalPages;
-      }
-      else if ( oPaging.iPage <= iHalf ) {
-        iStart = 1;
-        iEnd = iListLength;
-      } else if ( oPaging.iPage >= (oPaging.iTotalPages-iHalf) ) {
-        iStart = oPaging.iTotalPages - iListLength + 1;
-        iEnd = oPaging.iTotalPages;
-      } else {
-        iStart = oPaging.iPage - iHalf + 1;
-        iEnd = iStart + iListLength - 1;
-      }
-
-      for ( i=0, ien=an.length ; i<ien ; i++ ) {
-        // Remove the middle elements
-        $('li:gt(0)', an[i]).filter(':not(:last)').remove();
-
-        // Add the new list items and their event handlers
-        for ( j=iStart ; j<=iEnd ; j++ ) {
-          sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
-          $('<li '+sClass+'><a href="#">'+j+'</a></li>')
-            .insertBefore( $('li:last', an[i])[0] )
-            .bind('click', function (e) {
-              e.preventDefault();
-              oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
-              fnDraw( oSettings );
-            } );
-        }
-
-        // Add / remove disabled classes from the static elements
-        if ( oPaging.iPage === 0 ) {
-          $('li:first', an[i]).addClass('disabled');
+        else if ( oPaging.iPage <= iHalf ) {
+          iStart = 1;
+          iEnd = iListLength;
+        } else if ( oPaging.iPage >= (oPaging.iTotalPages-iHalf) ) {
+          iStart = oPaging.iTotalPages - iListLength + 1;
+          iEnd = oPaging.iTotalPages;
         } else {
-          $('li:first', an[i]).removeClass('disabled');
+          iStart = oPaging.iPage - iHalf + 1;
+          iEnd = iStart + iListLength - 1;
         }
 
-        if ( oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0 ) {
-          $('li:last', an[i]).addClass('disabled');
-        } else {
-          $('li:last', an[i]).removeClass('disabled');
+        for ( i=0, ien=an.length ; i<ien ; i++ ) {
+          // Remove the middle elements
+          $('li:gt(0)', an[i]).filter(':not(:last)').remove();
+
+          // Add the new list items and their event handlers
+          for ( j=iStart ; j<=iEnd ; j++ ) {
+            sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
+            $('<li '+sClass+'><a href="#">'+j+'</a></li>')
+              .insertBefore( $('li:last', an[i])[0] )
+              .bind('click', function (e) {
+                e.preventDefault();
+                oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+                fnDraw( oSettings );
+              } );
+          }
+
+          // Add / remove disabled classes from the static elements
+          if ( oPaging.iPage === 0 ) {
+            $('li:first', an[i]).addClass('disabled');
+          } else {
+            $('li:first', an[i]).removeClass('disabled');
+          }
+
+          if ( oPaging.iPage === oPaging.iTotalPages-1 || oPaging.iTotalPages === 0 ) {
+            $('li:last', an[i]).addClass('disabled');
+          } else {
+            $('li:last', an[i]).removeClass('disabled');
+          }
         }
       }
     }
-  }
-} );
-
+  } );
+}
 
 /*
  * TableTools Bootstrap compatibility
@@ -46348,54 +46353,55 @@ function convertDataURIToBinary(dataURI) {
   return base64DecToArr(base64);
 }
 
-ko.bindingHandlers.dropdown = {
-    init: function (element, valueAccessor, allBindingsAccessor) {
-       var options = allBindingsAccessor().dropdownOptions|| {};
-       var value = ko.utils.unwrapObservable(valueAccessor());
-       var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
-       if (id) $(element).val(id);
-       //console.log("combo-init: %s", id);
-       $(element).combobox(options);       
+if (window.ko) {
+  ko.bindingHandlers.dropdown = {
+      init: function (element, valueAccessor, allBindingsAccessor) {
+         var options = allBindingsAccessor().dropdownOptions|| {};
+         var value = ko.utils.unwrapObservable(valueAccessor());
+         var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
+         if (id) $(element).val(id);
+         //console.log("combo-init: %s", id);
+         $(element).combobox(options);       
 
-       /*
-        ko.utils.registerEventHandler(element, "change", function () {
-          console.log("change: %s", $(element).val());          
-          //var  
-          valueAccessor($(element).val());
-            //$(element).combobox('refresh');
-        });
-        */
-    },
-    update: function (element, valueAccessor) {     
-      var value = ko.utils.unwrapObservable(valueAccessor());
-      var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
-        //console.log("combo-update: %s", id);
-      if (id) { 
-        $(element).val(id);       
-        $(element).combobox('refresh');
-      } else {
-        $(element).combobox('clearTarget');       
-        $(element).combobox('clearElement');        
-      }       
-    }    
-};
+         /*
+          ko.utils.registerEventHandler(element, "change", function () {
+            console.log("change: %s", $(element).val());          
+            //var  
+            valueAccessor($(element).val());
+              //$(element).combobox('refresh');
+          });
+          */
+      },
+      update: function (element, valueAccessor) {     
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
+          //console.log("combo-update: %s", id);
+        if (id) { 
+          $(element).val(id);       
+          $(element).combobox('refresh');
+        } else {
+          $(element).combobox('clearTarget');       
+          $(element).combobox('clearElement');        
+        }       
+      }    
+  };
 
 
-ko.bindingHandlers.datePicker = {
-    init: function (element, valueAccessor, allBindingsAccessor) {
-       var value = ko.utils.unwrapObservable(valueAccessor());       
-       if (value) $(element).datepicker('update', value);
-       $(element).change(function() { 
-          var value = valueAccessor();
-          value($(element).val());
-       })
-    },
-    update: function (element, valueAccessor) {     
-       var value = ko.utils.unwrapObservable(valueAccessor());
-       if (value) $(element).datepicker('update', value);
-    }    
-};
-
+  ko.bindingHandlers.datePicker = {
+      init: function (element, valueAccessor, allBindingsAccessor) {
+         var value = ko.utils.unwrapObservable(valueAccessor());       
+         if (value) $(element).datepicker('update', value);
+         $(element).change(function() { 
+            var value = valueAccessor();
+            value($(element).val());
+         })
+      },
+      update: function (element, valueAccessor) {     
+         var value = ko.utils.unwrapObservable(valueAccessor());
+         if (value) $(element).datepicker('update', value);
+      }    
+  };
+}
 
 function wordWrapText(value, width)
 {
@@ -46986,6 +46992,21 @@ function displayInvoiceItems(doc, invoice, layout) {
         doc.rect(left, top, width-left, newTop-top, 'FD');
 
       }
+    } else if (invoice.invoice_design_id == 5) {
+      if (i%2 == 0) {      
+        doc.setDrawColor(255,255,255);
+        doc.setFillColor(247,247,247);
+        doc.rect(left, top, width-left+17, newTop-top, 'FD');
+        doc.setLineWidth(0.3);        
+        doc.setDrawColor(255,255,255);               
+      } else {
+        doc.setDrawColor(255,255,255);
+        doc.setFillColor(232,232,232);
+        doc.rect(left, top, width-left+17, newTop-top, 'FD');
+
+        doc.setLineWidth(0.3);        
+        doc.setDrawColor(255,255,255);      
+      }
     } else {
       doc.setLineWidth(0.3);
       doc.setDrawColor(150,150,150);
@@ -47000,10 +47021,38 @@ function displayInvoiceItems(doc, invoice, layout) {
       SetPdfColor('SomeGreen', doc, 'primary');
     } else if (invoice.invoice_design_id == 3) {
       doc.setFontType('bold');
-    } else {
+    } else if (invoice.invoice_design_id == 4) {
+      SetPdfColor('Black', doc);
+    } else if (invoice.invoice_design_id == 5) {
       SetPdfColor('Black', doc);
     }
-    doc.text(layout.marginLeft, y+2, productKey);
+
+    var splitTitle = doc.splitTextToSize(productKey, 60);
+    doc.text(layout.marginLeft, y+2, splitTitle);
+  
+    if (invoice.invoice_design_id == 5) {  
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(1);
+      doc.line(layout.descriptionLeft-8, y-16,layout.descriptionLeft-8, y+55);
+        
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(1);
+      doc.line(costX-30, y-16,costX-30, y+55);
+      
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(1);
+      doc.line(qtyX-45, y-16,qtyX-45, y+55);
+
+      if (invoice.has_taxes) {
+        doc.setDrawColor(255, 255, 255);
+        doc.setLineWidth(1);
+        doc.line(taxX-15, y-16,taxX-15, y+55);
+      }
+
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(1);
+      doc.line(totalX-27, y-16,totalX-27, y+55);    
+    }
     
     SetPdfColor('Black', doc);
     doc.setFontType('normal');

@@ -359,12 +359,11 @@ class InvoiceRepository
 
     $clone = Invoice::createNew($invoice);
     $clone->balance = $invoice->amount;
-    $clone->invoice_number = $invoice->account->getNextInvoiceNumber();
+    $clone->invoice_number = $invoice->account->getNextInvoiceNumber($invoice->is_quote);
 
     foreach ([
       'client_id',       
       'discount', 
-      //'shipping',
       'invoice_date', 
       'po_number', 
       'due_date', 
@@ -378,7 +377,11 @@ class InvoiceRepository
       'tax_name', 
       'tax_rate', 
       'amount', 
-      'is_quote'] as $field) 
+      'is_quote',
+      'custom_value1',
+      'custom_value2',
+      'custom_taxes1',
+      'custom_taxes2'] as $field) 
     {
       $clone->$field = $invoice->$field;  
     }   

@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -170,7 +171,7 @@ define('ACCOUNT_MAP', 'import_map');
 define('ACCOUNT_EXPORT', 'export');
 define('ACCOUNT_PRODUCTS', 'products');
 define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
-define('ACCOUNT_CUSTOM_FIELDS', 'custom_fields');
+define('ACCOUNT_INVOICE_SETTINGS', 'invoice_settings');
 define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
 define('ACCOUNT_CHART_BUILDER', 'chart_builder');
 define('ACCOUNT_USER_MANAGEMENT', 'user_management');

@@ -151,7 +151,7 @@ class InvoiceController extends \BaseController {
 		if ($clone)
 		{
 			$invoice->id = null;
-			$invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber();
+			$invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber($invoice->is_quote);
 			$invoice->balance = $invoice->amount;
 			$method = 'POST';			
 			$url = "{$entityType}s";

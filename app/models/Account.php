@@ -141,28 +141,25 @@ class Account extends Eloquent
 		return $height;
 	}
 
-	public function getNextInvoiceNumber()
-	{			
-		$invoices = Invoice::withTrashed()->scope(false, $this->id)->get(['invoice_number']);
+	public function getNextInvoiceNumber($isQuote = false)
+	{
+		$counter = $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
+		$prefix = $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
 
-		$max = 0;
-
-		foreach ($invoices as $invoice)
-		{
-			$number = intval(preg_replace("/[^0-9]/", "", $invoice->invoice_number));
-			$max = max($max, $number);
-		}
-		
-		if ($max > 0) 
-		{
-			return str_pad($max+1, 4, "0", STR_PAD_LEFT);
-		}	
-		else
-		{
-			return DEFAULT_INVOICE_NUMBER;
-		}
+		return $prefix . str_pad($counter, 4, "0", STR_PAD_LEFT);
 	}
 
+	public function incrementCounter($isQuote = false) 
+	{
+		if ($isQuote && !$this->share_counter) {
+			$this->quote_number_counter += 1;
+		} else {
+			$this->invoice_number_counter += 1;
+		}
+
+		$this->save();
+	}
+	
 	public function getLocale() 
 	{
 		$language = Language::remember(DEFAULT_QUERY_CACHE)->where('id', '=', $this->account->language_id)->first();		
@@ -208,6 +205,7 @@ class Account extends Eloquent
   		'quote_date',
   		'quote_number',
   		'total',
+  		'invoice_issued_to',
 		];
 
 		foreach ($fields as $field)

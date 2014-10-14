@@ -63,19 +63,19 @@
       {{ Former::populateField('hide_quantity', intval($account->hide_quantity)) }}
       {{ Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) }}
 
-      {{ Former::legend('invoice_options') }}
-      {{ Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) }}
-      {{ Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help')) }}
-
-      <p>&nbsp;</p>
-      <p>&nbsp;</p>
-
       {{ Former::legend('invoice_design') }}
       {{ Former::select('invoice_design_id')->style('display:inline;width:120px')
           ->fromQuery($invoiceDesigns, 'name', 'id') }}
 
       {{ Former::text('primary_color') }}
       {{ Former::text('secondary_color') }}
+
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+
+      {{ Former::legend('invoice_options') }}
+      {{ Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) }}
+      {{ Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help')) }}
 
       <p>&nbsp;</p>
       <p>&nbsp;</p>
