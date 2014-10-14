@@ -1545,11 +1545,11 @@
 			model.invoice().addItem();
 			//model.addTaxRate();			
 		@else
-            // Add the first tax rate for new invoices
-            if(model.invoice_taxes() && model.tax_rates().length > 2) {
-                var tax = model.tax_rates()[1];
-                model.invoice().tax(tax);
-            }
+            // TODO: Add the first tax rate for new invoices by adding a new db field to the tax codes types to set the default
+            //if(model.invoice_taxes() && model.tax_rates().length > 2) {
+            //    var tax = model.tax_rates()[1];
+            //    model.invoice().tax(tax);
+            //}
 			model.invoice().custom_taxes1({{ $account->custom_invoice_taxes1 ? 'true' : 'false' }});
 			model.invoice().custom_taxes2({{ $account->custom_invoice_taxes2 ? 'true' : 'false' }});
 		@endif
