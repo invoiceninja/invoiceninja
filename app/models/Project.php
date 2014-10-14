@@ -15,6 +15,11 @@ class Project extends Eloquent
 		return $this->belongsTo('User');
 	}
     
+    public function client()
+	{
+		return $this->belongsTo('Client');
+	}
+    
     public function codes()
 	{
 		return $this->hasMany('ProjectCode');

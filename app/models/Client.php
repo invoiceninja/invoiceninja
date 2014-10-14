@@ -31,6 +31,11 @@ class Client extends EntityModel
 	{
 		return $this->hasMany('Contact');
 	}
+    
+     public function projects()
+	{
+		return $this->hasMany('Project');
+	}
 
 	public function country()
 	{

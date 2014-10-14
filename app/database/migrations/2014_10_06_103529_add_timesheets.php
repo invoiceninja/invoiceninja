@@ -16,6 +16,7 @@ class AddTimesheets extends Migration {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();
+            $t->unsignedInteger('client_id')->nullable();
             $t->timestamps();
             $t->softDeletes();
 
