@@ -8,8 +8,15 @@
 <style type="text/css">
 
   body {
-    /* background-color: #F6F6F6; */
     background-color: #EEEEEE;
+    padding-top: 114px; 
+  }
+
+  /* Fix for header covering stuff when the screen is narrower */
+  @media screen and (min-width: 1200px) {
+    body {
+      padding-top: 50px; 
+    }
   }
 
 </style>
@@ -35,8 +42,6 @@
 
 @section('body')
 
-<p>&nbsp;</p>
-<p>&nbsp;</p>
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
 

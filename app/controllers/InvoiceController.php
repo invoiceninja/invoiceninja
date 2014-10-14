@@ -271,7 +271,7 @@ class InvoiceController extends \BaseController {
 		$action = Input::get('action');
 		$entityType = Input::get('entityType');
 
-		if ($action == 'archive' || $action == 'delete')
+		if ($action == 'archive' || $action == 'delete' || $action == 'mark')
 		{
 			return InvoiceController::bulk($entityType);
 		}
@@ -413,12 +413,14 @@ class InvoiceController extends \BaseController {
 	public function bulk($entityType = ENTITY_INVOICE)
 	{
 		$action = Input::get('action');
+		$statusId = Input::get('statusId');
 		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');
-		$count = $this->invoiceRepo->bulk($ids, $action);
+		$count = $this->invoiceRepo->bulk($ids, $action, $statusId);
 
  		if ($count > 0)		
  		{
-			$message = Utils::pluralize("{$action}d_{$entityType}", $count);
+ 			$key = $action == 'mark' ? "updated_{$entityType}" : "{$action}d_{$entityType}";
+			$message = Utils::pluralize($key, $count);
 			Session::flash('message', $message);
 		}
 

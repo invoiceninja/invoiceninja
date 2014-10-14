@@ -259,6 +259,7 @@ class AccountController extends \BaseController {
 
 				$client->name = 'Sample Client';
 
+				$invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber();
 				$invoice->invoice_date = date_create()->format('Y-m-d');
 				$invoice->account = Auth::user()->account;				
 				$invoice->amount = $invoice->balance = 100;

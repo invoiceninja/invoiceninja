@@ -93,8 +93,8 @@
         paid: d3.sum(d, function(g) { 
           return g.invoice && g.invoice.invoice_status_id == 5 ? (g.qty * g.cost) : 0; 
         }),
-        age: d3.median(d, function(g) { 
-          return calculateInvoiceAge(g.invoice) || null; 
+        age: d3.mean(d, function(g) { 
+          return calculateInvoiceAge(g.invoice) || null;           
         }),        
       }})
       .entries(products);    
@@ -168,8 +168,8 @@
       .padding(12);
 
     var svg = d3.select(".svg-div").append("svg")
-      .attr("width", "100%")
-      .attr("height", "1140px")
+      .attr("width", "1142px")
+      .attr("height", "1142px")
       .attr("class", "bubble");
 
     svg.append("rect")

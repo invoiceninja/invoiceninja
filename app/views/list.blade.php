@@ -5,6 +5,7 @@
 	{{ Former::open($entityType . 's/bulk')->addClass('listForm') }}
 	<div style="display:none">
 		{{ Former::text('action') }}
+		{{ Former::text('statusId') }}
 		{{ Former::text('id') }}
 	</div>
 
@@ -65,6 +66,12 @@
 	function archiveEntity(id) {
 		$('#id').val(id);
 		submitForm('archive');
+	}
+
+	function markEntity(id, statusId) {
+		$('#id').val(id);
+		$('#statusId').val(statusId);
+		submitForm('mark');
 	}
 
 	function setTrashVisible() {

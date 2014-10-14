@@ -440,7 +440,9 @@ return array(
   'quote_number_counter' => 'Quote Number Counter',
   'share_invoice_counter' => 'Share invoice counter',
   'invoice_issued_to' => 'Invoice issued to',
-  'invalid_counter' => 'To prevent a possible conflict please set either an invoice or quote number prefix',
+  'invalid_counter' => 'To prevent a possible conflict please set either an invoice or quote number prefix',  
+  'mark_sent' => 'Mark sent',
+
   
 
 );
