@@ -4,6 +4,7 @@
 
 		{{ Former::legend('Organization') }}
 		{{ Former::text('name') }}
+        {{ Former::text('vat_number') }}
 		{{ Former::text('work_phone')->label('Phone') }}
 		{{ Former::textarea('notes') }}
 
