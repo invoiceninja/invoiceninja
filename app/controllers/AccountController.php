@@ -36,20 +36,9 @@ class AccountController extends \BaseController {
 	public function update()
 	{		
 		if (!Utils::isNinja()) {
-			// populate migrations if the application was initially setup using database.sql 
-			$migrations = DB::table('migrations')->get();
-			if (Schema::hasTable('accounts') && count($migrations) == 0) {
-				$migrations = ['2013_11_05_180133_confide_setup_users_table', '2013_11_28_195703_setup_countries_table', '2014_02_13_151500_add_cascase_drops', '2014_02_19_151817_add_support_for_invoice_designs', '2014_03_03_155556_add_phone_to_account', '2014_03_19_201454_add_language_support', '2014_03_20_200300_create_payment_libraries', '2014_03_23_051736_enable_forcing_jspdf', '2014_03_25_102200_add_sort_and_recommended_to_gateways', '2014_04_03_191105_add_pro_plan', '2014_04_17_100523_add_remember_token', '2014_04_17_145108_add_custom_fields', '2014_04_23_170909_add_products_settings', '2014_04_29_174315_add_advanced_settings', '2014_05_17_175626_add_quotes', '2014_06_17_131940_add_accepted_credit_cards_to_account_gateways', '2014_07_13_142654_one_click_install', '2014_07_17_205900_support_hiding_quantity', '2014_07_24_171214_add_zapier_support'];
-				foreach ($migrations as $migration) {
-					DB::table('migrations')->insert([
-						'migration' => $migration,
-						'batch' => 1
-					]);
-				}
-			}
-					
 			try {
-				Artisan::call('migrate');			
+				Artisan::call('migrate');
+				Cache::flush();
 			} catch (Exception $e) {
 	      Response::make($e->getMessage(), 500);
 	    }
@@ -262,6 +251,31 @@ class AccountController extends \BaseController {
 				'feature' => $subSection
 			];
 
+			if ($subSection == ACCOUNT_INVOICE_DESIGN) 
+			{			
+				$invoice = new stdClass();
+				$client = new stdClass();
+				$invoiceItem = new stdClass();				
+
+				$client->name = 'Sample Client';
+
+				$invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber();
+				$invoice->invoice_date = date_create()->format('Y-m-d');
+				$invoice->account = Auth::user()->account;				
+				$invoice->amount = $invoice->balance = 100;
+
+				$invoiceItem->cost = 100;
+				$invoiceItem->qty = 1;
+				$invoiceItem->notes = 'Notes';
+				$invoiceItem->product_key = 'Item';				
+
+				$invoice->client = $client;
+				$invoice->invoice_items = [$invoiceItem];			
+				
+				$data['invoice'] = $invoice;
+				$data['invoiceDesigns'] = InvoiceDesign::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get();				
+			}
+
 			return View::make("accounts.{$subSection}", $data);	
 		}
 		else if ($section == ACCOUNT_PRODUCTS)
@@ -302,9 +316,9 @@ class AccountController extends \BaseController {
 		}		
 		else if ($section == ACCOUNT_ADVANCED_SETTINGS)
 		{
-			if ($subSection == ACCOUNT_CUSTOM_FIELDS) 
+			if ($subSection == ACCOUNT_INVOICE_SETTINGS) 
 			{
-				return AccountController::saveCustomFields();
+				return AccountController::saveInvoiceSettings();
 			} 
 			else if ($subSection == ACCOUNT_INVOICE_DESIGN)
 			{
@@ -329,11 +343,12 @@ class AccountController extends \BaseController {
 		return Redirect::to('company/products');		
 	}
 
-	private function saveCustomFields()
+	private function saveInvoiceSettings()
 	{
 		if (Auth::user()->account->isPro())
 		{
 			$account = Auth::user()->account;
+			
 			$account->custom_label1 = trim(Input::get('custom_label1'));
 			$account->custom_value1 = trim(Input::get('custom_value1'));
 			$account->custom_label2 = trim(Input::get('custom_label2'));
@@ -344,12 +359,26 @@ class AccountController extends \BaseController {
 			$account->custom_invoice_label2 = trim(Input::get('custom_invoice_label2'));
 			$account->custom_invoice_taxes1 = Input::get('custom_invoice_taxes1') ? true : false;
 			$account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;			
-			$account->save();
 
-			Session::flash('message', trans('texts.updated_settings'));
+			$account->invoice_number_prefix = Input::get('invoice_number_prefix');
+			$account->invoice_number_counter = Input::get('invoice_number_counter');
+			$account->quote_number_prefix = Input::get('quote_number_prefix');
+			$account->share_counter = Input::get('share_counter') ? true : false;
+
+			if (!$account->share_counter) {
+				$account->quote_number_counter = Input::get('quote_number_counter');			
+			}
+
+			if (!$account->share_counter && $account->invoice_number_prefix == $account->quote_number_prefix) {
+				Session::flash('error', trans('texts.invalid_counter'));
+				return Redirect::to('company/advanced_settings/invoice_settings')->withInput();
+			} else {
+				$account->save();
+				Session::flash('message', trans('texts.updated_settings'));
+			}
 		}
 
-		return Redirect::to('company/advanced_settings/custom_fields');		
+		return Redirect::to('company/advanced_settings/invoice_settings');		
 	}
 
 	private function saveInvoiceDesign()
@@ -359,8 +388,9 @@ class AccountController extends \BaseController {
 			$account = Auth::user()->account;
 			$account->hide_quantity = Input::get('hide_quantity') ? true : false;
 			$account->hide_paid_to_date = Input::get('hide_paid_to_date') ? true : false;
-			$account->primary_color = Input::get('primary_color');// ? Input::get('primary_color') : null;
-			$account->secondary_color = Input::get('secondary_color');// ? Input::get('secondary_color') : null;
+			$account->primary_color = Input::get('primary_color');
+			$account->secondary_color = Input::get('secondary_color');
+			$account->invoice_design_id =  Input::get('invoice_design_id');
 			$account->save();
 
 			Session::flash('message', trans('texts.updated_settings'));

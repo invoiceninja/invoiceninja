@@ -1,24 +1,9 @@
 @extends('master')
 
 @section('head')    
-<meta name="csrf-token" content="<?= csrf_token() ?>">
-<link href="{{ asset('built.public.css') }}" rel="stylesheet" type="text/css"/>
 
-<!--
-<link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('css/bootstrap.splash.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('css/splash.css') }}" rel="stylesheet" type="text/css"/>   
--->     
-<!--
-<link href="{{ asset('images/apple-touch-icon-114x114-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="114x114">
-<link href="{{ asset('images/apple-touch-icon-72x72-precomposed.png') }}" rel="apple-touch-icon-precomposed" sizes="72x72">
-<link href="{{ asset('images/apple-touch-icon-57x57-precomposed.png') }}" rel="apple-touch-icon-precomposed">
--->
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-
-<script src="{{ asset('js/simpleexpand.js') }}" type="text/javascript"></script>
-<script src="{{ asset('js/valign.js') }}" type="text/javascript"></script>
-<script src="{{ asset('js/bootstrap.min.js') }}" type="text/javascript"></script>
+<link href="{{ asset('built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+<script src="{{ asset('js/built.public.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
 <style>
   .hero {

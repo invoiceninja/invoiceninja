@@ -4,6 +4,15 @@
 	@parent
 	@include('accounts.nav_advanced')
 
+  {{ Former::open('users/delete')->addClass('user-form') }}
+  {{ Former::legend('user_management') }}
+
+  <div style="display:none">
+    {{ Former::text('userPublicId') }}
+  </div>
+  {{ Former::close() }}
+
+
   @if (Utils::isPro())
     {{ Button::success_link(URL::to('users/create'), trans("texts.add_user"), array('class' => 'pull-right'))->append_with_icon('plus-sign') }} 
   @endif
@@ -21,13 +30,6 @@
       ->setOptions('aoColumns', [[ "sWidth"=> "20%" ], [ "sWidth"=> "45%" ], ["sWidth"=> "20%"], ["sWidth"=> "15%" ]])      
       ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[3]]])
       ->render('datatable') }}
-
-
-  {{ Former::open('users/delete')->addClass('user-form') }}
-  <div style="display:none">
-    {{ Former::text('userPublicId') }}
-  </div>
-  {{ Former::close() }}
 
   <script>
   window.onDatatableReady = function() {        

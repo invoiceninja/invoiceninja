@@ -17,13 +17,18 @@ class PaymentLibrariesSeeder extends Seeder
 			Gateway::create($gateway);
 		}
 
-		Gateway::create([
-			'name' => 'moolah',
-			'provider' => 'AuthorizeNet_AIM',
-			'sort_order' => 1,
-			'recommended' => 1,
-			'site_url' => 'https://invoiceninja.mymoolah.com/',
-		]);
+		// check that moolah exists
+		if (!DB::table('gateways')->where('name', '=', 'moolah')->get())	{
+			DB::table('gateways')->update(['recommended' => 0]);
+			DB::table('gateways')->insert([
+				'name' => 'moolah',
+				'provider' => 'AuthorizeNet_AIM',
+				'sort_order' => 1,
+				'recommended' => 1,
+				'site_url' => 'https://invoiceninja.mymoolah.com/',
+				'payment_library_id' => 1
+			]);
+		}
 
 		/*
 		$updateProviders = array(

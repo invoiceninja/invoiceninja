@@ -20,7 +20,7 @@ class InvoiceRepository
             ->where('contacts.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', false)    			
     				->where('contacts.is_primary', '=', true)	
-  					->select('clients.public_id as client_public_id', 'invoice_number', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'quote_id', 'quote_invoice_id');
+  					->select('clients.public_id as client_public_id', 'invoice_number', 'invoice_status_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'quote_id', 'quote_invoice_id');
 
       if (!\Session::get('show_trash:invoice'))
       {
@@ -121,32 +121,40 @@ class InvoiceRepository
               <ul class="dropdown-menu" role="menu">
               <li><a href="' . \URL::to("{$entityType}s/".$model->public_id.'/edit') . '">'.trans("texts.edit_{$entityType}").'</a></li>
               <li><a href="' . \URL::to("{$entityType}s/".$model->public_id.'/clone') . '">'.trans("texts.clone_{$entityType}").'</a></li>
-              <li class="divider"></li><li>';
-          
-          if ($entityType == ENTITY_INVOICE)              
-          {
-            $str .= '<a href="' . \URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">'.trans('texts.enter_payment').'</a></li>';
+              <li class="divider"></li>';
 
-            if ($model->quote_id)
+            if ($model->invoice_status_id < INVOICE_STATUS_SENT) 
             {
-              $str .= '<li><a href="' .  \URL::to("quotes/{$model->quote_id}/edit") . '">' . trans("texts.view_quote") . '</a></li>';
-            }            
-          }
-          else if ($entityType == ENTITY_QUOTE)
-          {
-            if ($model->quote_invoice_id)
+              $str .= '<li><a href="javascript:markEntity(' . $model->public_id . ', ' . INVOICE_STATUS_SENT . ')">'.trans("texts.mark_sent").'</a></li>';
+            }              
+                      
+            if ($entityType == ENTITY_INVOICE)              
             {
-              $str .= '<li><a href="' .  \URL::to("invoices/{$model->quote_invoice_id}/edit") . '">' . trans("texts.view_invoice") . '</a></li>';
+              if ($model->invoice_status_id < INVOICE_STATUS_PAID)
+              {
+                $str .= '<li><a href="' . \URL::to('payments/create/' . $model->client_public_id . '/' . $model->public_id ) . '">'.trans('texts.enter_payment').'</a></li>';
+              }
+
+              if ($model->quote_id)
+              {
+                $str .= '<li><a href="' .  \URL::to("quotes/{$model->quote_id}/edit") . '">' . trans("texts.view_quote") . '</a></li>';
+              }            
             }
-          }
-          
-          return $str . '<li class="divider"></li>
-              <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans("texts.archive_{$entityType}").'</a></li>
-              <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans("texts.delete_{$entityType}").'</a></li>               
-            </ul>
-          </div>';
-        })                  
-        ->make();    
+            else if ($entityType == ENTITY_QUOTE)
+            {
+              if ($model->quote_invoice_id)
+              {
+                $str .= '<li><a href="' .  \URL::to("invoices/{$model->quote_invoice_id}/edit") . '">' . trans("texts.view_invoice") . '</a></li>';
+              }
+            }
+
+            return $str . '<li class="divider"></li>
+                <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans("texts.archive_{$entityType}").'</a></li>
+                <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans("texts.delete_{$entityType}").'</a></li>               
+              </ul>
+            </div>';
+          })                  
+          ->make();
   }
 
 
@@ -359,12 +367,11 @@ class InvoiceRepository
 
     $clone = Invoice::createNew($invoice);
     $clone->balance = $invoice->amount;
-    $clone->invoice_number = $invoice->account->getNextInvoiceNumber();
+    $clone->invoice_number = $invoice->account->getNextInvoiceNumber($invoice->is_quote);
 
     foreach ([
       'client_id',       
       'discount', 
-      //'shipping',
       'invoice_date', 
       'po_number', 
       'due_date', 
@@ -378,7 +385,11 @@ class InvoiceRepository
       'tax_name', 
       'tax_rate', 
       'amount', 
-      'is_quote'] as $field) 
+      'is_quote',
+      'custom_value1',
+      'custom_value2',
+      'custom_taxes1',
+      'custom_taxes2'] as $field) 
     {
       $clone->$field = $invoice->$field;  
     }   
@@ -428,7 +439,7 @@ class InvoiceRepository
   }
 
 
-	public function bulk($ids, $action)
+	public function bulk($ids, $action, $statusId = false)
 	{
 		if (!$ids)
 		{
@@ -439,13 +450,21 @@ class InvoiceRepository
 
 		foreach ($invoices as $invoice) 
 		{
-			if ($action == 'delete') 
-			{
-				$invoice->is_deleted = true;
-				$invoice->save();
-			} 
+      if ($action == 'mark')
+      {
+        $invoice->invoice_status_id = $statusId;
+        $invoice->save();
+      } 
+      else 
+      {
+  			if ($action == 'delete') 
+  			{
+  				$invoice->is_deleted = true;
+  				$invoice->save();
+  			} 
 
-			$invoice->delete();
+  			$invoice->delete();
+      }
 		}
 
 		return count($invoices);

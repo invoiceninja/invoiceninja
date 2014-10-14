@@ -422,7 +422,7 @@ return array(
 
   'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
   'confirm_email_quote' => 'Are you sure you want to email this quote?',
-  'confirm_recurring_email_invoice' => 'Recurring is enabled,re you sure you want this invoice emailed?',
+  'confirm_recurring_email_invoice' => 'Recurring is enabled, are you sure you want this invoice emailed?',
 
   'cancel_account' => 'Cancel Account',
   'cancel_account_message' => 'Warning: This will permanently erase all of your data, there is no undo.',
@@ -430,6 +430,19 @@ return array(
 
   'data_visualizations' => 'Data Visualizations',
   'sample_data' => 'Sample data shown',
+  'hide' => 'Hide',
+  'new_version_available' => 'A new version of :releases_link is available. You\'re running v:user_version, the latest is v:latest_version',
 
+  'invoice_settings' => 'Invoice Settings',
+  'invoice_number_prefix' => 'Invoice Number Prefix',
+  'invoice_number_counter' => 'Invoice Number Counter',
+  'quote_number_prefix' => 'Quote Number Prefix',
+  'quote_number_counter' => 'Quote Number Counter',
+  'share_invoice_counter' => 'Share invoice counter',
+  'invoice_issued_to' => 'Invoice issued to',
+  'invalid_counter' => 'To prevent a possible conflict please set either an invoice or quote number prefix',  
+  'mark_sent' => 'Mark sent',
+
+  
 
 );

@@ -463,6 +463,9 @@ class UserController extends BaseController {
             }
         }
 
+        Session::forget('news_feed_id');
+        Session::forget('news_feed_message');
+
         Confide::logout();
 
         return Redirect::to('/')->with('clearGuestKey', true);

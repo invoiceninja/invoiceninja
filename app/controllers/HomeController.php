@@ -128,6 +128,29 @@ class HomeController extends BaseController {
 		}
 	}
 
+	public function newsFeed($userType, $version)
+	{		
+		$response = Utils::getNewsFeedResponse($userType);
+
+		return Response::json($response);
+	}
+
+	public function hideMessage()
+	{		
+		if (Auth::check() && Session::has('news_feed_id')) {
+			$newsFeedId = Session::get('news_feed_id');
+			if ($newsFeedId != NEW_VERSION_AVAILABLE && $newsFeedId > Auth::user()->news_feed_id) {
+				$user = Auth::user();
+				$user->news_feed_id = $newsFeedId;
+				$user->save();
+			}
+
+			Session::forget('news_feed_message');
+		}
+
+		return 'success';
+	}
+
 	public function logError()
 	{
 		return Utils::logError(Input::get('error'), 'JavaScript');

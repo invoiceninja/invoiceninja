@@ -37,6 +37,29 @@ class Utils
 		return Auth::check() && Auth::user()->isPro();
 	}
 
+	public static function getUserType()
+	{
+		if (Utils::isNinja()) {
+			return USER_TYPE_CLOUD_HOST;
+		} else {
+			return USER_TYPE_SELF_HOST;
+		}
+	}
+
+	public static function getNewsFeedResponse($userType = false) 
+	{
+		if (!$userType) {
+			$userType = Utils::getUserType();
+		}
+
+		$response = new stdClass;
+		$response->message = isset($_ENV["{$userType}_MESSAGE"]) ? $_ENV["{$userType}_MESSAGE"] : '';
+		$response->id = isset($_ENV["{$userType}_ID"]) ? $_ENV["{$userType}_ID"] : '';
+		$response->version = NINJA_VERSION;
+	
+		return $response;
+	}
+
 	public static function getProLabel($feature)
 	{
 		if (Auth::check() 
@@ -535,4 +558,15 @@ class Utils
       //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
     ];
 	}	
+
+	public static function startsWith($haystack, $needle)
+	{
+    return $needle === "" || strpos($haystack, $needle) === 0;
+	}
+
+	public static function endsWith($haystack, $needle)
+	{
+    return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
+	}
+	
 }

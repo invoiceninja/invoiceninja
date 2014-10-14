@@ -2,46 +2,21 @@
 
 
 @section('head')
-<meta name="csrf-token" content="<?= csrf_token() ?>">
-<link href="{{ asset('built.css') }}" rel="stylesheet" type="text/css"/>    
 
-<!--
-<script src="{{ asset('vendor/jquery/dist/jquery.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/jquery-ui/ui/minified/jquery-ui.min.js') }}" type="text/javascript"></script>				
-<script src="{{ asset('vendor/bootstrap/dist/js/bootstrap.min.js') }}" type="text/javascript"></script>				
-<script src="{{ asset('vendor/datatables/media/js/jquery.dataTables.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/datatables-bootstrap3/BS3/assets/js/datatables.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/knockout.js/knockout.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/knockout-mapping/build/output/knockout.mapping-latest.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/knockout-sortable/build/knockout-sortable.min.js') }}" type="text/javascript"></script>
-<script src="{{ asset('vendor/underscore/underscore.js') }}" type="text/javascript"></script>		
-<script src="{{ asset('vendor/bootstrap-datepicker/js/bootstrap-datepicker.js') }}" type="text/javascript"></script>		
-<script src="{{ asset('vendor/typeahead.js/dist/typeahead.min.js') }}" type="text/javascript"></script>	
-<script src="{{ asset('vendor/accounting/accounting.min.js') }}" type="text/javascript"></script>   
-<script src="{{ asset('vendor/spectrum/spectrum.js') }}" type="text/javascript"></script>   
-<script src="{{ asset('js/bootstrap-combobox.js') }}" type="text/javascript"></script>		
-<script src="{{ asset('js/jspdf.source.js') }}" type="text/javascript"></script>		
-<script src="{{ asset('js/jspdf.plugin.split_text_to_size.js') }}" type="text/javascript"></script>   
-<script src="{{ asset('js/script.js') }}" type="text/javascript"></script>		
--->
-
-<!--
-<link href="{{ asset('vendor/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('vendor/datatables/media/css/jquery.dataTables.css') }}" rel="stylesheet" type="text/css">
-<link href="{{ asset('vendor/datatables-bootstrap3/BS3/assets/css/datatables.css') }}" rel="stylesheet" type="text/css">    
-<link href="{{ asset('vendor/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet" type="text/css"/>
-<link href="{{ asset('vendor/bootstrap-datepicker/css/datepicker.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('vendor/spectrum/spectrum.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('css/bootstrap-combobox.css') }}" rel="stylesheet" type="text/css"/>	
-<link href="{{ asset('css/typeahead.js-bootstrap.css') }}" rel="stylesheet" type="text/css"/>			
-<link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>    
--->
+<link href="{{ asset('built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>    
 
 <style type="text/css">
 
   body {
-    /* background-color: #F6F6F6; */
     background-color: #EEEEEE;
+    padding-top: 114px; 
+  }
+
+  /* Fix for header covering stuff when the screen is narrower */
+  @media screen and (min-width: 1200px) {
+    body {
+      padding-top: 50px; 
+    }
   }
 
 </style>
@@ -67,8 +42,6 @@
 
 @section('body')
 
-<p>&nbsp;</p>
-<p>&nbsp;</p>
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
 
@@ -136,7 +109,7 @@
             <li>{{ link_to('company/products', uctrans('texts.product_library')) }}</li>
             <li>{{ link_to('company/notifications', uctrans('texts.notifications')) }}</li>
             <li>{{ link_to('company/import_export', uctrans('texts.import_export')) }}</li>
-            <li><a href="{{ url('company/advanced_settings/custom_fields') }}">{{ uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) }}</a></li>
+            <li><a href="{{ url('company/advanced_settings/invoice_settings') }}">{{ uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) }}</a></li>
 
             <li class="divider"></li>
             <li>{{ link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) }}</li>
@@ -197,7 +170,14 @@
   @endif
 
   @if (Session::has('message'))
-  <div class="alert alert-info">{{ Session::get('message') }}</div>
+    <div class="alert alert-info">
+      {{ Session::get('message') }}
+    </div>
+  @elseif (Session::has('news_feed_message'))
+    <div class="alert alert-info">
+      {{ Session::get('news_feed_message') }}      
+      <a href="#" onclick="hideMessage()" class="pull-right">{{ trans('texts.hide') }}</a>      
+    </div>
   @endif
 
   @if (Session::has('error'))
@@ -542,6 +522,12 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
   }
   @endif
 
+  function hideMessage() {
+    $('.alert-info').fadeOut();
+    $.get('/hide_message', function(response) {
+      console.log('Reponse: %s', response);
+    });
+  }
 
   $(function() {
     $('#search').focus(function(){
