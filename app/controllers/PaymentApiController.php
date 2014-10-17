@@ -1,7 +1,6 @@
 <?php
 
 use ninja\repositories\PaymentRepository;
-use Payment;
 
 class PaymentApiController extends Controller {
 
