@@ -27,7 +27,7 @@ return array(
  'private_notes' => 'Notas Privadas',
 
  // invoice
- 'invoice' => 'Factura',
+ 'invoice' => 'Factura de venta',
  'client' => 'Cliente',
  'invoice_date' => 'Fecha de factura',
  'due_date' => 'Fecha de pago',
