@@ -15,7 +15,7 @@
   /* Fix for header covering stuff when the screen is narrower */
   @media screen and (min-width: 1200px) {
     body {
-      padding-top: 50px; 
+      padding-top: 56px; 
     }
   }
 
