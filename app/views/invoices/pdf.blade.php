@@ -17,9 +17,11 @@
   logoImages.imageLogoHeight3 = 81/2;
 
   @if (file_exists($account->getLogoPath()))
+  if (window.invoice) {
     invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
     invoice.imageWidth = {{ $account->getLogoWidth() }};
     invoice.imageHeight = {{ $account->getLogoHeight() }};
+  }
   @endif  
 
   var NINJA = NINJA || {};
