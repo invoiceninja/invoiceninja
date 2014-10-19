@@ -336,8 +336,8 @@ class InvoiceRepository
 
       $invoiceItem = InvoiceItem::createNew();
       $invoiceItem->product_id = isset($product) ? $product->id : null;
-      $invoiceItem->product_key = trim($item->product_key);
-      $invoiceItem->notes = trim($item->notes);
+      $invoiceItem->product_key = Utils::processVariables(trim($item->product_key));
+      $invoiceItem->notes = Utils::processVariables(trim($item->notes));
       $invoiceItem->cost = Utils::parseFloat($item->cost);
       $invoiceItem->qty = Utils::parseFloat($item->qty);
       $invoiceItem->tax_rate = 0;
