@@ -46755,8 +46755,9 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
 
       if (key.substring(0, 6) === 'custom') {
         key = invoice.account[key];
-      } else if (key === 'tax') {
-        key = invoiceLabels[key] + ' ' + invoice.tax_amount + '%';
+      } else if (key === 'tax' && invoice.tax_rate) {
+        console.log(invoice);
+        key = invoiceLabels[key] + ' ' + (invoice.tax_rate*1).toString() + '%';
       } else {
         key = invoiceLabels[key];
       }
