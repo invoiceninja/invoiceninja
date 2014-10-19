@@ -443,6 +443,10 @@ return array(
   'invalid_counter' => 'To prevent a possible conflict please set either an invoice or quote number prefix',  
   'mark_sent' => 'Mark sent',
 
-  
+  'gateway_help_1' => ':link to sign up for Authorize.net.',
+  'gateway_help_2' => ':link to sign up for Authorize.net.',
+  'gateway_help_17' => ':link to get your PayPal API signature.',
+  'gateway_help_23' => 'Note: use your secret API key, not your publishable API key.',
+  'gateway_help_27' => ':link to sign up for TwoCheckout.',
 
 );

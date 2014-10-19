@@ -57,6 +57,15 @@
 				@endif
 
 			@endforeach
+
+			@if($gateway->getHelp())
+				<div class="form-group">
+					<label class="control-label col-lg-4 col-sm-4"></label>
+					<div class="col-lg-8 col-sm-8">
+						{{ $gateway->getHelp() }}		
+					</div>
+				</div>					
+			@endif
 		</div>
 		
 	@endforeach
