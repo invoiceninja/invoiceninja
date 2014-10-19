@@ -162,6 +162,15 @@
                         </p>
                     </div>
                 </div>
+                @if (Utils::getDemoAccountId())
+                <div class="question">
+                    <a class="expander" href="#">Can I see what the application looks like with sample data?</a>
+                    <div class="content">
+                            <p>Sure, <a href="https://www.invoiceninja.com/demo">click here</a> to try out our demo account.
+                        </p>
+                    </div>
+                </div>                
+                @endif
                 <div class="question">
                     <a class="expander" href="#">I hear that there's a version of Invoice Ninja 
                     that I can install myself on my own servers? Where can I learn more about this?

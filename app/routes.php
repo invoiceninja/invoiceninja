@@ -67,6 +67,7 @@ Route::get('logout', 'UserController@logout');
 
 if (Utils::isNinja()) {
   Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
+  Route::get('/demo', 'AccountController@demo');
 }
 
 Route::group(array('before' => 'auth'), function()
@@ -239,6 +240,7 @@ define('EVENT_CREATE_QUOTE', 3);
 define('EVENT_CREATE_PAYMENT', 4);
 
 define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
+define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');

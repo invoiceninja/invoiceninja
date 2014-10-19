@@ -207,7 +207,7 @@ class InvoiceRepository
 		$invoice->client_id = $data['client_id'];
 		$invoice->discount = Utils::parseFloat($data['discount']);
 		$invoice->invoice_number = trim($data['invoice_number']);
-		$invoice->is_recurring = $data['is_recurring'] ? true : false;
+		$invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
     $invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
       
     if ($invoice->is_recurring)
