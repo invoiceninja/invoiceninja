@@ -367,7 +367,7 @@ class InvoiceRepository
 
     $clone = Invoice::createNew($invoice);
     $clone->balance = $invoice->amount;
-    $clone->invoice_number = $invoice->account->getNextInvoiceNumber($invoice->is_quote);
+    $clone->invoice_number = $invoice->account->getNextInvoiceNumber();
 
     foreach ([
       'client_id',       
