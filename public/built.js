@@ -46756,7 +46756,6 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
       if (key.substring(0, 6) === 'custom') {
         key = invoice.account[key];
       } else if (key === 'tax' && invoice.tax_rate) {
-        console.log(invoice);
         key = invoiceLabels[key] + ' ' + (invoice.tax_rate*1).toString() + '%';
       } else {
         key = invoiceLabels[key];
@@ -46952,10 +46951,8 @@ function displayInvoiceItems(doc, invoice, layout) {
     shownItem = true;
 
     // process date variables
-    if (invoice.is_recurring) {
-      notes = processVariables(notes);
-      productKey = processVariables(productKey);
-    }
+    notes = processVariables(notes);
+    productKey = processVariables(productKey);
     
     var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
     if (tax) {
