@@ -780,7 +780,6 @@ function concatStrings() {
   return data.length ? concatStr : false;
 }
 
-//function displayGrid(doc, invoice, data, x, y, layout, hasheader, rightAlignX, rightAlignTitleX)  {
 function displayGrid(doc, invoice, data, x, y, layout, options)  {
   var numLines = 0;
   var origY = y;
@@ -831,6 +830,8 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
 
       if (key.substring(0, 6) === 'custom') {
         key = invoice.account[key];
+      } else if (key === 'tax') {
+        key = invoiceLabels[key] + ' ' + invoice.tax_amount + '%';
       } else {
         key = invoiceLabels[key];
       }
