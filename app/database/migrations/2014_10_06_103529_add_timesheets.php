@@ -116,6 +116,7 @@ class AddTimesheets extends Migration {
             $t->string('org_code');
             $t->timeStamp('org_created_at');
             $t->timeStamp('org_updated_at');
+            $t->timeStamp('org_deleted_at')->default('0000-00-00T00:00:00');
             $t->string('org_start_date_timezone')->nullable();
             $t->string('org_end_date_timezone')->nullable();
             $t->text('org_data');

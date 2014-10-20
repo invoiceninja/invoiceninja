@@ -39,10 +39,12 @@ namespace {
  * @property integer $public_id
  * @property string $custom_value1
  * @property string $custom_value2
+ * @property string $vat_number
  * @property-read \Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection|\Invoice[] $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection|\Payment[] $payments
  * @property-read \Illuminate\Database\Eloquent\Collection|\Contact[] $contacts
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Project[] $projects
  * @property-read \Country $country
  * @property-read \Currency $currency
  * @property-read \Size $size
@@ -74,6 +76,7 @@ namespace {
  * @method static \Illuminate\Database\Query\Builder|\Client wherePublicId($value)
  * @method static \Illuminate\Database\Query\Builder|\Client whereCustomValue1($value)
  * @method static \Illuminate\Database\Query\Builder|\Client whereCustomValue2($value)
+ * @method static \Illuminate\Database\Query\Builder|\Client whereVatNumber($value)
  * @method static \EntityModel scope($publicId = false, $accountId = false)
  */
 	class Client {}
@@ -104,6 +107,7 @@ namespace {
  * @property integer $public_id
  * @property boolean $force_pdfjs
  * @property string $remember_token
+ * @property integer $news_feed_id
  * @property-read \Account $account
  * @property-read \Theme $theme
  * @method static \Illuminate\Database\Query\Builder|\User whereId($value)
@@ -127,6 +131,7 @@ namespace {
  * @method static \Illuminate\Database\Query\Builder|\User wherePublicId($value)
  * @method static \Illuminate\Database\Query\Builder|\User whereForcePdfjs($value)
  * @method static \Illuminate\Database\Query\Builder|\User whereRememberToken($value)
+ * @method static \Illuminate\Database\Query\Builder|\User whereNewsFeedId($value)
  */
 	class User {}
 }
@@ -441,6 +446,7 @@ namespace {
  * @property-read \Client $client
  * @property-read \Illuminate\Database\Eloquent\Collection|\InvoiceItem[] $invoice_items
  * @property-read \InvoiceStatus $invoice_status
+ * @property-read \InvoiceDesign $invoice_design
  * @property-read \Illuminate\Database\Eloquent\Collection|\Invitation[] $invitations
  * @method static \Illuminate\Database\Query\Builder|\Invoice whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\Invoice whereClientId($value)
@@ -806,8 +812,10 @@ namespace {
  *
  * @property integer $id
  * @property string $name
+ * @property string $javascript
  * @method static \Illuminate\Database\Query\Builder|\InvoiceDesign whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\InvoiceDesign whereName($value)
+ * @method static \Illuminate\Database\Query\Builder|\InvoiceDesign whereJavascript($value)
  */
 	class InvoiceDesign {}
 }
@@ -987,14 +995,18 @@ namespace {
  * @property string $end_date
  * @property float $hours
  * @property float $discount
+ * @property boolean $manualedit
  * @property string $org_code
  * @property string $org_created_at
  * @property string $org_updated_at
+ * @property string $org_deleted_at
  * @property string $org_start_date_timezone
  * @property string $org_end_date_timezone
  * @property string $org_data
  * @property string $import_error
+ * @property string $import_warning
  * @property string $updated_data
+ * @property string $updated_data_at
  * @property-read \Account $account
  * @property-read \User $user
  * @property-read \TimesheetEventSource $source
@@ -1020,14 +1032,18 @@ namespace {
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereEndDate($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereHours($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereDiscount($value)
+ * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereManualedit($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereOrgCode($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereOrgCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereOrgUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereOrgDeletedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereOrgStartDateTimezone($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereOrgEndDateTimezone($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereOrgData($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereImportError($value)
+ * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereImportWarning($value)
  * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereUpdatedData($value)
+ * @method static \Illuminate\Database\Query\Builder|\TimesheetEvent whereUpdatedDataAt($value)
  */
 	class TimesheetEvent {}
 }
@@ -1039,6 +1055,7 @@ namespace {
  * @property integer $id
  * @property integer $user_id
  * @property integer $account_id
+ * @property integer $client_id
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon $deleted_at
@@ -1046,10 +1063,12 @@ namespace {
  * @property string $description
  * @property-read \Account $account
  * @property-read \User $user
+ * @property-read \Client $client
  * @property-read \Illuminate\Database\Eloquent\Collection|\ProjectCode[] $codes
  * @method static \Illuminate\Database\Query\Builder|\Project whereId($value)
  * @method static \Illuminate\Database\Query\Builder|\Project whereUserId($value)
  * @method static \Illuminate\Database\Query\Builder|\Project whereAccountId($value)
+ * @method static \Illuminate\Database\Query\Builder|\Project whereClientId($value)
  * @method static \Illuminate\Database\Query\Builder|\Project whereCreatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\Project whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|\Project whereDeletedAt($value)
@@ -1109,6 +1128,12 @@ namespace {
  * @property boolean $custom_invoice_taxes1
  * @property boolean $custom_invoice_taxes2
  * @property string $vat_number
+ * @property string $invoice_design
+ * @property string $invoice_number_prefix
+ * @property integer $invoice_number_counter
+ * @property string $quote_number_prefix
+ * @property integer $quote_number_counter
+ * @property boolean $share_counter
  * @property-read \Illuminate\Database\Eloquent\Collection|\User[] $users
  * @property-read \Illuminate\Database\Eloquent\Collection|\Client[] $clients
  * @property-read \Illuminate\Database\Eloquent\Collection|\Invoice[] $invoices
@@ -1167,6 +1192,12 @@ namespace {
  * @method static \Illuminate\Database\Query\Builder|\Account whereCustomInvoiceTaxes1($value)
  * @method static \Illuminate\Database\Query\Builder|\Account whereCustomInvoiceTaxes2($value)
  * @method static \Illuminate\Database\Query\Builder|\Account whereVatNumber($value)
+ * @method static \Illuminate\Database\Query\Builder|\Account whereInvoiceDesign($value)
+ * @method static \Illuminate\Database\Query\Builder|\Account whereInvoiceNumberPrefix($value)
+ * @method static \Illuminate\Database\Query\Builder|\Account whereInvoiceNumberCounter($value)
+ * @method static \Illuminate\Database\Query\Builder|\Account whereQuoteNumberPrefix($value)
+ * @method static \Illuminate\Database\Query\Builder|\Account whereQuoteNumberCounter($value)
+ * @method static \Illuminate\Database\Query\Builder|\Account whereShareCounter($value)
  */
 	class Account {}
 }
