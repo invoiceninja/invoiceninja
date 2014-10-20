@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 return array(
 
@@ -117,11 +117,11 @@ return array(
   'billed_client' => 'billed client',
   'billed_clients' => 'billed clients',
   'active_client' => 'active client',
-  'active_clients' => 'active clients',  
+  'active_clients' => 'active clients',
   'invoices_past_due' => 'Invoices Past Due',
   'upcoming_invoices' => 'Upcoming invoices',
   'average_invoice' => 'Average invoice',
-  
+
   // list pages
   'archive' => 'Archive',
   'delete' => 'Delete',
@@ -267,7 +267,7 @@ return array(
   'notification_invoice_viewed_subject' => 'Invoice :invoice was viewed by :client',
   'notification_invoice_paid' => 'A payment of :amount was made by client :client towards Invoice :invoice.',
   'notification_invoice_sent' => 'The following client :client was emailed Invoice :invoice for :amount.',
-  'notification_invoice_viewed' => 'The following client :client viewed Invoice :invoice for :amount.',  
+  'notification_invoice_viewed' => 'The following client :client viewed Invoice :invoice for :amount.',
   'reset_password' => 'You can reset your account password by clicking the following link:',
   'reset_password_footer' => 'If you did not request this password reset please email our support: ' . CONTACT_EMAIL,
 
@@ -275,10 +275,10 @@ return array(
   // Payment page
   'secure_payment' => 'Secure Payment',
   'card_number' => 'Card number',
-  'expiration_month' => 'Expiration month',  
+  'expiration_month' => 'Expiration month',
   'expiration_year' => 'Expiration year',
   'cvv' => 'CVV',
-  
+
   // Security alerts
   'confide' => [
     'too_many_attempts' => 'Too many attempts. Try again in few minutes.',
@@ -289,7 +289,7 @@ return array(
     'password_reset' => 'Your password has been changed successfully.',
     'wrong_password_reset' => 'Invalid password. Try again',
   ],
-  
+
   // Pro Plan
   'pro_plan' => [
     'remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
@@ -310,11 +310,11 @@ return array(
   'pro_plan_product' => 'Pro Plan',
   'pro_plan_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
   'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!<p/>&nbsp;<br/>
-                          <b>Next Steps</b><p/>A payable invoice has been sent to the email 
-                          address associated with your account. To unlock all of the awesome 
-                          Pro features, please follow the instructions on the invoice to pay 
+                          <b>Next Steps</b><p/>A payable invoice has been sent to the email
+                          address associated with your account. To unlock all of the awesome
+                          Pro features, please follow the instructions on the invoice to pay
                           for a year of Pro-level invoicing.<p/>
-                          Can\'t find the invoice? Need further assistance? We\'re happy to help 
+                          Can\'t find the invoice? Need further assistance? We\'re happy to help
                           -- email us at contact@invoiceninja.com',
 
   'unsaved_changes' => 'You have unsaved changes',
@@ -340,7 +340,7 @@ return array(
   'archive_product' => 'Archive Product',
   'updated_product' => 'Successfully updated product',
   'created_product' => 'Successfully created product',
-  'archived_product' => 'Successfully archived product',  
+  'archived_product' => 'Successfully archived product',
   'pro_plan_custom_fields' => ':link to enable custom fields by joining the Pro Plan',
 
   'advanced_settings' => 'Advanced Settings',
@@ -393,8 +393,8 @@ return array(
   'notification_quote_sent_subject' => 'Quote :invoice was sent to :client',
   'notification_quote_viewed_subject' => 'Quote :invoice was viewed by :client',
   'notification_quote_sent' => 'The following client :client was emailed Quote :invoice for :amount.',
-  'notification_quote_viewed' => 'The following client :client viewed Quote :invoice for :amount.',  
-  
+  'notification_quote_viewed' => 'The following client :client viewed Quote :invoice for :amount.',
+
   'session_expired' => 'Your session has expired.',
 
   'invoice_fields' => 'Invoice Fields',
@@ -440,7 +440,7 @@ return array(
   'quote_number_counter' => 'Quote Number Counter',
   'share_invoice_counter' => 'Share invoice counter',
   'invoice_issued_to' => 'Invoice issued to',
-  'invalid_counter' => 'To prevent a possible conflict please set either an invoice or quote number prefix',  
+  'invalid_counter' => 'To prevent a possible conflict please set either an invoice or quote number prefix',
   'mark_sent' => 'Mark sent',
 
   'gateway_help_1' => ':link to sign up for Authorize.net.',
@@ -449,4 +449,5 @@ return array(
   'gateway_help_23' => 'Note: use your secret API key, not your publishable API key.',
   'gateway_help_27' => ':link to sign up for TwoCheckout.',
 
+  'timesheets' => 'Timesheets',
 );

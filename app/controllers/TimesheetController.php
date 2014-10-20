@@ -9,7 +9,14 @@ class TimesheetController extends \BaseController {
 	 */
 	public function index()
 	{
-		//
+        $data = [
+            'showBreadcrumbs' => false,
+            'timesheet' => [
+                'timesheet_number' => 1
+            ]
+        ];
+        
+		return View::make('timesheets.edit', $data);
 	}
 
 
