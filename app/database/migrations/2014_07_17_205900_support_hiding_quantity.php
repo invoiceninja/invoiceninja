@@ -26,11 +26,11 @@ class SupportHidingQuantity extends Migration {
 
 		Schema::table('invoices', function($table)
 		{
-			$table->decimal('custom_value1', 13, 2);
-			$table->decimal('custom_value2', 13, 2);
+			$table->decimal('custom_value1', 13, 2)->default(0);
+			$table->decimal('custom_value2', 13, 2)->default(0);
 
-			$table->boolean('custom_taxes1');
-			$table->boolean('custom_taxes2');			
+			$table->boolean('custom_taxes1')->default(0);
+			$table->boolean('custom_taxes2')->default(0);			
 		});		
 	}
 

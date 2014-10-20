@@ -31,7 +31,7 @@ class Utils
 	{
 		return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'];
 	}
-        
+
 	public static function isPro()
 	{
 		return Auth::check() && Auth::user()->isPro();
@@ -46,6 +46,16 @@ class Utils
 		}
 	}
 
+	public static function getDemoAccountId()
+	{
+		return isset($_ENV[DEMO_ACCOUNT_ID]) ? $_ENV[DEMO_ACCOUNT_ID] : false;
+	}
+
+	public static function isDemo()
+	{
+		return Auth::check() && Auth::user()->isDemo();
+	}
+        
 	public static function getNewsFeedResponse($userType = false) 
 	{
 		if (!$userType) {

@@ -1,7 +1,6 @@
 <?php
 
 use ninja\repositories\ClientRepository;
-use Client;
 
 class ClientApiController extends Controller {
 

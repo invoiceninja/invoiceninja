@@ -357,7 +357,7 @@ class InvoiceController extends \BaseController {
 			}
 			else if ($action == 'email') 
 			{	
-				if (Auth::user()->confirmed)
+				if (Auth::user()->confirmed && !Auth::user()->isDemo())
 				{
 					$message = trans("texts.emailed_{$entityType}");
 					$this->mailer->sendInvoice($invoice);

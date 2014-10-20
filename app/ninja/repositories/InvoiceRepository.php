@@ -207,7 +207,7 @@ class InvoiceRepository
 		$invoice->client_id = $data['client_id'];
 		$invoice->discount = Utils::parseFloat($data['discount']);
 		$invoice->invoice_number = trim($data['invoice_number']);
-		$invoice->is_recurring = $data['is_recurring'] ? true : false;
+		$invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
     $invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
       
     if ($invoice->is_recurring)
@@ -336,8 +336,8 @@ class InvoiceRepository
 
       $invoiceItem = InvoiceItem::createNew();
       $invoiceItem->product_id = isset($product) ? $product->id : null;
-      $invoiceItem->product_key = trim($item->product_key);
-      $invoiceItem->notes = trim($item->notes);
+      $invoiceItem->product_key = trim($invoice->is_recurring ? $item->product_key : Utils::processVariables($item->product_key));
+      $invoiceItem->notes = trim($invoice->is_recurring ? $item->notes : Utils::processVariables($item->notes));
       $invoiceItem->cost = Utils::parseFloat($item->cost);
       $invoiceItem->qty = Utils::parseFloat($item->qty);
       $invoiceItem->tax_rate = 0;
@@ -367,7 +367,7 @@ class InvoiceRepository
 
     $clone = Invoice::createNew($invoice);
     $clone->balance = $invoice->amount;
-    $clone->invoice_number = $invoice->account->getNextInvoiceNumber($invoice->is_quote);
+    $clone->invoice_number = $invoice->account->getNextInvoiceNumber();
 
     foreach ([
       'client_id',       
