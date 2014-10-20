@@ -2,7 +2,7 @@
 
 class Gateway extends Eloquent
 {
-	public $timestamps = false;
+	public $timestamps = true;
 	protected $softDelete = false;	
 
 	public function paymentlibrary()
