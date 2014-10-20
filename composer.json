@@ -11,7 +11,7 @@
 	],
 	"require": {
 		"laravel/framework": "4.1.25",
-		"patricktalmadge/bootstrapper": "dev-develop",
+		"patricktalmadge/bootstrapper": "4.1.x",
 		"zizaco/confide": "3.1.x",
 		"anahkiasen/former": "3.4.x",
 		"barryvdh/laravel-debugbar": "dev-master",
