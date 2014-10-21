@@ -274,11 +274,17 @@ class AccountController extends \BaseController {
 				$invoiceItem = new stdClass();				
 
 				$client->name = 'Sample Client';
+				$client->address1 = '';
+				$client->city = '';
+				$client->state = '';
+				$client->postal_code = '';
+				$client->work_phone = '';
+				$client->work_email = '';
 
 				$invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber();
 				$invoice->invoice_date = date_create()->format('Y-m-d');
 				$invoice->account = Auth::user()->account;				
-				$invoice->amount = $invoice->balance = 100;
+				$invoice->amount = $invoice->balance = 100;				
 
 				$invoiceItem->cost = 100;
 				$invoiceItem->qty = 1;
