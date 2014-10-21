@@ -4,7 +4,7 @@
 <section class="hero background hero-features center" data-speed="2" data-type="background">
   <div class="container">
     <div class="row">
-      <h1><img src="{{ asset('images/icon-features.png') }}"><span class="thin">THE</span> FEATURES</h1>
+      <h1><img src="{{ asset('images/icon-features.png') }}">{{ trans('public.features.header') }}</h1>
     </div>
   </div>
 </section>
@@ -15,14 +15,10 @@
       <div class="col-md-5 valign">
 
         <div class="headline">
-          <div class="icon open"><span class="img-wrap"><img src="{{ asset('images/icon-opensource.png') }}"></span></div><h2>Open Source Platform</h2>
+          <div class="icon open"><span class="img-wrap"><img src="{{ asset('images/icon-opensource.png') }}"></span></div><h2>{{ trans('public.features.open_source') }}</h2>
         </div>
-        <p class="first">Set the code free! Here at Invoice Ninja, we’re all about creating the best possible app, and inviting scrutiny via full code transparency is a central manifestation of this value.</p>
-        <p>Our users started seeing the benefits of open source within days of our launch, when we rolled out v1.0.2, which included some key code improvements that our friends on GitHub sent our way.
-        </p>
-        <p>We firmly believe that being an open source product helps everyone involved. We’re looking forward to seeing what the developers out there can do to take Invoice Ninja into new realms of usefulness.</p>
-
-
+        <p class="first">{{ trans('public.features.open_source_text1') }}</p>
+        <p>{{ trans('public.features.open_source_text2') }}</p>        
       </div>
       <div class="col-md-7">
         <img src="{{ asset('images/features1.jpg') }}">
@@ -41,10 +37,10 @@
       <div class="col-md-5 valign">
 
         <div class="headline">
-          <div class="icon free"><span class="img-wrap"><img src="{{ asset('images/icon-free2.png') }}"></span></div><h2>FREE. Forever.</h2>
+          <div class="icon free"><span class="img-wrap"><img src="{{ asset('images/icon-free2.png') }}"></span></div><h2>{{ trans('public.features.free_forever') }}</h2>
         </div>
-        <p class="first">Yeah, you read that correctly. You don’t have to pay us a cent to use our tools. We know how tough it is to make ends meet as a web-based business, and we’re bent on providing a top-notch product that will do everything you need it to do, without any subscription or opt-in fees. </p>
-        <p>Try Invoice Ninja out. You literally have nothing to lose. We’re confident that you’ll find the experience so positive that you’ll never need to turn elsewhere.</p>      
+        <p class="first">{{ trans('public.features.free_forever_text1') }}</p>
+        <p>{{ trans('public.features.free_forever_text2') }}</p>      
       </div>
 
     </div>
@@ -56,10 +52,10 @@
       <div class="col-md-5">
 
         <div class="headline">
-          <div class="icon secure"><span class="img-wrap"><img src="{{ asset('images/icon-secure.png') }}"></span></div><h2>Secure & Private</h2>
+          <div class="icon secure"><span class="img-wrap"><img src="{{ asset('images/icon-secure.png') }}"></span></div><h2>{{ trans('public.features.secure') }}</h2>
         </div>
-        <p class="first">Invoice Ninja has been built from the ground up to keep your data safe. Only you have access to your login & accounting details, & we will never share your transaction data to any third party.</p>
-        <p>Our website operates with 256-bit encryption, which is even more secure than most banking websites. Invoice Ninja uses the TLS 1.0 cryptographic protocol, AES_256_CBC string encryption, SHA1 message authentication and DHE_RSA key exchanges. We feel safe here and have invested heavily in measures to ensure that you do too.</p>
+        <p class="first">{{ trans('public.features.secure_text1') }}</p>
+        <p>{{ trans('public.features.secure_text2') }}</p>
 
       </div>
       <div class="col-md-7 valign">
@@ -76,11 +72,11 @@
       </div>
       <div class="col-md-5 valign">
         <div class="headline">
-          <div class="icon pdf"><span class="img-wrap"><img src="{{ asset('images/icon-pdf.png') }}"></span></div><h2>Live .PDF View</h2>
+          <div class="icon pdf"><span class="img-wrap"><img src="{{ asset('images/icon-pdf.png') }}"></span></div><h2>{{ trans('public.features.live_pdf') }}</h2>
         </div>
-        <p class="first">With Invoice Ninja, we’ve done away with the need for cumbersome multi-click invoice previewing after each save.</p>
-        <p>When you enter the details of your customer and/or invoice in our editor, you can instantly see the results in the pdf preview pane below. Want to see what your invoice would look like in a different layout style? The live pdf can show you four beautiful preset styles in real time too.
-        </p><p><i>Just create, save, send, and you’re done!</i></p>
+        <p class="first">{{ trans('public.features.live_pdf_text1') }}</p>
+        <p>{{ trans('public.features.live_pdf_text2') }}</p>
+        <p><i>{{ trans('public.features.live_pdf_text3') }}</i></p>
 
       </div>
     </div>
@@ -91,10 +87,10 @@
     <div class="row">
       <div class="col-md-5 valign">
         <div class="headline">
-          <div class="icon pay"><span class="img-wrap"><img src="{{ asset('images/icon-payment.png') }}"></span></div><h2>Online Payments</h2>
+          <div class="icon pay"><span class="img-wrap"><img src="{{ asset('images/icon-payment.png') }}"></span></div><h2>{{ trans('public.features.online_payments') }}</h2>
         </div>
-        <p class="first">Invoice Ninja seamlessly integrates with all of the top internet payment processors and gateways so you can get paid for your work quickly and easily.</p>
-        <p>Invoices created with our tools aren’t just for bookkeeping purposes - they bring in the Benjamins. We also make it super easy to choose the right gateway for the specific needs of your business and are happy to help you to get started working with the gateway of your choice. What’s more, we’re constantly working on rolling out additional gateway integrations, so if you don’t see the one you use here, just let us know, and there’s a good chance we’ll add it for you. </p>
+        <p class="first">{{ trans('public.features.online_payments_text1') }}</p>
+        <p>{{ trans('public.features.online_payments_text2') }}</p>
       </div>
       <div class="col-md-7">
         <img src="{{ asset('images/features5.jpg') }}">
@@ -106,12 +102,12 @@
   <div class="container">
     <div class="row">
       <div class="col-md-4">
-        <h2 class="thin">Like what you see?</h2>
+        <h2 class="thin">{{ trans('public.features.footer') }}</h2>
       </div>
       <div class="col-md-4">
         <a href="#">
           <div class="cta">
-            <h2 onclick="return getStarted()">Get started today!</h2>
+            <h2 onclick="return getStarted()">{{ trans('public.features.footer_action') }}</h2>
           </div>
         </a>
       </div>

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Invoice Ninja | {{ isset($title) ? $title : ' Free Open-Source Online Invoice Software' }}</title> 
-    <meta name="description" content="{{ isset($description) ? $description : 'Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.' }}"></meta>
+    <title>Invoice Ninja | {{ isset($title) ? $title : ' ' . trans('public.title') }}</title> 
+    <meta name="description" content="{{ isset($description) ? $description : trans('public.description') }}"></meta>
 
     <!-- Source: https://github.com/hillelcoren/invoice-ninja -->
     <!-- Version: {{ NINJA_VERSION }} -->
