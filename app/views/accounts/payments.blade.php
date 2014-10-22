@@ -3,7 +3,7 @@
 @section('content')	
 	@parent	
 
-	{{ Former::open()->addClass('col-md-8 col-md-offset-2 warn-on-exit') }}	
+	{{ Former::open()->rule()->addClass('col-md-8 col-md-offset-2 warn-on-exit') }}	
 	{{ Former::populate($account) }}
 
 	{{ Former::legend('Payment Gateway') }}
@@ -11,22 +11,32 @@
 	@if ($accountGateway)
 		{{ Former::populateField('gateway_id', $accountGateway->gateway_id) }}
 		{{ Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) }}
-		@foreach ($accountGateway->fields as $field => $junk)
-			@if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
-				{{-- do nothing --}}
-			@else
-				{{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}
-			@endif
-		@endforeach
+		@if ($config)
+			@foreach ($accountGateway->fields as $field => $junk)
+				@if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
+					{{-- do nothing --}}
+				@else
+					{{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}
+				@endif
+			@endforeach
+		@endif
 	@endif
+    
+  <div class="two-column">
+		{{ Former::checkboxes('creditCardTypes[]')->label('Accepted Credit Cards')
+				->checkboxes($creditCardTypes)->class('creditcard-types')
+		}}
+	</div>
+
+	<p/>&nbsp;<p/>
 	
 	<div class="two-column">
-	{{ Former::radios('recommendedGateway_id')->label('Recommended Gateways')
+	{{ Former::radios('recommendedGateway_id')->label('Recommended Gateway')
 			->radios($recommendedGateways)->class('recommended-gateway')
 	}}
 	</div>
 
-	{{ Former::select('gateway_id')->label('PayPal & Other Gateways')->addOption('', '')
+	{{ Former::select('gateway_id')->label('Select Gateway')->addOption('', '')
 		->dataClass('gateway-dropdown')
 		->fromQuery($dropdownGateways, 'name', 'id')
 		->onchange('setFieldsShown()'); }}
@@ -47,9 +57,20 @@
 				@endif
 
 			@endforeach
+
+			@if($gateway->getHelp())
+				<div class="form-group">
+					<label class="control-label col-lg-4 col-sm-4"></label>
+					<div class="col-lg-8 col-sm-8">
+						{{ $gateway->getHelp() }}		
+					</div>
+				</div>					
+			@endif
 		</div>
 		
 	@endforeach
+
+	<p/>&nbsp;<p/>
 
 	{{ Former::actions( Button::lg_success_submit('Save')->append_with_icon('floppy-disk') ) }}
 	{{ Former::close() }}
@@ -74,8 +95,10 @@
 	}
 
 	function gatewayLink(url) {
-		//if (url.match('authorize'))
-		openUrl(url, '/affiliate/' + new URL(url).hostname);
+		var host = new URL(url).hostname;
+		if (host) {
+			openUrl(url, '/affiliate/' + host);
+		}
 	}
 
 	$(document).ready(function() {
@@ -101,6 +124,13 @@
 			contents[contents.length - 1].nodeValue = '';
 			$(this).after('<img src="' +$(this).attr('data-imageUrl') + '" /><br />');
 			$(this).parent().children().last().after('<a href="#" onclick="gatewayLink(\'' + $(this).attr('data-siteUrl') + '\')">Create an account</a>');
+		});
+        
+    // TODO: THIS IS JUST TO SHOW THE IMAGES, STYLE IS SET INLINE STYLE
+    $('.creditcard-types').each(function(){
+			var contents = $(this).parent().contents();
+			contents[contents.length - 1].nodeValue = '';
+			$(this).after('<img style="width: 60px; display: inline;" src="' +$(this).attr('data-imageUrl') + '" /><br />');
 		});
 		
 

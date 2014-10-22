@@ -11,11 +11,12 @@
 /bootstrap/compiled.php
 /bootstrap/environment.php
 /vendor
-/.env.development.php
 /.DS_Store
 /Thumbs.db
 /ninja.sublime-project
 /ninja.sublime-workspace
 /tests/_log
+.env.development.php
 .idea
 .project
+/nbproject/private/

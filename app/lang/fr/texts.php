@@ -333,10 +333,17 @@ return array(
   'updated_product' => 'Successfully updated product',
   'created_product' => 'Successfully created product',
   'archived_product' => 'Successfully archived product',
+  'pro_plan_custom_fields' => ':link to enable custom fields by joining the Pro Plan',
+
+  'advanced_settings' => 'Advanced Settings',
+  'pro_plan_advanced_settings' => ':link to enable the advanced settings by joining the Pro Plan',
+  'invoice_design' => 'Invoice Design',
+  'specify_colors' => 'Specify colors',
+  'specify_colors_label' => 'Select the colors used in the invoice',
 
   'chart_builder' => 'Chart Builder',
   'ninja_email_footer' => 'Use :site to invoice your clients and get paid online for free!',
-
+  'go_pro' => 'Go Pro',
 
   // Quotes
   'quote' => 'Quote',
@@ -360,6 +367,7 @@ return array(
   'convert_to_invoice' => 'Convert to Invoice',
   'view_invoice' => 'View Invoice',
   'view_quote' => 'View Quote',
+  'view_client' => 'View Client',
 
   'updated_quote' => 'Successfully updated quote',
   'created_quote' => 'Successfully created quote',
@@ -378,5 +386,55 @@ return array(
   'notification_quote_viewed_subject' => 'Quote :invoice was viewed by :client',
   'notification_quote_sent' => 'The following client :client was emailed Quote :invoice for :amount.',
   'notification_quote_viewed' => 'The following client :client viewed Quote :invoice for :amount.',  
+
+  'session_expired' => 'Your session has expired.',
+
+  'invoice_fields' => 'Invoice Fields',
+  'invoice_options' => 'Invoice Options',
+  'hide_quantity' => 'Hide quantity',
+  'hide_quantity_help' => 'If your line items quantities are always 1, then you can declutter invoices by no longer displaying this field.',
+  'hide_paid_to_date' => 'Hide paid to date',
+  'hide_paid_to_date_help' => 'Only display the "Paid to Date" area on your invoices once a payment has been received.',
+
+  'charge_taxes' => 'Charge taxes',
+  'user_management' => 'User Management',
+  'add_user' => 'Add User',
+  'send_invite' => 'Send invitation',
+  'sent_invite' => 'Successfully sent invitation',
+  'updated_user' => 'Successfully updated user',
+  'invitation_message' => 'You\'ve been invited by :invitor. ',
+  'register_to_add_user' => 'Please sign up to add a user',
+  'user_state' => 'State',
+  'edit_user' => 'Edit User',
+  'delete_user' => 'Delete User',
+  'active' => 'Active',
+  'pending' => 'Pending',
+  'deleted_user' => 'Successfully deleted user',
+  'limit_users' => 'Sorry, this will exceed the limit of ' . MAX_NUM_USERS . ' users',
+
+  'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
+  'confirm_email_quote' => 'Are you sure you want to email this quote?',
+  'confirm_recurring_email_invoice' => 'Recurring is enabled, are you sure you want this invoice emailed?',
+
+  'cancel_account' => 'Cancel Account',
+  'cancel_account_message' => 'Warning: This will permanently erase all of your data, there is no undo.',
+  'go_back' => 'Go Back',
+
+  'data_visualizations' => 'Data Visualizations',
+  'sample_data' => 'Sample data shown',
+  'hide' => 'Hide',
+  'new_version_available' => 'A new version of :releases_link is available. You\'re running v:user_version, the latest is v:latest_version',
+    
+
+  'invoice_settings' => 'Invoice Settings',
+  'invoice_number_prefix' => 'Invoice Number Prefix',
+  'invoice_number_counter' => 'Invoice Number Counter',
+  'quote_number_prefix' => 'Quote Number Prefix',
+  'quote_number_counter' => 'Quote Number Counter',
+  'share_invoice_counter' => 'Share invoice counter',
+  'invoice_issued_to' => 'Invoice issued to',
+  'invalid_counter' => 'To prevent a possible conflict please set either an invoice or quote number prefix',
+  'mark_sent' => 'Mark sent',    
+  
   
 );

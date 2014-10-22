@@ -22,7 +22,7 @@ class ClientController extends \BaseController {
 	{
 		return View::make('list', array(
 			'entityType'=>ENTITY_CLIENT, 
-			'title' => '- Clients',
+			'title' => trans('texts.clients'),
 			'columns'=>Utils::trans(['checkbox', 'client', 'contact', 'email', 'date_created', 'last_login', 'balance', 'action'])
 		));		
 	}
@@ -99,7 +99,7 @@ class ClientController extends \BaseController {
 			'showBreadcrumbs' => false,
 			'client' => $client,
 			'credit' => $client->getTotalCredit(),
-			'title' => '- ' . $client->getDisplayName(),
+			'title' => trans('texts.view_client'),
 			'hasRecurringInvoices' => Invoice::scope()->where('is_recurring', '=', true)->whereClientId($client->id)->count() > 0
 		);
 
@@ -115,14 +115,14 @@ class ClientController extends \BaseController {
 	{		
 		if (Client::scope()->count() > Auth::user()->getMaxNumClients())
 		{
-			return View::make('error', ['error' => "Sorry, you've exceeded the limit of " . Auth::user()->getMaxNumClients() . " clients"]);
+			return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of " . Auth::user()->getMaxNumClients() . " clients"]);
 		}
 
 		$data = [
 			'client' => null, 
 			'method' => 'POST', 
 			'url' => 'clients', 
-			'title' => '- New Client'
+			'title' => trans('texts.new_client')
 		];
 
 		$data = array_merge($data, self::getViewModel());	
@@ -142,7 +142,7 @@ class ClientController extends \BaseController {
 			'client' => $client, 
 			'method' => 'PUT', 
 			'url' => 'clients/' . $publicId, 
-			'title' => '- ' . $client->name
+			'title' => trans('texts.edit_client')
 		];
 
 		$data = array_merge($data, self::getViewModel());			
@@ -154,7 +154,7 @@ class ClientController extends \BaseController {
 		return [		
 			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'customLabel1' => Auth::user()->account->custom_client_label1,
@@ -207,12 +207,12 @@ class ClientController extends \BaseController {
 			$client->city = trim(Input::get('city'));
 			$client->state = trim(Input::get('state'));
 			$client->postal_code = trim(Input::get('postal_code'));			
-			$client->country_id = Input::get('country_id') ? Input::get('country_id') : null;
+			$client->country_id = Input::get('country_id') ? : null;
 			$client->private_notes = trim(Input::get('private_notes'));
-			$client->size_id = Input::get('size_id') ? Input::get('size_id') : null;
-			$client->industry_id = Input::get('industry_id') ? Input::get('industry_id') : null;
-			$client->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1;
-			$client->payment_terms = Input::get('payment_terms');
+			$client->size_id = Input::get('size_id') ? : null;
+			$client->industry_id = Input::get('industry_id') ? : null;
+			$client->currency_id = Input::get('currency_id') ? : 1;
+			$client->payment_terms = Input::get('payment_terms') ? : 0;
 			$client->website = trim(Input::get('website'));
 
 			$client->save();

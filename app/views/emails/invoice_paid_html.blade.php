@@ -10,7 +10,7 @@
   {{ trans("texts.notification_{$entityType}_paid", ['amount' => $paymentAmount, 'client' => $clientName, 'invoice' => $invoiceNumber]) }} <p/>
 
   {{ trans("texts.{$entityType}_link_message") }} <br/>
-  {{ $invoiceLink }} <p/>
+  <a href="{{ $invoiceLink }}">{{ $invoiceLink }}</a><p/>  
     
   {{ trans('texts.email_signature') }} <br/>
   {{ trans('texts.email_from') }} <p/>

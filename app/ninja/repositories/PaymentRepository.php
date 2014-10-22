@@ -20,7 +20,7 @@ class PaymentRepository
                     ->where('contacts.is_primary', '=', true)   
                     ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type', 'payments.account_gateway_id');        
 
-        if (!\Session::get('show_trash'))
+        if (!\Session::get('show_trash:payment'))
         {
             $query->where('payments.deleted_at', '=', null);
         }
@@ -76,11 +76,13 @@ class PaymentRepository
         }
 
         $paymentTypeId = $input['payment_type_id'] ? $input['payment_type_id'] : null;
+        $clientId = Client::getPrivateId($input['client']);
         $amount = Utils::parseFloat($input['amount']);
 
         if ($paymentTypeId == PAYMENT_TYPE_CREDIT)
         {
-            $credits = Credit::scope()->where('balance', '>', 0)->orderBy('created_at')->get();            
+            $credits = Credit::scope()->where('client_id', '=', $clientId)
+                        ->where('balance', '>', 0)->orderBy('created_at')->get();            
             $applied = 0;
 
             foreach ($credits as $credit)
@@ -94,7 +96,7 @@ class PaymentRepository
             }
         }
 
-        $payment->client_id = Client::getPrivateId($input['client']);
+        $payment->client_id = $clientId;
         $payment->invoice_id = isset($input['invoice']) && $input['invoice'] != "-1" ? Invoice::getPrivateId($input['invoice']) : null;
         $payment->payment_type_id = $paymentTypeId;
         $payment->payment_date = Utils::toSqlDate($input['payment_date']);
@@ -112,7 +114,7 @@ class PaymentRepository
             return 0;
         }
 
-        $payments = Payment::scope($ids)->get();
+        $payments = Payment::withTrashed()->scope($ids)->get();
 
         foreach ($payments as $payment) 
         {            

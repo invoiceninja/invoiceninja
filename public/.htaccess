@@ -5,4 +5,7 @@
 	RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=REMOTE_USER:%{HTTP:Authorization}]
 </IfModule>

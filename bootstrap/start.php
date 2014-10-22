@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 require_once 'google/appengine/api/app_identity/AppIdentityService.php';
 use \google\appengine\api\app_identity\AppIdentityService;
@@ -31,6 +30,14 @@ if (!function_exists('gethostname')) {
     function gethostname() {
         return php_uname('n');
     }
+}
+
+// Fortrabbit HTTP AUTH CODE
+if (!empty($_SERVER['REMOTE_USER'])) {
+    list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(
+        ':',
+        base64_decode(substr($_SERVER['REMOTE_USER'], 6))
+    );
 }
 
 
@@ -125,5 +132,9 @@ require $framework.'/Illuminate/Foundation/start.php';
 | from the actual running of the application and sending responses.
 |
 */
+
+// http://stackoverflow.com/questions/20293116/override-http-headers-default-settings-x-frame-options
+App::forgetMiddleware('Illuminate\Http\FrameGuard');
+
 
 return $app;

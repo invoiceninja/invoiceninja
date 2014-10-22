@@ -51,7 +51,7 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 	 * @return mixed
 	 */
 	public function getAuthIdentifier()
-	{
+	{		
 		return $this->getKey();
 	}
 
@@ -78,6 +78,11 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 	public function isPro()
 	{
 		return $this->account->isPro();
+	}
+
+	public function isDemo()
+	{
+		return $this->account->id == Utils::getDemoAccountId();
 	}
 
 	public function getDisplayName()
@@ -127,6 +132,7 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 		}
 
 		$count = self::getRequestsCount();
+		
 		if ($count == 1 || $count % 5 == 0)
 		{
 			if (!Utils::isRegistered())
@@ -172,5 +178,5 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 	public function getRememberTokenName()
 	{
 	    return 'remember_token';
-	}	
+	}
 }

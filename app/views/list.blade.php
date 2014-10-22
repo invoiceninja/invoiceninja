@@ -5,6 +5,7 @@
 	{{ Former::open($entityType . 's/bulk')->addClass('listForm') }}
 	<div style="display:none">
 		{{ Former::text('action') }}
+		{{ Former::text('statusId') }}
 		{{ Former::text('id') }}
 	</div>
 
@@ -19,7 +20,7 @@
 	
 	&nbsp;<label for="trashed" style="font-weight:normal; margin-left: 10px;">
 		<input id="trashed" type="checkbox" onclick="setTrashVisible()" 
-			{{ Session::get('show_trash') ? 'checked' : ''}}/> {{ trans('texts.show_archived_deleted')}} {{ strtolower(trans('texts.'.$entityType.'s')) }}
+			{{ Session::get("show_trash:{$entityType}") ? 'checked' : ''}}/> {{ trans('texts.show_archived_deleted')}} {{ strtolower(trans('texts.'.$entityType.'s')) }}
 	</label>
 
 	<div id="top_right_buttons" class="pull-right">
@@ -48,7 +49,7 @@
 
 	function submitForm(action) {
 		if (action == 'delete') {
-			if (!confirm('Are you sure')) {
+			if (!confirm('Are you sure?')) {
 				return;
 			}
 		}		
@@ -65,6 +66,12 @@
 	function archiveEntity(id) {
 		$('#id').val(id);
 		submitForm('archive');
+	}
+
+	function markEntity(id, statusId) {
+		$('#id').val(id);
+		$('#statusId').val(statusId);
+		submitForm('mark');
 	}
 
 	function setTrashVisible() {

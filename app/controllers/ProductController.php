@@ -26,7 +26,8 @@ class ProductController extends \BaseController {
             <li><a href="' . URL::to('products/'.$model->public_id) . '/archive">'.uctrans('texts.archive_product').'</a></li>
           </ul>
         </div>';
-      })         
+      })       
+      ->orderColumns(['cost', 'product_key', 'cost'])
       ->make();           
   }
 

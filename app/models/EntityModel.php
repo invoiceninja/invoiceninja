@@ -5,16 +5,16 @@ class EntityModel extends Eloquent
 	protected $softDelete = true;
 	public $timestamps = true;
 	
-	protected $hidden = ['id', 'created_at', 'deleted_at', 'updated_at'];
+	protected $hidden = ['id'];
 
 	public static function createNew($parent = false)
 	{		
 		$className = get_called_class();
 		$entity = new $className();
 		
-		if ($parent) 
+		if ($parent)
 		{
-			$entity->user_id = $parent->user_id;
+			$entity->user_id = $parent instanceof User ? $parent->id : $parent->user_id;
 			$entity->account_id = $parent->account_id;
 		} 
 		else if (Auth::check()) 

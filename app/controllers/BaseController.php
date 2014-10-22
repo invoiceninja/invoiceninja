@@ -17,6 +17,6 @@ class BaseController extends Controller {
 
 	public function __construct()
 	{
-	    $this->beforeFilter('csrf', array('on' => array('post', 'delete', 'put')));
+	  $this->beforeFilter('csrf', array('on' => array('post', 'delete', 'put')));
 	}
 }

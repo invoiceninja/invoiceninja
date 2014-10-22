@@ -30,7 +30,7 @@ class QuoteController extends \BaseController {
     }
 
     $data = [
-      'title' => '- Quotes',
+      'title' => trans('texts.quotes'),
       'entityType'=>ENTITY_QUOTE, 
       'columns'=>Utils::trans(['checkbox', 'quote_number', 'client', 'quote_date', 'quote_total', 'due_date', 'status', 'action'])
     ];
@@ -60,7 +60,7 @@ class QuoteController extends \BaseController {
     }
 
     $client = null;
-    $invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
+    $invoiceNumber = Auth::user()->account->getNextInvoiceNumber(true);
     $account = Account::with('country')->findOrFail(Auth::user()->account_id);
 
     if ($clientPublicId) 
@@ -75,7 +75,7 @@ class QuoteController extends \BaseController {
         'invoiceNumber' => $invoiceNumber,
         'method' => 'POST', 
         'url' => 'invoices',
-        'title' => '- New Quote',
+        'title' => trans('texts.new_quote'),
         'client' => $client);
     $data = array_merge($data, self::getViewModel());       
 
@@ -94,7 +94,7 @@ class QuoteController extends \BaseController {
       'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
       'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
       'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-      'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),        
+      'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),        
       'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
       'invoiceLabels' => Auth::user()->account->getInvoiceLabels()
     ];

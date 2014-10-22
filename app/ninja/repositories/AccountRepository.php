@@ -147,7 +147,7 @@ class AccountRepository
 		return $invoice;
 	}
 
-	private function getNinjaAccount()
+	public function getNinjaAccount()
 	{
 		$account = Account::whereAccountKey(NINJA_ACCOUNT_KEY)->first();
 

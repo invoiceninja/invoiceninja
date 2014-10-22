@@ -22,7 +22,7 @@ class CreditRepository
 	        $query->where('clients.public_id', '=', $clientPublicId);
 	    }
 
-        if (!\Session::get('show_trash'))
+        if (!\Session::get('show_trash:credit'))
         {
             $query->where('credits.deleted_at', '=', null);
         }
@@ -66,7 +66,7 @@ class CreditRepository
             return 0;
         }
 
-       	$credits = Credit::scope($ids)->get();
+       	$credits = Credit::withTrashed()->scope($ids)->get();
 
         foreach ($credits as $credit) 
         {

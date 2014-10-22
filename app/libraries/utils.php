@@ -24,7 +24,7 @@ class Utils
 
 	public static function isNinjaProd()
 	{
-		return $_SERVER['SERVER_NAME'] == 'www.invoiceninja.com';
+		return isset($_ENV['NINJA_PROD']) && $_ENV['NINJA_PROD'];		
 	}
 
 	public static function isNinjaDev()
@@ -35,6 +35,39 @@ class Utils
 	public static function isPro()
 	{
 		return Auth::check() && Auth::user()->isPro();
+	}
+
+	public static function getUserType()
+	{
+		if (Utils::isNinja()) {
+			return USER_TYPE_CLOUD_HOST;
+		} else {
+			return USER_TYPE_SELF_HOST;
+		}
+	}
+
+	public static function getDemoAccountId()
+	{
+		return isset($_ENV[DEMO_ACCOUNT_ID]) ? $_ENV[DEMO_ACCOUNT_ID] : false;
+	}
+
+	public static function isDemo()
+	{
+		return Auth::check() && Auth::user()->isDemo();
+	}
+        
+	public static function getNewsFeedResponse($userType = false) 
+	{
+		if (!$userType) {
+			$userType = Utils::getUserType();
+		}
+
+		$response = new stdClass;
+		$response->message = isset($_ENV["{$userType}_MESSAGE"]) ? $_ENV["{$userType}_MESSAGE"] : '';
+		$response->id = isset($_ENV["{$userType}_ID"]) ? $_ENV["{$userType}_ID"] : '';
+		$response->version = NINJA_VERSION;
+	
+		return $response;
 	}
 
 	public static function getProLabel($feature)
@@ -84,8 +117,9 @@ class Utils
 
 		static::logError($message . ' ' . $exception);		
 
-		$data = [
-			'showBreadcrumbs' => false
+		$data = [		
+			'showBreadcrumbs' => false,
+			'hideHeader' => true
 		];
 
 		return View::make('error', $data)->with('error', $message);
@@ -138,6 +172,19 @@ class Utils
 	        $lastFour = substr($phoneNumber, -4, 4);
 
 	        $phoneNumber = '+'.$countryCode.' ('.$areaCode.') '.$nextThree.'-'.$lastFour;
+	    }
+	    else if(strlen($phoneNumber) == 10 && in_array(substr($phoneNumber, 0, 3), array(653, 656, 658, 659))) {
+	        /**
+	         * SG country code are 653, 656, 658, 659
+	         * US area code consist of 650, 651 and 657
+	         * @see http://en.wikipedia.org/wiki/Telephone_numbers_in_Singapore#Numbering_plan
+	         * @see http://www.bennetyee.org/ucsd-pages/area.html
+	         */
+	        $countryCode = substr($phoneNumber, 0, 2);
+	        $nextFour = substr($phoneNumber, 2, 4);
+	        $lastFour = substr($phoneNumber, 6, 4);
+
+	        $phoneNumber = '+'.$countryCode.' '.$nextFour.' '.$lastFour;
 	    }
 	    else if(strlen($phoneNumber) == 10) {
 	        $areaCode = substr($phoneNumber, 0, 3);
@@ -440,5 +487,96 @@ class Utils
 		}
 
 		return $message;
+	}
+
+	public static function generateLicense() {
+		$parts = [];
+		for ($i=0; $i<5; $i++) {
+			$parts[] = strtoupper(str_random(4));
+		}
+		return join('-', $parts);
+	}
+
+	public static function lookupEventId($eventName) 
+	{
+		if ($eventName == 'create_client') {
+			return EVENT_CREATE_CLIENT;
+		} else if ($eventName == 'create_invoice') {
+			return EVENT_CREATE_INVOICE;
+		} else if ($eventName == 'create_quote') {
+			return EVENT_CREATE_QUOTE;
+		} else if ($eventName == 'create_payment') {
+			return EVENT_CREATE_PAYMENT;
+		} else {
+			return false;
+		}
+	}
+
+	public static function notifyZapier($subscription, $data) {
+    $curl = curl_init();
+
+		$jsonEncodedData = json_encode($data->toJson());
+		$opts = [
+	    CURLOPT_URL => $subscription->target_url,
+	    CURLOPT_RETURNTRANSFER => true,
+	    CURLOPT_CUSTOMREQUEST => 'POST',
+	    CURLOPT_POST => 1,
+	    CURLOPT_POSTFIELDS => $jsonEncodedData,
+	    CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: ' . strlen($jsonEncodedData)]
+		];
+
+    curl_setopt_array($curl, $opts);
+    
+    $result = curl_exec($curl);
+    $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+    curl_close($curl);
+
+    if ($status == 410)
+    {
+    	$subscription->delete();
+    }
+	}
+
+	public static function remapPublicIds($data) {
+    foreach ($data as $index => $record) {
+    	if (!isset($data[$index]['public_id'])) {
+    		continue;
+    	}
+      $data[$index]['id'] = $data[$index]['public_id'];
+      unset($data[$index]['public_id']);
+
+      foreach ($record as $key => $val) {
+      	if (is_array($val)) {      		
+      		$data[$index][$key] = Utils::remapPublicIds($val);
+      	}
+      }
+    }
+    return $data;
+	}
+
+	public static function getApiHeaders($count = 0) {
+    return [
+      'Content-Type' => 'application/json',
+      //'Access-Control-Allow-Origin' => '*',
+      //'Access-Control-Allow-Methods' => 'GET',
+      //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',      
+      //'Access-Control-Allow-Credentials' => 'true',
+      'X-Total-Count' => $count,
+      //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
+      //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
+      //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
+    ];
 	}	
+
+	public static function startsWith($haystack, $needle)
+	{
+    return $needle === "" || strpos($haystack, $needle) === 0;
+	}
+
+	public static function endsWith($haystack, $needle)
+	{
+    return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
+	}
+	
 }

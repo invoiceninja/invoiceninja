@@ -7,6 +7,11 @@ class Invoice extends EntityModel
 		return $this->belongsTo('Account');
 	}
 
+	public function user()
+	{
+		return $this->belongsTo('User');
+	}	
+
 	public function client()
 	{
 		return $this->belongsTo('Client')->withTrashed();
@@ -20,6 +25,11 @@ class Invoice extends EntityModel
 	public function invoice_status()
 	{
 		return $this->belongsTo('InvoiceStatus');
+	}
+
+	public function invoice_design()
+	{
+		return $this->belongsTo('InvoiceDesign');
 	}
 
 	public function invitations()
@@ -62,7 +72,6 @@ class Invoice extends EntityModel
 		$this->setVisible([
 			'invoice_number', 
 			'discount', 
-			'shipping',
 			'po_number', 
 			'invoice_date', 
 			'due_date', 
@@ -75,9 +84,14 @@ class Invoice extends EntityModel
 			'tax_name', 
 			'tax_rate', 
 			'account', 
+			'invoice_design',
 			'invoice_design_id',
 			'is_pro',
-			'is_quote']);
+			'is_quote',
+			'custom_value1',
+			'custom_value2',
+			'custom_taxes1',
+			'custom_taxes2']);
 		
 		$this->client->setVisible([
 			'name', 
@@ -112,7 +126,11 @@ class Invoice extends EntityModel
 			'custom_client_label1',
 			'custom_client_label2',
 			'primary_color',
-			'secondary_color']);		
+			'secondary_color',
+			'hide_quantity',
+			'hide_paid_to_date',
+			'custom_invoice_label1',
+			'custom_invoice_label2']);		
 
 		foreach ($this->invoice_items as $invoiceItem) 
 		{
@@ -199,6 +217,7 @@ class Invoice extends EntityModel
 
 Invoice::created(function($invoice)
 {
+	$invoice->account->incrementCounter($invoice->is_quote);
 	Activity::createInvoice($invoice);
 });
 

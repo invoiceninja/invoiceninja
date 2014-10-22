@@ -25,7 +25,7 @@ class InvoiceController extends \BaseController {
 	public function index()
 	{
 		$data = [
-			'title' => '- Invoices',
+			'title' => trans('texts.invoices'),
 			'entityType'=>ENTITY_INVOICE, 
 			'columns'=>Utils::trans(['checkbox', 'invoice_number', 'client', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status', 'action'])
 		];
@@ -85,8 +85,7 @@ class InvoiceController extends \BaseController {
 
 	public function view($invitationKey)
 	{
-		$invitation = Invitation::withTrashed()->with('user', 'invoice.invoice_items', 'invoice.account.country', 'invoice.client.contacts', 'invoice.client.country')
-			->where('invitation_key', '=', $invitationKey)->firstOrFail();
+		$invitation = Invitation::withTrashed()->where('invitation_key', '=', $invitationKey)->firstOrFail();
 
 		$invoice = $invitation->invoice;
 		
@@ -94,6 +93,18 @@ class InvoiceController extends \BaseController {
 		{
 			return View::make('invoices.deleted');
 		}
+
+		if ($invoice->is_quote && $invoice->quote_invoice_id)
+		{
+			$invoice = Invoice::scope($invoice->quote_invoice_id, $invoice->account_id)->firstOrFail();
+
+			if (!$invoice || $invoice->is_deleted) 
+			{
+				return View::make('invoices.deleted');
+			}
+		}
+
+		$invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
 
 		$client = $invoice->client;
 		
@@ -112,7 +123,7 @@ class InvoiceController extends \BaseController {
 
 		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
 		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-		$invoice->is_pro = $client->account->isPro();
+		$invoice->is_pro = $client->account->isPro();		
 		
 		$data = array(
 			'hideHeader' => true,
@@ -136,11 +147,12 @@ class InvoiceController extends \BaseController {
 			->where('invitations.account_id', '=', Auth::user()->account_id)
 			->where('invitations.deleted_at', '=', null)
 			->select('contacts.public_id')->lists('public_id');
-	
+		
 		if ($clone)
 		{
 			$invoice->id = null;
-			$invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber();			
+			$invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber($invoice->is_quote);
+			$invoice->balance = $invoice->amount;
 			$method = 'POST';			
 			$url = "{$entityType}s";
 		}
@@ -166,7 +178,7 @@ class InvoiceController extends \BaseController {
 				'method' => $method, 
 				'invitationContactIds' => $contactIds,
 				'url' => $url, 
-				'title' => '- ' . trans("texts.edit_{$entityType}"),
+				'title' => trans("texts.edit_{$entityType}"),
 				'client' => $invoice->client);
 		$data = array_merge($data, self::getViewModel());		
 
@@ -212,7 +224,7 @@ class InvoiceController extends \BaseController {
 				'invoiceNumber' => $invoiceNumber,
 				'method' => 'POST', 
 				'url' => 'invoices', 
-				'title' => '- New Invoice',
+				'title' => trans('texts.new_invoice'),
 				'client' => $client);
 		$data = array_merge($data, self::getViewModel());				
 
@@ -230,9 +242,8 @@ class InvoiceController extends \BaseController {
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),				
+			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
 			'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-			'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',
@@ -260,7 +271,7 @@ class InvoiceController extends \BaseController {
 		$action = Input::get('action');
 		$entityType = Input::get('entityType');
 
-		if ($action == 'archive' || $action == 'delete')
+		if ($action == 'archive' || $action == 'delete' || $action == 'mark')
 		{
 			return InvoiceController::bulk($entityType);
 		}
@@ -346,7 +357,7 @@ class InvoiceController extends \BaseController {
 			}
 			else if ($action == 'email') 
 			{	
-				if (Auth::user()->confirmed)
+				if (Auth::user()->confirmed && !Auth::user()->isDemo())
 				{
 					$message = trans("texts.emailed_{$entityType}");
 					$this->mailer->sendInvoice($invoice);
@@ -402,12 +413,14 @@ class InvoiceController extends \BaseController {
 	public function bulk($entityType = ENTITY_INVOICE)
 	{
 		$action = Input::get('action');
+		$statusId = Input::get('statusId');
 		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');
-		$count = $this->invoiceRepo->bulk($ids, $action);
+		$count = $this->invoiceRepo->bulk($ids, $action, $statusId);
 
  		if ($count > 0)		
  		{
-			$message = Utils::pluralize("{$action}d_{$entityType}", $count);
+ 			$key = $action == 'mark' ? "updated_{$entityType}" : "{$action}d_{$entityType}";
+			$message = Utils::pluralize($key, $count);
 			Session::flash('message', $message);
 		}
 

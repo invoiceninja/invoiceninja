@@ -9,7 +9,7 @@
 
 	
 	{{ Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
-		'client' => 'required',
+			'client' => 'required',
   		'amount' => 'required',		
 	)); }}
 	
@@ -55,7 +55,7 @@
 		$clientSelect.combobox();
 		
 		$('#currency_id').combobox();
-		$('#credit_date').datepicker('update', new Date({{ strtotime(Utils::today()) * 1000 }}));
+		$('#credit_date').datepicker('update', new Date());
 
 	});
 

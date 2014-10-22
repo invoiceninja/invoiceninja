@@ -27,9 +27,14 @@ class Payment extends EntityModel
 		return $this->belongsTo('Contact');
 	}
 
+	public function getAmount()
+	{
+		return Utils::formatMoney($this->amount, $this->client->currency_id);
+	}
+
 	public function getName()
 	{
-		return '';
+		return trim("payment {$this->transaction_reference}");
 	}
 
 	public function getEntityType()

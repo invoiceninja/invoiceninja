@@ -29,7 +29,7 @@
     <div class="row">
       <div class="col-md-8 col-md-offset-2">
         <h2>Definitions</h2>
-        <p>Invoiceninja.com users who access invoiceninja.com services are defined as “User Accounts.” User Account clients who use access invoiceninja.com services to view and/or pay invoices are defined as “Clients.” The wording “data” and “content” are used interchangeably. </p></div>
+        <p>Invoiceninja.com users who access invoiceninja.com services are defined as “User Accounts”. User Account clients who use invoiceninja.com services to view and/or pay invoices are defined as “Clients.” The wording “data” and “content” are used interchangeably. </p></div>
     </div>
   </div>
   </section>
