@@ -13,7 +13,7 @@
 */
 
 //apc_clear_cache();
-//Cache::flush();
+Cache::flush();
 
 //dd(DB::getQueryLog());
 //dd(Client::getPrivateId(1));
@@ -248,8 +248,11 @@ define('NINJA_URL', 'https://www.invoiceninja.com');
 define('NINJA_VERSION', '1.4.0');
 define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
 
+define('COUNT_FREE_DESIGNS', 4);
 define('PRO_PLAN_PRICE', 50);
-define('LICENSE_PRICE', 30.00);
+define('PRODUCT_ONE_CLICK_INSTALL', 1);
+define('PRODUCT_INVOICE_DESIGNS', 2);
+define('DESIGNS_AFFILIATE_KEY', 'T3RS74');
 
 define('USER_TYPE_SELF_HOST', 'SELF_HOST');
 define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');

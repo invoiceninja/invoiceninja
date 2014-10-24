@@ -707,6 +707,10 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
 .plans-table a .cta h2 span {background: #1e84a5;}
 
 
+#designThumbs img {
+    border: 1px solid #CCCCCC;
+}
+
 @media screen and (min-width: 992px) {
    .hide-desktop {display: none;}
 }

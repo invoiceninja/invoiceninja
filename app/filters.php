@@ -77,6 +77,34 @@ App::before(function($request)
     $locale = Session::get(SESSION_LOCALE, DEFAULT_LOCALE);
     App::setLocale($locale);    
   }
+
+  $claimingLicense = Utils::startsWith($_SERVER['REQUEST_URI'], '/claim_license');
+  if (!$claimingLicense && Input::has('license_key') && Input::has('product_id'))
+  {
+    $licenseKey = Input::get('license_key');
+    $productId = Input::get('product_id');
+
+    if ($productId == PRODUCT_INVOICE_DESIGNS)
+    {
+      //$data = file_get_contents("http://ninja.dev/claim_license?license_key={$licenseKey}&product_id={$productId}");
+      $data = file_get_contents(NINJA_URL . "/claim_license?license_key={$licenseKey}&product_id={$productId}");
+
+      if ($data = json_decode($data))
+      {
+        foreach ($data as $item)
+        {
+          $design = new InvoiceDesign();
+          $design->id = $item->id;
+          $design->name = $item->name;
+          $design->javascript = $item->javascript;
+          $design->save();
+        }
+
+        Cache::forget('invoice_designs_cache');
+        Session::flash('message', trans('texts.bought_designs'));
+      }
+    }
+  }
 });
 
 

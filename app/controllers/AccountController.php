@@ -272,7 +272,7 @@ class AccountController extends \BaseController {
 				$invoice = new stdClass();
 				$client = new stdClass();
 				$invoiceItem = new stdClass();				
-
+				
 				$client->name = 'Sample Client';
 				$client->address1 = '';
 				$client->city = '';
@@ -280,10 +280,10 @@ class AccountController extends \BaseController {
 				$client->postal_code = '';
 				$client->work_phone = '';
 				$client->work_email = '';
-
+			
 				$invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber();
 				$invoice->invoice_date = date_create()->format('Y-m-d');
-				$invoice->account = Auth::user()->account;				
+				$invoice->account = json_decode(Auth::user()->account->toJson());
 				$invoice->amount = $invoice->balance = 100;				
 
 				$invoiceItem->cost = 100;
@@ -295,7 +295,7 @@ class AccountController extends \BaseController {
 				$invoice->invoice_items = [$invoiceItem];			
 				
 				$data['invoice'] = $invoice;
-				$data['invoiceDesigns'] = InvoiceDesign::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get();				
+				$data['invoiceDesigns'] = InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache')->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
 			}
 
 			return View::make("accounts.{$subSection}", $data);	

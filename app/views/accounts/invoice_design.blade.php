@@ -17,7 +17,13 @@
       
     function getDesignJavascript() {
       var id = $('#invoice_design_id').val();
-      return invoiceDesigns[id-1].javascript;
+      if (id == '-1') {
+        showMoreDesigns(); 
+        $('#invoice_design_id').val(1);
+        return invoiceDesigns[0].javascript;        
+      } else {
+        return invoiceDesigns[id-1].javascript;
+      }
     }
 
     function getPDFString() {
@@ -64,8 +70,15 @@
       {{ Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) }}
 
       {{ Former::legend('invoice_design') }}
-      {{ Former::select('invoice_design_id')->style('display:inline;width:120px')
-          ->fromQuery($invoiceDesigns, 'name', 'id') }}
+
+
+      @if (InvoiceDesign::count() == COUNT_FREE_DESIGNS)
+        {{ Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') }}        
+      @else 
+        {{ Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id') }}
+      @endif
+
+      
 
       {{ Former::text('primary_color') }}
       {{ Former::text('secondary_color') }}

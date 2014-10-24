@@ -265,11 +265,12 @@
 		</div>
 
 
+		@if (InvoiceDesign::count() == COUNT_FREE_DESIGNS)
+			{{ Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') }}
+		@else 
+			{{ Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") }}
+		@endif
 
-		{{ Former::select('invoice_design_id')->style('display:inline;width:120px')->raw()
-					->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") }}
-
-				
 		{{ Button::primary(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()'))->append_with_icon('download-alt'); }}	
         
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))						
@@ -646,6 +647,7 @@
 	function getPDFString() {		
 		var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
+		if (!design) return;
 		var doc = generatePDF(invoice, design);
 		if (!doc) return;
 		return doc.output('datauristring');
@@ -653,13 +655,21 @@
 
 	function getDesignJavascript() {
 		var id = $('#invoice_design_id').val();
-		return invoiceDesigns[id-1].javascript;
+		if (id == '-1') {
+			showMoreDesigns();
+			$('#invoice_design_id').val(1);
+			return invoiceDesigns[0].javascript;
+		} else {
+			return invoiceDesigns[id-1].javascript;
+		}
 	}
 
 	function onDownloadClick() {
 		trackUrl('/download_pdf');
 		var invoice = createInvoiceModel();
-		var doc = generatePDF(invoice, true);
+		var design  = getDesignJavascript();
+		if (!design) return;
+		var doc = generatePDF(invoice, design, true);
 		doc.save('Invoice-' + $('#invoice_number').val() + '.pdf');
 	}
 

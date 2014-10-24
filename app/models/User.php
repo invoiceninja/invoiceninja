@@ -85,6 +85,11 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 		return $this->account->id == Utils::getDemoAccountId();
 	}
 
+	public function maxInvoiceDesignId()
+	{
+		return $this->isPro() ? 10 : COUNT_FREE_DESIGNS;
+	}
+
 	public function getDisplayName()
 	{
 		if ($this->getFullName())

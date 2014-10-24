@@ -958,13 +958,21 @@ function getInvoiceTaxRate(invoice) {
   return tax;
 }
 
-/*
 function displayInvoiceHeader(doc, invoice, layout) {
 
   var costX = layout.unitCostRight - (doc.getStringUnitWidth(invoiceLabels.unit_cost) * doc.internal.getFontSize());
   var qtyX = layout.qtyRight - (doc.getStringUnitWidth(invoiceLabels.quantity) * doc.internal.getFontSize());
   var taxX = layout.taxRight - (doc.getStringUnitWidth(invoiceLabels.tax) * doc.internal.getFontSize());
   var totalX = layout.lineTotalRight - (doc.getStringUnitWidth(invoiceLabels.line_total) * doc.internal.getFontSize());
+
+  if (invoice.invoice_design_id == 6 || invoice.invoice_design_id == 8 || invoice.invoice_design_id == 10) {
+    invoiceLabels.item = invoiceLabels.item.toUpperCase();
+    invoiceLabels.description = invoiceLabels.description.toUpperCase();
+    invoiceLabels.unit_cost = invoiceLabels.unit_cost.toUpperCase();
+    invoiceLabels.quantity = invoiceLabels.quantity.toUpperCase();
+    invoiceLabels.line_total = invoiceLabels.total.toUpperCase();
+    invoiceLabels.tax = invoiceLabels.tax.toUpperCase();
+  }
 
   doc.text(layout.marginLeft, layout.tableTop, invoiceLabels.item);
   doc.text(layout.descriptionLeft, layout.tableTop, invoiceLabels.description);
@@ -978,258 +986,7 @@ function displayInvoiceHeader(doc, invoice, layout) {
   {
     doc.text(taxX, layout.tableTop, invoiceLabels.tax);
   }
-}
 
-function displayInvoiceItems(doc, invoice, layout) {  
-  doc.setFontType("normal");
-
-  var line = 1;
-  var total = 0;
-  var shownItem = false;
-  var currencyId = invoice && invoice.client ? invoice.client.currency_id : 1;  
-  var tableTop = layout.tableTop;
-  var hideQuantity = invoice.account.hide_quantity == '1';  
-  
-  doc.setFontSize(8);
-  for (var i=0; i<invoice.invoice_items.length; i++) {
-    var item = invoice.invoice_items[i];    
-    var numLines = doc.splitTextToSize(item.notes, 200).length + 2;
-    //console.log('num lines %s', numLines);
-
-    var y = tableTop + (line * layout.tableRowHeight) + (2 * layout.tablePadding);
-    var top = y - layout.tablePadding;
-    var newTop = top + (numLines * layout.tableRowHeight);
-
-    if (newTop > 770) {
-      line = 0;
-      tableTop = layout.accountTop + layout.tablePadding;
-      y = tableTop;
-      top = y - layout.tablePadding;
-      newTop = top + (numLines * layout.tableRowHeight);
-      doc.addPage();
-    }
-
-    var left = layout.marginLeft - layout.tablePadding;
-    var width = layout.marginRight + layout.tablePadding;
-
-    var cost = formatMoney(item.cost, currencyId, true);
-    var qty = NINJA.parseFloat(item.qty) ? NINJA.parseFloat(item.qty) + '' : '';
-    var notes = item.notes;
-    var productKey = item.product_key;
-    var tax = 0;
-    if (item.tax && parseFloat(item.tax.rate)) {
-      tax = parseFloat(item.tax.rate);
-    } else if (item.tax_rate && parseFloat(item.tax_rate)) {
-      tax = parseFloat(item.tax_rate);
-    }   
-
-    // show at most one blank line
-    if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
-      continue;
-    }   
-    shownItem = true;
-
-    // process date variables
-    notes = processVariables(notes);
-    productKey = processVariables(productKey);
-    
-    var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
-    if (tax) {
-      lineTotal += lineTotal * tax / 100;
-    }
-    if (lineTotal) {
-      total += lineTotal;
-    }
-    lineTotal = formatMoney(lineTotal, currencyId);
-    
-    var costX = layout.unitCostRight - (doc.getStringUnitWidth(cost) * doc.internal.getFontSize());
-    var qtyX = layout.qtyRight - (doc.getStringUnitWidth(qty) * doc.internal.getFontSize());
-    var taxX = layout.taxRight - (doc.getStringUnitWidth(tax+'%') * doc.internal.getFontSize());
-    var totalX = layout.lineTotalRight - (doc.getStringUnitWidth(lineTotal) * doc.internal.getFontSize());
-
-    line += numLines;
-    
-    if (invoice.invoice_design_id == 1) {
-      if (i%2 == 0) {      
-        doc.setDrawColor(255,255,255);
-        doc.setFillColor(246,246,246);
-        doc.rect(left, top, width-left, newTop-top, 'FD');
-
-        doc.setLineWidth(0.3);        
-        doc.setDrawColor(200,200,200);
-        doc.line(left, top, width, top);
-        doc.line(left, newTop, width, newTop);        
-      }
-    } else if (invoice.invoice_design_id == 2) {
-      if (i%2 == 0) {      
-        left = 0;
-        width = 1000;
-
-        doc.setDrawColor(255,255,255);
-        doc.setFillColor(235,235,235);
-        doc.rect(left, top, width-left, newTop-top, 'FD');
-
-      }
-    } else if (invoice.invoice_design_id == 5) {
-      if (i%2 == 0) {      
-        doc.setDrawColor(255,255,255);
-        doc.setFillColor(247,247,247);
-        doc.rect(left, top, width-left+17, newTop-top, 'FD');
-        doc.setLineWidth(0.3);        
-        doc.setDrawColor(255,255,255);               
-      } else {
-        doc.setDrawColor(255,255,255);
-        doc.setFillColor(232,232,232);
-        doc.rect(left, top, width-left+17, newTop-top, 'FD');
-
-        doc.setLineWidth(0.3);        
-        doc.setDrawColor(255,255,255);      
-      }
-    } else {
-      doc.setLineWidth(0.3);
-      doc.setDrawColor(150,150,150);
-      doc.line(left, newTop, width, newTop);
-    }
-
-    y += 4;
-    
-    if (invoice.invoice_design_id == 1) {
-      SetPdfColor('LightBlue', doc, 'primary');
-    } else if (invoice.invoice_design_id == 2) {
-      SetPdfColor('SomeGreen', doc, 'primary');
-    } else if (invoice.invoice_design_id == 3) {
-      doc.setFontType('bold');
-    } else if (invoice.invoice_design_id == 4) {
-      SetPdfColor('Black', doc);
-    } else if (invoice.invoice_design_id == 5) {
-      SetPdfColor('Black', doc);
-    }
-
-    var splitTitle = doc.splitTextToSize(productKey, 60);
-    doc.text(layout.marginLeft, y+2, splitTitle);
-  
-    if (invoice.invoice_design_id == 5) {  
-      doc.setDrawColor(255, 255, 255);
-      doc.setLineWidth(1);
-      doc.line(layout.descriptionLeft-8, y-16,layout.descriptionLeft-8, y+55);
-        
-      doc.setDrawColor(255, 255, 255);
-      doc.setLineWidth(1);
-      doc.line(costX-30, y-16,costX-30, y+55);
-      
-      doc.setDrawColor(255, 255, 255);
-      doc.setLineWidth(1);
-      doc.line(qtyX-45, y-16,qtyX-45, y+55);
-
-      if (invoice.has_taxes) {
-        doc.setDrawColor(255, 255, 255);
-        doc.setLineWidth(1);
-        doc.line(taxX-15, y-16,taxX-15, y+55);
-      }
-
-      doc.setDrawColor(255, 255, 255);
-      doc.setLineWidth(1);
-      doc.line(totalX-27, y-16,totalX-27, y+55);    
-    }
-    
-    SetPdfColor('Black', doc);
-    doc.setFontType('normal');
-
-    doc.text(layout.descriptionLeft, y+2, notes);
-    doc.text(costX, y+2, cost);
-    if (!hideQuantity) {
-      doc.text(qtyX, y+2, qty);
-    }
-    doc.text(totalX, y+2, lineTotal);
-
-    if (tax) {
-      doc.text(taxX, y+2, tax+'%');
-    }
-  }  
-
-  y = tableTop + (line * layout.tableRowHeight) + (3 * layout.tablePadding);
-  var cutoff = 700;
-  if (invoice.terms) {
-    cutoff -= 50;
-  }
-  if (invoice.public_notes) {
-    cutoff -= 50;
-  }
-
-  if (y > cutoff) {
-    doc.addPage();
-    return layout.marginLeft;
-  }
-
-  return y;
-}
-*/
-
-function displayInvoiceHeader(doc, invoice, layout) {
-
-  var costX = layout.unitCostRight - (doc.getStringUnitWidth(invoiceLabels.unit_cost) * doc.internal.getFontSize());
-  var qtyX = layout.qtyRight - (doc.getStringUnitWidth(invoiceLabels.quantity) * doc.internal.getFontSize());
-  var taxX = layout.taxRight - (doc.getStringUnitWidth(invoiceLabels.tax) * doc.internal.getFontSize());
-  var totalX = layout.lineTotalRight - (doc.getStringUnitWidth(invoiceLabels.line_total) * doc.internal.getFontSize());
-
-  if(invoice.invoice_design_id == 6) {
-    doc.setFontType('normal');
-    doc.text(layout.marginLeft, layout.tableTop, invoiceLabels.item.toUpperCase());
-    doc.text(layout.descriptionLeft, layout.tableTop, invoiceLabels.description.toUpperCase());
-    doc.text(costX, layout.tableTop, '     UNIT');
-    if (invoice.account.hide_quantity != '1') {
-      doc.text(qtyX, layout.tableTop, invoiceLabels.quantity.toUpperCase());
-    }
-    doc.text(totalX, layout.tableTop, '     TOTAL');
-
-    if (invoice.has_taxes)
-    {
-      doc.text(taxX, layout.tableTop, invoiceLabels.tax.toUpperCase());
-    }
-  } else if(invoice.invoice_design_id == 8) {
-    doc.setFontType('bold');
-    doc.text(layout.marginLeft, layout.tableTop, invoiceLabels.item.toUpperCase());
-    doc.text(layout.descriptionLeft, layout.tableTop, invoiceLabels.description.toUpperCase());
-    doc.text(costX, layout.tableTop, '     UNIT');
-    if (invoice.account.hide_quantity != '1') {
-      doc.text(qtyX, layout.tableTop, invoiceLabels.quantity.toUpperCase());
-    }
-    doc.text(totalX, layout.tableTop, '     TOTAL');
-
-    if (invoice.has_taxes)
-    {
-      doc.text(taxX, layout.tableTop, invoiceLabels.tax.toUpperCase());
-    }
-  } else if(invoice.invoice_design_id == 10) {
-    doc.setFontType('bold');
-    doc.setTextColor(63,60,60);
-    doc.text(layout.marginLeft, layout.tableTop, invoiceLabels.item.toUpperCase());
-    doc.text(layout.descriptionLeft, layout.tableTop, invoiceLabels.description.toUpperCase());
-    doc.text(costX, layout.tableTop, invoiceLabels.unit_cost.toUpperCase());
-    if (invoice.account.hide_quantity != '1') {
-      doc.text(qtyX, layout.tableTop, invoiceLabels.quantity.toUpperCase());
-    }
-    doc.text(totalX, layout.tableTop, invoiceLabels.line_total.toUpperCase());
-
-    if (invoice.has_taxes)
-    {
-      doc.text(taxX, layout.tableTop, invoiceLabels.tax.toUpperCase());
-    }
-  } else {
-    doc.text(layout.marginLeft, layout.tableTop, invoiceLabels.item);
-    doc.text(layout.descriptionLeft, layout.tableTop, invoiceLabels.description);
-    doc.text(costX, layout.tableTop, invoiceLabels.unit_cost);
-    if (invoice.account.hide_quantity != '1') {
-      doc.text(qtyX, layout.tableTop, invoiceLabels.quantity);
-    }
-    doc.text(totalX, layout.tableTop, invoiceLabels.line_total);
-
-    if (invoice.has_taxes)
-    {
-      doc.text(taxX, layout.tableTop, invoiceLabels.tax);
-    }
-  }
- 
 }
 
 function displayInvoiceItems(doc, invoice, layout) {
@@ -1410,9 +1167,11 @@ function displayInvoiceItems(doc, invoice, layout) {
     doc.line(costX-30, y-16,costX-30, y+55);
     
     doc.line(qtyX-45, y-16,qtyX-45, y+55);
-    
-    doc.line(taxX-15, y-16,taxX-15, y+55);
-    
+  
+    if (invoice.has_taxes) {  
+      doc.line(taxX-15, y-16,taxX-15, y+55);
+    }
+
     doc.line(totalX-27, y-16,totalX-27, y+55);
     
   }
@@ -1427,9 +1186,11 @@ function displayInvoiceItems(doc, invoice, layout) {
     doc.line(costX-30, y-60,costX-30, y+20);
     
     doc.line(qtyX-45, y-60,qtyX-45, y+20);
-    
-    doc.line(taxX-15, y-60,taxX-15, y+20);
-    
+  
+    if (invoice.has_taxes) {
+      doc.line(taxX-10, y-60,taxX-10, y+20);
+    }
+
     doc.line(totalX-27, y-60,totalX-27, y+120);
     
     doc.line(totalX+35, y-60,totalX+35, y+120);
