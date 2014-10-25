@@ -37,7 +37,7 @@ class AddInvoiceNumberSettings extends Migration {
       }      
 
       DB::table('accounts')->where('id', $accountId)->update(['invoice_number_counter' => ++$max]);
-    }		
+    }	
 	}
 
 	/**

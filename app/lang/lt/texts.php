@@ -444,6 +444,21 @@ return array(
   'mark_sent' => 'Mark sent',    
   
 
+  'gateway_help_1' => ':link to sign up for Authorize.net.',
+  'gateway_help_2' => ':link to sign up for Authorize.net.',
+  'gateway_help_17' => ':link to get your PayPal API signature.',
+  'gateway_help_23' => 'Note: use your secret API key, not your publishable API key.',
+  'gateway_help_27' => ':link to sign up for TwoCheckout.',
+
+  'more_designs' => 'More designs',
+  'more_designs_title' => 'Additional Invoice Designs',
+  'more_designs_cloud_header' => 'Go Pro for more invoice designs',
+  'more_designs_cloud_text' => '',
+  'more_designs_self_host_header' => 'Get 6 more invoice designs for just $20',
+  'more_designs_self_host_text' => '',
+  'buy' => 'Buy',
+  'bought_designs' => 'Successfully added additional invoice designs',
+  
   
 );
 

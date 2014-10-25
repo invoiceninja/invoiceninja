@@ -657,7 +657,7 @@
 		var id = $('#invoice_design_id').val();
 		if (id == '-1') {
 			showMoreDesigns();
-			$('#invoice_design_id').val(1);
+			model.invoice().invoice_design_id(1);
 			return invoiceDesigns[0].javascript;
 		} else {
 			return invoiceDesigns[id-1].javascript;

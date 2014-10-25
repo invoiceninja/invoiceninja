@@ -103,13 +103,13 @@ return array(
  // recurring invoices
  'recurring_invoices' => 'Facturas recurrentes',
  'recurring_help' => '<p>Enviar facturas automáticamente a clientes semanalmente, bi-mensualmente, mensualmente, trimestral o anualmente. </p>
-       <p>Uso :MONTH, :QUARTER or :YEAR para fechas dinámicas. Matemáticas básicas también funcionan bien. Por ejemplo: :MONTH-1.</p>
-       <p>Ejemplos de variables dinámicas de factura:</p>
-       <ul>
-         <li>"Afiliación de gimnasio para el mes de:MONTH" => Afiliación de gimnasio para el mes de julio"</li>
-         <li>":YEAR+1 suscripción anual" => "2015 suscripción anual"</li>
-         <li>"Retainer payment for :QUARTER+1" => "Pago anticipo de pagos para T2"</li>
-       </ul>',
+ <p>Uso :MONTH, :QUARTER or :YEAR para fechas dinámicas. Matemáticas básicas también funcionan bien. Por ejemplo: :MONTH-1.</p>
+ <p>Ejemplos de variables dinámicas de factura:</p>
+ <ul>
+   <li>"Afiliación de gimnasio para el mes de:MONTH" => Afiliación de gimnasio para el mes de julio"</li>
+   <li>":YEAR+1 suscripción anual" => "2015 suscripción anual"</li>
+   <li>"Retainer payment for :QUARTER+1" => "Pago anticipo de pagos para T2"</li>
+ </ul>',
 
  // dashboard
  'in_total_revenue' => 'ingreso total',
@@ -281,69 +281,69 @@ return array(
    'password_forgot' => 'La información sobre el cambio de tu contraseña se ha enviado a tu dirección de correo electrónico.',
    'password_reset' => 'Tu contraseña se ha cambiado con éxito.',
    'wrong_password_reset' => 'Contraseña no válida. Inténtalo de nuevo',
- ),
+   ),
 
  // Pro Plan
  'pro_plan' => [
    'remove_logo' => ':link haz click para eliminar el logo de Invoice Ninja', //Maybe incorrect for the context
    'remove_logo_link' => 'Haz clic aquí',
- ],
- 'logout' => 'Cerrar sesión',   
- 'sign_up_to_save' => 'Registrate para guardar tu trabajo', 
- 'agree_to_terms' =>'Estoy de acuerdo con los términos de Invoice Ninja :terms',
- 'terms_of_service' => 'Términos de servicio',
- 'email_taken' => 'Esta dirección de correo electrónico ya se ha registrado',
- 'working' => 'Procesando',
- 'success' => 'Éxito',
- 'success_message' => 'Te has registrado con éxito. Por favor, haz clic en el enlace de el correo de confirmación para verificar tu dirección de correo electrónico.',
- 'erase_data' => 'Esta acción eliminará todos tus datos de forma permanente.',
- 'password' => 'Contraseña',
-  
- 'pro_plan_product' => 'Plan Pro',
- 'pro_plan_description' => 'Un año de inscripción en el Plan Pro de Invoice Ninja.',
- 'pro_plan_success' => '¡Gracias por unirte a Invoice Ninja! Al realizar el pago de tu factura, se iniciara tu PLAN PRO.',
- 'unsaved_changes' => 'Tienes cambios no guardados',
- 'custom_fields' => 'Campos a medida',
- 'company_fields' => 'Campos de la empresa',
- 'client_fields' => 'Campos del cliente',
- 'field_label' => 'Etiqueta del campo',
- 'field_value' => 'Valor del campo',
- 'edit' => 'Editar',
- 'view_as_recipient' => 'Ver como destinitario',   
+   ],
+   'logout' => 'Cerrar sesión',   
+   'sign_up_to_save' => 'Registrate para guardar tu trabajo', 
+   'agree_to_terms' =>'Estoy de acuerdo con los términos de Invoice Ninja :terms',
+   'terms_of_service' => 'Términos de servicio',
+   'email_taken' => 'Esta dirección de correo electrónico ya se ha registrado',
+   'working' => 'Procesando',
+   'success' => 'Éxito',
+   'success_message' => 'Te has registrado con éxito. Por favor, haz clic en el enlace de el correo de confirmación para verificar tu dirección de correo electrónico.',
+   'erase_data' => 'Esta acción eliminará todos tus datos de forma permanente.',
+   'password' => 'Contraseña',
+
+   'pro_plan_product' => 'Plan Pro',
+   'pro_plan_description' => 'Un año de inscripción en el Plan Pro de Invoice Ninja.',
+   'pro_plan_success' => '¡Gracias por unirte a Invoice Ninja! Al realizar el pago de tu factura, se iniciara tu PLAN PRO.',
+   'unsaved_changes' => 'Tienes cambios no guardados',
+   'custom_fields' => 'Campos a medida',
+   'company_fields' => 'Campos de la empresa',
+   'client_fields' => 'Campos del cliente',
+   'field_label' => 'Etiqueta del campo',
+   'field_value' => 'Valor del campo',
+   'edit' => 'Editar',
+   'view_as_recipient' => 'Ver como destinitario',   
 
  // product management
- 'product_library' => 'Inventario de productos',
- 'product' => 'Producto',
- 'products' => 'Productos',
- 'fill_products' => 'Auto-rellenar productos',
- 'fill_products_help' => 'Seleccionar un producto automáticamente <b>configurará la descripción y coste</b>',
- 'update_products' => 'Auto-actualizar productos',
- 'update_products_help' => 'Actualizar una factura automáticamente <b>actualizará los productos</b>',
- 'create_product' => 'Crear Producto',
- 'edit_product' => 'Editar Producto',
- 'archive_product' => 'Archivar Producto',
- 'updated_product' => 'Producto actualizado con éxito',
- 'created_product' => 'Producto creado con éxito',
- 'archived_product' => 'Producto archivado con éxito',
- 'pro_plan_custom_fields' => ':link haz click para para activar campos a medida',
- 'advanced_settings' => 'Configuración Avanzada',
- 'pro_plan_advanced_settings' => ':link haz click para para activar la configuración avanzada',
- 'invoice_design' => 'Diseño de factura',
- 'specify_colors' => 'Especificar colores',
- 'specify_colors_label' => 'Seleccionar los colores para usar en las facturas',
- 'chart_builder' => 'Constructor de graficos',
- 'ninja_email_footer' => 'Usa :site para facturar a tus clientes y recibir pagos de forma gratuita!',
- 'go_pro' => 'Hazte Pro',
+   'product_library' => 'Inventario de productos',
+   'product' => 'Producto',
+   'products' => 'Productos',
+   'fill_products' => 'Auto-rellenar productos',
+   'fill_products_help' => 'Seleccionar un producto automáticamente <b>configurará la descripción y coste</b>',
+   'update_products' => 'Auto-actualizar productos',
+   'update_products_help' => 'Actualizar una factura automáticamente <b>actualizará los productos</b>',
+   'create_product' => 'Crear Producto',
+   'edit_product' => 'Editar Producto',
+   'archive_product' => 'Archivar Producto',
+   'updated_product' => 'Producto actualizado con éxito',
+   'created_product' => 'Producto creado con éxito',
+   'archived_product' => 'Producto archivado con éxito',
+   'pro_plan_custom_fields' => ':link haz click para para activar campos a medida',
+   'advanced_settings' => 'Configuración Avanzada',
+   'pro_plan_advanced_settings' => ':link haz click para para activar la configuración avanzada',
+   'invoice_design' => 'Diseño de factura',
+   'specify_colors' => 'Especificar colores',
+   'specify_colors_label' => 'Seleccionar los colores para usar en las facturas',
+   'chart_builder' => 'Constructor de graficos',
+   'ninja_email_footer' => 'Usa :site para facturar a tus clientes y recibir pagos de forma gratuita!',
+   'go_pro' => 'Hazte Pro',
 
  // Quotes
- 'quote' => 'Cotización',
- 'quotes' => 'Cotizaciones',
- 'quote_number' => 'Numero de cotización',
- 'quote_number_short' => 'Cotización #',
- 'quote_date' => 'Fecha cotización',
- 'quote_total' => 'Total cotizado',
- 'your_quote' => 'Tu cotización',
- 'total' => 'Total',
+   'quote' => 'Cotización',
+   'quotes' => 'Cotizaciones',
+   'quote_number' => 'Numero de cotización',
+   'quote_number_short' => 'Cotización #',
+   'quote_date' => 'Fecha cotización',
+   'quote_total' => 'Total cotizado',
+   'your_quote' => 'Tu cotización',
+   'total' => 'Total',
  'clone' => 'Clon', //Whats the context for this one
  'new_quote' => 'Nueva cotización',
  'create_quote' => 'Crear Cotización',
@@ -415,4 +415,19 @@ return array(
  'invalid_counter' => 'Para evitar posibles conflictos, por favor crea un prefijo de facturación y de cotización.',
  'mark_sent' => 'Marcar como enviado',
 
-);
+ 'gateway_help_1' => ':link to sign up for Authorize.net.',
+ 'gateway_help_2' => ':link to sign up for Authorize.net.',
+ 'gateway_help_17' => ':link to get your PayPal API signature.',
+ 'gateway_help_23' => 'Note: use your secret API key, not your publishable API key.',
+ 'gateway_help_27' => ':link to sign up for TwoCheckout.',
+
+ 'more_designs' => 'More designs',
+ 'more_designs_title' => 'Additional Invoice Designs',
+ 'more_designs_cloud_header' => 'Go Pro for more invoice designs',
+ 'more_designs_cloud_text' => '',
+ 'more_designs_self_host_header' => 'Get 6 more invoice designs for just $20',
+ 'more_designs_self_host_text' => '',
+ 'buy' => 'Buy',
+ 'bought_designs' => 'Successfully added additional invoice designs',
+
+ );

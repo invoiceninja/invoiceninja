@@ -33,15 +33,12 @@
 
       <div class="modal-footer" id="signUpFooter">          
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-        &nbsp;&nbsp;&nbsp;Coming soon
         
-        <!--
         @if (Utils::isNinja())
-          <button type="button" class="btn btn-primary" onclick="submitProPlan()">{{ trans('texts.go_pro') }}</button>
+          <button type="button" class="btn btn-primary" onclick="showProPlan('invoice_designs')">{{ trans('texts.go_pro') }}</button>
         @else
           <button type="button" class="btn btn-primary" onclick="buyDesigns()">{{ trans('texts.buy') }}</button>
         @endif
-        -->
       </div>
     </div>
   </div>
@@ -119,6 +116,7 @@
   }
 
   function showMoreDesigns() {
+    trackUrl('/view_more_designs');
     $('#moreDesignsModal').modal('show');
   }
 
