@@ -86,8 +86,7 @@ App::before(function($request)
 
     if ($productId == PRODUCT_INVOICE_DESIGNS)
     {
-      //$data = file_get_contents("http://ninja.dev/claim_license?license_key={$licenseKey}&product_id={$productId}");
-      $data = file_get_contents(NINJA_URL . "/claim_license?license_key={$licenseKey}&product_id={$productId}");
+      $data = file_get_contents((Utils::isNinjaDev() ? 'http://ninja.dev' : NINJA_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}");
 
       if ($data = json_decode($data))
       {
@@ -98,6 +97,10 @@ App::before(function($request)
           $design->name = $item->name;
           $design->javascript = $item->javascript;
           $design->save();
+        }
+
+        if (!Utils::isNinja()) {
+          Cache::forget('invoice_designs_cache_' . Auth::user()->maxInvoiceDesignId());
         }
 
         Session::flash('message', trans('texts.bought_designs'));
