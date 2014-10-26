@@ -95,7 +95,8 @@ class QuoteController extends \BaseController {
       'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
       'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
       'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),        
-      'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache')->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+      'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())
+        ->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
       'invoiceLabels' => Auth::user()->account->getInvoiceLabels()
     ];
   }

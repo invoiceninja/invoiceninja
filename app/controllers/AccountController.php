@@ -295,7 +295,8 @@ class AccountController extends \BaseController {
 				$invoice->invoice_items = [$invoiceItem];			
 				
 				$data['invoice'] = $invoice;
-				$data['invoiceDesigns'] = InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache')->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
+				$data['invoiceDesigns'] = InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())
+					->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
 			}
 
 			return View::make("accounts.{$subSection}", $data);	

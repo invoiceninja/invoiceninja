@@ -100,7 +100,6 @@ App::before(function($request)
           $design->save();
         }
 
-        Cache::forget('invoice_designs_cache');
         Session::flash('message', trans('texts.bought_designs'));
       }
     }

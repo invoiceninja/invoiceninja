@@ -265,7 +265,7 @@
 		</div>
 
 
-		@if (InvoiceDesign::count() == COUNT_FREE_DESIGNS)
+		@if (!Utils::isPro() || InvoiceDesign::count() == COUNT_FREE_DESIGNS)
 			{{ Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') }}
 		@else 
 			{{ Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") }}

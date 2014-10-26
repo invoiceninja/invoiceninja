@@ -72,7 +72,7 @@
       {{ Former::legend('invoice_design') }}
 
 
-      @if (InvoiceDesign::count() == COUNT_FREE_DESIGNS)
+      @if (!Utils::isPro() || InvoiceDesign::count() == COUNT_FREE_DESIGNS)      
         {{ Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') }}        
       @else 
         {{ Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id') }}
