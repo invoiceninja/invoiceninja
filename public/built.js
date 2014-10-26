@@ -46570,15 +46570,13 @@ function displayAccount(doc, invoice, x, y, layout) {
     return;
   }
 
-  var data = [
+  var data1 = [
     account.name,
     account.work_email,
     account.work_phone
   ];
 
-  displayGrid(doc, invoice, data, x, y, layout, {hasHeader:true});
-
-  data = [
+  var data2 = [
     concatStrings(account.address1, account.address2),
     concatStrings(account.city, account.state, account.postal_code),    
     account.country ? account.country.name : false,
@@ -46586,13 +46584,21 @@ function displayAccount(doc, invoice, x, y, layout) {
     invoice.account.custom_value2 ? invoice.account['custom_label2'] + ' ' + invoice.account.custom_value2 : false,     
   ];
 
-  var nameWidth = account.name ? (doc.getStringUnitWidth(account.name) * doc.internal.getFontSize() * 1.1) : 0;
-  var emailWidth = account.work_email ? (doc.getStringUnitWidth(account.work_email) * doc.internal.getFontSize() * 1.1) : 0;
-  width = Math.max(emailWidth, nameWidth, 120);
+  if (layout.singleColumn) {
 
-  x += width;
+    displayGrid(doc, invoice, data1.concat(data2), x, y, layout, {hasHeader:true});
 
-  displayGrid(doc, invoice, data, x, y, layout);  
+  } else {
+
+    displayGrid(doc, invoice, data1, x, y, layout, {hasHeader:true});
+
+    var nameWidth = account.name ? (doc.getStringUnitWidth(account.name) * doc.internal.getFontSize() * 1.1) : 0;
+    var emailWidth = account.work_email ? (doc.getStringUnitWidth(account.work_email) * doc.internal.getFontSize() * 1.1) : 0;
+    width = Math.max(emailWidth, nameWidth, 120);
+    x += width;
+
+    displayGrid(doc, invoice, data2, x, y, layout);  
+  }
 }
 
 
@@ -46606,7 +46612,7 @@ function displayClient(doc, invoice, x, y, layout) {
     concatStrings(client.address1, client.address2),
     concatStrings(client.city, client.state, client.postal_code),
     client.country ? client.country.name : false,
-    client.contacts ? client.contacts[0].email : false,
+    client.contacts && getClientDisplayName(client) != client.contacts[0].email ? client.contacts[0].email : false,
     invoice.client.custom_value1 ? invoice.account['custom_client_label1'] + ' ' + invoice.client.custom_value1 : false, 
     invoice.client.custom_value2 ? invoice.account['custom_client_label2'] + ' ' + invoice.client.custom_value2 : false, 
   ];
@@ -46895,11 +46901,6 @@ function getInvoiceTaxRate(invoice) {
 
 function displayInvoiceHeader(doc, invoice, layout) {
 
-  var costX = layout.unitCostRight - (doc.getStringUnitWidth(invoiceLabels.unit_cost) * doc.internal.getFontSize());
-  var qtyX = layout.qtyRight - (doc.getStringUnitWidth(invoiceLabels.quantity) * doc.internal.getFontSize());
-  var taxX = layout.taxRight - (doc.getStringUnitWidth(invoiceLabels.tax) * doc.internal.getFontSize());
-  var totalX = layout.lineTotalRight - (doc.getStringUnitWidth(invoiceLabels.line_total) * doc.internal.getFontSize());
-
   if (invoice.invoice_design_id == 6 || invoice.invoice_design_id == 8 || invoice.invoice_design_id == 10) {
     invoiceLabels.item = invoiceLabels.item.toUpperCase();
     invoiceLabels.description = invoiceLabels.description.toUpperCase();
@@ -46908,6 +46909,11 @@ function displayInvoiceHeader(doc, invoice, layout) {
     invoiceLabels.line_total = invoiceLabels.total.toUpperCase();
     invoiceLabels.tax = invoiceLabels.tax.toUpperCase();
   }
+
+  var costX = layout.unitCostRight - (doc.getStringUnitWidth(invoiceLabels.unit_cost) * doc.internal.getFontSize());
+  var qtyX = layout.qtyRight - (doc.getStringUnitWidth(invoiceLabels.quantity) * doc.internal.getFontSize());
+  var taxX = layout.taxRight - (doc.getStringUnitWidth(invoiceLabels.tax) * doc.internal.getFontSize());
+  var totalX = layout.lineTotalRight - (doc.getStringUnitWidth(invoiceLabels.line_total) * doc.internal.getFontSize());
 
   doc.text(layout.marginLeft, layout.tableTop, invoiceLabels.item);
   doc.text(layout.descriptionLeft, layout.tableTop, invoiceLabels.description);
@@ -46937,6 +46943,23 @@ function displayInvoiceItems(doc, invoice, layout) {
   doc.setFontSize(8);
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];
+    var cost = formatMoney(item.cost, currencyId, true);
+    var qty = NINJA.parseFloat(item.qty) ? NINJA.parseFloat(item.qty) + '' : '';
+    var notes = item.notes;
+    var productKey = item.product_key;
+    var tax = 0;
+    if (item.tax && parseFloat(item.tax.rate)) {
+      tax = parseFloat(item.tax.rate);
+    } else if (item.tax_rate && parseFloat(item.tax_rate)) {
+      tax = parseFloat(item.tax_rate);
+    }   
+
+    // show at most one blank line
+    if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
+      continue;
+    }   
+    shownItem = true;
+
     var numLines = doc.splitTextToSize(item.notes, 200).length + 2;
     //console.log('num lines %s', numLines);
 
@@ -46956,29 +46979,12 @@ function displayInvoiceItems(doc, invoice, layout) {
     var left = layout.marginLeft - layout.tablePadding;
     var width = layout.marginRight + layout.tablePadding;
 
-    var cost = formatMoney(item.cost, currencyId, true);
-    var qty = NINJA.parseFloat(item.qty) ? NINJA.parseFloat(item.qty) + '' : '';
-    var notes = item.notes;
-    var productKey = item.product_key;
-    var tax = 0;
-    if (item.tax && parseFloat(item.tax.rate)) {
-      tax = parseFloat(item.tax.rate);
-    } else if (item.tax_rate && parseFloat(item.tax_rate)) {
-      tax = parseFloat(item.tax_rate);
-    }   
-
-    // show at most one blank line
-    if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
-      continue;
-    }   
-    shownItem = true;
-
     // process date variables
     if (invoice.is_recurring) {
       notes = processVariables(notes);
       productKey = processVariables(productKey);
     }
-    
+
     var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
     if (tax) {
       lineTotal += lineTotal * tax / 100;
@@ -46987,7 +46993,8 @@ function displayInvoiceItems(doc, invoice, layout) {
       total += lineTotal;
     }
     lineTotal = formatMoney(lineTotal, currencyId);
-    
+
+
     var costX = layout.unitCostRight - (doc.getStringUnitWidth(cost) * doc.internal.getFontSize());
     var qtyX = layout.qtyRight - (doc.getStringUnitWidth(qty) * doc.internal.getFontSize());
     var taxX = layout.taxRight - (doc.getStringUnitWidth(tax+'%') * doc.internal.getFontSize());
@@ -46996,7 +47003,7 @@ function displayInvoiceItems(doc, invoice, layout) {
 
     line += numLines;
 
-    
+
     if (invoice.invoice_design_id == 1) {
       if (i%2 == 0) {      
         doc.setDrawColor(255,255,255);
@@ -47024,41 +47031,41 @@ function displayInvoiceItems(doc, invoice, layout) {
         doc.setFillColor(247,247,247);
         doc.rect(left, top, width-left+17, newTop-top, 'FD');               
       } else {
-      doc.setDrawColor(255,255,255);
-      doc.setFillColor(232,232,232);
-      doc.rect(left, top, width-left+17, newTop-top, 'FD');     
-    }
+        doc.setDrawColor(255,255,255);
+        doc.setFillColor(232,232,232);
+        doc.rect(left, top, width-left+17, newTop-top, 'FD');     
+      }
     } else if (invoice.invoice_design_id == 6) {
       if (i%2 == 0) {      
         doc.setDrawColor(232,232,232);
         doc.setFillColor(232,232,232);
         doc.rect(left, top, width-left, newTop-top, 'FD');
       } else {
-      doc.setDrawColor(255,255,255);
-      doc.setFillColor(255,255,255);
-      doc.rect(left, top, width-left, newTop-top, 'FD');
-    }
+        doc.setDrawColor(255,255,255);
+        doc.setFillColor(255,255,255);
+        doc.rect(left, top, width-left, newTop-top, 'FD');
+      }
     } else if (invoice.invoice_design_id == 7) {
-    doc.setLineWidth(1);
-    doc.setDrawColor(45,35,32);
-    for(var k = 1; k<=width-20; k++) {
-      doc.line(left+4+k,newTop,left+4+1+k,newTop);
-      k = k+3;
-    }
-  } else if (invoice.invoice_design_id == 8) {
-    
-  } else if (invoice.invoice_design_id == 9) {
-    doc.setLineWidth(1);
-    doc.setDrawColor(0,157,145);
-    for(var j = 1; j<=width-40; j++) {
-      doc.line(left+j,newTop,left+2+j,newTop);
-      j = j+5;
-    }
-  } else if (invoice.invoice_design_id == 10) {
-        doc.setLineWidth(0.3);
-    doc.setDrawColor(63,60,60);
-    doc.line(left, newTop, width, newTop);
-  } else {
+      doc.setLineWidth(1);
+      doc.setDrawColor(45,35,32);
+      for(var k = 1; k<=width-20; k++) {
+        doc.line(left+4+k,newTop,left+4+1+k,newTop);
+        k = k+3;
+      }
+    } else if (invoice.invoice_design_id == 8) {
+
+    } else if (invoice.invoice_design_id == 9) {
+      doc.setLineWidth(1);
+      doc.setDrawColor(0,157,145);
+      for(var j = 1; j<=width-40; j++) {
+        doc.line(left+j,newTop,left+2+j,newTop);
+        j = j+5;
+      }
+    } else if (invoice.invoice_design_id == 10) {
+      doc.setLineWidth(0.3);
+      doc.setDrawColor(63,60,60);
+      doc.line(left, newTop, width, newTop);
+    } else {
       doc.setLineWidth(0.3);
       doc.setDrawColor(150,150,150);
       doc.line(left, newTop, width, newTop);
@@ -47075,88 +47082,106 @@ function displayInvoiceItems(doc, invoice, layout) {
     } else if (invoice.invoice_design_id == 4) {
       SetPdfColor('Black', doc);
     } else if (invoice.invoice_design_id == 5) {
-    SetPdfColor('Black', doc);
-  } else if (invoice.invoice_design_id == 6) {
-    SetPdfColor('Black', doc);
-  }
-  
-  
-  var splitTitle = doc.splitTextToSize(productKey, 60);
-  if(invoice.invoice_design_id == 6) {
-    doc.setFontType('bold');
-  }
-  if(invoice.invoice_design_id == 9) {
-    doc.setTextColor(187,51,40);
-  }
-  if(invoice.invoice_design_id == 10) {
-    doc.setTextColor(205,81,56);
-  }
+      SetPdfColor('Black', doc);
+    } else if (invoice.invoice_design_id == 6) {
+      SetPdfColor('Black', doc);
+    }
+
+
+    var splitTitle = doc.splitTextToSize(productKey, 60);
+    if(invoice.invoice_design_id == 6) {
+      doc.setFontType('bold');
+    }
+    if(invoice.invoice_design_id == 9) {
+      doc.setTextColor(187,51,40);
+    }
+    if(invoice.invoice_design_id == 10) {
+      doc.setTextColor(205,81,56);
+    }
     doc.text(layout.marginLeft, y+2, splitTitle);
-  
-  if (invoice.invoice_design_id == 5) {
-  
-    doc.setDrawColor(255, 255, 255);
-    doc.setLineWidth(1);
-    doc.line(layout.descriptionLeft-8, y-16,layout.descriptionLeft-8, y+55);
-    
-    doc.line(costX-30, y-16,costX-30, y+55);
-    
-    doc.line(qtyX-45, y-16,qtyX-45, y+55);
-  
-    if (invoice.has_taxes) {  
-      doc.line(taxX-15, y-16,taxX-15, y+55);
+
+    if (invoice.invoice_design_id == 5) {
+
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(1);
+      doc.line(layout.descriptionLeft-8, y-16,layout.descriptionLeft-8, y+55);
+
+      doc.line(costX-30, y-16,costX-30, y+55);
+
+      doc.line(qtyX-45, y-16,qtyX-45, y+55);
+
+      if (invoice.has_taxes) {  
+        doc.line(taxX-15, y-16,taxX-15, y+55);
+      }
+
+      doc.line(totalX-27, y-16,totalX-27, y+55);
+
     }
+    /*
+    if (invoice.invoice_design_id == 8) {
 
-    doc.line(totalX-27, y-16,totalX-27, y+55);
-    
-  }
-  if (invoice.invoice_design_id == 8) {
-  
-    doc.setDrawColor(30, 30, 30);
-    doc.setLineWidth(0.5);
-    doc.line(layout.marginLeft-10, y-60,layout.marginLeft-10, y+20);
+      doc.setDrawColor(30, 30, 30);
+      doc.setLineWidth(0.5);
+      doc.line(layout.marginLeft-10, y-60,layout.marginLeft-10, y+20);
 
-    doc.line(layout.descriptionLeft-8, y-60,layout.descriptionLeft-8, y+20);
+      doc.line(layout.descriptionLeft-8, y-60,layout.descriptionLeft-8, y+20);
 
-    doc.line(costX-30, y-60,costX-30, y+20);
-    
-    doc.line(qtyX-45, y-60,qtyX-45, y+20);
-  
-    if (invoice.has_taxes) {
-      doc.line(taxX-10, y-60,taxX-10, y+20);
+      doc.line(costX-30, y-60,costX-30, y+20);
+      console.log('CostX: %s', costX);
+      doc.line(qtyX-45, y-60,qtyX-45, y+20);
+
+      if (invoice.has_taxes) {
+        doc.line(taxX-10, y-60,taxX-10, y+20);
+      }
+
+      doc.line(totalX-27, y-60,totalX-27, y+120);
+
+      doc.line(totalX+35, y-60,totalX+35, y+120);
+
     }
-
-    doc.line(totalX-27, y-60,totalX-27, y+120);
-    
-    doc.line(totalX+35, y-60,totalX+35, y+120);
-    
-  }
+    */
     SetPdfColor('Black', doc);
     doc.setFontType('normal');
 
-  var splitDescription = doc.splitTextToSize(notes, 180);
+    var splitDescription = doc.splitTextToSize(notes, 180);
     doc.text(layout.descriptionLeft, y+2, splitDescription);
     doc.text(costX, y+2, cost);
     if (!hideQuantity) {
       doc.text(qtyX, y+2, qty);
     }
-  if(invoice.invoice_design_id == 9) {
-    doc.setTextColor(187,51,40);
-    doc.setFontType('bold');
-  }
-  if(invoice.invoice_design_id == 10) {
-    doc.setTextColor(205,81,56);
-  }
+    if(invoice.invoice_design_id == 9) {
+      doc.setTextColor(187,51,40);
+      doc.setFontType('bold');
+    }
+    if(invoice.invoice_design_id == 10) {
+      doc.setTextColor(205,81,56);
+    }
     doc.text(totalX, y+2, lineTotal);
-  
-  doc.setFontType('normal');
-  SetPdfColor('Black', doc);
+    doc.setFontType('normal');
+    SetPdfColor('Black', doc);
     if (tax) {
       doc.text(taxX, y+2, tax+'%');
     }
   }  
 
   y = tableTop + (line * layout.tableRowHeight) + (3 * layout.tablePadding);
+
+  if (invoice.invoice_design_id == 8) {
+    doc.setDrawColor(30, 30, 30);
+    doc.setLineWidth(0.5);
+
+    var topX = tableTop - 14;
+    doc.line(layout.marginLeft-10, topX,layout.marginLeft-10, y);
+    doc.line(layout.descriptionLeft-8, topX,layout.descriptionLeft-8, y);
+    doc.line(layout.unitCostRight-55, topX,layout.unitCostRight-55, y);
+    doc.line(layout.qtyRight-50, topX,layout.qtyRight-50, y);
+    if (invoice.has_taxes) {
+      doc.line(layout.taxRight-28, topX,layout.taxRight-28, y);
+    }
+    doc.line(totalX-25, topX,totalX-25, y+90);
+    doc.line(totalX+45, topX,totalX+45, y+90);
+  }
+
   var cutoff = 700;
   if (invoice.terms) {
     cutoff -= 50;
