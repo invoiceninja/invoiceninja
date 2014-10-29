@@ -283,8 +283,12 @@
       if (!invoice || invoice.invoice_status_id == 5) {
         return -1;
       }
-      
-      return parseInt((new Date().getTime() - Date.parse(invoice.created_at)) / (1000*60*60*24));       
+      return parseInt((new Date().getTime() - convertToJsDate(invoice.created_at)) / (1000*60*60*24));       
+    }
+
+    function convertToJsDate(isoDate) {
+      var t = isoDate.split(/[- :]/);
+      return new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
     }
 
 

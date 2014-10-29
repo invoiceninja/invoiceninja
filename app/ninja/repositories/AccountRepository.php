@@ -38,7 +38,7 @@ class AccountRepository
 		$user->password = $random;
 		$user->password_confirmation = $random;			
 		$user->username = $random;
-		$account->users()->save($user);			
+		$account->users()->save($user, []);
 		
 		return $account;
 	}

@@ -7,8 +7,7 @@ class ReportController extends \BaseController {
 		$message = '';
 
 		if (Auth::user()->account->isPro()) {
-			$account = Auth::user()->account;
-			$account = $account->with(['clients.invoices.invoice_items', 'clients.contacts'])->first();
+			$account = Account::where('id', '=', Auth::user()->account->id)->with(['clients.invoices.invoice_items', 'clients.contacts'])->first();
 			$account = $account->hideFieldsForViz();
 			$clients = $account->clients->toJson();			
 		} else if (isset($_ENV['DATA_VIZ_SAMPLE'])) {
