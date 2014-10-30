@@ -88,6 +88,9 @@ Add public/ to your web server root
     sudo npm install -g bower
     sudo ln -s /usr/local/lib/node_modules/bower/bin/bower /usr/local/bin/bower
 
+    # Install Grunt (For development only)
+    npm install -g grunt-cli
+
 ### Frameworks/Libraries
 * [laravel/laravel](https://github.com/laravel/laravel) - A PHP Framework For Web Artisans
 * [twbs/bootstrap](https://github.com/twbs/bootstrap) - Sleek, intuitive, and powerful front-end framework for faster and easier web development.
