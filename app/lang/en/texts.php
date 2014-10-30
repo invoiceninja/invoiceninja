@@ -458,5 +458,8 @@ return array(
   'buy' => 'Buy',
   'bought_designs' => 'Successfully added additional invoice designs',
 
+  'id_number' => 'ID Number',
+  'vat_number' => 'VAT Number',
+
   'timesheets' => 'Timesheets',
 );
