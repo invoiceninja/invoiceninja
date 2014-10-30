@@ -94,7 +94,8 @@ class Invoice extends EntityModel
 			'custom_taxes2']);
 		
 		$this->client->setVisible([
-			'name', 
+			'name',
+            'vat_number',
 			'address1', 
 			'address2', 
 			'city', 
@@ -109,7 +110,8 @@ class Invoice extends EntityModel
 			'custom_value2']);
 
 		$this->account->setVisible([
-			'name', 
+			'name',
+            'vat_number',
 			'address1', 
 			'address2', 
 			'city', 

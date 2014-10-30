@@ -199,6 +199,7 @@ class ClientController extends \BaseController {
 			}
 
 			$client->name = trim(Input::get('name'));
+            $client->vat_number = trim(Input::get('vat_number'));
 			$client->work_phone = trim(Input::get('work_phone'));
 			$client->custom_value1 = trim(Input::get('custom_value1'));
 			$client->custom_value2 = trim(Input::get('custom_value2'));
