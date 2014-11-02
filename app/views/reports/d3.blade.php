@@ -283,10 +283,14 @@
       if (!invoice || invoice.invoice_status_id == 5) {
         return -1;
       }
+      var jsDate = convertToJsDate(invoice.created_at) || new Date().getTime();
       return parseInt((new Date().getTime() - convertToJsDate(invoice.created_at)) / (1000*60*60*24));       
     }
 
     function convertToJsDate(isoDate) {
+      if (!isoDate) {
+        return false;
+      }
       var t = isoDate.split(/[- :]/);
       return new Date(t[0], t[1]-1, t[2], t[3], t[4], t[5]);
     }

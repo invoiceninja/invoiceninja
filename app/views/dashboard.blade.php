@@ -37,7 +37,7 @@
           {{ $invoicesSent }}
         </div>
         <div class="in-thin">
-          {{ Utils::pluralize('invoice', $invoicesSent) }} sent          
+          {{ Utils::pluralize('invoice', $invoicesSent) }} {{ trans('texts.sent') }}
         </div>
       </div>
     </div>
