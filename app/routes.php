@@ -131,6 +131,8 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('credits/create/{client_id?}/{invoice_id?}', 'CreditController@create');
 	Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));	
 	Route::post('credits/bulk', 'CreditController@bulk');	
+    
+    //Route::resource('timesheets', 'TimesheetController');
 });
 
 // Route group for API
