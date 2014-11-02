@@ -3,7 +3,7 @@
 
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
-If you'd like to use our code to sell your own invoicing app get in touch.
+If you'd like to use our code to sell your own invoicing app we offer a white-label affiliate program. We ask for 20% of revenue earned with a $100 sign up fee. Get in touch for more details.
 
 ### Introduction
 
@@ -29,6 +29,10 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 * Multi-user support
 * [Zapier](https://zapier.com/) integration
 * [D3.js](http://d3js.org/) visualizations
+
+### Contributors
+
+* [Troels Liebe Bentsen](https://github.com/tlbdk)
 
 ### Steps to setup
 
