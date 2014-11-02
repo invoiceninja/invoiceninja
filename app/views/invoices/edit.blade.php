@@ -341,7 +341,8 @@
 
 				{{ Former::legend('organization') }}
 				{{ Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }") }}
-                {{ Former::text('vat_number')->data_bind("value: vat_number, valueUpdate: 'afterkeydown'") }}
+                                {{ Former::text('id_number')->data_bind("value: id_number, valueUpdate: 'afterkeydown'") }}
+                                {{ Former::text('vat_number')->data_bind("value: vat_number, valueUpdate: 'afterkeydown'") }}
                 
 				{{ Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") }}
 				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") }}
@@ -1222,7 +1223,8 @@
 		var self = this;
 		self.public_id = ko.observable(0);
 		self.name = ko.observable('');
-        self.vat_number = ko.observable('');
+                self.id_number = ko.observable('');
+                self.vat_number = ko.observable('');
 		self.work_phone = ko.observable('');
 		self.custom_value1 = ko.observable('');
 		self.custom_value2 = ko.observable('');

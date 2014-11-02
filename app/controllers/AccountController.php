@@ -818,7 +818,8 @@ class AccountController extends \BaseController {
 		{
 			$account = Auth::user()->account;
 			$account->name = trim(Input::get('name'));
-            $account->vat_number = trim(Input::get('vat_number'));
+                        $account->id_number = trim(Input::get('id_number'));
+                        $account->vat_number = trim(Input::get('vat_number'));
 			$account->work_email = trim(Input::get('work_email'));
 			$account->work_phone = trim(Input::get('work_phone'));
 			$account->address1 = trim(Input::get('address1'));

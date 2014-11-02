@@ -23,8 +23,9 @@
 
 			{{ Former::legend('organization') }}
 			{{ Former::text('name')->data_bind("attr { placeholder: placeholderName }") }}
-			{{ Former::text('vat_number') }}
-            {{ Former::text('website') }}
+			{{ Former::text('id_number') }}
+                        {{ Former::text('vat_number') }}
+                        {{ Former::text('website') }}
 			{{ Former::text('work_phone') }}
 			
 			@if (Auth::user()->isPro())				

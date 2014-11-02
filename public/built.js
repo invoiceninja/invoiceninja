@@ -30978,7 +30978,7 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
 var invoiceOld;
 function generatePDF(invoice, javascript, force) {
-  invoice = calculateAmounts(invoice);  
+  invoice = calculateAmounts(invoice);
   var a = copyInvoice(invoice);
   var b = copyInvoice(invoiceOld);
   if (!force && _.isEqual(a, b)) {
@@ -31023,7 +31023,7 @@ function GetPdf(invoice, javascript){
     layout.descriptionLeft -= 20;
     layout.unitCostRight -= 40;
     layout.qtyRight -= 40;
-  } 
+  }
 
   /*
    @param orientation One of "portrait" or "landscape" (or shortcuts "p" (Default), "l")
@@ -31111,24 +31111,24 @@ function processVariables(str) {
   if (!str) return '';
   var variables = ['MONTH','QUARTER','YEAR'];
   for (var i=0; i<variables.length; i++) {
-    var variable = variables[i];        
+    var variable = variables[i];
         var regexp = new RegExp(':' + variable + '[+-]?[\\d]*', 'g');
-        var matches = str.match(regexp);        
+        var matches = str.match(regexp);
         if (!matches) {
-             continue;  
+             continue;
         }
         for (var j=0; j<matches.length; j++) {
             var match = matches[j];
-            var offset = 0;                
+            var offset = 0;
             if (match.split('+').length > 1) {
                 offset = match.split('+')[1];
             } else if (match.split('-').length > 1) {
                 offset = parseInt(match.split('-')[1]) * -1;
             }
-            str = str.replace(match, getDatePart(variable, offset));            
+            str = str.replace(match, getDatePart(variable, offset));
         }
-  }   
-  
+  }
+
   return str;
 }
 
@@ -31151,7 +31151,7 @@ function getMonth(offset) {
   var months = [ "January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December" ];
   var month = today.getMonth();
-    month = parseInt(month) + offset;    
+    month = parseInt(month) + offset;
     month = month % 12;
     if (month < 0) {
       month += 12;
@@ -31171,7 +31171,7 @@ function getQuarter(offset) {
   quarter += offset;
     quarter = quarter % 4;
     if (quarter == 0) {
-         quarter = 4;   
+         quarter = 4;
     }
     return 'Q' + quarter;
 }
@@ -31360,7 +31360,7 @@ function enableHoverClick($combobox, $entityId, url) {
     setAsLink($combobox, false);
   }).on('click', function() {
     var clientId = $entityId.val();
-    if ($(combobox).closest('.combobox-container').hasClass('combobox-selected')) {       
+    if ($(combobox).closest('.combobox-container').hasClass('combobox-selected')) {
       if (parseInt(clientId) > 0) {
         window.open(url + '/' + clientId, '_blank');
       } else {
@@ -31374,10 +31374,10 @@ function enableHoverClick($combobox, $entityId, url) {
 function setAsLink($input, enable) {
   if (enable) {
     $input.css('text-decoration','underline');
-    $input.css('cursor','pointer'); 
+    $input.css('cursor','pointer');
   } else {
     $input.css('text-decoration','none');
-    $input.css('cursor','text');  
+    $input.css('cursor','text');
   }
 }
 
@@ -31408,45 +31408,45 @@ if (window.ko) {
          var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
          if (id) $(element).val(id);
          //console.log("combo-init: %s", id);
-         $(element).combobox(options);       
+         $(element).combobox(options);
 
          /*
           ko.utils.registerEventHandler(element, "change", function () {
-            console.log("change: %s", $(element).val());          
-            //var  
+            console.log("change: %s", $(element).val());
+            //var
             valueAccessor($(element).val());
               //$(element).combobox('refresh');
           });
           */
       },
-      update: function (element, valueAccessor) {     
+      update: function (element, valueAccessor) {
         var value = ko.utils.unwrapObservable(valueAccessor());
         var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
           //console.log("combo-update: %s", id);
-        if (id) { 
-          $(element).val(id);       
+        if (id) {
+          $(element).val(id);
           $(element).combobox('refresh');
         } else {
-          $(element).combobox('clearTarget');       
-          $(element).combobox('clearElement');        
-        }       
-      }    
+          $(element).combobox('clearTarget');
+          $(element).combobox('clearElement');
+        }
+      }
   };
 
 
   ko.bindingHandlers.datePicker = {
       init: function (element, valueAccessor, allBindingsAccessor) {
-         var value = ko.utils.unwrapObservable(valueAccessor());       
+         var value = ko.utils.unwrapObservable(valueAccessor());
          if (value) $(element).datepicker('update', value);
-         $(element).change(function() { 
+         $(element).change(function() {
             var value = valueAccessor();
             value($(element).val());
          })
       },
-      update: function (element, valueAccessor) {     
+      update: function (element, valueAccessor) {
          var value = ko.utils.unwrapObservable(valueAccessor());
          if (value) $(element).datepicker('update', value);
-      }    
+      }
   };
 }
 
@@ -31464,11 +31464,11 @@ function wordWrapText(value, width)
     while (j++ < lines[i].length) {
       if (lines[i].charAt(j) === ' ') space = j;
     }
-    if (space == lines[i].length) space = width/6;    
+    if (space == lines[i].length) space = width/6;
     lines[i + 1] = lines[i].substring(space + 1) + ' ' + (lines[i + 1] || '');
     lines[i] = lines[i].substring(0, space);
   }
-  
+
   var newValue = (lines.join("\n")).trim();
 
   if (value == newValue) {
@@ -31497,14 +31497,14 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
   var clientMap = {};
   var invoiceMap = {};
   var invoicesForClientMap = {};
-  var $clientSelect = $('select#client');   
-  
+  var $clientSelect = $('select#client');
+
   for (var i=0; i<invoices.length; i++) {
     var invoice = invoices[i];
-    var client = invoice.client;      
+    var client = invoice.client;
 
     if (!invoicesForClientMap.hasOwnProperty(client.public_id)) {
-      invoicesForClientMap[client.public_id] = [];        
+      invoicesForClientMap[client.public_id] = [];
     }
 
     invoicesForClientMap[client.public_id].push(invoice);
@@ -31516,28 +31516,28 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
     clientMap[client.public_id] = client;
   }
 
-  $clientSelect.append(new Option('', '')); 
+  $clientSelect.append(new Option('', ''));
   for (var i=0; i<clients.length; i++) {
     var client = clients[i];
     $clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
-  } 
+  }
 
   if (clientId) {
     $clientSelect.val(clientId);
   }
 
   $clientSelect.combobox();
-  $clientSelect.on('change', function(e) {            
+  $clientSelect.on('change', function(e) {
     var clientId = $('input[name=client]').val();
-    var invoiceId = $('input[name=invoice]').val();           
+    var invoiceId = $('input[name=invoice]').val();
     var invoice = invoiceMap[invoiceId];
     if (invoice && invoice.client.public_id == clientId) {
       e.preventDefault();
       return;
     }
-    setComboboxValue($('.invoice-select'), '', '');       
+    setComboboxValue($('.invoice-select'), '', '');
     $invoiceCombobox = $('select#invoice');
-    $invoiceCombobox.find('option').remove().end().combobox('refresh');     
+    $invoiceCombobox.find('option').remove().end().combobox('refresh');
     $invoiceCombobox.append(new Option('', ''));
     var list = clientId ? (invoicesForClientMap.hasOwnProperty(clientId) ? invoicesForClientMap[clientId] : []) : invoices;
     for (var i=0; i<list.length; i++) {
@@ -31551,11 +31551,11 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
     $('select#invoice').combobox('refresh');
   });
 
-  var $invoiceSelect = $('select#invoice').on('change', function(e) {     
+  var $invoiceSelect = $('select#invoice').on('change', function(e) {
     $clientCombobox = $('select#client');
-    var invoiceId = $('input[name=invoice]').val();           
+    var invoiceId = $('input[name=invoice]').val();
     if (invoiceId) {
-      var invoice = invoiceMap[invoiceId];        
+      var invoice = invoiceMap[invoiceId];
       var client = clientMap[invoice.client.public_id];
       setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
       if (!parseFloat($('#amount').val())) {
@@ -31564,7 +31564,7 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
     }
   });
 
-  $invoiceSelect.combobox();  
+  $invoiceSelect.combobox();
 
   if (invoiceId) {
     var invoice = invoiceMap[invoiceId];
@@ -31579,7 +31579,7 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
     $clientSelect.trigger('change');
   } else {
     $clientSelect.trigger('change');
-  } 
+  }
 }
 
 
@@ -31606,6 +31606,7 @@ function displayAccount(doc, invoice, x, y, layout) {
 
   var data1 = [
     account.name,
+    account.id_number,
     account.vat_number,
     account.work_email,
     account.work_phone
@@ -31613,10 +31614,10 @@ function displayAccount(doc, invoice, x, y, layout) {
 
   var data2 = [
     concatStrings(account.address1, account.address2),
-    concatStrings(account.city, account.state, account.postal_code),    
+    concatStrings(account.city, account.state, account.postal_code),
     account.country ? account.country.name : false,
-    invoice.account.custom_value1 ? invoice.account['custom_label1'] + ' ' + invoice.account.custom_value1 : false, 
-    invoice.account.custom_value2 ? invoice.account['custom_label2'] + ' ' + invoice.account.custom_value2 : false,     
+    invoice.account.custom_value1 ? invoice.account['custom_label1'] + ' ' + invoice.account.custom_value1 : false,
+    invoice.account.custom_value2 ? invoice.account['custom_label2'] + ' ' + invoice.account.custom_value2 : false,
   ];
 
   if (layout.singleColumn) {
@@ -31632,7 +31633,7 @@ function displayAccount(doc, invoice, x, y, layout) {
     width = Math.max(emailWidth, nameWidth, 120);
     x += width;
 
-    displayGrid(doc, invoice, data2, x, y, layout);  
+    displayGrid(doc, invoice, data2, x, y, layout);
   }
 }
 
@@ -31641,16 +31642,17 @@ function displayClient(doc, invoice, x, y, layout) {
   var client = invoice.client;
   if (!client) {
     return;
-  }  
+  }
   var data = [
     getClientDisplayName(client),
+    client.id_number,
     client.vat_number,
     concatStrings(client.address1, client.address2),
     concatStrings(client.city, client.state, client.postal_code),
     client.country ? client.country.name : false,
     client.contacts && getClientDisplayName(client) != client.contacts[0].email ? client.contacts[0].email : false,
-    invoice.client.custom_value1 ? invoice.account['custom_client_label1'] + ' ' + invoice.client.custom_value1 : false, 
-    invoice.client.custom_value2 ? invoice.account['custom_client_label2'] + ' ' + invoice.client.custom_value2 : false, 
+    invoice.client.custom_value1 ? invoice.account['custom_client_label1'] + ' ' + invoice.client.custom_value1 : false,
+    invoice.client.custom_value2 ? invoice.account['custom_client_label2'] + ' ' + invoice.client.custom_value2 : false,
   ];
   return displayGrid(doc, invoice, data, x, y, layout, {hasheader:true});
 }
@@ -31676,7 +31678,7 @@ function getInvoiceDetails(invoice) {
     {'invoice_date': invoice.invoice_date},
     {'due_date': invoice.due_date},
     {'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)},
-  ]; 
+  ];
 }
 
 function getInvoiceDetailsHeight(invoice, layout) {
@@ -31710,20 +31712,20 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
     {'discount': invoice.discount_amount > 0 ? formatMoney(invoice.discount_amount, invoice.client.currency_id) : false}
   ];
 
-  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {    
+  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {
     data.push({'custom_invoice_label1': formatMoney(invoice.custom_value1, invoice.client.currency_id) })
   }
   if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 == '1') {
-    data.push({'custom_invoice_label2': formatMoney(invoice.custom_value2, invoice.client.currency_id) }) 
+    data.push({'custom_invoice_label2': formatMoney(invoice.custom_value2, invoice.client.currency_id) })
   }
 
   data.push({'tax': invoice.tax_amount > 0 ? formatMoney(invoice.tax_amount, invoice.client.currency_id) : false});
 
-  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {    
+  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {
     data.push({'custom_invoice_label1': formatMoney(invoice.custom_value1, invoice.client.currency_id) })
   }
   if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 != '1') {
-    data.push({'custom_invoice_label2': formatMoney(invoice.custom_value2, invoice.client.currency_id) }) 
+    data.push({'custom_invoice_label2': formatMoney(invoice.custom_value2, invoice.client.currency_id) })
   }
 
   var paid = invoice.amount - invoice.balance;
@@ -31734,7 +31736,7 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
   var options = {
     hasheader: true,
     rightAlignX: 550,
-    rightAlignTitleX: rightAlignTitleX    
+    rightAlignTitleX: rightAlignTitleX
   };
 
   return displayGrid(doc, invoice, data, 300, y, layout, options) + 10;
@@ -31765,7 +31767,7 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
   var origY = y;
   for (var i=0; i<data.length; i++) {
     doc.setFontType('normal');
-      
+
     if (invoice.invoice_design_id == 1 && i > 0 && origY === layout.accountTop) {
       SetPdfColor('GrayText',doc);
     }
@@ -31779,7 +31781,7 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
       doc.setFontType('bold');
     }
 
-    if (typeof row === 'object') {      
+    if (typeof row === 'object') {
       for (var key in row) {
         if (row.hasOwnProperty(key)) {
           var value = row[key] ? row[key] + '' : false;
@@ -31787,16 +31789,16 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
       }
       if (!value) {
         continue;
-      }  
+      }
 
       var marginLeft;
       if (options.rightAlignX) {
-        marginLeft = options.rightAlignX - (doc.getStringUnitWidth(value) * doc.internal.getFontSize());          
+        marginLeft = options.rightAlignX - (doc.getStringUnitWidth(value) * doc.internal.getFontSize());
       } else {
         marginLeft = x + 80;
       }
-      doc.text(marginLeft, y, value);       
-      
+      doc.text(marginLeft, y, value);
+
       doc.setFontType('normal');
       if (invoice.is_quote) {
         if (key == 'invoice_number') {
@@ -31822,7 +31824,7 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
         marginLeft = x;
       }
 
-      doc.text(marginLeft, y, key);      
+      doc.text(marginLeft, y, key);
     } else {
       doc.text(x, y, row);
     }
@@ -31841,16 +31843,16 @@ function displayNotesAndTerms(doc, layout, invoice, y)
 
   if (invoice.public_notes) {
     doc.text(layout.marginLeft, y, invoice.public_notes);
-    y += 16 + (doc.splitTextToSize(invoice.public_notes, 300).length * doc.internal.getFontSize());    
+    y += 16 + (doc.splitTextToSize(invoice.public_notes, 300).length * doc.internal.getFontSize());
   }
-    
+
   if (invoice.terms) {
     doc.setFontType("bold");
     doc.text(layout.marginLeft, y, invoiceLabels.terms);
     y += 16;
     doc.setFontType("normal");
     doc.text(layout.marginLeft, y, invoice.terms);
-    y += 16 + (doc.splitTextToSize(invoice.terms, 300).length * doc.internal.getFontSize());    
+    y += 16 + (doc.splitTextToSize(invoice.terms, 300).length * doc.internal.getFontSize());
   }
 
   return y - origY;
@@ -31867,7 +31869,7 @@ function calculateAmounts(invoice) {
       tax = parseFloat(item.tax.rate);
     } else if (item.tax_rate && parseFloat(item.tax_rate)) {
       tax = parseFloat(item.tax_rate);
-    }   
+    }
 
     var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
     if (tax) {
@@ -31890,11 +31892,11 @@ function calculateAmounts(invoice) {
   }
 
   // custom fields with taxes
-  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {    
-    total += roundToTwo(invoice.custom_value1);    
+  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {
+    total += roundToTwo(invoice.custom_value1);
   }
   if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 == '1') {
-    total += roundToTwo(invoice.custom_value2);    
+    total += roundToTwo(invoice.custom_value2);
   }
 
   var tax = 0;
@@ -31910,11 +31912,11 @@ function calculateAmounts(invoice) {
   }
 
   // custom fields w/o with taxes
-  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {    
-    total += roundToTwo(invoice.custom_value1);    
+  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {
+    total += roundToTwo(invoice.custom_value1);
   }
   if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 != '1') {
-    total += roundToTwo(invoice.custom_value2);    
+    total += roundToTwo(invoice.custom_value2);
   }
 
   invoice.balance_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
@@ -31931,7 +31933,7 @@ function getInvoiceTaxRate(invoice) {
     tax = parseFloat(invoice.tax.rate);
   } else if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
     tax = parseFloat(invoice.tax_rate);
-  }   
+  }
   return tax;
 }
 
@@ -31972,9 +31974,9 @@ function displayInvoiceItems(doc, invoice, layout) {
   var line = 1;
   var total = 0;
   var shownItem = false;
-  var currencyId = invoice && invoice.client ? invoice.client.currency_id : 1;  
+  var currencyId = invoice && invoice.client ? invoice.client.currency_id : 1;
   var tableTop = layout.tableTop;
-  var hideQuantity = invoice.account.hide_quantity == '1';  
+  var hideQuantity = invoice.account.hide_quantity == '1';
 
   doc.setFontSize(8);
   for (var i=0; i<invoice.invoice_items.length; i++) {
@@ -31988,12 +31990,12 @@ function displayInvoiceItems(doc, invoice, layout) {
       tax = parseFloat(item.tax.rate);
     } else if (item.tax_rate && parseFloat(item.tax_rate)) {
       tax = parseFloat(item.tax_rate);
-    }   
+    }
 
     // show at most one blank line
     if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
       continue;
-    }   
+    }
     shownItem = true;
 
     var numLines = doc.splitTextToSize(item.notes, 200).length + 2;
@@ -32041,18 +32043,18 @@ function displayInvoiceItems(doc, invoice, layout) {
 
 
     if (invoice.invoice_design_id == 1) {
-      if (i%2 == 0) {      
+      if (i%2 == 0) {
         doc.setDrawColor(255,255,255);
         doc.setFillColor(246,246,246);
         doc.rect(left, top, width-left, newTop-top, 'FD');
 
-        doc.setLineWidth(0.3);        
+        doc.setLineWidth(0.3);
         doc.setDrawColor(200,200,200);
         doc.line(left, top, width, top);
-        doc.line(left, newTop, width, newTop);        
+        doc.line(left, newTop, width, newTop);
       }
     } else if (invoice.invoice_design_id == 2) {
-      if (i%2 == 0) {      
+      if (i%2 == 0) {
         left = 0;
         width = 1000;
 
@@ -32062,17 +32064,17 @@ function displayInvoiceItems(doc, invoice, layout) {
 
       }
     } else if (invoice.invoice_design_id == 5) {
-      if (i%2 == 0) {      
+      if (i%2 == 0) {
         doc.setDrawColor(255,255,255);
         doc.setFillColor(247,247,247);
-        doc.rect(left, top, width-left+17, newTop-top, 'FD');               
+        doc.rect(left, top, width-left+17, newTop-top, 'FD');
       } else {
         doc.setDrawColor(255,255,255);
         doc.setFillColor(232,232,232);
-        doc.rect(left, top, width-left+17, newTop-top, 'FD');     
+        doc.rect(left, top, width-left+17, newTop-top, 'FD');
       }
     } else if (invoice.invoice_design_id == 6) {
-      if (i%2 == 0) {      
+      if (i%2 == 0) {
         doc.setDrawColor(232,232,232);
         doc.setFillColor(232,232,232);
         doc.rect(left, top, width-left, newTop-top, 'FD');
@@ -32146,7 +32148,7 @@ function displayInvoiceItems(doc, invoice, layout) {
 
       doc.line(qtyX-45, y-16,qtyX-45, y+55);
 
-      if (invoice.has_taxes) {  
+      if (invoice.has_taxes) {
         doc.line(taxX-15, y-16,taxX-15, y+55);
       }
 
@@ -32198,7 +32200,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     if (tax) {
       doc.text(taxX, y+2, tax+'%');
     }
-  }  
+  }
 
   y = tableTop + (line * layout.tableRowHeight) + (3 * layout.tablePadding);
 
@@ -32472,6 +32474,6 @@ function roundToTwo(num, toString) {
   return toString ? val.toFixed(2) : val;
 }
 
-function truncate(str, length) {  
+function truncate(str, length) {
   return (str && str.length > length) ? (str.substr(0, length-1) + '...') : str;
 }

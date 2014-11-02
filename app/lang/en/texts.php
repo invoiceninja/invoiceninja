@@ -457,7 +457,10 @@ return array(
   'more_designs_self_host_text' => '',
   'buy' => 'Buy',
   'bought_designs' => 'Successfully added additional invoice designs',
-  
   'sent' => 'sent',
+
+  'id_number' => 'ID Number',
+  'vat_number' => 'VAT Number',
+
   'timesheets' => 'Timesheets',
 );
