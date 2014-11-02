@@ -8,17 +8,20 @@
 			"name": "Hillel Coren",
 			"email": "hillelcoren@gmail.com"
 		}
-	],	
+	],
 	"require": {
 		"laravel/framework": "4.1.25",
-		"patricktalmadge/bootstrapper": "dev-develop",
+		"patricktalmadge/bootstrapper": "4.1.x",
 		"zizaco/confide": "3.1.x",
 		"anahkiasen/former": "3.4.x",
 		"barryvdh/laravel-debugbar": "dev-master",
 		"chumper/datatable": "2.x",
 		"omnipay/omnipay": "~2.0",
 		"intervention/image": "1.x",
-		"webpatser/laravel-countries": "dev-master"
+		"webpatser/laravel-countries": "dev-master",
+		"barryvdh/laravel-ide-helper": "1.*",
+        "doctrine/dbal": "~2.3",
+        "jsanc623/phpbenchtime": "2.x"
 	},
 	"require-dev": {
 		"codeception/codeception": "dev-master"
@@ -45,8 +48,9 @@
 		],
 		"post-update-cmd": [
 			"php artisan clear-compiled",
-			"php artisan optimize",
-			"php artisan debugbar:publish"
+            "php artisan ide-helper:generate",
+			"php artisan debugbar:publish",
+			"php artisan optimize"
 		],
 		"post-create-project-cmd": [
 			"php artisan key:generate"

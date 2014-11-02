@@ -5,9 +5,37 @@ module.exports = function(grunt) {
     concat: {
       options: {
           process: function(src, filepath) {
-              // Fix path for image and font resources
+              var basepath = filepath.substring(7, filepath.lastIndexOf('/') + 1);
+              
+               console.log(filepath);
+              // Fix relative paths for css files
               if(filepath.indexOf('.css', filepath.length - 4) !== -1) {
-                return src.replace(/\.\.\/(images|fonts)\//g, '$1/');
+                  return src.replace(/(url\s*[\("']+)\s*([^'"\)]+)(['"\)]+;?)/gi,  function(match, start, url, end, offset, string) {
+                      if(url.indexOf('data:') === 0) {
+                          // Skip data urls
+                          return match;
+                      
+                      } else if(url.indexOf('/') === 0) {
+                          // Skip absolute urls
+                          return match;
+                      
+                      } else {
+                          return start + basepath + url + end;
+                      }
+                  });
+              
+              // Fix source maps locations
+              } else if(filepath.indexOf('.js', filepath.length - 4) !== -1) {
+                   return src.replace(/(\/[*\/][#@]\s*sourceMappingURL=)([^\s]+)/gi,  function(match, start, url, offset, string) {
+                      if(url.indexOf('/') === 0) {
+                          // Skip absolute urls
+                          return match;
+                      
+                      } else {
+                          return start + basepath + url;
+                      }
+                  });
+                  
               // Don't do anything for unknown file types
               } else {
                 return src;
@@ -17,7 +45,7 @@ module.exports = function(grunt) {
       js: {
         src: [
           'public/vendor/jquery/dist/jquery.js',
-          'public/vendor/jquery-ui/ui/jquery-ui.js',
+          'public/vendor/jquery-ui/jquery-ui.min.js',
           'public/vendor/bootstrap/dist/js/bootstrap.min.js',
           'public/vendor/datatables/media/js/jquery.dataTables.js',
           'public/vendor/datatables-bootstrap3/BS3/assets/js/datatables.js',
@@ -32,6 +60,7 @@ module.exports = function(grunt) {
           'public/js/bootstrap-combobox.js',
           'public/vendor/jspdf/dist/jspdf.min.js',
           'public/vendor/lightbox2/js/lightbox.min.js',
+          'public/vendor/handsontable/dist/jquery.handsontable.full.min.js',
           'public/js/script.js',
         ],
         dest: 'public/built.js',
@@ -42,7 +71,7 @@ module.exports = function(grunt) {
           'public/js/simpleexpand.js',
           'public/js/valign.js',
           'public/js/bootstrap.min.js',
-          'public/js/simpleexpand.js',          
+          'public/js/simpleexpand.js',
         ],
         dest: 'public/js/built.public.js',
         nonull: true
@@ -58,6 +87,7 @@ module.exports = function(grunt) {
           'public/css/bootstrap-combobox.css',
           'public/css/typeahead.js-bootstrap.css',
           'public/vendor/lightbox2/css/lightbox.css',
+          'public/vendor/handsontable/dist/jquery.handsontable.full.css',
           'public/css/style.css',
         ],
         dest: 'public/built.css',

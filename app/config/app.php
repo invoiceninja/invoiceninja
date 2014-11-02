@@ -122,7 +122,8 @@ return array(
 		'Barryvdh\Debugbar\ServiceProvider',
 		'Chumper\Datatable\DatatableServiceProvider',
 		'Intervention\Image\ImageServiceProvider',
-		'Webpatser\Countries\CountriesServiceProvider'
+        'Webpatser\Countries\CountriesServiceProvider',
+        'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
 	),
 
 	/*
