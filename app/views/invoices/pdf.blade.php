@@ -21,13 +21,13 @@
 
       <center id="designThumbs">
         <p>&nbsp;</p>
-        <a href="/images/designs/business.png" data-lightbox="more-designs" data-title="Business"><img src="/images/designs/business_thumb.png"/></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="/images/designs/creative.png" data-lightbox="more-designs" data-title="Creative"><img src="/images/designs/creative_thumb.png"/></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="/images/designs/elegant.png" data-lightbox="more-designs" data-title="Elegant"><img src="/images/designs/elegant_thumb.png"/></a>
+        <a href="{{ asset('/images/designs/business.png') }}" data-lightbox="more-designs" data-title="Business"><img src="{{ asset('/images/designs/business_thumb.png') }}"/></a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="{{ asset('/images/designs/creative.png') }}" data-lightbox="more-designs" data-title="Creative"><img src="{{ asset('/images/designs/creative_thumb.png') }}"/></a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="{{ asset('/images/designs/elegant.png') }}" data-lightbox="more-designs" data-title="Elegant"><img src="{{ asset('/images/designs/elegant_thumb.png') }}"/></a>
         <p>&nbsp;</p>
-        <a href="/images/designs/hipster.png" data-lightbox="more-designs" data-title="Hipster"><img src="/images/designs/hipster_thumb.png"/></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="/images/designs/playful.png" data-lightbox="more-designs" data-title="Playful"><img src="/images/designs/playful_thumb.png"/></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="/images/designs/photo.png" data-lightbox="more-designs" data-title="Photo"><img src="/images/designs/photo_thumb.png"/></a>        
+        <a href="{{ asset('/images/designs/hipster.png') }}" data-lightbox="more-designs" data-title="Hipster"><img src="{{ asset('/images/designs/hipster_thumb.png') }}"/></a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="{{ asset('/images/designs/playful.png') }}" data-lightbox="more-designs" data-title="Playful"><img src="{{ asset('/images/designs/playful_thumb.png') }}"/></a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="{{ asset('/images/designs/photo.png') }}" data-lightbox="more-designs" data-title="Photo"><img src="{{ asset('/images/designs/photo_thumb.png') }}"/></a>        
         <p>&nbsp;</p>
       </center>
 
