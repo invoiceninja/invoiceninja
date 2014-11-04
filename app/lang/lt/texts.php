@@ -467,7 +467,9 @@ return array(
   'payment_title' => 'Enter Your Billing Address and Credit Card information',
   'payment_cvv' => '*This is the 3-4 digit number onthe back of your card',
   'payment_footer1' => '*Billing address must match address accociated with credit card.',
-  'payment_footer2' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.'
+  'payment_footer2' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.',
+  'vat_number' => 'Vat Number',
+
 
   
 );
