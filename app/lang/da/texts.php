@@ -444,4 +444,28 @@ return array(
   'invoice_issued_to' => 'Faktura udstedt til',
   'invalid_counter' => 'For at undgå mulige overlap, sæt venligst et faktura eller tilbuds nummer præfiks',
   'mark_sent' => 'Markering sendt',
+
+  'gateway_help_1' => ':link to sign up for Authorize.net.',
+  'gateway_help_2' => ':link to sign up for Authorize.net.',
+  'gateway_help_17' => ':link to get your PayPal API signature.',
+  'gateway_help_23' => 'Note: use your secret API key, not your publishable API key.',
+  'gateway_help_27' => ':link to sign up for TwoCheckout.',
+
+  'more_designs' => 'More designs',
+  'more_designs_title' => 'Additional Invoice Designs',
+  'more_designs_cloud_header' => 'Go Pro for more invoice designs',
+  'more_designs_cloud_text' => '',
+  'more_designs_self_host_header' => 'Get 6 more invoice designs for just $20',
+  'more_designs_self_host_text' => '',
+  'buy' => 'Buy',
+  'bought_designs' => 'Successfully added additional invoice designs',
+  
+  'sent' => 'sent',
+  'timesheets' => 'Timesheets',
+
+  'payment_title' => 'Enter Your Billing Address and Credit Card information',
+  'payment_cvv' => '*This is the 3-4 digit number onthe back of your card',
+  'payment_footer1' => '*Billing address must match address accociated with credit card.',
+  'payment_footer2' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.'
+  
 );
