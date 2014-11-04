@@ -8,6 +8,16 @@
     font-weight: bold !important;    
     /* text-transform:uppercase; */
   }
+  .alignCenterText{
+	text-align: center;
+	font-weight: bold;
+	font-size: 20px;
+	margin-bottom: 5%;
+	}
+	.boldText{
+		font-weight: bold;
+	}	
+
 </style>
 
 {{ Former::vertical_open($url)->rules(array(
@@ -51,8 +61,14 @@
       @endif    
       </h2>&nbsp;<p/>
     @endif
+    
     <div id="secure-form" class="row">          
+      
       <div class="col-md-7 info">
+      	<div class="col-md-12 alignCenterText" >
+     	 Enter Your Billing Address and Credit Card information
+        </div>
+      	
         <div class="row">           
           @if (isset($paymentTitle))
             <div class="form-group col-md-4">
@@ -94,6 +110,16 @@
             {{ Former::text('postal_code') }}                      
           </div>
         </div>
+        
+        <div class="row">
+          <h5 class="col-md-12 boldText" >
+                 *Billing address must match address accociated with credit card.    
+          </h5>
+          <h5 class="col-md-12 boldText">
+                  *Please click "PAY NOW" only once - transaction may take up to 1 minute to process   
+          </h5>
+        </div>
+        
       </div>
 
 
@@ -114,6 +140,10 @@
 
 
       <div class="col-md-5">
+      	<div class="col-md-12 alignCenterText" >
+     	 Balance Due $
+        </div>
+        <div class="col-md-12"> 
         <div class="card">
           <div class="row">
             <div class="form-group col-md-12">
@@ -155,10 +185,12 @@
 
 
       <div class="row">
-        <div class="form-group col-md-6">
-          {{ Former::text('cvv') }}                        
-        </div>
-
+	        <div class="form-group col-md-6">
+	          {{ Former::text('cvv') }}                        
+	        </div>
+			<div>
+	               <h5 class="boldText" style="margin-top: 8%;margin-left: 5%;"> *This is the 3-4 digit number onthe back of your card</h5>                
+	        </div>
         <div class="col-md-6">
           <!-- <p><span class="glyphicon glyphicon-credit-card" style="margin-right: 10px;"></span><a href="#">Where Do I find CVV?</a></p> -->
         </div>
@@ -176,11 +208,11 @@
 
     </div>
 
-
+	</div>
   </div>
 </div>
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-md-4 col-md-offset-4">
     {{ Button::block_primary_submit_lg(strtoupper(trans('texts.pay_now')) . ' - ' . Utils::formatMoney($amount, $currencyId) ) }}
   </div>
 </div>
