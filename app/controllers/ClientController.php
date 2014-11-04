@@ -212,7 +212,7 @@ class ClientController extends \BaseController {
 			$client->private_notes = trim(Input::get('private_notes'));
 			$client->size_id = Input::get('size_id') ? : null;
 			$client->industry_id = Input::get('industry_id') ? : null;
-			$client->currency_id = Input::get('currency_id') ? : 1;
+			$client->currency_id = Input::get('currency_id') ? : null;
 			$client->payment_terms = Input::get('payment_terms') ? : 0;
 			$client->website = trim(Input::get('website'));
 
