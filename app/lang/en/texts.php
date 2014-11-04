@@ -467,5 +467,4 @@ return array(
   'payment_footer2' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.',
   'vat_number' => 'Vat Number',
 
-
 );

@@ -102,7 +102,7 @@ class ClientRepository
 			$client->industry_id = $data['industry_id'] ? $data['industry_id'] : null;
 		}
 		if (isset($data['currency_id'])) {
-			$client->currency_id = $data['currency_id'] ? $data['currency_id'] : 1;
+			$client->currency_id = $data['currency_id'] ? $data['currency_id'] : null;
 		}
 		if (isset($data['payment_terms'])) {
 			$client->payment_terms = $data['payment_terms'];
