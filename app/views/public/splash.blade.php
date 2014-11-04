@@ -118,7 +118,7 @@
 	          		</div>
 	              	<div class="customMenuDiv" >
 	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/BestInClassSecurity.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Best-in-class data security </span>
+	          			<span class="customSubMenu shiftLeft"> Best-in-class security </span>
 	          		</div>
 	              
 	                <div class="customMenuDiv" >
