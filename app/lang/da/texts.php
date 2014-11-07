@@ -5,7 +5,8 @@ return array(
   // client
   'organization' => 'Organisation',
   'name' => 'Navn',
-  'vat_number' => 'CVR nummer',
+  'id_number' => 'SE/CVR nummer',
+  'vat_number' => 'SE/CVR nummer',
   'website' => 'Webside',
   'work_phone' => 'Telefon',
   'address' => 'Adresse',

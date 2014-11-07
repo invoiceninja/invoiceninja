@@ -62,7 +62,10 @@ class ClientRepository
 		if (isset($data['name'])) {
 			$client->name = trim($data['name']);
 		}
-        if (isset($data['vat_number'])) {
+                if (isset($data['id_number'])) {
+			$client->id_number = trim($data['id_number']);
+		}
+                if (isset($data['vat_number'])) {
 			$client->vat_number = trim($data['vat_number']);
 		}
 		if (isset($data['work_phone'])) {
