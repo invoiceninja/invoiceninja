@@ -27,3 +27,92 @@
 	float: left;
 	width: 100%;
 }
+
+#informationBox {
+	height: 260px;
+	font-family: 'Roboto', sans-serif;
+	color: #000000;
+	font-size: 16px;
+	overflow: auto;
+}
+
+
+#upComingDataScrolls{
+	height: 250px;
+	font-family: 'Roboto', sans-serif;
+	color: #000000;
+	overflow: auto;
+}
+
+.alertBox{
+	min-height:320px;
+	padding: 2%;
+	background-image: url('../images/alert_bg_img.png');
+	background-repeat: no-repeat;
+	background-size: 100%;
+}
+
+.upComingInvBox{
+	min-height:320px;
+	padding: 2%;
+	background-image: url('../images/upcoming_invoice.png');
+	background-repeat: no-repeat;
+	background-size: 100%;
+}
+
+.postDueInvBox{
+	min-height:320px;
+	padding: 2%;
+}
+
+.oddData{
+	background-image: url('../images/row_grey_bg_img.png');
+}
+
+.alertIcon{
+	margin-top: 2px;
+	margin-right: 5px;
+}
+.upComingInvIcon{
+	margin-top: 2px;
+	margin-right: 5px;
+}
+
+.postDueInvIcon{
+	margin-top: 2px;
+	margin-right: 5px;
+}
+
+.in-bold-black{
+	font-weight: bold;
+}
+.viewAll{
+	float: right;
+	font-size: 14px;
+	cursor: pointer;
+}
+.orange{
+	color: #e8772b;
+}
+
+.blue{
+	color: #0e4f77;
+}
+
+.green{
+	color: #48B75B;
+}
+
+.tableHead{
+	background-color: #ffffff !important;
+	font-size: 14px !important;
+	padding-left: 30px !important;
+	padding-top: 0px !important;
+	padding-bottom: 0px !important;
+}
+
+.tableTDBorder{
+	border-right: 1px solid #ddd;
+	width: 25%;
+}
+

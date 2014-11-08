@@ -2,7 +2,6 @@
 
 @section('content') 
 
-<!--<link href="http://localhost/invoice-ninja/public/css/customCss.css?no_cache=1.4.0" rel="stylesheet" type="text/css"/> -->
 <link href="{{ asset('css/customCss.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 <section class="hero background hero1 center" data-speed="2" data-type="background">
   <div class="caption-side"></div>
