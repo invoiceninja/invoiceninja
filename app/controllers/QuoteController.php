@@ -104,12 +104,14 @@ class QuoteController extends \BaseController {
   public function bulk()
   {
     $action = Input::get('action');
+    $statusId = Input::get('statusId');
     $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
-    $count = $this->invoiceRepo->bulk($ids, $action);
+    $count = $this->invoiceRepo->bulk($ids, $action, $statusId);
 
     if ($count > 0)   
     {
-      $message = Utils::pluralize("{$action}d_quote", $count);      
+      $key = $action == 'mark' ? "updated_quote" : "{$action}d_quote";
+      $message = Utils::pluralize($key, $count);
       Session::flash('message', $message);
     }
 
