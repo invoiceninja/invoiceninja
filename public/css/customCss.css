@@ -116,3 +116,24 @@
 	width: 25%;
 }
 
+.blueButton{
+	background-image: url('../images/blue_bg_img.png'); 
+	background-repeat: no-repeat; 
+	background-size: 100%;
+	width: 33%;
+	float: left;
+	font-weight: bold;
+	padding: 2.6%;
+	color: white;
+}
+
+.greyButton{
+	background-image: url('../images/gray_bg_img.png'); 
+	background-repeat: no-repeat; 
+	background-size: 100%;
+	width: 32%;
+	float: left;
+	font-weight: bold;
+	padding: 2%;
+	margin-top: 1%;
+}
