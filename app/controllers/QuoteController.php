@@ -35,11 +35,13 @@ class QuoteController extends \BaseController {
       'columns'=>Utils::trans(['checkbox', 'quote_number', 'client', 'quote_date', 'quote_total', 'due_date', 'status', 'action'])
     ];
 
+    /*
     if (Invoice::scope()->where('is_recurring', '=', true)->count() > 0)
     {
       $data['secEntityType'] = ENTITY_RECURRING_INVOICE;
       $data['secColumns'] = Utils::trans(['checkbox', 'frequency', 'client', 'start_date', 'end_date', 'quote_total', 'action']);
     }
+    */
 
     return View::make('list', $data);
   }
