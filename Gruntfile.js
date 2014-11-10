@@ -6,36 +6,34 @@ module.exports = function(grunt) {
       options: {
           process: function(src, filepath) {
               var basepath = filepath.substring(7, filepath.lastIndexOf('/') + 1);
-              
-               console.log(filepath);
               // Fix relative paths for css files
               if(filepath.indexOf('.css', filepath.length - 4) !== -1) {
                   return src.replace(/(url\s*[\("']+)\s*([^'"\)]+)(['"\)]+;?)/gi,  function(match, start, url, end, offset, string) {
                       if(url.indexOf('data:') === 0) {
                           // Skip data urls
                           return match;
-                      
+
                       } else if(url.indexOf('/') === 0) {
                           // Skip absolute urls
                           return match;
-                      
+
                       } else {
                           return start + basepath + url + end;
                       }
                   });
-              
+
               // Fix source maps locations
               } else if(filepath.indexOf('.js', filepath.length - 4) !== -1) {
                    return src.replace(/(\/[*\/][#@]\s*sourceMappingURL=)([^\s]+)/gi,  function(match, start, url, offset, string) {
                       if(url.indexOf('/') === 0) {
                           // Skip absolute urls
                           return match;
-                      
+
                       } else {
                           return start + basepath + url;
                       }
                   });
-                  
+
               // Don't do anything for unknown file types
               } else {
                 return src;

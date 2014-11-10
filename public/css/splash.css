@@ -254,7 +254,7 @@ a .cta:hover span {
 .hero1.background {
     background-repeat: no-repeat;
     background-position: center center;
-    background-attachment: fixed;
+    /*background-attachment: fixed;*/
     background-size: cover;
     min-height: 500px;
 }

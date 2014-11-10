@@ -62,7 +62,10 @@ class ClientRepository
 		if (isset($data['name'])) {
 			$client->name = trim($data['name']);
 		}
-        if (isset($data['vat_number'])) {
+                if (isset($data['id_number'])) {
+			$client->id_number = trim($data['id_number']);
+		}
+                if (isset($data['vat_number'])) {
 			$client->vat_number = trim($data['vat_number']);
 		}
 		if (isset($data['work_phone'])) {
@@ -102,7 +105,7 @@ class ClientRepository
 			$client->industry_id = $data['industry_id'] ? $data['industry_id'] : null;
 		}
 		if (isset($data['currency_id'])) {
-			$client->currency_id = $data['currency_id'] ? $data['currency_id'] : 1;
+			$client->currency_id = $data['currency_id'] ? $data['currency_id'] : null;
 		}
 		if (isset($data['payment_terms'])) {
 			$client->payment_terms = $data['payment_terms'];

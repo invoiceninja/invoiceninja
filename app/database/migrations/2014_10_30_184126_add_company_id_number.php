@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddCompanyVatNumber extends Migration {
+class AddCompanyIdNumber extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -14,12 +14,12 @@ class AddCompanyVatNumber extends Migration {
 	{
 		Schema::table('accounts', function($table)
 		{
-			$table->string('vat_number')->nullable();
+			$table->string('id_number')->nullable();
 		});
         
                 Schema::table('clients', function($table)
 		{
-			$table->string('vat_number')->nullable();
+			$table->string('id_number')->nullable();
 		});
 	}
 
@@ -32,11 +32,11 @@ class AddCompanyVatNumber extends Migration {
 	{
 		Schema::table('accounts', function($table)
 		{
-			$table->dropColumn('vat_number');
+			$table->dropColumn('id_number');
 		});
                 Schema::table('clients', function($table)
 		{
-			$table->dropColumn('vat_number');
+			$table->dropColumn('id_number');
 		});	
 	}
 

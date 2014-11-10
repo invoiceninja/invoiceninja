@@ -131,11 +131,23 @@ class Client extends EntityModel
 		return $str;
 	}
     
-    public function getVatNumber()
+        public function getIdNumber()
 	{
 		$str = '';
 
-		if ($this->work_phone)
+		if ($this->id_number)
+		{
+			$str .= '<i class="fa fa-vat-number" style="width: 20px"></i>' . $this->vat_number;
+		}
+
+		return $str;
+	}
+        
+        public function getVatNumber()
+	{
+		$str = '';
+
+		if ($this->vat_number)
 		{
 			$str .= '<i class="fa fa-vat-number" style="width: 20px"></i>' . $this->vat_number;
 		}

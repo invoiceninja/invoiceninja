@@ -199,7 +199,8 @@ class ClientController extends \BaseController {
 			}
 
 			$client->name = trim(Input::get('name'));
-            $client->vat_number = trim(Input::get('vat_number'));
+                        $client->id_number = trim(Input::get('id_number'));
+                        $client->vat_number = trim(Input::get('vat_number'));
 			$client->work_phone = trim(Input::get('work_phone'));
 			$client->custom_value1 = trim(Input::get('custom_value1'));
 			$client->custom_value2 = trim(Input::get('custom_value2'));
@@ -212,7 +213,7 @@ class ClientController extends \BaseController {
 			$client->private_notes = trim(Input::get('private_notes'));
 			$client->size_id = Input::get('size_id') ? : null;
 			$client->industry_id = Input::get('industry_id') ? : null;
-			$client->currency_id = Input::get('currency_id') ? : 1;
+			$client->currency_id = Input::get('currency_id') ? : null;
 			$client->payment_terms = Input::get('payment_terms') ? : 0;
 			$client->website = trim(Input::get('website'));
 
