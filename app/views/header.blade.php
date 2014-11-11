@@ -3,9 +3,8 @@
 
 @section('head')
 
-<link href="{{ asset('built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/> 
-
-<script src="{{ asset('js/jquery.slimscroll.js') }}" type="text/javascript"></script>
+<link href="{{ asset('built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>    
+<script src="{{ asset('js/jquery.nicescroll.min.js') }}" type="text/javascript"></script>
 <style type="text/css">
 
   body {

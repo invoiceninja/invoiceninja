@@ -120,19 +120,12 @@ return array(
   'billed_client' => 'billed client',
   'billed_clients' => 'billed clients',
   'active_client' => 'active client',
-  'total_outstading' => 'Total Outstading',
-  'caps_invoice' => 'INVOICE',
-  'accounts_aging' => 'ACCOUNTS AGING',
-  'account_dashboard' => 'Account Dashboard',
   'active_clients' => 'active clients',
   'invoices_past_due' => 'PAST DUE INVOICES',
   'upcoming_invoices' => 'UPCOMING INVOICES',
   'average_invoice' => 'Invoice Average',
   'total_active_client'=> 'Total Active Clients',
-  '0_30_days_old'=> '0-30 DAYS OLD',
-  '31_60_days_old' => '31-60 DAYS OLD',
-  '61_90_days_old'=> '61-90 DAYS OLD',
-  '91_aboue_days_old' => '91-ABOVE DAYS OLD',
+  
 
   // list pages
   'archive' => 'Archive',
