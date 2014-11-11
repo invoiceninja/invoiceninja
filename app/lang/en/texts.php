@@ -47,7 +47,6 @@ return array(
   'subtotal' => 'Subtotal',
   'paid_to_date' => 'Paid to Date',
   'balance_due' => 'Balance Due',
-   'balance' => 'Balance',
   'invoice_design_id' => 'Design',
   'terms' => 'Terms',
   'your_invoice' => 'Your Invoice',
@@ -89,8 +88,6 @@ return array(
   'company_details' => 'Company Details',
   'online_payments' => 'Online Payments',
   'notifications' => 'Notifications',
-  'alert'=>'ALERT',
-  'view_all' =>'VIEW ALL',
   'import_export' => 'Import/Export',
   'done' => 'Done',
   'save' => 'Save',
@@ -121,11 +118,9 @@ return array(
   'billed_clients' => 'billed clients',
   'active_client' => 'active client',
   'active_clients' => 'active clients',
-  'invoices_past_due' => 'PAST DUE INVOICES',
-  'upcoming_invoices' => 'UPCOMING INVOICES',
-  'average_invoice' => 'Invoice Average',
-  'total_active_client'=> 'Total Active Clients',
-  
+  'invoices_past_due' => 'Invoices Past Due',
+  'upcoming_invoices' => 'Upcoming invoices',
+  'average_invoice' => 'Average invoice',
 
   // list pages
   'archive' => 'Archive',
