@@ -66,7 +66,7 @@
       
       <div class="col-md-7 info">
       	<div class="col-md-12 alignCenterText" >
-     	 Enter Your Billing Address and Credit Card information
+     	  {{ trans('texts.payment_title') }}
         </div>
       	
         <div class="row">           
@@ -113,10 +113,10 @@
         
         <div class="row">
           <h5 class="col-md-12 boldText" >
-                 *Billing address must match address accociated with credit card.    
+              {{ trans('texts.payment_footer1') }}
           </h5>
           <h5 class="col-md-12 boldText">
-                  *Please click "PAY NOW" only once - transaction may take up to 1 minute to process   
+              {{ trans('texts.payment_footer2') }}   
           </h5>
         </div>
         
@@ -141,7 +141,7 @@
 
       <div class="col-md-5">
       	<div class="col-md-12 alignCenterText" >
-     	 Balance Due $
+     	  {{ trans('texts.balance_due') . ' ' . Utils::formatMoney($amount, $currencyId) }}
         </div>
         <div class="col-md-12"> 
         <div class="card">
@@ -189,7 +189,7 @@
 	          {{ Former::text('cvv') }}                        
 	        </div>
 			<div>
-	               <h5 class="boldText" style="margin-top: 8%;margin-left: 5%;"> *This is the 3-4 digit number onthe back of your card</h5>                
+	               <h5 class="boldText" style="margin-top: 8%;margin-left: 5%;">{{ trans('texts.payment_cvv') }}</h5>                
 	        </div>
         <div class="col-md-6">
           <!-- <p><span class="glyphicon glyphicon-credit-card" style="margin-right: 10px;"></span><a href="#">Where Do I find CVV?</a></p> -->

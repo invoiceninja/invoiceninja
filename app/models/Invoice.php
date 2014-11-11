@@ -95,7 +95,8 @@ class Invoice extends EntityModel
 		
 		$this->client->setVisible([
 			'name',
-            'vat_number',
+                        'id_number',
+                        'vat_number',
 			'address1', 
 			'address2', 
 			'city', 
@@ -111,7 +112,8 @@ class Invoice extends EntityModel
 
 		$this->account->setVisible([
 			'name',
-            'vat_number',
+                        'id_number',
+                        'vat_number',
 			'address1', 
 			'address2', 
 			'city', 

@@ -45,7 +45,7 @@ class AccountRepository
 
 	public function getSearchData()
 	{
-    	$clients = \DB::table('clients')
+                $clients = \DB::table('clients')
 			->where('clients.deleted_at', '=', null)
 			->where('clients.account_id', '=', \Auth::user()->account_id)			
 			->whereRaw("clients.name <> ''")

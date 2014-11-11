@@ -422,10 +422,14 @@ class AddInvoiceDesignTable extends Migration {
 		  var account = invoice.account;
 		  var currencyId = client.currency_id;  
 		  
+      layout.accountTop += 25;
+      layout.headerTop += 25;
+      layout.tableTop += 25;
+
 		  if (invoice.image)
 		  {
 		    var left = layout.headerRight - invoice.imageWidth;
-		    doc.addImage(invoice.image, 'JPEG', left, 30);
+		    doc.addImage(invoice.image, 'JPEG', left, 50);
 		  } 
 		  
 		  /* table header */

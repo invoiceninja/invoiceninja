@@ -39,8 +39,9 @@
 
 		<div class="col-md-3">
 			<h3>{{ trans('texts.details') }}</h3>
+                        <p>{{ $client->getIdNumber() }}</p>
 		  	<p>{{ $client->getVatNumber() }}</p>
-            <p>{{ $client->getAddress() }}</p>
+                        <p>{{ $client->getAddress() }}</p>
 		  	<p>{{ $client->getCustomFields() }}</p>
 		  	<p>{{ $client->getPhone() }}</p>
 		  	<p>{{ $client->getNotes() }}</p>

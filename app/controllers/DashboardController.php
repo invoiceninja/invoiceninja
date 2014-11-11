@@ -19,7 +19,7 @@ class DashboardController extends \BaseController {
             ->groupBy('accounts.id')
             ->first();
     
-    $select = DB::raw('SUM(clients.paid_to_date) value');
+    $select = DB::raw('SUM(clients.paid_to_date) as value');
 
     $totalIncome = DB::table('accounts')
             ->select($select)

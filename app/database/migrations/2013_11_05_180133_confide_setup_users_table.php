@@ -279,7 +279,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('last_name')->nullable();
             $t->string('email')->nullable();
             $t->string('phone')->nullable();
-            $t->timestamp('last_login');            
+            $t->timestamp('last_login')->nullable();            
 
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
