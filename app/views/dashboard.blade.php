@@ -8,8 +8,8 @@
 	
 	$(document).ready(function() {
 		
-	    $("#informationBox").niceScroll();
-	    $(".upComingDataScrolls").niceScroll();
+	    $("#informationBox").slimScroll();
+	    $(".upComingDataScrolls").slimScroll();
 	    
 	    $( "#monthButton" ).click(function() {
 	    	$("#invoiceAvgValue").text('{{$monthValue}}');
