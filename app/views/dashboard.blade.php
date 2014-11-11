@@ -1,45 +1,52 @@
 @extends('header')
 
 <link href="{{ asset('css/customCss.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+<script src="{{ asset('js/jquery.min.js') }}" type="text/javascript"></script> 
 
-<script src="{{ asset('js/jquery.min.js') }}" type="text/javascript"></script>  
 
 <script type="text/javascript">
 	
-	$(document).ready(
-		function() {
+	$(document).ready(function() {
+		
 	    $("#informationBox").niceScroll();
-	    //$("#upComingDataScrolls").niceScroll();
+	    $(".upComingDataScrolls").niceScroll();
 	    
-	    $("#monthButton").onclick(function(){
-	  		$("#monthButton").removeClass('greyButton').addClass('blueButton'); 
+	    $( "#monthButton" ).click(function() {
+	    	$("#invoiceAvgValue").text('{{$monthValue}}');
+  			$("#monthButton").removeClass('greyButton').addClass('blueButton'); 
 	  		$("#yearButton").removeClass('blueButton').addClass('greyButton'); 
 	  		$("#weekButton").removeClass('blueButton').addClass('greyButton'); 
-	    });
-	    
-	     $("#yearButton").onclick(function(){
-	  		$("#monthButton").removeClass('blueButton').addClass('greyButton'); 
+	  		
+		});
+		
+		$( "#yearButton" ).click(function() {
+			$("#invoiceAvgValue").text('{{$yearValue}}');
+  			$("#monthButton").removeClass('blueButton').addClass('greyButton'); 
 	  		$("#yearButton").removeClass('greyButton').addClass('blueButton'); 
 	  		$("#weekButton").removeClass('blueButton').addClass('greyButton'); 
-	    });
-	    
-	    $("#weekButton").onclick(function(){
-	  		$("#monthButton").removeClass('blueButton').addClass('greyButton'); 
+		});
+		
+		$( "#weekButton" ).click(function() {
+			$("#invoiceAvgValue").text('{{$weekValue}}');
+  			$("#monthButton").removeClass('blueButton').addClass('greyButton'); 
 	  		$("#yearButton").removeClass('blueButton').addClass('greyButton'); 
 	  		$("#weekButton").removeClass('greyButton').addClass('blueButton'); 
-	    });
-	    
+		});
+		
 	 });
 </script>
 
-<div class="row" style="background-image: url('../images/company_bg_img.png');height: 150px;background-position: center center;background-repeat: no-repeat;">
+<div class="row headerBar">
 	<div class="container" style="padding: 3%;">
 		<div class="col-md-6" style="margin-top: 2%;">
 			<span class="img-wrap" style="float: left;margin-top: 1%;" ><img src="{{ asset('images/account_dashboard_icon.png') }}"></span> 
 			<span style="font-weight: bolder;font-size: 20px;"> {{ trans('texts.account_dashboard') }} </span>
 		</div>
-		<div class="col-md-6" style="">
-			<span class="img-wrap" ><img style="height: 80px;width: auto;float: right;" src="{{ asset('images/ring-orange.png') }}"></span> 
+		<div class="col-md-6">
+			<span class="img-wrap" >
+				<center style="float: right;">
+					{{ HTML::image($account->getLogoPath(), "Logo") }} &nbsp;
+				</center><br/>
 		</div>
 	</div>	
 </div>
@@ -65,24 +72,35 @@
 			
 		</div>
 		<div>
-		  <div class="col-md-4" style="border-left: 1px solid rgb(223, 221, 221);padding-bottom: 1%;">  
+		  <div class="col-md-3" style="border-left: 1px solid rgb(223, 221, 221);padding-bottom: 1%;">  
 		    <div class="panel-default" style="border: 0px solid transparent">
-		      <div class="panel-body">
-		        <img src="{{ asset('images/ring-orange.png') }}" class="in-image"/>  
+		      <div class="panel-body orangeRing">
+		      		<span class="ringText orange" style="margin-top: 50px;font-size: 25px;"> {{$totalThirtyDayInvoice}}</span>
+		      		<span class="ringText"> {{trans('texts.0_30_days_old')}} </span>
 		      </div>
 		    </div>
 		  </div>
-		  <div class="col-md-4">
+		  <div class="col-md-3">
 		    <div class="panel-default" style="border: 0px solid transparent">
-		      <div class="panel-body">
-		        <img src="{{ asset('images/ring-blue.png') }}" class="in-image"/>  
+		      <div class="panel-body blueRing">
+		      	<span class="ringText blue" style="margin-top: 50px;font-size: 25px;"> {{$totalThirtyToSixtyDay}}</span>
+		      	<span class="ringText"> {{trans('texts.31_60_days_old')}} </span>
 		      </div>
 		    </div>
 		  </div>
-		  <div class="col-md-4">
+		  <div class="col-md-3">
 		    <div class="panel-default" style="border: 0px solid transparent">
-		      <div class="panel-body">
-		        <img src="{{ asset('images/ring-green.png') }}" class="in-image"/>  
+		      <div class="panel-body greenRing">
+		      	<span class="ringText green" style="margin-top: 50px;font-size: 25px;"> {{$totalSixtyToNintyDay}}</span>
+		      	<span class="ringText"> {{trans('texts.61_90_days_old')}}</span>
+		      </div>
+		    </div>
+		  </div>
+		  <div class="col-md-3">  
+		    <div class="panel-default" style="border: 0px solid transparent">
+		      <div class="panel-body orangeRing">
+		      		<span class="ringText orange" style="margin-top: 50px;font-size: 25px;"> {{$totalNintyAndAboveDay}}</span>
+		      		<span class="ringText"> {{trans('texts.91_aboue_days_old')}}</span>
 		      </div>
 		    </div>
 		  </div>
@@ -152,7 +170,7 @@
           </thead>
       </table>
       
-      <div id="upComingDataScrolls">
+      <div class="upComingDataScrolls">
       <div class="panel-body">
         <table class="table table-striped">
 	          <tbody>
@@ -175,9 +193,8 @@
 
 <p>&nbsp;</p>
 
-<div class="row" style="background-color: white;">
-	<p>&nbsp;</p>
-	
+<div class="row" style="background-color: white;border: 1px solid rgb(223, 221, 221);">
+	<div >
 	<div class="col-md-6">  
     <div class="panel-default dashboard postDueInvBox">
       <div class="panel-heading" style="background-color:#FFFFFF;padding-bottom: 0px;border-bottom: 0px solid transparent;">
@@ -199,7 +216,7 @@
           </thead>
       </table>
       
-      <div id="upComingDataScrolls">
+      <div class="upComingDataScrolls">
       <div class="panel-body">
         <table class="table table-striped">
 	          <tbody>
@@ -219,7 +236,7 @@
   </div>
 	
   	<div class="col-md-3">
-  		<div class="average-invoice"  style="background-color: #FFFFFF;">
+  		<div class="average-invoice activeClient">
   			<span class="img-wrap col-md-offset-0"><img src="{{ asset('images/total_client_icon.png') }}"></span> 
   			<div class="black" style="font-size:16px;"><p style="margin-top: 10px;">{{ trans('texts.total_active_client') }}</p></div>
   			<div class="green" style="font-size:50px;">{{ $activeClients }}</div>
@@ -230,7 +247,7 @@
 	    <div class="average-invoice" style="background-color: #FFFFFF;">  
 	      <span class="img-wrap col-md-offset-0"><img src="{{ asset('images/avgl_invoice_icon.png') }}"></span> 
 	      <div class="black" style="font-size:16px;"><p style="margin-top: 10px;">{{ trans('texts.average_invoice') }}</p></div>
-	      <div class="green" style="font-size:42px">{{ $invoiceAvg }}</div>
+	      <div class="green" id="invoiceAvgValue" style="font-size:42px">{{ $yearValue }}</div>
 	      <div class="col-md-offset-0" style="color: #909090;">Across all clients</div>
 	      <div style="margin-top: 25%;">
 	      	<span id="monthButton" class="greyButton">Month </span>
@@ -239,6 +256,7 @@
 	      </div>
 	    </div>
   	</div> 
+  	</div>
 </div>
 
 @stop

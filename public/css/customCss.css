@@ -37,7 +37,7 @@
 }
 
 
-#upComingDataScrolls{
+.upComingDataScrolls{
 	height: 250px;
 	font-family: 'Roboto', sans-serif;
 	color: #000000;
@@ -136,4 +136,42 @@
 	font-weight: bold;
 	padding: 2%;
 	margin-top: 1%;
+}
+
+.activeClient{
+	background-color: #FFFFFF !important;
+	border: 1px solid rgb(223, 221, 221);
+	height: 321px !important;
+}
+
+.orangeRing{
+	background-image: url('../images/ring-orange.png'); 
+	background-repeat: no-repeat; 
+	height: 200px;
+	background-position: center center;
+}
+.blueRing{
+	background-image: url('../images/ring-blue.png'); 
+	background-repeat: no-repeat; 
+	height: 200px;
+	background-position: center center;
+}
+.greenRing{
+	background-image: url('../images/ring-green.png'); 
+	background-repeat: no-repeat; 
+	height: 200px;
+	background-position: center center;
+}
+
+.headerBar{
+	background-image: url('../images/company_bg_img.png');
+	height: 150px;
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+
+.ringText{
+	text-align: center;
+	width: 100%;
+	float: left;
 }

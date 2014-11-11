@@ -129,7 +129,10 @@ return array(
   'upcoming_invoices' => 'UPCOMING INVOICES',
   'average_invoice' => 'Invoice Average',
   'total_active_client'=> 'Total Active Clients',
-  
+  '0_30_days_old'=> '0-30 DAYS OLD',
+  '31_60_days_old' => '31-60 DAYS OLD',
+  '61_90_days_old'=> '61-90 DAYS OLD',
+  '91_aboue_days_old' => '91-ABOVE DAYS OLD',
 
   // list pages
   'archive' => 'Archive',
