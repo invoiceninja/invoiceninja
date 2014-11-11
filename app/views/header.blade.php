@@ -255,7 +255,6 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         <center><div id="errorTaken" style="display:none">&nbsp;<br/>{{ trans('texts.email_taken') }}</div></center>
         <br/>
 
-
       </div>
 
       <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="working">
@@ -268,12 +267,13 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
       <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="signUpSuccessDiv">
         <br/>
         <h3>{{ trans('texts.success') }}</h3>
-        {{ trans('texts.success_message') }}<br/>&nbsp;
+        @if (Utils::isNinja())
+          {{ trans('texts.success_message') }}<br/>&nbsp;
+        @endif
       </div>
 
-
       <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">	      	
-        <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} <i class="glyphicon glyphicon-remove-circle"></i></button>
+        <button type="button" class="btn btn-default" id="closeSignUpButton" data-dismiss="modal">{{ trans('texts.close') }} <i class="glyphicon glyphicon-remove-circle"></i></button>
         <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()" disabled>{{ trans('texts.save') }} <i class="glyphicon glyphicon-floppy-disk"></i></button>
       </div>
     </div>
@@ -454,12 +454,10 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
           localStorage.setItem('guest_key', '');
           trackUrl('/signed_up');
           NINJA.isRegistered = true;
-          /*
           $('#signUpButton').hide();
-          $('#myAccountButton').html(result);                            
-          */
+          $('#myAccountButton').html(result);          
         }            
-        $('#signUpSuccessDiv, #signUpFooter').show();
+        $('#signUpSuccessDiv, #signUpFooter, #closeSignUpButton').show();
         $('#working, #saveSignUpButton').hide();
       }
     });     
@@ -575,6 +573,11 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         }
       });
     })
+    @endif
+
+    @if (Auth::check() && !Utils::isNinja() && !Auth::user()->registered)
+      $('#closeSignUpButton').hide();
+      showSignUp(); 
     @endif
 
     @yield('onReady')

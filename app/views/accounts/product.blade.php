@@ -12,7 +12,7 @@
 
   @if ($product)
     {{ Former::populate($product) }}
-    {{ Former::populateField('cost', number_format($product->cost, 2)) }}
+    {{ Former::populateField('cost', number_format($product->cost, 2, '.', '')) }}
   @endif
 
   {{ Former::text('product_key')->label('texts.product') }}

@@ -12,6 +12,7 @@ use Invitation;
 use Invoice;
 use InvoiceItem;
 use AccountGateway;
+use Utils;
 
 class AccountRepository
 {
@@ -38,6 +39,7 @@ class AccountRepository
 		$user->password = $random;
 		$user->password_confirmation = $random;			
 		$user->username = $random;
+		$user->confirmed = !Utils::isNinja();
 		$account->users()->save($user, []);
 		
 		return $account;

@@ -912,7 +912,10 @@ class AccountController extends \BaseController {
 		$user->registered = true;
 		$user->amend();
 
-		$this->userMailer->sendConfirmation($user);
+		if (Utils::isNinja()) 
+		{
+			$this->userMailer->sendConfirmation($user);
+		}
 
 		$activities = Activity::scope()->get();
 		foreach ($activities as $activity) 

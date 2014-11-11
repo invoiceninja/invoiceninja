@@ -18,6 +18,7 @@ class ContactMailer extends Mailer {
 
 		$view = 'invoice';
 		$subject = trans("texts.{$entityType}_subject", ['invoice' => $invoice->invoice_number, 'account' => $invoice->account->getDisplayName()]);
+		$accountName = $invoice->account->getDisplayName();
 
 		foreach ($invoice->invitations as $invitation)
 		{
@@ -33,17 +34,15 @@ class ContactMailer extends Mailer {
 				'entityType' => $entityType,
 				'link' => $invitation->getLink(),
 				'clientName' => $invoice->client->getDisplayName(),
-				'accountName' => $invoice->account->getDisplayName(),
+				'accountName' => $accountName,
 				'contactName'	=> $invitation->contact->getDisplayName(),
 				'invoiceAmount' => Utils::formatMoney($invoice->amount, $invoice->client->currency_id),
 				'emailFooter' => $invoice->account->email_footer,
 				'showNinjaFooter' => !$invoice->account->isPro()
 			];
 
-			$fromEmail = $invitation->user->email;
-			$fromName = $invitation->user->getDisplayName();
-
-			$this->sendTo($invitation->contact->email, $fromEmail, $fromName, $subject, $view, $data);
+			$fromEmail = $invitation->user->email;			
+			$this->sendTo($invitation->contact->email, $fromEmail, $accountName, $subject, $view, $data);
 
 			Activity::emailInvoice($invitation);
 		}
@@ -61,9 +60,10 @@ class ContactMailer extends Mailer {
 	{
 		$view = 'payment_confirmation';
 		$subject = trans('texts.payment_subject', ['invoice' => $payment->invoice->invoice_number]);
+		$accountName = $payment->account->getDisplayName();
 
 		$data = [
-			'accountName' => $payment->account->getDisplayName(),
+			'accountName' => $accountName,
 			'clientName' => $payment->client->getDisplayName(),
 			'emailFooter' => $payment->account->email_footer,
 			'paymentAmount' => Utils::formatMoney($payment->amount, $payment->client->currency_id),
@@ -71,7 +71,7 @@ class ContactMailer extends Mailer {
 		];
 
 		$user = $payment->invitation->user;
-		$this->sendTo($payment->contact->email, $user->email, $user->getDisplayName(), $subject, $view, $data);
+		$this->sendTo($payment->contact->email, $user->email, $accountName, $subject, $view, $data);
 	}
 
 	public function sendLicensePaymentConfirmation($name, $email, $amount, $license, $productId)
