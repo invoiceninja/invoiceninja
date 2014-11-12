@@ -3,41 +3,26 @@
 
 @section('head')
 
-<link href="{{ asset('built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>    
+  <link href="{{ asset('built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>    
 
-<style type="text/css">
+  <style type="text/css">
 
-  body {
-    background-color: #EEEEEE;
-    padding-top: 114px; 
-  }
-
-  /* Fix for header covering stuff when the screen is narrower */
-  @media screen and (min-width: 1200px) {
     body {
-      padding-top: 56px; 
+      background-color: #EEEEEE;
+      padding-top: 114px; 
     }
-  }
 
-</style>
-
-@include('script')
-
-<script type="text/javascript">
-
-  /* Set the defaults for DataTables initialisation */
-  $.extend( true, $.fn.dataTable.defaults, {
-    "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
-    "sPaginationType": "bootstrap",
-    "bInfo": true,
-    "oLanguage": {
-      'sEmptyTable': "{{ trans('texts.empty_table') }}",
-      'sLengthMenu': '_MENU_',
-      'sSearch': ''
+    /* Fix for header covering stuff when the screen is narrower */
+    @media screen and (min-width: 1200px) {
+      body {
+        padding-top: 56px; 
+      }
     }
-  } );
 
-</script>
+  </style>
+
+  @include('script')
+
 @stop
 
 @section('body')
@@ -317,18 +302,6 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         </div>
 
         <div style="background-color: #fff; padding-left: 16px; padding-right: 16px" id="proPlanDiv">
-          <!--
-          &nbsp;<p/>          
-          <b>Go Pro to Unlock Premium Invoice Ninja Features</b><p/>          
-          We believe that the free version of Invoice Ninja is a truly awesome product loaded 
-          with the key features you need to bill your clients electronically. But for those who 
-          crave still more Ninja awesomeness, we've unmasked the Invoice Ninja Pro plan, which 
-          offers more versatility, power and customization options for just $50 per year.          
-          <br/>&nbsp;<br/>
-          <img src="{{ asset('images/pro-plan-chart.png') }}"/>
-          -->
-
-
           <section class="plans">
             <div class="row">
               <div class="col-md-12">

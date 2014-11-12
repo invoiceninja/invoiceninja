@@ -83,7 +83,7 @@
     return false;
   }
 </script>
-@if (!isset($hideHeader) || !$hideHeader)
+@if ((!isset($hideHeader) || !$hideHeader) && (!isset($showClientHeader) || !$showClientHeader))
 <div class="navbar-top navbar hide-phone" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-inner">
@@ -113,7 +113,8 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
-          </button>        </div>
+          </button>        
+        </div>
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
         <li class="hide-desktop">{{ link_to('http://blog.invoiceninja.com', trans('public.link_blog') ) }}</li>
@@ -133,11 +134,20 @@
 @else
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
-      </div>
+    <div class="navbar-header">
+      <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
     </div>
+    @if (isset($showClientHeader) && $showClientHeader)
+    <ul class="nav navbar-nav">
+      <span/>
+      <li>{{ link_to('/client/quotes', trans('texts.quotes') ) }}</li>
+      <li>{{ link_to('/client/invoices', trans('texts.invoices') ) }}</li>
+      <li>{{ link_to('/client/payments', trans('texts.payments') ) }}</li>          
+      <span/>
+    </ul>                
+    @endif    
   </div>
+</div>
 @endif
 
 <div style="background-color:#211f1f; width:100%">

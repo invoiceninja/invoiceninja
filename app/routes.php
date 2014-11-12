@@ -42,10 +42,17 @@ Route::get('log_error', 'HomeController@logError');
 Route::get('invoice_now', 'HomeController@invoiceNow');
 Route::post('get_started', 'AccountController@getStarted');
 
+// Client visible pages
 Route::get('view/{invitation_key}', 'InvoiceController@view');
 Route::get('payment/{invitation_key}', 'PaymentController@show_payment');
 Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
 Route::get('complete', 'PaymentController@offsite_payment');
+Route::get('client/quotes', 'QuoteController@clientIndex');
+Route::get('client/invoices', 'InvoiceController@clientIndex');
+Route::get('client/payments', 'PaymentController@clientIndex');
+Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'QuoteController@getClientDatatable'));
+Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'InvoiceController@getClientDatatable'));
+Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PaymentController@getClientDatatable'));
 
 Route::get('license', 'PaymentController@show_license_payment');
 Route::post('license', 'PaymentController@do_license_payment');

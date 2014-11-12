@@ -39,12 +39,41 @@ class InvoiceController extends \BaseController {
 		return View::make('list', $data);
 	}
 
+	public function clientIndex()
+	{
+		$data = [
+			'showClientHeader' => true,
+			'title' => trans('texts.invoices'),
+			'entityType'=>ENTITY_INVOICE, 
+			'columns'=>Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date'])
+		];
+
+		return View::make('public_list', $data);
+	}
+
 	public function getDatatable($clientPublicId = null)
   {
   	$accountId = Auth::user()->account_id;
   	$search = Input::get('sSearch');
 
   	return $this->invoiceRepo->getDatatable($accountId, $clientPublicId, ENTITY_INVOICE, $search);
+  }
+
+	public function getClientDatatable()
+  {
+  	//$accountId = Auth::user()->account_id;
+  	$search = Input::get('sSearch');
+  	$invitationKey = Session::get('invitation_key');
+		$invitation = Invitation::where('invitation_key', '=', $invitationKey)->firstOrFail();
+
+		$invoice = $invitation->invoice;
+		
+		if (!$invoice || $invoice->is_deleted) 
+		{
+			return [];
+		}
+
+  	return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_INVOICE, $search);
   }
 
 	public function getRecurringDatatable($clientPublicId = null)
@@ -85,7 +114,7 @@ class InvoiceController extends \BaseController {
 
 	public function view($invitationKey)
 	{
-		$invitation = Invitation::withTrashed()->where('invitation_key', '=', $invitationKey)->firstOrFail();
+		$invitation = Invitation::where('invitation_key', '=', $invitationKey)->firstOrFail();
 
 		$invoice = $invitation->invoice;
 		
@@ -113,12 +142,15 @@ class InvoiceController extends \BaseController {
 			return View::make('invoices.deleted');
 		}
 
-		if (!Auth::check() || Auth::user()->account_id != $invoice->account_id)
+		if (!Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id))
 		{
 			Activity::viewInvoice($invitation);	
-			Event::fire('invoice.viewed', $invoice);
+			Event::fire('invoice.viewed', $invoice);			
 		}
 
+		Session::set($invitationKey, true);
+		Session::set('invitation_key', $invitationKey);
+		
 		$client->account->loadLocalizationSettings();		
 
 		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
@@ -126,7 +158,7 @@ class InvoiceController extends \BaseController {
 		$invoice->is_pro = $client->account->isPro();		
 		
 		$data = array(
-			'hideHeader' => true,
+			'showClientHeader' => true,
 			'showBreadcrumbs' => false,
 			'invoice' => $invoice->hidePrivateFields(),
 			'invitation' => $invitation,

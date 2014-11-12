@@ -5,7 +5,7 @@
 
 		@include('script')		
 		
-		<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
+		<!-- <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> -->
 
 		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
 		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
@@ -30,7 +30,7 @@
 			</div>		
 		@else 
 			<div class="pull-right">
-				{{ Button::primary('Download PDF', array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
+				{{ Button::success('Download PDF', array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
 			</div>		
 		@endif
 		

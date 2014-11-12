@@ -83,6 +83,35 @@ class InvoiceRepository
     	return $query;
 	}
 
+  public function getClientDatatable($contactId, $entityType, $search)
+  {
+    $query = \DB::table('invitations')
+          ->join('invoices', 'invoices.id', '=','invitations.invoice_id')
+          ->join('clients', 'clients.id', '=','invoices.client_id')
+          //->join('contacts', 'contacts.client_id', '=', 'clients.id')
+          ->where('invitations.contact_id', '=', $contactId)
+          ->where('invitations.deleted_at', '=', null)
+          ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE)
+          ->where('invoices.is_deleted', '=', false)
+          ->where('clients.deleted_at', '=', null)
+          ->where('invoices.is_recurring', '=', false)
+          ->select('invitation_key', 'invoice_number', 'invoice_date', 'invoices.balance as balance', 'due_date', 'clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'start_date', 'end_date', 'clients.currency_id');
+    
+    $table = \Datatable::query($query)
+              ->addColumn('invoice_number', function($model) use ($entityType) { return link_to('/view/' . $model->invitation_key, $model->invoice_number); })
+              ->addColumn('invoice_date', function($model) { return Utils::fromSqlDate($model->invoice_date); })
+              ->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); });
+
+    if ($entityType == ENTITY_INVOICE)
+    {
+      $table->addColumn('balance', function($model) { return Utils::formatMoney($model->balance, $model->currency_id); });
+    }
+
+    return $table->addColumn('due_date', function($model) { return Utils::fromSqlDate($model->due_date); })
+        //->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
+        ->make();
+  }
+
   public function getDatatable($accountId, $clientPublicId = null, $entityType, $search)
   {
     $query = $this->getInvoices($accountId, $clientPublicId, $entityType, $search)
@@ -156,7 +185,6 @@ class InvoiceRepository
           })                  
           ->make();
   }
-
 
 	public function getErrors($input)
 	{

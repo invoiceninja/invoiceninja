@@ -152,7 +152,7 @@ ul.navbar-nav li a:hover {
 .nav>li>a:hover, .nav>li>a:focus {
     background-color: transparent;
 }
-.container>.navbar-collapse {
+z.container>.navbar-collapse {
     margin-right: -15px;
 }
 .navbar-top {
@@ -643,6 +643,7 @@ section.faq .contact-box a {
 section.faq .contact-box p {
     
 }
+
 .btn-primary {
     color: #fff;
     background-color: #2299c0;
@@ -658,6 +659,7 @@ section.faq .contact-box p {
 .btn-primary:hover {
     background-color: #2299c0;
 }
+
 .btn.green {
     background-color: #30ab82;
 }

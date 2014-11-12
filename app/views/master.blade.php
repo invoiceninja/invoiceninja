@@ -29,19 +29,31 @@
     <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
     <script type="text/javascript">
-    var NINJA = NINJA || {};      
-    NINJA.isRegistered = {{ Utils::isRegistered() ? 'true' : 'false' }};    
-    
-    window.onerror = function(e) {
-      try {
-        $.ajax({
-          type: 'GET',
-          url: '{{ URL::to('log_error') }}',
-          data: 'error='+encodeURIComponent(e.message + ' - ' + e.filename + ': ' + e.lineno)+'&url='+encodeURIComponent(window.location)
-        });     
-      } catch(err) {}
-      return false;
-    }
+      var NINJA = NINJA || {};      
+      NINJA.isRegistered = {{ Utils::isRegistered() ? 'true' : 'false' }};    
+      
+      window.onerror = function(e) {
+        try {
+          $.ajax({
+            type: 'GET',
+            url: '{{ URL::to('log_error') }}',
+            data: 'error='+encodeURIComponent(e.message + ' - ' + e.filename + ': ' + e.lineno)+'&url='+encodeURIComponent(window.location)
+          });     
+        } catch(err) {}
+        return false;
+      }
+      
+      /* Set the defaults for DataTables initialisation */
+      $.extend( true, $.fn.dataTable.defaults, {
+        "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
+        "sPaginationType": "bootstrap",
+        "bInfo": true,
+        "oLanguage": {
+          'sEmptyTable': "{{ trans('texts.empty_table') }}",
+          'sLengthMenu': '_MENU_',
+          'sSearch': ''
+        }
+      } );
     </script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
