@@ -98,10 +98,10 @@
 
         <div class="btn-group">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-            <span id="myAccountButton">
+            <div id="myAccountButton" class="ellipsis" style="max-width:120px">
               {{ Auth::user()->getDisplayName() }}
-            </span>
-            <span class="caret"></span>
+              <span class="caret"></span>
+            </div>            
           </button>			
           <ul class="dropdown-menu" role="menu">
             <li>{{ link_to('company/details', uctrans('texts.company_details')) }}</li>
@@ -123,8 +123,6 @@
         </button>
         @endif
 
-
-
       </div>	
 
 
@@ -136,7 +134,13 @@
 
       <ul class="nav navbar-nav navbar-right">	      
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ trans('texts.history') }} <b class="caret"></b></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            @if (Session::get(SESSION_LOCALE) == 'en')
+              {{ trans('texts.history') }} <b class="caret"></b>              
+            @else
+              <span class="glyphicon glyphicon-time" title="{{ trans('texts.history') }}"/>
+            @endif
+          </a>
           <ul class="dropdown-menu">	        		        	
             @if (count(Session::get(RECENTLY_VIEWED)) == 0)
             <li><a href="#">{{ trans('texts.no_items') }}</a></li>

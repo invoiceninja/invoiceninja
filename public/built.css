@@ -1775,7 +1775,7 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
 }
 /* Preload images */
 body:after {
-  content: url(vendor/lightbox2/css/../images/lightbox/close.png) url(vendor/lightbox2/css/../images/lightbox/loading.gif) url(vendor/lightbox2/css/../images/lightbox/prev.png) url(vendor/lightbox2/css/../images/lightbox/next.png);
+  content: url(css/../images/lightbox/close.png) url(css/../images/lightbox/loading.gif) url(css/../images/lightbox/prev.png) url(css/../images/lightbox/next.png);
   display: none;
 }
 
@@ -1854,7 +1854,7 @@ body:after {
   width: 32px;
   height: 32px;
   margin: 0 auto;
-  background: url(vendor/lightbox2/css/../images/lightbox/loading.gif) no-repeat;
+  background: url(css/../images/lightbox/loading.gif) no-repeat;
 }
 
 .lb-nav {
@@ -1885,7 +1885,7 @@ body:after {
   width: 34%;
   left: 0;
   float: left;
-  background: url(vendor/lightbox2/css/../images/lightbox/prev.png) left 48% no-repeat;
+  background: url(css/../images/lightbox/prev.png) left 48% no-repeat;
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
   opacity: 0;
   -webkit-transition: opacity 0.6s;
@@ -1903,7 +1903,7 @@ body:after {
   width: 64%;
   right: 0;
   float: right;
-  background: url(vendor/lightbox2/css/../images/lightbox/next.png) right 48% no-repeat;
+  background: url(css/../images/lightbox/next.png) right 48% no-repeat;
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
   opacity: 0;
   -webkit-transition: opacity 0.6s;
@@ -1967,7 +1967,7 @@ body:after {
   float: right;
   width: 30px;
   height: 30px;
-  background: url(vendor/lightbox2/css/../images/lightbox/close.png) top right no-repeat;
+  background: url(css/../images/lightbox/close.png) top right no-repeat;
   text-align: right;
   outline: none;
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=70);
@@ -3514,6 +3514,12 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
 
 #designThumbs img {
     border: 1px solid #CCCCCC;
+}
+
+.ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;    
 }
 
 @media screen and (min-width: 992px) {

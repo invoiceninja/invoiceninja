@@ -18,7 +18,6 @@
     "accounting": "~0.*",
     "spectrum": "~1.3.4",
     "d3": "~3.4.11",
-    "lightbox2": "~2.7.1",
     "handsontable": "*"
   },
   "resolutions": {
