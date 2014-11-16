@@ -32,6 +32,7 @@ class PaymentController extends \BaseController
     {
         return View::make('public_list', array(
             'showClientHeader' => true,
+            'hideLogo' => Session::get('white_label'),
             'entityType'=>ENTITY_PAYMENT, 
             'title' => trans('texts.payments'),
             'columns'=>Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date'])
@@ -506,7 +507,7 @@ class PaymentController extends \BaseController
                 $license->save();
             }
 
-            return $productId == PRODUCT_ONE_CLICK_INSTALL ? 'valid' : $_ENV['INVOICE_DESIGNS'];
+            return $productId == PRODUCT_INVOICE_DESIGNS ? $_ENV['INVOICE_DESIGNS'] : 'valid';
         }
         else
         {

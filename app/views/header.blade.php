@@ -343,8 +343,35 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 @endif
 
 {{-- Per our license, please do not remove or modify this link. --}}
-@if (!Utils::isNinja())    
-<div class="container">{{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a></div>
+@if (Utils::isNinjaDev() || !Utils::isNinja())    
+<div class="container">
+  {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> - 
+  @if (Auth::user()->account->isWhiteLabel())  
+    {{ trans('texts.white_labeled') }}
+  @else
+    <a href="#" onclick="$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>
+
+    <div class="modal fade" id="whiteLabelModal" tabindex="-1" role="dialog" aria-labelledby="whiteLabelModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">{{ trans('texts.white_label_header') }}</h4>
+          </div>
+
+          <div style="background-color: #fff; padding:20px">
+            <p>{{ trans('texts.white_label_text')}}</p>        
+          </div>
+
+          <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">          
+            <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} </button>
+            <button type="button" class="btn btn-primary" onclick="buyProduct('{{ WHITE_LABEL_AFFILIATE_KEY }}', '{{ PRODUCT_WHITE_LABEL }}')">{{ trans('texts.buy') }} </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  @endif
+</div>
 @endif
 
 <p>&nbsp;</p>
@@ -465,6 +492,10 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 
   function showSignUp() {    
     $('#signUpModal').modal('show');    
+  }
+
+  function buyProduct(affiliateKey, productId) {
+    window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/license?affiliate_key=' + affiliateKey + '&product_id=' + productId + '&return_url=' + window.location);
   }
 
   @if (Auth::check() && !Auth::user()->isPro())

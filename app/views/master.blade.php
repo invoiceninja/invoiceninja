@@ -42,7 +42,7 @@
         } catch(err) {}
         return false;
       }
-      
+
       /* Set the defaults for DataTables initialisation */
       $.extend( true, $.fn.dataTable.defaults, {
         "bSortClasses": false,

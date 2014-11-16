@@ -43,6 +43,7 @@ class InvoiceController extends \BaseController {
 	{
 		$data = [
 			'showClientHeader' => true,
+			'hideLogo' => Session::get('white_label'),
 			'title' => trans('texts.invoices'),
 			'entityType'=>ENTITY_INVOICE, 
 			'columns'=>Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date'])
@@ -155,7 +156,8 @@ class InvoiceController extends \BaseController {
 
 		Session::set($invitationKey, true);
 		Session::set('invitation_key', $invitationKey);
-		
+		Session::set('white_label', $client->account->isWhiteLabel());
+
 		$client->account->loadLocalizationSettings();		
 
 		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
@@ -163,8 +165,9 @@ class InvoiceController extends \BaseController {
 		$invoice->is_pro = $client->account->isPro();		
 		
 		$data = array(
-			'showClientHeader' => true,
+			'showClientHeader' => true,			
 			'showBreadcrumbs' => false,
+			'hideLogo' => $client->account->isWhiteLabel(),
 			'invoice' => $invoice->hidePrivateFields(),
 			'invitation' => $invitation,
 			'invoiceLabels' => $client->account->getInvoiceLabels(),

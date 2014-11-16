@@ -51,6 +51,7 @@ class QuoteController extends \BaseController {
   {
     $data = [
       'showClientHeader' => true,
+      'hideLogo' => Session::get('white_label'),
       'title' => trans('texts.quotes'),
       'entityType'=>ENTITY_QUOTE, 
       'columns'=>Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date'])

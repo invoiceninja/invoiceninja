@@ -83,6 +83,8 @@ class ContactMailer extends Mailer {
 			$message = "Softaculous install license: $license";
 		} else if ($productId == PRODUCT_INVOICE_DESIGNS) {
 			$message = "Invoice designs license: $license";
+		} else if ($productId == PRODUCT_WHITE_LABEL) {
+			$message = "White label license: $license";
 		}
 
 		$data = [

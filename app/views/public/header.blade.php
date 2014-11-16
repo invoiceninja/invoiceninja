@@ -106,8 +106,10 @@
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
       <div class="navbar-header">
-          {{-- Per our license, please do not remove or modify this link. --}}                  
-          <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
+          @if (!isset($hideLogo) || !$hideLogo)
+            {{-- Per our license, please do not remove or modify this link. --}}                  
+            <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
+          @endif
           <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
             <span class="sr-only">{{ trans('public.toggle_navigation') }}</span>
             <span class="icon-bar"></span>
@@ -135,7 +137,10 @@
 <div class="navbar" style="margin-bottom:0px">
   <div class="container">
     <div class="navbar-header">
-      <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
+      {{-- Per our license, please do not remove or modify this link. --}}                  
+      @if (!isset($hideLogo) || !$hideLogo)
+        <a class="navbar-brand" href="https://www.invoiceninja.com/"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
+      @endif
     </div>
     @if (isset($showClientHeader) && $showClientHeader)
     <ul class="nav navbar-nav">
@@ -169,7 +174,9 @@
 @yield('content')   
 
 
-<footer class="footer">
+<footer class="footer" style="min-height:400px">
+
+  @if ((!isset($hideHeader) || !$hideHeader) && (!isset($showClientHeader) || !$showClientHeader))
   <div class="container">
     <div class="row">
       <div class="col-md-4">
@@ -206,7 +213,7 @@
 
         <!--<iframe src="http://ghbtns.com/github-btn.html?user=hillelcoren&repo=invoice-ninja&type=watch" allowtransparency="true" frameborder="0" scrolling="0" width="62" height="20"></iframe>-->
 
-        <a href="{{ NINJA_URL }}"><img src="{{ asset('images/footer-logo.png') }}"></a>
+        <a href="{{ NINJA_WEB_URL }}"><img src="{{ asset('images/footer-logo.png') }}"></a>
         <hr>
         <ul class="navbar-vertical">
           <li>{{ link_to('https://www.invoiceninja.com/features', trans('public.link_features') ) }}</li>
@@ -484,6 +491,8 @@
 </div>
 </div>
 </div>
+@endif
+
 </footer>
 
 <script type="text/javascript">

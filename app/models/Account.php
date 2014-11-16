@@ -234,7 +234,7 @@ class Account extends Eloquent
 		{
 			return false;
 		}
-		else if ($datePaid == '2000-01-01')
+		else if ($datePaid == NINJA_DATE)
 		{
 			return true;
 		}		
@@ -244,6 +244,16 @@ class Account extends Eloquent
 		$interval = $today->diff($datePaid);
 		
 		return $interval->y == 0;
+	}
+
+	public function isWhiteLabel()
+	{
+		if (Utils::isNinjaProd())
+		{
+			return false;
+		}
+
+		return $this->pro_plan_paid == NINJA_DATE;
 	}
 
 	public function getSubscription($eventId) 

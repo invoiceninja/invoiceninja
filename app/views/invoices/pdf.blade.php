@@ -37,7 +37,7 @@
         @if (Utils::isNinjaProd())
           <button type="button" class="btn btn-primary" onclick="showProPlan('invoice_designs')">{{ trans('texts.go_pro') }}</button>
         @else
-          <button type="button" class="btn btn-primary" onclick="buyDesigns()">{{ trans('texts.buy') }}</button>
+          <button type="button" class="btn btn-primary" onclick="buyProduct('{{ DESIGNS_AFFILIATE_KEY }}', '{{ PRODUCT_INVOICE_DESIGNS }}')">{{ trans('texts.buy') }}</button>
         @endif
       </div>
     </div>
@@ -118,10 +118,6 @@
   function showMoreDesigns() {
     trackUrl('/view_more_designs');
     $('#moreDesignsModal').modal('show');
-  }
-
-  function buyDesigns() {
-    window.open('{{ Utils::isNinjaDev() ? '' : NINJA_URL }}/license?return_url=' + window.location + '&affiliate_key={{ DESIGNS_AFFILIATE_KEY }}&product_id={{ PRODUCT_INVOICE_DESIGNS }}');
   }
 
 </script>

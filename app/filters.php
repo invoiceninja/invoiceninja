@@ -32,7 +32,7 @@ App::before(function($request)
       if (Utils::isNinja()) {
         $data = Utils::getNewsFeedResponse();
       } else {
-        $file = @file_get_contents(NINJA_URL . '/news_feed/' . Utils::getUserType() . '/' . NINJA_VERSION);
+        $file = @file_get_contents(NINJA_APP_URL . '/news_feed/' . Utils::getUserType() . '/' . NINJA_VERSION);
         $data = @json_decode($file);
       }      
       if ($data) {        
@@ -84,10 +84,10 @@ App::before(function($request)
     $licenseKey = Input::get('license_key');
     $productId = Input::get('product_id');
 
+    $data = trim(file_get_contents((Utils::isNinjaDev() ? 'http://ninja.dev' : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}"));
+
     if ($productId == PRODUCT_INVOICE_DESIGNS)
     {
-      $data = file_get_contents((Utils::isNinjaDev() ? 'http://ninja.dev' : NINJA_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}");
-
       if ($data = json_decode($data))
       {
         foreach ($data as $item)
@@ -99,11 +99,22 @@ App::before(function($request)
           $design->save();
         }
 
-        if (!Utils::isNinja()) {
+        if (!Utils::isNinjaProd()) {
           Cache::forget('invoice_designs_cache_' . Auth::user()->maxInvoiceDesignId());
         }
 
         Session::flash('message', trans('texts.bought_designs'));
+      }
+    }
+    else if ($productId == PRODUCT_WHITE_LABEL)
+    {
+      if ($data == 'valid')
+      {
+        $account = Auth::user()->account;
+        $account->pro_plan_paid = NINJA_DATE;
+        $account->save();
+
+        Session::flash('message', trans('texts.bought_white_label'));
       }
     }
   }

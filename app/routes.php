@@ -253,8 +253,10 @@ define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
-define('NINJA_URL', 'https://www.invoiceninja.com');
+define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
+define('NINJA_APP_URL', 'https://www.invoiceninja.com');
 define('NINJA_VERSION', '1.5.1');
+define('NINJA_DATE', '2000-01-01');
 define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
 define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
 
@@ -262,7 +264,9 @@ define('COUNT_FREE_DESIGNS', 4);
 define('PRO_PLAN_PRICE', 50);
 define('PRODUCT_ONE_CLICK_INSTALL', 1);
 define('PRODUCT_INVOICE_DESIGNS', 2);
+define('PRODUCT_WHITE_LABEL', 3);
 define('DESIGNS_AFFILIATE_KEY', 'T3RS74');
+define('WHITE_LABEL_AFFILIATE_KEY', '92D2J5');
 
 define('USER_TYPE_SELF_HOST', 'SELF_HOST');
 define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
