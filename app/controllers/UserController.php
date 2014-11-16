@@ -330,15 +330,13 @@ class UserController extends BaseController {
                 if (Session::has(REQUESTED_PRO_PLAN))
                 {
                     Session::forget(REQUESTED_PRO_PLAN);                
-
-                    if ($invoice = $this->accountRepo->enableProPlan())
-                    {
-                        $this->contactMailer->sendInvoice($invoice);
-                        $notice_msg = trans('texts.pro_plan_success');
-                    }
+                    $invitation = $this->accountRepo->enableProPlan();
+                    return Redirect::to($invitation->getLink());
                 }
-
-                return Redirect::action('UserController@login')->with( 'message', $notice_msg );
+                else
+                {
+                    return Redirect::action('UserController@login')->with( 'message', $notice_msg );
+                }
             }
         }
         else

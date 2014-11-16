@@ -343,7 +343,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 @endif
 
 {{-- Per our license, please do not remove or modify this link. --}}
-@if (Utils::isNinjaDev() || !Utils::isNinja())    
+@if (!Utils::isNinja())    
 <div class="container">
   {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> | 
   @if (Auth::user()->account->isWhiteLabel())  
@@ -516,8 +516,8 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         type: 'POST',
         url: '{{ URL::to('account/go_pro') }}',
         success: function(result) { 
-          $('#proPlanSuccess, #proPlanFooter').show();
-          $('#proPlanWorking, #proPlanButton').hide();
+          NINJA.formIsChanged = false;
+          window.location = '{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/view/' + result;
         }
       });     
     } else {

@@ -109,9 +109,9 @@ class AccountRepository
 		$publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
 
 		$ninjaClient = $this->getNinjaClient($ninjaAccount);
-		$invoice = $this->createNinjaInvoice($publicId, $ninjaAccount, $ninjaClient);
+		$invitation = $this->createNinjaInvoice($publicId, $ninjaAccount, $ninjaClient);
 
-		return $invoice;
+		return $invitation;
 	}
 
 	private function createNinjaInvoice($publicId, $account, $client)
@@ -146,7 +146,7 @@ class AccountRepository
 		$invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
 		$invitation->save();
 
-		return $invoice;
+		return $invitation;
 	}
 
 	public function getNinjaAccount()

@@ -117,14 +117,16 @@ class AccountController extends \BaseController {
 
 	public function enableProPlan()
 	{		
-		$invoice = $this->accountRepo->enableProPlan();
+		$invitation = $this->accountRepo->enableProPlan();
 
+		/*
 		if ($invoice)
 		{
 			$this->contactMailer->sendInvoice($invoice);
 		}
-
-		return RESULT_SUCCESS;		
+		*/
+		
+		return $invitation->invitation_key;		
 	}
 
 	public function setTrashVisible($entityType, $visible)
