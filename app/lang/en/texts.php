@@ -459,9 +459,7 @@ return array(
   'bought_designs' => 'Successfully added additional invoice designs',
   'sent' => 'sent',
 
-  'id_number' => 'ID Number',
   'vat_number' => 'VAT Number',
-
   'timesheets' => 'Timesheets',
 
   'payment_title' => 'Enter Your Billing Address and Credit Card information',
@@ -469,10 +467,11 @@ return array(
   'payment_footer1' => '*Billing address must match address accociated with credit card.',
   'payment_footer2' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.',
 
+  'id_number' => 'ID Number',
   'white_label_link' => 'Purchase white label license',
   'white_label_text' => 'Purchase a white label license for $10.00 to remove the Invoice Ninja branding from the top of the client pages.',
   'white_label_header' => 'White Label',
   'bought_white_label' => 'Successfully enabled white label license',
-  'white_labeled' => 'White labeled'
+  'white_labeled' => 'White labeled',
   
 );

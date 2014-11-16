@@ -1245,7 +1245,9 @@
 		self.mapping = {
 	    	'contacts': {
 	        	create: function(options) {
-	            	return new ContactModel(options.data);
+	        			var model = new ContactModel(options.data);
+	        			model.send_invoice(options.data.send_invoice == '1');
+	        			return model;
 	        	}
 	    	}
 		}
@@ -1526,7 +1528,9 @@
 		var client = clients[i];
 		for (var j=0; j<client.contacts.length; j++) {
 			var contact = client.contacts[j];
-			contact.send_invoice = contact.is_primary;
+			if (contact.is_primary) {
+				contact.send_invoice = true;
+			}
 		}
 		clientMap[client.public_id] = client;
 		$clientSelect.append(new Option(getClientDisplayName(client), client.public_id)); 
