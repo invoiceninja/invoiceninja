@@ -345,7 +345,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 {{-- Per our license, please do not remove or modify this link. --}}
 @if (Utils::isNinjaDev() || !Utils::isNinja())    
 <div class="container">
-  {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> - 
+  {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> | 
   @if (Auth::user()->account->isWhiteLabel())  
     {{ trans('texts.white_labeled') }}
   @else
@@ -360,7 +360,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
           </div>
 
           <div style="background-color: #fff; padding:20px">
-            <p>{{ trans('texts.white_label_text')}}</p>        
+            <h4>{{ trans('texts.white_label_text')}}</h4>        
           </div>
 
           <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">          

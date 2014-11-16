@@ -30,6 +30,11 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 * [Zapier](https://zapier.com/) integration
 * [D3.js](http://d3js.org/) visualizations
 
+### Upgrades
+
+* $10 - White label license
+* $20 - Six additional invoice designs
+
 ### Contributors
 
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
