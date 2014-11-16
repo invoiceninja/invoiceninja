@@ -82,8 +82,9 @@ border-bottom: 1px solid #dfe0e1;
 table.dataTable.no-footer {
 border-bottom: none;
 }
-.table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th {
-background-color: #fff;
+.table-striped>tbody>tr:nth-child(odd)>td, 
+.table-striped>tbody>tr:nth-child(odd)>th {
+background-color: #FDFDFD;
 }
 table.table thead .sorting_asc {
 background: url('../images/sort_asc.png') no-repeat 90% 50%;
@@ -317,12 +318,6 @@ border-top-left-radius: 3px;
 
 /* hide table sorting indicators */
 table.table thead .sorting { background: url('') no-repeat center right; }
-table.dataTable tr.odd td.sorting_1 { background-color: white; }
-table.dataTable tr.odd td.sorting_2 { background-color: white; }
-table.dataTable tr.odd td.sorting_3 { background-color: white; }
-table.dataTable tr.even td.sorting_1 { background-color: white; }
-table.dataTable tr.even td.sorting_2 { background-color: white; }
-table.dataTable tr.even td.sorting_3 { background-color: white; }
 
 
 

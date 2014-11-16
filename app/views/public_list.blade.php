@@ -1,7 +1,7 @@
 @extends('public.header')
 
 @section('content')
-
+	
 	<style type="text/css">
 
 		body {
@@ -24,6 +24,11 @@
 		}
 
 		tr {border: none;}
+		td {
+			padding-top: 16px !important;
+			padding-bottom: 16px !important;
+		}
+
 		/*th {border-left: 1px solid #d26b26; }*/
 		th {border-left: 1px solid #FFFFFF; }
 		.table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
@@ -34,8 +39,9 @@
 		table.dataTable.no-footer {
 			border-bottom: none;
 		}
-		.table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th {
-			background-color: #fff;
+		.table-striped>tbody>tr:nth-child(odd)>td, 
+		.table-striped>tbody>tr:nth-child(odd)>th {
+			background-color: #FDFDFD;
 		}
 		table.table thead .sorting_asc {
 			background: url('../images/sort_asc.png') no-repeat 90% 50%;
@@ -72,12 +78,6 @@
 
 		/* hide table sorting indicators */
 		table.table thead .sorting { background: url('') no-repeat center right; }
-		table.dataTable tr.odd td.sorting_1 { background-color: white; }
-		table.dataTable tr.odd td.sorting_2 { background-color: white; }
-		table.dataTable tr.odd td.sorting_3 { background-color: white; }
-		table.dataTable tr.even td.sorting_1 { background-color: white; }
-		table.dataTable tr.even td.sorting_2 { background-color: white; }
-		table.dataTable tr.even td.sorting_3 { background-color: white; }
 
 	</style>
 

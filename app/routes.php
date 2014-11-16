@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -366,6 +367,23 @@ function uctrans($text)
   return ucwords(trans($text));
 }
 
+// optional trans: only return the string if it's translated
+function otrans($text)
+{
+  $locale = Session::get(SESSION_LOCALE);  
+
+  if ($locale == 'en')
+  {
+    return trans($text);
+  }
+  else
+  {
+    $string = trans($text);
+    $english = trans($text, [], 'en');
+    
+    return $string != $english ? $string : '';
+  }
+}
 
 if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
 {
@@ -422,5 +440,4 @@ if (Auth::check() && Auth::user()->id === 1)
   Auth::loginUsingId(1);
 }
 */
-
 

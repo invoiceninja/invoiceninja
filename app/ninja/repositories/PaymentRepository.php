@@ -8,8 +8,8 @@ use Utils;
 
 class PaymentRepository
 {
-	public function find($clientPublicId = null, $filter = null)
-	{
+    public function find($clientPublicId = null, $filter = null)
+    {
         $query = \DB::table('payments')
                     ->join('clients', 'clients.id', '=','payments.client_id')
                     ->join('invoices', 'invoices.id', '=','payments.invoice_id')
@@ -39,7 +39,37 @@ class PaymentRepository
         }
 
         return $query;
-	}
+    }
+
+    public function findForContact($contactId = null, $filter = null)
+    {
+        $query = \DB::table('payments')
+                    ->join('clients', 'clients.id', '=','payments.client_id')
+                    ->join('invoices', 'invoices.id', '=','payments.invoice_id')
+                    ->join('contacts', 'contacts.client_id', '=', 'clients.id')
+                    ->leftJoin('invitations', function($join)
+                    {
+                        $join->on('invitations.invoice_id', '=', 'invoices.id')
+                             ->on('invitations.contact_id', '=', 'contacts.id');                             
+                    })
+                    ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
+                    ->where('payments.account_id', '=', \Auth::user()->account_id)
+                    ->where('clients.is_deleted', '=', false)
+                    ->where('payments.is_deleted', '=', false)
+                    ->where('invitations.deleted_at', '=', null)
+                    ->where('contacts.id', '=', $contactId)
+                    ->select('invitations.invitation_key', 'payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type', 'payments.account_gateway_id');        
+
+        if ($filter)
+        {
+            $query->where(function($query) use ($filter)
+            {
+                $query->where('clients.name', 'like', '%'.$filter.'%');
+            });
+        }
+
+        return $query;
+    }
 
     public function getErrors($input)
     {

@@ -72,7 +72,12 @@ class QuoteController extends \BaseController {
   {
     $search = Input::get('sSearch');
     $invitationKey = Session::get('invitation_key');
-    $invitation = Invitation::where('invitation_key', '=', $invitationKey)->firstOrFail();
+    $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
+
+    if (!$invitation || $invitation->is_deleted) 
+    {
+      return [];
+    }
 
     $invoice = $invitation->invoice;
     

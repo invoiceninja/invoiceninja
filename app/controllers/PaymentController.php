@@ -77,7 +77,12 @@ class PaymentController extends \BaseController
     {
         $search = Input::get('sSearch');
         $invitationKey = Session::get('invitation_key');
-        $invitation = Invitation::where('invitation_key', '=', $invitationKey)->with('contact.client')->firstOrFail();
+        $invitation = Invitation::where('invitation_key', '=', $invitationKey)->with('contact.client')->first();
+
+        if (!$invitation)
+        {
+            return [];            
+        }
 
         $invoice = $invitation->invoice;
         
@@ -86,10 +91,10 @@ class PaymentController extends \BaseController
           return [];
         }
 
-        $payments = $this->paymentRepo->find($invitation->contact->client->public_id, Input::get('sSearch'));
+        $payments = $this->paymentRepo->findForContact($invitation->contact->id, Input::get('sSearch'));
 
         return Datatable::query($payments)
-                ->addColumn('invoice_number', function($model) { return $model->invoice_number; })
+                ->addColumn('invoice_number', function($model) { return $model->invitation_key ? link_to('/view/' . $model->invitation_key, $model->invoice_number) : $model->invoice_number; })
                 ->addColumn('transaction_reference', function($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
                 ->addColumn('payment_type', function($model) { return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
                 ->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })

@@ -45,6 +45,7 @@
       
       /* Set the defaults for DataTables initialisation */
       $.extend( true, $.fn.dataTable.defaults, {
+        "bSortClasses": false,
         "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
         "sPaginationType": "bootstrap",
         "bInfo": true,
