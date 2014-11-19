@@ -15,7 +15,12 @@ class Mailer {
 		Mail::send($views, $data, function($message) use ($toEmail, $fromEmail, $fromName, $subject)
 		{
 			$replyEmail = $fromEmail;
-			$fromEmail = NINJA_FROM_EMAIL;
+
+			// http://stackoverflow.com/questions/2421234/gmail-appearing-to-ignore-reply-to
+			if ($toEmail != CONTACT_EMAIL)
+			{
+				$fromEmail = NINJA_FROM_EMAIL;
+			}
 
 			$message->to($toEmail)->from($fromEmail, $fromName)->replyTo($replyEmail, $fromName)->subject($subject);
 		});		

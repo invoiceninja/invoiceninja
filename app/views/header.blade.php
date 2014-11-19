@@ -257,8 +257,9 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
         <br/>
         <h3>{{ trans('texts.success') }}</h3>
         @if (Utils::isNinja())
-          {{ trans('texts.success_message') }}<br/>&nbsp;
+          {{ trans('texts.success_message') }}
         @endif
+        <br/>&nbsp;
       </div>
 
       <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">	      	

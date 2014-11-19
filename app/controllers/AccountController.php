@@ -918,6 +918,13 @@ class AccountController extends \BaseController {
 		{
 			$this->userMailer->sendConfirmation($user);
 		}
+		else
+		{
+			//@file_get_contents(NINJA_APP_URL . "/signup/register/?first_name={$user->first_name}&last_name={$user->last_name}&email={$user->email}");
+			@file_get_contents('http://ninja.dev' . '/signup/register/?first_name=' . urlencode($user->first_name) 
+					. '&last_name=' . urlencode($user->last_name)
+					. '&email=' . urlencode($user->email));
+		}
 
 		$activities = Activity::scope()->get();
 		foreach ($activities as $activity) 
@@ -934,6 +941,24 @@ class AccountController extends \BaseController {
 		Session::set(SESSION_COUNTER, -1);
 
 		return "{$user->first_name} {$user->last_name}";
+	}
+
+	public function doRegister()
+	{
+		$affiliate = Affiliate::where('affiliate_key', '=', SELF_HOST_AFFILIATE_KEY)->first();
+
+    $license = new License;
+    $license->first_name = Input::get('first_name');
+    $license->last_name = Input::get('last_name');
+    $license->email = Input::get('email');
+    $license->transaction_reference = Request::getClientIp();
+    $license->license_key = Utils::generateLicense();
+    $license->affiliate_id = $affiliate->id;
+    $license->product_id = PRODUCT_SELF_HOST;
+    $license->is_claimed = 1;
+    $license->save();                
+
+    return 'success';
 	}
 
 	public function cancelAccount()

@@ -61,6 +61,7 @@ Route::get('claim_license', 'PaymentController@claim_license');
 
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
+Route::get('signup/register', 'AccountController@doRegister');
 
 // Confide routes
 Route::get('login', 'UserController@login');
@@ -265,8 +266,10 @@ define('PRO_PLAN_PRICE', 50);
 define('PRODUCT_ONE_CLICK_INSTALL', 1);
 define('PRODUCT_INVOICE_DESIGNS', 2);
 define('PRODUCT_WHITE_LABEL', 3);
-define('DESIGNS_AFFILIATE_KEY', 'T3RS74');
+define('PRODUCT_SELF_HOST', 4);
 define('WHITE_LABEL_AFFILIATE_KEY', '92D2J5');
+define('INVOICE_DESIGNS_AFFILIATE_KEY', 'T3RS74');
+define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
 
 define('USER_TYPE_SELF_HOST', 'SELF_HOST');
 define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
