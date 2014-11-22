@@ -231,7 +231,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->increments('id');
             $t->unsignedInteger('user_id');
             $t->unsignedInteger('account_id')->index();            
-            $t->unsignedInteger('currency_id')->default(1);
+            $t->unsignedInteger('currency_id')->nullable();
             $t->timestamps();
             $t->softDeletes();
 
