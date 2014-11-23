@@ -711,7 +711,7 @@ class AccountController extends \BaseController {
 			
 			foreach ($fields as $field => $details)
 			{
-				if (!in_array($field, ['testMode', 'developerMode', 'headerImageUrl', 'solutionType', 'landingPage', 'brandName']))
+				if (!in_array($field, ['testMode', 'developerMode', 'headerImageUrl', 'solutionType', 'landingPage', 'brandName', 'logoImageUrl', 'borderColor']))
 				{
 					if(strtolower($gateway->name) == 'beanstream')
 					{
@@ -727,7 +727,7 @@ class AccountController extends \BaseController {
 				}				
 			}			
 		}
-        
+
     $creditcards = Input::get('creditCardTypes');
 		$validator = Validator::make(Input::all(), $rules);
 
