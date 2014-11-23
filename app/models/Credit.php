@@ -55,3 +55,8 @@ Credit::deleting(function($credit)
 {
 	Activity::archiveCredit($credit);
 });
+
+Credit::restoring(function($credit)
+{
+	Activity::restoreCredit($credit);
+});

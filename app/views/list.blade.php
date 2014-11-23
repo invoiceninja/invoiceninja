@@ -68,6 +68,11 @@
 		submitForm('archive');
 	}
 
+	function restoreEntity(id) {
+		$('#id').val(id);
+		submitForm('restore');
+	}
+
 	function markEntity(id, statusId) {
 		$('#id').val(id);
 		$('#statusId').val(statusId);
@@ -118,7 +123,7 @@
 
 		$('tbody tr').click(function(event) {
 			if (event.target.type !== 'checkbox' && event.target.type !== 'button' && event.target.tagName.toLowerCase() !== 'a') {
-				$checkbox = $(this).closest('tr').find(':checkbox');
+				$checkbox = $(this).closest('tr').find(':checkbox:not(:disabled)');				
 				var checked = $checkbox.prop('checked');
 				$checkbox.prop('checked', !checked);
 				setArchiveEnabled();
@@ -142,8 +147,7 @@
 	});
 
 	$('.selectAll').click(function() {
-		$(this).closest('table').find(':checkbox').prop('checked', this.checked);		
-
+		$(this).closest('table').find(':checkbox:not(:disabled)').prop('checked', this.checked);
 	});
 
 	function setArchiveEnabled() {

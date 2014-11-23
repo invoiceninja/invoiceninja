@@ -273,7 +273,7 @@
 
 		{{ Button::primary(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()'))->append_with_icon('download-alt'); }}	
         
-		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))						
+		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))
 			@if ($invoice && $invoice->id)		
 
 				<div id="primaryActions" style="text-align:left" class="btn-group">
@@ -314,6 +314,8 @@
 			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE)		
 				{{ Button::primary(trans('texts.enter_payment'), array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
 			@endif
+		@elseif ($invoice && $invoice->trashed())
+			{{ Button::success(trans('texts.restore'), ['onclick' => 'submitAction("restore")'])->append_with_icon('cloud-download') }}
 		@endif
 
 	</div>

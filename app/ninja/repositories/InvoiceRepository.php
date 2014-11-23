@@ -20,7 +20,7 @@ class InvoiceRepository
             ->where('contacts.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', false)    			
     				->where('contacts.is_primary', '=', true)	
-  					->select('clients.public_id as client_public_id', 'invoice_number', 'invoice_status_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'quote_id', 'quote_invoice_id');
+  					->select('clients.public_id as client_public_id', 'invoice_number', 'invoice_status_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'quote_id', 'quote_invoice_id', 'invoices.deleted_at', 'invoices.is_deleted');
 
       if (!\Session::get('show_trash:' . $entityType))
       {
@@ -59,7 +59,7 @@ class InvoiceRepository
             ->where('clients.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', true)
     				->where('contacts.is_primary', '=', true)	
-			   		->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email');
+			   		->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'invoices.deleted_at', 'invoices.is_deleted');
 
     	if ($clientPublicId) 
     	{
@@ -121,10 +121,10 @@ class InvoiceRepository
 
     if (!$clientPublicId) 
     {
-      $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
+      $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '" ' . Utils::getEntityRowClass($model) . '>'; });
     }
     
-    $table->addColumn("invoice_number", function($model) use ($entityType) { return link_to("{$entityType}s/" . $model->public_id . '/edit', $model->invoice_number); });
+    $table->addColumn("invoice_number", function($model) use ($entityType) { return link_to("{$entityType}s/" . $model->public_id . '/edit', $model->invoice_number, ['class' => Utils::getEntityRowClass($model)]); });
 
     if (!$clientPublicId) 
     {
@@ -143,14 +143,22 @@ class InvoiceRepository
         ->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
         ->addColumn('dropdown', function($model) use ($entityType)
         { 
+          if ($model->is_deleted)
+          {
+            return '<div style="height:38px"/>';
+          }
+
           $str = '<div class="btn-group tr-action" style="visibility:hidden;">
               <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                 '.trans('texts.select').' <span class="caret"></span>
               </button>
-              <ul class="dropdown-menu" role="menu">
-              <li><a href="' . \URL::to("{$entityType}s/".$model->public_id.'/edit') . '">'.trans("texts.edit_{$entityType}").'</a></li>
-              <li><a href="' . \URL::to("{$entityType}s/".$model->public_id.'/clone') . '">'.trans("texts.clone_{$entityType}").'</a></li>
-              <li class="divider"></li>';
+              <ul class="dropdown-menu" role="menu">';
+
+          if (!$model->deleted_at || $model->deleted_at == '0000-00-00')
+          {
+            $str .= '<li><a href="' . \URL::to("{$entityType}s/".$model->public_id.'/edit') . '">'.trans("texts.edit_{$entityType}").'</a></li>
+                <li><a href="' . \URL::to("{$entityType}s/".$model->public_id.'/clone') . '">'.trans("texts.clone_{$entityType}").'</a></li>
+                <li class="divider"></li>';
 
             if ($model->invoice_status_id < INVOICE_STATUS_SENT) 
             {
@@ -177,13 +185,20 @@ class InvoiceRepository
               }
             }
 
-            return $str . '<li class="divider"></li>
-                <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans("texts.archive_{$entityType}").'</a></li>
-                <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans("texts.delete_{$entityType}").'</a></li>               
-              </ul>
+            $str .= '<li class="divider"></li>
+                  <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans("texts.archive_{$entityType}").'</a></li>
+                  <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans("texts.delete_{$entityType}").'</a></li>';
+           }
+           else
+           {
+              $str .= '<li><a href="javascript:restoreEntity(' . $model->public_id. ')">'.trans("texts.restore_{$entityType}").'</a></li>
+                      <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans("texts.delete_{$entityType}").'</a></li>';
+           }
+
+          return $str . '</ul>
             </div>';
-          })                  
-          ->make();
+        })                  
+        ->make();
   }
 
 	public function getErrors($input)
@@ -483,6 +498,10 @@ class InvoiceRepository
         $invoice->invoice_status_id = $statusId;
         $invoice->save();
       } 
+      else if ($action == 'restore')
+      {
+        $invoice->restore();
+      }
       else 
       {
   			if ($action == 'delete') 

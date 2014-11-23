@@ -3,7 +3,6 @@
 @section('content') 
 	
 	
-	@if (!$client->trashed())		
 	<div class="pull-right">
 		{{ Former::open('clients/bulk')->addClass('mainForm') }}
 		<div style="display:none">
@@ -11,6 +10,9 @@
 			{{ Former::text('id')->value($client->public_id) }}
 		</div>
 
+		@if ($client->trashed())		
+			{{ Button::primary(trans('texts.restore_client'), ['onclick' => 'onRestoreClick()']) }}
+		@else
 		{{ DropdownButton::normal(trans('texts.edit_client'),
 			  Navigation::links(
 			    [
@@ -23,10 +25,11 @@
 			, ['id'=>'normalDropDown'])->split(); }}
 
 			{{ DropdownButton::primary('Create Invoice', Navigation::links($actionLinks), ['id'=>'primaryDropDown'])->split(); }}
-	    {{ Former::close() }}		
+		@endif
+	  {{ Former::close() }}		
 
 	</div>
-	@endif
+	
 
 	<h2>{{ $client->getDisplayName() }}</h2>
 	@if ($client->last_login > 0)
@@ -206,6 +209,11 @@
 
 	function onArchiveClick() {
 		$('#action').val('archive');
+		$('.mainForm').submit();
+	}
+
+	function onRestoreClick() {
+		$('#action').val('restore');
 		$('.mainForm').submit();
 	}
 

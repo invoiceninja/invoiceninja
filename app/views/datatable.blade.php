@@ -35,6 +35,14 @@
     jQuery(document).ready(function(){
         // dynamic table
         jQuery('.{{ $class }}').dataTable({
+            "fnRowCallback": function(row, data) { 
+                if (data[0].indexOf('ENTITY_DELETED') > 0) {
+                    $(row).addClass('entityDeleted');
+                }
+                if (data[0].indexOf('ENTITY_ARCHIVED') > 0) {
+                    $(row).addClass('entityArchived');
+                }
+            },
             "bAutoWidth": false,            
             @if (isset($hasCheckboxes) && $hasCheckboxes)
             'aaSorting': [['1', 'asc']],

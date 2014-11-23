@@ -253,3 +253,8 @@ Client::deleting(function($client)
 {
 	Activity::archiveClient($client);
 });
+
+Client::restoring(function($client)
+{
+	Activity::restoreClient($client);
+});

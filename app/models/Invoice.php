@@ -234,3 +234,8 @@ Invoice::deleting(function($invoice)
 {
 	Activity::archiveInvoice($invoice);
 });
+
+Invoice::restoring(function($invoice)
+{
+	Activity::restoreInvoice($invoice);
+});

@@ -30,7 +30,14 @@ class InvoiceController extends \BaseController {
 			'columns'=>Utils::trans(['checkbox', 'invoice_number', 'client', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status', 'action'])
 		];
 
-		if (Invoice::scope()->where('is_recurring', '=', true)->count() > 0)
+		$recurringInvoices = Invoice::scope()->where('is_recurring', '=', true);
+
+    if (Session::get('show_trash:invoice'))
+    {
+    	$recurringInvoices->withTrashed();      
+    }
+
+		if ($recurringInvoices->count() > 0)
 		{
 			$data['secEntityType'] = ENTITY_RECURRING_INVOICE;
 			$data['secColumns'] = Utils::trans(['checkbox', 'frequency', 'client', 'start_date', 'end_date', 'invoice_total', 'action']);
@@ -88,7 +95,7 @@ class InvoiceController extends \BaseController {
     	$table = Datatable::query($query);			
 
     	if (!$clientPublicId) {
-    		$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; });
+    		$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '" '. Utils::getEntityRowClass($model) . '>'; });
     	}
     	
     	$table->addColumn('frequency', function($model) { return link_to('invoices/' . $model->public_id, $model->frequency); });
@@ -102,17 +109,34 @@ class InvoiceController extends \BaseController {
     	    ->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
     	    ->addColumn('dropdown', function($model) 
     	    { 
-    	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
-  							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-    						'.trans('texts.select').' <span class="caret"></span>
-  							</button>
-  							<ul class="dropdown-menu" role="menu">
-						    <li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">'.trans('texts.edit_invoice').'</a></li>
-						    <li class="divider"></li>
-						    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans('texts.archive_invoice').'</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans('texts.delete_invoice').'</a></li>						    
-						  </ul>
-						</div>';
+            if ($model->is_deleted)
+            {
+                return '<div style="height:38px"/>';
+            }
+            
+            $str = '<div class="btn-group tr-action" style="visibility:hidden;">
+                        <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+                            '.trans('texts.select').' <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">';
+
+            if (!$model->deleted_at || $model->deleted_at == '0000-00-00')
+            {
+                $str .= '<li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">'.trans('texts.edit_invoice').'</a></li>
+										    <li class="divider"></li>
+										    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans('texts.archive_invoice').'</a></li>
+										    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans('texts.delete_invoice').'</a></li>';
+            }
+            else
+            {
+                $str .= '<li><a href="javascript:restoreEntity(' . $model->public_id. ')">'.trans('texts.restore_invoice').'</a></li>';
+            }
+                                                  
+            return $str . '</ul>
+                    </div>';
+
+						    						   
+
     	    })    	       	    
     	    ->make();    	
     }
@@ -313,7 +337,7 @@ class InvoiceController extends \BaseController {
 		$action = Input::get('action');
 		$entityType = Input::get('entityType');
 
-		if ($action == 'archive' || $action == 'delete' || $action == 'mark')
+		if (in_array($action, ['archive', 'delete', 'mark', 'restore']))
 		{
 			return InvoiceController::bulk($entityType);
 		}
@@ -466,7 +490,14 @@ class InvoiceController extends \BaseController {
 			Session::flash('message', $message);
 		}
 
-		return Redirect::to("{$entityType}s");
+		if ($action == 'restore' && $count == 1)
+		{
+			return Redirect::to("{$entityType}s/" . $ids[0]);
+		}
+		else
+		{
+			return Redirect::to("{$entityType}s");			
+		}		
 	}
 
 	public function convertQuote($publicId)

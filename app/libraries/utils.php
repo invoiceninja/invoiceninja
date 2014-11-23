@@ -578,5 +578,21 @@ class Utils
 	{
     return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
 	}
-	
+
+	public static function getEntityRowClass($model)	
+	{
+		$str = $model->is_deleted || ($model->deleted_at && $model->deleted_at != '0000-00-00') ? 'DISABLED ' : '';
+
+		if ($model->is_deleted)
+		{
+			$str .= 'ENTITY_DELETED ';
+		}
+
+		if ($model->deleted_at && $model->deleted_at != '0000-00-00')
+		{
+			$str .= 'ENTITY_ARCHIVED ';	
+		}
+
+		return $str;
+	}
 }

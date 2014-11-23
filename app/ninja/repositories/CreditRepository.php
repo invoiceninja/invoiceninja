@@ -15,7 +15,7 @@ class CreditRepository
 	                ->where('clients.account_id', '=', \Auth::user()->account_id)
 	                ->where('clients.deleted_at', '=', null)
 	                ->where('contacts.is_primary', '=', true)   
-	                ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.balance', 'credits.credit_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'credits.private_notes');        
+	                ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.balance', 'credits.credit_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'credits.private_notes', 'credits.deleted_at', 'credits.is_deleted');
 
 	    if ($clientPublicId) 
 	    {
@@ -70,13 +70,20 @@ class CreditRepository
 
         foreach ($credits as $credit) 
         {
-            if ($action == 'delete') 
+            if ($action == 'restore')
             {
-                $credit->is_deleted = true;
-                $credit->save();
-            } 
-            
-            $credit->delete();
+                $credit->restore();
+            }
+            else
+            {            
+                if ($action == 'delete') 
+                {
+                    $credit->is_deleted = true;
+                    $credit->save();
+                } 
+                
+                $credit->delete();
+            }
         }
 
         return count($credits);

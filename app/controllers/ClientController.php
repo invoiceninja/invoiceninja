@@ -32,7 +32,7 @@ class ClientController extends \BaseController {
     	$clients = $this->clientRepo->find(Input::get('sSearch'));
 
         return Datatable::query($clients)
-    	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
+    	    ->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '" ' . Utils::getEntityRowClass($model) . '>'; })
     	    ->addColumn('name', function($model) { return link_to('clients/' . $model->public_id, $model->name); })
     	    ->addColumn('first_name', function($model) { return link_to('clients/' . $model->public_id, $model->first_name . ' ' . $model->last_name); })
     	    ->addColumn('email', function($model) { return link_to('clients/' . $model->public_id, $model->email); })
@@ -41,21 +41,34 @@ class ClientController extends \BaseController {
     	    ->addColumn('balance', function($model) { return Utils::formatMoney($model->balance, $model->currency_id); })    	    
     	    ->addColumn('dropdown', function($model) 
     	    { 
-    	    	return '<div class="btn-group tr-action" style="visibility:hidden;">
+            if ($model->is_deleted)
+            {
+              return '<div style="height:38px"/>';
+            }
+
+    	    	$str = '<div class="btn-group tr-action" style="visibility:hidden;">
   							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
     							'.trans('texts.select').' <span class="caret"></span>
   							</button>
-  							<ul class="dropdown-menu" role="menu">
-  							<li><a href="' . URL::to('clients/'.$model->public_id.'/edit') . '">'.trans('texts.edit_client').'</a></li>
+  							<ul class="dropdown-menu" role="menu">';
+
+  					if (!$model->deleted_at || $model->deleted_at == '0000-00-00')
+  					{
+  						$str .= '<li><a href="' . URL::to('clients/'.$model->public_id.'/edit') . '">'.trans('texts.edit_client').'</a></li>
 						    <li class="divider"></li>
 						    <li><a href="' . URL::to('invoices/create/'.$model->public_id) . '">'.trans('texts.new_invoice').'</a></li>						    
 						    <li><a href="' . URL::to('payments/create/'.$model->public_id) . '">'.trans('texts.new_payment').'</a></li>						    
 						    <li><a href="' . URL::to('credits/create/'.$model->public_id) . '">'.trans('texts.new_credit').'</a></li>						    
 						    <li class="divider"></li>
-						    <li><a href="javascript:archiveEntity(' . $model->public_id. ')">'.trans('texts.archive_client').'</a></li>
-						    <li><a href="javascript:deleteEntity(' . $model->public_id. ')">'.trans('texts.delete_client').'</a></li>						    
-						  </ul>
-						</div>';
+						    <li><a href="javascript:archiveEntity(' . $model->public_id. ')">'.trans('texts.archive_client').'</a></li>';
+  					}
+  					else
+  					{
+  						$str .= '<li><a href="javascript:restoreEntity(' . $model->public_id. ')">'.trans('texts.restore_client').'</a></li>';
+  					}
+  													    
+						return $str . '<li><a href="javascript:deleteEntity(' . $model->public_id. ')">'.trans('texts.delete_client').'</a></li></ul>
+							</div>';
     	    })    	   
     	    ->make();    	    
     }
@@ -276,6 +289,13 @@ class ClientController extends \BaseController {
 		$message = Utils::pluralize($action.'d_client', $count);
 		Session::flash('message', $message);
 
-		return Redirect::to('clients');
+		if ($action == 'restore' && $count == 1)
+		{
+			return Redirect::to('clients/' . $ids[0]);
+		}
+		else
+		{
+			return Redirect::to('clients');
+		}
 	}
 }

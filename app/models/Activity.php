@@ -29,6 +29,12 @@ define("ACTIVITY_TYPE_VIEW_QUOTE", 21);
 define("ACTIVITY_TYPE_ARCHIVE_QUOTE", 22);
 define("ACTIVITY_TYPE_DELETE_QUOTE", 23);
 
+define("ACTIVITY_TYPE_RESTORE_QUOTE", 24);
+define("ACTIVITY_TYPE_RESTORE_INVOICE", 25);
+define("ACTIVITY_TYPE_RESTORE_CLIENT", 26);
+define("ACTIVITY_TYPE_RESTORE_PAYMENT", 27);
+define("ACTIVITY_TYPE_RESTORE_CREDIT", 28);
+
 
 class Activity extends Eloquent
 {
@@ -106,6 +112,16 @@ class Activity extends Eloquent
 		}
 	}	
 
+	public static function restoreClient($client)
+	{
+		$activity = Activity::getBlank();
+		$activity->client_id = $client->id;
+		$activity->activity_type_id = ACTIVITY_TYPE_RESTORE_CLIENT;
+		$activity->message = Utils::encodeActivity(Auth::user(), 'restored', $client);
+		$activity->balance = $client->balance;
+		$activity->save();
+	}	
+
 	public static function createInvoice($invoice)
 	{
 		if (Auth::check()) 
@@ -151,6 +167,18 @@ class Activity extends Eloquent
 
 			$activity->save();
 		}
+	}
+
+	public static function restoreInvoice($invoice)
+	{
+		$activity = Activity::getBlank();
+		$activity->invoice_id = $invoice->id;
+		$activity->client_id = $invoice->client_id;
+		$activity->activity_type_id = $invoice->is_quote ? ACTIVITY_TYPE_RESTORE_QUOTE : ACTIVITY_TYPE_RESTORE_INVOICE;
+		$activity->message = Utils::encodeActivity(Auth::user(), 'restored', $invoice);
+		$activity->balance = $invoice->client->balance;
+
+		$activity->save();
 	}
 
 	public static function emailInvoice($invitation)
@@ -370,6 +398,21 @@ class Activity extends Eloquent
 		$activity->save();
 	}	
 
+	public static function restorePayment($payment)
+	{
+		$client = $payment->client;
+		$invoice = $payment->invoice;
+
+		$activity = Activity::getBlank();
+		$activity->payment_id = $payment->id;
+		$activity->invoice_id = $invoice->id;
+		$activity->client_id = $client->id;
+		$activity->activity_type_id = ACTIVITY_TYPE_RESTORE_PAYMENT;
+		$activity->message = Utils::encodeActivity(Auth::user(), 'restored ' . $payment->getName());
+		$activity->balance = $client->balance;
+		$activity->adjustment = 0;
+		$activity->save();
+	}	
 
 	public static function createCredit($credit)
 	{
@@ -433,6 +476,17 @@ class Activity extends Eloquent
 		$activity->credit_id = $credit->id;
 		$activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_CREDIT;
 		$activity->message = Utils::encodeActivity(Auth::user(), 'archived ' . Utils::formatMoney($credit->balance, $credit->client->currency_id) . ' credit');
+		$activity->balance = $credit->client->balance;
+		$activity->save();
+	}
+
+	public static function restoreCredit($credit)
+	{
+		$activity = Activity::getBlank();
+		$activity->client_id = $credit->client_id;
+		$activity->credit_id = $credit->id;
+		$activity->activity_type_id = ACTIVITY_TYPE_RESTORE_CREDIT;
+		$activity->message = Utils::encodeActivity(Auth::user(), 'restored ' . Utils::formatMoney($credit->balance, $credit->client->currency_id) . ' credit');
 		$activity->balance = $credit->client->balance;
 		$activity->save();
 	}

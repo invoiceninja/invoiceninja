@@ -58,3 +58,8 @@ Payment::deleting(function($payment)
 {
 	Activity::archivePayment($payment);
 });
+
+Payment::restoring(function($payment)
+{
+	Activity::restorePayment($payment);
+});

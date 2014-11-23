@@ -35,24 +35,37 @@ class CreditController extends \BaseController {
 
         if (!$clientPublicId) 
         {
-            $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '">'; })
+            $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '" ' . Utils::getEntityRowClass($model) . '>'; })
                   ->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
         }
         
-        return $table->addColumn('amount', function($model){ return Utils::formatMoney($model->amount, $model->currency_id); })
+        return $table->addColumn('amount', function($model){ return Utils::formatMoney($model->amount, $model->currency_id) . '<span ' . Utils::getEntityRowClass($model) . '/>'; })
             ->addColumn('balance', function($model){ return Utils::formatMoney($model->balance, $model->currency_id); })
             ->addColumn('credit_date', function($model) { return Utils::fromSqlDate($model->credit_date); })
             ->addColumn('private_notes', function($model) { return $model->private_notes; })
             ->addColumn('dropdown', function($model) 
             { 
-                return '<div class="btn-group tr-action" style="visibility:hidden;">
+                if ($model->is_deleted)
+                {
+                    return '<div style="height:38px"/>';
+                }
+
+                $str = '<div class="btn-group tr-action" style="visibility:hidden;">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                                 '.trans('texts.select').' <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu" role="menu">
-                            <li><a href="javascript:archiveEntity(' . $model->public_id. ')">'.trans('texts.archive_credit').'</a></li>
-                            <li><a href="javascript:deleteEntity(' . $model->public_id. ')">'.trans('texts.delete_credit').'</a></li>                          
-                          </ul>
+                            <ul class="dropdown-menu" role="menu">';
+
+                if (!$model->deleted_at || $model->deleted_at == '0000-00-00')
+                {
+                    $str .= '<li><a href="javascript:archiveEntity(' . $model->public_id. ')">'.trans('texts.archive_credit').'</a></li>';
+                }
+                else
+                {
+                    $str .= '<li><a href="javascript:restoreEntity(' . $model->public_id. ')">'.trans('texts.restore_credit').'</a></li>';
+                }
+                                                      
+                return $str . '<li><a href="javascript:deleteEntity(' . $model->public_id. ')">'.trans('texts.delete_credit').'</a></li></ul>
                         </div>';
             })         
             ->make();       

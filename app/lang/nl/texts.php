@@ -470,6 +470,20 @@ return array(
   'white_labeled' => 'White labeled',
 
 
+  'restore' => 'Restore',
+  'restore_invoice' => 'Restore Invoice',
+  'restore_quote' => 'Restore Quote',
+  'restore_client' => 'Restore Client',
+  'restore_credit' => 'Restore Credit',
+  'restore_payment' => 'Restore Payment',
+
+  'restored_invoice' => 'Successfully restored invoice',
+  'restored_quote' => 'Successfully restored quote',
+  'restored_client' => 'Successfully restored client',
+  'restored_payment' => 'Successfully restored payment',
+  'restored_credit' => 'Successfully restored credit',
+  
+
       
   
 );
