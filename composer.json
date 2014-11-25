@@ -19,9 +19,17 @@
 		"omnipay/omnipay": "~2.0",
 		"intervention/image": "1.x",
 		"webpatser/laravel-countries": "dev-master",
-		"barryvdh/laravel-ide-helper": "1.*",
+		"barryvdh/laravel-ide-helper": "~1.0",
     "doctrine/dbal": "~2.3",
-    "jsanc623/phpbenchtime": "2.x"
+    "jsanc623/phpbenchtime": "2.x",
+    "lokielse/omnipay-alipay": "dev-master",
+    "coatesap/omnipay-datacash": "~2.0",
+    "alfaproject/omnipay-neteller": "~1.0",
+    "mfauveau/omnipay-pacnet": "~2.0",
+    "coatesap/omnipay-paymentsense": "~2.0",
+    "coatesap/omnipay-realex": "~2.0",
+    "fruitcakestudio/omnipay-sisow": "~2.0",
+    "alfaproject/omnipay-skrill": "dev-master"
 	},
 	"require-dev": {
 		"codeception/codeception": "dev-master"

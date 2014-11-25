@@ -227,6 +227,7 @@ class PaymentController extends \BaseController
         $key = $invoice->invoice_number . '_details';
         $gateway = $invoice->client->account->account_gateways[0]->gateway;
         $paymentLibrary = $gateway->paymentlibrary;
+        $currencyCode = $invoice->client->currency ? $invoice->client->currency->code : $invoice->account->currency ? $invoice->account->currency->code : 'USD';
 
         if ($input && $paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
         {
@@ -253,7 +254,7 @@ class PaymentController extends \BaseController
                 'ship_to_city' => $input['city'],
                 'ship_to_state' => $input['state'],
                 'ship_to_postal_code' => $input['postal_code'],
-                'currency_code' => $invoice->client->currency->code,
+                'currency_code' => $currencyCode,
             ];
             
             switch($gateway->id)
@@ -293,7 +294,7 @@ class PaymentController extends \BaseController
             return [
                 'amount' => $invoice->amount,
                 'card' => $card,
-                'currency' => $invoice->client->currency->code,
+                'currency' => $currencyCode,
                 'returnUrl' => URL::to('complete'),
                 'cancelUrl' => URL::to('/')
             ];

@@ -8,46 +8,28 @@ class PaymentLibrariesSeeder extends Seeder
 		Eloquent::unguard();
 
 		$gateways = [
-			array('name'=>'BeanStream', 'provider'=>'BeanStream', 'payment_library_id' => 2),
-			array('name'=>'Psigate', 'provider'=>'Psigate', 'payment_library_id' => 2)
+			['name' => 'BeanStream', 'provider' => 'BeanStream', 'payment_library_id' => 2],
+			['name' => 'Psigate', 'provider' => 'Psigate', 'payment_library_id' => 2],
+			['name' => 'moolah', 'provider' => 'AuthorizeNet_AIM', 'sort_order' => 1, 'recommended' => 1, 'site_url' => 'https://invoiceninja.mymoolah.com/', 'payment_library_id' => 1],
+			['name' => 'Alipay', 'provider' => 'Alipay_Express', 'payment_library_id' => 1],
+			['name' => 'Buckaroo', 'provider' => 'Buckaroo_CreditCard', 'payment_library_id' => 1],
+			['name' => 'Coinbase', 'provider' => 'Coinbase', 'payment_library_id' => 1],
+			['name' => 'DataCash', 'provider' => 'DataCash', 'payment_library_id' => 1],
+			['name' => 'Neteller', 'provider' => 'Neteller', 'payment_library_id' => 1],
+			['name' => 'Pacnet', 'provider' => 'Pacnet', 'payment_library_id' => 1],
+			['name' => 'PaymentSense', 'provider' => 'PaymentSense', 'payment_library_id' => 1],
+			['name' => 'Realex', 'provider' => 'Realex_Remote', 'payment_library_id' => 1],
+			['name' => 'Sisow', 'provider' => 'Sisow', 'payment_library_id' => 1],
+			['name' => 'Skrill', 'provider' => 'Skrill', 'payment_library_id' => 1]
 		];
 		
 		foreach ($gateways as $gateway)
 		{
-			Gateway::create($gateway);
+			if (!DB::table('gateways')->where('name', '=', $gateway['name'])->get())	
+			{
+				Gateway::create($gateway);
+			}
 		}
-
-		// check that moolah exists
-		if (!DB::table('gateways')->where('name', '=', 'moolah')->get())	{
-			DB::table('gateways')->update(['recommended' => 0]);
-			Gateway::create(array(
-				'name' => 'moolah',
-				'provider' => 'AuthorizeNet_AIM',
-				'sort_order' => 1,
-				'recommended' => 1,
-				'site_url' => 'https://invoiceninja.mymoolah.com/',
-				'payment_library_id' => 1
-			));
-		}
-
-		/*
-		$updateProviders = array(
-			0 => 'AuthorizeNet_AIM', 
-			//1 => 'BeanStream', 
-			//2 => 'iTransact', 
-			//3 => 'FirstData_Connect', 
-			4 => 'PayPal_Pro', 
-			5 => 'TwoCheckout'
-		);
-
-		Gateway::whereIn('provider', $updateProviders)->update(array('recommended' => 1));
-		
-		Gateway::where('provider', '=', 'AuthorizeNet_AIM')->update(array('sort_order' => 5, 'site_url' => 'http://reseller.authorize.net/application/?id=5560364'));
-		//Gateway::where('provider', '=', 'BeanStream')->update(array('sort_order' => 10, 'site_url' => 'http://www.beanstream.com/'));
-		//Gateway::where('provider', '=', 'FirstData_Connect')->update(array('sort_order' => 20, 'site_url' => 'https://www.firstdata.com/'));
-		Gateway::where('provider', '=', 'PayPal_Pro')->update(array('sort_order' => 25, 'site_url' => 'https://www.paypal.com/'));
-		Gateway::where('provider', '=', 'TwoCheckout')->update(array('sort_order' => 30, 'site_url' => 'https://www.2checkout.com/referral?r=2c37ac2298'));
-		*/
 
 	}
 }
