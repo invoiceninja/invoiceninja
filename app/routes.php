@@ -61,7 +61,6 @@ Route::get('claim_license', 'PaymentController@claim_license');
 
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
-Route::get('signup/register', 'AccountController@doRegister');
 
 // Confide routes
 Route::get('login', 'UserController@login');
@@ -74,6 +73,7 @@ Route::post('user/reset', 'UserController@do_reset_password');
 Route::get('logout', 'UserController@logout');
 
 if (Utils::isNinja()) {
+  Route::post('/signup/register', 'AccountController@doRegister');
   Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
   Route::get('/demo', 'AccountController@demo');
 }

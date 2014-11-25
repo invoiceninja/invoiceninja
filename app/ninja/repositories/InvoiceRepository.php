@@ -407,10 +407,25 @@ class InvoiceRepository
   public function cloneInvoice($invoice, $quotePublicId = null)
   {
     $invoice->load('invitations', 'invoice_items');
-
+    $account = $invoice->account;
+    
     $clone = Invoice::createNew($invoice);
     $clone->balance = $invoice->amount;
-    $clone->invoice_number = $invoice->account->getNextInvoiceNumber();
+    
+    // if the invoice prefix is diff than quote prefix, use the same number for the invoice
+    if (($account->invoice_number_prefix || $account->quote_number_prefix) && $account->invoice_number_prefix != $account->quote_number_prefix)
+    {
+      $invoiceNumber = $invoice->invoice_number;
+      if (strpos($invoiceNumber, $account->quote_number_prefix) === 0)
+      {
+        $invoiceNumber = substr($invoiceNumber, strlen($account->quote_number_prefix));
+      }
+      $clone->invoice_number = $account->invoice_number_prefix . $invoiceNumber;
+    }
+    else
+    {
+      $clone->invoice_number = $account->getNextInvoiceNumber();  
+    }    
 
     foreach ([
       'client_id',       

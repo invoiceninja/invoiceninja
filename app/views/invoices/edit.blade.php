@@ -82,7 +82,7 @@
 						Created by a {{ link_to('/invoices/'.$invoice->recurring_invoice_id, 'recurring invoice') }}
 					</div>
 				@else 
-				<div data-bind="visible: invoice_status_id() < CONSTS.INVOICE_STATUS_SENT">
+				<div data-bind="visible: invoice_status_id() === 0">
 					{{ Former::checkbox('recurring')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
 						->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::dateToString($invoice->last_sent_date) : '') }}
 				</div>			

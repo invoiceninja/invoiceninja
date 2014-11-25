@@ -87,6 +87,10 @@ class AccountController extends \BaseController {
 		{
 			return Redirect::to('invoices/create');	
 		}
+		else if (!Utils::isNinja() && Account::count() > 0)
+		{
+			return Redirect::to('/login');
+		}
 
 		$user = false;	
 		$guestKey = Input::get('guest_key');
@@ -920,10 +924,25 @@ class AccountController extends \BaseController {
 		}
 		else
 		{
-			//@file_get_contents(NINJA_APP_URL . "/signup/register/?first_name={$user->first_name}&last_name={$user->last_name}&email={$user->email}");
-			@file_get_contents('http://ninja.dev' . '/signup/register/?first_name=' . urlencode($user->first_name) 
-					. '&last_name=' . urlencode($user->last_name)
-					. '&email=' . urlencode($user->email));
+			/*
+			$url = NINJA_APP_URL . '/signup/register';
+			$data = '';
+			$fields = [
+				'first_name' => urlencode($user->first_name),
+				'last_name' => urlencode($user->last_name),
+				'email' => urlencode($user->email)
+			];
+
+			foreach($fields as $key=>$value) { $data .= $key.'='.$value.'&'; }
+			rtrim($data, '&');
+
+			$ch = curl_init();
+			curl_setopt($ch,CURLOPT_URL, $url);
+			curl_setopt($ch,CURLOPT_POST, count($fields));
+			curl_setopt($ch,CURLOPT_POSTFIELDS, $data);
+			curl_exec($ch);
+			curl_close($ch);			
+			*/
 		}
 
 		$activities = Activity::scope()->get();
@@ -958,7 +977,7 @@ class AccountController extends \BaseController {
     $license->is_claimed = 1;
     $license->save();                
 
-    return 'success';
+    return '';
 	}
 
 	public function cancelAccount()

@@ -20,8 +20,8 @@
 		"intervention/image": "1.x",
 		"webpatser/laravel-countries": "dev-master",
 		"barryvdh/laravel-ide-helper": "1.*",
-        "doctrine/dbal": "~2.3",
-        "jsanc623/phpbenchtime": "2.x"
+    "doctrine/dbal": "~2.3",
+    "jsanc623/phpbenchtime": "2.x"
 	},
 	"require-dev": {
 		"codeception/codeception": "dev-master"

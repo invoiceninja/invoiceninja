@@ -187,13 +187,16 @@ Route::filter('guest', function()
 
 Route::filter('csrf', function()
 {
-	$token = Request::ajax() ? Request::header('X-CSRF-Token') : Input::get('_token');
-	
- 	if (Session::token() != $token) 
- 	{      
-    Session::flash('warning', trans('texts.session_expired'));   
+  if ($_SERVER['REQUEST_URI'] != '/signup/register')
+  {
+  	$token = Request::ajax() ? Request::header('X-CSRF-Token') : Input::get('_token');
+  	
+   	if (Session::token() != $token) 
+   	{      
+      Session::flash('warning', trans('texts.session_expired'));   
 
- 		return Redirect::to('/');
-		//throw new Illuminate\Session\TokenMismatchException;
- 	}
+   		return Redirect::to('/');
+  		//throw new Illuminate\Session\TokenMismatchException;
+   	}
+  }
 });
