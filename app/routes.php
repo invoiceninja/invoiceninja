@@ -1,5 +1,12 @@
 <?php
 
+/*
+$content = "some text here";
+$fp = fopen("../myText.txt","wb");
+fwrite($fp,$content);
+fclose($fp);
+*/
+
 
 /*
 |--------------------------------------------------------------------------
@@ -255,7 +262,7 @@ define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
 define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
-define('NINJA_APP_URL', 'https://www.invoiceninja.com');
+define('NINJA_APP_URL', 'https://app.invoiceninja.com');
 define('NINJA_VERSION', '1.5.2');
 define('NINJA_DATE', '2000-01-01');
 define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
@@ -415,6 +422,7 @@ Validator::extend('has_credit', function($attribute, $value, $parameters)
 
 
 /*
+// Log all SQL queries to laravel.log
 Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 {
     $data = compact('bindings', 'time', 'name');
@@ -440,11 +448,9 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 });
 */
 
-
 /*
 if (Auth::check() && Auth::user()->id === 1)
 {
   Auth::loginUsingId(1);
 }
 */
-

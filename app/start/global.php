@@ -60,12 +60,8 @@ App::error(function(Exception $exception, $code)
 {
   if (Utils::isNinjaProd())
   {
-    Utils::logError($exception . ' ' . $code);
+    Utils::logError("{$code} {$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}");
     return Response::view('error', ['hideHeader' => true, 'error' => "A {$code} error occurred."], $code);
-  }
-  else if (Utils::isNinjaDev())
-  {
-    return "{$exception->getFile()}:{$exception->getLine()} => {$exception->getMessage()}";
   }
   else
   {

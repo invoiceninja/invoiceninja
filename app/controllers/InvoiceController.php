@@ -217,6 +217,7 @@ class InvoiceController extends \BaseController {
 			$invoice->id = null;
 			$invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber($invoice->is_quote);
 			$invoice->balance = $invoice->amount;
+			$invoice->invoice_status_id = 0;
 			$invoice->invoice_date = date_create()->format('Y-m-d');
 			$method = 'POST';			
 			$url = "{$entityType}s";
@@ -248,25 +249,28 @@ class InvoiceController extends \BaseController {
 		$data = array_merge($data, self::getViewModel());		
 
 		// Set the invitation link on the client's contacts
-		$clients = $data['clients'];
-		foreach ($clients as $client)
+		if (!$clone)
 		{
-			if ($client->id == $invoice->client->id)
+			$clients = $data['clients'];
+			foreach ($clients as $client)
 			{
-				foreach ($invoice->invitations as $invitation)
+				if ($client->id == $invoice->client->id)
 				{
-					foreach ($client->contacts as $contact)
+					foreach ($invoice->invitations as $invitation)
 					{
-						if ($invitation->contact_id == $contact->id)
+						foreach ($client->contacts as $contact)
 						{
-							$contact->invitation_link = $invitation->getLink();
-						}
-					}				
+							if ($invitation->contact_id == $contact->id)
+							{
+								$contact->invitation_link = $invitation->getLink();
+							}
+						}				
+					}
+					break;
 				}
-				break;
 			}
 		}
-	
+			
 		return View::make('invoices.edit', $data);
 	}
 

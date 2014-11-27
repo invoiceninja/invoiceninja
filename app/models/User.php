@@ -131,7 +131,7 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
 
 	public function getPopOverText()
 	{
-		if (!Auth::check() || Session::has('error'))
+		if (!Utils::isNinja() || !Auth::check() || Session::has('error'))
 		{
 			return false;
 		}

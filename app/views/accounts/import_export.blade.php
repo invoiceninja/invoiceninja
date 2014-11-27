@@ -31,6 +31,7 @@
 
       <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
         &nbsp;<p>{{ trans('texts.cancel_account_message') }}</p>&nbsp;
+        &nbsp;<p>{{ Former::textarea('reason')->placeholder(trans('texts.reason_for_canceling'))->raw() }}</p>&nbsp;        
       </div>
 
       <div class="modal-footer" style="margin-top: 0px">

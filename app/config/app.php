@@ -13,7 +13,7 @@ return array(
 	|
 	*/
 
-	'debug' => false,
+	'debug' => true,
 
 	/*
 	|--------------------------------------------------------------------------
@@ -122,8 +122,8 @@ return array(
 		'Barryvdh\Debugbar\ServiceProvider',
 		'Chumper\Datatable\DatatableServiceProvider',
 		'Intervention\Image\ImageServiceProvider',
-        'Webpatser\Countries\CountriesServiceProvider',
-        'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
+    'Webpatser\Countries\CountriesServiceProvider',
+    'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
 	),
 
 	/*

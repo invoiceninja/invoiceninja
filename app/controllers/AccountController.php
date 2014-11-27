@@ -982,6 +982,18 @@ class AccountController extends \BaseController {
 
 	public function cancelAccount()
 	{
+		if ($reason = trim(Input::get('reason')))
+		{
+			$email = Auth::user()->email;
+			$name = Auth::user()->getDisplayName();
+			
+			$data = [		
+				'text' => $reason
+			];
+
+			$this->userMailer->sendTo(CONTACT_EMAIL, $email, $name, 'Invoice Ninja Feedback [Canceled Account]', 'contact', $data);
+		}
+
 		$account = Auth::user()->account;
 		$account->forceDelete();
 

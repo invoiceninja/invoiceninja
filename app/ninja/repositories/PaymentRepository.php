@@ -53,7 +53,6 @@ class PaymentRepository
                              ->on('invitations.contact_id', '=', 'contacts.id');                             
                     })
                     ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
-                    ->where('payments.account_id', '=', \Auth::user()->account_id)
                     ->where('clients.is_deleted', '=', false)
                     ->where('payments.is_deleted', '=', false)
                     ->where('invitations.deleted_at', '=', null)
