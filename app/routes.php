@@ -1,14 +1,6 @@
 <?php
 
 /*
-$content = "some text here";
-$fp = fopen("../myText.txt","wb");
-fwrite($fp,$content);
-fclose($fp);
-*/
-
-
-/*
 |--------------------------------------------------------------------------
 | Application Routes
 |--------------------------------------------------------------------------
@@ -19,9 +11,8 @@ fclose($fp);
 |
 */
 
-//apc_clear_cache();
 //Cache::flush();
-
+//apc_clear_cache();
 //dd(DB::getQueryLog());
 //dd(Client::getPrivateId(1));
 //dd(new DateTime());
@@ -30,10 +21,13 @@ fclose($fp);
 //dd(gethostname());
 //Log::error('test');
 
-Route::get('install', 'AccountController@install');
-Route::get('update', 'AccountController@update');
-Route::get('reset', 'AccountController@reset');
+// Application setup
+Route::get('setup', 'AppController@showSetup');
+Route::post('setup', 'AppController@doSetup');
+Route::get('install', 'AppController@install');
+Route::get('update', 'AppController@update');
 
+// Public pages
 Route::get('/', 'HomeController@showIndex');
 Route::get('/rocksteady', 'HomeController@showIndex');
 Route::get('/about', 'HomeController@showAboutUs');
@@ -399,14 +393,9 @@ function otrans($text)
   }
 }
 
-if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
-{
-	Event::fire('user.refresh');
-}
-
 Validator::extend('positive', function($attribute, $value, $parameters)
 {
-    return Utils::parseFloat($value) > 0;
+  return Utils::parseFloat($value) > 0;
 });
 
 Validator::extend('has_credit', function($attribute, $value, $parameters)

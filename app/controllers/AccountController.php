@@ -19,52 +19,6 @@ class AccountController extends \BaseController {
 		$this->contactMailer = $contactMailer;
 	}	
 
-	public function install()
-	{
-		if (!Utils::isNinja() && !Schema::hasTable('accounts')) {
-			try {
-				Artisan::call('migrate');
-				Artisan::call('db:seed');		
-			} catch (Exception $e) {
-	      Response::make($e->getMessage(), 500);
-	    }
-		}
-
-		return Redirect::to('/');
-	}
-
-	public function update()
-	{		
-		if (!Utils::isNinja()) {
-			try {
-				Artisan::call('migrate');
-				Cache::flush();
-			} catch (Exception $e) {
-	      Response::make($e->getMessage(), 500);
-	    }
-	  }
-
-    return Redirect::to('/');
-	}
-
-	/*
-	public function reset()
-	{
-		if (Utils::isNinjaDev()) {			
-			Confide::logout();
-			try {
-				Artisan::call('migrate:reset');
-				Artisan::call('migrate');				
-				Artisan::call('db:seed');		
-			} catch (Exception $e) {
-	      Response::make($e->getMessage(), 500);
-	    }
-		}
-
-		return Redirect::to('/');
-	}
-	*/
-
 	public function demo()
 	{
 		$demoAccountId = Utils::getDemoAccountId();
@@ -114,7 +68,7 @@ class AccountController extends \BaseController {
 		}
 
 		Auth::login($user, true);
-		Event::fire('user.login');		
+		Event::fire('user.login');
 
 		return Redirect::to('invoices/create');
 	}
@@ -918,32 +872,7 @@ class AccountController extends \BaseController {
 		$user->registered = true;
 		$user->amend();
 
-		if (Utils::isNinja()) 
-		{
-			$this->userMailer->sendConfirmation($user);
-		}
-		else
-		{
-			/*
-			$url = NINJA_APP_URL . '/signup/register';
-			$data = '';
-			$fields = [
-				'first_name' => urlencode($user->first_name),
-				'last_name' => urlencode($user->last_name),
-				'email' => urlencode($user->email)
-			];
-
-			foreach($fields as $key=>$value) { $data .= $key.'='.$value.'&'; }
-			rtrim($data, '&');
-
-			$ch = curl_init();
-			curl_setopt($ch,CURLOPT_URL, $url);
-			curl_setopt($ch,CURLOPT_POST, count($fields));
-			curl_setopt($ch,CURLOPT_POSTFIELDS, $data);
-			curl_exec($ch);
-			curl_close($ch);			
-			*/
-		}
+		$this->userMailer->sendConfirmation($user);
 
 		$activities = Activity::scope()->get();
 		foreach ($activities as $activity) 

@@ -13,6 +13,7 @@
 
 App::before(function($request)
 {
+  // Ensure all request are over HTTPS in production
   if (App::environment() == ENV_PRODUCTION)
   {
     if (!Request::secure()) 
@@ -21,12 +22,18 @@ App::before(function($request)
     }
   }
 
+  // If the database doens't yet exist we'll skip the rest
+  if (!Utils::isNinja() && !Utils::isDatabaseSetup())
+  {
+    return;
+  }
+
+  // check the application is up to date and for any news feed messages
   if (Auth::check())
   {
     $count = Session::get(SESSION_COUNTER, 0);
     Session::put(SESSION_COUNTER, ++$count);
     
-    // check the application is up to date and for any news feed messages
     if (!Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && !Session::has('news_feed_id')) {
       $data = false;
       if (Utils::isNinja()) {
@@ -56,6 +63,7 @@ App::before(function($request)
     }    
   }
 
+  // Check if we're requesting to change the account's language
   if (Input::has('lang'))
   {
     $locale = Input::get('lang');
@@ -78,6 +86,13 @@ App::before(function($request)
     App::setLocale($locale);    
   }
 
+  // Make sure the account/user localization settings are in the session
+  if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
+  {
+    Event::fire('user.refresh');
+  }
+
+  // Check if the user is claiming a license (ie, additional invoices, white label, etc.)
   $claimingLicense = Utils::startsWith($_SERVER['REQUEST_URI'], '/claim_license');
   if (!$claimingLicense && Input::has('license_key') && Input::has('product_id'))
   {

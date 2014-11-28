@@ -4,7 +4,6 @@ use ninja\mailers\Mailer;
 
 class HomeController extends BaseController {
 
-	protected $layout = 'master';
 	protected $mailer;
 
 	public function __construct(Mailer $mailer)
@@ -22,7 +21,11 @@ class HomeController extends BaseController {
 		}
 		else
 		{
-			if (Account::count() == 0)
+			if (!Utils::isDatabaseSetup())
+			{
+				return Redirect::to('/setup');	
+			}
+			else if (Account::count() == 0)
 			{
 				return Redirect::to('/invoice_now');
 			}

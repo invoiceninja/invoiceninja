@@ -12,6 +12,21 @@ class Utils
 		return Auth::check() && Auth::user()->confirmed;
 	}
 
+	public static function isDatabaseSetup()
+	{
+		try 
+		{
+			if (Schema::hasTable('accounts')) 
+			{
+				return true;
+			}
+		} 
+		catch (Exception $e) 
+		{
+    	return false;
+		}	
+	}
+
 	public static function isProd()
 	{
 		return App::environment() == ENV_PRODUCTION;

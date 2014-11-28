@@ -18,7 +18,7 @@
     </div>
   </div>
 
-  
+
   <div class="container">
     <div class="row">
       <div class="col-md-3 center-block">
@@ -31,7 +31,7 @@
     </div>
   </div>
 
-  
+
 </section>
 
 <section class="features-splash">
@@ -73,166 +73,166 @@
   </div>
 </section>
 <section class="features-splash customContainer">
-	      <div class="container">
-	      	
-	      	<div class="row col-md-12">
-	      		<div class="col-md-5 col-md-offset-4 customFontHead">
-	      			<div class="col-md-12">
-	      				<span class="glyphicon glyphicon-ok"></span>
-	      			</div>
-	        		<div class="col-md-12 customTextBorder">
-	        			Invoice Ninja Does Everything You'd Expect Your Online Invoicing App to Do
-	        		</div>
-	        	</div>
-	       </div>
-	        <div class="row">
-	        
-	          <div class="col-md-2 customMenuOne">
-	          		<div class="customMenuDiv">
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/InvoiceClientsViaEmail.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Invoice clients via email </span>
-	          		</div>
-	              	<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/InTuitiveEditingInterface.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Intuitive editing interface</span>
-	          		</div>
-	              
-	                <div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/PrintablePDFInvoices.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Printable .pdf invoices</span>
-	          		</div>
-	          		<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/MultipleTaxSettings.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Multiple tax settings</span>
-	          		</div>
-	          		<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/ImportExportRecords.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Import/export records </span>
-	          		</div>
-	          </div>
-	
-	         <div class="col-md-2 customMenuOne">
-	          		<div class="customMenuDiv">
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/AcceptPaymentsOnline.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Accept payments online</span>
-	          		</div>
-	              	<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/BestInClassSecurity.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Best-in-class security </span>
-	          		</div>
-	              
-	                <div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/AdjustablePaymentTerms.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Adjustable payment terms </span>
-	          		</div>
-	          		<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/MultipleCurrencySupport.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Multiple currency support </span>
-	          		</div>
-	          		<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/RecurringInvoiceProfiles.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Recurring invoice profiles </span>
-	          		</div>
-	          </div>
-	
-	           <div class="col-md-2 customMenuOne">
-	          		<div class="customMenuDiv">
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/FreeInvoicing.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Free invoicing platform </span>
-	          		</div>
-	              	<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/EstimatesProForma.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Estimates & pro-forma </span>
-	          		</div>
-	              
-	                <div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/PaymentTracking.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Payment tracking </span>
-	          		</div>
-	          		<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/MultilingualSupport.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Multilingual support </span>
-	          		</div>
-	          		<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/SelfHostedAvailable.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Self-hosted available </span>
-	          		</div>
-	          </div>
-	
-	           <div class="col-md-2 customMenuOne">
-	          		<div class="customMenuDiv">
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/LivePDFCreation.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Live .pdf creation </span>
-	          		</div>
-	              	<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/CloneInvoices.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Clone invoices </span>
-	          		</div>
-	              
-	                <div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/CloudBasedApp.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Cloud-based app </span>
-	          		</div>
-	          		<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/OpenSource.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Open source </span>
-	          		</div>
-	          		<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/BeautifulTemplates.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Beautiful templates </span>
-	          		</div>
-	          </div>
-	              
-	           <div class="col-md-4 customMenuOne">
-	          		<div class="customMenuDiv">
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/CustomizeInvoices.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Cutomize invoices with your company logo </span>
-	          		</div>
-	              	<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/PersonalizeInvoiceColor.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Personalize invoice color schemes </span>
-	          		</div>
-	              
-	                <div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/InvoiceClientsViaEmail.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Alerts when invoices are viewed or paid </span>
-	          		</div>
-	          		<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/IntegrateWithPaymentGateways.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Integrate with top payment gateways </span>
-	          		</div>
-	          		<div class="customMenuDiv" >
-	          			<span class="img-wrap shiftLeft" ><img src="{{ asset('images/ManualAutomaticInvoiceNumbers.png') }}"></span>
-	          			<span class="customSubMenu shiftLeft"> Manual or automatic invoice numbers </span>
-	          		</div>
-	          </div>
-	              
-	            </div>
-	          </div>
-	        </section>
+  <div class="container">
+
+    <div class="row col-md-12">
+      <div class="col-md-5 col-md-offset-4 customFontHead">
+        <div class="col-md-12">
+          <span class="glyphicon glyphicon-ok"></span>
+        </div>
+        <div class="col-md-12 customTextBorder">
+          Invoice Ninja Does Everything You'd Expect Your Online Invoicing App to Do
+        </div>
+      </div>
+    </div>
+    <div class="row">
+
+      <div class="col-md-2 customMenuOne">
+        <div class="customMenuDiv">
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/InvoiceClientsViaEmail.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Invoice clients via email </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/InTuitiveEditingInterface.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Intuitive editing interface</span>
+        </div>
+
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/PrintablePDFInvoices.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Printable .pdf invoices</span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/MultipleTaxSettings.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Multiple tax settings</span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/ImportExportRecords.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Import/export records </span>
+        </div>
+      </div>
+
+      <div class="col-md-2 customMenuOne">
+        <div class="customMenuDiv">
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/AcceptPaymentsOnline.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Accept payments online</span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/BestInClassSecurity.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Best-in-class security </span>
+        </div>
+
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/AdjustablePaymentTerms.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Adjustable payment terms </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/MultipleCurrencySupport.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Multiple currency support </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/RecurringInvoiceProfiles.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Recurring invoice profiles </span>
+        </div>
+      </div>
+
+      <div class="col-md-2 customMenuOne">
+        <div class="customMenuDiv">
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/FreeInvoicing.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Free invoicing platform </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/EstimatesProForma.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Estimates & pro-forma </span>
+        </div>
+
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/PaymentTracking.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Payment tracking </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/MultilingualSupport.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Multilingual support </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/SelfHostedAvailable.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Self-hosted available </span>
+        </div>
+      </div>
+
+      <div class="col-md-2 customMenuOne">
+        <div class="customMenuDiv">
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/LivePDFCreation.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Live .pdf creation </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/CloneInvoices.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Clone invoices </span>
+        </div>
+
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/CloudBasedApp.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Cloud-based app </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/OpenSource.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Open source </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/BeautifulTemplates.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Beautiful templates </span>
+        </div>
+      </div>
+
+      <div class="col-md-4 customMenuOne">
+        <div class="customMenuDiv">
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/CustomizeInvoices.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Cutomize invoices with your company logo </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/PersonalizeInvoiceColor.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Personalize invoice color schemes </span>
+        </div>
+
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/InvoiceClientsViaEmail.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Alerts when invoices are viewed or paid </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/IntegrateWithPaymentGateways.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Integrate with top payment gateways </span>
+        </div>
+        <div class="customMenuDiv" >
+          <span class="img-wrap shiftLeft" ><img src="{{ asset('images/ManualAutomaticInvoiceNumbers.png') }}"></span>
+          <span class="customSubMenu shiftLeft"> Manual or automatic invoice numbers </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
 
 <section class="blue">
   <div class="container">
     <div class="row">
       <div class="col-md-5">
-       <h1>{{ trans('public.home.footer') }}</h1>
-       <div class="row">
-        <div class="col-md-7">
-          <a href="#">
-            <div class="cta">
-              <h2 onclick="return getStarted()">{{ trans('public.invoice_now') }} <span>+</span></h2>
-            </div>
-          </a>
+        <h1>{{ trans('public.home.footer') }}</h1>
+        <div class="row">
+          <div class="col-md-7">
+            <a href="#">
+              <div class="cta">
+                <h2 onclick="return getStarted()">{{ trans('public.invoice_now') }} <span>+</span></h2>
+              </div>
+            </a>
 
+          </div>
         </div>
+        <p>{{ trans('public.no_signup_needed') }}</p>
       </div>
-      <p>{{ trans('public.no_signup_needed') }}</p>
-    </div>
-    <div class="col-md-7">
-      <img src="{{ asset('images/devices.png') }}">
+      <div class="col-md-7">
+        <img src="{{ asset('images/devices.png') }}">
+      </div>
     </div>
   </div>
-</div>
 </section>
 
 

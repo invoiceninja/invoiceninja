@@ -17,7 +17,7 @@ class Mailer {
 			$replyEmail = $fromEmail;
 
 			// http://stackoverflow.com/questions/2421234/gmail-appearing-to-ignore-reply-to
-			if ($toEmail != CONTACT_EMAIL)
+			if (Utils::isNinja() && $toEmail != CONTACT_EMAIL)
 			{
 				$fromEmail = NINJA_FROM_EMAIL;
 			}

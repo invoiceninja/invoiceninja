@@ -47,16 +47,9 @@ Note: you may be prompted for your Github user/pass due to their API limits.
 
     composer install
 
-Install JavaScript and HTML packages using Bower
+Install JavaScript and HTML packages using Bower. This is optional, it's only needed if you want to modify the JavaScript.
 
     bower install
-
-Create the development environment configurations
-
-    mkdir app/config/development
-    cp app/config/app.php app/config/development/
-    cp app/config/database.php app/config/development/
-    cp app/config/mail.php app/config/development/
 
 Create database user and a database for ninja
 
@@ -65,11 +58,7 @@ Create database user and a database for ninja
     GRANT ALL PRIVILEGES ON `ninja`.* TO 'ninja'@'localhost';
     FLUSH PRIVILEGES;
 
-Configure development/config/database.php and development/config/mail.php and initialize the database.
-
-    php artisan migrate --seed
-
-Add public/ to your web server root
+Add public/ to your web server root then load / to configure the application.
 
 ### Deleveloper Notes
 
