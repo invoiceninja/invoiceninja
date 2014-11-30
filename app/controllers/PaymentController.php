@@ -227,7 +227,7 @@ class PaymentController extends \BaseController
         $key = $invoice->invoice_number . '_details';
         $gateway = $invoice->client->account->account_gateways[0]->gateway;
         $paymentLibrary = $gateway->paymentlibrary;
-        $currencyCode = $invoice->client->currency ? $invoice->client->currency->code : $invoice->account->currency ? $invoice->account->currency->code : 'USD';
+        $currencyCode = $invoice->client->currency ? $invoice->client->currency->code : ($invoice->account->currency ? $invoice->account->currency->code : 'USD');
 
         if ($input && $paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
         {
