@@ -17,6 +17,8 @@
 
     <div class="jumbotron">
         <h2>Invoice Ninja Setup</h2>
+        If you need help you can either post to our <a href="https://groups.google.com/forum/#!forum/invoiceninja" target="_blank">Google Group</a> 
+        or email us at <a href="mailto:contact@invoiceninja.com" target="_blank">contact@invoiceninja.com</a>.
         <p>
 <pre>-- Commands to create a MySQL database and user
 CREATE SCHEMA `ninja` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
@@ -24,11 +26,20 @@ CREATE USER 'ninja'@'localhost' IDENTIFIED BY 'ninja';
 GRANT ALL PRIVILEGES ON `ninja`.* TO 'ninja'@'localhost';
 FLUSH PRIVILEGES;</pre>
         </p>
-        If you need help you can either post to our <a href="https://groups.google.com/forum/#!forum/invoiceninja" target="_blank">Google Group</a> 
-        or email us at <a href="mailto:contact@invoiceninja.com" target="_blank">contact@invoiceninja.com</a>.
     </div>
 
-    {{ Former::open() }}
+    {{ Former::open()->rules([
+        'app[url]' => 'required',
+        'database[type][host]' => 'required',
+        'database[type][database]' => 'required',
+        'database[type][username]' => 'required',
+        'database[type][password]' => 'required',
+        'first_name' => 'required',
+        'last_name' => 'required',
+        'email' => 'required|email',
+        'password' => 'required',
+        'terms_checkbox' => 'required'
+      ]) }}
 
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -48,7 +59,7 @@ FLUSH PRIVILEGES;</pre>
         {{ Former::text('database[type][host]')->label('Host')->value('localhost') }}
         {{ Former::text('database[type][database]')->label('Database')->value('ninja') }}
         {{ Former::text('database[type][username]')->label('Username')->value('ninja') }}
-        {{ Former::text('database[type][password]')->label('Password')->value('ninja') }}
+        {{ Former::password('database[type][password]')->label('Password')->value('ninja') }}
         {{ Former::actions( Button::normal('Test connection', ['onclick' => 'testDatabase()']), '&nbsp;&nbsp;<span id="dbTestResult"/>' ) }}      
       </div>
     </div>
@@ -65,7 +76,7 @@ FLUSH PRIVILEGES;</pre>
         {{ Former::select('mail[encryption]')->label('Encryption')->options(['tls' => 'TLS', 'ssl' => 'SSL']) }}
         {{ Former::text('mail[from][name]')->label('From Name') }}
         {{ Former::text('mail[username]')->label('Email') }}
-        {{ Former::text('mail[password]')->label('Password') }}    
+        {{ Former::password('mail[password]')->label('Password') }}    
         {{ Former::actions( Button::normal('Send test email', ['onclick' => 'testMail()']), '&nbsp;&nbsp;<span id="mailTestResult"/>' ) }}            
       </div>
     </div>
@@ -83,6 +94,7 @@ FLUSH PRIVILEGES;</pre>
       </div>
     </div>
 
+    {{ Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.NINJA_APP_URL.'/terms" target="_blank">'.trans('texts.terms_of_service').'</a>'])) }}
     {{ Former::actions( Button::submit_lg('Submit') ) }}        
     {{ Former::close() }}
 
@@ -107,6 +119,13 @@ FLUSH PRIVILEGES;</pre>
         $('#mailTestResult').html(data).css('color', data == 'Sent' ? 'green' : 'red');
       });      
     }  
+
+    // http://stackoverflow.com/questions/585396/how-to-prevent-enter-keypress-to-submit-a-web-form
+    $("form").bind("keypress", function (e) {
+      if (e.keyCode == 13) {
+        return false;
+      }
+    });
 
   </script>
 

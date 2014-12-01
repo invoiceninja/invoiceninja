@@ -222,4 +222,25 @@ class AccountRepository
 		return $client;
 	}
 
+	public function registerUser($user)
+	{
+    $url = NINJA_APP_URL . '/signup/register';
+    $data = '';
+    $fields = [
+      'first_name' => urlencode($user->first_name),
+      'last_name' => urlencode($user->last_name),
+      'email' => urlencode($user->email)
+    ];
+
+    foreach($fields as $key=>$value) { $data .= $key.'='.$value.'&'; }
+    rtrim($data, '&');
+
+    $ch = curl_init();
+    curl_setopt($ch,CURLOPT_URL, $url);
+    curl_setopt($ch,CURLOPT_POST, count($fields));
+    curl_setopt($ch,CURLOPT_POSTFIELDS, $data);
+    curl_exec($ch);
+    curl_close($ch);		
+	}
+
 }

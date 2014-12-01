@@ -42,7 +42,7 @@ class AppController extends BaseController {
     $database = Input::get('database');
     $dbType = $database['default'];
     $database[$dbType] = $database['type'];
-    unset($database['type']);
+    //unset($database['type']);
 
     $mail = Input::get('mail');
     $email = $mail['username'];      
@@ -64,6 +64,11 @@ class AppController extends BaseController {
       return Redirect::to('/setup')->withInput();
     }    
     
+    $content = "<?php return 'production';";
+    $fp = fopen(base_path() . "/bootstrap/environment.php" , 'w');
+    fwrite($fp, $content);
+    fclose($fp);
+
     $configDir = app_path() . '/config/production';
     if (!file_exists($configDir))
     {
@@ -75,9 +80,9 @@ class AppController extends BaseController {
       $content = '<?php return ' . var_export($config, true) . ';';
       $fp = fopen(app_path() . "/config/production/{$key}.php" , 'w');
       fwrite($fp, $content);
-      fclose($fp);
+      fclose($fp);      
     }
-    
+
     Artisan::call('migrate');
     Artisan::call('db:seed');   
 
@@ -94,7 +99,7 @@ class AppController extends BaseController {
     $user->amend();
 
     //Auth::login($user, true);
-    //self::register($user);
+    //$this->accountRepo->registerUser($user);
 
     return Redirect::to('/invoices/create');
   }
@@ -148,27 +153,6 @@ class AppController extends BaseController {
     {
       return $e->getMessage();        
     }    
-  }
-
-  private function register($user)
-  {
-    $url = NINJA_APP_URL . '/signup/register';
-    $data = '';
-    $fields = [
-      'first_name' => urlencode($user->first_name),
-      'last_name' => urlencode($user->last_name),
-      'email' => urlencode($user->email)
-    ];
-
-    foreach($fields as $key=>$value) { $data .= $key.'='.$value.'&'; }
-    rtrim($data, '&');
-
-    $ch = curl_init();
-    curl_setopt($ch,CURLOPT_URL, $url);
-    curl_setopt($ch,CURLOPT_POST, count($fields));
-    curl_setopt($ch,CURLOPT_POSTFIELDS, $data);
-    curl_exec($ch);
-    curl_close($ch);    
   }
 
   public function install()
