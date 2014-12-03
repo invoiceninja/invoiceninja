@@ -361,7 +361,7 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
           </div>
 
           <div style="background-color: #fff; padding:20px">
-            <h4>{{ trans('texts.white_label_text')}}</h4>        
+            <p>{{ trans('texts.white_label_text')}}</p>
           </div>
 
           <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">          

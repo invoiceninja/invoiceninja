@@ -488,6 +488,7 @@ return array(
   'restored_credit' => 'Successfully restored credit',
   
   'reason_for_canceling' => 'Help us improve our site by telling us why you\'re leaving.',
-
+  'discount_percent' => 'Percent',
+  'discount_amount' => 'Amount',
     
 );

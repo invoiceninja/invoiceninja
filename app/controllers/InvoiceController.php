@@ -186,8 +186,15 @@ class InvoiceController extends \BaseController {
 
 		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
 		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-		$invoice->is_pro = $client->account->isPro();		
-		
+		$invoice->is_pro = $client->account->isPro();
+
+		$contact = $invitation->contact;
+		$contact->setVisible([
+			'first_name', 
+			'last_name', 
+			'email', 
+			'phone']);		
+
 		$data = array(
 			'showClientHeader' => true,			
 			'showBreadcrumbs' => false,
@@ -195,6 +202,7 @@ class InvoiceController extends \BaseController {
 			'invoice' => $invoice->hidePrivateFields(),
 			'invitation' => $invitation,
 			'invoiceLabels' => $client->account->getInvoiceLabels(),
+			'contact' => $contact
 		);
 
 		return View::make('invoices.view', $data);
@@ -347,7 +355,6 @@ class InvoiceController extends \BaseController {
 		}
 
 		$input = json_decode(Input::get('data'));					
-		
 		$invoice = $input->invoice;
 
 		if ($errors = $this->invoiceRepo->getErrors($invoice))

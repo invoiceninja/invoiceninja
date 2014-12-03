@@ -670,7 +670,7 @@ function displayClient(doc, invoice, x, y, layout) {
     concatStrings(client.address1, client.address2),
     concatStrings(client.city, client.state, client.postal_code),
     client.country ? client.country.name : false,
-    client.contacts && getClientDisplayName(client) != client.contacts[0].email ? client.contacts[0].email : false,
+    invoice.contact && getClientDisplayName(client) != invoice.contact.email ? invoice.contact.email : false,
     invoice.client.custom_value1 ? invoice.account['custom_client_label1'] + ' ' + invoice.client.custom_value1 : false,
     invoice.client.custom_value2 ? invoice.account['custom_client_label2'] + ' ' + invoice.client.custom_value2 : false,
   ];
@@ -729,7 +729,7 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
 
   var data = [
     {'subtotal': formatMoney(invoice.subtotal_amount, invoice.client.currency_id)},
-    {'discount': invoice.discount_amount > 0 ? formatMoney(invoice.discount_amount, invoice.client.currency_id) : false}
+    {'discount': invoice.discount_amount != 0 ? formatMoney(invoice.discount_amount, invoice.client.currency_id) : false}
   ];
 
   if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {
@@ -834,6 +834,8 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
         key = invoice.account[key];
       } else if (key === 'tax' && invoice.tax_rate) {
         key = invoiceLabels[key] + ' ' + (invoice.tax_rate*1).toString() + '%';
+      } else if (key === 'discount' && NINJA.parseFloat(invoice.discount) && !parseInt(invoice.is_amount_discount)) {
+        key = invoiceLabels[key] + ' ' + parseFloat(invoice.discount) + '%';
       } else {
         key = invoiceLabels[key];
       }
@@ -906,8 +908,13 @@ function calculateAmounts(invoice) {
 
   invoice.subtotal_amount = total;
 
-  if (invoice.discount > 0) {
-    var discount = roundToTwo(total * (invoice.discount/100));
+  var discount = 0;
+  if (invoice.discount != 0) {
+    if (parseInt(invoice.is_amount_discount)) {
+      discount = roundToTwo(invoice.discount);
+    } else {
+      discount = roundToTwo(total * (invoice.discount/100));
+    }
     total -= discount;
   }
 

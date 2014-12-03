@@ -498,7 +498,7 @@ class PaymentController extends \BaseController
         {
             $errorMessage = trans('texts.payment_error');
             Session::flash('error', $errorMessage);  
-            Utils::logError($e->getMessage());
+            Utils::logError(Utils::getErrorString($e));
             return Redirect::to('license')->withInput();
         }        
     }
@@ -653,7 +653,7 @@ class PaymentController extends \BaseController
         {
             $errorMessage = trans('texts.payment_error');
             Session::flash('error', $errorMessage);  
-            Utils::logError($e->getMessage());
+            Utils::logError(Utils::getErrorString($e));
             return Redirect::to('payment/' . $invitationKey)
                 ->withInput();
         }

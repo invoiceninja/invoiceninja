@@ -140,6 +140,11 @@ class Utils
 		return View::make('error', $data)->with('error', $message);
 	}
 
+	public static function getErrorString($exception)
+	{
+		return "{$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
+	}
+
 	public static function logError($error, $context = 'PHP')
 	{
 		$count = Session::get('error_count', 0);

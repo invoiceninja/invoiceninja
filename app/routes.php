@@ -395,7 +395,7 @@ function otrans($text)
 
 Validator::extend('positive', function($attribute, $value, $parameters)
 {
-  return Utils::parseFloat($value) > 0;
+  return Utils::parseFloat($value) >= 0;
 });
 
 Validator::extend('has_credit', function($attribute, $value, $parameters)

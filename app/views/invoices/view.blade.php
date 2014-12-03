@@ -41,6 +41,7 @@
 			window.invoice = {{ $invoice->toJson() }};
 			invoice.is_pro = {{ $invoice->client->account->isPro() ? 'true' : 'false' }};
 			invoice.is_quote = {{ $invoice->is_quote ? 'true' : 'false' }};
+			invoice.contact = {{ $contact->toJson() }};
 
 			function getPDFString() {
 	  	  var doc = generatePDF(invoice, invoice.invoice_design.javascript);

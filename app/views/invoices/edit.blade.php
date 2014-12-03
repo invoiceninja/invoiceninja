@@ -19,7 +19,7 @@
 	{{ Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
 		'client' => 'required',
 		'email' => 'required',
-		'product_key' => 'max:20',
+		'product_key' => 'max:20'
 	)) }}	
 
 	<input type="submit" style="display:none" name="submitButton" id="submitButton">
@@ -53,7 +53,7 @@
 			<div data-bind="with: client">
 				<div style="display:none" class="form-group" data-bind="visible: contacts().length > 0 &amp;&amp; contacts()[0].email(), foreach: contacts">
 					<div class="col-lg-8 col-lg-offset-4">
-						<label for="test" class="checkbox" data-bind="attr: {for: $index() + '_check'}">
+						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}" onclick="refreshPDF()">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check'}">
 								<span data-bind="html: email.display"/>
 						</label>
@@ -94,7 +94,11 @@
 		<div class="col-md-4" id="col_2">
 			{{ Former::text('invoice_number')->label(trans("texts.{$entityType}_number_short"))->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
 			{{ Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
-			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")->append('%') }}			
+			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
+					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
+						Former::select('is_amount_discount')->addOption(trans('texts.discount_percent'), '0')
+						->addOption(trans('texts.discount_amount'), '1')->data_bind("value: is_amount_discount")->raw()
+			) }}			
 			{{-- Former::select('currency_id')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") --}}
 			
 			<div class="form-group" style="margin-bottom: 8px">
@@ -175,7 +179,7 @@
 				<td style="text-align: right"><span data-bind="text: totals.subtotal"/></td>
 			</tr>
 
-			<tr style="display:none" data-bind="visible: discount() > 0">
+			<tr style="display:none" data-bind="visible: discount() != 0">
 				<td class="hide-border" colspan="3"/>
 				<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
 				<td colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ trans('texts.discount') }}</td>
@@ -558,7 +562,7 @@
 			});
 		}		
 
-		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring').change(function() {
+		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount').change(function() {
 			setTimeout(function() {
 				refreshPDF();
 			}, 1);
@@ -639,6 +643,7 @@
 		var invoice = ko.toJS(model).invoice;		
 		invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
 		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
+		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
 
 		@if (file_exists($account->getLogoPath()))
 			invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
@@ -1003,6 +1008,7 @@
 		self.account = {{ $account }};		
 		this.id = ko.observable('');
 		self.discount = ko.observable('');
+		self.is_amount_discount = ko.observable(0);
 		self.frequency_id = ko.observable('');
 		//self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
 		self.terms = ko.observable(wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300));
@@ -1114,9 +1120,9 @@
 		}
 
 
-		this.totals = ko.observable();
+		self.totals = ko.observable();
 
-		this.totals.rawSubtotal = ko.computed(function() {
+		self.totals.rawSubtotal = ko.computed(function() {
 		    var total = 0;
 		    for(var p=0; p < self.invoice_items().length; ++p) {
 		    	var item = self.invoice_items()[p];
@@ -1125,26 +1131,34 @@
 		    return total;
 		});
 
-		this.totals.subtotal = ko.computed(function() {
+		self.totals.subtotal = ko.computed(function() {
 		    var total = self.totals.rawSubtotal();
 		    return total > 0 ? formatMoney(total, self.client().currency_id()) : '';
 		});
 
-		this.totals.rawDiscounted = ko.computed(function() {
-			return roundToTwo(self.totals.rawSubtotal() * (self.discount()/100));			
+		self.totals.rawDiscounted = ko.computed(function() {
+			if (parseInt(self.is_amount_discount())) {
+				return roundToTwo(self.discount());
+			} else {
+				return roundToTwo(self.totals.rawSubtotal() * (self.discount()/100));			
+			}
 		});
 
-		this.totals.discounted = ko.computed(function() {
+		self.totals.discounted = ko.computed(function() {
 			return formatMoney(self.totals.rawDiscounted(), self.client().currency_id());
 		});
 
 		self.totals.taxAmount = ko.computed(function() {
 	    var total = self.totals.rawSubtotal();
+	    var discount = self.totals.rawDiscounted();
+	    total -= discount;
 
+	    /*
 	    var discount = parseFloat(self.discount());
 	    if (discount > 0) {
 	    	total = roundToTwo(total * ((100 - discount)/100));
 	    }
+			*/
 
 	    var customValue1 = roundToTwo(self.custom_value1());
 	    var customValue2 = roundToTwo(self.custom_value2());
@@ -1178,11 +1192,15 @@
 
 		this.totals.total = ko.computed(function() {
 	    var total = accounting.toFixed(self.totals.rawSubtotal(),2);	    
+	    var discount = self.totals.rawDiscounted();
+	    total -= discount;
 
+	    /*
 	    var discount = parseFloat(self.discount());
 	    if (discount > 0) {
 	    	total = roundToTwo(total * ((100 - discount)/100));
 	    }
+			*/
 
 	    var customValue1 = roundToTwo(self.custom_value1());
 	    var customValue2 = roundToTwo(self.custom_value2());
@@ -1577,12 +1595,12 @@
 	for (var i=0; i<model.invoice().invoice_items().length; i++) {
 		var item = model.invoice().invoice_items()[i];
 		item.tax(model.getTaxRate(item.tax_name(), item.tax_rate()));
-		item.cost(NINJA.parseFloat(item.cost()) > 0 ? roundToTwo(item.cost(), true) : '');
+		item.cost(NINJA.parseFloat(item.cost()) != 0 ? roundToTwo(item.cost(), true) : '');
 	}
 	onTaxRateChange();
 
 	// display blank instead of '0'
-	if (!model.invoice().discount()) model.invoice().discount('');
+	if (!NINJA.parseFloat(model.invoice().discount())) model.invoice().discount('');
 	if (!model.invoice().custom_value1()) model.invoice().custom_value1('');
 	if (!model.invoice().custom_value2()) model.invoice().custom_value2('');
 

@@ -214,7 +214,10 @@ class InvoiceRepository
 
   	$invoice = (array) $input;
   	$invoiceId = isset($invoice['public_id']) && $invoice['public_id'] ? Invoice::getPrivateId($invoice['public_id']) : null;
-  	$rules = ['invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . \Auth::user()->account_id];    	
+  	$rules = [
+      'invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . \Auth::user()->account_id,
+      'discount' => 'positive'
+    ];    	
 
   	if ($invoice['is_recurring'] && $invoice['start_date'] && $invoice['end_date'])
   	{
@@ -248,7 +251,8 @@ class InvoiceRepository
 		}			
 		
 		$invoice->client_id = $data['client_id'];
-		$invoice->discount = Utils::parseFloat($data['discount']);
+		$invoice->discount = round(Utils::parseFloat($data['discount']), 2);
+    $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
 		$invoice->invoice_number = trim($data['invoice_number']);
 		$invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
     $invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
@@ -309,7 +313,14 @@ class InvoiceRepository
 
 		if ($invoice->discount > 0)
 		{
-			$total *= (100 - $invoice->discount) / 100;
+      if ($invoice->is_amount_discount)
+      {
+        $total -= $invoice->discount;
+      }
+      else
+      {
+        $total *= (100 - $invoice->discount) / 100;
+      }
 		}
 
     $invoice->custom_value1 = round($data['custom_value1'], 2);
@@ -430,6 +441,7 @@ class InvoiceRepository
     foreach ([
       'client_id',       
       'discount', 
+      'is_amount_discount',
       'invoice_date', 
       'po_number', 
       'due_date', 

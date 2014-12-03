@@ -34,7 +34,7 @@ class Invoice extends EntityModel
 
 	public function invitations()
 	{
-		return $this->hasMany('Invitation');
+		return $this->hasMany('Invitation')->orderBy('invitations.contact_id');		
 	}
 
 	public function getName()
@@ -72,6 +72,7 @@ class Invoice extends EntityModel
 		$this->setVisible([
 			'invoice_number', 
 			'discount', 
+			'is_amount_discount',
 			'po_number', 
 			'invoice_date', 
 			'due_date', 
@@ -95,8 +96,8 @@ class Invoice extends EntityModel
 		
 		$this->client->setVisible([
 			'name',
-                        'id_number',
-                        'vat_number',
+			'id_number',
+			'vat_number',
 			'address1', 
 			'address2', 
 			'city', 
@@ -112,8 +113,8 @@ class Invoice extends EntityModel
 
 		$this->account->setVisible([
 			'name',
-                        'id_number',
-                        'vat_number',
+			'id_number',
+			'vat_number',
 			'address1', 
 			'address2', 
 			'city', 

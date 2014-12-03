@@ -543,6 +543,15 @@ body {
     transition: all 0.5s ease;
 }
 
+div.discount-group span {
+    padding: 0px;
+    border: none;
+}
+
+#is_amount_discount {
+    min-width: 120px;
+}
+
 /***********************************************
    New/edit invoice page
 ************************************************/
