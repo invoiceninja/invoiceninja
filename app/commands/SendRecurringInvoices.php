@@ -57,6 +57,11 @@ class SendRecurringInvoices extends Command {
 			$invoice->tax_name = $recurInvoice->tax_name;
 			$invoice->tax_rate = $recurInvoice->tax_rate;
 			$invoice->invoice_design_id = $recurInvoice->invoice_design_id;
+			$invoice->custom_value1 = $recurInvoice->custom_value1;
+			$invoice->custom_value2 = $recurInvoice->custom_value2;
+			$invoice->custom_taxes1 = $recurInvoice->custom_taxes1;
+			$invoice->custom_taxes2 = $recurInvoice->custom_taxes2;
+			$invoice->is_amount_discount = $recurInvoice->is_amount_discount;
 
 			if ($invoice->client->payment_terms)
 			{

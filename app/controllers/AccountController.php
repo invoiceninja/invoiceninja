@@ -878,7 +878,7 @@ class AccountController extends \BaseController {
 		}
 		else
 		{
-			//$this->accountRepo->registerUser($user);			
+			$this->accountRepo->registerUser($user);			
 		}
 
 		$activities = Activity::scope()->get();

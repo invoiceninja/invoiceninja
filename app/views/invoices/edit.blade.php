@@ -303,6 +303,11 @@
 							@endif
 						@endif
 
+						@if ($invoice->invoice_status_id < INVOICE_STATUS_SENT)
+							<li class="divider"></li>							
+							<li><a href="javascript:onMarkClick()">{{ trans("texts.mark_sent") }}</a></li>
+						@endif
+
 						<li class="divider"></li>
 						<li><a href="javascript:onArchiveClick()">{{ trans("texts.archive_{$entityType}") }}</a></li>
 						<li><a href="javascript:onDeleteClick()">{{ trans("texts.delete_{$entityType}") }}</a></li>
@@ -487,7 +492,7 @@
 	      </div>
 
 	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
-	    	&nbsp; {{ trans('texts.recurring_help') }} &nbsp;
+	    	&nbsp; {{ $recurringHelp }} &nbsp;
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">
@@ -739,6 +744,10 @@
 			}
 		}
 		return (isValid && sendTo)
+	}
+
+	function onMarkClick() {
+		submitAction('mark');
 	}
 
 	function onCloneClick() {
@@ -1187,7 +1196,7 @@
 
 		this.totals.paidToDate = ko.computed(function() {
 			var total = self.totals.rawPaidToDate();
-		    return total > 0 ? formatMoney(total, self.client().currency_id()) : '';			
+		    return formatMoney(total, self.client().currency_id());
 		});
 
 		this.totals.total = ko.computed(function() {
@@ -1231,7 +1240,7 @@
     		total -= paid;
     	}
 
-	    return total != 0 ? formatMoney(total, self.client().currency_id()) : '';
+	    return formatMoney(total, self.client().currency_id());
   	});
 
   	self.onDragged = function(item) {
@@ -1243,8 +1252,8 @@
 		var self = this;
 		self.public_id = ko.observable(0);
 		self.name = ko.observable('');
-                self.id_number = ko.observable('');
-                self.vat_number = ko.observable('');
+    self.id_number = ko.observable('');
+    self.vat_number = ko.observable('');
 		self.work_phone = ko.observable('');
 		self.custom_value1 = ko.observable('');
 		self.custom_value2 = ko.observable('');

@@ -310,6 +310,17 @@ class InvoiceController extends \BaseController {
 
 	private static function getViewModel()
 	{
+		$recurringHelp = '';
+		foreach(preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_help')) as $line){
+			$parts = explode("=>", $line);
+			if (count($parts) > 1) {
+				$line = $parts[0] . ' => ' . Utils::processVariables($parts[0]);
+				$recurringHelp .= '<li>' . strip_tags($line) . '</li>';
+			} else {
+				$recurringHelp .= $line;
+			}
+		}
+
 		return [
 			'account' => Auth::user()->account,
 			'products' => Product::scope()->orderBy('id')->get(array('product_key','notes','cost','qty')),
@@ -330,7 +341,8 @@ class InvoiceController extends \BaseController {
 				5 => 'Three months',
 				6 => 'Six months',
 				7 => 'Annually'
-			)
+			),
+			'recurringHelp' => $recurringHelp
 		];
 	}
 
@@ -490,7 +502,7 @@ class InvoiceController extends \BaseController {
 	public function bulk($entityType = ENTITY_INVOICE)
 	{
 		$action = Input::get('action');
-		$statusId = Input::get('statusId');
+		$statusId = Input::get('statusId', INVOICE_STATUS_SENT);
 		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');
 		$count = $this->invoiceRepo->bulk($ids, $action, $statusId);
 

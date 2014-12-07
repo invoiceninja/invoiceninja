@@ -99,7 +99,7 @@ class AppController extends BaseController {
     $user->amend();
 
     //Auth::login($user, true);
-    //$this->accountRepo->registerUser($user);
+    $this->accountRepo->registerUser($user);
 
     return Redirect::to('/invoices/create');
   }
