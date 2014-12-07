@@ -492,7 +492,7 @@
 	      </div>
 
 	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
-	    	&nbsp; {{ $recurringHelp }} &nbsp;
+	    	&nbsp; {{ isset($recurringHelp) ? $recurringHelp : '' }} &nbsp;
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">
