@@ -195,7 +195,7 @@ define('LOGGED_ERROR_LIMIT', 100);
 define('RANDOM_KEY_LENGTH', 32);
 define('MAX_NUM_CLIENTS', 500);
 define('MAX_NUM_CLIENTS_PRO', 20000);
-define('MAX_NUM_USERS', 5);
+define('MAX_NUM_USERS', 20);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);
