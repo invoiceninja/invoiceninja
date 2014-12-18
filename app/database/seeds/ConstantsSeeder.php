@@ -136,6 +136,7 @@ class ConstantsSeeder extends Seeder
 		Currency::create(array('name' => 'Philippine Peso', 'code' => 'PHP', 'symbol' => 'P ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 		Currency::create(array('name' => 'Indian Rupee', 'code' => 'INR', 'symbol' => 'Rs. ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 		Currency::create(array('name' => 'Australian Dollar', 'code' => 'AUD', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
+		Currency::create(array('name' => 'New Zealand Dollar', 'code' => 'NZD', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 
 		DatetimeFormat::create(array('format' => 'd/M/Y g:i a', 'label' => '10/Mar/2013'));
 		DatetimeFormat::create(array('format' => 'd-M-Yk g:i a', 'label' => '10-Mar-2013'));
