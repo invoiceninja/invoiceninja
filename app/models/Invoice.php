@@ -10,7 +10,7 @@ class Invoice extends EntityModel
 	public function user()
 	{
 		return $this->belongsTo('User');
-	}	
+	}
 
 	public function client()
 	{
@@ -20,6 +20,11 @@ class Invoice extends EntityModel
 	public function invoice_items()
 	{
 		return $this->hasMany('InvoiceItem');
+	}
+
+	public function invoice_taxes()
+	{
+		return $this->hasMany('InvoiceTax');
 	}
 
 	public function invoice_status()
@@ -34,7 +39,7 @@ class Invoice extends EntityModel
 
 	public function invitations()
 	{
-		return $this->hasMany('Invitation')->orderBy('invitations.contact_id');		
+		return $this->hasMany('Invitation')->orderBy('invitations.contact_id');
 	}
 
 	public function getName()
@@ -50,8 +55,8 @@ class Invoice extends EntityModel
 	public function getEntityType()
 	{
 		return $this->is_quote ? ENTITY_QUOTE : ENTITY_INVOICE;
-	}	
-	
+	}
+
 	public function isSent()
 	{
 		return $this->invoice_status_id >= INVOICE_STATUS_SENT;
@@ -59,32 +64,30 @@ class Invoice extends EntityModel
 
 	public function isViewed()
 	{
-		return $this->invoice_status_id >= INVOICE_STATUS_VIEWED;	
-	}	
+		return $this->invoice_status_id >= INVOICE_STATUS_VIEWED;
+	}
 
 	public function isPaid()
 	{
-		return $this->invoice_status_id >= INVOICE_STATUS_PAID;	
-	}	
+		return $this->invoice_status_id >= INVOICE_STATUS_PAID;
+	}
 
 	public function hidePrivateFields()
 	{
 		$this->setVisible([
-			'invoice_number', 
-			'discount', 
+			'invoice_number',
+			'discount',
 			'is_amount_discount',
-			'po_number', 
-			'invoice_date', 
-			'due_date', 
-			'terms', 
-			'public_notes', 
-			'amount', 
-			'balance', 
-			'invoice_items', 
-			'client', 
-			'tax_name', 
-			'tax_rate', 
-			'account', 
+			'po_number',
+			'invoice_date',
+			'due_date',
+			'terms',
+			'public_notes',
+			'amount',
+			'balance',
+			'invoice_items',
+			'client',
+			'account',
 			'invoice_design',
 			'invoice_design_id',
 			'is_pro',
@@ -93,20 +96,20 @@ class Invoice extends EntityModel
 			'custom_value2',
 			'custom_taxes1',
 			'custom_taxes2']);
-		
+
 		$this->client->setVisible([
 			'name',
 			'id_number',
 			'vat_number',
-			'address1', 
-			'address2', 
-			'city', 
-			'state', 
-			'postal_code', 
-			'work_phone', 
-			'payment_terms', 
-			'contacts', 
-			'country', 
+			'address1',
+			'address2',
+			'city',
+			'state',
+			'postal_code',
+			'work_phone',
+			'payment_terms',
+			'contacts',
+			'country',
 			'currency_id',
 			'custom_value1',
 			'custom_value2']);
@@ -115,14 +118,14 @@ class Invoice extends EntityModel
 			'name',
 			'id_number',
 			'vat_number',
-			'address1', 
-			'address2', 
-			'city', 
-			'state', 
-			'postal_code', 
-			'work_phone', 
-			'work_email', 
-			'country', 
+			'address1',
+			'address2',
+			'city',
+			'state',
+			'postal_code',
+			'work_phone',
+			'work_email',
+			'country',
 			'currency_id',
 			'custom_label1',
 			'custom_value1',
@@ -135,27 +138,35 @@ class Invoice extends EntityModel
 			'hide_quantity',
 			'hide_paid_to_date',
 			'custom_invoice_label1',
-			'custom_invoice_label2']);		
+			'custom_invoice_label2']);
 
-		foreach ($this->invoice_items as $invoiceItem) 
+		foreach ($this->invoice_items as $invoiceItem)
 		{
 			$invoiceItem->setVisible([
-				'product_key', 
-				'notes', 
-				'cost', 
-				'qty', 
-				'tax_name', 
+				'product_key',
+				'notes',
+				'cost',
+				'qty',
+				'tax_name',
 				'tax_rate']);
 		}
 
-		foreach ($this->client->contacts as $contact) 
+		die('<pre>' . print_r($this, TRUE));
+		foreach ($this->invoice_taxes as $invoiceTax)
+		{
+			$invoiceTax->setVisible([
+				'name',
+				'rate']);
+		}
+
+		foreach ($this->client->contacts as $contact)
 		{
 			$contact->setVisible([
-				'first_name', 
-				'last_name', 
-				'email', 
+				'first_name',
+				'last_name',
+				'email',
 				'phone']);
-		}						
+		}
 
 		return $this;
 	}
@@ -177,20 +188,20 @@ class Invoice extends EntityModel
 
 		$dayOfMonthToday = date('j');
 		$dayOfMonthStart = date('j', strtotime($this->start_date));
-		
-		if (!$this->last_sent_date) 
+
+		if (!$this->last_sent_date)
 		{
 			return true;
-		} 
-		else 
-		{	
+		}
+		else
+		{
 			$date1 = new DateTime($this->last_sent_date);
 			$date2 = new DateTime();
 			$diff = $date2->diff($date1);
 			$daysSinceLastSent = $diff->format("%a");
 			$monthsSinceLastSent = ($diff->format('%y') * 12) + $diff->format('%m');
 
-			if ($daysSinceLastSent == 0) 
+			if ($daysSinceLastSent == 0)
 			{
 				return false;
 			}
@@ -217,7 +228,7 @@ class Invoice extends EntityModel
 		}
 
 		return false;
-	}	
+	}
 }
 
 Invoice::created(function($invoice)

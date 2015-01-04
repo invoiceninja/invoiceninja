@@ -6,7 +6,6 @@ var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
 var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
-
 var invoiceOld;
 function generatePDF(invoice, javascript, force) {
   invoice = calculateAmounts(invoice);
@@ -697,7 +696,7 @@ function getInvoiceDetails(invoice) {
     {'po_number': invoice.po_number},
     {'invoice_date': invoice.invoice_date},
     {'due_date': invoice.due_date},
-    {'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)},
+    {'balance_due': invoice.totals.total()},
   ];
 }
 
@@ -728,8 +727,8 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
   }
 
   var data = [
-    {'subtotal': formatMoney(invoice.subtotal_amount, invoice.client.currency_id)},
-    {'discount': invoice.discount_amount != 0 ? formatMoney(invoice.discount_amount, invoice.client.currency_id) : false}
+    {'subtotal': invoice.totals.productSubtotal()},
+    {'discount': invoice.totals.rawDiscount() != 0 ? formatMoney(invoice.totals.rawDiscount(), invoice.client.currency_id) : false}
   ];
 
   if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {
@@ -739,7 +738,16 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
     data.push({'custom_invoice_label2': formatMoney(invoice.custom_value2, invoice.client.currency_id) })
   }
 
-  data.push({'tax': invoice.tax_amount > 0 ? formatMoney(invoice.tax_amount, invoice.client.currency_id) : false});
+  if (invoice.invoice_taxes.length) {
+    for (var i=0; i < invoice.invoice_taxes.length; i++) {
+      var taxRate = new TaxRateModel(invoice.invoice_taxes[i]);
+
+      var taxLineItem = {};
+      taxLineItem['tax_' + taxRate.name()] = invoice.totals.taxAmounts(taxRate);
+
+      data.push(taxLineItem);
+    }
+  }
 
   if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {
     data.push({'custom_invoice_label1': formatMoney(invoice.custom_value1, invoice.client.currency_id) })
@@ -748,7 +756,7 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
     data.push({'custom_invoice_label2': formatMoney(invoice.custom_value2, invoice.client.currency_id) })
   }
 
-  var paid = invoice.amount - invoice.balance;
+  var paid = invoice.totals.rawPaidToDate();
   if (invoice.account.hide_paid_to_date != '1' || paid) {
     data.push({'paid_to_date': formatMoney(paid, invoice.client.currency_id)});
   }
@@ -832,9 +840,9 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
 
       if (key.substring(0, 6) === 'custom') {
         key = invoice.account[key];
-      } else if (key === 'tax' && invoice.tax_rate) {
-        key = invoiceLabels[key] + ' ' + (invoice.tax_rate*1).toString() + '%';
-      } else if (key === 'discount' && NINJA.parseFloat(invoice.discount) && !parseInt(invoice.is_amount_discount)) {
+      } else if (key.indexOf('tax_') === 0) {
+        key = key.substring(4);
+      } else if (key === 'discount' && NINJA.parseFloat(invoice.totals.rawDiscount()) && !parseInt(invoice.is_amount_discount)) {
         key = invoiceLabels[key] + ' ' + parseFloat(invoice.discount) + '%';
       } else {
         key = invoiceLabels[key];
@@ -881,7 +889,6 @@ function displayNotesAndTerms(doc, layout, invoice, y)
 }
 
 function calculateAmounts(invoice) {
-  var total = 0;
   var hasTaxes = false;
 
   for (var i=0; i<invoice.invoice_items.length; i++) {
@@ -893,64 +900,12 @@ function calculateAmounts(invoice) {
       tax = parseFloat(item.tax_rate);
     }
 
-    var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
-    if (tax) {
-      lineTotal += roundToTwo(lineTotal * tax / 100);
-    }
-    if (lineTotal) {
-      total += lineTotal;
-    }
-
     if ((item.tax && item.tax.rate > 0) || (item.tax_rate && parseFloat(item.tax_rate) > 0)) {
       hasTaxes = true;
     }
   }
 
-  invoice.subtotal_amount = total;
-
-  var discount = 0;
-  if (invoice.discount != 0) {
-    if (parseInt(invoice.is_amount_discount)) {
-      discount = roundToTwo(invoice.discount);
-    } else {
-      discount = roundToTwo(total * (invoice.discount/100));
-    }
-    total -= discount;
-  }
-
-  // custom fields with taxes
-  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {
-    total += roundToTwo(invoice.custom_value1);
-  }
-  if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 == '1') {
-    total += roundToTwo(invoice.custom_value2);
-  }
-
-  var tax = 0;
-  if (invoice.tax && parseFloat(invoice.tax.rate)) {
-    tax = parseFloat(invoice.tax.rate);
-  } else if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
-    tax = parseFloat(invoice.tax_rate);
-  }
-
-  if (tax) {
-    var tax = roundToTwo(total * (tax/100));
-    total = parseFloat(total) + parseFloat(tax);
-  }
-
-  // custom fields w/o with taxes
-  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {
-    total += roundToTwo(invoice.custom_value1);
-  }
-  if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 != '1') {
-    total += roundToTwo(invoice.custom_value2);
-  }
-
-  invoice.balance_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
-  invoice.discount_amount = discount;
-  invoice.tax_amount = tax;
   invoice.has_taxes = hasTaxes;
-
   return invoice;
 }
 

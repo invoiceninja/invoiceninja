@@ -18,8 +18,8 @@ class InvoiceRepository
             ->where('invoices.account_id', '=', $accountId)
             ->where('clients.deleted_at', '=', null)
             ->where('contacts.deleted_at', '=', null)
-    				->where('invoices.is_recurring', '=', false)    			
-    				->where('contacts.is_primary', '=', true)	
+    				->where('invoices.is_recurring', '=', false)
+    				->where('contacts.is_primary', '=', true)
   					->select('clients.public_id as client_public_id', 'invoice_number', 'invoice_status_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'quote_id', 'quote_invoice_id', 'invoices.deleted_at', 'invoices.is_deleted');
 
       if (!\Session::get('show_trash:' . $entityType))
@@ -27,7 +27,7 @@ class InvoiceRepository
         $query->where('invoices.deleted_at', '=', null);
       }
 
-    	if ($clientPublicId) 
+    	if ($clientPublicId)
     	{
     		$query->where('clients.public_id', '=', $clientPublicId);
     	}
@@ -58,14 +58,14 @@ class InvoiceRepository
             ->where('invoices.is_quote', '=', false)
             ->where('clients.deleted_at', '=', null)
     				->where('invoices.is_recurring', '=', true)
-    				->where('contacts.is_primary', '=', true)	
+    				->where('contacts.is_primary', '=', true)
 			   		->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'invoices.deleted_at', 'invoices.is_deleted');
 
-    	if ($clientPublicId) 
+    	if ($clientPublicId)
     	{
     		$query->where('clients.public_id', '=', $clientPublicId);
     	}
-      
+
       if (!\Session::get('show_trash:invoice'))
       {
         $query->where('invoices.deleted_at', '=', null);
@@ -96,7 +96,7 @@ class InvoiceRepository
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', false)
           ->select('invitation_key', 'invoice_number', 'invoice_date', 'invoices.balance as balance', 'due_date', 'clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'start_date', 'end_date', 'clients.currency_id');
-    
+
     $table = \Datatable::query($query)
               ->addColumn('invoice_number', function($model) use ($entityType) { return link_to('/view/' . $model->invitation_key, $model->invoice_number); })
               ->addColumn('invoice_date', function($model) { return Utils::fromSqlDate($model->invoice_date); })
@@ -117,21 +117,21 @@ class InvoiceRepository
     $query = $this->getInvoices($accountId, $clientPublicId, $entityType, $search)
               ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE ? true : false);
 
-    $table = \Datatable::query($query);      
+    $table = \Datatable::query($query);
 
-    if (!$clientPublicId) 
+    if (!$clientPublicId)
     {
       $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '" ' . Utils::getEntityRowClass($model) . '>'; });
     }
-    
+
     $table->addColumn("invoice_number", function($model) use ($entityType) { return link_to("{$entityType}s/" . $model->public_id . '/edit', $model->invoice_number, ['class' => Utils::getEntityRowClass($model)]); });
 
-    if (!$clientPublicId) 
+    if (!$clientPublicId)
     {
       $table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
     }
-    
-    $table->addColumn("invoice_date", function($model) { return Utils::fromSqlDate($model->invoice_date); })         
+
+    $table->addColumn("invoice_date", function($model) { return Utils::fromSqlDate($model->invoice_date); })
       ->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); });
 
     if ($entityType == ENTITY_INVOICE)
@@ -142,7 +142,7 @@ class InvoiceRepository
     return $table->addColumn('due_date', function($model) { return Utils::fromSqlDate($model->due_date); })
         ->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
         ->addColumn('dropdown', function($model) use ($entityType)
-        { 
+        {
           if ($model->is_deleted)
           {
             return '<div style="height:38px"/>';
@@ -160,12 +160,12 @@ class InvoiceRepository
                 <li><a href="' . \URL::to("{$entityType}s/".$model->public_id.'/clone') . '">'.trans("texts.clone_{$entityType}").'</a></li>
                 <li class="divider"></li>';
 
-            if ($model->invoice_status_id < INVOICE_STATUS_SENT) 
+            if ($model->invoice_status_id < INVOICE_STATUS_SENT)
             {
               $str .= '<li><a href="javascript:markEntity(' . $model->public_id . ', ' . INVOICE_STATUS_SENT . ')">'.trans("texts.mark_sent").'</a></li>';
-            }              
-                      
-            if ($entityType == ENTITY_INVOICE)              
+            }
+
+            if ($entityType == ENTITY_INVOICE)
             {
               if ($model->invoice_status_id < INVOICE_STATUS_PAID)
               {
@@ -175,7 +175,7 @@ class InvoiceRepository
               if ($model->quote_id)
               {
                 $str .= '<li><a href="' .  \URL::to("quotes/{$model->quote_id}/edit") . '">' . trans("texts.view_quote") . '</a></li>';
-              }            
+              }
             }
             else if ($entityType == ENTITY_QUOTE)
             {
@@ -197,7 +197,7 @@ class InvoiceRepository
 
           return $str . '</ul>
             </div>';
-        })                  
+        })
         ->make();
   }
 
@@ -217,7 +217,7 @@ class InvoiceRepository
   	$rules = [
       'invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . \Auth::user()->account_id,
       'discount' => 'positive'
-    ];    	
+    ];
 
   	if ($invoice['is_recurring'] && $invoice['start_date'] && $invoice['end_date'])
   	{
@@ -236,27 +236,27 @@ class InvoiceRepository
 
 	public function save($publicId, $data, $entityType)
 	{
-		if ($publicId) 
+		if ($publicId)
 		{
 			$invoice = Invoice::scope($publicId)->firstOrFail();
-		} 
-		else 
-		{				
-			$invoice = Invoice::createNew();			
+		}
+		else
+		{
+			$invoice = Invoice::createNew();
 
       if ($entityType == ENTITY_QUOTE)
       {
         $invoice->is_quote = true;
       }
-		}			
-		
+		}
+
 		$invoice->client_id = $data['client_id'];
 		$invoice->discount = round(Utils::parseFloat($data['discount']), 2);
     $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
 		$invoice->invoice_number = trim($data['invoice_number']);
 		$invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
     $invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
-      
+
     if ($invoice->is_recurring)
     {
       $invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
@@ -281,16 +281,16 @@ class InvoiceRepository
 		{
 			$invoice->tax_rate = Utils::parseFloat($data['tax_rate']);
 			$invoice->tax_name = trim($data['tax_name']);
-		} 
+		}
 		else
 		{
 			$invoice->tax_rate = 0;
 			$invoice->tax_name = '';
 		}
-		
-		$total = 0;						
-		
-		foreach ($data['invoice_items'] as $item) 
+
+		$total = 0;
+
+		foreach ($data['invoice_items'] as $item)
 		{
 			if (!$item->cost && !$item->product_key && !$item->notes)
 			{
@@ -303,11 +303,11 @@ class InvoiceRepository
 
 			if (isset($item->tax_rate) && Utils::parseFloat($item->tax_rate) > 0)
 			{
-				$invoiceItemTaxRate = Utils::parseFloat($item->tax_rate);				
+				$invoiceItemTaxRate = Utils::parseFloat($item->tax_rate);
 			}
 
 			$lineTotal = $invoiceItemCost * $invoiceItemQty;
-      
+
 			$total += round($lineTotal + ($lineTotal * $invoiceItemTaxRate / 100), 2);
 		}
 
@@ -336,8 +336,10 @@ class InvoiceRepository
       $total += $invoice->custom_value2;
     }
 
-		$total += $total * $invoice->tax_rate / 100;
-    $total = round($total, 2);
+    $taxable_total = $total;
+    foreach ($data['invoice_taxes'] as $tax_rate) {
+      $total += round($taxable_total * $invoice->tax_rate / 100, 2);
+    }
 
     // custom fields not charged taxes
     if ($invoice->custom_value1 && !$invoice->custom_taxes1) {
@@ -347,21 +349,39 @@ class InvoiceRepository
       $total += $invoice->custom_value2;
     }
 
-    if ($publicId)    
+    if ($publicId)
     {
 		  $invoice->balance = $total - ($invoice->amount - $invoice->balance);
     }
     else
     {
-      $invoice->balance = $total; 
+      $invoice->balance = $total;
     }
 
     $invoice->amount = $total;
 		$invoice->save();
 
     $invoice->invoice_items()->forceDelete();
-    
-    foreach ($data['invoice_items'] as $item) 
+
+    foreach ($data['invoice_items'] as $item) {
+      $invoice->taxes()->save($taxes);
+      $invoiceItem = InvoiceItem::createNew();
+      $invoiceItem->product_id = isset($product) ? $product->id : null;
+      $invoiceItem->product_key = trim($invoice->is_recurring ? $item->product_key : Utils::processVariables($item->product_key));
+      $invoiceItem->notes = trim($invoice->is_recurring ? $item->notes : Utils::processVariables($item->notes));
+      $invoiceItem->cost = Utils::parseFloat($item->cost);
+      $invoiceItem->qty = Utils::parseFloat($item->qty);
+      $invoiceItem->tax_rate = 0;
+    }
+
+    foreach($data['invoice_taxes'] as $tax) {
+      $invoiceItem = InvoiceItem::createNew();
+      $invoiceItem->name = $tax->name;
+      $invoiceItem->rate = $tax->rate;
+      $invoice->invoice_taxes()->save($invoiceTax);
+    }
+
+    foreach ($data['invoice_items'] as $item)
     {
       if (!$item->cost && !$item->product_key && !$item->notes)
       {
@@ -374,7 +394,7 @@ class InvoiceRepository
 
         if (!$product)
         {
-          $product = Product::createNew();            
+          $product = Product::createNew();
           $product->product_key = trim($item->product_key);
         }
 
@@ -384,7 +404,7 @@ class InvoiceRepository
           $product->cost = $item->cost;
           //$product->qty = $item->qty;
         }
-        
+
         $product->save();
       }
 
@@ -419,10 +439,10 @@ class InvoiceRepository
   {
     $invoice->load('invitations', 'invoice_items');
     $account = $invoice->account;
-    
+
     $clone = Invoice::createNew($invoice);
     $clone->balance = $invoice->amount;
-    
+
     // if the invoice prefix is diff than quote prefix, use the same number for the invoice
     if (($account->invoice_number_prefix || $account->quote_number_prefix) && $account->invoice_number_prefix != $account->quote_number_prefix)
     {
@@ -435,41 +455,41 @@ class InvoiceRepository
     }
     else
     {
-      $clone->invoice_number = $account->getNextInvoiceNumber();  
-    }    
+      $clone->invoice_number = $account->getNextInvoiceNumber();
+    }
 
     foreach ([
-      'client_id',       
-      'discount', 
+      'client_id',
+      'discount',
       'is_amount_discount',
-      'invoice_date', 
-      'po_number', 
-      'due_date', 
-      'is_recurring', 
-      'frequency_id', 
-      'start_date', 
-      'end_date', 
-      'terms', 
-      'public_notes', 
-      'invoice_design_id', 
-      'tax_name', 
-      'tax_rate', 
-      'amount', 
+      'invoice_date',
+      'po_number',
+      'due_date',
+      'is_recurring',
+      'frequency_id',
+      'start_date',
+      'end_date',
+      'terms',
+      'public_notes',
+      'invoice_design_id',
+      'tax_name',
+      'tax_rate',
+      'amount',
       'is_quote',
       'custom_value1',
       'custom_value2',
       'custom_taxes1',
-      'custom_taxes2'] as $field) 
+      'custom_taxes2'] as $field)
     {
-      $clone->$field = $invoice->$field;  
-    }   
+      $clone->$field = $invoice->$field;
+    }
 
     if ($quotePublicId)
     {
       $clone->is_quote = false;
       $clone->quote_id = $quotePublicId;
-    }    
-    
+    }
+
     $clone->save();
 
     if ($quotePublicId)
@@ -477,25 +497,25 @@ class InvoiceRepository
       $invoice->quote_invoice_id = $clone->public_id;
       $invoice->save();
     }
-    
+
     foreach ($invoice->invoice_items as $item)
     {
       $cloneItem = InvoiceItem::createNew($invoice);
-      
+
       foreach ([
-        'product_id', 
-        'product_key', 
-        'notes', 
-        'cost', 
-        'qty', 
-        'tax_name', 
-        'tax_rate'] as $field) 
+        'product_id',
+        'product_key',
+        'notes',
+        'cost',
+        'qty',
+        'tax_name',
+        'tax_rate'] as $field)
       {
         $cloneItem->$field = $item->$field;
       }
 
-      $clone->invoice_items()->save($cloneItem);      
-    }   
+      $clone->invoice_items()->save($cloneItem);
+    }
 
     foreach ($invoice->invitations as $invitation)
     {
@@ -518,24 +538,24 @@ class InvoiceRepository
 
 		$invoices = Invoice::withTrashed()->scope($ids)->get();
 
-		foreach ($invoices as $invoice) 
+		foreach ($invoices as $invoice)
 		{
       if ($action == 'mark')
       {
         $invoice->invoice_status_id = $statusId;
         $invoice->save();
-      } 
+      }
       else if ($action == 'restore')
       {
         $invoice->restore();
       }
-      else 
+      else
       {
-  			if ($action == 'delete') 
+  			if ($action == 'delete')
   			{
   				$invoice->is_deleted = true;
   				$invoice->save();
-  			} 
+  			}
 
   			$invoice->delete();
       }

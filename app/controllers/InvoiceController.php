@@ -20,22 +20,22 @@ class InvoiceController extends \BaseController {
 		$this->invoiceRepo = $invoiceRepo;
 		$this->clientRepo = $clientRepo;
 		$this->taxRateRepo = $taxRateRepo;
-	}	
+	}
 
 	public function index()
 	{
 		$data = [
 			'title' => trans('texts.invoices'),
-			'entityType'=>ENTITY_INVOICE, 
+			'entityType'=>ENTITY_INVOICE,
 			'columns'=>Utils::trans(['checkbox', 'invoice_number', 'client', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status', 'action'])
 		];
 
 		$recurringInvoices = Invoice::scope()->where('is_recurring', '=', true);
 
-    if (Session::get('show_trash:invoice'))
-    {
-    	$recurringInvoices->withTrashed();      
-    }
+		if (Session::get('show_trash:invoice'))
+		{
+			$recurringInvoices->withTrashed();
+		}
 
 		if ($recurringInvoices->count() > 0)
 		{
@@ -52,7 +52,7 @@ class InvoiceController extends \BaseController {
 			'showClientHeader' => true,
 			'hideLogo' => Session::get('white_label'),
 			'title' => trans('texts.invoices'),
-			'entityType'=>ENTITY_INVOICE, 
+			'entityType'=>ENTITY_INVOICE,
 			'columns'=>Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date'])
 		];
 
@@ -60,86 +60,86 @@ class InvoiceController extends \BaseController {
 	}
 
 	public function getDatatable($clientPublicId = null)
-  {
-  	$accountId = Auth::user()->account_id;
-  	$search = Input::get('sSearch');
+	{
+		$accountId = Auth::user()->account_id;
+		$search = Input::get('sSearch');
 
-  	return $this->invoiceRepo->getDatatable($accountId, $clientPublicId, ENTITY_INVOICE, $search);
-  }
+		return $this->invoiceRepo->getDatatable($accountId, $clientPublicId, ENTITY_INVOICE, $search);
+	}
 
 	public function getClientDatatable()
-  {
-  	//$accountId = Auth::user()->account_id;
-  	$search = Input::get('sSearch');
-  	$invitationKey = Session::get('invitation_key');
+	{
+		//$accountId = Auth::user()->account_id;
+		$search = Input::get('sSearch');
+		$invitationKey = Session::get('invitation_key');
 		$invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
 
-		if (!$invitation || $invitation->is_deleted) 
+		if (!$invitation || $invitation->is_deleted)
 		{
 			return [];
 		}
 
 		$invoice = $invitation->invoice;
-		
-		if (!$invoice || $invoice->is_deleted) 
+
+		if (!$invoice || $invoice->is_deleted)
 		{
 			return [];
 		}
 
-  	return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_INVOICE, $search);
-  }
+		return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_INVOICE, $search);
+	}
 
 	public function getRecurringDatatable($clientPublicId = null)
-    {
-    	$query = $this->invoiceRepo->getRecurringInvoices(Auth::user()->account_id, $clientPublicId, Input::get('sSearch'));
-    	$table = Datatable::query($query);			
+		{
+			$query = $this->invoiceRepo->getRecurringInvoices(Auth::user()->account_id, $clientPublicId, Input::get('sSearch'));
+			$table = Datatable::query($query);
 
-    	if (!$clientPublicId) {
-    		$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '" '. Utils::getEntityRowClass($model) . '>'; });
-    	}
-    	
-    	$table->addColumn('frequency', function($model) { return link_to('invoices/' . $model->public_id, $model->frequency); });
+			if (!$clientPublicId) {
+				$table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '" '. Utils::getEntityRowClass($model) . '>'; });
+			}
 
-    	if (!$clientPublicId) {
-    		$table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
-    	}
-    	
-    	return $table->addColumn('start_date', function($model) { return Utils::fromSqlDate($model->start_date); })
-    	    ->addColumn('end_date', function($model) { return Utils::fromSqlDate($model->end_date); })    	    
-    	    ->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
-    	    ->addColumn('dropdown', function($model) 
-    	    { 
-            if ($model->is_deleted)
-            {
-                return '<div style="height:38px"/>';
-            }
-            
-            $str = '<div class="btn-group tr-action" style="visibility:hidden;">
-                        <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                            '.trans('texts.select').' <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">';
+			$table->addColumn('frequency', function($model) { return link_to('invoices/' . $model->public_id, $model->frequency); });
 
-            if (!$model->deleted_at || $model->deleted_at == '0000-00-00')
-            {
-                $str .= '<li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">'.trans('texts.edit_invoice').'</a></li>
-										    <li class="divider"></li>
-										    <li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans('texts.archive_invoice').'</a></li>
-										    <li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans('texts.delete_invoice').'</a></li>';
-            }
-            else
-            {
-                $str .= '<li><a href="javascript:restoreEntity(' . $model->public_id. ')">'.trans('texts.restore_invoice').'</a></li>';
-            }
-                                                  
-            return $str . '</ul>
-                    </div>';
+			if (!$clientPublicId) {
+				$table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
+			}
 
-						    						   
+			return $table->addColumn('start_date', function($model) { return Utils::fromSqlDate($model->start_date); })
+					->addColumn('end_date', function($model) { return Utils::fromSqlDate($model->end_date); })
+					->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
+					->addColumn('dropdown', function($model)
+					{
+						if ($model->is_deleted)
+						{
+								return '<div style="height:38px"/>';
+						}
 
-    	    })    	       	    
-    	    ->make();    	
-    }
+						$str = '<div class="btn-group tr-action" style="visibility:hidden;">
+												<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+														'.trans('texts.select').' <span class="caret"></span>
+												</button>
+												<ul class="dropdown-menu" role="menu">';
+
+						if (!$model->deleted_at || $model->deleted_at == '0000-00-00')
+						{
+								$str .= '<li><a href="' . URL::to('invoices/'.$model->public_id.'/edit') . '">'.trans('texts.edit_invoice').'</a></li>
+												<li class="divider"></li>
+												<li><a href="javascript:archiveEntity(' . $model->public_id . ')">'.trans('texts.archive_invoice').'</a></li>
+												<li><a href="javascript:deleteEntity(' . $model->public_id . ')">'.trans('texts.delete_invoice').'</a></li>';
+						}
+						else
+						{
+								$str .= '<li><a href="javascript:restoreEntity(' . $model->public_id. ')">'.trans('texts.restore_invoice').'</a></li>';
+						}
+
+						return $str . '</ul>
+										</div>';
+
+
+
+					})
+					->make();
+		}
 
 
 	public function view($invitationKey)
@@ -147,8 +147,8 @@ class InvoiceController extends \BaseController {
 		$invitation = Invitation::where('invitation_key', '=', $invitationKey)->firstOrFail();
 
 		$invoice = $invitation->invoice;
-		
-		if (!$invoice || $invoice->is_deleted) 
+
+		if (!$invoice || $invoice->is_deleted)
 		{
 			return View::make('invoices.deleted');
 		}
@@ -157,32 +157,32 @@ class InvoiceController extends \BaseController {
 		{
 			$invoice = Invoice::scope($invoice->quote_invoice_id, $invoice->account_id)->firstOrFail();
 
-			if (!$invoice || $invoice->is_deleted) 
+			if (!$invoice || $invoice->is_deleted)
 			{
 				return View::make('invoices.deleted');
 			}
 		}
 
-		$invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
+		$invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country', 'invoice_taxes');
 
 		$client = $invoice->client;
-		
-		if (!$client || $client->is_deleted) 
+
+		if (!$client || $client->is_deleted)
 		{
 			return View::make('invoices.deleted');
 		}
 
 		if (!Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id))
 		{
-			Activity::viewInvoice($invitation);	
-			Event::fire('invoice.viewed', $invoice);			
+			Activity::viewInvoice($invitation);
+			Event::fire('invoice.viewed', $invoice);
 		}
 
 		Session::set($invitationKey, true);
 		Session::set('invitation_key', $invitationKey);
 		Session::set('white_label', $client->account->isWhiteLabel());
 
-		$client->account->loadLocalizationSettings();		
+		$client->account->loadLocalizationSettings();
 
 		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
 		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
@@ -190,13 +190,13 @@ class InvoiceController extends \BaseController {
 
 		$contact = $invitation->contact;
 		$contact->setVisible([
-			'first_name', 
-			'last_name', 
-			'email', 
-			'phone']);		
+			'first_name',
+			'last_name',
+			'email',
+			'phone']);
 
 		$data = array(
-			'showClientHeader' => true,			
+			'showClientHeader' => true,
 			'showBreadcrumbs' => false,
 			'hideLogo' => $client->account->isWhiteLabel(),
 			'invoice' => $invoice->hidePrivateFields(),
@@ -210,16 +210,16 @@ class InvoiceController extends \BaseController {
 
 	public function edit($publicId, $clone = false)
 	{
-		$invoice = Invoice::scope($publicId)->withTrashed()->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items')->firstOrFail();
+		$invoice = Invoice::scope($publicId)->withTrashed()->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items', 'invoice_taxes')->firstOrFail();
 		$entityType = $invoice->getEntityType();
 
-  	$contactIds = DB::table('invitations')
+		$contactIds = DB::table('invitations')
 			->join('contacts', 'contacts.id', '=','invitations.contact_id')
 			->where('invitations.invoice_id', '=', $invoice->id)
 			->where('invitations.account_id', '=', Auth::user()->account_id)
 			->where('invitations.deleted_at', '=', null)
 			->select('contacts.public_id')->lists('public_id');
-		
+
 		if ($clone)
 		{
 			$invoice->id = null;
@@ -227,7 +227,7 @@ class InvoiceController extends \BaseController {
 			$invoice->balance = $invoice->amount;
 			$invoice->invoice_status_id = 0;
 			$invoice->invoice_date = date_create()->format('Y-m-d');
-			$method = 'POST';			
+			$method = 'POST';
 			$url = "{$entityType}s";
 		}
 		else
@@ -236,7 +236,7 @@ class InvoiceController extends \BaseController {
 			$method = 'PUT';
 			$url = "{$entityType}s/{$publicId}";
 		}
-		
+
 		$invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
 		$invoice->due_date = Utils::fromSqlDate($invoice->due_date);
 		$invoice->start_date = Utils::fromSqlDate($invoice->start_date);
@@ -247,14 +247,14 @@ class InvoiceController extends \BaseController {
 				'entityType' => $entityType,
 				'showBreadcrumbs' => $clone,
 				'account' => $invoice->account,
-				'invoice' => $invoice, 
+				'invoice' => $invoice,
 				'data' => false,
-				'method' => $method, 
+				'method' => $method,
 				'invitationContactIds' => $contactIds,
-				'url' => $url, 
+				'url' => $url,
 				'title' => trans("texts.edit_{$entityType}"),
 				'client' => $invoice->client);
-		$data = array_merge($data, self::getViewModel());		
+		$data = array_merge($data, self::getViewModel());
 
 		// Set the invitation link on the client's contacts
 		if (!$clone)
@@ -272,38 +272,38 @@ class InvoiceController extends \BaseController {
 							{
 								$contact->invitation_link = $invitation->getLink();
 							}
-						}				
+						}
 					}
 					break;
 				}
 			}
 		}
-			
+
 		return View::make('invoices.edit', $data);
 	}
 
 	public function create($clientPublicId = 0)
-	{	
+	{
 		$client = null;
 		$invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
 		$account = Account::with('country')->findOrFail(Auth::user()->account_id);
 
-		if ($clientPublicId) 
+		if ($clientPublicId)
 		{
 			$client = Client::scope($clientPublicId)->firstOrFail();
-    }
+		}
 
 		$data = array(
 				'entityType' => ENTITY_INVOICE,
 				'account' => $account,
 				'invoice' => null,
-				'data' => Input::old('data'), 
+				'data' => Input::old('data'),
 				'invoiceNumber' => $invoiceNumber,
-				'method' => 'POST', 
-				'url' => 'invoices', 
+				'method' => 'POST',
+				'url' => 'invoices',
 				'title' => trans('texts.new_invoice'),
 				'client' => $client);
-		$data = array_merge($data, self::getViewModel());				
+		$data = array_merge($data, self::getViewModel());
 
 		return View::make('invoices.edit', $data);
 	}
@@ -330,9 +330,9 @@ class InvoiceController extends \BaseController {
 			'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
 			'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
 			'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),				
-      'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())
-      	->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+			'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+			'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())
+				->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
 			'frequencies' => array(
 				1 => 'Weekly',
 				2 => 'Two weeks',
@@ -352,12 +352,12 @@ class InvoiceController extends \BaseController {
 	 * @return Response
 	 */
 	public function store()
-	{		
+	{
 		return InvoiceController::save();
 	}
 
 	private function save($publicId = null)
-	{	
+	{
 		$action = Input::get('action');
 		$entityType = Input::get('entityType');
 
@@ -366,29 +366,29 @@ class InvoiceController extends \BaseController {
 			return InvoiceController::bulk($entityType);
 		}
 
-		$input = json_decode(Input::get('data'));					
+		$input = json_decode(Input::get('data'));
 		$invoice = $input->invoice;
 
 		if ($errors = $this->invoiceRepo->getErrors($invoice))
-		{					
+		{
 			Session::flash('error', trans('texts.invoice_error'));
 
 			return Redirect::to("{$entityType}s/create")
 				->withInput()->withErrors($errors);
-		} 
-		else 
-		{			
+		}
+		else
+		{
 			$this->taxRateRepo->save($input->tax_rates);
-						
-			$clientData = (array) $invoice->client;			
+
+			$clientData = (array) $invoice->client;
 			$client = $this->clientRepo->save($invoice->client->public_id, $clientData);
-						
+
 			$invoiceData = (array) $invoice;
 			$invoiceData['client_id'] = $client->id;
 			$invoice = $this->invoiceRepo->save($publicId, $invoiceData, $entityType);
-			
+
 			$account = Auth::user()->account;
-			if ($account->invoice_taxes != $input->invoice_taxes 
+			if ($account->invoice_taxes != $input->invoice_taxes
 						|| $account->invoice_item_taxes != $input->invoice_item_taxes
 						|| $account->invoice_design_id != $input->invoice->invoice_design_id)
 			{
@@ -404,28 +404,28 @@ class InvoiceController extends \BaseController {
 			foreach ($client->contacts as $contact)
 			{
 				if ($contact->send_invoice || count($client->contacts) == 1)
-				{	
+				{
 					$sendInvoiceIds[] = $contact->id;
 				}
 			}
-			
+
 			foreach ($client->contacts as $contact)
 			{
 				$invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
-				
-				if (in_array($contact->id, $sendInvoiceIds) && !$invitation) 
-				{	
+
+				if (in_array($contact->id, $sendInvoiceIds) && !$invitation)
+				{
 					$invitation = Invitation::createNew();
 					$invitation->invoice_id = $invoice->id;
 					$invitation->contact_id = $contact->id;
 					$invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
 					$invitation->save();
-				}				
+				}
 				else if (!in_array($contact->id, $sendInvoiceIds) && $invitation)
 				{
 					$invitation->delete();
 				}
-			}						
+			}
 
 			$message = trans($publicId ? "texts.updated_{$entityType}" : "texts.created_{$entityType}");
 			if ($input->invoice->client->public_id == '-1')
@@ -435,7 +435,7 @@ class InvoiceController extends \BaseController {
 				$url = URL::to('clients/' . $client->public_id);
 				Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
 			}
-			
+
 			if ($action == 'clone')
 			{
 				return $this->cloneInvoice($publicId);
@@ -444,8 +444,8 @@ class InvoiceController extends \BaseController {
 			{
 				return $this->convertQuote($publicId);
 			}
-			else if ($action == 'email') 
-			{	
+			else if ($action == 'email')
+			{
 				if (Auth::user()->confirmed && !Auth::user()->isDemo())
 				{
 					$message = trans("texts.emailed_{$entityType}");
@@ -456,15 +456,16 @@ class InvoiceController extends \BaseController {
 				{
 					$errorMessage = trans(Auth::user()->registered ? 'texts.confirmation_required' : 'texts.registration_required');
 					Session::flash('error', $errorMessage);
-					Session::flash('message', $message);					
+					Session::flash('message', $message);
 				}
-			} 
-			else 
-			{				
+			}
+			else
+			{
 				Session::flash('message', $message);
 			}
 
 			$url = "{$entityType}s/" . $invoice->public_id . '/edit';
+			return View::make('invoices/edit', array('invoice' => $invoice));
 			return Redirect::to($url);
 		}
 	}
@@ -478,7 +479,7 @@ class InvoiceController extends \BaseController {
 	public function show($publicId)
 	{
 		Session::reflash();
-		
+
 		return Redirect::to('invoices/'.$publicId.'/edit');
 	}
 
@@ -506,9 +507,9 @@ class InvoiceController extends \BaseController {
 		$ids = Input::get('id') ? Input::get('id') : Input::get('ids');
 		$count = $this->invoiceRepo->bulk($ids, $action, $statusId);
 
- 		if ($count > 0)		
- 		{
- 			$key = $action == 'mark' ? "updated_{$entityType}" : "{$action}d_{$entityType}";
+		if ($count > 0)
+		{
+			$key = $action == 'mark' ? "updated_{$entityType}" : "{$action}d_{$entityType}";
 			$message = Utils::pluralize($key, $count);
 			Session::flash('message', $message);
 		}
@@ -519,13 +520,13 @@ class InvoiceController extends \BaseController {
 		}
 		else
 		{
-			return Redirect::to("{$entityType}s");			
-		}		
+			return Redirect::to("{$entityType}s");
+		}
 	}
 
 	public function convertQuote($publicId)
 	{
-		$invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();   
+		$invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();
 		$clone = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
 
 		Session::flash('message', trans('texts.converted_to_invoice'));
@@ -535,7 +536,7 @@ class InvoiceController extends \BaseController {
 	public function cloneInvoice($publicId)
 	{
 		/*
-		$invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();   
+		$invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();
 		$clone = $this->invoiceRepo->cloneInvoice($invoice);
 		$entityType = $invoice->getEntityType();
 
