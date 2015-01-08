@@ -137,6 +137,7 @@ class ConstantsSeeder extends Seeder
 		Currency::create(array('name' => 'Indian Rupee', 'code' => 'INR', 'symbol' => 'Rs. ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 		Currency::create(array('name' => 'Australian Dollar', 'code' => 'AUD', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 		Currency::create(array('name' => 'New Zealand Dollar', 'code' => 'NZD', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
+		Currency::create(array('name' => 'VietNam Dong', 'code' => 'VND', 'symbol' => 'đ', 'precision' => '0', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 
 		DatetimeFormat::create(array('format' => 'd/M/Y g:i a', 'label' => '10/Mar/2013'));
 		DatetimeFormat::create(array('format' => 'd-M-Yk g:i a', 'label' => '10-Mar-2013'));
@@ -287,6 +288,7 @@ class ConstantsSeeder extends Seeder
 		    'Asia/Dhaka'           => "(GMT+06:00) Dhaka",
 		    'Asia/Novosibirsk'     => "(GMT+07:00) Novosibirsk",
 		    'Asia/Bangkok'         => "(GMT+07:00) Bangkok",
+                   'Asia/Ho_Chi_Minh'     => "(GMT+07.00) Ho Chi Minh",
 		    'Asia/Jakarta'         => "(GMT+07:00) Jakarta",
 		    'Asia/Krasnoyarsk'     => "(GMT+08:00) Krasnoyarsk",
 		    'Asia/Chongqing'       => "(GMT+08:00) Chongqing",
