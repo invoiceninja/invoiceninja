@@ -37,7 +37,7 @@ class DashboardController extends \BaseController {
                 ->where('balance', '>', 0)
                 ->where('is_recurring', '=', false)
                 ->where('is_quote', '=', false)
-                ->where('is_deleted', '=', false)
+                ->where('is_deleted', '=', false)                
                 ->orderBy('due_date', 'asc')->take(6)->get();
 
     $upcoming = Invoice::scope()

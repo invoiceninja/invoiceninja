@@ -135,7 +135,7 @@
 					<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 				</td>
 				<td>	            	
-					{{ Former::text('product_key')->useDatalist($products, 'product_key')->onkeyup('onItemChange()')
+                    {{ Former::text('product_key')->useDatalist($products->toArray(), 'product_key')->onkeyup('onItemChange()')
 					->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
 				</td>
 				<td>
@@ -323,7 +323,7 @@
 			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE)		
 				{{ Button::primary(trans('texts.enter_payment'), array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
 			@endif
-		@elseif ($invoice && $invoice->trashed())
+		@elseif ($invoice && $invoice->trashed() && !$invoice->is_deleted == '1')
 			{{ Button::success(trans('texts.restore'), ['onclick' => 'submitAction("restore")'])->append_with_icon('cloud-download') }}
 		@endif
 

@@ -149,15 +149,26 @@ class Account extends Eloquent
 		return $prefix . str_pad($counter, 4, "0", STR_PAD_LEFT);
 	}
 
-	public function incrementCounter($isQuote = false) 
+	public function incrementCounter($invoiceNumber, $isQuote = false, $isRecurring)
 	{
-		if ($isQuote && !$this->share_counter) {
-			$this->quote_number_counter += 1;
-		} else {
-			$this->invoice_number_counter += 1;
-		}
+        // check if the user modified the invoice number
+        if (!$isRecurring && $invoiceNumber != $this->getNextInvoiceNumber($isQuote)) {
+            $number = intval(preg_replace('/[^0-9]/', '', $invoiceNumber));
+            if ($isQuote && !$this->share_counter) {
+                $this->quote_number_counter = $number + 1;
+            } else {
+                $this->invoice_number_counter = $number + 1;
+            }
+        // otherwise, just increment the counter
+        } else {
+            if ($isQuote && !$this->share_counter) {
+                $this->quote_number_counter += 1;
+            } else {
+                $this->invoice_number_counter += 1;
+            }
+        }
 
-		$this->save();
+        $this->save();
 	}
 	
 	public function getLocale() 

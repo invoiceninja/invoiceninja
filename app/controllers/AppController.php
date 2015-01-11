@@ -38,6 +38,7 @@ class AppController extends BaseController {
 
     $app = Input::get('app');
     $app['key'] = str_random(RANDOM_KEY_LENGTH);
+    $app['debug'] = false;
 
     $database = Input::get('database');
     $dbType = $database['default'];

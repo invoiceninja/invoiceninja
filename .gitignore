@@ -1,5 +1,6 @@
 /app/config/staging
 /app/config/development
+/app/config/production
 /app/config/fortrabbit
 /app/config/ubuntu
 /app/config/packages/anahkiasen/rocketeer/

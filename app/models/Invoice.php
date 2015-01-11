@@ -222,7 +222,7 @@ class Invoice extends EntityModel
 
 Invoice::created(function($invoice)
 {
-	$invoice->account->incrementCounter($invoice->is_quote);
+	$invoice->account->incrementCounter($invoice->invoice_number, $invoice->is_quote, $invoice->recurring_invoice_id);
 	Activity::createInvoice($invoice);
 });
 

@@ -90,7 +90,7 @@ FLUSH PRIVILEGES;</pre>
         {{ Former::text('first_name') }}
         {{ Former::text('last_name') }}
         {{ Former::text('email') }}
-        {{ Former::text('password') }}        
+        {{ Former::password('password') }}        
       </div>
     </div>
 
