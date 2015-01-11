@@ -43,7 +43,7 @@ class AppController extends BaseController {
     $database = Input::get('database');
     $dbType = $database['default'];
     $database[$dbType] = $database['type'];
-    //unset($database['type']);
+    unset($database['type']);
 
     $mail = Input::get('mail');
     $email = $mail['username'];      
@@ -58,7 +58,7 @@ class AppController extends BaseController {
 
     if ($test == 'db')
     {
-      return $valid ? 'Success' : 'Failed';
+      return $valid === true ? 'Success' : $valid;
     }
     else if (!$valid)
     {
@@ -115,7 +115,7 @@ class AppController extends BaseController {
     {
       Config::set("database.connections.{$dbType}.{$key}", $val);  
     }
-
+    
     try 
     {
       $valid = DB::connection()->getDatabaseName() ? true : false;

@@ -2,259 +2,240 @@
 
 class Client extends EntityModel
 {
-	public static $fieldName = 'Client - Name';
-	public static $fieldPhone = 'Client - Phone';
-	public static $fieldAddress1 = 'Client - Street';
-	public static $fieldAddress2 = 'Client - Apt/Floor';
-	public static $fieldCity = 'Client - City';
-	public static $fieldState = 'Client - State';
-	public static $fieldPostalCode = 'Client - Postal Code';
-	public static $fieldNotes = 'Client - Notes';
-	public static $fieldCountry = 'Client - Country';
+    public static $fieldName = 'Client - Name';
+    public static $fieldPhone = 'Client - Phone';
+    public static $fieldAddress1 = 'Client - Street';
+    public static $fieldAddress2 = 'Client - Apt/Floor';
+    public static $fieldCity = 'Client - City';
+    public static $fieldState = 'Client - State';
+    public static $fieldPostalCode = 'Client - Postal Code';
+    public static $fieldNotes = 'Client - Notes';
+    public static $fieldCountry = 'Client - Country';
 
-	public function account()
-	{
-		return $this->belongsTo('Account');
-	}
+    public function account()
+    {
+        return $this->belongsTo('Account');
+    }
 
-	public function invoices()
-	{
-		return $this->hasMany('Invoice');
-	}
+    public function invoices()
+    {
+        return $this->hasMany('Invoice');
+    }
 
-	public function payments()
-	{
-		return $this->hasMany('Payment');
-	}
+    public function payments()
+    {
+        return $this->hasMany('Payment');
+    }
 
-	public function contacts()
-	{
-		return $this->hasMany('Contact');
-	}
-    
-     public function projects()
-	{
-		return $this->hasMany('Project');
-	}
+    public function contacts()
+    {
+        return $this->hasMany('Contact');
+    }
 
-	public function country()
-	{
-		return $this->belongsTo('Country');
-	}
+    public function projects()
+    {
+        return $this->hasMany('Project');
+    }
 
-	public function currency()
-	{
-		return $this->belongsTo('Currency');
-	}
+    public function country()
+    {
+        return $this->belongsTo('Country');
+    }
 
-	public function size()
-	{
-		return $this->belongsTo('Size');	
-	}
+    public function currency()
+    {
+        return $this->belongsTo('Currency');
+    }
 
-	public function industry()
-	{
-		return $this->belongsTo('Industry');
-	}
+    public function size()
+    {
+        return $this->belongsTo('Size');
+    }
 
-	public function getTotalCredit()
-	{
-		return DB::table('credits')
-				->where('client_id','=',$this->id)
-				->whereNull('deleted_at')
-				->sum('balance');
-	}
+    public function industry()
+    {
+        return $this->belongsTo('Industry');
+    }
 
-	public function getName()
-	{
-		return $this->getDisplayName();
-	}
+    public function getTotalCredit()
+    {
+        return DB::table('credits')
+                ->where('client_id', '=', $this->id)
+                ->whereNull('deleted_at')
+                ->sum('balance');
+    }
 
-	public function getDisplayName()
-	{
-		if ($this->name) 
-		{
-			return $this->name;
-		}
+    public function getName()
+    {
+        return $this->getDisplayName();
+    }
 
-		$this->load('contacts');
-		$contact = $this->contacts()->first();
-		
-		return $contact->getDisplayName();
-	}
+    public function getDisplayName()
+    {
+        if ($this->name) {
+            return $this->name;
+        }
 
-	public function getEntityType()
-	{
-		return ENTITY_CLIENT;
-	}
+        $this->load('contacts');
+        $contact = $this->contacts()->first();
 
-	public function getAddress()
-	{
-		$str = '';
+        return $contact->getDisplayName();
+    }
 
-		if ($this->address1) {
-			$str .= $this->address1 . '<br/>';
-		}
-		if ($this->address2) {
-			$str .= $this->address2 . '<br/>';	
-		}
-		if ($this->city) {
-			$str .= $this->city . ', ';	
-		}
-		if ($this->state) {
-			$str .= $this->state . ' ';	
-		}
-		if ($this->postal_code) {
-			$str .= $this->postal_code;
-		}
-		if ($this->country) {
-			$str .= '<br/>' . $this->country->name;			
-		}
+    public function getEntityType()
+    {
+        return ENTITY_CLIENT;
+    }
 
-		if ($str)
-		{
-			$str = '<p>' . $str . '</p>';
-		}
+    public function getAddress()
+    {
+        $str = '';
 
-		return $str;
-	}
+        if ($this->address1) {
+            $str .= $this->address1.'<br/>';
+        }
+        if ($this->address2) {
+            $str .= $this->address2.'<br/>';
+        }
+        if ($this->city) {
+            $str .= $this->city.', ';
+        }
+        if ($this->state) {
+            $str .= $this->state.' ';
+        }
+        if ($this->postal_code) {
+            $str .= $this->postal_code;
+        }
+        if ($this->country) {
+            $str .= '<br/>'.$this->country->name;
+        }
 
-	public function getPhone()
-	{
-		$str = '';
+        if ($str) {
+            $str = '<p>'.$str.'</p>';
+        }
 
-		if ($this->work_phone)
-		{
-			$str .= '<i class="fa fa-phone" style="width: 20px"></i>' . Utils::formatPhoneNumber($this->work_phone);
-		}
+        return $str;
+    }
 
-		return $str;
-	}
-    
-        public function getIdNumber()
-	{
-		$str = '';
+    public function getPhone()
+    {
+        $str = '';
 
-		if ($this->id_number)
-		{
-			$str .= '<i class="fa fa-vat-number" style="width: 20px"></i>' . $this->vat_number;
-		}
+        if ($this->work_phone) {
+            $str .= '<i class="fa fa-phone" style="width: 20px"></i>'.Utils::formatPhoneNumber($this->work_phone);
+        }
 
-		return $str;
-	}
-        
-        public function getVatNumber()
-	{
-		$str = '';
+        return $str;
+    }
 
-		if ($this->vat_number)
-		{
-			$str .= '<i class="fa fa-vat-number" style="width: 20px"></i>' . $this->vat_number;
-		}
+    public function getIdNumber()
+    {
+        $str = '';
 
-		return $str;
-	}
-    
+        if ($this->id_number) {
+            $str .= '<i class="fa fa-vat-number" style="width: 20px"></i>'.$this->vat_number;
+        }
 
-	public function getNotes()
-	{
-		$str = '';
+        return $str;
+    }
 
-		if ($this->private_notes)
-		{
-			$str .= '<i>' . $this->private_notes . '</i>';
-		}
+    public function getVatNumber()
+    {
+        $str = '';
 
-		return $str;
-	}
+        if ($this->vat_number) {
+            $str .= '<i class="fa fa-vat-number" style="width: 20px"></i>'.$this->vat_number;
+        }
 
-	public function getIndustry()
-	{
-		$str = '';
+        return $str;
+    }
 
-		if ($this->client_industry)
-		{
-			$str .= $this->client_industry->name . ' ';
-		}
+    public function getNotes()
+    {
+        $str = '';
 
-		if ($this->client_size)
-		{
-			$str .= $this->client_size->name;
-		}
+        if ($this->private_notes) {
+            $str .= '<i>'.$this->private_notes.'</i>';
+        }
 
-		return $str;
-	}
+        return $str;
+    }
 
-	public function getCustomFields()
-	{
-		$str = '';
-		$account = $this->account;
+    public function getIndustry()
+    {
+        $str = '';
 
-		if ($account->custom_client_label1 && $this->custom_value1)
-		{
-			$str .= "{$account->custom_client_label1}: {$this->custom_value1}<br/>";
-		}
+        if ($this->client_industry) {
+            $str .= $this->client_industry->name.' ';
+        }
 
-		if ($account->custom_client_label2 && $this->custom_value2)
-		{
-			$str .= "{$account->custom_client_label2}: {$this->custom_value2}<br/>";
-		}
+        if ($this->client_size) {
+            $str .= $this->client_size->name;
+        }
 
-		return $str;
-	}
+        return $str;
+    }
 
-	public function getWebsite()
-	{
-		if (!$this->website)
-		{
-			return '';
-		}
+    public function getCustomFields()
+    {
+        $str = '';
+        $account = $this->account;
 
-		$link = $this->website;
-		$title = $this->website;
-		$prefix = 'http://';
+        if ($account->custom_client_label1 && $this->custom_value1) {
+            $str .= "{$account->custom_client_label1}: {$this->custom_value1}<br/>";
+        }
 
-		if (strlen($link) > 7 && substr($link, 0, 7) === $prefix) {
-			$title = substr($title, 7);
-		} else {
-			$link = $prefix . $link;
-		}
+        if ($account->custom_client_label2 && $this->custom_value2) {
+            $str .= "{$account->custom_client_label2}: {$this->custom_value2}<br/>";
+        }
 
-		return link_to($link, $title, array('target'=>'_blank'));
-	}
+        return $str;
+    }
 
-	public function getDateCreated()
-	{		
-		if ($this->created_at == '0000-00-00 00:00:00') 
-		{
-			return '---';
-		} 
-		else 
-		{
-			return $this->created_at->format('m/d/y h:i a');
-		}
-	}
+    public function getWebsite()
+    {
+        if (!$this->website) {
+            return '';
+        }
 
+        $link = $this->website;
+        $title = $this->website;
+        $prefix = 'http://';
+
+        if (strlen($link) > 7 && substr($link, 0, 7) === $prefix) {
+            $title = substr($title, 7);
+        } else {
+            $link = $prefix.$link;
+        }
+
+        return link_to($link, $title, array('target' => '_blank'));
+    }
+
+    public function getDateCreated()
+    {
+        if ($this->created_at == '0000-00-00 00:00:00') {
+            return '---';
+        } else {
+            return $this->created_at->format('m/d/y h:i a');
+        }
+    }
 }
 
 /*
 Client::created(function($client)
 {
-	Activity::createClient($client);
+    Activity::createClient($client);
 });
 */
 
-Client::updating(function($client)
-{
-	Activity::updateClient($client);
+Client::updating(function ($client) {
+    Activity::updateClient($client);
 });
 
-Client::deleting(function($client)
-{
-	Activity::archiveClient($client);
+Client::deleting(function ($client) {
+    Activity::archiveClient($client);
 });
 
-Client::restoring(function($client)
-{
-	Activity::restoreClient($client);
+Client::restoring(function ($client) {
+    Activity::restoreClient($client);
 });

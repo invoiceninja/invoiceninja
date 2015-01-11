@@ -5,7 +5,7 @@ use ninja\repositories\InvoiceRepository;
 use ninja\repositories\AccountRepository;
 use ninja\mailers\ContactMailer;
 
-class PaymentController extends \BaseController 
+class PaymentController extends \BaseController
 {
     protected $creditRepo;
 
@@ -17,14 +17,14 @@ class PaymentController extends \BaseController
         $this->invoiceRepo = $invoiceRepo;
         $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
-    }   
+    }
 
     public function index()
     {
         return View::make('list', array(
-            'entityType'=>ENTITY_PAYMENT, 
+            'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
-            'columns'=>Utils::trans(['checkbox', 'invoice', 'client', 'transaction_reference', 'method', 'payment_amount', 'payment_date', 'action'])
+            'columns' => Utils::trans(['checkbox', 'invoice', 'client', 'transaction_reference', 'method', 'payment_amount', 'payment_date', 'action']),
         ));
     }
 
@@ -33,57 +33,52 @@ class PaymentController extends \BaseController
         return View::make('public_list', array(
             'showClientHeader' => true,
             'hideLogo' => Session::get('white_label'),
-            'entityType'=>ENTITY_PAYMENT, 
+            'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
-            'columns'=>Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date'])
+            'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date']),
         ));
     }
 
     public function getDatatable($clientPublicId = null)
     {
         $payments = $this->paymentRepo->find($clientPublicId, Input::get('sSearch'));
-        $table = Datatable::query($payments);        
+        $table = Datatable::query($payments);
 
         if (!$clientPublicId) {
-            $table->addColumn('checkbox', function($model) { return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '" ' . Utils::getEntityRowClass($model) . '>'; });
+            $table->addColumn('checkbox', function ($model) { return '<input type="checkbox" name="ids[]" value="'.$model->public_id.'" '.Utils::getEntityRowClass($model).'>'; });
         }
 
-        $table->addColumn('invoice_number', function($model) { return $model->invoice_public_id ? link_to('invoices/' . $model->invoice_public_id . '/edit', $model->invoice_number, ['class' => Utils::getEntityRowClass($model)]) : ''; });
+        $table->addColumn('invoice_number', function ($model) { return $model->invoice_public_id ? link_to('invoices/'.$model->invoice_public_id.'/edit', $model->invoice_number, ['class' => Utils::getEntityRowClass($model)]) : ''; });
 
         if (!$clientPublicId) {
-            $table->addColumn('client_name', function($model) { return link_to('clients/' . $model->client_public_id, Utils::getClientDisplayName($model)); });
-        }        
+            $table->addColumn('client_name', function ($model) { return link_to('clients/'.$model->client_public_id, Utils::getClientDisplayName($model)); });
+        }
 
-        $table->addColumn('transaction_reference', function($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
-              ->addColumn('payment_type', function($model) { return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); });
+        $table->addColumn('transaction_reference', function ($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
+              ->addColumn('payment_type', function ($model) { return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); });
 
-        return $table->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
-            ->addColumn('payment_date', function($model) { return Utils::dateToString($model->payment_date); })
-            ->addColumn('dropdown', function($model) 
-            { 
-                if ($model->is_deleted)
-                {
+        return $table->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
+            ->addColumn('payment_date', function ($model) { return Utils::dateToString($model->payment_date); })
+            ->addColumn('dropdown', function ($model) {
+                if ($model->is_deleted) {
                     return '<div style="height:38px"/>';
                 }
-                
+
                 $str = '<div class="btn-group tr-action" style="visibility:hidden;">
                             <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                             '.trans('texts.select').' <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">';
 
-                if (!$model->deleted_at || $model->deleted_at == '0000-00-00')
-                {
-                    $str .= '<li><a href="javascript:archiveEntity(' . $model->public_id. ')">'.trans('texts.archive_payment').'</a></li>';
+                if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
+                    $str .= '<li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans('texts.archive_payment').'</a></li>';
+                } else {
+                    $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans('texts.restore_payment').'</a></li>';
                 }
-                else
-                {
-                    $str .= '<li><a href="javascript:restoreEntity(' . $model->public_id. ')">'.trans('texts.restore_payment').'</a></li>';
-                }
-                            
-                return $str . '<li><a href="javascript:deleteEntity(' . $model->public_id. ')">'.trans('texts.delete_payment').'</a></li></ul>
+
+                return $str.'<li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans('texts.delete_payment').'</a></li></ul>
                         </div>';
-            })         
+            })
             ->make();
     }
 
@@ -93,52 +88,49 @@ class PaymentController extends \BaseController
         $invitationKey = Session::get('invitation_key');
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->with('contact.client')->first();
 
-        if (!$invitation)
-        {
-            return [];            
+        if (!$invitation) {
+            return [];
         }
 
         $invoice = $invitation->invoice;
-        
-        if (!$invoice || $invoice->is_deleted) 
-        {
-          return [];
+
+        if (!$invoice || $invoice->is_deleted) {
+            return [];
         }
 
         $payments = $this->paymentRepo->findForContact($invitation->contact->id, Input::get('sSearch'));
 
         return Datatable::query($payments)
-                ->addColumn('invoice_number', function($model) { return $model->invitation_key ? link_to('/view/' . $model->invitation_key, $model->invoice_number) : $model->invoice_number; })
-                ->addColumn('transaction_reference', function($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
-                ->addColumn('payment_type', function($model) { return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
-                ->addColumn('amount', function($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
-                ->addColumn('payment_date', function($model) { return Utils::dateToString($model->payment_date); })
+                ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number) : $model->invoice_number; })
+                ->addColumn('transaction_reference', function ($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
+                ->addColumn('payment_type', function ($model) { return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
+                ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
+                ->addColumn('payment_date', function ($model) { return Utils::dateToString($model->payment_date); })
                 ->make();
     }
 
-
     public function create($clientPublicId = 0, $invoicePublicId = 0)
-    {       
+    {
         $data = array(
             'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
             'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : $invoicePublicId,
             'invoice' => null,
             'invoices' => Invoice::scope()->where('is_recurring', '=', false)->where('is_quote', '=', false)
                             ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
-            'payment' => null, 
-            'method' => 'POST', 
-            'url' => "payments", 
+            'payment' => null,
+            'method' => 'POST',
+            'url' => "payments",
             'title' => trans('texts.new_payment'),
             //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
 
         return View::make('payments.edit', $data);
     }
 
     public function edit($publicId)
     {
-        $payment = Payment::scope($publicId)->firstOrFail();        
+        $payment = Payment::scope($publicId)->firstOrFail();
         $payment->payment_date = Utils::fromSqlDate($payment->payment_date);
 
         $data = array(
@@ -146,50 +138,48 @@ class PaymentController extends \BaseController
             'invoice' => null,
             'invoices' => Invoice::scope()->where('is_recurring', '=', false)->where('is_quote', '=', false)
                             ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
-            'payment' => $payment, 
-            'method' => 'PUT', 
-            'url' => 'payments/' . $publicId, 
+            'payment' => $payment,
+            'method' => 'PUT',
+            'url' => 'payments/'.$publicId,
             'title' => 'Edit Payment',
             //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get());
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
+
         return View::make('payments.edit', $data);
     }
 
     private function createGateway($accountGateway)
     {
-        $gateway = Omnipay::create($accountGateway->gateway->provider); 
+        $gateway = Omnipay::create($accountGateway->gateway->provider);
         $config = json_decode($accountGateway->config);
-        
+
         /*
         $gateway->setSolutionType("Sole");
         $gateway->setLandingPage("Billing");
         */
-        
-        foreach ($config as $key => $val)
-        {
-            if (!$val)
-            {
+
+        foreach ($config as $key => $val) {
+            if (!$val) {
                 continue;
             }
 
-            $function = "set" . ucfirst($key);
+            $function = "set".ucfirst($key);
             $gateway->$function($val);
         }
 
-        if (Utils::isNinjaDev())
-        {
-            $gateway->setTestMode(true);   
-        }        
+        if (Utils::isNinjaDev()) {
+            $gateway->setTestMode(true);
+        }
 
-        return $gateway;        
+        return $gateway;
     }
 
     private function getLicensePaymentDetails($input, $affiliate)
     {
         $data = self::convertInputForOmnipay($input);
         $card = new CreditCard($data);
-        
+
         return [
             'amount' => $affiliate->price,
             'card' => $card,
@@ -197,7 +187,6 @@ class PaymentController extends \BaseController
             'returnUrl' => URL::to('license_complete'),
             'cancelUrl' => URL::to('/')
         ];
-
     }
 
     private function convertInputForOmnipay($input)
@@ -224,19 +213,16 @@ class PaymentController extends \BaseController
 
     private function getPaymentDetails($invoice, $input = null)
     {
-        $key = $invoice->invoice_number . '_details';
+        $key = $invoice->invoice_number.'_details';
         $gateway = $invoice->client->account->account_gateways[0]->gateway;
         $paymentLibrary = $gateway->paymentlibrary;
         $currencyCode = $invoice->client->currency ? $invoice->client->currency->code : ($invoice->account->currency ? $invoice->account->currency->code : 'USD');
 
-        if ($input && $paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
-        {
+        if ($input && $paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY) {
             $data = self::convertInputForOmnipay($input);
 
             Session::put($key, $data);
-        }
-        else if ($input && $paymentLibrary->id == PAYMENT_LIBRARY_PHP_PAYMENTS)
-        {
+        } elseif ($input && $paymentLibrary->id == PAYMENT_LIBRARY_PHP_PAYMENTS) {
             $input = Input::all();
             $data = [
                 'first_name' => $input['first_name'],
@@ -256,9 +242,8 @@ class PaymentController extends \BaseController
                 'ship_to_postal_code' => $input['postal_code'],
                 'currency_code' => $currencyCode,
             ];
-            
-            switch($gateway->id)
-            {
+
+            switch ($gateway->id) {
                 case GATEWAY_BEANSTREAM:
                     $data['phone'] = $input['phone'];
                     $data['email'] = $input['email'];
@@ -269,28 +254,23 @@ class PaymentController extends \BaseController
                     $data['ship_to_state'] = 'Ohio'; //$input['state'];
                     break;
             }
-            
-            if(strlen($data['cc_exp']) == 5)
-            {
+
+            if (strlen($data['cc_exp']) == 5) {
                 $data['cc_exp'] = '0'.$data['cc_exp'];
             }
 
             Session::put($key, $data);
+
             return $data;
-        }
-        else if (Session::get($key))
-        {
+        } elseif (Session::get($key)) {
             $data = Session::get($key);
-        }
-        else
-        {
+        } else {
             $data = [];
         }
 
-        if($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
-        {
+        if ($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY) {
             $card = new CreditCard($data);
-            
+
             return [
                 'amount' => $invoice->amount,
                 'card' => $card,
@@ -298,36 +278,31 @@ class PaymentController extends \BaseController
                 'returnUrl' => URL::to('complete'),
                 'cancelUrl' => URL::to('/')
             ];
-        }
-        else 
-        {
+        } else {
             return $data;
         }
     }
-    
+
     public function show_payment($invitationKey)
     {
         // For PayPal Express we redirect straight to their site
         $invitation = Invitation::with('invoice.client.account', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $account = $invitation->invoice->client->account;
-        
-        if ($account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS))
-        {
-            if (Session::has('error'))
-            {                
+
+        if ($account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
+            if (Session::has('error')) {
                 Session::reflash();
-                return Redirect::to('view/' . $invitationKey);
-            }
-            else
-            {
+
+                return Redirect::to('view/'.$invitationKey);
+            } else {
                 return self::do_payment($invitationKey, false);
-            }            
-        }  
-                
+            }
+        }
+
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
-        $invoice = $invitation->invoice;         
+        $invoice = $invitation->invoice;
         $client = $invoice->client;
-        $accountGateway = $invoice->client->account->account_gateways[0];    
+        $accountGateway = $invoice->client->account->account_gateways[0];
         $gateway = $invoice->client->account->account_gateways[0]->gateway;
         $paymentLibrary = $gateway->paymentlibrary;
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
@@ -335,51 +310,45 @@ class PaymentController extends \BaseController
         $data = [
             'showBreadcrumbs' => false,
             'hideHeader' => true,
-            'url' => 'payment/' . $invitationKey,
+            'url' => 'payment/'.$invitationKey,
             'amount' => $invoice->amount,
             'client' => $client,
             'contact' => $invitation->contact,
             'paymentLibrary' => $paymentLibrary,
             'gateway' => $gateway,
-            'acceptedCreditCardTypes' => $acceptedCreditCardTypes,     
+            'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
             'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'currencyId' => $client->currency_id
+            'currencyId' => $client->currency_id,
         ];
 
         return View::make('payments.payment', $data);
     }
-    
+
     public function show_license_payment()
     {
-        if (Input::has('return_url'))
-        {
+        if (Input::has('return_url')) {
             Session::set('return_url', Input::get('return_url'));
-        } 
-        
-        if (Input::has('affiliate_key'))
-        {
-            if ($affiliate = Affiliate::where('affiliate_key', '=', Input::get('affiliate_key'))->first())
-            {            
-                Session::set('affiliate_id', $affiliate->id);                
+        }
+
+        if (Input::has('affiliate_key')) {
+            if ($affiliate = Affiliate::where('affiliate_key', '=', Input::get('affiliate_key'))->first()) {
+                Session::set('affiliate_id', $affiliate->id);
             }
         }
 
         Session::set('product_id', Input::get('product_id', PRODUCT_ONE_CLICK_INSTALL));
 
-        if (!Session::get('affiliate_id'))
-        {
-            return Utils::fatalError();   
+        if (!Session::get('affiliate_id')) {
+            return Utils::fatalError();
         }
 
-        if (Utils::isNinjaDev() && Input::has('test_mode'))
-        {
+        if (Utils::isNinjaDev() && Input::has('test_mode')) {
             Session::set('test_mode', Input::get('test_mode'));
         }
 
-        
-        $account = $this->accountRepo->getNinjaAccount();        
+        $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
-        $accountGateway = $account->account_gateways[0];    
+        $accountGateway = $account->account_gateways[0];
         $gateway = $accountGateway->gateway;
         $paymentLibrary = $gateway->paymentlibrary;
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
@@ -395,17 +364,17 @@ class PaymentController extends \BaseController
             'contact' => false,
             'paymentLibrary' => $paymentLibrary,
             'gateway' => $gateway,
-            'acceptedCreditCardTypes' => $acceptedCreditCardTypes,     
-            'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),     
+            'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
+            'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'currencyId' => 1,
             'paymentTitle' => $affiliate->payment_title,
-            'paymentSubtitle' => $affiliate->payment_subtitle
+            'paymentSubtitle' => $affiliate->payment_subtitle,
         ];
 
         return View::make('payments.payment', $data);
     }
 
-    public function do_license_payment() 
+    public function do_license_payment()
     {
         $testMode = Session::get('test_mode') === 'true';
 
@@ -424,49 +393,43 @@ class PaymentController extends \BaseController
 
         $validator = Validator::make(Input::all(), $rules);
 
-        if ($validator->fails()) 
-        {
+        if ($validator->fails()) {
             return Redirect::to('license')
                 ->withErrors($validator);
-        } 
+        }
 
-        $account = $this->accountRepo->getNinjaAccount();        
+        $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
-        $accountGateway = $account->account_gateways[0];    
+        $accountGateway = $account->account_gateways[0];
 
-        try
-        {
+        try {
             $affiliate = Affiliate::find(Session::get('affiliate_id'));
 
-            if ($testMode)
-            {
+            if ($testMode) {
                 $ref = 'TEST_MODE';
-            }
-            else
-            {
+            } else {
                 $gateway = self::createGateway($accountGateway);
                 $details = self::getLicensePaymentDetails(Input::all(), $affiliate);
-                $response = $gateway->purchase($details)->send();           
+                $response = $gateway->purchase($details)->send();
                 $ref = $response->getTransactionReference();
-                
-                if (!$ref)
-                {
-                    Session::flash('error', $response->getMessage());  
+
+                if (!$ref) {
+                    Session::flash('error', $response->getMessage());
+
                     return Redirect::to('license')->withInput();
                 }
 
-                if (!$response->isSuccessful())
-                {
-                    Session::flash('error', $response->getMessage());  
+                if (!$response->isSuccessful()) {
+                    Session::flash('error', $response->getMessage());
                     Utils::logError($response->getMessage());
-                    return Redirect::to('license')->withInput();                    
-                }
 
+                    return Redirect::to('license')->withInput();
+                }
             }
 
             $licenseKey = Utils::generateLicense();
 
-            $license = new License;
+            $license = new License();
             $license->first_name = Input::get('first_name');
             $license->last_name = Input::get('last_name');
             $license->email = Input::get('email');
@@ -474,33 +437,29 @@ class PaymentController extends \BaseController
             $license->license_key = $licenseKey;
             $license->affiliate_id = Session::get('affiliate_id');
             $license->product_id = Session::get('product_id');
-            $license->save();                
+            $license->save();
 
             $data = [
                 'message' => $affiliate->payment_subtitle,
                 'license' => $licenseKey,
-                'hideHeader' => true
+                'hideHeader' => true,
             ];
 
             $name = "{$license->first_name} {$license->last_name}";
             $this->contactMailer->sendLicensePaymentConfirmation($name, $license->email, $affiliate->price, $license->license_key, $license->product_id);
-            
-            if (Session::has('return_url')) 
-            {
-                return Redirect::away(Session::get('return_url') . "?license_key={$license->license_key}&product_id=" . Session::get('product_id'));
-            }
-            else
-            {                
+
+            if (Session::has('return_url')) {
+                return Redirect::away(Session::get('return_url')."?license_key={$license->license_key}&product_id=".Session::get('product_id'));
+            } else {
                 return View::make('public.license', $data);
-            }            
-        }        
-        catch (\Exception $e) 
-        {
+            }
+        } catch (\Exception $e) {
             $errorMessage = trans('texts.payment_error');
-            Session::flash('error', $errorMessage);  
+            Session::flash('error', $errorMessage);
             Utils::logError(Utils::getErrorString($e));
+
             return Redirect::to('license')->withInput();
-        }        
+        }
     }
 
     public function claim_license()
@@ -513,18 +472,14 @@ class PaymentController extends \BaseController
                     ->where('product_id', '=', $productId)
                     ->first();
 
-        if ($license)
-        {
-            if ($license->transaction_reference != 'TEST_MODE')
-            {
+        if ($license) {
+            if ($license->transaction_reference != 'TEST_MODE') {
                 $license->is_claimed = true;
                 $license->save();
             }
 
             return $productId == PRODUCT_INVOICE_DESIGNS ? $_ENV['INVOICE_DESIGNS'] : 'valid';
-        }
-        else
-        {
+        } else {
             return 'invalid';
         }
     }
@@ -544,24 +499,21 @@ class PaymentController extends \BaseController
             'postal_code' => 'required',
         );
 
-        if ($onSite)
-        {
+        if ($onSite) {
             $validator = Validator::make(Input::all(), $rules);
 
-            if ($validator->fails()) 
-            {
-                return Redirect::to('payment/' . $invitationKey)
+            if ($validator->fails()) {
+                return Redirect::to('payment/'.$invitationKey)
                     ->withErrors($validator);
-            } 
+            }
         }
 
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
-        $invoice = $invitation->invoice;        
+        $invoice = $invitation->invoice;
         $accountGateway = $invoice->client->account->account_gateways[0];
         $paymentLibrary = $accountGateway->gateway->paymentlibrary;
 
-        if ($onSite)
-        {
+        if ($onSite) {
             $client = $invoice->client;
             $client->address1 = trim(Input::get('address1'));
             $client->address2 = trim(Input::get('address2'));
@@ -570,56 +522,48 @@ class PaymentController extends \BaseController
             $client->postal_code = trim(Input::get('postal_code'));
             $client->save();
         }
-        
-        try
-        {
-            if($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY)
-            {
+
+        try {
+            if ($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY) {
                 $gateway = self::createGateway($accountGateway);
                 $details = self::getPaymentDetails($invoice, Input::all());
-                $response = $gateway->purchase($details)->send();           
+                $response = $gateway->purchase($details)->send();
                 $ref = $response->getTransactionReference();
-    
-                if (!$ref)
-                {
-                    Session::flash('error', $response->getMessage());  
-                    return Redirect::to('payment/' . $invitationKey)
+
+                if (!$ref) {
+                    Session::flash('error', $response->getMessage());
+
+                    return Redirect::to('payment/'.$invitationKey)
                         ->withInput();
                 }
 
-                if ($response->isSuccessful())
-                {
+                if ($response->isSuccessful()) {
                     $payment = self::createPayment($invitation, $ref);
-        
-                    Session::flash('message', trans('texts.applied_payment'));  
-                    return Redirect::to('view/' . $payment->invitation->invitation_key);                                    
-                }
-                else if ($response->isRedirect()) 
-                {
+
+                    Session::flash('message', trans('texts.applied_payment'));
+
+                    return Redirect::to('view/'.$payment->invitation->invitation_key);
+                } elseif ($response->isRedirect()) {
                     $invitation->transaction_reference = $ref;
                     $invitation->save();
-    
-                    $response->redirect();          
-                }
-                else                    
-                {
-                    Session::flash('error', $response->getMessage());  
+
+                    $response->redirect();
+                } else {
+                    Session::flash('error', $response->getMessage());
+
                     return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
                 }
-            }
-            else if ($paymentLibrary->id == PAYMENT_LIBRARY_PHP_PAYMENTS)
-            {
+            } elseif ($paymentLibrary->id == PAYMENT_LIBRARY_PHP_PAYMENTS) {
                 $gateway = $accountGateway->gateway;
                 $provider = $gateway->provider;
                 $p = new PHP_Payments(array('mode' => 'test'));
-                
+
                 $config = Payment_Utility::load('config', 'drivers/'.$provider);
-                
-                switch($gateway->id)
-                {
+
+                switch ($gateway->id) {
                     case GATEWAY_BEANSTREAM:
-                        $config['delay_charge'] = FALSE;
-                        $config['bill_outstanding'] = TRUE;
+                        $config['delay_charge'] = false;
+                        $config['bill_outstanding'] = true;
                         break;
                     case GATEWAY_AMAZON:
                         $config['return_url'] = URL::to('complete');
@@ -630,31 +574,29 @@ class PaymentController extends \BaseController
                         $config['collect_shipping_address'] = false;
                         break;
                 }
-                
+
                 $details = self::getPaymentDetails($invoice, Input::all());
-                
+
                 $response = $p->oneoff_payment($provider, $details, $config);
 
-                if (strtolower($response->status) == 'success')
-                {
+                if (strtolower($response->status) == 'success') {
                     $payment = self::createPayment($invitation, $response->response_message);
-        
-                    Session::flash('message', trans('texts.applied_payment'));  
-                    return Redirect::to('view/' . $payment->invitation->invitation_key);                                    
-                }
-                else                    
-                {
-                    Session::flash('error', $response->response_message);  
+
+                    Session::flash('message', trans('texts.applied_payment'));
+
+                    return Redirect::to('view/'.$payment->invitation->invitation_key);
+                } else {
+                    Session::flash('error', $response->response_message);
+
                     return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->response_message);
                 }
             }
-        } 
-        catch (\Exception $e) 
-        {
+        } catch (\Exception $e) {
             $errorMessage = trans('texts.payment_error');
-            Session::flash('error', $errorMessage);  
+            Session::flash('error', $errorMessage);
             Utils::logError(Utils::getErrorString($e));
-            return Redirect::to('payment/' . $invitationKey)
+
+            return Redirect::to('payment/'.$invitationKey)
                 ->withInput();
         }
     }
@@ -664,44 +606,41 @@ class PaymentController extends \BaseController
         $invoice = $invitation->invoice;
         $accountGateway = $invoice->client->account->account_gateways[0];
 
-        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY)
-        {
+        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY) {
             $account = Account::find($invoice->client->public_id);
             $account->pro_plan_paid = date_create()->format('Y-m-d');
             $account->save();
         }
-        
-        if ($invoice->is_quote)
-        {
+
+        if ($invoice->is_quote) {
             $invoice = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
         }
-        
+
         $payment = Payment::createNew($invitation);
         $payment->invitation_id = $invitation->id;
         $payment->account_gateway_id = $accountGateway->id;
         $payment->invoice_id = $invoice->id;
-        $payment->amount = $invoice->amount;            
+        $payment->amount = $invoice->amount;
         $payment->client_id = $invoice->client_id;
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = date_create()->format('Y-m-d');
-        
-        if ($payerId)
-        {
-            $payment->payer_id = $payerId;                
+
+        if ($payerId) {
+            $payment->payer_id = $payerId;
         }
-        
+
         $payment->save();
-        
+
         Event::fire('invoice.paid', $payment);
-        
+
         return $payment;
     }
 
     public function offsite_payment()
     {
         $payerId = Request::query('PayerID');
-        $token = Request::query('token');               
+        $token = Request::query('token');
 
         $invitation = Invitation::with('invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('transaction_reference', '=', $token)->firstOrFail();
         $invoice = $invitation->invoice;
@@ -709,36 +648,32 @@ class PaymentController extends \BaseController
         $accountGateway = $invoice->client->account->account_gateways[0];
         $gateway = self::createGateway($accountGateway);
 
-        try
-        {
+        try {
             $details = self::getPaymentDetails($invoice);
             $response = $gateway->completePurchase($details)->send();
             $ref = $response->getTransactionReference();
 
-            if ($response->isSuccessful())
-            {
-                $payment = self::createPayment($invitation, $ref, $payerId);                
+            if ($response->isSuccessful()) {
+                $payment = self::createPayment($invitation, $ref, $payerId);
 
-                Session::flash('message', trans('texts.applied_payment'));  
-                return Redirect::to('view/' . $invitation->invitation_key);                
-            }
-            else
-            {
-                $errorMessage = trans('texts.payment_error') . "\n\n" . $response->getMessage();
-                Session::flash('error', $errorMessage);  
+                Session::flash('message', trans('texts.applied_payment'));
+
+                return Redirect::to('view/'.$invitation->invitation_key);
+            } else {
+                $errorMessage = trans('texts.payment_error')."\n\n".$response->getMessage();
+                Session::flash('error', $errorMessage);
                 Utils::logError($errorMessage);
-                return Redirect::to('view/' . $invitation->invitation_key);   
+
+                return Redirect::to('view/'.$invitation->invitation_key);
             }
-        } 
-        catch (\Exception $e) 
-        {
+        } catch (\Exception $e) {
             $errorMessage = trans('texts.payment_error');
-            Session::flash('error', $errorMessage);  
-            Utils::logError($errorMessage . "\n\n" . $e->getMessage());
-            return Redirect::to('view/' . $invitation->invitation_key);
+            Session::flash('error', $errorMessage);
+            Utils::logError($errorMessage."\n\n".$e->getMessage());
+
+            return Redirect::to('view/'.$invitation->invitation_key);
         }
     }
-
 
     public function store()
     {
@@ -752,19 +687,18 @@ class PaymentController extends \BaseController
 
     private function save($publicId = null)
     {
-        if ($errors = $this->paymentRepo->getErrors(Input::all())) 
-        {
-            $url = $publicId ? 'payments/' . $publicId . '/edit' : 'payments/create';
+        if ($errors = $this->paymentRepo->getErrors(Input::all())) {
+            $url = $publicId ? 'payments/'.$publicId.'/edit' : 'payments/create';
+
             return Redirect::to($url)
                 ->withErrors($errors)
                 ->withInput();
-        } 
-        else 
-        {            
+        } else {
             $this->paymentRepo->save($publicId, Input::all());
 
             Session::flash('message', trans('texts.created_payment'));
-            return Redirect::to('clients/' . Input::get('client'));
+
+            return Redirect::to('clients/'.Input::get('client'));
         }
     }
 
@@ -774,12 +708,11 @@ class PaymentController extends \BaseController
         $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
         $count = $this->paymentRepo->bulk($ids, $action);
 
-        if ($count > 0)
-        {
-            $message = Utils::pluralize($action.'d_payment', $count);            
+        if ($count > 0) {
+            $message = Utils::pluralize($action.'d_payment', $count);
             Session::flash('message', $message);
         }
-        
+
         return Redirect::to('payments');
     }
 }

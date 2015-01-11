@@ -1,62 +1,55 @@
 <?php
 
 class Credit extends EntityModel
-{	
-	public function invoice()
-	{
-		return $this->belongsTo('Invoice')->withTrashed();
-	}
+{
+    public function invoice()
+    {
+        return $this->belongsTo('Invoice')->withTrashed();
+    }
 
-	public function client()
-	{
-		return $this->belongsTo('Client')->withTrashed();
-	}
+    public function client()
+    {
+        return $this->belongsTo('Client')->withTrashed();
+    }
 
-	public function getName()
-	{
-		return '';
-	}
+    public function getName()
+    {
+        return '';
+    }
 
-	public function getEntityType()
-	{
-		return ENTITY_CREDIT;
-	}		
+    public function getEntityType()
+    {
+        return ENTITY_CREDIT;
+    }
 
-	public function apply($amount)
-	{
-		if ($amount > $this->balance)
-		{
-			$applied = $this->balance;
-			$this->balance = 0;
-		}
-		else
-		{
-			$applied = $amount;
-			$this->balance = $this->balance - $amount;			
-		}
+    public function apply($amount)
+    {
+        if ($amount > $this->balance) {
+            $applied = $this->balance;
+            $this->balance = 0;
+        } else {
+            $applied = $amount;
+            $this->balance = $this->balance - $amount;
+        }
 
-		$this->save();
+        $this->save();
 
-		return $applied;
-	}
+        return $applied;
+    }
 }
 
-Credit::created(function($credit)
-{
-	Activity::createCredit($credit);
+Credit::created(function ($credit) {
+    Activity::createCredit($credit);
 });
 
-Credit::updating(function($credit)
-{
-	Activity::updateCredit($credit);
+Credit::updating(function ($credit) {
+    Activity::updateCredit($credit);
 });
 
-Credit::deleting(function($credit)
-{
-	Activity::archiveCredit($credit);
+Credit::deleting(function ($credit) {
+    Activity::archiveCredit($credit);
 });
 
-Credit::restoring(function($credit)
-{
-	Activity::restoreCredit($credit);
+Credit::restoring(function ($credit) {
+    Activity::restoreCredit($credit);
 });

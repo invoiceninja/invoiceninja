@@ -25,7 +25,7 @@ class ContactMailer extends Mailer
             if (!$invitation->contact || $invitation->contact->email) {
                 return false;
             }
-            
+
             $invitation->sent_date = \Carbon::now()->toDateTimeString();
             $invitation->save();
 

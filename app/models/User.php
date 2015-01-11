@@ -6,182 +6,165 @@ use Zizaco\Confide\ConfideUser;
 
 class User extends ConfideUser implements UserInterface, RemindableInterface
 {
-	protected $softDelete = true;
+    protected $softDelete = true;
 
     public static $rules = array(
-    	/*
+        /*
     	'username' => 'required|unique:users',
         'password' => 'required|between:6,32|confirmed',
-        'password_confirmation' => 'between:6,32',        
+        'password_confirmation' => 'between:6,32',
         */
     );
 
     protected $updateRules = array(
-    	/*
-    	'email' => 'required|unique:users',
-		'username' => 'required|unique:users',
-		*/
+        /*
+        'email' => 'required|unique:users',
+        'username' => 'required|unique:users',
+        */
     );
 
-	/**
-	 * The database table used by the model.
-	 *
-	 * @var string
-	 */
-	protected $table = 'users';
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'users';
 
-	public function account()
-	{
-		return $this->belongsTo('Account');
-	}
+    public function account()
+    {
+        return $this->belongsTo('Account');
+    }
 
-	public function theme()
-	{
-		return $this->belongsTo('Theme');
-	}
+    public function theme()
+    {
+        return $this->belongsTo('Theme');
+    }
 
-	public function getPersonType()
-	{
-		return PERSON_USER;
-	}
+    public function getPersonType()
+    {
+        return PERSON_USER;
+    }
 
-	/**
-	 * Get the unique identifier for the user.
-	 *
-	 * @return mixed
-	 */
-	public function getAuthIdentifier()
-	{		
-		return $this->getKey();
-	}
+    /**
+     * Get the unique identifier for the user.
+     *
+     * @return mixed
+     */
+    public function getAuthIdentifier()
+    {
+        return $this->getKey();
+    }
 
-	/**
-	 * Get the password for the user.
-	 *
-	 * @return string
-	 */
-	public function getAuthPassword()
-	{
-		return $this->password;
-	}
+    /**
+     * Get the password for the user.
+     *
+     * @return string
+     */
+    public function getAuthPassword()
+    {
+        return $this->password;
+    }
 
-	/**
-	 * Get the e-mail address where password reminders are sent.
-	 *
-	 * @return string
-	 */
-	public function getReminderEmail()
-	{
-		return $this->email;
-	}
+    /**
+     * Get the e-mail address where password reminders are sent.
+     *
+     * @return string
+     */
+    public function getReminderEmail()
+    {
+        return $this->email;
+    }
 
-	public function isPro()
-	{
-		return $this->account->isPro();
-	}
+    public function isPro()
+    {
+        return $this->account->isPro();
+    }
 
-	public function isDemo()
-	{
-		return $this->account->id == Utils::getDemoAccountId();
-	}
+    public function isDemo()
+    {
+        return $this->account->id == Utils::getDemoAccountId();
+    }
 
-	public function maxInvoiceDesignId()
-	{
-		return $this->isPro() ? 10 : COUNT_FREE_DESIGNS;
-	}
+    public function maxInvoiceDesignId()
+    {
+        return $this->isPro() ? 10 : COUNT_FREE_DESIGNS;
+    }
 
-	public function getDisplayName()
-	{
-		if ($this->getFullName())
-		{
-			return $this->getFullName();
-		}
-		else if ($this->email)
-		{
-			return $this->email;
-		}
-		else
-		{
-			return 'Guest';
-		}
-	}
+    public function getDisplayName()
+    {
+        if ($this->getFullName()) {
+            return $this->getFullName();
+        } elseif ($this->email) {
+            return $this->email;
+        } else {
+            return 'Guest';
+        }
+    }
 
+    public function getFullName()
+    {
+        if ($this->first_name || $this->last_name) {
+            return $this->first_name.' '.$this->last_name;
+        } else {
+            return '';
+        }
+    }
 
-	public function getFullName()
-	{
-		if ($this->first_name || $this->last_name)
-		{
-			return $this->first_name . ' ' . $this->last_name;
-		}
-		else
-		{
-			return '';
-		}
-	}	
+    public function showGreyBackground()
+    {
+        return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
+    }
 
-	public function showGreyBackground()
-	{
-		return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
-	}
+    public function getRequestsCount()
+    {
+        return Session::get(SESSION_COUNTER, 0);
+    }
 
-	public function getRequestsCount()
-	{
-		return Session::get(SESSION_COUNTER, 0);
-	}
+    public function getPopOverText()
+    {
+        if (!Utils::isNinja() || !Auth::check() || Session::has('error')) {
+            return false;
+        }
 
-	public function getPopOverText()
-	{
-		if (!Utils::isNinja() || !Auth::check() || Session::has('error'))
-		{
-			return false;
-		}
+        $count = self::getRequestsCount();
 
-		$count = self::getRequestsCount();
-		
-		if ($count == 1 || $count % 5 == 0)
-		{
-			if (!Utils::isRegistered())
-			{
-				return trans('texts.sign_up_to_save');
-			}
-			else if (!Auth::user()->account->name)
-			{
-				return trans('texts.set_name');
-			}
-		}
+        if ($count == 1 || $count % 5 == 0) {
+            if (!Utils::isRegistered()) {
+                return trans('texts.sign_up_to_save');
+            } elseif (!Auth::user()->account->name) {
+                return trans('texts.set_name');
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public function afterSave($success=true, $forced = false)
-	{
-		if ($this->email)
-		{
-			return parent::afterSave($success=true, $forced = false);
-		}
-		else
-		{
-			return true;
-		}	
-	}
+    public function afterSave($success = true, $forced = false)
+    {
+        if ($this->email) {
+            return parent::afterSave($success = true, $forced = false);
+        } else {
+            return true;
+        }
+    }
 
-	public function getMaxNumClients()
-	{
-		return $this->isPro() ? MAX_NUM_CLIENTS_PRO : MAX_NUM_CLIENTS;
-	}
+    public function getMaxNumClients()
+    {
+        return $this->isPro() ? MAX_NUM_CLIENTS_PRO : MAX_NUM_CLIENTS;
+    }
 
-	public function getRememberToken()
-	{
-	    return $this->remember_token;
-	}
+    public function getRememberToken()
+    {
+        return $this->remember_token;
+    }
 
-	public function setRememberToken($value)
-	{
-	    $this->remember_token = $value;
-	}
+    public function setRememberToken($value)
+    {
+        $this->remember_token = $value;
+    }
 
-	public function getRememberTokenName()
-	{
-	    return 'remember_token';
-	}
+    public function getRememberTokenName()
+    {
+        return 'remember_token';
+    }
 }

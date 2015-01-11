@@ -152,11 +152,11 @@ class InvoiceRepository
 
                 if ($entityType == ENTITY_INVOICE) {
                     if ($model->invoice_status_id < INVOICE_STATUS_PAID) {
-                      $str .= '<li><a href="'.\URL::to('payments/create/'.$model->client_public_id.'/'.$model->public_id).'">'.trans('texts.enter_payment').'</a></li>';
+                        $str .= '<li><a href="'.\URL::to('payments/create/'.$model->client_public_id.'/'.$model->public_id).'">'.trans('texts.enter_payment').'</a></li>';
                     }
 
                     if ($model->quote_id) {
-                      $str .= '<li><a href="'.\URL::to("quotes/{$model->quote_id}/edit").'">'.trans("texts.view_quote").'</a></li>';
+                        $str .= '<li><a href="'.\URL::to("quotes/{$model->quote_id}/edit").'">'.trans("texts.view_quote").'</a></li>';
                     }
                 } elseif ($entityType == ENTITY_QUOTE) {
                     if ($model->quote_invoice_id) {
@@ -168,7 +168,7 @@ class InvoiceRepository
                       <li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans("texts.archive_{$entityType}").'</a></li>
                     <li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans("texts.delete_{$entityType}").'</a></li>';
             } else {
-               $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans("texts.restore_{$entityType}").'</a></li>
+                $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans("texts.restore_{$entityType}").'</a></li>
                         <li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans("texts.delete_{$entityType}").'</a></li>';
             }
 

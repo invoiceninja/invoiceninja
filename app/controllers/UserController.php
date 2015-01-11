@@ -13,8 +13,8 @@ use ninja\repositories\AccountRepository;
 use ninja\mailers\ContactMailer;
 use ninja\mailers\UserMailer;
 
-class UserController extends BaseController {
-
+class UserController extends BaseController
+{
     protected $accountRepo;
     protected $contactMailer;
     protected $userMailer;
@@ -26,36 +26,34 @@ class UserController extends BaseController {
         $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
         $this->userMailer = $userMailer;
-    }   
+    }
 
     public function getDatatable()
     {
-      $query = DB::table('users')
+        $query = DB::table('users')
                   ->where('users.account_id', '=', Auth::user()->account_id)
                   ->where('users.deleted_at', '=', null)
                   ->where('users.public_id', '>', 0)
                   ->select('users.public_id', 'users.first_name', 'users.last_name', 'users.email', 'users.confirmed', 'users.public_id');
 
-
-      return Datatable::query($query)
-        ->addColumn('first_name', function($model) { return link_to('users/' . $model->public_id . '/edit', $model->first_name . ' ' . $model->last_name); })
-        ->addColumn('email', function($model) { return $model->email; })
-        ->addColumn('confirmed', function($model) { return $model->confirmed ? trans('texts.active') : trans('texts.pending'); })
-        ->addColumn('dropdown', function($model) 
-        { 
+        return Datatable::query($query)
+        ->addColumn('first_name', function ($model) { return link_to('users/'.$model->public_id.'/edit', $model->first_name.' '.$model->last_name); })
+        ->addColumn('email', function ($model) { return $model->email; })
+        ->addColumn('confirmed', function ($model) { return $model->confirmed ? trans('texts.active') : trans('texts.pending'); })
+        ->addColumn('dropdown', function ($model) {
           return '<div class="btn-group tr-action" style="visibility:hidden;">
               <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                 '.trans('texts.select').' <span class="caret"></span>
               </button>
               <ul class="dropdown-menu" role="menu">
-              <li><a href="' . URL::to('users/'.$model->public_id) . '/edit">'.uctrans('texts.edit_user').'</a></li>
+              <li><a href="'.URL::to('users/'.$model->public_id).'/edit">'.uctrans('texts.edit_user').'</a></li>
               <li class="divider"></li>
-              <li><a href="javascript:deleteUser(' . $model->public_id. ')">'.uctrans('texts.delete_user').'</a></li>              
+              <li><a href="javascript:deleteUser('.$model->public_id.')">'.uctrans('texts.delete_user').'</a></li>
             </ul>
           </div>';
-        })       
+        })
         ->orderColumns(['first_name', 'email', 'confirmed'])
-        ->make();           
+        ->make();
     }
 
     public function setTheme()
@@ -63,7 +61,7 @@ class UserController extends BaseController {
         $user = User::find(Auth::user()->id);
         $user->theme_id = Input::get('theme_id');
         $user->save();
-        
+
         return Redirect::to(Input::get('path'));
     }
 
@@ -75,7 +73,7 @@ class UserController extends BaseController {
 
         Session::flash('message', trans('texts.confide.updated_settings'));
 
-        return Redirect::to('/dashboard'); 
+        return Redirect::to('/dashboard');
     }
 
     public function edit($publicId)
@@ -86,12 +84,12 @@ class UserController extends BaseController {
         $data = [
             'showBreadcrumbs' => false,
             'user' => $user,
-            'method' => 'PUT', 
-            'url' => 'users/' . $publicId, 
-            'title' => trans('texts.edit_user')
+            'method' => 'PUT',
+            'url' => 'users/'.$publicId,
+            'title' => trans('texts.edit_user'),
         ];
 
-        return View::make('users.edit', $data);   
+        return View::make('users.edit', $data);
     }
 
     public function update($publicId)
@@ -110,30 +108,29 @@ class UserController extends BaseController {
      */
     public function create()
     {
-        if (!Auth::user()->confirmed)
-        {
-            Session::flash('error', trans('texts.register_to_add_user'));            
+        if (!Auth::user()->confirmed) {
+            Session::flash('error', trans('texts.register_to_add_user'));
+
             return Redirect::to('company/advanced_settings/user_management');
         }
 
-        if (Utils::isNinja())
-        {
+        if (Utils::isNinja()) {
             $count = User::where('account_id', '=', Auth::user()->account_id)->count();
-            if ($count >= MAX_NUM_USERS)
-            {
+            if ($count >= MAX_NUM_USERS) {
                 Session::flash('error', trans('texts.limit_users'));
-                return Redirect::to('company/advanced_settings/user_management');        
-            }        
+
+                return Redirect::to('company/advanced_settings/user_management');
+            }
         }
 
         $data = [
           'showBreadcrumbs' => false,
           'user' => null,
           'method' => 'POST',
-          'url' => 'users', 
-          'title' => trans('texts.add_user')
+          'url' => 'users',
+          'title' => trans('texts.add_user'),
         ];
-        
+
         return View::make('users.edit', $data);
     }
 
@@ -146,7 +143,8 @@ class UserController extends BaseController {
         $user->delete();
 
         Session::flash('message', trans('texts.deleted_user'));
-        return Redirect::to('company/advanced_settings/user_management');        
+
+        return Redirect::to('company/advanced_settings/user_management');
     }
 
     /**
@@ -160,38 +158,31 @@ class UserController extends BaseController {
             'last_name' => 'required',
         ];
 
-        if ($userPublicId)
-        {
+        if ($userPublicId) {
             $user = User::where('account_id', '=', Auth::user()->account_id)
                         ->where('public_id', '=', $userPublicId)->firstOrFail();
 
-            $rules['email'] = 'required|email|unique:users,email,' . $user->id . ',id';
-        }
-        else
-        {
+            $rules['email'] = 'required|email|unique:users,email,'.$user->id.',id';
+        } else {
             $rules['email'] = 'required|email|unique:users';
         }
 
         $validator = Validator::make(Input::all(), $rules);
 
-        if ($validator->fails())
-        {
+        if ($validator->fails()) {
             return Redirect::to($userPublicId ? 'users/edit' : 'users/create')->withInput()->withErrors($validator);
-        }        
+        }
 
-        if ($userPublicId)
-        {
+        if ($userPublicId) {
             $user->first_name = trim(Input::get('first_name'));
             $user->last_name = trim(Input::get('last_name'));
             $user->username = trim(Input::get('email'));
             $user->email = trim(Input::get('email'));
-        }
-        else
-        {
+        } else {
             $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
                         ->orderBy('public_id', 'DESC')->first();
 
-            $user = new User;
+            $user = new User();
             $user->account_id = Auth::user()->account_id;
             $user->first_name = trim(Input::get('first_name'));
             $user->last_name = trim(Input::get('last_name'));
@@ -200,18 +191,15 @@ class UserController extends BaseController {
             $user->registered = true;
             $user->password = str_random(RANDOM_KEY_LENGTH);
             $user->password_confirmation = $user->password;
-            $user->public_id = $lastUser->public_id + 1;            
+            $user->public_id = $lastUser->public_id + 1;
         }
 
         $user->save();
 
-        if (!$user->confirmed)
-        {
-            $this->userMailer->sendConfirmation($user, Auth::user());        
+        if (!$user->confirmed) {
+            $this->userMailer->sendConfirmation($user, Auth::user());
             $message = trans('texts.sent_invite');
-        }
-        else
-        {
+        } else {
             $message = trans('texts.updated_user');
         }
 
@@ -226,16 +214,15 @@ class UserController extends BaseController {
      */
     public function login()
     {
-        if( Confide::user() )
-        {
-            Event::fire('user.login'); 
+        if (Confide::user()) {
+            Event::fire('user.login');
             Session::reflash();
 
             return Redirect::to('/dashboard');
-            
+
             /*
             $invoice = Invoice::scope()->orderBy('id', 'desc')->first();
-            
+
             if ($invoice)
             {
                 return Redirect::to('/invoices/' . $invoice->public_id);
@@ -245,9 +232,7 @@ class UserController extends BaseController {
                 return Redirect::to('/dashboard');
             }
             */
-        }
-        else
-        {
+        } else {
             return View::make(Config::get('confide::login_form'));
         }
     }
@@ -259,9 +244,9 @@ class UserController extends BaseController {
     public function do_login()
     {
         $input = array(
-            'email'    => Input::get( 'login_email' ), // May be the username too
-            'username' => Input::get( 'login_email' ), // so we have to pass both
-            'password' => Input::get( 'login_password' ),
+            'email'    => Input::get('login_email'), // May be the username too
+            'username' => Input::get('login_email'), // so we have to pass both
+            'password' => Input::get('login_password'),
             'remember' => true,
         );
 
@@ -269,22 +254,18 @@ class UserController extends BaseController {
         // with the second parameter as true.
         // logAttempt will check if the 'email' perhaps is the username.
         // Get the value from the config file instead of changing the controller
-        if ( Input::get( 'login_email' ) && Confide::logAttempt( $input, false ) ) 
-        {            
+        if (Input::get('login_email') && Confide::logAttempt($input, false)) {
             Event::fire('user.login');
             // Redirect the user to the URL they were trying to access before
             // caught by the authentication filter IE Redirect::guest('user/login').
             // Otherwise fallback to '/'
             // Fix pull #145
             return Redirect::intended('/dashboard'); // change it to '/admin', '/dashboard' or something
-        }
-        else
-        {
+        } else {
             //$user = new User;
 
             // Check if there was too many login attempts
-            if( Confide::isThrottled( $input ) )
-            {
+            if (Confide::isThrottled($input)) {
                 $err_msg = trans('texts.confide.too_many_attempts');
             }
             /*
@@ -293,56 +274,48 @@ class UserController extends BaseController {
                 $err_msg = Lang::get('confide::confide.alerts.not_confirmed');
             }
             */
-            else
-            {
+            else {
                 $err_msg = trans('texts.confide.wrong_credentials');
             }
 
             return Redirect::action('UserController@login')
                     ->withInput(Input::except('login_password'))
-                    ->with( 'error', $err_msg );
+                    ->with('error', $err_msg);
         }
     }
 
     /**
      * Attempt to confirm account with code
      *
-     * @param  string  $code
+     * @param string $code
      */
-    public function confirm( $code )
+    public function confirm($code)
     {
-        if ( Confide::confirm( $code ) )
-        {            
+        if (Confide::confirm($code)) {
             $notice_msg = trans('texts.confide.confirmation');
-            
+
             $user = User::where('confirmation_code', '=', $code)->get()->first();
             $user->confirmation_code = '';
             $user->save();
 
-            if ($user->public_id)
-            {
+            if ($user->public_id) {
                 Auth::login($user);
 
                 return Redirect::to('user/reset');
-            }
-            else
-            {
-                if (Session::has(REQUESTED_PRO_PLAN))
-                {
-                    Session::forget(REQUESTED_PRO_PLAN);                
+            } else {
+                if (Session::has(REQUESTED_PRO_PLAN)) {
+                    Session::forget(REQUESTED_PRO_PLAN);
                     $invitation = $this->accountRepo->enableProPlan();
+
                     return Redirect::to($invitation->getLink());
-                }
-                else
-                {
-                    return Redirect::action('UserController@login')->with( 'message', $notice_msg );
+                } else {
+                    return Redirect::action('UserController@login')->with('message', $notice_msg);
                 }
             }
-        }
-        else
-        {
+        } else {
             $error_msg = trans('texts.confide.wrong_confirmation');
-            return Redirect::action('UserController@login')->with( 'error', $error_msg );
+
+            return Redirect::action('UserController@login')->with('error', $error_msg);
         }
     }
 
@@ -361,12 +334,12 @@ class UserController extends BaseController {
      */
     public function do_forgot_password()
     {
-        Confide::forgotPassword( Input::get( 'email' ) );
+        Confide::forgotPassword(Input::get('email'));
 
         $notice_msg = trans('texts.confide.password_forgot');
-        return Redirect::action('UserController@login')
-            ->with( 'notice', $notice_msg );
 
+        return Redirect::action('UserController@login')
+            ->with('notice', $notice_msg);
 
         /*
         if( Confide::forgotPassword( Input::get( 'email' ) ) )
@@ -389,7 +362,7 @@ class UserController extends BaseController {
      * Shows the change password form with the given token
      *
      */
-    public function reset_password( $token = false )
+    public function reset_password($token = false)
     {
         return View::make(Config::get('confide::reset_password_form'))
                 ->with('token', $token);
@@ -400,49 +373,45 @@ class UserController extends BaseController {
      *
      */
     public function do_reset_password()
-    {        
-        if (Auth::check())
-        {
+    {
+        if (Auth::check()) {
             $rules = [
                 'password' => 'required|between:4,11|confirmed',
                 'password_confirmation' => 'between:4,11',
             ];
             $validator = Validator::make(Input::all(), $rules);
 
-            if ($validator->fails())
-            {
+            if ($validator->fails()) {
                 return Redirect::to('user/reset')->withInput()->withErrors($validator);
-            }        
+            }
 
             $user = Auth::user();
             $user->password = Input::get('password');
             $user->save();
 
             Session::flash('message', trans('texts.confide.password_reset'));
+
             return Redirect::to('/dashboard');
-        }
-        else
-        {
+        } else {
             $input = array(
-                'token'=>Input::get( 'token' ),
-                'password'=>Input::get( 'password' ),
-                'password_confirmation'=>Input::get( 'password_confirmation' ),
+                'token' => Input::get('token'),
+                'password' => Input::get('password'),
+                'password_confirmation' => Input::get('password_confirmation'),
             );
-            
+
             // By passing an array with the token, password and confirmation
-            if( Confide::resetPassword( $input ) )
-            {
+            if (Confide::resetPassword($input)) {
                 $notice_msg = trans('texts.confide.password_reset');
+
                 return Redirect::action('UserController@login')
-                    ->with( 'notice', $notice_msg );
-            }
-            else
-            {
+                    ->with('notice', $notice_msg);
+            } else {
                 $error_msg = trans('texts.confide.wrong_password_reset');
-                return Redirect::action('UserController@reset_password', array('token'=>$input['token']))
+
+                return Redirect::action('UserController@reset_password', array('token' => $input['token']))
                     ->withInput()
-                    ->with( 'error', $error_msg );
-            }            
+                    ->with('error', $error_msg);
+            }
         }
     }
 
@@ -452,10 +421,8 @@ class UserController extends BaseController {
      */
     public function logout()
     {
-        if (Auth::check())
-        {
-            if (!Auth::user()->registered)
-            {
+        if (Auth::check()) {
+            if (!Auth::user()->registered) {
                 $account = Auth::user()->account;
                 $account->forceDelete();
             }

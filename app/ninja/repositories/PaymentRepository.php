@@ -11,29 +11,25 @@ class PaymentRepository
     public function find($clientPublicId = null, $filter = null)
     {
         $query = \DB::table('payments')
-                    ->join('clients', 'clients.id', '=','payments.client_id')
-                    ->join('invoices', 'invoices.id', '=','payments.invoice_id')
+                    ->join('clients', 'clients.id', '=', 'payments.client_id')
+                    ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
                     ->where('payments.account_id', '=', \Auth::user()->account_id)
                     ->where('clients.deleted_at', '=', null)
-                    ->where('contacts.is_primary', '=', true)   
+                    ->where('contacts.is_primary', '=', true)
                     ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type', 'payments.account_gateway_id', 'payments.deleted_at', 'payments.is_deleted');
 
-        if (!\Session::get('show_trash:payment'))
-        {
+        if (!\Session::get('show_trash:payment')) {
             $query->where('payments.deleted_at', '=', null);
         }
 
-        if ($clientPublicId) 
-        {
+        if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
         }
 
-        if ($filter)
-        {
-            $query->where(function($query) use ($filter)
-            {
+        if ($filter) {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%'.$filter.'%');
             });
         }
@@ -44,25 +40,22 @@ class PaymentRepository
     public function findForContact($contactId = null, $filter = null)
     {
         $query = \DB::table('payments')
-                    ->join('clients', 'clients.id', '=','payments.client_id')
-                    ->join('invoices', 'invoices.id', '=','payments.invoice_id')
+                    ->join('clients', 'clients.id', '=', 'payments.client_id')
+                    ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-                    ->leftJoin('invitations', function($join)
-                    {
+                    ->leftJoin('invitations', function ($join) {
                         $join->on('invitations.invoice_id', '=', 'invoices.id')
-                             ->on('invitations.contact_id', '=', 'contacts.id');                             
+                             ->on('invitations.contact_id', '=', 'contacts.id');
                     })
                     ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
                     ->where('clients.is_deleted', '=', false)
                     ->where('payments.is_deleted', '=', false)
                     ->where('invitations.deleted_at', '=', null)
                     ->where('invitations.contact_id', '=', $contactId)
-                    ->select('invitations.invitation_key', 'payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type', 'payments.account_gateway_id');        
+                    ->select('invitations.invitation_key', 'payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type', 'payments.account_gateway_id');
 
-        if ($filter)
-        {
-            $query->where(function($query) use ($filter)
-            {
+        if ($filter) {
+            $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%'.$filter.'%');
             });
         }
@@ -74,33 +67,28 @@ class PaymentRepository
     {
         $rules = array(
             'client' => 'required',
-            'invoice' => 'required',  
-            'amount' => 'required|positive'
+            'invoice' => 'required',
+            'amount' => 'required|positive',
         );
-        
-        if ($input['payment_type_id'] == PAYMENT_TYPE_CREDIT)
-        {
-            $rules['payment_type_id'] = 'has_credit:' . $input['client'] . ',' . $input['amount'];
+
+        if ($input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
+            $rules['payment_type_id'] = 'has_credit:'.$input['client'].','.$input['amount'];
         }
 
         $validator = \Validator::make($input, $rules);
 
-        if ($validator->fails())
-        {
+        if ($validator->fails()) {
             return $validator;
         }
 
         return false;
     }
 
-	public function save($publicId = null, $input)
-	{
-        if ($publicId) 
-        {
+    public function save($publicId = null, $input)
+    {
+        if ($publicId) {
             $payment = Payment::scope($publicId)->firstOrFail();
-        } 
-        else 
-        {
+        } else {
             $payment = Payment::createNew();
         }
 
@@ -108,18 +96,15 @@ class PaymentRepository
         $clientId = Client::getPrivateId($input['client']);
         $amount = Utils::parseFloat($input['amount']);
 
-        if ($paymentTypeId == PAYMENT_TYPE_CREDIT)
-        {
+        if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
             $credits = Credit::scope()->where('client_id', '=', $clientId)
-                        ->where('balance', '>', 0)->orderBy('created_at')->get();            
+                        ->where('balance', '>', 0)->orderBy('created_at')->get();
             $applied = 0;
 
-            foreach ($credits as $credit)
-            {
+            foreach ($credits as $credit) {
                 $applied += $credit->apply($amount);
 
-                if ($applied >= $amount)
-                {
+                if ($applied >= $amount) {
                     break;
                 }
             }
@@ -132,37 +117,31 @@ class PaymentRepository
         $payment->amount = $amount;
         $payment->transaction_reference = trim($input['transaction_reference']);
         $payment->save();
-	
-		return $payment;		
-	}
 
-	public function bulk($ids, $action)
-	{
-        if (!$ids)
-        {
+        return $payment;
+    }
+
+    public function bulk($ids, $action)
+    {
+        if (!$ids) {
             return 0;
         }
 
         $payments = Payment::withTrashed()->scope($ids)->get();
 
-        foreach ($payments as $payment) 
-        {            
-            if ($action == 'restore')
-            {
+        foreach ($payments as $payment) {
+            if ($action == 'restore') {
                 $payment->restore();
-            }
-            else
-            {            
-                if ($action == 'delete') 
-                {
+            } else {
+                if ($action == 'delete') {
                     $payment->is_deleted = true;
                     $payment->save();
-                } 
+                }
 
                 $payment->delete();
             }
         }
-	
-		return count($payments);
-	}
+
+        return count($payments);
+    }
 }
