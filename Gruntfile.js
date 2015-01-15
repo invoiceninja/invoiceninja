@@ -56,7 +56,7 @@ module.exports = function(grunt) {
           'public/vendor/accounting/accounting.min.js',
           'public/vendor/spectrum/spectrum.js',
           'public/vendor/jspdf/dist/jspdf.min.js',
-          'public/vendor/handsontable/dist/jquery.handsontable.full.min.js',
+          //'public/vendor/handsontable/dist/jquery.handsontable.full.min.js',
           'public/js/lightbox.min.js',
           'public/js/bootstrap-combobox.js',
           'public/js/script.js',
@@ -85,11 +85,14 @@ module.exports = function(grunt) {
           'public/css/bootstrap-combobox.css',
           'public/css/typeahead.js-bootstrap.css',
           'public/css/lightbox.css',
-          'public/vendor/handsontable/dist/jquery.handsontable.full.css',
+          //'public/vendor/handsontable/dist/jquery.handsontable.full.css',
           'public/css/style.css',
         ],
         dest: 'public/built.css',
-        nonull: true
+        nonull: true,
+        options: {
+            process: false
+        }
       },
       css_public: {
         src: [
@@ -100,7 +103,10 @@ module.exports = function(grunt) {
           'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',          
         ],
         dest: 'public/built.public.css',
-        nonull: true
+        nonull: true,
+        options: {
+            process: false
+        }
       }
     }
   });

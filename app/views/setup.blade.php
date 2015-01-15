@@ -17,6 +17,12 @@
 
     <div class="jumbotron">
         <h2>Invoice Ninja Setup</h2>
+        @if (version_compare(phpversion(), '5.4.0', '<'))
+            <div class="alert alert-warning">Warning: The application requires PHP >= 5.4.0</div>
+        @endif
+        @if (!extension_loaded('fileinfo'))
+            <div class="alert alert-warning">Warning: The <a href="http://php.net/manual/en/book.fileinfo.php" target="_blank">fileinfo</a> extension needs to be installed and enabled.</div>
+        @endif
         If you need help you can either post to our <a href="https://groups.google.com/forum/#!forum/invoiceninja" target="_blank">Google Group</a> 
         or email us at <a href="mailto:contact@invoiceninja.com" target="_blank">contact@invoiceninja.com</a>.
         <p>
