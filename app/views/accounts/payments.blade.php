@@ -15,8 +15,8 @@
 			@foreach ($accountGateway->fields as $field => $junk)
 				@if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
 					{{-- do nothing --}}
-				@else
-					{{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}
+				@elseif (isset($config->$field))
+                    {{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}                    
 				@endif
 			@endforeach
 		@endif
