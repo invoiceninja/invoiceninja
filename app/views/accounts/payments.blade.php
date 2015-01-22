@@ -123,7 +123,7 @@
 			var contents = $(this).parent().contents();
 			contents[contents.length - 1].nodeValue = '';
 			$(this).after('<img src="' +$(this).attr('data-imageUrl') + '" /><br />');
-			$(this).parent().children().last().after('<a href="#" onclick="gatewayLink(\'' + $(this).attr('data-siteUrl') + '\')">Create an account</a>');
+			$(this).parent().children().last().after('<a href="#" onclick="gatewayLink(\'' + $(this).attr('data-siteUrl') + '\')" style="padding-left:26px">Create an account</a>');
 		});
         
     // TODO: THIS IS JUST TO SHOW THE IMAGES, STYLE IS SET INLINE STYLE

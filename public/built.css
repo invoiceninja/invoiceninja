@@ -2892,7 +2892,12 @@ float: left;
 display: inline-block;
 position: relative;
 margin-top: 3px;
-min-height: 30px;
+}
+
+/*.recommended-gateway {*/
+/* #recommendedGateway_id2 { */
+label[for=recommendedGateway_id2].radio{
+    min-height: 60px;
 }
 
 /* Hide bootstrap sort header icons */
