@@ -9,7 +9,7 @@
         <img src="{{ asset('images/totalincome.png') }}" class="in-image"/>  
         <div class="in-bold">
           @foreach ($totalIncomes as $totalIncome)
-            {{ Utils::formatMoney($totalIncome->value, $totalIncome->currency_id); }}
+            {{ Utils::formatMoney($totalIncome->value, $totalIncome->currency_id); }}<br/>
           @endforeach
         </div>
         <div class="in-thin">
@@ -143,7 +143,7 @@
       <div><b>{{ trans('texts.average_invoice') }}</b></div>
       <div class="in-bold in-white" style="font-size:42px">
         @foreach ($totalIncomes as $totalIncome)
-          {{ Utils::formatMoney($totalIncome->invoice_avg, $totalIncome->currency_id); }}
+          {{ Utils::formatMoney($totalIncome->invoice_avg, $totalIncome->currency_id); }}<br/>
         @endforeach
       </div>
     </div>

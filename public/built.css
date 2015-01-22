@@ -2571,7 +2571,7 @@ background-clip: padding-box;
 
 .average-invoice {
     background-color: #ecd817;
-    height: 200px;
+    min-height: 200px;
     padding-top: 60px;
     text-align: center;
 }
