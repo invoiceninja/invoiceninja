@@ -141,7 +141,11 @@
     <div class="col-md-3">
     <div class="average-invoice">  
       <div><b>{{ trans('texts.average_invoice') }}</b></div>
-      <div class="in-bold in-white" style="font-size:42px">{{ $invoiceAvg }}</div>
+      <div class="in-bold in-white" style="font-size:42px">
+        @foreach ($totalIncomes as $totalIncome)
+          {{ Utils::formatMoney($totalIncome->invoice_avg, $totalIncome->currency_id); }}
+        @endforeach
+      </div>
     </div>
       
   </div> 
