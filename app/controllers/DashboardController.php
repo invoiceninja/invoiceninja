@@ -19,15 +19,16 @@ class DashboardController extends \BaseController
             ->groupBy('accounts.id')
             ->first();
 
-        $select = DB::raw('SUM(clients.paid_to_date) as value');
+        $select = DB::raw('SUM(clients.paid_to_date) as value, clients.currency_id as currency_id');
 
-        $totalIncome = DB::table('accounts')
+        $totalIncomes = DB::table('accounts')
             ->select($select)
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
             ->where('accounts.id', '=', Auth::user()->account_id)
             ->where('clients.is_deleted', '=', false)
             ->groupBy('accounts.id')
-            ->first();
+            ->groupBy('clients.currency_id')
+            ->get();
 
         $activities = Activity::where('activities.account_id', '=', Auth::user()->account_id)
                 ->orderBy('created_at', 'desc')->take(6)->get();
@@ -49,7 +50,7 @@ class DashboardController extends \BaseController
                   ->orderBy('due_date', 'asc')->take(6)->get();
 
         $data = [
-      'totalIncome' => Utils::formatMoney($totalIncome ? $totalIncome->value : 0, Session::get(SESSION_CURRENCY)),
+      'totalIncomes' => $totalIncomes,
       'billedClients' => $metrics ? $metrics->billed_clients : 0,
       'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
       'activeClients' => $metrics ? $metrics->active_clients : 0,
