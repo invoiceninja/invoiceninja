@@ -64,7 +64,7 @@ class AccountController extends \BaseController
         Auth::login($user, true);
         Event::fire('user.login');
 
-        return Redirect::to('invoices/create');
+        return Redirect::to('invoices/create')->with('sign_up', Input::get('sign_up'));
     }
 
     public function enableProPlan()

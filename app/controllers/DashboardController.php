@@ -16,6 +16,9 @@ class DashboardController extends \BaseController
             ->leftJoin('invoices', 'clients.id', '=', 'invoices.client_id')
             ->where('accounts.id', '=', Auth::user()->account_id)
             ->where('clients.is_deleted', '=', false)
+            ->where('invoices.is_deleted', '=', false)
+            ->where('invoices.is_recurring', '=', false)
+            ->where('invoices.is_quote', '=', false)
             ->groupBy('accounts.id')
             ->first();
 

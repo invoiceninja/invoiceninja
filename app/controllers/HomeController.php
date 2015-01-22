@@ -113,7 +113,7 @@ class HomeController extends BaseController
     public function invoiceNow()
     {
         if (Auth::check()) {
-            return Redirect::to('invoices/create');
+            return Redirect::to('invoices/create')->with('sign_up', Input::get('sign_up'));
         } else {
             return View::make('public.header', ['invoiceNow' => true]);
         }

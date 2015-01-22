@@ -587,6 +587,8 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
     @if (Auth::check() && !Utils::isNinja() && !Auth::user()->registered)
       $('#closeSignUpButton').hide();
       showSignUp(); 
+    @elseif(Session::get('sign_up') || Input::get('sign_up'))
+      showSignUp();
     @endif
 
     @yield('onReady')

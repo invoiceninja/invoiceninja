@@ -2879,3 +2879,18 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
     .plans-table .cell .cta {margin-bottom: 0 !important;}    
     .plans-table .pro {margin-top: 40px;}    
 }
+
+/* https://github.com/twbs/bootstrap/issues/13984 */
+.radio input[type="radio"],
+.checkbox input[type="checkbox"] {
+margin-left: 0;
+margin-right: 5px;
+height: inherit;
+width: inherit;
+/* bootstrap 3.2.0 fix */
+float: left;
+display: inline-block;
+position: relative;
+margin-top: 3px;
+min-height: 30px;
+}
