@@ -8,7 +8,9 @@
       <div class="panel-body">
         <img src="{{ asset('images/totalincome.png') }}" class="in-image"/>  
         <div class="in-bold">
-          {{ $totalIncome }}
+          @foreach ($totalIncomes as $totalIncome)
+            {{ Utils::formatMoney($totalIncome->value, $totalIncome->currency_id); }}
+          @endforeach
         </div>
         <div class="in-thin">
           {{ trans('texts.in_total_revenue') }}
@@ -139,10 +141,15 @@
     <div class="col-md-3">
     <div class="average-invoice">  
       <div><b>{{ trans('texts.average_invoice') }}</b></div>
-      <div class="in-bold in-white" style="font-size:42px">{{ $invoiceAvg }}</div>
+      <div class="in-bold in-white" style="font-size:42px">
+        @foreach ($totalIncomes as $totalIncome)
+          {{ Utils::formatMoney($totalIncome->invoice_avg, $totalIncome->currency_id); }}
+        @endforeach
+      </div>
     </div>
       
   </div> 
 </div>
 
 @stop
+
