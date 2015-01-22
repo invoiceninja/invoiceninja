@@ -2894,3 +2894,10 @@ position: relative;
 margin-top: 3px;
 min-height: 30px;
 }
+
+/* Hide bootstrap sort header icons */
+table.table thead .sorting:after { content: '' !important }
+table.table thead .sorting_asc:after { content: '' !important }
+table.table thead .sorting_desc:after { content: '' !important}
+table.table thead .sorting_asc_disabled:after { content: '' !important }
+table.table thead .sorting_desc_disabled:after { content: '' !important }
