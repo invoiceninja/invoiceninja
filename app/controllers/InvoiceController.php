@@ -519,6 +519,7 @@ class InvoiceController extends \BaseController
             $backup->due_date = Utils::fromSqlDate($backup->due_date);
             $backup->is_pro = Auth::user()->isPro();
             $backup->is_quote = intval($backup->is_quote);
+            $backup->account = $invoice->account->toArray();
 
             $versionsJson[$activity->id] = $backup;
             
@@ -528,8 +529,6 @@ class InvoiceController extends \BaseController
         }
 
         $versionsSelect[$lastId] = Utils::timestampToDateTimeString(strtotime($invoice->created_at)) . ' - ' . $invoice->user->getDisplayName();
-        //dd($versionsSelect);
-        //dd($activities);
 
         $data = [
             'invoice' => $invoice,

@@ -24,6 +24,8 @@
             invoice = currentInvoice;
         }
 
+        invoice.image = window.accountLogo;
+
         var invoiceDesignId = parseInt(invoice.invoice_design_id);
         var invoiceDesign = _.findWhere(invoiceDesigns, {id: invoiceDesignId});
         if (!invoiceDesign) {
