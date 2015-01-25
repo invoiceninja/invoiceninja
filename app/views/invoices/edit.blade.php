@@ -920,8 +920,10 @@
 			var taxRate = new TaxRateModel();
 			taxRate.name(name);
 			taxRate.rate(parseFloat(rate));
-			if (parseFloat(rate) > 0) taxRate.is_deleted(true);
-			self.tax_rates.push(taxRate);
+			if (name) {
+               taxRate.is_deleted(true);
+			   self.tax_rates.push(taxRate);
+            }
 			return taxRate;			
 		}		
 

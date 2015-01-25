@@ -244,7 +244,7 @@ class InvoiceRepository
         $invoice->po_number = trim($data['po_number']);
         $invoice->invoice_design_id = $data['invoice_design_id'];
 
-        if (isset($data['tax_name']) && isset($data['tax_rate']) && Utils::parseFloat($data['tax_rate']) > 0) {
+        if (isset($data['tax_name']) && isset($data['tax_rate']) && $data['tax_name']) {
             $invoice->tax_rate = Utils::parseFloat($data['tax_rate']);
             $invoice->tax_name = trim($data['tax_name']);
         } else {
@@ -345,7 +345,7 @@ class InvoiceRepository
             $invoiceItem->qty = Utils::parseFloat($item->qty);
             $invoiceItem->tax_rate = 0;
 
-            if (isset($item->tax_rate) && Utils::parseFloat($item->tax_rate) > 0) {
+            if (isset($item->tax_rate) && isset($item->tax_name) && $item->tax_name) {
                 $invoiceItem->tax_rate = Utils::parseFloat($item->tax_rate);
                 $invoiceItem->tax_name = trim($item->tax_name);
             }

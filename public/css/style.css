@@ -798,3 +798,6 @@ table.table thead .sorting_asc:after { content: '' !important }
 table.table thead .sorting_desc:after { content: '' !important}
 table.table thead .sorting_asc_disabled:after { content: '' !important }
 table.table thead .sorting_desc_disabled:after { content: '' !important }
+
+/* Prevent modal from shifting page a bit - https://github.com/twbs/bootstrap/issues/9886 */
+body.modal-open { overflow:inherit; padding-right:inherit !important; }

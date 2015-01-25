@@ -739,7 +739,7 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
     data.push({'custom_invoice_label2': formatMoney(invoice.custom_value2, invoice.client.currency_id) })
   }
 
-  data.push({'tax': invoice.tax_amount > 0 ? formatMoney(invoice.tax_amount, invoice.client.currency_id) : false});
+  data.push({'tax': (invoice.tax && invoice.tax.name) || invoice.tax_name ? formatMoney(invoice.tax_amount, invoice.client.currency_id) : false});
 
   if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {
     data.push({'custom_invoice_label1': formatMoney(invoice.custom_value1, invoice.client.currency_id) })
@@ -832,8 +832,11 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
 
       if (key.substring(0, 6) === 'custom') {
         key = invoice.account[key];
-      } else if (key === 'tax' && invoice.tax_rate) {
-        key = invoiceLabels[key] + ' ' + (invoice.tax_rate*1).toString() + '%';
+      } else if (key === 'tax' && invoice.tax_name) {
+        key = invoice.tax_name + ' ' + (invoice.tax_rate*1).toString() + '%';
+        if (invoice.tax_name.toLowerCase().indexOf(invoiceLabels['tax'].toLowerCase()) == -1) {
+            key = invoiceLabels['tax'] + ': ' + key;
+        }
       } else if (key === 'discount' && NINJA.parseFloat(invoice.discount) && !parseInt(invoice.is_amount_discount)) {
         key = invoiceLabels[key] + ' ' + parseFloat(invoice.discount) + '%';
       } else {
@@ -901,7 +904,7 @@ function calculateAmounts(invoice) {
       total += lineTotal;
     }
 
-    if ((item.tax && item.tax.rate > 0) || (item.tax_rate && parseFloat(item.tax_rate) > 0)) {
+    if ((item.tax && item.tax.name) || item.tax_name) {
       hasTaxes = true;
     }
   }
