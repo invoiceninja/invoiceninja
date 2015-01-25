@@ -518,7 +518,7 @@ class InvoiceController extends \BaseController
             $backup->invoice_date = Utils::fromSqlDate($backup->invoice_date);
             $backup->due_date = Utils::fromSqlDate($backup->due_date);
             $backup->is_pro = Auth::user()->isPro();
-            $backup->is_quote = intval($backup->is_quote);
+            $backup->is_quote = isset($backup->is_quote) && intval($backup->is_quote);
             $backup->account = $invoice->account->toArray();
 
             $versionsJson[$activity->id] = $backup;
