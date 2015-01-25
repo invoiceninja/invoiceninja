@@ -24,9 +24,9 @@
 		<p>&nbsp;</p>
 
 		@if ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)
-			<div class="pull-right" style="width:270px">			
-				{{ Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
-				{{ Button::success_link(URL::to('payment/' . $invitation->invitation_key), trans('texts.pay_now'), array('class' => 'btn-lg pull-right')) }}
+			<div class="pull-right" style="text-align:right">
+				{{ Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}&nbsp;&nbsp;
+				{{ Button::success_link(URL::to('payment/' . $invitation->invitation_key), trans('texts.pay_now'), array('class' => 'btn-lg')) }}
 			</div>		
 		@else 
 			<div class="pull-right">
@@ -53,9 +53,10 @@
 				refreshPDF();
 			});
 			
-			function onDownloadClick() {			
+			function onDownloadClick() {
 				var doc = generatePDF(invoice, invoice.invoice_design.javascript, true);
-				doc.save('Invoice-' + invoice.invoice_number + '.pdf');
+                var fileName = invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice;
+				doc.save(fileName + '-' + invoice.invoice_number + '.pdf');
 			}
 
 

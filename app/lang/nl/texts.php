@@ -487,6 +487,12 @@ return array(
   'discount_percent' => 'Percent',
   'discount_amount' => 'Amount',
 
+  'invoice_history' => 'Invoice History',
+  'quote_history' => 'Quote History',
+  'current_version' => 'Current version',
+  'select_versiony' => 'Select version',
+  'view_history' => 'View History',
+
       
   
 );
