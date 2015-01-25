@@ -144,6 +144,7 @@ class InvoiceRepository
             if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
                 $str .= '<li><a href="'.\URL::to("{$entityType}s/".$model->public_id.'/edit').'">'.trans("texts.edit_{$entityType}").'</a></li>
                 <li><a href="'.\URL::to("{$entityType}s/".$model->public_id.'/clone').'">'.trans("texts.clone_{$entityType}").'</a></li>
+                <li><a href="' . \URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}") . '">' . trans("texts.view_history") . '</a></li>
                 <li class="divider"></li>';
 
                 if ($model->invoice_status_id < INVOICE_STATUS_SENT) {

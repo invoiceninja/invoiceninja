@@ -288,6 +288,7 @@
 					<ul class="dropdown-menu">
 						<li><a href="javascript:onSaveClick()" id="saveButton">{{ trans("texts.save_{$entityType}") }}</a></li>
 						<li><a href="javascript:onCloneClick()">{{ trans("texts.clone_{$entityType}") }}</a></li>
+                        <li><a href="{{ URL::to("{$entityType}s/{$entityType}_history/{$invoice->public_id}") }}">{{ trans("texts.view_history") }}</a></li>
 
 						@if ($invoice && $entityType == ENTITY_QUOTE)			
 							<li class="divider"></li>
@@ -1347,7 +1348,7 @@
 
 			@if (Utils::isConfirmed())
 			if (self.invitation_link()) {
-				str += '<br/><a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_as_recipient') }}</a>';
+				str += '<br/><a href="' + self.invitation_link() + '" target="_blank" style="padding-left:20px">{{ trans('texts.view_as_recipient') }}</a>';
 			}
 			@endif
 			

@@ -32343,7 +32343,7 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
       doc.text(marginLeft, y, value);
 
       doc.setFontType('normal');
-      if (invoice.is_quote) {
+      if (parseInt(invoice.is_quote)) {
         if (key == 'invoice_number') {
           key = 'quote_number';
         } else if (key == 'invoice_date') {

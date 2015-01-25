@@ -494,4 +494,50 @@ class InvoiceController extends \BaseController
 
         return self::edit($publicId, true);
     }
+
+    public function invoiceHistory($publicId)
+    {
+        $invoice = Invoice::withTrashed()->scope($publicId)->firstOrFail();
+        $invoice->load('user', 'invoice_items', 'account.country', 'client.contacts', 'client.country');
+        $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
+        $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
+        $invoice->is_pro = Auth::user()->isPro();
+        $invoice->is_quote = intval($invoice->is_quote);
+
+        $activityTypeId = $invoice->is_quote ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
+        $activities = Activity::scope(false, $invoice->account_id)->with(['user' => function($query) {
+            $query->select(['id', 'first_name', 'last_name']);
+        }])->where('activity_type_id', '=', $activityTypeId)->orderBy('id', 'desc')->get(['id', 'created_at', 'user_id', 'json_backup']);
+
+        $versionsJson = [];
+        $versionsSelect = [];
+        $lastId = false;
+
+        foreach ($activities as $activity) {
+            $backup = json_decode($activity->json_backup);
+            $backup->invoice_date = Utils::fromSqlDate($backup->invoice_date);
+            $backup->due_date = Utils::fromSqlDate($backup->due_date);
+            $backup->is_pro = Auth::user()->isPro();
+            $backup->is_quote = intval($backup->is_quote);
+
+            $versionsJson[$activity->id] = $backup;
+            
+            $key = Utils::timestampToDateTimeString(strtotime($activity->created_at)) . ' - ' . $activity->user->getDisplayName();
+            $versionsSelect[$lastId ? $lastId : 0] = $key;
+            $lastId = $activity->id;
+        }
+
+        $versionsSelect[$lastId] = Utils::timestampToDateTimeString(strtotime($invoice->created_at)) . ' - ' . $invoice->user->getDisplayName();
+        //dd($versionsSelect);
+        //dd($activities);
+
+        $data = [
+            'invoice' => $invoice,
+            'versionsJson' => json_encode($versionsJson),
+            'versionsSelect' => $versionsSelect,
+            'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+        ];
+
+        return View::make('invoices.history', $data);
+    }
 }
