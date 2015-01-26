@@ -484,11 +484,11 @@ return array(
   'discount_percent' => 'Pourcent',
   'discount_amount' => 'Montant',
   
-  'invoice_history' => 'Invoice History',
-  'quote_history' => 'Quote History',
-  'current_version' => 'Current version',
-  'select_versiony' => 'Select version',
-  'view_history' => 'View History',
+  'invoice_history' => 'Historique des factures',
+  'quote_history' => 'Historique des devis',
+  'current_version' => 'Version courante',
+  'select_versiony' => 'Choix de la verison',
+  'view_history' => 'Consulter l\'historique',
 
   
 );
