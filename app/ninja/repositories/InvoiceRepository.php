@@ -144,6 +144,7 @@ class InvoiceRepository
             if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
                 $str .= '<li><a href="'.\URL::to("{$entityType}s/".$model->public_id.'/edit').'">'.trans("texts.edit_{$entityType}").'</a></li>
                 <li><a href="'.\URL::to("{$entityType}s/".$model->public_id.'/clone').'">'.trans("texts.clone_{$entityType}").'</a></li>
+                <li><a href="' . \URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}") . '">' . trans("texts.view_history") . '</a></li>
                 <li class="divider"></li>';
 
                 if ($model->invoice_status_id < INVOICE_STATUS_SENT) {
@@ -244,7 +245,7 @@ class InvoiceRepository
         $invoice->po_number = trim($data['po_number']);
         $invoice->invoice_design_id = $data['invoice_design_id'];
 
-        if (isset($data['tax_name']) && isset($data['tax_rate']) && Utils::parseFloat($data['tax_rate']) > 0) {
+        if (isset($data['tax_name']) && isset($data['tax_rate']) && $data['tax_name']) {
             $invoice->tax_rate = Utils::parseFloat($data['tax_rate']);
             $invoice->tax_name = trim($data['tax_name']);
         } else {
@@ -345,7 +346,7 @@ class InvoiceRepository
             $invoiceItem->qty = Utils::parseFloat($item->qty);
             $invoiceItem->tax_rate = 0;
 
-            if (isset($item->tax_rate) && Utils::parseFloat($item->tax_rate) > 0) {
+            if (isset($item->tax_rate) && isset($item->tax_name) && $item->tax_name) {
                 $invoiceItem->tax_rate = Utils::parseFloat($item->tax_rate);
                 $invoiceItem->tax_name = trim($item->tax_name);
             }

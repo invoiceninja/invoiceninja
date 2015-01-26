@@ -65,7 +65,9 @@
   if (window.invoice) {
     invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
     invoice.imageWidth = {{ $account->getLogoWidth() }};
-    invoice.imageHeight = {{ $account->getLogoHeight() }};
+    invoice.imageHeight = {{ $account->getLogoHeight() }};    
+  } else {
+    window.accountLogo = "{{ HTML::image_data($account->getLogoPath()) }}";
   }
   @endif  
 

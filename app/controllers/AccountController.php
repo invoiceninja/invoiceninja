@@ -703,18 +703,27 @@ class AccountController extends \BaseController
                 $user->phone = trim(Input::get('phone'));
                 $user->save();
             }
-
+                
             /* Logo image file */
             if ($file = Input::file('logo')) {
                 $path = Input::file('logo')->getRealPath();
                 File::delete('logo/'.$account->account_key.'.jpg');
 
-                $image = Image::make($path)->resize(200, 120, true, false);
-                Image::canvas($image->width, $image->height, '#FFFFFF')->insert($image)->save($account->getLogoPath());
+                $image = Image::make($path);
+                $mimeType = $file->getMimeType();
+                
+                if ($image->width == 200 && $mimeType == 'image/jpeg') {
+                    $file->move('logo/', $account->account_key . '.jpg');
+                } else {
+                    $image->resize(200, 120, true, false);
+                    Image::canvas($image->width, $image->height, '#FFFFFF')->insert($image)->save($account->getLogoPath());
+                }
+                
+                //$image = Image::make($path)->resize(200, 120, true, false);
+                //Image::canvas($image->width, $image->height, '#FFFFFF')->insert($image)->save($account->getLogoPath());
             }
 
             Event::fire('user.refresh');
-
             Session::flash('message', trans('texts.updated_settings'));
 
             return Redirect::to('company/details');
