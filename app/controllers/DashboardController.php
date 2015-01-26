@@ -31,7 +31,7 @@ class DashboardController extends \BaseController
             ->where('accounts.id', '=', Auth::user()->account_id)
             ->where('clients.is_deleted', '=', false)
             ->groupBy('accounts.id')
-            ->groupBy('clients.currency_id')
+            ->groupBy(DB::raw('CASE WHEN clients.currency_id IS NULL THEN CASE WHEN accounts.currency_id IS NULL THEN 1 ELSE accounts.currency_id END ELSE clients.currency_id END'))
             ->get();
 
         $activities = Activity::where('activities.account_id', '=', Auth::user()->account_id)
