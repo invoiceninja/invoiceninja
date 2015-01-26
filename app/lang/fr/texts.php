@@ -484,5 +484,11 @@ return array(
   'discount_percent' => 'Pourcent',
   'discount_amount' => 'Montant',
   
+  'invoice_history' => 'Invoice History',
+  'quote_history' => 'Quote History',
+  'current_version' => 'Current version',
+  'select_versiony' => 'Select version',
+  'view_history' => 'View History',
+
   
 );

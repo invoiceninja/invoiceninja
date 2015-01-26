@@ -113,6 +113,9 @@ Route::group(array('before' => 'auth'), function() {
     Route::get('recurring_invoices', 'InvoiceController@recurringIndex');
     Route::get('api/recurring_invoices/{client_id?}', array('as'=>'api.recurring_invoices', 'uses'=>'InvoiceController@getRecurringDatatable'));
 
+    Route::get('invoices/invoice_history/{invoice_id}', 'InvoiceController@invoiceHistory');
+    Route::get('quotes/quote_history/{invoice_id}', 'InvoiceController@invoiceHistory');
+    
     Route::resource('invoices', 'InvoiceController');
     Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));
     Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
@@ -192,6 +195,40 @@ define('ACCOUNT_CHART_BUILDER', 'chart_builder');
 define('ACCOUNT_USER_MANAGEMENT', 'user_management');
 define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
 
+define("ACTIVITY_TYPE_CREATE_CLIENT", 1);
+define("ACTIVITY_TYPE_ARCHIVE_CLIENT", 2);
+define("ACTIVITY_TYPE_DELETE_CLIENT", 3);
+
+define("ACTIVITY_TYPE_CREATE_INVOICE", 4);
+define("ACTIVITY_TYPE_UPDATE_INVOICE", 5);
+define("ACTIVITY_TYPE_EMAIL_INVOICE", 6);
+define("ACTIVITY_TYPE_VIEW_INVOICE", 7);
+define("ACTIVITY_TYPE_ARCHIVE_INVOICE", 8);
+define("ACTIVITY_TYPE_DELETE_INVOICE", 9);
+
+define("ACTIVITY_TYPE_CREATE_PAYMENT", 10);
+define("ACTIVITY_TYPE_UPDATE_PAYMENT", 11);
+define("ACTIVITY_TYPE_ARCHIVE_PAYMENT", 12);
+define("ACTIVITY_TYPE_DELETE_PAYMENT", 13);
+
+define("ACTIVITY_TYPE_CREATE_CREDIT", 14);
+define("ACTIVITY_TYPE_UPDATE_CREDIT", 15);
+define("ACTIVITY_TYPE_ARCHIVE_CREDIT", 16);
+define("ACTIVITY_TYPE_DELETE_CREDIT", 17);
+
+define("ACTIVITY_TYPE_CREATE_QUOTE", 18);
+define("ACTIVITY_TYPE_UPDATE_QUOTE", 19);
+define("ACTIVITY_TYPE_EMAIL_QUOTE", 20);
+define("ACTIVITY_TYPE_VIEW_QUOTE", 21);
+define("ACTIVITY_TYPE_ARCHIVE_QUOTE", 22);
+define("ACTIVITY_TYPE_DELETE_QUOTE", 23);
+
+define("ACTIVITY_TYPE_RESTORE_QUOTE", 24);
+define("ACTIVITY_TYPE_RESTORE_INVOICE", 25);
+define("ACTIVITY_TYPE_RESTORE_CLIENT", 26);
+define("ACTIVITY_TYPE_RESTORE_PAYMENT", 27);
+define("ACTIVITY_TYPE_RESTORE_CREDIT", 28);
+
 define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
 define('LOGGED_ERROR_LIMIT', 100);
@@ -260,7 +297,7 @@ define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
 define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
 define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-define('NINJA_VERSION', '1.6.0');
+define('NINJA_VERSION', '1.6.1');
 define('NINJA_DATE', '2000-01-01');
 define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
 define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
