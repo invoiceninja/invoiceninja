@@ -370,7 +370,7 @@ return array(
   'view_client' => 'Voir le client',
 
   'updated_quote' => 'Devis mis à jour',
-  'created_quote' => 'Devis créée',
+  'created_quote' => 'Devis créé',
   'cloned_quote' => 'Devis dupliqué avec succès',
   'emailed_quote' => 'Devis envoyé par courriel',
   'archived_quote' => 'Devis archivé',
