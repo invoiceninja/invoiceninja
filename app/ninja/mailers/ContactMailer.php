@@ -22,7 +22,7 @@ class ContactMailer extends Mailer
             if (!$invitation->user || !$invitation->user->email) {
                 return false;
             }
-            if (!$invitation->contact || $invitation->contact->email) {
+            if (!$invitation->contact || !$invitation->contact->email) {
                 return false;
             }
 
