@@ -133,7 +133,7 @@ class Client extends EntityModel
         $str = '';
 
         if ($this->id_number) {
-            $str .= '<i class="fa fa-vat-number" style="width: 20px"></i>'.$this->vat_number;
+            $str .= '<i class="fa fa-id-number" style="width: 20px"></i>'.trans('texts.id_number').': '.$this->id_number;
         }
 
         return $str;
@@ -144,7 +144,7 @@ class Client extends EntityModel
         $str = '';
 
         if ($this->vat_number) {
-            $str .= '<i class="fa fa-vat-number" style="width: 20px"></i>'.$this->vat_number;
+            $str .= '<i class="fa fa-vat-number" style="width: 20px"></i>'.trans('texts.vat_number').': '.$this->vat_number;
         }
 
         return $str;
