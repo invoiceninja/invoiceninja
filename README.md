@@ -58,7 +58,9 @@ Create database user and a database for ninja
     GRANT ALL PRIVILEGES ON `ninja`.* TO 'ninja'@'localhost';
     FLUSH PRIVILEGES;
 
-Set the encryption key in config/app.php (you can use http://www.sethcardoza.com/tools/random-password-generator for a good key)
+Set the encryption key in config/app.php:
+
+    php artisan key:generate
 
 Run the following artisan commands to setup the database:
     
