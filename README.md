@@ -61,6 +61,7 @@ Create database user and a database for ninja
 Set the encryption key in config/app.php (you can use http://www.sethcardoza.com/tools/random-password-generator for a good key)
 
 Run the following artisan commands to setup the database:
+    
     php artisan migrate
     php artisan db:seed
 
