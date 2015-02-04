@@ -58,7 +58,7 @@ Create database user and a database for ninja
     GRANT ALL PRIVILEGES ON `ninja`.* TO 'ninja'@'localhost';
     FLUSH PRIVILEGES;
 
-Set the encryption key in config/app.php:
+Set the encryption key in config/app.php, you can create a proper key with this artisan command:
 
     php artisan key:generate
 
