@@ -505,9 +505,11 @@ class InvoiceController extends \BaseController
         $invoice->is_quote = intval($invoice->is_quote);
 
         $activityTypeId = $invoice->is_quote ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
-        $activities = Activity::scope(false, $invoice->account_id)->with(['user' => function($query) {
-            $query->select(['id', 'first_name', 'last_name']);
-        }])->where('activity_type_id', '=', $activityTypeId)->orderBy('id', 'desc')->get(['id', 'created_at', 'user_id', 'json_backup']);
+        $activities = Activity::scope(false, $invoice->account_id)
+                        ->where('activity_type_id', '=', $activityTypeId)
+                        ->where('invoice_id', '=', $invoice->id)
+                        ->orderBy('id', 'desc')
+                        ->get(['id', 'created_at', 'user_id', 'json_backup', 'message']);
 
         $versionsJson = [];
         $versionsSelect = [];
@@ -522,8 +524,7 @@ class InvoiceController extends \BaseController
             $backup->account = $invoice->account->toArray();
 
             $versionsJson[$activity->id] = $backup;
-            
-            $key = Utils::timestampToDateTimeString(strtotime($activity->created_at)) . ' - ' . $activity->user->getDisplayName();
+            $key = Utils::timestampToDateTimeString(strtotime($activity->created_at)) . ' - ' . Utils::decodeActivity($activity->message);
             $versionsSelect[$lastId ? $lastId : 0] = $key;
             $lastId = $activity->id;
         }

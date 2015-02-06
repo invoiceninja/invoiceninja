@@ -332,7 +332,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->decimal('balance', 13, 2);
         
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-            $t->foreign('account_id')->references('id')->on('accounts'); 
+            $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade'); 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); 
             $t->foreign('invoice_status_id')->references('id')->on('invoice_statuses');
             $t->foreign('recurring_invoice_id')->references('id')->on('invoices')->onDelete('cascade');
@@ -424,7 +424,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->decimal('tax_rate', 13, 2)->nullable();
 
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
-            $t->foreign('product_id')->references('id')->on('products');
+            $t->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
 
             $t->unsignedInteger('public_id');
@@ -451,11 +451,11 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('transaction_reference')->nullable();
             $t->string('payer_id')->nullable();
 
-            $t->foreign('invoice_id')->references('id')->on('invoices');
+            $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-            $t->foreign('contact_id')->references('id')->on('contacts');
-            $t->foreign('account_gateway_id')->references('id')->on('account_gateways');
+            $t->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
+            $t->foreign('account_gateway_id')->references('id')->on('account_gateways')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
             $t->foreign('payment_type_id')->references('id')->on('payment_types');
             
