@@ -71,8 +71,8 @@ return array(
     "unique"           => ":attribute ist schon vergeben.",
     "url"              => "Das Format von :attribute ist ungültig.",
 
-    "positive" => "The :attribute must be greater than zero.",
-    "has_credit" => "The client does not have enough credit.",
+    "positive" => ":attribute muss größer als null sein.",
+    "has_credit" => "Der Kunde hat nicht genug Guthaben.",
     "notmasked" => "The values are masked",
 
     /*
