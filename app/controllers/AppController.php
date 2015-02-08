@@ -40,7 +40,7 @@ class AppController extends BaseController
 
         $database = Input::get('database');
         $dbType = $database['default'];
-        $database[$dbType] = $database['type'];
+        $database['connections'] = [$dbType => $database['type']];
         unset($database['type']);
 
         $mail = Input::get('mail');
@@ -103,7 +103,7 @@ class AppController extends BaseController
 
         Config::set('database.default', $dbType);
 
-        foreach ($database[$dbType] as $key => $val) {
+        foreach ($database['connections'][$dbType] as $key => $val) {
             Config::set("database.connections.{$dbType}.{$key}", $val);
         }
 
