@@ -372,7 +372,10 @@ class InvoiceRepository
         $clone->balance = $invoice->amount;
 
         // if the invoice prefix is diff than quote prefix, use the same number for the invoice
-        if (($account->invoice_number_prefix || $account->quote_number_prefix) && $account->invoice_number_prefix != $account->quote_number_prefix) {
+        if (($account->invoice_number_prefix || $account->quote_number_prefix) 
+            && $account->invoice_number_prefix != $account->quote_number_prefix
+            && $account->share_counter) {
+
             $invoiceNumber = $invoice->invoice_number;
             if (strpos($invoiceNumber, $account->quote_number_prefix) === 0) {
                 $invoiceNumber = substr($invoiceNumber, strlen($account->quote_number_prefix));
