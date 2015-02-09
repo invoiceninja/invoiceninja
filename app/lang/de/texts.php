@@ -352,7 +352,7 @@ return array(
   'quote_number_short' => 'Angebot #',
   'quote_date' => 'Angebotsdatum',
   'quote_total' => 'Gesamtanzahl Angebote',
-  'your_quote' => 'Dein Angebot',
+  'your_quote' => 'Ihr Angebot',
   'total' => 'Gesamt',
   'clone' => 'Duplizieren',
 
@@ -460,8 +460,8 @@ return array(
   'vat_number' => 'USt-IdNr.',
 
   'id_number' => 'ID-Nummer',
-  'white_label_link' => 'Klicken, um das Branding zu entfernen',
-  'white_label_text' => 'Kaufe eine Lizenz für $10.00, um das Invoice Ninja Logo auf der Kundenseite zu entfernen.',
+  'white_label_link' => 'Branding entfernen',
+  'white_label_text' => 'Um das Invoice Ninja Logo auf der Kundenseite zu entfernen, kaufe bitte eine Lizenz für $10.00.',
   'white_label_header' => 'Branding entfernen',
   'bought_white_label' => 'Branding-freie Lizenz erfolgreich aktiviert',
   'white_labeled' => 'Branding entfernt',
