@@ -1,4 +1,4 @@
 <?php
 
-return 'production';
+return 'development';
 
