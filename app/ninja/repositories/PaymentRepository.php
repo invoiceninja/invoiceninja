@@ -68,7 +68,7 @@ class PaymentRepository
         $rules = array(
             'client' => 'required',
             'invoice' => 'required',
-            'amount' => 'required|positive',
+            'amount' => 'required',
         );
 
         if ($input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
