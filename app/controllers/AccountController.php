@@ -168,7 +168,7 @@ class AccountController extends \BaseController
             );
             $recommendedGatewayArray['Other Options'] = $otherItem;
 
-            $gateways = Gateway::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get();
+            $gateways = Gateway::remember(DEFAULT_QUERY_CACHE)->where('payment_library_id', '=', 1)->orderBy('name')->get();
 
             foreach ($gateways as $gateway) {
                 $paymentLibrary = $gateway->paymentlibrary;
@@ -187,6 +187,7 @@ class AccountController extends \BaseController
                 'gateways' => $gateways,
                 'dropdownGateways' => Gateway::remember(DEFAULT_QUERY_CACHE)
                     ->where('recommended', '=', '0')
+                    ->where('payment_library_id', '=', 1)
                     ->orderBy('name')
                     ->get(),
                 'recommendedGateways' => $recommendedGatewayArray,

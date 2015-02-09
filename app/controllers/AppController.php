@@ -59,19 +59,19 @@ class AppController extends BaseController
             return Redirect::to('/setup')->withInput();
         }
 
-        $content = "<?php return 'development';";
+        $content = "<?php return 'production';";
         $fp = fopen(base_path()."/bootstrap/environment.php", 'w');
         fwrite($fp, $content);
         fclose($fp);
 
-        $configDir = app_path().'/config/development';
+        $configDir = app_path().'/config/production';
         if (!file_exists($configDir)) {
             mkdir($configDir);
         }
 
         foreach (['app' => $app, 'database' => $database, 'mail' => $mail] as $key => $config) {
             $content = '<?php return '.var_export($config, true).';';
-            $fp = fopen(app_path()."/config/development/{$key}.php", 'w');
+            $fp = fopen(app_path()."/config/production/{$key}.php", 'w');
             fwrite($fp, $content);
             fclose($fp);
         }
