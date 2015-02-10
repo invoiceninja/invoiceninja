@@ -13,13 +13,20 @@
 		'invoice' => 'required',		
 		'amount' => 'required',		
 	)); }}
+
+    @if ($payment)
+        {{ Former::populate($payment) }}
+    @endif
 	
 	<div class="row">
 		<div class="col-md-8">
 
-			{{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
-			{{ Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') }}
-			{{ Former::text('amount') }}
+            @if (!$payment)                        
+			 {{ Former::select('client')->addOption('', '')->addGroupClass('client-select') }}
+			 {{ Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') }}
+			 {{ Former::text('amount') }}
+            @endif
+
 			{{ Former::select('payment_type_id')->addOption('','')
 				->fromQuery($paymentTypes, 'name', 'id') }}			
 			{{ Former::text('payment_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') }}
@@ -35,7 +42,7 @@
 
 	<center class="buttons">
         {{ Button::lg_primary_submit_success(trans('texts.save'))->append_with_icon('floppy-disk') }}
-         {{ Button::lg_default_link('payments/' . ($payment ? $payment->public_id : ''), trans('texts.cancel'))->append_with_icon('remove-circle'); }}
+         {{ Button::lg_default_link('payments/', trans('texts.cancel'))->append_with_icon('remove-circle'); }}
 	</center>
 
 	{{ Former::close() }}
@@ -47,10 +54,14 @@
 
 	$(function() {
 
-		populateInvoiceComboboxes({{ $clientPublicId }}, {{ $invoicePublicId }});
+        @if ($payment)
+          $('#payment_date').datepicker('update', '{{ $payment->payment_date }}')
+        @else
+          $('#payment_date').datepicker('update', new Date());
+		  populateInvoiceComboboxes({{ $clientPublicId }}, {{ $invoicePublicId }});
+        @endif
 
-		$('#payment_type_id').combobox();
-		$('#payment_date').datepicker('update', new Date());
+		$('#payment_type_id').combobox();		
 
 	});
 

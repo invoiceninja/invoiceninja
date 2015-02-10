@@ -132,9 +132,6 @@ Route::group(array('before' => 'auth'), function() {
     Route::get('api/quotes/{client_id?}', array('as'=>'api.quotes', 'uses'=>'QuoteController@getDatatable'));
     Route::post('quotes/bulk', 'QuoteController@bulk');
 
-    Route::get('payments/{id}/edit', function() {
-        return View::make('header');
-    });
     Route::resource('payments', 'PaymentController');
     Route::get('payments/create/{client_id?}/{invoice_id?}', 'PaymentController@create');
     Route::get('api/payments/{client_id?}', array('as'=>'api.payments', 'uses'=>'PaymentController@getDatatable'));

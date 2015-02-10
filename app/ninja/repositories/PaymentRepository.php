@@ -94,29 +94,33 @@ class PaymentRepository
         }
 
         $paymentTypeId = $input['payment_type_id'] ? $input['payment_type_id'] : null;
-        $clientId = Client::getPrivateId($input['client']);
-        $amount = Utils::parseFloat($input['amount']);
-
-        if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
-            $credits = Credit::scope()->where('client_id', '=', $clientId)
-                        ->where('balance', '>', 0)->orderBy('created_at')->get();
-            $applied = 0;
-
-            foreach ($credits as $credit) {
-                $applied += $credit->apply($amount);
-
-                if ($applied >= $amount) {
-                    break;
-                }
-            }
-        }
-
-        $payment->client_id = $clientId;
-        $payment->invoice_id = isset($input['invoice']) && $input['invoice'] != "-1" ? Invoice::getPrivateId($input['invoice']) : null;
         $payment->payment_type_id = $paymentTypeId;
         $payment->payment_date = Utils::toSqlDate($input['payment_date']);
-        $payment->amount = $amount;
         $payment->transaction_reference = trim($input['transaction_reference']);
+
+        if (!$publicId) {
+            $clientId = Client::getPrivateId($input['client']);
+            $amount = Utils::parseFloat($input['amount']);
+
+            if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
+                $credits = Credit::scope()->where('client_id', '=', $clientId)
+                            ->where('balance', '>', 0)->orderBy('created_at')->get();
+                $applied = 0;
+
+                foreach ($credits as $credit) {
+                    $applied += $credit->apply($amount);
+
+                    if ($applied >= $amount) {
+                        break;
+                    }
+                }
+            }
+
+            $payment->client_id = $clientId;
+            $payment->invoice_id = isset($input['invoice']) && $input['invoice'] != "-1" ? Invoice::getPrivateId($input['invoice']) : null;
+            $payment->amount = $amount;
+        }
+
         $payment->save();
 
         return $payment;

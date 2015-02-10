@@ -497,4 +497,7 @@ return array(
   'select_versiony' => 'Select version',
   'view_history' => 'View History',
 
+  'edit_payment' => 'Edit Payment',
+  'updated_payment' => 'Successfully updated payment',
+  
 );

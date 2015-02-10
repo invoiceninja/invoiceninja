@@ -71,7 +71,9 @@ class PaymentController extends \BaseController
                             <ul class="dropdown-menu" role="menu">';
 
                 if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
-                    $str .= '<li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans('texts.archive_payment').'</a></li>';
+                    $str .= '<li><a href="payments/'.$model->public_id.'/edit">'.trans('texts.edit_payment').'</a></li>
+                             <li class="divider"></li>
+                             <li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans('texts.archive_payment').'</a></li>';
                 } else {
                     $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans('texts.restore_payment').'</a></li>';
                 }
@@ -141,7 +143,7 @@ class PaymentController extends \BaseController
             'payment' => $payment,
             'method' => 'PUT',
             'url' => 'payments/'.$publicId,
-            'title' => 'Edit Payment',
+            'title' => trans('texts.edit_payment'),
             //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
@@ -687,7 +689,7 @@ class PaymentController extends \BaseController
 
     private function save($publicId = null)
     {
-        if ($errors = $this->paymentRepo->getErrors(Input::all())) {
+        if (!$publicId && $errors = $this->paymentRepo->getErrors(Input::all())) {
             $url = $publicId ? 'payments/'.$publicId.'/edit' : 'payments/create';
 
             return Redirect::to($url)
@@ -695,10 +697,14 @@ class PaymentController extends \BaseController
                 ->withInput();
         } else {
             $this->paymentRepo->save($publicId, Input::all());
-
-            Session::flash('message', trans('texts.created_payment'));
-
-            return Redirect::to('clients/'.Input::get('client'));
+            
+            if ($publicId) {
+                Session::flash('message', trans('texts.updated_payment'));
+                return Redirect::to('payments/');
+            } else {
+                Session::flash('message', trans('texts.created_payment'));
+                return Redirect::to('clients/'.Input::get('client'));
+            }
         }
     }
 
