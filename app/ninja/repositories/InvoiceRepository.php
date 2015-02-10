@@ -162,6 +162,8 @@ class InvoiceRepository
                 } elseif ($entityType == ENTITY_QUOTE) {
                     if ($model->quote_invoice_id) {
                         $str .= '<li><a href="'.\URL::to("invoices/{$model->quote_invoice_id}/edit").'">'.trans("texts.view_invoice").'</a></li>';
+                    } else {
+                        $str .= '<li><a href="javascript:convertEntity('.$model->public_id.')">'.trans("texts.convert_to_invoice").'</a></li>';
                     }
                 }
 

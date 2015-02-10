@@ -68,10 +68,14 @@
 		submitForm('archive');
 	}
 
-	function restoreEntity(id) {
-		$('#id').val(id);
-		submitForm('restore');
-	}
+    function restoreEntity(id) {
+        $('#id').val(id);
+        submitForm('restore');
+    }
+    function convertEntity(id) {
+        $('#id').val(id);
+        submitForm('convert');
+    }
 
 	function markEntity(id, statusId) {
 		$('#id').val(id);
