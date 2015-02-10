@@ -1348,7 +1348,7 @@
 
 			@if (Utils::isConfirmed())
 			if (self.invitation_link()) {
-				str += '<br/><a href="' + self.invitation_link() + '" target="_blank" style="padding-left:20px">{{ trans('texts.view_as_recipient') }}</a>';
+				str += '<br/><a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_as_recipient') }}</a>';
 			}
 			@endif
 			
