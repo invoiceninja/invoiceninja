@@ -9,12 +9,12 @@ class Invitation extends EntityModel
 
     public function contact()
     {
-        return $this->belongsTo('Contact');
+        return $this->belongsTo('Contact')->withTrashed();
     }
 
     public function user()
     {
-        return $this->belongsTo('User');
+        return $this->belongsTo('User')->withTrashed();
     }
 
     public function getLink()
