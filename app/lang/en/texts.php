@@ -303,7 +303,7 @@ return array(
   'email_taken' => 'The email address is already registered',
   'working' => 'Working',
   'success' => 'Success',
-  'success_message' => 'You have succesfully registered. Please visit the link in the account confirmation email to verify your email address.',
+  'success_message' => 'You have successfully registered. Please visit the link in the account confirmation email to verify your email address.',
   'erase_data' => 'This will permanently erase your data.',
   'password' => 'Password',
 
@@ -499,5 +499,9 @@ return array(
 
   'edit_payment' => 'Edit Payment',
   'updated_payment' => 'Successfully updated payment',
-  
+  'deleted' => 'Deleted',
+  'restore_user' => 'Restore User',
+  'restored_user' => 'Successfully restored user',
+  'show_deleted_users' => 'Show deleted users',
+
 );

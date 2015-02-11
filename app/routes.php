@@ -88,6 +88,8 @@ Route::group(array('before' => 'auth'), function() {
     Route::get('api/users', array('as'=>'api.users', 'uses'=>'UserController@getDatatable'));
     Route::resource('users', 'UserController');
     Route::post('users/delete', 'UserController@delete');
+    Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
+    Route::get('restore_user/{user_id}', 'UserController@restoreUser');
 
     Route::get('api/products', array('as'=>'api.products', 'uses'=>'ProductController@getDatatable'));
     Route::resource('products', 'ProductController');

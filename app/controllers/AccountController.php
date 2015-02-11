@@ -85,7 +85,11 @@ class AccountController extends \BaseController
     {
         Session::put("show_trash:{$entityType}", $visible == 'true');
 
-        return Redirect::to("{$entityType}s");
+        if ($entityType == 'user') {
+            return Redirect::to('company/'.ACCOUNT_ADVANCED_SETTINGS.'/'.ACCOUNT_USER_MANAGEMENT);
+        } else {
+            return Redirect::to("{$entityType}s");
+        }
     }
 
     public function getSearchData()
