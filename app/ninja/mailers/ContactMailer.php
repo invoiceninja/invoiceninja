@@ -17,6 +17,8 @@ class ContactMailer extends Mailer
         $view = 'invoice';
         $subject = trans("texts.{$entityType}_subject", ['invoice' => $invoice->invoice_number, 'account' => $invoice->account->getDisplayName()]);
         $accountName = $invoice->account->getDisplayName();
+        $emailTemplate = $invoice->account->getEmailTemplate($entityType);
+        $invoiceAmount = Utils::formatMoney($invoice->amount, $invoice->client->currency_id);
 
         foreach ($invoice->invitations as $invitation) {
             if (!$invitation->user || !$invitation->user->email) {
@@ -29,17 +31,17 @@ class ContactMailer extends Mailer
             $invitation->sent_date = \Carbon::now()->toDateTimeString();
             $invitation->save();
 
-            $data = [
-                'entityType' => $entityType,
-                'link' => $invitation->getLink(),
-                'clientName' => $invoice->client->getDisplayName(),
-                'accountName' => $accountName,
-                'contactName'    => $invitation->contact->getDisplayName(),
-                'invoiceAmount' => Utils::formatMoney($invoice->amount, $invoice->client->currency_id),
-                'emailFooter' => $invoice->account->email_footer,
-                'showNinjaFooter' => !$invoice->account->isPro(),
+            $variables = [
+                '$footer' => $invoice->account->getEmailFooter(),
+                '$link' => $invitation->getLink(),
+                '$client' => $invoice->client->getDisplayName(),
+                '$account' => $accountName,
+                '$contact' => $invitation->contact->getDisplayName(),
+                '$amount' => $invoiceAmount
             ];
 
+            $data['body'] = str_replace(array_keys($variables), array_values($variables), $emailTemplate);
+            
             $fromEmail = $invitation->user->email;
             $this->sendTo($invitation->contact->email, $fromEmail, $accountName, $subject, $view, $data);
 
@@ -56,17 +58,20 @@ class ContactMailer extends Mailer
 
     public function sendPaymentConfirmation(Payment $payment)
     {
+        $invoice = $payment->invoice;
         $view = 'payment_confirmation';
-        $subject = trans('texts.payment_subject', ['invoice' => $payment->invoice->invoice_number]);
+        $subject = trans('texts.payment_subject', ['invoice' => $invoice->invoice_number]);
         $accountName = $payment->account->getDisplayName();
+        $emailTemplate = $invoice->account->getEmailTemplate(ENTITY_PAYMENT);
 
-        $data = [
-            'accountName' => $accountName,
-            'clientName' => $payment->client->getDisplayName(),
-            'emailFooter' => $payment->account->email_footer,
-            'paymentAmount' => Utils::formatMoney($payment->amount, $payment->client->currency_id),
-            'showNinjaFooter' => !$payment->account->isPro(),
+        $variables = [
+            '$footer' => $payment->account->getEmailFooter(),
+            '$client' => $payment->client->getDisplayName(),
+            '$account' => $accountName,
+            '$amount' => Utils::formatMoney($payment->amount, $payment->client->currency_id)
         ];
+
+        $data = ['body' => str_replace(array_keys($variables), array_values($variables), $emailTemplate)];
 
         $user = $payment->invitation->user;
         $this->sendTo($payment->contact->email, $user->email, $accountName, $subject, $view, $data);
@@ -74,26 +79,24 @@ class ContactMailer extends Mailer
 
     public function sendLicensePaymentConfirmation($name, $email, $amount, $license, $productId)
     {
-        $view = 'payment_confirmation';
+        $view = 'license_confirmation';
         $subject = trans('texts.payment_subject');
-
+        
         if ($productId == PRODUCT_ONE_CLICK_INSTALL) {
-            $message = "Softaculous install license: $license";
+            $license = "Softaculous install license: $license";
         } elseif ($productId == PRODUCT_INVOICE_DESIGNS) {
-            $message = "Invoice designs license: $license";
+            $license = "Invoice designs license: $license";
         } elseif ($productId == PRODUCT_WHITE_LABEL) {
-            $message = "White label license: $license";
+            $license = "White label license: $license";
         }
-
+        
         $data = [
-            'accountName' => trans('texts.email_from'),
-            'clientName' => $name,
-            'emailFooter' => false,
-            'paymentAmount' => Utils::formatMoney($amount, 1),
-            'showNinjaFooter' => false,
-            'emailMessage' => $message,
+            'account' => trans('texts.email_from'),
+            'client' => $name,
+            'amount' => Utils::formatMoney($amount, 1),
+            'license' => $license
         ];
-
+        
         $this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 }

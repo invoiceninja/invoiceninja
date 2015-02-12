@@ -83,7 +83,7 @@
 
         <div class="btn-group">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-            <div id="myAccountButton" class="ellipsis" style="max-width:120px">
+            <div id="myAccountButton" class="ellipsis" style="max-width:100px">
               {{ Auth::user()->getDisplayName() }}
               <span class="caret"></span>
             </div>            

@@ -1,6 +1,7 @@
 <ul class="nav nav-tabs nav nav-justified">
   {{ HTML::nav_link('company/advanced_settings/invoice_settings', 'invoice_settings') }}
   {{ HTML::nav_link('company/advanced_settings/invoice_design', 'invoice_design') }}
+  {{ HTML::nav_link('company/advanced_settings/email_templates', 'email_templates') }}
   {{ HTML::nav_link('company/advanced_settings/data_visualizations', 'data_visualizations') }}
   {{ HTML::nav_link('company/advanced_settings/chart_builder', 'chart_builder') }}
   {{ HTML::nav_link('company/advanced_settings/user_management', 'user_management') }}
