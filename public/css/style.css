@@ -772,20 +772,6 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
     .plans-table .pro {margin-top: 40px;}    
 }
 
-/* bootstrap 3.2.0 fix */
-/* https://github.com/twbs/bootstrap/issues/13984 */
-.radio input[type="radio"],
-.checkbox input[type="checkbox"] {
-margin-left: 0;
-margin-right: 5px;
-height: inherit;
-width: inherit;
-float: left;
-display: inline-block;
-position: relative;
-margin-top: 3px;
-}
-
 label[for=recommendedGateway_id2].radio{
     min-height: 60px;
 }

@@ -31,26 +31,43 @@ class UserController extends BaseController
     public function getDatatable()
     {
         $query = DB::table('users')
-                  ->where('users.account_id', '=', Auth::user()->account_id)
-                  ->where('users.deleted_at', '=', null)
-                  ->where('users.public_id', '>', 0)
-                  ->select('users.public_id', 'users.first_name', 'users.last_name', 'users.email', 'users.confirmed', 'users.public_id');
+                  ->where('users.account_id', '=', Auth::user()->account_id);
+
+        if (!Session::get('show_trash:user')) {
+            $query->where('users.deleted_at', '=', null);
+        }
+
+        $query->where('users.public_id', '>', 0)
+              ->select('users.public_id', 'users.first_name', 'users.last_name', 'users.email', 'users.confirmed', 'users.public_id', 'users.deleted_at');
 
         return Datatable::query($query)
         ->addColumn('first_name', function ($model) { return link_to('users/'.$model->public_id.'/edit', $model->first_name.' '.$model->last_name); })
         ->addColumn('email', function ($model) { return $model->email; })
-        ->addColumn('confirmed', function ($model) { return $model->confirmed ? trans('texts.active') : trans('texts.pending'); })
+        ->addColumn('confirmed', function ($model) { return $model->deleted_at ? trans('texts.deleted') : ($model->confirmed ? trans('texts.active') : trans('texts.pending')); })
         ->addColumn('dropdown', function ($model) {
-          return '<div class="btn-group tr-action" style="visibility:hidden;">
+          $actions = '<div class="btn-group tr-action" style="visibility:hidden;">
               <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                 '.trans('texts.select').' <span class="caret"></span>
               </button>
-              <ul class="dropdown-menu" role="menu">
-              <li><a href="'.URL::to('users/'.$model->public_id).'/edit">'.uctrans('texts.edit_user').'</a></li>
-              <li class="divider"></li>
-              <li><a href="javascript:deleteUser('.$model->public_id.')">'.uctrans('texts.delete_user').'</a></li>
-            </ul>
+              <ul class="dropdown-menu" role="menu">';
+
+          if ($model->deleted_at) {
+              $actions .= '<li><a href="'.URL::to('restore_user/'.$model->public_id).'">'.uctrans('texts.restore_user').'</a></li>';
+          } else {
+              $actions .= '<li><a href="'.URL::to('users/'.$model->public_id).'/edit">'.uctrans('texts.edit_user').'</a></li>';
+
+              if (!$model->confirmed) {
+                  $actions .= '<li><a href="'.URL::to('send_confirmation/'.$model->public_id).'">'.uctrans('texts.send_invite').'</a></li>';
+              }
+
+              $actions .= '<li class="divider"></li>
+                <li><a href="javascript:deleteUser('.$model->public_id.')">'.uctrans('texts.delete_user').'</a></li>';
+          }
+
+           $actions .= '</ul>
           </div>';
+
+          return $actions;
         })
         ->orderColumns(['first_name', 'email', 'confirmed'])
         ->make();
@@ -147,6 +164,19 @@ class UserController extends BaseController
         return Redirect::to('company/advanced_settings/user_management');
     }
 
+    public function restoreUser($userPublicId)
+    {
+        $user = User::where('account_id', '=', Auth::user()->account_id)
+                    ->where('public_id', '=', $userPublicId)
+                    ->withTrashed()->firstOrFail();
+
+        $user->restore();
+
+        Session::flash('message', trans('texts.restored_user'));
+
+        return Redirect::to('company/advanced_settings/user_management');
+    }
+
     /**
      * Stores new account
      *
@@ -204,6 +234,17 @@ class UserController extends BaseController
         }
 
         Session::flash('message', $message);
+
+        return Redirect::to('company/advanced_settings/user_management');
+    }
+
+    public function sendConfirmation($userPublicId)
+    {
+        $user = User::where('account_id', '=', Auth::user()->account_id)
+                    ->where('public_id', '=', $userPublicId)->firstOrFail();
+
+        $this->userMailer->sendConfirmation($user, Auth::user());
+        Session::flash('message', trans('texts.sent_invite'));
 
         return Redirect::to('company/advanced_settings/user_management');
     }

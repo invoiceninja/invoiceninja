@@ -302,4 +302,36 @@ class Account extends Eloquent
 
         return $this;
     }
+
+    public function getEmailTemplate($entityType, $message = false)
+    {
+        $field = "email_template_$entityType";
+        $template = $this->$field;
+
+        if ($template) {
+            return $template;
+        }
+
+        $template = "<p>\$client,</p>\r\n" .
+                    "<p>" . trans("texts.{$entityType}_message", ['amount' => '$amount']) . "</p>\r\n";
+
+        if ($entityType != ENTITY_PAYMENT) {
+            $template .= "<p><a href=\"\$link\">\$link</a></p>\r\n";
+        }
+
+        if ($message) {
+            $template .= "<p>$message</p>\r\n";
+        }
+
+        return $template . "<p>\$footer</p>";
+    }
+
+    public function getEmailFooter()
+    {
+        if ($this->email_footer) {
+            return $this->email_footer;
+        } else {
+            return "<p>" . trans('texts.email_signature') . "<br>\$account</p>";
+        }
+    }
 }

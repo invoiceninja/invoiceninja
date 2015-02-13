@@ -85,7 +85,11 @@ class AccountController extends \BaseController
     {
         Session::put("show_trash:{$entityType}", $visible == 'true');
 
-        return Redirect::to("{$entityType}s");
+        if ($entityType == 'user') {
+            return Redirect::to('company/'.ACCOUNT_ADVANCED_SETTINGS.'/'.ACCOUNT_USER_MANAGEMENT);
+        } else {
+            return Redirect::to("{$entityType}s");
+        }
     }
 
     public function getSearchData()
@@ -168,7 +172,7 @@ class AccountController extends \BaseController
             );
             $recommendedGatewayArray['Other Options'] = $otherItem;
 
-            $gateways = Gateway::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get();
+            $gateways = Gateway::remember(DEFAULT_QUERY_CACHE)->where('payment_library_id', '=', 1)->orderBy('name')->get();
 
             foreach ($gateways as $gateway) {
                 $paymentLibrary = $gateway->paymentlibrary;
@@ -187,6 +191,7 @@ class AccountController extends \BaseController
                 'gateways' => $gateways,
                 'dropdownGateways' => Gateway::remember(DEFAULT_QUERY_CACHE)
                     ->where('recommended', '=', '0')
+                    ->where('payment_library_id', '=', 1)
                     ->orderBy('name')
                     ->get(),
                 'recommendedGateways' => $recommendedGatewayArray,
@@ -203,8 +208,9 @@ class AccountController extends \BaseController
         } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
             return View::make('accounts.import_export');
         } elseif ($section == ACCOUNT_ADVANCED_SETTINGS) {
+            $account = Auth::user()->account;
             $data = [
-                'account' => Auth::user()->account,
+                'account' => $account,
                 'feature' => $subSection,
             ];
 
@@ -237,6 +243,11 @@ class AccountController extends \BaseController
                 $data['invoice'] = $invoice;
                 $data['invoiceDesigns'] = InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())
                     ->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
+            } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
+                $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
+                $data['quoteEmail'] = $account->getEmailTemplate(ENTITY_QUOTE);
+                $data['paymentEmail'] = $account->getEmailTemplate(ENTITY_PAYMENT);
+                $data['emailFooter'] = $account->getEmailFooter();                
             }
 
             return View::make("accounts.{$subSection}", $data);
@@ -268,10 +279,29 @@ class AccountController extends \BaseController
                 return AccountController::saveInvoiceSettings();
             } elseif ($subSection == ACCOUNT_INVOICE_DESIGN) {
                 return AccountController::saveInvoiceDesign();
+            } elseif ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
+                return AccountController::saveEmailTemplates();
             }
         } elseif ($section == ACCOUNT_PRODUCTS) {
             return AccountController::saveProducts();
         }
+    }
+
+    private function saveEmailTemplates()
+    {
+        if (Auth::user()->account->isPro()) {
+            $account = Auth::user()->account;
+
+            $account->email_template_invoice = Input::get('email_template_invoice', $account->getEmailTemplate(ENTITY_INVOICE));
+            $account->email_template_quote = Input::get('email_template_quote', $account->getEmailTemplate(ENTITY_QUOTE));
+            $account->email_template_payment = Input::get('email_template_payment', $account->getEmailTemplate(ENTITY_PAYMENT));
+
+            $account->save();
+
+            Session::flash('message', trans('texts.updated_settings'));
+        }
+        
+        return Redirect::to('company/advanced_settings/email_templates');
     }
 
     private function saveProducts()
@@ -283,7 +313,6 @@ class AccountController extends \BaseController
         $account->save();
 
         Session::flash('message', trans('texts.updated_settings'));
-
         return Redirect::to('company/products');
     }
 

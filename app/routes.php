@@ -88,6 +88,8 @@ Route::group(array('before' => 'auth'), function() {
     Route::get('api/users', array('as'=>'api.users', 'uses'=>'UserController@getDatatable'));
     Route::resource('users', 'UserController');
     Route::post('users/delete', 'UserController@delete');
+    Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
+    Route::get('restore_user/{user_id}', 'UserController@restoreUser');
 
     Route::get('api/products', array('as'=>'api.products', 'uses'=>'ProductController@getDatatable'));
     Route::resource('products', 'ProductController');
@@ -132,9 +134,6 @@ Route::group(array('before' => 'auth'), function() {
     Route::get('api/quotes/{client_id?}', array('as'=>'api.quotes', 'uses'=>'QuoteController@getDatatable'));
     Route::post('quotes/bulk', 'QuoteController@bulk');
 
-    Route::get('payments/{id}/edit', function() {
-        return View::make('header');
-    });
     Route::resource('payments', 'PaymentController');
     Route::get('payments/create/{client_id?}/{invoice_id?}', 'PaymentController@create');
     Route::get('api/payments/{client_id?}', array('as'=>'api.payments', 'uses'=>'PaymentController@getDatatable'));
@@ -194,6 +193,7 @@ define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
 define('ACCOUNT_CHART_BUILDER', 'chart_builder');
 define('ACCOUNT_USER_MANAGEMENT', 'user_management');
 define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
+define('ACCOUNT_EMAIL_TEMPLATES', 'email_templates');
 
 define("ACTIVITY_TYPE_CREATE_CLIENT", 1);
 define("ACTIVITY_TYPE_ARCHIVE_CLIENT", 2);

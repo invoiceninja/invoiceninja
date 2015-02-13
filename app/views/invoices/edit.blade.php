@@ -289,9 +289,13 @@
 						<li><a href="javascript:onSaveClick()" id="saveButton">{{ trans("texts.save_{$entityType}") }}</a></li>
 						<li><a href="javascript:onCloneClick()">{{ trans("texts.clone_{$entityType}") }}</a></li>
                         <li><a href="{{ URL::to("{$entityType}s/{$entityType}_history/{$invoice->public_id}") }}">{{ trans("texts.view_history") }}</a></li>
+                        <li class="divider"></li>                            
+
+                        @if ($invoice->invoice_status_id < INVOICE_STATUS_SENT)
+                            <li><a href="javascript:onMarkClick()">{{ trans("texts.mark_sent") }}</a></li>
+                        @endif
 
 						@if ($invoice && $entityType == ENTITY_QUOTE)			
-							<li class="divider"></li>
 							@if ($invoice->quote_invoice_id)
 								<li><a href="{{ URL::to("invoices/{$invoice->quote_invoice_id}/edit") }}">{{ trans("texts.view_invoice") }}</a></li>
 							@else
@@ -299,14 +303,8 @@
 							@endif
 						@elseif ($invoice && $entityType == ENTITY_INVOICE)
 							@if ($invoice->quote_id)
-								<li class="divider"></li>
 								<li><a href="{{ URL::to("quotes/{$invoice->quote_id}/edit") }}">{{ trans("texts.view_quote") }}</a></li>
 							@endif
-						@endif
-
-						@if ($invoice->invoice_status_id < INVOICE_STATUS_SENT)
-							<li class="divider"></li>							
-							<li><a href="javascript:onMarkClick()">{{ trans("texts.mark_sent") }}</a></li>
 						@endif
 
 						<li class="divider"></li>
@@ -1348,7 +1346,7 @@
 
 			@if (Utils::isConfirmed())
 			if (self.invitation_link()) {
-				str += '<br/><a href="' + self.invitation_link() + '" target="_blank" style="padding-left:20px">{{ trans('texts.view_as_recipient') }}</a>';
+				str += '<br/><a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_as_recipient') }}</a>';
 			}
 			@endif
 			

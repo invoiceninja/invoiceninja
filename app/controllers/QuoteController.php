@@ -135,6 +135,15 @@ class QuoteController extends \BaseController
     public function bulk()
     {
         $action = Input::get('action');
+
+        if ($action == 'convert') {
+            $invoice = Invoice::with('invoice_items')->scope(Input::get('id'))->firstOrFail();
+            $clone = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
+
+            Session::flash('message', trans('texts.converted_to_invoice'));
+            return Redirect::to('invoices/'.$clone->public_id);                        
+        }
+
         $statusId = Input::get('statusId');
         $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
         $count = $this->invoiceRepo->bulk($ids, $action, $statusId);

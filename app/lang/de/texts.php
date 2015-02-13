@@ -489,5 +489,17 @@ return array(
   'select_versiony' => 'Version auswählen',
   'view_history' => 'Historie anzeigen',
 
+  'edit_payment' => 'Edit Payment',
+  'updated_payment' => 'Successfully updated payment',
+  'deleted' => 'Deleted',
+  'restore_user' => 'Restore User',
+  'restored_user' => 'Successfully restored user',
+  'show_deleted_users' => 'Show deleted users',
+  'email_templates' => 'Email Templates',
+  'invoice_email' => 'Invoice Email',
+  'payment_email' => 'Payment Email',
+  'quote_email' => 'Quote Email',
+  'reset_all' => 'Reset All',
+
   
 );

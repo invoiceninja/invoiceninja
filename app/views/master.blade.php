@@ -30,11 +30,12 @@
       NINJA.isRegistered = {{ Utils::isRegistered() ? 'true' : 'false' }};    
       
       window.onerror = function(e) {
+        var message = e.message ? (e.message + ' - ' + e.filename + ': ' + e.lineno) : e;
         try {
           $.ajax({
             type: 'GET',
             url: '{{ URL::to('log_error') }}',
-            data: 'error='+encodeURIComponent(e.message + ' - ' + e.filename + ': ' + e.lineno)+'&url='+encodeURIComponent(window.location)
+            data: 'error='+encodeURIComponent(message)+'&url='+encodeURIComponent(window.location)
           });     
         } catch(err) {}
         return false;

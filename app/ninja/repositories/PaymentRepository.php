@@ -18,6 +18,7 @@ class PaymentRepository
                     ->where('payments.account_id', '=', \Auth::user()->account_id)
                     ->where('clients.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
+                    ->where('contacts.deleted_at', '=', null)
                     ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type', 'payments.account_gateway_id', 'payments.deleted_at', 'payments.is_deleted');
 
         if (!\Session::get('show_trash:payment')) {
@@ -68,7 +69,7 @@ class PaymentRepository
         $rules = array(
             'client' => 'required',
             'invoice' => 'required',
-            'amount' => 'required|positive',
+            'amount' => 'required',
         );
 
         if ($input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
@@ -93,29 +94,33 @@ class PaymentRepository
         }
 
         $paymentTypeId = $input['payment_type_id'] ? $input['payment_type_id'] : null;
-        $clientId = Client::getPrivateId($input['client']);
-        $amount = Utils::parseFloat($input['amount']);
-
-        if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
-            $credits = Credit::scope()->where('client_id', '=', $clientId)
-                        ->where('balance', '>', 0)->orderBy('created_at')->get();
-            $applied = 0;
-
-            foreach ($credits as $credit) {
-                $applied += $credit->apply($amount);
-
-                if ($applied >= $amount) {
-                    break;
-                }
-            }
-        }
-
-        $payment->client_id = $clientId;
-        $payment->invoice_id = isset($input['invoice']) && $input['invoice'] != "-1" ? Invoice::getPrivateId($input['invoice']) : null;
         $payment->payment_type_id = $paymentTypeId;
         $payment->payment_date = Utils::toSqlDate($input['payment_date']);
-        $payment->amount = $amount;
         $payment->transaction_reference = trim($input['transaction_reference']);
+
+        if (!$publicId) {
+            $clientId = Client::getPrivateId($input['client']);
+            $amount = Utils::parseFloat($input['amount']);
+
+            if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
+                $credits = Credit::scope()->where('client_id', '=', $clientId)
+                            ->where('balance', '>', 0)->orderBy('created_at')->get();
+                $applied = 0;
+
+                foreach ($credits as $credit) {
+                    $applied += $credit->apply($amount);
+
+                    if ($applied >= $amount) {
+                        break;
+                    }
+                }
+            }
+
+            $payment->client_id = $clientId;
+            $payment->invoice_id = isset($input['invoice']) && $input['invoice'] != "-1" ? Invoice::getPrivateId($input['invoice']) : null;
+            $payment->amount = $amount;
+        }
+
         $payment->save();
 
         return $payment;

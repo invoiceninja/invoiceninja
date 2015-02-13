@@ -120,7 +120,7 @@ return array(
   'billed_clients' => 'fakturerede klienter',
   'active_client' => 'aktiv klient',
   'active_clients' => 'aktive klienter',
-  'invoices_past_due' => 'Forfaldte fakturaer',
+  'invoices_past_due' => 'Forfaldne fakturaer',
   'upcoming_invoices' => 'Forestående fakturaer',
   'average_invoice' => 'Gennemsnitlige fakturaer',
 
@@ -140,9 +140,9 @@ return array(
   'new_payment' => 'Ny betaling',
   'new_credit' => 'Ny kredit',
   'contact' => 'Kontakt',
-  'date_created' => 'Dato oprette',
+  'date_created' => 'Dato oprettet',
   'last_login' => 'Sidst på-logging',
-  'balance' => 'Balanse',
+  'balance' => 'Balance',
   'action' => 'Handling',
   'status' => 'Status',
   'invoice_total' => 'Faktura total',
@@ -212,7 +212,7 @@ return array(
   // application messages
   'created_client' => 'Klient oprettet succesfuldt',
   'created_clients' => 'Klienter oprettet succesfuldt',
-  'updated_settings' => 'Indstiller opdateret',
+  'updated_settings' => 'Indstillinger opdateret',
   'removed_logo' => 'Logo fjernet',
   'sent_message' => 'Melding sendt',
   'invoice_error' => 'Venligst vælge en klient og rette eventuelle fejl',
@@ -444,7 +444,7 @@ return array(
   'share_invoice_counter' => 'Del faktura nummer tæller',
   'invoice_issued_to' => 'Faktura udstedt til',
   'invalid_counter' => 'For at undgå mulige overlap, sæt venligst et faktura eller tilbuds nummer præfiks',
-  'mark_sent' => 'Markering sendt',
+  'mark_sent' => 'Marker som sendt',
 
   'gateway_help_1' => ':link to sign up for Authorize.net.',
   'gateway_help_2' => ':link to sign up for Authorize.net.',
@@ -498,6 +498,18 @@ return array(
   'current_version' => 'Current version',
   'select_versiony' => 'Select version',
   'view_history' => 'View History',
+
+  'edit_payment' => 'Edit Payment',
+  'updated_payment' => 'Successfully updated payment',
+  'deleted' => 'Deleted',
+  'restore_user' => 'Restore User',
+  'restored_user' => 'Successfully restored user',
+  'show_deleted_users' => 'Show deleted users',
+  'email_templates' => 'Email Templates',
+  'invoice_email' => 'Invoice Email',
+  'payment_email' => 'Payment Email',
+  'quote_email' => 'Quote Email',
+  'reset_all' => 'Reset All',
 
   
 );

@@ -477,7 +477,6 @@ class InvoiceController extends \BaseController
         $clone = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
 
         Session::flash('message', trans('texts.converted_to_invoice'));
-
         return Redirect::to('invoices/'.$clone->public_id);
     }
 
