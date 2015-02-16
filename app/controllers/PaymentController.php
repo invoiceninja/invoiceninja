@@ -614,10 +614,6 @@ class PaymentController extends \BaseController
             $account->save();
         }
 
-        if ($invoice->is_quote) {
-            $invoice = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
-        }
-
         $payment = Payment::createNew($invitation);
         $payment->invitation_id = $invitation->id;
         $payment->account_gateway_id = $accountGateway->id;

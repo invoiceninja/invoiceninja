@@ -133,23 +133,13 @@ class InvoiceController extends \BaseController
     public function view($invitationKey)
     {
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->firstOrFail();
-
         $invoice = $invitation->invoice;
 
         if (!$invoice || $invoice->is_deleted) {
             return View::make('invoices.deleted');
         }
 
-        if ($invoice->is_quote && $invoice->quote_invoice_id) {
-            $invoice = Invoice::scope($invoice->quote_invoice_id, $invoice->account_id)->firstOrFail();
-
-            if (!$invoice || $invoice->is_deleted) {
-                return View::make('invoices.deleted');
-            }
-        }
-
         $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
-
         $client = $invoice->client;
 
         if (!$client || $client->is_deleted) {
@@ -169,7 +159,7 @@ class InvoiceController extends \BaseController
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-        $invoice->is_pro = $client->account->isPro();
+        $invoice->is_pro = $client->account->isPro();        
 
         $contact = $invitation->contact;
         $contact->setVisible([
@@ -179,6 +169,7 @@ class InvoiceController extends \BaseController
             'phone', ]);
 
         $data = array(
+            'isConverted' => $invoice->quote_invoice_id ? true : false,
             'showClientHeader' => true,
             'showBreadcrumbs' => false,
             'hideLogo' => $client->account->isWhiteLabel(),

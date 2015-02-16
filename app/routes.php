@@ -46,6 +46,7 @@ Route::post('get_started', 'AccountController@getStarted');
 
 // Client visible pages
 Route::get('view/{invitation_key}', 'InvoiceController@view');
+Route::get('approve/{invitation_key}', 'QuoteController@approve');
 Route::get('payment/{invitation_key}', 'PaymentController@show_payment');
 Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
 Route::get('complete', 'PaymentController@offsite_payment');
@@ -228,6 +229,7 @@ define("ACTIVITY_TYPE_RESTORE_INVOICE", 25);
 define("ACTIVITY_TYPE_RESTORE_CLIENT", 26);
 define("ACTIVITY_TYPE_RESTORE_PAYMENT", 27);
 define("ACTIVITY_TYPE_RESTORE_CREDIT", 28);
+define("ACTIVITY_TYPE_APPROVE_QUOTE", 29);
 
 define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);

@@ -80,7 +80,6 @@ class InvoiceRepository
         $query = \DB::table('invitations')
           ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
           ->join('clients', 'clients.id', '=', 'invoices.client_id')
-          //->join('contacts', 'contacts.client_id', '=', 'clients.id')
           ->where('invitations.contact_id', '=', $contactId)
           ->where('invitations.deleted_at', '=', null)
           ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE)
@@ -99,7 +98,6 @@ class InvoiceRepository
         }
 
         return $table->addColumn('due_date', function ($model) { return Utils::fromSqlDate($model->due_date); })
-            //->addColumn('invoice_status_name', function($model) { return $model->invoice_status_name; })
             ->make();
     }
 

@@ -510,6 +510,6 @@ return array(
   'payment_email' => 'Payment Email',
   'quote_email' => 'Quote Email',
   'reset_all' => 'Reset All',
+  'approve' => 'Approve',  
 
-  
 );

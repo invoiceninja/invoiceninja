@@ -231,6 +231,19 @@ class Activity extends Eloquent
         $activity->save();
     }
 
+    public static function approveQuote($invitation) {
+
+        $activity = Activity::getBlank($invitation);
+        $activity->client_id = $invitation->invoice->client_id;
+        $activity->invitation_id = $invitation->id;
+        $activity->contact_id = $invitation->contact_id;
+        $activity->invoice_id = $invitation->invoice_id;
+        $activity->activity_type_id = ACTIVITY_TYPE_APPROVE_QUOTE;
+        $activity->message = Utils::encodeActivity($invitation->contact, 'approved', $invitation->invoice);
+        $activity->balance = $invitation->invoice->client->balance;
+        $activity->save();
+    }
+
     public static function createPayment($payment)
     {
         $client = $payment->client;

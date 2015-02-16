@@ -141,7 +141,7 @@ class QuoteController extends \BaseController
             $clone = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
 
             Session::flash('message', trans('texts.converted_to_invoice'));
-            return Redirect::to('invoices/'.$clone->public_id);                        
+            return Redirect::to('invoices/'.$clone->public_id);
         }
 
         $statusId = Input::get('statusId');
@@ -155,5 +155,25 @@ class QuoteController extends \BaseController
         }
 
         return Redirect::to('quotes');
+    }
+
+    public function approve($invitationKey)
+    {
+        $invitation = Invitation::with('invoice.invoice_items', 'invoice.invitations')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        $invoice = $invitation->invoice;
+
+        if ($invoice->is_quote && !$invoice->quote_invoice_id) {
+            Activity::approveQuote($invitation);
+            $invoice = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
+            Session::flash('message', trans('texts.converted_to_invoice'));
+
+            foreach ($invoice->invitations as $invitationClone) {
+                if ($invitation->contact_id == $invitationClone->contact_id) {
+                    $invitationKey = $invitationClone->invitation_key;
+                }
+            }
+        }
+
+        return Redirect::to("view/{$invitationKey}");
     }
 }

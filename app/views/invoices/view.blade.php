@@ -22,18 +22,20 @@
 	<div class="container">
 
 		<p>&nbsp;</p>
-
-		@if ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)
-			<div class="pull-right" style="text-align:right">
-				{{ Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}&nbsp;&nbsp;
-				{{ Button::success_link(URL::to('payment/' . $invitation->invitation_key), trans('texts.pay_now'), array('class' => 'btn-lg')) }}
-			</div>		
+        <div class="pull-right" style="text-align:right">
+        @if ($invoice->is_quote)            
+            {{ Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}&nbsp;&nbsp;
+            @if (!$isConverted)
+                {{ Button::success_link(URL::to('approve/' . $invitation->invitation_key), trans('texts.approve'), array('class' => 'btn-lg')) }}
+            @endif
+		@elseif ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)			
+			{{ Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}&nbsp;&nbsp;
+			{{ Button::success_link(URL::to('payment/' . $invitation->invitation_key), trans('texts.pay_now'), array('class' => 'btn-lg')) }}		
 		@else 
-			<div class="pull-right">
-				{{ Button::success('Download PDF', array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}
-			</div>		
+			{{ Button::success('Download PDF', array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}			
 		@endif
-		
+		</div>        
+
 		<div class="clearfix"></div><p>&nbsp;</p>
 
 		<script type="text/javascript">
