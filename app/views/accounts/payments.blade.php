@@ -79,14 +79,18 @@
 
 			@endforeach
 
-			@if($gateway->getHelp())
+			@if ($gateway->getHelp())
 				<div class="form-group">
 					<label class="control-label col-lg-4 col-sm-4"></label>
-					<div class="col-lg-8 col-sm-8">
+					<div class="col-lg-8 col-sm-8 help-block">
 						{{ $gateway->getHelp() }}		
 					</div>
 				</div>					
 			@endif
+
+            @if ($gateway->id == GATEWAY_STRIPE)
+                {{ Former::select('token_billing_type_id')->options($tokenBillingOptions)->help(trans('texts.token_billing_help')) }}
+            @endif
 		</div>
 		
 	@endforeach

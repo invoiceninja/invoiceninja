@@ -106,6 +106,7 @@ class ClientController extends \BaseController
             'credit' => $client->getTotalCredit(),
             'title' => trans('texts.view_client'),
             'hasRecurringInvoices' => Invoice::scope()->where('is_recurring', '=', true)->whereClientId($client->id)->count() > 0,
+            'gatewayLink' => $client->getGatewayLink(),
         );
 
         return View::make('clients.show', $data);

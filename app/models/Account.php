@@ -334,4 +334,15 @@ class Account extends Eloquent
             return "<p>" . trans('texts.email_signature') . "<br>\$account</p>";
         }
     }
+
+    public function showTokenCheckbox()
+    {
+        return $this->token_billing_type_id == TOKEN_BILLING_OPT_IN
+                || $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
+    }
+
+    public function selectTokenCheckbox()
+    {
+        return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
+    }
 }

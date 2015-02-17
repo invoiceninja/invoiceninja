@@ -196,7 +196,15 @@
         </div>
       </div>
 
-      @if(isset($acceptedCreditCardTypes))
+      @if ($account->showTokenCheckbox())
+        <div class="form-group">
+            <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:text-top">
+            <label for="token_billing" class="checkbox" style="display: inline">{{ trans('texts.token_billing') }}</label>
+            <span class="help-block">{{ trans('texts.token_billing_secure', ['stripe_link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) }}</span>
+        </div>  
+      @endif
+
+      @if (isset($acceptedCreditCardTypes))
         <div class="row">
           <div class="form-group col-md-12">
             @foreach ($acceptedCreditCardTypes as $card)

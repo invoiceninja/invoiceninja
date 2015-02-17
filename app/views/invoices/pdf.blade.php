@@ -81,7 +81,7 @@
   var needsRefresh = false;
 
   function refreshPDF() {
-    PDFJS.disableWorker = true;
+    PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
     if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChromium))) {
       var string = getPDFString();
       if (!string) return;

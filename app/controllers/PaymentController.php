@@ -287,14 +287,16 @@ class PaymentController extends \BaseController
 
     public function show_payment($invitationKey)
     {
+        // Handle token billing
+        if (Input::get('use_token') == 'true') {
+            return self::do_payment($invitationKey, false, true);
+        }
         // For PayPal Express we redirect straight to their site
         $invitation = Invitation::with('invoice.client.account', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $account = $invitation->invoice->client->account;
-
         if ($account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
             if (Session::has('error')) {
                 Session::reflash();
-
                 return Redirect::to('view/'.$invitationKey);
             } else {
                 return self::do_payment($invitationKey, false);
@@ -321,6 +323,7 @@ class PaymentController extends \BaseController
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
             'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'currencyId' => $client->currency_id,
+            'account' => $client->account
         ];
 
         return View::make('payments.payment', $data);
@@ -486,7 +489,7 @@ class PaymentController extends \BaseController
         }
     }
 
-    public function do_payment($invitationKey, $onSite = true)
+    public function do_payment($invitationKey, $onSite = true, $useToken = false)
     {
         $rules = array(
             'first_name' => 'required',
@@ -512,11 +515,12 @@ class PaymentController extends \BaseController
 
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
-        $accountGateway = $invoice->client->account->account_gateways[0];
+        $client = $invoice->client;
+        $account = $client->account;
+        $accountGateway = $account->account_gateways[0];
         $paymentLibrary = $accountGateway->gateway->paymentlibrary;
 
         if ($onSite) {
-            $client = $invoice->client;
             $client->address1 = trim(Input::get('address1'));
             $client->address2 = trim(Input::get('address2'));
             $client->city = trim(Input::get('city'));
@@ -528,7 +532,32 @@ class PaymentController extends \BaseController
         try {
             if ($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY) {
                 $gateway = self::createGateway($accountGateway);
-                $details = self::getPaymentDetails($invoice, Input::all());
+                $details = self::getPaymentDetails($invoice, $useToken ? false : Input::all());
+                
+                if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+                    if ($useToken) {
+                        $details['cardReference'] = $client->getGatewayToken();
+                    } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing')) {
+                        $tokenResponse = $gateway->createCard($details)->send();
+                        $cardReference = $tokenResponse->getCardReference();
+                        $details['cardReference'] = $cardReference;
+
+                        $token = AccountGatewayToken::where('client_id', '=', $client->id)
+                                    ->where('account_gateway_id', '=', $accountGateway->id)->first();
+
+                        if (!$token) {
+                            $token = new AccountGatewayToken();
+                            $token->account_id = $account->id;
+                            $token->contact_id = $invitation->contact_id;
+                            $token->account_gateway_id = $accountGateway->id;
+                            $token->client_id = $client->id;
+                        }
+
+                        $token->token = $cardReference;
+                        $token->save();
+                    }
+                }
+                
                 $response = $gateway->purchase($details)->send();
                 $ref = $response->getTransactionReference();
 
@@ -541,7 +570,6 @@ class PaymentController extends \BaseController
 
                 if ($response->isSuccessful()) {
                     $payment = self::createPayment($invitation, $ref);
-
                     Session::flash('message', trans('texts.applied_payment'));
 
                     return Redirect::to('view/'.$payment->invitation->invitation_key);
@@ -693,12 +721,14 @@ class PaymentController extends \BaseController
                 ->withInput();
         } else {
             $this->paymentRepo->save($publicId, Input::all());
-            
+
             if ($publicId) {
                 Session::flash('message', trans('texts.updated_payment'));
+
                 return Redirect::to('payments/');
             } else {
                 Session::flash('message', trans('texts.created_payment'));
+
                 return Redirect::to('clients/'.Input::get('client'));
             }
         }

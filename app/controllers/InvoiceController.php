@@ -177,6 +177,7 @@ class InvoiceController extends \BaseController
             'invitation' => $invitation,
             'invoiceLabels' => $client->account->getInvoiceLabels(),
             'contact' => $contact,
+            'hasToken' => $client->getGatewayToken()            
         );
 
         return View::make('invoices.view', $data);

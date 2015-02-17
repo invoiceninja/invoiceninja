@@ -219,6 +219,33 @@ class Client extends EntityModel
             return $this->created_at->format('m/d/y h:i a');
         }
     }
+
+
+    public function getGatewayToken()
+    {
+        $this->account->load('account_gateways');
+
+        if (!count($this->account->account_gateways)) {
+            return false;
+        }
+
+        $accountGateway = $this->account->account_gateways[0];
+        
+        if ($accountGateway->gateway_id != GATEWAY_STRIPE) {
+            return false;
+        }
+
+        $token = AccountGatewayToken::where('client_id', '=', $this->id)
+                    ->where('account_gateway_id', '=', $accountGateway->id)->first();
+
+        return $token ? $token->token : false;
+    }
+
+    public function getGatewayLink()
+    {
+        $token = $this->getGatewayToken();
+        return $token ? "https://dashboard.stripe.com/customers/{$token}" : false;
+    }
 }
 
 /*

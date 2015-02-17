@@ -184,6 +184,11 @@ class AccountController extends \BaseController
                 }
             }
 
+            $tokenBillingOptions = [];
+            for ($i=1; $i<=4; $i++) {
+                $tokenBillingOptions[$i] = trans("texts.token_billing_{$i}");
+            }
+
             $data = [
                 'account' => $account,
                 'accountGateway' => $accountGateway,
@@ -195,7 +200,8 @@ class AccountController extends \BaseController
                     ->orderBy('name')
                     ->get(),
                 'recommendedGateways' => $recommendedGatewayArray,
-        'creditCardTypes' => $creditCards,
+                'creditCardTypes' => $creditCards,
+                'tokenBillingOptions' => $tokenBillingOptions,
             ];
 
             return View::make('accounts.payments', $data);
@@ -663,16 +669,33 @@ class AccountController extends \BaseController
                     }
                 }
 
-                if ($isMasked && count($account->account_gateways)) {
+                // check if a gateway is already configured
+                $currentGateway = false;
+                if (count($account->account_gateways)) {
                     $currentGateway = $account->account_gateways[0];
+                }
+
+                // if the values haven't changed don't update the config
+                if ($isMasked && $currentGateway) {
                     $currentGateway->accepted_credit_cards = $cardCount;
                     $currentGateway->save();
+                // if there's an existing config for this gateway update it
+                } elseif (!$isMasked && $currentGateway && $currentGateway->gateway_id == $gatewayId) {
+                    $currentGateway->accepted_credit_cards = $cardCount;
+                    $currentGateway->config = json_encode($config);
+                    $currentGateway->save();
+                // otherwise, create a new gateway config
                 } else {
                     $accountGateway->config = json_encode($config);
                     $accountGateway->accepted_credit_cards = $cardCount;
 
                     $account->account_gateways()->delete();
                     $account->account_gateways()->save($accountGateway);
+                }
+
+                if (Input::get('token_billing_type_id')) {
+                    $account->token_billing_type_id = Input::get('token_billing_type_id');
+                    $account->save();
                 }
 
                 Session::flash('message', trans('texts.updated_settings'));

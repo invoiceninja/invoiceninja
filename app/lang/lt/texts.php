@@ -512,6 +512,19 @@ return array(
   'quote_email' => 'Quote Email',
   'reset_all' => 'Reset All',
   'approve' => 'Approve',
+
+  'token_billing_type_id' => 'Token Billing',
+  'token_billing_help' => 'Enables you to store credit cards with your gateway, and charge them at a later date.',
+  'token_billing_1' => 'Disabled',
+  'token_billing_2' => 'Opt-in - checkbox is shown but not selected',
+  'token_billing_3' => 'Opt-out - checkbox is shown and selected',
+  'token_billing_4' => 'Always',
+  'token_billing_checkbox' => 'Store credit card details',
+  'view_in_stripe' => 'View in Stripe',
+  'use_card_on_file' => 'Use card on file',
+  'edit_payment_details' => 'Edit payment details',
+  'token_billing' => 'Save card details',
+  'token_billing_secure' => 'All data is stored securely by :stripe_link',
     
 );
 
