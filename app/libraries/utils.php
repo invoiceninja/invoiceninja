@@ -236,8 +236,12 @@ class Utils
 		{
 			$currency = Currency::remember(DEFAULT_QUERY_CACHE)->find(1);		
 		}
-		
-		return $currency->symbol . number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
+
+		if ($currency->unit_after_amount) {
+			return number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator) . $currency->symbol ;
+		} else {
+			return $currency->symbol . number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
+		}
 	}
 
 	public static function pluralize($string, $count) 
