@@ -60,7 +60,7 @@ Create database user and a database for ninja
 
 Add public/ to your web server root then load / to configure the application.
 
-### Deleveloper Notes
+### Developer Notes
 
 * The application requires PHP >= 5.4.0
 * If you make any changes to the JavaScript files you need to run grunt to create the built files. See Gruntfile.js for more details.
