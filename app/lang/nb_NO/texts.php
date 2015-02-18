@@ -522,7 +522,7 @@ return array(
   'use_card_on_file' => 'Use card on file',
   'edit_payment_details' => 'Edit payment details',
   'token_billing' => 'Save card details',
-  'token_billing_secure' => 'All data is stored securely by :stripe_link',
+  'token_billing_secure' => 'The data is stored securely by :stripe_link',
 
   
 );
