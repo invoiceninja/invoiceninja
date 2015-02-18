@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 return array(
 
@@ -50,7 +50,7 @@ return array(
   'invoice_design_id' => 'Design',
   'terms' => 'Bedingungen',
   'your_invoice' => 'Ihre Rechnung',
-  
+
   'remove_contact' => 'Kontakt löschen',
   'add_contact' => 'Kontakt hinzufügen',
   'create_new_client' => 'Einen neuen Kunden erstellen',
@@ -116,11 +116,11 @@ return array(
   'billed_client' => 'abgerechneter Kunde',
   'billed_clients' => 'abgerechnete Kunden',
   'active_client' => 'aktive Kunden',
-  'active_clients' => 'aktive Kunden',  
+  'active_clients' => 'aktive Kunden',
   'invoices_past_due' => 'Fällige Rechnungen',
   'upcoming_invoices' => 'Kommende Rechnungen',
   'average_invoice' => 'Durchschnittlicher Rechnungsbetrag',
-  
+
   // list pages
   'archive' => 'archivieren',
   'delete' => 'löschen',
@@ -159,7 +159,7 @@ return array(
   'edit_invoice' => 'Rechnung bearbeiten',
 
   // client view page
-  'create_invoice' => 'Rechnung bearbeiten',
+  'create_invoice' => 'Rechnung erstellen',
   'enter_credit' => 'Guthaben eingeben',
   'last_logged_in' => 'Zuletzt eingeloggt',
   'details' => 'Details',
@@ -272,10 +272,10 @@ return array(
   // Payment page
   'secure_payment' => 'Sichere Zahlung',
   'card_number' => 'Kartennummer',
-  'expiration_month' => 'Ablaufmonat',  
+  'expiration_month' => 'Ablaufmonat',
   'expiration_year' => 'Ablaufjahr',
   'cvv' => 'Kartenprüfziffer',
-  
+
   // Security alerts
   'confide' => array(
     'too_many_attempts' => 'Zu viele versuche. Bitte versuche es in ein paar Minuten erneut.',
@@ -293,7 +293,7 @@ return array(
     'remove_logo_link' => 'Klicke hier',
   ],
 
-  'logout' => 'Ausloggen',    
+  'logout' => 'Ausloggen',
   'sign_up_to_save' => 'Melde dich an, um deine Arbeit zu speichern',
   'agree_to_terms' =>'Ich akzeptiere die Invoice Ninja :terms',
   'terms_of_service' => 'Service-Bedingungen',
@@ -304,7 +304,7 @@ return array(
   'erase_data' => 'Diese Aktion wird deine Daten dauerhaft entfernen.',
   'password' => 'Passwort',
   'invoice_subject' => 'Neue Rechnung von :account',
-  'close' => 'Schließen',  
+  'close' => 'Schließen',
 
   'pro_plan_product' => 'Pro Plan',
   'pro_plan_description' => 'Jahresmitgliedschaft beim Invoice Ninja Pro Plan.',
@@ -332,7 +332,7 @@ return array(
   'updated_product' => 'Produkt erfolgreich aktualisiert',
   'created_product' => 'Produkt erfolgreich erstellt',
   'archived_product' => 'Produkt erfolgreich archiviert',
-  'product_library' => 'Produktbibliothek',  
+  'product_library' => 'Produktbibliothek',
   'pro_plan_custom_fields' => ':link to enable custom fields by joining the Pro Plan',
 
   'advanced_settings' => 'Advanced Settings',
@@ -385,7 +385,7 @@ return array(
   'notification_quote_sent_subject' => 'Angebot :invoice wurde an :client versendet',
   'notification_quote_viewed_subject' => 'Angebot :invoice wurde von :client angeschaut',
   'notification_quote_sent' => 'Der folgende Kunde :client erhielt das Angebot :invoice über :amount.',
-  'notification_quote_viewed' => 'Der folgende Kunde :client schaute das Angebot :client über :amount an.',  
+  'notification_quote_viewed' => 'Der folgende Kunde :client schaute das Angebot :client über :amount an.',
 
   'session_expired' => 'Deine Sitzung ist abgelaufen.',
 
@@ -433,7 +433,7 @@ return array(
   'share_invoice_counter' => 'Share invoice counter',
   'invoice_issued_to' => 'Invoice issued to',
   'invalid_counter' => 'To prevent a possible conflict please set either an invoice or quote number prefix',
-  'mark_sent' => 'Mark sent',    
+  'mark_sent' => 'Mark sent',
 
   'gateway_help_1' => ':link to sign up for Authorize.net.',
   'gateway_help_2' => ':link to sign up for Authorize.net.',
@@ -478,7 +478,7 @@ return array(
   'restored_client' => 'Successfully restored client',
   'restored_payment' => 'Successfully restored payment',
   'restored_credit' => 'Successfully restored credit',
-  
+
   'reason_for_canceling' => 'Help us improve our site by telling us why you\'re leaving.',
   'discount_percent' => 'Percent',
   'discount_amount' => 'Amount',
@@ -489,5 +489,5 @@ return array(
   'select_versiony' => 'Select version',
   'view_history' => 'View History',
 
-  
+
 );
