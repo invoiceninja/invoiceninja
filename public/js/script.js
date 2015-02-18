@@ -1490,11 +1490,6 @@ function setDocHexDraw(doc, hex) {
   return doc.setDrawColor(r, g, b);
 }
 
-function openUrl(url, track) {
-  trackUrl(track ? track : url);
-  window.open(url, '_blank');
-}
-
 function toggleDatePicker(field) {
   $('#'+field).datepicker('show');
 }

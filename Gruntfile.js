@@ -66,10 +66,14 @@ module.exports = function(grunt) {
       },
       js_public: {
         src: [
+        /*
           'public/js/simpleexpand.js',
           'public/js/valign.js',
           'public/js/bootstrap.min.js',
           'public/js/simpleexpand.js',
+        */
+          'public/vendor/bootstrap/dist/js/bootstrap.min.js',
+          
         ],
         dest: 'public/js/built.public.js',
         nonull: true
@@ -97,8 +101,10 @@ module.exports = function(grunt) {
       css_public: {
         src: [
           'public/vendor/bootstrap/dist/css/bootstrap.min.css',
+          /*
           'public/css/bootstrap.splash.css',
           'public/css/splash.css',
+          */
           'public/vendor/datatables/media/css/jquery.dataTables.css',
           'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',          
         ],

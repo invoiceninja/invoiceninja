@@ -81,7 +81,7 @@
 
 	</style>
 
-	<div class="container" style="min-height:600px;">
+	<div class="container" id="main-container">
 
 		<p>&nbsp;</p>
 
@@ -101,33 +101,11 @@
 
 	</div>
 
+    <script type="text/javascript">
+        $(function() {
+            $('#main-container').height($(window).height() - ($('.navbar').height() + $('footer').height() + 20));
+        });
+    </script>
+
 @stop
 
-@section('onReady')
-
-	var tableFilter = '';
-	var searchTimeout = false;
-
-	var oTable0 = $('#DataTables_Table_0').dataTable();
-	function filterTable(val) {	
-		if (val == tableFilter) {
-			return;
-		}
-		tableFilter = val;
-		oTable0.fnFilter(val);
-    	@if (isset($secEntityType))
-    		oTable1.fnFilter(val);
-		@endif
-	}
-
-	$('#tableFilter').on('keyup', function(){
-		if (searchTimeout) {
-			window.clearTimeout(searchTimeout);
-		}
-
-		searchTimeout = setTimeout(function() {
-			filterTable($('#tableFilter').val());
-		}, 1000);					
-	})
-	
-@stop

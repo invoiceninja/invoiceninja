@@ -31,7 +31,6 @@ class PaymentController extends \BaseController
     public function clientIndex()
     {
         return View::make('public_list', array(
-            'showClientHeader' => true,
             'hideLogo' => Session::get('white_label'),
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
@@ -313,9 +312,9 @@ class PaymentController extends \BaseController
 
         $data = [
             'showBreadcrumbs' => false,
-            'hideHeader' => true,
             'url' => 'payment/'.$invitationKey,
             'amount' => $invoice->amount,
+            'invoiceNumber' => $invoice->invoice_number,
             'client' => $client,
             'contact' => $invitation->contact,
             'paymentLibrary' => $paymentLibrary,

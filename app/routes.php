@@ -29,17 +29,7 @@ Route::get('update', 'AppController@update');
 
 // Public pages
 Route::get('/', 'HomeController@showIndex');
-Route::get('/rocksteady', 'HomeController@showIndex');
-Route::get('/about', 'HomeController@showAboutUs');
-Route::get('/terms', 'HomeController@showTerms');
-Route::get('/contact', 'HomeController@showContactUs');
-Route::get('/plans', 'HomeController@showPlans');
-Route::post('/contact_submit', 'HomeController@doContactUs');
-Route::get('/faq', 'HomeController@showFaq');
-Route::get('/features', 'HomeController@showFeatures');
-Route::get('/testimonials', 'HomeController@showTestimonials');
-Route::get('/compare-online-invoicing{sites?}', 'HomeController@showCompare');
-
+Route::get('terms', 'HomeController@showTerms');
 Route::get('log_error', 'HomeController@logError');
 Route::get('invoice_now', 'HomeController@invoiceNow');
 Route::post('get_started', 'AccountController@getStarted');

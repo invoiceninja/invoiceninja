@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <title>Invoice Ninja | {{ isset($title) ? $title : ' ' . trans('public.title') }}</title> 
     <meta name="description" content="{{ isset($description) ? $description : trans('public.description') }}"></meta>
 
@@ -22,112 +22,118 @@
     <link href='//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700' rel='stylesheet' type='text/css'>
     <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}"></link>
-    
+
     <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
     <script type="text/javascript">
-      var NINJA = NINJA || {};      
-      NINJA.isRegistered = {{ Utils::isRegistered() ? 'true' : 'false' }};    
-      
-      window.onerror = function(e) {
-        var message = e.message ? (e.message + ' - ' + e.filename + ': ' + e.lineno) : e;
-        try {
-          $.ajax({
-            type: 'GET',
-            url: '{{ URL::to('log_error') }}',
-            data: 'error='+encodeURIComponent(message)+'&url='+encodeURIComponent(window.location)
-          });     
-        } catch(err) {}
-        return false;
-      }
+        var NINJA = NINJA || {};      
+        NINJA.isRegistered = {{ Utils::isRegistered() ? 'true' : 'false' }};    
 
-      /* Set the defaults for DataTables initialisation */
-      $.extend( true, $.fn.dataTable.defaults, {
-        "bSortClasses": false,
-        "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
-        "sPaginationType": "bootstrap",
-        "bInfo": true,
-        "oLanguage": {
-          'sEmptyTable': "{{ trans('texts.empty_table') }}",
-          'sLengthMenu': '_MENU_',
-          'sSearch': ''
+        window.onerror = function(e) {
+            var message = e.message ? (e.message + ' - ' + e.filename + ': ' + e.lineno) : e;
+            try {
+                $.ajax({
+                    type: 'GET',
+                    url: '{{ URL::to('log_error') }}',
+                    data: 'error='+encodeURIComponent(message)+'&url='+encodeURIComponent(window.location)
+                });     
+            } catch(err) {}
+            return false;
         }
-      } );
+
+        /* Set the defaults for DataTables initialisation */
+        $.extend( true, $.fn.dataTable.defaults, {
+            "bSortClasses": false,
+            "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
+            "sPaginationType": "bootstrap",
+            "bInfo": true,
+            "oLanguage": {
+                'sEmptyTable': "{{ trans('texts.empty_table') }}",
+                'sLengthMenu': '_MENU_',
+                'sSearch': ''
+            }
+        } );
     </script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
-    
-    @yield('head')
 
-  </head>
+@yield('head')
 
-  <body>
+</head>
+
+<body>
 
     @if (isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])  
-      <!-- Google Tag Manager -->
-      <noscript><iframe src="//www.googletagmanager.com/ns.html?id={{ $_ENV['TAG_MANAGER_KEY'] }}"
-      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-      <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','{{ $_ENV['TAG_MANAGER_KEY'] }}');</script>      
-      <!-- End Google Tag Manager -->
+    <!-- Google Tag Manager -->
+    <noscript><iframe src="//www.googletagmanager.com/ns.html?id={{ $_ENV['TAG_MANAGER_KEY'] }}"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','{{ $_ENV['TAG_MANAGER_KEY'] }}');</script>      
+    <!-- End Google Tag Manager -->
 
-      <script>
+    <script>
         function trackUrl(url) {
-          url = '/track' + url.replace('http:/', '');
-          dataLayer.push({'event':url, 'eventLabel':this.src});
-        }
-      </script>
+            url = '/track' + url.replace('http:/', '');
+            dataLayer.push({'event':url, 'eventLabel':this.src});
+        }        
+    </script>
     @elseif (isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])  
-      <script>
+    <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-        
+
         ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}');        
         ga('send', 'pageview');
-        
+
         function trackUrl(url) {
-          url = '/track' + url.replace('http:/', '');
-          ga('send', 'pageview', url);  
-          //ga('send', 'event', 'photo', 'hover', this.src);
+            url = '/track' + url.replace('http:/', '');
+            ga('send', 'pageview', url);  
+            //ga('send', 'event', 'photo', 'hover', this.src);
         }
-      </script>
+    </script>
     @else
-      <script>
+    <script>
         function trackUrl(url) {}
-      </script>
+    </script>
     @endif
 
-    @yield('body')
+@yield('body')
 
-    <script type="text/javascript">
-      NINJA.formIsChanged = false;
-      $(function() {      
+<script type="text/javascript">
+    NINJA.formIsChanged = false;
+    $(function() {      
         $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function() {
-          NINJA.formIsChanged = true;      
+            NINJA.formIsChanged = true;      
         }); 
-      });
-      $('form').submit(function() {
+    });
+    $('form').submit(function() {
         NINJA.formIsChanged = false;
-      });
-      $(window).on('beforeunload', function() {
+    });
+    $(window).on('beforeunload', function() {
         if (NINJA.formIsChanged) {
-          return "{{ trans('texts.unsaved_changes') }}";
+            return "{{ trans('texts.unsaved_changes') }}";
         } else {
-          return undefined;
+            return undefined;
         }
-      }); 
-      //$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });
-    </script> 
+    }); 
+    function openUrl(url, track) {
+        trackUrl(track ? track : url);
+        window.open(url, '_blank');
+    }
 
-  </body>
+
+//$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });
+</script> 
+
+</body>
 
 </html>

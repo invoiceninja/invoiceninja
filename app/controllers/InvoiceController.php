@@ -47,7 +47,6 @@ class InvoiceController extends \BaseController
     public function clientIndex()
     {
         $data = [
-            'showClientHeader' => true,
             'hideLogo' => Session::get('white_label'),
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
@@ -170,7 +169,6 @@ class InvoiceController extends \BaseController
 
         $data = array(
             'isConverted' => $invoice->quote_invoice_id ? true : false,
-            'showClientHeader' => true,
             'showBreadcrumbs' => false,
             'hideLogo' => $client->account->isWhiteLabel(),
             'invoice' => $invoice->hidePrivateFields(),

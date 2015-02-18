@@ -5,8 +5,6 @@
 
 		@include('script')		
 		
-		<!-- <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> -->
-
 		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
 		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
 

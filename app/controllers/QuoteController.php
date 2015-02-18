@@ -48,7 +48,6 @@ class QuoteController extends \BaseController
     public function clientIndex()
     {
         $data = [
-      'showClientHeader' => true,
       'hideLogo' => Session::get('white_label'),
       'title' => trans('texts.quotes'),
       'entityType' => ENTITY_QUOTE,
