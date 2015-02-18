@@ -6,7 +6,6 @@
 
 body {
     background-color: #f8f8f8;
-    font-size: 16px;
     color: #1b1a1a;
 }
 
@@ -153,10 +152,12 @@ header h3 em {
             </header>  
         </div>
         <div class="col-md-6">
+            @if (Request::secure() || Utils::isNinjaDev())
             <div class="secure">
                 <h3>{{ trans('texts.secure_payment') }}</h3>
                 <div>{{ trans('texts.256_encryption') }}</div>       
             </div>
+            @endif
         </div>
     </div>
 

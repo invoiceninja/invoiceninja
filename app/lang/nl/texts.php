@@ -518,6 +518,17 @@ return array(
   'edit_payment_details' => 'Edit payment details',
   'token_billing' => 'Save card details',
   'token_billing_secure' => 'The data is stored securely by :stripe_link',
-    
+
+  'support' => 'Support',
+  'contact_information' => 'Contact information',
+  '256_encryption' => '256-Bit Encryption',
+  'amount_due' => 'Amount due',
+  'billing_address' => 'Billing address',
+  'billing_method' => 'Billing method',
+  'order_overview' => 'Order overview',
+  'match_address' => '*Address must match address accociated with credit card.',
+  'click_once' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.',
+
+  
   
 );
