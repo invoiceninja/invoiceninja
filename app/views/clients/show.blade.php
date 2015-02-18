@@ -10,15 +10,12 @@
 			{{ Former::text('id')->value($client->public_id) }}
 		</div>
 
-<<<<<<< HEAD
         @if ($gatewayLink)
             {{ Button::link($gatewayLink, trans('texts.view_in_stripe'), ['target' => '_blank']) }}
         @endif
 
-		@if ($client->trashed())		
-=======
 		@if ($client->trashed())
->>>>>>> Added translation string and fixed german string
+		@if ($client->trashed())
 			{{ Button::primary(trans('texts.restore_client'), ['onclick' => 'onRestoreClick()']) }}
 		@else
 		{{ DropdownButton::normal(trans('texts.edit_client'),
