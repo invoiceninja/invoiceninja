@@ -1,8 +1,8 @@
 @extends('header')
 
-@section('content') 
-	
-	
+@section('content')
+
+
 	<div class="pull-right">
 		{{ Former::open('clients/bulk')->addClass('mainForm') }}
 		<div style="display:none">
@@ -10,11 +10,15 @@
 			{{ Former::text('id')->value($client->public_id) }}
 		</div>
 
+<<<<<<< HEAD
         @if ($gatewayLink)
             {{ Button::link($gatewayLink, trans('texts.view_in_stripe'), ['target' => '_blank']) }}
         @endif
 
 		@if ($client->trashed())		
+=======
+		@if ($client->trashed())
+>>>>>>> Added translation string and fixed german string
 			{{ Button::primary(trans('texts.restore_client'), ['onclick' => 'onRestoreClick()']) }}
 		@else
 		{{ DropdownButton::normal(trans('texts.edit_client'),
@@ -28,16 +32,16 @@
 			  )
 			, ['id'=>'normalDropDown'])->split(); }}
 
-			{{ DropdownButton::primary('Create Invoice', Navigation::links($actionLinks), ['id'=>'primaryDropDown'])->split(); }}
+			{{ DropdownButton::primary(trans('texts.create_invoice'), Navigation::links($actionLinks), ['id'=>'primaryDropDown'])->split(); }}
 		@endif
-	  {{ Former::close() }}		
+	  {{ Former::close() }}
 
 	</div>
-	
+
 
 	<h2>{{ $client->getDisplayName() }}</h2>
 	@if ($client->last_login > 0)
-	<h3 style="margin-top:0px"><small>		
+	<h3 style="margin-top:0px"><small>
 		{{ trans('texts.last_logged_in') }} {{ Utils::timestampToDateTimeString(strtotime($client->last_login)); }}
 	</small></h3>
 	@endif
@@ -59,9 +63,9 @@
 
 		<div class="col-md-3">
 			<h3>{{ trans('texts.contacts') }}</h3>
-		  	@foreach ($client->contacts as $contact)		  	
-		  		{{ $contact->getDetails() }}		  	
-		  	@endforeach			
+		  	@foreach ($client->contacts as $contact)
+		  		{{ $contact->getDetails() }}
+		  	@endforeach
 		</div>
 
 		<div class="col-md-6">
@@ -88,28 +92,28 @@
 	</div>
 
 	<p>&nbsp;</p>
-	
+
 	<ul class="nav nav-tabs nav-justified">
 		{{ HTML::tab_link('#activity', trans('texts.activity'), true) }}
 		@if (Utils::isPro())
 			{{ HTML::tab_link('#quotes', trans('texts.quotes')) }}
 		@endif
 		{{ HTML::tab_link('#invoices', trans('texts.invoices')) }}
-		{{ HTML::tab_link('#payments', trans('texts.payments')) }}			
-		{{ HTML::tab_link('#credits', trans('texts.credits')) }}			
+		{{ HTML::tab_link('#payments', trans('texts.payments')) }}
+		{{ HTML::tab_link('#credits', trans('texts.credits')) }}
 	</ul>
 
 	<div class="tab-content">
 
         <div class="tab-pane active" id="activity">
 
-			{{ Datatable::table()		
+			{{ Datatable::table()
 		    	->addColumn(
 		    		trans('texts.date'),
 		    		trans('texts.message'),
 		    		trans('texts.balance'),
 		    		trans('texts.adjustment'))
-		    	->setUrl(url('api/activities/'. $client->public_id))    	
+		    	->setUrl(url('api/activities/'. $client->public_id))
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
@@ -120,14 +124,14 @@
     @if (Utils::isPro())
         <div class="tab-pane" id="quotes">
 
-			{{ Datatable::table()		
+			{{ Datatable::table()
 		    	->addColumn(
 	    			trans('texts.quote_number'),
 	    			trans('texts.quote_date'),
 	    			trans('texts.total'),
 	    			trans('texts.due_date'),
 	    			trans('texts.status'))
-		    	->setUrl(url('api/quotes/'. $client->public_id))    	
+		    	->setUrl(url('api/quotes/'. $client->public_id))
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
@@ -139,20 +143,20 @@
 		<div class="tab-pane" id="invoices">
 
 			@if ($hasRecurringInvoices)
-				{{ Datatable::table()		
+				{{ Datatable::table()
 			    	->addColumn(
 			    		trans('texts.frequency_id'),
 			    		trans('texts.start_date'),
 			    		trans('texts.end_date'),
-			    		trans('texts.invoice_total'))			    		
-			    	->setUrl(url('api/recurring_invoices/' . $client->public_id))    	
+			    		trans('texts.invoice_total'))
+			    	->setUrl(url('api/recurring_invoices/' . $client->public_id))
 			    	->setOptions('sPaginationType', 'bootstrap')
 			    	->setOptions('bFilter', false)
 			    	->setOptions('aaSorting', [['0', 'asc']])
 			    	->render('datatable') }}
 			@endif
 
-			{{ Datatable::table()		
+			{{ Datatable::table()
 		    	->addColumn(
 		    			trans('texts.invoice_number'),
 		    			trans('texts.invoice_date'),
@@ -160,46 +164,46 @@
 		    			trans('texts.balance_due'),
 		    			trans('texts.due_date'),
 		    			trans('texts.status'))
-		    	->setUrl(url('api/invoices/' . $client->public_id))    	
+		    	->setUrl(url('api/invoices/' . $client->public_id))
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'asc']])
 		    	->render('datatable') }}
-            
+
         </div>
         <div class="tab-pane" id="payments">
 
-	    	{{ Datatable::table()		
+	    	{{ Datatable::table()
 						->addColumn(
 			    			trans('texts.invoice'),
-			    			trans('texts.transaction_reference'),				
-			    			trans('texts.method'),		    			
+			    			trans('texts.transaction_reference'),
+			    			trans('texts.method'),
 			    			trans('texts.payment_amount'),
 			    			trans('texts.payment_date'))
-				->setUrl(url('api/payments/' . $client->public_id))    	
+				->setUrl(url('api/payments/' . $client->public_id))
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->setOptions('aaSorting', [['0', 'asc']])
 				->render('datatable') }}
-            
+
         </div>
         <div class="tab-pane" id="credits">
 
-	    	{{ Datatable::table()		
+	    	{{ Datatable::table()
 						->addColumn(
 								trans('texts.credit_amount'),
 								trans('texts.credit_balance'),
 								trans('texts.credit_date'),
 								trans('texts.private_notes'))
-				->setUrl(url('api/credits/' . $client->public_id))    	
+				->setUrl(url('api/credits/' . $client->public_id))
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->setOptions('aaSorting', [['0', 'asc']])
 				->render('datatable') }}
-            
+
         </div>
     </div>
-	
+
 	<script type="text/javascript">
 
 	$(function() {
@@ -225,7 +229,7 @@
 		if (confirm("{{ trans('texts.are_you_sure') }}")) {
 			$('#action').val('delete');
 			$('.mainForm').submit();
-		}		
+		}
 	}
 
 	</script>
