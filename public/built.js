@@ -33024,7 +33024,7 @@ function toggleDatePicker(field) {
 
 function roundToTwo(num, toString) {
   var val = +(Math.round(num + "e+2")  + "e-2");
-  return toString ? val.toFixed(2) : val;
+  return toString ? val.toFixed(2) : val || 0;
 }
 
 function truncate(str, length) {

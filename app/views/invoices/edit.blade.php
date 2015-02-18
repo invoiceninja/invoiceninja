@@ -1201,60 +1201,60 @@
 		});
 
 		this.totals.total = ko.computed(function() {
-	    var total = accounting.toFixed(self.totals.rawSubtotal(),2);	    
-	    var discount = self.totals.rawDiscounted();
-	    total -= discount;
+    	    var total = accounting.toFixed(self.totals.rawSubtotal(),2);	    
+    	    var discount = self.totals.rawDiscounted();
+    	    total -= discount;
 
-	    /*
-	    var discount = parseFloat(self.discount());
-	    if (discount > 0) {
-	    	total = roundToTwo(total * ((100 - discount)/100));
-	    }
-			*/
+    	    /*
+    	    var discount = parseFloat(self.discount());
+    	    if (discount > 0) {
+    	    	total = roundToTwo(total * ((100 - discount)/100));
+    	    }
+    			*/
 
-	    var customValue1 = roundToTwo(self.custom_value1());
-	    var customValue2 = roundToTwo(self.custom_value2());
-	    var customTaxes1 = self.custom_taxes1() == 1;
-	    var customTaxes2 = self.custom_taxes2() == 1;
-	    
-	    if (customValue1 && customTaxes1) {
-	    	total = NINJA.parseFloat(total) + customValue1;
-	    }
-	    if (customValue2 && customTaxes2) {
-	    	total = NINJA.parseFloat(total) + customValue2;
-	    }
+    	    var customValue1 = roundToTwo(self.custom_value1());
+    	    var customValue2 = roundToTwo(self.custom_value2());
+    	    var customTaxes1 = self.custom_taxes1() == 1;
+    	    var customTaxes2 = self.custom_taxes2() == 1;
+    	    
+    	    if (customValue1 && customTaxes1) {
+    	    	total = NINJA.parseFloat(total) + customValue1;
+    	    }
+    	    if (customValue2 && customTaxes2) {
+    	    	total = NINJA.parseFloat(total) + customValue2;
+    	    }
 
-			var taxRate = parseFloat(self.tax_rate());
-			if (taxRate > 0) {
-    		total = NINJA.parseFloat(total) + roundToTwo((total * (taxRate/100)));
-    	}        	
+    			var taxRate = parseFloat(self.tax_rate());
+    			if (taxRate > 0) {
+        		total = NINJA.parseFloat(total) + roundToTwo((total * (taxRate/100)));
+        	}        	
 
-	    if (customValue1 && !customTaxes1) {
-	    	total = NINJA.parseFloat(total) + customValue1;
-	    }
-	    if (customValue2 && !customTaxes2) {
-	    	total = NINJA.parseFloat(total) + customValue2;
-	    }
-	    
-    	var paid = self.totals.rawPaidToDate();
-    	if (paid > 0) {
-    		total -= paid;
-    	}
+    	    if (customValue1 && !customTaxes1) {
+    	    	total = NINJA.parseFloat(total) + customValue1;
+    	    }
+    	    if (customValue2 && !customTaxes2) {
+    	    	total = NINJA.parseFloat(total) + customValue2;
+    	    }
+    	    
+        	var paid = self.totals.rawPaidToDate();
+        	if (paid > 0) {
+        		total -= paid;
+        	}
 
-	    return formatMoney(total, self.client().currency_id());
-  	});
+    	    return formatMoney(total, self.client().currency_id());
+      	});
 
-  	self.onDragged = function(item) {
-  		refreshPDF();
-  	}	
+      	self.onDragged = function(item) {
+      		refreshPDF();
+      	}
 	}
 
 	function ClientModel(data) {
 		var self = this;
 		self.public_id = ko.observable(0);
 		self.name = ko.observable('');
-    self.id_number = ko.observable('');
-    self.vat_number = ko.observable('');
+        self.id_number = ko.observable('');
+        self.vat_number = ko.observable('');
 		self.work_phone = ko.observable('');
 		self.custom_value1 = ko.observable('');
 		self.custom_value2 = ko.observable('');
