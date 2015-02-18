@@ -10,11 +10,6 @@
 			{{ Former::text('id')->value($client->public_id) }}
 		</div>
 
-        @if ($gatewayLink)
-            {{ Button::link($gatewayLink, trans('texts.view_in_stripe'), ['target' => '_blank']) }}
-        @endif
-
-		@if ($client->trashed())
 		@if ($client->trashed())
 			{{ Button::primary(trans('texts.restore_client'), ['onclick' => 'onRestoreClick()']) }}
 		@else
