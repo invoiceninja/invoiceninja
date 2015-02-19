@@ -301,4 +301,14 @@ header h3 em {
 
 {{ Former::close() }}
 
+<script type="text/javascript">
+    
+    $(function() {
+        $('select').change(function() {
+            $(this).css({color:'#444444'});
+        });
+    });
+
+</script>
+
 @stop
