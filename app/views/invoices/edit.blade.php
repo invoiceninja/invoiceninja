@@ -31,7 +31,7 @@
     		@if ($invoice && $invoice->id)
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
-					<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
+					<div class="col-lg-8 col-sm-8" style="padding-top: 10px">
 						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm, text: getClientDisplayName(ko.toJS(client()))"></a>
 					</div>
 				</div>    				
