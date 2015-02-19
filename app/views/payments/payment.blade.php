@@ -50,8 +50,8 @@ header {
     }
 
     .panel-body {
-        padding-left: 100px;
-        padding-right: 100px;
+        padding-left: 150px;
+        padding-right: 150px;
     }
 
 }
@@ -166,16 +166,16 @@ header h3 em {
     <div>
         <h3>{{ trans('texts.contact_information') }}</h3>
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-6">
                 {{ Former::text('first_name')->placeholder(trans('texts.first_name'))->raw() }}
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
                 {{ Former::text('last_name')->placeholder(trans('texts.last_name'))->raw() }}
             </div>
         </div>
         @if (isset($paymentTitle))
         <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-12">
                 {{ Former::text('email')->placeholder(trans('texts.email'))->raw() }}
             </div>
         </div>
@@ -183,39 +183,42 @@ header h3 em {
 
         <p>&nbsp;<br/>&nbsp;</p>
 
-        <h3>{{ trans('texts.billing_address') }}</h3>
+        <h3>{{ trans('texts.billing_address') }} &nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
         <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-12">
                 {{ Former::text('address1')->placeholder(trans('texts.address1'))->raw() }}
             </div>
         </div>
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-6">
                 {{ Former::text('address2')->placeholder(trans('texts.address2'))->raw() }}
             </div>            
-            <div class="col-md-5">
+            <div class="col-md-6">
                 {{ Former::text('city')->placeholder(trans('texts.city'))->raw() }}
             </div>
         </div>
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-6">
                 {{ Former::text('state')->placeholder(trans('texts.state'))->raw() }}
             </div>
-            <div class="col-md-5">
+            <div class="col-md-6">
                 {{ Former::text('postal_code')->placeholder(trans('texts.postal_code'))->raw() }}
             </div>
         </div>
 
         <p>&nbsp;<br/>&nbsp;</p>
 
-        <h3>{{ trans('texts.billing_method') }} &nbsp;<span class="help">{{ trans('texts.match_address') }}</span></h3>
+        <h3>{{ trans('texts.billing_method') }}</h3>
         <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-9">
                 {{ Former::text('card_number')->placeholder(trans('texts.card_number'))->raw() }}
+            </div>
+            <div class="col-md-3">
+                {{ Former::text('cvv')->placeholder(trans('texts.cvv'))->raw() }}
             </div>
         </div>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 {{ Former::select('expiration_month')->placeholder(trans('texts.expiration_month'))
                       ->addOption('01 - January', '1')
                       ->addOption('02 - February', '2')
@@ -231,7 +234,7 @@ header h3 em {
                       ->addOption('12 - December', '12')->raw();
                     }}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 {{ Former::select('expiration_year')->placeholder(trans('texts.expiration_year'))
                     ->addOption('2014', '2014')
                     ->addOption('2015', '2015')
@@ -242,22 +245,19 @@ header h3 em {
                     ->addOption('2020', '2020')->raw();
                   }}
             </div>
-            <div class="col-md-2">
-                {{ Former::text('cvv')->placeholder(trans('texts.cvv'))->raw() }}
-            </div>
         </div>
 
 
         <div class="row" style="padding-top:18px">
-            <div class="col-md-4">
+            <div class="col-md-5">
                 @if ($account->showTokenCheckbox())        
-                    <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:text-top">
-                    <label for="token_billing" class="checkbox" style="display: inline; font-size:15px">{{ trans('texts.token_billing') }}</label>
+                    <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
+                    <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
                     <span class="help-block" style="font-size:15px">{{ trans('texts.token_billing_secure', ['stripe_link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) }}</span>
                 @endif                    
             </div>  
 
-            <div class="col-md-6">            
+            <div class="col-md-7">            
             @if (isset($acceptedCreditCardTypes))                
                 <div class="pull-right">
                     @foreach ($acceptedCreditCardTypes as $card)
@@ -272,7 +272,7 @@ header h3 em {
         <p>&nbsp;<br/>&nbsp;</p>
 
         <div class="row">
-            <div class="col-md-4 col-md-offset-3">
+            <div class="col-md-4 col-md-offset-4">
                 {{ Button::block_success_submit_lg(strtoupper(trans('texts.pay_now') . ' - ' . Utils::formatMoney($amount, $currencyId) )) }}
             </div>
         </div>

@@ -1,26 +1,5 @@
 @extends('accounts.nav')
 
-@section('head') 
-    @parent 
-    
-    <style type="text/css">
-    /* bootstrap 3.2.0 fix */
-    /* https://github.com/twbs/bootstrap/issues/13984 */
-    .radio input[type="radio"],
-    .checkbox input[type="checkbox"] {
-        margin-left: 0;
-        margin-right: 5px;
-        height: inherit;
-        width: inherit;
-        float: left;
-        display: inline-block;
-        position: relative;
-        margin-top: 3px;
-    }
-    </style>
-
-@stop
-
 @section('content')	
 	@parent	
 
