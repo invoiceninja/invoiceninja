@@ -236,7 +236,7 @@ class PaymentController extends \BaseController
                 'city' => $input['city'],
                 'state' => $input['state'],
                 'postal_code' => $input['postal_code'],
-                'amt' => $invoice->amount,
+                'amt' => $invoice->balance,
                 'ship_to_street' => $input['address1'],
                 'ship_to_city' => $input['city'],
                 'ship_to_state' => $input['state'],
@@ -273,7 +273,7 @@ class PaymentController extends \BaseController
             $card = new CreditCard($data);
 
             return [
-                'amount' => $invoice->amount,
+                'amount' => $invoice->balance,
                 'card' => $card,
                 'currency' => $currencyCode,
                 'returnUrl' => URL::to('complete'),
@@ -313,7 +313,7 @@ class PaymentController extends \BaseController
         $data = [
             'showBreadcrumbs' => false,
             'url' => 'payment/'.$invitationKey,
-            'amount' => $invoice->amount,
+            'amount' => $invoice->balance,
             'invoiceNumber' => $invoice->invoice_number,
             'client' => $client,
             'contact' => $invitation->contact,
@@ -645,7 +645,7 @@ class PaymentController extends \BaseController
         $payment->invitation_id = $invitation->id;
         $payment->account_gateway_id = $accountGateway->id;
         $payment->invoice_id = $invoice->id;
-        $payment->amount = $invoice->amount;
+        $payment->amount = $invoice->balance;
         $payment->client_id = $invoice->client_id;
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
