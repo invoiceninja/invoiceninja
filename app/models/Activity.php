@@ -157,7 +157,9 @@ class Activity extends Eloquent
         $client = $invoice->client;
 
         if ($invoice->is_deleted && !$invoice->getOriginal('is_deleted')) {
+            $adjustment = 0;
             if (!$invoice->is_quote && !$invoice->is_recurring) {
+                $adjustment = $invoice->balance * -1;
                 $client->balance = $client->balance - $invoice->balance;
                 $client->paid_to_date = $client->paid_to_date - ($invoice->amount - $invoice->balance);
                 $client->save();
@@ -169,7 +171,7 @@ class Activity extends Eloquent
             $activity->activity_type_id = $invoice->is_quote ? ACTIVITY_TYPE_DELETE_QUOTE : ACTIVITY_TYPE_DELETE_INVOICE;
             $activity->message = Utils::encodeActivity(Auth::user(), 'deleted', $invoice);
             $activity->balance = $invoice->client->balance;
-            $activity->adjustment = $invoice->is_quote ? 0 : $invoice->balance * -1;
+            $activity->adjustment = $adjustment;
             $activity->save();
         } else {
             $diff = floatval($invoice->amount) - floatval($invoice->getOriginal('amount'));
