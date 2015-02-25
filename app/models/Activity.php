@@ -57,6 +57,7 @@ class Activity extends Eloquent
             $activity->client_id = $client->id;
             $activity->activity_type_id = ACTIVITY_TYPE_DELETE_CLIENT;
             $activity->message = Utils::encodeActivity(Auth::user(), 'deleted', $client);
+            $activity->balance = $client->balance;
             $activity->save();
         }
     }

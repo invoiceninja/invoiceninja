@@ -291,7 +291,7 @@
                         <li><a href="{{ URL::to("{$entityType}s/{$entityType}_history/{$invoice->public_id}") }}">{{ trans("texts.view_history") }}</a></li>
                         <li class="divider"></li>                            
 
-                        @if ($invoice->invoice_status_id < INVOICE_STATUS_SENT)
+                        @if ($invoice->invoice_status_id < INVOICE_STATUS_SENT && !$invoice->is_recurring)
                             <li><a href="javascript:onMarkClick()">{{ trans("texts.mark_sent") }}</a></li>
                         @endif
 
@@ -317,9 +317,11 @@
 				{{ Button::success(trans("texts.save_{$entityType}"), array('id' => 'saveButton', 'onclick' => 'onSaveClick()')) }}			
 			@endif
 
-			{{ Button::normal(trans("texts.email_{$entityType}"), array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->append_with_icon('send'); }}		
+            @if (!$invoice || ($invoice && !$invoice->is_recurring))
+			 {{ Button::normal(trans("texts.email_{$entityType}"), array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->append_with_icon('send'); }}		
+            @endif
 
-			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE)		
+			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE && !$invoice->is_recurring)
 				{{ Button::primary(trans('texts.enter_payment'), array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
 			@endif
 		@elseif ($invoice && $invoice->trashed() && !$invoice->is_deleted == '1')

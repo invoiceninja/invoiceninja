@@ -26,7 +26,7 @@
             @if (!$isConverted)
                 {{ Button::success_link(URL::to('approve/' . $invitation->invitation_key), trans('texts.approve'), array('class' => 'btn-lg')) }}
             @endif
-		@elseif ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)			
+		@elseif ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)
 			{{ Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}&nbsp;&nbsp;
             @if ($hasToken)
                 {{ DropdownButton::success_lg(trans('texts.pay_now'), [

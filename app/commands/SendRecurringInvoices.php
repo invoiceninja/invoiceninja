@@ -23,7 +23,7 @@ class SendRecurringInvoices extends Command {
 		$this->info(date('Y-m-d') . ' Running SendRecurringInvoices...');
 		$today = new DateTime();			
 		
-		$invoices = Invoice::with('account.timezone', 'invoice_items', 'client')
+		$invoices = Invoice::with('account.timezone', 'invoice_items', 'client', 'user')
 			->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', array($today, $today))->get();
 		$this->info(count($invoices) . ' recurring invoice(s) found');
 
@@ -34,7 +34,12 @@ class SendRecurringInvoices extends Command {
 				continue;
 			}
 
-			date_default_timezone_set($recurInvoice->account->getTimezone());			
+            if (!$recurInvoice->user->confirmed)
+            {
+                continue;
+            }
+
+			date_default_timezone_set($recurInvoice->account->getTimezone());
 			
 			$this->info('Processing Invoice ' . $recurInvoice->id . ' - Should send ' . ($recurInvoice->shouldSendToday() ? 'YES' : 'NO'));
 			

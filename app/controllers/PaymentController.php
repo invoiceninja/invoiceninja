@@ -59,7 +59,7 @@ class PaymentController extends \BaseController
         return $table->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
             ->addColumn('payment_date', function ($model) { return Utils::dateToString($model->payment_date); })
             ->addColumn('dropdown', function ($model) {
-                if ($model->is_deleted) {
+                if ($model->is_deleted || $model->invoice_is_deleted) {
                     return '<div style="height:38px"/>';
                 }
 
