@@ -39,8 +39,6 @@ class SendRecurringInvoices extends Command {
                 continue;
             }
 
-			date_default_timezone_set($recurInvoice->account->getTimezone());
-			
 			$this->info('Processing Invoice ' . $recurInvoice->id . ' - Should send ' . ($recurInvoice->shouldSendToday() ? 'YES' : 'NO'));
 			
 			if (!$recurInvoice->shouldSendToday())
@@ -82,7 +80,7 @@ class SendRecurringInvoices extends Command {
 				$item->qty = $recurItem->qty;
 				$item->cost = $recurItem->cost;
 				$item->notes = Utils::processVariables($recurItem->notes);
-				$item->product_key = Utils::processVariables($recurItem->product_key);				
+				$item->product_key = Utils::processVariables($recurItem->product_key);
 				$item->tax_name = $recurItem->tax_name;
 				$item->tax_rate = $recurItem->tax_rate;
 				$invoice->invoice_items()->save($item);
