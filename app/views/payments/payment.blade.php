@@ -15,6 +15,7 @@ body {
 
 
 .container input[type=text],
+.container input[type=email],
 .container select {
     font-weight: 300;
     font-family: 'Roboto', sans-serif;
@@ -145,13 +146,17 @@ header h3 em {
   <div class="panel-body">
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-7">
             <header>
-                <h2>{{ $client->getDisplayName() }}</h2>
-                <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ Utils::formatMoney($amount, $currencyId) }}</em></span></h3>
+                @if ($client)
+                    <h2>{{ $client->getDisplayName() }}</h2>
+                    <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ Utils::formatMoney($amount, $currencyId) }}</em></span></h3>
+                @elseif ($paymentTitle)
+                    <h2>{{ $paymentTitle }}<br/><small>{{ $paymentSubtitle }}</small></h2>                    
+                @endif
             </header>  
         </div>
-        <div class="col-md-6">
+        <div class="col-md-5">
             @if (Request::secure() || Utils::isNinjaDev())
             <div class="secure">
                 <h3>{{ trans('texts.secure_payment') }}</h3>
@@ -254,7 +259,7 @@ header h3 em {
 
         <div class="row" style="padding-top:18px">
             <div class="col-md-5">
-                @if ($account->showTokenCheckbox())        
+                @if ($client && $account->showTokenCheckbox())        
                     <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
                     <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
                     <span class="help-block" style="font-size:15px">{{ trans('texts.token_billing_secure', ['stripe_link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) }}</span>

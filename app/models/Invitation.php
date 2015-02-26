@@ -17,6 +17,11 @@ class Invitation extends EntityModel
         return $this->belongsTo('User')->withTrashed();
     }
 
+    public function account()
+    {
+        return $this->belongsTo('Account');
+    }
+
     public function getLink()
     {
         return SITE_URL.'/view/'.$this->invitation_key;

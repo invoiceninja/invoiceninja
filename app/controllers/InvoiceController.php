@@ -46,7 +46,16 @@ class InvoiceController extends \BaseController
 
     public function clientIndex()
     {
+        $invitationKey = Session::get('invitation_key');
+        if (!$invitationKey) {
+            return Redirect::to('/setup');
+        }
+
+        $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
+        $color = $invitation->account->primary_color ? $invitation->account->primary_color : '#0b4d78';
+        
         $data = [
+            'color' => $color,
             'hideLogo' => Session::get('white_label'),
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
@@ -67,7 +76,7 @@ class InvoiceController extends \BaseController
     public function getClientDatatable()
     {
         //$accountId = Auth::user()->account_id;
-    $search = Input::get('sSearch');
+        $search = Input::get('sSearch');
         $invitationKey = Session::get('invitation_key');
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
 

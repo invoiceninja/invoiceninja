@@ -11,8 +11,7 @@
 		table.dataTable { border-radius: 3px; border-collapse: collapse;
 		/*border-spacing: 0;*/}
 		table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
-			background-color: #0b4d78 !important;
-			/*background-color: #e37329 !important;*/
+			background-color: {{ $color }} !important;
 			color:#fff;
 		}
 		th:first-child {
@@ -68,8 +67,8 @@
 			max-width: 250px;
 		}
 		.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
-			background-color: #0b4d78;
-			border-color: #0b4d78;
+			background-color: {{ $color }};
+			border-color: {{ $color }};
 		}
 		.pagination>li:first-child>a, .pagination>li:first-child>span {
 			border-bottom-left-radius: 3px;

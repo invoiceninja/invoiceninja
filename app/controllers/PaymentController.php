@@ -30,12 +30,23 @@ class PaymentController extends \BaseController
 
     public function clientIndex()
     {
-        return View::make('public_list', array(
+        $invitationKey = Session::get('invitation_key');
+        if (!$invitationKey) {
+            return Redirect::to('/setup');
+        }
+
+        $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
+        $color = $invitation->account->primary_color ? $invitation->account->primary_color : '#0b4d78';
+        
+        $data = [
+            'color' => $color,
             'hideLogo' => Session::get('white_label'),
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
-            'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date']),
-        ));
+            'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date'])
+        ];
+
+        return View::make('public_list', $data);
     }
 
     public function getDatatable($clientPublicId = null)

@@ -29,10 +29,10 @@ class QuoteController extends \BaseController
         }
 
         $data = [
-      'title' => trans('texts.quotes'),
-      'entityType' => ENTITY_QUOTE,
-      'columns' => Utils::trans(['checkbox', 'quote_number', 'client', 'quote_date', 'quote_total', 'due_date', 'status', 'action']),
-    ];
+          'title' => trans('texts.quotes'),
+          'entityType' => ENTITY_QUOTE,
+          'columns' => Utils::trans(['checkbox', 'quote_number', 'client', 'quote_date', 'quote_total', 'due_date', 'status', 'action']),
+        ];
 
     /*
     if (Invoice::scope()->where('is_recurring', '=', true)->count() > 0)
@@ -47,12 +47,21 @@ class QuoteController extends \BaseController
 
     public function clientIndex()
     {
+        $invitationKey = Session::get('invitation_key');
+        if (!$invitationKey) {
+            return Redirect::to('/setup');
+        }
+
+        $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
+        $color = $invitation->account->primary_color ? $invitation->account->primary_color : '#0b4d78';
+        
         $data = [
-      'hideLogo' => Session::get('white_label'),
-      'title' => trans('texts.quotes'),
-      'entityType' => ENTITY_QUOTE,
-      'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
-    ];
+          'color' => $color,
+          'hideLogo' => Session::get('white_label'),
+          'title' => trans('texts.quotes'),
+          'entityType' => ENTITY_QUOTE,
+          'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
+        ];
 
         return View::make('public_list', $data);
     }
