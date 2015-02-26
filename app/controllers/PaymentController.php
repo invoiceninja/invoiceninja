@@ -622,7 +622,7 @@ class PaymentController extends \BaseController
             }
         } catch (\Exception $e) {
             $errorMessage = trans('texts.payment_error');
-            Session::flash('error', $errorMessage);
+            Session::flash('error', $errorMessage."<p>".$e->getMessage());
             Utils::logError(Utils::getErrorString($e));
 
             return Redirect::to('payment/'.$invitationKey)
