@@ -220,7 +220,7 @@ class InvoiceRepository
                 $invoice->is_quote = true;
             }
         }
-
+        
         $invoice->client_id = $data['client_id'];
         $invoice->discount = round(Utils::parseFloat($data['discount']), 2);
         $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;

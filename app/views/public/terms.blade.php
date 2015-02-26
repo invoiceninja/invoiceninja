@@ -2,6 +2,28 @@
 
 @section('content')
 
+<style type="text/css">
+
+body {
+    background-color: #f8f8f8;
+    color: #1b1a1a;
+}
+
+.panel-body {
+    padding-bottom: 100px;
+}
+
+
+</style>
+
+
+<div class="container">
+<p>&nbsp;</p>
+
+<div class="panel panel-default">
+  <div class="panel-body">
+
+
   <section data-type="background">
     <div class="container">
       <div class="row">
@@ -147,5 +169,9 @@
 
   <p>&nbsp;</p>
   <p>&nbsp;</p>
+
+</div>
+</div>
+</div>
 
 @stop
