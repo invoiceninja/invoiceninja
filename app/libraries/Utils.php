@@ -1,6 +1,6 @@
 <?php
 
-class utils
+class Utils
 {
     public static function isRegistered()
     {
