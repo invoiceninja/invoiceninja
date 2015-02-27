@@ -13,10 +13,6 @@ class PaymentApiController extends Controller
 
     public function index()
     {
-        if (!Utils::isPro()) {
-            return Redirect::to('/');
-        }
-
         $payments = Payment::scope()->orderBy('created_at', 'desc')->get();
         $payments = Utils::remapPublicIds($payments->toArray());
 

@@ -220,13 +220,13 @@ class InvoiceRepository
                 $invoice->is_quote = true;
             }
         }
-        
+
         $invoice->client_id = $data['client_id'];
         $invoice->discount = round(Utils::parseFloat($data['discount']), 2);
         $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
         $invoice->invoice_number = trim($data['invoice_number']);
         $invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
-        $invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
+        $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
 
         if ($invoice->is_recurring) {
             $invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
@@ -234,7 +234,7 @@ class InvoiceRepository
             $invoice->end_date = Utils::toSqlDate($data['end_date']);
             $invoice->due_date = null;
         } else {
-            $invoice->due_date = Utils::toSqlDate($data['due_date']);
+            $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
             $invoice->frequency_id = 0;
             $invoice->start_date = null;
             $invoice->end_date = null;
@@ -256,16 +256,17 @@ class InvoiceRepository
         $total = 0;
 
         foreach ($data['invoice_items'] as $item) {
-            if (!$item->cost && !$item->product_key && !$item->notes) {
+            $item = (array) $item;
+            if (!$item['cost'] && !$item['product_key'] && !$item['notes']) {
                 continue;
             }
 
-            $invoiceItemCost = Utils::parseFloat($item->cost);
-            $invoiceItemQty = Utils::parseFloat($item->qty);
+            $invoiceItemCost = Utils::parseFloat($item['cost']);
+            $invoiceItemQty = Utils::parseFloat($item['qty']);
             $invoiceItemTaxRate = 0;
 
-            if (isset($item->tax_rate) && Utils::parseFloat($item->tax_rate) > 0) {
-                $invoiceItemTaxRate = Utils::parseFloat($item->tax_rate);
+            if (isset($item['tax_rate']) && Utils::parseFloat($item['tax_rate']) > 0) {
+                $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate']);
             }
 
             $lineTotal = $invoiceItemCost * $invoiceItemQty;
@@ -314,25 +315,27 @@ class InvoiceRepository
         $invoice->amount = $total;
         $invoice->save();
 
-        $invoice->invoice_items()->forceDelete();
+        if ($publicId) {
+            $invoice->invoice_items()->forceDelete();
+        }
 
         foreach ($data['invoice_items'] as $item) {
-            if (!$item->cost && !$item->product_key && !$item->notes) {
+            $item = (array) $item;
+            if (!$item['cost'] && !$item['product_key'] && !$item['notes']) {
                 continue;
             }
 
-            if ($item->product_key) {
-                $product = Product::findProductByKey(trim($item->product_key));
+            if ($item['product_key']) {
+                $product = Product::findProductByKey(trim($item['product_key']));
 
                 if (!$product) {
                     $product = Product::createNew();
-                    $product->product_key = trim($item->product_key);
+                    $product->product_key = trim($item['product_key']);
                 }
 
                 if (\Auth::user()->account->update_products) {
-                    $product->notes = $item->notes;
-                    $product->cost = $item->cost;
-                    //$product->qty = $item->qty;
+                    $product->notes = $item['notes'];
+                    $product->cost = $item['cost'];
                 }
 
                 $product->save();
@@ -340,21 +343,21 @@ class InvoiceRepository
 
             $invoiceItem = InvoiceItem::createNew();
             $invoiceItem->product_id = isset($product) ? $product->id : null;
-            $invoiceItem->product_key = trim($invoice->is_recurring ? $item->product_key : Utils::processVariables($item->product_key));
-            $invoiceItem->notes = trim($invoice->is_recurring ? $item->notes : Utils::processVariables($item->notes));
-            $invoiceItem->cost = Utils::parseFloat($item->cost);
-            $invoiceItem->qty = Utils::parseFloat($item->qty);
+            $invoiceItem->product_key = trim($invoice->is_recurring ? $item->product_key : Utils::processVariables($item['product_key']));
+            $invoiceItem->notes = trim($invoice->is_recurring ? $item['notes'] : Utils::processVariables($item['notes']));
+            $invoiceItem->cost = Utils::parseFloat($item['cost']);
+            $invoiceItem->qty = Utils::parseFloat($item['qty']);
             $invoiceItem->tax_rate = 0;
 
-            if (isset($item->tax_rate) && isset($item->tax_name) && $item->tax_name) {
-                $invoiceItem->tax_rate = Utils::parseFloat($item->tax_rate);
-                $invoiceItem->tax_name = trim($item->tax_name);
+            if (isset($item['tax_rate']) && isset($item['tax_name']) && $item['tax_name']) {
+                $invoiceItem['tax_rate'] = Utils::parseFloat($item['tax_rate']);
+                $invoiceItem['tax_name'] = trim($item['tax_name']);
             }
 
             $invoice->invoice_items()->save($invoiceItem);
         }
 
-        if ($data['set_default_terms']) {
+        if (isset($data['set_default_terms']) && $data['set_default_terms']) {
             $account = \Auth::user()->account;
             $account->invoice_terms = $invoice->terms;
             $account->save();

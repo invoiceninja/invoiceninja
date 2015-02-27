@@ -20,10 +20,6 @@ class ClientApiController extends Controller
 
     public function index()
     {
-        if (!Utils::isPro()) {
-            return Redirect::to('/');
-        }
-
         $clients = Client::scope()->with('contacts')->orderBy('created_at', 'desc')->get();
         $clients = Utils::remapPublicIds($clients->toArray());
 
@@ -35,10 +31,6 @@ class ClientApiController extends Controller
 
     public function store()
     {
-        if (!Utils::isPro()) {
-            return Redirect::to('/');
-        }
-
         $data = Input::all();
         $error = $this->clientRepo->getErrors($data);
 

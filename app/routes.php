@@ -142,7 +142,7 @@ Route::group(array('before' => 'auth'), function() {
 });
 
 // Route group for API
-Route::group(array('prefix' => 'api/v1', 'before' => 'auth.basic'), function()
+Route::group(array('prefix' => 'api/v1', 'before' => ['auth.basic', 'api.access']), function()
 {
     Route::resource('ping', 'ClientApiController@ping');
     Route::resource('clients', 'ClientApiController');
@@ -150,6 +150,7 @@ Route::group(array('prefix' => 'api/v1', 'before' => 'auth.basic'), function()
     Route::resource('quotes', 'QuoteApiController');
     Route::resource('payments', 'PaymentApiController');
     Route::post('api/hooks', 'IntegrationController@subscribe');
+    Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
 });
 
 define('CONTACT_EMAIL', Config::get('mail.from.address'));

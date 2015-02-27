@@ -539,23 +539,26 @@ class utils
         }
     }
 
-    public static function remapPublicIds($data)
+
+    public static function remapPublicIds(array $data)
     {
-        foreach ($data as $index => $record) {
-            if (!isset($data[$index]['public_id'])) {
+        $return = [];
+
+        foreach ($data as $key => $val) {
+            if ($key === 'public_id') {
+                $key = 'id';
+            } elseif (strpos($key, '_id')) {
                 continue;
             }
-            $data[$index]['id'] = $data[$index]['public_id'];
-            unset($data[$index]['public_id']);
 
-            foreach ($record as $key => $val) {
-                if (is_array($val)) {
-                    $data[$index][$key] = Utils::remapPublicIds($val);
-                }
+            if (is_array($val)) {
+                $val = Utils::remapPublicIds($val);
             }
+
+            $return[$key] = $val;
         }
 
-        return $data;
+        return $return;
     }
 
     public static function getApiHeaders($count = 0)

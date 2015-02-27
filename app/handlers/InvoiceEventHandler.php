@@ -44,7 +44,7 @@ class InvoiceEventHandler
 		{
 			if ($user->{'notify_' . $type})
 			{
-				$this->userMailer->sendNotification($user, $invoice, $type, $payment);
+                $this->userMailer->sendNotification($user, $invoice, $type, $payment);
 			}
 		}
 	}
