@@ -87,7 +87,8 @@ class InvoiceApiController extends Controller
         $fields = [
             'discount' => 0,
             'is_amount_discount' => false,
-            'terms' => $account->invoice_terms,
+            'terms' => '',
+            'invoice_footer' => '',
             'public_notes' => '',
             'po_number' => '',
             'invoice_design_id' => $account->invoice_design_id,

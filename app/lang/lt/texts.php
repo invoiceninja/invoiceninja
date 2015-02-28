@@ -536,6 +536,9 @@ return array(
   'match_address' => '*Address must match address accociated with credit card.',
   'click_once' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.',
 
+  'default_invoice_footer' => 'Set default invoice footer',
+  'invoice_footer' => 'Invoice footer',
+  'save_as_default_footer' => 'Save as default footer',
     
 );
 

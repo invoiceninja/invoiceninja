@@ -597,6 +597,7 @@ class AccountController extends \BaseController
     {
         $account = Auth::user()->account;
         $account->invoice_terms = Input::get('invoice_terms');
+        $account->invoice_footer = Input::get('invoice_footer');
         $account->email_footer = Input::get('email_footer');
         $account->save();
 

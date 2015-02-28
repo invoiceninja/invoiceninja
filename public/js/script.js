@@ -80,6 +80,16 @@ function GetPdf(invoice, javascript){
 
   eval(javascript);
 
+  // add footer
+  if (invoice.invoice_footer) {
+    doc.setFontType('normal');
+    doc.setFontSize('8');
+    SetPdfColor('Black',doc);
+    var top = doc.internal.pageSize.height - layout.marginLeft;
+    var numLines = invoice.invoice_footer.split("\n").length - 1;
+    doc.text(layout.marginLeft, top - (numLines * 8), invoice.invoice_footer);
+  }
+
   return doc;
 }
 
@@ -467,6 +477,13 @@ if (window.ko) {
          var value = ko.utils.unwrapObservable(valueAccessor());
          if (value) $(element).datepicker('update', value);
       }
+  };
+
+  ko.bindingHandlers.placeholder = {
+    init: function (element, valueAccessor, allBindingsAccessor) {
+      var underlyingObservable = valueAccessor();
+      ko.applyBindingsToNode(element, { attr: { placeholder: underlyingObservable } } );
+    }
   };
 }
 

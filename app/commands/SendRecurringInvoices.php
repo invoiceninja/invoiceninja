@@ -53,6 +53,7 @@ class SendRecurringInvoices extends Command
             $invoice->po_number = $recurInvoice->po_number;
             $invoice->public_notes = $recurInvoice->public_notes;
             $invoice->terms = $recurInvoice->terms;
+            $invoice->invoice_footer = $recurInvoice->invoice_footer;
             $invoice->tax_name = $recurInvoice->tax_name;
             $invoice->tax_rate = $recurInvoice->tax_rate;
             $invoice->invoice_design_id = $recurInvoice->invoice_design_id;

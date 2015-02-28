@@ -69,7 +69,7 @@
   } else {
     window.accountLogo = "{{ HTML::image_data($account->getLogoPath()) }}";
   }
-  @endif  
+  @endif
 
   var NINJA = NINJA || {};
   NINJA.primaryColor = "{{ $account->primary_color }}";

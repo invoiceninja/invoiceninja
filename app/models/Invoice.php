@@ -77,6 +77,7 @@ class Invoice extends EntityModel
             'invoice_date',
             'due_date',
             'terms',
+            'invoice_footer',
             'public_notes',
             'amount',
             'balance',

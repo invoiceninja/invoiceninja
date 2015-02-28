@@ -177,26 +177,32 @@ class Activity extends Eloquent
         } else {
             $diff = floatval($invoice->amount) - floatval($invoice->getOriginal('amount'));
 
-            if ($diff == 0) {
-                return;
+            $fieldChanged = false;
+            foreach (['invoice_number', 'po_number', 'invoice_date', 'due_date', 'terms', 'public_notes', 'invoice_footer'] as $field) {
+                if ($invoice->$field != $invoice->getOriginal($field)) {
+                    $fieldChanged = true;
+                    break;
+                }
             }
 
-            $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($invoice->id);
+            if ($diff > 0 || $fieldChanged) {
+                $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($invoice->id);
 
-            if (!$invoice->is_quote && !$invoice->is_recurring) {
-                $client->balance = $client->balance + $diff;
-                $client->save();
+                if ($diff > 0 && !$invoice->is_quote && !$invoice->is_recurring) {
+                    $client->balance = $client->balance + $diff;
+                    $client->save();
+                }
+
+                $activity = Activity::getBlank($invoice);
+                $activity->client_id = $invoice->client_id;
+                $activity->invoice_id = $invoice->id;
+                $activity->activity_type_id = $invoice->is_quote ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
+                $activity->message = Utils::encodeActivity(Auth::user(), 'updated', $invoice);
+                $activity->balance = $client->balance;
+                $activity->adjustment = $invoice->is_quote || $invoice->is_recurring ? 0 : $diff;
+                $activity->json_backup = $backupInvoice->hidePrivateFields()->toJSON();
+                $activity->save();
             }
-
-            $activity = Activity::getBlank($invoice);
-            $activity->client_id = $invoice->client_id;
-            $activity->invoice_id = $invoice->id;
-            $activity->activity_type_id = $invoice->is_quote ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
-            $activity->message = Utils::encodeActivity(Auth::user(), 'updated', $invoice);
-            $activity->balance = $client->balance;
-            $activity->adjustment = $invoice->is_quote || $invoice->is_recurring ? 0 : $diff;
-            $activity->json_backup = $backupInvoice->hidePrivateFields()->toJSON();
-            $activity->save();
         }
     }
 

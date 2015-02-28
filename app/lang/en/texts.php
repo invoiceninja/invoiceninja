@@ -194,8 +194,8 @@ return array(
   'email_paid' => 'Email me when an invoice is <b>paid</b>',
   'site_updates' => 'Site Updates',
   'custom_messages' => 'Custom Messages',
-  'default_invoice_terms' => 'Set default invoice terms',
-  'default_email_footer' => 'Set default email signature',
+  'default_invoice_terms' => 'Set default <b>invoice terms</b>',
+  'default_email_footer' => 'Set default <b>email signature</b>',
   'import_clients' => 'Import Client Data',
   'csv_file' => 'Select CSV file',
   'export_clients' => 'Export Client Data',
@@ -533,5 +533,8 @@ return array(
   'match_address' => '*Address must match address accociated with credit card.',
   'click_once' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.',
 
+  'default_invoice_footer' => 'Set default <b>invoice footer</b>',
+  'invoice_footer' => 'Invoice footer',
+  'save_as_default_footer' => 'Save as default footer',
 
 );
