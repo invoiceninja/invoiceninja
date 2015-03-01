@@ -242,7 +242,7 @@ class InvoiceRepository
             $invoice->end_date = null;
         }
 
-        $invoice->terms = trim($data['terms']) ? trim($data['terms']) : $account->invoice_terms;
+        $invoice->terms = trim($data['terms']) ? trim($data['terms']) : ($account->invoice_terms ? $account->invoice_terms : '');
         $invoice->invoice_footer = trim($data['invoice_footer']) ? trim($data['invoice_footer']) : $account->invoice_footer;
         $invoice->public_notes = trim($data['public_notes']);
         $invoice->po_number = trim($data['po_number']);
