@@ -434,7 +434,7 @@ return array(
   'more_designs_title' => 'Additional Invoice Designs',
   'more_designs_cloud_header' => 'Go Pro for more invoice designs',
   'more_designs_cloud_text' => '',
-  'more_designs_self_host_header' => 'Get 6 more invoice designs for just $20',
+  'more_designs_self_host_header' => 'Get 6 more invoice designs for just $'.INVOICE_DESIGNS_PRICE,
   'more_designs_self_host_text' => '',
   'buy' => 'Buy',
   'bought_designs' => 'Successfully added additional invoice designs',
@@ -452,7 +452,7 @@ return array(
   'id_number' => 'ID Number',
 
   'white_label_link' => 'White label',
-  'white_label_text' => 'Purchase a white label license for $10.00 to remove the Invoice Ninja branding from the top of the client pages.',
+  'white_label_text' => 'Purchase a white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the top of the client pages.',
   'white_label_header' => 'White Label',
   'bought_white_label' => 'Successfully enabled white label license',
   'white_labeled' => 'White labeled',

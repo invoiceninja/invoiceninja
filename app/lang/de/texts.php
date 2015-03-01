@@ -445,7 +445,7 @@ return array(
   'more_designs_title' => 'Additional Invoice Designs',
   'more_designs_cloud_header' => 'Go Pro for more invoice designs',
   'more_designs_cloud_text' => '',
-  'more_designs_self_host_header' => 'Get 6 more invoice designs for just $20',
+  'more_designs_self_host_header' => 'Get 6 more invoice designs for just $'.INVOICE_DESIGNS_PRICE,
   'more_designs_self_host_text' => '',
   'buy' => 'Buy',
   'bought_designs' => 'Successfully added additional invoice designs',
@@ -461,7 +461,7 @@ return array(
 
   'id_number' => 'ID-Nummer',
   'white_label_link' => 'Branding entfernen',
-  'white_label_text' => 'Um das Invoice Ninja Logo auf der Kundenseite zu entfernen, kaufe bitte eine Lizenz für $10.00.',
+  'white_label_text' => 'Um das Invoice Ninja Logo auf der Kundenseite zu entfernen, kaufe bitte eine Lizenz für $'.WHITE_LABEL_PRICE,
   'white_label_header' => 'Branding entfernen',
   'bought_white_label' => 'Branding-freie Lizenz erfolgreich aktiviert',
   'white_labeled' => 'Branding entfernt',

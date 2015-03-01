@@ -296,7 +296,6 @@ define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
 define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
 
 define('COUNT_FREE_DESIGNS', 4);
-define('PRO_PLAN_PRICE', 50);
 define('PRODUCT_ONE_CLICK_INSTALL', 1);
 define('PRODUCT_INVOICE_DESIGNS', 2);
 define('PRODUCT_WHITE_LABEL', 3);
@@ -304,6 +303,10 @@ define('PRODUCT_SELF_HOST', 4);
 define('WHITE_LABEL_AFFILIATE_KEY', '92D2J5');
 define('INVOICE_DESIGNS_AFFILIATE_KEY', 'T3RS74');
 define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
+
+define('PRO_PLAN_PRICE', 50);
+define('WHITE_LABEL_PRICE', 20);
+define('INVOICE_DESIGNS_PRICE', 10);
 
 define('USER_TYPE_SELF_HOST', 'SELF_HOST');
 define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');

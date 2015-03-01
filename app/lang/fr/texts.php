@@ -446,7 +446,7 @@ return array(
   'more_designs_title' => 'Modèles de factures additionnels',
   'more_designs_cloud_header' => 'Passez au Plan Pro pour plus de modèles',
   'more_designs_cloud_text' => '',
-  'more_designs_self_host_header' => 'Obtenez 6 modèles de factures additionnels pour seulement 20$',
+  'more_designs_self_host_header' => 'Obtenez 6 modèles de factures additionnels pour seulement '.INVOICE_DESIGNS_PRICE.'$',
   'more_designs_self_host_text' => '',
   'buy' => 'Acheter',
   'bought_designs' => 'Les nouveaux modèles ont été ajoutés avec succès',
@@ -462,7 +462,7 @@ return array(
 
   'id_number' => 'Numéro ID',
   'white_label_link' => 'Marque blanche',
-  'white_label_text' => 'Pour retirer la marque Invoice Ninja en haut de la page client, achetez un licence en marque blanche de 10,00$.',
+  'white_label_text' => 'Pour retirer la marque Invoice Ninja en haut de la page client, achetez un licence en marque blanche de '.WHITE_LABEL_PRICE.'$.',
   'white_label_header' => 'White Label',
   'bought_white_label' => 'Successfully enabled white label license',
   'white_labeled' => 'White labeled',
