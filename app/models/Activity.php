@@ -202,6 +202,11 @@ class Activity extends Eloquent
                 $activity->adjustment = $invoice->is_quote || $invoice->is_recurring ? 0 : $diff;
                 $activity->json_backup = $backupInvoice->hidePrivateFields()->toJSON();
                 $activity->save();
+
+                if ($invoice->isPaid() && $invoice->balance > 0) {
+                    $invoice->invoice_status_id = INVOICE_STATUS_PARTIAL;
+                    $invoice->save();
+                }
             }
         }
     }

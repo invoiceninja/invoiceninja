@@ -83,7 +83,7 @@
 					</div>
 				@else 
 				<div data-bind="visible: invoice_status_id() === 0">
-					{{ Former::checkbox('recurring')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
+					{{ Former::checkbox('recurring')->onclick('setEmailEnabled()')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
 						->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::dateToString($invoice->last_sent_date) : '') }}
 				</div>			
 				@endif
@@ -1052,10 +1052,10 @@
 		self.frequency_id = ko.observable('');
 		//self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
         self.terms = ko.observable('');
-        self.default_terms = ko.observable({{ $account->invoice_terms ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300) : "{{ trans('texts.invoice_terms') }}");
+        self.default_terms = ko.observable({{ $account->invoice_terms ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300) : '');
         self.set_default_terms = ko.observable(false);
         self.invoice_footer = ko.observable('');
-        self.default_footer = ko.observable({{ $account->invoice_footer ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}', 600) : "{{ trans('texts.invoice_footer') }}");
+        self.default_footer = ko.observable({{ $account->invoice_footer ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}', 600) : '');
         self.set_default_footer = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
@@ -1413,7 +1413,7 @@
 
 		this.prettyRate = ko.computed({
 	        read: function () {
-	            return this.rate() ? parseFloat(this.rate()) : '';
+	            return this.rate() ? this.rate() : '';
 	        },
 	        write: function (value) {
 	            this.rate(value);
@@ -1586,6 +1586,15 @@
 			model.addTaxRate();
 		}
 	}
+
+    function setEmailEnabled()
+    {
+        if ($('#recurring').prop('checked')) {
+            $('#email_button').attr('disabled', true);
+        } else {
+            $('#email_button').removeAttr('disabled');
+        }
+    }
 
 	var products = {{ $products }};
 	var clients = {{ $clients }};	

@@ -5,7 +5,7 @@
 
     <style type="text/css">
         textarea {
-            min-height: 100px !important;
+            min-height: 150px !important;
         }
     </style>
 
