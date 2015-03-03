@@ -97,7 +97,6 @@ class AccountController extends \BaseController
     public function getSearchData()
     {
         $data = $this->accountRepo->getSearchData();
-
         return Response::json($data);
     }
 
@@ -119,94 +118,16 @@ class AccountController extends \BaseController
 
             return View::make('accounts.details', $data);
         } elseif ($section == ACCOUNT_PAYMENTS) {
-            $account = Account::with('account_gateways')->findOrFail(Auth::user()->account_id);
-            $accountGateway = null;
-            $config = null;
-            $configFields = null;
-            $selectedCards = 0;
 
-            if (count($account->account_gateways) > 0) {
-                $accountGateway = $account->account_gateways[0];
-                $config = $accountGateway->config;
-                $selectedCards = $accountGateway->accepted_credit_cards;
-
-                $configFields = json_decode($config);
-
-                foreach ($configFields as $configField => $value) {
-                    $configFields->$configField = str_repeat('*', strlen($value));
-                }
+            $account = Auth::user()->account;
+            $account->load('account_gateways');
+            $count = count($account->account_gateways);
+            
+            if ($count == 0) {
+                return Redirect::to('gateways/create');
             } else {
-                $accountGateway = AccountGateway::createNew();
-                $accountGateway->gateway_id = GATEWAY_MOOLAH;
+                return View::make('accounts.payments', ['showAdd' => $count < 2]);
             }
-
-            $recommendedGateways = Gateway::remember(DEFAULT_QUERY_CACHE)
-                    ->where('recommended', '=', '1')
-                    ->orderBy('sort_order')
-                    ->get();
-            $recommendedGatewayArray = array();
-
-            foreach ($recommendedGateways as $recommendedGateway) {
-                $arrayItem = array(
-                    'value' => $recommendedGateway->id,
-                    'other' => 'false',
-                    'data-imageUrl' => asset($recommendedGateway->getLogoUrl()),
-                    'data-siteUrl' => $recommendedGateway->site_url,
-                );
-                $recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
-            }
-
-            $creditCardsArray = unserialize(CREDIT_CARDS);
-            $creditCards = [];
-            foreach ($creditCardsArray as $card => $name) {
-                if ($selectedCards > 0 && ($selectedCards & $card) == $card) {
-                    $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card']), 'checked' => 'checked'];
-                } else {
-                    $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
-                }
-            }
-
-            $otherItem = array(
-                'value' => 1000000,
-                'other' => 'true',
-                'data-imageUrl' => '',
-                'data-siteUrl' => '',
-            );
-            $recommendedGatewayArray['Other Options'] = $otherItem;
-
-            $gateways = Gateway::remember(DEFAULT_QUERY_CACHE)->where('payment_library_id', '=', 1)->orderBy('name')->get();
-
-            foreach ($gateways as $gateway) {
-                $paymentLibrary = $gateway->paymentlibrary;
-
-                $gateway->fields = $gateway->getFields();
-
-                if ($accountGateway && $accountGateway->gateway_id == $gateway->id) {
-                    $accountGateway->fields = $gateway->fields;
-                }
-            }
-
-            $tokenBillingOptions = [];
-            for ($i=1; $i<=4; $i++) {
-                $tokenBillingOptions[$i] = trans("texts.token_billing_{$i}");
-            }
-
-            $data = [
-                'account' => $account,
-                'accountGateway' => $accountGateway,
-                'config' => $configFields,
-                'gateways' => $gateways,
-                'dropdownGateways' => Gateway::remember(DEFAULT_QUERY_CACHE)
-                    ->where('recommended', '=', '0')
-                    ->where('payment_library_id', '=', 1)
-                    ->orderBy('name')
-                    ->get(),
-                'recommendedGateways' => $recommendedGatewayArray,
-                'creditCardTypes' => $creditCards,
-                'tokenBillingOptions' => $tokenBillingOptions,
-            ];
-
-            return View::make('accounts.payments', $data);
         } elseif ($section == ACCOUNT_NOTIFICATIONS) {
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
@@ -272,8 +193,6 @@ class AccountController extends \BaseController
     {
         if ($section == ACCOUNT_DETAILS) {
             return AccountController::saveDetails();
-        } elseif ($section == ACCOUNT_PAYMENTS) {
-            return AccountController::savePayments();
         } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
             return AccountController::importFile();
         } elseif ($section == ACCOUNT_MAP) {
@@ -612,102 +531,6 @@ class AccountController extends \BaseController
         Session::flash('message', trans('texts.updated_settings'));
 
         return Redirect::to('company/notifications');
-    }
-
-    private function savePayments()
-    {
-        $rules = array();
-        $recommendedId = Input::get('recommendedGateway_id');
-
-        if ($gatewayId = $recommendedId == 1000000 ? Input::get('gateway_id') : $recommendedId) {
-            $gateway = Gateway::findOrFail($gatewayId);
-
-            $paymentLibrary = $gateway->paymentlibrary;
-
-            $fields = $gateway->getFields();
-
-            foreach ($fields as $field => $details) {
-                if (!in_array($field, ['testMode', 'developerMode', 'headerImageUrl', 'solutionType', 'landingPage', 'brandName', 'logoImageUrl', 'borderColor'])) {
-                    if (strtolower($gateway->name) == 'beanstream') {
-                        if (in_array($field, ['merchant_id', 'passCode'])) {
-                            $rules[$gateway->id.'_'.$field] = 'required';
-                        }
-                    } else {
-                        $rules[$gateway->id.'_'.$field] = 'required';
-                    }
-                }
-            }
-        }
-
-        $creditcards = Input::get('creditCardTypes');
-        $validator = Validator::make(Input::all(), $rules);
-
-        if ($validator->fails()) {
-            return Redirect::to('company/payments')
-                ->withErrors($validator)
-                ->withInput();
-        } else {
-            $account = Account::with('account_gateways')->findOrFail(Auth::user()->account_id);
-
-            if ($gatewayId) {
-                $accountGateway = AccountGateway::createNew();
-                $accountGateway->gateway_id = $gatewayId;
-                $isMasked = false;
-
-                $config = new stdClass();
-                foreach ($fields as $field => $details) {
-                    $value = trim(Input::get($gateway->id.'_'.$field));
-
-                    if ($value && $value === str_repeat('*', strlen($value))) {
-                        $isMasked = true;
-                    }
-
-                    $config->$field = $value;
-                }
-
-                $cardCount = 0;
-                if ($creditcards) {
-                    foreach ($creditcards as $card => $value) {
-                        $cardCount += intval($value);
-                    }
-                }
-
-                // check if a gateway is already configured
-                $currentGateway = false;
-                if (count($account->account_gateways)) {
-                    $currentGateway = $account->account_gateways[0];
-                }
-
-                // if the values haven't changed don't update the config
-                if ($isMasked && $currentGateway) {
-                    $currentGateway->accepted_credit_cards = $cardCount;
-                    $currentGateway->save();
-                // if there's an existing config for this gateway update it
-                } elseif (!$isMasked && $currentGateway && $currentGateway->gateway_id == $gatewayId) {
-                    $currentGateway->accepted_credit_cards = $cardCount;
-                    $currentGateway->config = json_encode($config);
-                    $currentGateway->save();
-                // otherwise, create a new gateway config
-                } else {
-                    $accountGateway->config = json_encode($config);
-                    $accountGateway->accepted_credit_cards = $cardCount;
-
-                    $account->account_gateways()->delete();
-                    $account->account_gateways()->save($accountGateway);
-                }
-
-                if (Input::get('token_billing_type_id')) {
-                    $account->token_billing_type_id = Input::get('token_billing_type_id');
-                    $account->save();
-                }
-
-                Session::flash('message', trans('texts.updated_settings'));
-            } else {
-                Session::flash('error', trans('validation.required', ['attribute' => 'gateway']));
-            }
-
-            return Redirect::to('company/payments');
-        }
     }
 
     private function saveDetails()

@@ -539,6 +539,16 @@ return array(
   'edit_token' => 'Edit Token',
   'delete_token' => 'Delete Token',
   'token' => 'Token',
+
+  'add_gateway' => 'Add Gateway',
+  'delete_gateway' => 'Delete Gateway',
+  'edit_gateway' => 'Edit Gateway',
+  'updated_gateway' => 'Successfully updated gateway',
+  'created_gateway' => 'Successfully created gateway',
+  'deleted_gateway' => 'Successfully deleted gateway',
+  'pay_with_paypal' => 'PayPal',
+  'pay_with_card' => 'Credit card',
+
   
 
 );

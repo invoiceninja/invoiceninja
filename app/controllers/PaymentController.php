@@ -226,7 +226,7 @@ class PaymentController extends \BaseController
     private function getPaymentDetails($invoice, $input = null)
     {
         $key = $invoice->invoice_number.'_details';
-        $gateway = $invoice->client->account->account_gateways[0]->gateway;
+        $gateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'))->gateway;
         $paymentLibrary = $gateway->paymentlibrary;
         $currencyCode = $invoice->client->currency ? $invoice->client->currency->code : ($invoice->account->currency ? $invoice->account->currency->code : 'USD');
 
@@ -301,10 +301,26 @@ class PaymentController extends \BaseController
         if (Input::get('use_token') == 'true') {
             return self::do_payment($invitationKey, false, true);
         }
-        // For PayPal Express we redirect straight to their site
-        $invitation = Invitation::with('invoice.client.account', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
-        $account = $invitation->invoice->client->account;
-        if ($account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
+
+        if (Input::has('use_paypal')) {
+            Session::put('payment_type', Input::get('use_paypal') == 'true' ? PAYMENT_TYPE_PAYPAL : PAYMENT_TYPE_CREDIT_CARD);
+        } else {
+            Session::put('payment_type', PAYMENT_TYPE_ANY);
+        }
+        Session::save();
+        
+        // For PayPal we redirect straight to their site
+        $usePayPal = false;
+        if ($usePayPal = Input::get('use_paypal')) {
+            $usePayPal = $usePayPal == 'true';
+        } else {
+            $invitation = Invitation::with('invoice.client.account', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+            $account = $invitation->invoice->client->account;
+            if ($account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
+                $usePayPal = true;
+            }
+        }
+        if ($usePayPal) {
             if (Session::has('error')) {
                 Session::reflash();
                 return Redirect::to('view/'.$invitationKey);
@@ -316,8 +332,8 @@ class PaymentController extends \BaseController
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
         $client = $invoice->client;
-        $accountGateway = $invoice->client->account->account_gateways[0];
-        $gateway = $invoice->client->account->account_gateways[0]->gateway;
+        $accountGateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'));
+        $gateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'))->gateway;
         $paymentLibrary = $gateway->paymentlibrary;
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
@@ -363,7 +379,7 @@ class PaymentController extends \BaseController
 
         $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
-        $accountGateway = $account->account_gateways[0];
+        $accountGateway = $account->getGatewayByType(Session::get('payment_type'));
         $gateway = $accountGateway->gateway;
         $paymentLibrary = $gateway->paymentlibrary;
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
@@ -415,7 +431,7 @@ class PaymentController extends \BaseController
 
         $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
-        $accountGateway = $account->account_gateways[0];
+        $accountGateway = $account->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD);
 
         try {
             $affiliate = Affiliate::find(Session::get('affiliate_id'));
@@ -527,7 +543,7 @@ class PaymentController extends \BaseController
         $invoice = $invitation->invoice;
         $client = $invoice->client;
         $account = $client->account;
-        $accountGateway = $account->account_gateways[0];
+        $accountGateway = $account->getGatewayByType(Session::get('payment_type'));
         $paymentLibrary = $accountGateway->gateway->paymentlibrary;
 
         if ($onSite) {
@@ -542,7 +558,7 @@ class PaymentController extends \BaseController
         try {
             if ($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY) {
                 $gateway = self::createGateway($accountGateway);
-                $details = self::getPaymentDetails($invoice, $useToken ? false : Input::all());
+                $details = self::getPaymentDetails($invoice, $useToken || !$onSite ? false : Input::all());
                 
                 if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
                     if ($useToken) {
@@ -644,7 +660,7 @@ class PaymentController extends \BaseController
     private function createPayment($invitation, $ref, $payerId = null)
     {
         $invoice = $invitation->invoice;
-        $accountGateway = $invoice->client->account->account_gateways[0];
+        $accountGateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'));
 
         if ($invoice->account->account_key == NINJA_ACCOUNT_KEY) {
             $account = Account::find($invoice->client->public_id);
@@ -681,7 +697,7 @@ class PaymentController extends \BaseController
         $invitation = Invitation::with('invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('transaction_reference', '=', $token)->firstOrFail();
         $invoice = $invitation->invoice;
 
-        $accountGateway = $invoice->client->account->account_gateways[0];
+        $accountGateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'));
         $gateway = self::createGateway($accountGateway);
 
         try {

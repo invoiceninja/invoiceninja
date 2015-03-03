@@ -229,9 +229,9 @@ class Client extends EntityModel
             return false;
         }
 
-        $accountGateway = $this->account->account_gateways[0];
+        $accountGateway = $this->account->getGatewayConfig(GATEWAY_STRIPE);
         
-        if ($accountGateway->gateway_id != GATEWAY_STRIPE) {
+        if (!$accountGateway) {
             return false;
         }
 

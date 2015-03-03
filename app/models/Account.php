@@ -96,6 +96,21 @@ class Account extends Eloquent
         }
     }
 
+    public function getGatewayByType($type = PAYMENT_TYPE_ANY)
+    {
+        foreach ($this->account_gateways as $gateway) {
+            if ($type == PAYMENT_TYPE_ANY) {
+                return $gateway;
+            } elseif ($gateway->isPayPal() && $type == PAYMENT_TYPE_PAYPAL) {
+                return $gateway;
+            } elseif (!$gateway->isPayPal() && $type == PAYMENT_TYPE_CREDIT_CARD) {
+                return $gateway;
+            }
+        }
+        
+        return false;
+    }
+
     public function getGatewayConfig($gatewayId)
     {
         foreach ($this->account_gateways as $gateway) {

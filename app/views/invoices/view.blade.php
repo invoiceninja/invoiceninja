@@ -30,8 +30,13 @@
 			{{ Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()', 'class' => 'btn-lg')) }}&nbsp;&nbsp;
             @if ($hasToken)
                 {{ DropdownButton::success_lg(trans('texts.pay_now'), [
-                    ['url' => URL::to("payment/{$invitation->invitation_key}?use_token=true"), 'label' => trans('texts.use_card_on_file')],
-                    ['url' => URL::to('payment/' . $invitation->invitation_key), 'label' => trans('texts.edit_payment_details')]
+                    ['url' => URL::to("payment/{$invitation->invitation_key}?use_token=true&use_paypal=false"), 'label' => trans('texts.use_card_on_file')],
+                    ['url' => URL::to("payment/{$invitation->invitation_key}?use_paypal=false"), 'label' => trans('texts.edit_payment_details')]
+                ])->addClass('btn-lg') }}
+            @elseif ($countGateways == 2)
+                {{ DropdownButton::success_lg(trans('texts.pay_now'), [
+                    ['url' => URL::to("payment/{$invitation->invitation_key}?use_paypal=true"), 'label' => trans('texts.pay_with_paypal')],
+                    ['url' => URL::to("payment/{$invitation->invitation_key}?use_paypal=false"), 'label' => trans('texts.pay_with_card')]
                 ])->addClass('btn-lg') }}
             @else
 			     {{ Button::success_link(URL::to('payment/' . $invitation->invitation_key), trans('texts.pay_now'), array('class' => 'btn-lg')) }}		

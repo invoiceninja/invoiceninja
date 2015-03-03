@@ -2,6 +2,7 @@
 
 @section('content') 
   @parent
+  @include('accounts.nav_advanced')
 
   {{ Former::open($url)->method($method)->addClass('col-md-8 col-md-offset-2 warn-on-exit')->rules(array(
       'first_name' => 'required',
@@ -21,8 +22,8 @@
 
   {{ Former::actions( 
       Button::lg_success_submit(trans($user && $user->confirmed ? 'texts.save' : 'texts.send_invite'))->append_with_icon($user && $user->confirmed ? 'floppy-disk' : 'send'),
-      Button::lg_default_link('company/advanced_settings/user_management', 'Cancel')->append_with_icon('remove-circle')      
-  ) }}
+      Button::lg_default_link('company/advanced_settings/user_management', trans('texts.cancel'))->append_with_icon('remove-circle')      
+  )}}
 
   {{ Former::close() }}
 
