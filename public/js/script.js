@@ -1055,7 +1055,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     if (newTop > 770) {
       line = 0;
       tableTop = layout.accountTop + layout.tablePadding;
-      y = tableTop;
+      y = tableTop + (2 * layout.tablePadding);
       top = y - layout.tablePadding;
       newTop = top + (numLines * layout.tableRowHeight);
       doc.addPage();
@@ -1225,6 +1225,7 @@ function displayInvoiceItems(doc, invoice, layout) {
 
     }
     */
+
     SetPdfColor('Black', doc);
     doc.setFontType('normal');
 

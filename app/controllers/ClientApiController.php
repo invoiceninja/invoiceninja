@@ -40,6 +40,8 @@ class ClientApiController extends Controller
             return Response::make($error, 500, $headers);
         } else {
             $client = $this->clientRepo->save(false, $data, false);
+            $client->load('contacts');
+            $client = Utils::remapPublicIds($client->toArray());
             $response = json_encode($client, JSON_PRETTY_PRINT);
             $headers = Utils::getApiHeaders();
 

@@ -32578,11 +32578,13 @@ function displayInvoiceItems(doc, invoice, layout) {
     if (newTop > 770) {
       line = 0;
       tableTop = layout.accountTop + layout.tablePadding;
-      y = tableTop;
+      y = tableTop + (2 * layout.tablePadding);
       top = y - layout.tablePadding;
       newTop = top + (numLines * layout.tableRowHeight);
       doc.addPage();
+      console.log('== ADD PAGE ==');
     }
+    console.log('Y: %s', y);
 
     var left = layout.marginLeft - layout.tablePadding;
     var width = layout.marginRight + layout.tablePadding;
@@ -32748,6 +32750,7 @@ function displayInvoiceItems(doc, invoice, layout) {
 
     }
     */
+
     SetPdfColor('Black', doc);
     doc.setFontType('normal');
 
