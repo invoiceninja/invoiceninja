@@ -22,6 +22,8 @@ class AccountGateway extends EntityModel
     }
 
     public function isPayPal() {
-        return $this->gateway_id == GATEWAY_PAYPAL_EXPRESS || $this->gateway_id == GATEWAY_PAYPAL_PRO;
+        //return $this->gateway_id == GATEWAY_PAYPAL_EXPRESS || $this->gateway_id == GATEWAY_PAYPAL_PRO;
+        return $this->gateway_id == GATEWAY_PAYPAL_EXPRESS;
     }
 }
+

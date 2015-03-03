@@ -316,7 +316,7 @@ class PaymentController extends \BaseController
         } else {
             $invitation = Invitation::with('invoice.client.account', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
             $account = $invitation->invoice->client->account;
-            if ($account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
+            if ($account->getGatewayByType(PAYMENT_TYPE_PAYPAL)) {
                 $usePayPal = true;
             }
         }
@@ -588,10 +588,14 @@ class PaymentController extends \BaseController
                 $ref = $response->getTransactionReference();
 
                 if (!$ref) {
+                    
                     Session::flash('error', $response->getMessage());
 
-                    return Redirect::to('payment/'.$invitationKey)
-                        ->withInput();
+                    if ($onSite) {
+                        return Redirect::to('payment/'.$invitationKey)->withInput();
+                    } else {
+                        return Redirect::to('view/'.$invitationKey);
+                    }
                 }
 
                 if ($response->isSuccessful()) {
@@ -609,51 +613,17 @@ class PaymentController extends \BaseController
 
                     return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
                 }
-            } elseif ($paymentLibrary->id == PAYMENT_LIBRARY_PHP_PAYMENTS) {
-                $gateway = $accountGateway->gateway;
-                $provider = $gateway->provider;
-                $p = new PHP_Payments(array('mode' => 'test'));
-
-                $config = Payment_Utility::load('config', 'drivers/'.$provider);
-
-                switch ($gateway->id) {
-                    case GATEWAY_BEANSTREAM:
-                        $config['delay_charge'] = false;
-                        $config['bill_outstanding'] = true;
-                        break;
-                    case GATEWAY_AMAZON:
-                        $config['return_url'] = URL::to('complete');
-                        $config['abandon_url'] = URL::to('/');
-                        $config['immediate_return'] = 0;
-                        $config['process_immediate'] = 1;
-                        $config['ipn_url'] = URL::to('ipn');
-                        $config['collect_shipping_address'] = false;
-                        break;
-                }
-
-                $details = self::getPaymentDetails($invoice, Input::all());
-
-                $response = $p->oneoff_payment($provider, $details, $config);
-
-                if (strtolower($response->status) == 'success') {
-                    $payment = self::createPayment($invitation, $response->response_message);
-
-                    Session::flash('message', trans('texts.applied_payment'));
-
-                    return Redirect::to('view/'.$payment->invitation->invitation_key);
-                } else {
-                    Session::flash('error', $response->response_message);
-
-                    return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->response_message);
-                }
             }
         } catch (\Exception $e) {
             $errorMessage = trans('texts.payment_error');
             Session::flash('error', $errorMessage."<p>".$e->getMessage());
             Utils::logError(Utils::getErrorString($e));
 
-            return Redirect::to('payment/'.$invitationKey)
-                ->withInput();
+            if ($onSite) {
+                return Redirect::to('payment/'.$invitationKey)->withInput();
+            } else {
+                return Redirect::to('view/'.$invitationKey);
+            }
         }
     }
 
