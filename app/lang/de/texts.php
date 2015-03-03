@@ -535,6 +535,7 @@ return array(
   'show_deleted_tokens' => 'Show deleted tokens',
   'deleted_token' => 'Successfully deleted token',
   'created_token' => 'Successfully created token',
+  'updated_token' => 'Successfully updated token',
   'edit_token' => 'Edit Token',
   'delete_token' => 'Delete Token',
   'token' => 'Token',

@@ -116,42 +116,44 @@ class TokenController extends BaseController
      */
     public function save($tokenPublicId = false)
     {
-        $rules = [
-            'name' => 'required',
-        ];
+        if (Auth::user()->account->isPro()) {
+            $rules = [
+                'name' => 'required',
+            ];
 
-        if ($tokenPublicId) {
-            $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
-                        ->where('public_id', '=', $tokenPublicId)->firstOrFail();
+            if ($tokenPublicId) {
+                $token = AccountToken::where('account_id', '=', Auth::user()->account_id)
+                            ->where('public_id', '=', $tokenPublicId)->firstOrFail();
+            }
+
+            $validator = Validator::make(Input::all(), $rules);
+
+            if ($validator->fails()) {
+                return Redirect::to($tokenPublicId ? 'tokens/edit' : 'tokens/create')->withInput()->withErrors($validator);
+            }
+
+            if ($tokenPublicId) {
+                $token->name = trim(Input::get('name'));
+            } else {
+                $lastToken = AccountToken::withTrashed()->where('account_id', '=', Auth::user()->account_id)
+                            ->orderBy('public_id', 'DESC')->first();
+
+                $token = AccountToken::createNew();
+                $token->name = trim(Input::get('name'));
+                $token->token = str_random(RANDOM_KEY_LENGTH);
+                $token->public_id = $lastToken ? $lastToken->public_id + 1 : 1;
+            }
+
+            $token->save();
+
+            if ($tokenPublicId) {
+                $message = trans('texts.updated_token');
+            } else {
+                $message = trans('texts.created_token');
+            }
+
+            Session::flash('message', $message);
         }
-
-        $validator = Validator::make(Input::all(), $rules);
-
-        if ($validator->fails()) {
-            return Redirect::to($tokenPublicId ? 'tokens/edit' : 'tokens/create')->withInput()->withErrors($validator);
-        }
-
-        if ($tokenPublicId) {
-            $token->name = trim(Input::get('name'));
-        } else {
-            $lastToken = AccountToken::withTrashed()->where('account_id', '=', Auth::user()->account_id)
-                        ->orderBy('public_id', 'DESC')->first();
-
-            $token = AccountToken::createNew();
-            $token->name = trim(Input::get('name'));
-            $token->token = str_random(RANDOM_KEY_LENGTH);            
-            $token->public_id = $lastToken ? $lastToken->public_id + 1 : 1;
-        }
-
-        $token->save();
-
-        if ($tokenPublicId) {
-            $message = trans('texts.updated_token');
-        } else {
-            $message = trans('texts.created_token');
-        }
-
-        Session::flash('message', $message);
 
         return Redirect::to('company/advanced_settings/token_management');
     }
