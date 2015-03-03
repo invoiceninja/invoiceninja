@@ -20,10 +20,6 @@ class ClientApiController extends Controller
 
     public function index()
     {
-        if (!Utils::isPro()) {
-            return Redirect::to('/');
-        }
-
         $clients = Client::scope()->with('contacts')->orderBy('created_at', 'desc')->get();
         $clients = Utils::remapPublicIds($clients->toArray());
 
@@ -35,10 +31,6 @@ class ClientApiController extends Controller
 
     public function store()
     {
-        if (!Utils::isPro()) {
-            return Redirect::to('/');
-        }
-
         $data = Input::all();
         $error = $this->clientRepo->getErrors($data);
 
@@ -48,6 +40,8 @@ class ClientApiController extends Controller
             return Response::make($error, 500, $headers);
         } else {
             $client = $this->clientRepo->save(false, $data, false);
+            $client->load('contacts');
+            $client = Utils::remapPublicIds($client->toArray());
             $response = json_encode($client, JSON_PRETTY_PRINT);
             $headers = Utils::getApiHeaders();
 

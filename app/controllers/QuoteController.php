@@ -29,10 +29,10 @@ class QuoteController extends \BaseController
         }
 
         $data = [
-      'title' => trans('texts.quotes'),
-      'entityType' => ENTITY_QUOTE,
-      'columns' => Utils::trans(['checkbox', 'quote_number', 'client', 'quote_date', 'quote_total', 'due_date', 'status', 'action']),
-    ];
+          'title' => trans('texts.quotes'),
+          'entityType' => ENTITY_QUOTE,
+          'columns' => Utils::trans(['checkbox', 'quote_number', 'client', 'quote_date', 'quote_total', 'due_date', 'status', 'action']),
+        ];
 
     /*
     if (Invoice::scope()->where('is_recurring', '=', true)->count() > 0)
@@ -47,13 +47,21 @@ class QuoteController extends \BaseController
 
     public function clientIndex()
     {
+        $invitationKey = Session::get('invitation_key');
+        if (!$invitationKey) {
+            return Redirect::to('/setup');
+        }
+
+        $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
+        $color = $invitation->account->primary_color ? $invitation->account->primary_color : '#0b4d78';
+        
         $data = [
-      'showClientHeader' => true,
-      'hideLogo' => Session::get('white_label'),
-      'title' => trans('texts.quotes'),
-      'entityType' => ENTITY_QUOTE,
-      'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
-    ];
+          'color' => $color,
+          'hideLogo' => Session::get('white_label'),
+          'title' => trans('texts.quotes'),
+          'entityType' => ENTITY_QUOTE,
+          'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
+        ];
 
         return View::make('public_list', $data);
     }
@@ -141,7 +149,7 @@ class QuoteController extends \BaseController
             $clone = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
 
             Session::flash('message', trans('texts.converted_to_invoice'));
-            return Redirect::to('invoices/'.$clone->public_id);                        
+            return Redirect::to('invoices/'.$clone->public_id);
         }
 
         $statusId = Input::get('statusId');
@@ -155,5 +163,25 @@ class QuoteController extends \BaseController
         }
 
         return Redirect::to('quotes');
+    }
+
+    public function approve($invitationKey)
+    {
+        $invitation = Invitation::with('invoice.invoice_items', 'invoice.invitations')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        $invoice = $invitation->invoice;
+
+        if ($invoice->is_quote && !$invoice->quote_invoice_id) {
+            Activity::approveQuote($invitation);
+            $invoice = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
+            Session::flash('message', trans('texts.converted_to_invoice'));
+
+            foreach ($invoice->invitations as $invitationClone) {
+                if ($invitation->contact_id == $invitationClone->contact_id) {
+                    $invitationKey = $invitationClone->invitation_key;
+                }
+            }
+        }
+
+        return Redirect::to("view/{$invitationKey}");
     }
 }

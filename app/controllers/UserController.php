@@ -183,58 +183,60 @@ class UserController extends BaseController
      */
     public function save($userPublicId = false)
     {
-        $rules = [
-            'first_name' => 'required',
-            'last_name' => 'required',
-        ];
+        if (Auth::user()->account->isPro()) {
+            $rules = [
+                'first_name' => 'required',
+                'last_name' => 'required',
+            ];
 
-        if ($userPublicId) {
-            $user = User::where('account_id', '=', Auth::user()->account_id)
-                        ->where('public_id', '=', $userPublicId)->firstOrFail();
+            if ($userPublicId) {
+                $user = User::where('account_id', '=', Auth::user()->account_id)
+                            ->where('public_id', '=', $userPublicId)->firstOrFail();
 
-            $rules['email'] = 'required|email|unique:users,email,'.$user->id.',id';
-        } else {
-            $rules['email'] = 'required|email|unique:users';
+                $rules['email'] = 'required|email|unique:users,email,'.$user->id.',id';
+            } else {
+                $rules['email'] = 'required|email|unique:users';
+            }
+
+            $validator = Validator::make(Input::all(), $rules);
+
+            if ($validator->fails()) {
+                return Redirect::to($userPublicId ? 'users/edit' : 'users/create')->withInput()->withErrors($validator);
+            }
+
+            if ($userPublicId) {
+                $user->first_name = trim(Input::get('first_name'));
+                $user->last_name = trim(Input::get('last_name'));
+                $user->username = trim(Input::get('email'));
+                $user->email = trim(Input::get('email'));
+            } else {
+                $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
+                            ->orderBy('public_id', 'DESC')->first();
+
+                $user = new User();
+                $user->account_id = Auth::user()->account_id;
+                $user->first_name = trim(Input::get('first_name'));
+                $user->last_name = trim(Input::get('last_name'));
+                $user->username = trim(Input::get('email'));
+                $user->email = trim(Input::get('email'));
+                $user->registered = true;
+                $user->password = str_random(RANDOM_KEY_LENGTH);
+                $user->password_confirmation = $user->password;
+                $user->public_id = $lastUser->public_id + 1;
+            }
+
+            $user->save();
+
+            if (!$user->confirmed) {
+                $this->userMailer->sendConfirmation($user, Auth::user());
+                $message = trans('texts.sent_invite');
+            } else {
+                $message = trans('texts.updated_user');
+            }
+
+            Session::flash('message', $message);
         }
-
-        $validator = Validator::make(Input::all(), $rules);
-
-        if ($validator->fails()) {
-            return Redirect::to($userPublicId ? 'users/edit' : 'users/create')->withInput()->withErrors($validator);
-        }
-
-        if ($userPublicId) {
-            $user->first_name = trim(Input::get('first_name'));
-            $user->last_name = trim(Input::get('last_name'));
-            $user->username = trim(Input::get('email'));
-            $user->email = trim(Input::get('email'));
-        } else {
-            $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
-                        ->orderBy('public_id', 'DESC')->first();
-
-            $user = new User();
-            $user->account_id = Auth::user()->account_id;
-            $user->first_name = trim(Input::get('first_name'));
-            $user->last_name = trim(Input::get('last_name'));
-            $user->username = trim(Input::get('email'));
-            $user->email = trim(Input::get('email'));
-            $user->registered = true;
-            $user->password = str_random(RANDOM_KEY_LENGTH);
-            $user->password_confirmation = $user->password;
-            $user->public_id = $lastUser->public_id + 1;
-        }
-
-        $user->save();
-
-        if (!$user->confirmed) {
-            $this->userMailer->sendConfirmation($user, Auth::user());
-            $message = trans('texts.sent_invite');
-        } else {
-            $message = trans('texts.updated_user');
-        }
-
-        Session::flash('message', $message);
-
+        
         return Redirect::to('company/advanced_settings/user_management');
     }
 

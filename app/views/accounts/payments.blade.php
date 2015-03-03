@@ -1,26 +1,5 @@
 @extends('accounts.nav')
 
-@section('head') 
-    @parent 
-    
-    <style type="text/css">
-    /* bootstrap 3.2.0 fix */
-    /* https://github.com/twbs/bootstrap/issues/13984 */
-    .radio input[type="radio"],
-    .checkbox input[type="checkbox"] {
-        margin-left: 0;
-        margin-right: 5px;
-        height: inherit;
-        width: inherit;
-        float: left;
-        display: inline-block;
-        position: relative;
-        margin-top: 3px;
-    }
-    </style>
-
-@stop
-
 @section('content')	
 	@parent	
 
@@ -79,14 +58,18 @@
 
 			@endforeach
 
-			@if($gateway->getHelp())
+			@if ($gateway->getHelp())
 				<div class="form-group">
 					<label class="control-label col-lg-4 col-sm-4"></label>
-					<div class="col-lg-8 col-sm-8">
+					<div class="col-lg-8 col-sm-8 help-block">
 						{{ $gateway->getHelp() }}		
 					</div>
 				</div>					
 			@endif
+
+            @if ($gateway->id == GATEWAY_STRIPE)
+                {{ Former::select('token_billing_type_id')->options($tokenBillingOptions)->help(trans('texts.token_billing_help')) }}
+            @endif
 		</div>
 		
 	@endforeach

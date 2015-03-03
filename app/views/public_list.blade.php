@@ -11,8 +11,7 @@
 		table.dataTable { border-radius: 3px; border-collapse: collapse;
 		/*border-spacing: 0;*/}
 		table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
-			background-color: #0b4d78 !important;
-			/*background-color: #e37329 !important;*/
+			background-color: {{ $color }} !important;
 			color:#fff;
 		}
 		th:first-child {
@@ -68,8 +67,8 @@
 			max-width: 250px;
 		}
 		.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
-			background-color: #0b4d78;
-			border-color: #0b4d78;
+			background-color: {{ $color }};
+			border-color: {{ $color }};
 		}
 		.pagination>li:first-child>a, .pagination>li:first-child>span {
 			border-bottom-left-radius: 3px;
@@ -81,7 +80,7 @@
 
 	</style>
 
-	<div class="container" style="min-height:600px;">
+	<div class="container" id="main-container">
 
 		<p>&nbsp;</p>
 
@@ -101,33 +100,11 @@
 
 	</div>
 
+    <script type="text/javascript">
+        $(function() {
+            $('#main-container').height($(window).height() - ($('.navbar').height() + $('footer').height() + 20));
+        });
+    </script>
+
 @stop
 
-@section('onReady')
-
-	var tableFilter = '';
-	var searchTimeout = false;
-
-	var oTable0 = $('#DataTables_Table_0').dataTable();
-	function filterTable(val) {	
-		if (val == tableFilter) {
-			return;
-		}
-		tableFilter = val;
-		oTable0.fnFilter(val);
-    	@if (isset($secEntityType))
-    		oTable1.fnFilter(val);
-		@endif
-	}
-
-	$('#tableFilter').on('keyup', function(){
-		if (searchTimeout) {
-			window.clearTimeout(searchTimeout);
-		}
-
-		searchTimeout = setTimeout(function() {
-			filterTable($('#tableFilter').val());
-		}, 1000);					
-	})
-	
-@stop

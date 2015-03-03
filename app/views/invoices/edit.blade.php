@@ -31,7 +31,7 @@
     		@if ($invoice && $invoice->id)
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
-					<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
+					<div class="col-lg-8 col-sm-8" style="padding-top: 10px">
 						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm, text: getClientDisplayName(ko.toJS(client()))"></a>
 					</div>
 				</div>    				
@@ -83,7 +83,7 @@
 					</div>
 				@else 
 				<div data-bind="visible: invoice_status_id() === 0">
-					{{ Former::checkbox('recurring')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
+					{{ Former::checkbox('recurring')->onclick('setEmailEnabled()')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
 						->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::dateToString($invoice->last_sent_date) : '') }}
 				</div>			
 				@endif
@@ -165,16 +165,36 @@
 				<td class="hide-border"/>
 				<td colspan="2" rowspan="6" style="vertical-align:top">
 					<br/>
-					{{ Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
-					->label(false)->placeholder(trans('texts.note_to_client'))->style('resize: none') }}			
-					{{ Former::textarea('terms')->data_bind("value: wrapped_terms, valueUpdate: 'afterkeydown'")
-					->label(false)->placeholder(trans('texts.invoice_terms'))->style('resize: none')
-					->addGroupClass('less-space-bottom') }}
-					<label class="checkbox" style="width: 200px">
-						<input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>{{ trans('texts.save_as_default_terms') }}
-					</label>
+                    <div role="tabpanel">
+
+                      <ul class="nav nav-tabs" role="tablist" style="border: none">
+                        <li role="presentation" class="active"><a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.note_to_client') }}</a></li>
+                        <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans('texts.invoice_terms') }}</a></li>
+                        <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.invoice_footer') }}</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="notes" style="padding-bottom:44px">
+                            {{ Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
+                            ->label(null)->style('resize: none; min-width: 460px;')->rows(3) }}                            
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="terms">
+                            {{ Former::textarea('terms')->data_bind("value:wrapped_terms, placeholder: default_terms, valueUpdate: 'afterkeydown'")
+                            ->label(false)->style('resize: none; min-width: 460px')->rows(3)
+                            ->help('<label class="checkbox" style="width: 200px">
+                                        <input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'</label>') }}
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="footer">
+                            {{ Former::textarea('invoice_footer')->data_bind("value:wrapped_footer, placeholder: default_footer, valueUpdate: 'afterkeydown'")
+                            ->label(false)->style('resize: none; min-width: 460px')->rows(3)
+                            ->help('<label class="checkbox" style="width: 200px">
+                                        <input type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'</label>') }}
+                        </div>
+                    </div>
+                </div>
+
 				</td>
-				<td style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ trans('texts.subtotal') }}</td>
 				<td style="text-align: right"><span data-bind="text: totals.subtotal"/></td>
 			</tr>
@@ -243,7 +263,7 @@
 
 			<tr>
 				<td class="hide-border" colspan="3"/>
-				<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+				<td style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="{{ $account->hide_quantity ? 1 : 2 }}"><b>{{ trans($entityType == ENTITY_INVOICE ? 'texts.balance_due' : 'texts.total') }}</b></td>
 				<td style="text-align: right"><span data-bind="text: totals.total"/></td>
 			</tr>
@@ -291,7 +311,7 @@
                         <li><a href="{{ URL::to("{$entityType}s/{$entityType}_history/{$invoice->public_id}") }}">{{ trans("texts.view_history") }}</a></li>
                         <li class="divider"></li>                            
 
-                        @if ($invoice->invoice_status_id < INVOICE_STATUS_SENT)
+                        @if ($invoice->invoice_status_id < INVOICE_STATUS_SENT && !$invoice->is_recurring)
                             <li><a href="javascript:onMarkClick()">{{ trans("texts.mark_sent") }}</a></li>
                         @endif
 
@@ -317,9 +337,11 @@
 				{{ Button::success(trans("texts.save_{$entityType}"), array('id' => 'saveButton', 'onclick' => 'onSaveClick()')) }}			
 			@endif
 
-			{{ Button::normal(trans("texts.email_{$entityType}"), array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->append_with_icon('send'); }}		
+            @if (!$invoice || ($invoice && !$invoice->is_recurring))
+			 {{ Button::normal(trans("texts.email_{$entityType}"), array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->append_with_icon('send'); }}		
+            @endif
 
-			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE)		
+			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE && !$invoice->is_recurring)
 				{{ Button::primary(trans('texts.enter_payment'), array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
 			@endif
 		@elseif ($invoice && $invoice->trashed() && !$invoice->is_deleted == '1')
@@ -566,7 +588,7 @@
 			});
 		}		
 
-		$('#terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount').change(function() {
+		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount').change(function() {
 			setTimeout(function() {
 				refreshPDF();
 			}, 1);
@@ -616,8 +638,7 @@
 		var client = model.invoice().client();
 		setComboboxValue($('.client_select'), 
 			client.public_id(), 
-			client.name.display());
-		
+			client.name.display());		
 	});	
 
 	function applyComboboxListeners() {
@@ -627,7 +648,7 @@
 		});
 
 		@if (Auth::user()->account->fill_products)
-			$('.datalist').on('input', function() {			
+			$('.datalist').on('input', function() {			                
 				var key = $(this).val();
 				for (var i=0; i<products.length; i++) {
 					var product = products[i];
@@ -635,10 +656,12 @@
 						var model = ko.dataFor(this);					
 						model.notes(product.notes);
 						model.cost(accounting.toFixed(product.cost,2));
-						//model.qty(product.qty);
+						model.qty(1);
 						break;
 					}
 				}
+                onItemChange();
+                refreshPDF();
 			});
 		@endif
 	}
@@ -648,6 +671,13 @@
 		invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
 		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
+
+        if (!invoice.terms) {
+            invoice.terms = "{{ $account->invoice_terms }}";
+        }
+        if (!invoice.invoice_footer) {
+            invoice.invoice_footer = "{{ $account->invoice_footer }}";
+        }
 
 		@if (file_exists($account->getLogoPath()))
 			invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
@@ -1021,8 +1051,12 @@
 		self.is_amount_discount = ko.observable(0);
 		self.frequency_id = ko.observable('');
 		//self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
-		self.terms = ko.observable(wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300));
-		self.set_default_terms = ko.observable(false);
+        self.terms = ko.observable('');
+        self.default_terms = ko.observable({{ $account->invoice_terms ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300) : '');
+        self.set_default_terms = ko.observable(false);
+        self.invoice_footer = ko.observable('');
+        self.default_footer = ko.observable({{ $account->invoice_footer ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}', 600) : '');
+        self.set_default_footer = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
 		self.invoice_date = ko.observable('{{ Utils::today() }}');
@@ -1098,31 +1132,37 @@
 
 		self.wrapped_terms = ko.computed({
 			read: function() {
-				$('#terms').height(this.terms().split('\n').length * 36);
 				return this.terms();
 			},
 			write: function(value) {
 				value = wordWrapText(value, 300);
 				self.terms(value);
-				$('#terms').height(value.split('\n').length * 36);
 			},
 			owner: this
 		});
 
 
-		self.wrapped_notes = ko.computed({
-			read: function() {
-				$('#public_notes').height(this.public_notes().split('\n').length * 36);
-				return this.public_notes();
-			},
-			write: function(value) {
-				value = wordWrapText(value, 300);
-				self.public_notes(value);
-				$('#public_notes').height(value.split('\n').length * 36);
-			},
-			owner: this
-		});
+        self.wrapped_notes = ko.computed({
+            read: function() {                
+                return this.public_notes();
+            },
+            write: function(value) {
+                value = wordWrapText(value, 300);
+                self.public_notes(value);
+            },
+            owner: this
+        });
 
+        self.wrapped_footer = ko.computed({
+            read: function() {
+                return this.invoice_footer();
+            },
+            write: function(value) {
+                value = wordWrapText(value, 600);
+                self.invoice_footer(value);
+            },
+            owner: this
+        });
 
 		self.removeItem = function(item) {
 			self.invoice_items.remove(item);
@@ -1201,60 +1241,60 @@
 		});
 
 		this.totals.total = ko.computed(function() {
-	    var total = accounting.toFixed(self.totals.rawSubtotal(),2);	    
-	    var discount = self.totals.rawDiscounted();
-	    total -= discount;
+    	    var total = accounting.toFixed(self.totals.rawSubtotal(),2);	    
+    	    var discount = self.totals.rawDiscounted();
+    	    total -= discount;
 
-	    /*
-	    var discount = parseFloat(self.discount());
-	    if (discount > 0) {
-	    	total = roundToTwo(total * ((100 - discount)/100));
-	    }
-			*/
+    	    /*
+    	    var discount = parseFloat(self.discount());
+    	    if (discount > 0) {
+    	    	total = roundToTwo(total * ((100 - discount)/100));
+    	    }
+    			*/
 
-	    var customValue1 = roundToTwo(self.custom_value1());
-	    var customValue2 = roundToTwo(self.custom_value2());
-	    var customTaxes1 = self.custom_taxes1() == 1;
-	    var customTaxes2 = self.custom_taxes2() == 1;
-	    
-	    if (customValue1 && customTaxes1) {
-	    	total = NINJA.parseFloat(total) + customValue1;
-	    }
-	    if (customValue2 && customTaxes2) {
-	    	total = NINJA.parseFloat(total) + customValue2;
-	    }
+    	    var customValue1 = roundToTwo(self.custom_value1());
+    	    var customValue2 = roundToTwo(self.custom_value2());
+    	    var customTaxes1 = self.custom_taxes1() == 1;
+    	    var customTaxes2 = self.custom_taxes2() == 1;
+    	    
+    	    if (customValue1 && customTaxes1) {
+    	    	total = NINJA.parseFloat(total) + customValue1;
+    	    }
+    	    if (customValue2 && customTaxes2) {
+    	    	total = NINJA.parseFloat(total) + customValue2;
+    	    }
 
-			var taxRate = parseFloat(self.tax_rate());
-			if (taxRate > 0) {
-    		total = NINJA.parseFloat(total) + roundToTwo((total * (taxRate/100)));
-    	}        	
+    			var taxRate = parseFloat(self.tax_rate());
+    			if (taxRate > 0) {
+        		total = NINJA.parseFloat(total) + roundToTwo((total * (taxRate/100)));
+        	}        	
 
-	    if (customValue1 && !customTaxes1) {
-	    	total = NINJA.parseFloat(total) + customValue1;
-	    }
-	    if (customValue2 && !customTaxes2) {
-	    	total = NINJA.parseFloat(total) + customValue2;
-	    }
-	    
-    	var paid = self.totals.rawPaidToDate();
-    	if (paid > 0) {
-    		total -= paid;
-    	}
+    	    if (customValue1 && !customTaxes1) {
+    	    	total = NINJA.parseFloat(total) + customValue1;
+    	    }
+    	    if (customValue2 && !customTaxes2) {
+    	    	total = NINJA.parseFloat(total) + customValue2;
+    	    }
+    	    
+        	var paid = self.totals.rawPaidToDate();
+        	if (paid > 0) {
+        		total -= paid;
+        	}
 
-	    return formatMoney(total, self.client().currency_id());
-  	});
+    	    return formatMoney(total, self.client().currency_id());
+      	});
 
-  	self.onDragged = function(item) {
-  		refreshPDF();
-  	}	
+      	self.onDragged = function(item) {
+      		refreshPDF();
+      	}
 	}
 
 	function ClientModel(data) {
 		var self = this;
 		self.public_id = ko.observable(0);
 		self.name = ko.observable('');
-    self.id_number = ko.observable('');
-    self.vat_number = ko.observable('');
+        self.id_number = ko.observable('');
+        self.vat_number = ko.observable('');
 		self.work_phone = ko.observable('');
 		self.custom_value1 = ko.observable('');
 		self.custom_value2 = ko.observable('');
@@ -1373,7 +1413,7 @@
 
 		this.prettyRate = ko.computed({
 	        read: function () {
-	            return this.rate() ? parseFloat(this.rate()) : '';
+	            return this.rate() ? this.rate() : '';
 	        },
 	        write: function (value) {
 	            this.rate(value);
@@ -1546,6 +1586,15 @@
 			model.addTaxRate();
 		}
 	}
+
+    function setEmailEnabled()
+    {
+        if ($('#recurring').prop('checked')) {
+            $('#email_button').attr('disabled', true);
+        } else {
+            $('#email_button').removeAttr('disabled');
+        }
+    }
 
 	var products = {{ $products }};
 	var clients = {{ $clients }};	

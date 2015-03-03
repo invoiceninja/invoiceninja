@@ -29,23 +29,14 @@ Route::get('update', 'AppController@update');
 
 // Public pages
 Route::get('/', 'HomeController@showIndex');
-Route::get('/rocksteady', 'HomeController@showIndex');
-Route::get('/about', 'HomeController@showAboutUs');
-Route::get('/terms', 'HomeController@showTerms');
-Route::get('/contact', 'HomeController@showContactUs');
-Route::get('/plans', 'HomeController@showPlans');
-Route::post('/contact_submit', 'HomeController@doContactUs');
-Route::get('/faq', 'HomeController@showFaq');
-Route::get('/features', 'HomeController@showFeatures');
-Route::get('/testimonials', 'HomeController@showTestimonials');
-Route::get('/compare-online-invoicing{sites?}', 'HomeController@showCompare');
-
+Route::get('terms', 'HomeController@showTerms');
 Route::get('log_error', 'HomeController@logError');
 Route::get('invoice_now', 'HomeController@invoiceNow');
 Route::post('get_started', 'AccountController@getStarted');
 
 // Client visible pages
 Route::get('view/{invitation_key}', 'InvoiceController@view');
+Route::get('approve/{invitation_key}', 'QuoteController@approve');
 Route::get('payment/{invitation_key}', 'PaymentController@show_payment');
 Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
 Route::get('complete', 'PaymentController@offsite_payment');
@@ -90,6 +81,10 @@ Route::group(array('before' => 'auth'), function() {
     Route::post('users/delete', 'UserController@delete');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
+
+    Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
+    Route::resource('tokens', 'TokenController');
+    Route::post('tokens/delete', 'TokenController@delete');
 
     Route::get('api/products', array('as'=>'api.products', 'uses'=>'ProductController@getDatatable'));
     Route::resource('products', 'ProductController');
@@ -151,7 +146,7 @@ Route::group(array('before' => 'auth'), function() {
 });
 
 // Route group for API
-Route::group(array('prefix' => 'api/v1', 'before' => 'auth.basic'), function()
+Route::group(array('prefix' => 'api/v1', 'before' => ['api.access']), function()
 {
     Route::resource('ping', 'ClientApiController@ping');
     Route::resource('clients', 'ClientApiController');
@@ -159,6 +154,7 @@ Route::group(array('prefix' => 'api/v1', 'before' => 'auth.basic'), function()
     Route::resource('quotes', 'QuoteApiController');
     Route::resource('payments', 'PaymentApiController');
     Route::post('api/hooks', 'IntegrationController@subscribe');
+    Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
 });
 
 define('CONTACT_EMAIL', Config::get('mail.from.address'));
@@ -194,40 +190,42 @@ define('ACCOUNT_CHART_BUILDER', 'chart_builder');
 define('ACCOUNT_USER_MANAGEMENT', 'user_management');
 define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
 define('ACCOUNT_EMAIL_TEMPLATES', 'email_templates');
+define('ACCOUNT_TOKEN_MANAGEMENT', 'token_management');
 
-define("ACTIVITY_TYPE_CREATE_CLIENT", 1);
-define("ACTIVITY_TYPE_ARCHIVE_CLIENT", 2);
-define("ACTIVITY_TYPE_DELETE_CLIENT", 3);
+define('ACTIVITY_TYPE_CREATE_CLIENT', 1);
+define('ACTIVITY_TYPE_ARCHIVE_CLIENT', 2);
+define('ACTIVITY_TYPE_DELETE_CLIENT', 3);
 
-define("ACTIVITY_TYPE_CREATE_INVOICE", 4);
-define("ACTIVITY_TYPE_UPDATE_INVOICE", 5);
-define("ACTIVITY_TYPE_EMAIL_INVOICE", 6);
-define("ACTIVITY_TYPE_VIEW_INVOICE", 7);
-define("ACTIVITY_TYPE_ARCHIVE_INVOICE", 8);
-define("ACTIVITY_TYPE_DELETE_INVOICE", 9);
+define('ACTIVITY_TYPE_CREATE_INVOICE', 4);
+define('ACTIVITY_TYPE_UPDATE_INVOICE', 5);
+define('ACTIVITY_TYPE_EMAIL_INVOICE', 6);
+define('ACTIVITY_TYPE_VIEW_INVOICE', 7);
+define('ACTIVITY_TYPE_ARCHIVE_INVOICE', 8);
+define('ACTIVITY_TYPE_DELETE_INVOICE', 9);
 
-define("ACTIVITY_TYPE_CREATE_PAYMENT", 10);
-define("ACTIVITY_TYPE_UPDATE_PAYMENT", 11);
-define("ACTIVITY_TYPE_ARCHIVE_PAYMENT", 12);
-define("ACTIVITY_TYPE_DELETE_PAYMENT", 13);
+define('ACTIVITY_TYPE_CREATE_PAYMENT', 10);
+define('ACTIVITY_TYPE_UPDATE_PAYMENT', 11);
+define('ACTIVITY_TYPE_ARCHIVE_PAYMENT', 12);
+define('ACTIVITY_TYPE_DELETE_PAYMENT', 13);
 
-define("ACTIVITY_TYPE_CREATE_CREDIT", 14);
-define("ACTIVITY_TYPE_UPDATE_CREDIT", 15);
-define("ACTIVITY_TYPE_ARCHIVE_CREDIT", 16);
-define("ACTIVITY_TYPE_DELETE_CREDIT", 17);
+define('ACTIVITY_TYPE_CREATE_CREDIT', 14);
+define('ACTIVITY_TYPE_UPDATE_CREDIT', 15);
+define('ACTIVITY_TYPE_ARCHIVE_CREDIT', 16);
+define('ACTIVITY_TYPE_DELETE_CREDIT', 17);
 
-define("ACTIVITY_TYPE_CREATE_QUOTE", 18);
-define("ACTIVITY_TYPE_UPDATE_QUOTE", 19);
-define("ACTIVITY_TYPE_EMAIL_QUOTE", 20);
-define("ACTIVITY_TYPE_VIEW_QUOTE", 21);
-define("ACTIVITY_TYPE_ARCHIVE_QUOTE", 22);
-define("ACTIVITY_TYPE_DELETE_QUOTE", 23);
+define('ACTIVITY_TYPE_CREATE_QUOTE', 18);
+define('ACTIVITY_TYPE_UPDATE_QUOTE', 19);
+define('ACTIVITY_TYPE_EMAIL_QUOTE', 20);
+define('ACTIVITY_TYPE_VIEW_QUOTE', 21);
+define('ACTIVITY_TYPE_ARCHIVE_QUOTE', 22);
+define('ACTIVITY_TYPE_DELETE_QUOTE', 23);
 
-define("ACTIVITY_TYPE_RESTORE_QUOTE", 24);
-define("ACTIVITY_TYPE_RESTORE_INVOICE", 25);
-define("ACTIVITY_TYPE_RESTORE_CLIENT", 26);
-define("ACTIVITY_TYPE_RESTORE_PAYMENT", 27);
-define("ACTIVITY_TYPE_RESTORE_CREDIT", 28);
+define('ACTIVITY_TYPE_RESTORE_QUOTE', 24);
+define('ACTIVITY_TYPE_RESTORE_INVOICE', 25);
+define('ACTIVITY_TYPE_RESTORE_CLIENT', 26);
+define('ACTIVITY_TYPE_RESTORE_PAYMENT', 27);
+define('ACTIVITY_TYPE_RESTORE_CREDIT', 28);
+define('ACTIVITY_TYPE_APPROVE_QUOTE', 29);
 
 define('DEFAULT_INVOICE_NUMBER', '0001');
 define('RECENTLY_VIEWED_LIMIT', 8);
@@ -303,7 +301,6 @@ define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
 define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
 
 define('COUNT_FREE_DESIGNS', 4);
-define('PRO_PLAN_PRICE', 50);
 define('PRODUCT_ONE_CLICK_INSTALL', 1);
 define('PRODUCT_INVOICE_DESIGNS', 2);
 define('PRODUCT_WHITE_LABEL', 3);
@@ -312,9 +309,18 @@ define('WHITE_LABEL_AFFILIATE_KEY', '92D2J5');
 define('INVOICE_DESIGNS_AFFILIATE_KEY', 'T3RS74');
 define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
 
+define('PRO_PLAN_PRICE', 50);
+define('WHITE_LABEL_PRICE', 20);
+define('INVOICE_DESIGNS_PRICE', 10);
+
 define('USER_TYPE_SELF_HOST', 'SELF_HOST');
 define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
 define('NEW_VERSION_AVAILABLE', 'NEW_VERSION_AVAILABLE');
+
+define('TOKEN_BILLING_DISABLED', 1);
+define('TOKEN_BILLING_OPT_IN', 2);
+define('TOKEN_BILLING_OPT_OUT', 3);
+define('TOKEN_BILLING_ALWAYS', 4);
 
 /*
 define('GATEWAY_AMAZON', 30);

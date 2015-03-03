@@ -20,7 +20,7 @@
     <h1>{{ trans('texts.confirmation_header') }}</h1>
 
     <p>
-      {{ $invitationMessage . trans('texts.confirmation_message') }}
+      {{ $invitationMessage . trans('texts.confirmation_message') }}<br/>
       <a href='{{{ URL::to("user/confirm/{$user->confirmation_code}") }}}'>
           {{{ URL::to("user/confirm/{$user->confirmation_code}") }}}
       </a>

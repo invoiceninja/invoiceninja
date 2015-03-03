@@ -37,7 +37,8 @@
   </div></div>
 
 	{{ Former::legend('custom_messages') }}
-	{{ Former::textarea('invoice_terms')->label(trans('texts.default_invoice_terms')) }}
+    {{ Former::textarea('invoice_terms')->label(trans('texts.default_invoice_terms')) }}
+    {{ Former::textarea('invoice_footer')->label(trans('texts.default_invoice_footer')) }}
 	{{ Former::textarea('email_footer')->label(trans('texts.default_email_footer')) }} 
 
 	{{ Former::actions( Button::lg_success_submit(trans('texts.save'))->append_with_icon('floppy-disk') ) }}

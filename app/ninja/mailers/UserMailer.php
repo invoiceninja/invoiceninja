@@ -37,7 +37,7 @@ class UserMailer extends Mailer
         if (!$user->email) {
             return;
         }
-
+        
         $view = 'invoice_'.$notificationType;
         $entityType = $invoice->getEntityType();
 
@@ -56,7 +56,7 @@ class UserMailer extends Mailer
         }
 
         $subject = trans("texts.notification_{$entityType}_{$notificationType}_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->getDisplayName()]);
-
+        
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 }

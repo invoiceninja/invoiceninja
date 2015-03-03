@@ -15,3 +15,4 @@ Artisan::resolve('SendRecurringInvoices');
 Artisan::resolve('CreateRandomData');
 Artisan::resolve('ResetData');
 Artisan::resolve('ImportTimesheetData');
+Artisan::resolve('CheckData');

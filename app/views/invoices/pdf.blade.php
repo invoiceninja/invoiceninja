@@ -69,7 +69,7 @@
   } else {
     window.accountLogo = "{{ HTML::image_data($account->getLogoPath()) }}";
   }
-  @endif  
+  @endif
 
   var NINJA = NINJA || {};
   NINJA.primaryColor = "{{ $account->primary_color }}";
@@ -81,6 +81,7 @@
   var needsRefresh = false;
 
   function refreshPDF() {
+    PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
     if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChromium))) {
       var string = getPDFString();
       if (!string) return;

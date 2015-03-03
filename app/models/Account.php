@@ -312,18 +312,18 @@ class Account extends Eloquent
             return $template;
         }
 
-        $template = "<p>\$client,</p>\r\n" .
-                    "<p>" . trans("texts.{$entityType}_message", ['amount' => '$amount']) . "</p>\r\n";
+        $template = "\$client,<p/>\r\n\r\n" .
+                    trans("texts.{$entityType}_message", ['amount' => '$amount']) . "<p/>\r\n\r\n";
 
         if ($entityType != ENTITY_PAYMENT) {
-            $template .= "<p><a href=\"\$link\">\$link</a></p>\r\n";
+            $template .= "<a href=\"\$link\">\$link</a><p/>\r\n\r\n";
         }
 
         if ($message) {
-            $template .= "<p>$message</p>\r\n";
+            $template .= "$message<p/>\r\n\r\n";
         }
 
-        return $template . "<p>\$footer</p>";
+        return $template . "\$footer";
     }
 
     public function getEmailFooter()
@@ -333,5 +333,16 @@ class Account extends Eloquent
         } else {
             return "<p>" . trans('texts.email_signature') . "<br>\$account</p>";
         }
+    }
+
+    public function showTokenCheckbox()
+    {
+        return $this->token_billing_type_id == TOKEN_BILLING_OPT_IN
+                || $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
+    }
+
+    public function selectTokenCheckbox()
+    {
+        return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
     }
 }

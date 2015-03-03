@@ -80,6 +80,16 @@ function GetPdf(invoice, javascript){
 
   eval(javascript);
 
+  // add footer
+  if (invoice.invoice_footer) {
+    doc.setFontType('normal');
+    doc.setFontSize('8');
+    SetPdfColor('Black',doc);
+    var top = doc.internal.pageSize.height - layout.marginLeft;
+    var numLines = invoice.invoice_footer.split("\n").length - 1;
+    doc.text(layout.marginLeft, top - (numLines * 8), invoice.invoice_footer);
+  }
+
   return doc;
 }
 
@@ -467,6 +477,13 @@ if (window.ko) {
          var value = ko.utils.unwrapObservable(valueAccessor());
          if (value) $(element).datepicker('update', value);
       }
+  };
+
+  ko.bindingHandlers.placeholder = {
+    init: function (element, valueAccessor, allBindingsAccessor) {
+      var underlyingObservable = valueAccessor();
+      ko.applyBindingsToNode(element, { attr: { placeholder: underlyingObservable } } );
+    }
   };
 }
 
@@ -1038,7 +1055,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     if (newTop > 770) {
       line = 0;
       tableTop = layout.accountTop + layout.tablePadding;
-      y = tableTop;
+      y = tableTop + (2 * layout.tablePadding);
       top = y - layout.tablePadding;
       newTop = top + (numLines * layout.tableRowHeight);
       doc.addPage();
@@ -1208,6 +1225,7 @@ function displayInvoiceItems(doc, invoice, layout) {
 
     }
     */
+
     SetPdfColor('Black', doc);
     doc.setFontType('normal');
 
@@ -1490,18 +1508,13 @@ function setDocHexDraw(doc, hex) {
   return doc.setDrawColor(r, g, b);
 }
 
-function openUrl(url, track) {
-  trackUrl(track ? track : url);
-  window.open(url, '_blank');
-}
-
 function toggleDatePicker(field) {
   $('#'+field).datepicker('show');
 }
 
 function roundToTwo(num, toString) {
   var val = +(Math.round(num + "e+2")  + "e-2");
-  return toString ? val.toFixed(2) : val;
+  return toString ? val.toFixed(2) : (val || 0);
 }
 
 function truncate(str, length) {

@@ -34,6 +34,8 @@ class Activity extends Eloquent
             Utils::fatalError();
         }
 
+        $activity->token_id = Session::get('token_id', null);
+
         return $activity;
     }
 
@@ -57,6 +59,7 @@ class Activity extends Eloquent
             $activity->client_id = $client->id;
             $activity->activity_type_id = ACTIVITY_TYPE_DELETE_CLIENT;
             $activity->message = Utils::encodeActivity(Auth::user(), 'deleted', $client);
+            $activity->balance = $client->balance;
             $activity->save();
         }
     }
@@ -157,7 +160,9 @@ class Activity extends Eloquent
         $client = $invoice->client;
 
         if ($invoice->is_deleted && !$invoice->getOriginal('is_deleted')) {
+            $adjustment = 0;
             if (!$invoice->is_quote && !$invoice->is_recurring) {
+                $adjustment = $invoice->balance * -1;
                 $client->balance = $client->balance - $invoice->balance;
                 $client->paid_to_date = $client->paid_to_date - ($invoice->amount - $invoice->balance);
                 $client->save();
@@ -169,31 +174,42 @@ class Activity extends Eloquent
             $activity->activity_type_id = $invoice->is_quote ? ACTIVITY_TYPE_DELETE_QUOTE : ACTIVITY_TYPE_DELETE_INVOICE;
             $activity->message = Utils::encodeActivity(Auth::user(), 'deleted', $invoice);
             $activity->balance = $invoice->client->balance;
-            $activity->adjustment = $invoice->is_quote ? 0 : $invoice->balance * -1;
+            $activity->adjustment = $adjustment;
             $activity->save();
         } else {
             $diff = floatval($invoice->amount) - floatval($invoice->getOriginal('amount'));
 
-            if ($diff == 0) {
-                return;
+            $fieldChanged = false;
+            foreach (['invoice_number', 'po_number', 'invoice_date', 'due_date', 'terms', 'public_notes', 'invoice_footer'] as $field) {
+                if ($invoice->$field != $invoice->getOriginal($field)) {
+                    $fieldChanged = true;
+                    break;
+                }
             }
 
-            $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($invoice->id);
+            if ($diff > 0 || $fieldChanged) {
+                $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($invoice->id);
 
-            if (!$invoice->is_quote && !$invoice->is_recurring) {
-                $client->balance = $client->balance + $diff;
-                $client->save();
+                if ($diff > 0 && !$invoice->is_quote && !$invoice->is_recurring) {
+                    $client->balance = $client->balance + $diff;
+                    $client->save();
+                }
+
+                $activity = Activity::getBlank($invoice);
+                $activity->client_id = $invoice->client_id;
+                $activity->invoice_id = $invoice->id;
+                $activity->activity_type_id = $invoice->is_quote ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
+                $activity->message = Utils::encodeActivity(Auth::user(), 'updated', $invoice);
+                $activity->balance = $client->balance;
+                $activity->adjustment = $invoice->is_quote || $invoice->is_recurring ? 0 : $diff;
+                $activity->json_backup = $backupInvoice->hidePrivateFields()->toJSON();
+                $activity->save();
+
+                if ($invoice->isPaid() && $invoice->balance > 0) {
+                    $invoice->invoice_status_id = INVOICE_STATUS_PARTIAL;
+                    $invoice->save();
+                }
             }
-
-            $activity = Activity::getBlank($invoice);
-            $activity->client_id = $invoice->client_id;
-            $activity->invoice_id = $invoice->id;
-            $activity->activity_type_id = $invoice->is_quote ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
-            $activity->message = Utils::encodeActivity(Auth::user(), 'updated', $invoice);
-            $activity->balance = $client->balance;
-            $activity->adjustment = $invoice->is_quote || $invoice->is_recurring ? 0 : $diff;
-            $activity->json_backup = $backupInvoice->hidePrivateFields()->toJSON();
-            $activity->save();
         }
     }
 
@@ -227,6 +243,19 @@ class Activity extends Eloquent
         $activity->invoice_id = $invitation->invoice_id;
         $activity->activity_type_id = $invitation->invoice->is_quote ? ACTIVITY_TYPE_VIEW_QUOTE : ACTIVITY_TYPE_VIEW_INVOICE;
         $activity->message = Utils::encodeActivity($invitation->contact, 'viewed', $invitation->invoice);
+        $activity->balance = $invitation->invoice->client->balance;
+        $activity->save();
+    }
+
+    public static function approveQuote($invitation) {
+
+        $activity = Activity::getBlank($invitation);
+        $activity->client_id = $invitation->invoice->client_id;
+        $activity->invitation_id = $invitation->id;
+        $activity->contact_id = $invitation->contact_id;
+        $activity->invoice_id = $invitation->invoice_id;
+        $activity->activity_type_id = ACTIVITY_TYPE_APPROVE_QUOTE;
+        $activity->message = Utils::encodeActivity($invitation->contact, 'approved', $invitation->invoice);
         $activity->balance = $invitation->invoice->client->balance;
         $activity->save();
     }

@@ -58,13 +58,11 @@ $monolog->pushHandler(new Monolog\Handler\SyslogHandler('intranet', 'user', Logg
 
 App::error(function(Exception $exception, $code)
 {
-  if (Utils::isNinjaProd())
-  {
-    Utils::logError($code . ' ' . Utils::getErrorString($exception));
-    return Response::view('error', ['hideHeader' => true, 'error' => "A {$code} error occurred."], $code);
-  }
-  else
-  {
+  Utils::logError($code . ' ' . Utils::getErrorString($exception));
+    
+  if (Utils::isNinjaProd()) {
+    return Response::view('error', ['hideHeader' => true, 'error' => "A {$code} error occurred."], $code);    
+  } else {
     return null;
   }
 });

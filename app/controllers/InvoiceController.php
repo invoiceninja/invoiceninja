@@ -46,8 +46,16 @@ class InvoiceController extends \BaseController
 
     public function clientIndex()
     {
+        $invitationKey = Session::get('invitation_key');
+        if (!$invitationKey) {
+            return Redirect::to('/setup');
+        }
+
+        $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
+        $color = $invitation->account->primary_color ? $invitation->account->primary_color : '#0b4d78';
+        
         $data = [
-            'showClientHeader' => true,
+            'color' => $color,
             'hideLogo' => Session::get('white_label'),
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
@@ -68,7 +76,7 @@ class InvoiceController extends \BaseController
     public function getClientDatatable()
     {
         //$accountId = Auth::user()->account_id;
-    $search = Input::get('sSearch');
+        $search = Input::get('sSearch');
         $invitationKey = Session::get('invitation_key');
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
 
@@ -133,23 +141,13 @@ class InvoiceController extends \BaseController
     public function view($invitationKey)
     {
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->firstOrFail();
-
         $invoice = $invitation->invoice;
 
         if (!$invoice || $invoice->is_deleted) {
             return View::make('invoices.deleted');
         }
 
-        if ($invoice->is_quote && $invoice->quote_invoice_id) {
-            $invoice = Invoice::scope($invoice->quote_invoice_id, $invoice->account_id)->firstOrFail();
-
-            if (!$invoice || $invoice->is_deleted) {
-                return View::make('invoices.deleted');
-            }
-        }
-
         $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
-
         $client = $invoice->client;
 
         if (!$client || $client->is_deleted) {
@@ -169,7 +167,7 @@ class InvoiceController extends \BaseController
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-        $invoice->is_pro = $client->account->isPro();
+        $invoice->is_pro = $client->account->isPro();        
 
         $contact = $invitation->contact;
         $contact->setVisible([
@@ -179,13 +177,14 @@ class InvoiceController extends \BaseController
             'phone', ]);
 
         $data = array(
-            'showClientHeader' => true,
+            'isConverted' => $invoice->quote_invoice_id ? true : false,
             'showBreadcrumbs' => false,
             'hideLogo' => $client->account->isWhiteLabel(),
             'invoice' => $invoice->hidePrivateFields(),
             'invitation' => $invitation,
             'invoiceLabels' => $client->account->getInvoiceLabels(),
             'contact' => $contact,
+            'hasToken' => $client->getGatewayToken()            
         );
 
         return View::make('invoices.view', $data);
