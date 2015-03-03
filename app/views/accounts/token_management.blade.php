@@ -4,38 +4,37 @@
 	@parent
 	@include('accounts.nav_advanced')
 
-  {{ Former::open('users/delete')->addClass('user-form') }}
-  {{ Former::legend('user_management') }}
+  {{ Former::open('tokens/delete')->addClass('user-form') }}
+  {{ Former::legend('token_management') }}
 
   <div style="display:none">
-    {{ Former::text('userPublicId') }}
+    {{ Former::text('tokenPublicId') }}
   </div>
   {{ Former::close() }}
 
 
   @if (Utils::isPro())
-    {{ Button::success_link(URL::to('users/create'), trans("texts.add_user"), array('class' => 'pull-right'))->append_with_icon('plus-sign') }}
+    {{ Button::success_link(URL::to('tokens/create'), trans("texts.add_token"), array('class' => 'pull-right'))->append_with_icon('plus-sign') }}
   @endif
 
-
+  <!--
     <label for="trashed" style="font-weight:normal; margin-left: 10px;">
         <input id="trashed" type="checkbox" onclick="setTrashVisible()"
-            {{ Session::get('show_trash:user') ? 'checked' : ''}}/> {{ trans('texts.show_deleted_users')}}
+            {{ Session::get('show_trash:token') ? 'checked' : ''}}/> {{ trans('texts.show_deleted_tokens')}}
     </label>
-
+  -->
 
   {{ Datatable::table()
       ->addColumn(
         trans('texts.name'),
-        trans('texts.email'),
-        trans('texts.user_state'),
+        trans('texts.token'),
         trans('texts.action'))
-      ->setUrl(url('api/users/'))
+      ->setUrl(url('api/tokens/'))
       ->setOptions('sPaginationType', 'bootstrap')
       ->setOptions('bFilter', false)
       ->setOptions('bAutoWidth', false)
-      ->setOptions('aoColumns', [[ "sWidth"=> "20%" ], [ "sWidth"=> "45%" ], ["sWidth"=> "20%"], ["sWidth"=> "15%" ]])
-      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[3]]])
+      ->setOptions('aoColumns', [[ "sWidth"=> "40%" ], [ "sWidth"=> "40%" ], ["sWidth"=> "20%"]])
+      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[2]]])
       ->render('datatable') }}
 
   <script>
@@ -52,15 +51,15 @@
 
     function setTrashVisible() {
         var checked = $('#trashed').is(':checked');
-        window.location = '{{ URL::to('view_archive/user') }}' + (checked ? '/true' : '/false');
+        window.location = '{{ URL::to('view_archive/token') }}' + (checked ? '/true' : '/false');
     }
 
-  function deleteUser(id) {
+  function deleteToken(id) {
     if (!confirm('Are you sure?')) {
       return;
     }
 
-    $('#userPublicId').val(id);
+    $('#tokenPublicId').val(id);
     $('form.user-form').submit();
   }
   </script>

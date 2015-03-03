@@ -530,4 +530,14 @@ return array(
   'invoice_footer' => 'Invoice footer',
   'save_as_default_footer' => 'Save as default footer',
 
+  'token_management' => 'Token Management',
+  'tokens' => 'Tokens',
+  'add_token' => 'Add Token',
+  'show_deleted_tokens' => 'Show deleted tokens',
+  'deleted_token' => 'Successfully deleted token',
+  'created_token' => 'Successfully created token',
+  'edit_token' => 'Edit Token',
+  'delete_token' => 'Delete Token',
+  'token' => 'Token',
+
 );

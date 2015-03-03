@@ -466,8 +466,9 @@ class Utils
         $person = $person ? $person->getDisplayName() : '<i>System</i>';
         $entity = $entity ? '['.$entity->getActivityKey().']' : '';
         $otherPerson = $otherPerson ? 'to '.$otherPerson->getDisplayName() : '';
+        $token = Session::get('token_id') ? ' ('.trans('texts.token').')' : '';
 
-        return trim("$person $action $entity $otherPerson");
+        return trim("$person $token $action $entity $otherPerson");
     }
 
     public static function decodeActivity($message)

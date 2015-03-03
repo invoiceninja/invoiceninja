@@ -82,6 +82,10 @@ Route::group(array('before' => 'auth'), function() {
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
 
+    Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
+    Route::resource('tokens', 'TokenController');
+    Route::post('tokens/delete', 'TokenController@delete');
+
     Route::get('api/products', array('as'=>'api.products', 'uses'=>'ProductController@getDatatable'));
     Route::resource('products', 'ProductController');
     Route::get('products/{product_id}/archive', 'ProductController@archive');
@@ -142,7 +146,7 @@ Route::group(array('before' => 'auth'), function() {
 });
 
 // Route group for API
-Route::group(array('prefix' => 'api/v1', 'before' => ['auth.basic', 'api.access']), function()
+Route::group(array('prefix' => 'api/v1', 'before' => ['api.access']), function()
 {
     Route::resource('ping', 'ClientApiController@ping');
     Route::resource('clients', 'ClientApiController');
@@ -186,6 +190,7 @@ define('ACCOUNT_CHART_BUILDER', 'chart_builder');
 define('ACCOUNT_USER_MANAGEMENT', 'user_management');
 define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
 define('ACCOUNT_EMAIL_TEMPLATES', 'email_templates');
+define('ACCOUNT_TOKEN_MANAGEMENT', 'token_management');
 
 define('ACTIVITY_TYPE_CREATE_CLIENT', 1);
 define('ACTIVITY_TYPE_ARCHIVE_CLIENT', 2);

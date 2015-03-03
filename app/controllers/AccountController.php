@@ -87,6 +87,8 @@ class AccountController extends \BaseController
 
         if ($entityType == 'user') {
             return Redirect::to('company/'.ACCOUNT_ADVANCED_SETTINGS.'/'.ACCOUNT_USER_MANAGEMENT);
+        } elseif ($entityType == 'token') {
+            return Redirect::to('company/'.ACCOUNT_ADVANCED_SETTINGS.'/'.ACCOUNT_TOKEN_MANAGEMENT);
         } else {
             return Redirect::to("{$entityType}s");
         }

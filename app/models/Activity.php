@@ -34,6 +34,8 @@ class Activity extends Eloquent
             Utils::fatalError();
         }
 
+        $activity->token_id = Session::get('token_id', null);
+
         return $activity;
     }
 
