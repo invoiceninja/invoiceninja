@@ -184,6 +184,7 @@ Route::filter('api.access', function()
         Auth::loginUsingId($token->user_id);
         Session::set('token_id', $token->id);
     } else {
+        sleep(3);
         return Response::make('Invalid token', 403, $headers);
     }
         

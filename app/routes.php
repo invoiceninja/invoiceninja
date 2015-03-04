@@ -81,6 +81,7 @@ Route::group(array('before' => 'auth'), function() {
     Route::post('users/delete', 'UserController@delete');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
+    Route::post('users/change_password', 'UserController@changePassword');
 
     Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
     Route::resource('tokens', 'TokenController');
