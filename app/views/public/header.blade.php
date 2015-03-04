@@ -215,9 +215,6 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
                     <li id="menu-item-30" class="menu-item-30">
                         {{ link_to(NINJA_WEB_URL . '/contact', trans('texts.support')) }}
                     </li>
-                    <li id="menu-item-29" class="menu-item-29">
-                        {{ link_to('/terms', trans('texts.terms')) }}
-                    </li>
                     <li id="menu-item-31" class="menu-item-31">                    
                         {{ link_to('#', 'Facebook', ['target' => '_blank', 'onclick' => 'openUrl("https://www.facebook.com/invoiceninja", "/footer/social/facebook")']) }}
                     </li>
