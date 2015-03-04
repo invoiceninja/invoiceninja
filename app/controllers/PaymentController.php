@@ -304,11 +304,10 @@ class PaymentController extends \BaseController
 
         if (Input::has('use_paypal')) {
             Session::put('payment_type', Input::get('use_paypal') == 'true' ? PAYMENT_TYPE_PAYPAL : PAYMENT_TYPE_CREDIT_CARD);
-        } else {
+        } elseif (!Session::has('payment_type')) {
             Session::put('payment_type', PAYMENT_TYPE_ANY);
         }
-        Session::save();
-        
+
         // For PayPal we redirect straight to their site
         $usePayPal = false;
         if ($usePayPal = Input::get('use_paypal')) {
@@ -316,7 +315,7 @@ class PaymentController extends \BaseController
         } else {
             $invitation = Invitation::with('invoice.client.account', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
             $account = $invitation->invoice->client->account;
-            if ($account->getGatewayByType(PAYMENT_TYPE_PAYPAL)) {
+            if (count($account->account_gateways) == 1 && $account->getGatewayByType(PAYMENT_TYPE_PAYPAL)) {
                 $usePayPal = true;
             }
         }
@@ -607,6 +606,7 @@ class PaymentController extends \BaseController
                     $invitation->transaction_reference = $ref;
                     $invitation->save();
 
+                    Session::save();
                     $response->redirect();
                 } else {
                     Session::flash('error', $response->getMessage());

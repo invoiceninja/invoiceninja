@@ -137,11 +137,9 @@ class AccountGatewayController extends BaseController
             if (count($currentGateways) > 0) {
                 $currentGateway = $currentGateways[0];
                 if ($currentGateway->isPayPal()) {
-                    $gateways->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)
-                             ->where('id', '!=', GATEWAY_PAYPAL_PRO);
+                    $gateways->where('id', '!=', GATEWAY_PAYPAL_EXPRESS);
                 } else {
-                    $gateways->where('id', '>=', GATEWAY_PAYPAL_EXPRESS)
-                             ->where('id', '<=', GATEWAY_PAYPAL_PRO);
+                    $gateways->where('id', '=', GATEWAY_PAYPAL_EXPRESS);
                     $onlyPayPal = true;
                 }
             }
