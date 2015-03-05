@@ -31607,7 +31607,7 @@ function GetPdf(invoice, javascript){
   if (invoice.invoice_footer) {
     doc.setFontType('normal');
     doc.setFontSize('8');
-    SetPdfColor('Black',doc);
+    SetPdfColor(invoice.invoice_design_id == 2 || invoice.invoice_design_id == 3 ? 'White' : 'Black',doc);
     var top = doc.internal.pageSize.height - layout.marginLeft;
     var numLines = invoice.invoice_footer.split("\n").length - 1;
     doc.text(layout.marginLeft, top - (numLines * 8), invoice.invoice_footer);
@@ -32582,9 +32582,7 @@ function displayInvoiceItems(doc, invoice, layout) {
       top = y - layout.tablePadding;
       newTop = top + (numLines * layout.tableRowHeight);
       doc.addPage();
-      console.log('== ADD PAGE ==');
     }
-    console.log('Y: %s', y);
 
     var left = layout.marginLeft - layout.tablePadding;
     var width = layout.marginRight + layout.tablePadding;

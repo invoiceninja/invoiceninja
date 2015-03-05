@@ -81,6 +81,7 @@ Route::group(array('before' => 'auth'), function() {
     Route::post('users/delete', 'UserController@delete');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
+    Route::post('users/change_password', 'UserController@changePassword');
 
     Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
     Route::resource('tokens', 'TokenController');
@@ -101,6 +102,10 @@ Route::group(array('before' => 'auth'), function() {
     Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
     Route::post('account/go_pro', 'AccountController@enableProPlan');
+
+    Route::resource('gateways', 'AccountGatewayController');
+    Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
+    Route::post('gateways/delete', 'AccountGatewayController@delete');
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
@@ -277,6 +282,7 @@ define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
 define('GATEWAY_AUTHORIZE_NET', 1);
 define('GATEWAY_AUTHORIZE_NET_SIM', 2);
 define('GATEWAY_PAYPAL_EXPRESS', 17);
+define('GATEWAY_PAYPAL_PRO', 18);
 define('GATEWAY_STRIPE', 23);
 define('GATEWAY_TWO_CHECKOUT', 27);
 define('GATEWAY_BEANSTREAM', 29);
@@ -322,6 +328,10 @@ define('TOKEN_BILLING_OPT_IN', 2);
 define('TOKEN_BILLING_OPT_OUT', 3);
 define('TOKEN_BILLING_ALWAYS', 4);
 
+define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
+define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
+define('PAYMENT_TYPE_ANY', 'PAYMENT_TYPE_ANY');
+
 /*
 define('GATEWAY_AMAZON', 30);
 define('GATEWAY_BLUEPAY', 31);
@@ -347,7 +357,7 @@ define('CREDIT_CARDS', serialize($creditCards));
 
 
 HTML::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
-    $class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2) ) ? ' class="active"' : '';
+    $class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2.'/*') ) ? ' class="active"' : '';
     $title = ucwords(trans("texts.$text")) . Utils::getProLabel($text);
     return '<li'.$class.'><a href="'.URL::to($url).'" '.$extra.'>'.$title.'</a></li>';
 });

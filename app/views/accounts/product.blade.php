@@ -21,7 +21,7 @@
 
   {{ Former::actions( 
       Button::lg_success_submit(trans('texts.save'))->append_with_icon('floppy-disk'),
-      Button::lg_default_link('company/products', 'Cancel')->append_with_icon('remove-circle')      
+      Button::lg_default_link('company/products', trans('texts.cancel'))->append_with_icon('remove-circle')      
   ) }}
 
   {{ Former::close() }}

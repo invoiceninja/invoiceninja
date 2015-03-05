@@ -167,8 +167,8 @@ class InvoiceController extends \BaseController
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-        $invoice->is_pro = $client->account->isPro();        
-
+        $invoice->is_pro = $client->account->isPro();
+        
         $contact = $invitation->contact;
         $contact->setVisible([
             'first_name',
@@ -184,7 +184,8 @@ class InvoiceController extends \BaseController
             'invitation' => $invitation,
             'invoiceLabels' => $client->account->getInvoiceLabels(),
             'contact' => $contact,
-            'hasToken' => $client->getGatewayToken()            
+            'hasToken' => $client->getGatewayToken(),
+            'countGateways' => AccountGateway::scope()->count(),
         );
 
         return View::make('invoices.view', $data);

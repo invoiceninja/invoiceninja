@@ -539,6 +539,23 @@ return array(
   'edit_token' => 'Token bearbeiten',
   'delete_token' => 'Token löschen',
   'token' => 'Token',
+
+  'add_gateway' => 'Add Gateway',
+  'delete_gateway' => 'Delete Gateway',
+  'edit_gateway' => 'Edit Gateway',
+  'updated_gateway' => 'Successfully updated gateway',
+  'created_gateway' => 'Successfully created gateway',
+  'deleted_gateway' => 'Successfully deleted gateway',
+  'pay_with_paypal' => 'PayPal',
+  'pay_with_card' => 'Credit card',
+
+  'change_password' => 'Change password',
+  'current_password' => 'Current password',
+  'new_password' => 'New password',
+  'confirm_password' => 'Confirm password',
+  'password_error_incorrect' => 'The current password is incorrect.',
+  'password_error_invalid' => 'The new password is invalid.',
+  'updated_password' => 'Successfully updated password',
   
 
 );

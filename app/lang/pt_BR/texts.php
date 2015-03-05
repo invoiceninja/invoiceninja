@@ -446,7 +446,7 @@ return array(
 
   'payment_title' => 'Enter Your Billing Address and Credit Card information',
   'payment_cvv' => '*This is the 3-4 digit number onthe back of your card',
-  'payment_footer1' => '*Billing address must match address accociated with credit card.',
+  'payment_footer1' => '*Billing address must match address associated with credit card.',
   'payment_footer2' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.',
   'vat_number' => 'Vat Number',
   'id_number' => 'ID Number',
@@ -513,7 +513,7 @@ return array(
   'billing_address' => 'Billing address',
   'billing_method' => 'Billing method',
   'order_overview' => 'Order overview',
-  'match_address' => '*Address must match address accociated with credit card.',
+  'match_address' => '*Address must match address associated with credit card.',
   'click_once' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.',
 
   'default_invoice_footer' => 'Set default invoice footer',
@@ -530,6 +530,24 @@ return array(
   'edit_token' => 'Edit Token',
   'delete_token' => 'Delete Token',
   'token' => 'Token',
+
+  'add_gateway' => 'Add Gateway',
+  'delete_gateway' => 'Delete Gateway',
+  'edit_gateway' => 'Edit Gateway',
+  'updated_gateway' => 'Successfully updated gateway',
+  'created_gateway' => 'Successfully created gateway',
+  'deleted_gateway' => 'Successfully deleted gateway',
+  'pay_with_paypal' => 'PayPal',
+  'pay_with_card' => 'Credit card',
+
+
+  'change_password' => 'Change password',
+  'current_password' => 'Current password',
+  'new_password' => 'New password',
+  'confirm_password' => 'Confirm password',
+  'password_error_incorrect' => 'The current password is incorrect.',
+  'password_error_invalid' => 'The new password is invalid.',
+  'updated_password' => 'Successfully updated password',
 
   
 );

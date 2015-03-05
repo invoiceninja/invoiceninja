@@ -478,4 +478,30 @@ class UserController extends BaseController
 
         return Redirect::to('/')->with('clearGuestKey', true);
     }
+
+    public function changePassword()
+    {
+        // check the current password is correct
+        if (!Auth::validate([
+            'email' => Auth::user()->email,
+            'password' => Input::get('current_password')
+        ])) {
+            return trans('texts.password_error_incorrect');
+        }
+
+        // validate the new password
+        $password = Input::get('new_password');
+        $confirm = Input::get('confirm_password');
+
+        if (strlen($password) < 6 || $password != $confirm) {
+            return trans('texts.password_error_invalid');
+        }
+
+        // save the new password
+        $user = Auth::user();
+        $user->password = $password;
+        $user->save();
+
+        return RESULT_SUCCESS;
+    }
 }

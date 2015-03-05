@@ -20,4 +20,9 @@ class AccountGateway extends EntityModel
 
         return $arrayOfImages;
     }
+
+    public function isPayPal() {
+        return $this->gateway_id == GATEWAY_PAYPAL_EXPRESS;
+    }
 }
+

@@ -2,6 +2,7 @@
 
 @section('content') 
   @parent
+  @include('accounts.nav_advanced')
 
   {{ Former::open($url)->method($method)->addClass('col-md-8 col-md-offset-2 warn-on-exit')->rules(array(
       'name' => 'required',
@@ -21,7 +22,7 @@
   
   {{ Former::actions( 
       Button::lg_success_submit(trans('texts.save'))->append_with_icon('floppy-disk'),
-      Button::lg_default_link('company/advanced_settings/token_management', 'Cancel')->append_with_icon('remove-circle')      
+      Button::lg_default_link('company/advanced_settings/token_management', trans('texts.cancel'))->append_with_icon('remove-circle')      
   ) }}
 
   {{ Former::close() }}
