@@ -187,6 +187,10 @@ Route::filter('api.access', function()
         sleep(3);
         return Response::make('Invalid token', 403, $headers);
     }
+
+    if (!Utils::isNinja()) {
+        return null;
+    }
         
     if (!Utils::isPro()) {
         return Response::make('API requires pro plan', 403, $headers);
