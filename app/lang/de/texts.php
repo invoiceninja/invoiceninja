@@ -72,8 +72,8 @@ return array(
   'tax_rates' => 'Steuersätze',
   'rate' => 'Satz',
   'settings' => 'Einstellungen',
-  'enable_invoice_tax' => 'Ermögliche das bestimmen einer <strong>Rechnungssteuer</strong>',
-  'enable_line_item_tax' => 'Ermögliche das bestimmen von <strong>Steuern für Belegpositionen</strong>',
+  'enable_invoice_tax' => 'Ermögliche das Bestimmen einer <strong>Rechnungssteuer</strong>',
+  'enable_line_item_tax' => 'Ermögliche das Bestimmen von <strong>Steuern für Belegpositionen</strong>',
 
   // navigation
   'dashboard' => 'Dashboard',
@@ -96,13 +96,13 @@ return array(
   'import' => 'Importieren',
   'download' => 'Downloaden',
   'cancel' => 'Abbrechen',
-  'provide_email' => 'Bitte gebe eine gültige E-Mail Adresse an',
+  'provide_email' => 'Bitte gib eine gültige E-Mail Adresse an',
   'powered_by' => 'Powered by',
   'no_items' => 'Keine Objekte',
 
   // recurring invoices
   'recurring_invoices' => 'Wiederkehrende Rechnungen',
-  'recurring_help' => '<p>Sende deinen Kunden automatisch die selbe Rechnung wöchentlich, zwei-monatlich, monatlich, vierteljährlich oder jährlich.</p>
+  'recurring_help' => '<p>Sende deinem Kunden wöchentlich, zwei mal im Monat, monatlich, vierteljährlich oder jährlich automatisch die gleiche Rechnung.</p>
         <p>Benutze :MONTH, :QUARTER oder :YEAR für ein dynamisches Datum. Grundlegende Mathematik funktioniert genauso gut, zum Beispiel :MONTH-1.</p>
         <p>Beispiel zu dynamischen Rechnungs-Variabeln:</p>
         <ul>
@@ -115,7 +115,7 @@ return array(
   'in_total_revenue' => 'Gesamtumsatz',
   'billed_client' => 'abgerechneter Kunde',
   'billed_clients' => 'abgerechnete Kunden',
-  'active_client' => 'aktive Kunden',
+  'active_client' => 'aktiver Kunde',
   'active_clients' => 'aktive Kunden',
   'invoices_past_due' => 'Fällige Rechnungen',
   'upcoming_invoices' => 'Kommende Rechnungen',
@@ -230,10 +230,10 @@ return array(
   'cloned_invoice' => 'Rechnung erfolgreich dupliziert',
   'emailed_invoice' => 'Rechnung erfolgreich versendet',
   'and_created_client' => 'und Kunde erstellt',
-  'archived_invoice' => 'Guthaben erfolgreich archiviert',
-  'archived_invoices' => ':count Guthaben erfolgreich archiviert',
-  'deleted_invoice' => 'Guthaben erfolgreich gelöscht',
-  'deleted_invoices' => ':count Guthaben erfolgreich gelöscht',
+  'archived_invoice' => 'Rechnung erfolgreich archiviert',
+  'archived_invoices' => ':count Rechnungen erfolgreich archiviert',
+  'deleted_invoice' => 'Rechnung erfolgreich gelöscht',
+  'deleted_invoices' => ':count Rechnungen erfolgreich gelöscht',
 
   'created_payment' => 'Zahlung erfolgreich erstellt',
   'archived_payment' => 'Zahlung erfolgreich archiviert',
@@ -249,8 +249,8 @@ return array(
   'deleted_credits' => ':count Guthaben erfolgreich gelöscht',
 
   // Emails
-  'confirmation_subject' => 'Invoice Ninja Konto Bestätigung',
-  'confirmation_header' => 'Konto Bestätigung',
+  'confirmation_subject' => 'Invoice Ninja Kontobestätigung',
+  'confirmation_header' => 'Kontobestätigung',
   'confirmation_message' => 'Bitte klicke auf den folgenden Link um dein Konto zu bestätigen.',
   'invoice_message' => 'Um Ihre Rechnung über :amount einzusehen, klicken Sie bitte auf den folgenden Link.',
   'payment_subject' => 'Zahlungseingang',
@@ -266,7 +266,7 @@ return array(
   'notification_invoice_paid' => 'Eine Zahlung von :amount wurde von :client bezüglich Rechnung :invoice getätigt.',
   'notification_invoice_sent' => 'Dem folgenden Kunden :client wurde die Rechnung :invoice über :amount zugesendet.',
   'notification_invoice_viewed' => 'Der folgende Kunde :client hat sich Rechnung :invoice über :amount angesehen.',
-  'reset_password' => 'Du kannst dein Passwort zurücksetzen indem du auf den folgenden Link klickst:',
+  'reset_password' => 'Du kannst dein Passwort zurücksetzen, indem du auf den folgenden Link klickst:',
   'reset_password_footer' => 'Wenn du das Zurücksetzen des Passworts nicht beantragt hast benachrichtige bitte unseren Support: ' . CONTACT_EMAIL,
 
   // Payment page
@@ -278,7 +278,7 @@ return array(
 
   // Security alerts
   'confide' => array(
-    'too_many_attempts' => 'Zu viele versuche. Bitte versuche es in ein paar Minuten erneut.',
+    'too_many_attempts' => 'Zu viele Versuche. Bitte probiere es in ein paar Minuten erneut.',
     'wrong_credentials' => 'Falsche E-Mail Adresse oder falsches Passwort.',
     'confirmation' => 'Dein Konto wurde bestätigt!',
     'wrong_confirmation' => 'Falscher Bestätigungscode.',
@@ -289,7 +289,7 @@ return array(
 
   // Pro Plan
   'pro_plan' => [
-    'remove_logo' => ':link um das Invoice Ninja Logo zu entfernen, indem du dem Pro Plan beitrittst',
+    'remove_logo' => ':link, um das Invoice Ninja Logo zu entfernen, indem du dem Pro Plan beitrittst',
     'remove_logo_link' => 'Klicke hier',
   ],
 
@@ -300,15 +300,16 @@ return array(
   'email_taken' => 'Diese E-Mail Adresse ist bereits registriert',
   'working' => 'Wird bearbeitet',
   'success' => 'Erfolg',
-  'success_message' => 'Du hast dich erfolgreich registriert. Bitte besuche den Link in deiner Bestätigungsmail um deine E-Mail Adresse zu verfizieren.',
-  'erase_data' => 'Diese Aktion wird deine Daten dauerhaft entfernen.',
+  'success_message' => 'Du hast dich erfolgreich registriert. Bitte besuche den Link in deiner Bestätigungsmail um deine E-Mail Adresse zu verifizieren.',
+  'erase_data' => 'Diese Aktion wird deine Daten dauerhaft löschen.',
   'password' => 'Passwort',
   'invoice_subject' => 'Neue Rechnung von :account',
   'close' => 'Schließen',
 
   'pro_plan_product' => 'Pro Plan',
   'pro_plan_description' => 'Jahresmitgliedschaft beim Invoice Ninja Pro Plan.',
-  'pro_plan_success' => 'Danke für den Beitritt! Sobald die Rechnung bezahlt wurde beginnt deine Pro Plan Mitgliedschaft.',
+  'pro_plan_success' => 'Danke für den Beitritt! Sobald die Rechnung bezahlt wurde, beginnt deine Pro Plan Mitgliedschaft.',
+  'pro_plan_success' => 'Danke für den Beitritt! Sobald die Rechnung bezahlt wurde,Beim Auswählen eines Produktes werden beginnt deine Pro Plan Mitgliedschaft.',
 
   'unsaved_changes' => 'Es liegen ungespeicherte Änderungen vor',
   'custom_fields' => 'Benutzerdefinierte Felder',
@@ -323,7 +324,7 @@ return array(
   'product' => 'Produkt',
   'products' => 'Produkte',
   'fill_products' => 'Produkte automatisch ausfüllen',
-  'fill_products_help' => 'Beim Auswählen eines Produktes werden automatisch <strong>eine Beschreibung und die Kosten ausgefüllt</strong>',
+  'fill_products_help' => 'Beim Auswählen eines Produktes werden automatisch <strong>Beschreibung und Kosten ausgefüllt</strong>',
   'update_products' => 'Produkte automatisch aktualisieren',
   'update_products_help' => 'Beim Aktualisieren einer Rechnung werden die <strong>Produkte automatisch aktualisiert</strong>',
   'create_product' => 'Produkt erstellen',
@@ -342,7 +343,7 @@ return array(
   'specify_colors_label' => 'Wähle die in der Rechnung verwendeten Farben',
 
   'chart_builder' => 'Diagrammersteller',
-  'ninja_email_footer' => 'Nutze :site um Kunden eine Rechnung zu stellen und online bezahlt zu werden, kostenlos!',
+  'ninja_email_footer' => 'Nutze :site um Kunden Rechnungen zu stellen und online bezahlt zu werden, kostenlos!',
   'go_pro' => 'Werde Pro-Mitglied',
 
   // Quotes
@@ -352,7 +353,7 @@ return array(
   'quote_number_short' => 'Angebot #',
   'quote_date' => 'Angebotsdatum',
   'quote_total' => 'Gesamtanzahl Angebote',
-  'your_quote' => 'Dein Angebot',
+  'your_quote' => 'Ihr Angebot',
   'total' => 'Gesamt',
   'clone' => 'Duplizieren',
 
@@ -380,12 +381,12 @@ return array(
   'converted_to_invoice' => 'Angebot erfolgreich in Rechnung umgewandelt',
 
   'quote_subject' => 'Neues Angebot von :account',
-  'quote_message' => 'Klicke auf den folgenden Link um das Angebot über :amount anzuschauen.',
+  'quote_message' => 'Klicken Sie auf den folgenden Link um das Angebot über :amount anzuschauen.',
   'quote_link_message' => 'Klicke auf den folgenden Link um das Angebot deines Kunden anzuschauen:',
   'notification_quote_sent_subject' => 'Angebot :invoice wurde an :client versendet',
   'notification_quote_viewed_subject' => 'Angebot :invoice wurde von :client angeschaut',
   'notification_quote_sent' => 'Der folgende Kunde :client erhielt das Angebot :invoice über :amount.',
-  'notification_quote_viewed' => 'Der folgende Kunde :client schaute das Angebot :client über :amount an.',
+  'notification_quote_viewed' => 'Der folgende Kunde :client hat sich das Angebot :client über :amount angesehen.',
 
   'session_expired' => 'Deine Sitzung ist abgelaufen.',
 
