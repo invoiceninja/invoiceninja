@@ -185,7 +185,7 @@ return array(
   'users' => 'Users',
   'localization' => 'Localization',
   'remove_logo' => 'Remove logo',
-  'logo_help' => 'Supported: JPEG, GIF and PNG. Recommended size: 200px width by 120px height',
+  'logo_help' => 'Supported: JPEG, GIF and PNG. Recommended size: 300px width by 120px height',
   'payment_gateway' => 'Payment Gateway',
   'gateway_id' => 'Provider',
   'email_notifications' => 'Email Notifications',
@@ -486,7 +486,7 @@ return array(
   'restored_client' => 'Successfully restored client',
   'restored_payment' => 'Successfully restored payment',
   'restored_credit' => 'Successfully restored credit',
-  
+
   'reason_for_canceling' => 'Help us improve our site by telling us why you\'re leaving.',
   'discount_percent' => 'Percent',
   'discount_amount' => 'Amount',

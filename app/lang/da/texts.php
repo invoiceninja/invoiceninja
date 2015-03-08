@@ -187,7 +187,7 @@ return array(
   'users' => 'Brugere',
   'localization' => 'Lokalisering',
   'remove_logo' => 'Fjern logo',
-  'logo_help' => 'Understøttede filtyper: JPEG, GIF og PNG. Anbefalet størrelse: 200px brede og 120px højde',
+  'logo_help' => 'Understøttede filtyper: JPEG, GIF og PNG. Anbefalet størrelse: 300px brede og 120px højde',
   'payment_gateway' => 'Betalingsløsning',
   'gateway_id' => 'Tilbyder',
   'email_notifications' => 'Varsel via e-mail',
@@ -460,7 +460,7 @@ return array(
   'more_designs_self_host_text' => '',
   'buy' => 'Buy',
   'bought_designs' => 'Successfully added additional invoice designs',
-  
+
   'sent' => 'sent',
   'timesheets' => 'Timesheets',
 
@@ -488,7 +488,7 @@ return array(
   'restored_client' => 'Successfully restored client',
   'restored_payment' => 'Successfully restored payment',
   'restored_credit' => 'Successfully restored credit',
-  
+
   'reason_for_canceling' => 'Help us improve our site by telling us why you\'re leaving.',
   'discount_percent' => 'Percent',
   'discount_amount' => 'Amount',
@@ -510,7 +510,7 @@ return array(
   'payment_email' => 'Payment Email',
   'quote_email' => 'Quote Email',
   'reset_all' => 'Reset All',
-  'approve' => 'Approve',  
+  'approve' => 'Approve',
 
   'token_billing_type_id' => 'Token Billing',
   'token_billing_help' => 'Enables you to store credit cards with your gateway, and charge them at a later date.',
@@ -566,6 +566,6 @@ return array(
   'password_error_incorrect' => 'The current password is incorrect.',
   'password_error_invalid' => 'The new password is invalid.',
   'updated_password' => 'Successfully updated password',
-  
+
 
 );
