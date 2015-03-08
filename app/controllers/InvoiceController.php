@@ -185,7 +185,7 @@ class InvoiceController extends \BaseController
             'invoiceLabels' => $client->account->getInvoiceLabels(),
             'contact' => $contact,
             'hasToken' => $client->getGatewayToken(),
-            'countGateways' => AccountGateway::scope()->count(),
+            'countGateways' => AccountGateway::scope(false, $client->account->id)->count(),
         );
 
         return View::make('invoices.view', $data);
