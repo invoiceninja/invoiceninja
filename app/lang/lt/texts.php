@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 return array(
 
@@ -19,7 +19,7 @@ return array(
  'last_name' => 'Pavardė',
  'phone' => 'Telefonas',
  'email' => 'El. paštas',
- 'additional_info' => 'Papidoma Info',
+ 'additional_info' => 'Papidoma Informacija',
  'payment_terms' => 'Apmokėjimo sąlygos',
  'currency_id' => 'Valiuta',
  'size_id' => 'Dydis',
@@ -35,7 +35,7 @@ return array(
  'invoice_number_short' => 'Nr.',
  'po_number' => 'PO Numeris',
  'po_number_short' => 'PO Nr.',
- 'frequency_id' => 'Kaip dažnai',
+ 'frequency_id' => 'Dažnumas',
  'discount' => 'Nuolaida',
  'taxes' => 'Mokesčiai',
  'tax' => 'PVM',
@@ -117,11 +117,11 @@ return array(
   'billed_client' => 'billed client',
   'billed_clients' => 'billed clients',
   'active_client' => 'active client',
-  'active_clients' => 'active clients',  
+  'active_clients' => 'active clients',
   'invoices_past_due' => 'Invoices Past Due',
   'upcoming_invoices' => 'Upcoming invoices',
   'average_invoice' => 'Average invoice',
-  
+
   // list pages
   'archive' => 'Archive',
   'delete' => 'Delete',
@@ -177,15 +177,15 @@ return array(
   'amount' => 'Amount',
 
   // account/company pages
-  'work_email' => 'Email',
-  'language_id' => 'Language',
-  'timezone_id' => 'Timezone',
-  'date_format_id' => 'Date format',
-  'datetime_format_id' => 'Date/Time Format',
-  'users' => 'Users',
+  'work_email' => 'El paštas',
+  'language_id' => 'Kalba',
+  'timezone_id' => 'Laiko zona',
+  'date_format_id' => 'Dienos formatas',
+  'datetime_format_id' => 'Dienos/Laiko formatas',
+  'users' => 'Vartotojai',
   'localization' => 'Localization',
-  'remove_logo' => 'Remove logo',
-  'logo_help' => 'Supported: JPEG, GIF and PNG. Recommended size: 200px width by 120px height',
+  'remove_logo' => 'Ištrinti logotipą',
+  'logo_help' => 'Galimi: JPEG, GIF and PNG. Rekomenduojamas dydis: 300px width by 120px height',
   'payment_gateway' => 'Payment Gateway',
   'gateway_id' => 'Provider',
   'email_notifications' => 'Email Notifications',
@@ -267,7 +267,7 @@ return array(
   'notification_invoice_viewed_subject' => 'Invoice :invoice was viewed by :client',
   'notification_invoice_paid' => 'A payment of :amount was made by client :client towards Invoice :invoice.',
   'notification_invoice_sent' => 'The following client :client was emailed Invoice :invoice for :amount.',
-  'notification_invoice_viewed' => 'The following client :client viewed Invoice :invoice for :amount.',  
+  'notification_invoice_viewed' => 'The following client :client viewed Invoice :invoice for :amount.',
   'reset_password' => 'You can reset your account password by clicking the following link:',
   'reset_password_footer' => 'If you did not request this password reset please email our support: ' . CONTACT_EMAIL,
 
@@ -275,10 +275,10 @@ return array(
   // Payment page
   'secure_payment' => 'Secure Payment',
   'card_number' => 'Card number',
-  'expiration_month' => 'Expiration month',  
+  'expiration_month' => 'Expiration month',
   'expiration_year' => 'Expiration year',
   'cvv' => 'CVV',
-  
+
   // Security alerts
   'confide' => [
     'too_many_attempts' => 'Too many attempts. Try again in few minutes.',
@@ -289,7 +289,7 @@ return array(
     'password_reset' => 'Your password has been changed successfully.',
     'wrong_password_reset' => 'Invalid password. Try again',
   ],
-  
+
   // Pro Plan
   'pro_plan' => [
     'remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
@@ -310,11 +310,11 @@ return array(
   'pro_plan_product' => 'Pro Plan',
   'pro_plan_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
   'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!<p/>&nbsp;<br/>
-                          <b>Next Steps</b><p/>A payable invoice has been sent to the email 
-                          address associated with your account. To unlock all of the awesome 
-                          Pro features, please follow the instructions on the invoice to pay 
+                          <b>Next Steps</b><p/>A payable invoice has been sent to the email
+                          address associated with your account. To unlock all of the awesome
+                          Pro features, please follow the instructions on the invoice to pay
                           for a year of Pro-level invoicing.<p/>
-                          Can\'t find the invoice? Need further assistance? We\'re happy to help 
+                          Can\'t find the invoice? Need further assistance? We\'re happy to help
                           -- email us at contact@invoiceninja.com',
 
   'unsaved_changes' => 'You have unsaved changes',
@@ -340,7 +340,7 @@ return array(
   'archive_product' => 'Archive Product',
   'updated_product' => 'Successfully updated product',
   'created_product' => 'Successfully created product',
-  'archived_product' => 'Successfully archived product',  
+  'archived_product' => 'Successfully archived product',
   'pro_plan_custom_fields' => ':link to enable custom fields by joining the Pro Plan',
 
   'advanced_settings' => 'Advanced Settings',
@@ -393,8 +393,8 @@ return array(
   'notification_quote_sent_subject' => 'Quote :invoice was sent to :client',
   'notification_quote_viewed_subject' => 'Quote :invoice was viewed by :client',
   'notification_quote_sent' => 'The following client :client was emailed Quote :invoice for :amount.',
-  'notification_quote_viewed' => 'The following client :client viewed Quote :invoice for :amount.',  
-  
+  'notification_quote_viewed' => 'The following client :client viewed Quote :invoice for :amount.',
+
   'session_expired' => 'Your session has expired.',
 
   'invoice_fields' => 'Invoice Fields',
@@ -432,7 +432,7 @@ return array(
   'sample_data' => 'Sample data shown',
   'hide' => 'Hide',
   'new_version_available' => 'A new version of :releases_link is available. You\'re running v:user_version, the latest is v:latest_version',
-    
+
   'invoice_settings' => 'Invoice Settings',
   'invoice_number_prefix' => 'Invoice Number Prefix',
   'invoice_number_counter' => 'Invoice Number Counter',
@@ -441,8 +441,8 @@ return array(
   'share_invoice_counter' => 'Share invoice counter',
   'invoice_issued_to' => 'Invoice issued to',
   'invalid_counter' => 'To prevent a possible conflict please set either an invoice or quote number prefix',
-  'mark_sent' => 'Mark sent',    
-  
+  'mark_sent' => 'Mark sent',
+
 
   'gateway_help_1' => ':link to sign up for Authorize.net.',
   'gateway_help_2' => ':link to sign up for Authorize.net.',
@@ -458,9 +458,9 @@ return array(
   'more_designs_self_host_text' => '',
   'buy' => 'Buy',
   'bought_designs' => 'Successfully added additional invoice designs',
-  
 
-  
+
+
   'sent' => 'sent',
   'timesheets' => 'Timesheets',
 
@@ -489,7 +489,7 @@ return array(
   'restored_client' => 'Successfully restored client',
   'restored_payment' => 'Successfully restored payment',
   'restored_credit' => 'Successfully restored credit',
-  
+
   'reason_for_canceling' => 'Help us improve our site by telling us why you\'re leaving.',
   'discount_percent' => 'Percent',
   'discount_amount' => 'Amount',
@@ -568,6 +568,6 @@ return array(
   'password_error_invalid' => 'The new password is invalid.',
   'updated_password' => 'Successfully updated password',
 
-    
+
 );
 
