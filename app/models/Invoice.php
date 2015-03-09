@@ -19,7 +19,7 @@ class Invoice extends EntityModel
 
     public function invoice_items()
     {
-        return $this->hasMany('InvoiceItem');
+        return $this->hasMany('InvoiceItem')->orderBy('id');
     }
 
     public function invoice_status()
