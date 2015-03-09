@@ -223,8 +223,9 @@ class PaymentController extends \BaseController
         ];
     }
 
-    private function getPaymentDetails($invoice, $input = null)
+    private function getPaymentDetails($invitation, $input = null)
     {
+        $invoice = $invitation->invoice;
         $key = $invoice->invoice_number.'_details';
         $gateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'))->gateway;
         $paymentLibrary = $gateway->paymentlibrary;
@@ -288,7 +289,7 @@ class PaymentController extends \BaseController
                 'card' => $card,
                 'currency' => $currencyCode,
                 'returnUrl' => URL::to('complete'),
-                'cancelUrl' => URL::to('/')
+                'cancelUrl' => $invitation->getLink(),
             ];
         } else {
             return $data;
@@ -557,7 +558,7 @@ class PaymentController extends \BaseController
         try {
             if ($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY) {
                 $gateway = self::createGateway($accountGateway);
-                $details = self::getPaymentDetails($invoice, $useToken || !$onSite ? false : Input::all());
+                $details = self::getPaymentDetails($invitation, $useToken || !$onSite ? false : Input::all());
                 
                 if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
                     if ($useToken) {
@@ -671,7 +672,7 @@ class PaymentController extends \BaseController
         $gateway = self::createGateway($accountGateway);
 
         try {
-            $details = self::getPaymentDetails($invoice);
+            $details = self::getPaymentDetails($invitation);
             $response = $gateway->completePurchase($details)->send();
             $ref = $response->getTransactionReference();
 
