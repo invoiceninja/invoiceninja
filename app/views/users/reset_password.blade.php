@@ -2,84 +2,94 @@
 
 @section('head')	
 
-	  <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
+<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
+<link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>    
 
-    <style type="text/css">
-		body {
-		  padding-top: 40px;
-		  padding-bottom: 40px;
-		  background-color: #eee !important;
-		}
-
-		.form-signin {
-		  max-width: 450px;
-		  padding: 15px;
-		  margin: 0 auto;
-		}
-		.form-signin .form-signin-heading,
-		.form-signin .checkbox {
-		  margin-bottom: 10px;
-		}
-		.form-signin .checkbox {
-		  font-weight: normal;
-		}
-		.form-signin .form-control {
-		  position: relative;
-		  font-size: 16px;
-		  height: auto;
-		  padding: 10px;
-		  -webkit-box-sizing: border-box;
-		     -moz-box-sizing: border-box;
-		          box-sizing: border-box;
-		}
-		.form-signin .form-control:focus {
-		  z-index: 2;
-		}
-		.form-signin input[type="text"] {
-		  margin-bottom: -1px;
-		  border-bottom-left-radius: 0;
-		  border-bottom-right-radius: 0;
-		}
-		.form-signin input[type="password"] {
-		  margin-bottom: 10px;
-		  border-top-left-radius: 0;
-		  border-top-right-radius: 0;
-		}
-    </style>
+<style type="text/css">
+    body {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+    .modal-header {
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+    }
+    .modal-header h4 {
+        margin:0;
+    }
+    .modal-header img {
+        float: left; 
+        margin-right: 20px;
+    }
+    .form-signin {
+        max-width: 400px;
+        margin: 0 auto;
+        background: #fff;
+    }
+    p.link a {
+        font-size: 11px;
+    }
+    .form-signin .inner {
+        padding: 20px;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+        border-left: 1px solid #ddd;
+        border-right: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+    }
+    .form-signin .checkbox {
+        font-weight: normal;
+    }
+    .form-signin .form-control {
+        margin-bottom: 17px !important;
+    }
+    .form-signin .form-control:focus {
+        z-index: 2;
+    }
+</style>
 
 @stop
 
 @section('body')
-    <div class="container">
+<div class="container">
 
-		{{ Former::open('user/reset')->addClass('form-signin')->rules(array(
-	        'password' => 'required',
-	        'password_confirmation' => 'required',        
-		)); }}
+  {{ Former::open('user/reset')->addClass('form-signin')->rules(array(
+  'password' => 'required',
+  'password_confirmation' => 'required',        
+  )); }}
 
-			<h2 class="form-signin-heading">Set Password</h2><p/>&nbsp;
-    	<input type="hidden" name="token" value="{{{ $token }}}">
+  <div class="modal-header">
+    <img src="{{ asset('images/icon-login.png') }}" />
+    <h4>Invoice Ninja | {{ trans('texts.set_password') }}</h4></div>
+    <div class="inner">
 
-			<p>
-				{{ Former::password('password') }}				
-				{{ Former::password('password_confirmation')->label('Confirm') }}				
-				
-			</p>
+      <input type="hidden" name="token" value="{{{ $token }}}">
 
-			<p>{{ Button::primary_submit('Save', array('class' => 'btn-lg'))->block() }}</p>
-		
-			<!-- if there are login errors, show them here -->
-			@if ( Session::get('error') )
-            	<div class="alert alert-error">{{{ Session::get('error') }}}</div>
-        	@endif
+      <p>
+        {{ Former::password('password')->placeholder(trans('texts.password'))->raw() }}				
+        {{ Former::password('password_confirmation')->placeholder(trans('texts.confirm_password'))->raw() }}				
 
-	        @if ( Session::get('notice') )
-    	        <div class="alert">{{{ Session::get('notice') }}}</div>
-	        @endif
+    </p>
+
+    <p>{{ Button::success_submit(trans('texts.save'), array('class' => 'btn-lg'))->block() }}</p>
+
+    <!-- if there are login errors, show them here -->
+    @if (Session::has('warning'))
+    <div class="alert alert-warning">{{ Session::get('warning') }}</div>
+    @endif
+
+    @if (Session::has('message'))
+    <div class="alert alert-info">{{ Session::get('message') }}</div>
+    @endif
+
+    @if (Session::has('error'))
+    <div class="alert alert-danger">{{ Session::get('error') }}</div>
+    @endif
 
 
-		{{ Former::close() }}
+    {{ Former::close() }}
+</div>
 
-    </div>
+</div>
 
 @stop

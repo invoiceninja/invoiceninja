@@ -563,7 +563,14 @@ return array(
 
   'api_tokens' => 'API Tokens',
   'users_and_tokens' => 'Users & Tokens',
-
+  'account_login' => 'Account Login',
+  'recover_password' => 'Recover your password',
+  'forgot_password' => 'Forgot your password?',
+  'email_address' => 'Email address',
+  'lets_go' => 'Let’s go',
+  'password_recovery' => 'Password Recovery',
+  'send_email' => 'Send email',
+  'set_password' => 'Set Password',
 
   
 );
