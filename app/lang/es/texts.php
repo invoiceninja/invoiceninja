@@ -537,5 +537,8 @@ return array(
   'password_error_invalid' => 'The new password is invalid.',
   'updated_password' => 'Successfully updated password',
 
+  'api_tokens' => 'API Tokens',
+  'users_and_tokens' => 'Users & Tokens',
+
 
 );

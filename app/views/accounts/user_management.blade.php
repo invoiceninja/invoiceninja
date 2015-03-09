@@ -13,9 +13,12 @@
   {{ Former::close() }}
 
 
-  @if (Utils::isPro())
-    {{ Button::success_link(URL::to('users/create'), trans("texts.add_user"), array('class' => 'pull-right'))->append_with_icon('plus-sign') }}
-  @endif
+  <div class="pull-right">  
+    @if (Utils::isPro())    
+        {{ Button::success_link(URL::to('users/create'), trans("texts.add_user"))->append_with_icon('plus-sign') }}
+    @endif
+    {{ Button::default_link(URL::to('company/advanced_settings/token_management'), trans("texts.api_tokens"))->append_with_icon('cloud') }}
+  </div>
 
 
     <label for="trashed" style="font-weight:normal; margin-left: 10px;">

@@ -10,9 +10,13 @@
 	@parent
 	@include('accounts.nav_advanced')
 
-  {{ Former::open() }}
-  {{ Former::legend('chart_builder') }}
-  {{ Former::close() }}
+
+    <legend style="padding-bottom:32px">
+        {{ trans('texts.chart_builder') }}
+        <div class="pull-right">
+           {{ Button::default_link(URL::to('company/advanced_settings/data_visualizations'), trans("texts.data_visualizations"))->append_with_icon('globe') }}
+        </div>
+    </legend>
 
 	<div class="row">
 		<div class="col-lg-4">
