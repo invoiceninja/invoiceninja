@@ -264,7 +264,7 @@ Route::filter('csrf', function()
   	
    	if (Session::token() != $token) 
    	{      
-      Session::flash('warning', trans('texts.session_expired'));   
+        Session::flash('warning', trans('texts.session_expired'));
 
    		return Redirect::to('/');
   		//throw new Illuminate\Session\TokenMismatchException;

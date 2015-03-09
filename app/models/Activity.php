@@ -35,6 +35,7 @@ class Activity extends Eloquent
         }
 
         $activity->token_id = Session::get('token_id', null);
+        $activity->ip = Request::getClientIp();
 
         return $activity;
     }
