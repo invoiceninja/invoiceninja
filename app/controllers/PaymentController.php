@@ -290,6 +290,8 @@ class PaymentController extends \BaseController
                 'currency' => $currencyCode,
                 'returnUrl' => URL::to('complete'),
                 'cancelUrl' => $invitation->getLink(),
+                'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
+                'transactionId' => $invoice->invoice_number,
             ];
         } else {
             return $data;
