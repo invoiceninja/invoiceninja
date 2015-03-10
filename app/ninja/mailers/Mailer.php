@@ -20,6 +20,7 @@ class Mailer
                 $fromEmail = NINJA_FROM_EMAIL;
             }
 
+            //$message->setEncoder(\Swift_Encoding::get8BitEncoding());
             $message->to($toEmail)->from($fromEmail, $fromName)->replyTo($replyEmail, $fromName)->subject($subject);
         });
     }

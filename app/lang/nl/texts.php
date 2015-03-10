@@ -571,6 +571,8 @@ return array(
   'password_recovery' => 'Password Recovery',
   'send_email' => 'Send email',
   'set_password' => 'Set Password',
+  'converted' => 'Converted',
+    
 
   
 );

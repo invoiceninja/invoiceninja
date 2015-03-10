@@ -126,7 +126,7 @@ class InvoiceRepository
         }
 
         return $table->addColumn('due_date', function ($model) { return Utils::fromSqlDate($model->due_date); })
-        ->addColumn('invoice_status_name', function ($model) { return $model->invoice_status_name; })
+        ->addColumn('invoice_status_name', function ($model) { return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : $model->invoice_status_name; })
         ->addColumn('dropdown', function ($model) use ($entityType) {
 
             if ($model->is_deleted) {

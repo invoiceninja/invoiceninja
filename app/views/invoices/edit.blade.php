@@ -176,17 +176,17 @@
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="notes" style="padding-bottom:44px">
                             {{ Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
-                            ->label(null)->style('resize: none; min-width: 460px;')->rows(3) }}                            
+                            ->label(null)->style('resize: none; min-width: 450px;')->rows(3) }}                            
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
                             {{ Former::textarea('terms')->data_bind("value:wrapped_terms, placeholder: default_terms, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('resize: none; min-width: 460px')->rows(3)
+                            ->label(false)->style('resize: none; min-width: 450px')->rows(3)
                             ->help('<label class="checkbox" style="width: 200px">
                                         <input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'</label>') }}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="footer">
                             {{ Former::textarea('invoice_footer')->data_bind("value:wrapped_footer, placeholder: default_footer, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('resize: none; min-width: 460px')->rows(3)
+                            ->label(false)->style('resize: none; min-width: 450px')->rows(3)
                             ->help('<label class="checkbox" style="width: 200px">
                                         <input type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'</label>') }}
                         </div>
@@ -300,7 +300,7 @@
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))
 			@if ($invoice && $invoice->id)		
 
-				<div id="primaryActions" style="text-align:left" class="btn-group">
+				<div id="primaryActions" style="text-align:left" class="btn-group dropup">
 					<button class="btn-success btn" type="button">{{ trans("texts.save_{$entityType}") }}</button>
 					<button class="btn-success btn dropdown-toggle" type="button" data-toggle="dropdown"> 
 						<span class="caret"></span>
