@@ -1517,8 +1517,8 @@
 		this.totals = ko.observable();
 
 		this.totals.rawTotal = ko.computed(function() {
-			var cost = NINJA.parseFloat(self.cost());
-			var qty = NINJA.parseFloat(self.qty());
+			var cost = roundToTwo(NINJA.parseFloat(self.cost()));
+			var qty = roundToTwo(NINJA.parseFloat(self.qty()));
 			var taxRate = NINJA.parseFloat(self.tax_rate());
     	var value = cost * qty;        	
     	if (taxRate > 0) {

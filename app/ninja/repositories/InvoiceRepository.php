@@ -264,8 +264,8 @@ class InvoiceRepository
                 continue;
             }
 
-            $invoiceItemCost = Utils::parseFloat($item['cost']);
-            $invoiceItemQty = Utils::parseFloat($item['qty']);
+            $invoiceItemCost = round(Utils::parseFloat($item['cost']), 2);
+            $invoiceItemQty = round(Utils::parseFloat($item['qty']), 2);
             $invoiceItemTaxRate = 0;
 
             if (isset($item['tax_rate']) && Utils::parseFloat($item['tax_rate']) > 0) {

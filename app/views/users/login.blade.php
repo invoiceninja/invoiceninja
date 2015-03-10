@@ -71,6 +71,7 @@
             </p>
 
             <p>{{ Button::success_submit(trans('texts.lets_go'), array('class' => 'btn-lg'))->block() }}</p>
+            
             <p class="link">
                 {{ link_to('forgot_password', trans('texts.forgot_password')) }}
             </p>

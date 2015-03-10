@@ -32436,7 +32436,7 @@ function calculateAmounts(invoice) {
       tax = parseFloat(item.tax_rate);
     }
 
-    var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
+    var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
     if (tax) {
       lineTotal += roundToTwo(lineTotal * tax / 100);
     }
@@ -32552,7 +32552,7 @@ function displayInvoiceItems(doc, invoice, layout) {
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];
     var cost = formatMoney(item.cost, currencyId, true);
-    var qty = NINJA.parseFloat(item.qty) ? NINJA.parseFloat(item.qty) + '' : '';
+    var qty = NINJA.parseFloat(item.qty) ? roundToTwo(NINJA.parseFloat(item.qty)) + '' : '';
     var notes = item.notes;
     var productKey = item.product_key;
     var tax = 0;
@@ -32593,7 +32593,7 @@ function displayInvoiceItems(doc, invoice, layout) {
       productKey = processVariables(productKey);
     }
 
-    var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
+    var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
     if (tax) {
       lineTotal += lineTotal * tax / 100;
     }
