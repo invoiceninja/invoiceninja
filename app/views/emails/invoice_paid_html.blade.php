@@ -4,7 +4,7 @@
   <meta charset="utf-8">
 </head>
 <body>
-
+  @include('emails.view_action', ['link' => $invoiceLink, 'entityType' => $entityType])
   {{ trans('texts.email_salutation', ['name' => $userName]) }} <p/>
 
   {{ trans("texts.notification_{$entityType}_paid", ['amount' => $paymentAmount, 'client' => $clientName, 'invoice' => $invoiceNumber]) }} <p/>

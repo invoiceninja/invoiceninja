@@ -366,6 +366,10 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
 
           <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">          
             <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} </button>
+            {{-- DropdownButton::success_lg(trans('texts.buy'), [
+                ['url' => URL::to(""), 'label' => trans('texts.pay_with_paypal')],
+                ['url' => URL::to(""), 'label' => trans('texts.pay_with_card')]
+            ])->addClass('btn-lg') --}}
             <button type="button" class="btn btn-primary" onclick="buyProduct('{{ WHITE_LABEL_AFFILIATE_KEY }}', '{{ PRODUCT_WHITE_LABEL }}')">{{ trans('texts.buy') }} </button>
           </div>
         </div>
