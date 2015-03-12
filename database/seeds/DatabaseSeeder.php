@@ -1,8 +1,5 @@
 <?php
 
-use Illuminate\Database\Seeder;
-use Illuminate\Database\Eloquent\Model;
-
 class DatabaseSeeder extends Seeder {
 
 	/**
@@ -12,9 +9,18 @@ class DatabaseSeeder extends Seeder {
 	 */
 	public function run()
 	{
-		Model::unguard();
+		$this->command->info('Running DatabaseSeeder');
 
-		// $this->call('UserTableSeeder');
+		Eloquent::unguard();
+
+		$this->call('UserTableSeeder');
+		$this->call('ConstantsSeeder');
+
+		$this->call('CountriesSeeder');
+		$this->command->info('Seeded the countries!'); 
+
+		$this->call('PaymentLibrariesSeeder');
+		$this->command->info('Seeded the Payment Libraries!'); 
 	}
 
 }

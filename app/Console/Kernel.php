@@ -11,7 +11,11 @@ class Kernel extends ConsoleKernel {
 	 * @var array
 	 */
 	protected $commands = [
-		'App\Console\Commands\Inspire',
+		'App\Console\Commands\SendRecurringInvoices',
+		'App\Console\Commands\CreateRandomData',
+		'App\Console\Commands\ResetData',
+		'App\Console\Commands\ImportTimesheetData',
+		'App\Console\Commands\CheckData',
 	];
 
 	/**
@@ -22,8 +26,8 @@ class Kernel extends ConsoleKernel {
 	 */
 	protected function schedule(Schedule $schedule)
 	{
-		$schedule->command('inspire')
-				 ->hourly();
+		// $schedule->command('inspire')
+		// 		 ->hourly();
 	}
 
 }

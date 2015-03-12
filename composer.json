@@ -5,7 +5,27 @@
 	"license": "MIT",
 	"type": "project",
 	"require": {
-		"laravel/framework": "5.0.*"
+		"laravel/framework": "5.0.*",
+		"patricktalmadge/bootstrapper": "5.5.x",
+		"zizaco/confide": "4.2.x",
+		"anahkiasen/former": "4.0.*@dev",
+		"barryvdh/laravel-debugbar": "~2.0.2",
+		"chumper/datatable": "dev-master",
+		"omnipay/omnipay": "2.3.x",
+		"intervention/image": "2.1.x",
+		"webpatser/laravel-countries": "dev-master",
+		"barryvdh/laravel-ide-helper": "2.0.x",
+        "doctrine/dbal": "2.5.x",
+        "jsanc623/phpbenchtime": "2.x",
+        "lokielse/omnipay-alipay": "dev-master",
+        "coatesap/omnipay-datacash": "~2.0",
+        "alfaproject/omnipay-neteller": "1.0.*@dev",
+        "mfauveau/omnipay-pacnet": "~2.0",
+        "coatesap/omnipay-paymentsense": "~2.0",
+        "coatesap/omnipay-realex": "~2.0",
+        "fruitcakestudio/omnipay-sisow": "~2.0",
+        "alfaproject/omnipay-skrill": "dev-master"
+
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

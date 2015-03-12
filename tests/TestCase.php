@@ -5,15 +5,15 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
 	/**
 	 * Creates the application.
 	 *
-	 * @return \Illuminate\Foundation\Application
+	 * @return Symfony\Component\HttpKernel\HttpKernelInterface
 	 */
 	public function createApplication()
 	{
-		$app = require __DIR__.'/../bootstrap/app.php';
+		$unitTesting = true;
 
-		$app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+		$testEnvironment = 'testing';
 
-		return $app;
+		return require __DIR__.'/../../bootstrap/start.php';
 	}
 
 }
