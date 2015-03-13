@@ -1,18 +1,40 @@
 {
-	"name": "laravel/laravel",
-	"description": "The Laravel Framework.",
-	"keywords": ["framework", "laravel"],
-	"license": "MIT",
-	"type": "project",
+	"name": "hillelcoren/invoice-ninja",
+	"description": "An open-source invoicing site built with Laravel",
+	"keywords": ["invoice", "laravel"],
+	"license": "Attribution Assurance License",
+	"authors": [
+		{
+			"name": "Hillel Coren",
+			"email": "hillelcoren@gmail.com"
+		},
+		{
+			"name": "Jeramy Simpson",
+			"email": "jeramy.n.simpson@gmail.com"
+		}
+	],
+	"repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "calvinfroedge/PHP-Payments",
+                "version": "dev-master",
+                "source": {
+                    "url": "https://github.com/calvinfroedge/PHP-Payments",
+                    "type": "git",
+                    "reference": "origin/master"
+                }
+            }
+        }
+    ],
 	"require": {
 		"laravel/framework": "5.0.*",
 		"patricktalmadge/bootstrapper": "5.5.x",
-		"zizaco/confide": "4.2.x",
 		"anahkiasen/former": "4.0.*@dev",
 		"barryvdh/laravel-debugbar": "~2.0.2",
-		"chumper/datatable": "dev-master",
+		"chumper/datatable": "dev-develop",
 		"omnipay/omnipay": "2.3.x",
-		"intervention/image": "2.1.x",
+		"intervention/image": "dev-master",
 		"webpatser/laravel-countries": "dev-master",
 		"barryvdh/laravel-ide-helper": "2.0.x",
         "doctrine/dbal": "2.5.x",
@@ -24,8 +46,9 @@
         "coatesap/omnipay-paymentsense": "~2.0",
         "coatesap/omnipay-realex": "~2.0",
         "fruitcakestudio/omnipay-sisow": "~2.0",
-        "alfaproject/omnipay-skrill": "dev-master"
-
+        "alfaproject/omnipay-skrill": "dev-master",
+        "illuminate/html": "5.*",
+        "calvinfroedge/PHP-Payments": "dev-master"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",
@@ -33,6 +56,12 @@
 	},
 	"autoload": {
 		"classmap": [
+			"app/Console/Commands",
+			"app/Http/Controllers",
+			"app/Models",
+			"app/libraries",
+			"app/ninja",
+			"vendor/calvinfroedge/PHP-Payments/lib",
 			"database"
 		],
 		"psr-4": {

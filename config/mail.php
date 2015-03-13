@@ -54,7 +54,7 @@ return [
 	|
 	*/
 
-	'from' => ['address' => null, 'name' => null],
+	'from' => ['address' => 'contact@invoiceninja.com', 'name' => 'Invoice Ninja'],
 
 	/*
 	|--------------------------------------------------------------------------

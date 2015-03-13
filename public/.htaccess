@@ -13,7 +13,4 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 
-    # cp from invoice ninja
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=REMOTE_USER:%{HTTP:Authorization}]
 </IfModule>

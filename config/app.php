@@ -26,7 +26,7 @@ return [
 	|
 	*/
 
-	'url' => 'http://localhost',
+	'url' => 'http://ninja5.boldplatform.com',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -39,7 +39,7 @@ return [
 	|
 	*/
 
-	'timezone' => 'UTC',
+	'timezone' => 'Australia/Brisbane',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -78,7 +78,7 @@ return [
 	|
 	*/
 
-	'key' => env('APP_KEY', 'SomeRandomString'),
+	'key' => env('APP_KEY', 'p118gfK&rlbAb22CB&8!5SKiPkcZpzGG'),
 
 	'cipher' => MCRYPT_RIJNDAEL_128,
 
@@ -145,6 +145,17 @@ return [
 		'App\Providers\EventServiceProvider',
 		'App\Providers\RouteServiceProvider',
 
+		/*
+		 * Additional Providers
+		 */
+		'Bootstrapper\BootstrapperL5ServiceProvider',
+		'Former\FormerServiceProvider',
+		'Barryvdh\Debugbar\ServiceProvider',
+		'Chumper\Datatable\DatatableServiceProvider',
+		'Intervention\Image\ImageServiceProvider',
+    	'Webpatser\Countries\CountriesServiceProvider',
+    	'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
+    	'Illuminate\Html\HtmlServiceProvider',
 	],
 
 	/*
@@ -193,6 +204,42 @@ return [
 		'Validator' => 'Illuminate\Support\Facades\Validator',
 		'View'      => 'Illuminate\Support\Facades\View',
 
+		// Added Class Aliases
+
+		'Form'			  => 'Illuminate\Html\FormFacade',
+		'HTML'			  => 'Illuminate\Html\HtmlFacade',
+		'SSH' 			  => 'Illuminate\Support\Facades\SSH',
+		'Alert'           => 'Bootstrapper\Alert',
+		'Badge'           => 'Bootstrapper\Badge',
+		'Breadcrumb'      => 'Bootstrapper\Breadcrumb',
+		'Button'          => 'Bootstrapper\Button',
+		'ButtonGroup'     => 'Bootstrapper\ButtonGroup',
+		'ButtonToolbar'   => 'Bootstrapper\ButtonToolbar',
+		'Carousel'        => 'Bootstrapper\Carousel',
+		'DropdownButton'  => 'Bootstrapper\DropdownButton',
+		'Form'            => 'Bootstrapper\Form',
+		'Helpers'         => 'Bootstrapper\Helpers',
+		'Icon'            => 'Bootstrapper\Icon',
+		//'Image'           => 'Bootstrapper\Image',
+		'Label'           => 'Bootstrapper\Label',
+		'MediaObject'     => 'Bootstrapper\MediaObject',
+		'Navbar'          => 'Bootstrapper\Navbar',
+		'Navigation'      => 'Bootstrapper\Navigation',
+		'Paginator'       => 'Bootstrapper\Paginator',
+		'Progress'        => 'Bootstrapper\Progress',
+		'Tabbable'        => 'Bootstrapper\Tabbable',
+		'Table'           => 'Bootstrapper\Table',
+		'Thumbnail'       => 'Bootstrapper\Thumbnail',
+		'Typeahead'       => 'Bootstrapper\Typeahead',
+		'Typography'      => 'Bootstrapper\Typography',
+		'Former'          => 'Former\Facades\Former',
+		'Datatable'       => 'Chumper\Datatable\Facades\DatatableFacade',
+		'Omnipay'         => 'Omnipay\Omnipay',
+		'CreditCard'      => 'Omnipay\Common\CreditCard',
+		'Image'           => 'Intervention\Image\Facades\Image',
+		'Countries'       => 'Webpatser\Countries\CountriesFacade',
+		'Carbon'          => 'Carbon\Carbon',
+		'Rocketeer'       => 'Rocketeer\Facades\Rocketeer',
 	],
 
 ];
