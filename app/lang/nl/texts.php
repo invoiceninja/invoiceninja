@@ -205,6 +205,8 @@ return array(
   'import_to' => 'Importeer naar',
   'client_will_create' => 'klant zal aangemaakt worden',
   'clients_will_create' => 'klanten zullen aangemaakt worden',
+  'email_settings' => 'Email Settings',
+  'pdf_email_attachment' => 'Attach PDF to Emails',
 
   // application messages
   'created_client' => 'Klant succesvol aangemaakt',

@@ -718,16 +718,34 @@
 	}
 
 	function onEmailClick() {
-		if (confirm('{{ trans("texts.confirm_email_$entityType") }}')) {		
-			submitAction('email');
+		if (confirm('{{ trans("texts.confirm_email_$entityType") }}')) {
+			var invoice = createInvoiceModel();
+			var design  = getDesignJavascript();
+			if (!design) return;
+			var doc = generatePDF(invoice, design, true);
+			
+			var formdata = new FormData();
+			formdata.append('filename', 'cache-' + invoice.public_id + '.pdf');
+			formdata.append('fileblob', doc.output('blob'));
+			
+			$.ajax({
+				type: 'POST',
+				url: '{{ URL::to("ajax/pdfupload") }}',
+				data: formdata,
+				processData: false,
+				contentType: false
+			}).done(function( data ) {
+				submitAction('email');
+			});
+			
 		}
 	}
 
 	function onSaveClick() {
 		if (model.invoice().is_recurring()) {
-			if (confirm('{{ trans("texts.confirm_recurring_email_$entityType") }}')) {		
+			if (confirm('{{ trans("texts.confirm_recurring_email_$entityType") }}')) {
 				submitAction('');
-			}			
+			}
 		} else {
 			submitAction('');
 		}

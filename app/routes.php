@@ -147,6 +147,8 @@ Route::group(array('before' => 'auth'), function() {
     Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));
     Route::post('credits/bulk', 'CreditController@bulk');
 
+    Route::post('ajax/pdfupload', 'AjaxController@pdfupload');
+
     //Route::resource('timesheets', 'TimesheetController');
 });
 

@@ -42,6 +42,10 @@
 			->append(Former::checkbox('share_counter')->raw()->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter')) }}
 	<p>&nbsp;</p>
 
+	{{ Former::legend('email_settings') }}
+	{{ Former::checkbox('pdf_email_attachment') }}
+	<p>&nbsp;</p>
+
 	@if (Auth::user()->isPro())
 	{{ Former::actions( Button::lg_success_submit(trans('texts.save'))->append_with_icon('floppy-disk') ) }}
 	@else
