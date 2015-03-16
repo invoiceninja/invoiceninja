@@ -57,9 +57,9 @@
 	"autoload": {
 		"classmap": [
 			"app/Console/Commands",
+			"app/libraries",
 			"app/Http/Controllers",
 			"app/Models",
-			"app/libraries",
 			"app/ninja",
 			"vendor/calvinfroedge/PHP-Payments/lib",
 			"database"

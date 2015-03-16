@@ -64,7 +64,7 @@ Route::get('user/reset/{token?}', 'UserController@reset_password');
 Route::post('user/reset', 'UserController@do_reset_password');
 Route::get('logout', 'UserController@logout');
 
-if (Utils::isNinja()) {
+if (\App\libraries\Utils::isNinja()) {
     Route::post('/signup/register', 'AccountController@doRegister');
     Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
     Route::get('/demo', 'AccountController@demo');
