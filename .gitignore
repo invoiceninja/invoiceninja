@@ -7,3 +7,5 @@
 .env.php
 .idea
 .project
+error_log
+public/error_log

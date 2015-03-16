@@ -1,9 +1,0 @@
-[13-Mar-2015 13:51:23 Australia/Brisbane] PHP Fatal error:  Class 'App\Providers\App' not found in /home/ninja5bold/iplatform/app/Providers/RouteServiceProvider.php on line 30
-[13-Mar-2015 14:34:33 Australia/Brisbane] PHP Fatal error:  Class 'App\Providers\App' not found in /home/ninja5bold/iplatform/app/Providers/RouteServiceProvider.php on line 30
-[13-Mar-2015 14:34:43 Australia/Brisbane] PHP Fatal error:  Class 'App\Providers\App' not found in /home/ninja5bold/iplatform/app/Providers/RouteServiceProvider.php on line 30
-[13-Mar-2015 14:44:25 Australia/Brisbane] PHP Fatal error:  Class 'App\Providers\App' not found in /home/ninja5bold/iplatform/app/Providers/RouteServiceProvider.php on line 30
-[13-Mar-2015 14:46:26 Australia/Brisbane] PHP Fatal error:  Call to undefined method Illuminate\Foundation\Application::before() in /home/ninja5bold/iplatform/vendor/laravel/framework/src/Illuminate/Support/Facades/Facade.php on line 210
-[13-Mar-2015 15:26:34 Australia/Brisbane] PHP Fatal error:  Class 'Utils' not found in /home/ninja5bold/iplatform/app/Http/routes.php on line 67
-[13-Mar-2015 15:33:06 Australia/Brisbane] PHP Fatal error:  Class 'Utils' not found in /home/ninja5bold/iplatform/app/Http/routes.php on line 67
-[13-Mar-2015 15:33:10 Australia/Brisbane] PHP Fatal error:  Class 'Utils' not found in /home/ninja5bold/iplatform/app/Http/routes.php on line 67
-[13-Mar-2015 15:33:12 Australia/Brisbane] PHP Fatal error:  Class 'Utils' not found in /home/ninja5bold/iplatform/app/Http/routes.php on line 67
