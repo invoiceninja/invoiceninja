@@ -1,4 +1,4 @@
-<?php
+<?php namespace App\Models;
 
 class Invitation extends EntityModel
 {

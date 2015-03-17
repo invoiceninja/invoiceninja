@@ -1,4 +1,7 @@
-<?php
+<?php namespace App\Models;
+
+use Auth;
+use Utils;
 
 class TimesheetEventSource extends Eloquent
 {

@@ -1,27 +1,16 @@
-<?php
+<?php namespace App\Models;
 
-use Illuminate\Auth\UserInterface;
-use Illuminate\Auth\Reminders\RemindableInterface;
-use Zizaco\Confide\ConfideUser;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
-class User extends ConfideUser implements UserInterface, RemindableInterface
-{
+class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
+
+    use Authenticatable, CanResetPassword;
+
     protected $softDelete = true;
-
-    public static $rules = array(
-        /*
-    	'username' => 'required|unique:users',
-        'password' => 'required|between:6,32|confirmed',
-        'password_confirmation' => 'between:6,32',
-        */
-    );
-
-    protected $updateRules = array(
-        /*
-        'email' => 'required|unique:users',
-        'username' => 'required|unique:users',
-        */
-    );
 
     /**
      * The database table used by the model.
@@ -29,6 +18,22 @@ class User extends ConfideUser implements UserInterface, RemindableInterface
      * @var string
      */
     protected $table = 'users';
+
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['email', 'password','agency_id'];
+
+    /**
+     * The attributes excluded from the model's JSON form.
+     *
+     * @var array
+     */
+    protected $hidden = ['password', 'remember_token'];
+
 
     public function account()
     {
