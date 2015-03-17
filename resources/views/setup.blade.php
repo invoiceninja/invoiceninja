@@ -164,13 +164,13 @@ FLUSH PRIVILEGES;</pre>
     $('form button[type="submit"]').click( function(e)
     {
       // Check DB Settings
-      if( !db_valid || !testDatabase() ) {
+      if( !db_valid && !testDatabase() ) {
         alert('Please check your Database Settings.');
         return false;
       }
 
       // If Mail Settings are incorrect, prompt for continue
-      if( !mail_valid || !testMail() ) {
+      if( !mail_valid && !testMail() ) {
         var check = confirm("The mail settings are incomplete.\nAre you sure you want to continue?");
         if (!check) {
           return false;
