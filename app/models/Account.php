@@ -352,6 +352,10 @@ class Account extends Eloquent
 
     public function showTokenCheckbox()
     {
+        if (!$this->isGatewayConfigured(GATEWAY_STRIPE)) {
+            return false;
+        }
+
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_IN
                 || $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
     }
