@@ -1,6 +1,6 @@
 <?php
 
-use ninja\repositories\ClientRepository;
+use Ninja\Repositories\ClientRepository;
 
 class ClientController extends \BaseController
 {

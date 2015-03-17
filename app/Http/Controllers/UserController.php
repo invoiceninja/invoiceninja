@@ -1,4 +1,4 @@
-<?php
+<?php namespace App\Http\Controllers;
 /*
 |--------------------------------------------------------------------------
 | Confide Controller Template
@@ -9,9 +9,9 @@
 |
 */
 
-use ninja\repositories\AccountRepository;
-use ninja\mailers\ContactMailer;
-use ninja\mailers\UserMailer;
+use Ninja\Repositories\AccountRepository;
+use Ninja\Mailers\ContactMailer;
+use Ninja\Mailers\UserMailer;
 
 class UserController extends BaseController
 {

@@ -1,4 +1,6 @@
-<?php
+<?php namespace App\Http\Controllers;
+
+use Utils;
 
 class IntegrationController extends Controller
 {

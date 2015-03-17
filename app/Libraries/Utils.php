@@ -1,5 +1,7 @@
 <?php namespace App\Libraries;
 
+use Schema;
+use DB;
 
 class Utils
 {
@@ -19,7 +21,7 @@ class Utils
             if (Schema::hasTable('accounts')) {
                 return true;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
     }

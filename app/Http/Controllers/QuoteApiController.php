@@ -1,6 +1,7 @@
-<?php
+<?php namespace App\Http\Controllers;
 
-use ninja\repositories\InvoiceRepository;
+use Utils;
+use Ninja\Repositories\InvoiceRepository;
 
 class QuoteApiController extends Controller
 {

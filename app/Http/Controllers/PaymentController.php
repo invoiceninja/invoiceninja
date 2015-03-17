@@ -1,9 +1,9 @@
-<?php
+<?php namespace App\Http\Controllers;
 
-use ninja\repositories\PaymentRepository;
-use ninja\repositories\InvoiceRepository;
-use ninja\repositories\AccountRepository;
-use ninja\mailers\ContactMailer;
+use Ninja\Repositories\PaymentRepository;
+use Ninja\Repositories\InvoiceRepository;
+use Ninja\Repositories\AccountRepository;
+use Ninja\Mailers\ContactMailer;
 
 class PaymentController extends \BaseController
 {

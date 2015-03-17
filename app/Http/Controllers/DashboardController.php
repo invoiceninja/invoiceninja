@@ -1,4 +1,6 @@
-<?php
+<?php namespace App\Http\Controllers;
+
+use DB;
 
 class DashboardController extends \BaseController
 {

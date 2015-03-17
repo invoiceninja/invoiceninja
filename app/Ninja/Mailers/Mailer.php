@@ -1,4 +1,4 @@
-<?php namespace ninja\mailers;
+<?php namespace Ninja\Mailers;
 
 use Mail;
 use Utils;

@@ -1,9 +1,10 @@
-<?php
+<?php namespace App\Http\Controllers;
 
-use ninja\mailers\ContactMailer as Mailer;
-use ninja\repositories\InvoiceRepository;
-use ninja\repositories\ClientRepository;
-use ninja\repositories\TaxRateRepository;
+
+use Ninja\Mailers\ContactMailer as Mailer;
+use Ninja\Repositories\InvoiceRepository;
+use Ninja\Repositories\ClientRepository;
+use Ninja\Repositories\TaxRateRepository;
 
 class InvoiceController extends \BaseController
 {

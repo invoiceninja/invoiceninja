@@ -1,8 +1,8 @@
-<?php
+<?php namespace App\Http\Controllers;
 
-use ninja\repositories\AccountRepository;
-use ninja\mailers\UserMailer;
-use ninja\mailers\ContactMailer;
+use Ninja\Repositories\AccountRepository;
+use Ninja\Mailers\UserMailer;
+use Ninja\Mailers\ContactMailer;
 
 class AccountController extends \BaseController
 {
@@ -424,7 +424,7 @@ class AccountController extends \BaseController
 
         $name = $file->getRealPath();
 
-        require_once app_path().'/includes/parsecsv.lib.php';
+        require_once app_path().'/Includes/parsecsv.lib.php';
         $csv = new parseCSV();
         $csv->heading = false;
         $csv->auto($name);

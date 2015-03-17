@@ -1,7 +1,8 @@
 <?php namespace App\Http\Controllers;
 
-use App\libraries\Utils;
-use ninja\mailers\Mailer;
+use App\Libraries\Utils;
+use Ninja\Mailers\Mailer;
+use Redirect;
 
 class HomeController extends BaseController
 {

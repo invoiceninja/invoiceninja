@@ -1,4 +1,8 @@
-<?php
+<?php namespace App\Http\Controllers;
+
+use Auth;
+use Input;
+
 
 class ReportController extends \BaseController
 {

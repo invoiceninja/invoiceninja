@@ -1,7 +1,8 @@
-<?php
+<?php namespace App\Http\Controllers;
 
-use ninja\repositories\InvoiceRepository;
-use ninja\mailers\ContactMailer as Mailer;
+use Utils;
+use Ninja\Repositories\InvoiceRepository;
+use Ninja\Mailers\ContactMailer as Mailer;
 
 class InvoiceApiController extends Controller
 {

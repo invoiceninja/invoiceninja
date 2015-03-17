@@ -1,4 +1,7 @@
-<?php
+<?php namespace App\Http\Controllers;
+
+use DB;
+use Datatable;
 
 class ProductController extends \BaseController
 {

@@ -34,7 +34,7 @@ FLUSH PRIVILEGES;</pre>
         </p>
     </div>
 
-    {{ Former::open()->rules([
+    {!! Former::open()->rules([
         'app[url]' => 'required',
         'database[type][host]' => 'required',
         'database[type][database]' => 'required',
@@ -45,14 +45,14 @@ FLUSH PRIVILEGES;</pre>
         'email' => 'required|email',
         'password' => 'required',
         'terms_checkbox' => 'required'
-      ]) }}
+      ]) !!}
 
     <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Application Settings</h3>
       </div>
       <div class="panel-body">
-        {{ Former::text('app[url]')->label('URL')->value(Request::root()) }}        
+        {!! Former::text('app[url]')->label('URL')->value(Request::root()) !!}        
       </div>
     </div>
 
@@ -61,12 +61,12 @@ FLUSH PRIVILEGES;</pre>
         <h3 class="panel-title">Database Connection</h3>
       </div>
       <div class="panel-body">
-        {{ Former::select('database[default]')->label('Driver')->options(['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite']) }}
-        {{ Former::text('database[type][host]')->label('Host')->value('localhost') }}
-        {{ Former::text('database[type][database]')->label('Database')->value('ninja') }}
-        {{ Former::text('database[type][username]')->label('Username')->value('ninja') }}
-        {{ Former::password('database[type][password]')->label('Password')->value('ninja') }}
-        {{ Former::actions( Button::normal('Test connection', ['onclick' => 'testDatabase()']), '&nbsp;&nbsp;<span id="dbTestResult"/>' ) }}      
+        {!! Former::select('database[default]')->label('Driver')->options(['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite']) !!}
+        {!! Former::text('database[type][host]')->label('Host')->value('localhost') !!}
+        {!! Former::text('database[type][database]')->label('Database')->value('ninja') !!}
+        {!! Former::text('database[type][username]')->label('Username')->value('ninja') !!}
+        {!! Former::password('database[type][password]')->label('Password')->value('ninja') !!}
+        {!! Former::actions( Button::normal('Test connection', ['onclick' => 'testDatabase()']), '&nbsp;&nbsp;<span id="dbTestResult"/>' ) !!}      
       </div>
     </div>
 
@@ -76,14 +76,14 @@ FLUSH PRIVILEGES;</pre>
         <h3 class="panel-title">Email Settings</h3>
       </div>
       <div class="panel-body">
-        {{ Former::select('mail[driver]')->label('Driver')->options(['smtp' => 'SMTP', 'mail' => 'Mail', 'sendmail' => 'Sendmail']) }}
-        {{ Former::text('mail[host]')->label('Host')->value('localhost') }}
-        {{ Former::text('mail[port]')->label('Port')->value('587') }}
-        {{ Former::select('mail[encryption]')->label('Encryption')->options(['tls' => 'TLS', 'ssl' => 'SSL']) }}
-        {{ Former::text('mail[from][name]')->label('From Name') }}
-        {{ Former::text('mail[username]')->label('Email') }}
-        {{ Former::password('mail[password]')->label('Password') }}    
-        {{ Former::actions( Button::normal('Send test email', ['onclick' => 'testMail()']), '&nbsp;&nbsp;<span id="mailTestResult"/>' ) }}            
+        {!! Former::select('mail[driver]')->label('Driver')->options(['smtp' => 'SMTP', 'mail' => 'Mail', 'sendmail' => 'Sendmail']) !!}
+        {!! Former::text('mail[host]')->label('Host')->value('localhost') !!}
+        {!! Former::text('mail[port]')->label('Port')->value('587') !!}
+        {!! Former::select('mail[encryption]')->label('Encryption')->options(['tls' => 'TLS', 'ssl' => 'SSL']) !!}
+        {!! Former::text('mail[from][name]')->label('From Name') !!}
+        {!! Former::text('mail[username]')->label('Email') !!}
+        {!! Former::password('mail[password]')->label('Password') !!}    
+        {!! Former::actions( Button::normal('Send test email', ['onclick' => 'testMail()']), '&nbsp;&nbsp;<span id="mailTestResult"/>' ) !!}            
       </div>
     </div>
 
@@ -93,16 +93,16 @@ FLUSH PRIVILEGES;</pre>
         <h3 class="panel-title">User Details</h3>
       </div>
       <div class="panel-body">
-        {{ Former::text('first_name') }}
-        {{ Former::text('last_name') }}
-        {{ Former::text('email') }}
-        {{ Former::password('password') }}        
+        {!! Former::text('first_name') !!}
+        {!! Former::text('last_name') !!}
+        {!! Former::text('email') !!}
+        {!! Former::password('password') !!}        
       </div>
     </div>
 
-    {{ Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.NINJA_APP_URL.'/terms" target="_blank">'.trans('texts.terms_of_service').'</a>'])) }}
-    {{ Former::actions( Button::submit_lg('Submit') ) }}        
-    {{ Former::close() }}
+    {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.NINJA_APP_URL.'/terms" target="_blank">'.trans('texts.terms_of_service').'</a>'])) !!}
+    {!! Former::actions( Button::primary('Submit')->submit() ) !!}        
+    {!! Former::close() !!}
 
   </div>
 

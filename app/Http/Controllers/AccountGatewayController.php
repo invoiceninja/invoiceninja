@@ -1,4 +1,4 @@
-<?php
+<?php namespace App\Http\Controllers;
 /*
 |--------------------------------------------------------------------------
 | Confide Controller Template
@@ -9,7 +9,7 @@
 |
 */
 
-use ninja\repositories\AccountRepository;
+use Ninja\Repositories\AccountRepository;
 
 class AccountGatewayController extends BaseController
 {

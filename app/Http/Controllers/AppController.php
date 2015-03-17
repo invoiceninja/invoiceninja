@@ -1,7 +1,15 @@
-<?php
+<?php namespace App\Http\Controllers;
 
-use ninja\mailers\Mailer;
-use ninja\repositories\AccountRepository;
+use Artisan;
+use Cache;
+use Config;
+use DB;
+use Exception;
+use Input;
+use Utils;
+use View;
+use Ninja\Mailers\Mailer;
+use Ninja\Repositories\AccountRepository;
 
 class AppController extends BaseController
 {
@@ -64,14 +72,14 @@ class AppController extends BaseController
         fwrite($fp, $content);
         fclose($fp);
 
-        $configDir = app_path().'/config/production';
+        $configDir = base_path().'/config/production';
         if (!file_exists($configDir)) {
             mkdir($configDir);
         }
 
         foreach (['app' => $app, 'database' => $database, 'mail' => $mail] as $key => $config) {
             $content = '<?php return '.var_export($config, true).';';
-            $fp = fopen(app_path()."/config/production/{$key}.php", 'w');
+            $fp = fopen(base_path()."/config/production/{$key}.php", 'w');
             fwrite($fp, $content);
             fclose($fp);
         }

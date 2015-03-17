@@ -1,4 +1,9 @@
-<?php
+<?php namespace App\Http\Controllers;
+
+use Auth;
+use DB;
+use Datatable;
+use Utils;
 
 class ActivityController extends \BaseController
 {
