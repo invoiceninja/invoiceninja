@@ -84,8 +84,14 @@ class AppController extends BaseController
             fclose($fp);
         }
 
-        Artisan::call('migrate');
-        Artisan::call('db:seed');
+        // Laravel 5 thows an error when performing these calls
+        // See: https://laracasts.com/discuss/channels/general-discussion/l5-artisancall-issue
+        // Artisan::call('migrate');
+        // Artisan::call('db:seed');
+        
+        // I Really don't want to do it this way but its the best I've found so far.
+        $process = new \Symfony\Component\Process\Process('cd ' . base_path() . ' && php artisan migrate --seed');
+        $process->run();
 
         $account = $this->accountRepo->create();
         $user = $account->users()->first();
