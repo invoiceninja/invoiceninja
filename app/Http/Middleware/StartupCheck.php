@@ -67,6 +67,78 @@ class StartupCheck {
 			} 
 		} 
 
+
+		// Check if we're requesting to change the account's language
+		if (Input::has('lang'))
+		{
+			$locale = Input::get('lang');
+			App::setLocale($locale);
+			Session::set(SESSION_LOCALE, $locale);    
+
+			if (Auth::check())
+			{
+			  if ($language = Language::whereLocale($locale)->first())
+			  {
+			    $account = Auth::user()->account;
+			    $account->language_id = $language->id;
+			    $account->save();
+			  }
+			}
+		} 
+		else if (Auth::check())
+		{
+			$locale = Session::get(SESSION_LOCALE, DEFAULT_LOCALE);
+			App::setLocale($locale);    
+		}
+
+		// Make sure the account/user localization settings are in the session
+		if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
+		{
+			Event::fire('user.refresh');
+		}
+
+		// Check if the user is claiming a license (ie, additional invoices, white label, etc.)
+		$claimingLicense = Utils::startsWith($_SERVER['REQUEST_URI'], '/claim_license');
+		if (!$claimingLicense && Input::has('license_key') && Input::has('product_id'))
+		{
+			$licenseKey = Input::get('license_key');
+			$productId = Input::get('product_id');
+
+			$data = trim(file_get_contents((Utils::isNinjaDev() ? 'http://ninja.dev' : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}"));
+
+			if ($productId == PRODUCT_INVOICE_DESIGNS)
+			{
+			  if ($data = json_decode($data))
+			  {
+			    foreach ($data as $item)
+			    {
+			      $design = new InvoiceDesign();
+			      $design->id = $item->id;
+			      $design->name = $item->name;
+			      $design->javascript = $item->javascript;
+			      $design->save();
+			    }
+
+			    if (!Utils::isNinjaProd()) {
+			      Cache::forget('invoice_designs_cache_' . Auth::user()->maxInvoiceDesignId());
+			    }
+
+			    Session::flash('message', trans('texts.bought_designs'));
+			  }
+			}
+			else if ($productId == PRODUCT_WHITE_LABEL)
+			{
+			  if ($data == 'valid')
+			  {
+			    $account = Auth::user()->account;
+			    $account->pro_plan_paid = NINJA_DATE;
+			    $account->save();
+
+			    Session::flash('message', trans('texts.bought_white_label'));
+			  }
+			}
+		}
+
 		return $next($request);
 	}
 
