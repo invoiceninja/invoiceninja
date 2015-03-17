@@ -101,7 +101,7 @@ FLUSH PRIVILEGES;</pre>
     </div>
 
     {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.NINJA_APP_URL.'/terms" target="_blank">'.trans('texts.terms_of_service').'</a>'])) !!}
-    {!! Former::actions( Button::primary('Submit')->withAttributes(['onclick' => 'validate()']) ) !!}        
+    {!! Former::actions( Button::primary('Submit')->submit() ) !!}        
     {!! Former::close() !!}
 
   </div>
@@ -160,14 +160,25 @@ FLUSH PRIVILEGES;</pre>
       return mail_valid;
     }
 
-    function validate() 
+    // Validate Settings
+    $('form button[type="submit"]').click( function(e)
     {
-      // First check if they have already validated the setting if not check them
-      if( ( db_valid && mail_valid ) || (testDatabase() && testMail()) ) {
-        $("form").submit();
+      // Check DB Settings
+      if( !db_valid || !testDatabase() ) {
+        alert('Please check your Database Settings.');
+        return false;
       }
-      alert('Please double check your settings.');
-    }
+
+      // If Mail Settings are incorrect, prompt for continue
+      if( !mail_valid || !testMail() ) {
+        var check = confirm("The mail settings are incomplete.\nAre you sure you want to continue?");
+        if (!check) {
+          return false;
+        }
+      }
+
+      return true;
+    });
 
     // Prevent the Enter Button from working
     $("form").bind("keypress", function (e) {
