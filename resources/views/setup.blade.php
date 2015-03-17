@@ -66,7 +66,7 @@ FLUSH PRIVILEGES;</pre>
         {!! Former::text('database[type][database]')->label('Database')->value('ninja') !!}
         {!! Former::text('database[type][username]')->label('Username')->value('ninja') !!}
         {!! Former::password('database[type][password]')->label('Password')->value('ninja') !!}
-        {!! Former::actions( Button::normal('Test connection', ['onclick' => 'testDatabase()']), '&nbsp;&nbsp;<span id="dbTestResult"/>' ) !!}      
+        {!! Former::actions( Button::normal('Test connection')->withAttributes(['onclick' => 'testDatabase()']), '&nbsp;&nbsp;<span id="dbTestResult"/>' ) !!}      
       </div>
     </div>
 
@@ -83,7 +83,7 @@ FLUSH PRIVILEGES;</pre>
         {!! Former::text('mail[from][name]')->label('From Name') !!}
         {!! Former::text('mail[username]')->label('Email') !!}
         {!! Former::password('mail[password]')->label('Password') !!}    
-        {!! Former::actions( Button::normal('Send test email', ['onclick' => 'testMail()']), '&nbsp;&nbsp;<span id="mailTestResult"/>' ) !!}            
+        {!! Former::actions( Button::normal('Send test email')->withAttributes(['onclick' => 'testMail()']), '&nbsp;&nbsp;<span id="mailTestResult"/>' ) !!}            
       </div>
     </div>
 
@@ -101,32 +101,75 @@ FLUSH PRIVILEGES;</pre>
     </div>
 
     {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.NINJA_APP_URL.'/terms" target="_blank">'.trans('texts.terms_of_service').'</a>'])) !!}
-    {!! Former::actions( Button::primary('Submit')->submit() ) !!}        
+    {!! Former::actions( Button::primary('Submit')->withAttributes(['onclick' => 'validate()']) ) !!}        
     {!! Former::close() !!}
 
   </div>
 
   <script type="text/javascript">
+
+  /* 
+   * TODO: 
+   * - Add Backup validation in the controllers
+   * - Add Notice if checking for validation after clicking Submit
+   * - Add Function to clear valid vars fields if they change a setting
+   * - Add Nicer Error Message
+   *
+   */
+
+    var db_valid = false
+    var mail_valid = false
       
     function testDatabase()
     {
-      $('#dbTestResult').html('Working...').css('color', 'black');
       var data = $("form").serialize() + "&test=db";
+      
+      // Show Progress Text
+      $('#dbTestResult').html('Working...').css('color', 'black');
+
+      // Send / Test Information
       $.post( "/setup", data, function( data ) {
-        $('#dbTestResult').html(data).css('color', data == 'Success' ? 'green' : 'red');
+        var color = 'red';
+        if(data == 'Success'){
+          color = 'green';
+          db_valid = true;
+        }
+        $('#dbTestResult').html(data).css('color', color);
       });
+
+      return db_valid;
     }  
 
     function testMail()
     {      
-      $('#mailTestResult').html('Working...').css('color', 'black');
       var data = $("form").serialize() + "&test=mail";
-      $.post( "/setup", data, function( data ) {
-        $('#mailTestResult').html(data).css('color', data == 'Sent' ? 'green' : 'red');
-      });      
-    }  
+      
+      // Show Progress Text
+      $('#mailTestResult').html('Working...').css('color', 'black');
 
-    // http://stackoverflow.com/questions/585396/how-to-prevent-enter-keypress-to-submit-a-web-form
+      // Send / Test Information
+      $.post( "/setup", data, function( data ) {
+        var color = 'red';
+        if(data == 'Sent'){
+          color = 'green';
+          mail_valid = true;
+        }
+        $('#mailTestResult').html(data).css('color', color);
+      });
+      
+      return mail_valid;
+    }
+
+    function validate() 
+    {
+      // First check if they have already validated the setting if not check them
+      if( ( db_valid && mail_valid ) || (testDatabase() && testMail()) ) {
+        $("form").submit();
+      }
+      alert('Please double check your settings.');
+    }
+
+    // Prevent the Enter Button from working
     $("form").bind("keypress", function (e) {
       if (e.keyCode == 13) {
         return false;
