@@ -18,9 +18,9 @@
     <meta name="csrf-token" content="<?= csrf_token() ?>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <link href='//fonts.googleapis.com/css?family=Roboto:400,700,900,100' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700' rel='stylesheet' type='text/css'>
-    <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">
+    <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700" rel="stylesheet" type="text/css">
+    <link href="{{ asset('favicon.png') }}" rel="shortcut icon">
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}"></link>
 
     <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
@@ -91,7 +91,7 @@
             m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-        ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}');        
+        ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}', 'auto');        
         ga('send', 'pageview');
 
         function trackUrl(url) {

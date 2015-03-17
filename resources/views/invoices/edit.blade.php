@@ -673,10 +673,10 @@
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
 
         if (!invoice.terms) {
-            invoice.terms = "{{ $account->invoice_terms }}";
+            invoice.terms = "{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}";
         }
         if (!invoice.invoice_footer) {
-            invoice.invoice_footer = "{{ $account->invoice_footer }}";
+            invoice.invoice_footer = "{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}";
         }
 
 		@if (file_exists($account->getLogoPath()))

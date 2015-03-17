@@ -99,7 +99,7 @@ class Account extends Eloquent
     public function getGatewayByType($type = PAYMENT_TYPE_ANY)
     {
         foreach ($this->account_gateways as $gateway) {
-            if ($type == PAYMENT_TYPE_ANY) {
+            if (!$type || $type == PAYMENT_TYPE_ANY) {
                 return $gateway;
             } elseif ($gateway->isPayPal() && $type == PAYMENT_TYPE_PAYPAL) {
                 return $gateway;
@@ -352,6 +352,10 @@ class Account extends Eloquent
 
     public function showTokenCheckbox()
     {
+        if (!$this->isGatewayConfigured(GATEWAY_STRIPE)) {
+            return false;
+        }
+
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_IN
                 || $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
     }
