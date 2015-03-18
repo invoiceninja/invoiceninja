@@ -274,6 +274,18 @@ return array(
   'expiration_year' => 'Ano de expiração',
   'cvv' => 'CVV',
 
+  // This File was missing the security alerts. I'm not familiar with this language, Can someone translate?
+  // Security alerts
+  /*'security' => [
+    'too_many_attempts' => 'Too many attempts. Try again in few minutes.',
+    'wrong_credentials' => 'Incorrect email or password.',
+    'confirmation' => 'Your account has been confirmed!',
+    'wrong_confirmation' => 'Wrong confirmation code.',
+    'password_forgot' => 'The information regarding password reset was sent to your email.',
+    'password_reset' => 'Your password has been changed successfully.',
+    'wrong_password_reset' => 'Invalid password. Try again',
+  ],*/
+
   // Pro Plan
   'pro_plan' => [
     'remove_logo' => ':link para remover a logo do Invoice Ninja contratando o plano profissional',

@@ -282,7 +282,7 @@ return array(
   'cvv' => 'CVV',
 
   // Security alerts
-  'confide' => [
+  'security' => [
     'too_many_attempts' => 'For mange forsøg. Prøv igen om nogen få minutter.',
     'wrong_credentials' => 'Fejl e-mail eller adgangskode.',
     'confirmation' => 'Din konto har blevet bekræftet!',

@@ -85,7 +85,7 @@ class UserController extends BaseController
         $user->force_pdfjs = true;
         $user->save();
 
-        Session::flash('message', trans('texts.confide.updated_settings'));
+        Session::flash('message', trans('texts.security.updated_settings'));
 
         return Redirect::to('/dashboard');
     }
@@ -306,7 +306,7 @@ class UserController extends BaseController
 
             // Check if there was too many login attempts
             if (Confide::isThrottled($input)) {
-                $err_msg = trans('texts.confide.too_many_attempts');
+                $err_msg = trans('texts.security.too_many_attempts');
             }
             /*
             elseif( $user->checkUserExists( $input ) and ! $user->isConfirmed( $input ) )
@@ -315,7 +315,7 @@ class UserController extends BaseController
             }
             */
             else {
-                $err_msg = trans('texts.confide.wrong_credentials');
+                $err_msg = trans('texts.security.wrong_credentials');
             }
 
             return Redirect::action('UserController@login')
@@ -332,7 +332,7 @@ class UserController extends BaseController
     public function confirm($code)
     {
         if (Confide::confirm($code)) {
-            $notice_msg = trans('texts.confide.confirmation');
+            $notice_msg = trans('texts.security.confirmation');
 
             $user = User::where('confirmation_code', '=', $code)->get()->first();
             $user->confirmation_code = '';
@@ -353,7 +353,7 @@ class UserController extends BaseController
                 }
             }
         } else {
-            $error_msg = trans('texts.confide.wrong_confirmation');
+            $error_msg = trans('texts.security.wrong_confirmation');
 
             return Redirect::action('UserController@login')->with('error', $error_msg);
         }
@@ -376,7 +376,7 @@ class UserController extends BaseController
     {
         Confide::forgotPassword(Input::get('email'));
 
-        $notice_msg = trans('texts.confide.password_forgot');
+        $notice_msg = trans('texts.security.password_forgot');
 
         return Redirect::action('UserController@login')
             ->with('notice', $notice_msg);
@@ -429,7 +429,7 @@ class UserController extends BaseController
             $user->password = Input::get('password');
             $user->save();
 
-            Session::flash('message', trans('texts.confide.password_reset'));
+            Session::flash('message', trans('texts.security.password_reset'));
 
             return Redirect::to('/dashboard');
         } else {
@@ -441,12 +441,12 @@ class UserController extends BaseController
 
             // By passing an array with the token, password and confirmation
             if (Confide::resetPassword($input)) {
-                $notice_msg = trans('texts.confide.password_reset');
+                $notice_msg = trans('texts.security.password_reset');
 
                 return Redirect::action('UserController@login')
                     ->with('notice', $notice_msg);
             } else {
-                $error_msg = trans('texts.confide.wrong_password_reset');
+                $error_msg = trans('texts.security.wrong_password_reset');
 
                 return Redirect::action('UserController@reset_password', array('token' => $input['token']))
                     ->withInput()

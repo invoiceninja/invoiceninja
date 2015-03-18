@@ -273,7 +273,7 @@ return array(
    'cvv' => 'CVV',
 
    // Security alerts
-   'confide' => array(
+   'security' => array(
       'too_many_attempts' => 'Demasiados intentos fallidos. Inténtalo de nuevo en un par de minutos.',
       'wrong_credentials' => 'Contraseña o email incorrecto.',
       'confirmation' => '¡Tu cuenta se ha confirmado!',

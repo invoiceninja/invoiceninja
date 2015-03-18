@@ -277,7 +277,7 @@ return array(
   'cvv' => 'CVV',
   
   // Security alerts
-  'confide' => [
+  'security' => [
     'too_many_attempts' => 'Te veel pogingen. Probeer opnieuw binnen enkele minuten.',
     'wrong_credentials' => 'Verkeerd e-mailadres of paswoord.',
     'confirmation' => 'Je account is bevestigd!',

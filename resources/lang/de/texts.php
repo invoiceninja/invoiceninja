@@ -277,7 +277,7 @@ return array(
   'cvv' => 'Kartenprüfziffer',
 
   // Security alerts
-  'confide' => array(
+  'security' => array(
     'too_many_attempts' => 'Zu viele Versuche. Bitte probiere es in ein paar Minuten erneut.',
     'wrong_credentials' => 'Falsche E-Mail Adresse oder falsches Passwort.',
     'confirmation' => 'Dein Konto wurde bestätigt!',
