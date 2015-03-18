@@ -3,6 +3,8 @@
 
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
+#### Note: please submit any pull requests against the [Laravel 5](https://github.com/hillelcoren/invoice-ninja/tree/laravel-5) branch
+
 If you'd like to use our code to sell your own invoicing app we have an affiliate program. Get in touch for more details.
 
 ### Introduction
@@ -33,6 +35,7 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 ### Contributors
 
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
+* [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
 
 ### Steps to setup
 
