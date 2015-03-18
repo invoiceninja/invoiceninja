@@ -1,4 +1,4 @@
-<?php namespace ninja\repositories;
+<?php namespace Ninja\Repositories;
 
 use Credit;
 use Client;
