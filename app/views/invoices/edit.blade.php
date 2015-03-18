@@ -719,25 +719,7 @@
 
 	function onEmailClick() {
 		if (confirm('{{ trans("texts.confirm_email_$entityType") }}')) {
-			var invoice = createInvoiceModel();
-			var design  = getDesignJavascript();
-			if (!design) return;
-			var doc = generatePDF(invoice, design, true);
-			
-			var formdata = new FormData();
-			formdata.append('filename', 'cache-' + invoice.public_id + '.pdf');
-			formdata.append('fileblob', doc.output('blob'));
-			
-			$.ajax({
-				type: 'POST',
-				url: '{{ URL::to("ajax/pdfupload") }}',
-				data: formdata,
-				processData: false,
-				contentType: false
-			}).done(function( data ) {
-				submitAction('email');
-			});
-			
+			submitAction('email');
 		}
 	}
 
@@ -747,6 +729,12 @@
 				submitAction('');
 			}
 		} else {
+			var invoice = createInvoiceModel();
+			var design  = getDesignJavascript();
+			if (!design) return;
+			var doc = generatePDF(invoice, design, true);
+			
+			$('form.form-horizontal.warn-on-exit').append('<input type="hidden" name="pdfupload" value="'+doc.output('datauristring')+'">');
 			submitAction('');
 		}
 	}
@@ -757,7 +745,7 @@
 			return;
 		}
 		$('#action').val(value);
-		$('#submitButton').click();		
+		$('#submitButton').click();
 	}
 
 	function isSaveValid() {
