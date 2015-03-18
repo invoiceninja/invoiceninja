@@ -1,17 +1,14 @@
 <?php namespace App\Http\Controllers;
-/*
-|--------------------------------------------------------------------------
-| Confide Controller Template
-|--------------------------------------------------------------------------
-|
-| This is the default Confide controller template for controlling user
-| authentication. Feel free to change to your needs.
-|
-*/
 
+use Auth;
+use App\Http\Requests;
+use App\Http\Controllers\Controller;
 use Ninja\Repositories\AccountRepository;
 use Ninja\Mailers\ContactMailer;
 use Ninja\Mailers\UserMailer;
+
+
+
 
 class UserController extends BaseController
 {
