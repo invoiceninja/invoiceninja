@@ -188,10 +188,10 @@ class Activity extends Eloquent
                 }
             }
 
-            if ($diff > 0 || $fieldChanged) {
+            if ($diff != 0 || $fieldChanged) {
                 $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($invoice->id);
 
-                if ($diff > 0 && !$invoice->is_quote && !$invoice->is_recurring) {
+                if ($diff != 0 && !$invoice->is_quote && !$invoice->is_recurring) {
                     $client->balance = $client->balance + $diff;
                     $client->save();
                 }
