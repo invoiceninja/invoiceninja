@@ -205,6 +205,8 @@ return array(
    'import_to' => 'Importar a',
    'client_will_create' => 'cliente se creará', //What is this for, context of it's use
    'clients_will_create' => 'clientes se crearan', //What is this for, context of it's use
+   'email_settings' => 'Email Settings',
+   'pdf_email_attachment' => 'Attach PDF to Emails',
 
    // application messages
    'created_client' => 'cliente creado con éxito',

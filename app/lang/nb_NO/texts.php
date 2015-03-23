@@ -206,6 +206,8 @@ return array(
   'import_to' => 'Importer til',
   'client_will_create' => 'Klient vil bli opprettet',
   'clients_will_create' => 'Klienter vil bli opprettet',
+  'email_settings' => 'Email Settings',
+  'pdf_email_attachment' => 'Attach PDF to Emails',
 
   // application messages
   'created_client' => 'Klient opprettet suksessfullt',
