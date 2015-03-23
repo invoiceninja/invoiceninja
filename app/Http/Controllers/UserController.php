@@ -7,9 +7,6 @@ use Ninja\Repositories\AccountRepository;
 use Ninja\Mailers\ContactMailer;
 use Ninja\Mailers\UserMailer;
 
-
-
-
 class UserController extends BaseController
 {
     protected $accountRepo;
