@@ -25,10 +25,23 @@
                     "reference": "origin/master"
                 }
             }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "impleri/confide",
+                "version": "dev-master",
+                "source": {
+                    "url": "https://github.com/impleri/confide",
+                    "type": "git",
+                    "reference": "origin/master"
+                }
+            }
         }
     ],
 	"require": {
 		"laravel/framework": "5.0.*",
+		"impleri/confide": "dev-master",
 		"patricktalmadge/bootstrapper": "5.5.x",
 		"anahkiasen/former": "4.0.*@dev",
 		"barryvdh/laravel-debugbar": "~2.0.2",
@@ -61,7 +74,9 @@
 			"app/Http/Controllers",
 			"app/Models",
 			"app/Ninja",
+			"app/Ninja/Repositories",
 			"vendor/calvinfroedge/PHP-Payments/lib",
+			"vendor/impleri/confide/src",
 			"database"
 		],
 		"psr-4": {

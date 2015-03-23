@@ -1,12 +1,12 @@
 <?php namespace Ninja\Repositories;
 
-use Client;
-use Contact;
-use Account;
+use App\Models\Client;
+use App\Models\Contact;
+use App\Models\Account;
 use Request;
 use Session;
 use Language;
-use User;
+use App\Models\User;
 use Auth;
 use Invitation;
 use Invoice;

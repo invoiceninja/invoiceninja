@@ -1,5 +1,8 @@
 <?php namespace App\Http\Controllers;
 
+use Config;
+use View;
+use Confide;
 use Auth;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;

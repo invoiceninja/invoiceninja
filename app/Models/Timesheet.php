@@ -12,7 +12,7 @@ class Timesheet extends Eloquent
 
     public function user()
     {
-        return $this->belongsTo('User');
+        return $this->belongsTo('App\Models\User');
     }
 
     public function timesheet_events()

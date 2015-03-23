@@ -3,6 +3,7 @@
 use App\Libraries\Utils;
 use Ninja\Mailers\Mailer;
 use Redirect;
+use App\Models\Account;
 
 class HomeController extends BaseController
 {

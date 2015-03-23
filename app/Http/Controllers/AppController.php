@@ -10,6 +10,7 @@ use Utils;
 use View;
 use Ninja\Mailers\Mailer;
 use Ninja\Repositories\AccountRepository;
+use Redirect;
 
 class AppController extends BaseController
 {

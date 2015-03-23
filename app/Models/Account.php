@@ -1,67 +1,69 @@
 <?php  namespace App\Models;
 
+use Eloquent;
+
 class Account extends Eloquent
 {
     protected $softDelete = true;
 
     public function users()
     {
-        return $this->hasMany('User');
+        return $this->hasMany('App\Models\User');
     }
 
     public function clients()
     {
-        return $this->hasMany('Client');
+        return $this->hasMany('App\Models\Client');
     }
 
     public function invoices()
     {
-        return $this->hasMany('Invoice');
+        return $this->hasMany('App\Models\Invoice');
     }
 
     public function account_gateways()
     {
-        return $this->hasMany('AccountGateway');
+        return $this->hasMany('App\Models\AccountGateway');
     }
 
     public function tax_rates()
     {
-        return $this->hasMany('TaxRate');
+        return $this->hasMany('App\Models\TaxRate');
     }
 
     public function country()
     {
-        return $this->belongsTo('Country');
+        return $this->belongsTo('App\Models\Country');
     }
 
     public function timezone()
     {
-        return $this->belongsTo('Timezone');
+        return $this->belongsTo('App\Models\Timezone');
     }
 
     public function language()
     {
-        return $this->belongsTo('Language');
+        return $this->belongsTo('App\Models\Language');
     }
 
     public function date_format()
     {
-        return $this->belongsTo('DateFormat');
+        return $this->belongsTo('App\Models\DateFormat');
     }
 
     public function datetime_format()
     {
-        return $this->belongsTo('DatetimeFormat');
+        return $this->belongsTo('App\Models\DatetimeFormat');
     }
 
     public function size()
     {
-        return $this->belongsTo('Size');
+        return $this->belongsTo('App\Models\Size');
     }
 
     public function industry()
     {
-        return $this->belongsTo('Industry');
+        return $this->belongsTo('App\Models\Industry');
     }
 
     public function isGatewayConfigured($gatewayId = 0)

@@ -1,14 +1,25 @@
 <?php namespace App\Models;
 
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Eloquent;
+// use Illuminate\Auth\UserInterface;
+// use Illuminate\Auth\Reminders\RemindableInterface;
+use Zizaco\Confide\ConfideUser;
 
-class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
+// use Illuminate\Auth\Authenticatable;
+// use Illuminate\Auth\Passwords\CanResetPassword;
+// use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+// use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
-    use Authenticatable, CanResetPassword;
+
+// use Zizaco\Confide\ConfideUser;
+use Zizaco\Confide\ConfideUserInterface;
+
+class User extends Eloquent implements ConfideUserInterface {
+
+// class User extends ConfideUser implements UserInterface, RemindableInterface {
+
+    // use Authenticatable, CanResetPassword;
+    use ConfideUser;
 
     protected $softDelete = true;
 
@@ -172,4 +183,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     {
         return 'remember_token';
     }
+
+    // public function confirm(){}
+    // public function forgotPassword(){}
+    // public function isValid(){}
+
 }

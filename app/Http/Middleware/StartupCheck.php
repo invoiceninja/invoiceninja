@@ -3,6 +3,9 @@
 use Closure;
 use Utils;
 use App;
+use Auth;
+use Input;
+use Redirect;
 
 class StartupCheck {
 
