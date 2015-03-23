@@ -43,6 +43,7 @@ class ContactMailer extends Mailer
             $data['body'] = str_replace(array_keys($variables), array_values($variables), $emailTemplate);
             $data['link'] = $invitation->getLink();
             $data['entityType'] = $entityType;
+            $data['id'] = $invoice->getAttributes()['id'];
 
             $fromEmail = $invitation->user->email;
             $this->sendTo($invitation->contact->email, $fromEmail, $accountName, $subject, $view, $data);

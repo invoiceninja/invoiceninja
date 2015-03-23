@@ -11,7 +11,7 @@ If you'd like to use our code to sell your own invoicing app we have an affiliat
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is the codebase will serve as a sample site for Laravel as well as other JavaScript technologies.
 
-To setup the site you can either use this [zip file](http://www.invoiceninja.com/knowledgebase/self-host/) (easier to setup) or checkout the code from GitHub following the instructions below (easier to stay up to date).
+To setup the site you can either use this [zip file](https://www.invoiceninja.com/knowledgebase/self-host/) (easier to setup) or checkout the code from GitHub following the instructions below (easier to stay up to date).
 
 For a WAMP/MAMP/LAMP setup you can one-click install using Softaculous's [AMPPS](http://www.ampps.com/). To deploy the app with [Docker](http://www.docker.com/) you can use [this project](https://github.com/rollbrettler/Dockerfiles/tree/master/invoice-ninja).
 
@@ -39,9 +39,9 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 
 ### Documentation 
 
-* [Self Host](http://www.invoiceninja.com/knowledgebase/self-host/)
-* [API Documentation](http://www.invoiceninja.com/knowledgebase/api-documentation/)
-* [Developer Guide](http://www.invoiceninja.com/knowledgebase/developer-guide/)
+* [Self Host](https://www.invoiceninja.com/knowledgebase/self-host/)
+* [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
+* [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
 
 ### Steps to setup from GitHub
 

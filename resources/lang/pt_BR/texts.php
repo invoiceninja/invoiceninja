@@ -204,6 +204,8 @@ return array(
   'import_to' => 'Importar para',
   'client_will_create' => 'cliente será criado',
   'clients_will_create' => 'clientes serão criados',
+  'email_settings' => 'Email Settings',
+  'pdf_email_attachment' => 'Attach PDF to Emails',
 
   // application messages
   'created_client' => 'Cliente criado com sucesso',

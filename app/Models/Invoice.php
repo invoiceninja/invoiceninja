@@ -93,7 +93,8 @@ class Invoice extends EntityModel
             'custom_value1',
             'custom_value2',
             'custom_taxes1',
-            'custom_taxes2', ]);
+            'custom_taxes2',
+        ]);
 
         $this->client->setVisible([
             'name',
@@ -110,7 +111,8 @@ class Invoice extends EntityModel
             'country',
             'currency_id',
             'custom_value1',
-            'custom_value2', ]);
+            'custom_value2',
+        ]);
 
         $this->account->setVisible([
             'name',
@@ -136,7 +138,9 @@ class Invoice extends EntityModel
             'hide_quantity',
             'hide_paid_to_date',
             'custom_invoice_label1',
-            'custom_invoice_label2', ]);
+            'custom_invoice_label2',
+            'pdf_email_attachment',
+        ]);
 
         foreach ($this->invoice_items as $invoiceItem) {
             $invoiceItem->setVisible([
@@ -145,7 +149,8 @@ class Invoice extends EntityModel
                 'cost',
                 'qty',
                 'tax_name',
-                'tax_rate', ]);
+                'tax_rate',
+            ]);
         }
 
         foreach ($this->client->contacts as $contact) {
@@ -153,7 +158,8 @@ class Invoice extends EntityModel
                 'first_name',
                 'last_name',
                 'email',
-                'phone', ]);
+                'phone',
+            ]);
         }
 
         return $this;

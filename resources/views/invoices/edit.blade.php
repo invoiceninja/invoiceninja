@@ -718,17 +718,23 @@
 	}
 
 	function onEmailClick() {
-		if (confirm('{{ trans("texts.confirm_email_$entityType") }}')) {		
+		if (confirm('{{ trans("texts.confirm_email_$entityType") }}')) {
 			submitAction('email');
 		}
 	}
 
 	function onSaveClick() {
 		if (model.invoice().is_recurring()) {
-			if (confirm('{{ trans("texts.confirm_recurring_email_$entityType") }}')) {		
+			if (confirm('{{ trans("texts.confirm_recurring_email_$entityType") }}')) {
 				submitAction('');
-			}			
+			}
 		} else {
+			var invoice = createInvoiceModel();
+			var design  = getDesignJavascript();
+			if (!design) return;
+			var doc = generatePDF(invoice, design, true);
+			
+			$('form.form-horizontal.warn-on-exit').append('<input type="hidden" name="pdfupload" value="'+doc.output('datauristring')+'">');
 			submitAction('');
 		}
 	}
@@ -739,7 +745,7 @@
 			return;
 		}
 		$('#action').val(value);
-		$('#submitButton').click();		
+		$('#submitButton').click();
 	}
 
 	function isSaveValid() {
