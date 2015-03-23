@@ -3,13 +3,15 @@
 
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
+#### Note: please submit any pull requests against the [Laravel 5](https://github.com/hillelcoren/invoice-ninja/tree/laravel-5) branch
+
 If you'd like to use our code to sell your own invoicing app we have an affiliate program. Get in touch for more details.
 
 ### Introduction
 
 Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is the codebase will serve as a sample site for Laravel as well as other JavaScript technologies.
 
-To setup the site you can either use this [zip file](http://hillelcoren.com/invoice-ninja/self-hosting/) (easier to setup) or checkout the code from GitHub following the instructions below (easier to stay up to date). There's also a more detailed setup guide [available here](http://hillelcoren.com/invoice-ninja/laravel-ubuntu-virtualbox/). 
+To setup the site you can either use this [zip file](http://www.invoiceninja.com/knowledgebase/self-host/) (easier to setup) or checkout the code from GitHub following the instructions below (easier to stay up to date).
 
 For a WAMP/MAMP/LAMP setup you can one-click install using Softaculous's [AMPPS](http://www.ampps.com/). To deploy the app with [Docker](http://www.docker.com/) you can use [this project](https://github.com/rollbrettler/Dockerfiles/tree/master/invoice-ninja).
 
@@ -33,8 +35,15 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 ### Contributors
 
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
+* [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
 
-### Steps to setup
+### Documentation 
+
+* [Self Host](http://www.invoiceninja.com/knowledgebase/self-host/)
+* [API Documentation](http://www.invoiceninja.com/knowledgebase/api-documentation/)
+* [Developer Guide](http://www.invoiceninja.com/knowledgebase/developer-guide/)
+
+### Steps to setup from GitHub
 
 If you plan on submitting changes it's best to [fork the repo](https://help.github.com/articles/fork-a-repo), otherwise you can just checkout the code.
 

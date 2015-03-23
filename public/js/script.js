@@ -42,7 +42,7 @@ function GetPdf(invoice, javascript){
     footerLeft: 420,
     tablePadding: 12,
     tableTop: 250,
-    descriptionLeft: 162,
+    descriptionLeft: 150,
     unitCostRight: 410,
     qtyRight: 480,
     taxRight: 480,
@@ -1229,7 +1229,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     SetPdfColor('Black', doc);
     doc.setFontType('normal');
 
-    var splitDescription = doc.splitTextToSize(notes, 180);
+    var splitDescription = doc.splitTextToSize(notes, 190);
     doc.text(layout.descriptionLeft, y+2, splitDescription);
     doc.text(costX, y+2, cost);
     if (!hideQuantity) {
