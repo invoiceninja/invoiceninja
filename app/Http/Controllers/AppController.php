@@ -73,26 +73,59 @@ class AppController extends BaseController
         fwrite($fp, $content);
         fclose($fp);
 
-        $configDir = base_path().'/config/production';
+        /*$configDir = base_path().'/config/production';
         if (!file_exists($configDir)) {
             mkdir($configDir);
+        }*/
+
+        // TODO: Please test this!!!!!!!!!!!
+        
+        // == ENV Settings (Production) == //
+
+        $env_config = '';
+        $settings = ['app' => $app, 'database' => $database, 'mail' => $mail];
+
+        // Save each config area to $env varible
+        foreach ($settings as $key => $config) {
+
+            // Write a nice Comment to lay out each config area
+            $env_config .= "# " . $key . " Settings \n";
+            
+            // For Each config varible : Write to env
+            foreach ($config as $name => $value) {
+                $env_config .= strtoupper($name) . '=' . $value . "\n";
+            }
         }
 
-        foreach (['app' => $app, 'database' => $database, 'mail' => $mail] as $key => $config) {
-            $content = '<?php return '.var_export($config, true).';';
-            $fp = fopen(base_path()."/config/production/{$key}.php", 'w');
-            fwrite($fp, $content);
-            fclose($fp);
+        // Check Config Settings !empty
+        if(empty($env_config)){
+            dd('ERROR: No Config settings saved to content var');
         }
+        
+        // Write Config Settings
+        $fp = fopen(base_path()."/.env", 'w');
+        fwrite($fp, $env_config);
+        fclose($fp);
 
-        // Laravel 5 thows an error when performing these calls
-        // See: https://laracasts.com/discuss/channels/general-discussion/l5-artisancall-issue
-        // Artisan::call('migrate');
-        // Artisan::call('db:seed');
+        // == END ENV Settings == //
+
+
+        // == DB Migrate & Seed == //
+
+        /* Laravel 5 thows an error when performing these calls
+         * See: https://laracasts.com/discuss/channels/general-discussion/l5-artisancall-issue
+        
+        Artisan::call('migrate');
+        Artisan::call('db:seed');
+
+         */
         
         // I Really don't want to do it this way but its the best I've found so far.
         $process = new \Symfony\Component\Process\Process('cd ' . base_path() . ' && php artisan migrate --seed');
         $process->run();
+
+        // == END DB Migrate & Seed == //
+
 
         $account = $this->accountRepo->create();
         $user = $account->users()->first();
@@ -156,12 +189,16 @@ class AppController extends BaseController
         }
     }
 
+    // QUSTION: Does this actually get used???
     public function install()
     {
         if (!Utils::isNinja() && !Utils::isDatabaseSetup()) {
             try {
-                Artisan::call('migrate');
-                Artisan::call('db:seed');
+                // DB Migrate & Seed
+                // I Really don't want to do it this way but its the best I've found so far. See Above.
+                $process = new \Symfony\Component\Process\Process('cd ' . base_path() . ' && php artisan migrate --seed');
+                $process->run();
+
             } catch (Exception $e) {
                 Response::make($e->getMessage(), 500);
             }
@@ -174,7 +211,12 @@ class AppController extends BaseController
     {
         if (!Utils::isNinja()) {
             try {
-                Artisan::call('migrate');
+                // DB Migrate & Seed
+                // I Really don't want to do it this way but its the best I've found so far. See Above.
+                $process = new \Symfony\Component\Process\Process('cd ' . base_path() . ' && php artisan migrate');
+                $process->run();
+
+                // Artisan::call('migrate');
                 Cache::flush();
             } catch (Exception $e) {
                 Response::make($e->getMessage(), 500);
