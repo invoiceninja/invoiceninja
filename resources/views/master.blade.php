@@ -27,7 +27,7 @@
 
     <script type="text/javascript">
         var NINJA = NINJA || {};      
-        NINJA.isRegistered = {{ Utils::isRegistered() ? 'true' : 'false' }};    
+        NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};    
 
         window.onerror = function(e) {
             var message = e.message ? (e.message + ' - ' + e.filename + ': ' + e.lineno) : e;

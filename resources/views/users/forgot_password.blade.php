@@ -53,17 +53,17 @@
 @section('body')
 <div class="container">
 
-{{ Former::open('forgot_password')->rules(['email' => 'required|email'])->addClass('form-signin') }}
+{!! Former::open('forgot_password')->rules(['email' => 'required|email'])->addClass('form-signin') !!}
   <div class="modal-header">
     <img src="{{ asset('images/icon-login.png') }}" />
     <h4>Invoice Ninja | {{ trans('texts.password_recovery') }}</h4></div>
     <div class="inner">
 
       <p>
-        {{ Former::text('email')->placeholder(trans('texts.email_address'))->raw() }}
+        {!! Former::text('email')->placeholder(trans('texts.email_address'))->raw() !!}
     </p>
 
-    <p>{{ Button::success_submit(trans('texts.send_email'), array('class' => 'btn-lg'))->block() }}</p>
+    <p>{!! Button::normal(trans('texts.send_email'))->withAttributes(array('class' => 'btn-lg'))->submit()->block() !!}</p>
 
     <!-- if there are login errors, show them here -->
     @if (Session::has('warning'))
@@ -78,7 +78,7 @@
     <div class="alert alert-danger">{{ Session::get('error') }}</div>
     @endif
 
-    {{ Former::close() }}
+    {!! Former::close() !!}
 
 </div>
 </div>

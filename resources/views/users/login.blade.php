@@ -49,13 +49,13 @@
 
 </style>
 
-@stop
+@endsection
 
 @section('body')
 <div class="container">
 
 
-    {{ Former::open('login')->rules(['login_email' => 'required|email', 'login_password' => 'required'])->addClass('form-signin') }}
+    {!! Former::open('login')->rules(['login_email' => 'required|email', 'login_password' => 'required'])->addClass('form-signin') !!}
     <div class="modal-header">
         <img src="{{ asset('images/icon-login.png') }}" />
         <h4>Invoice Ninja | {{ trans('texts.account_login') }}</h4></div>
@@ -66,14 +66,14 @@
             </p>
 
             <p>
-                {{ Former::text('login_email')->placeholder(trans('texts.email_address'))->raw() }}
-                {{ Former::password('login_password')->placeholder(trans('texts.password'))->raw() }}
+                {!! Former::text('login_email')->placeholder(trans('texts.email_address'))->raw() !!}
+                {!! Former::password('login_password')->placeholder(trans('texts.password'))->raw() !!}
             </p>
 
-            <p>{{ Button::success_submit(trans('texts.lets_go'), array('class' => 'btn-lg'))->block() }}</p>
+            <p>{!! Button::primary(trans('texts.lets_go'))->withAttributes(array('class' => 'btn-lg'))->submit()->block() !!}</p>
             
             <p class="link">
-                {{ link_to('forgot_password', trans('texts.forgot_password')) }}
+                {!! link_to('forgot_password', trans('texts.forgot_password')) !!}
             </p>
 
 
@@ -91,7 +91,7 @@
 
         </div>
 
-        {{ Former::close() }}
+        {!! Former::close() !!}
 
         @if (!Utils::isNinja())
         <p/>
@@ -116,4 +116,4 @@
 
     </div>
 
-    @stop
+    @endsection
