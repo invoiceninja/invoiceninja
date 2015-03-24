@@ -1,18 +1,19 @@
 <?php namespace Ninja\Repositories;
 
-use App\Models\Client;
-use App\Models\Contact;
-use App\Models\Account;
-use Request;
-use Session;
-use Language;
-use App\Models\User;
+use AccountGateway;
 use Auth;
 use Invitation;
 use Invoice;
 use InvoiceItem;
-use AccountGateway;
+use Language;
+use Request;
+use Session;
 use Utils;
+
+use App\Models\Client;
+use App\Models\Contact;
+use App\Models\Account;
+use App\Models\User;
 
 class AccountRepository
 {
