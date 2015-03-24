@@ -1,7 +1,8 @@
 <?php namespace App\Libraries;
 
-use Schema;
+use Auth;
 use DB;
+use Schema;
 
 class Utils
 {
