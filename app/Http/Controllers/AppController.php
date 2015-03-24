@@ -8,8 +8,8 @@ use Exception;
 use Input;
 use Utils;
 use View;
-use Ninja\Mailers\Mailer;
-use Ninja\Repositories\AccountRepository;
+use App\Ninja\Mailers\Mailer;
+use App\Ninja\Repositories\AccountRepository;
 use Redirect;
 
 class AppController extends BaseController
@@ -36,21 +36,22 @@ class AppController extends BaseController
 
     public function doSetup()
     {
-        if (Utils::isNinja() || Utils::isDatabaseSetup()) {
-            return Redirect::to('/');
-        }
+        // if (Utils::isNinja() || Utils::isDatabaseSetup()) {
+        //     return Redirect::to('/');
+        // }
 
         $valid = false;
         $test = Input::get('test');
 
         $app = Input::get('app');
         $app['key'] = str_random(RANDOM_KEY_LENGTH);
-        $app['debug'] = false;
+        $app['debug'] = 'false';
 
         $database = Input::get('database');
-        $dbType = $database['default'];
-        $database['connections'] = [$dbType => $database['type']];
-        unset($database['type']);
+        $dbType = $database['driver'];
+        
+        $test_database = $database;
+        $test_database['connections'] = [$dbType => $test_database];        
 
         $mail = Input::get('mail');
         $email = $mail['username'];
@@ -60,7 +61,7 @@ class AppController extends BaseController
             return self::testMail($mail);
         }
 
-        $valid = self::testDatabase($database);
+        $valid = self::testDatabase($test_database);
 
         if ($test == 'db') {
             return $valid === true ? 'Success' : $valid;
@@ -68,17 +69,17 @@ class AppController extends BaseController
             return Redirect::to('/setup')->withInput();
         }
 
-        $content = "<?php return 'production';";
+        /*$content = "<?php return 'production';";
         $fp = fopen(base_path()."/bootstrap/environment.php", 'w');
         fwrite($fp, $content);
-        fclose($fp);
+        fclose($fp);*/
 
         /*$configDir = base_path().'/config/production';
         if (!file_exists($configDir)) {
             mkdir($configDir);
         }*/
 
-        // TODO: Please test this!!!!!!!!!!!
+        // TODO: GET THIS WORKING PROPERLY!!!!
         
         // == ENV Settings (Production) == //
 
@@ -90,9 +91,14 @@ class AppController extends BaseController
 
             // Write a nice Comment to lay out each config area
             $env_config .= "# " . $key . " Settings \n";
-            
+
+
             // For Each config varible : Write to env
             foreach ($config as $name => $value) {
+                if(is_array($value)){
+                    continue; // BREAKS ON THE MAIL ARRAY
+                    dd($value);
+                }
                 $env_config .= strtoupper($name) . '=' . $value . "\n";
             }
         }
@@ -103,9 +109,9 @@ class AppController extends BaseController
         }
         
         // Write Config Settings
-        $fp = fopen(base_path()."/.env", 'w');
-        fwrite($fp, $env_config);
-        fclose($fp);
+        // $fp = fopen(base_path()."/.env", 'w');
+        // fwrite($fp, $env_config);
+        // fclose($fp);
 
         // == END ENV Settings == //
 
@@ -137,7 +143,7 @@ class AppController extends BaseController
         $user->password = trim(Input::get('password'));
         $user->password_confirmation = trim(Input::get('password'));
         $user->registered = true;
-        $user->amend();
+        $user->save();
 
         //Auth::login($user, true);
         $this->accountRepo->registerUser($user);
@@ -147,7 +153,8 @@ class AppController extends BaseController
 
     private function testDatabase($database)
     {
-        $dbType = $database['default'];
+        // dd($database);
+        $dbType = $database['driver'];
 
         Config::set('database.default', $dbType);
 

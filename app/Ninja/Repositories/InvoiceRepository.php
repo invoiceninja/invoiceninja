@@ -1,4 +1,4 @@
-<?php namespace ninja\repositories;
+<?php namespace App\Ninja\Repositories;
 
 use Invoice;
 use InvoiceItem;

@@ -9,9 +9,9 @@ use Redirect;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Ninja\Repositories\AccountRepository;
-use Ninja\Mailers\ContactMailer;
-use Ninja\Mailers\UserMailer;
+use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Mailers\UserMailer;
 
 class UserController extends BaseController
 {

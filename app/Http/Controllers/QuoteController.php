@@ -1,10 +1,10 @@
 <?php namespace App\Http\Controllers;
 
 use Utils;
-use Ninja\Mailers\ContactMailer as Mailer;
-use Ninja\Repositories\InvoiceRepository;
-use Ninja\Repositories\ClientRepository;
-use Ninja\Repositories\TaxRateRepository;
+use App\Ninja\Mailers\ContactMailer as Mailer;
+use App\Ninja\Repositories\InvoiceRepository;
+use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\TaxRateRepository;
 
 class QuoteController extends \BaseController
 {

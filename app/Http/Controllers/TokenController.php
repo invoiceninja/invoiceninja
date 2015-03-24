@@ -9,7 +9,7 @@
 |
 */
 
-use Ninja\Repositories\AccountRepository;
+use App\Ninja\Repositories\AccountRepository;
 
 class TokenController extends BaseController
 {

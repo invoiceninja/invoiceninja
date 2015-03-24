@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Libraries\Utils;
-use Ninja\Mailers\Mailer;
+use App\Ninja\Mailers\Mailer;
 use Redirect;
 use App\Models\Account;
 

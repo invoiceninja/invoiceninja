@@ -1,8 +1,8 @@
 <?php namespace App\Http\Controllers;
 
-use Ninja\Repositories\AccountRepository;
-use Ninja\Mailers\UserMailer;
-use Ninja\Mailers\ContactMailer;
+use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Mailers\UserMailer;
+use App\Ninja\Mailers\ContactMailer;
 
 class AccountController extends \BaseController
 {

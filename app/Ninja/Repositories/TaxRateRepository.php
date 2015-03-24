@@ -1,4 +1,4 @@
-<?php namespace Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use TaxRate;
 use Utils;

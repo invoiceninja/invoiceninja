@@ -1,6 +1,6 @@
 <?php namespace App\Http\Controllers;
 
-use Ninja\Repositories\CreditRepository;
+use App\Ninja\Repositories\CreditRepository;
 
 class CreditController extends \BaseController
 {

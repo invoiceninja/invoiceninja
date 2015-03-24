@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use Utils;
-use Ninja\Repositories\PaymentRepository;
+use App\Ninja\Repositories\PaymentRepository;
 
 class PaymentApiController extends Controller
 {

@@ -1,4 +1,4 @@
-<?php namespace Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use AccountGateway;
 use Auth;
@@ -34,9 +34,11 @@ class AccountRepository
 
         $random = str_random(RANDOM_KEY_LENGTH);
 
+        // I don't like how this is done with regards to init setup. I think it needs a refresh.
         $user = new User();
         $user->password = $random;
         $user->password_confirmation = $random;
+        $user->email = 'test@test.com';
         $user->username = $random;
         $user->confirmed = !Utils::isNinja();
         $account->users()->save($user, []);

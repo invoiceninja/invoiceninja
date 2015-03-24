@@ -1,12 +1,11 @@
 <?php namespace App\Http\Controllers;
 
+use App\Ninja\Mailers\ContactMailer as Mailer;
+use App\Ninja\Repositories\InvoiceRepository;
+use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\TaxRateRepository;
 
-use Ninja\Mailers\ContactMailer as Mailer;
-use Ninja\Repositories\InvoiceRepository;
-use Ninja\Repositories\ClientRepository;
-use Ninja\Repositories\TaxRateRepository;
-
-class InvoiceController extends \BaseController
+class InvoiceController extends BaseController
 {
     protected $mailer;
     protected $invoiceRepo;
@@ -398,9 +397,9 @@ class InvoiceController extends \BaseController
                 Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
             }
 
-            if (!empty(Input::get('pdfupload')) && strpos(Input::get('pdfupload'), 'data:application/pdf;base64,') === 0) {
+            /*if (!empty(Input::get('pdfupload')) && strpos(Input::get('pdfupload'), 'data:application/pdf;base64,') === 0) {
                 $this->storePDF(Input::get('pdfupload'), $input->invoice->public_id);
-            }
+            }*/
 
             if ($action == 'clone') {
                 return $this->cloneInvoice($publicId);

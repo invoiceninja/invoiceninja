@@ -3,7 +3,6 @@
 use Auth;
 use Input;
 
-
 class ReportController extends \BaseController
 {
     public function d3()
