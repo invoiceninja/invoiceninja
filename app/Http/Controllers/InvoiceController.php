@@ -1,5 +1,8 @@
 <?php namespace App\Http\Controllers;
 
+use Auth;
+use Utils;
+
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
