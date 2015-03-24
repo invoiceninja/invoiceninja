@@ -1,9 +1,12 @@
 <?php namespace App\Http\Controllers;
 
-use Config;
-use View;
-use Confide;
 use Auth;
+use Confide;
+use Config;
+use Input;
+use View;
+use Redirect;
+
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Ninja\Repositories\AccountRepository;
@@ -254,27 +257,16 @@ class UserController extends BaseController
      */
     public function login()
     {
-        if (Confide::user()) {
-            Event::fire('user.login');
-            Session::reflash();
-
-            return Redirect::to('/dashboard');
-
-            /*
-            $invoice = Invoice::scope()->orderBy('id', 'desc')->first();
-
-            if ($invoice)
-            {
-                return Redirect::to('/invoices/' . $invoice->public_id);
-            }
-            else
-            {
-                return Redirect::to('/dashboard');
-            }
-            */
-        } else {
-            return View::make(Config::get('confide::login_form'));
+        // Show Login | If not already logged in
+        if (!Confide::user()) {
+            return View::make(Config::get('confide.login_form'));
         }
+
+        // Show Dashboard | If user is logged in
+        Event::fire('user.login');
+        Session::reflash();
+
+        return Redirect::to('/dashboard');
     }
 
     /**
@@ -294,6 +286,7 @@ class UserController extends BaseController
         // with the second parameter as true.
         // logAttempt will check if the 'email' perhaps is the username.
         // Get the value from the config file instead of changing the controller
+        // dd(Confide::logAttempt($input, false));
         if (Input::get('login_email') && Confide::logAttempt($input, false)) {
             Event::fire('user.login');
             // Redirect the user to the URL they were trying to access before
@@ -302,20 +295,13 @@ class UserController extends BaseController
             // Fix pull #145
             return Redirect::intended('/dashboard'); // change it to '/admin', '/dashboard' or something
         } else {
-            //$user = new User;
+
+            // Set Error Message
+            $err_msg = trans('texts.security.wrong_credentials');
 
             // Check if there was too many login attempts
             if (Confide::isThrottled($input)) {
                 $err_msg = trans('texts.security.too_many_attempts');
-            }
-            /*
-            elseif( $user->checkUserExists( $input ) and ! $user->isConfirmed( $input ) )
-            {
-                $err_msg = Lang::get('confide::confide.alerts.not_confirmed');
-            }
-            */
-            else {
-                $err_msg = trans('texts.security.wrong_credentials');
             }
 
             return Redirect::action('UserController@login')
@@ -365,7 +351,7 @@ class UserController extends BaseController
      */
     public function forgot_password()
     {
-        return View::make(Config::get('confide::forgot_password_form'));
+        return View::make(Config::get('confide.forgot_password_form'));
     }
 
     /**
@@ -379,23 +365,7 @@ class UserController extends BaseController
         $notice_msg = trans('texts.security.password_forgot');
 
         return Redirect::action('UserController@login')
-            ->with('notice', $notice_msg);
-
-        /*
-        if( Confide::forgotPassword( Input::get( 'email' ) ) )
-        {
-            $notice_msg = Lang::get('confide::confide.alerts.password_forgot');
-                        return Redirect::action('UserController@login')
-                            ->with( 'notice', $notice_msg );
-        }
-        else
-        {
-            $error_msg = Lang::get('confide::confide.alerts.wrong_password_forgot');
-                        return Redirect::action('UserController@forgot_password')
-                            ->withInput()
-                ->with( 'error', $error_msg );
-        }
-        */
+            ->with('message', $notice_msg);
     }
 
     /**
