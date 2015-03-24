@@ -15,9 +15,15 @@ class ConfigServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
+		// Surely there has to be a better way than this?
+
+		app('config')->set('confide', require $this->app->basePath() . '/config/packages/zizaco/confide/config.php');
+		
+		/*
+		This doesn't work:
 		config([
-			//
-		]);
+			'config/packages/zizaco/confide/config.php'
+		]);*/
 	}
 
 }

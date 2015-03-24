@@ -26,7 +26,7 @@ return [
 	|
 	*/
 
-	'url' => 'http://ninja5.boldplatform.com',
+	'url' => '',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -39,7 +39,7 @@ return [
 	|
 	*/
 
-	'timezone' => 'Australia/Brisbane',
+	'timezone' => 'UTC',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -78,7 +78,7 @@ return [
 	|
 	*/
 
-	'key' => env('APP_KEY', 'p118gfK&rlbAb22CB&8!5SKiPkcZpzGG'),
+	'key' => env('APP_KEY', ''),
 
 	'cipher' => MCRYPT_RIJNDAEL_128,
 
@@ -137,17 +137,10 @@ return [
 		'Illuminate\View\ViewServiceProvider',
 
 		/*
-		 * Application Service Providers...
-		 */
-		'App\Providers\AppServiceProvider',
-		'App\Providers\BusServiceProvider',
-		'App\Providers\ConfigServiceProvider',
-		'App\Providers\EventServiceProvider',
-		'App\Providers\RouteServiceProvider',
-
-		/*
 		 * Additional Providers
 		 */
+	    'Zizaco\Confide\ServiceProvider', // Confide to be replaced
+
 		'Bootstrapper\BootstrapperL5ServiceProvider',
 		'Former\FormerServiceProvider',
 		'Barryvdh\Debugbar\ServiceProvider',
@@ -156,6 +149,15 @@ return [
     	'Webpatser\Countries\CountriesServiceProvider',
     	'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
     	'Illuminate\Html\HtmlServiceProvider',
+
+		/*
+		 * Application Service Providers...
+		 */
+		'App\Providers\AppServiceProvider',
+		'App\Providers\BusServiceProvider',
+		'App\Providers\ConfigServiceProvider',
+		'App\Providers\EventServiceProvider',
+		'App\Providers\RouteServiceProvider',
 	],
 
 	/*
@@ -278,6 +280,8 @@ return [
 		'Countries'       => 'Webpatser\Countries\CountriesFacade',
 		'Carbon'          => 'Carbon\Carbon',
 		'Rocketeer'       => 'Rocketeer\Facades\Rocketeer',
+    	'Confide'    => 'Zizaco\Confide\Facade',// Confide to be replaced
+
 	],
 
 ];
