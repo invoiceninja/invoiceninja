@@ -22,7 +22,7 @@ class AddDanishTranslation extends Migration {
 	 */
 	public function down()
 	{
-        $language = Language::whereLocale('da')->first();
+        $language = \App\Models\Language::whereLocale('da')->first();
 		$language->delete();
 	}
 
