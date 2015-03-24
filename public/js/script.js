@@ -86,6 +86,7 @@ function GetPdf(invoice, javascript){
     doc.setFontSize('8');
     SetPdfColor(invoice.invoice_design_id == 2 || invoice.invoice_design_id == 3 ? 'White' : 'Black',doc);
     var top = doc.internal.pageSize.height - layout.marginLeft;
+    if (!invoice.is_pro) top -= 25;
     var numLines = invoice.invoice_footer.split("\n").length - 1;
     doc.text(layout.marginLeft, top - (numLines * 8), invoice.invoice_footer);
   }
