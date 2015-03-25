@@ -54,7 +54,7 @@ return [
 	|
 	*/
 
-	'from' => ['address' => 'contact@invoiceninja.com', 'name' => 'Invoice Ninja'],
+	'from' => ['address' => env('MAIL_USERNAME'), 'name' => env('MAIL_FROM_NAME')],
 
 	/*
 	|--------------------------------------------------------------------------
@@ -67,7 +67,7 @@ return [
 	|
 	*/
 
-	'encryption' => 'tls',
+	'encryption' => env('MAIL_ENCRYPTION', 'tls'),
 
 	/*
 	|--------------------------------------------------------------------------

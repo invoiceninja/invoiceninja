@@ -1,5 +1,7 @@
 <?php namespace App\Models;
 
+use Eloquent;
+
 class PaymentLibrary extends Eloquent
 {
     protected $table = 'payment_libraries';

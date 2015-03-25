@@ -1,5 +1,20 @@
 ﻿<?php
 
+use App\Models\PaymentType;
+use App\Models\Theme;
+use App\Models\InvoiceStatus;
+use App\Models\Frequency;
+use App\Models\Industry;
+use App\Models\Size;
+use App\Models\PaymentTerm;
+use App\Models\Currency;
+use App\Models\DatetimeFormat;
+use App\Models\DateFormat;
+use App\Models\PaymentLibrary;
+use App\Models\Gateway;
+use App\Models\Timezone;
+
+
 class ConstantsSeeder extends Seeder
 {
 

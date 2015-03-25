@@ -23,6 +23,11 @@
         @if (!extension_loaded('fileinfo'))
             <div class="alert alert-warning">Warning: The <a href="http://php.net/manual/en/book.fileinfo.php" target="_blank">fileinfo</a> extension needs to be installed and enabled.</div>
         @endif
+        @if (!@fopen(base_path()."/.env", 'w'))
+            <div class="alert alert-warning">Warning: Permission denied to write config file
+                <pre>sudo chown yourname:www-data /path/to/ninja</pre>
+            </div>
+        @endif
         If you need help you can either post to our <a href="https://groups.google.com/forum/#!forum/invoiceninja" target="_blank">Google Group</a> 
         or email us at <a href="mailto:contact@invoiceninja.com" target="_blank">contact@invoiceninja.com</a>.
         <p>

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Gateway;
+
 class PaymentLibrariesSeeder extends Seeder
 {
 

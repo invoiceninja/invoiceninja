@@ -1,5 +1,7 @@
 <?php namespace App\Models;
 
+use Eloquent;
+
 class Gateway extends Eloquent
 {
     public $timestamps = true;
