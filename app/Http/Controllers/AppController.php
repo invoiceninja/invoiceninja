@@ -154,16 +154,12 @@ class AppController extends BaseController
         }
     }
 
-    // QUSTION: Does this actually get used???
     public function install()
     {
         if (!Utils::isNinja() && !Utils::isDatabaseSetup()) {
             try {
-                // DB Migrate & Seed
-                // I Really don't want to do it this way but its the best I've found so far. See Above.
-                $process = new \Symfony\Component\Process\Process('cd ' . base_path() . ' && php artisan migrate --seed');
-                $process->run();
-
+                Artisan::call('migrate', array('--force' => true));
+                Artisan::call('db:seed', array('--force' => true));
             } catch (Exception $e) {
                 Response::make($e->getMessage(), 500);
             }
@@ -176,12 +172,7 @@ class AppController extends BaseController
     {
         if (!Utils::isNinja()) {
             try {
-                // DB Migrate & Seed
-                // I Really don't want to do it this way but its the best I've found so far. See Above.
-                $process = new \Symfony\Component\Process\Process('cd ' . base_path() . ' && php artisan migrate');
-                $process->run();
-
-                // Artisan::call('migrate');
+                Artisan::call('migrate', array('--force' => true));
                 Cache::flush();
             } catch (Exception $e) {
                 Response::make($e->getMessage(), 500);
