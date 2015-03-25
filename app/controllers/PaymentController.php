@@ -328,7 +328,9 @@ class PaymentController extends \BaseController
             } else {
                 return self::do_payment($invitationKey, false);
             }
-        }
+        } else {
+	   Session::put('payment_type', PAYMENT_TYPE_ANY);
+	}
 
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
