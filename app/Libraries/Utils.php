@@ -1,8 +1,11 @@
 <?php namespace App\Libraries;
 
 use Auth;
+use Cache;
 use DB;
 use Schema;
+use Session;
+use App\Models\Currency;
 
 class Utils
 {
@@ -221,11 +224,13 @@ class Utils
             $currencyId = Session::get(SESSION_CURRENCY);
         }
 
-        $currency = Currency::remember(DEFAULT_QUERY_CACHE)->find($currencyId);
-
-        if (!$currency) {
-            $currency = Currency::remember(DEFAULT_QUERY_CACHE)->find(1);
+        $currency = Currency::find($currencyId);
+        
+        if(!$currency){
+            $currency = Currency::find(1);
         }
+
+        Cache::add('currency', $currency, DEFAULT_QUERY_CACHE);
 
         return $currency->symbol.number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
     }
