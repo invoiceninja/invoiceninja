@@ -115,8 +115,7 @@ FLUSH PRIVILEGES;</pre>
 
   /* 
    * TODO: 
-   * - Add Backup validation in the controllers
-   * - Add Notice if checking for validation after clicking Submit
+   * - Add JS Validation to DB and Mail
    * - Add Function to clear valid vars fields if they change a setting
    * - Add Nicer Error Message
    *
@@ -166,7 +165,7 @@ FLUSH PRIVILEGES;</pre>
     }
 
     // Validate Settings
-    $('form button[type="submit"]').click( function(e)
+    /*$('form button[type="submit"]').click( function(e)
     {
       // Check DB Settings
       if( !db_valid && !testDatabase() ) {
@@ -183,7 +182,7 @@ FLUSH PRIVILEGES;</pre>
       }
 
       return true;
-    });
+    });*/
 
     // Prevent the Enter Button from working
     $("form").bind("keypress", function (e) {
