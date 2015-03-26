@@ -1,11 +1,18 @@
 <?php namespace App\Http\Controllers;
 
-use Ninja\Repositories\PaymentRepository;
-use Ninja\Repositories\InvoiceRepository;
-use Ninja\Repositories\AccountRepository;
-use Ninja\Mailers\ContactMailer;
+use Datatable;
+use Input;
+use Redirect;
+use Session;
+use Utils;
+use View;
 
-class PaymentController extends \BaseController
+use App\Ninja\Repositories\PaymentRepository;
+use App\Ninja\Repositories\InvoiceRepository;
+use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Mailers\ContactMailer;
+
+class PaymentController extends BaseController
 {
     protected $creditRepo;
 

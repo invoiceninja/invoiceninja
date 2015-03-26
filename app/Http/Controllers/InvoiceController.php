@@ -1,8 +1,11 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
+use Session;
 use Utils;
+use View;
 
+use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
@@ -399,11 +402,13 @@ class InvoiceController extends BaseController
                 $url = URL::to('clients/'.$client->public_id);
                 Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
             }
-
+            
+            /*
+            This causes an error message. Commenting out. will return later.
             if (!empty(Input::get('pdfupload')) && strpos(Input::get('pdfupload'), 'data:application/pdf;base64,') === 0) {
                 $this->storePDF(Input::get('pdfupload'), $invoice->id);
             }
-
+            */
             if ($action == 'clone') {
                 return $this->cloneInvoice($publicId);
             } elseif ($action == 'convert') {

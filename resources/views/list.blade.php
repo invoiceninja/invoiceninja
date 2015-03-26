@@ -2,21 +2,21 @@
 
 @section('content')
 
-	{{ Former::open($entityType . 's/bulk')->addClass('listForm') }}
+	{!! Former::open($entityType . 's/bulk')->addClass('listForm') !!}
 	<div style="display:none">
-		{{ Former::text('action') }}
-		{{ Former::text('statusId') }}
-		{{ Former::text('id') }}
+		{!! Former::text('action') !!}
+		{!! Former::text('statusId') !!}
+		{!! Former::text('id') !!}
 	</div>
 
-	{{ DropdownButton::normal(trans('texts.archive'),
+	{!! DropdownButton::normal(trans('texts.archive'),
 		  Navigation::links(
 		    array(
 		      array(trans('texts.archive_'.$entityType), "javascript:submitForm('archive')"),
 		      array(trans('texts.delete_'.$entityType), "javascript:submitForm('delete')"),
 		    )
 		  )
-		, array('id'=>'archive'))->split(); }}
+		, array('id'=>'archive'))->split() !!}
 	
 	&nbsp;<label for="trashed" style="font-weight:normal; margin-left: 10px;">
 		<input id="trashed" type="checkbox" onclick="setTrashVisible()" 
@@ -25,25 +25,25 @@
 
 	<div id="top_right_buttons" class="pull-right">
 		<input id="tableFilter" type="text" style="width:140px;margin-right:17px" class="form-control pull-left" placeholder="{{ trans('texts.filter') }}"/> 
-		{{ Button::success_link(URL::to($entityType . 's/create'), trans("texts.new_$entityType"), array('class' => 'pull-right'))->append_with_icon('plus-sign'); }}	
+		{!! Button::normal(trans("texts.new_$entityType"))->asLinkTo(URL::to($entityType . 's/create'))->withAttributes(array('class' => 'pull-right'))->appendIcon(Icon::create('plus-sign')) !!}	
         
 	</div>
 
     @if (isset($secEntityType))
-		{{ Datatable::table()		
+		{!! Datatable::table()		
 	    	->addColumn($secColumns)
 	    	->setUrl(route('api.' . $secEntityType . 's'))    	
 	    	->setOptions('sPaginationType', 'bootstrap')
-	    	->render('datatable') }}    
+	    	->render('datatable') !!}    
 	@endif	
 
-	{{ Datatable::table()		
+	{!! Datatable::table()		
     	->addColumn($columns)
     	->setUrl(route('api.' . $entityType . 's'))    	
     	->setOptions('sPaginationType', 'bootstrap')
-    	->render('datatable') }}
+    	->render('datatable') !!}
     
-    {{ Former::close() }}
+    {!! Former::close() !!}
 
     <script type="text/javascript">
 

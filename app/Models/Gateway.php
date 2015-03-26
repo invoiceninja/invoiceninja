@@ -1,6 +1,7 @@
 <?php namespace App\Models;
 
 use Eloquent;
+use Omnipay;
 
 class Gateway extends Eloquent
 {
@@ -9,7 +10,7 @@ class Gateway extends Eloquent
 
     public function paymentlibrary()
     {
-        return $this->belongsTo('PaymentLibrary', 'payment_library_id');
+        return $this->belongsTo('\App\Models\PaymentLibrary', 'payment_library_id');
     }
 
     public function getLogoUrl()

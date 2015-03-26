@@ -1,11 +1,18 @@
 <?php namespace App\Http\Controllers;
 
+use Auth;
 use DB;
+use View;
+use App\Models\Activity;
+use App\Models\Invoice;
 
-class DashboardController extends \BaseController
+class DashboardController extends BaseController
 {
     public function index()
     {
+        // For Debuging : Need to remove when it is not longer needed. 
+        // Auth::login(\App\Models\User::first());
+        // dd(Auth::user());
         // total_income, billed_clients, invoice_sent and active_clients
         $select = DB::raw('COUNT(DISTINCT CASE WHEN invoices.id IS NOT NULL THEN clients.id ELSE null END) billed_clients,
                         SUM(CASE WHEN invoices.invoice_status_id >= '.INVOICE_STATUS_SENT.' THEN 1 ELSE 0 END) invoices_sent,

@@ -1,24 +1,24 @@
 <?php namespace App\Http\Controllers;
-/*
-|--------------------------------------------------------------------------
-| Confide Controller Template
-|--------------------------------------------------------------------------
-|
-| This is the default Confide controller template for controlling user
-| authentication. Feel free to change to your needs.
-|
-*/
 
+use Auth;
+use Datatable;
+use DB;
+use Input;
+use Redirect;
+use Session;
+use View;
+
+use App\Models\Gateway;
 use App\Ninja\Repositories\AccountRepository;
 
 class AccountGatewayController extends BaseController
 {
     public function getDatatable()
     {
-        $query = \DB::table('account_gateways')
+        $query = DB::table('account_gateways')
                     ->join('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
                     ->where('account_gateways.deleted_at', '=', null)
-                    ->where('account_gateways.account_id', '=', \Auth::user()->account_id)
+                    ->where('account_gateways.account_id', '=', Auth::user()->account_id)
                     ->select('account_gateways.public_id', 'gateways.name', 'account_gateways.deleted_at');
 
         return Datatable::query($query)
@@ -95,8 +95,9 @@ class AccountGatewayController extends BaseController
         $selectedCards = $accountGateway ? $accountGateway->accepted_credit_cards : 0;
         $account = Auth::user()->account;
 
-        $recommendedGateways = Gateway::remember(DEFAULT_QUERY_CACHE)
-                ->where('recommended', '=', '1')
+        // $recommendedGateways = Gateway::remember(DEFAULT_QUERY_CACHE)
+                // ->where('recommended', '=', '1')
+        $recommendedGateways = Gateway::where('recommended', '=', '1')
                 ->orderBy('sort_order')
                 ->get();
         $recommendedGatewayArray = array();

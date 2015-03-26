@@ -4,10 +4,10 @@
 
 
 	<div class="pull-right">
-		{{ Former::open('clients/bulk')->addClass('mainForm') }}
+		{!! Former::open('clients/bulk')->addClass('mainForm') !!}
 		<div style="display:none">
-			{{ Former::text('action') }}
-			{{ Former::text('id')->value($client->public_id) }}
+			{!! Former::text('action') !!}
+			{!! Former::text('id')->value($client->public_id) !!}
 		</div>
 
         @if ($gatewayLink)
@@ -26,11 +26,11 @@
 			      [trans('texts.delete_client'), "javascript:onDeleteClick()"],
 			    ]
 			  )
-			, ['id'=>'normalDropDown'])->split(); }}
+			, ['id'=>'normalDropDown'])->split() }}
 
-			{{ DropdownButton::primary(trans('texts.create_invoice'), Navigation::links($actionLinks), ['id'=>'primaryDropDown'])->split(); }}
+			{{ DropdownButton::primary(trans('texts.create_invoice'), Navigation::links($actionLinks), ['id'=>'primaryDropDown'])->split() }}
 		@endif
-	  {{ Former::close() }}
+	  {!! Former::close() !!}
 
 	</div>
 
@@ -38,7 +38,7 @@
 	<h2>{{ $client->getDisplayName() }}</h2>
 	@if ($client->last_login > 0)
 	<h3 style="margin-top:0px"><small>
-		{{ trans('texts.last_logged_in') }} {{ Utils::timestampToDateTimeString(strtotime($client->last_login)); }}
+		{{ trans('texts.last_logged_in') }} {{ Utils::timestampToDateTimeString(strtotime($client->last_login)) }}
 	</small></h3>
 	@endif
 
@@ -69,16 +69,16 @@
 			<table class="table" style="width:300px">
 				<tr>
 					<td><small>{{ trans('texts.paid_to_date') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($client->paid_to_date, $client->currency_id); }}</td>
+					<td style="text-align: right">{{ Utils::formatMoney($client->paid_to_date, $client->currency_id) }}</td>
 				</tr>
 				<tr>
 					<td><small>{{ trans('texts.balance') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($client->balance, $client->currency_id); }}</td>
+					<td style="text-align: right">{{ Utils::formatMoney($client->balance, $client->currency_id) }}</td>
 				</tr>
 				@if ($credit > 0)
 				<tr>
 					<td><small>{{ trans('texts.credit') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($credit, $client->currency_id); }}</td>
+					<td style="text-align: right">{{ Utils::formatMoney($credit, $client->currency_id) }}</td>
 				</tr>
 				@endif
 			</table>
@@ -90,20 +90,20 @@
 	<p>&nbsp;</p>
 
 	<ul class="nav nav-tabs nav-justified">
-		{{ HTML::tab_link('#activity', trans('texts.activity'), true) }}
+		{!! HTML::tab_link('#activity', trans('texts.activity'), true) !!}
 		@if (Utils::isPro())
-			{{ HTML::tab_link('#quotes', trans('texts.quotes')) }}
+			{!! HTML::tab_link('#quotes', trans('texts.quotes')) !!}
 		@endif
-		{{ HTML::tab_link('#invoices', trans('texts.invoices')) }}
-		{{ HTML::tab_link('#payments', trans('texts.payments')) }}
-		{{ HTML::tab_link('#credits', trans('texts.credits')) }}
+		{!! HTML::tab_link('#invoices', trans('texts.invoices')) !!}
+		{!! HTML::tab_link('#payments', trans('texts.payments')) !!}
+		{!! HTML::tab_link('#credits', trans('texts.credits')) !!}
 	</ul>
 
 	<div class="tab-content">
 
         <div class="tab-pane active" id="activity">
 
-			{{ Datatable::table()
+			{!! Datatable::table()
 		    	->addColumn(
 		    		trans('texts.date'),
 		    		trans('texts.message'),
@@ -113,14 +113,14 @@
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
-		    	->render('datatable') }}
+		    	->render('datatable') !!}
 
         </div>
 
     @if (Utils::isPro())
         <div class="tab-pane" id="quotes">
 
-			{{ Datatable::table()
+			{!! Datatable::table()
 		    	->addColumn(
 	    			trans('texts.quote_number'),
 	    			trans('texts.quote_date'),
@@ -131,7 +131,7 @@
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
-		    	->render('datatable') }}
+		    	->render('datatable') !!}
 
         </div>
     @endif
@@ -139,7 +139,7 @@
 		<div class="tab-pane" id="invoices">
 
 			@if ($hasRecurringInvoices)
-				{{ Datatable::table()
+				{!! Datatable::table()
 			    	->addColumn(
 			    		trans('texts.frequency_id'),
 			    		trans('texts.start_date'),
@@ -149,10 +149,10 @@
 			    	->setOptions('sPaginationType', 'bootstrap')
 			    	->setOptions('bFilter', false)
 			    	->setOptions('aaSorting', [['0', 'asc']])
-			    	->render('datatable') }}
+			    	->render('datatable') !!}
 			@endif
 
-			{{ Datatable::table()
+			{!! Datatable::table()
 		    	->addColumn(
 		    			trans('texts.invoice_number'),
 		    			trans('texts.invoice_date'),
@@ -164,12 +164,12 @@
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'asc']])
-		    	->render('datatable') }}
+		    	->render('datatable') !!}
 
         </div>
         <div class="tab-pane" id="payments">
 
-	    	{{ Datatable::table()
+	    	{!! Datatable::table()
 						->addColumn(
 			    			trans('texts.invoice'),
 			    			trans('texts.transaction_reference'),
@@ -180,12 +180,12 @@
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->setOptions('aaSorting', [['0', 'asc']])
-				->render('datatable') }}
+				->render('datatable') !!}
 
         </div>
         <div class="tab-pane" id="credits">
 
-	    	{{ Datatable::table()
+	    	{!! Datatable::table()
 						->addColumn(
 								trans('texts.credit_amount'),
 								trans('texts.credit_balance'),
@@ -195,7 +195,7 @@
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->setOptions('aaSorting', [['0', 'asc']])
-				->render('datatable') }}
+				->render('datatable') !!}
 
         </div>
     </div>

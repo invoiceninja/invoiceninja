@@ -1,8 +1,15 @@
 <?php namespace App\Http\Controllers;
 
+use Datatable;
+use Input;
+use Redirect;
+use Session;
+use Utils;
+use View;
+
 use App\Ninja\Repositories\CreditRepository;
 
-class CreditController extends \BaseController
+class CreditController extends BaseController
 {
     protected $creditRepo;
 

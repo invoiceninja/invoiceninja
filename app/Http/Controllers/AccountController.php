@@ -1,10 +1,27 @@
 <?php namespace App\Http\Controllers;
 
+use Auth;
+use Confide;
+use Input;
+use Redirect;
+use Session;
+use Utils;
+use View;
+
+use App\Models\Account;
+use App\Models\Country;
+use App\Models\Currency;
+use App\Models\DateFormat;
+use App\Models\DatetimeFormat;
+use App\Models\Language;
+use App\Models\Size;
+use App\Models\Timezone;
+use App\Models\Industry;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
 
-class AccountController extends \BaseController
+class AccountController extends BaseController
 {
     protected $accountRepo;
     protected $userMailer;
@@ -103,6 +120,7 @@ class AccountController extends \BaseController
     public function showSection($section = ACCOUNT_DETAILS, $subSection = false)
     {
         if ($section == ACCOUNT_DETAILS) {
+            /* Update Remember Function
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
                 'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
@@ -113,6 +131,19 @@ class AccountController extends \BaseController
                 'datetimeFormats' => DatetimeFormat::remember(DEFAULT_QUERY_CACHE)->get(),
                 'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
                 'languages' => Language::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+                'showUser' => Auth::user()->id === Auth::user()->account->users()->first()->id,
+            ];
+            */
+            $data = [
+                'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+                'countries' => Country::orderBy('name')->get(),
+                'sizes' => Size::orderBy('id')->get(),
+                'industries' => Industry::orderBy('name')->get(),
+                'timezones' => Timezone::orderBy('location')->get(),
+                'dateFormats' => DateFormat::get(),
+                'datetimeFormats' => DatetimeFormat::get(),
+                'currencies' => Currency::orderBy('name')->get(),
+                'languages' => Language::orderBy('name')->get(),
                 'showUser' => Auth::user()->id === Auth::user()->account->users()->first()->id,
             ];
 
