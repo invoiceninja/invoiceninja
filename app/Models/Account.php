@@ -1,6 +1,7 @@
 <?php  namespace App\Models;
 
 use Eloquent;
+use Utils;
 
 class Account extends Eloquent
 {

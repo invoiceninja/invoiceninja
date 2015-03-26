@@ -1,24 +1,12 @@
 <?php namespace App\Models;
 
 use Eloquent;
-// use Illuminate\Auth\UserInterface;
-// use Illuminate\Auth\Reminders\RemindableInterface;
+use Utils;
 use Zizaco\Confide\ConfideUser;
-
-// use Illuminate\Auth\Authenticatable;
-// use Illuminate\Auth\Passwords\CanResetPassword;
-// use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-// use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
-
-
-// use Zizaco\Confide\ConfideUser;
 use Zizaco\Confide\ConfideUserInterface;
 
 class User extends Eloquent implements ConfideUserInterface {
 
-// class User extends ConfideUser implements UserInterface, RemindableInterface {
-
-    // use Authenticatable, CanResetPassword;
     use ConfideUser;
 
     protected $softDelete = true;
@@ -48,12 +36,12 @@ class User extends Eloquent implements ConfideUserInterface {
 
     public function account()
     {
-        return $this->belongsTo('Account');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function theme()
     {
-        return $this->belongsTo('Theme');
+        return $this->belongsTo('App\Models\Theme');
     }
 
     public function getPersonType()

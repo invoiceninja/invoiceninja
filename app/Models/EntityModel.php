@@ -1,5 +1,9 @@
 <?php namespace App\Models;
 
+use Auth;
+use Eloquent;
+use Utils;
+
 class EntityModel extends Eloquent
 {
     protected $softDelete = true;

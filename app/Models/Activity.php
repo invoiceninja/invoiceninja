@@ -1,5 +1,7 @@
 <?php namespace App\Models;
 
+use Eloquent;
+
 class Activity extends Eloquent
 {
     public $timestamps = true;
