@@ -1,6 +1,6 @@
 <script type="text/javascript">
 
-  var currencies = {{ Currency::remember(120)->get(); }};
+  var currencies = {{ \Cache::pull('currency') }};
   var currencyMap = {};
   for (var i=0; i<currencies.length; i++) {
     var currency = currencies[i];
@@ -18,7 +18,7 @@
   }
   function formatMoney(value, currency_id, hide_symbol) {
     value = NINJA.parseFloat(value);
-    if (!currency_id) currency_id = {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY); }};
+    if (!currency_id) currency_id = {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
     var currency = currencyMap[currency_id];
     return accounting.formatMoney(value, hide_symbol ? '' : currency.symbol, currency.precision, currency.thousand_separator, currency.decimal_separator);
   }

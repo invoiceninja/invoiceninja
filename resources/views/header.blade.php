@@ -44,22 +44,22 @@
 
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
       <ul class="nav navbar-nav" style="font-weight: bold">
-        {{ HTML::nav_link('dashboard', 'dashboard') }}
-        {{ HTML::menu_link('client') }}
+        {!! HTML::nav_link('dashboard', 'dashboard') !!}
+        {!! HTML::menu_link('client') !!}
         @if (Utils::isPro())
-          {{ HTML::menu_link('quote') }}
+          {!! HTML::menu_link('quote') !!}
         @endif
-        {{ HTML::menu_link('invoice') }}
-        {{ HTML::menu_link('payment') }}
-        {{ HTML::menu_link('credit') }}
+        {!! HTML::menu_link('invoice') !!}
+        {!! HTML::menu_link('payment') !!}
+        {!! HTML::menu_link('credit') !!}
       </ul>
 
       <div class="navbar-form navbar-right">
         @if (Auth::check())
           @if (!Auth::user()->registered)
-            {{ Button::sm_success_primary(trans('texts.sign_up'), array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) }} &nbsp;
+            {!! Button::sm_success_primary(trans('texts.sign_up'), array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) !!} &nbsp;
           @elseif (!Auth::user()->isPro())
-            {{ Button::sm_success_primary(trans('texts.go_pro'), array('id' => 'proPlanButton', 'data-toggle'=>'modal', 'data-target'=>'#proPlanModal')) }} &nbsp;
+            {!! Button::sm_success_primary(trans('texts.go_pro'), array('id' => 'proPlanButton', 'data-toggle'=>'modal', 'data-target'=>'#proPlanModal')) !!} &nbsp;
           @endif
         @endif
 
@@ -151,7 +151,7 @@
 <div class="container">		
 
   @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-  {{ HTML::breadcrumbs() }}
+  {!! HTML::breadcrumbs() !!}
   @endif
 
   @if (Session::has('warning'))
@@ -180,10 +180,10 @@
   <div class="footer" style="padding-top: 32px">
     @if (false)
     <div class="pull-right">
-      {{ Former::open('user/setTheme')->addClass('themeForm') }}
+      {!! Former::open('user/setTheme')->addClass('themeForm') !!}
       <div style="display:none">
-        {{ Former::text('theme_id') }}
-        {{ Former::text('path')->value(Request::url()) }}
+        {!! Former::text('theme_id') !!}
+        {!! Former::text('path')->value(Request::url()) !!}
       </div>
       <div class="btn-group tr-action dropup">
         <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
@@ -196,7 +196,7 @@
           @endforeach
         </ul>
       </div>
-      {{ Former::close() }}	      	
+      {!! Former::close() !!}
     </div>
     @endif
 
@@ -221,25 +221,25 @@ Want something changed? We're {{ link_to('https://github.com/hillelcoren/invoice
       <div style="background-color: #fff; padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onclick="validateSignUp()" onkeydown="checkForEnter(event)">
         <br/>
 
-        {{ Former::open('signup/submit')->addClass('signUpForm') }}
+        {!! Former::open('signup/submit')->addClass('signUpForm') !!}
 
         @if (Auth::check())
-        {{ Former::populateField('new_first_name', Auth::user()->first_name); }}
-        {{ Former::populateField('new_last_name', Auth::user()->last_name); }}
-        {{ Former::populateField('new_email', Auth::user()->email); }}	    		
+        {!! Former::populateField('new_first_name', Auth::user()->first_name) !!}
+        {!! Former::populateField('new_last_name', Auth::user()->last_name) !!}
+        {!! Former::populateField('new_email', Auth::user()->email) !!}
         @endif
 
         <div style="display:none">
-          {{ Former::text('path')->value(Request::path()) }}
-          {{ Former::text('go_pro') }}
+          {!! Former::text('path')->value(Request::path()) !!}
+          {!! Former::text('go_pro') !!}
         </div>
 
-        {{ Former::text('new_first_name')->label(trans('texts.first_name')) }}
-        {{ Former::text('new_last_name')->label(trans('texts.last_name')) }}
-        {{ Former::text('new_email')->label(trans('texts.email')) }}	    	
-        {{ Former::password('new_password')->label(trans('texts.password')) }}        
-        {{ Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.URL::to('terms').'" target="_blank">'.trans('texts.terms_of_service').'</a>'])) }}
-        {{ Former::close() }}
+        {!! Former::text('new_first_name')->label(trans('texts.first_name')) !!}
+        {!! Former::text('new_last_name')->label(trans('texts.last_name')) !!}
+        {!! Former::text('new_email')->label(trans('texts.email')) !!}
+        {!! Former::password('new_password')->label(trans('texts.password')) !!}
+        {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.URL::to('terms').'" target="_blank">'.trans('texts.terms_of_service').'</a>'])) !!}
+        {!! Former::close() !!}
 
         <center><div id="errorTaken" style="display:none">&nbsp;<br/>{{ trans('texts.email_taken') }}</div></center>
         <br/>

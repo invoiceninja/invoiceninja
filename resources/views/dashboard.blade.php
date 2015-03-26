@@ -10,7 +10,7 @@
                 <div class="in-bold">
                     @if (count($paidToDate))
                         @foreach ($paidToDate as $item)
-                            {{ Utils::formatMoney($item->value, $item->currency_id); }}<br/>
+                            {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
                         @endforeach
                     @else
                         {{ Utils::formatMoney(0) }}
@@ -147,7 +147,7 @@
             <div><b>{{ trans('texts.average_invoice') }}</b></div>
             <div class="in-bold in-white" style="font-size:42px">
                 @foreach ($averageInvoice as $item)
-                {{ Utils::formatMoney($item->invoice_avg, $item->currency_id); }}<br/>
+                {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
                 @endforeach
             </div>
         </div>
