@@ -25,7 +25,7 @@ class Mailer
                 $invoice = Invoice::find($data['id']);
                 $invoice->load('account');
                 $accountAttributes = $invoice->account()->getParent()->getRelations()['account']->getAttributes();
-                $pdfPath = storage_path().'/pdfcache/cache-'.$invoice->getAttributes()['public_id'].'.pdf';
+                $pdfPath = storage_path().'/pdfcache/cache-'.$invoice->id.'.pdf';
                 
                 if($accountAttributes['pdf_email_attachment'] === 1 && file_exists($pdfPath)) {
                     $message->attach(
