@@ -91,7 +91,7 @@ class AppController extends BaseController
         fclose($fp);
 
         // == DB Migrate & Seed == //
-        Artisan::call('migrate:rollback', array('--force' => true)); // Debug Purposes
+        // Artisan::call('migrate:rollback', array('--force' => true)); // Debug Purposes
         Artisan::call('migrate', array('--force' => true));
         Artisan::call('db:seed', array('--force' => true));
 

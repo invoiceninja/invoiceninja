@@ -4,6 +4,8 @@ use App\Libraries\Utils;
 use App\Ninja\Mailers\Mailer;
 use Redirect;
 use App\Models\Account;
+use Auth;
+use View;
 
 class HomeController extends BaseController
 {
