@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use Auth;
 use Artisan;
 use Cache;
 use Config;
@@ -8,6 +9,7 @@ use Exception;
 use Input;
 use Utils;
 use View;
+use App\Models\User;
 use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use Redirect;
@@ -89,25 +91,31 @@ class AppController extends BaseController
         fclose($fp);
 
         // == DB Migrate & Seed == //
+        Artisan::call('migrate:rollback', array('--force' => true)); // Debug Purposes
         Artisan::call('migrate', array('--force' => true));
         Artisan::call('db:seed', array('--force' => true));
 
         $account = $this->accountRepo->create();
-        $user = $account->users()->first();
 
+        // Create User
+        $user = new User;
         $user->first_name = trim(Input::get('first_name'));
         $user->last_name = trim(Input::get('last_name'));
         $user->email = trim(strtolower(Input::get('email')));
-        $user->username = $user->email;
+        
+        // Username getting the error: "The username may only contain letters, numbers, and dashes."
+        // Not sure where this validation comes from?
+        $user->username = 'test'; //$user->email;
+
         $user->password = trim(Input::get('password'));
         $user->password_confirmation = trim(Input::get('password'));
         $user->registered = true;
+        $user->account()->associate($account);
         $user->save();
 
-        //Auth::login($user, true);
-        //$this->accountRepo->registerUser($user);
+        Auth::login($user, true);
 
-        return Redirect::to('/invoices/create');
+        return Redirect::to('/dashboard');
     }
 
     private function testDatabase($database)

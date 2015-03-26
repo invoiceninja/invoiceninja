@@ -32,7 +32,7 @@ class AccountRepository
 
         $account->save();
 
-        $random = str_random(RANDOM_KEY_LENGTH);
+      /*  $random = str_random(RANDOM_KEY_LENGTH);
 
         // I don't like how this is done with regards to init setup. I think it needs a refresh.
         $user = new User();
@@ -41,7 +41,7 @@ class AccountRepository
         $user->email = 'test@test.com';
         $user->username = $random;
         $user->confirmed = !Utils::isNinja();
-        $account->users()->save($user, []);
+        $account->users()->save($user, []);*/
 
         return $account;
     }
