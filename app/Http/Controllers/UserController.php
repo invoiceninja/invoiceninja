@@ -3,9 +3,11 @@
 use Auth;
 use Confide;
 use Config;
+use Event;
 use Input;
 use View;
 use Redirect;
+use Session;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -257,6 +259,8 @@ class UserController extends BaseController
      */
     public function login()
     {
+
+        // Auth::login(\App\Models\User::first()); // Debug purposes only
         // Show Login | If not already logged in
         if (!Confide::user()) {
             return View::make(Config::get('confide.login_form'));

@@ -38,9 +38,9 @@ class AppController extends BaseController
 
     public function doSetup()
     {
-        // if (Utils::isNinja() || Utils::isDatabaseSetup()) {
-        //     return Redirect::to('/');
-        // }
+        if (Utils::isNinja() || Utils::isDatabaseSetup()) {
+            return Redirect::to('/');
+        }
 
         $valid = false;
         $test = Input::get('test');

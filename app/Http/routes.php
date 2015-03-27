@@ -70,7 +70,7 @@ if (\App\Libraries\Utils::isNinja()) {
     Route::get('/demo', 'AccountController@demo');
 }
 
-Route::group(array('before' => 'auth'), function() {
+Route::group(array('middleware' => 'auth'), function() {
     Route::get('dashboard', 'DashboardController@index');
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
