@@ -289,7 +289,7 @@
 		</div>
 
 
-		@if (!Utils::isPro() || InvoiceDesign::count() == COUNT_FREE_DESIGNS)
+		@if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS)
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
 		@else 
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
@@ -345,7 +345,7 @@
 				{!! Button::primary(trans('texts.enter_payment'))->withAttributes(array('onclick' => 'onPaymentClick()'))->appendIcon(Icon::create('usd')) !!}		
 			@endif
 		@elseif ($invoice && $invoice->trashed() && !$invoice->is_deleted == '1')
-			{!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon:create('cloud-download')) !!}
+			{!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
 		@endif
 
 	</div>

@@ -5,7 +5,10 @@ use Cache;
 use DB;
 use Schema;
 use Session;
+use Request;
+use View;
 use App\Models\Currency;
+use DateTimeZone;
 
 class Utils
 {
