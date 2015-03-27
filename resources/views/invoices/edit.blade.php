@@ -16,11 +16,11 @@
 		</ol>  
 	@endif
 
-	{{ Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
+	{!! Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
 		'client' => 'required',
 		'email' => 'required',
 		'product_key' => 'max:20'
-	)) }}	
+	)) !!}	
 
 	<input type="submit" style="display:none" name="submitButton" id="submitButton">
 
@@ -38,7 +38,7 @@
 				<div style="display:none">
     		@endif
 
-			{{ Former::select('client')->addOption('', '')->data_bind("dropdown: client")->addGroupClass('client_select closer-row') }}
+			{!! Former::select('client')->addOption('', '')->data_bind("dropdown: client")->addGroupClass('client_select closer-row') !!}
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
@@ -64,27 +64,27 @@
 		</div>
 		<div class="col-md-4" id="col_2">
 			<div data-bind="visible: !is_recurring()">
-				{{ Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_date"))
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'invoice_date\')"></i>') }}
-				{{ Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') }}							
+				{!! Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_date"))
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'invoice_date\')"></i>') !!}
+				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') !!}							
 			</div>
 			@if ($entityType == ENTITY_INVOICE)
 				<div data-bind="visible: is_recurring" style="display: none">
-					{{ Former::select('frequency_id')->options($frequencies)->data_bind("value: frequency_id") }}
-					{{ Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
-								->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') }}
-					{{ Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
-								->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') }}
+					{!! Former::select('frequency_id')->options($frequencies)->data_bind("value: frequency_id") !!}
+					{!! Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
+								->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') !!}
+					{!! Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
+								->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') !!}
 				</div>
 				@if ($invoice && $invoice->recurring_invoice_id)
 					<div class="pull-right" style="padding-top: 6px">
-						Created by a {{ link_to('/invoices/'.$invoice->recurring_invoice_id, 'recurring invoice') }}
+						Created by a {!! link_to('/invoices/'.$invoice->recurring_invoice_id, 'recurring invoice') !!}
 					</div>
 				@else 
 				<div data-bind="visible: invoice_status_id() === 0">
-					{{ Former::checkbox('recurring')->onclick('setEmailEnabled()')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
-						->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::dateToString($invoice->last_sent_date) : '') }}
+					{!! Former::checkbox('recurring')->onclick('setEmailEnabled()')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
+						->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::dateToString($invoice->last_sent_date) : '') !!}
 				</div>			
 				@endif
 			@endif
@@ -92,13 +92,13 @@
 		</div>
 
 		<div class="col-md-4" id="col_2">
-			{{ Former::text('invoice_number')->label(trans("texts.{$entityType}_number_short"))->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") }}
-			{{ Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") }}				
-			{{ Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
+			{!! Former::text('invoice_number')->label(trans("texts.{$entityType}_number_short"))->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
+			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
+			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
 						Former::select('is_amount_discount')->addOption(trans('texts.discount_percent'), '0')
 						->addOption(trans('texts.discount_amount'), '1')->data_bind("value: is_amount_discount")->raw()
-			) }}			
+			) !!}			
 			{{-- Former::select('currency_id')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") --}}
 			
 			<div class="form-group" style="margin-bottom: 8px">
@@ -113,7 +113,7 @@
 
 	<p>&nbsp;</p>
 
-	{{ Former::hidden('data')->data_bind("value: ko.mapping.toJSON(model)") }}	
+	{!! Former::hidden('data')->data_bind("value: ko.mapping.toJSON(model)") !!}	
 
 	<div class="table-responsive">
 	<table class="table invoice-table" style="margin-bottom: 0px !important">
@@ -135,8 +135,8 @@
 					<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 				</td>
 				<td>	            	
-                    {{ Former::text('product_key')->useDatalist($products->toArray(), 'product_key')->onkeyup('onItemChange()')
-					->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') }}
+                    {!! Former::text('product_key')->useDatalist($products->toArray(), 'product_key')->onkeyup('onItemChange()')
+					->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') !!}
 				</td>
 				<td>
 					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap"></textarea>
@@ -175,20 +175,20 @@
 
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="notes" style="padding-bottom:44px">
-                            {{ Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
-                            ->label(null)->style('resize: none; min-width: 450px;')->rows(3) }}                            
+                            {!! Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
+                            ->label(null)->style('resize: none; min-width: 450px;')->rows(3) !!}                            
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
-                            {{ Former::textarea('terms')->data_bind("value:wrapped_terms, placeholder: default_terms, valueUpdate: 'afterkeydown'")
+                            {!! Former::textarea('terms')->data_bind("value:wrapped_terms, placeholder: default_terms, valueUpdate: 'afterkeydown'")
                             ->label(false)->style('resize: none; min-width: 450px')->rows(3)
                             ->help('<label class="checkbox" style="width: 200px">
-                                        <input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'</label>') }}
+                                        <input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'</label>') !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="footer">
-                            {{ Former::textarea('invoice_footer')->data_bind("value:wrapped_footer, placeholder: default_footer, valueUpdate: 'afterkeydown'")
+                            {!! Former::textarea('invoice_footer')->data_bind("value:wrapped_footer, placeholder: default_footer, valueUpdate: 'afterkeydown'")
                             ->label(false)->style('resize: none; min-width: 450px')->rows(3)
                             ->help('<label class="checkbox" style="width: 200px">
-                                        <input type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'</label>') }}
+                                        <input type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'</label>') !!}
                         </div>
                     </div>
                 </div>
@@ -278,24 +278,24 @@
 	<div class="form-actions">
 
 		<div style="display:none">
-			{{ Former::populateField('entityType', $entityType) }}
-			{{ Former::text('entityType') }}
-			{{ Former::text('action') }}
+			{!! Former::populateField('entityType', $entityType) !!}
+			{!! Former::text('entityType') !!}
+			{!! Former::text('action') !!}
 				
 			@if ($invoice && $invoice->id)
-				{{ Former::populateField('id', $invoice->public_id) }}
-				{{ Former::text('id') }}		
+				{!! Former::populateField('id', $invoice->public_id) !!}
+				{!! Former::text('id') !!}
 			@endif
 		</div>
 
 
 		@if (!Utils::isPro() || InvoiceDesign::count() == COUNT_FREE_DESIGNS)
-			{{ Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') }}
+			{!! Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
 		@else 
-			{{ Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") }}
+			{!! Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
-		{{ Button::primary(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()'))->append_with_icon('download-alt'); }}	
+		{!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}	
         
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))
 			@if ($invoice && $invoice->id)		
@@ -334,18 +334,18 @@
 				</div>		
 
 			@else
-				{{ Button::success(trans("texts.save_{$entityType}"), array('id' => 'saveButton', 'onclick' => 'onSaveClick()')) }}			
+				{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()')) !!}			
 			@endif
 
             @if (!$invoice || ($invoice && !$invoice->is_recurring))
-			 {{ Button::normal(trans("texts.email_{$entityType}"), array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->append_with_icon('send'); }}		
+			 {!! Button::normal(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}		
             @endif
 
 			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE && !$invoice->is_recurring)
-				{{ Button::primary(trans('texts.enter_payment'), array('onclick' => 'onPaymentClick()'))->append_with_icon('usd'); }}		
+				{!! Button::primary(trans('texts.enter_payment'))->withAttributes(array('onclick' => 'onPaymentClick()'))->appendIcon(Icon::create('usd')) !!}		
 			@endif
 		@elseif ($invoice && $invoice->trashed() && !$invoice->is_deleted == '1')
-			{{ Button::success(trans('texts.restore'), ['onclick' => 'submitAction("restore")'])->append_with_icon('cloud-download') }}
+			{!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon:create('cloud-download')) !!}
 		@endif
 
 	</div>
@@ -371,70 +371,70 @@
 		<div style="background-color: #fff" class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
 			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
 
-				{{ Former::legend('organization') }}
-				{{ Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }") }}
-                                {{ Former::text('id_number')->data_bind("value: id_number, valueUpdate: 'afterkeydown'") }}
-                                {{ Former::text('vat_number')->data_bind("value: vat_number, valueUpdate: 'afterkeydown'") }}
+				{!! Former::legend('organization') !!}
+				{!! Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }") !!}
+                                {!! Former::text('id_number')->data_bind("value: id_number, valueUpdate: 'afterkeydown'") !!}
+                                {!! Former::text('vat_number')->data_bind("value: vat_number, valueUpdate: 'afterkeydown'") !!}
                 
-				{{ Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") }}
+				{!! Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") !!}
+				{!! Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") !!}
 
 				@if (Auth::user()->isPro())				
 					@if ($account->custom_client_label1)
-						{{ Former::text('custom_value1')->label($account->custom_client_label1)
-							->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") }}
+						{!! Former::text('custom_value1')->label($account->custom_client_label1)
+							->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") !!}
 					@endif
 					@if ($account->custom_client_label2)
-						{{ Former::text('custom_value2')->label($account->custom_client_label2)
-							->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") }}
+						{!! Former::text('custom_value2')->label($account->custom_client_label2)
+							->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") !!}
 					@endif
 				@endif				
 				
-				{{ Former::legend('address') }}
-				{{ Former::text('address1')->data_bind("value: address1, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('address2')->data_bind("value: address2, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") }}
-				{{ Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") }}
-				{{ Former::select('country_id')->addOption('','')->addGroupClass('country_select')
-					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") }}
+				{!! Former::legend('address') !!}
+				{!! Former::text('address1')->data_bind("value: address1, valueUpdate: 'afterkeydown'") !!}
+				{!! Former::text('address2')->data_bind("value: address2, valueUpdate: 'afterkeydown'") !!}
+				{!! Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") !!}
+				{!! Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") !!}
+				{!! Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") !!}
+				{!! Former::select('country_id')->addOption('','')->addGroupClass('country_select')
+					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") !!}
 					
 			</div>
 			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
 
 
-				{{ Former::legend('contacts') }}
+				{!! Former::legend('contacts') !!}
 				<div data-bind='template: { foreach: contacts,
 			                            beforeRemove: hideContact,
 			                            afterAdd: showContact }'>
-					{{ Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown'") }}
-					{{ Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") }}
-					{{ Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") }}
-					{{ Former::text('email')->data_bind('value: email, valueUpdate: \'afterkeydown\', attr: {id:\'email\'+$index()}') }}
-					{{ Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") }}	
+					{!! Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown'") !!}
+					{!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") !!}
+					{!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") !!}
+					{!! Former::text('email')->data_bind('value: email, valueUpdate: \'afterkeydown\', attr: {id:\'email\'+$index()}') !!}
+					{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") !!}
 
 					<div class="form-group">
 						<div class="col-lg-8 col-lg-offset-4">
 							<span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
-								{{ link_to('#', trans('texts.remove_contact').' -', array('data-bind'=>'click: $parent.removeContact')) }}
+								{!! link_to('#', trans('texts.remove_contact').' -', array('data-bind'=>'click: $parent.removeContact')) !!}
 							</span>					
 							<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right greenlink bold">
-								{{ link_to('#', trans('texts.add_contact').' +', array('data-bind'=>'click: $parent.addContact')) }}
+								{!! link_to('#', trans('texts.add_contact').' +', array('data-bind'=>'click: $parent.addContact')) !!}
 							</span>
 						</div>
 					</div>
 				</div>
 
-				{{ Former::legend('additional_info') }}
-				{{ Former::select('payment_terms')->addOption('','0')->data_bind('value: payment_terms')
-					->fromQuery($paymentTerms, 'name', 'num_days') }}
-				{{ Former::select('currency_id')->addOption('','')->data_bind('value: currency_id')
-					->fromQuery($currencies, 'name', 'id') }}
-				{{ Former::select('size_id')->addOption('','')->data_bind('value: size_id')
-					->fromQuery($sizes, 'name', 'id') }}
-				{{ Former::select('industry_id')->addOption('','')->data_bind('value: industry_id')
-					->fromQuery($industries, 'name', 'id') }}
-				{{ Former::textarea('private_notes')->data_bind('value: private_notes') }}
+				{!! Former::legend('additional_info') !!}
+				{!! Former::select('payment_terms')->addOption('','0')->data_bind('value: payment_terms')
+					->fromQuery($paymentTerms, 'name', 'num_days') !!}
+				{!! Former::select('currency_id')->addOption('','')->data_bind('value: currency_id')
+					->fromQuery($currencies, 'name', 'id') !!}
+				{!! Former::select('size_id')->addOption('','')->data_bind('value: size_id')
+					->fromQuery($sizes, 'name', 'id') !!}
+				{!! Former::select('industry_id')->addOption('','')->data_bind('value: industry_id')
+					->fromQuery($industries, 'name', 'id') !!}
+				{!! Former::textarea('private_notes')->data_bind('value: private_notes') !!}
 
 
 			</div>
@@ -486,10 +486,10 @@
 			</table>
 			&nbsp;
 			
-			{{ Former::checkbox('invoice_taxes')->text(trans('texts.enable_invoice_tax'))
-				->label(trans('texts.settings'))->data_bind('checked: $root.invoice_taxes, enable: $root.tax_rates().length > 1') }}
-			{{ Former::checkbox('invoice_item_taxes')->text(trans('texts.enable_line_item_tax'))
-				->label('&nbsp;')->data_bind('checked: $root.invoice_item_taxes, enable: $root.tax_rates().length > 1') }}
+			{!! Former::checkbox('invoice_taxes')->text(trans('texts.enable_invoice_tax'))
+				->label(trans('texts.settings'))->data_bind('checked: $root.invoice_taxes, enable: $root.tax_rates().length > 1') !!}
+			{!! Former::checkbox('invoice_item_taxes')->text(trans('texts.enable_line_item_tax'))
+				->label('&nbsp;')->data_bind('checked: $root.invoice_item_taxes, enable: $root.tax_rates().length > 1') !!}
 
 			<br/>
 
@@ -524,7 +524,7 @@
 	  </div>
 	</div>
 
-	{{ Former::close() }}
+	{!! Former::close() !!}
 
 
 	</div>

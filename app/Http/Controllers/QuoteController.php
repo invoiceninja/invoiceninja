@@ -5,6 +5,17 @@ use Input;
 use Redirect;
 use Utils;
 use View;
+
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Country;
+use App\Models\Currency;
+use App\Models\Industry;
+use App\Models\InvoiceDesign;
+use App\Models\PaymentTerm;
+use App\Models\Product;
+use App\Models\Size;
+use App\Models\TaxRate;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
@@ -128,6 +139,7 @@ class QuoteController extends BaseController
 
     private static function getViewModel()
     {
+        /*
         return [
       'entityType' => ENTITY_QUOTE,
       'account' => Auth::user()->account,
@@ -143,6 +155,22 @@ class QuoteController extends BaseController
         ->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
       'invoiceLabels' => Auth::user()->account->getInvoiceLabels()
     ];
+*/
+        // TODO: Add Remember Cache
+        return [
+          'entityType' => ENTITY_QUOTE,
+          'account' => Auth::user()->account,
+          'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
+          'countries' => Country::orderBy('name')->get(),
+          'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
+          'taxRates' => TaxRate::scope()->orderBy('name')->get(),
+          'currencies' => Currency::orderBy('name')->get(),
+          'sizes' => Size::orderBy('id')->get(),
+          'paymentTerms' => PaymentTerm::orderBy('num_days')->get(['name', 'num_days']),
+          'industries' => Industry::orderBy('name')->get(),
+          'invoiceDesigns' => InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+          'invoiceLabels' => Auth::user()->account->getInvoiceLabels()
+        ];
     }
 
     public function bulk()
