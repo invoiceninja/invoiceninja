@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Confide;
 use Config;
 use Event;
 use Input;
@@ -257,6 +256,7 @@ class UserController extends BaseController
      * Displays the login form
      *
      */
+    /*
     public function login()
     {
 
@@ -272,11 +272,13 @@ class UserController extends BaseController
 
         return Redirect::to('/dashboard');
     }
+    */
 
     /**
      * Attempt to do login
      *
      */
+    /*
     public function do_login()
     {
         $input = array(
@@ -313,12 +315,14 @@ class UserController extends BaseController
                     ->with('error', $err_msg);
         }
     }
+    */
 
     /**
      * Attempt to confirm account with code
      *
      * @param string $code
      */
+    /*
     public function confirm($code)
     {
         if (Confide::confirm($code)) {
@@ -348,20 +352,24 @@ class UserController extends BaseController
             return Redirect::action('UserController@login')->with('error', $error_msg);
         }
     }
+    */
 
     /**
      * Displays the forgot password form
      *
      */
+    /*
     public function forgot_password()
     {
         return View::make(Config::get('confide.forgot_password_form'));
     }
+    */
 
     /**
      * Attempt to send change password link to the given email
      *
      */
+    /*
     public function do_forgot_password()
     {
         Confide::forgotPassword(Input::get('email'));
@@ -371,21 +379,25 @@ class UserController extends BaseController
         return Redirect::action('UserController@login')
             ->with('message', $notice_msg);
     }
+    */
 
     /**
      * Shows the change password form with the given token
      *
      */
+    /*
     public function reset_password($token = false)
     {
         return View::make(Config::get('confide::reset_password_form'))
                 ->with('token', $token);
     }
+    */
 
     /**
      * Attempt change password of the user
      *
      */
+    /*
     public function do_reset_password()
     {
         if (Auth::check()) {
@@ -428,6 +440,7 @@ class UserController extends BaseController
             }
         }
     }
+    */
 
     /**
      * Log the user out of the application.
@@ -445,7 +458,7 @@ class UserController extends BaseController
         Session::forget('news_feed_id');
         Session::forget('news_feed_message');
 
-        Confide::logout();
+        Auth::logout();
 
         return Redirect::to('/')->with('clearGuestKey', true);
     }

@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Confide;
 use Input;
 use Redirect;
 use Session;
@@ -741,7 +740,7 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         $account->forceDelete();
 
-        Confide::logout();
+        Auth::logout();
 
         return Redirect::to('/')->with('clearGuestKey', true);
     }

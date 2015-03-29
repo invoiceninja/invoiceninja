@@ -94,28 +94,17 @@ class AppController extends BaseController
         // Artisan::call('migrate:rollback', array('--force' => true)); // Debug Purposes
         Artisan::call('migrate', array('--force' => true));
         Artisan::call('db:seed', array('--force' => true));
-
-        $account = $this->accountRepo->create();
-
-        // Create User
-        $user = new User;
-        $user->first_name = trim(Input::get('first_name'));
-        $user->last_name = trim(Input::get('last_name'));
-        $user->email = trim(strtolower(Input::get('email')));
         
-        // Username getting the error: "The username may only contain letters, numbers, and dashes."
-        // Not sure where this validation comes from?
-        $user->username = 'test'; //$user->email;
+        $firstName = trim(Input::get('first_name'));
+        $lastName = trim(Input::get('last_name'));
+        $email = trim(strtolower(Input::get('email')));
+        $password = trim(Input::get('password'));
+        $account = $this->accountRepo->create($firstName, $lastName, $email, $password);
+        $user = $account->users()->first();
 
-        $user->password = trim(Input::get('password'));
-        $user->password_confirmation = trim(Input::get('password'));
-        $user->registered = true;
-        $user->account()->associate($account);
-        $user->save();
+        //Auth::login($user, true);
 
-        Auth::login($user, true);
-
-        return Redirect::to('/dashboard');
+        return Redirect::to('/login');
     }
 
     private function testDatabase($database)

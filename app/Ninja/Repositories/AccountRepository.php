@@ -17,7 +17,7 @@ use App\Models\User;
 
 class AccountRepository
 {
-    public function create()
+    public function create($firstName = '', $lastName = '', $email = '', $password = '')
     {
         $account = new Account();
         $account->ip = Request::getClientIp();
@@ -32,16 +32,21 @@ class AccountRepository
 
         $account->save();
 
-      /*  $random = str_random(RANDOM_KEY_LENGTH);
-
-        // I don't like how this is done with regards to init setup. I think it needs a refresh.
         $user = new User();
-        $user->password = $random;
-        $user->password_confirmation = $random;
-        $user->email = 'test@test.com';
-        $user->username = $random;
+        if (!$firstName && !$lastName && !$email && !$password) {
+            $user->password = str_random(RANDOM_KEY_LENGTH);
+            $user->email = $user->username = str_random(RANDOM_KEY_LENGTH);
+        } else {
+            $user->first_name = $firstName;
+            $user->last_name = $lastName;
+            $user->email = $user->username = $email;
+            $user->password = bcrypt($password);
+        }
+
         $user->confirmed = !Utils::isNinja();
-        $account->users()->save($user, []);*/
+        $user->registered = !Utils::isNinja();
+
+        $account->users()->save($user);
 
         return $account;
     }

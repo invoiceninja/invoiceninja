@@ -139,8 +139,6 @@ return [
 		/*
 		 * Additional Providers
 		 */
-	    'Zizaco\Confide\ServiceProvider', // Confide to be replaced
-
 		'Bootstrapper\BootstrapperL5ServiceProvider',
 		'Former\FormerServiceProvider',
 		'Barryvdh\Debugbar\ServiceProvider',
@@ -280,7 +278,6 @@ return [
 		'Countries'       => 'Webpatser\Countries\CountriesFacade',
 		'Carbon'          => 'Carbon\Carbon',
 		'Rocketeer'       => 'Rocketeer\Facades\Rocketeer',
-    	'Confide'    => 'Zizaco\Confide\Facade',// Confide to be replaced
 
 	],
 

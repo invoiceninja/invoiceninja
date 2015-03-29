@@ -54,6 +54,22 @@ Route::get('claim_license', 'PaymentController@claim_license');
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
 
+
+// Laravel auth routes
+Route::controllers([
+    'auth' => 'Auth\AuthController',
+    'password' => 'Auth\PasswordController',
+]);
+
+get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
+post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
+get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLogin'));
+post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLogin'));
+get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogout'));
+get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\AuthController@getLogin'));
+post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\AuthController@postLogin'));
+
+/*
 // Confide routes
 Route::get('login', 'UserController@login');
 Route::post('login', 'UserController@do_login');
@@ -63,6 +79,7 @@ Route::post('forgot_password', 'UserController@do_forgot_password');
 Route::get('user/reset/{token?}', 'UserController@reset_password');
 Route::post('user/reset', 'UserController@do_reset_password');
 Route::get('logout', 'UserController@logout');
+*/
 
 if (\App\Libraries\Utils::isNinja()) {
     Route::post('/signup/register', 'AccountController@doRegister');
