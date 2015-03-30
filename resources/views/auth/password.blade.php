@@ -53,7 +53,7 @@
 @section('body')
 <div class="container">
 
-{!! Former::open('forgot_password')->rules(['email' => 'required|email'])->addClass('form-signin') !!}
+{!! Former::open('forgot')->rules(['email' => 'required|email'])->addClass('form-signin') !!}
   <div class="modal-header">
     <img src="{{ asset('images/icon-login.png') }}" />
     <h4>Invoice Ninja | {{ trans('texts.password_recovery') }}</h4></div>
@@ -63,7 +63,21 @@
         {!! Former::text('email')->placeholder(trans('texts.email_address'))->raw() !!}
     </p>
 
-    <p>{!! Button::normal(trans('texts.send_email'))->withAttributes(array('class' => 'btn-lg'))->submit()->block() !!}</p>
+    <p>{!! Button::success(trans('texts.send_email'))->withAttributes(array('class' => 'btn-lg'))->submit()->block() !!}</p>
+
+    @if (count($errors->all()))
+        <div class="alert alert-danger">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </div>
+    @endif
+
+    @if (session('status'))
+        <div class="alert alert-info">
+            {{ session('status') }}
+        </div>
+    @endif
 
     <!-- if there are login errors, show them here -->
     @if (Session::has('warning'))

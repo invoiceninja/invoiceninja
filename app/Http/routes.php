@@ -66,8 +66,10 @@ post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegis
 get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLogin'));
 post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLogin'));
 get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogout'));
-get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\AuthController@getLogin'));
-post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\AuthController@postLogin'));
+get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
+post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
+get('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
+post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
 
 /*
 // Confide routes

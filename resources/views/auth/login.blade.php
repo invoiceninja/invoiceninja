@@ -65,10 +65,10 @@
                 {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}
             </p>
 
-            <p>{!! Button::primary(trans('texts.lets_go'))->withAttributes(array('class' => 'btn-lg'))->submit()->block() !!}</p>
+            <p>{!! Button::success(trans('texts.lets_go'))->withAttributes(array('class' => 'btn-lg'))->submit()->block() !!}</p>
 
             <p class="link">
-                {!! link_to('forgot_password', trans('texts.forgot_password')) !!}
+                {!! link_to('/forgot', trans('texts.forgot_password')) !!}
             </p>
 
 

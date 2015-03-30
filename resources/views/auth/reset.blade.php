@@ -53,10 +53,10 @@
 @section('body')
 <div class="container">
 
-  {{ Former::open('user/reset')->addClass('form-signin')->rules(array(
-  'password' => 'required',
-  'password_confirmation' => 'required',        
-  )); }}
+  {!! Former::open('/password/reset')->addClass('form-signin')->rules(array(
+        'password' => 'required',
+        'password_confirmation' => 'required',        
+  )) !!}
 
   <div class="modal-header">
     <img src="{{ asset('images/icon-login.png') }}" />
@@ -66,12 +66,22 @@
       <input type="hidden" name="token" value="{{{ $token }}}">
 
       <p>
-        {{ Former::password('password')->placeholder(trans('texts.password'))->raw() }}				
-        {{ Former::password('password_confirmation')->placeholder(trans('texts.confirm_password'))->raw() }}				
+        {!! Former::text('email')->placeholder(trans('texts.email'))->raw() !!}               
+        {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}               
+        {!! Former::password('password_confirmation')->placeholder(trans('texts.confirm_password'))->raw() !!}
 
     </p>
 
-    <p>{{ Button::success_submit(trans('texts.save'), array('class' => 'btn-lg'))->block() }}</p>
+    <p>{!! Button::success(trans('texts.save'), array('class' => 'btn-lg'))->submit()->block() !!}</p>
+
+
+    @if (count($errors->all()))
+        <div class="alert alert-danger">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </div>
+    @endif
 
     <!-- if there are login errors, show them here -->
     @if (Session::has('warning'))
@@ -87,7 +97,7 @@
     @endif
 
 
-    {{ Former::close() }}
+    {!! Former::close() !!}
 </div>
 
 </div>
