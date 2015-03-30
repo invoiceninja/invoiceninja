@@ -43,6 +43,7 @@ class StartupCheck {
             Cache::forever('currencies', Currency::orderBy('name')->get());
         }
 
+
 		// check the application is up to date and for any news feed messages
 		if (Auth::check())
 		{
