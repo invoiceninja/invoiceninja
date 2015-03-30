@@ -1051,7 +1051,7 @@
 	function InvoiceModel(data) {
 		var self = this;		
 		this.client = ko.observable(data ? false : new ClientModel());		
-		self.account = {{ $account }};		
+		self.account = {!! $account !!};
 		this.id = ko.observable('');
 		self.discount = ko.observable('');
 		self.is_amount_discount = ko.observable(0);
@@ -1607,7 +1607,7 @@
 	
 	var clientMap = {};
 	var $clientSelect = $('select#client');
-	var invoiceDesigns = {{ $invoiceDesigns }};
+	var invoiceDesigns = {!! $invoiceDesigns !!};
 
 	for (var i=0; i<clients.length; i++) {
 		var client = clients[i];

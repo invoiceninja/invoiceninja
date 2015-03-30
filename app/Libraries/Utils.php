@@ -9,6 +9,8 @@ use Request;
 use View;
 use App\Models\Currency;
 use DateTimeZone;
+use Input;
+use Log;
 
 class Utils
 {
@@ -303,8 +305,8 @@ class Utils
             return;
         }
 
-        $timezone = Session::get(SESSION_TIMEZONE);
-        $format = Session::get(SESSION_DATE_FORMAT);
+        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
         $dateTime = DateTime::createFromFormat($format, $date, new DateTimeZone($timezone));
 
@@ -317,8 +319,8 @@ class Utils
             return '';
         }
 
-        $timezone = Session::get(SESSION_TIMEZONE);
-        $format = Session::get(SESSION_DATE_FORMAT);
+        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
         $dateTime = DateTime::createFromFormat('Y-m-d', $date, new DateTimeZone($timezone));
 
@@ -327,8 +329,9 @@ class Utils
 
     public static function today($formatResult = true)
     {
-        $timezone = Session::get(SESSION_TIMEZONE);
-        $format = Session::get(SESSION_DATE_FORMAT);
+        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
+
         $date = date_create(null, new DateTimeZone($timezone));
 
         if ($formatResult) {

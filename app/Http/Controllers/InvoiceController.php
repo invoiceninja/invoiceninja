@@ -4,8 +4,21 @@ use Auth;
 use Session;
 use Utils;
 use View;
+use Input;
+use Cache;
 
 use App\Models\Invoice;
+use App\Models\Client;
+use App\Models\Account;
+use App\Models\Product;
+use App\Models\Country;
+use App\Models\TaxRate;
+use App\Models\Currency;
+use App\Models\Size;
+use App\Models\Industry;
+use App\Models\PaymentTerm;
+use App\Models\InvoiceDesign;
+
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
@@ -300,6 +313,7 @@ class InvoiceController extends BaseController
             }
         }
 
+        /*
         return [
             'account' => Auth::user()->account,
             'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
@@ -323,6 +337,31 @@ class InvoiceController extends BaseController
             ),
             'recurringHelp' => $recurringHelp
         ];
+        */
+
+        return [
+            'account' => Auth::user()->account,
+            'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
+            'countries' => Country::orderBy('name')->get(),
+            'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
+            'taxRates' => TaxRate::scope()->orderBy('name')->get(),
+            'currencies' => Cache::get('currencies'),
+            'sizes' => Size::orderBy('id')->get(),
+            'paymentTerms' => PaymentTerm::orderBy('num_days')->get(['name', 'num_days']),
+            'industries' => Industry::orderBy('name')->get(),
+      'invoiceDesigns' => InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+            'frequencies' => array(
+                1 => 'Weekly',
+                2 => 'Two weeks',
+                3 => 'Four weeks',
+                4 => 'Monthly',
+                5 => 'Three months',
+                6 => 'Six months',
+                7 => 'Annually',
+            ),
+            'recurringHelp' => $recurringHelp
+        ];
+
     }
 
     /**

@@ -1,5 +1,7 @@
 <?php namespace App\Models;
 
+use Session;
+use Auth;
 use App\Libraries\Utils;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;

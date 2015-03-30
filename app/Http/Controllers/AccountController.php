@@ -6,6 +6,7 @@ use Redirect;
 use Session;
 use Utils;
 use View;
+use Event;
 
 use App\Models\Account;
 use App\Models\Country;

@@ -75,7 +75,7 @@
   NINJA.primaryColor = "{{ $account->primary_color }}";
   NINJA.secondaryColor = "{{ $account->secondary_color }}";
 
-  var invoiceLabels = {{ json_encode($account->getInvoiceLabels()) }};
+  var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
 
   var isRefreshing = false;
   var needsRefresh = false;

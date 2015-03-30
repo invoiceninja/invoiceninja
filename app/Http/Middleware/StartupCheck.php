@@ -6,6 +6,9 @@ use App;
 use Auth;
 use Input;
 use Redirect;
+use Cache;
+
+use App\Models\Currency;
 
 class StartupCheck {
 
@@ -34,6 +37,11 @@ class StartupCheck {
 			return $next($request);
 		}
 
+        // Check currency data has been cached
+        if (!Cache::has('currencies'))
+        {
+            Cache::forever('currencies', Currency::orderBy('name')->get());
+        }
 
 		// check the application is up to date and for any news feed messages
 		if (Auth::check())

@@ -120,10 +120,10 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
 }(document, 'script', 'facebook-jssdk'));</script>
 -->
 
-{{ Form::open(array('url' => 'get_started', 'id' => 'startForm')) }}
-{{ Form::hidden('guest_key') }}
-{{ Form::hidden('sign_up', Input::get('sign_up')) }}
-{{ Form::close() }}
+{!! Form::open(array('url' => 'get_started', 'id' => 'startForm')) !!}
+{!! Form::hidden('guest_key') !!}
+{!! Form::hidden('sign_up', Input::get('sign_up')) !!}
+{!! Form::close() !!}
 
 <script>
     if (isStorageSupported()) {

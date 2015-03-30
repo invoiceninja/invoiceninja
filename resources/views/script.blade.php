@@ -1,6 +1,6 @@
 <script type="text/javascript">
 
-  var currencies = {!! \Cache::pull('currency') !!};
+  var currencies = {!! \Cache::get('currencies') !!};
   var currencyMap = {};
   for (var i=0; i<currencies.length; i++) {
     var currency = currencies[i];

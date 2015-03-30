@@ -6,6 +6,7 @@ use Redirect;
 use App\Models\Account;
 use Auth;
 use View;
+use Input;
 
 class HomeController extends BaseController
 {
