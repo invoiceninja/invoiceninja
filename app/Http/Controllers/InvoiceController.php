@@ -8,6 +8,7 @@ use Input;
 use Cache;
 use Redirect;
 use DB;
+use Event;
 
 use App\Models\Invoice;
 use App\Models\Invitation;
@@ -21,11 +22,14 @@ use App\Models\Size;
 use App\Models\Industry;
 use App\Models\PaymentTerm;
 use App\Models\InvoiceDesign;
+use App\Models\AccountGateway;
+use App\Models\Activity;
 
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\TaxRateRepository;
+use App\Events\InvoiceViewed;
 
 class InvoiceController extends BaseController
 {
@@ -178,7 +182,8 @@ class InvoiceController extends BaseController
 
         if (!Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             Activity::viewInvoice($invitation);
-            Event::fire('invoice.viewed', $invoice);
+            //Event::fire('invoice.viewed', $invoice);
+            Event::fire(new InvoiceViewed($invoice));
         }
 
         Session::set($invitationKey, true);

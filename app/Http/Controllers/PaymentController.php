@@ -7,6 +7,10 @@ use Session;
 use Utils;
 use View;
 
+use App\Models\Invoice;
+use App\Models\Client;
+use App\Models\PaymentType;
+
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\AccountRepository;
@@ -140,8 +144,8 @@ class PaymentController extends BaseController
             'method' => 'POST',
             'url' => "payments",
             'title' => trans('texts.new_payment'),
-            //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+            //'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+            'paymentTypes' => PaymentType::orderBy('id')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
 
         return View::make('payments.edit', $data);
@@ -161,8 +165,8 @@ class PaymentController extends BaseController
             'method' => 'PUT',
             'url' => 'payments/'.$publicId,
             'title' => trans('texts.edit_payment'),
-            //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+            //'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
+            'paymentTypes' => PaymentType::orderBy('id')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
 
         return View::make('payments.edit', $data);

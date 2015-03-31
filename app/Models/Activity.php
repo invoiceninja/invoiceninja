@@ -5,10 +5,11 @@ use Eloquent;
 use Utils;
 use Session;
 use Request;
+use Carbon;
 
 class Activity extends Eloquent
 {
-    public $timestamps = true;    
+    public $timestamps = true;
 
     public function scopeScope($query)
     {

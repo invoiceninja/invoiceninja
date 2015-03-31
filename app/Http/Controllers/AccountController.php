@@ -20,6 +20,8 @@ use App\Models\Industry;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
+use App\Events\UserLoggedIn;
+use App\Events\UserSettingsChanged;
 
 class AccountController extends BaseController
 {
@@ -79,7 +81,7 @@ class AccountController extends BaseController
         }
 
         Auth::login($user, true);
-        Event::fire('user.login');
+        Event::fire(new UserLoggedIn());
 
         return Redirect::to('invoices/create')->with('sign_up', Input::get('sign_up'));
     }
@@ -634,7 +636,7 @@ class AccountController extends BaseController
                 //Image::canvas($image->width, $image->height, '#FFFFFF')->insert($image)->save($account->getLogoPath());
             }
 
-            Event::fire('user.refresh');
+            Event::fire(new UserSettingsChanged());
             Session::flash('message', trans('texts.updated_settings'));
 
             return Redirect::to('company/details');

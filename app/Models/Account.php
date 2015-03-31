@@ -2,6 +2,7 @@
 
 use Eloquent;
 use Utils;
+use Session;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 

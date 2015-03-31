@@ -16,7 +16,6 @@
 //dd(DB::getQueryLog());
 //dd(Client::getPrivateId(1));
 //dd(new DateTime());
-//Event::fire('user.signup');
 //dd(App::environment());
 //dd(gethostname());
 //Log::error('test');
@@ -64,7 +63,7 @@ Route::controllers([
 get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
 post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
 get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLogin'));
-post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLogin'));
+post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper'));
 get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogout'));
 get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
 post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));

@@ -1,5 +1,10 @@
 <?php namespace App\Http\Controllers\Auth;
 
+use Auth;
+use Event;
+use Illuminate\Http\Request;
+
+use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\Registrar;
@@ -37,5 +42,16 @@ class AuthController extends Controller {
 
 		$this->middleware('guest', ['except' => 'getLogout']);
 	}
+
+    public function postLoginWrapper(Request $request)
+    {
+        $response = self::postLogin($request);
+
+        if (Auth::check()) {
+            Event::fire(new UserLoggedIn());
+        }
+
+        return $response;
+    }
 
 }

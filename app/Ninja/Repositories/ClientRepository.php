@@ -172,7 +172,7 @@ class ClientRepository
         $client->save();
 
         if (!$publicId || $publicId == "-1") {
-            \Activity::createClient($client, $notify);
+            Activity::createClient($client, $notify);
         }
 
         return $client;
