@@ -32,7 +32,8 @@ class HandleInvoicePaid {
 	public function handle(InvoicePaid $event)
 	{
         $this->contactMailer->sendPaymentConfirmation($payment);
-
+        $invoice = $payment->invoice;
+                
         foreach ($invoice->account->users as $user)
         {
             if ($user->{'notify_paid'})

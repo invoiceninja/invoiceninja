@@ -72,7 +72,7 @@
 
     </p>
 
-    <p>{!! Button::success(trans('texts.save'), array('class' => 'btn-lg'))->submit()->block() !!}</p>
+    <p>{!! Button::success(trans('texts.save'))->large()->submit()->block() !!}</p>
 
 
     @if (count($errors->all()))

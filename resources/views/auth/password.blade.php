@@ -63,7 +63,7 @@
         {!! Former::text('email')->placeholder(trans('texts.email_address'))->raw() !!}
     </p>
 
-    <p>{!! Button::success(trans('texts.send_email'))->withAttributes(array('class' => 'btn-lg'))->submit()->block() !!}</p>
+    <p>{!! Button::success(trans('texts.send_email'))->large()->submit()->block() !!}</p>
 
     @if (count($errors->all()))
         <div class="alert alert-danger">

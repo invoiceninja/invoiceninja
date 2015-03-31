@@ -182,7 +182,6 @@ class InvoiceController extends BaseController
 
         if (!Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             Activity::viewInvoice($invitation);
-            //Event::fire('invoice.viewed', $invoice);
             Event::fire(new InvoiceViewed($invoice));
         }
 

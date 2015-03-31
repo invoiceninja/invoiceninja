@@ -56,6 +56,8 @@
 
 
     {!! Former::open('login')->rules(['email' => 'required|email', 'password' => 'required'])->addClass('form-signin') !!}
+    {{ Former::populateField('remember', 'true') }}
+
     <div class="modal-header">
         <img src="{{ asset('images/icon-login.png') }}" />
         <h4>Invoice Ninja | {{ trans('texts.account_login') }}</h4></div>
@@ -63,9 +65,10 @@
             <p>
                 {!! Former::text('email')->placeholder(trans('texts.email_address'))->raw() !!}
                 {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}
+                {!! Former::hidden('remember')->raw() !!}
             </p>
 
-            <p>{!! Button::success(trans('texts.lets_go'))->withAttributes(array('class' => 'btn-lg'))->submit()->block() !!}</p>
+            <p>{!! Button::success(trans('texts.lets_go'))->large()->submit()->block() !!}</p>
 
             <p class="link">
                 {!! link_to('/forgot', trans('texts.forgot_password')) !!}

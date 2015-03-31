@@ -1,11 +1,14 @@
 <?php namespace App\Ninja\Mailers;
 
-use Invoice;
-use Payment;
-use Contact;
-use Invitation;
-use Activity;
 use Utils;
+use Events;
+
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Contact;
+use App\Models\Invitation;
+use App\Models\Activity;
+use App\Events\InvoiceSent;
 
 class ContactMailer extends Mailer
 {
@@ -56,7 +59,7 @@ class ContactMailer extends Mailer
             $invoice->save();
         }
 
-        \Event::fire('invoice.sent', $invoice);
+        Event::fire(new InvoiceSent($invoice));
     }
 
     public function sendPaymentConfirmation(Payment $payment)

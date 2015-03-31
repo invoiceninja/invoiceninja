@@ -3,7 +3,10 @@
 use Auth;
 use Utils;
 use View;
+use URL;
+
 use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\Size;
 use App\Models\PaymentTerm;
 use App\Models\Industry;

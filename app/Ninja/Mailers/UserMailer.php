@@ -1,9 +1,10 @@
 <?php namespace App\Ninja\Mailers;
 
-use Invoice;
-use Payment;
-use User;
 use Utils;
+
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\User;
 
 class UserMailer extends Mailer
 {

@@ -1,5 +1,7 @@
 <?php namespace App\Models;
 
+use HTML;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contact extends EntityModel

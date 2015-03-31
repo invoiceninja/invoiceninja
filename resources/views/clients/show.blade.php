@@ -11,24 +11,23 @@
 		</div>
 
         @if ($gatewayLink)
-            {{ Button::link($gatewayLink, trans('texts.view_in_stripe'), ['target' => '_blank']) }}
+            {!! Button::link($gatewayLink, trans('texts.view_in_stripe'), ['target' => '_blank']) !!}
         @endif
 
 		@if ($client->trashed())
-			{{ Button::primary(trans('texts.restore_client'), ['onclick' => 'onRestoreClick()']) }}
+			{!! Button::primary(trans('texts.restore_client'), ['onclick' => 'onRestoreClick()']) !!}
 		@else
-		{{ DropdownButton::normal(trans('texts.edit_client'),
-			  Navigation::links(
-			    [
-			      [trans('texts.edit_client'), URL::to('clients/' . $client->public_id . '/edit')],
-			      [Navigation::DIVIDER],
-			      [trans('texts.archive_client'), "javascript:onArchiveClick()"],
-			      [trans('texts.delete_client'), "javascript:onDeleteClick()"],
+		    {!! DropdownButton::normal(trans('texts.edit_client'))
+                ->withAttributes(['class'=>'normalDropDown'])
+                ->withContents([
+			      ['label' => trans('texts.edit_client'), 'url' => URL::to('clients/' . $client->public_id . '/edit')],
+			      Navigation::NAVIGATION_DIVIDER,
+			      ['label' => trans('texts.archive_client'), 'url' => "javascript:onArchiveClick()"],
+			      ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
 			    ]
-			  )
-			, ['id'=>'normalDropDown'])->split() }}
+			  )->split() !!}
 
-			{{ DropdownButton::primary(trans('texts.create_invoice'), Navigation::links($actionLinks), ['id'=>'primaryDropDown'])->split() }}
+			{!! DropdownButton::primary(trans('texts.create_invoice'), Navigation::links($actionLinks), ['id'=>'primaryDropDown'])->split() !!}
 		@endif
 	  {!! Former::close() !!}
 
@@ -46,9 +45,11 @@
 
 		<div class="col-md-3">
 			<h3>{{ trans('texts.details') }}</h3>
-                        <p>{{ $client->getIdNumber() }}</p>
+            @if ($client->id_number)
+                <p><i class="fa fa-id-number" style="width: 20px"></i>{{ trans('texts.id_number').': '.$this->id_number }}</p>
+            @endif
 		  	<p>{{ $client->getVatNumber() }}</p>
-                        <p>{{ $client->getAddress() }}</p>
+            <p>{{ $client->getAddress() }}</p>
 		  	<p>{{ $client->getCustomFields() }}</p>
 		  	<p>{{ $client->getPhone() }}</p>
 		  	<p>{{ $client->getNotes() }}</p>
@@ -203,10 +204,10 @@
 	<script type="text/javascript">
 
 	$(function() {
-		$('#normalDropDown > button:first').click(function() {
+		$('.normalDropDown').click(function() {
 			window.location = '{{ URL::to('clients/' . $client->public_id . '/edit') }}';
 		});
-		$('#primaryDropDown > button:first').click(function() {
+		$('.primaryDropDown').click(function() {
 			window.location = '{{ URL::to('invoices/create/' . $client->public_id ) }}';
 		});
 	});

@@ -9,6 +9,7 @@ use Redirect;
 use Cache;
 
 use App\Models\Currency;
+use App\Events\UserSettingsChanged;
 
 class StartupCheck {
 
@@ -106,7 +107,7 @@ class StartupCheck {
 		// Make sure the account/user localization settings are in the session
 		if (Auth::check() && !Session::has(SESSION_TIMEZONE)) 
 		{
-            Event::fire('user.refresh');
+            Event::fire(new UserSettingsChanged());
 		}
 
 		// Check if the user is claiming a license (ie, additional invoices, white label, etc.)

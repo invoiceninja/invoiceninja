@@ -1,5 +1,7 @@
 <?php namespace App\Models;
 
+use DB;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends EntityModel
@@ -128,17 +130,6 @@ class Client extends EntityModel
 
         if ($this->work_phone) {
             $str .= '<i class="fa fa-phone" style="width: 20px"></i>'.Utils::formatPhoneNumber($this->work_phone);
-        }
-
-        return $str;
-    }
-
-    public function getIdNumber()
-    {
-        $str = '';
-
-        if ($this->id_number) {
-            $str .= '<i class="fa fa-id-number" style="width: 20px"></i>'.trans('texts.id_number').': '.$this->id_number;
         }
 
         return $str;

@@ -15,6 +15,7 @@ use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\ContactMailer;
+use App\Events\InvoicePaid;
 
 class PaymentController extends BaseController
 {
@@ -669,7 +670,7 @@ class PaymentController extends BaseController
 
         $payment->save();
 
-        Event::fire('invoice.paid', $payment);
+        Event::fire(new InvoicePaid($payment));
 
         return $payment;
     }

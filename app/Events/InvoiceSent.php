@@ -8,14 +8,16 @@ class InvoiceSent extends Event {
 
 	use SerializesModels;
 
+    public $invoice;
+    
 	/**
 	 * Create a new event instance.
 	 *
 	 * @return void
 	 */
-	public function __construct()
-	{
-		//
-	}
+    public function __construct($invoice)
+    {
+        $this->invoice = $invoice;
+    }
 
 }
