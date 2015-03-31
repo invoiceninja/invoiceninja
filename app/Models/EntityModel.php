@@ -6,9 +6,7 @@ use Utils;
 
 class EntityModel extends Eloquent
 {
-    protected $softDelete = true;
     public $timestamps = true;
-
     protected $hidden = ['id'];
 
     public static function createNew($parent = false)

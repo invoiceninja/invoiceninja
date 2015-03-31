@@ -1,7 +1,12 @@
 <?php namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Client extends EntityModel
 {
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
+
     public static $fieldName = 'Client - Name';
     public static $fieldPhone = 'Client - Phone';
     public static $fieldAddress1 = 'Client - Street';
@@ -14,47 +19,47 @@ class Client extends EntityModel
 
     public function account()
     {
-        return $this->belongsTo('Account');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function invoices()
     {
-        return $this->hasMany('Invoice');
+        return $this->hasMany('App\Models\Invoice');
     }
 
     public function payments()
     {
-        return $this->hasMany('Payment');
+        return $this->hasMany('App\Models\Payment');
     }
 
     public function contacts()
     {
-        return $this->hasMany('Contact');
+        return $this->hasMany('App\Models\Contact');
     }
 
     public function projects()
     {
-        return $this->hasMany('Project');
+        return $this->hasMany('App\Models\Project');
     }
 
     public function country()
     {
-        return $this->belongsTo('Country');
+        return $this->belongsTo('App\Models\Country');
     }
 
     public function currency()
     {
-        return $this->belongsTo('Currency');
+        return $this->belongsTo('App\Models\Currency');
     }
 
     public function size()
     {
-        return $this->belongsTo('Size');
+        return $this->belongsTo('App\Models\Size');
     }
 
     public function industry()
     {
-        return $this->belongsTo('Industry');
+        return $this->belongsTo('App\Models\Industry');
     }
 
     public function getTotalCredit()

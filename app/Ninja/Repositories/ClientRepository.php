@@ -1,7 +1,8 @@
 <?php namespace App\Ninja\Repositories;
 
-use Client;
-use Contact;
+use App\Models\Client;
+use App\Models\Contact;
+use App\Models\Activity;
 
 class ClientRepository
 {

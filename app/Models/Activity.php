@@ -1,11 +1,14 @@
 <?php namespace App\Models;
 
+use Auth;
 use Eloquent;
+use Utils;
+use Session;
+use Request;
 
 class Activity extends Eloquent
 {
-    public $timestamps = true;
-    protected $softDelete = false;
+    public $timestamps = true;    
 
     public function scopeScope($query)
     {
@@ -14,7 +17,7 @@ class Activity extends Eloquent
 
     public function account()
     {
-        return $this->belongsTo('Account');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function user()

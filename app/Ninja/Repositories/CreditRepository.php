@@ -1,7 +1,7 @@
 <?php namespace App\Ninja\Repositories;
 
-use Credit;
-use Client;
+use App\Models\Credit;
+use App\Models\Client;
 use Utils;
 
 class CreditRepository

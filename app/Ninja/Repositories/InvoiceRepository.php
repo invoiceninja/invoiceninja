@@ -1,9 +1,9 @@
 <?php namespace App\Ninja\Repositories;
 
-use Invoice;
-use InvoiceItem;
-use Invitation;
-use Product;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
+use App\Models\Invitation;
+use App\Models\Product;
 use Utils;
 
 class InvoiceRepository

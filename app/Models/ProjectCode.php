@@ -3,14 +3,17 @@
 use Auth;
 use Utils;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class ProjectCode extends Eloquent
 {
     public $timestamps = true;
-    protected $softDelete = true;
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
 
     public function account()
     {
-        return $this->belongsTo('Account');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function user()
@@ -20,12 +23,12 @@ class ProjectCode extends Eloquent
 
     public function project()
     {
-        return $this->belongsTo('Project');
+        return $this->belongsTo('App\Models\Project');
     }
 
     public function events()
     {
-        return $this->hasMany('TimesheetEvent');
+        return $this->hasMany('App\Models\TimesheetEvent');
     }
 
     public static function createNew($parent = false)

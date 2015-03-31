@@ -1,15 +1,20 @@
 <?php namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Credit extends EntityModel
 {
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
+
     public function invoice()
     {
-        return $this->belongsTo('Invoice')->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     public function client()
     {
-        return $this->belongsTo('Client')->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     public function getName()

@@ -1,9 +1,9 @@
 <?php namespace App\Ninja\Repositories;
 
-use Payment;
-use Credit;
-use Invoice;
-use Client;
+use App\Models\Payment;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Models\Client;
 use Utils;
 
 class PaymentRepository

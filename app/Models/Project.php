@@ -10,7 +10,7 @@ class Project extends Eloquent
 
     public function account()
     {
-        return $this->belongsTo('Account');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function user()
@@ -20,12 +20,12 @@ class Project extends Eloquent
 
     public function client()
     {
-        return $this->belongsTo('Client');
+        return $this->belongsTo('App\Models\Client');
     }
 
     public function codes()
     {
-        return $this->hasMany('ProjectCode');
+        return $this->hasMany('App\Models\ProjectCode');
     }
 
     public static function createNew($parent = false)

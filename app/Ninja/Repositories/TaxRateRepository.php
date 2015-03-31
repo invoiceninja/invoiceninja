@@ -1,6 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
-use TaxRate;
+use App\Models\TaxRate;
 use Utils;
 
 class TaxRateRepository

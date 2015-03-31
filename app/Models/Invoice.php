@@ -1,10 +1,15 @@
 <?php namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Invoice extends EntityModel
 {
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
+
     public function account()
     {
-        return $this->belongsTo('Account');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function user()
@@ -14,27 +19,27 @@ class Invoice extends EntityModel
 
     public function client()
     {
-        return $this->belongsTo('Client')->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     public function invoice_items()
     {
-        return $this->hasMany('InvoiceItem')->orderBy('id');
+        return $this->hasMany('App\Models\InvoiceItem')->orderBy('id');
     }
 
     public function invoice_status()
     {
-        return $this->belongsTo('InvoiceStatus');
+        return $this->belongsTo('App\Models\InvoiceStatus');
     }
 
     public function invoice_design()
     {
-        return $this->belongsTo('InvoiceDesign');
+        return $this->belongsTo('App\Models\InvoiceDesign');
     }
 
     public function invitations()
     {
-        return $this->hasMany('Invitation')->orderBy('invitations.contact_id');
+        return $this->hasMany('App\Models\Invitation')->orderBy('invitations.contact_id');
     }
 
     public function getName()

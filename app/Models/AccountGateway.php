@@ -1,10 +1,15 @@
 <?php namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class AccountGateway extends EntityModel
 {
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
+
     public function gateway()
     {
-        return $this->belongsTo('Gateway');
+        return $this->belongsTo('App\Models\Gateway');
     }
 
     public function getCreditcardTypes()

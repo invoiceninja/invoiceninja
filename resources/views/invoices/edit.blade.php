@@ -11,7 +11,7 @@
 	
 	@if ($invoice && $invoice->id)
 		<ol class="breadcrumb">
-			<li>{{ link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) }}</li>
+			<li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
 			<li class='active'>{{ $invoice->invoice_number }}</li>
 		</ol>  
 	@endif
@@ -513,7 +513,7 @@
 	      </div>
 
 	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
-	    	&nbsp; {{ isset($recurringHelp) ? $recurringHelp : '' }} &nbsp;
+	    	&nbsp; {!! isset($recurringHelp) ? $recurringHelp : '' !!} &nbsp;
 		</div>
 
 	     <div class="modal-footer" style="margin-top: 0px">
@@ -1602,8 +1602,8 @@
         }
     }
 
-	var products = {{ $products }};
-	var clients = {{ $clients }};	
+	var products = {!! $products !!};
+	var clients = {!! $clients !!};	
 	
 	var clientMap = {};
 	var $clientSelect = $('select#client');
@@ -1630,12 +1630,12 @@
 			model.addTaxRate({{ $taxRate }});
 		@endforeach
 		@if ($invoice)
-			var invoice = {{ $invoice }};
+			var invoice = {!! $invoice !!};
 			ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);			
 			if (model.invoice().is_recurring() === '0') {
 				model.invoice().is_recurring(false);
 			}
-			var invitationContactIds = {{ json_encode($invitationContactIds) }};		
+			var invitationContactIds = {!! json_encode($invitationContactIds) !!};		
 			var client = clientMap[invoice.client.public_id];
 			if (client) { // in case it's deleted
 				for (var i=0; i<client.contacts.length; i++) {

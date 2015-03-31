@@ -1,13 +1,16 @@
 <?php namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Timesheet extends Eloquent
 {
     public $timestamps = true;
-    protected $softDelete = true;
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
 
     public function account()
     {
-        return $this->belongsTo('Account');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function user()
@@ -17,6 +20,6 @@ class Timesheet extends Eloquent
 
     public function timesheet_events()
     {
-        return $this->hasMany('TimeSheetEvent');
+        return $this->hasMany('App\Models\TimeSheetEvent');
     }
 }

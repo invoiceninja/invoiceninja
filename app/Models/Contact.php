@@ -1,7 +1,12 @@
 <?php namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Contact extends EntityModel
 {
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
+
     public static $fieldFirstName = 'Contact - First Name';
     public static $fieldLastName = 'Contact - Last Name';
     public static $fieldEmail = 'Contact - Email';
@@ -9,7 +14,7 @@ class Contact extends EntityModel
 
     public function client()
     {
-        return $this->belongsTo('Client');
+        return $this->belongsTo('App\Models\Client');
     }
 
     public function getPersonType()

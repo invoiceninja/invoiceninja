@@ -1,30 +1,35 @@
 <?php namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Payment extends EntityModel
 {
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
+
     public function invoice()
     {
-        return $this->belongsTo('Invoice')->withTrashed();
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     public function invitation()
     {
-        return $this->belongsTo('Invitation');
+        return $this->belongsTo('App\Models\Invitation');
     }
 
     public function client()
     {
-        return $this->belongsTo('Client')->withTrashed();
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     public function account()
     {
-        return $this->belongsTo('Account');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function contact()
     {
-        return $this->belongsTo('Contact');
+        return $this->belongsTo('App\Models\Contact');
     }
 
     public function getAmount()

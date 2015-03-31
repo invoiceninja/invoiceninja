@@ -4,8 +4,7 @@ use Eloquent;
 
 class Country extends Eloquent
 {
-    public $timestamps = false;
-    protected $softDelete = false;
+    public $timestamps = false;    
 
     protected $visible = ['id', 'name'];
 }

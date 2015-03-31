@@ -1,15 +1,15 @@
 <?php namespace App\Ninja\Repositories;
 
-use AccountGateway;
 use Auth;
-use Invitation;
-use Invoice;
-use InvoiceItem;
 use Language;
 use Request;
 use Session;
 use Utils;
 
+use App\Models\AccountGateway;
+use App\Models\Invitation;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Account;

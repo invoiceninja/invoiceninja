@@ -1,15 +1,20 @@
 <?php namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Invitation extends EntityModel
 {
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
+
     public function invoice()
     {
-        return $this->belongsTo('Invoice');
+        return $this->belongsTo('App\Models\Invoice');
     }
 
     public function contact()
     {
-        return $this->belongsTo('Contact')->withTrashed();
+        return $this->belongsTo('App\Models\Contact')->withTrashed();
     }
 
     public function user()
@@ -19,7 +24,7 @@ class Invitation extends EntityModel
 
     public function account()
     {
-        return $this->belongsTo('Account');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function getLink()

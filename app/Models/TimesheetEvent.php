@@ -3,10 +3,13 @@
 use Auth;
 use Utils;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class TimesheetEvent extends Eloquent
 {
     public $timestamps = true;
-    protected $softDelete = true;
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
 
     /* protected $dates = array('org_updated_at');
 
@@ -22,7 +25,7 @@ class TimesheetEvent extends Eloquent
 
     public function account()
     {
-        return $this->belongsTo('Account');
+        return $this->belongsTo('App\Models\Account');
     }
 
     public function user()
@@ -32,22 +35,22 @@ class TimesheetEvent extends Eloquent
 
     public function source()
     {
-        return $this->belongsTo('TimesheetEventSource');
+        return $this->belongsTo('App\Models\TimesheetEventSource');
     }
 
     public function timesheet()
     {
-        return $this->belongsTo('Timesheet');
+        return $this->belongsTo('App\Models\Timesheet');
     }
 
     public function project()
     {
-        return $this->belongsTo('Project');
+        return $this->belongsTo('App\Models\Project');
     }
 
     public function project_code()
     {
-        return $this->belongsTo('ProjectCode');
+        return $this->belongsTo('App\Models\ProjectCode');
     }
 
     /**

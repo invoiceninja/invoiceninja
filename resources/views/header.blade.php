@@ -57,9 +57,9 @@
       <div class="navbar-form navbar-right">
         @if (Auth::check())
           @if (!Auth::user()->registered)
-            {!! Button::success(trans('texts.sign_up'), array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal')) !!} &nbsp;
+            {!! Button::success(trans('texts.sign_up'), array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal'))->small() !!} &nbsp;
           @elseif (!Auth::user()->isPro())
-            {!! Button::success(trans('texts.go_pro'), array('id' => 'proPlanButton', 'data-toggle'=>'modal', 'data-target'=>'#proPlanModal')) !!} &nbsp;
+            {!! Button::success(trans('texts.go_pro'), array('id' => 'proPlanButton', 'data-toggle'=>'modal', 'data-target'=>'#proPlanModal'))->small() !!} &nbsp;
           @endif
         @endif
 

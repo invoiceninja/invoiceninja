@@ -1,11 +1,14 @@
-<?php  namespace App\Models;
+<?php namespace App\Models;
 
 use Eloquent;
 use Utils;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Account extends Eloquent
 {
-    protected $softDelete = true;
+    use SoftDeletes;
+    protected $dates = ['deleted_at'];
 
     public function users()
     {
