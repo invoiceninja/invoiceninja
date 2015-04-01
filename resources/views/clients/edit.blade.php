@@ -138,7 +138,7 @@
 		});	
 	}
 
-	window.model = new ContactsModel({{ $client }});
+	window.model = new ContactsModel({!! $client !!});
 
 	model.showContact = function(elem) { if (elem.nodeType === 1) $(elem).hide().slideDown() }
 	model.hideContact = function(elem) { if (elem.nodeType === 1) $(elem).slideUp(function() { $(elem).remove(); }) }
@@ -159,7 +159,7 @@
 	</script>
 
 	<center class="buttons">
-		{!! Button::primary(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+		{!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
     	{!! Button::normal(trans('texts.cancel'))->large()->asLinkTo('clients/' . ($client ? $client->public_id : ''))->appendIcon(Icon::create('remove-circle')) !!}
 	</center>
 

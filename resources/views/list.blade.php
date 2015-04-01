@@ -9,14 +9,10 @@
 		{!! Former::text('id') !!}
 	</div>
 
-	{!! DropdownButton::normal(trans('texts.archive'),
-		  Navigation::links(
-		    array(
-		      array(trans('texts.archive_'.$entityType), "javascript:submitForm('archive')"),
-		      array(trans('texts.delete_'.$entityType), "javascript:submitForm('delete')"),
-		    )
-		  )
-		, array('id'=>'archive'))->split() !!}
+	{!! DropdownButton::normal(trans('texts.archive'))->withContents([
+		      ['label' => trans('texts.archive_'.$entityType), 'url' => "javascript:submitForm('archive')"],
+		      ['label' => trans('texts.delete_'.$entityType), 'url' => "javascript:submitForm('delete')"],
+		    ])->withAttributes(['class'=>'archive'])->split() !!}
 	
 	&nbsp;<label for="trashed" style="font-weight:normal; margin-left: 10px;">
 		<input id="trashed" type="checkbox" onclick="setTrashVisible()" 
@@ -145,8 +141,8 @@
 
 	}	
 
-	$('#archive > button').prop('disabled', true);
-	$('#archive > button:first').click(function() {
+	$('.archive').prop('disabled', true);
+	$('.archive:not(.dropdown-toggle)').click(function() {
 		submitForm('archive');
 	});
 

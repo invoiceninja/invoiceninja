@@ -338,7 +338,7 @@
 			@endif
 
             @if (!$invoice || ($invoice && !$invoice->is_recurring))
-			 {!! Button::normal(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}		
+			 {!! Button::normal(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
             @endif
 
 			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE && !$invoice->is_recurring)

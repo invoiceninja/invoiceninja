@@ -55,27 +55,4 @@ class Contact extends EntityModel
             return '';
         }
     }
-
-    public function getDetails()
-    {
-        $str = '';
-
-        if ($this->first_name || $this->last_name) {
-            $str .= '<b>'.$this->first_name.' '.$this->last_name.'</b><br/>';
-        }
-
-        if ($this->email) {
-            $str .= '<i class="fa fa-envelope" style="width: 20px"></i>'.HTML::mailto($this->email, $this->email).'<br/>';
-        }
-
-        if ($this->phone) {
-            $str .= '<i class="fa fa-phone" style="width: 20px"></i>'.Utils::formatPhoneNumber($this->phone);
-        }
-
-        if ($str) {
-            $str = '<p>'.$str.'</p>';
-        }
-
-        return $str;
-    }
 }

@@ -73,7 +73,7 @@ function ContactsModel() {
 }
 
 @if ($client)
-	window.model = ko.mapping.fromJS({{ $client }});			
+	window.model = ko.mapping.fromJS({!! $client !!});			
 @else
 	window.model = new ContactsModel();
 	addContact();

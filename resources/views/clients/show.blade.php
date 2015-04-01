@@ -27,7 +27,9 @@
 			    ]
 			  )->split() !!}
 
-			{!! DropdownButton::primary(trans('texts.create_invoice'), Navigation::links($actionLinks), ['id'=>'primaryDropDown'])->split() !!}
+			{!! DropdownButton::primary(trans('texts.create_invoice'))
+                    ->withAttributes(['class'=>'primaryDropDown'])
+                    ->withContents($actionLinks)->split() !!}
 		@endif
 	  {!! Former::close() !!}
 
@@ -46,22 +48,72 @@
 		<div class="col-md-3">
 			<h3>{{ trans('texts.details') }}</h3>
             @if ($client->id_number)
-                <p><i class="fa fa-id-number" style="width: 20px"></i>{{ trans('texts.id_number').': '.$this->id_number }}</p>
+                <p><i class="fa fa-id-number" style="width: 20px"></i>{{ trans('texts.id_number').': '.$client->id_number }}</p>
             @endif
-		  	<p>{{ $client->getVatNumber() }}</p>
-            <p>{{ $client->getAddress() }}</p>
-		  	<p>{{ $client->getCustomFields() }}</p>
-		  	<p>{{ $client->getPhone() }}</p>
-		  	<p>{{ $client->getNotes() }}</p>
-		  	<p>{{ $client->getIndustry() }}</p>
-		  	<p>{{ $client->getWebsite() }}</p>
+            @if ($client->vat_number)
+		  	   <p><i class="fa fa-vat-number" style="width: 20px"></i>{{ trans('texts.vat_number').': '.$client->vat_number }}</p>
+            @endif
+
+            @if ($client->address1)
+                {{ $client->address1 }}<br/>
+            @endif
+            @if ($client->address2)
+                {{ $client->address2 }}<br/>
+            @endif
+            @if ($client->city)
+                {{ $client->city }},
+            @endif
+            @if ($client->state)
+                {{ $client->state }}
+            @endif
+            @if ($client->postal_code)
+                {{ $client->postal_code }}
+            @endif
+            @if ($client->country)
+                <br/>{{ $client->country->name }}
+            @endif
+
+            @if ($client->account->custom_client_label1 && $client->custom_value1)
+                {{ $client->account->custom_client_label1 . ': ' . $client->custom_value1 }}<br/>
+            @endif
+            @if ($client->account->custom_client_label2 && $client->custom_value2)
+                {{ $client->account->custom_client_label2 . ': ' . $client->custom_value2 }}<br/>
+            @endif
+
+            @if ($client->work_phone)
+                <i class="fa fa-phone" style="width: 20px"></i>{{ Utils::formatPhoneNumber($client->work_phone) }}
+            @endif
+
+            @if ($client->private_notes)
+                <p><i>{{ $client->private_notes }}</i></p>
+            @endif
+		  	
+  	        @if ($client->client_industry)
+                {{ $client->client_industry->name }}<br/>
+            @endif
+            @if ($client->client_size)
+                {{ $client->client_size->name }}<br/>
+            @endif            
+
+		  	@if ($client->website)
+		  	   <p>{!! $client->getWebsite() !!}</p>
+            @endif
+
 		  	<p>{{ $client->payment_terms ? trans('texts.payment_terms') . ": Net " . $client->payment_terms : '' }}</p>
 		</div>
 
 		<div class="col-md-3">
 			<h3>{{ trans('texts.contacts') }}</h3>
 		  	@foreach ($client->contacts as $contact)
-		  		{{ $contact->getDetails() }}
+                @if ($contact->first_name || $contact->last_name)
+                    <b>{{ $contact->first_name.' '.$contact->last_name }}</b><br/>
+                @endif
+                @if ($contact->email)
+                    <i class="fa fa-envelope" style="width: 20px"></i>{!! HTML::mailto($contact->email, $contact->email) !!}<br/>
+                @endif
+                @if ($contact->phone)
+                    <i class="fa fa-phone" style="width: 20px"></i>{!! Utils::formatPhoneNumber($contact->phone) !!}
+                @endif		  		
 		  	@endforeach
 		</div>
 
@@ -204,10 +256,10 @@
 	<script type="text/javascript">
 
 	$(function() {
-		$('.normalDropDown').click(function() {
+		$('.normalDropDown:not(.dropdown-toggle)').click(function() {
 			window.location = '{{ URL::to('clients/' . $client->public_id . '/edit') }}';
 		});
-		$('.primaryDropDown').click(function() {
+		$('.primaryDropDown:not(.dropdown-toggle)').click(function() {
 			window.location = '{{ URL::to('invoices/create/' . $client->public_id ) }}';
 		});
 	});
