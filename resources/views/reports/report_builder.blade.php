@@ -3,7 +3,7 @@
 @section('head')
 	@parent
 
-	<script src="{{ asset('js/Chart.js') }}" type="text/javascript"></script>		
+	<script src="{!! asset('js/Chart.js') !!}" type="text/javascript"></script>		
 @stop
 
 @section('content')
@@ -12,27 +12,27 @@
 
 
     <legend style="padding-bottom:32px">
-        {{ trans('texts.chart_builder') }}
+        {!! trans('texts.chart_builder') !!}
         <div class="pull-right">
-           {{ Button::default_link(URL::to('company/advanced_settings/data_visualizations'), trans("texts.data_visualizations"))->append_with_icon('globe') }}
+           {!! Button::normal(trans('texts.data_visualizations'))->asLinkTo('/company/advanced_settings/data_visualizations')->appendIcon(Icon::create('globe')) !!}
         </div>
     </legend>
 
 	<div class="row">
 		<div class="col-lg-4">
 
-			{{ Former::open()->addClass('warn-on-exit') }}
-			{{ Former::populateField('start_date', $startDate) }}
-			{{ Former::populateField('end_date', $endDate) }}
-			{{ Former::select('chart_type')->options($chartTypes, $chartType) }}
-			{{ Former::select('group_by')->options($dateTypes, $groupBy) }}
-			{{ Former::text('start_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
-					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') }}
-			{{ Former::text('end_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
-					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') }}
+			{!! Former::open()->addClass('warn-on-exit') !!}
+			{!! Former::populateField('start_date', $startDate) !!}
+			{!! Former::populateField('end_date', $endDate) !!}
+			{!! Former::select('chart_type')->options($chartTypes, $chartType) !!}
+			{!! Former::select('group_by')->options($dateTypes, $groupBy) !!}
+			{!! Former::text('start_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
+					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') !!}
+			{!! Former::text('end_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
+					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') !!}
 
 			@if (Auth::user()->isPro())
-				{{ Former::actions( Button::primary_submit('Generate') ) }}
+				{!! Former::actions( Button::primary('Generate')->submit() ) !!}
 			@else
 			<script>
 			    $(function() {   
@@ -41,7 +41,7 @@
 			</script>	
 			@endif
 			
-			{{ Former::close() }}
+			{!! Former::close() !!}
 
 			<p>&nbsp;</p>
 			<div style="padding-bottom:8px">
@@ -68,13 +68,13 @@
 
 	var ctx = document.getElementById('monthly-reports').getContext('2d');
 	var chart = {
-		labels: {{ json_encode($labels) }},		
+		labels: {!! json_encode($labels) !!},		
 		datasets: [
 		@foreach ($datasets as $dataset)
 			{
-				data: {{ json_encode($dataset['totals']) }},
-				fillColor : "rgba({{ $dataset['colors'] }},0.5)",
-				strokeColor : "rgba({{ $dataset['colors'] }},1)",
+				data: {!! json_encode($dataset['totals']) !!},
+				fillColor : "rgba({!! $dataset['colors'] !!},0.5)",
+				strokeColor : "rgba({!! $dataset['colors'] !!},1)",
 			},
 		@endforeach
 		]
@@ -83,12 +83,12 @@
 	var options = {		
 		scaleOverride: true,
 		scaleSteps: 10,
-		scaleStepWidth: {{ $scaleStepWidth }},
+		scaleStepWidth: {!! $scaleStepWidth !!},
 		scaleStartValue: 0,
 		scaleLabel : "<%=formatMoney(value)%>",
 	};
 
-	new Chart(ctx).{{ $chartType }}(chart, options);
+	new Chart(ctx).{!! $chartType !!}(chart, options);
 
 	</script>
 

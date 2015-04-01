@@ -4,27 +4,27 @@
 	@parent
 	@include('accounts.nav_advanced')
 
-  {{ Former::open('tokens/delete')->addClass('user-form') }}
-  {{ Former::legend('token_management') }}
+  {!! Former::open('tokens/delete')->addClass('user-form') !!}
+  {!! Former::legend('token_management') !!}
 
   <div style="display:none">
-    {{ Former::text('tokenPublicId') }}
+    {!! Former::text('tokenPublicId') !!}
   </div>
-  {{ Former::close() }}
+  {!! Former::close() !!}
 
 
   @if (Utils::isPro())
-    {{ Button::success_link(URL::to('tokens/create'), trans("texts.add_token"), array('class' => 'pull-right'))->append_with_icon('plus-sign') }}
+    {!! Button::success(trans('texts.add_token'))->asLinkTo('/tokens/create')->withAttributes(['class' => 'pull-right'])->appendIcon(Icon::create('plus-sign')) !!}
   @endif
 
   <!--
     <label for="trashed" style="font-weight:normal; margin-left: 10px;">
         <input id="trashed" type="checkbox" onclick="setTrashVisible()"
-            {{ Session::get('show_trash:token') ? 'checked' : ''}}/> {{ trans('texts.show_deleted_tokens')}}
+            {!! Session::get('show_trash:token') ? 'checked' : ''!!}/> {!! trans('texts.show_deleted_tokens')!!}
     </label>
   -->
 
-  {{ Datatable::table()
+  {!! Datatable::table()
       ->addColumn(
         trans('texts.name'),
         trans('texts.token'),
@@ -35,7 +35,7 @@
       ->setOptions('bAutoWidth', false)
       ->setOptions('aoColumns', [[ "sWidth"=> "40%" ], [ "sWidth"=> "40%" ], ["sWidth"=> "20%"]])
       ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[2]]])
-      ->render('datatable') }}
+      ->render('datatable') !!}
 
   <script>
   window.onDatatableReady = function() {
@@ -51,7 +51,7 @@
 
     function setTrashVisible() {
         var checked = $('#trashed').is(':checked');
-        window.location = '{{ URL::to('view_archive/token') }}' + (checked ? '/true' : '/false');
+        window.location = '{!! URL::to('view_archive/token') !!}' + (checked ? '/true' : '/false');
     }
 
   function deleteToken(id) {

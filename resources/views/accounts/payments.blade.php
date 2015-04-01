@@ -3,20 +3,24 @@
 @section('content')	
 	@parent	
 
-  {{ Former::open('gateways/delete')->addClass('user-form') }}
-  {{ Former::legend('online_payments') }}
+  {!! Former::open('gateways/delete')->addClass('user-form') !!}
+  {!! Former::legend(trans('texts.online_payments')) !!}
 
   <div style="display:none">
-    {{ Former::text('accountGatewayPublicId') }}
+    {!! Former::text('accountGatewayPublicId') !!}
   </div>
-  {{ Former::close() }}
+  {!! Former::close() !!}
 
 
   @if ($showAdd)
-    {{ Button::success_link(URL::to('gateways/create'), trans("texts.add_gateway"), array('class' => 'pull-right'))->append_with_icon('plus-sign') }}
+      {!! Button::success(trans('texts.add_gateway'))
+            ->asLinkTo('/gateways/create')
+            ->withAttributes(['class' => 'pull-right'])
+            ->appendIcon(Icon::create('plus-sign'))
+            ->large() !!}
   @endif
 
-  {{ Datatable::table()
+  {!! Datatable::table()
       ->addColumn(
         trans('texts.name'),
         trans('texts.action'))
@@ -26,7 +30,7 @@
       ->setOptions('bAutoWidth', false)
       ->setOptions('aoColumns', [[ "sWidth"=> "80%" ], ["sWidth"=> "20%"]])
       ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1]]])
-      ->render('datatable') }}
+      ->render('datatable') !!}
 
   <script>
   window.onDatatableReady = function() {

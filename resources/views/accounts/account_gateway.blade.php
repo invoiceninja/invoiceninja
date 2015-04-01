@@ -3,14 +3,14 @@
 @section('content') 
     @parent 
 
-    {{ Former::open($url)->method($method)->rule()->addClass('col-md-8 col-md-offset-2 warn-on-exit') }} 
-    {{ Former::populate($account) }}
+    {!! Former::open($url)->method($method)->rule()->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!} 
+    {!! Former::populate($account) !!}
 
-    {{ Former::legend($title) }}
+    {!! Former::legend($title) !!}
         
     @if ($accountGateway)
-        {{ Former::populateField('gateway_id', $accountGateway->gateway_id) }}
-        {{ Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) }}
+        {!! Former::populateField('gateway_id', $accountGateway->gateway_id) !!}
+        {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}
         @if ($config)
             @foreach ($accountGateway->fields as $field => $junk)
                 @if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
@@ -23,24 +23,24 @@
     @endif
     
   <div class="two-column">
-        {{ Former::checkboxes('creditCardTypes[]')->label('Accepted Credit Cards')
+        {!! Former::checkboxes('creditCardTypes[]')->label('Accepted Credit Cards')
                 ->checkboxes($creditCardTypes)->class('creditcard-types')
-        }}
+        !!}
     </div>
 
     <p/>&nbsp;<p/>
     
     <div style="display:{{ $accountGateway ? 'none' : '' }}">
     <div class="two-column" style="display:{{ $onlyPayPal ? 'none' : '' }}">
-    {{ Former::radios('recommendedGateway_id')->label('Recommended Gateway')
+    {!! Former::radios('recommendedGateway_id')->label('Recommended Gateway')
             ->radios($recommendedGateways)->class('recommended-gateway')
-    }}
+    !!}
     </div>
 
-    {{ Former::select('gateway_id')->label('Select Gateway')->addOption('', '')
+    {!! Former::select('gateway_id')->label('Select Gateway')->addOption('', '')
         ->dataClass('gateway-dropdown')
         ->fromQuery($gateways, 'name', 'id')
-        ->onchange('setFieldsShown()'); }}
+        ->onchange('setFieldsShown()'); !!}
     </div>
 
     @foreach ($gateways as $gateway)
@@ -53,9 +53,9 @@
                 @elseif ($field == 'testMode' || $field == 'developerMode') 
                     {{-- Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable') --}}              
                 @elseif ($field == 'username' || $field == 'password') 
-                    {{ Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) }}             
+                    {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
                 @else
-                    {{ Former::text($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field)) }}              
+                    {!! Former::text($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field)) !!} 
                 @endif
 
             @endforeach
@@ -70,7 +70,7 @@
             @endif
 
             @if ($gateway->id == GATEWAY_STRIPE)
-                {{ Former::select('token_billing_type_id')->options($tokenBillingOptions)->help(trans('texts.token_billing_help')) }}
+                {!! Former::select('token_billing_type_id')->options($tokenBillingOptions)->help(trans('texts.token_billing_help')) !!}
             @endif
         </div>
         
@@ -78,11 +78,10 @@
 
     <p/>&nbsp;<p/>
 
-    {{ Former::actions( 
-        Button::lg_success_submit('Save')->append_with_icon('floppy-disk'),
-        $countGateways > 0 ? Button::lg_default_link('company/payments', 'Cancel')->append_with_icon('remove-circle') : false
-    )}}
-    {{ Former::close() }}
+    {!! Former::actions( 
+        Button::success('Save')->submit()->large()->appendIcon(Icon::create('floppy-disk')),
+        $countGateways > 0 ? Button::lg_default_link('company/payments', 'Cancel')->append_with_icon('remove-circle') : false) !!}
+    {!! Former::close() !!}
 
 
     <script type="text/javascript">

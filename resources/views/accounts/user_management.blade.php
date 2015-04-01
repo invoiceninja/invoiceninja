@@ -4,30 +4,30 @@
 	@parent
 	@include('accounts.nav_advanced')
 
-  {{ Former::open('users/delete')->addClass('user-form') }}
-  {{ Former::legend('user_management') }}
+  {!! Former::open('users/delete')->addClass('user-form') !!}
+  {!! Former::legend('user_management') !!}
 
   <div style="display:none">
-    {{ Former::text('userPublicId') }}
+    {!! Former::text('userPublicId') !!}
   </div>
-  {{ Former::close() }}
+  {!! Former::close() !!}
 
 
   <div class="pull-right">  
     @if (Utils::isPro())    
-        {{ Button::success_link(URL::to('users/create'), trans("texts.add_user"))->append_with_icon('plus-sign') }}
+        {!! Button::success(trans('texts.add_user'))->asLinkTo('/users/create')->appendIcon(Icon::create('plus-sign')) !!}
     @endif
-    {{ Button::default_link(URL::to('company/advanced_settings/token_management'), trans("texts.api_tokens"))->append_with_icon('cloud') }}
+    {!! Button::normal(trans('texts.api_tokens'))->asLinkTo('/company/advanced_settings/token_management')->appendIcon(Icon::create('cloud')) !!}
   </div>
 
 
     <label for="trashed" style="font-weight:normal; margin-left: 10px;">
         <input id="trashed" type="checkbox" onclick="setTrashVisible()"
-            {{ Session::get('show_trash:user') ? 'checked' : ''}}/> {{ trans('texts.show_deleted_users')}}
+            {!! Session::get('show_trash:user') ? 'checked' : ''!!}/> {!! trans('texts.show_deleted_users')!!}
     </label>
 
 
-  {{ Datatable::table()
+  {!! Datatable::table()
       ->addColumn(
         trans('texts.name'),
         trans('texts.email'),
@@ -39,7 +39,7 @@
       ->setOptions('bAutoWidth', false)
       ->setOptions('aoColumns', [[ "sWidth"=> "20%" ], [ "sWidth"=> "45%" ], ["sWidth"=> "20%"], ["sWidth"=> "15%" ]])
       ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[3]]])
-      ->render('datatable') }}
+      ->render('datatable') !!}
 
   <script>
   window.onDatatableReady = function() {
@@ -55,7 +55,7 @@
 
     function setTrashVisible() {
         var checked = $('#trashed').is(':checked');
-        window.location = '{{ URL::to('view_archive/user') }}' + (checked ? '/true' : '/false');
+        window.location = '{!! URL::to('view_archive/user') !!}' + (checked ? '/true' : '/false');
     }
 
   function deleteUser(id) {

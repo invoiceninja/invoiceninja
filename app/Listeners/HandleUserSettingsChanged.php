@@ -1,5 +1,7 @@
 <?php namespace App\Listeners;
 
+use Auth;
+
 use App\Events\UserSettingsChanged;
 
 use Illuminate\Queue\InteractsWithQueue;

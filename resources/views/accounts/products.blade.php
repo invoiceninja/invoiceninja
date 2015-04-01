@@ -3,21 +3,24 @@
 @section('content') 
   @parent
 
-  {{ Former::open()->addClass('col-md-10 col-md-offset-1 warn-on-exit') }}
+  {!! Former::open()->addClass('col-md-10 col-md-offset-1 warn-on-exit') !!}
   {{ Former::populateField('fill_products', intval($account->fill_products)) }}
   {{ Former::populateField('update_products', intval($account->update_products)) }}
 
 
-  {{ Former::legend('product_library') }}
-  {{ Former::checkbox('fill_products')->text(trans('texts.fill_products_help')) }}
-  {{ Former::checkbox('update_products')->text(trans('texts.update_products_help')) }}
+  {!! Former::legend(trans('texts.product_library')) !!}
+  {!! Former::checkbox('fill_products')->text(trans('texts.fill_products_help')) !!}
+  {!! Former::checkbox('update_products')->text(trans('texts.update_products_help')) !!}
   &nbsp;
-  {{ Former::actions( Button::lg_success_submit(trans('texts.save'))->append_with_icon('floppy-disk') ) }}
-  {{ Former::close() }}
+  {!! Former::actions( Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
+  {!! Former::close() !!}
 
-  {{ Button::success_link(URL::to('products/create'), trans("texts.create_product"), array('class' => 'pull-right'))->append_with_icon('plus-sign') }} 
+  {!! Button::success(trans('texts.create_product'))
+        ->asLinkTo('/products/create')
+        ->withAttributes(['class' => 'pull-right'])
+        ->appendIcon(Icon::create('plus-sign')) !!}
 
-  {{ Datatable::table()   
+  {!! Datatable::table()   
       ->addColumn(
         trans('texts.product'),
         trans('texts.description'),
@@ -29,7 +32,7 @@
       ->setOptions('bAutoWidth', false)      
       ->setOptions('aoColumns', [[ "sWidth"=> "20%" ], [ "sWidth"=> "45%" ], ["sWidth"=> "20%"], ["sWidth"=> "15%" ]])      
       ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[3]]])
-      ->render('datatable') }}
+      ->render('datatable') !!}
 
   <script>
   window.onDatatableReady = function() {        

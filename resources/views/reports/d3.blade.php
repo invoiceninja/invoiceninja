@@ -3,7 +3,7 @@
 @section('head')
   @parent
 
-  <script src="{{ asset('js/d3.min.js') }}" type="text/javascript"></script>   
+  <script src="{!! asset('js/d3.min.js') !!}" type="text/javascript"></script>   
 
   <style type="text/css">
 
@@ -32,9 +32,9 @@
   @parent
   @include('accounts.nav_advanced')
 
-  {{ Former::open() }}
-  {{ Former::legend('data_visualizations') }}
-  {{ Former::close() }}
+  {!! Former::open() !!}
+  {!! Former::legend('data_visualizations') !!}
+  {!! Former::close() !!}
 
   <div id="tooltip" class="hidden">
     <p>
@@ -53,7 +53,7 @@
       <option>Invoices</option>
       <option>Products</option>
     </select>
-    &nbsp;&nbsp; <b>{{ $message }}</b>
+    &nbsp;&nbsp; <b>{!! $message !!}</b>
   </form>
 
   <p>&nbsp;</p>
@@ -63,7 +63,7 @@
   <script type="text/javascript">
 
     // store data as JSON
-    var data = {{ $clients }};
+    var data = {!! $clients !!};
 
     _.each(data, function(client) { 
       _.each(client.invoices, function(invoice) { 

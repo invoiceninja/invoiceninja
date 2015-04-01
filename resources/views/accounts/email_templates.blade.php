@@ -15,35 +15,35 @@
     @parent
     @include('accounts.nav_advanced')
 
-    {{ Former::open()->addClass('col-md-8 col-md-offset-2 warn-on-exit') }}
-    {{ Former::populateField('email_template_invoice', $invoiceEmail) }}
-    {{ Former::populateField('email_template_quote', $quoteEmail) }}
-    {{ Former::populateField('email_template_payment', $paymentEmail) }}
+    {!! Former::open()->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!}
+    {!! Former::populateField('email_template_invoice', $invoiceEmail) !!}
+    {!! Former::populateField('email_template_quote', $quoteEmail) !!}
+    {!! Former::populateField('email_template_payment', $paymentEmail) !!}
 
-    {{ Former::legend('invoice_email') }}
+    {!! Former::legend('invoice_email') !!}
     <div class="row">
         <div class="col-md-7">
-            {{ Former::textarea('email_template_invoice')->raw() }}
+            {!! Former::textarea('email_template_invoice')->raw() !!}
         </div>
         <div class="col-md-5" id="invoice_preview"></div>
     </div>
 
     <p>&nbsp;</p>
 
-    {{ Former::legend('quote_email') }}
+    {!! Former::legend('quote_email') !!}
     <div class="row">
         <div class="col-md-7">
-            {{ Former::textarea('email_template_quote')->raw() }}
+            {!! Former::textarea('email_template_quote')->raw() !!}
         </div>
         <div class="col-md-5" id="quote_preview"></div>
     </div>
 
     <p>&nbsp;</p>
 
-    {{ Former::legend('payment_email') }}
+    {!! Former::legend('payment_email') !!}
     <div class="row">
         <div class="col-md-7">
-            {{ Former::textarea('email_template_payment')->raw() }}
+            {!! Former::textarea('email_template_payment')->raw() !!}
         </div>
         <div class="col-md-5" id="payment_preview"></div>
     </div>
@@ -51,9 +51,9 @@
     <p>&nbsp;</p>
 
     @if (Auth::user()->isPro())
-        {{ Former::actions( 
-            Button::lg_success_submit(trans('texts.save'))->append_with_icon('floppy-disk')
-        ) }}
+        {!! Former::actions( 
+            Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
+        ) !!}
     @else
         <script>
             $(function() {
@@ -62,7 +62,7 @@
         </script>
     @endif
 
-    {{ Former::close() }}
+    {!! Former::close() !!}
 
     <script type="text/javascript">
 
@@ -94,7 +94,7 @@
             }
 
             keys = ['footer', 'account', 'client', 'amount', 'link'];
-            vals = [{{ json_encode($emailFooter) }}, '{{ Auth::user()->account->getDisplayName() }}', 'Client Name', formatMoney(100), '{{ NINJA_WEB_URL }}']
+            vals = [{!! json_encode($emailFooter) !!}, '{!! Auth::user()->account->getDisplayName() !!}', 'Client Name', formatMoney(100), '{!! NINJA_WEB_URL !!}']
 
             for (var i=0; i<keys.length; i++) {
                 var regExp = new RegExp('\\$'+keys[i], 'g');

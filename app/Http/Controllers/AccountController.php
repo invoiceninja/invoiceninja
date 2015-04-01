@@ -7,6 +7,8 @@ use Session;
 use Utils;
 use View;
 use Event;
+use Validator;
+use stdClass;
 
 use App\Models\Account;
 use App\Models\Country;
@@ -17,6 +19,7 @@ use App\Models\Language;
 use App\Models\Size;
 use App\Models\Timezone;
 use App\Models\Industry;
+use App\Models\InvoiceDesign;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
@@ -203,8 +206,9 @@ class AccountController extends BaseController
                 $invoice->invoice_items = [$invoiceItem];
 
                 $data['invoice'] = $invoice;
-                $data['invoiceDesigns'] = InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())
-                    ->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
+                //$data['invoiceDesigns'] = InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())
+                //    ->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
+                $data['invoiceDesigns'] = InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
             } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
                 $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
                 $data['quoteEmail'] = $account->getEmailTemplate(ENTITY_QUOTE);
@@ -297,7 +301,7 @@ class AccountController extends BaseController
             $account->quote_number_prefix = Input::get('quote_number_prefix');
             $account->share_counter = Input::get('share_counter') ? true : false;
             
-            $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
+            //$account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
 
             if (!$account->share_counter) {
                 $account->quote_number_counter = Input::get('quote_number_counter');

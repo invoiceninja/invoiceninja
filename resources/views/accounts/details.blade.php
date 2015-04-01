@@ -11,10 +11,10 @@
 
 	</style>
 
-	{{ Former::open_for_files()->addClass('col-md-10 col-md-offset-1 warn-on-exit')->rules(array(
+	{!! Former::open_for_files()->addClass('col-md-10 col-md-offset-1 warn-on-exit')->rules(array(
   		'name' => 'required',
   		'email' => 'email|required'
-	)) }}
+	)) !!}
 
 	{{ Former::populate($account) }}
 	@if ($showUser)
@@ -27,66 +27,64 @@
 	<div class="row">
 		<div class="col-md-5">
 
-			{{ Former::legend('details') }}
-			{{ Former::text('name') }}
-                        {{ Former::text('id_number') }}
-                        {{ Former::text('vat_number') }}
-			{{ Former::text('work_email') }}
-			{{ Former::text('work_phone') }}
-			{{ Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp(trans('texts.logo_help')) }}
+			{!! Former::legend('details') !!}
+			{!! Former::text('name') !!}
+            {!! Former::text('id_number') !!}
+            {!! Former::text('vat_number') !!}
+			{!! Former::text('work_email') !!}
+			{!! Former::text('work_phone') !!}
+			{!! Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp(trans('texts.logo_help')) !!}
 
 			@if (file_exists($account->getLogoPath()))
 				<center>
-					{{ HTML::image($account->getLogoPath(), "Logo") }} &nbsp;
+					{!! HTML::image($account->getLogoPath(), "Logo") !!} &nbsp;
 					<a href="#" onclick="deleteLogo()">{{ trans('texts.remove_logo') }}</a>
 				</center><br/>
 			@endif
 
-			{{ Former::select('size_id')->addOption('','')
-				->fromQuery($sizes, 'name', 'id') }}
-			{{ Former::select('industry_id')->addOption('','')
-				->fromQuery($industries, 'name', 'id') }}
+			{!! Former::select('size_id')->addOption('','')->fromQuery($sizes, 'name', 'id') !!}
+			{!! Former::select('industry_id')->addOption('','')->fromQuery($industries, 'name', 'id') !!}
 
-			{{ Former::legend('address') }}	
-			{{ Former::text('address1') }}
-			{{ Former::text('address2') }}
-			{{ Former::text('city') }}
-			{{ Former::text('state') }}
-			{{ Former::text('postal_code') }}
-			{{ Former::select('country_id')->addOption('','')
-				->fromQuery($countries, 'name', 'id') }}
+			{!! Former::legend('address') !!}	
+			{!! Former::text('address1') !!}
+			{!! Former::text('address2') !!}
+			{!! Former::text('city') !!}
+			{!! Former::text('state') !!}
+			{!! Former::text('postal_code') !!}
+			{!! Former::select('country_id')->addOption('','')
+				->fromQuery($countries, 'name', 'id') !!}
 
 		</div>
 	
 		<div class="col-md-5 col-md-offset-1">		
 
 			@if ($showUser)
-				{{ Former::legend('users') }}
-				{{ Former::text('first_name') }}
-				{{ Former::text('last_name') }}
-				{{ Former::text('email') }}
-				{{ Former::text('phone') }}
-                {{ Former::actions(Button::primary_sm(trans('texts.change_password'), ['onclick'=>'showChangePassword()'])); }}
+				{!! Former::legend('users') !!}
+				{!! Former::text('first_name') !!}
+				{!! Former::text('last_name') !!}
+				{!! Former::text('email') !!}
+				{!! Former::text('phone') !!}
+                {!! Former::actions(Button::primary(trans('texts.change_password'), ['onclick'=>'showChangePassword()']))->small() !!}
 			@endif
 
-			{{ Former::legend('localization') }}
-			{{ Former::select('language_id')->addOption('','')
-				->fromQuery($languages, 'name', 'id') }}			
-			{{ Former::select('currency_id')->addOption('','')
-				->fromQuery($currencies, 'name', 'id') }}			
-			{{ Former::select('timezone_id')->addOption('','')
-				->fromQuery($timezones, 'location', 'id') }}
-			{{ Former::select('date_format_id')->addOption('','')
-				->fromQuery($dateFormats, 'label', 'id') }}
-			{{ Former::select('datetime_format_id')->addOption('','')
-				->fromQuery($datetimeFormats, 'label', 'id') }}
+			{!! Former::legend('localization') !!}
+			{!! Former::select('language_id')->addOption('','')
+				->fromQuery($languages, 'name', 'id') !!}			
+			{!! Former::select('currency_id')->addOption('','')
+				->fromQuery($currencies, 'name', 'id') !!}			
+			{!! Former::select('timezone_id')->addOption('','')
+				->fromQuery($timezones, 'location', 'id') !!}
+			{!! Former::select('date_format_id')->addOption('','')
+				->fromQuery($dateFormats, 'label', 'id') !!}
+			{!! Former::select('datetime_format_id')->addOption('','')
+				->fromQuery($datetimeFormats, 'label', 'id') !!}
 
 
 		</div>
 	</div>
 	
 	<center>
-		{{ Button::lg_success_submit(trans('texts.save'))->append_with_icon('floppy-disk') }}
+        {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
 
 
@@ -101,9 +99,9 @@
                 <div style="background-color: #fff" id="changePasswordDiv" onkeyup="validateChangePassword()" onclick="validateChangePassword()" onkeydown="checkForEnter(event)">
                     &nbsp;
 
-                    {{ Former::password('current_password')->style('width:300px') }}
-                    {{ Former::password('new_password')->style('width:300px') }}
-                    {{ Former::password('confirm_password')->style('width:300px') }}
+                    {!! Former::password('current_password')->style('width:300px') !!}
+                    {!! Former::password('new_password')->style('width:300px') !!}
+                    {!! Former::password('confirm_password')->style('width:300px') !!}
 
                     &nbsp;
                     <br/>
@@ -142,10 +140,10 @@
     </div>
 
 
-	{{ Former::close() }}
+	{!! Former::close() !!}
 
-	{{ Form::open(['url' => 'remove_logo', 'class' => 'removeLogoForm']) }}	
-	{{ Form::close() }}
+	{!! Form::open(['url' => 'remove_logo', 'class' => 'removeLogoForm']) !!}	
+	{!! Form::close() !!}
 
 
 

@@ -9,6 +9,16 @@
 |
 */
 
+use Auth;
+use Session;
+use DB;
+use Validator;
+use Input;
+use View;
+use Redirect;
+
+use App\Models\AccountToken;
+
 use App\Ninja\Repositories\AccountRepository;
 
 class TokenController extends BaseController

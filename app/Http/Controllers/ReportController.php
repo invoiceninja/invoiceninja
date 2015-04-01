@@ -2,8 +2,16 @@
 
 use Auth;
 use Input;
+use Utils;
+use DB;
+use DateInterval;
+use DatePeriod;
+use Session;
+use View;
 
-class ReportController extends \BaseController
+use App\Models\Account;
+
+class ReportController extends BaseController
 {
     public function d3()
     {

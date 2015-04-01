@@ -3,13 +3,9 @@
 use Eloquent;
 use Omnipay;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
-
 class Gateway extends Eloquent
 {
     public $timestamps = true;
-    use SoftDeletes;
-    protected $dates = ['deleted_at'];
 
     public function paymentlibrary()
     {
