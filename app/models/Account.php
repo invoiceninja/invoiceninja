@@ -54,6 +54,11 @@ class Account extends Eloquent
         return $this->belongsTo('DatetimeFormat');
     }
 
+    public function currency()
+    {
+        return $this->belongsTo('Currency');
+    }
+
     public function size()
     {
         return $this->belongsTo('Size');
