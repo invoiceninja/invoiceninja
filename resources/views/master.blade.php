@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
     <title>Invoice Ninja | {{ isset($title) ? $title : ' ' . trans('public.title') }}</title> 
-    <meta name="description" content="{{ isset($description) ? $description : trans('public.description') }}"></meta>
+    <meta name="description" content="{{ isset($description) ? $description : trans('public.description') }}" />
 
     <!-- Source: https://github.com/hillelcoren/invoice-ninja -->
     <!-- Version: {{ NINJA_VERSION }} -->
 
     <meta charset="utf-8">
-    <meta property="og:site_name" content="Invoice Ninja"></meta>
-    <meta property="og:url" content="{{ SITE_URL }}"></meta>
-    <meta property="og:title" content="Invoice Ninja"></meta>
-    <meta property="og:image" content="{{ SITE_URL }}/images/social.jpg"></meta>
-    <meta property="og:description" content="Simple, Intuitive Invoicing."></meta>
+    <meta property="og:site_name" content="Invoice Ninja" />
+    <meta property="og:url" content="{{ SITE_URL }}" />
+    <meta property="og:title" content="Invoice Ninja" />
+    <meta property="og:image" content="{{ SITE_URL }}/images/social.jpg" />
+    <meta property="og:description" content="Simple, Intuitive Invoicing." />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="<?= csrf_token() ?>">
@@ -21,7 +21,7 @@
     <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100" rel="stylesheet" type="text/css">
     <link href="//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700" rel="stylesheet" type="text/css">
     <link href="{{ asset('favicon.png') }}" rel="shortcut icon">
-    <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}"></link>
+    <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}" />
 
     <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 

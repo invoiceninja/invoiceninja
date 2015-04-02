@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
+use Datatable;
 use Utils;
 use View;
 use URL;
@@ -9,6 +10,7 @@ use Input;
 use Session;
 use Redirect;
 
+use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Invoice;

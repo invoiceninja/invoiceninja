@@ -21,7 +21,7 @@
                 ->withAttributes(['class'=>'normalDropDown'])
                 ->withContents([
 			      ['label' => trans('texts.edit_client'), 'url' => URL::to('clients/' . $client->public_id . '/edit')],
-			      Navigation::NAVIGATION_DIVIDER,
+			      DropdownButton::DIVIDER,
 			      ['label' => trans('texts.archive_client'), 'url' => "javascript:onArchiveClick()"],
 			      ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
 			    ]
