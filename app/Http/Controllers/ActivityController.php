@@ -5,7 +5,7 @@ use DB;
 use Datatable;
 use Utils;
 
-class ActivityController extends \BaseController
+class ActivityController extends BaseController
 {
     public function getDatatable($clientPublicId)
     {

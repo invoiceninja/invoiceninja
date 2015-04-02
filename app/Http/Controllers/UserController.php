@@ -8,6 +8,8 @@ use View;
 use Redirect;
 use Session;
 use Utils;
+use DB;
+use Datatable;
 
 use App\Models\User;
 

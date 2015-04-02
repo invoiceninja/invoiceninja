@@ -1,6 +1,6 @@
 <?php namespace App\Http\Controllers;
 
-class TimesheetController extends \BaseController {
+class TimesheetController extends BaseController {
 
 	/**
 	 * Display a listing of the resource.

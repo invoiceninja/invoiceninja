@@ -1,9 +1,13 @@
 <?php namespace App\Http\Controllers;
 
+use Auth;
+use Str;
 use DB;
 use Datatable;
+use Utils;
+use URL;
 
-class ProductController extends \BaseController
+class ProductController extends BaseController
 {
     public function getDatatable()
     {
