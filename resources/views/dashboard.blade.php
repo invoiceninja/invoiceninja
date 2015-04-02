@@ -124,7 +124,7 @@
                         @foreach ($upcoming as $invoice)
                         @if (!$invoice->client->trashed())
                         <tr>
-                            <td>{{ $invoice->getLink() }}</td>
+                            <td>{!! $invoice->getLink() !!}</td>
                             <td>{{ $invoice->client->getDisplayName() }}</td>
                             <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
                             <td>{{ Utils::formatMoney($invoice->balance, $invoice->client->currency_id) }}</td>

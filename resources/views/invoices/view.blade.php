@@ -22,12 +22,12 @@
 		<p>&nbsp;</p>
         <div class="pull-right" style="text-align:right">
         @if ($invoice->is_quote)            
-            {!! Button::normal(trans('texts.download_pdf', array('onclick' => 'onDownloadClick()')))->large() !!}&nbsp;&nbsp;
+            {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
             @if (!$isConverted)
                 {!! Button::success(trans('texts.approve'))->asLinkTo('approve/' . $invitation->invitation_key)->large() !!}
             @endif
 		@elseif ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)
-			{!! Button::normal(trans('texts.download_pdf'), array('onclick' => 'onDownloadClick()'))->large() !!}&nbsp;&nbsp;
+            {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;			
             @if ($hasToken)
                 {!! DropdownButton::success_lg(trans('texts.pay_now'), [
                     ['url' => URL::to("payment/{$invitation->invitation_key}?use_token=true&use_paypal=false"), 'label' => trans('texts.use_card_on_file')],
@@ -39,10 +39,10 @@
                     ['url' => URL::to("payment/{$invitation->invitation_key}?use_paypal=false"), 'label' => trans('texts.pay_with_card')]
                 ])->addClass('btn-lg') !!}
             @else
-			     {!! Button::success_link(URL::to('payment/' . $invitation->invitation_key), trans('texts.pay_now'))->large() !!}
+			     {!! Button::success(trans('texts.pay_now'))->asLinkTo(URL::to('payment/' . $invitation->invitation_key))->large() !!}
             @endif
 		@else 
-			{!! Button::success('Download PDF', array('onclick' => 'onDownloadClick()'))->large() !!}			
+			{!! Button::success('Download PDF')->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
 		@endif
 		</div>        
 

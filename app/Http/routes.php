@@ -55,10 +55,12 @@ Route::post('signup/submit', 'AccountController@submitSignup');
 
 
 // Laravel auth routes
+/*
 Route::controllers([
     'auth' => 'Auth\AuthController',
     'password' => 'Auth\PasswordController',
 ]);
+*/
 
 get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
 post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
@@ -88,7 +90,7 @@ if (\App\Libraries\Utils::isNinja()) {
     Route::get('/demo', 'AccountController@demo');
 }
 
-Route::group(array('middleware' => 'auth'), function() {
+Route::group(['middleware' => 'auth'], function() {
     Route::get('dashboard', 'DashboardController@index');
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
@@ -169,7 +171,7 @@ Route::group(array('middleware' => 'auth'), function() {
 });
 
 // Route group for API
-Route::group(array('prefix' => 'api/v1', 'before' => ['api.access']), function()
+Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
     Route::resource('ping', 'ClientApiController@ping');
     Route::resource('clients', 'ClientApiController');

@@ -6,10 +6,16 @@ use Redirect;
 use Session;
 use Utils;
 use View;
+use Validator;
+use Omnipay;
+use CreditCard;
+use URL;
 
 use App\Models\Invoice;
+use App\Models\Invitation;
 use App\Models\Client;
 use App\Models\PaymentType;
+use App\Models\Country;
 
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
@@ -362,7 +368,8 @@ class PaymentController extends BaseController
             'paymentLibrary' => $paymentLibrary,
             'gateway' => $gateway,
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
-            'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+            //'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+            'countries' => Country::orderBy('name')->get(),
             'currencyId' => $client->currency_id,
             'account' => $client->account
         ];
@@ -411,7 +418,8 @@ class PaymentController extends BaseController
             'paymentLibrary' => $paymentLibrary,
             'gateway' => $gateway,
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
-            'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+            //'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
+            'countries' => Country::orderBy('name')->get(),
             'currencyId' => 1,
             'paymentTitle' => $affiliate->payment_title,
             'paymentSubtitle' => $affiliate->payment_subtitle,
@@ -554,7 +562,7 @@ class PaymentController extends BaseController
             }
         }
 
-        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
         $client = $invoice->client;
         $account = $client->account;

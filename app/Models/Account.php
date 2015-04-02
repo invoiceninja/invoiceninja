@@ -66,6 +66,11 @@ class Account extends Eloquent
         return $this->belongsTo('App\Models\Size');
     }
 
+    public function currency()
+    {
+        return $this->belongsTo('App\Models\Currency');
+    }
+
     public function industry()
     {
         return $this->belongsTo('App\Models\Industry');

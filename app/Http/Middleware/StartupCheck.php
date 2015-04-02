@@ -7,6 +7,8 @@ use Auth;
 use Input;
 use Redirect;
 use Cache;
+use Session;
+use Event;
 
 use App\Models\Currency;
 use App\Events\UserSettingsChanged;
@@ -22,7 +24,6 @@ class StartupCheck {
 	 */
 	public function handle($request, Closure $next)
 	{
-
 		// Ensure all request are over HTTPS in production
 		if (App::environment() == ENV_PRODUCTION)
 		{
@@ -151,7 +152,7 @@ class StartupCheck {
 			  }
 			}
 		}
-
+        
 		return $next($request);
 	}
 
