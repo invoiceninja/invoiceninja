@@ -149,6 +149,7 @@ class ConstantsSeeder extends Seeder
 		DatetimeFormat::create(array('format' => 'F j, Y g:i a', 'label' => 'March 10, 2013 6:15 pm'));
 		DatetimeFormat::create(array('format' => 'D M jS, Y g:ia', 'label' => 'Mon March 10th, 2013 6:15 pm'));
 		
+		DateFormat::create(array('format' => 'Y-M-d', 'picker_format' => 'yyyy-M-dd', 'label' => '2013-03-10'));
 		DateFormat::create(array('format' => 'd/M/Y', 'picker_format' => 'dd/M/yyyy', 'label' => '10/Mar/2013'));
 		DateFormat::create(array('format' => 'd-M-Y', 'picker_format' => 'dd-M-yyyy', 'label' => '10-Mar-2013'));
 		DateFormat::create(array('format' => 'd/F/Y', 'picker_format' => 'dd/MM/yyyy', 'label' => '10/March/2013'));
