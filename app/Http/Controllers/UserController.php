@@ -227,7 +227,7 @@ class UserController extends BaseController
                 $user->email = trim(Input::get('email'));
                 $user->registered = true;
                 $user->password = str_random(RANDOM_KEY_LENGTH);
-                $user->password_confirmation = $user->password;
+                $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
                 $user->public_id = $lastUser->public_id + 1;
             }
 
@@ -257,83 +257,20 @@ class UserController extends BaseController
         return Redirect::to('company/advanced_settings/user_management');
     }
 
-    /**
-     * Displays the login form
-     *
-     */
-    /*
-    public function login()
-    {
-
-        // Auth::login(\App\Models\User::first()); // Debug purposes only
-        // Show Login | If not already logged in
-        if (!Confide::user()) {
-            return View::make(Config::get('confide.login_form'));
-        }
-
-        // Show Dashboard | If user is logged in
-        Event::fire('user.login');
-        Session::reflash();
-
-        return Redirect::to('/dashboard');
-    }
-    */
-
-    /**
-     * Attempt to do login
-     *
-     */
-    /*
-    public function do_login()
-    {
-        $input = array(
-            'email'    => Input::get('login_email'), // May be the username too
-            'username' => Input::get('login_email'), // so we have to pass both
-            'password' => Input::get('login_password'),
-            'remember' => true,
-        );
-
-        // If you wish to only allow login from confirmed users, call logAttempt
-        // with the second parameter as true.
-        // logAttempt will check if the 'email' perhaps is the username.
-        // Get the value from the config file instead of changing the controller
-        // dd(Confide::logAttempt($input, false));
-        if (Input::get('login_email') && Confide::logAttempt($input, false)) {
-            Event::fire('user.login');
-            // Redirect the user to the URL they were trying to access before
-            // caught by the authentication filter IE Redirect::guest('user/login').
-            // Otherwise fallback to '/'
-            // Fix pull #145
-            return Redirect::intended('/dashboard'); // change it to '/admin', '/dashboard' or something
-        } else {
-
-            // Set Error Message
-            $err_msg = trans('texts.security.wrong_credentials');
-
-            // Check if there was too many login attempts
-            if (Confide::isThrottled($input)) {
-                $err_msg = trans('texts.security.too_many_attempts');
-            }
-
-            return Redirect::action('UserController@login')
-                    ->withInput(Input::except('login_password'))
-                    ->with('error', $err_msg);
-        }
-    }
-    */
 
     /**
      * Attempt to confirm account with code
      *
      * @param string $code
      */
-    /*
     public function confirm($code)
     {
-        if (Confide::confirm($code)) {
+        $user = User::where('confirmation_code', '=', $code)->get()->first();
+            
+        if ($user) {
             $notice_msg = trans('texts.security.confirmation');
 
-            $user = User::where('confirmation_code', '=', $code)->get()->first();
+            $user->confirmed = true;
             $user->confirmation_code = '';
             $user->save();
 
@@ -348,104 +285,15 @@ class UserController extends BaseController
 
                     return Redirect::to($invitation->getLink());
                 } else {
-                    return Redirect::action('UserController@login')->with('message', $notice_msg);
+                    return Redirect::to(Auth::check() ? '/dashboard' : '/login')->with('message', $notice_msg);
                 }
             }
         } else {
             $error_msg = trans('texts.security.wrong_confirmation');
 
-            return Redirect::action('UserController@login')->with('error', $error_msg);
+            return Redirect::to('/login')->with('error', $error_msg);
         }
     }
-    */
-
-    /**
-     * Displays the forgot password form
-     *
-     */
-    /*
-    public function forgot_password()
-    {
-        return View::make(Config::get('confide.forgot_password_form'));
-    }
-    */
-
-    /**
-     * Attempt to send change password link to the given email
-     *
-     */
-    /*
-    public function do_forgot_password()
-    {
-        Confide::forgotPassword(Input::get('email'));
-
-        $notice_msg = trans('texts.security.password_forgot');
-
-        return Redirect::action('UserController@login')
-            ->with('message', $notice_msg);
-    }
-    */
-
-    /**
-     * Shows the change password form with the given token
-     *
-     */
-    /*
-    public function reset_password($token = false)
-    {
-        return View::make(Config::get('confide::reset_password_form'))
-                ->with('token', $token);
-    }
-    */
-
-    /**
-     * Attempt change password of the user
-     *
-     */
-    /*
-    public function do_reset_password()
-    {
-        if (Auth::check()) {
-            $rules = [
-                'password' => 'required|between:4,11|confirmed',
-                'password_confirmation' => 'between:4,11',
-            ];
-            $validator = Validator::make(Input::all(), $rules);
-
-            if ($validator->fails()) {
-                return Redirect::to('user/reset')->withInput()->withErrors($validator);
-            }
-
-            $user = Auth::user();
-            $user->password = Input::get('password');
-            $user->save();
-
-            Session::flash('message', trans('texts.security.password_reset'));
-
-            return Redirect::to('/dashboard');
-        } else {
-            $input = array(
-                'token' => Input::get('token'),
-                'password' => Input::get('password'),
-                'password_confirmation' => Input::get('password_confirmation'),
-            );
-
-            // By passing an array with the token, password and confirmation
-            if (Confide::resetPassword($input)) {
-                $notice_msg = trans('texts.security.password_reset');
-
-                return Redirect::action('UserController@login')
-                    ->with('notice', $notice_msg);
-            } else {
-                $error_msg = trans('texts.security.wrong_password_reset');
-
-                return Redirect::action('UserController@reset_password', array('token' => $input['token']))
-                    ->withInput()
-                    ->with('error', $error_msg);
-            }
-        }
-    }
-    */
 
     /**
      * Log the user out of the application.

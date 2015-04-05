@@ -35,7 +35,7 @@
     <div class="cell"><div class="hide-desktop">{{ trans('public.plans.email_support') }}</div><span class="glyphicon glyphicon-remove"></div>
     <div class="cell"><div class="hide-desktop">{{ trans('public.plans.remove_created_by') }}</div><span class="glyphicon glyphicon-remove"></div>
     <div class="cell"><div class="hide-desktop">{{ trans('public.plans.latest_features') }}</div><span class="glyphicon glyphicon-remove"></div>
-    <div class="cell price"><div class="hide-desktop">{{ trans('public.plans.pricing') }}</div><p>{{ trans('public.plans.free_always') }}</p></div>
+    <div class="cell price"><div class="hide-desktop">{!! trans('public.plans.pricing') !!}</div><p>{!! trans('public.plans.free_always') !!}</p></div>
   </div>
   <div class="pro col-md-4">
 
@@ -54,7 +54,7 @@
     <div class="cell"><div class="hide-desktop">{{ trans('public.plans.email_support') }}</div><span class="glyphicon glyphicon-ok"></div>
     <div class="cell"><div class="hide-desktop">{{ trans('public.plans.remove_created_by') }}</div><span class="glyphicon glyphicon-ok"></div>
     <div class="cell"><div class="hide-desktop">{{ trans('public.plans.latest_features') }}</div><span class="glyphicon glyphicon-ok"></div>
-    <div class="cell price"><div class="hide-desktop">{{ trans('public.plans.pricing') }}</div><p>{{ trans('public.plans.year_price') }}</p></div>
+    <div class="cell price"><div class="hide-desktop">{!! trans('public.plans.pricing') !!}</div><p>{!! trans('public.plans.year_price') !!}</p></div>
 
     <!-- <div class="cell"><a href="#"><div class="cta"><h2 onclick="return getStarted()">GO PRO <span>+</span></h2></div>    </a>-->
   </div>

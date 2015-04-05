@@ -57,9 +57,9 @@
       <div class="navbar-form navbar-right">
         @if (Auth::check())
           @if (!Auth::user()->registered)
-            {!! Button::success(trans('texts.sign_up'), array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal'))->small() !!} &nbsp;
+            {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal'))->small() !!} &nbsp;
           @elseif (!Auth::user()->isPro())
-            {!! Button::success(trans('texts.go_pro'), array('id' => 'proPlanButton', 'data-toggle'=>'modal', 'data-target'=>'#proPlanModal'))->small() !!} &nbsp;
+            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'data-toggle'=>'modal', 'data-target'=>'#proPlanModal'))->small() !!} &nbsp;
           @endif
         @endif
 
@@ -94,7 +94,7 @@
             <li>{!! link_to('company/products', uctrans('texts.product_library')) !!}</li>
             <li>{!! link_to('company/notifications', uctrans('texts.notifications')) !!}</li>
             <li>{!! link_to('company/import_export', uctrans('texts.import_export')) !!}</li>
-            <li><a href="{{ url('company/advanced_settings/invoice_settings') }}">{{ uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) }}</a></li>
+            <li><a href="{{ url('company/advanced_settings/invoice_settings') }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
 
             <li class="divider"></li>
             <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>

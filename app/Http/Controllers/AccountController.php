@@ -10,6 +10,8 @@ use Event;
 use Validator;
 use stdClass;
 
+use App\Models\User;
+use App\Models\Activity;
 use App\Models\Account;
 use App\Models\Country;
 use App\Models\Currency;
@@ -688,9 +690,8 @@ class AccountController extends BaseController
         $user->email = trim(strtolower(Input::get('new_email')));
         $user->username = $user->email;
         $user->password = trim(Input::get('new_password'));
-        $user->password_confirmation = trim(Input::get('new_password'));
         $user->registered = true;
-        $user->amend();
+        $user->save();
 
         if (Utils::isNinja()) {
             $this->userMailer->sendConfirmation($user);

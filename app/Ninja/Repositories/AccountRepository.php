@@ -1,7 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
 use Auth;
-use Language;
 use Request;
 use Session;
 use Utils;
@@ -11,6 +10,7 @@ use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Client;
+use App\Models\Language;
 use App\Models\Contact;
 use App\Models\Account;
 use App\Models\User;
@@ -35,7 +35,7 @@ class AccountRepository
         $user = new User();
         if (!$firstName && !$lastName && !$email && !$password) {
             $user->password = str_random(RANDOM_KEY_LENGTH);
-            $user->email = $user->username = str_random(RANDOM_KEY_LENGTH);
+            //$user->email = $user->username = str_random(RANDOM_KEY_LENGTH);
         } else {
             $user->first_name = $firstName;
             $user->last_name = $lastName;
@@ -45,6 +45,10 @@ class AccountRepository
 
         $user->confirmed = !Utils::isNinja();
         $user->registered = !Utils::isNinja();
+
+        if (!$user->confirmed) {
+            $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
+        }
 
         $account->users()->save($user);
 

@@ -28,8 +28,8 @@
 
 <p>
     {{ $invitationMessage . trans('texts.confirmation_message') }}<br/>
-    <a href='{{{ URL::to("user/confirm/{$user->confirmation_code}") }}}'>
-        {{{ URL::to("user/confirm/{$user->confirmation_code}") }}}
+    <a href='{{ URL::to("user/confirm/{$user->confirmation_code}") }}'>
+        {{ URL::to("user/confirm/{$user->confirmation_code}") }}
     </a>
     <p/>
 
