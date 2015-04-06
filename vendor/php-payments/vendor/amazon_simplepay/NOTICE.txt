@@ -1,5 +1,0 @@
-FPS PHP5 Library
-Copyright 2008-2010 Amazon Technologies, Inc
-
-This product includes software developed by
-Amazon Technologies, Inc (http://www.amazon.com/).

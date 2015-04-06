@@ -1,1 +1,0 @@
-{{ strip_tags($body) }}
