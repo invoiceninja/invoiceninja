@@ -171,6 +171,7 @@ class ConstantsSeeder extends Seeder
 		DateFormat::create(array('format' => 'M j, Y', 'picker_format' => 'M d, yyyy', 'label' => 'Mar 10, 2013'));
 		DateFormat::create(array('format' => 'F j, Y', 'picker_format' => 'MM d, yyyy', 'label' => 'March 10, 2013'));
 		DateFormat::create(array('format' => 'D M j, Y', 'picker_format' => 'D MM d, yyyy', 'label' => 'Mon March 10, 2013'));			
+		DateFormat::create(array('format' => 'Y-M-d', 'picker_format' => 'yyyy-M-dd', 'label' => '2013-03-10'));
 		
 		PaymentLibrary::create(['name' => 'Omnipay']);
 		PaymentLibrary::create(['name' => 'PHP-Payments']);

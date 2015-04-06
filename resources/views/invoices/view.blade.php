@@ -27,7 +27,7 @@
                 {!! Button::success(trans('texts.approve'))->asLinkTo('approve/' . $invitation->invitation_key)->large() !!}
             @endif
 		@elseif ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)
-            {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;			
+            {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
             @if ($hasToken)
                 {!! DropdownButton::success_lg(trans('texts.pay_now'), [
                     ['url' => URL::to("payment/{$invitation->invitation_key}?use_token=true&use_paypal=false"), 'label' => trans('texts.use_card_on_file')],
