@@ -3,7 +3,7 @@
 
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
-#### Note: the application has recently been updated to Laravel 5. Please use the [1.7.x branch](https://github.com/hillelcoren/invoice-ninja/tree/1.7.x) for a more a stable build.
+#### Note: the application has recently been updated to Laravel 5. Please use the [1.7.x branch](https://github.com/hillelcoren/invoice-ninja/tree/1.7.x) for a more stable build.
 
 If you'd like to use our code to sell your own invoicing app we have an affiliate program. Get in touch for more details.
 
