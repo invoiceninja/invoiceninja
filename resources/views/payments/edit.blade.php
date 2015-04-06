@@ -15,7 +15,7 @@
 	)) !!}
 
     @if ($payment)
-        {{ Former::populate($payment) }}
+        {!! Former::populate($payment) !!}
     @endif
 	
 	<div class="row">
