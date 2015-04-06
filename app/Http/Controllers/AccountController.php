@@ -1,13 +1,15 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
+use Event;
+use File;
+use Image;
 use Input;
 use Redirect;
 use Session;
 use Utils;
-use View;
-use Event;
 use Validator;
+use View;
 use stdClass;
 
 use App\Models\User;
@@ -303,7 +305,7 @@ class AccountController extends BaseController
             $account->quote_number_prefix = Input::get('quote_number_prefix');
             $account->share_counter = Input::get('share_counter') ? true : false;
             
-            //$account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
+            $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
 
             if (!$account->share_counter) {
                 $account->quote_number_counter = Input::get('quote_number_counter');
@@ -630,16 +632,15 @@ class AccountController extends BaseController
 
                 $image = Image::make($path);
                 $mimeType = $file->getMimeType();
-                
-                if ($image->width == 200 && $mimeType == 'image/jpeg') {
+
+                if ($image->width() == 200 && $mimeType == 'image/jpeg') {
                     $file->move('logo/', $account->account_key . '.jpg');
                 } else {
-                    $image->resize(200, 120, true, false);
-                    Image::canvas($image->width, $image->height, '#FFFFFF')->insert($image)->save($account->getLogoPath());
+                    $image->resize(200, 120, function ($constraint) {
+                        $constraint->aspectRatio();
+                    });
+                    Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image)->save($account->getLogoPath());
                 }
-                
-                //$image = Image::make($path)->resize(200, 120, true, false);
-                //Image::canvas($image->width, $image->height, '#FFFFFF')->insert($image)->save($account->getLogoPath());
             }
 
             Event::fire(new UserSettingsChanged());

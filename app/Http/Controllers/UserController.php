@@ -2,19 +2,19 @@
 
 use Auth;
 use Config;
+use Datatable;
+use DB;
 use Event;
 use Input;
 use View;
 use Redirect;
 use Session;
+use URL;
 use Utils;
-use DB;
-use Datatable;
+use Validator;
 
 use App\Models\User;
-
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
