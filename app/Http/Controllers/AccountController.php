@@ -305,8 +305,7 @@ class AccountController extends BaseController
             $account->quote_number_prefix = Input::get('quote_number_prefix');
             $account->share_counter = Input::get('share_counter') ? true : false;
 
-            // TODO: Fix pdf email attachment settings
-            // $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
+            $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
 
             if (!$account->share_counter) {
                 $account->quote_number_counter = Input::get('quote_number_counter');
