@@ -2,7 +2,7 @@
 
 use Mail;
 use Utils;
-use Invoice;
+use App\Models\Invoice;
 
 class Mailer
 {

@@ -5,6 +5,6 @@
 </head>
 <body>
     @include('emails.view_action', ['link' => $link, 'entityType' => $entityType])
-    {{ $body }}
+    {!! $body !!}
 </body>
 </html>

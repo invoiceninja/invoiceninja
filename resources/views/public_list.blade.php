@@ -92,11 +92,11 @@
 
 		<h2>{{ $title }}</h2>
 
-		{{ Datatable::table()		
+		{!! Datatable::table()
 	    	->addColumn($columns)
 	    	->setUrl(route('api.client.' . $entityType . 's'))    	
 	    	->setOptions('sPaginationType', 'bootstrap')
-	    	->render('datatable') }}
+	    	->render('datatable') !!}
 
 	</div>
 

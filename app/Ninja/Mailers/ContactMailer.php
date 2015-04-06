@@ -1,12 +1,10 @@
 <?php namespace App\Ninja\Mailers;
 
 use Utils;
-use Events;
+use Event;
 
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Contact;
-use App\Models\Invitation;
 use App\Models\Activity;
 use App\Events\InvoiceSent;
 

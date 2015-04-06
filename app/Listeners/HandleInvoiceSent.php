@@ -29,12 +29,12 @@ class HandleInvoiceSent {
 	public function handle(InvoiceSent $event)
 	{
         $invoice = $event->invoice;
-        
+
         foreach ($invoice->account->users as $user)
         {
             if ($user->{'notify_sent'})
             {
-                $this->userMailer->sendNotification($user, $invoice, 'sent', $payment);
+                $this->userMailer->sendNotification($user, $invoice, 'sent');
             }
         }
 	}

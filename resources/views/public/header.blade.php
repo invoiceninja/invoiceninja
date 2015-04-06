@@ -175,13 +175,13 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
             @if (!isset($hideHeader) || !$hideHeader)
             <ul class="nav navbar-nav navbar-right">
                 <li {{ Request::is('*client/quotes') ? 'class="active"' : '' }}>
-                    {{ link_to('/client/quotes', trans('texts.quotes') ) }}
+                    {!! link_to('/client/quotes', trans('texts.quotes') ) !!}
                 </li>
                 <li {{ Request::is('*client/invoices') ? 'class="active"' : '' }}>
-                    {{ link_to('/client/invoices', trans('texts.invoices') ) }}
+                    {!! link_to('/client/invoices', trans('texts.invoices') ) !!}
                 </li>
                 <li {{ Request::is('*client/payments') ? 'class="active"' : '' }}>
-                    {{ link_to('/client/payments', trans('texts.payments') ) }}
+                    {!! link_to('/client/payments', trans('texts.payments') ) !!}
                 </li>                
             </ul>
             @endif
@@ -213,16 +213,16 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
             <div id="footer-menu" class="menu-wrap">
                 <ul id="menu-footer-menu" class="menu">
                     <li id="menu-item-30" class="menu-item-30">
-                        {{ link_to(NINJA_WEB_URL . '/contact', trans('texts.support')) }}
+                        {!! link_to(NINJA_WEB_URL . '/contact', trans('texts.support')) !!}
                     </li>
                     <li id="menu-item-31" class="menu-item-31">                    
-                        {{ link_to('#', 'Facebook', ['target' => '_blank', 'onclick' => 'openUrl("https://www.facebook.com/invoiceninja", "/footer/social/facebook")']) }}
+                        {!! link_to('#', 'Facebook', ['target' => '_blank', 'onclick' => 'openUrl("https://www.facebook.com/invoiceninja", "/footer/social/facebook")']) !!}
                     </li>
                     <li id="menu-item-32" class="menu-item-32">
-                        {{ link_to('#', 'Twitter', ['target' => '_blank', 'onclick' => 'openUrl("https://twitter.com/invoiceninja", "/footer/social/twitter")']) }}
+                        {!! link_to('#', 'Twitter', ['target' => '_blank', 'onclick' => 'openUrl("https://twitter.com/invoiceninja", "/footer/social/twitter")']) !!}
                     </li>
                     <li id="menu-item-33" class="menu-item-33">
-                        {{ link_to('#', 'GitHub', ['target' => '_blank', 'onclick' => 'openUrl("https://github.com/hillelcoren/invoice-ninja", "/footer/social/github")']) }}
+                        {!! link_to('#', 'GitHub', ['target' => '_blank', 'onclick' => 'openUrl("https://github.com/hillelcoren/invoice-ninja", "/footer/social/github")']) !!}
                     </li>                    
                 </ul>
             </div>      
