@@ -1,4 +1,4 @@
-# Invoice Ninja - Rebuilt in Laravel 5
+# Invoice Ninja
 ## Simple, Intuitive Invoicing
 
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
@@ -122,6 +122,5 @@ Add public/ to your web server root then load / to configure the application.
 * [josscrowcroft/accounting.js](https://github.com/josscrowcroft/accounting.js) - A lightweight JavaScript library for number, money and currency formatting
 * [jashkenas/underscore](https://github.com/jashkenas/underscore) - JavaScript's utility _ belt 
 * [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) - List of languages ​​for Laravel4
-* [calvinfroedge/PHP-Payments](https://github.com/calvinfroedge/PHP-Payments) - A uniform payments interface for PHP
 * [bgrins/spectrum](https://github.com/bgrins/spectrum) - The No Hassle JavaScript Colorpicker
 * [lokesh/lightbox2](https://github.com/lokesh/lightbox2/) - The original lightbox script
