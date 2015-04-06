@@ -3,28 +3,28 @@
 @section('content') 
   @parent
 
-  {{ Former::open($url)->method($method)
+  {!! Former::open($url)->method($method)
       ->rules(['product_key' => 'required|max:20'])
-      ->addClass('col-md-8 col-md-offset-2 warn-on-exit') }}
+      ->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!}
 
 
-  {{ Former::legend($title) }}
+  {!! Former::legend($title) !!}
 
   @if ($product)
     {{ Former::populate($product) }}
     {{ Former::populateField('cost', number_format($product->cost, 2, '.', '')) }}
   @endif
 
-  {{ Former::text('product_key')->label('texts.product') }}
-  {{ Former::textarea('notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'") }}
-  {{ Former::text('cost') }}
+  {!! Former::text('product_key')->label('texts.product') !!}
+  {!! Former::textarea('notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'") !!}
+  {!! Former::text('cost') !!}
 
-  {{ Former::actions( 
-      Button::lg_success_submit(trans('texts.save'))->append_with_icon('floppy-disk'),
-      Button::lg_default_link('company/products', trans('texts.cancel'))->append_with_icon('remove-circle')      
-  ) }}
+  {!! Former::actions( 
+      Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')),
+      Button::normal(trans('texts.cancel'))->large()->asLinkTo('/company/products')->appendIcon(Icon::create('remove-circle'))      
+  ) !!}
 
-  {{ Former::close() }}
+  {!! Former::close() !!}
 
   <script type="text/javascript">
 

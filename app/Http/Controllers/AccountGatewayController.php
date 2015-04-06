@@ -101,23 +101,6 @@ class AccountGatewayController extends BaseController
         $selectedCards = $accountGateway ? $accountGateway->accepted_credit_cards : 0;
         $account = Auth::user()->account;
 
-        // $recommendedGateways = Gateway::remember(DEFAULT_QUERY_CACHE)
-                // ->where('recommended', '=', '1')
-        $recommendedGateways = Gateway::where('recommended', '=', '1')
-                ->orderBy('sort_order')
-                ->get();
-        $recommendedGatewayArray = array();
-
-        foreach ($recommendedGateways as $recommendedGateway) {
-            $arrayItem = array(
-                'value' => $recommendedGateway->id,
-                'other' => 'false',
-                'data-imageUrl' => asset($recommendedGateway->getLogoUrl()),
-                'data-siteUrl' => $recommendedGateway->site_url,
-            );
-            $recommendedGatewayArray[$recommendedGateway->name] = $arrayItem;
-        }
-
         $creditCardsArray = unserialize(CREDIT_CARDS);
         $creditCards = [];
         foreach ($creditCardsArray as $card => $name) {
@@ -127,14 +110,6 @@ class AccountGatewayController extends BaseController
                 $creditCards[$name['text']] = ['value' => $card, 'data-imageUrl' => asset($name['card'])];
             }
         }
-
-        $otherItem = array(
-            'value' => 1000000,
-            'other' => 'true',
-            'data-imageUrl' => '',
-            'data-siteUrl' => '',
-        );
-        $recommendedGatewayArray['Other Options'] = $otherItem;
 
         $account->load('account_gateways');
         $currentGateways = $account->account_gateways;
@@ -172,7 +147,6 @@ class AccountGatewayController extends BaseController
             'accountGateway' => $accountGateway,
             'config' => false,
             'gateways' => $gateways,
-            'recommendedGateways' => $recommendedGatewayArray,
             'creditCardTypes' => $creditCards,
             'tokenBillingOptions' => $tokenBillingOptions,
             'showBreadcrumbs' => false,
@@ -200,9 +174,7 @@ class AccountGatewayController extends BaseController
     public function save($accountGatewayPublicId = false)
     {
         $rules = array();
-        $recommendedId = Input::get('recommendedGateway_id');
-
-        $gatewayId = ($recommendedId == 1000000 ? Input::get('gateway_id') : $recommendedId);
+        $gatewayId = Input::get('gateway_id');
 
         if (!$gatewayId) {
             Session::flash('error', trans('validation.required', ['attribute' => 'gateway']));

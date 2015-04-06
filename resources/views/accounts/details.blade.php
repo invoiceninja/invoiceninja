@@ -62,9 +62,11 @@
 				{!! Former::legend('users') !!}
 				{!! Former::text('first_name') !!}
 				{!! Former::text('last_name') !!}
-				{!! Former::text('email') !!}
+                {!! Former::text('email') !!}
 				{!! Former::text('phone') !!}
-                {!! Former::actions(Button::primary(trans('texts.change_password'), ['onclick'=>'showChangePassword()']))->small() !!}
+                @if (Auth::user()->confirmed)                
+                    {!! Former::actions( Button::primary(trans('texts.change_password'))->small()->withAttributes(['onclick'=>'showChangePassword()'])) !!}
+                @endif
 			@endif
 
 			{!! Former::legend('localization') !!}

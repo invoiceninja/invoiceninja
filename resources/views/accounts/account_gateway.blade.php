@@ -22,26 +22,11 @@
         @endif
     @endif
     
-  <div class="two-column">
-        {!! Former::checkboxes('creditCardTypes[]')->label('Accepted Credit Cards')
-                ->checkboxes($creditCardTypes)->class('creditcard-types')
-        !!}
-    </div>
-
-    <p/>&nbsp;<p/>
     
-    <div style="display:{{ $accountGateway ? 'none' : '' }}">
-    <div class="two-column" style="display:{{ $onlyPayPal ? 'none' : '' }}">
-    {!! Former::radios('recommendedGateway_id')->label('Recommended Gateway')
-            ->radios($recommendedGateways)->class('recommended-gateway')
-    !!}
-    </div>
-
     {!! Former::select('gateway_id')->label('Select Gateway')->addOption('', '')
         ->dataClass('gateway-dropdown')
         ->fromQuery($gateways, 'name', 'id')
         ->onchange('setFieldsShown()'); !!}
-    </div>
 
     @foreach ($gateways as $gateway)
 
@@ -64,7 +49,7 @@
                 <div class="form-group">
                     <label class="control-label col-lg-4 col-sm-4"></label>
                     <div class="col-lg-8 col-sm-8 help-block">
-                        {{ $gateway->getHelp() }}       
+                        {!! $gateway->getHelp() !!}
                     </div>
                 </div>                  
             @endif
@@ -76,30 +61,25 @@
         
     @endforeach
 
+    {!! Former::checkboxes('creditCardTypes[]')->label('Accepted Credit Cards')
+            ->checkboxes($creditCardTypes)->class('creditcard-types')
+    !!}
+
+
     <p/>&nbsp;<p/>
 
     {!! Former::actions( 
-        Button::success('Save')->submit()->large()->appendIcon(Icon::create('floppy-disk')),
-        $countGateways > 0 ? Button::lg_default_link('company/payments', 'Cancel')->append_with_icon('remove-circle') : false) !!}
+        Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')),
+        $countGateways > 0 ? Button::normal(trans('texts.cancel'))->large()->asLinkTo('/company/payments')->appendIcon(Icon::create('remove-circle')) : false) !!}
     {!! Former::close() !!}
 
 
     <script type="text/javascript">
 
     function setFieldsShown() {
-        var recommendedVal = $('input:radio[name=recommendedGateway_id]:checked').val();
-        var gatewayVal = $('#gateway_id').val();
-        var val = recommendedVal && recommendedVal != 1000000 ? recommendedVal : gatewayVal;
-        
+        var val = $('#gateway_id').val();
         $('.gateway-fields').hide();
         $('#gateway_' + val + '_div').show();
-        
-        $('#gateway_id').parent().parent().hide();
-        if(!$('input:radio[name=recommendedGateway_id][value!=1000000]:checked').val())
-        {
-            $('.recommended-gateway[value=1000000]').attr('checked', true);
-            $('#gateway_id').parent().parent().show();
-        }
     }
 
     function gatewayLink(url) {
@@ -108,44 +88,6 @@
             openUrl(url, '/affiliate/' + host);
         }
     }
-
-    $(document).ready(function() {
-        $('.recommended-gateway').change(
-            function(){
-                var recVal = $(this).val();
-                
-                if(recVal == 1000000)
-                {
-                    $('#gateway_id').parent().parent().show();
-                }
-                else
-                {
-                    $('#gateway_id').parent().parent().hide();
-                }
-                
-                setFieldsShown();
-            }
-        );
-        
-        $('.recommended-gateway[other != true]').each(function(){
-            var contents = $(this).parent().contents();
-            contents[contents.length - 1].nodeValue = '';
-            $(this).after('<img src="' +$(this).attr('data-imageUrl') + '" /><br />');
-            $(this).parent().children().last().after('<a href="#" onclick="gatewayLink(\'' + $(this).attr('data-siteUrl') + '\')" style="padding-left:26px">Create an account</a>');
-        });
-        
-    // TODO: THIS IS JUST TO SHOW THE IMAGES, STYLE IS SET INLINE STYLE
-    $('.creditcard-types').each(function(){
-            var contents = $(this).parent().contents();
-            contents[contents.length - 1].nodeValue = '';
-            $(this).after('<img style="width: 60px; display: inline;" src="' +$(this).attr('data-imageUrl') + '" /><br />');
-        });
-        
-
-        setFieldsShown();
-        $('.two-column .form-group .col-lg-8').removeClass('col-lg-8');
-        $('.two-column .form-group .col-sm-8').removeClass('col-sm-8');
-    });
 
     </script>
 

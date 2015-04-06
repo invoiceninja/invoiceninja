@@ -6,6 +6,12 @@ use DB;
 use Datatable;
 use Utils;
 use URL;
+use View;
+use Input;
+use Session;
+use Redirect;
+
+use App\Models\Product;
 
 class ProductController extends BaseController
 {

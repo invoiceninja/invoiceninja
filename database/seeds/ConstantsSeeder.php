@@ -174,6 +174,7 @@ class ConstantsSeeder extends Seeder
 		DateFormat::create(array('format' => 'Y-M-d', 'picker_format' => 'yyyy-M-dd', 'label' => '2013-03-10'));
 		
 		PaymentLibrary::create(['name' => 'Omnipay']);
+        PaymentLibrary::create(['name' => 'PHP-Payments [Deprecated]']);
 
 		/*	
 		d, dd: Numeric date, no leading zero and leading zero, respectively. Eg, 5, 05.
