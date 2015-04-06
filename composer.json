@@ -33,8 +33,7 @@
         "coatesap/omnipay-realex": "~2.0",
         "fruitcakestudio/omnipay-sisow": "~2.0",
         "alfaproject/omnipay-skrill": "dev-master",
-        "illuminate/html": "5.*",
-        "calvinfroedge/PHP-Payments": "dev-master"
+        "illuminate/html": "5.*"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",
