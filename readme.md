@@ -3,7 +3,7 @@
 
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
-#### Note: please submit any pull requests against the [Laravel 5](https://github.com/hillelcoren/invoice-ninja/tree/laravel-5) branch
+#### Note: the application has recently been updated to Laravel 5. Please use the [1.7.x branch](https://github.com/hillelcoren/invoice-ninja/tree/1.7.x) for a more a stable build.
 
 If you'd like to use our code to sell your own invoicing app we have an affiliate program. Get in touch for more details.
 
@@ -23,7 +23,7 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 
 ### Features
 
-* Core application built using Laravel 4.1
+* Core application built using Laravel 5
 * Invoice PDF generation directly in the browser
 * Integrates with many payment providers
 * Recurring invoices
@@ -106,8 +106,6 @@ Add public/ to your web server root then load / to configure the application.
 * [rniemeyer/knockout-sortable](https://github.com/rniemeyer/knockout-sortable) - A Knockout.js binding to connect observableArrays with jQuery UI sortable functionality
 * [MrRio/jsPDF](https://github.com/MrRio/jsPDF) - Generate PDF files in JavaScript. HTML5 FTW.
 * [FortAwesome/Font-Awesome](https://github.com/FortAwesome/Font-Awesome) - The iconic font designed for Bootstrap that works with twitter bootstrap
-* [jasonlewis/basset](https://github.com/jasonlewis/basset) - A better asset management package for Laravel
-* [Zizaco/confide](https://github.com/Zizaco/confide) - Confide is a authentication solution for Laravel 4
 * [Anahkiasen/former](https://github.com/Anahkiasen/former) - A powerful form builder, for Laravel and other frameworks (stand-alone too)
 * [barryvdh/laravel-debugbar](https://github.com/barryvdh/laravel-debugbar) - Laravel debugbar
 * [DataTables/DataTables](https://github.com/DataTables/DataTables) - Tables plug-in for jQuery
