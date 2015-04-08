@@ -5,6 +5,8 @@ use Utils;
 use Request;
 use Session;
 use Response;
+use Auth;
+use Cache;
 
 use App\Models\AccountToken;
 
@@ -47,7 +49,7 @@ class ApiCheck {
             $hour_throttle = Cache::get("hour_throttle:{$accountId}", null);
             $last_api_request = Cache::get("last_api_request:{$accountId}", 0);
             $last_api_diff = time() - $last_api_request;
-
+            
             if (is_null($hour_throttle)) {
                 $new_hour_throttle = 0;
             } else {

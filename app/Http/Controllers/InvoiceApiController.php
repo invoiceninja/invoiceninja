@@ -1,6 +1,13 @@
 <?php namespace App\Http\Controllers;
 
+use Auth;
 use Utils;
+use Response;
+use Input;
+use App\Models\Invoice;
+use App\Models\Client;
+use App\Models\Product;
+use App\Models\Invitation;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 

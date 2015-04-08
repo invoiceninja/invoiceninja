@@ -1,5 +1,9 @@
 <?php namespace App\Http\Controllers;
 
+use Utils;
+use Response;
+use Input;
+use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
 
 class ClientApiController extends Controller

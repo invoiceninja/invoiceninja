@@ -176,8 +176,4 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return 'remember_token';
     }
 
-    // public function confirm(){}
-    // public function forgotPassword(){}
-    // public function isValid(){}
-
 }

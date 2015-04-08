@@ -121,7 +121,7 @@
 			setArchiveEnabled();
 		});	
 
-		$('tbody tr').click(function(event) {
+		$('tbody tr').click(function(event) {        
 			if (event.target.type !== 'checkbox' && event.target.type !== 'button' && event.target.tagName.toLowerCase() !== 'a') {
 				$checkbox = $(this).closest('tr').find(':checkbox:not(:disabled)');				
 				var checked = $checkbox.prop('checked');
@@ -152,7 +152,7 @@
 
 	function setArchiveEnabled() {
 		var checked = $('tbody :checkbox:checked').length > 0;
-		$('#archive > button').prop('disabled', !checked);	
+		$('button.archive').prop('disabled', !checked);	
 	}
 
 
