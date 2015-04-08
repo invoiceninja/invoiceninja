@@ -7,7 +7,7 @@ use Session;
 use Utils;
 use View;
 use Validator;
-
+zz
 use App\Models\Client;
 
 use App\Ninja\Repositories\CreditRepository;
@@ -84,7 +84,6 @@ class CreditController extends BaseController
             'method' => 'POST',
             'url' => 'credits',
             'title' => trans('texts.new_credit'),
-            //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             //'invoices' => Invoice::scope()->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
 
@@ -102,7 +101,6 @@ class CreditController extends BaseController
             'method' => 'PUT',
             'url' => 'credits/'.$publicId,
             'title' => 'Edit Credit',
-            //'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
 
         return View::make('credit.edit', $data);

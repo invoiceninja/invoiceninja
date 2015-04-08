@@ -11,6 +11,7 @@ use Utils;
 use Validator;
 use View;
 use stdClass;
+use Cache;
 
 use App\Models\User;
 use App\Models\Activity;
@@ -129,30 +130,16 @@ class AccountController extends BaseController
     public function showSection($section = ACCOUNT_DETAILS, $subSection = false)
     {
         if ($section == ACCOUNT_DETAILS) {
-            /* Update Remember Function
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
-                'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-                'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-                'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-                'timezones' => Timezone::remember(DEFAULT_QUERY_CACHE)->orderBy('location')->get(),
-                'dateFormats' => DateFormat::remember(DEFAULT_QUERY_CACHE)->get(),
-                'datetimeFormats' => DatetimeFormat::remember(DEFAULT_QUERY_CACHE)->get(),
-                'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-                'languages' => Language::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-                'showUser' => Auth::user()->id === Auth::user()->account->users()->first()->id,
-            ];
-            */
-            $data = [
-                'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
-                'countries' => Country::orderBy('name')->get(),
-                'sizes' => Size::orderBy('id')->get(),
-                'industries' => Industry::orderBy('name')->get(),
-                'timezones' => Timezone::orderBy('location')->get(),
-                'dateFormats' => DateFormat::get(),
-                'datetimeFormats' => DatetimeFormat::get(),
-                'currencies' => Currency::orderBy('name')->get(),
-                'languages' => Language::orderBy('name')->get(),
+                'countries' => Cache::get('countries'),
+                'sizes' => Cache::get('sizes'),
+                'industries' => Cache::get('industries'),
+                'timezones' => Cache::get('timezones'),
+                'dateFormats' => Cache::get('dateFormats'),
+                'datetimeFormats' => Cache::get('datetimeFormats'),
+                'currencies' => Cache::get('currencies'),
+                'languages' => Cache::get('languages'),
                 'showUser' => Auth::user()->id === Auth::user()->account->users()->first()->id,
             ];
 
@@ -210,8 +197,6 @@ class AccountController extends BaseController
                 $invoice->invoice_items = [$invoiceItem];
 
                 $data['invoice'] = $invoice;
-                //$data['invoiceDesigns'] = InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())
-                //    ->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
                 $data['invoiceDesigns'] = InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
             } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
                 $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
@@ -391,7 +376,7 @@ class AccountController extends BaseController
         $count = 0;
         $hasHeaders = Input::get('header_checkbox');
 
-        $countries = Country::remember(DEFAULT_QUERY_CACHE)->get();
+        $countries = Cache::get('countries');
         $countryMap = [];
 
         foreach ($countries as $country) {

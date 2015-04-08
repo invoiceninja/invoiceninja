@@ -10,6 +10,7 @@ use Validator;
 use Omnipay;
 use CreditCard;
 use URL;
+use Cache;
 
 use App\Models\Invoice;
 use App\Models\Invitation;
@@ -151,8 +152,7 @@ class PaymentController extends BaseController
             'method' => 'POST',
             'url' => "payments",
             'title' => trans('texts.new_payment'),
-            //'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-            'paymentTypes' => PaymentType::orderBy('id')->get(),
+            'paymentTypes' => Cache::get('paymentTypes'),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
 
         return View::make('payments.edit', $data);
@@ -172,8 +172,7 @@ class PaymentController extends BaseController
             'method' => 'PUT',
             'url' => 'payments/'.$publicId,
             'title' => trans('texts.edit_payment'),
-            //'paymentTypes' => PaymentType::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-            'paymentTypes' => PaymentType::orderBy('id')->get(),
+            'paymentTypes' => Cache::get('paymentTypes'),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
 
         return View::make('payments.edit', $data);
@@ -368,8 +367,7 @@ class PaymentController extends BaseController
             'paymentLibrary' => $paymentLibrary,
             'gateway' => $gateway,
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
-            //'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'countries' => Country::orderBy('name')->get(),
+            'countries' => Cache::get('countries'),
             'currencyId' => $client->currency_id,
             'account' => $client->account
         ];
@@ -418,8 +416,7 @@ class PaymentController extends BaseController
             'paymentLibrary' => $paymentLibrary,
             'gateway' => $gateway,
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
-            //'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'countries' => Country::orderBy('name')->get(),
+            'countries' => Cache::get('countries'),
             'currencyId' => 1,
             'paymentTitle' => $affiliate->payment_title,
             'paymentSubtitle' => $affiliate->payment_subtitle,

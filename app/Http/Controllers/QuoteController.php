@@ -5,6 +5,7 @@ use Input;
 use Redirect;
 use Utils;
 use View;
+use Cache;
 
 use App\Models\Account;
 use App\Models\Client;
@@ -139,35 +140,17 @@ class QuoteController extends BaseController
 
     private static function getViewModel()
     {
-        /*
-        return [
-      'entityType' => ENTITY_QUOTE,
-      'account' => Auth::user()->account,
-      'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
-      'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-      'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
-      'taxRates' => TaxRate::scope()->orderBy('name')->get(),
-      'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-      'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-      'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-      'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-      'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())
-        ->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
-      'invoiceLabels' => Auth::user()->account->getInvoiceLabels()
-    ];
-*/
-        // TODO: Add Remember Cache
         return [
           'entityType' => ENTITY_QUOTE,
           'account' => Auth::user()->account,
           'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
-          'countries' => Country::orderBy('name')->get(),
+          'countries' => Cache::get('countries'),
           'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
           'taxRates' => TaxRate::scope()->orderBy('name')->get(),
-          'currencies' => Currency::orderBy('name')->get(),
-          'sizes' => Size::orderBy('id')->get(),
-          'paymentTerms' => PaymentTerm::orderBy('num_days')->get(['name', 'num_days']),
-          'industries' => Industry::orderBy('name')->get(),
+          'currencies' => Cache::get('currencies'),
+          'sizes' => Cache::get('sizes'),
+          'paymentTerms' => Cache::get('paymentTerms'),
+          'industries' => Cache::get('industries'),
           'invoiceDesigns' => InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
           'invoiceLabels' => Auth::user()->account->getInvoiceLabels()
         ];

@@ -9,6 +9,7 @@ use Validator;
 use Input;
 use Session;
 use Redirect;
+use Cache;
 
 use App\Models\Activity;
 use App\Models\Client;
@@ -178,23 +179,12 @@ class ClientController extends BaseController
 
     private static function getViewModel()
     {
-        /* Remember function no longer works
         return [
-            'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-            'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-            'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'customLabel1' => Auth::user()->account->custom_client_label1,
-            'customLabel2' => Auth::user()->account->custom_client_label2,
-        ];
-        */
-        return [
-            'sizes' => Size::orderBy('id')->get(),
-            'paymentTerms' => PaymentTerm::orderBy('num_days')->get(['name', 'num_days']),
-            'industries' => Industry::orderBy('name')->get(),
-            'currencies' => Currency::orderBy('name')->get(),
-            'countries' => Country::orderBy('name')->get(),
+            'sizes' => Cache::get('sizes'),
+            'paymentTerms' => Cache::get('paymentTerms'),
+            'industries' => Cache::get('industries'),
+            'currencies' => Cache::get('currencies'),
+            'countries' => Cache::get('countries'),
             'customLabel1' => Auth::user()->account->custom_client_label1,
             'customLabel2' => Auth::user()->account->custom_client_label2,
         ];

@@ -193,7 +193,7 @@ class Account extends Eloquent
 
     public function getLocale()
     {
-        $language = Language::remember(DEFAULT_QUERY_CACHE)->where('id', '=', $this->account->language_id)->first();
+        $language = Language::where('id', '=', $this->account->language_id)->first();
 
         return $language->locale;
     }

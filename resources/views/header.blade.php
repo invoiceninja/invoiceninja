@@ -176,37 +176,6 @@
   @yield('content')		
 
 </div>
-<div class="container">
-  <div class="footer" style="padding-top: 32px">
-    @if (false)
-    <div class="pull-right">
-      {!! Former::open('user/setTheme')->addClass('themeForm') !!}
-      <div style="display:none">
-        {!! Former::text('theme_id') !!}
-        {!! Former::text('path')->value(Request::url()) !!}
-      </div>
-      <div class="btn-group tr-action dropup">
-        <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-          Site Theme <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" role="menu">
-          <li><a href="#" onclick="setTheme(0)">Default</a></li>
-          @foreach (Theme::remember(DEFAULT_QUERY_CACHE)->get() as $theme)
-          <li><a href="#" onclick="setTheme({{ $theme->id }})">{{ ucwords($theme->name) }}</a></li>
-          @endforeach
-        </ul>
-      </div>
-      {!! Former::close() !!}
-    </div>
-    @endif
-
-<!--
-Want something changed? We're {!! link_to('https://github.com/hillelcoren/invoice-ninja', 'open source', array('target'=>'_blank')) !!}, email us at {!! link_to('mailto:contact@invoiceninja.com', 'contact@invoiceninja.com') !!}.			
--->
-
-</div>			
-</div>
-
 
 @if (!Auth::check() || !Auth::user()->registered)
 <div class="modal fade" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModalLabel" aria-hidden="true">

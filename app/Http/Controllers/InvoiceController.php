@@ -321,43 +321,17 @@ class InvoiceController extends BaseController
             }
         }
 
-        /*
         return [
             'account' => Auth::user()->account,
             'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
-            'countries' => Country::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
-            'taxRates' => TaxRate::scope()->orderBy('name')->get(),
-            'currencies' => Currency::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-            'sizes' => Size::remember(DEFAULT_QUERY_CACHE)->orderBy('id')->get(),
-            'paymentTerms' => PaymentTerm::remember(DEFAULT_QUERY_CACHE)->orderBy('num_days')->get(['name', 'num_days']),
-            'industries' => Industry::remember(DEFAULT_QUERY_CACHE)->orderBy('name')->get(),
-      'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())
-          ->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
-            'frequencies' => array(
-                1 => 'Weekly',
-                2 => 'Two weeks',
-                3 => 'Four weeks',
-                4 => 'Monthly',
-                5 => 'Three months',
-                6 => 'Six months',
-                7 => 'Annually',
-            ),
-            'recurringHelp' => $recurringHelp
-        ];
-        */
-
-        return [
-            'account' => Auth::user()->account,
-            'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
-            'countries' => Country::orderBy('name')->get(),
+            'countries' => Cache::get('countries'),
             'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->orderBy('name')->get(),
             'currencies' => Cache::get('currencies'),
-            'sizes' => Size::orderBy('id')->get(),
-            'paymentTerms' => PaymentTerm::orderBy('num_days')->get(['name', 'num_days']),
-            'industries' => Industry::orderBy('name')->get(),
-      'invoiceDesigns' => InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+            'sizes' => Cache::get('sizes'),
+            'paymentTerms' => Cache::get('paymentTerms'),
+            'industries' => Cache::get('industries'),
+            'invoiceDesigns' => InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
             'frequencies' => array(
                 1 => 'Weekly',
                 2 => 'Two weeks',
@@ -593,7 +567,7 @@ class InvoiceController extends BaseController
             'invoice' => $invoice,
             'versionsJson' => json_encode($versionsJson),
             'versionsSelect' => $versionsSelect,
-            'invoiceDesigns' => InvoiceDesign::remember(DEFAULT_QUERY_CACHE, 'invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId())->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+            'invoiceDesigns' => InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
         ];
 
         return View::make('invoices.history', $data);
