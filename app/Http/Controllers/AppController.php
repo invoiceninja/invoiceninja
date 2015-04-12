@@ -71,6 +71,7 @@ class AppController extends BaseController
         // == ENV Settings (Production) == //
         $config = "APP_ENV=development\n".
                     "APP_DEBUG=true\n".
+                    "APP_URL={$app['url']}\n".
                     "APP_KEY={$app['key']}\n\n".
                     "DB_TYPE={$dbType}\n".
                     "DB_HOST={$database['type']['host']}\n".
