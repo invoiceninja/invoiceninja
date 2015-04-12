@@ -56,9 +56,10 @@ Note: you may be prompted for your Github user/pass due to their API limits.
 
     composer install
 
-Install JavaScript and HTML packages using Bower. This is optional, it's only needed if you want to modify the JavaScript.
+Install JavaScript and HTML packages using Bower and NPM. This is optional, it's only needed if you want to modify the JavaScript.
 
     bower install
+    npm install    
 
 Create database user and a database for ninja
 
