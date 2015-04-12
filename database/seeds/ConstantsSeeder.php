@@ -20,32 +20,6 @@ class ConstantsSeeder extends Seeder
 
 	public function run()
 	{
-		// TEST DATA
-		/*
-		$contact = new Contact;
-		$contact->first_name = 'Hillel';
-		$contact->last_name = 'Hillel';
-		$contact->email = 'hillelcoren@gmail.com';
-		$contact->last_name = '2125551234';
-		$client->contacts()->save($contact);
-		
-		$invoice = new Invoice;
-		$invoice->invoice_number = '0001';
-		$client->invoices()->save($invoice);
-
-		$invoice = new Invoice;
-		$invoice->invoice_number = '0002';
-		$client->invoices()->save($invoice);
-
-		$invoice = new Invoice;
-		$invoice->invoice_number = '0003';
-		$client->invoices()->save($invoice);
-
-		$invoice = new Invoice;
-		$invoice->invoice_number = '0004';
-		$client->invoices()->save($invoice);
-		*/
-
 		PaymentType::create(array('name' => 'Apply Credit'));
 		PaymentType::create(array('name' => 'Bank Transfer'));
 		PaymentType::create(array('name' => 'Cash'));
@@ -306,7 +280,7 @@ class ConstantsSeeder extends Seeder
 		    'Asia/Dhaka'           => "(GMT+06:00) Dhaka",
 		    'Asia/Novosibirsk'     => "(GMT+07:00) Novosibirsk",
 		    'Asia/Bangkok'         => "(GMT+07:00) Bangkok",
-                   'Asia/Ho_Chi_Minh'     => "(GMT+07.00) Ho Chi Minh",
+            'Asia/Ho_Chi_Minh'     => "(GMT+07.00) Ho Chi Minh",
 		    'Asia/Jakarta'         => "(GMT+07:00) Jakarta",
 		    'Asia/Krasnoyarsk'     => "(GMT+08:00) Krasnoyarsk",
 		    'Asia/Chongqing'       => "(GMT+08:00) Chongqing",
