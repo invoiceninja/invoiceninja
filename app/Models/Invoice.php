@@ -236,8 +236,6 @@ Invoice::deleting(function ($invoice) {
     Activity::archiveInvoice($invoice);
 });
 
-// TODO: Fix for L5
-/*Invoice::restoring(function ($invoice) {
+Invoice::restoring(function ($invoice) {
     Activity::restoreInvoice($invoice);
 });
-*/
