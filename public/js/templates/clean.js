@@ -26,16 +26,16 @@ var dd = {
         }
       ]
     },
-    'INVOICE',
+    (invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),
     {
       style: 'tableExample',
       table: {
         headerRows: 1,
         widths: ['auto', 'auto', '*'],
         body: [
-          ['Invoice Number', {style: 'bold', text: invoice.invoice_number}, ""],
-          ['Invoice Date', invoice.invoice_date, ""],
-          ['Balance Due', formatMoney(invoice.balance_amount, invoice.client.currency_id), ""],
+          [invoice.is_quote ? invoiceLabels.quote_number:invoiceLabels.invoice_number, {style: 'bold', text: invoice.invoice_number}, ""],
+          [invoice.is_quote ? invoiceLabels.quote_date:invoiceLabels.invoice_date, invoice.invoice_date, ""],
+          [invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due, formatMoney(invoice.balance_amount, invoice.client.currency_id), ""],
         ]
       },
       layout: {
@@ -104,6 +104,15 @@ var dd = {
       fillColor:'#F4F4F4'
     },
     cost: {
+      alignment: 'right'
+    },
+    quantity: {
+      alignment: 'right'
+    },
+    tax: {
+      alignment: 'right'
+    },
+    lineTotal: {
       alignment: 'right'
     }
 

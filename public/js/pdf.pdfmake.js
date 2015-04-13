@@ -9,12 +9,12 @@ function GetPdfMake(invoice, javascript, callback) {
 
 function invoiceLines(invoice) {
   var grid = 
-  [[{text: 'Item', style: 'tableHeader'}, 
-            {text: 'Description', style: 'tableHeader'}, 
-            {text: 'Unit Cost', style: 'tableHeader'}, 
-            {text: 'Quantity', style: 'tableHeader'}, 
-            {text: invoice.has_taxes?'Tax':'', style: 'tableHeader'}, 
-            {text: 'Line Total', style: 'tableHeader'}]];
+  [[{text: invoiceLabels.item, style: 'tableHeader'}, 
+            {text: invoiceLabels.description, style: 'tableHeader'}, 
+            {text: invoiceLabels.unit_cost, style: 'tableHeader'}, 
+            {text: invoiceLabels.quantity, style: 'tableHeader'}, 
+            {text: invoice.has_taxes?invoiceLabels.tax:'', style: 'tableHeader'}, 
+            {text: invoiceLabels.line_total, style: 'tableHeader'}]];
    //grid.push(['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3']);
    //grid.push(['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3']);
     
