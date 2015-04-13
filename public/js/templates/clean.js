@@ -1,4 +1,14 @@
-dd = {
+//pdfmake
+var templateFonts = {
+	sans: {
+		normal: 'FreeSans.ttf',
+		bold: 'FreeSansBold.ttf',
+		italics: 'FreeSansOblique.ttf',
+		bolditalics: 'FreeSansBoldOblique.ttf'
+	}
+};
+window.pdfMake.fonts = templateFonts;
+var dd = {
   content: [
     {
       columns: [
@@ -65,9 +75,12 @@ dd = {
       layout: 'lightHorizontalLines'
     }
   ],
+  defaultStyle: {
+    font: 'sans'
+  },
   styles: {
     bold: {
       bold: true
     }
   }
-}
+};

@@ -18,9 +18,8 @@ function generatePDF(invoice, javascript, force, cb) {
   pdfmakeMarker = "//pdfmake";
   invoiceOld = invoice;
   report_id = invoice.invoice_design_id;
-  if(true || javascript.slice(0, pdfmakeMarker.length) === pdfmakeMarker) {
+  if(javascript.slice(0, pdfmakeMarker.length) === pdfmakeMarker) {
     GetPdfMake(invoice, javascript, cb);
-    //doc.getDataUrl(cb);
   } else {
     doc = GetPdf(invoice, javascript);
     cb( doc.output("datauristring"));

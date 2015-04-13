@@ -331,7 +331,7 @@ class InvoiceController extends BaseController
             'sizes' => Cache::get('sizes'),
             'paymentTerms' => Cache::get('paymentTerms'),
             'industries' => Cache::get('industries'),
-            'invoiceDesigns' => InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+            'invoiceDesigns' => InvoiceDesign::availableDesigns(),
             'frequencies' => array(
                 1 => 'Weekly',
                 2 => 'Two weeks',
@@ -567,7 +567,7 @@ class InvoiceController extends BaseController
             'invoice' => $invoice,
             'versionsJson' => json_encode($versionsJson),
             'versionsSelect' => $versionsSelect,
-            'invoiceDesigns' => InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+            'invoiceDesigns' => InvoiceDesign::availableDesigns(),
         ];
 
         return View::make('invoices.history', $data);
