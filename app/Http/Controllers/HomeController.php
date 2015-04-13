@@ -1,12 +1,13 @@
 <?php namespace App\Http\Controllers;
 
-use App\Libraries\Utils;
-use App\Ninja\Mailers\Mailer;
 use Redirect;
-use App\Models\Account;
 use Auth;
 use View;
 use Input;
+use Session;
+use App\Models\Account;
+use App\Libraries\Utils;
+use App\Ninja\Mailers\Mailer;
 
 class HomeController extends BaseController
 {

@@ -93,11 +93,6 @@ class TokenController extends BaseController
      */
     public function create()
     {
-        if (!Auth::user()->confirmed) {
-            Session::flash('error', trans('texts.register_to_add_user'));
-            return Redirect::to('company/advanced_settings/user_management');
-        }
-
         $data = [
           'showBreadcrumbs' => false,
           'token' => null,

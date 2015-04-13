@@ -164,7 +164,7 @@
     </div>
   @elseif (Session::has('news_feed_message'))
     <div class="alert alert-info">
-      {{ Session::get('news_feed_message') }}      
+      {!! Session::get('news_feed_message') !!}      
       <a href="#" onclick="hideMessage()" class="pull-right">{{ trans('texts.hide') }}</a>      
     </div>
   @endif

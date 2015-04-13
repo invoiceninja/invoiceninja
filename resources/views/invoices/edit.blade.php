@@ -672,11 +672,11 @@
 		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
 
-        if (!invoice.terms) {
-            invoice.terms = "{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}";
+        if (!invoice.terms) {            
+            invoice.terms = wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300);
         }
         if (!invoice.invoice_footer) {
-            invoice.invoice_footer = "{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}";
+            invoice.invoice_footer = wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}', 600);
         }
 
 		@if (file_exists($account->getLogoPath()))
