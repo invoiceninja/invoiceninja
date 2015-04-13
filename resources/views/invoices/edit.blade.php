@@ -685,7 +685,7 @@
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
 
-    return invoice;
+        return invoice;
 	}
 
 	function getPDFString() {		

@@ -363,7 +363,7 @@
     var isFormValid = true;
     $(['first_name','last_name','email','password']).each(function(i, field) {
       var $input = $('form.signUpForm #new_'+field),
-      val = $.trim($input.val());
+      val = $.trim($input.val());      
       var isValid = val && val.length >= (field == 'password' ? 6 : 1);
       if (isValid && field == 'email') {
         isValid = isValidEmailAddress(val);

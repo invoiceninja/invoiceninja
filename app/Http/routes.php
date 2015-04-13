@@ -71,7 +71,7 @@ get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEma
 post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
 get('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
 post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
-get('user/confirm/{code}', 'UserController@confirm');
+get('/user/confirm/{code}', 'UserController@confirm');
 
 /*
 // Confide routes
@@ -167,6 +167,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));
     Route::post('credits/bulk', 'CreditController@bulk');
 
+    get('/resend_confirmation', 'AccountController@resendConfirmation');
     //Route::resource('timesheets', 'TimesheetController');
 });
 

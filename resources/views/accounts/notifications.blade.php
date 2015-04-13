@@ -39,8 +39,10 @@
   </div></div>
 
 	{!! Former::legend(trans('texts.custom_messages')) !!}
-    {!! Former::textarea('invoice_terms')->label(trans('texts.default_invoice_terms')) !!}
-    {!! Former::textarea('invoice_footer')->label(trans('texts.default_invoice_footer')) !!}
+    {!! Former::textarea('invoice_terms')->label(trans('texts.default_invoice_terms'))
+            ->onchange("$('#invoice_terms').val(wordWrapText($('#invoice_terms').val(), 300))") !!}
+    {!! Former::textarea('invoice_footer')->label(trans('texts.default_invoice_footer'))
+            ->onchange("$('#invoice_footer').val(wordWrapText($('#invoice_footer').val(), 600))") !!}
 	{!! Former::textarea('email_footer')->label(trans('texts.default_email_footer')) !!} 
 
 	{!! Former::actions( 

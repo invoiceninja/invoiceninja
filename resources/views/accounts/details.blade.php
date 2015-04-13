@@ -66,6 +66,8 @@
 				{!! Former::text('phone') !!}
                 @if (Auth::user()->confirmed)                
                     {!! Former::actions( Button::primary(trans('texts.change_password'))->small()->withAttributes(['onclick'=>'showChangePassword()'])) !!}
+                @elseif (Auth::user()->registered)
+                    {!! Former::actions( Button::primary(trans('texts.resend_confirmation'))->asLinkTo('/resend_confirmation')->small() ) !!}
                 @endif
 			@endif
 

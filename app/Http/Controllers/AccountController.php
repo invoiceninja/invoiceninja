@@ -739,4 +739,12 @@ class AccountController extends BaseController
 
         return Redirect::to('/')->with('clearGuestKey', true);
     }
+
+    public function resendConfirmation()
+    {
+        $user = Auth::user();
+        $this->userMailer->sendConfirmation($user);
+
+        return Redirect::to('/company/details')->with('message', trans('texts.confirmation_resent'));
+    }
 }
