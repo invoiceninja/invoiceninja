@@ -578,6 +578,8 @@ return array(
   'email_approved' => 'Email me when a quote is <b>approved</b>',
   'notification_quote_approved_subject' => 'Quote :invoice was approved by :client',
   'notification_quote_approved' => 'The following client :client approved Quote :invoice for :amount.',
+  'resend_confirmation' => 'Resend confirmation email',
+  'confirmation_resent' => 'The confirmation email was resent',
     
 
   

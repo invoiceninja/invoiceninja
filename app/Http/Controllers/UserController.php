@@ -336,7 +336,7 @@ class UserController extends BaseController
 
         // save the new password
         $user = Auth::user();
-        $user->password = $password;
+        $user->password = bcrypt($password);
         $user->save();
 
         return RESULT_SUCCESS;

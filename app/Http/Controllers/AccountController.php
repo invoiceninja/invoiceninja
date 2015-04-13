@@ -676,7 +676,7 @@ class AccountController extends BaseController
         $user->last_name = trim(Input::get('new_last_name'));
         $user->email = trim(strtolower(Input::get('new_email')));
         $user->username = $user->email;
-        $user->password = trim(Input::get('new_password'));
+        $user->password = bcrypt(trim(Input::get('new_password')));
         $user->registered = true;
         $user->save();
 
