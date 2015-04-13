@@ -557,7 +557,7 @@ return array(
   'new_password' => 'Neues Passwort',
   'confirm_password' => 'Passwort bestätigen',
   'password_error_incorrect' => 'Das aktuelle Passwort ist nicht korrekt.',
-  'password_error_invalid' => 'Das neue Kennwort ist ungültig.',
+  'password_error_invalid' => 'Das neue Passwort ist ungültig.',
   'updated_password' => 'Passwort erfolgreich aktualisiert',
 
   'api_tokens' => 'API Token',
