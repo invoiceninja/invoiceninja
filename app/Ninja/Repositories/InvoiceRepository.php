@@ -223,6 +223,17 @@ class InvoiceRepository
 
         $account = \Auth::user()->account;
 
+        if ((isset($data['set_default_terms']) && $data['set_default_terms'])
+            || (isset($data['set_default_footer']) && $data['set_default_footer'])) {
+            if (isset($data['set_default_terms']) && $data['set_default_terms']) {
+                $account->invoice_terms = trim($data['terms']);
+            }
+            if (isset($data['set_default_footer']) && $data['set_default_footer']) {
+                $account->invoice_footer = trim($data['invoice_footer']);
+            }
+            $account->save();
+        }
+
         $invoice->client_id = $data['client_id'];
         $invoice->discount = round(Utils::parseFloat($data['discount']), 2);
         $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
@@ -358,17 +369,6 @@ class InvoiceRepository
             }
 
             $invoice->invoice_items()->save($invoiceItem);
-        }
-
-        if ((isset($data['set_default_terms']) && $data['set_default_terms'])
-            || (isset($data['set_default_footer']) && $data['set_default_footer'])) {
-            if (isset($data['set_default_terms']) && $data['set_default_terms']) {
-                $account->invoice_terms = trim($data['terms']);
-            }
-            if (isset($data['set_default_footer']) && $data['set_default_footer']) {
-                $account->invoice_footer = trim($data['invoice_footer']);
-            }
-            $account->save();
         }
 
         return $invoice;

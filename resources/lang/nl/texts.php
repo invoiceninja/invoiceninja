@@ -574,6 +574,10 @@ return array(
   'send_email' => 'Verstuur email',
   'set_password' => 'Stel wachtwoord in',
   'converted' => 'Omgezet',
+
+  'email_approved' => 'Email me when a quote is <b>approved</b>',
+  'notification_quote_approved_subject' => 'Quote :invoice was approved by :client',
+  'notification_quote_approved' => 'The following client :client approved Quote :invoice for :amount.',
     
 
   

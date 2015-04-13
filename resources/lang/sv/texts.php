@@ -577,6 +577,10 @@ return array(
   'send_email' => 'Skicka mail',
   'set_password' => 'Ange lösenord',
   'converted' => 'Konvertera',
+
+  'email_approved' => 'Email me when a quote is <b>approved</b>',
+  'notification_quote_approved_subject' => 'Quote :invoice was approved by :client',
+  'notification_quote_approved' => 'The following client :client approved Quote :invoice for :amount.',
   
   
 );

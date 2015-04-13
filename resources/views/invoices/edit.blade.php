@@ -1181,8 +1181,8 @@
 		self.totals.rawSubtotal = ko.computed(function() {
 		    var total = 0;
 		    for(var p=0; p < self.invoice_items().length; ++p) {
-		    	var item = self.invoice_items()[p];
-	        total += item.totals.rawTotal();
+		       var item = self.invoice_items()[p];
+	           total += item.totals.rawTotal();
 		    }
 		    return total;
 		});
@@ -1526,12 +1526,12 @@
 			var cost = roundToTwo(NINJA.parseFloat(self.cost()));
 			var qty = roundToTwo(NINJA.parseFloat(self.qty()));
 			var taxRate = NINJA.parseFloat(self.tax_rate());
-    	var value = cost * qty;        	
-    	if (taxRate > 0) {
-    		value += value * (taxRate/100);
-    	}    	
-    	return value ? roundToTwo(value) : '';
-  	});		
+        	var value = cost * qty;        	
+        	if (taxRate > 0) {
+        		value += value * (taxRate/100);
+        	}    	
+        	return value ? roundToTwo(value) : 0;
+      	});
 
 		this.totals.total = ko.computed(function() {
 			var total = self.totals.rawTotal();

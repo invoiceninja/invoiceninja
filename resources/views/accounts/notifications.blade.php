@@ -8,11 +8,13 @@
 	{{ Former::populateField('notify_sent', intval(Auth::user()->notify_sent)) }}
 	{{ Former::populateField('notify_viewed', intval(Auth::user()->notify_viewed)) }}
 	{{ Former::populateField('notify_paid', intval(Auth::user()->notify_paid)) }}
+    {{ Former::populateField('notify_approved', intval(Auth::user()->notify_approved)) }}
 
 	{!! Former::legend(trans('texts.email_notifications')) !!}
 	{!! Former::checkbox('notify_sent')->label('&nbsp;')->text(trans('texts.email_sent')) !!}
 	{!! Former::checkbox('notify_viewed')->label('&nbsp;')->text(trans('texts.email_viewed')) !!}
-	{!! Former::checkbox('notify_paid')->label('&nbsp;')->text(trans('texts.email_paid')) !!}
+    {!! Former::checkbox('notify_paid')->label('&nbsp;')->text(trans('texts.email_paid')) !!}    
+    {!! Former::checkbox('notify_approved')->label('&nbsp;')->text(trans('texts.email_approved')) !!}
 
 	{!! Former::legend(trans('texts.site_updates')) !!}
 
