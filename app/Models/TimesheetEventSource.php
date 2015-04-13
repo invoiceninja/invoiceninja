@@ -2,7 +2,7 @@
 
 use Auth;
 use Utils;
-
+use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TimesheetEventSource extends Eloquent

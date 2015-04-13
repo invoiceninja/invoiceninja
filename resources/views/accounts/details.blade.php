@@ -91,6 +91,8 @@
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
 
+    {!! Former::close() !!}
+
 
     <div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -144,12 +146,8 @@
     </div>
 
 
-	{!! Former::close() !!}
-
 	{!! Form::open(['url' => 'remove_logo', 'class' => 'removeLogoForm']) !!}	
 	{!! Form::close() !!}
-
-
 
 
 	<script type="text/javascript">
