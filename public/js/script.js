@@ -42,7 +42,7 @@ function GetPdf(invoice, javascript){
     footerLeft: 420,
     tablePadding: 12,
     tableTop: 250,
-    descriptionLeft: 162,
+    descriptionLeft: 150,
     unitCostRight: 410,
     qtyRight: 480,
     taxRight: 480,
@@ -86,6 +86,7 @@ function GetPdf(invoice, javascript){
     doc.setFontSize('8');
     SetPdfColor(invoice.invoice_design_id == 2 || invoice.invoice_design_id == 3 ? 'White' : 'Black',doc);
     var top = doc.internal.pageSize.height - layout.marginLeft;
+    if (!invoice.is_pro) top -= 25;
     var numLines = invoice.invoice_footer.split("\n").length - 1;
     doc.text(layout.marginLeft, top - (numLines * 8), invoice.invoice_footer);
   }
@@ -913,7 +914,7 @@ function calculateAmounts(invoice) {
       tax = parseFloat(item.tax_rate);
     }
 
-    var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
+    var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
     if (tax) {
       lineTotal += roundToTwo(lineTotal * tax / 100);
     }
@@ -1029,7 +1030,7 @@ function displayInvoiceItems(doc, invoice, layout) {
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];
     var cost = formatMoney(item.cost, currencyId, true);
-    var qty = NINJA.parseFloat(item.qty) ? NINJA.parseFloat(item.qty) + '' : '';
+    var qty = NINJA.parseFloat(item.qty) ? roundToTwo(NINJA.parseFloat(item.qty)) + '' : '';
     var notes = item.notes;
     var productKey = item.product_key;
     var tax = 0;
@@ -1070,7 +1071,7 @@ function displayInvoiceItems(doc, invoice, layout) {
       productKey = processVariables(productKey);
     }
 
-    var lineTotal = NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty);
+    var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
     if (tax) {
       lineTotal += lineTotal * tax / 100;
     }
@@ -1229,7 +1230,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     SetPdfColor('Black', doc);
     doc.setFontType('normal');
 
-    var splitDescription = doc.splitTextToSize(notes, 180);
+    var splitDescription = doc.splitTextToSize(notes, 190);
     doc.text(layout.descriptionLeft, y+2, splitDescription);
     doc.text(costX, y+2, cost);
     if (!hideQuantity) {

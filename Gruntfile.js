@@ -61,7 +61,7 @@ module.exports = function(grunt) {
           'public/js/bootstrap-combobox.js',
           'public/js/script.js',
         ],
-        dest: 'public/built.js',
+        dest: 'public/js/built.js',
         nonull: true
       },
       js_public: {
@@ -92,7 +92,7 @@ module.exports = function(grunt) {
           //'public/vendor/handsontable/dist/jquery.handsontable.full.css',
           'public/css/style.css',
         ],
-        dest: 'public/built.css',
+        dest: 'public/css/built.css',
         nonull: true,
         options: {
             process: false
@@ -108,7 +108,7 @@ module.exports = function(grunt) {
           'public/vendor/datatables/media/css/jquery.dataTables.css',
           'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',          
         ],
-        dest: 'public/built.public.css',
+        dest: 'public/css/built.public.css',
         nonull: true,
         options: {
             process: false

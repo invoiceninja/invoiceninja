@@ -1,29 +1,13 @@
 {
-  "name": "ninja",
-  "version": "1.1.0",
-  "description": "An open-source invoicing site built with Laravel",
-  "main": "public/index.php",
-  "directories": {
-    "test": "tests"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/hillelcoren/invoice-ninja.git"
-  },
-  "author": "Hillel Coren",
-  "license": "AAL",
-  "bugs": {
-    "url": "https://github.com/hillelcoren/invoice-ninja/issues"
-  },
-  "homepage": "https://github.com/hillelcoren/invoice-ninja",
+  "private": true,
   "devDependencies": {
+    "gulp": "^3.8.8",
+    "laravel-elixir": "*",
+    "grunt": "~0.4.0",
     "grunt": "~0.4.4",
     "grunt-contrib-jshint": "~0.6.3",
     "grunt-contrib-nodeunit": "~0.2.0",
     "grunt-contrib-uglify": "~0.2.2",
-    "grunt-contrib-concat": "~0.4.0"
+    "grunt-contrib-concat": "~0.4.0"    
   }
 }
