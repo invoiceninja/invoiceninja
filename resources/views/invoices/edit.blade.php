@@ -688,13 +688,11 @@
     return invoice;
 	}
 
-	function getPDFString() {		
+	function getPDFString(cb) {		
 		var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
-		var doc = generatePDF(invoice, design);
-		if (!doc) return;
-		return doc.output('datauristring');
+        generatePDF(invoice, design, false, cb);
 	}
 
 	function getDesignJavascript() {

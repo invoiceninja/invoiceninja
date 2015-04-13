@@ -8,17 +8,23 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
 
 var invoiceOld;
-function generatePDF(invoice, javascript, force) {
+function generatePDF(invoice, javascript, force, cb) {
   invoice = calculateAmounts(invoice);
   var a = copyInvoice(invoice);
   var b = copyInvoice(invoiceOld);
   if (!force && _.isEqual(a, b)) {
     return;
   }
+  pdfmakeMarker = "//pdfmake";
   invoiceOld = invoice;
   report_id = invoice.invoice_design_id;
-  doc = GetPdf(invoice, javascript);
-  return doc;
+  if(true || javascript.slice(0, pdfmakeMarker.length) === pdfmakeMarker) {
+    GetPdfMake(invoice, javascript, cb);
+    //doc.getDataUrl(cb);
+  } else {
+    doc = GetPdf(invoice, javascript);
+    cb( doc.output("datauristring"));
+  }
 }
 
 function copyInvoice(orig) {
@@ -797,7 +803,7 @@ function concatStrings() {
       concatStr += ' ';
     }
   }
-  return data.length ? concatStr : false;
+  return data.length ? concatStr : "";
 }
 
 function displayGrid(doc, invoice, data, x, y, layout, options)  {
