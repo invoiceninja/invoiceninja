@@ -89,7 +89,15 @@ var dd = {
           return '#D8D8D8';
         }
       },
-    }
+    },
+    {
+    columns: [
+       notesAndTerms(invoice),
+      {
+        text: ""
+      }
+     ]
+    },
   ],
   defaultStyle: {
     font: 'sans'

@@ -6,6 +6,20 @@ function GetPdfMake(invoice, javascript, callback) {
 
   return;
 }
+function notesAndTerms(invoice)
+{
+  var text = [];
+  if (invoice.public_notes) {
+    text.push(invoice.public_notes);
+  }
+
+  if (invoice.terms) {
+    text.push({text:invoiceLabels.terms, style:'bold'});
+    text.push(invoice.terms);
+  }
+
+  return text;
+}
 
 function invoiceLines(invoice) {
   var grid = 
