@@ -46,7 +46,7 @@ var dd = {
           return 0;//(i === 0 || i === node.table.widths.length) ? 2 : 1;
         },
         hLineColor: function (i, node) {
-          return 'gray';//(i === 0 || i === node.table.body.length) ? 'black' : 'gray';
+          return '#D8D8D8';//(i === 0 || i === node.table.body.length) ? 'black' : 'gray';
         },
         /*vLineColor: function (i, node) {
           return (i === 0 || i === node.table.widths.length) ? 'black' : 'gray';
@@ -62,17 +62,33 @@ var dd = {
       style: 'tableExample',
       table: {
         headerRows: 1,
-        widths: ['auto', '*', 'auto', 'auto', 'auto'],
-        body: [
-          [{text: 'Item', style: 'tableHeader'}, {text: 'Description', style: 'tableHeader'}, {text: 'Unit Cost', style: 'tableHeader'}, {text: 'Quantity', style: 'tableHeader'}, {text: 'Line Total', style: 'tableHeader'}],
-          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', 'Sample value 3'],
-          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', 'Sample value 3'],
-          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', 'Sample value 3'],
-          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', 'Sample value 3'],
-          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', 'Sample value 3']
-        ]
+        widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto'],
+        body:invoiceLines(invoice),
+        /*body: [
+          [{text: 'Item', style: 'tableHeader'}, 
+            {text: 'Description', style: 'tableHeader'}, 
+            {text: 'Unit Cost', style: 'tableHeader'}, 
+            {text: 'Quantity', style: 'tableHeader'}, 
+            {text: invoice.has_taxes?'Tax':'', style: 'tableHeader'}, 
+            {text: 'Line Total', style: 'tableHeader'}]
+          /*['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3'],
+          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3'],
+          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3'],
+          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3'],
+          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3']*
+        ].push(invoiceLines(invoice))*/
       },
-      layout: 'lightHorizontalLines'
+      layout: {
+        hLineWidth: function (i, node) {
+          return i === 0 ? 0 : 1;
+        },
+        vLineWidth: function (i, node) {
+          return 0;
+        },
+        hLineColor: function (i, node) {
+          return '#D8D8D8';
+        }
+      },
     }
   ],
   defaultStyle: {
@@ -81,6 +97,15 @@ var dd = {
   styles: {
     bold: {
       bold: true
+    },
+    even: {
+    },
+    odd: {
+      fillColor:'#F4F4F4'
+    },
+    cost: {
+      alignment: 'right'
     }
+
   }
 };
