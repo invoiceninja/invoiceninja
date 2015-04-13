@@ -99,6 +99,9 @@ var dd = {
      ]
     },
   ],
+  footer:function(){
+    return invoice.invoice_footer?invoice.invoice_footer:"";
+  },
   defaultStyle: {
     font: 'sans'
   },
