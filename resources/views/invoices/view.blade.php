@@ -55,10 +55,8 @@
 			invoice.is_quote = {{ $invoice->is_quote ? 'true' : 'false' }};
 			invoice.contact = {!! $contact->toJson() !!};
 
-			function getPDFString() {
-	  	  var doc = generatePDF(invoice, invoice.invoice_design.javascript);
-				if (!doc) return;
-				return doc.output('datauristring');
+			function getPDFString(cb) {
+	  	  generatePDF(invoice, invoice.invoice_design.javascript, cb);
 			}
 
 			$(function() {

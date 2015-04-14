@@ -692,7 +692,7 @@
 		var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
-        generatePDF(invoice, design, false, cb);
+    generatePDF(invoice, design, false, cb);
 	}
 
 	function getDesignJavascript() {
@@ -730,10 +730,12 @@
 			var invoice = createInvoiceModel();
 			var design  = getDesignJavascript();
 			if (!design) return;
-			var doc = generatePDF(invoice, design, true);
 			
-			$('form.form-horizontal.warn-on-exit').append('<input type="hidden" name="pdfupload" value="'+doc.output('datauristring')+'">');
-			submitAction('');
+      generatePDF(invoice, design, true, function(pdfString){
+        $('form.form-horizontal.warn-on-exit').append('<input type="hidden" name="pdfupload" value="'+pdfString+'">');
+        submitAction('');	    
+      });
+			
 		}
 	}
 
