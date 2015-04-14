@@ -183,6 +183,33 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
 });
 
+// Redirects for legacy links
+Route::get('/rocksteady', function() {
+    return Redirect::to(NINJA_WEB_URL, 301);
+});
+Route::get('/about', function() {
+    return Redirect::to(NINJA_WEB_URL, 301);
+});
+Route::get('/contact', function() {
+    return Redirect::to(NINJA_WEB_URL.'/contact', 301);
+});
+Route::get('/plans', function() {
+    return Redirect::to(NINJA_WEB_URL.'/pricing', 301);
+});
+Route::get('/faq', function() {
+    return Redirect::to(NINJA_WEB_URL.'/how-it-works', 301);
+});
+Route::get('/features', function() {
+    return Redirect::to(NINJA_WEB_URL.'/features', 301);
+});
+Route::get('/testimonials', function() {
+    return Redirect::to(NINJA_WEB_URL, 301);
+});
+Route::get('/compare-online-invoicing{sites?}', function() {
+    return Redirect::to(NINJA_WEB_URL, 301);
+});
+
+
 define('CONTACT_EMAIL', Config::get('mail.from.address'));
 define('CONTACT_NAME', Config::get('mail.from.name'));
 define('SITE_URL', Config::get('app.url'));

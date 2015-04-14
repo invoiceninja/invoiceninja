@@ -335,12 +335,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Chumper/Datatable.git",
-                "reference": "58f212270a4bd37ebf1371cb5302749cbbcb941d"
+                "reference": "bdd90cbe65b3544761f69ea199a1b9591770f3fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Chumper/Datatable/zipball/58f212270a4bd37ebf1371cb5302749cbbcb941d",
-                "reference": "58f212270a4bd37ebf1371cb5302749cbbcb941d",
+                "url": "https://api.github.com/repos/Chumper/Datatable/zipball/bdd90cbe65b3544761f69ea199a1b9591770f3fc",
+                "reference": "bdd90cbe65b3544761f69ea199a1b9591770f3fc",
                 "shasum": ""
             },
             "require": {
@@ -380,7 +380,7 @@
                 "jquery",
                 "laravel"
             ],
-            "time": "2015-04-04 15:19:43"
+            "time": "2015-04-08 12:11:23"
         },
         {
             "name": "classpreloader/classpreloader",
@@ -1374,12 +1374,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/image.git",
-                "reference": "8f3761154b4c1f5128365dfc32cbf757f27d97b6"
+                "reference": "7edc830d19733a40afae5641aabf0acf6be1961b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/8f3761154b4c1f5128365dfc32cbf757f27d97b6",
-                "reference": "8f3761154b4c1f5128365dfc32cbf757f27d97b6",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/7edc830d19733a40afae5641aabf0acf6be1961b",
+                "reference": "7edc830d19733a40afae5641aabf0acf6be1961b",
                 "shasum": ""
             },
             "require": {
@@ -1422,7 +1422,7 @@
                 "thumbnail",
                 "watermark"
             ],
-            "time": "2015-03-18 17:41:04"
+            "time": "2015-04-08 17:43:59"
         },
         {
             "name": "ircmaxell/password-compat",
@@ -2981,16 +2981,16 @@
         },
         {
             "name": "omnipay/mollie",
-            "version": "3.0.3",
+            "version": "v3.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-mollie.git",
-                "reference": "ea3830b0aaa845430387e5afc1f638be18a152ec"
+                "reference": "a89cb0d15447023b24c03f86873c1c1489cd021b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-mollie/zipball/ea3830b0aaa845430387e5afc1f638be18a152ec",
-                "reference": "ea3830b0aaa845430387e5afc1f638be18a152ec",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-mollie/zipball/a89cb0d15447023b24c03f86873c1c1489cd021b",
+                "reference": "a89cb0d15447023b24c03f86873c1c1489cd021b",
                 "shasum": ""
             },
             "require": {
@@ -3034,7 +3034,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2014-10-15 14:25:03"
+            "time": "2015-03-03 18:55:42"
         },
         {
             "name": "omnipay/multisafepay",
@@ -5313,16 +5313,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "2.0.15",
+            "version": "2.0.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "34cc484af1ca149188d0d9e91412191e398e0b67"
+                "reference": "934fd03eb6840508231a7f73eb8940cf32c3b66c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/34cc484af1ca149188d0d9e91412191e398e0b67",
-                "reference": "34cc484af1ca149188d0d9e91412191e398e0b67",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/934fd03eb6840508231a7f73eb8940cf32c3b66c",
+                "reference": "934fd03eb6840508231a7f73eb8940cf32c3b66c",
                 "shasum": ""
             },
             "require": {
@@ -5371,7 +5371,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-01-24 10:06:35"
+            "time": "2015-04-11 04:35:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -5510,16 +5510,16 @@
         },
         {
             "name": "phpunit/php-token-stream",
-            "version": "1.4.0",
+            "version": "1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-token-stream.git",
-                "reference": "db32c18eba00b121c145575fcbcd4d4d24e6db74"
+                "reference": "eab81d02569310739373308137284e0158424330"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/db32c18eba00b121c145575fcbcd4d4d24e6db74",
-                "reference": "db32c18eba00b121c145575fcbcd4d4d24e6db74",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/eab81d02569310739373308137284e0158424330",
+                "reference": "eab81d02569310739373308137284e0158424330",
                 "shasum": ""
             },
             "require": {
@@ -5555,20 +5555,20 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2015-01-17 09:51:32"
+            "time": "2015-04-08 04:46:07"
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.6.1",
+            "version": "4.6.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "08b2aacdd8433abbba468f995d6d64b76a7a62ec"
+                "reference": "163232991e652e6efed2f8470326fffa61e848e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/08b2aacdd8433abbba468f995d6d64b76a7a62ec",
-                "reference": "08b2aacdd8433abbba468f995d6d64b76a7a62ec",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/163232991e652e6efed2f8470326fffa61e848e2",
+                "reference": "163232991e652e6efed2f8470326fffa61e848e2",
                 "shasum": ""
             },
             "require": {
@@ -5607,9 +5607,6 @@
             "autoload": {
                 "classmap": [
                     "src/"
-                ],
-                "files": [
-                    "src/Framework/Assert/Functions.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -5630,7 +5627,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-04-03 13:46:59"
+            "time": "2015-04-11 05:23:21"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

@@ -11,13 +11,12 @@ use Omnipay;
 use CreditCard;
 use URL;
 use Cache;
-
 use App\Models\Invoice;
 use App\Models\Invitation;
 use App\Models\Client;
 use App\Models\PaymentType;
 use App\Models\Country;
-
+use App\Models\License;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\AccountRepository;
@@ -519,13 +518,13 @@ class PaymentController extends BaseController
         $productId = Input::get('product_id', PRODUCT_ONE_CLICK_INSTALL);
 
         $license = License::where('license_key', '=', $licenseKey)
-                    ->where('is_claimed', '=', false)
+                    ->where('is_claimed', '<', 3)
                     ->where('product_id', '=', $productId)
                     ->first();
 
         if ($license) {
             if ($license->transaction_reference != 'TEST_MODE') {
-                $license->is_claimed = true;
+                $license->is_claimed = $license->is_claimed + 1;
                 $license->save();
             }
 
@@ -566,6 +565,7 @@ class PaymentController extends BaseController
         $accountGateway = $account->getGatewayByType(Session::get('payment_type'));
         $paymentLibrary = $accountGateway->gateway->paymentlibrary;
 
+        /*
         if ($onSite) {
             $client->address1 = trim(Input::get('address1'));
             $client->address2 = trim(Input::get('address2'));
@@ -574,7 +574,8 @@ class PaymentController extends BaseController
             $client->postal_code = trim(Input::get('postal_code'));
             $client->save();
         }
-
+        */
+        
         try {
             if ($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY) {
                 $gateway = self::createGateway($accountGateway);

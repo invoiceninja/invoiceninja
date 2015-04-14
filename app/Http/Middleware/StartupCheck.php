@@ -10,7 +10,7 @@ use Cache;
 use Session;
 use Event;
 use App\Models\Language;
-use App\Events\UserSettingsChanged;
+
 
 class StartupCheck
 {
@@ -49,14 +49,13 @@ class StartupCheck
         ];
         foreach ($cachedTables as $name => $class) {
             if (!Cache::has($name)) {
-                $orderBy = 'id';
-
                 if ($name == 'paymentTerms') {
                     $orderBy = 'num_days';
-                } elseif (property_exists($class, 'name') && $name != 'paymentTypes') {
+                } elseif (in_array($name, ['currencies', 'sizes', 'industries', 'languages'])) {
                     $orderBy = 'name';
+                } else {
+                    $orderBy = 'id';
                 }
-
                 Cache::forever($name, $class::orderBy($orderBy)->get());
             }
         }
