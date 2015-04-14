@@ -12,9 +12,13 @@ var dd = {
   content: [
     {
       columns: [
-        {
-          text: ""
-        },
+        [
+          invoice.image?
+          {
+              image: invoice.image,
+              fit: [150, 80]
+          }:""
+        ],
         {
           text: [account.name, account.id_number, account.vat_number, account.work_email, account.work_phone].join('\n')
         },
