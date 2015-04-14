@@ -85,6 +85,7 @@ var dd = {
         paddingBottom: function(i, node) { return 8; }      
       },
     },    
+    '\n',
     {
       columns: [
         notesAndTerms(invoice),
@@ -167,6 +168,23 @@ var dd = {
     },
     tableHeader: {
       bold: true
+    },
+    balanceDueLabel: {
+     fontSize: 11 
+    },
+    balanceDueValue: {
+      fontSize: 11,
+      color:primaryColor('#299CC2')      
+    },
+    notes: {
+    },
+    terms: {
+      
+    },
+    termsLabel: {
+      bold: true,
+      fontSize: 10,
+      margin: [0, 10, 0, 4]
     }
   },
   pageMargins: [72, 40, 40, 80]

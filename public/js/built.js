@@ -33351,12 +33351,12 @@ function notesAndTerms(invoice)
 {
   var text = [];
   if (invoice.public_notes) {
-    text.push(invoice.public_notes);
+    text.push({text:invoice.public_notes, style:'notes'});
   }
 
   if (invoice.terms) {
-    text.push({text:invoiceLabels.terms, style:'bold'});
-    text.push(invoice.terms);
+    text.push({text:invoiceLabels.terms, style:'termsLabel'});
+    text.push({text:invoice.terms, style:'terms'});
   }
 
   return text;
@@ -33459,6 +33459,9 @@ function subtotals(invoice)
   if (invoice.account.hide_paid_to_date != '1' || paid) {
     data.push([invoiceLabels.paid_to_date, formatMoney(paid, invoice.client.currency_id)]);
   }
+
+  data.push([{text:invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due, style:'balanceDueLabel'},
+              {text:formatMoney(invoice.balance_amount, invoice.client.currency_id), style:'balanceDueValue'}]);
   return data;
  }
  
@@ -33484,4 +33487,8 @@ function accountAddress(account) {
 
 function primaryColor( defaultColor) {
   return NINJA.primaryColor?NINJA.primaryColor:defaultColor;
+}
+
+function secondaryColor( defaultColor) {
+  return NINJA.primaryColor?NINJA.secondaryColor:defaultColor;
 }
