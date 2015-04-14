@@ -89,7 +89,7 @@ var dd = {
           return '#D8D8D8';
         }
       },
-    },
+    },    
     {
     columns: [
        notesAndTerms(invoice),
@@ -99,9 +99,19 @@ var dd = {
      ]
     },
   ],
-  footer:function(){
-    return invoice.invoice_footer?invoice.invoice_footer:"";
+
+  footer: function(){
+    f = [{ text:invoice.invoice_footer?invoice.invoice_footer:"", margin: [72, 0]}]
+    if (!invoice.is_pro && logoImages.imageLogo1) {
+      f.push({
+              image: logoImages.imageLogo1,
+              width: 150,
+              margin: [72,0]
+            });
+    }
+    return f;
   },
+  
   defaultStyle: {
     font: 'sans'
   },
@@ -126,6 +136,6 @@ var dd = {
     lineTotal: {
       alignment: 'right'
     }
-
-  }
+  },
+  pageMargins: [72, 40, 40, 80]
 };
