@@ -83,3 +83,68 @@ function invoiceLines(invoice) {
   return grid;
 }
 
+function subtotals(invoice)
+{
+  if (!invoice) {
+    return;
+  }
+
+  var data = [
+    [invoiceLabels.subtotal, formatMoney(invoice.subtotal_amount, invoice.client.currency_id)],
+  ];
+  if(invoice.discount_amount != 0) {
+    data.push([invoiceLabels.discount, formatMoney(invoice.discount_amount, invoice.client.currency_id)]);
+  }
+
+  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {
+    data.push([invoiceLabels.custom_invoice_label1, formatMoney(invoice.custom_value1, invoice.client.currency_id)]);
+  }
+  if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 == '1') {
+    data.push([invoiceLabels.custom_invoice_label2, formatMoney(invoice.custom_value2, invoice.client.currency_id)]);
+  }
+
+  if(invoice.tax && invoice.tax.name || invoice.tax_name) {
+    data.push([invoiceLabels.tax, formatMoney(invoice.tax_amount, invoice.client.currency_id)]);
+  }
+
+  if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {
+    data.push([invoiceLabels.custom_invoice_label1, formatMoney(invoice.custom_value1, invoice.client.currency_id)]);
+  }
+  if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 != '1') {
+    data.push([invoiceLabels.custom_invoice_label2, formatMoney(invoice.custom_value2, invoice.client.currency_id)]);
+  }
+
+  var paid = invoice.amount - invoice.balance;
+  if (invoice.account.hide_paid_to_date != '1' || paid) {
+    data.push([invoiceLabels.paid_to_date, formatMoney(paid, invoice.client.currency_id)]);
+  }
+  return data;
+ }
+ 
+ function accountDetails(account) {
+  var data = [];
+  if(account.name) data.push({text:account.name, style:'accountDetails'});
+  if(account.id_number) data.push({text:account.id_number, style:'accountDetails'});
+  if(account.vat_number) data.push({text:account.vat_number, style:'accountDetails'});
+  if(account.work_email) data.push({text:account.work_email, style:'accountDetails'});
+  if(account.work_phone) data.push({text:account.work_phone, style:'accountDetails'});
+  return data;
+}
+
+function accountAddress(account) {
+  var data = [];
+  if(account.address1) data.push({text:account.address1, style:'accountDetails'});
+  if(account.address2) data.push({text:account.address2, style:'accountDetails'});
+  if(account.city) data.push({text:account.city, style:'accountDetails'});
+  if(account.state) data.push({text:account.state, style:'accountDetails'});
+  if(account.postal_code) data.push({text:account.postal_code, style:'accountDetails'});
+  return data;
+}
+
+function primaryColor( defaultColor) {
+  return NINJA.primaryColor?NINJA.primaryColor:defaultColor;
+}
+
+function secondaryColor( defaultColor) {
+  return NINJA.primaryColor?NINJA.secondaryColor:defaultColor;
+}

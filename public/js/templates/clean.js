@@ -7,7 +7,7 @@ var templateFonts = {
 		bolditalics: 'FreeSansBoldOblique.ttf'
 	}
 };
-window.pdfMake.fonts = templateFonts;
+//window.pdfMake.fonts = templateFonts;
 var dd = {
   content: [
     {
@@ -20,17 +20,18 @@ var dd = {
           }:""
         ],
         {
-          text: [account.name, account.id_number, account.vat_number, account.work_email, account.work_phone].join('\n')
+          stack: accountDetails(account)
         },
         {
-          text: [
-            concatStrings(account.address1, account.address2) + "\n",
-            concatStrings(account.city, account.state, account.postal_code)
-          ]
+          stack: accountAddress(account)
         }
       ]
     },
-    (invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),
+    {
+      text:(invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),
+      margin: [8, 16, 8, 16],
+      style: 'primaryColor'
+    },
     {
       style: 'tableExample',
       table: {
@@ -55,32 +56,18 @@ var dd = {
         /*vLineColor: function (i, node) {
           return (i === 0 || i === node.table.widths.length) ? 'black' : 'gray';
         },*/
-        // paddingLeft: function(i, node) { return 4; },
-        // paddingRight: function(i, node) { return 4; },
-        // paddingTop: function(i, node) { return 2; },
-        // paddingBottom: function(i, node) { return 2; }
+        paddingLeft: function(i, node) { return 8; },
+        paddingRight: function(i, node) { return 8; },
+        paddingTop: function(i, node) { return 4; },
+        paddingBottom: function(i, node) { return 4; }
       }
     },
     '\n',
     {
-      style: 'tableExample',
       table: {
         headerRows: 1,
         widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto'],
         body:invoiceLines(invoice),
-        /*body: [
-          [{text: 'Item', style: 'tableHeader'}, 
-            {text: 'Description', style: 'tableHeader'}, 
-            {text: 'Unit Cost', style: 'tableHeader'}, 
-            {text: 'Quantity', style: 'tableHeader'}, 
-            {text: invoice.has_taxes?'Tax':'', style: 'tableHeader'}, 
-            {text: 'Line Total', style: 'tableHeader'}]
-          /*['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3'],
-          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3'],
-          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3'],
-          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3'],
-          ['Sample value 1', 'Sample value 2', 'Sample value 3', 'Sample value 2', invoice.has_taxes?'Sample value 2':'','Sample value 3']*
-        ].push(invoiceLines(invoice))*/
       },
       layout: {
         hLineWidth: function (i, node) {
@@ -91,16 +78,36 @@ var dd = {
         },
         hLineColor: function (i, node) {
           return '#D8D8D8';
-        }
+        },
+        paddingLeft: function(i, node) { return 8; },
+        paddingRight: function(i, node) { return 8; },
+        paddingTop: function(i, node) { return 8; },
+        paddingBottom: function(i, node) { return 8; }      
       },
     },    
     {
-    columns: [
-       notesAndTerms(invoice),
-      {
-        text: ""
-      }
-     ]
+      columns: [
+        notesAndTerms(invoice),
+        {
+          style: 'subtotals',
+          table: {
+            widths: ['*', '*'],
+            body: subtotals(invoice),
+          },
+          layout: {
+            hLineWidth: function (i, node) {
+              return 0;
+            },
+            vLineWidth: function (i, node) {
+              return 0;
+            },
+            paddingLeft: function(i, node) { return 8; },
+            paddingRight: function(i, node) { return 8; },
+            paddingTop: function(i, node) { return 4; },
+            paddingBottom: function(i, node) { return 4; }      
+          },
+        }
+      ]
     },
   ],
 
@@ -117,9 +124,18 @@ var dd = {
   },
   
   defaultStyle: {
-    font: 'sans'
+    //font: 'sans'
+    fontSize: 9,
+    margin: [8, 4, 8, 4]
   },
   styles: {
+    primaryColor:{
+      color: primaryColor('#299CC2')
+    },
+    accountDetails: {
+      margin: [4, 2, 4, 2],
+      color: '#AAA9A9'
+    },
     bold: {
       bold: true
     },
@@ -127,6 +143,9 @@ var dd = {
     },
     odd: {
       fillColor:'#F4F4F4'
+    },
+    productKey: {
+      color:primaryColor('#299CC2')      
     },
     cost: {
       alignment: 'right'
@@ -139,6 +158,15 @@ var dd = {
     },
     lineTotal: {
       alignment: 'right'
+    },
+    right: {
+      alignment: 'right'
+    },
+    subtotals: {
+      alignment: 'right'
+    },
+    tableHeader: {
+      bold: true
     }
   },
   pageMargins: [72, 40, 40, 80]
