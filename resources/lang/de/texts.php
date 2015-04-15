@@ -577,4 +577,11 @@ return array(
   'notification_quote_approved' => 'Der folgende Kunde :client nahm das Angebot :invoice über :amount an.',
   'resend_confirmation' => 'Bestätigungsmail erneut senden',
   'confirmation_resent' => 'Bestätigungsemail wurde erneut gesendet',
+
+  'gateway_help_42' => 'Note: use a BitPay Legacy API Key, not an API token.',
+  'payment_type_credit_card' => 'Credit card',
+  'payment_type_paypal' => 'PayPal',
+  'payment_type_bitcoin' => 'Bitcoin',
+
+
 );

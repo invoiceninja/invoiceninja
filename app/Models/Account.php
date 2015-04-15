@@ -113,9 +113,7 @@ class Account extends Eloquent
         foreach ($this->account_gateways as $gateway) {
             if (!$type || $type == PAYMENT_TYPE_ANY) {
                 return $gateway;
-            } elseif ($gateway->isPayPal() && $type == PAYMENT_TYPE_PAYPAL) {
-                return $gateway;
-            } elseif (!$gateway->isPayPal() && $type == PAYMENT_TYPE_CREDIT_CARD) {
+            } elseif ($gateway->isPaymentType($type)) {
                 return $gateway;
             }
         }

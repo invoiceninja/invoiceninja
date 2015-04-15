@@ -25,10 +25,11 @@ class AccountGatewayController extends BaseController
                     ->join('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
                     ->where('account_gateways.deleted_at', '=', null)
                     ->where('account_gateways.account_id', '=', Auth::user()->account_id)
-                    ->select('account_gateways.public_id', 'gateways.name', 'account_gateways.deleted_at');
+                    ->select('account_gateways.public_id', 'gateways.name', 'account_gateways.deleted_at', 'account_gateways.gateway_id');
 
         return Datatable::query($query)
             ->addColumn('name', function ($model) { return link_to('gateways/'.$model->public_id.'/edit', $model->name); })
+            ->addColumn('payment_type', function ($model) { return Gateway::getPrettyPaymentType($model->gateway_id); })
             ->addColumn('dropdown', function ($model) {
               $actions = '<div class="btn-group tr-action" style="visibility:hidden;">
                   <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
@@ -68,6 +69,7 @@ class AccountGatewayController extends BaseController
         $data['method'] = 'PUT';
         $data['title'] = trans('texts.edit_gateway') . ' - ' . $accountGateway->gateway->name;
         $data['config'] = $configFields;
+        $data['paymentTypeId'] = $accountGateway->getPaymentType();
 
         return View::make('accounts.account_gateway', $data);
     }
@@ -101,6 +103,17 @@ class AccountGatewayController extends BaseController
         $selectedCards = $accountGateway ? $accountGateway->accepted_credit_cards : 0;
         $account = Auth::user()->account;
 
+        $paymentTypes = [];
+        foreach ([PAYMENT_TYPE_CREDIT_CARD, PAYMENT_TYPE_PAYPAL, PAYMENT_TYPE_BITCOIN] as $type) {
+            if ($accountGateway || !$account->getGatewayByType($type)) {
+                $paymentTypes[$type] = trans('texts.'.strtolower($type));
+
+                if ($type == PAYMENT_TYPE_BITCOIN) {
+                    $paymentTypes[$type] .= ' - BitPay';
+                }
+            }
+        }
+
         $creditCardsArray = unserialize(CREDIT_CARDS);
         $creditCards = [];
         foreach ($creditCardsArray as $card => $name) {
@@ -113,25 +126,11 @@ class AccountGatewayController extends BaseController
 
         $account->load('account_gateways');
         $currentGateways = $account->account_gateways;
-        $gateways = Gateway::where('payment_library_id', '=', 1)->orderBy('name');
-        $onlyPayPal = false;
-        if (!$accountGateway) {
-            if (count($currentGateways) > 0) {
-                $currentGateway = $currentGateways[0];
-                if ($currentGateway->isPayPal()) {
-                    $gateways->where('id', '!=', GATEWAY_PAYPAL_EXPRESS);
-                } else {
-                    $gateways->where('id', '=', GATEWAY_PAYPAL_EXPRESS);
-                    $onlyPayPal = true;
-                }
-            }
-        }
-        $gateways = $gateways->get();
+        $gateways = Gateway::where('payment_library_id', '=', 1)->orderBy('name')->get();
+        $selectGateways = Gateway::where('payment_library_id', '=', 1)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->orderBy('name')->get();
 
         foreach ($gateways as $gateway) {
-            $paymentLibrary = $gateway->paymentlibrary;
             $gateway->fields = $gateway->getFields();
-
             if ($accountGateway && $accountGateway->gateway_id == $gateway->id) {
                 $accountGateway->fields = $gateway->fields;
             }
@@ -143,14 +142,15 @@ class AccountGatewayController extends BaseController
         }
 
         return [
+            'paymentTypes' => $paymentTypes,
             'account' => $account,
             'accountGateway' => $accountGateway,
             'config' => false,
             'gateways' => $gateways,
+            'selectGateways' => $selectGateways,
             'creditCardTypes' => $creditCards,
             'tokenBillingOptions' => $tokenBillingOptions,
             'showBreadcrumbs' => false,
-            'onlyPayPal' => $onlyPayPal,
             'countGateways' => count($currentGateways)
         ];
     }
@@ -183,7 +183,6 @@ class AccountGatewayController extends BaseController
         }
 
         $gateway = Gateway::findOrFail($gatewayId);
-        $paymentLibrary = $gateway->paymentlibrary;
         $fields = $gateway->getFields();
 
         foreach ($fields as $field => $details) {

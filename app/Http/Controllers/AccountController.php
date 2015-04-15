@@ -153,7 +153,7 @@ class AccountController extends BaseController
             if ($count == 0) {
                 return Redirect::to('gateways/create');
             } else {
-                return View::make('accounts.payments', ['showAdd' => $count < 2]);
+                return View::make('accounts.payments', ['showAdd' => $count < 3]);
             }
         } elseif ($section == ACCOUNT_NOTIFICATIONS) {
             $data = [

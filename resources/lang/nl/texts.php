@@ -580,6 +580,11 @@ return array(
   'notification_quote_approved' => 'The following client :client approved Quote :invoice for :amount.',
   'resend_confirmation' => 'Resend confirmation email',
   'confirmation_resent' => 'The confirmation email was resent',
+
+  'gateway_help_42' => 'Note: use a BitPay Legacy API Key, not an API token.',
+  'payment_type_credit_card' => 'Credit card',
+  'payment_type_paypal' => 'PayPal',
+  'payment_type_bitcoin' => 'Bitcoin',
     
 
   

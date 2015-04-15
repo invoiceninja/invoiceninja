@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f464570c808999ffcb0fa78193b13229",
+    "hash": "4093891914bbd46ffab78737da36898a",
     "packages": [
         {
             "name": "alfaproject/omnipay-neteller",
@@ -2347,6 +2347,64 @@
             "time": "2015-01-19 19:06:04"
         },
         {
+            "name": "omnipay/bitpay",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/omnipay-bitpay.git",
+                "reference": "e659f0e993c586cb36acafaf50835570b4a16eb2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-bitpay/zipball/e659f0e993c586cb36acafaf50835570b4a16eb2",
+                "reference": "e659f0e993c586cb36acafaf50835570b4a16eb2",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\BitPay\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrian Macneil",
+                    "email": "adrian@adrianmacneil.com"
+                },
+                {
+                    "name": "Omnipay Contributors",
+                    "homepage": "https://github.com/thephpleague/omnipay-bitpay/contributors"
+                }
+            ],
+            "description": "BitPay driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/thephpleague/omnipay-bitpay",
+            "keywords": [
+                "bitcoin",
+                "bitpay",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2015-03-23 14:18:26"
+        },
+        {
             "name": "omnipay/buckaroo",
             "version": "v2.0.1",
             "source": {
@@ -3730,16 +3788,16 @@
         },
         {
             "name": "omnipay/stripe",
-            "version": "v2.2.0",
+            "version": "v2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-stripe.git",
-                "reference": "b3ed1028bb72837905012311fa74259d9ed8ba3c"
+                "reference": "906377e50045dc2ba9c612aa1f6924157e1f750e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-stripe/zipball/b3ed1028bb72837905012311fa74259d9ed8ba3c",
-                "reference": "b3ed1028bb72837905012311fa74259d9ed8ba3c",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-stripe/zipball/906377e50045dc2ba9c612aa1f6924157e1f750e",
+                "reference": "906377e50045dc2ba9c612aa1f6924157e1f750e",
                 "shasum": ""
             },
             "require": {
@@ -3783,7 +3841,7 @@
                 "payment",
                 "stripe"
             ],
-            "time": "2015-03-16 19:24:07"
+            "time": "2015-04-14 18:55:56"
         },
         {
             "name": "omnipay/targetpay",
@@ -6115,7 +6173,8 @@
         "webpatser/laravel-countries": 20,
         "lokielse/omnipay-alipay": 20,
         "alfaproject/omnipay-neteller": 20,
-        "alfaproject/omnipay-skrill": 20
+        "alfaproject/omnipay-skrill": 20,
+        "omnipay/bitpay": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

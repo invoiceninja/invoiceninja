@@ -192,15 +192,15 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
 
     <div class="container">
       @if (Session::has('warning'))
-      <div class="alert alert-warning">{{ Session::get('warning') }}</div>
+      <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
       @endif
 
       @if (Session::has('message'))
-      <div class="alert alert-info">{{ Session::get('message') }}</div>
+      <div class="alert alert-info">{!! Session::get('message') !!}</div>
       @endif
 
       @if (Session::has('error'))
-      <div class="alert alert-danger">{{ Session::get('error') }}</div>
+      <div class="alert alert-danger">{!! Session::get('error') !!}</div>
       @endif
   </div>
 

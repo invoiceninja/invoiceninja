@@ -36,7 +36,7 @@ Route::post('get_started', 'AccountController@getStarted');
 // Client visible pages
 Route::get('view/{invitation_key}', 'InvoiceController@view');
 Route::get('approve/{invitation_key}', 'QuoteController@approve');
-Route::get('payment/{invitation_key}', 'PaymentController@show_payment');
+Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
 Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
 Route::get('complete', 'PaymentController@offsite_payment');
 Route::get('client/quotes', 'QuoteController@clientIndex');
@@ -336,6 +336,7 @@ define('GATEWAY_TWO_CHECKOUT', 27);
 define('GATEWAY_BEANSTREAM', 29);
 define('GATEWAY_PSIGATE', 30);
 define('GATEWAY_MOOLAH', 31);
+define('GATEWAY_BITPAY', 42);
 
 define('EVENT_CREATE_CLIENT', 1);
 define('EVENT_CREATE_INVOICE', 2);
@@ -378,6 +379,8 @@ define('TOKEN_BILLING_ALWAYS', 4);
 
 define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
 define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
+define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');
+define('PAYMENT_TYPE_TOKEN', 'PAYMENT_TYPE_TOKEN');
 define('PAYMENT_TYPE_ANY', 'PAYMENT_TYPE_ANY');
 
 /*

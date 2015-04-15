@@ -10,7 +10,7 @@ use Cache;
 use Session;
 use Event;
 use App\Models\Language;
-
+use App\Events\UserSettingsChanged;
 
 class StartupCheck
 {
