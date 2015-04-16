@@ -18,8 +18,16 @@ class InvoicesFile extends Migration {
     });
     
     DB::table('invoice_designs')->where('id', 1)->update([
-        'javascript' => '',
         'filename'=>'js/templates/clean.js'
+        ]);
+    DB::table('invoice_designs')->where('id', 2)->update([
+        'filename'=>'js/templates/bold.js'
+        ]);
+    DB::table('invoice_designs')->where('id', 3)->update([
+        'filename'=>'js/templates/modern.js'
+        ]);
+    DB::table('invoice_designs')->where('id', 4)->update([
+        'filename'=>'js/templates/plain.js'
         ]);
 	}
 
