@@ -6,7 +6,8 @@ use Redirect;
 use Utils;
 use View;
 use Cache;
-
+use Event;
+use Session;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Country;
@@ -17,10 +18,13 @@ use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\Size;
 use App\Models\TaxRate;
+use App\Models\Invitation;
+use App\Models\Activity;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\TaxRateRepository;
+use App\Events\QuoteApproved;
 
 class QuoteController extends BaseController
 {
@@ -187,7 +191,9 @@ class QuoteController extends BaseController
         $invoice = $invitation->invoice;
 
         if ($invoice->is_quote && !$invoice->quote_invoice_id) {
-            Activity::approveQuote($invitation);
+            Event::fire(new QuoteApproved($invoice));            
+            Activity::approveQuote($invitation);            
+
             $invoice = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
             Session::flash('message', trans('texts.converted_to_invoice'));
 

@@ -72,6 +72,11 @@ class Invoice extends EntityModel
         return $this->invoice_status_id >= INVOICE_STATUS_PAID;
     }
 
+    public function getRequestedAmount()
+    {
+        return $this->partial > 0 ? $this->partial : $this->balance;
+    }
+
     public function hidePrivateFields()
     {
         $this->setVisible([
@@ -99,6 +104,7 @@ class Invoice extends EntityModel
             'custom_value2',
             'custom_taxes1',
             'custom_taxes2',
+            'partial',
         ]);
 
         $this->client->setVisible([
@@ -236,8 +242,6 @@ Invoice::deleting(function ($invoice) {
     Activity::archiveInvoice($invoice);
 });
 
-// TODO: Fix for L5
-/*Invoice::restoring(function ($invoice) {
+Invoice::restoring(function ($invoice) {
     Activity::restoreInvoice($invoice);
 });
-*/

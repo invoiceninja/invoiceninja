@@ -173,7 +173,7 @@ return array(
   'are_you_sure' => 'Are you sure?',
 
   // payment pages
-  'payment_type_id' => 'Payment type',
+  'payment_type_id' => 'Payment Type',
   'amount' => 'Amount',
 
   // account/company pages
@@ -187,7 +187,7 @@ return array(
   'remove_logo' => 'Remove logo',
   'logo_help' => 'Supported: JPEG, GIF and PNG. Recommended size: 200px width by 120px height',
   'payment_gateway' => 'Payment Gateway',
-  'gateway_id' => 'Provider',
+  'gateway_id' => 'Gateway',
   'email_notifications' => 'Email Notifications',
   'email_sent' => 'Email me when an invoice is <b>sent</b>',
   'email_viewed' => 'Email me when an invoice is <b>viewed</b>',
@@ -578,6 +578,20 @@ return array(
   'send_email' => 'Send email',
   'set_password' => 'Set Password',
   'converted' => 'Converted',
+
+  'email_approved' => 'Email me when a quote is <b>approved</b>',
+  'notification_quote_approved_subject' => 'Quote :invoice was approved by :client',
+  'notification_quote_approved' => 'The following client :client approved Quote :invoice for :amount.',
+  'resend_confirmation' => 'Resend confirmation email',
+  'confirmation_resent' => 'The confirmation email was resent',
   
-  
+  'gateway_help_42' => 'Note: use a BitPay Legacy API Key, not an API token.',
+  'payment_type_credit_card' => 'Credit card',
+  'payment_type_paypal' => 'PayPal',
+  'payment_type_bitcoin' => 'Bitcoin',
+  'knowledge_base' => 'Knowledge Base',
+  'partial' => 'Partial',
+  'partial_remaining' => ':partial of :balance',
+
+
 );

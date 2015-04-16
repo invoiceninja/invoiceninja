@@ -204,7 +204,8 @@ class ClientController extends BaseController
     private function save($publicId = null)
     {
         $rules = array(
-            'email' => 'required',
+            'email' => 'email|required_without:first_name',
+            'first_name' => 'required_without:email',
         );
         $validator = Validator::make(Input::all(), $rules);
 

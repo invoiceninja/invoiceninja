@@ -176,6 +176,7 @@ class InvoiceController extends BaseController
 
         $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
         $client = $invoice->client;
+        $account = $client->account;
 
         if (!$client || $client->is_deleted) {
             return View::make('invoices.deleted');
@@ -188,13 +189,13 @@ class InvoiceController extends BaseController
 
         Session::set($invitationKey, true);
         Session::set('invitation_key', $invitationKey);
-        Session::set('white_label', $client->account->isWhiteLabel());
+        Session::set('white_label', $account->isWhiteLabel());
 
-        $client->account->loadLocalizationSettings();
+        $account->loadLocalizationSettings();
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-        $invoice->is_pro = $client->account->isPro();
+        $invoice->is_pro = $account->isPro();
         
         $contact = $invitation->contact;
         $contact->setVisible([
@@ -203,16 +204,30 @@ class InvoiceController extends BaseController
             'email',
             'phone', ]);
 
+        // Determine payment options
+        $paymentTypes = [];
+        if ($client->getGatewayToken()) {
+            $paymentTypes[] = [
+                'url' => URL::to("payment/{$invitation->invitation_key}/".PAYMENT_TYPE_TOKEN), 'label' => trans('texts.use_card_on_file')
+            ];
+        }
+        foreach([PAYMENT_TYPE_CREDIT_CARD, PAYMENT_TYPE_PAYPAL, PAYMENT_TYPE_BITCOIN] as $type) {
+            if ($account->getGatewayByType($type)) {
+                $paymentTypes[] = [
+                    'url' => URL::to("/payment/{$invitation->invitation_key}/{$type}"), 'label' => trans('texts.'.strtolower($type))
+                ];
+            }
+        }
+        
         $data = array(
             'isConverted' => $invoice->quote_invoice_id ? true : false,
             'showBreadcrumbs' => false,
-            'hideLogo' => $client->account->isWhiteLabel(),
+            'hideLogo' => $account->isWhiteLabel(),
             'invoice' => $invoice->hidePrivateFields(),
             'invitation' => $invitation,
-            'invoiceLabels' => $client->account->getInvoiceLabels(),
+            'invoiceLabels' => $account->getInvoiceLabels(),
             'contact' => $contact,
-            'hasToken' => $client->getGatewayToken(),
-            'countGateways' => AccountGateway::scope(false, $client->account->id)->count(),
+            'paymentTypes' => $paymentTypes
         );
 
         return View::make('invoices.view', $data);

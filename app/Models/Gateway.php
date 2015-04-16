@@ -7,11 +7,6 @@ class Gateway extends Eloquent
 {
     public $timestamps = true;
 
-    public function paymentlibrary()
-    {
-        return $this->belongsTo('\App\Models\PaymentLibrary', 'payment_library_id');
-    }
-
     public function getLogoUrl()
     {
         return '/images/gateways/logo_'.$this->provider.'.png';
@@ -37,18 +32,20 @@ class Gateway extends Eloquent
 
     public function getFields()
     {
-        $paymentLibrary =  $this->paymentlibrary;
+        return Omnipay::create($this->provider)->getDefaultParameters();
+    }
 
-        if ($paymentLibrary->id == PAYMENT_LIBRARY_OMNIPAY) {
-            $fields = Omnipay::create($this->provider)->getDefaultParameters();
+    public static function getPaymentType($gatewayId) {
+        if ($gatewayId == GATEWAY_PAYPAL_EXPRESS) {
+            return PAYMENT_TYPE_PAYPAL;
+        } else if ($gatewayId == GATEWAY_BITPAY) {
+            return PAYMENT_TYPE_BITCOIN;
         } else {
-            $fields = Payment_Utility::load('config', 'drivers/'.strtolower($this->provider));
+            return PAYMENT_TYPE_CREDIT_CARD;
         }
+    }
 
-        if ($fields == null) {
-            $fields = array();
-        }
-
-        return $fields;
+    public static function getPrettyPaymentType($gatewayId) {
+        return trans('texts.' . strtolower(Gateway::getPaymentType($gatewayId)));
     }
 }

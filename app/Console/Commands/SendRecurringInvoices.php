@@ -1,9 +1,15 @@
 <?php namespace App\Console\Commands;
 
+use DateTime;
+use Carbon;
+use Utils;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use App\Ninja\Mailers\ContactMailer as Mailer;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
+use App\Models\Invitation;
 
 class SendRecurringInvoices extends Command
 {

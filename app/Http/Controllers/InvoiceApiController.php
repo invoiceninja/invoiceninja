@@ -23,9 +23,18 @@ class InvoiceApiController extends Controller
 
     public function index()
     {
-        $invoices = Invoice::scope()->where('invoices.is_quote', '=', false)->orderBy('created_at', 'desc')->get();
-        $invoices = Utils::remapPublicIds($invoices->toArray());
+        $invoices = Invoice::scope()->with('invitations')->where('invoices.is_quote', '=', false)->orderBy('created_at', 'desc')->get();
 
+        // Add the first invitation link to the data
+        foreach ($invoices as $key => $invoice) {
+            foreach ($invoice->invitations as $subKey => $invitation) {
+                $invoices[$key]['link'] = $invitation->getLink();
+            }
+            unset($invoice['invitations']);
+        }
+
+        $invoices = Utils::remapPublicIds($invoices->toArray());
+                
         $response = json_encode($invoices, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders(count($invoices));
 

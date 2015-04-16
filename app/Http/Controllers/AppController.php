@@ -95,6 +95,7 @@ class AppController extends BaseController
         // Artisan::call('migrate:rollback', array('--force' => true)); // Debug Purposes
         Artisan::call('migrate', array('--force' => true));
         Artisan::call('db:seed', array('--force' => true));
+        Artisan::call('optimize', array('--force' => true));
         
         $firstName = trim(Input::get('first_name'));
         $lastName = trim(Input::get('last_name'));
@@ -104,6 +105,7 @@ class AppController extends BaseController
         $user = $account->users()->first();
 
         //Auth::login($user, true);
+        $this->accountRepo->registerUser($user);
 
         return Redirect::to('/login');
     }
@@ -158,6 +160,7 @@ class AppController extends BaseController
             try {
                 Artisan::call('migrate', array('--force' => true));
                 Artisan::call('db:seed', array('--force' => true));
+                Artisan::call('optimize', array('--force' => true));
             } catch (Exception $e) {
                 Response::make($e->getMessage(), 500);
             }
@@ -171,6 +174,7 @@ class AppController extends BaseController
         if (!Utils::isNinja()) {
             try {
                 Artisan::call('migrate', array('--force' => true));
+                Artisan::call('optimize', array('--force' => true));
                 Cache::flush();
             } catch (Exception $e) {
                 Response::make($e->getMessage(), 500);

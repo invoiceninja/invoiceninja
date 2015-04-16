@@ -574,6 +574,20 @@ return array(
   'send_email' => 'Verstuur email',
   'set_password' => 'Stel wachtwoord in',
   'converted' => 'Omgezet',
+
+  'email_approved' => 'Email me when a quote is <b>approved</b>',
+  'notification_quote_approved_subject' => 'Quote :invoice was approved by :client',
+  'notification_quote_approved' => 'The following client :client approved Quote :invoice for :amount.',
+  'resend_confirmation' => 'Resend confirmation email',
+  'confirmation_resent' => 'The confirmation email was resent',
+
+  'gateway_help_42' => 'Note: use a BitPay Legacy API Key, not an API token.',
+  'payment_type_credit_card' => 'Credit card',
+  'payment_type_paypal' => 'PayPal',
+  'payment_type_bitcoin' => 'Bitcoin',
+  'knowledge_base' => 'Knowledge Base',
+  'partial' => 'Partial',
+  'partial_remaining' => ':partial of :balance',
     
 
   

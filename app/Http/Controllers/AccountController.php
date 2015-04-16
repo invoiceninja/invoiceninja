@@ -12,6 +12,7 @@ use Validator;
 use View;
 use stdClass;
 use Cache;
+use Response;
 
 use App\Models\User;
 use App\Models\Activity;
@@ -153,7 +154,7 @@ class AccountController extends BaseController
             if ($count == 0) {
                 return Redirect::to('gateways/create');
             } else {
-                return View::make('accounts.payments', ['showAdd' => $count < 2]);
+                return View::make('accounts.payments', ['showAdd' => $count < 3]);
             }
         } elseif ($section == ACCOUNT_NOTIFICATIONS) {
             $data = [
@@ -554,6 +555,7 @@ class AccountController extends BaseController
         $user->notify_sent = Input::get('notify_sent');
         $user->notify_viewed = Input::get('notify_viewed');
         $user->notify_paid = Input::get('notify_paid');
+        $user->notify_approved = Input::get('notify_approved');
         $user->save();
 
         Session::flash('message', trans('texts.updated_settings'));
@@ -675,7 +677,7 @@ class AccountController extends BaseController
         $user->last_name = trim(Input::get('new_last_name'));
         $user->email = trim(strtolower(Input::get('new_email')));
         $user->username = $user->email;
-        $user->password = trim(Input::get('new_password'));
+        $user->password = bcrypt(trim(Input::get('new_password')));
         $user->registered = true;
         $user->save();
 
@@ -737,5 +739,13 @@ class AccountController extends BaseController
         Auth::logout();
 
         return Redirect::to('/')->with('clearGuestKey', true);
+    }
+
+    public function resendConfirmation()
+    {
+        $user = Auth::user();
+        $this->userMailer->sendConfirmation($user);
+
+        return Redirect::to('/company/details')->with('message', trans('texts.confirmation_resent'));
     }
 }

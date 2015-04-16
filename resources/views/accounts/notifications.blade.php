@@ -8,11 +8,13 @@
 	{{ Former::populateField('notify_sent', intval(Auth::user()->notify_sent)) }}
 	{{ Former::populateField('notify_viewed', intval(Auth::user()->notify_viewed)) }}
 	{{ Former::populateField('notify_paid', intval(Auth::user()->notify_paid)) }}
+    {{ Former::populateField('notify_approved', intval(Auth::user()->notify_approved)) }}
 
 	{!! Former::legend(trans('texts.email_notifications')) !!}
 	{!! Former::checkbox('notify_sent')->label('&nbsp;')->text(trans('texts.email_sent')) !!}
 	{!! Former::checkbox('notify_viewed')->label('&nbsp;')->text(trans('texts.email_viewed')) !!}
-	{!! Former::checkbox('notify_paid')->label('&nbsp;')->text(trans('texts.email_paid')) !!}
+    {!! Former::checkbox('notify_paid')->label('&nbsp;')->text(trans('texts.email_paid')) !!}    
+    {!! Former::checkbox('notify_approved')->label('&nbsp;')->text(trans('texts.email_approved')) !!}
 
 	{!! Former::legend(trans('texts.site_updates')) !!}
 
@@ -37,8 +39,10 @@
   </div></div>
 
 	{!! Former::legend(trans('texts.custom_messages')) !!}
-    {!! Former::textarea('invoice_terms')->label(trans('texts.default_invoice_terms')) !!}
-    {!! Former::textarea('invoice_footer')->label(trans('texts.default_invoice_footer')) !!}
+    {!! Former::textarea('invoice_terms')->label(trans('texts.default_invoice_terms'))
+            ->onchange("$('#invoice_terms').val(wordWrapText($('#invoice_terms').val(), 300))") !!}
+    {!! Former::textarea('invoice_footer')->label(trans('texts.default_invoice_footer'))
+            ->onchange("$('#invoice_footer').val(wordWrapText($('#invoice_footer').val(), 600))") !!}
 	{!! Former::textarea('email_footer')->label(trans('texts.default_email_footer')) !!} 
 
 	{!! Former::actions( 

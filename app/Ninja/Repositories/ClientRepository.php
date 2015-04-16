@@ -34,7 +34,10 @@ class ClientRepository
     public function getErrors($data)
     {
         $contact = isset($data['contacts']) ? (array) $data['contacts'][0] : (isset($data['contact']) ? $data['contact'] : []);
-        $validator = \Validator::make($contact, ['email' => 'required|email']);
+        $validator = \Validator::make($contact, [
+            'email' => 'email|required_without:first_name',
+            'first_name' => 'required_without:email',
+        ]);
         if ($validator->fails()) {
             return $validator->messages();
         }

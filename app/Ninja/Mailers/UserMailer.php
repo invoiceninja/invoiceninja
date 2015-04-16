@@ -39,8 +39,8 @@ class UserMailer extends Mailer
             return;
         }
         
-        $view = 'invoice_'.$notificationType;
         $entityType = $invoice->getEntityType();
+        $view = "{$entityType}_{$notificationType}";
 
         $data = [
             'entityType' => $entityType,

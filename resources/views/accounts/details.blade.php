@@ -66,6 +66,8 @@
 				{!! Former::text('phone') !!}
                 @if (Auth::user()->confirmed)                
                     {!! Former::actions( Button::primary(trans('texts.change_password'))->small()->withAttributes(['onclick'=>'showChangePassword()'])) !!}
+                @elseif (Auth::user()->registered)
+                    {!! Former::actions( Button::primary(trans('texts.resend_confirmation'))->asLinkTo('/resend_confirmation')->small() ) !!}
                 @endif
 			@endif
 
@@ -89,6 +91,8 @@
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
 
+    {!! Former::close() !!}
+
 
     <div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -102,7 +106,7 @@
                     &nbsp;
 
                     {!! Former::password('current_password')->style('width:300px') !!}
-                    {!! Former::password('new_password')->style('width:300px') !!}
+                    {!! Former::password('newer_password')->style('width:300px')->label(trans('texts.new_password')) !!}
                     {!! Former::password('confirm_password')->style('width:300px') !!}
 
                     &nbsp;
@@ -142,12 +146,8 @@
     </div>
 
 
-	{!! Former::close() !!}
-
 	{!! Form::open(['url' => 'remove_logo', 'class' => 'removeLogoForm']) !!}	
 	{!! Form::close() !!}
-
-
 
 
 	<script type="text/javascript">
@@ -156,7 +156,7 @@
 			$('#country_id').combobox();
 
             $('#passwordModal').on('hidden.bs.modal', function () {                
-                $(['current_password', 'new_password', 'confirm_password']).each(function(i, field) {
+                $(['current_password', 'newer_password', 'confirm_password']).each(function(i, field) {
                     var $input = $('form #'+field);
                     $input.val('');
                     $input.closest('div.form-group').removeClass('has-success');                    
@@ -191,13 +191,13 @@
         function validateChangePassword(showError) 
         {
             var isFormValid = true;
-            $(['current_password', 'new_password', 'confirm_password']).each(function(i, field) {
+            $(['current_password', 'newer_password', 'confirm_password']).each(function(i, field) {
                 var $input = $('form #'+field),
                 val = $.trim($input.val());
                 var isValid = val && val.length >= 6;
 
                 if (isValid && field == 'confirm_password') {
-                    isValid = val == $.trim($('#new_password').val());
+                    isValid = val == $.trim($('#newer_password').val());
                 }
 
                 if (isValid) {
@@ -227,9 +227,9 @@
 
             $.ajax({
               type: 'POST',
-              url: '{{ URL::to('users/change_password') }}',
+              url: '{{ URL::to('/users/change_password') }}',
               data: 'current_password=' + encodeURIComponent($('form #current_password').val()) + 
-              '&new_password=' + encodeURIComponent($('form #new_password').val()) + 
+              '&new_password=' + encodeURIComponent($('form #newer_password').val()) + 
               '&confirm_password=' + encodeURIComponent($('form #confirm_password').val()),
               success: function(result) { 
                 if (result == 'success') {

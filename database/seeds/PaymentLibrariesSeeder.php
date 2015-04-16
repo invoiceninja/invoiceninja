@@ -22,7 +22,8 @@ class PaymentLibrariesSeeder extends Seeder
 			['name' => 'PaymentSense', 'provider' => 'PaymentSense', 'payment_library_id' => 1],
 			['name' => 'Realex', 'provider' => 'Realex_Remote', 'payment_library_id' => 1],
 			['name' => 'Sisow', 'provider' => 'Sisow', 'payment_library_id' => 1],
-			['name' => 'Skrill', 'provider' => 'Skrill', 'payment_library_id' => 1]
+			['name' => 'Skrill', 'provider' => 'Skrill', 'payment_library_id' => 1],
+            ['name' => 'BitPay', 'provider' => 'BitPay', 'payment_library_id' => 1],
 		];
 		
 		foreach ($gateways as $gateway)

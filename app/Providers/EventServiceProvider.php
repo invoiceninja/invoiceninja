@@ -26,6 +26,9 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\InvoicePaid' => [
             'App\Listeners\HandleInvoicePaid',
         ],
+        'App\Events\QuoteApproved' => [
+            'App\Listeners\HandleQuoteApproved',
+        ],
 	];
 
 	/**
