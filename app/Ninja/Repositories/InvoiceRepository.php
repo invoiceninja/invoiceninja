@@ -182,7 +182,10 @@ class InvoiceRepository
     public function getErrors($input)
     {
         $contact = (array) $input->client->contacts[0];
-        $rules = ['email' => 'required|email'];
+        $rules = [
+            'email' => 'email|required_without:first_name',
+            'first_name' => 'required_without:email',
+        ];
         $validator = \Validator::make($contact, $rules);
 
         if ($validator->fails()) {
@@ -238,6 +241,7 @@ class InvoiceRepository
         $invoice->discount = round(Utils::parseFloat($data['discount']), 2);
         $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
         $invoice->invoice_number = trim($data['invoice_number']);
+        $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
         $invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
         $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
 

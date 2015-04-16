@@ -262,7 +262,7 @@ class PaymentController extends BaseController
         $card = new CreditCard($data);
 
         return [
-            'amount' => $invoice->balance,
+            'amount' => ($invoice->partial ? $invoice->partial : $invoice->balance),
             'card' => $card,
             'currency' => $currencyCode,
             'returnUrl' => URL::to('complete'),
@@ -304,7 +304,7 @@ class PaymentController extends BaseController
         $data = [
             'showBreadcrumbs' => false,
             'url' => 'payment/'.$invitationKey,
-            'amount' => $invoice->balance,
+            'amount' => ($invoice->partial ? $invoice->partial : $invoice->balance),
             'invoiceNumber' => $invoice->invoice_number,
             'client' => $client,
             'contact' => $invitation->contact,
@@ -603,11 +603,16 @@ class PaymentController extends BaseController
         $payment->invitation_id = $invitation->id;
         $payment->account_gateway_id = $accountGateway->id;
         $payment->invoice_id = $invoice->id;
-        $payment->amount = $invoice->balance;
+        $payment->amount = $invoice->partial ? $invoice->partial : $invoice->balance;
         $payment->client_id = $invoice->client_id;
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = date_create()->format('Y-m-d');
+
+        if ($invoice->partial) {
+            $invoice->partial = 0;
+            $invoice->save();
+        }
 
         if ($payerId) {
             $payment->payer_id = $payerId;

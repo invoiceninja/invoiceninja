@@ -2900,6 +2900,7 @@ body.modal-open { overflow:inherit; padding-right:inherit !important; }
 .radio input[type="radio"],
 .checkbox input[type="checkbox"] {
     margin-left: 0;
+    padding-left: 0px !important;
     margin-right: 5px;
     height: inherit;
     width: inherit;
@@ -2907,4 +2908,8 @@ body.modal-open { overflow:inherit; padding-right:inherit !important; }
     display: inline-block;
     position: relative;
     margin-top: 3px;
+}
+
+div.checkbox > label {
+    padding-left: 0px !important;
 }

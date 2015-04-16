@@ -99,6 +99,7 @@ class Invoice extends EntityModel
             'custom_value2',
             'custom_taxes1',
             'custom_taxes2',
+            'partial',
         ]);
 
         $this->client->setVisible([

@@ -21,6 +21,8 @@
                 @endif
             @endforeach
         @endif
+    @else
+        {!! Former::populateField('gateway_id', GATEWAY_AUTHORIZE_NET) !!}
     @endif
         
     {!! Former::select('payment_type_id')
@@ -28,7 +30,7 @@
         ->addGroupClass('payment-type-option')
         ->onchange('setPaymentType()') !!}
 
-    {!! Former::select('gateway_id')->addOption('', '')
+    {!! Former::select('gateway_id')
         ->dataClass('gateway-dropdown')
         ->addGroupClass('gateway-option')
         ->fromQuery($selectGateways, 'name', 'id')
@@ -42,7 +44,7 @@
                 @if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
                     {{-- do nothing --}}
                 @elseif ($field == 'testMode' || $field == 'developerMode') 
-                    {{-- Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable') --}}              
+                    {!! Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable')->value('true') !!}
                 @elseif ($field == 'username' || $field == 'password') 
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
                 @else

@@ -5,6 +5,15 @@
 
 		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
 		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
+
+        <style type="text/css">
+            .partial div.checkbox {
+                display: inline;
+            }
+            .partial span.input-group-addon {
+                padding-right: 30px;
+            }
+        </style>        
 @stop
 
 @section('content')
@@ -18,7 +27,6 @@
 
 	{!! Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
 		'client' => 'required',
-		'email' => 'required',
 		'product_key' => 'max:20'
 	)) !!}	
 
@@ -51,7 +59,7 @@
 			@endif
 
 			<div data-bind="with: client">
-				<div style="display:none" class="form-group" data-bind="visible: contacts().length > 0 &amp;&amp; contacts()[0].email(), foreach: contacts">
+				<div style="display:none" class="form-group" data-bind="visible: contacts().length > 0 &amp;&amp; (contacts()[0].email() || contacts()[0].first_name()), foreach: contacts">
 					<div class="col-lg-8 col-lg-offset-4">
 						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}" onclick="refreshPDF()">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check'}">
@@ -68,6 +76,10 @@
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'invoice_date\')"></i>') !!}
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') !!}							
+                
+                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown', enable: is_partial")
+                        ->addGroupClass('partial')->append(Former::checkbox('is_partial')->raw()
+                            ->data_bind('checked: is_partial')->onclick('onPartialEnabled()') . '&nbsp;' . (trans('texts.enable'))) !!}
 			</div>
 			@if ($entityType == ENTITY_INVOICE)
 				<div data-bind="visible: is_recurring" style="display: none">
@@ -83,7 +95,7 @@
 					</div>
 				@else 
 				<div data-bind="visible: invoice_status_id() === 0">
-					{!! Former::checkbox('recurring')->onclick('setEmailEnabled()')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
+					{!! Former::checkbox('recurring')->onclick('onRecurringEnabled()')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
 						->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::dateToString($invoice->last_sent_date) : '') !!}
 				</div>			
 				@endif
@@ -265,7 +277,7 @@
 				<td class="hide-border" colspan="3"/>
 				<td style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
 				<td colspan="{{ $account->hide_quantity ? 1 : 2 }}"><b>{{ trans($entityType == ENTITY_INVOICE ? 'texts.balance_due' : 'texts.total') }}</b></td>
-				<td style="text-align: right"><span data-bind="text: totals.total"/></td>
+				<td style="text-align: right"><span data-bind="text: totals.total"></span></td>
 			</tr>
 
 		</tfoot>
@@ -588,7 +600,7 @@
 			});
 		}		
 
-		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount').change(function() {
+		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial').change(function() {
 			setTimeout(function() {
 				refreshPDF();
 			}, 1);
@@ -752,7 +764,7 @@
 		var isValid = false;
 		for (var i=0; i<model.invoice().client().contacts().length; i++) {
 			var contact = model.invoice().client().contacts()[i];
-			if (isValidEmailAddress(contact.email())) {
+			if (isValidEmailAddress(contact.email()) || contact.first_name()) {
 				isValid = true;
 			} else {
 				isValid = false;
@@ -984,10 +996,23 @@
 		self.clientFormComplete = function() {
 			trackUrl('/save_client_form');
 
+            var email = $('#email0').val();
+            var firstName = $('#first_name').val();
+            var lastName = $('#last_name').val();
+            var name = $('#name').val();
+
+            if (name) {
+                //
+            } else if (firstName || lastName) {
+                name = firstName + ' ' + lastName;
+            } else {
+                name = email;
+            }
+
 			var isValid = true;
 			$("input[name='email']").each(function(item, value) {
 				var email = $(value).val();
-				if (!email || !isValidEmailAddress(email)) {
+				if (!name && (!email || !isValidEmailAddress(email))) {
 					isValid = false;					
 				}
 			});
@@ -996,24 +1021,11 @@
 				return;
 			}
 
-			var email = $('#email0').val();
-			var firstName = $('#first_name').val();
-			var lastName = $('#last_name').val();
-			var name = $('#name').val();
-
 			if (self.invoice().client().public_id() == 0) {
 				self.invoice().client().public_id(-1);
 			}
 
 			model.setDueDate();
-
-			if (name) {
-				//
-			} else if (firstName || lastName) {
-				name = firstName + ' ' + lastName;
-			} else {
-				name = email;
-			}
 
 			setComboboxValue($('.client_select'), -1, name);
 
@@ -1078,6 +1090,8 @@
 		self.amount = ko.observable(0);
 		self.balance = ko.observable(0);
 		self.invoice_design_id = ko.observable({{ $account->invoice_design_id }});
+        self.partial = ko.observable(0);            
+        self.is_partial = ko.observable(false);
 
 		self.custom_value1 = ko.observable(0);
 		self.custom_value2 = ko.observable(0);
@@ -1111,7 +1125,7 @@
 			applyComboboxListeners();			
 		}
 
-		if (data) {
+        if (data) {
 			ko.mapping.fromJS(data, self.mapping, self);			
 			self.is_recurring(parseInt(data.is_recurring));
 		} else {
@@ -1237,26 +1251,19 @@
         	}
     	});
 
-		this.totals.rawPaidToDate = ko.computed(function() {
+		self.totals.rawPaidToDate = ko.computed(function() {
 			return accounting.toFixed(self.amount(),2) - accounting.toFixed(self.balance(),2);
 		});
 
-		this.totals.paidToDate = ko.computed(function() {
+		self.totals.paidToDate = ko.computed(function() {
 			var total = self.totals.rawPaidToDate();
 		    return formatMoney(total, self.client().currency_id());
 		});
 
-		this.totals.total = ko.computed(function() {
+		self.totals.rawTotal = ko.computed(function() {
     	    var total = accounting.toFixed(self.totals.rawSubtotal(),2);	    
     	    var discount = self.totals.rawDiscounted();
     	    total -= discount;
-
-    	    /*
-    	    var discount = parseFloat(self.discount());
-    	    if (discount > 0) {
-    	    	total = roundToTwo(total * ((100 - discount)/100));
-    	    }
-    			*/
 
     	    var customValue1 = roundToTwo(self.custom_value1());
     	    var customValue2 = roundToTwo(self.custom_value2());
@@ -1287,8 +1294,12 @@
         		total -= paid;
         	}
 
-    	    return formatMoney(total, self.client().currency_id());
+    	    return total;
       	});
+
+        self.totals.total = ko.computed(function() {
+            return formatMoney(self.is_partial() ? self.partial() : self.totals.rawTotal(), self.client().currency_id());
+        });        
 
       	self.onDragged = function(item) {
       		refreshPDF();
@@ -1388,11 +1399,13 @@
 			if (self.first_name() || self.last_name()) {
 				str += self.first_name() + ' ' + self.last_name() + '<br/>';
 			}			
-			str += self.email();
+            if (self.email()) {
+                str += self.email() + '<br/>';    
+            }			
 
 			@if (Utils::isConfirmed())
 			if (self.invitation_link()) {
-				str += '<br/><a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_as_recipient') }}</a>';
+				str += '<a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_as_recipient') }}</a>';
 			}
 			@endif
 			
@@ -1593,10 +1606,22 @@
 		}
 	}
 
-    function setEmailEnabled()
+    function onPartialEnabled()
+    {
+        if ($('#is_partial').prop('checked')) {   
+            model.invoice().partial(model.invoice().totals.rawTotal() || '');
+        } else {
+            model.invoice().partial('');
+        }        
+
+        refreshPDF();
+    }
+
+    function onRecurringEnabled()
     {
         if ($('#recurring').prop('checked')) {
             $('#email_button').attr('disabled', true);
+            model.invoice().partial('');
         } else {
             $('#email_button').removeAttr('disabled');
         }
@@ -1622,12 +1647,12 @@
 	}
 
 	@if ($data)
-		window.model = new ViewModel({{ $data }});				
+		window.model = new ViewModel({{ $data }});
 	@else 
 		window.model = new ViewModel();
 		model.addTaxRate();
 		@foreach ($taxRates as $taxRate)
-			model.addTaxRate({{ $taxRate }});
+			model.addTaxRate({!! $taxRate !!});
 		@endforeach
 		@if ($invoice)
 			var invoice = {!! $invoice !!};
@@ -1635,7 +1660,10 @@
 			if (model.invoice().is_recurring() === '0') {
 				model.invoice().is_recurring(false);
 			}
-			var invitationContactIds = {!! json_encode($invitationContactIds) !!};		
+            if (NINJA.parseFloat(model.invoice().partial())) {
+                model.invoice().is_partial(true);
+            }
+            var invitationContactIds = {!! json_encode($invitationContactIds) !!};		
 			var client = clientMap[invoice.client.public_id];
 			if (client) { // in case it's deleted
 				for (var i=0; i<client.contacts.length; i++) {
@@ -1666,6 +1694,7 @@
 
 	// display blank instead of '0'
 	if (!NINJA.parseFloat(model.invoice().discount())) model.invoice().discount('');
+    if (!NINJA.parseFloat(model.invoice().partial())) model.invoice().partial('');
 	if (!model.invoice().custom_value1()) model.invoice().custom_value1('');
 	if (!model.invoice().custom_value2()) model.invoice().custom_value2('');
 

@@ -70,6 +70,8 @@ class AccountGatewayController extends BaseController
         $data['title'] = trans('texts.edit_gateway') . ' - ' . $accountGateway->gateway->name;
         $data['config'] = $configFields;
         $data['paymentTypeId'] = $accountGateway->getPaymentType();
+        $data['selectGateways'] = Gateway::where('id', '=', $accountGateway->gateway_id)->get();
+
 
         return View::make('accounts.account_gateway', $data);
     }
@@ -94,6 +96,7 @@ class AccountGatewayController extends BaseController
         $data['url'] = 'gateways';
         $data['method'] = 'POST';
         $data['title'] = trans('texts.add_gateway');
+        $data['selectGateways'] = Gateway::where('payment_library_id', '=', 1)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->orderBy('name')->get();
 
         return View::make('accounts.account_gateway', $data);
     }
@@ -127,7 +130,6 @@ class AccountGatewayController extends BaseController
         $account->load('account_gateways');
         $currentGateways = $account->account_gateways;
         $gateways = Gateway::where('payment_library_id', '=', 1)->orderBy('name')->get();
-        $selectGateways = Gateway::where('payment_library_id', '=', 1)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->orderBy('name')->get();
 
         foreach ($gateways as $gateway) {
             $gateway->fields = $gateway->getFields();
@@ -147,7 +149,6 @@ class AccountGatewayController extends BaseController
             'accountGateway' => $accountGateway,
             'config' => false,
             'gateways' => $gateways,
-            'selectGateways' => $selectGateways,
             'creditCardTypes' => $creditCards,
             'tokenBillingOptions' => $tokenBillingOptions,
             'showBreadcrumbs' => false,
@@ -174,7 +175,14 @@ class AccountGatewayController extends BaseController
     public function save($accountGatewayPublicId = false)
     {
         $rules = array();
+        $paymentType = Input::get('payment_type_id');
         $gatewayId = Input::get('gateway_id');
+
+        if ($paymentType == PAYMENT_TYPE_PAYPAL) {
+            $gatewayId = GATEWAY_PAYPAL_EXPRESS;
+        } elseif ($paymentType == PAYMENT_TYPE_BITCOIN) {
+            $gatewayId = GATEWAY_BITPAY;
+        }
 
         if (!$gatewayId) {
             Session::flash('error', trans('validation.required', ['attribute' => 'gateway']));
@@ -206,25 +214,28 @@ class AccountGatewayController extends BaseController
                 ->withInput();
         } else {
             $account = Account::with('account_gateways')->findOrFail(Auth::user()->account_id);
+            $oldConfig = null;
 
             if ($accountGatewayPublicId) {
                 $accountGateway = AccountGateway::scope($accountGatewayPublicId)->firstOrFail();
+                $oldConfig = json_decode($accountGateway->config);
             } else {
                 $accountGateway = AccountGateway::createNew();
                 $accountGateway->gateway_id = $gatewayId;
             }
 
-            $isMasked = false;
-
             $config = new stdClass();
             foreach ($fields as $field => $details) {
                 $value = trim(Input::get($gateway->id.'_'.$field));
-
+                // if the new value is masked use the original value
                 if ($value && $value === str_repeat('*', strlen($value))) {
-                    $isMasked = true;
+                    $value = $oldConfig->$field;
                 }
-
-                $config->$field = $value;
+                if (!$value && ($field == 'testMode' || $field == 'developerMode')) {
+                    // do nothing
+                } else {
+                    $config->$field = $value;
+                }
             }
 
             $cardCount = 0;
@@ -234,19 +245,12 @@ class AccountGatewayController extends BaseController
                 }
             }
 
-            // if the values haven't changed don't update the config
-            if ($isMasked && $accountGatewayPublicId) {
-                $accountGateway->accepted_credit_cards = $cardCount;
+            $accountGateway->accepted_credit_cards = $cardCount;
+            $accountGateway->config = json_encode($config);
+
+            if ($accountGatewayPublicId) {
                 $accountGateway->save();
-            // if there's an existing config for this gateway update it
-            } elseif (!$isMasked && $accountGatewayPublicId && $accountGateway->gateway_id == $gatewayId) {
-                $accountGateway->accepted_credit_cards = $cardCount;
-                $accountGateway->config = json_encode($config);
-                $accountGateway->save();
-            // otherwise, create a new gateway config
             } else {
-                $accountGateway->config = json_encode($config);
-                $accountGateway->accepted_credit_cards = $cardCount;
                 $account->account_gateways()->save($accountGateway);
             }
 

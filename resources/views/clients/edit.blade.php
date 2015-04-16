@@ -7,11 +7,8 @@
 
 @section('content')
 <div class="row">
-	<!--<h3>{{ $title }} Client</h3>-->
 
-	{!! Former::open($url)->addClass('col-md-12 warn-on-exit')->method($method)->rules(array(
-  		'email' => 'email|required'  		
-	)); !!}
+	{!! Former::open($url)->addClass('col-md-12 warn-on-exit')->method($method) !!}
 
 	@if ($client)
 		{!! Former::populate($client) !!}

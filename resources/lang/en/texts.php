@@ -589,5 +589,7 @@ return array(
   'payment_type_credit_card' => 'Credit card',
   'payment_type_paypal' => 'PayPal',
   'payment_type_bitcoin' => 'Bitcoin',
-
+  'knowledge_base' => 'Knowledge Base',
+  'partial' => 'Partial',
+  
 );

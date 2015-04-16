@@ -9,9 +9,9 @@
 
   <script>
 
-    var invoiceDesigns = {{ $invoiceDesigns }};
-    var currentInvoice = {{ $invoice }};
-    var versionsJson = {{ $versionsJson }};
+    var invoiceDesigns = {!! $invoiceDesigns !!};
+    var currentInvoice = {!! $invoice !!};
+    var versionsJson = {!! $versionsJson !!};
     
     function getPDFString() {
 
@@ -49,10 +49,10 @@
 
 @section('content')
 
-    {{ Former::open()->addClass('form-inline')->onchange('refreshPDF()') }}
-    {{ Former::select('version')->options($versionsSelect)->label(trans('select_version')) }}
-    {{ Button::success_link(URL::to($invoice->getEntityType() . 's/' . $invoice->public_id . '/edit'), trans('texts.edit_' . $invoice->getEntityType()), array('class' => 'pull-right')) }}    
-    {{ Former::close() }}
+    {!! Former::open()->addClass('form-inline')->onchange('refreshPDF()') !!}
+    {!! Former::select('version')->options($versionsSelect)->label(trans('select_version')) !!}
+    {!! Button::success(trans('texts.edit_' . $invoice->getEntityType()))->asLinkTo('/' . $invoice->getEntityType() . 's/' . $invoice->public_id . '/edit')->withAttributes(array('class' => 'pull-right')) !!}    
+    {!! Former::close() !!}
 
     <br/>&nbsp;<br/>
 

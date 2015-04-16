@@ -12,6 +12,7 @@ use Validator;
 use View;
 use stdClass;
 use Cache;
+use Response;
 
 use App\Models\User;
 use App\Models\Activity;

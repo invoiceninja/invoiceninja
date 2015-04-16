@@ -967,7 +967,11 @@ function calculateAmounts(invoice) {
     total += roundToTwo(invoice.custom_value2);
   }
 
-  invoice.balance_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
+  if (NINJA.parseFloat(invoice.partial)) {
+    invoice.balance_amount = roundToTwo(invoice.partial);
+  } else {
+    invoice.balance_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
+  }
   invoice.discount_amount = discount;
   invoice.tax_amount = tax;
   invoice.has_taxes = hasTaxes;
