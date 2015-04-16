@@ -31601,6 +31601,12 @@ function GetPdf(invoice, javascript){
   //set default style for report
   doc.setFont('Helvetica','');
 
+  // For partial payments show "Amount Due" rather than "Balance Due"
+  if (!invoiceLabels.balance_due_orig) {
+    invoiceLabels.balance_due_orig = invoiceLabels.balance_due;
+  }
+  invoiceLabels.balance_due = NINJA.parseFloat(invoice.partial) ? invoiceLabels.amount_due : invoiceLabels.balance_due_orig;
+
   eval(javascript);
 
   // add footer
@@ -32233,13 +32239,20 @@ function displayInvoice(doc, invoice, x, y, layout, rightAlignX) {
 }
 
 function getInvoiceDetails(invoice) {
-  return [
+  var fields = [
     {'invoice_number': invoice.invoice_number},
     {'po_number': invoice.po_number},
     {'invoice_date': invoice.invoice_date},
     {'due_date': invoice.due_date},
-    {'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)},
   ];
+
+  if (NINJA.parseFloat(invoice.partial)) {
+    fields.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
+  }
+
+  fields.push({'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)})
+
+  return fields;
 }
 
 function getInvoiceDetailsHeight(invoice, layout) {
@@ -32292,6 +32305,10 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
   var paid = invoice.amount - invoice.balance;
   if (invoice.account.hide_paid_to_date != '1' || paid) {
     data.push({'paid_to_date': formatMoney(paid, invoice.client.currency_id)});
+  }
+
+  if (NINJA.parseFloat(invoice.partial) && invoice.total_amount != invoice.subtotal_amount) {
+    data.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
   }
 
   var options = {
@@ -32490,14 +32507,16 @@ function calculateAmounts(invoice) {
     total += roundToTwo(invoice.custom_value2);
   }
 
-  if (NINJA.parseFloat(invoice.partial)) {
-    invoice.balance_amount = roundToTwo(invoice.partial);
-  } else {
-    invoice.balance_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
-  }
+  invoice.total_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
   invoice.discount_amount = discount;
   invoice.tax_amount = tax;
   invoice.has_taxes = hasTaxes;
+
+  if (NINJA.parseFloat(invoice.partial)) {
+    invoice.balance_amount = roundToTwo(invoice.partial);
+  } else {
+    invoice.balance_amount = invoice.total_amount;
+  }
 
   return invoice;
 }

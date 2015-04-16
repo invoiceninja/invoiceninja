@@ -591,5 +591,7 @@ return array(
   'payment_type_bitcoin' => 'Bitcoin',
   'knowledge_base' => 'Knowledge Base',
   'partial' => 'Partial',
-  
+  'partial_remaining' => ':partial of :balance',
+
+
 );

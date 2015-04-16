@@ -19,7 +19,7 @@ class InvoiceRepository
             ->where('contacts.deleted_at', '=', null)
             ->where('invoices.is_recurring', '=', false)
             ->where('contacts.is_primary', '=', true)
-            ->select('clients.public_id as client_public_id', 'invoice_number', 'invoice_status_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'quote_id', 'quote_invoice_id', 'invoices.deleted_at', 'invoices.is_deleted');
+            ->select('clients.public_id as client_public_id', 'invoice_number', 'invoice_status_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'quote_id', 'quote_invoice_id', 'invoices.deleted_at', 'invoices.is_deleted', 'invoices.partial');
 
         if (!\Session::get('show_trash:'.$entityType)) {
             $query->where('invoices.deleted_at', '=', null);
@@ -86,7 +86,7 @@ class InvoiceRepository
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', false)
-          ->select('invitation_key', 'invoice_number', 'invoice_date', 'invoices.balance as balance', 'due_date', 'clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'start_date', 'end_date', 'clients.currency_id');
+          ->select('invitation_key', 'invoice_number', 'invoice_date', 'invoices.balance as balance', 'due_date', 'clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'start_date', 'end_date', 'clients.currency_id', 'invoices.partial');
 
         $table = \Datatable::query($query)
             ->addColumn('invoice_number', function ($model) use ($entityType) { return link_to('/view/'.$model->invitation_key, $model->invoice_number); })
@@ -94,7 +94,11 @@ class InvoiceRepository
             ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); });
 
         if ($entityType == ENTITY_INVOICE) {
-            $table->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id); });
+            $table->addColumn('balance', function ($model) {
+                return $model->partial > 0 ?
+                    trans('texts.partial_remaining', ['partial' => Utils::formatMoney($model->partial, $model->currency_id), 'balance' => Utils::formatMoney($model->balance, $model->currency_id)]) :
+                    Utils::formatMoney($model->balance, $model->currency_id);
+            });
         }
 
         return $table->addColumn('due_date', function ($model) { return Utils::fromSqlDate($model->due_date); })
@@ -122,7 +126,11 @@ class InvoiceRepository
               ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); });
 
         if ($entityType == ENTITY_INVOICE) {
-            $table->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id); });
+            $table->addColumn('balance', function ($model) {
+                return $model->partial > 0 ?
+                    trans('texts.partial_remaining', ['partial' => Utils::formatMoney($model->partial, $model->currency_id), 'balance' => Utils::formatMoney($model->balance, $model->currency_id)]) :
+                    Utils::formatMoney($model->balance, $model->currency_id);
+            });
         }
 
         return $table->addColumn('due_date', function ($model) { return Utils::fromSqlDate($model->due_date); })

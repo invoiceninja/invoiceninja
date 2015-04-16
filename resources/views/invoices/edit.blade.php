@@ -78,7 +78,7 @@
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') !!}							
                 
                 {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown', enable: is_partial")
-                        ->addGroupClass('partial')->append(Former::checkbox('is_partial')->raw()
+                        ->onchange('onPartialChange()')->addGroupClass('partial')->append(Former::checkbox('is_partial')->raw()
                             ->data_bind('checked: is_partial')->onclick('onPartialEnabled()') . '&nbsp;' . (trans('texts.enable'))) !!}
 			</div>
 			@if ($entityType == ENTITY_INVOICE)
@@ -1606,15 +1606,23 @@
 		}
 	}
 
+    function onPartialChange()
+    {
+        var val = NINJA.parseFloat($('#partial').val());
+        val = Math.max(Math.min(val, model.invoice().totals.rawTotal()), 0);
+        $('#partial').val(val);
+    }
+
     function onPartialEnabled()
     {
-        if ($('#is_partial').prop('checked')) {   
-            model.invoice().partial(model.invoice().totals.rawTotal() || '');
-        } else {
-            model.invoice().partial('');
-        }        
-
+        model.invoice().partial('');
         refreshPDF();
+
+        if ($('#is_partial').prop('checked')) {   
+            setTimeout(function() {
+                $('#partial').focus();
+            }, 1);
+        }    
     }
 
     function onRecurringEnabled()

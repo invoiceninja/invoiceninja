@@ -11,7 +11,7 @@
 		</div>
 
         @if ($gatewayLink)
-            {!! Button::link($gatewayLink, trans('texts.view_in_stripe'), ['target' => '_blank']) !!}
+            {!! Button::normal(trans('texts.view_in_stripe'))->asLinkTo($gatewayLink)->withAttributes(['target' => '_blank']) !!}
         @endif
 
 		@if ($client->trashed())

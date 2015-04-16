@@ -187,7 +187,7 @@ class Activity extends Eloquent
             $diff = floatval($invoice->amount) - floatval($invoice->getOriginal('amount'));
 
             $fieldChanged = false;
-            foreach (['invoice_number', 'po_number', 'invoice_date', 'due_date', 'terms', 'public_notes', 'invoice_footer'] as $field) {
+            foreach (['invoice_number', 'po_number', 'invoice_date', 'due_date', 'terms', 'public_notes', 'invoice_footer', 'partial'] as $field) {
                 if ($invoice->$field != $invoice->getOriginal($field)) {
                     $fieldChanged = true;
                     break;

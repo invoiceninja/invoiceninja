@@ -19,7 +19,7 @@ class ContactMailer extends Mailer
         $subject = trans("texts.{$entityType}_subject", ['invoice' => $invoice->invoice_number, 'account' => $invoice->account->getDisplayName()]);
         $accountName = $invoice->account->getDisplayName();
         $emailTemplate = $invoice->account->getEmailTemplate($entityType);
-        $invoiceAmount = Utils::formatMoney($invoice->amount, $invoice->client->currency_id);
+        $invoiceAmount = Utils::formatMoney($invoice->getRequestedAmount(), $invoice->client->currency_id);
 
         foreach ($invoice->invitations as $invitation) {
             if (!$invitation->user || !$invitation->user->email) {

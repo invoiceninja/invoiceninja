@@ -72,6 +72,11 @@ class Invoice extends EntityModel
         return $this->invoice_status_id >= INVOICE_STATUS_PAID;
     }
 
+    public function getRequestedAmount()
+    {
+        return $this->partial > 0 ? $this->partial : $this->balance;
+    }
+
     public function hidePrivateFields()
     {
         $this->setVisible([
