@@ -198,7 +198,7 @@ class AccountController extends BaseController
                 $invoice->invoice_items = [$invoiceItem];
 
                 $data['invoice'] = $invoice;
-                $data['invoiceDesigns'] = InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
+                $data['invoiceDesigns'] = InvoiceDesign::availableDesigns();
             } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
                 $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
                 $data['quoteEmail'] = $account->getEmailTemplate(ENTITY_QUOTE);

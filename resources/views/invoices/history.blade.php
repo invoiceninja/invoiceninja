@@ -13,7 +13,7 @@
     var currentInvoice = {!! $invoice !!};
     var versionsJson = {!! $versionsJson !!};
     
-    function getPDFString() {
+    function getPDFString(cb) {
 
         var version = $('#version').val();
         var invoice;
@@ -32,11 +32,8 @@
             invoiceDesign = invoiceDesigns[0];
         }
         
-        var doc = generatePDF(invoice, invoiceDesign.javascript, true);
-        if (!doc) {
-            return;
-        }
-        return doc.output('datauristring');
+        doc = generatePDF(invoice, invoiceDesign.javascript, true);
+        doc.getDataUrl(cb);
     }
 
     $(function() {   

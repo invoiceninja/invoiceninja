@@ -155,7 +155,7 @@ class QuoteController extends BaseController
           'sizes' => Cache::get('sizes'),
           'paymentTerms' => Cache::get('paymentTerms'),
           'industries' => Cache::get('industries'),
-          'invoiceDesigns' => InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+          'invoiceDesigns' => InvoiceDesign::availableDesigns(),
           'invoiceLabels' => Auth::user()->account->getInvoiceLabels()
         ];
     }
