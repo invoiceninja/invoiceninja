@@ -32,7 +32,8 @@
             invoiceDesign = invoiceDesigns[0];
         }
         
-        generatePDF(invoice, invoiceDesign.javascript, true, cb);
+        doc = generatePDF(invoice, invoiceDesign.javascript, true);
+        doc.getDataUrl(cb);
     }
 
     $(function() {   

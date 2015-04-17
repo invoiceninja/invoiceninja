@@ -2,9 +2,10 @@ function GetPdfMake(invoice, javascript, callback) {
   var account = invoice.account;
   eval(javascript);
   doc = pdfMake.createPdf(dd);
-  doc.getDataUrl(callback);
-
-  return;
+  doc.save = function(fileName) {
+    this.download(fileName);
+  };
+  return doc;
 }
 function notesAndTerms(invoice)
 {

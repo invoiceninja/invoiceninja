@@ -31832,11 +31832,15 @@ function generatePDF(invoice, javascript, force, cb) {
   invoiceOld = invoice;
   report_id = invoice.invoice_design_id;
   if(javascript.slice(0, pdfmakeMarker.length) === pdfmakeMarker) {
-    GetPdfMake(invoice, javascript, cb);
+    doc = GetPdfMake(invoice, javascript, cb);
+    //doc.getDataUrl(cb);
   } else {
     doc = GetPdf(invoice, javascript);
-    cb( doc.output("datauristring"));
+    doc.getDataUrl = function(cb) {
+      cb( this.output("datauristring"));  
+    };    
   }
+  return doc;
 }
 
 function copyInvoice(orig) {
@@ -33366,9 +33370,10 @@ function GetPdfMake(invoice, javascript, callback) {
   var account = invoice.account;
   eval(javascript);
   doc = pdfMake.createPdf(dd);
-  doc.getDataUrl(callback);
-
-  return;
+  doc.save = function(fileName) {
+    this.download(fileName);
+  };
+  return doc;
 }
 function notesAndTerms(invoice)
 {

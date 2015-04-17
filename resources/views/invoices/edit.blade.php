@@ -704,7 +704,8 @@
 		var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
-    generatePDF(invoice, design, false, cb);
+    doc = generatePDF(invoice, design, false);
+    doc.getDataUrl(cb);
 	}
 
 	function getDesignJavascript() {
@@ -743,7 +744,8 @@
 			var design  = getDesignJavascript();
 			if (!design) return;
 			
-      generatePDF(invoice, design, true, function(pdfString){
+      doc = generatePDF(invoice, design, true);
+      doc.getDataUrl( function(pdfString){
         $('form.form-horizontal.warn-on-exit').append('<input type="hidden" name="pdfupload" value="'+pdfString+'">');
         submitAction('');	    
       });

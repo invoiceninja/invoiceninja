@@ -35,7 +35,8 @@
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
 
-      generatePDF(invoice, getDesignJavascript(), true, cb);
+      doc = generatePDF(invoice, getDesignJavascript(), true);
+      doc.getDataUrl(cb);
     }
 
     $(function() {   
