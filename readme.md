@@ -36,6 +36,7 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
 * [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
+* [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
 
 ### Documentation 
 
