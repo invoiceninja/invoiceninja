@@ -26,7 +26,7 @@
       }
     }
 
-    function getPDFString() {
+    function getPDFString(cb) {
       invoice.is_pro = {!! Auth::user()->isPro() ? 'true' : 'false' !!};
       invoice.account.hide_quantity = $('#hide_quantity').is(":checked");
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
@@ -35,11 +35,8 @@
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
 
-      var doc = generatePDF(invoice, getDesignJavascript(), true);
-      if (!doc) {
-        return;
-      }
-      return doc.output('datauristring');
+      doc = generatePDF(invoice, getDesignJavascript(), true);
+      doc.getDataUrl(cb);
     }
 
     $(function() {   

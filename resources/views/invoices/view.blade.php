@@ -47,10 +47,9 @@
 			invoice.is_quote = {{ $invoice->is_quote ? 'true' : 'false' }};
 			invoice.contact = {!! $contact->toJson() !!};
 
-			function getPDFString() {
-	  	  var doc = generatePDF(invoice, invoice.invoice_design.javascript);
-				if (!doc) return;
-				return doc.output('datauristring');
+			function getPDFString(cb) {
+	  	  doc = generatePDF(invoice, invoice.invoice_design.javascript);
+        doc.getDataUrl(cb);
 			}
 
 			$(function() {
@@ -59,7 +58,7 @@
 			
 			function onDownloadClick() {
 				var doc = generatePDF(invoice, invoice.invoice_design.javascript, true);
-                var fileName = invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice;
+        var fileName = invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice;
 				doc.save(fileName + '-' + invoice.invoice_number + '.pdf');
 			}
 

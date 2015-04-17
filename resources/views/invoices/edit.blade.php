@@ -700,13 +700,12 @@
         return invoice;
 	}
 
-	function getPDFString() {		
+	function getPDFString(cb) {		
 		var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
-		var doc = generatePDF(invoice, design);
-		if (!doc) return;
-		return doc.output('datauristring');
+    doc = generatePDF(invoice, design, false);
+    doc.getDataUrl(cb);
 	}
 
 	function getDesignJavascript() {
@@ -744,10 +743,13 @@
 			var invoice = createInvoiceModel();
 			var design  = getDesignJavascript();
 			if (!design) return;
-			var doc = generatePDF(invoice, design, true);
 			
-			$('form.form-horizontal.warn-on-exit').append('<input type="hidden" name="pdfupload" value="'+doc.output('datauristring')+'">');
-			submitAction('');
+      doc = generatePDF(invoice, design, true);
+      doc.getDataUrl( function(pdfString){
+        $('form.form-horizontal.warn-on-exit').append('<input type="hidden" name="pdfupload" value="'+pdfString+'">');
+        submitAction('');	    
+      });
+			
 		}
 	}
 
