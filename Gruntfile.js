@@ -119,31 +119,11 @@ module.exports = function(grunt) {
             process: false
         }
       }
-    },
-    dump_dir: {
-			fonts: {
-				options: {
-					pre: 'window.pdfMake = window.pdfMake || {}; window.pdfMake.vfs = ',
-					rootPath: 'public/pdffonts/'
-				},
-				files: {
-					'public/js/vfs_fonts.js': ['public/pdffonts/*' ]
-				}
-			}
-		},
+    }
   });
 
-  grunt.loadNpmTasks('grunt-dump-dir');
   grunt.loadNpmTasks('grunt-contrib-concat');
 
-  grunt.registerTask('default', ['buildFonts', 'concat']);
-
-	grunt.registerTask('fixVfsFonts', 'Adds semicolon to the end of vfs_fonts.js', function () {
-	      var file = grunt.file.read('public/js/vfs_fonts.js');
-	      file += ";";
-	      grunt.file.write('public/js/vfs_fonts.js', file);
-  	});
-
-	grunt.registerTask('buildFonts', [ 'dump_dir', 'fixVfsFonts' ]);
+  grunt.registerTask('default', ['concat']);
 
 };
