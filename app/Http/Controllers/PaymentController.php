@@ -246,8 +246,7 @@ class PaymentController extends BaseController
     private function getPaymentDetails($invitation, $input = null)
     {
         $invoice = $invitation->invoice;
-        $key = $invoice->invoice_number.'_details';
-        $gateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'))->gateway;
+        $key = $invoice->account_id.'-'.$invoice->invoice_number;
         $currencyCode = $invoice->client->currency ? $invoice->client->currency->code : ($invoice->account->currency ? $invoice->account->currency->code : 'USD');
 
         if ($input) {
@@ -568,6 +567,7 @@ class PaymentController extends BaseController
                 $invitation->transaction_reference = $ref;
                 $invitation->save();
 
+                Session::put('transaction_reference', $ref);
                 Session::save();
                 $response->redirect();
             } else {
@@ -630,6 +630,14 @@ class PaymentController extends BaseController
         $payerId = Request::query('PayerID');
         $token = Request::query('token');
 
+        if (!$token) {
+            $token = Session::pull('transaction_reference');
+        }
+
+        if (!$token) {
+            return redirect(NINJA_WEB_URL);
+        }
+
         $invitation = Invitation::with('invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('transaction_reference', '=', $token)->firstOrFail();
         $invoice = $invitation->invoice;
 
@@ -637,20 +645,26 @@ class PaymentController extends BaseController
         $gateway = self::createGateway($accountGateway);
 
         try {
-            $details = self::getPaymentDetails($invitation);
-            $response = $gateway->completePurchase($details)->send();
-            $ref = $response->getTransactionReference();
+            if (method_exists($gateway, 'completePurchase')) {
+                $details = self::getPaymentDetails($invitation);
+                $response = $gateway->completePurchase($details)->send();
+                $ref = $response->getTransactionReference();
 
-            if ($response->isSuccessful()) {
-                $payment = self::createPayment($invitation, $ref, $payerId);
+                if ($response->isSuccessful()) {
+                    $payment = self::createPayment($invitation, $ref, $payerId);
+                    Session::flash('message', trans('texts.applied_payment'));
 
-                Session::flash('message', trans('texts.applied_payment'));
+                    return Redirect::to('view/'.$invitation->invitation_key);
+                } else {
+                    $errorMessage = trans('texts.payment_error')."\n\n".$response->getMessage();
+                    Session::flash('error', $errorMessage);
+                    Utils::logError($errorMessage);
 
-                return Redirect::to('view/'.$invitation->invitation_key);
+                    return Redirect::to('view/'.$invitation->invitation_key);
+                }
             } else {
-                $errorMessage = trans('texts.payment_error')."\n\n".$response->getMessage();
-                Session::flash('error', $errorMessage);
-                Utils::logError($errorMessage);
+                $payment = self::createPayment($invitation, $token, $payerId);
+                Session::flash('message', trans('texts.applied_payment'));
 
                 return Redirect::to('view/'.$invitation->invitation_key);
             }

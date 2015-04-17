@@ -46,8 +46,8 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 ### Steps to setup from GitHub
 
 If you plan on submitting changes it's best to [fork the repo](https://help.github.com/articles/fork-a-repo), otherwise you can just checkout the code.
-
-    git clone https://github.com/hillelcoren/invoice-ninja.git ninja
+    
+    git clone git@github.com:hillelcoren/invoice-ninja.git ninja
     cd ninja
 
 Install Laravel packages using Composer

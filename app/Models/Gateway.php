@@ -22,6 +22,8 @@ class Gateway extends Eloquent
             $link = 'https://www.paypal.com/us/cgi-bin/webscr?cmd=_login-api-run';
         } elseif ($this->id == GATEWAY_TWO_CHECKOUT) {
             $link = 'https://www.2checkout.com/referral?r=2c37ac2298';
+        } elseif ($this->id == GATEWAY_BITPAY) {
+            $link = 'https://bitpay.com/dashboard/signup';
         }
 
         $key = 'texts.gateway_help_'.$this->id;

@@ -22,7 +22,7 @@
             @endforeach
         @endif
     @else
-        {!! Former::populateField('gateway_id', GATEWAY_AUTHORIZE_NET) !!}
+        {!! Former::populateField('gateway_id', GATEWAY_STRIPE) !!}
     @endif
         
     {!! Former::select('payment_type_id')
