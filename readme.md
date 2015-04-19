@@ -1,25 +1,11 @@
 # Invoice Ninja
-## Simple, Intuitive Invoicing
+## Free Open-Source Online Invoicing
 
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
 ##### Please [click here](https://bitnami.com/stack/invoice-ninja) to vote for us to be added to Bitnami's one-click install library
 
 If you'd like to use our code to sell your own invoicing app we have an affiliate program. Get in touch for more details.
-
-### Introduction
-
-Most online invoicing sites are expensive. They shouldn't be. The aim of this project is to provide a free, open-source alternative. Additionally, the hope is the codebase will serve as a sample site for Laravel as well as other JavaScript technologies.
-
-To setup the site you can either use this [zip file](https://www.invoiceninja.com/knowledgebase/self-host/) (easier to setup) or checkout the code from GitHub following the instructions below (easier to stay up to date).
-
-For a WAMP/MAMP/LAMP setup you can one-click install using Softaculous's [AMPPS](http://www.ampps.com/). To deploy the app with [Docker](http://www.docker.com/) you can use [this project](https://github.com/rollbrettler/Dockerfiles/tree/master/invoice-ninja).
-
-To connect follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). For discussion of the code please use the [Google Group](https://groups.google.com/d/forum/invoiceninja).
-
-If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
-
-Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kantorp-wegl.in](http://kantorp-wegl.in/).
 
 ### Features
 
@@ -41,60 +27,10 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 ### Documentation 
 
 * [Self Host](https://www.invoiceninja.com/knowledgebase/self-host/)
+* [Ubuntu and Apache](http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/)
+* [Debian and Nginx](https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/)
 * [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
 * [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
-
-### Steps to setup from GitHub
-
-If you plan on submitting changes it's best to [fork the repo](https://help.github.com/articles/fork-a-repo), otherwise you can just checkout the code.
-    
-    git clone git@github.com:hillelcoren/invoice-ninja.git ninja
-    cd ninja
-
-Install Laravel packages using Composer
-
-Note: you may be prompted for your Github user/pass due to their API limits. 
-
-    composer install
-
-Install JavaScript and HTML packages using Bower and NPM. This is optional, it's only needed if you want to modify the JavaScript.
-
-    bower install
-    npm install    
-
-Create database user and a database for ninja
-
-    CREATE SCHEMA `ninja` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-    CREATE USER 'ninja'@'localhost' IDENTIFIED BY 'ninja';
-    GRANT ALL PRIVILEGES ON `ninja`.* TO 'ninja'@'localhost';
-    FLUSH PRIVILEGES;
-
-Add public/ to your web server root then load / to configure the application.
-
-### Developer Notes
-
-* The application requires PHP >= 5.4.0
-* If you make any changes to the JavaScript files you need to run grunt to create the built files. See Gruntfile.js for more details.
-* The lookup tables are cached in memory (ie, Currencies, Timezones, Languages, etc). If you add a record to the database you need to clear the cache by uncommenting Cache::flush() in app/routes.php.
-* If you run into any composer errors try running composer dump-autoload. 
-
-### Ubuntu Notes
-
-    # Install php-mcrypt
-    apt-get install php5-mcrypt
-    sudo php5enmod mcrypt
-
-    # Install Composer
-    curl -sS https://getcomposer.org/installer | php
-    sudo mv composer.phar /usr/local/bin/composer
-
-    # Install Bower
-    sudo apt-get install npm nodejs-legacy
-    sudo npm install -g bower
-    sudo ln -s /usr/local/lib/node_modules/bower/bin/bower /usr/local/bin/bower
-
-    # Install Grunt (For development only)
-    npm install -g grunt-cli
 
 ### Frameworks/Libraries
 * [laravel/laravel](https://github.com/laravel/laravel) - A PHP Framework For Web Artisans
