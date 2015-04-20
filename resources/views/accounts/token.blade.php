@@ -10,7 +10,8 @@
 
   {!! Former::legend($title) !!}
 
-  <p>&nbsp;</p>
+<div class="panel panel-default">
+<div class="panel-body">
 
   @if ($token)
     {!! Former::populate($token) !!}    
@@ -18,7 +19,8 @@
 
   {!! Former::text('name') !!}
 
-  <p>&nbsp;</p>
+</div>
+</div>
   
   {!! Former::actions( 
       Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')),

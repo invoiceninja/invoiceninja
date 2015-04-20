@@ -18,7 +18,12 @@
 		<div class="col-md-6">
 
 
-			{!! Former::legend('organization') !!}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.organization') !!}</h3>
+          </div>
+            <div class="panel-body">
+			
 			{!! Former::text('name')->data_bind("attr { placeholder: placeholderName }") !!}
 			{!! Former::text('id_number') !!}
                         {!! Former::text('vat_number') !!}
@@ -33,8 +38,15 @@
 					{!! Former::text('custom_value2')->label($customLabel2) !!}
 				@endif
 			@endif
+            </div>
+            </div>
 
-			{!! Former::legend('address') !!}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.address') !!}</h3>
+          </div>
+            <div class="panel-body">
+        			
 			{!! Former::text('address1') !!}
 			{!! Former::text('address2') !!}
 			{!! Former::text('city') !!}
@@ -43,11 +55,18 @@
 			{!! Former::select('country_id')->addOption('','')
 				->fromQuery($countries, 'name', 'id') !!}
 
-
+        </div>
+        </div>
 		</div>
 		<div class="col-md-6">
 
-			{!! Former::legend('contacts') !!}
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.contacts') !!}</h3>
+          </div>
+            <div class="panel-body">
+
 			<div data-bind='template: { foreach: contacts,
 		                            beforeRemove: hideContact,
 		                            afterAdd: showContact }'>
@@ -68,18 +87,27 @@
 					</div>
 				</div>
 			</div>
+            </div>
+            </div>
 
-			{!! Former::legend('additional_info') !!}
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.additional_info') !!}</h3>
+          </div>
+            <div class="panel-body">
+			
+            {!! Former::select('currency_id')->addOption('','')
+                ->fromQuery($currencies, 'name', 'id') !!}
 			{!! Former::select('payment_terms')->addOption('','')
 				->fromQuery($paymentTerms, 'name', 'num_days') !!}
-			{!! Former::select('currency_id')->addOption('','')
-				->fromQuery($currencies, 'name', 'id') !!}
 			{!! Former::select('size_id')->addOption('','')
 				->fromQuery($sizes, 'name', 'id') !!}
 			{!! Former::select('industry_id')->addOption('','')
 				->fromQuery($industries, 'name', 'id') !!}
 			{!! Former::textarea('private_notes') !!}
-
+            </div>
+            </div>
 
 		</div>
 	</div>

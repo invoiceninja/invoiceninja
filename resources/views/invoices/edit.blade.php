@@ -30,9 +30,13 @@
 		'product_key' => 'max:20'
 	)) !!}	
 
+
 	<input type="submit" style="display:none" name="submitButton" id="submitButton">
 
 	<div data-bind="with: invoice">
+    <div class="panel panel-default">
+    <div class="panel-body">
+
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-4" id="col_1">
 
@@ -175,7 +179,7 @@
 		<tfoot>
 			<tr>
 				<td class="hide-border"/>
-				<td colspan="2" rowspan="6" style="vertical-align:top">
+				<td class="hide-border" colspan="2" rowspan="6" style="vertical-align:top">
 					<br/>
                     <div role="tabpanel">
 
@@ -275,9 +279,9 @@
 
 			<tr>
 				<td class="hide-border" colspan="3"/>
-				<td style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
-				<td colspan="{{ $account->hide_quantity ? 1 : 2 }}"><b>{{ trans($entityType == ENTITY_INVOICE ? 'texts.balance_due' : 'texts.total') }}</b></td>
-				<td style="text-align: right"><span data-bind="text: totals.total"></span></td>
+				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+				<td class="hide-border" colspan="{{ $account->hide_quantity ? 1 : 2 }}"><b>{{ trans($entityType == ENTITY_INVOICE ? 'texts.balance_due' : 'texts.total') }}</b></td>
+				<td class="hide-border" style="text-align: right"><span data-bind="text: totals.total"></span></td>
 			</tr>
 
 		</tfoot>
@@ -285,7 +289,9 @@
 
 	</table>
 	</div>
-
+    </div>
+    </div>
+    
 	<p>&nbsp;</p>
 	<div class="form-actions">
 
@@ -302,9 +308,9 @@
 
 
 		@if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS)
-			{!! Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
+			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
 		@else 
-			{!! Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
+			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
 		{!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}	
@@ -372,96 +378,105 @@
 	@endif
 
 	<div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
-	  <div class="modal-dialog large-dialog">
-	    <div class="modal-content">
+	  <div class="modal-dialog" data-bind="css: {'large-dialog': $root.showMore}">
+	    <div class="modal-content" style="background-color: #f8f8f8">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 	        <h4 class="modal-title" id="clientModalLabel">{{ trans('texts.client') }}</h4>
 	      </div>
 
-	      <div class="container" style="width: 100%">
-		<div style="background-color: #fff" class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
-			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
+       <div class="container" style="width: 100%; padding-bottom: 0px !important">
+       <div class="panel panel-default">
+        <div class="panel-body">
 
-				{!! Former::legend('organization') !!}
-				{!! Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }") !!}
-                                {!! Former::text('id_number')->data_bind("value: id_number, valueUpdate: 'afterkeydown'") !!}
-                                {!! Former::text('vat_number')->data_bind("value: vat_number, valueUpdate: 'afterkeydown'") !!}
-                
-				{!! Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") !!}
+        <div class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
+            <div style="margin-left:0px;margin-right:0px" data-bind="css: {'col-md-6': $root.showMore}">
 
-				@if (Auth::user()->isPro())				
-					@if ($account->custom_client_label1)
-						{!! Former::text('custom_value1')->label($account->custom_client_label1)
-							->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") !!}
-					@endif
-					@if ($account->custom_client_label2)
-						{!! Former::text('custom_value2')->label($account->custom_client_label2)
-							->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") !!}
-					@endif
-				@endif				
-				
-				{!! Former::legend('address') !!}
-				{!! Former::text('address1')->data_bind("value: address1, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('address2')->data_bind("value: address2, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::select('country_id')->addOption('','')->addGroupClass('country_select')
-					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") !!}
-					
-			</div>
-			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
+                {!! Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }")->label('client_name') !!}
+                <span data-bind="visible: $root.showMore">
+                    {!! Former::text('id_number')->data_bind("value: id_number, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('vat_number')->data_bind("value: vat_number, valueUpdate: 'afterkeydown'") !!}
+                    
+                    {!! Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") !!}
 
+                    @if (Auth::user()->isPro())             
+                        @if ($account->custom_client_label1)
+                            {!! Former::text('custom_value1')->label($account->custom_client_label1)
+                                ->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") !!}
+                        @endif
+                        @if ($account->custom_client_label2)
+                            {!! Former::text('custom_value2')->label($account->custom_client_label2)
+                                ->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") !!}
+                        @endif
+                    @endif              
 
-				{!! Former::legend('contacts') !!}
-				<div data-bind='template: { foreach: contacts,
-			                            beforeRemove: hideContact,
-			                            afterAdd: showContact }'>
-					{!! Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown'") !!}
-					{!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") !!}
-					{!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") !!}
-					{!! Former::text('email')->data_bind('value: email, valueUpdate: \'afterkeydown\', attr: {id:\'email\'+$index()}') !!}
-					{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") !!}
+                    &nbsp;
 
-					<div class="form-group">
-						<div class="col-lg-8 col-lg-offset-4">
-							<span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
-								{!! link_to('#', trans('texts.remove_contact').' -', array('data-bind'=>'click: $parent.removeContact')) !!}
-							</span>					
-							<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right greenlink bold">
-								{!! link_to('#', trans('texts.add_contact').' +', array('data-bind'=>'click: $parent.addContact')) !!}
-							</span>
-						</div>
-					</div>
-				</div>
+                    {!! Former::text('address1')->data_bind("value: address1, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('address2')->data_bind("value: address2, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::select('country_id')->addOption('','')->addGroupClass('country_select')
+                        ->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") !!}
+                </span>
 
-				{!! Former::legend('additional_info') !!}
-				{!! Former::select('payment_terms')->addOption('','0')->data_bind('value: payment_terms')
-					->fromQuery($paymentTerms, 'name', 'num_days') !!}
-				{!! Former::select('currency_id')->addOption('','')->data_bind('value: currency_id')
-					->fromQuery($currencies, 'name', 'id') !!}
-				{!! Former::select('size_id')->addOption('','')->data_bind('value: size_id')
-					->fromQuery($sizes, 'name', 'id') !!}
-				{!! Former::select('industry_id')->addOption('','')->data_bind('value: industry_id')
-					->fromQuery($industries, 'name', 'id') !!}
-				{!! Former::textarea('private_notes')->data_bind('value: private_notes') !!}
+            </div>
+            <div style="margin-left:0px;margin-right:0px" data-bind="css: {'col-md-6': $root.showMore}">
 
+                <div data-bind='template: { foreach: contacts,
+                                        beforeRemove: hideContact,
+                                        afterAdd: showContact }'>
+                    {!! Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('email')->data_bind('value: email, valueUpdate: \'afterkeydown\', attr: {id:\'email\'+$index()}') !!}                    
+                    {!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") !!}                    
+                    <div class="form-group">
+                        <div class="col-lg-8 col-lg-offset-4">
+                            <span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
+                                {!! link_to('#', trans('texts.remove_contact').' -', array('data-bind'=>'click: $parent.removeContact')) !!}
+                            </span>                 
+                            <span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right greenlink bold">
+                                {!! link_to('#', trans('texts.add_contact').' +', array('data-bind'=>'click: $parent.addContact')) !!}
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-			</div>
-		</div>
-		</div>
+                <span data-bind="visible: $root.showMore">                
+                    &nbsp;
+                </span>
 
-	     <div class="modal-footer" style="margin-top: 0px">
-	      	<span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">{{ trans('texts.provide_email') }}</span><span>&nbsp;</span>
-	      	<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-	        <button id="clientDoneButton" type="button" class="btn btn-primary" data-bind="click: $root.clientFormComplete">{{ trans('texts.done') }}</button>	      	
-	     </div>
-	  		
-	    </div>
-	  </div>
-	</div>
+                {!! Former::select('currency_id')->addOption('','')->data_bind('value: currency_id')
+                    ->fromQuery($currencies, 'name', 'id') !!}
+
+                <span data-bind="visible: $root.showMore">                
+                {!! Former::select('payment_terms')->addOption('','0')->data_bind('value: payment_terms')
+                    ->fromQuery($paymentTerms, 'name', 'num_days') !!}
+                {!! Former::select('size_id')->addOption('','')->data_bind('value: size_id')
+                    ->fromQuery($sizes, 'name', 'id') !!}
+                {!! Former::select('industry_id')->addOption('','')->data_bind('value: industry_id')
+                    ->fromQuery($industries, 'name', 'id') !!}
+                {!! Former::textarea('private_notes')->data_bind('value: private_notes') !!}
+                </span>
+            </div>
+            </div>
+        </div>
+        </div>
+        </div>
+
+         <div class="modal-footer" style="margin-top: 0px; padding-top:0px;">
+            <span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">{{ trans('texts.provide_email') }}</span><span>&nbsp;</span>
+            <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
+            <button type="button" class="btn btn-default" data-bind="click: $root.showMoreFields, text: $root.showMore() ? '{{ trans('texts.less_fields') }}' : '{{ trans('texts.more_fields') }}'"></button>
+            <button id="clientDoneButton" type="button" class="btn btn-primary" data-bind="click: $root.clientFormComplete">{{ trans('texts.done') }}</button>          
+         </div>
+            
+        </div>
+      </div>
+    </div>
 
 	<div class="modal fade" id="taxModal" tabindex="-1" role="dialog" aria-labelledby="taxModalLabel" aria-hidden="true">
 	  <div class="modal-dialog">
@@ -538,8 +553,7 @@
 
 	{!! Former::close() !!}
 
-
-	</div>
+    </div>
 
 	<script type="text/javascript">
 	
@@ -857,6 +871,7 @@
 
 	function ViewModel(data) {
 		var self = this;
+        self.showMore = ko.observable(false);
 		//self.invoice = data ? false : new InvoiceModel();
 		self.invoice = ko.observable(data ? false : new InvoiceModel());
 		self.tax_rates = ko.observableArray();
@@ -865,6 +880,10 @@
 			ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
 			self.setDueDate();
 		}
+
+        self.showMoreFields = function() {
+            self.showMore(!self.showMore());
+        }
 
 		self.setDueDate = function() {
 			var paymentTerms = parseInt(self.invoice().client().payment_terms());

@@ -113,7 +113,8 @@
 
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="text" id="search" class="form-control" placeholder="{{ trans('texts.search') }}">
+          <input type="text" id="search" style="width: 160px" 
+            class="form-control" placeholder="{{ trans('texts.search') }}">
         </div>
       </form>
 

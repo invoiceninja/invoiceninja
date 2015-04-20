@@ -10,6 +10,9 @@
 
   {!! Former::legend($title) !!}
 
+  <div class="panel panel-default">
+  <div class="panel-body">
+
   @if ($product)
     {{ Former::populate($product) }}
     {{ Former::populateField('cost', number_format($product->cost, 2, '.', '')) }}
@@ -18,6 +21,9 @@
   {!! Former::text('product_key')->label('texts.product') !!}
   {!! Former::textarea('notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'") !!}
   {!! Former::text('cost') !!}
+
+  </div>
+  </div>
 
   {!! Former::actions( 
       Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')),

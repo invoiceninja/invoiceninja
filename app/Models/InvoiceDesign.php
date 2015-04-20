@@ -11,12 +11,11 @@ class InvoiceDesign extends Eloquent
        
       foreach($designs as $design) {
         if($design->filename) {
-          $fileName = public_path($design->filename);
+          $fileName = public_path(strtolower("js/templates/{$design->name}.js"));
           if(file_exists($fileName)) {
             $design->javascript = file_get_contents($fileName);
           }
         }
-        
       }
       
       return $designs;

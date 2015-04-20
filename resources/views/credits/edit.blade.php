@@ -14,18 +14,23 @@
 	)) !!}
 	
 	<div class="row">
-		<div class="col-md-8">
+        <div class="col-md-8 col-md-offset-2">
+
+            <div class="panel panel-default">
+            <div class="panel-body">
 
 			{!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
 			{!! Former::text('amount') !!}
 			{!! Former::text('credit_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 			{!! Former::textarea('private_notes') !!}
 
-		</div>
-		<div class="col-md-6">
+            </div>
+            </div>
 
-		</div>
-	</div>
+        </div>
+    </div>
+
+
 	<center class="buttons">
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo('/credits')->appendIcon(Icon::create('remove-circle')) !!}

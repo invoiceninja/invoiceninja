@@ -1,5 +1,6 @@
 body { background: #f8f8f8 !important;
     font-family: 'Roboto', sans-serif;
+    font-size: 15px;
 }
 .bold { font-weight: 700; }
 a {color:#0b4d78;}
@@ -38,8 +39,8 @@ height: 40px;
 padding: 9px 12px;
 font-size: 14px;
 line-height: 1.42857143;
-color: #555;
-background-color: #fff;
+color: #000 !important;
+background: #f9f9f9 !important;
 background-image: none;
 border: 1px solid #dfe0e1;
 border-radius: 2px;
@@ -804,4 +805,28 @@ body.modal-open { overflow:inherit; padding-right:inherit !important; }
 
 div.checkbox > label {
     padding-left: 0px !important;
+}
+
+.container input[type=text],
+.container input[type=email],
+.container textarea,
+.container select {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    width: 100%;
+    color: #000 !important;
+    background: #f9f9f9 !important;
+    border: 1px solid #ebe7e7;
+    border-radius: 3px;
+}
+
+.container input[placeholder],
+.container textarea[placeholder],
+.container select[placeholder] {
+   color: #444444;
+}
+
+.panel-title {
+    font-size: 18px;
 }

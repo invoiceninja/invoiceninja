@@ -16,9 +16,15 @@
     {!! Former::populate($user) !!}    
   @endif
 
+<div class="panel panel-default">
+<div class="panel-body">
+
   {!! Former::text('first_name') !!}
   {!! Former::text('last_name') !!}
   {!! Former::text('email') !!}
+
+</div>
+</div>
 
   {!! Former::actions( 
       Button::success(trans($user && $user->confirmed ? 'texts.save' : 'texts.send_invite'))->submit()->large()->appendIcon(Icon::create($user && $user->confirmed ? 'floppy-disk' : 'send')),

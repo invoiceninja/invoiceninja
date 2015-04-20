@@ -593,5 +593,8 @@ return array(
   'partial' => 'Partial',
   'partial_remaining' => ':partial of :balance',
 
+  'more_fields' => 'More Fields',
+  'less_fields' => 'Less Fields',
+  'client_name' => 'Client Name',
 
 );

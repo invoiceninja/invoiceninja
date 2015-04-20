@@ -22,6 +22,9 @@
 		<div class="col-lg-4">
 
 			{!! Former::open()->addClass('warn-on-exit') !!}
+            
+            <div class="panel panel-default">
+            <div class="panel-body">    
 			{!! Former::populateField('start_date', $startDate) !!}
 			{!! Former::populateField('end_date', $endDate) !!}
 			{!! Former::select('chart_type')->options($chartTypes, $chartType) !!}
@@ -30,6 +33,8 @@
 					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') !!}
 			{!! Former::text('end_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
 					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') !!}
+            </div>
+            </div>
 
 			@if (Auth::user()->isPro())
 				{!! Former::actions( Button::primary('Generate')->submit() ) !!}

@@ -17,9 +17,13 @@
     @if ($payment)
         {!! Former::populate($payment) !!}
     @endif
+
 	
 	<div class="row">
-		<div class="col-md-8">
+		<div class="col-md-8 col-md-offset-2">
+
+            <div class="panel panel-default">
+            <div class="panel-body">
 
             @if (!$payment)                        
 			 {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
@@ -32,11 +36,12 @@
 			{!! Former::text('payment_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 			{!! Former::text('transaction_reference') !!}
 
-		</div>
-		<div class="col-md-6">
+            </div>
+            </div>
 
 		</div>
 	</div>
+
 
 	<center class="buttons">
         {!! Button::success(trans('texts.save'))->appendIcon(Icon::create('floppy-disk'))->submit()->large() !!}

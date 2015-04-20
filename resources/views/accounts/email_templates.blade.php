@@ -15,45 +15,59 @@
     @parent
     @include('accounts.nav_advanced')
 
-    {!! Former::open()->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!}
+    {!! Former::open()->addClass('col-md-10 col-md-offset-1 warn-on-exit') !!}
     {!! Former::populateField('email_template_invoice', $invoiceEmail) !!}
     {!! Former::populateField('email_template_quote', $quoteEmail) !!}
     {!! Former::populateField('email_template_payment', $paymentEmail) !!}
 
-    {!! Former::legend('invoice_email') !!}
-    <div class="row">
-        <div class="col-md-7">
-            {!! Former::textarea('email_template_invoice')->raw() !!}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.invoice_email') !!}</h3>
+      </div>
+        <div class="panel-body">
+        <div class="row">
+            <div class="col-md-6">
+                {!! Former::textarea('email_template_invoice')->raw() !!}
+            </div>
+            <div class="col-md-6" id="invoice_preview"></div>
         </div>
-        <div class="col-md-5" id="invoice_preview"></div>
+        </div>
     </div>
 
-    <p>&nbsp;</p>
-
-    {!! Former::legend('quote_email') !!}
-    <div class="row">
-        <div class="col-md-7">
-            {!! Former::textarea('email_template_quote')->raw() !!}
+    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.quote_email') !!}</h3>
+      </div>
+        <div class="panel-body">
+        <div class="row">
+            <div class="col-md-6">
+                {!! Former::textarea('email_template_quote')->raw() !!}
+            </div>
+            <div class="col-md-6" id="quote_preview"></div>
         </div>
-        <div class="col-md-5" id="quote_preview"></div>
+        </div>
     </div>
 
-    <p>&nbsp;</p>
 
-    {!! Former::legend('payment_email') !!}
-    <div class="row">
-        <div class="col-md-7">
-            {!! Former::textarea('email_template_payment')->raw() !!}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.payment_email') !!}</h3>
+      </div>
+        <div class="panel-body">
+        <div class="row">
+            <div class="col-md-6">
+                {!! Former::textarea('email_template_payment')->raw() !!}
+            </div>
+            <div class="col-md-6" id="payment_preview"></div>
         </div>
-        <div class="col-md-5" id="payment_preview"></div>
+        </div>
     </div>
-
-    <p>&nbsp;</p>
 
     @if (Auth::user()->isPro())
-        {!! Former::actions( 
-            Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
-        ) !!}
+        <center>
+            {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+        </center>
     @else
         <script>
             $(function() {
