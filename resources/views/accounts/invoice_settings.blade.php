@@ -4,7 +4,7 @@
     @parent
 
         <style type="text/css">
-            div.checkbox {
+            .input-group-addon div.checkbox {
                 display: inline;
             }
             span.input-group-addon {
@@ -18,10 +18,12 @@
 	@include('accounts.nav_advanced')
 
 	{!! Former::open()->addClass('warn-on-exit') !!}
-	{!! Former::populate($account) !!}
-	{!! Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) !!}
-	{!! Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) !!}
-  {!! Former::populateField('share_counter', intval($account->share_counter)) !!}
+	{{ Former::populate($account) }}
+	{{ Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) }}
+	{{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}
+    {{ Former::populateField('share_counter', intval($account->share_counter)) }}
+    {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
+    {{ Former::populateField('utf8_invoices', intval($account->utf8_invoices)) }}
 
 <div class="row">
     <div class="col-md-6">
@@ -94,7 +96,8 @@
         <h3 class="panel-title">{!! trans('texts.email_settings') !!}</h3>
       </div>
         <div class="panel-body">        	   
-	   {!! Former::checkbox('pdf_email_attachment') !!}
+       {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
+       {!! Former::checkbox('utf8_invoices')->text(trans('texts.enable')) !!}
 	</div>
     </div>
     </div>

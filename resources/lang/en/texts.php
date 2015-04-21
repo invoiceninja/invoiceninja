@@ -596,5 +596,8 @@ return array(
   'more_fields' => 'More Fields',
   'less_fields' => 'Less Fields',
   'client_name' => 'Client Name',
+  'pdf_settings' => 'PDFF Settings',
+  'utf8_invoices' => 'UTF-8 Support <sup>Beta</sup>',
+
 
 );
