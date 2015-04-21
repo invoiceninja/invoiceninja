@@ -24,7 +24,7 @@
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}" />
 
     <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    
-    <script src="{{ asset('js/vfs_fonts.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    
+    <script src="{{ asset('js/vfs_fonts.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
     <script type="text/javascript">
         var NINJA = NINJA || {};      

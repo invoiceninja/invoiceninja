@@ -2408,13 +2408,13 @@ div.checkbox > label {
 .container input[type=email],
 .container textarea,
 .container select {
-    font-family: 'Roboto', sans-serif;
+    /*font-family: 'Roboto', sans-serif;*/
     font-size: 16px;
     font-weight: 400;
     width: 100%;
     color: #000 !important;
     background: #f9f9f9 !important;
-    border: 1px solid #ebe7e7;
+    /*border: 1px solid #ebe7e7;*/
     border-radius: 3px;
 }
 

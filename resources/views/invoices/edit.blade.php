@@ -718,8 +718,10 @@
 		var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
-    doc = generatePDF(invoice, design, false);
-    doc.getDataUrl(cb);
+        doc = generatePDF(invoice, design, false);
+        if (!doc) return;
+        //return doc.output('datauristring');
+        doc.getDataUrl(cb);
 	}
 
 	function getDesignJavascript() {
@@ -878,7 +880,9 @@
 
 		self.loadClient = function(client) {
 			ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
-			self.setDueDate();
+            @if (!$invoice)
+			 self.setDueDate();
+            @endif
 		}
 
         self.showMoreFields = function() {
@@ -886,6 +890,7 @@
         }
 
 		self.setDueDate = function() {
+            @if ($entityType == ENTITY_INVOICE)
 			var paymentTerms = parseInt(self.invoice().client().payment_terms());
 			if (paymentTerms && !self.invoice().due_date())
 			{
@@ -895,6 +900,7 @@
 				// We're using the datepicker to handle the date formatting 
 				self.invoice().due_date($('#due_date').val());
 			}			
+            @endif
 		}
 
 		self.invoice_taxes = ko.observable({{ Auth::user()->account->invoice_taxes ? 'true' : 'false' }});
@@ -1122,7 +1128,7 @@
 		self.mapping = {
 			'client': {
 		        create: function(options) {
-		            return new ClientModel(options.data);
+                    return new ClientModel(options.data);
 		        }
 			},
 		    'invoice_items': {
@@ -1148,7 +1154,6 @@
 
         if (data) {
 			ko.mapping.fromJS(data, self.mapping, self);			
-			self.is_recurring(parseInt(data.is_recurring));
 		} else {
 			self.addItem();
 		}
@@ -1353,19 +1358,18 @@
 		self.mapping = {
 	    	'contacts': {
 	        	create: function(options) {
-	        			var model = new ContactModel(options.data);
-	        			model.send_invoice(options.data.send_invoice == '1');
-	        			return model;
+	        		var model = new ContactModel(options.data);
+	        		model.send_invoice(options.data.send_invoice == '1');
+	        		return model;
 	        	}
 	    	}
 		}
-
 
 		self.showContact = function(elem) { if (elem.nodeType === 1) $(elem).hide().slideDown() }
 		self.hideContact = function(elem) { if (elem.nodeType === 1) $(elem).slideUp(function() { $(elem).remove(); }) }
 
 		self.addContact = function() {
-			var contact = new ContactModel();
+            var contact = new ContactModel();
 			contact.send_invoice(true);
 			self.contacts.push(contact);
 			return false;
@@ -1676,7 +1680,7 @@
 	}
 
 	@if ($data)
-		window.model = new ViewModel({!! $data !!});
+		window.model = new ViewModel({!! $data !!});        
 	@else 
 		window.model = new ViewModel();
 		model.addTaxRate();
@@ -1686,9 +1690,6 @@
 		@if ($invoice)
 			var invoice = {!! $invoice !!};
 			ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);			
-			if (model.invoice().is_recurring() === '0') {
-				model.invoice().is_recurring(false);
-			}
             if (NINJA.parseFloat(model.invoice().partial())) {
                 model.invoice().is_partial(true);
             }

@@ -1,15 +1,18 @@
 function GetPdfMake(invoice, javascript, callback) {
   var account = invoice.account;
   eval(javascript);
+
+  /*
   var fonts = {
         Roboto: {
                 normal: 'Roboto-Regular.ttf',
                 bold: 'Roboto-Medium.ttf',
                 italics: 'Roboto-Italic.ttf',
                 bolditalics: 'Roboto-Italic.ttf'
-        }
+        },
     };
-
+  */
+  
   doc = pdfMake.createPdf(dd);
   doc.save = function(fileName) {
     this.download(fileName);

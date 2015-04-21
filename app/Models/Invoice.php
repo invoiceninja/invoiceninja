@@ -7,6 +7,10 @@ class Invoice extends EntityModel
     use SoftDeletes;
     protected $dates = ['deleted_at'];
 
+    protected $casts = [
+        'is_recurring' => 'boolean',
+    ];
+
     public function account()
     {
         return $this->belongsTo('App\Models\Account');

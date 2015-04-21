@@ -43,6 +43,8 @@
 	</small></h3>
 	@endif
 
+    <div class="panel panel-default">
+    <div class="panel-body">
 	<div class="row">
 
 		<div class="col-md-3">
@@ -139,8 +141,8 @@
 
 		</div>
 	</div>
-
-	<p>&nbsp;</p>
+    </div>
+    </div>
 
 	<ul class="nav nav-tabs nav-justified">
 		{!! HTML::tab_link('#activity', trans('texts.activity'), true) !!}

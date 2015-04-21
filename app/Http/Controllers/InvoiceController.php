@@ -10,6 +10,7 @@ use Redirect;
 use DB;
 use Event;
 use URL;
+use Datatable;
 
 use App\Models\Invoice;
 use App\Models\Invitation;
