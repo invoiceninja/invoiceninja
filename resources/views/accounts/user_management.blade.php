@@ -5,7 +5,6 @@
 	@include('accounts.nav_advanced')
 
   {!! Former::open('users/delete')->addClass('user-form') !!}
-  {!! Former::legend('user_management') !!}
 
   <div style="display:none">
     {!! Former::text('userPublicId') !!}

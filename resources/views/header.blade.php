@@ -23,6 +23,256 @@
 
   @include('script')
 
+<script type="text/javascript">
+
+  function setTheme(id)
+  {
+    $('#theme_id').val(id);
+    $('form.themeForm').submit();
+  }
+
+  @if (!Auth::check() || !Auth::user()->registered)
+  function validateSignUp(showError) 
+  {
+    var isFormValid = true;
+    $(['first_name','last_name','email','password']).each(function(i, field) {
+      var $input = $('form.signUpForm #new_'+field),
+      val = $.trim($input.val());      
+      var isValid = val && val.length >= (field == 'password' ? 6 : 1);
+      if (isValid && field == 'email') {
+        isValid = isValidEmailAddress(val);
+      }
+      if (isValid) {
+        $input.closest('div.form-group').removeClass('has-error').addClass('has-success');
+      } else {
+        isFormValid = false;
+        $input.closest('div.form-group').removeClass('has-success');
+        if (showError) {
+          $input.closest('div.form-group').addClass('has-error');
+        }
+      }
+    });
+
+    if (!$('#terms_checkbox').is(':checked')) {
+      isFormValid = false;
+    }
+
+    $('#saveSignUpButton').prop('disabled', !isFormValid);
+
+    return isFormValid;
+  }
+
+  function validateServerSignUp()
+  {
+    if (!validateSignUp(true)) {
+      return;
+    }
+
+    $('#signUpDiv, #signUpFooter').hide();
+    $('#working').show();
+
+    $.ajax({
+      type: 'POST',
+      url: '{{ URL::to('signup/validate') }}',
+      data: 'email=' + $('form.signUpForm #new_email').val(),
+      success: function(result) { 
+        if (result == 'available') {                        
+          submitSignUp();
+        } else {
+          $('#errorTaken').show();
+          $('form.signUpForm #new_email').closest('div.form-group').removeClass('has-success').addClass('has-error');
+          $('#signUpDiv, #signUpFooter').show();
+          $('#working').hide();
+        }
+      }
+    });         
+  }
+
+  function submitSignUp() {
+    $.ajax({
+      type: 'POST',
+      url: '{{ URL::to('signup/submit') }}',
+      data: 'new_email=' + encodeURIComponent($('form.signUpForm #new_email').val()) + 
+      '&new_password=' + encodeURIComponent($('form.signUpForm #new_password').val()) + 
+      '&new_first_name=' + encodeURIComponent($('form.signUpForm #new_first_name').val()) + 
+      '&new_last_name=' + encodeURIComponent($('form.signUpForm #new_last_name').val()) +
+      '&go_pro=' + $('#go_pro').val(),
+      success: function(result) { 
+        if (result) {
+          localStorage.setItem('guest_key', '');
+          trackUrl('/signed_up');
+          NINJA.isRegistered = true;
+          $('#signUpButton').hide();
+          $('#myAccountButton').html(result);          
+        }            
+        $('#signUpSuccessDiv, #signUpFooter, #closeSignUpButton').show();
+        $('#working, #saveSignUpButton').hide();
+      }
+    });     
+  }      
+
+  function checkForEnter(event)
+  {
+    if (event.keyCode === 13){
+      event.preventDefault();               
+      validateServerSignUp();
+      return false;
+    }
+  }
+  @endif
+
+  function logout(force)
+  {
+    if (force) {
+      NINJA.formIsChanged = false;
+    }
+
+    if (force || NINJA.isRegistered) {            
+      window.location = '{{ URL::to('logout') }}';
+    } else {
+      $('#logoutModal').modal('show');  
+    }
+  }
+
+  function showSignUp() {    
+    $('#signUpModal').modal('show');    
+  }
+
+  function buyProduct(affiliateKey, productId) {
+    window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/license?affiliate_key=' + affiliateKey + '&product_id=' + productId + '&return_url=' + window.location);
+  }
+
+  @if (Auth::check() && !Auth::user()->isPro())
+  var proPlanFeature = false;
+  function showProPlan(feature) {
+    proPlanFeature = feature;
+    $('#proPlanModal').modal('show');       
+    trackUrl('/view_pro_plan/' + feature);
+  }
+
+  function submitProPlan() {
+    trackUrl('/submit_pro_plan/' + proPlanFeature);
+    if (NINJA.isRegistered) {
+      $('#proPlanDiv, #proPlanFooter').hide();
+      $('#proPlanWorking').show();
+
+      $.ajax({
+        type: 'POST',
+        url: '{{ URL::to('account/go_pro') }}',
+        success: function(result) { 
+          NINJA.formIsChanged = false;
+          window.location = '{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/view/' + result;
+        }
+      });     
+    } else {
+      $('#proPlanModal').modal('hide');
+      $('#go_pro').val('true');
+      showSignUp();
+    }
+  }
+  @endif
+
+  function hideMessage() {
+    $('.alert-info').fadeOut();
+    $.get('/hide_message', function(response) {
+      console.log('Reponse: %s', response);
+    });
+  }
+
+  function wordWrapText(value, width)
+  {
+    @if (Auth::user()->account->auto_wrap)
+    var doc = new jsPDF('p', 'pt');
+    doc.setFont('Helvetica','');
+    doc.setFontSize(10);
+
+    var lines = value.split("\n");
+    for (var i = 0; i < lines.length; i++) {
+      var numLines = doc.splitTextToSize(lines[i], width).length;
+      if (numLines <= 1) continue;
+      var j = 0; space = lines[i].length;
+      while (j++ < lines[i].length) {
+        if (lines[i].charAt(j) === ' ') space = j;
+      }
+      if (space == lines[i].length) space = width/6;
+      lines[i + 1] = lines[i].substring(space + 1) + ' ' + (lines[i + 1] || '');
+      lines[i] = lines[i].substring(0, space);
+    }
+
+    var newValue = (lines.join("\n")).trim();
+
+    if (value == newValue) {
+      return newValue;
+    } else {
+      return wordWrapText(newValue, width);
+    }
+    @else
+    return value;
+    @endif
+  }
+
+
+  $(function() {
+    $('#search').focus(function(){
+      if (!window.hasOwnProperty('searchData')) {
+        $.get('{{ URL::route('getSearchData') }}', function(data) {                         
+          window.searchData = true;                     
+          var datasets = [];
+          for (var type in data)
+          {                             
+            if (!data.hasOwnProperty(type)) continue;                           
+            datasets.push({
+              name: type,
+              header: '&nbsp;<b>' + type  + '</b>',                                 
+              local: data[type]
+            });                                                         
+          }
+          if (datasets.length == 0) {
+            return;
+          }
+          $('#search').typeahead(datasets).on('typeahead:selected', function(element, datum, name) {
+            var type = name == 'Contacts' ? 'clients' : name.toLowerCase();
+            window.location = '{{ URL::to('/') }}' + '/' + type + '/' + datum.public_id;
+          }).focus().typeahead('setQuery', $('#search').val());                         
+        });
+      }
+    });
+
+
+    if (isStorageSupported()) {
+      @if (Auth::check() && !Auth::user()->registered)
+      localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
+      @endif
+    }
+
+    @if (!Auth::check() || !Auth::user()->registered)
+    validateSignUp();
+
+    $('#signUpModal').on('shown.bs.modal', function () {
+      trackUrl('/view_sign_up');
+      $(['first_name','last_name','email','password']).each(function(i, field) {
+        var $input = $('form.signUpForm #new_'+field);
+        if (!$input.val()) {
+          $input.focus();                       
+          return false;
+        }
+      });
+    })
+    @endif
+
+    @if (Auth::check() && !Utils::isNinja() && !Auth::user()->registered)
+      $('#closeSignUpButton').hide();
+      showSignUp(); 
+    @elseif(Session::get('sign_up') || Input::get('sign_up'))
+      showSignUp();
+    @endif
+
+    @yield('onReady')
+
+  });
+
+</script>  
+
 @stop
 
 @section('body')
@@ -349,223 +599,6 @@
 @endif
 
 <p>&nbsp;</p>
-
-<script type="text/javascript">
-
-  function setTheme(id)
-  {
-    $('#theme_id').val(id);
-    $('form.themeForm').submit();
-  }
-
-  @if (!Auth::check() || !Auth::user()->registered)
-  function validateSignUp(showError) 
-  {
-    var isFormValid = true;
-    $(['first_name','last_name','email','password']).each(function(i, field) {
-      var $input = $('form.signUpForm #new_'+field),
-      val = $.trim($input.val());      
-      var isValid = val && val.length >= (field == 'password' ? 6 : 1);
-      if (isValid && field == 'email') {
-        isValid = isValidEmailAddress(val);
-      }
-      if (isValid) {
-        $input.closest('div.form-group').removeClass('has-error').addClass('has-success');
-      } else {
-        isFormValid = false;
-        $input.closest('div.form-group').removeClass('has-success');
-        if (showError) {
-          $input.closest('div.form-group').addClass('has-error');
-        }
-      }
-    });
-
-    if (!$('#terms_checkbox').is(':checked')) {
-      isFormValid = false;
-    }
-
-    $('#saveSignUpButton').prop('disabled', !isFormValid);
-
-    return isFormValid;
-  }
-
-  function validateServerSignUp()
-  {
-    if (!validateSignUp(true)) {
-      return;
-    }
-
-    $('#signUpDiv, #signUpFooter').hide();
-    $('#working').show();
-
-    $.ajax({
-      type: 'POST',
-      url: '{{ URL::to('signup/validate') }}',
-      data: 'email=' + $('form.signUpForm #new_email').val(),
-      success: function(result) { 
-        if (result == 'available') {						
-          submitSignUp();
-        } else {
-          $('#errorTaken').show();
-          $('form.signUpForm #new_email').closest('div.form-group').removeClass('has-success').addClass('has-error');
-          $('#signUpDiv, #signUpFooter').show();
-          $('#working').hide();
-        }
-      }
-    });			
-  }
-
-  function submitSignUp() {
-    $.ajax({
-      type: 'POST',
-      url: '{{ URL::to('signup/submit') }}',
-      data: 'new_email=' + encodeURIComponent($('form.signUpForm #new_email').val()) + 
-      '&new_password=' + encodeURIComponent($('form.signUpForm #new_password').val()) + 
-      '&new_first_name=' + encodeURIComponent($('form.signUpForm #new_first_name').val()) + 
-      '&new_last_name=' + encodeURIComponent($('form.signUpForm #new_last_name').val()) +
-      '&go_pro=' + $('#go_pro').val(),
-      success: function(result) { 
-        if (result) {
-          localStorage.setItem('guest_key', '');
-          trackUrl('/signed_up');
-          NINJA.isRegistered = true;
-          $('#signUpButton').hide();
-          $('#myAccountButton').html(result);          
-        }            
-        $('#signUpSuccessDiv, #signUpFooter, #closeSignUpButton').show();
-        $('#working, #saveSignUpButton').hide();
-      }
-    });     
-  }      
-
-  function checkForEnter(event)
-  {
-    if (event.keyCode === 13){
-      event.preventDefault();		     	
-      validateServerSignUp();
-      return false;
-    }
-  }
-  @endif
-
-  function logout(force)
-  {
-    if (force) {
-      NINJA.formIsChanged = false;
-    }
-
-    if (force || NINJA.isRegistered) {            
-      window.location = '{{ URL::to('logout') }}';
-    } else {
-      $('#logoutModal').modal('show');	
-    }
-  }
-
-  function showSignUp() {    
-    $('#signUpModal').modal('show');    
-  }
-
-  function buyProduct(affiliateKey, productId) {
-    window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/license?affiliate_key=' + affiliateKey + '&product_id=' + productId + '&return_url=' + window.location);
-  }
-
-  @if (Auth::check() && !Auth::user()->isPro())
-  var proPlanFeature = false;
-  function showProPlan(feature) {
-    proPlanFeature = feature;
-    $('#proPlanModal').modal('show');       
-    trackUrl('/view_pro_plan/' + feature);
-  }
-
-  function submitProPlan() {
-    trackUrl('/submit_pro_plan/' + proPlanFeature);
-    if (NINJA.isRegistered) {
-      $('#proPlanDiv, #proPlanFooter').hide();
-      $('#proPlanWorking').show();
-
-      $.ajax({
-        type: 'POST',
-        url: '{{ URL::to('account/go_pro') }}',
-        success: function(result) { 
-          NINJA.formIsChanged = false;
-          window.location = '{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/view/' + result;
-        }
-      });     
-    } else {
-      $('#proPlanModal').modal('hide');
-      $('#go_pro').val('true');
-      showSignUp();
-    }
-  }
-  @endif
-
-  function hideMessage() {
-    $('.alert-info').fadeOut();
-    $.get('/hide_message', function(response) {
-      console.log('Reponse: %s', response);
-    });
-  }
-
-  $(function() {
-    $('#search').focus(function(){
-      if (!window.hasOwnProperty('searchData')) {
-        $.get('{{ URL::route('getSearchData') }}', function(data) {  						
-          window.searchData = true;						
-          var datasets = [];
-          for (var type in data)
-          {  							
-            if (!data.hasOwnProperty(type)) continue;  							
-            datasets.push({
-              name: type,
-              header: '&nbsp;<b>' + type  + '</b>',  								
-              local: data[type]
-            });  														
-          }
-          if (datasets.length == 0) {
-            return;
-          }
-          $('#search').typeahead(datasets).on('typeahead:selected', function(element, datum, name) {
-            var type = name == 'Contacts' ? 'clients' : name.toLowerCase();
-            window.location = '{{ URL::to('/') }}' + '/' + type + '/' + datum.public_id;
-          }).focus().typeahead('setQuery', $('#search').val());  						
-        });
-      }
-    });
-
-
-    if (isStorageSupported()) {
-      @if (Auth::check() && !Auth::user()->registered)
-      localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
-      @endif
-    }
-
-    @if (!Auth::check() || !Auth::user()->registered)
-    validateSignUp();
-
-    $('#signUpModal').on('shown.bs.modal', function () {
-      trackUrl('/view_sign_up');
-      $(['first_name','last_name','email','password']).each(function(i, field) {
-        var $input = $('form.signUpForm #new_'+field);
-        if (!$input.val()) {
-          $input.focus();	  					
-          return false;
-        }
-      });
-    })
-    @endif
-
-    @if (Auth::check() && !Utils::isNinja() && !Auth::user()->registered)
-      $('#closeSignUpButton').hide();
-      showSignUp(); 
-    @elseif(Session::get('sign_up') || Input::get('sign_up'))
-      showSignUp();
-    @endif
-
-    @yield('onReady')
-
-  });
-
-</script>  
 
 
 @stop

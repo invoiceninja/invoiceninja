@@ -207,7 +207,7 @@ return array(
   'client_will_create' => 'client will be created',
   'clients_will_create' => 'clients will be created',
   'email_settings' => 'Email Settings',
-  'pdf_email_attachment' => 'Attach PDF to Emails',
+  'pdf_email_attachment' => 'Attach to Emails',
 
   // application messages
   'created_client' => 'Successfully created client',
@@ -596,8 +596,10 @@ return array(
   'more_fields' => 'More Fields',
   'less_fields' => 'Less Fields',
   'client_name' => 'Client Name',
-  'pdf_settings' => 'PDFF Settings',
-  'utf8_invoices' => 'UTF-8 Support <sup>Beta</sup>',
+  'pdf_settings' => 'PDF Settings',
+  'utf8_invoices' => 'Cyrillic Support',
+  'product_settings' => 'Product Settings',
+  'auto_wrap' => 'Auto Line Wrap',
 
 
 );

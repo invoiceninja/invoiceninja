@@ -20,6 +20,7 @@ class AddPartialAmountToInvoices extends Migration {
         Schema::table('accounts', function($table)
         {
             $table->boolean('utf8_invoices')->default(false);
+            $table->boolean('auto_wrap')->default(true);
         });
 	}
 
@@ -38,6 +39,7 @@ class AddPartialAmountToInvoices extends Migration {
         Schema::table('accounts', function($table)
         {
             $table->dropColumn('utf8_invoices');
+            $table->dropColumn('auto_wrap');
         });
 	}
 

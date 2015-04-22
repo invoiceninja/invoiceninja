@@ -56,7 +56,7 @@
 <div class="row">
     <div class="col-md-6">  
         <div class="panel panel-default dashboard" style="min-height:320px">
-            <div class="panel-heading" style="background-color:#0b4d78">
+            <div class="panel-heading" style="background-color:#0b4d78 !important">
                 <h3 class="panel-title in-bold-white">
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.notifications') }}
                 </h3>
@@ -73,7 +73,7 @@
     </div>
     <div class="col-md-6">  
         <div class="panel panel-default dashboard" style="min-height:320px">
-            <div class="panel-heading" style="background-color:#e37329">
+            <div class="panel-heading" style="background-color:#e37329 !important">
                 <h3 class="panel-title in-bold-white">
                     <i class="glyphicon glyphicon-time"></i> {{ trans('texts.invoices_past_due') }}
                 </h3>
@@ -107,8 +107,8 @@
 <div class="row">
     <div class="col-md-6">  
         <div class="panel panel-default dashboard" style="min-height:320px;">
-            <div class="panel-heading" style="margin:0;">
-                <h3 class="panel-title">
+            <div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
+                <h3 class="panel-title" style="color: black !important">
                     <i class="glyphicon glyphicon-time"></i> {{ trans('texts.upcoming_invoices') }}
                 </h3>
             </div>

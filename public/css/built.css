@@ -2408,7 +2408,6 @@ div.checkbox > label {
 .container input[type=email],
 .container textarea,
 .container select {
-    /*font-family: 'Roboto', sans-serif;*/
     font-size: 16px;
     font-weight: 400;
     width: 100%;
@@ -2424,6 +2423,24 @@ div.checkbox > label {
    color: #444444;
 }
 
+.container input:disabled,
+.container textarea:disabled,
+.container select:disabled {
+    background-color: #EEE !important;
+}
+
 .panel-title {
     font-size: 18px;
+    color: white;
 }
+
+.panel-heading {
+    /*background-color: #e37329 !important;*/
+    background-color: #0b4d78 !important;
+}
+
+/*
+.panel-default {
+    border-color: #e37329 !important;
+}
+*/

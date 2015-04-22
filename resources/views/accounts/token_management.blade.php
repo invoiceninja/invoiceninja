@@ -5,7 +5,6 @@
 	@include('accounts.nav_advanced')
 
   {!! Former::open('tokens/delete')->addClass('user-form') !!}
-  {!! Former::legend('token_management') !!}
 
   <div style="display:none">
     {!! Former::text('tokenPublicId') !!}

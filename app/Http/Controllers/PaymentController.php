@@ -145,12 +145,18 @@ class PaymentController extends BaseController
 
     public function create($clientPublicId = 0, $invoicePublicId = 0)
     {
+        $invoices = Invoice::scope()
+                    ->where('is_recurring', '=', false)
+                    ->where('is_quote', '=', false)
+                    ->where('invoices.balance', '>', 0)
+                    ->with('client', 'invoice_status')
+                    ->orderBy('invoice_number')->get();
+
         $data = array(
             'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
             'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : $invoicePublicId,
             'invoice' => null,
-            'invoices' => Invoice::scope()->where('is_recurring', '=', false)->where('is_quote', '=', false)
-                            ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
+            'invoices' => $invoices,
             'payment' => null,
             'method' => 'POST',
             'url' => "payments",

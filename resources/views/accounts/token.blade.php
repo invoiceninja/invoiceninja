@@ -8,9 +8,10 @@
       'name' => 'required',
   )); !!}
 
-  {!! Former::legend($title) !!}
-
 <div class="panel panel-default">
+<div class="panel-heading">
+    <h3 class="panel-title">{!! trans($title) !!}</h3>
+</div>
 <div class="panel-body">
 
   @if ($token)

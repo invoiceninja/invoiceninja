@@ -31664,8 +31664,9 @@ function GetPdf(invoice, javascript){
     SetPdfColor(invoice.invoice_design_id == 2 || invoice.invoice_design_id == 3 ? 'White' : 'Black',doc);
     var top = doc.internal.pageSize.height - layout.marginLeft;
     if (!invoice.is_pro) top -= 25;
-    var numLines = invoice.invoice_footer.split("\n").length - 1;
-    doc.text(layout.marginLeft, top - (numLines * 8), invoice.invoice_footer);
+    var footer = doc.splitTextToSize(invoice.invoice_footer, 500);
+    var numLines = footer.length - 1;
+    doc.text(layout.marginLeft, top - (numLines * 8), footer);    
   }
 
   return doc;
@@ -32065,34 +32066,6 @@ if (window.ko) {
   };
 }
 
-function wordWrapText(value, width)
-{
-  var doc = new jsPDF('p', 'pt');
-  doc.setFont('Helvetica','');
-  doc.setFontSize(10);
-
-  var lines = value.split("\n");
-  for (var i = 0; i < lines.length; i++) {
-    var numLines = doc.splitTextToSize(lines[i], width).length;
-    if (numLines <= 1) continue;
-    var j = 0; space = lines[i].length;
-    while (j++ < lines[i].length) {
-      if (lines[i].charAt(j) === ' ') space = j;
-    }
-    if (space == lines[i].length) space = width/6;
-    lines[i + 1] = lines[i].substring(space + 1) + ' ' + (lines[i + 1] || '');
-    lines[i] = lines[i].substring(0, space);
-  }
-
-  var newValue = (lines.join("\n")).trim();
-
-  if (value == newValue) {
-    return newValue;
-  } else {
-    return wordWrapText(newValue, width);
-  }
-}
-
 function getClientDisplayName(client)
 {
   var contact = client.contacts ? client.contacts[0] : false;
@@ -32473,17 +32446,19 @@ function displayNotesAndTerms(doc, layout, invoice, y)
   var origY = y;
 
   if (invoice.public_notes) {
-    doc.text(layout.marginLeft, y, invoice.public_notes);
-    y += 16 + (doc.splitTextToSize(invoice.public_notes, 300).length * doc.internal.getFontSize());
+    var notes = doc.splitTextToSize(invoice.public_notes, 260);
+    doc.text(layout.marginLeft, y, notes);
+    y += 16 + (notes.length * doc.internal.getFontSize());
   }
 
   if (invoice.terms) {
-    doc.setFontType("bold");
+    var terms = doc.splitTextToSize(invoice.terms, 260);
+    doc.setFontType("bold");    
     doc.text(layout.marginLeft, y, invoiceLabels.terms);
     y += 16;
     doc.setFontType("normal");
-    doc.text(layout.marginLeft, y, invoice.terms);
-    y += 16 + (doc.splitTextToSize(invoice.terms, 300).length * doc.internal.getFontSize());
+    doc.text(layout.marginLeft, y, terms);
+    y += 16 + (terms.length * doc.internal.getFontSize());
   }
 
   return y - origY;

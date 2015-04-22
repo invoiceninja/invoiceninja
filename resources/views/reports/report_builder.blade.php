@@ -11,20 +11,22 @@
 	@include('accounts.nav_advanced')
 
 
-    <legend style="padding-bottom:32px">
-        {!! trans('texts.chart_builder') !!}
-        <div class="pull-right">
-           {!! Button::normal(trans('texts.data_visualizations'))->asLinkTo('/company/advanced_settings/data_visualizations')->appendIcon(Icon::create('globe')) !!}
-        </div>
-    </legend>
+   {!! Button::normal(trans('texts.data_visualizations'))
+            ->asLinkTo('/company/advanced_settings/data_visualizations')
+            ->withAttributes(['class' => 'pull-right'])
+            ->appendIcon(Icon::create('globe')) !!}
+
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+
+    <div class="panel panel-default">
+    <div class="panel-body">    
 
 	<div class="row">
 		<div class="col-lg-4">
 
 			{!! Former::open()->addClass('warn-on-exit') !!}
             
-            <div class="panel panel-default">
-            <div class="panel-body">    
 			{!! Former::populateField('start_date', $startDate) !!}
 			{!! Former::populateField('end_date', $endDate) !!}
 			{!! Former::select('chart_type')->options($chartTypes, $chartType) !!}
@@ -33,8 +35,6 @@
 					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') !!}
 			{!! Former::text('end_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
 					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') !!}
-            </div>
-            </div>
 
 			@if (Auth::user()->isPro())
 				{!! Former::actions( Button::primary('Generate')->submit() ) !!}
@@ -68,6 +68,8 @@
 		</div>
 
 	</div>
+    </div>
+    </div>
 
 	<script type="text/javascript">
 

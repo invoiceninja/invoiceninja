@@ -312,6 +312,9 @@ define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
 define('SESSION_COUNTER', 'sessionCounter');
 define('SESSION_LOCALE', 'sessionLocale');
 
+define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
+define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
+
 define('DEFAULT_TIMEZONE', 'US/Eastern');
 define('DEFAULT_CURRENCY', 1); // US Dollar
 define('DEFAULT_DATE_FORMAT', 'M j, Y');

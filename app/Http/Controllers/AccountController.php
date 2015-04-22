@@ -293,6 +293,7 @@ class AccountController extends BaseController
 
             $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
             $account->utf8_invoices = Input::get('utf8_invoices') ? true : false;
+            $account->auto_wrap = Input::get('auto_wrap') ? true : false;
 
             if (!$account->share_counter) {
                 $account->quote_number_counter = Input::get('quote_number_counter');

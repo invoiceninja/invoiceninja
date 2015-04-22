@@ -4,7 +4,6 @@
 	@parent	
 
   {!! Former::open('gateways/delete')->addClass('user-form') !!}
-  {!! Former::legend(trans('texts.online_payments')) !!}
 
   <div style="display:none">
     {!! Former::text('accountGatewayPublicId') !!}

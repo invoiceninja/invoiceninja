@@ -3,7 +3,7 @@
 @section('content')
 @parent
 
-{!! Former::open_for_files('company/import_map')->addClass('col-md-9 col-md-offset-1') !!}            
+{!! Former::open_for_files('company/import_map')->addClass('col-md-8 col-md-offset-2') !!}            
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">{!! trans('texts.import_clients') !!}</h3>
@@ -16,7 +16,7 @@
 {!! Former::close() !!}
 
 
-{!! Former::open('company/export')->addClass('col-md-9 col-md-offset-1') !!}        
+{!! Former::open('company/export')->addClass('col-md-8 col-md-offset-2') !!}        
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">{!! trans('texts.export_clients') !!}</h3>
@@ -28,7 +28,7 @@
 {!! Former::close() !!}
 
 
-{!! Former::open('company/cancel_account')->addClass('col-md-9 col-md-offset-1 cancel-account') !!}
+{!! Former::open('company/cancel_account')->addClass('col-md-8 col-md-offset-2 cancel-account') !!}
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">{!! trans('texts.cancel_account') !!}</h3>
