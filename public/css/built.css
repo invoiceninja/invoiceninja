@@ -2444,3 +2444,9 @@ div.checkbox > label {
     border-color: #e37329 !important;
 }
 */
+
+.alert-hide {
+  position: absolute;
+  margin-left: 25%;
+  z-index: 9999;
+}

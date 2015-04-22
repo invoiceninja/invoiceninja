@@ -8,6 +8,7 @@
 /public/build
 /public/packages
 /public/vendor
+/storage
 /bootstrap/compiled.php
 /bootstrap/environment.php
 /vendor

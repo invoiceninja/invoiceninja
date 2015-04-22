@@ -11,6 +11,7 @@ use DB;
 use Event;
 use URL;
 use Datatable;
+use finfo;
 
 use App\Models\Invoice;
 use App\Models\Invitation;
@@ -440,12 +441,10 @@ class InvoiceController extends BaseController
                 Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
             }
             
-            /*
-            This causes an error message. Commenting out. will return later.
             if (!empty(Input::get('pdfupload')) && strpos(Input::get('pdfupload'), 'data:application/pdf;base64,') === 0) {
                 $this->storePDF(Input::get('pdfupload'), $invoice->id);
             }
-            */
+
             if ($action == 'clone') {
                 return $this->cloneInvoice($publicId);
             } elseif ($action == 'convert') {
@@ -594,12 +593,6 @@ class InvoiceController extends BaseController
         $uploadsDir = storage_path().'/pdfcache/';
         $encodedString = str_replace('data:application/pdf;base64,', '', $encodedString);
         $name = 'cache-'.$invoiceId.'.pdf';
-        
-        if (file_put_contents($uploadsDir.$name, base64_decode($encodedString)) !== false) {
-            $finfo = new finfo(FILEINFO_MIME);
-            if ($finfo->file($uploadsDir.$name) !== 'application/pdf; charset=binary') {
-                unlink($uploadsDir.$name);
-            }
-        }
+        file_put_contents($uploadsDir.$name, base64_decode($encodedString));
     }
 }

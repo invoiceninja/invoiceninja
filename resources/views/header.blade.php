@@ -213,6 +213,10 @@
 
 
   $(function() {
+    window.setTimeout(function() { 
+        $(".alert-hide").fadeOut(500);
+    }, 3000);
+
     $('#search').focus(function(){
       if (!window.hasOwnProperty('searchData')) {
         $.get('{{ URL::route('getSearchData') }}', function(data) {                         
@@ -410,7 +414,7 @@
   @endif
 
   @if (Session::has('message'))
-    <div class="alert alert-info">
+    <div class="alert alert-info alert-hide">
       {{ Session::get('message') }}
     </div>
   @elseif (Session::has('news_feed_message'))

@@ -51,6 +51,12 @@ class Invoice extends EntityModel
         return $this->invoice_number;
     }
 
+    public function getFileName()
+    {
+        $entityType = $this->getEntityType();
+        return trans("texts.$entityType") . '_' . $this->invoice_number . '.pdf';
+    }
+
     public function getLink()
     {
         return link_to('invoices/'.$this->public_id, $this->invoice_number);

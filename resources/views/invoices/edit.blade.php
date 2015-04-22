@@ -35,7 +35,7 @@
 
 	<div data-bind="with: invoice">
     <div class="panel panel-default">
-    <div class="panel-body">
+    <div class="panel-body" style="padding-bottom: 0px;">
 
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-4" id="col_1">
@@ -129,8 +129,6 @@
 
 	<p>&nbsp;</p>
 
-	{!! Former::hidden('data')->data_bind("value: ko.mapping.toJSON(model)") !!}	
-
 	<div class="table-responsive">
 	<table class="table invoice-table" style="margin-bottom: 0px !important">
 		<thead>
@@ -151,8 +149,8 @@
 					<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 				</td>
 				<td>	            	
-                    {!! Former::text('product_key')->useDatalist($products->toArray(), 'product_key')->onkeyup('onItemChange()')
-					->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') !!}
+                {!! Former::text('product_key')->useDatalist($products->toArray(), 'product_key')->onkeyup('onItemChange()')
+				       ->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') !!}
 				</td>
 				<td>
 					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap"></textarea>
@@ -299,6 +297,8 @@
 			{!! Former::populateField('entityType', $entityType) !!}
 			{!! Former::text('entityType') !!}
 			{!! Former::text('action') !!}
+            {!! Former::text('data')->data_bind("value: ko.mapping.toJSON(model)") !!}    
+            {!! Former::text('pdfupload') !!}    
 				
 			@if ($invoice && $invoice->id)
 				{!! Former::populateField('id', $invoice->public_id) !!}
@@ -308,9 +308,9 @@
 
 
 		@if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS)
-			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
+			{!! Former::select('invoice_design_id')->style('display:'.($account->utf8_invoices ? 'none' : 'inline').';width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
 		@else 
-			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
+			{!! Former::select('invoice_design_id')->style('display:'.($account->utf8_invoices ? 'none' : 'inline').';width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
 		{!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}	
@@ -674,7 +674,7 @@
 		});
 
 		@if (Auth::user()->account->fill_products)
-			$('.datalist').on('input', function() {			                
+			$('.datalist').on('change', function() {			                
 				var key = $(this).val();
 				for (var i=0; i<products.length; i++) {
 					var product = products[i];
@@ -746,7 +746,7 @@
 
 	function onEmailClick() {
 		if (confirm('{{ trans("texts.confirm_email_$entityType") }}')) {
-			submitAction('email');
+			preparePdfData('email');
 		}
 	}
 
@@ -756,18 +756,21 @@
 				submitAction('');
 			}
 		} else {
-			var invoice = createInvoiceModel();
-			var design  = getDesignJavascript();
-			if (!design) return;
-			
-      doc = generatePDF(invoice, design, true);
-      doc.getDataUrl( function(pdfString){
-        $('form.form-horizontal.warn-on-exit').append('<input type="hidden" name="pdfupload" value="'+pdfString+'">');
-        submitAction('');	    
-      });
-			
+            preparePdfData('');
 		}
 	}
+
+    function preparePdfData(action) {
+        var invoice = createInvoiceModel();
+        var design  = getDesignJavascript();
+        if (!design) return;
+        
+        doc = generatePDF(invoice, design, true);
+        doc.getDataUrl( function(pdfString){
+            $('#pdfupload').val(pdfString);            
+            submitAction(action);     
+        });             
+    }
 
 	function submitAction(value) {
 		if (!isSaveValid()) {
@@ -1116,7 +1119,7 @@
 		self.invoice_items = ko.observableArray();
 		self.amount = ko.observable(0);
 		self.balance = ko.observable(0);
-		self.invoice_design_id = ko.observable({{ $account->invoice_design_id }});
+		self.invoice_design_id = ko.observable({{ $account->utf8_invoices ? 1 : $account->invoice_design_id }});
         self.partial = ko.observable(0);            
         self.is_partial = ko.observable(false);
 
