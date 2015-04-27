@@ -255,7 +255,7 @@ return array(
   'confirmation_subject' => 'Validation du compte invoice ninja',
   'confirmation_header' => 'Validation du compte',
   'confirmation_message' => 'Veuillez cliquer sur le lien ci-après pour valider votre compte.',
-  'invoice_subject' => 'Nouvelle facture en provenance de :account',
+  'invoice_subject' => 'Nouvelle facture :invoice en provenance de :account',
   'invoice_message' => 'Pour voir votre facture de :amount, Cliquez sur le lien ci-après.',
   'payment_subject' => 'Paiement reçu',
   'payment_message' => 'Merci pour votre paiement d\'un montant de :amount',

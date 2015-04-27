@@ -305,7 +305,7 @@ return array(
   'success_message' => 'Je bent succesvol geregistreerd. Ga alstublieft naar de link in de bevestigingsmail om je e-mailadres te verifi&euml;ren.',
   'erase_data' => 'Dit zal uw data permanent verwijderen.',
   'password' => 'Wachtwoord',
-  'invoice_subject' => 'Nieuwe factuur van :account',
+  'invoice_subject' => 'Nieuwe factuur :invoice van :account',
   'close' => 'Sluiten',  
 
   'pro_plan_product' => 'Pro Plan',

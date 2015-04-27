@@ -98,8 +98,8 @@
       </div>
         <div class="panel-body">        	   
        {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
-       {!! Former::checkbox('utf8_invoices')->text(trans('texts.enable')) !!}
        {!! Former::checkbox('auto_wrap')->text(trans('texts.enable')) !!}
+       {!! Former::checkbox('utf8_invoices')->text(trans('texts.enable')) !!}
 	</div>
     </div>
     </div>

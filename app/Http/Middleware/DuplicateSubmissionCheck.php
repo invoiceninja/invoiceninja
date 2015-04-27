@@ -12,7 +12,7 @@ class DuplicateSubmissionCheck
             $lastTime = session(SESSION_LAST_REQUEST_TIME);
             
             if ($lastPage == $request->path() && (microtime(true) - $lastTime <= 1.5)) {
-                return redirect($request->path());
+                return redirect('/')->with('warning', trans('texts.duplicate_post'));
             }
 
             session([SESSION_LAST_REQUEST_PAGE => $request->path()]);

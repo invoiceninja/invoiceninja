@@ -1293,6 +1293,18 @@ function displayInvoiceItems(doc, invoice, layout) {
 }
 
 
+// http://stackoverflow.com/questions/11941876/correctly-suppressing-warnings-in-datatables
+window.alert = (function() {
+    var nativeAlert = window.alert;
+    return function(message) {
+        window.alert = nativeAlert;
+        message && message.indexOf("DataTables warning") === 0 ?
+            console.error(message) :
+            nativeAlert(message);
+    }
+})();
+
+
 // http://stackoverflow.com/questions/1068834/object-comparison-in-javascript
 function objectEquals(x, y) {
     // if both are function

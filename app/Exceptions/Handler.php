@@ -39,6 +39,12 @@ class Handler extends ExceptionHandler {
 	 */
 	public function render($request, Exception $e)
 	{
-        return parent::render($request, $e);
+        $data = [
+            'error' => get_class($e),
+            'hideHeader' => true,
+        ];
+
+        return response()->view('error', $data);
+        //return parent::render($request, $e);
 	}
 }

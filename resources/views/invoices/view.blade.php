@@ -8,6 +8,11 @@
 		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
 		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
 
+        @if ($invoice->client->account->utf8_invoices)
+            <script src="{{ asset('vendor/pdfmake/build/pdfmake.min.js') }}" type="text/javascript"></script>
+            <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
+        @endif
+
 		<style type="text/css">
 			body {
 				background-color: #f8f8f8;		
@@ -48,8 +53,8 @@
 			invoice.contact = {!! $contact->toJson() !!};
 
 			function getPDFString(cb) {
-	  	  doc = generatePDF(invoice, invoice.invoice_design.javascript);
-        doc.getDataUrl(cb);
+    	  	    doc = generatePDF(invoice, invoice.invoice_design.javascript);
+                doc.getDataUrl(cb);
 			}
 
 			$(function() {
@@ -58,7 +63,7 @@
 			
 			function onDownloadClick() {
 				var doc = generatePDF(invoice, invoice.invoice_design.javascript, true);
-        var fileName = invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice;
+                var fileName = invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice;
 				doc.save(fileName + '-' + invoice.invoice_number + '.pdf');
 			}
 

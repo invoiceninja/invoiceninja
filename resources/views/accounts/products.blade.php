@@ -22,7 +22,7 @@
   </div>
   </div>
 
-  {!! Button::success(trans('texts.create_product'))
+  {!! Button::primary(trans('texts.create_product'))
         ->asLinkTo('/products/create')
         ->withAttributes(['class' => 'pull-right'])
         ->appendIcon(Icon::create('plus-sign')) !!}

@@ -532,21 +532,24 @@ class PaymentController extends BaseController
                 } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing')) {
                     $tokenResponse = $gateway->createCard($details)->send();
                     $cardReference = $tokenResponse->getCardReference();
-                    $details['cardReference'] = $cardReference;
 
-                    $token = AccountGatewayToken::where('client_id', '=', $client->id)
-                                ->where('account_gateway_id', '=', $accountGateway->id)->first();
+                    if ($cardReference) {
+                        $details['cardReference'] = $cardReference;
 
-                    if (!$token) {
-                        $token = new AccountGatewayToken();
-                        $token->account_id = $account->id;
-                        $token->contact_id = $invitation->contact_id;
-                        $token->account_gateway_id = $accountGateway->id;
-                        $token->client_id = $client->id;
+                        $token = AccountGatewayToken::where('client_id', '=', $client->id)
+                                    ->where('account_gateway_id', '=', $accountGateway->id)->first();
+
+                        if (!$token) {
+                            $token = new AccountGatewayToken();
+                            $token->account_id = $account->id;
+                            $token->contact_id = $invitation->contact_id;
+                            $token->account_gateway_id = $accountGateway->id;
+                            $token->client_id = $client->id;
+                        }
+                    
+                        $token->token = $cardReference;
+                        $token->save();
                     }
-
-                    $token->token = $cardReference;
-                    $token->save();
                 }
             }
             

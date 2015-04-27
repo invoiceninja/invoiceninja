@@ -14,6 +14,7 @@ class AddSvLanguage extends Migration {
 	{
         DB::table('languages')->insert(['name' => 'Swedish', 'locale' => 'sv']);
         DB::table('languages')->insert(['name' => 'Spanish - Spain', 'locale' => 'es_ES']);
+        DB::table('languages')->insert(['name' => 'French - Canada', 'locale' => 'fr_CA']);
 	}
 
 	/**
@@ -28,6 +29,10 @@ class AddSvLanguage extends Migration {
         }
 
         if ($language = \App\Models\Language::whereLocale('es_ES')->first()) {
+            $language->delete();
+        }
+
+        if ($language = \App\Models\Language::whereLocale('fr_CA')->first()) {
             $language->delete();
         }
 	}

@@ -22,6 +22,8 @@ class HomeController extends BaseController
 
     public function showIndex()
     {
+        Session::reflash();
+
         if (!Utils::isDatabaseSetup()) {
             return Redirect::to('/setup');
         } elseif (Account::count() == 0) {

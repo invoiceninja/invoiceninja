@@ -255,7 +255,7 @@ return array(
   'confirmation_subject' => 'Bekräfta ditt Invoice Ninja konto',
   'confirmation_header' => 'Bekräfta ditt konto',
   'confirmation_message' => 'Vänligen klick på länken nedan för att bekräfta ditt konto.',
-  'invoice_subject' => 'Ny faktura från :account',
+  'invoice_subject' => 'Ny faktura :invoice från :account',
   'invoice_message' => 'Klicka på länken nedan för att visa din faktura på :amount.',
   'payment_subject' => 'Betalning mottagen',
   'payment_message' => 'Tack för din betalning på :amount.',

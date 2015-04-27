@@ -305,7 +305,7 @@ return array(
   'erase_data' => 'Isto irá apagar completamente todos os seus dados.',
   'password' => 'Senha',
   'close' => 'Fechar',
-  'invoice_subject' => 'Nova fatura de :account',
+  'invoice_subject' => 'Nova fatura :invoice de :account',
   'payment_subject' => 'Recebido Pagamento de',
 
   'pro_plan_product' => 'Pro Plan',

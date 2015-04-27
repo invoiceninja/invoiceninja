@@ -57,7 +57,7 @@ module.exports = function(grunt) {
           'public/vendor/spectrum/spectrum.js',
           'public/vendor/jspdf/dist/jspdf.min.js',
           //'public/vendor/handsontable/dist/jquery.handsontable.full.min.js',
-          'public/vendor/pdfmake/build/pdfmake.min.js',
+          //'public/vendor/pdfmake/build/pdfmake.min.js',
           //'public/vendor/pdfmake/build/vfs_fonts.js',
           //'public/js/vfs_fonts.js',
           'public/js/lightbox.min.js',

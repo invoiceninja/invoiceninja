@@ -146,7 +146,9 @@ class Utils
 
     public static function getErrorString($exception)
     {
-        return "{$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
+        $class = get_class($exception);
+        $code = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : $exception->getCode();
+        return  "***{$class}*** [{$code}] : {$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
     }
 
     public static function logError($error, $context = 'PHP')

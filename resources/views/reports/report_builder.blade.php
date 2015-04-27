@@ -11,7 +11,7 @@
 	@include('accounts.nav_advanced')
 
 
-   {!! Button::normal(trans('texts.data_visualizations'))
+   {!! Button::primary(trans('texts.data_visualizations'))
             ->asLinkTo('/company/advanced_settings/data_visualizations')
             ->withAttributes(['class' => 'pull-right'])
             ->appendIcon(Icon::create('globe')) !!}

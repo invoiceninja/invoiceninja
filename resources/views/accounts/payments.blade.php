@@ -12,7 +12,7 @@
 
 
   @if ($showAdd)
-      {!! Button::success(trans('texts.add_gateway'))
+      {!! Button::primary(trans('texts.add_gateway'))
             ->asLinkTo('/gateways/create')
             ->withAttributes(['class' => 'pull-right'])
             ->appendIcon(Icon::create('plus-sign')) !!}

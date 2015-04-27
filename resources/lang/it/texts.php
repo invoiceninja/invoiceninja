@@ -255,7 +255,7 @@ return array(
   'confirmation_subject' => 'Conferma Account Invoice Ninja',
   'confirmation_header' => 'Conferma Account',
   'confirmation_message' => 'Per favore, accedi al link qui sotto per confermare il tuo account.',
-  'invoice_subject' => 'Nuova fattura da :account',
+  'invoice_subject' => 'Nuova fattura :invoice da :account',
   'invoice_message' => 'Per visualizzare la tua fattura di :amount, clicca sul link qui sotto.',
   'payment_subject' => 'Pagamento Ricevuto',
   'payment_message' => 'Grazie per il tuo pagamento di :amount.',

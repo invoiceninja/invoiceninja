@@ -305,7 +305,7 @@ return array(
   'success_message' => 'Du hast dich erfolgreich registriert. Bitte besuche den Link in deiner Bestätigungsmail um deine E-Mail Adresse zu verifizieren.',
   'erase_data' => 'Diese Aktion wird deine Daten dauerhaft löschen.',
   'password' => 'Passwort',
-  'invoice_subject' => 'Neue Rechnung von :account',
+  'invoice_subject' => 'Neue Rechnung :invoice von :account',
   'close' => 'Schließen',
 
   'pro_plan_product' => 'Pro Plan',
@@ -585,6 +585,46 @@ return array(
   'knowledge_base' => 'Knowledge Base',
   'partial' => 'Partial',
   'partial_remaining' => ':partial of :balance',
+
+  'more_fields' => 'More Fields',
+  'less_fields' => 'Less Fields',
+  'client_name' => 'Client Name',
+  'pdf_settings' => 'PDF Settings',
+  'utf8_invoices' => 'Cyrillic Support <sup>Beta</sup>',
+  'product_settings' => 'Product Settings',
+  'auto_wrap' => 'Auto Line Wrap',
+  'duplicate_post' => 'Warning: the previous page was submitted twice. The second submission had been ignored.',
+  'view_documentation' => 'View Documentation',
+  'app_title' => 'Kostenlose & Open-Source Online-Rechnungsausstellung',
+  'app_description' => 'Invoice Ninja ist eine kostenlose, Open-Source Lösung für die Rechnungsstellung und Abrechnung deiner Kunden. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
+
+  'plans' => [
+    'header' => '<span class="thin">Die</span> Mitgliedschaften',
+    'free' => 'Kostenlos',
+    'unlimited' => 'Uneingeschränkt',
+    'pro_plan' => 'Pro-Mitgliedschaft',
+
+    'go_pro' => 'Go Pro to Unlock Premium Invoice Ninja Features',
+    'go_pro_text' => 'We believe that the free version of Invoice Ninja is a truly awesome product loaded with the key features you need to bill your clients electronically. But for those who crave still more Ninja awesomeness, we\'ve unmasked the Invoice Ninja Pro plan, which offers more versatility, power and customization options for just $50 per year.',
+
+    'number_clients' => 'Number of clients per account',
+    'unlimited_invoices' => 'Unlimited client invoices',
+    'company_logo' => 'Add your company logo',
+    'live_pdf' => 'Live .PDF invoice creation',
+    'four_templates' => '4 beautiful invoice templates',
+    'payments' => 'Accept credit card payments',
+    'additional_templates' => 'Additional invoice templates',
+    'multi_user' => 'Multi-user support',
+    'quotes' => 'Quotes/pro-forma invoices',
+    'advanced_settings' => 'Advanced invoice settings',
+    'data_vizualizations' => 'Dynamic data vizualizations',
+    'email_support' => 'Priority email support',
+    'remove_created_by' => 'Remove "Created by Invoice Ninja"',
+    'latest_features' => 'Latest and greatest features',
+    'pricing' => 'Pricing',
+    'free_always' => 'Kostenlos<span> /Immer!</span>',
+    'year_price' => '$50<span> /Jahre</span>',
+  ],
 
 
 );

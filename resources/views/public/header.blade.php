@@ -212,9 +212,6 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
             @if (!isset($hideLogo) || !$hideLogo)                                    
             <div id="footer-menu" class="menu-wrap">
                 <ul id="menu-footer-menu" class="menu">
-                    <li id="menu-item-30" class="menu-item-30">
-                        {!! link_to(NINJA_WEB_URL . '/contact', trans('texts.support')) !!}
-                    </li>
                     <li id="menu-item-31" class="menu-item-31">                    
                         {!! link_to('#', 'Facebook', ['target' => '_blank', 'onclick' => 'openUrl("https://www.facebook.com/invoiceninja", "/footer/social/facebook")']) !!}
                     </li>
@@ -224,6 +221,9 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
                     <li id="menu-item-33" class="menu-item-33">
                         {!! link_to('#', 'GitHub', ['target' => '_blank', 'onclick' => 'openUrl("https://github.com/hillelcoren/invoice-ninja", "/footer/social/github")']) !!}
                     </li>                    
+                    <li id="menu-item-30" class="menu-item-30">
+                        {!! link_to(NINJA_WEB_URL . '/contact', trans('texts.contact')) !!}
+                    </li>
                 </ul>
             </div>      
             @endif   
