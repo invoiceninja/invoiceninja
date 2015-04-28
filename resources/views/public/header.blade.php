@@ -93,6 +93,15 @@ table.table thead .sorting_desc:after { content: '' !important}
 table.table thead .sorting_asc_disabled:after { content: '' !important }
 table.table thead .sorting_desc_disabled:after { content: '' !important }
 
+.dataTables_length {
+    padding-left: 20px;
+    padding-top: 8px;
+}
+
+.dataTables_length label {
+    font-weight: 500;
+}
+
 @media screen and (min-width: 700px) { 
     #footer .top {
         padding: 27px 0;

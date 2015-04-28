@@ -13,9 +13,16 @@ use View;
 use stdClass;
 use Cache;
 use Response;
+use parseCSV;
 
 use App\Models\User;
+use App\Models\Client;
+use App\Models\Contact;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Models\Activity;
+use App\Models\Payment;
+use App\Models\Credit;
 use App\Models\Account;
 use App\Models\Country;
 use App\Models\Currency;
@@ -577,6 +584,14 @@ class AccountController extends BaseController
             $rules['email'] = 'email|required|unique:users,email,'.$user->id.',id';
         }
 
+        $subdomain = preg_replace('/[^a-zA-Z0-9_\-]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
+        if (in_array($subdomain, ['www', 'app', 'mail'])) {
+            $subdomain = null;
+        }
+        if ($subdomain) {
+            $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id";
+        }
+
         $validator = Validator::make(Input::all(), $rules);
 
         if ($validator->fails()) {
@@ -586,6 +601,7 @@ class AccountController extends BaseController
         } else {
             $account = Auth::user()->account;
             $account->name = trim(Input::get('name'));
+            $account->subdomain = $subdomain;
             $account->id_number = trim(Input::get('id_number'));
             $account->vat_number = trim(Input::get('vat_number'));
             $account->work_email = trim(Input::get('work_email'));

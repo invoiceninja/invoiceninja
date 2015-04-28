@@ -78,6 +78,7 @@ module.exports = function(grunt) {
           'public/js/simpleexpand.js',
         */
           'public/vendor/bootstrap/dist/js/bootstrap.min.js',
+          'public/js/bootstrap-combobox.js',          
           
         ],
         dest: 'public/js/built.public.js',
@@ -89,7 +90,7 @@ module.exports = function(grunt) {
           'public/vendor/datatables/media/css/jquery.dataTables.css',
           'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',
           'public/vendor/font-awesome/css/font-awesome.min.css',
-          'public/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker.css',
+          'public/vendor/bootstrap-datepicker/css/datepicker3.css',
           'public/vendor/spectrum/spectrum.css',
           'public/css/bootstrap-combobox.css',
           'public/css/typeahead.js-bootstrap.css',
@@ -110,6 +111,7 @@ module.exports = function(grunt) {
           'public/css/bootstrap.splash.css',
           'public/css/splash.css',
           */
+          'public/css/bootstrap-combobox.css',
           'public/vendor/datatables/media/css/jquery.dataTables.css',
           'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',          
         ],

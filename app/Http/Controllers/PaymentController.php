@@ -229,6 +229,8 @@ class PaymentController extends BaseController
 
     private function convertInputForOmnipay($input)
     {
+        $country = Country::find($input['country_id']);
+
         return [
             'firstName' => $input['first_name'],
             'lastName' => $input['last_name'],
@@ -241,11 +243,13 @@ class PaymentController extends BaseController
             'billingCity' => $input['city'],
             'billingState' => $input['state'],
             'billingPostcode' => $input['postal_code'],
+            'billingCountry' => $country->iso_3166_2,
             'shippingAddress1' => $input['address1'],
             'shippingAddress2' => $input['address2'],
             'shippingCity' => $input['city'],
             'shippingState' => $input['state'],
-            'shippingPostcode' => $input['postal_code']
+            'shippingPostcode' => $input['postal_code'],
+            'shippingCountry' => $country->iso_3166_2
         ];
     }
 
@@ -317,7 +321,7 @@ class PaymentController extends BaseController
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
             'countries' => Cache::get('countries'),
             'currencyId' => $client->currency_id,
-            'account' => $client->account
+            'account' => $client->account,
         ];
 
         return View::make('payments.payment', $data);
@@ -386,6 +390,7 @@ class PaymentController extends BaseController
             'city' => 'required',
             'state' => 'required',
             'postal_code' => 'required',
+            'country_id' => 'required',
         );
 
         $validator = Validator::make(Input::all(), $rules);
@@ -494,6 +499,7 @@ class PaymentController extends BaseController
             'city' => 'required',
             'state' => 'required',
             'postal_code' => 'required',
+            'country_id' => 'required',
         );
 
         if ($onSite) {

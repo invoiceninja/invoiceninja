@@ -853,3 +853,12 @@ div.checkbox > label {
   margin-left: 25%;
   z-index: 9999;
 }
+
+.dataTables_length {
+    padding-left: 20px;
+    padding-top: 8px;
+}
+
+.dataTables_length label {
+    font-weight: 500;
+}

@@ -44,6 +44,7 @@ class ClientController extends BaseController
         return View::make('list', array(
             'entityType' => ENTITY_CLIENT,
             'title' => trans('texts.clients'),
+            'sortCol' => '4',
             'columns' => Utils::trans(['checkbox', 'client', 'contact', 'email', 'date_created', 'last_login', 'balance', 'action']),
         ));
     }

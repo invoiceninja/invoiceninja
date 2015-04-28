@@ -37,6 +37,7 @@
     	->addColumn($columns)
     	->setUrl(route('api.' . $entityType . 's'))    	
     	->setOptions('sPaginationType', 'bootstrap')
+        ->setOptions('aaSorting', [[isset($sortCol) ? $sortCol : '1', 'desc']])
     	->render('datatable') !!}
     
     {!! Former::close() !!}

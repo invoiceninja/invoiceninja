@@ -103,14 +103,14 @@ class ConstantsSeeder extends Seeder
 		Size::create(array('name' => '101 - 500'));
 		Size::create(array('name' => '500+'));		
 
-		PaymentTerm::create(array('num_days' => 7, 'name' => 'Net 7'));
+        PaymentTerm::create(array('num_days' => 7, 'name' => 'Net 7'));
 		PaymentTerm::create(array('num_days' => 10, 'name' => 'Net 10'));
 		PaymentTerm::create(array('num_days' => 14, 'name' => 'Net 14'));
 		PaymentTerm::create(array('num_days' => 15, 'name' => 'Net 15'));
 		PaymentTerm::create(array('num_days' => 30, 'name' => 'Net 30'));
 		PaymentTerm::create(array('num_days' => 60, 'name' => 'Net 60'));
 		PaymentTerm::create(array('num_days' => 90, 'name' => 'Net 90'));
-
+        
 		Currency::create(array('name' => 'US Dollar', 'code' => 'USD', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 		Currency::create(array('name' => 'Pound Sterling', 'code' => 'GBP', 'symbol' => '£', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));
 		Currency::create(array('name' => 'Euro', 'code' => 'EUR', 'symbol' => '€', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'));

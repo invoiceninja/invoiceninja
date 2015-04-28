@@ -39,12 +39,15 @@ class Handler extends ExceptionHandler {
 	 */
 	public function render($request, Exception $e)
 	{
-        $data = [
-            'error' => get_class($e),
-            'hideHeader' => true,
-        ];
-
-        return response()->view('error', $data);
-        //return parent::render($request, $e);
+        if (Utils::isNinjaProd()) {
+            $data = [
+                'error' => get_class($e),
+                'hideHeader' => true,
+            ];
+            
+            return response()->view('error', $data);
+        } else {
+            return parent::render($request, $e);
+        }
 	}
 }

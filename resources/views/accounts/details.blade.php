@@ -34,6 +34,12 @@
             <div class="panel-body">
 			
 			{!! Former::text('name') !!}
+
+            @if (Auth::user()->isPro())
+                {{ Former::setOption('capitalize_translations', false) }}
+                {!! Former::text('subdomain')->placeholder('texts.www')->onchange('onSubdomainChange()') !!}                
+            @endif
+
             {!! Former::text('id_number') !!}
             {!! Former::text('vat_number') !!}
 			{!! Former::text('work_email') !!}
@@ -271,6 +277,14 @@
                 $('#working').hide();
               }
             });     
+        }
+
+        function onSubdomainChange() {
+            var input = $('#subdomain');
+            var val = input.val();
+            if (!val) return;
+            val = val.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase().substring(0, {{ MAX_SUBDOMAIN_LENGTH }});
+            input.val(val);
         }
 
 	</script>

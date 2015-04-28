@@ -633,5 +633,9 @@ return array(
     'year_price' => '$50<span> /Year</span>',
   ],
 
+  'rows' => 'rows',
+  'www' => 'www',
+  'logo' => 'Logo',
+  'subdomain' => 'Subdomain',
 
 );

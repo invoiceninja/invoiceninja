@@ -3,8 +3,13 @@
 @section('content')
 	@parent
 
-	{{ Former::open('company/import_export')->addClass('warn-on-exit') }}
-	{{ Former::legend('import_clients') }}
+	{!! Former::open('company/import_export')->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!}
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.import_clients') !!}</h3>
+      </div>
+        <div class="panel-body">
 
 	@if ($headers)
 
@@ -12,7 +17,9 @@
 			<input type="checkbox" name="header_checkbox" id="header_checkbox" {{ $hasHeaders ? 'CHECKED' : '' }}> {{ trans('texts.first_row_headers') }}
 		</label>
 
-		<table class="table">
+        <p>&nbsp;</p>
+
+		<table class="table invoice-table">
 			<thead>
 				<tr>
 					<th>{{ trans('texts.column') }}</th>
@@ -24,17 +31,24 @@
 			<tr>
 				<td>{{ $headers[$i] }}</td>
 				<td class="col_sample">{{ $data[1][$i] }}</td>
-				<td>{{ Former::select('map[' . $i . ']')->options($columns, $mapped[$i], true)->raw() }}</td>
+				<td>{!! Former::select('map[' . $i . ']')->options($columns, $mapped[$i], true)->raw() !!}</td>
 			</tr>
 		@endfor
 		</table>
 
+        <p>&nbsp;</p>
+
 		<span id="numClients"></span>
 	@endif
 
+    </div>
+    </div>
 
-	{{ Former::actions( Button::lg_primary_submit(trans('texts.import')), '&nbsp;|&nbsp;', link_to('company/import', trans('texts.cancel')) ) }}
-	{{ Former::close() }}
+
+	{!! Former::actions( 
+            Button::success(trans('texts.import'))->submit()->large()->appendIcon(Icon::create('floppy-disk')),
+            Button::normal(trans('texts.cancel'))->large()->asLinkTo('/company/import_export')->appendIcon(Icon::create('remove-circle'))) !!}
+	{!! Former::close() !!}
 
 	<script type="text/javascript">
 

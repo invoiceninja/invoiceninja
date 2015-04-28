@@ -28,6 +28,8 @@ class HomeController extends BaseController
             return Redirect::to('/setup');
         } elseif (Account::count() == 0) {
             return Redirect::to('/invoice_now');
+        } elseif (Auth::check()) {
+            return Redirect::to('/dashboard');
         } else {
             return Redirect::to('/login');
         }

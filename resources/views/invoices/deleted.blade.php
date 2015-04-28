@@ -1,1 +1,1 @@
-The requested invoice is no longer available.
+The requested invoice is not available.

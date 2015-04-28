@@ -46,12 +46,13 @@ class StartupCheck
             'languages' => 'App\Models\Language',
             'paymentTerms' => 'App\Models\PaymentTerm',
             'paymentTypes' => 'App\Models\PaymentType',
+            'countries' => 'App\Models\Country',
         ];
         foreach ($cachedTables as $name => $class) {
             if (!Cache::has($name)) {
                 if ($name == 'paymentTerms') {
                     $orderBy = 'num_days';
-                } elseif (in_array($name, ['currencies', 'sizes', 'industries', 'languages'])) {
+                } elseif (in_array($name, ['currencies', 'sizes', 'industries', 'languages', 'countries'])) {
                     $orderBy = 'name';
                 } else {
                     $orderBy = 'id';

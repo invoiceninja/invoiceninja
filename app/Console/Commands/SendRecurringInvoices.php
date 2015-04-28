@@ -69,8 +69,12 @@ class SendRecurringInvoices extends Command
             $invoice->custom_taxes2 = $recurInvoice->custom_taxes2;
             $invoice->is_amount_discount = $recurInvoice->is_amount_discount;
 
-            if ($invoice->client->payment_terms) {
-                $invoice->due_date = date_create()->modify($invoice->client->payment_terms.' day')->format('Y-m-d');
+            if ($invoice->client->payment_terms != 0) {
+                $days = $invoice->client->payment_terms;
+                if ($days == -1) {
+                    $days = 0;
+                }
+                $invoice->due_date = date_create()->modify($days.' day')->format('Y-m-d');
             }
 
             $invoice->save();

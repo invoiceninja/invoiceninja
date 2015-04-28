@@ -70,6 +70,7 @@ class InvoiceApiController extends Controller
             $response = json_encode($error, JSON_PRETTY_PRINT);
         } else {
             $data = self::prepareData($data);
+            $data['client_id'] = $client->id;
             $invoice = $this->invoiceRepo->save(false, $data, false);
 
             $invitation = Invitation::createNew();

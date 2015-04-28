@@ -21,6 +21,7 @@ class AddPartialAmountToInvoices extends Migration {
         {
             $table->boolean('utf8_invoices')->default(false);
             $table->boolean('auto_wrap')->default(true);
+            $table->string('subdomain')->nullable();
         });
 	}
 
@@ -40,6 +41,7 @@ class AddPartialAmountToInvoices extends Migration {
         {
             $table->dropColumn('utf8_invoices');
             $table->dropColumn('auto_wrap');
+            $table->dropColumn('subdomain');
         });
 	}
 

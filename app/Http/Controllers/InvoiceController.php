@@ -12,7 +12,7 @@ use Event;
 use URL;
 use Datatable;
 use finfo;
-
+use Request;
 use App\Models\Invoice;
 use App\Models\Invitation;
 use App\Models\Client;
@@ -27,7 +27,6 @@ use App\Models\PaymentTerm;
 use App\Models\InvoiceDesign;
 use App\Models\AccountGateway;
 use App\Models\Activity;
-
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
@@ -182,6 +181,15 @@ class InvoiceController extends BaseController
 
         if (!$client || $client->is_deleted) {
             return View::make('invoices.deleted');
+        }
+
+        if ($account->subdomain) {
+            $server = explode('.', Request::server('HTTP_HOST'));
+            $subdomain = $server[0];
+
+            if ($subdomain != 'app' && $subdomain != $account->subdomain) {
+                return View::make('invoices.deleted');
+            }
         }
 
         if (!Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {

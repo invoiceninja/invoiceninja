@@ -44,12 +44,12 @@
         /* Set the defaults for DataTables initialisation */
         $.extend( true, $.fn.dataTable.defaults, {
             "bSortClasses": false,
-            "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
+            "sDom": "t<'row-fluid'<'span6'i><'span6'p>>l",
             "sPaginationType": "bootstrap",
             "bInfo": true,
             "oLanguage": {
                 'sEmptyTable': "{{ trans('texts.empty_table') }}",
-                'sLengthMenu': '_MENU_',
+                'sLengthMenu': '_MENU_ {{ trans('texts.rows') }}',
                 'sSearch': ''
             }
         } );

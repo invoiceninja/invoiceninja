@@ -64,7 +64,7 @@ Route::controllers([
 
 get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
 post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
-get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLogin'));
+get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));
 post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper'));
 get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogout'));
 get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
@@ -179,7 +179,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('invoices', 'InvoiceApiController');
     Route::resource('quotes', 'QuoteApiController');
     Route::resource('payments', 'PaymentApiController');
-    Route::post('api/hooks', 'IntegrationController@subscribe');
+    Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
 });
 
@@ -287,6 +287,7 @@ define('RANDOM_KEY_LENGTH', 32);
 define('MAX_NUM_CLIENTS', 500);
 define('MAX_NUM_CLIENTS_PRO', 20000);
 define('MAX_NUM_USERS', 20);
+define('MAX_SUBDOMAIN_LENGTH', 30);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);

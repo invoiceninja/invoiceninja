@@ -458,7 +458,7 @@
                     ->fromQuery($currencies, 'name', 'id') !!}
 
                 <span data-bind="visible: $root.showMore">                
-                {!! Former::select('payment_terms')->addOption('','0')->data_bind('value: payment_terms')
+                {!! Former::select('payment_terms')->addOption('','')->data_bind('value: payment_terms')
                     ->fromQuery($paymentTerms, 'name', 'num_days') !!}
                 {!! Former::select('size_id')->addOption('','')->data_bind('value: size_id')
                     ->fromQuery($sizes, 'name', 'id') !!}
@@ -901,9 +901,11 @@
 
 		self.setDueDate = function() {
             @if ($entityType == ENTITY_INVOICE)
-			var paymentTerms = parseInt(self.invoice().client().payment_terms());
-			if (paymentTerms && !self.invoice().due_date())
+            var paymentTerms = parseInt(self.invoice().client().payment_terms());
+            if (paymentTerms && paymentTerms != 0 && !self.invoice().due_date())
 			{
+                console.log("here");
+                if (paymentTerms == -1) paymentTerms = 0;
 				var dueDate = $('#invoice_date').datepicker('getDate');
 				dueDate.setDate(dueDate.getDate() + paymentTerms);
 				self.invoice().due_date(dueDate);	
