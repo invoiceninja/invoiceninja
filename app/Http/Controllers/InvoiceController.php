@@ -448,8 +448,9 @@ class InvoiceController extends BaseController
                 $url = URL::to('clients/'.$client->public_id);
                 Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
             }
-            
-            if (!empty(Input::get('pdfupload')) && strpos(Input::get('pdfupload'), 'data:application/pdf;base64,') === 0) {
+
+            $pdfUpload = Input::get('pdfupload');
+            if (!empty($pdfUpload) && strpos($pdfUpload, 'data:application/pdf;base64,') === 0) {
                 $this->storePDF(Input::get('pdfupload'), $invoice->id);
             }
 
