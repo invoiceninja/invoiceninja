@@ -25,3 +25,6 @@ public/error_log
 /ninja.sublime-project
 /ninja.sublime-workspace
 auth.json
+
+.phpstorm.meta.php
+_ide_helper.php
