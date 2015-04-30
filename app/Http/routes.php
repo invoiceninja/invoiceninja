@@ -112,8 +112,8 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('products/{product_id}/archive', 'ProductController@archive');
 
     Route::get('company/advanced_settings/data_visualizations', 'ReportController@d3');
-    Route::get('company/advanced_settings/chart_builder', 'ReportController@report');
-    Route::post('company/advanced_settings/chart_builder', 'ReportController@report');
+    Route::get('company/advanced_settings/charts_and_reports', 'ReportController@showReports');
+    Route::post('company/advanced_settings/charts_and_reports', 'ReportController@showReports');
 
     Route::post('company/cancel_account', 'AccountController@cancelAccount');
     Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
@@ -354,10 +354,11 @@ define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
 define('NINJA_GATEWAY_CONFIG', '');
 define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
 define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-define('NINJA_VERSION', '1.7.2');
+define('NINJA_VERSION', '2.0.0');
 define('NINJA_DATE', '2000-01-01');
 define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
 define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
+define('ZAPIER_URL', 'https://zapier.com/developer/invite/11276/85cf0ee4beae8e802c6c579eb4e351f1/');
 
 define('COUNT_FREE_DESIGNS', 4);
 define('PRODUCT_ONE_CLICK_INSTALL', 1);

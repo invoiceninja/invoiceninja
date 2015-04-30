@@ -3238,11 +3238,15 @@ div.checkbox > label {
   z-index: 9999;
 }
 
-.dataTables_length {
+div.dataTables_length {
     padding-left: 20px;
-    padding-top: 8px;
+    padding-top: 10px;
 }
 
-.dataTables_length label {
+div.dataTables_length select {
+    background-color: white !important;
+}
+
+div.dataTables_length label {
     font-weight: 500;
 }

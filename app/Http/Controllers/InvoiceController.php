@@ -187,7 +187,7 @@ class InvoiceController extends BaseController
             $server = explode('.', Request::server('HTTP_HOST'));
             $subdomain = $server[0];
 
-            if ($subdomain != 'app' && $subdomain != $account->subdomain) {
+            if (!in_array($subdomain, ['app', 'www']) && $subdomain != $account->subdomain) {
                 return View::make('invoices.deleted');
             }
         }

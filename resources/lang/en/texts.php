@@ -637,5 +637,18 @@ return array(
   'www' => 'www',
   'logo' => 'Logo',
   'subdomain' => 'Subdomain',
+  'provide_name_or_email' => 'Please provide a contact name or email',
+  'charts_and_reports' => 'Charts & Reports',
+  'chart' => 'Chart',
+  'report' => 'Report',
+  'group_by' => 'Group by',
+  'paid' => 'Paid',
+  'enable_report' => 'Report',
+  'enable_chart' => 'Chart',
+  'totals' => 'Totals',
+  'run' => 'Run',
+  'export' => 'Export',
+  'documentation' => 'Documentation',
+  'zapier' => 'Zapier <sup>Beta</sup>',
 
 );

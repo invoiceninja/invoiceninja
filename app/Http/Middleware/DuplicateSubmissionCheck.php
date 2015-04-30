@@ -7,11 +7,17 @@ class DuplicateSubmissionCheck
     // Prevent users from submitting forms twice
     public function handle($request, Closure $next)
     {
+        $path = $request->path();
+        
+        if (strpos($path, 'charts_and_reports') !== false) {
+            return $next($request);
+        }
+
         if (in_array($request->method(), ['POST', 'PUT', 'DELETE'])) {
             $lastPage = session(SESSION_LAST_REQUEST_PAGE);
             $lastTime = session(SESSION_LAST_REQUEST_TIME);
             
-            if ($lastPage == $request->path() && (microtime(true) - $lastTime <= 1.5)) {
+            if ($lastPage == $path && (microtime(true) - $lastTime <= 1.5)) {
                 return redirect('/')->with('warning', trans('texts.duplicate_post'));
             }
 

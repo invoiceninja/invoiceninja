@@ -215,7 +215,7 @@
   $(function() {
     window.setTimeout(function() { 
         $(".alert-hide").fadeOut(500);
-    }, 3000);
+    }, 2000);
 
     $('#search').focus(function(){
       if (!window.hasOwnProperty('searchData')) {

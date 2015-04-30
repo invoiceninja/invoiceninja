@@ -623,4 +623,17 @@ class Utils
 
         return $str;
     }
+
+    public static function exportData($output, $data)
+    {
+        if (count($data) > 0) {
+            fputcsv($output, array_keys($data[0]));
+        }
+
+        foreach ($data as $record) {
+            fputcsv($output, $record);
+        }
+
+        fwrite($output, "\n");
+    }
 }

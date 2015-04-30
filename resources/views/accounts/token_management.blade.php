@@ -13,7 +13,8 @@
 
 
   <div class="pull-right">
-  {!! Button::normal(trans('texts.view_documentation'))->asLinkTo(NINJA_WEB_URL.'/knowledgebase/api-documentation/')->withAttributes(['target' => '_blank']) !!}
+  {!! Button::normal(trans('texts.documentation'))->asLinkTo(NINJA_WEB_URL.'/knowledgebase/api-documentation/')->withAttributes(['target' => '_blank']) !!}
+  {!! Button::normal(trans('texts.zapier'))->asLinkTo(ZAPIER_URL)->withAttributes(['target' => '_blank']) !!}
   @if (Utils::isPro())
     {!! Button::primary(trans('texts.add_token'))->asLinkTo('/tokens/create')->appendIcon(Icon::create('plus-sign')) !!}
   @endif

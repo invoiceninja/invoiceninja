@@ -66,7 +66,8 @@ class StartupCheck
             $count = Session::get(SESSION_COUNTER, 0);
             Session::put(SESSION_COUNTER, ++$count);
 
-            if (!Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && !Session::has('news_feed_id')) {
+            //if (!Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && !Session::has('news_feed_id')) {
+            if (true) {
                 $data = false;
                 if (Utils::isNinja()) {
                     $data = Utils::getNewsFeedResponse();
@@ -75,12 +76,12 @@ class StartupCheck
                     $data = @json_decode($file);
                 }
                 if ($data) {
-                    if ($data->version != NINJA_VERSION) {
+                    if (version_compare(NINJA_VERSION, $data->version, '<')) {
                         $params = [
-                    'user_version' => NINJA_VERSION,
-                    'latest_version' => $data->version,
-                    'releases_link' => link_to(RELEASES_URL, 'Invoice Ninja', ['target' => '_blank']),
-                  ];
+                            'user_version' => NINJA_VERSION,
+                            'latest_version' => $data->version,
+                            'releases_link' => link_to(RELEASES_URL, 'Invoice Ninja', ['target' => '_blank']),
+                        ];
                         Session::put('news_feed_id', NEW_VERSION_AVAILABLE);
                         Session::put('news_feed_message', trans('texts.new_version_available', $params));
                     } else {

@@ -98,7 +98,7 @@ class AccountController extends BaseController
 
         Auth::login($user, true);
         Event::fire(new UserLoggedIn());
-
+        
         return Redirect::to('invoices/create')->with('sign_up', Input::get('sign_up'));
     }
 
@@ -343,38 +343,25 @@ class AccountController extends BaseController
         header('Content-Disposition:attachment;filename=export.csv');
 
         $clients = Client::scope()->get();
-        AccountController::exportData($output, $clients->toArray());
+        Utils::exportData($output, $clients->toArray());
 
         $contacts = Contact::scope()->get();
-        AccountController::exportData($output, $contacts->toArray());
+        Utils::exportData($output, $contacts->toArray());
 
         $invoices = Invoice::scope()->get();
-        AccountController::exportData($output, $invoices->toArray());
+        Utils::exportData($output, $invoices->toArray());
 
         $invoiceItems = InvoiceItem::scope()->get();
-        AccountController::exportData($output, $invoiceItems->toArray());
+        Utils::exportData($output, $invoiceItems->toArray());
 
         $payments = Payment::scope()->get();
-        AccountController::exportData($output, $payments->toArray());
+        Utils::exportData($output, $payments->toArray());
 
         $credits = Credit::scope()->get();
-        AccountController::exportData($output, $credits->toArray());
+        Utils::exportData($output, $credits->toArray());
 
         fclose($output);
         exit;
-    }
-
-    private function exportData($output, $data)
-    {
-        if (count($data) > 0) {
-            fputcsv($output, array_keys($data[0]));
-        }
-
-        foreach ($data as $record) {
-            fputcsv($output, $record);
-        }
-
-        fwrite($output, "\n");
     }
 
     private function importFile()

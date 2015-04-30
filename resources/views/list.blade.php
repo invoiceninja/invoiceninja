@@ -10,8 +10,8 @@
 	</div>
 
 	{!! DropdownButton::normal(trans('texts.archive'))->withContents([
-		      ['label' => trans('texts.archive_'.$entityType), 'url' => "javascript:submitForm('archive')"],
-		      ['label' => trans('texts.delete_'.$entityType), 'url' => "javascript:submitForm('delete')"],
+		      ['label' => trans('texts.archive_'.$entityType), 'url' => 'javascript:submitForm("archive")'],
+		      ['label' => trans('texts.delete_'.$entityType), 'url' => 'javascript:submitForm("delete")'],
 		    ])->withAttributes(['class'=>'archive'])->split() !!}
 	
 	&nbsp;<label for="trashed" style="font-weight:normal; margin-left: 10px;">
