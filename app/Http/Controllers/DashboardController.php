@@ -51,6 +51,7 @@ class DashboardController extends BaseController
 
 
         $activities = Activity::where('activities.account_id', '=', Auth::user()->account_id)
+                ->where('activity_type_id', '>', 0)
                 ->orderBy('created_at', 'desc')->take(6)->get();
 
         $pastDue = Invoice::scope()

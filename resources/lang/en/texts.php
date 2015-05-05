@@ -650,5 +650,9 @@ return array(
   'export' => 'Export',
   'documentation' => 'Documentation',
   'zapier' => 'Zapier <sup>Beta</sup>',
+  'recurring' => 'Recurring',
+  'last_invoice_sent' => 'Last invoice sent :date',
+
+
 
 );

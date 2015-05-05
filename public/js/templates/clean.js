@@ -20,23 +20,29 @@ var dd = {
     },
     {
       text:(invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),
-      margin: [8, 16, 8, 16],
-      style: 'primaryColor'
+      margin: [8, 70, 8, 16],
+      style: 'primaryColor',
+      fontSize: 11
     },
     {
       style: 'tableExample',
       table: {
         headerRows: 1,
         widths: ['auto', 'auto', '*'],
-        body: [
-          [invoice.is_quote ? invoiceLabels.quote_number:invoiceLabels.invoice_number, {style: 'bold', text: invoice.invoice_number}, ""],
-          [invoice.is_quote ? invoiceLabels.quote_date:invoiceLabels.invoice_date, invoice.invoice_date, ""],
-          [invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due, formatMoney(invoice.balance_amount, invoice.client.currency_id), ""],
-        ]
+        body: [[
+            {
+                table: { 
+                    body: invoiceDetails(invoice),
+                },
+                layout: 'noBorders',                    
+            }, 
+            clientDetails(invoice), 
+            ''
+        ]]
       },
       layout: {
         hLineWidth: function (i, node) {
-          return (i === 0 || i === node.table.body.length) ? 1 : 0;
+          return (i === 0 || i === node.table.body.length) ? .5 : 0;
         },
         vLineWidth: function (i, node) {
           return 0;//(i === 0 || i === node.table.widths.length) ? 2 : 1;
@@ -57,12 +63,12 @@ var dd = {
     {
       table: {
         headerRows: 1,
-        widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto'],
+        widths: ['15%', '*', 'auto', 'auto', 'auto', 'auto'],
         body:invoiceLines(invoice),
       },
       layout: {
         hLineWidth: function (i, node) {
-          return i === 0 ? 0 : 1;
+          return i === 0 ? 0 : .5;
         },
         vLineWidth: function (i, node) {
           return 0;
@@ -104,12 +110,12 @@ var dd = {
   ],
 
   footer: function(){
-    f = [{ text:invoice.invoice_footer?invoice.invoice_footer:"", margin: [72, 0]}]
+    f = [{ text:invoice.invoice_footer?invoice.invoice_footer:"", margin: [40, 0]}]
     if (!invoice.is_pro && logoImages.imageLogo1) {
       f.push({
               image: logoImages.imageLogo1,
               width: 150,
-              margin: [72,0]
+              margin: [40,0]
             });
     }
     return f;
@@ -123,6 +129,10 @@ var dd = {
   styles: {
     primaryColor:{
       color: primaryColor('#299CC2')
+    },
+    accountName: {
+      margin: [4, 2, 4, 2],
+      color:primaryColor('#299CC2') 
     },
     accountDetails: {
       margin: [4, 2, 4, 2],
@@ -178,5 +188,5 @@ var dd = {
       margin: [0, 10, 0, 4]
     }
   },
-  pageMargins: [72, 40, 40, 80]
+  pageMargins: [40, 40, 40, 40]
 };

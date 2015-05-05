@@ -270,9 +270,12 @@ class InvoiceRepository
         $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
         $invoice->invoice_number = trim($data['invoice_number']);
         $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
-        $invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
         $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
 
+        if (!$publicId) {
+            $invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
+        }
+        
         if ($invoice->is_recurring) {
             $invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
             $invoice->start_date = Utils::toSqlDate($data['start_date']);

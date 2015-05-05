@@ -44,7 +44,7 @@ class EntityModel extends Eloquent
 
     public function getActivityKey()
     {
-        return $this->getEntityType().':'.$this->public_id.':'.$this->getName();
+        return '[' . $this->getEntityType().':'.$this->public_id.':'.$this->getName() . ']';
     }
 
     /*

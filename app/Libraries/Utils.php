@@ -236,9 +236,13 @@ class Utils
             $currencyId = Session::get(SESSION_CURRENCY);
         }
 
-        $currency = Currency::find($currencyId);
-        
-        if(!$currency){
+        foreach (Cache::get('currencies') as $currency) {
+            if ($currency->id == $currencyId) {
+                break;
+            }
+        }
+
+        if (!$currency) {
             $currency = Currency::find(1);
         }
 
@@ -486,7 +490,7 @@ class Utils
     public static function encodeActivity($person = null, $action, $entity = null, $otherPerson = null)
     {
         $person = $person ? $person->getDisplayName() : '<i>System</i>';
-        $entity = $entity ? '['.$entity->getActivityKey().']' : '';
+        $entity = $entity ? $entity->getActivityKey() : '';
         $otherPerson = $otherPerson ? 'to '.$otherPerson->getDisplayName() : '';
         $token = Session::get('token_id') ? ' ('.trans('texts.token').')' : '';
 

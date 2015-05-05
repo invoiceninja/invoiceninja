@@ -66,8 +66,7 @@ class StartupCheck
             $count = Session::get(SESSION_COUNTER, 0);
             Session::put(SESSION_COUNTER, ++$count);
 
-            //if (!Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && !Session::has('news_feed_id')) {
-            if (true) {
+            if (!Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && !Session::has('news_feed_id')) {
                 $data = false;
                 if (Utils::isNinja()) {
                     $data = Utils::getNewsFeedResponse();

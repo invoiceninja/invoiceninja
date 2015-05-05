@@ -59,8 +59,6 @@ class ReportController extends BaseController
             $enableChart = true;
         }
 
-        $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
-        $endDate->modify('+1 '.$padding);
         $datasets = [];
         $labels = [];
         $maxTotals = 0;
@@ -155,7 +153,7 @@ class ReportController extends BaseController
             if ($enableChart) {
                 foreach ([ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_CREDIT] as $entityType) {
                     $records = DB::table($entityType.'s')
-                                ->select(DB::raw('sum(amount) as total, '.$groupBy.'('.$entityType.'_date) as '.$groupBy))
+                                ->select(DB::raw('sum(amount) as total, concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date)) as '.$groupBy))
                                 ->where('account_id', '=', Auth::user()->account_id)
                                 ->where($entityType.'s.is_deleted', '=', false)
                                 ->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
@@ -171,23 +169,26 @@ class ReportController extends BaseController
                     $dates = $records->lists($groupBy);
                     $data = array_combine($dates, $totals);
 
+                    $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
+                    $endDate->modify('+1 '.$padding);
                     $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
                     $period = new DatePeriod($startDate, $interval, $endDate);
+                    $endDate->modify('-1 '.$padding);
 
                     $totals = [];
 
                     foreach ($period as $d) {
                         $dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');
-                        $date = $d->format($dateFormat);
+                        $date = $d->format('Y'.$dateFormat);
                         $totals[] = isset($data[$date]) ? $data[$date] : 0;
-
+                    
                         if ($entityType == ENTITY_INVOICE) {
                             $labelFormat = $groupBy == 'DAYOFYEAR' ? 'j' : ($groupBy == 'WEEK' ? 'W' : 'F');
                             $label = $d->format($labelFormat);
                             $labels[] = $label;
                         }
                     }
-
+                    
                     $max = max($totals);
 
                     if ($max > 0) {
@@ -228,7 +229,7 @@ class ReportController extends BaseController
             'chartTypes' => $chartTypes,
             'chartType' => $chartType,
             'startDate' => $startDate->format(Session::get(SESSION_DATE_FORMAT)),
-            'endDate' => $endDate->modify('-1'.$padding)->format(Session::get(SESSION_DATE_FORMAT)),
+            'endDate' => $endDate->format(Session::get(SESSION_DATE_FORMAT)),
             'groupBy' => $groupBy,
             'feature' => ACCOUNT_CHART_BUILDER,
             'displayData' => $displayData,

@@ -44,7 +44,7 @@ class AccountRepository
         }
 
         $user->confirmed = !Utils::isNinja();
-        $user->registered = !Utils::isNinja();
+        $user->registered = !Utils::isNinja() && $user->email;
 
         if (!$user->confirmed) {
             $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);

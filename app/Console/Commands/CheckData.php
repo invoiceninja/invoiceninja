@@ -1,5 +1,8 @@
 <?php namespace App\Console\Commands;
 
+use DB;
+use DateTime;
+use Carbon;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,7 +13,7 @@ use Symfony\Component\Console\Input\InputArgument;
 WARNING: Please backup your database before running this script 
 ##################################################################
 
-Since the application was released a number of bugs have (inevitably) been found. 
+Since the application was released a number of bugs have inevitably been found. 
 Although the bugs have always been fixed in some cases they've caused the client's
 balance, paid to date and/or activity records to become inaccurate. This script will
 check for errors and correct the data.
@@ -100,13 +103,15 @@ class CheckData extends Command {
                     
         $clients = $clients->groupBy('clients.id', 'clients.balance', 'clients.created_at')
                 ->orderBy('clients.id', 'DESC')
-                ->get(['clients.id', 'clients.balance', 'clients.paid_to_date']);
+                ->get(['clients.account_id', 'clients.id', 'clients.balance', 'clients.paid_to_date', DB::raw('sum(invoices.balance) actual_balance')]);
         $this->info(count($clients) . ' clients with incorrect balance/activities');
 
         foreach ($clients as $client) {
-            $this->info("=== Client:{$client->id} Balance:{$client->balance} ===");
+            $this->info("=== Client:{$client->id} Balance:{$client->balance} Actual Balance:{$client->actual_balance} ===");
             $foundProblem = false;
             $lastBalance = 0;
+            $lastAdjustment = 0;
+            $lastCreatedAt = null;
             $clientFix = false;
             $activities = DB::table('activities')
                         ->where('client_id', '=', $client->id)
@@ -195,6 +200,11 @@ class CheckData extends Command {
                         $foundProblem = true;
                         $clientFix -= $activity->adjustment;
                         $activityFix = 0;
+                    } else if ((strtotime($activity->created_at) - strtotime($lastCreatedAt) <= 1) && $activity->adjustment > 0 && $activity->adjustment == $lastAdjustment) {
+                        $this->info("Duplicate adjustment for updated invoice adjustment:{$activity->adjustment}");
+                        $foundProblem = true;
+                        $clientFix -= $activity->adjustment;
+                        $activityFix = 0;
                     }
                 } elseif ($activity->activity_type_id == ACTIVITY_TYPE_UPDATE_QUOTE) {
                     // **Fix for updating balance when updating a quote**
@@ -231,17 +241,31 @@ class CheckData extends Command {
                 }
 
                 $lastBalance = $activity->balance;
+                $lastAdjustment = $activity->adjustment;
+                $lastCreatedAt = $activity->created_at;
             }
 
-            if ($clientFix !== false) {
-                $balance = $activity->balance + $clientFix;
-                $data = ['balance' => $balance];
-                $this->info("Corrected balance:{$balance}");
+            if ($activity->balance + $clientFix != $client->actual_balance) {
+                $this->info("** Creating 'recovered update' activity **");
                 if ($this->option('fix') == 'true') {
-                    DB::table('clients')
-                        ->where('id', $client->id)
-                        ->update($data);
+                    DB::table('activities')->insert([
+                            'created_at' => new Carbon,
+                            'updated_at' => new Carbon,
+                            'account_id' => $client->account_id,
+                            'client_id' => $client->id,
+                            'message' => 'Recovered update to invoice [<a href="https://github.com/hillelcoren/invoice-ninja/releases/tag/v1.7.1" target="_blank">details</a>]',
+                            'adjustment' => $client->actual_balance - $activity->balance,
+                            'balance' => $client->actual_balance,
+                    ]);
                 }
+            }
+
+            $data = ['balance' => $client->actual_balance];
+            $this->info("Corrected balance:{$client->actual_balance}");
+            if ($this->option('fix') == 'true') {
+                DB::table('clients')
+                    ->where('id', $client->id)
+                    ->update($data);
             }
         }
 

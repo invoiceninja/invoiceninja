@@ -19,6 +19,12 @@
       }
     }
 
+    @media screen and (max-width: 768px) {
+      body {
+        padding-top: 56px; 
+      }
+    }
+
   </style>
 
   @include('script')

@@ -11,14 +11,6 @@
             <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
         @endif
 
-        <style type="text/css">
-            .partial div.checkbox {
-                display: inline;
-            }
-            .partial span.input-group-addon {
-                padding-right: 30px;
-            }
-        </style>        
 @stop
 
 @section('content')
@@ -86,9 +78,7 @@
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') !!}							
                 
-                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown', enable: is_partial")
-                        ->onchange('onPartialChange()')->addGroupClass('partial')->append(Former::checkbox('is_partial')->raw()
-                            ->data_bind('checked: is_partial')->onclick('onPartialEnabled()') . '&nbsp;' . (trans('texts.enable'))) !!}
+                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()') !!}
 			</div>
 			@if ($entityType == ENTITY_INVOICE)
 				<div data-bind="visible: is_recurring" style="display: none">
@@ -104,8 +94,24 @@
 					</div>
 				@else 
 				<div data-bind="visible: invoice_status_id() === 0">
-					{!! Former::checkbox('recurring')->onclick('onRecurringEnabled()')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
-						->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::dateToString($invoice->last_sent_date) : '') !!}
+                    <div class="form-group">
+                        <label for="" class="control-label col-lg-4 col-sm-4">
+                            {{ trans('texts.recurring') }}
+                        </label>
+                        <div class="col-lg-8 col-sm-8">
+                            <div class="checkbox">
+                                <label for="recurring" class="">
+                                    <input onclick="onRecurringEnabled()" data-bind="checked: is_recurring" id="recurring" type="checkbox" name="recurring" value="1">{{ trans('texts.enable') }} &nbsp;&nbsp; 
+                                    <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> {{ trans('texts.learn_more') }}</a>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    @if ($invoice && $invoice->last_sent_date)
+                        <div class="pull-right">
+                            {{ trans('texts.last_invoice_sent', ['date' => Utils::dateToString($invoice->last_sent_date)]) }}
+                        </div>
+                    @endif
 				</div>			
 				@endif
 			@endif
@@ -1130,7 +1136,6 @@
 		self.balance = ko.observable(0);
 		self.invoice_design_id = ko.observable({{ $account->utf8_invoices ? 1 : $account->invoice_design_id }});
         self.partial = ko.observable(0);            
-        self.is_partial = ko.observable(false);
 
 		self.custom_value1 = ko.observable(0);
 		self.custom_value2 = ko.observable(0);
@@ -1336,7 +1341,7 @@
       	});
 
         self.totals.total = ko.computed(function() {
-            return formatMoney(self.is_partial() ? self.partial() : self.totals.rawTotal(), self.client().currency_id());
+            return formatMoney(self.partial() ? self.partial() : self.totals.rawTotal(), self.client().currency_id());
         });        
 
       	self.onDragged = function(item) {
@@ -1647,19 +1652,7 @@
     {
         var val = NINJA.parseFloat($('#partial').val());
         val = Math.max(Math.min(val, model.invoice().totals.rawTotal()), 0);
-        $('#partial').val(val);
-    }
-
-    function onPartialEnabled()
-    {
-        model.invoice().partial('');
-        refreshPDF();
-
-        if ($('#is_partial').prop('checked')) {   
-            setTimeout(function() {
-                $('#partial').focus();
-            }, 1);
-        }    
+        $('#partial').val(val || '');
     }
 
     function onRecurringEnabled()
@@ -1702,9 +1695,6 @@
 		@if ($invoice)
 			var invoice = {!! $invoice !!};
 			ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);			
-            if (NINJA.parseFloat(model.invoice().partial())) {
-                model.invoice().is_partial(true);
-            }
             var invitationContactIds = {!! json_encode($invitationContactIds) !!};		
 			var client = clientMap[invoice.client.public_id];
 			if (client) { // in case it's deleted
