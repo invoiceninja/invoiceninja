@@ -22,7 +22,7 @@ class Mailer
             }
             
             if(isset($data['invoice_id'])) {
-                $invoice = Invoice::scope($data['invoice_id'])->with(['account'])->first();
+                $invoice = Invoice::scope()->with("account")->where('id', '=', $data['invoice_id'])->get()->first();
                 $pdfPath = storage_path().'/pdfcache/cache-'.$invoice->id.'.pdf';
                 if($invoice->account->pdf_email_attachment && file_exists($pdfPath)) {
                     $message->attach(
