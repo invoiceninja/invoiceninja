@@ -10,6 +10,7 @@ use Cache;
 use Session;
 use Event;
 use App\Models\Language;
+use App\Models\InvoiceDesign;
 use App\Events\UserSettingsChanged;
 
 class StartupCheck
@@ -124,7 +125,7 @@ class StartupCheck
             $licenseKey = Input::get('license_key');
             $productId = Input::get('product_id');
 
-            $data = trim(file_get_contents((Utils::isNinjaDev() ? 'http://ninja.dev' : NINJA_APP_URL)."/claim_license?license_key={$licenseKey}&product_id={$productId}"));
+            $data = trim(file_get_contents((Utils::isNinjaDev() ? 'http://www.ninja.dev' : NINJA_APP_URL)."/claim_license?license_key={$licenseKey}&product_id={$productId}"));
 
             if ($productId == PRODUCT_INVOICE_DESIGNS) {
                 if ($data = json_decode($data)) {

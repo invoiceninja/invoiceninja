@@ -261,7 +261,7 @@ return array(
   'payment_message' => 'Thank you for your payment of :amount.',
   'email_salutation' => 'Dear :name,',
   'email_signature' => 'Regards,',
-  'email_from' => 'The InvoiceNinja Team',
+  'email_from' => 'The Invoice Ninja Team',
   'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/company/notifications',
   'invoice_link_message' => 'To view your client invoice click the link below:',
   'notification_invoice_paid_subject' => 'Invoice :invoice was paid by :client',

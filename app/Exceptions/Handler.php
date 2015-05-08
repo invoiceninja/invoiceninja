@@ -27,6 +27,7 @@ class Handler extends ExceptionHandler {
 	{
         Utils::logError(Utils::getErrorString($e));
         return false;
+        
 		//return parent::report($e);
 	}
 

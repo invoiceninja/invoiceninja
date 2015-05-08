@@ -84,7 +84,7 @@ Route::post('user/reset', 'UserController@do_reset_password');
 Route::get('logout', 'UserController@logout');
 */
 
-if (\App\Libraries\Utils::isNinja()) {
+if (Utils::isNinja()) {
     Route::post('/signup/register', 'AccountController@doRegister');
     Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
     Route::get('/demo', 'AccountController@demo');
@@ -350,7 +350,7 @@ define('EVENT_CREATE_PAYMENT', 4);
 define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
 define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
-define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
+define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
 define('NINJA_GATEWAY_CONFIG', '');
 define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
 define('NINJA_APP_URL', 'https://app.invoiceninja.com');
@@ -507,7 +507,7 @@ Validator::extend('has_credit', function($attribute, $value, $parameters) {
     $publicClientId = $parameters[0];
     $amount = $parameters[1];
 
-    $client = Client::scope($publicClientId)->firstOrFail();
+    $client = \App\Models\Client::scope($publicClientId)->firstOrFail();
     $credit = $client->getTotalCredit();
 
     return $credit >= $amount;

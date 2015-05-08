@@ -2388,7 +2388,7 @@ body { background: #f8f8f8 !important;
 }
 .bold { font-weight: 700; }
 a {color:#0b4d78;}
-a:hover { text-decoration: none; color: #0a3857;}
+/*a:hover { text-decoration: none; color: #0a3857;}*/
 .breadcrumb {
 padding: 8px 0!important;
 }

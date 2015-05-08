@@ -149,15 +149,8 @@
   }
 
   @if (Auth::check() && !Auth::user()->isPro())
-  var proPlanFeature = false;
-  function showProPlan(feature) {
-    proPlanFeature = feature;
-    $('#proPlanModal').modal('show');       
-    trackUrl('/view_pro_plan/' + feature);
-  }
-
-  function submitProPlan() {
-    trackUrl('/submit_pro_plan/' + proPlanFeature);
+  function submitProPlan(feature) {
+    trackUrl('/submit_pro_plan/' + feature);
     if (NINJA.isRegistered) {
       $('#proPlanDiv, #proPlanFooter').hide();
       $('#proPlanWorking').show();
@@ -167,7 +160,7 @@
         url: '{{ URL::to('account/go_pro') }}',
         success: function(result) { 
           NINJA.formIsChanged = false;
-          window.location = '{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/view/' + result;
+          window.location = '/view/' + result;
         }
       });     
     } else {
@@ -319,7 +312,7 @@
           @if (!Auth::user()->registered)
             {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal'))->small() !!} &nbsp;
           @elseif (!Auth::user()->isPro())
-            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'data-toggle'=>'modal', 'data-target'=>'#proPlanModal'))->small() !!} &nbsp;
+            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'onclick' => 'submitProPlan("")'))->small() !!} &nbsp;
           @endif
         @endif
 

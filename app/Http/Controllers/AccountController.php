@@ -572,7 +572,7 @@ class AccountController extends BaseController
         }
 
         $subdomain = preg_replace('/[^a-zA-Z0-9_\-]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
-        if (in_array($subdomain, ['www', 'app', 'mail'])) {
+        if (!$subdomain || in_array($subdomain, ['www', 'app', 'mail', 'admin', 'blog'])) {
             $subdomain = null;
         }
         if ($subdomain) {

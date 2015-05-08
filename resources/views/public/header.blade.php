@@ -53,6 +53,10 @@ body {
     padding: 28px 0;
 }
 
+#footer .bottom a {
+    color: #636262;
+}
+
 #footer .menu-item-31 a:before {
     content: '';
     display: inline-block;
@@ -241,7 +245,7 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
     
     <div class="bottom">
         <div class="wrap">
-            <div class="copy">Copyright &copy;2015 InvoiceNinja. All rights reserved.</div>
+            <div class="copy">Copyright &copy;2015 <a href="{{ NINJA_WEB_URL }}" target="_blank">Invoice Ninja</a>. All rights reserved.</div>
         </div><!-- .wrap -->
     </div><!-- .bottom -->
 </footer><!-- #footer -->

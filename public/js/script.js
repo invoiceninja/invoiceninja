@@ -391,7 +391,7 @@ function isValidEmailAddress(emailAddress) {
 $(function() {
     $.ajaxSetup({
         headers: {
-            'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
 });

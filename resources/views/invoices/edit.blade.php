@@ -40,8 +40,10 @@
     		@if ($invoice && $invoice->id)
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
-					<div class="col-lg-8 col-sm-8" style="padding-top: 10px">
-						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm, text: getClientDisplayName(ko.toJS(client()))"></a>
+					<div class="col-lg-8 col-sm-8">
+                        <h4><div data-bind="text: getClientDisplayName(ko.toJS(client()))"></div></h4>
+						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
+                        {!! link_to('/clients/'.$invoice->client->public_id, trans('texts.view_client'), ['target' => '_blank']) !!}                        
 					</div>
 				</div>    				
 				<div style="display:none">
@@ -51,7 +53,10 @@
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-					<a id="createClientLink" class="pointer" data-bind="click: $root.showClientForm, text: $root.clientLinkText"></a>					
+					<a id="createClientLink" class="pointer" data-bind="click: $root.showClientForm, text: $root.clientLinkText"></a>
+                    <span data-bind="visible: $root.invoice().client().public_id() > 0">| 
+                        <a data-bind="attr: {href: '{{ url('/clients') }}/' + $root.invoice().client().public_id()}" target="_blank">{{ trans('texts.view_client') }}</a>
+                    </span>
 				</div>
 			</div>
 
@@ -384,7 +389,7 @@
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
-			{!! trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="showProPlan(\'remove_logo\')">'.trans('texts.pro_plan.remove_logo_link').'</a>']) !!}
+			{!! trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="submitProPlan(\'remove_logo\')">'.trans('texts.pro_plan.remove_logo_link').'</a>']) !!}
 		</div>
 	@endif
 
@@ -1089,7 +1094,7 @@
 		self.clientLinkText = ko.computed(function() {
 			if (self.invoice().client().public_id())
 			{
-				return "{{ trans('texts.edit_client_details') }}";
+				return "{{ trans('texts.edit_client') }}";
 			}
 			else
 			{

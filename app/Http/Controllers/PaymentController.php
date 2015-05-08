@@ -13,6 +13,8 @@ use CreditCard;
 use URL;
 use Cache;
 use Event;
+use DateTime;
+use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\Invitation;
 use App\Models\Client;
@@ -20,6 +22,7 @@ use App\Models\PaymentType;
 use App\Models\Country;
 use App\Models\License;
 use App\Models\Payment;
+use App\Models\Affiliate;
 use App\Models\AccountGatewayToken;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
@@ -610,7 +613,12 @@ class PaymentController extends BaseController
 
         if ($invoice->account->account_key == NINJA_ACCOUNT_KEY) {
             $account = Account::find($invoice->client->public_id);
-            $account->pro_plan_paid = date_create()->format('Y-m-d');
+            if ($account->pro_plan_paid) {
+                $date = DateTime::createFromFormat('Y-m-d', $account->pro_plan_paid);
+                $account->pro_plan_paid = $date->modify('+1 year')->format('Y-m-d');
+            } else {
+                $account->pro_plan_paid = date_create()->format('Y-m-d');
+            }
             $account->save();
         }
 

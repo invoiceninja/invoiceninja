@@ -263,7 +263,7 @@ return array(
   'payment_message' => 'Tak for din betaling pålydende :amount.',
   'email_salutation' => 'Kære :name,',
   'email_signature' => 'Med venlig hilsen,',
-  'email_from' => 'The InvoiceNinja Team',
+  'email_from' => 'The Invoice Ninja Team',
   'user_email_footer' => 'For at justere varslingsindstillingene venligst besøg '.SITE_URL.'/company/notifications',
   'invoice_link_message' => 'Hvis du vil se din klientfaktura klik på linket under:',
   'notification_invoice_paid_subject' => 'Faktura :invoice betalt af :client',

@@ -47,6 +47,14 @@
         z-index: 2;
     }
 
+    .modal-header a:link,
+    .modal-header a:visited,
+    .modal-header a:hover,
+    .modal-header a:active {
+        text-decoration: none;
+        color: white;
+    }
+
 </style>
 
 @endsection
@@ -59,8 +67,11 @@
     {{ Former::populateField('remember', 'true') }}
 
     <div class="modal-header">
-        <img src="{{ asset('images/icon-login.png') }}" />
-        <h4>Invoice Ninja | {{ trans('texts.account_login') }}</h4></div>
+        <a href="{{ NINJA_WEB_URL }}" target="_blank">
+            <img src="{{ asset('images/icon-login.png') }}" />        
+            <h4>Invoice Ninja | {{ trans('texts.account_login') }}</h4>
+        </a>
+    </div>    
         <div class="inner">
             <p>
                 {!! Former::text('email')->placeholder(trans('texts.email_address'))->raw() !!}

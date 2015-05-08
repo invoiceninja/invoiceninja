@@ -50,8 +50,8 @@
             
             <p>&nbsp;</p>
             {!! Former::checkbox('enable_chart')->text(trans('texts.enable')) !!}                
-            {!! Former::select('chart_type')->options($chartTypes, $chartType) !!}
             {!! Former::select('group_by')->options($dateTypes, $groupBy) !!}
+            {!! Former::select('chart_type')->options($chartTypes, $chartType) !!}
 
             <p>&nbsp;</p>
 			@if (Auth::user()->isPro())

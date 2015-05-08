@@ -9,6 +9,7 @@ use Exception;
 use Input;
 use Utils;
 use View;
+use Session;
 use App\Models\User;
 use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
