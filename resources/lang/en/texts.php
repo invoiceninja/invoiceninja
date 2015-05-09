@@ -605,34 +605,6 @@ return array(
   'app_title' => 'Free Open-Source Online Invoicing',
   'app_description' => 'Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
   
-  'plans' => [
-    'header' => '<span class="thin">The</span> Plans',
-    'free' => 'Free',
-    'unlimited' => 'Unlimited',
-    'pro_plan' => 'Pro Plan',
-
-    'go_pro' => 'Go Pro to Unlock Premium Invoice Ninja Features',
-    'go_pro_text' => 'We believe that the free version of Invoice Ninja is a truly awesome product loaded with the key features you need to bill your clients electronically. But for those who crave still more Ninja awesomeness, we\'ve unmasked the Invoice Ninja Pro plan, which offers more versatility, power and customization options for just $50 per year.',
-
-    'number_clients' => 'Number of clients per account',
-    'unlimited_invoices' => 'Unlimited client invoices',
-    'company_logo' => 'Add your company logo',
-    'live_pdf' => 'Live .PDF invoice creation',
-    'four_templates' => '4 beautiful invoice templates',
-    'payments' => 'Accept credit card payments',
-    'additional_templates' => 'Additional invoice templates',
-    'multi_user' => 'Multi-user support',
-    'quotes' => 'Quotes/pro-forma invoices',
-    'advanced_settings' => 'Advanced invoice settings',
-    'data_vizualizations' => 'Dynamic data vizualizations',
-    'email_support' => 'Priority email support',
-    'remove_created_by' => 'Remove "Created by Invoice Ninja"',
-    'latest_features' => 'Latest and greatest features',
-    'pricing' => 'Pricing',
-    'free_always' => 'Free<span> /Always!</span>',
-    'year_price' => '$50<span> /Year</span>',
-  ],
-
   'rows' => 'rows',
   'www' => 'www',
   'logo' => 'Logo',
@@ -652,7 +624,5 @@ return array(
   'zapier' => 'Zapier <sup>Beta</sup>',
   'recurring' => 'Recurring',
   'last_invoice_sent' => 'Last invoice sent :date',
-
-
 
 );

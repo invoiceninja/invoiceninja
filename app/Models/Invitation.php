@@ -33,7 +33,7 @@ class Invitation extends EntityModel
         $url = SITE_URL;
 
         if ($this->account->subdomain) {
-            $url = str_replace(['://www', '://'], "://{$this->account->subdomain}.", $url);
+            $url = str_replace('://www.', "://{$this->account->subdomain}.", $url);
         }
 
         return "{$url}/view/{$this->invitation_key}";

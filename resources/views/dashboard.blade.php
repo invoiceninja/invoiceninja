@@ -30,9 +30,13 @@
                     {{ trans('texts.average_invoice') }}                    
                 </div>
                 <div class="in-bold">
-                    @foreach ($averageInvoice as $item)
-                    {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
-                    @endforeach
+                    @if (count($averageInvoice))
+                        @foreach ($averageInvoice as $item)
+                            {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
+                        @endforeach
+                    @else
+                        {{ Utils::formatMoney(0) }}
+                    @endif
                 </div>
             </div>
         </div>

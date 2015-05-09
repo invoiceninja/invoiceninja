@@ -16,12 +16,14 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 
 ### Features
 
-* Core application built using Laravel 5
-* Invoice PDF generation directly in the browser
-* Integrates with many payment providers
+* Built using Laravel 5
+* Live PDF generation
+* Integrates with 30+ payment providers
 * Recurring invoices
 * Tax rates and payment terms
 * Multi-user support
+* Partial payments
+* Custom email templates
 * [Zapier](https://zapier.com/) integration
 * [D3.js](http://d3js.org/) visualizations
 

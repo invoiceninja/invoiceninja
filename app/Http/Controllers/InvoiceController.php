@@ -451,7 +451,7 @@ class InvoiceController extends BaseController
 
             $pdfUpload = Input::get('pdfupload');
             if (!empty($pdfUpload) && strpos($pdfUpload, 'data:application/pdf;base64,') === 0) {
-                $this->storePDF(Input::get('pdfupload'), $invoice->id);
+                $this->storePDF(Input::get('pdfupload'), $invoice);
             }
 
             if ($action == 'clone') {
@@ -597,11 +597,9 @@ class InvoiceController extends BaseController
         return View::make('invoices.history', $data);
     }
     
-    private function storePDF($encodedString, $invoiceId)
+    private function storePDF($encodedString, $invoice)
     {
-        $uploadsDir = storage_path().'/pdfcache/';
         $encodedString = str_replace('data:application/pdf;base64,', '', $encodedString);
-        $name = 'cache-'.$invoiceId.'.pdf';
-        file_put_contents($uploadsDir.$name, base64_decode($encodedString));
+        file_put_contents($invoice->getPDFPath(), base64_decode($encodedString));
     }
 }

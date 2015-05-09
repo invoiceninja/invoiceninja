@@ -366,7 +366,7 @@
 
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="text" id="search" style="width: 140px" 
+          <input type="text" id="search" style="width: {{ Session::get(SESSION_LOCALE) == 'en' ? 180 : 140 }}px" 
             class="form-control" placeholder="{{ trans('texts.search') }}">
         </div>
       </form>

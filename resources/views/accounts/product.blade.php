@@ -58,6 +58,10 @@
   window.model = new ViewModel();
   ko.applyBindings(model);  
 
+  $(function() {
+    $('#product_key').focus();
+  });
+
   </script>
 
 @stop

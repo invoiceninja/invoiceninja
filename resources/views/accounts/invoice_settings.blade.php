@@ -139,3 +139,7 @@
 
 
 @stop
+
+@section('onReady')
+    $('#custom_invoice_label1').focus();
+@stop

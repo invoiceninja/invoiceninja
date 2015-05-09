@@ -631,12 +631,7 @@ class PaymentController extends BaseController
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = date_create()->format('Y-m-d');
-
-        if ($invoice->partial) {
-            $invoice->partial = 0;
-            $invoice->save();
-        }
-
+        
         if ($payerId) {
             $payment->payer_id = $payerId;
         }

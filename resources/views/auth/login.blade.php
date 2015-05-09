@@ -114,7 +114,6 @@
 
         {!! Former::close() !!}
 
-        @if (!Utils::isNinja())
         <p/>
         <center>
             <!--
@@ -141,8 +140,18 @@
             <iframe allowTransparency="true" frameborder="0" scrolling="no" src="https://bitnami.com/product/invoice-ninja/widget" style="border:none;width:230px; height:100px;"></iframe>
 
         </center>
-        @endif
 
     </div>
 
-    @endsection
+
+    <script type="text/javascript">
+        $(function() {
+            if ($('#email').val()) {
+                $('#password').focus();
+            } else {
+                $('#email').focus();
+            }
+        })
+    </script>
+
+@endsection

@@ -1,12 +1,6 @@
 @extends('header')
 
-
-@section('onReady')
-	$('input#name').focus();
-@stop
-
 @section('content')
-
 	
 	{!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
 		'client' => 'required',
@@ -25,7 +19,7 @@
             <div class="panel panel-default">
             <div class="panel-body">
 
-            @if (!$payment)                        
+            @if (!$payment)
 			 {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
 			 {!! Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') !!}
 			 {!! Former::text('amount') !!}
@@ -66,6 +60,13 @@
 
 		$('#payment_type_id').combobox();		
 
+        @if (!$clientPublicId)
+            $('.client-select input.form-control').focus();
+        @elseif (!$invoicePublicId)
+            $('.invoice-select input.form-control').focus();
+        @elseif (!$payment)
+            $('#amount').focus();
+        @endif
 	});
 
 	</script>

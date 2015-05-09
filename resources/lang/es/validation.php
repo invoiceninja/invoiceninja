@@ -72,9 +72,6 @@ return array(
     "url"        => "El formato :attribute es inválido.",
     "positive"   => ":attribute debe ser mayor que cero.",
     "has_credit" => "el cliente no tiene crédito suficiente.",
-
-    "positive" => "The :attribute must be greater than zero.",
-    "has_credit" => "The client does not have enough credit.",
     "notmasked" => "The values are masked",
 
 

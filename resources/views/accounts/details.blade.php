@@ -35,7 +35,7 @@
 			
 			{!! Former::text('name') !!}
 
-            @if (Auth::user()->isPro())
+            @if (Auth::user()->isPro() && !Utils::isNinja())
                 {{ Former::setOption('capitalize_translations', false) }}
                 {!! Former::text('subdomain')->placeholder('texts.www')->onchange('onSubdomainChange()') !!}                
             @endif
@@ -266,6 +266,7 @@
               '&confirm_password=' + encodeURIComponent($('form #confirm_password').val()),
               success: function(result) { 
                 if (result == 'success') {
+                  NINJA.formIsChanged = false;
                   $('#changePasswordButton').hide();
                   $('#successDiv').show();
                   $('#cancelChangePasswordButton').html('{{ trans('texts.close') }}');
@@ -289,5 +290,8 @@
 
 	</script>
 
+@stop
 
+@section('onReady')
+    $('#name').focus();
 @stop

@@ -1,10 +1,5 @@
 @extends('header')
 
-
-@section('onReady')
-	$('input#name').focus();
-@stop
-
 @section('content')
 
 	
@@ -60,8 +55,18 @@
 		$('#currency_id').combobox();
 		$('#credit_date').datepicker('update', new Date());
 
+        @if (!$clientPublicId)
+            $('.client-select input.form-control').focus();
+        @else
+            $('#amount').focus();
+        @endif
+
 	});
 
 	</script>
 
+@stop
+
+@section('onReady')
+    //$('.client-select input.form-control').focus();
 @stop

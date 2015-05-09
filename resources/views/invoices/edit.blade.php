@@ -169,7 +169,7 @@
 				       ->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') !!}
 				</td>
 				<td>
-					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap"></textarea>
+					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: vertical" class="form-control word-wrap"></textarea>
 				</td>
 				<td>
 					<input onkeyup="onItemChange()" data-bind="value: prettyCost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
@@ -684,13 +684,19 @@
 	});	
 
 	function applyComboboxListeners() {
-		var selectorStr = '.invoice-table input, .invoice-table select, .invoice-table textarea';		
+        var selectorStr = '.invoice-table input, .invoice-table select, .invoice-table textarea';		
 		$(selectorStr).off('blur').on('blur', function() {
 			refreshPDF();
 		});
 
+        $('textarea').on('keyup focus', function(e) {            
+            while($(this).outerHeight() < this.scrollHeight + parseFloat($(this).css("borderTopWidth")) + parseFloat($(this).css("borderBottomWidth"))) {
+                $(this).height($(this).height()+1);
+            };
+        });        
+
 		@if (Auth::user()->account->fill_products)
-			$('.datalist').on('change', function() {			                
+			$('.datalist').on('input', function() {			                
 				var key = $(this).val();
 				for (var i=0; i<products.length; i++) {
 					var product = products[i];
@@ -759,7 +765,8 @@
 		var design  = getDesignJavascript();
 		if (!design) return;
 		var doc = generatePDF(invoice, design, true);
-		doc.save('Invoice-' + $('#invoice_number').val() + '.pdf');
+        var type = invoice.is_quote ? '{{ trans('texts.'.ENTITY_QUOTE) }}' : '{{ trans('texts.'.ENTITY_INVOICE) }}';
+		doc.save(type +'-' + $('#invoice_number').val() + '.pdf');
 	}
 
 	function onEmailClick() {
@@ -1632,9 +1639,11 @@
 			model.invoice().addItem();
 		}
 
+        /*
 		$('.word-wrap').each(function(index, input) {
 			$(input).height($(input).val().split('\n').length * 20);
 		});
+        */
 	}
 
 	function onTaxRateChange()

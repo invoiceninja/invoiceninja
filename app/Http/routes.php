@@ -69,7 +69,7 @@ post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWr
 get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogout'));
 get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
 post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
-get('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
+get('/password/reset/{token}', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
 post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
 get('/user/confirm/{code}', 'UserController@confirm');
 

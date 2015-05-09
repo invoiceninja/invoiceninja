@@ -73,6 +73,10 @@ return [
     "unique"           => ":attribute används redan.",
     "url"              => "Formatet :attribute är ogiltigt.",
 
+    "positive" => "The :attribute must be greater than zero.",
+    "has_credit" => "The client does not have enough credit.",
+    "notmasked" => "The values are masked",
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

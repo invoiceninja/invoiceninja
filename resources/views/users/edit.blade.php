@@ -35,3 +35,7 @@
   {!! Former::close() !!}
 
 @stop
+
+@section('onReady')
+    $('#first_name').focus();
+@stop

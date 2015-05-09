@@ -10,6 +10,8 @@ use Input;
 use Utils;
 use View;
 use Session;
+use Cookie;
+use Response;
 use App\Models\User;
 use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
@@ -34,7 +36,15 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        return View::make('setup');
+        $view = View::make('setup');
+
+        /*
+        $cookie = Cookie::forget('ninja_session', '/', 'www.ninja.dev');
+        Cookie::queue($cookie);
+        return Response::make($view)->withCookie($cookie);
+        */
+
+        return Response::make($view);
     }
 
     public function doSetup()

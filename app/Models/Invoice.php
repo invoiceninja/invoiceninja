@@ -57,6 +57,11 @@ class Invoice extends EntityModel
         return trans("texts.$entityType") . '_' . $this->invoice_number . '.pdf';
     }
 
+    public function getPDFPath()
+    {
+        return storage_path() . '/pdfcache/cache-' . $this->id . '.pdf';
+    }
+
     public function getLink()
     {
         return link_to('invoices/'.$this->public_id, $this->invoice_number);
