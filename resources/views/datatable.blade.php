@@ -1,4 +1,4 @@
-<table class="table table-striped {{ $class = str_random(8) }}">
+<table class="table table-striped data-table {{ $class = str_random(8) }}">
     <colgroup>
         @for ($i = 0; $i < count($columns); $i++)
         <col class="con{{ $i }}" />
@@ -43,7 +43,7 @@
                     $(row).addClass('entityArchived');
                 }
             },
-            "bAutoWidth": false,            
+            "bAutoWidth": false,
             @if (isset($hasCheckboxes) && $hasCheckboxes)
             'aaSorting': [['1', 'asc']],
             // Disable sorting on the first column

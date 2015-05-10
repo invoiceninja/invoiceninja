@@ -14,7 +14,10 @@ use stdClass;
 use Cache;
 use Response;
 use parseCSV;
+use Request;
 
+use App\Models\Affiliate;
+use App\Models\License;
 use App\Models\User;
 use App\Models\Client;
 use App\Models\Contact;
@@ -572,7 +575,7 @@ class AccountController extends BaseController
         }
 
         $subdomain = preg_replace('/[^a-zA-Z0-9_\-]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
-        if (!$subdomain || in_array($subdomain, ['www', 'app', 'mail', 'admin', 'blog'])) {
+        if (!$subdomain || in_array($subdomain, ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner'])) {
             $subdomain = null;
         }
         if ($subdomain) {

@@ -60,9 +60,9 @@
 
 		$('#payment_type_id').combobox();		
 
-        @if (!$clientPublicId)
+        @if (!$payment && !$clientPublicId)
             $('.client-select input.form-control').focus();
-        @elseif (!$invoicePublicId)
+        @elseif (!$payment && !$invoicePublicId)
             $('.invoice-select input.form-control').focus();
         @elseif (!$payment)
             $('#amount').focus();

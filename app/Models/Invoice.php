@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends EntityModel

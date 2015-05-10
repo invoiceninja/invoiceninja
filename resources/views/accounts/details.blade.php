@@ -35,7 +35,7 @@
 			
 			{!! Former::text('name') !!}
 
-            @if (Auth::user()->isPro() && !Utils::isNinja())
+            @if (Auth::user()->isPro() && Utils::isNinja())
                 {{ Former::setOption('capitalize_translations', false) }}
                 {!! Former::text('subdomain')->placeholder('texts.www')->onchange('onSubdomainChange()') !!}                
             @endif

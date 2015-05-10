@@ -85,77 +85,74 @@
 		window.location = '{{ URL::to('view_archive/' . $entityType) }}' + (checked ? '/true' : '/false');
 	}
 
+    $(function() {
+        var tableFilter = '';
+        var searchTimeout = false;
+
+        var oTable0 = $('#DataTables_Table_0').dataTable();
+        var oTable1 = $('#DataTables_Table_1').dataTable(); 
+        function filterTable(val) { 
+            if (val == tableFilter) {
+                return;
+            }
+            tableFilter = val;
+            oTable0.fnFilter(val);
+            @if (isset($secEntityType))
+                oTable1.fnFilter(val);
+            @endif
+        }
+
+        $('#tableFilter').on('keyup', function(){
+            if (searchTimeout) {
+                window.clearTimeout(searchTimeout);
+            }
+
+            searchTimeout = setTimeout(function() {
+                filterTable($('#tableFilter').val());
+            }, 500);                   
+        })
+
+        window.onDatatableReady = function() {      
+            $(':checkbox').click(function() {
+                setArchiveEnabled();
+            }); 
+
+            $('tbody tr').click(function(event) {        
+                if (event.target.type !== 'checkbox' && event.target.type !== 'button' && event.target.tagName.toLowerCase() !== 'a') {
+                    $checkbox = $(this).closest('tr').find(':checkbox:not(:disabled)');             
+                    var checked = $checkbox.prop('checked');
+                    $checkbox.prop('checked', !checked);
+                    setArchiveEnabled();
+                }
+            });
+
+            $('tbody tr').mouseover(function() {
+                $(this).closest('tr').find('.tr-action').css('visibility','visible');
+            }).mouseout(function() {
+                $dropdown = $(this).closest('tr').find('.tr-action');
+                if (!$dropdown.hasClass('open')) {
+                    $dropdown.css('visibility','hidden');
+                }           
+            });
+
+        }   
+
+        $('.archive').prop('disabled', true);
+        $('.archive:not(.dropdown-toggle)').click(function() {
+            submitForm('archive');
+        });
+
+        $('.selectAll').click(function() {
+            $(this).closest('table').find(':checkbox:not(:disabled)').prop('checked', this.checked);
+        });
+
+        function setArchiveEnabled() {
+            var checked = $('tbody :checkbox:checked').length > 0;
+            $('button.archive').prop('disabled', !checked); 
+        }
+
+    });
+
     </script>
 
-@stop
-
-@section('onReady')
-
-	var tableFilter = '';
-	var searchTimeout = false;
-
-	var oTable0 = $('#DataTables_Table_0').dataTable();
-	var oTable1 = $('#DataTables_Table_1').dataTable();	
-	function filterTable(val) {	
-		if (val == tableFilter) {
-			return;
-		}
-		tableFilter = val;
-		oTable0.fnFilter(val);
-    	@if (isset($secEntityType))
-    		oTable1.fnFilter(val);
-		@endif
-	}
-
-	$('#tableFilter').on('keyup', function(){
-		if (searchTimeout) {
-			window.clearTimeout(searchTimeout);
-		}
-
-		searchTimeout = setTimeout(function() {
-			filterTable($('#tableFilter').val());
-		}, 1000);					
-	})
-
-	window.onDatatableReady = function() {		
-		$(':checkbox').click(function() {
-			setArchiveEnabled();
-		});	
-
-		$('tbody tr').click(function(event) {        
-			if (event.target.type !== 'checkbox' && event.target.type !== 'button' && event.target.tagName.toLowerCase() !== 'a') {
-				$checkbox = $(this).closest('tr').find(':checkbox:not(:disabled)');				
-				var checked = $checkbox.prop('checked');
-				$checkbox.prop('checked', !checked);
-				setArchiveEnabled();
-			}
-		});
-
-		$('tbody tr').mouseover(function() {
-			$(this).closest('tr').find('.tr-action').css('visibility','visible');
-		}).mouseout(function() {
-			$dropdown = $(this).closest('tr').find('.tr-action');
-			if (!$dropdown.hasClass('open')) {
-				$dropdown.css('visibility','hidden');
-			}			
-		});
-
-	}	
-
-	$('.archive').prop('disabled', true);
-	$('.archive:not(.dropdown-toggle)').click(function() {
-		submitForm('archive');
-	});
-
-	$('.selectAll').click(function() {
-		$(this).closest('table').find(':checkbox:not(:disabled)').prop('checked', this.checked);
-	});
-
-	function setArchiveEnabled() {
-		var checked = $('tbody :checkbox:checked').length > 0;
-		$('button.archive').prop('disabled', !checked);	
-	}
-
-
-	
 @stop
