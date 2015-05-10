@@ -21,16 +21,12 @@ class Mailer
                 $fromEmail = NINJA_FROM_EMAIL;
             }
             
-            if(isset($data['id'])) {
-                $invoice = Invoice::find($data['id']);
-                $invoice->load('account');
-                $accountAttributes = $invoice->account()->getParent()->getRelations()['account']->getAttributes();
-                $pdfPath = storage_path().'/pdfcache/cache-'.$invoice->id.'.pdf';
-                
-                if($accountAttributes['pdf_email_attachment'] === 1 && file_exists($pdfPath)) {
+            if(isset($data['invoice_id'])) {
+                $invoice = Invoice::with('account')->where('id', '=', $data['invoice_id'])->get()->first();
+                if($invoice->account->pdf_email_attachment && file_exists($invoice->getPDFPath())) {
                     $message->attach(
-                        $pdfPath,
-                        array('as' => $accountAttributes['name'].'_'.$accountAttributes['invoice_number_prefix'].$invoice->getName().'.pdf', 'mime' => 'application/pdf')
+                        $invoice->getPDFPath(),
+                        array('as' => $invoice->getFileName(), 'mime' => 'application/pdf')
                     );
                 }
             }

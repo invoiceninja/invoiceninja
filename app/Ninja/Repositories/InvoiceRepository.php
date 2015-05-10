@@ -19,7 +19,7 @@ class InvoiceRepository
             ->where('contacts.deleted_at', '=', null)
             ->where('invoices.is_recurring', '=', false)
             ->where('contacts.is_primary', '=', true)
-            ->select('clients.public_id as client_public_id', 'invoice_number', 'invoice_status_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'quote_id', 'quote_invoice_id', 'invoices.deleted_at', 'invoices.is_deleted');
+            ->select('clients.public_id as client_public_id', 'invoice_number', 'invoice_status_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'invoices.balance', 'invoice_date', 'due_date', 'invoice_statuses.name as invoice_status_name', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'quote_id', 'quote_invoice_id', 'invoices.deleted_at', 'invoices.is_deleted', 'invoices.partial');
 
         if (!\Session::get('show_trash:'.$entityType)) {
             $query->where('invoices.deleted_at', '=', null);
@@ -86,7 +86,7 @@ class InvoiceRepository
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', false)
-          ->select('invitation_key', 'invoice_number', 'invoice_date', 'invoices.balance as balance', 'due_date', 'clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'start_date', 'end_date', 'clients.currency_id');
+          ->select('invitation_key', 'invoice_number', 'invoice_date', 'invoices.balance as balance', 'due_date', 'clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'start_date', 'end_date', 'clients.currency_id', 'invoices.partial');
 
         $table = \Datatable::query($query)
             ->addColumn('invoice_number', function ($model) use ($entityType) { return link_to('/view/'.$model->invitation_key, $model->invoice_number); })
@@ -94,7 +94,11 @@ class InvoiceRepository
             ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); });
 
         if ($entityType == ENTITY_INVOICE) {
-            $table->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id); });
+            $table->addColumn('balance', function ($model) {
+                return $model->partial > 0 ?
+                    trans('texts.partial_remaining', ['partial' => Utils::formatMoney($model->partial, $model->currency_id), 'balance' => Utils::formatMoney($model->balance, $model->currency_id)]) :
+                    Utils::formatMoney($model->balance, $model->currency_id);
+            });
         }
 
         return $table->addColumn('due_date', function ($model) { return Utils::fromSqlDate($model->due_date); })
@@ -122,11 +126,15 @@ class InvoiceRepository
               ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); });
 
         if ($entityType == ENTITY_INVOICE) {
-            $table->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id); });
+            $table->addColumn('balance', function ($model) {
+                return $model->partial > 0 ?
+                    trans('texts.partial_remaining', ['partial' => Utils::formatMoney($model->partial, $model->currency_id), 'balance' => Utils::formatMoney($model->balance, $model->currency_id)]) :
+                    Utils::formatMoney($model->balance, $model->currency_id);
+            });
         }
 
         return $table->addColumn('due_date', function ($model) { return Utils::fromSqlDate($model->due_date); })
-        ->addColumn('invoice_status_name', function ($model) { return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : $model->invoice_status_name; })
+        ->addColumn('invoice_status_name', function ($model) { return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : self::getStatusLabel($model->invoice_status_id, $model->invoice_status_name); })
         ->addColumn('dropdown', function ($model) use ($entityType) {
 
             if ($model->is_deleted) {
@@ -179,10 +187,33 @@ class InvoiceRepository
         ->make();
     }
 
+    private function getStatusLabel($statusId, $statusName) {
+        $label = trans("texts.{$statusName}");
+        $class = 'default';
+        switch ($statusId) {
+            case INVOICE_STATUS_SENT:
+                $class = 'info';
+                break;
+            case INVOICE_STATUS_VIEWED:
+                $class = 'warning';
+                break;
+            case INVOICE_STATUS_PARTIAL:
+                $class = 'primary';
+                break;
+            case INVOICE_STATUS_PAID:
+                $class = 'success';
+                break;
+        }
+        return "<h4><div class=\"label label-{$class}\">$statusName</div></h4>";
+    }
+
     public function getErrors($input)
     {
         $contact = (array) $input->client->contacts[0];
-        $rules = ['email' => 'required|email'];
+        $rules = [
+            'email' => 'email|required_without:first_name',
+            'first_name' => 'required_without:email',
+        ];
         $validator = \Validator::make($contact, $rules);
 
         if ($validator->fails()) {
@@ -238,9 +269,13 @@ class InvoiceRepository
         $invoice->discount = round(Utils::parseFloat($data['discount']), 2);
         $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
         $invoice->invoice_number = trim($data['invoice_number']);
-        $invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
+        $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
         $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
 
+        if (!$publicId) {
+            $invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
+        }
+        
         if ($invoice->is_recurring) {
             $invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
             $invoice->start_date = Utils::toSqlDate($data['start_date']);
@@ -253,8 +288,8 @@ class InvoiceRepository
             $invoice->end_date = null;
         }
 
-        $invoice->terms = trim($data['terms']) ? trim($data['terms']) : ($account->invoice_terms ? $account->invoice_terms : '');
-        $invoice->invoice_footer = trim($data['invoice_footer']) ? trim($data['invoice_footer']) : $account->invoice_footer;
+        $invoice->terms = trim($data['terms']) ? trim($data['terms']) : (!$publicId && $account->invoice_terms ? $account->invoice_terms : '');
+        $invoice->invoice_footer = trim($data['invoice_footer']) ? trim($data['invoice_footer']) : (!$publicId && $account->invoice_footer ? $account->invoice_footer : '');
         $invoice->public_notes = trim($data['public_notes']);
         $invoice->po_number = trim($data['po_number']);
         $invoice->invoice_design_id = $data['invoice_design_id'];

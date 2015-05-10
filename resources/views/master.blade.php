@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Invoice Ninja | {{ isset($title) ? $title : ' ' . trans('public.title') }}</title> 
-    <meta name="description" content="{{ isset($description) ? $description : trans('public.description') }}" />
+    <title>Invoice Ninja | {{ isset($title) ? $title : ' ' . trans('texts.app_title') }}</title> 
+    <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}" />
 
     <!-- Source: https://github.com/hillelcoren/invoice-ninja -->
     <!-- Version: {{ NINJA_VERSION }} -->
@@ -23,7 +23,7 @@
     <link href="{{ asset('favicon.png') }}" rel="shortcut icon">
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}" />
 
-    <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
+    <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    
 
     <script type="text/javascript">
         var NINJA = NINJA || {};      
@@ -44,12 +44,12 @@
         /* Set the defaults for DataTables initialisation */
         $.extend( true, $.fn.dataTable.defaults, {
             "bSortClasses": false,
-            "sDom": "t<'row-fluid'<'span6'i><'span6'p>>",
+            "sDom": "t<'row-fluid'<'span6'i><'span6'p>>l",
             "sPaginationType": "bootstrap",
             "bInfo": true,
             "oLanguage": {
                 'sEmptyTable': "{{ trans('texts.empty_table') }}",
-                'sLengthMenu': '_MENU_',
+                'sLengthMenu': '_MENU_ {{ trans('texts.rows') }}',
                 'sSearch': ''
             }
         } );

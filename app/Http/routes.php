@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -36,7 +37,7 @@ Route::post('get_started', 'AccountController@getStarted');
 // Client visible pages
 Route::get('view/{invitation_key}', 'InvoiceController@view');
 Route::get('approve/{invitation_key}', 'QuoteController@approve');
-Route::get('payment/{invitation_key}', 'PaymentController@show_payment');
+Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
 Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
 Route::get('complete', 'PaymentController@offsite_payment');
 Route::get('client/quotes', 'QuoteController@clientIndex');
@@ -64,12 +65,12 @@ Route::controllers([
 
 get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
 post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
-get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLogin'));
+get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));
 post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper'));
 get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogout'));
 get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
 post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
-get('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
+get('/password/reset/{token}', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
 post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
 get('/user/confirm/{code}', 'UserController@confirm');
 
@@ -84,7 +85,7 @@ Route::post('user/reset', 'UserController@do_reset_password');
 Route::get('logout', 'UserController@logout');
 */
 
-if (\App\Libraries\Utils::isNinja()) {
+if (Utils::isNinja()) {
     Route::post('/signup/register', 'AccountController@doRegister');
     Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
     Route::get('/demo', 'AccountController@demo');
@@ -112,8 +113,8 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('products/{product_id}/archive', 'ProductController@archive');
 
     Route::get('company/advanced_settings/data_visualizations', 'ReportController@d3');
-    Route::get('company/advanced_settings/chart_builder', 'ReportController@report');
-    Route::post('company/advanced_settings/chart_builder', 'ReportController@report');
+    Route::get('company/advanced_settings/charts_and_reports', 'ReportController@showReports');
+    Route::post('company/advanced_settings/charts_and_reports', 'ReportController@showReports');
 
     Route::post('company/cancel_account', 'AccountController@cancelAccount');
     Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
@@ -179,9 +180,36 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('invoices', 'InvoiceApiController');
     Route::resource('quotes', 'QuoteApiController');
     Route::resource('payments', 'PaymentApiController');
-    Route::post('api/hooks', 'IntegrationController@subscribe');
+    Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
 });
+
+// Redirects for legacy links
+Route::get('/rocksteady', function() {
+    return Redirect::to(NINJA_WEB_URL, 301);
+});
+Route::get('/about', function() {
+    return Redirect::to(NINJA_WEB_URL, 301);
+});
+Route::get('/contact', function() {
+    return Redirect::to(NINJA_WEB_URL.'/contact', 301);
+});
+Route::get('/plans', function() {
+    return Redirect::to(NINJA_WEB_URL.'/pricing', 301);
+});
+Route::get('/faq', function() {
+    return Redirect::to(NINJA_WEB_URL.'/how-it-works', 301);
+});
+Route::get('/features', function() {
+    return Redirect::to(NINJA_WEB_URL.'/features', 301);
+});
+Route::get('/testimonials', function() {
+    return Redirect::to(NINJA_WEB_URL, 301);
+});
+Route::get('/compare-online-invoicing{sites?}', function() {
+    return Redirect::to(NINJA_WEB_URL, 301);
+});
+
 
 define('CONTACT_EMAIL', Config::get('mail.from.address'));
 define('CONTACT_NAME', Config::get('mail.from.name'));
@@ -260,6 +288,7 @@ define('RANDOM_KEY_LENGTH', 32);
 define('MAX_NUM_CLIENTS', 500);
 define('MAX_NUM_CLIENTS_PRO', 20000);
 define('MAX_NUM_USERS', 20);
+define('MAX_SUBDOMAIN_LENGTH', 30);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);
@@ -285,6 +314,9 @@ define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
 define('SESSION_COUNTER', 'sessionCounter');
 define('SESSION_LOCALE', 'sessionLocale');
 
+define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
+define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
+
 define('DEFAULT_TIMEZONE', 'US/Eastern');
 define('DEFAULT_CURRENCY', 1); // US Dollar
 define('DEFAULT_DATE_FORMAT', 'M j, Y');
@@ -309,6 +341,7 @@ define('GATEWAY_TWO_CHECKOUT', 27);
 define('GATEWAY_BEANSTREAM', 29);
 define('GATEWAY_PSIGATE', 30);
 define('GATEWAY_MOOLAH', 31);
+define('GATEWAY_BITPAY', 42);
 
 define('EVENT_CREATE_CLIENT', 1);
 define('EVENT_CREATE_INVOICE', 2);
@@ -318,14 +351,15 @@ define('EVENT_CREATE_PAYMENT', 4);
 define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
 define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
-define('NINJA_GATEWAY_ID', GATEWAY_AUTHORIZE_NET);
-define('NINJA_GATEWAY_CONFIG', '{"apiLoginId":"626vWcD5","transactionKey":"4bn26TgL9r4Br4qJ","testMode":"","developerMode":""}');
+define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
+define('NINJA_GATEWAY_CONFIG', '');
 define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
 define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-define('NINJA_VERSION', '1.7.2');
+define('NINJA_VERSION', '2.0.1');
 define('NINJA_DATE', '2000-01-01');
 define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
 define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
+define('ZAPIER_URL', 'https://zapier.com/developer/invite/11276/85cf0ee4beae8e802c6c579eb4e351f1/');
 
 define('COUNT_FREE_DESIGNS', 4);
 define('PRODUCT_ONE_CLICK_INSTALL', 1);
@@ -351,6 +385,8 @@ define('TOKEN_BILLING_ALWAYS', 4);
 
 define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
 define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
+define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');
+define('PAYMENT_TYPE_TOKEN', 'PAYMENT_TYPE_TOKEN');
 define('PAYMENT_TYPE_ANY', 'PAYMENT_TYPE_ANY');
 
 /*
@@ -472,7 +508,7 @@ Validator::extend('has_credit', function($attribute, $value, $parameters) {
     $publicClientId = $parameters[0];
     $amount = $parameters[1];
 
-    $client = Client::scope($publicClientId)->firstOrFail();
+    $client = \App\Models\Client::scope($publicClientId)->firstOrFail();
     $credit = $client->getTotalCredit();
 
     return $credit >= $amount;

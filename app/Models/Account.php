@@ -3,6 +3,7 @@
 use Eloquent;
 use Utils;
 use Session;
+use DateTime;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -113,9 +114,7 @@ class Account extends Eloquent
         foreach ($this->account_gateways as $gateway) {
             if (!$type || $type == PAYMENT_TYPE_ANY) {
                 return $gateway;
-            } elseif ($gateway->isPayPal() && $type == PAYMENT_TYPE_PAYPAL) {
-                return $gateway;
-            } elseif (!$gateway->isPayPal() && $type == PAYMENT_TYPE_CREDIT_CARD) {
+            } elseif ($gateway->isPaymentType($type)) {
                 return $gateway;
             }
         }
@@ -230,6 +229,7 @@ class Account extends Eloquent
             'subtotal',
             'paid_to_date',
             'balance_due',
+            'amount_due',
             'terms',
             'your_invoice',
             'quote',
@@ -356,7 +356,8 @@ class Account extends Eloquent
     public function getEmailFooter()
     {
         if ($this->email_footer) {
-            return $this->email_footer;
+            // Add line breaks if HTML isn't already being used
+            return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;            
         } else {
             return "<p>" . trans('texts.email_signature') . "<br>\$account</p>";
         }
@@ -377,3 +378,10 @@ class Account extends Eloquent
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
     }
 }
+
+Account::updating(function ($account) {
+    // Lithuanian requires UTF8 support
+    if (!Utils::isPro()) {
+        $account->utf8_invoices = ($account->language_id == 13) ? 1 : 0;
+    }
+});

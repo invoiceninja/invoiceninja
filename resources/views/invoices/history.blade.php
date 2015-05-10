@@ -6,14 +6,19 @@
     <script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
     <script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
 
+    @if (Auth::user()->account->utf8_invoices)
+        <script src="{{ asset('vendor/pdfmake/build/pdfmake.min.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
+    @endif
+
 
   <script>
 
-    var invoiceDesigns = {{ $invoiceDesigns }};
-    var currentInvoice = {{ $invoice }};
-    var versionsJson = {{ $versionsJson }};
+    var invoiceDesigns = {!! $invoiceDesigns !!};
+    var currentInvoice = {!! $invoice !!};
+    var versionsJson = {!! $versionsJson !!};
     
-    function getPDFString() {
+    function getPDFString(cb) {
 
         var version = $('#version').val();
         var invoice;
@@ -32,11 +37,8 @@
             invoiceDesign = invoiceDesigns[0];
         }
         
-        var doc = generatePDF(invoice, invoiceDesign.javascript, true);
-        if (!doc) {
-            return;
-        }
-        return doc.output('datauristring');
+        doc = generatePDF(invoice, invoiceDesign.javascript, true);
+        doc.getDataUrl(cb);
     }
 
     $(function() {   
@@ -49,10 +51,10 @@
 
 @section('content')
 
-    {{ Former::open()->addClass('form-inline')->onchange('refreshPDF()') }}
-    {{ Former::select('version')->options($versionsSelect)->label(trans('select_version')) }}
-    {{ Button::success_link(URL::to($invoice->getEntityType() . 's/' . $invoice->public_id . '/edit'), trans('texts.edit_' . $invoice->getEntityType()), array('class' => 'pull-right')) }}    
-    {{ Former::close() }}
+    {!! Former::open()->addClass('form-inline')->onchange('refreshPDF()') !!}
+    {!! Former::select('version')->options($versionsSelect)->label(trans('select_version'))->style('background-color: white !important') !!}
+    {!! Button::primary(trans('texts.edit_' . $invoice->getEntityType()))->asLinkTo('/' . $invoice->getEntityType() . 's/' . $invoice->public_id . '/edit')->withAttributes(array('class' => 'pull-right')) !!}    
+    {!! Former::close() !!}
 
     <br/>&nbsp;<br/>
 

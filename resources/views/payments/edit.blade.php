@@ -1,12 +1,6 @@
 @extends('header')
 
-
-@section('onReady')
-	$('input#name').focus();
-@stop
-
 @section('content')
-
 	
 	{!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
 		'client' => 'required',
@@ -17,11 +11,15 @@
     @if ($payment)
         {!! Former::populate($payment) !!}
     @endif
+
 	
 	<div class="row">
-		<div class="col-md-8">
+		<div class="col-md-10 col-md-offset-1">
 
-            @if (!$payment)                        
+            <div class="panel panel-default">
+            <div class="panel-body">
+
+            @if (!$payment)
 			 {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
 			 {!! Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') !!}
 			 {!! Former::text('amount') !!}
@@ -32,11 +30,12 @@
 			{!! Former::text('payment_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 			{!! Former::text('transaction_reference') !!}
 
-		</div>
-		<div class="col-md-6">
+            </div>
+            </div>
 
 		</div>
 	</div>
+
 
 	<center class="buttons">
         {!! Button::success(trans('texts.save'))->appendIcon(Icon::create('floppy-disk'))->submit()->large() !!}
@@ -61,6 +60,13 @@
 
 		$('#payment_type_id').combobox();		
 
+        @if (!$payment && !$clientPublicId)
+            $('.client-select input.form-control').focus();
+        @elseif (!$payment && !$invoicePublicId)
+            $('.invoice-select input.form-control').focus();
+        @elseif (!$payment)
+            $('#amount').focus();
+        @endif
 	});
 
 	</script>

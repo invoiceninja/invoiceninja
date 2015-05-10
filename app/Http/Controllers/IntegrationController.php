@@ -1,6 +1,10 @@
 <?php namespace App\Http\Controllers;
 
 use Utils;
+use Response;
+use Auth;
+use Input;
+use App\Models\Subscription;
 
 class IntegrationController extends Controller
 {

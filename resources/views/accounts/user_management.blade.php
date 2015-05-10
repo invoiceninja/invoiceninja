@@ -5,7 +5,6 @@
 	@include('accounts.nav_advanced')
 
   {!! Former::open('users/delete')->addClass('user-form') !!}
-  {!! Former::legend('user_management') !!}
 
   <div style="display:none">
     {!! Former::text('userPublicId') !!}
@@ -14,10 +13,10 @@
 
 
   <div class="pull-right">  
-    @if (Utils::isPro())    
-        {!! Button::success(trans('texts.add_user'))->asLinkTo('/users/create')->appendIcon(Icon::create('plus-sign')) !!}
-    @endif
     {!! Button::normal(trans('texts.api_tokens'))->asLinkTo('/company/advanced_settings/token_management')->appendIcon(Icon::create('cloud')) !!}
+    @if (Utils::isPro())    
+        {!! Button::primary(trans('texts.add_user'))->asLinkTo('/users/create')->appendIcon(Icon::create('plus-sign')) !!}
+    @endif
   </div>
 
 

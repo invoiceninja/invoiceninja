@@ -51,7 +51,8 @@ class DashboardController extends BaseController
 
 
         $activities = Activity::where('activities.account_id', '=', Auth::user()->account_id)
-                ->orderBy('created_at', 'desc')->take(6)->get();
+                ->where('activity_type_id', '>', 0)
+                ->orderBy('created_at', 'desc')->take(14)->get();
 
         $pastDue = Invoice::scope()
                 ->where('due_date', '<', date('Y-m-d'))
@@ -72,7 +73,7 @@ class DashboardController extends BaseController
         $data = [
       'paidToDate' => $paidToDate,
       'averageInvoice' => $averageInvoice,
-      'billedClients' => $metrics ? $metrics->billed_clients : 0,
+      //'billedClients' => $metrics ? $metrics->billed_clients : 0,
       'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
       'activeClients' => $metrics ? $metrics->active_clients : 0,
       'activities' => $activities,

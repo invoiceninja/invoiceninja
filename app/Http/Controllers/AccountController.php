@@ -12,9 +12,20 @@ use Validator;
 use View;
 use stdClass;
 use Cache;
+use Response;
+use parseCSV;
+use Request;
 
+use App\Models\Affiliate;
+use App\Models\License;
 use App\Models\User;
+use App\Models\Client;
+use App\Models\Contact;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Models\Activity;
+use App\Models\Payment;
+use App\Models\Credit;
 use App\Models\Account;
 use App\Models\Country;
 use App\Models\Currency;
@@ -90,7 +101,7 @@ class AccountController extends BaseController
 
         Auth::login($user, true);
         Event::fire(new UserLoggedIn());
-
+        
         return Redirect::to('invoices/create')->with('sign_up', Input::get('sign_up'));
     }
 
@@ -153,7 +164,7 @@ class AccountController extends BaseController
             if ($count == 0) {
                 return Redirect::to('gateways/create');
             } else {
-                return View::make('accounts.payments', ['showAdd' => $count < 2]);
+                return View::make('accounts.payments', ['showAdd' => $count < 3]);
             }
         } elseif ($section == ACCOUNT_NOTIFICATIONS) {
             $data = [
@@ -197,7 +208,7 @@ class AccountController extends BaseController
                 $invoice->invoice_items = [$invoiceItem];
 
                 $data['invoice'] = $invoice;
-                $data['invoiceDesigns'] = InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
+                $data['invoiceDesigns'] = InvoiceDesign::availableDesigns();
             } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
                 $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
                 $data['quoteEmail'] = $account->getEmailTemplate(ENTITY_QUOTE);
@@ -291,6 +302,8 @@ class AccountController extends BaseController
             $account->share_counter = Input::get('share_counter') ? true : false;
 
             $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
+            $account->utf8_invoices = Input::get('utf8_invoices') ? true : false;
+            $account->auto_wrap = Input::get('auto_wrap') ? true : false;
 
             if (!$account->share_counter) {
                 $account->quote_number_counter = Input::get('quote_number_counter');
@@ -333,38 +346,25 @@ class AccountController extends BaseController
         header('Content-Disposition:attachment;filename=export.csv');
 
         $clients = Client::scope()->get();
-        AccountController::exportData($output, $clients->toArray());
+        Utils::exportData($output, $clients->toArray());
 
         $contacts = Contact::scope()->get();
-        AccountController::exportData($output, $contacts->toArray());
+        Utils::exportData($output, $contacts->toArray());
 
         $invoices = Invoice::scope()->get();
-        AccountController::exportData($output, $invoices->toArray());
+        Utils::exportData($output, $invoices->toArray());
 
         $invoiceItems = InvoiceItem::scope()->get();
-        AccountController::exportData($output, $invoiceItems->toArray());
+        Utils::exportData($output, $invoiceItems->toArray());
 
         $payments = Payment::scope()->get();
-        AccountController::exportData($output, $payments->toArray());
+        Utils::exportData($output, $payments->toArray());
 
         $credits = Credit::scope()->get();
-        AccountController::exportData($output, $credits->toArray());
+        Utils::exportData($output, $credits->toArray());
 
         fclose($output);
         exit;
-    }
-
-    private function exportData($output, $data)
-    {
-        if (count($data) > 0) {
-            fputcsv($output, array_keys($data[0]));
-        }
-
-        foreach ($data as $record) {
-            fputcsv($output, $record);
-        }
-
-        fwrite($output, "\n");
     }
 
     private function importFile()
@@ -574,6 +574,14 @@ class AccountController extends BaseController
             $rules['email'] = 'email|required|unique:users,email,'.$user->id.',id';
         }
 
+        $subdomain = preg_replace('/[^a-zA-Z0-9_\-]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
+        if (!$subdomain || in_array($subdomain, ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner'])) {
+            $subdomain = null;
+        }
+        if ($subdomain) {
+            $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id";
+        }
+
         $validator = Validator::make(Input::all(), $rules);
 
         if ($validator->fails()) {
@@ -583,6 +591,7 @@ class AccountController extends BaseController
         } else {
             $account = Auth::user()->account;
             $account->name = trim(Input::get('name'));
+            $account->subdomain = $subdomain;
             $account->id_number = trim(Input::get('id_number'));
             $account->vat_number = trim(Input::get('vat_number'));
             $account->work_email = trim(Input::get('work_email'));

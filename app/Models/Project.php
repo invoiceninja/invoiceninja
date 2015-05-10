@@ -2,6 +2,7 @@
 
 use Auth;
 use Utils;
+use Eloquent;
 
 class Project extends Eloquent
 {

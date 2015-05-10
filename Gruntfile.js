@@ -57,9 +57,14 @@ module.exports = function(grunt) {
           'public/vendor/spectrum/spectrum.js',
           'public/vendor/jspdf/dist/jspdf.min.js',
           //'public/vendor/handsontable/dist/jquery.handsontable.full.min.js',
+          //'public/vendor/pdfmake/build/pdfmake.min.js',
+          //'public/vendor/pdfmake/build/vfs_fonts.js',
+          //'public/js/vfs_fonts.js',
           'public/js/lightbox.min.js',
           'public/js/bootstrap-combobox.js',
           'public/js/script.js',
+          'public/js/pdf.pdfmake.js',
+
         ],
         dest: 'public/js/built.js',
         nonull: true
@@ -73,6 +78,7 @@ module.exports = function(grunt) {
           'public/js/simpleexpand.js',
         */
           'public/vendor/bootstrap/dist/js/bootstrap.min.js',
+          'public/js/bootstrap-combobox.js',          
           
         ],
         dest: 'public/js/built.public.js',
@@ -84,7 +90,7 @@ module.exports = function(grunt) {
           'public/vendor/datatables/media/css/jquery.dataTables.css',
           'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',
           'public/vendor/font-awesome/css/font-awesome.min.css',
-          'public/vendor/bootstrap-datepicker/css/datepicker.css',
+          'public/vendor/bootstrap-datepicker/css/datepicker3.css',
           'public/vendor/spectrum/spectrum.css',
           'public/css/bootstrap-combobox.css',
           'public/css/typeahead.js-bootstrap.css',
@@ -105,6 +111,7 @@ module.exports = function(grunt) {
           'public/css/bootstrap.splash.css',
           'public/css/splash.css',
           */
+          'public/css/bootstrap-combobox.css',
           'public/vendor/datatables/media/css/jquery.dataTables.css',
           'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',          
         ],

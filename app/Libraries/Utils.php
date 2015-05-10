@@ -146,7 +146,9 @@ class Utils
 
     public static function getErrorString($exception)
     {
-        return "{$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
+        $class = get_class($exception);
+        $code = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : $exception->getCode();
+        return  "***{$class}*** [{$code}] : {$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
     }
 
     public static function logError($error, $context = 'PHP')
@@ -234,9 +236,13 @@ class Utils
             $currencyId = Session::get(SESSION_CURRENCY);
         }
 
-        $currency = Currency::find($currencyId);
-        
-        if(!$currency){
+        foreach (Cache::get('currencies') as $currency) {
+            if ($currency->id == $currencyId) {
+                break;
+            }
+        }
+
+        if (!$currency) {
             $currency = Currency::find(1);
         }
 
@@ -484,7 +490,7 @@ class Utils
     public static function encodeActivity($person = null, $action, $entity = null, $otherPerson = null)
     {
         $person = $person ? $person->getDisplayName() : '<i>System</i>';
-        $entity = $entity ? '['.$entity->getActivityKey().']' : '';
+        $entity = $entity ? $entity->getActivityKey() : '';
         $otherPerson = $otherPerson ? 'to '.$otherPerson->getDisplayName() : '';
         $token = Session::get('token_id') ? ' ('.trans('texts.token').')' : '';
 
@@ -620,5 +626,18 @@ class Utils
         }
 
         return $str;
+    }
+
+    public static function exportData($output, $data)
+    {
+        if (count($data) > 0) {
+            fputcsv($output, array_keys($data[0]));
+        }
+
+        foreach ($data as $record) {
+            fputcsv($output, $record);
+        }
+
+        fwrite($output, "\n");
     }
 }

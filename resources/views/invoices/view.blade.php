@@ -8,6 +8,11 @@
 		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
 		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
 
+        @if ($invoice->client->account->utf8_invoices)
+            <script src="{{ asset('vendor/pdfmake/build/pdfmake.min.js') }}" type="text/javascript"></script>
+            <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
+        @endif
+
 		<style type="text/css">
 			body {
 				background-color: #f8f8f8;		
@@ -28,19 +33,11 @@
             @endif
 		@elseif ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)
             {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
-            @if ($hasToken)
-                {!! DropdownButton::success_lg(trans('texts.pay_now'), [
-                    ['url' => URL::to("payment/{$invitation->invitation_key}?use_token=true&use_paypal=false"), 'label' => trans('texts.use_card_on_file')],
-                    ['url' => URL::to("payment/{$invitation->invitation_key}?use_paypal=false"), 'label' => trans('texts.edit_payment_details')]
-                ])->addClass('btn-lg') !!}
-            @elseif ($countGateways == 2)
-                {!! DropdownButton::success_lg(trans('texts.pay_now'), [
-                    ['url' => URL::to("payment/{$invitation->invitation_key}?use_paypal=true"), 'label' => trans('texts.pay_with_paypal')],
-                    ['url' => URL::to("payment/{$invitation->invitation_key}?use_paypal=false"), 'label' => trans('texts.pay_with_card')]
-                ])->addClass('btn-lg') !!}
+            @if (count($paymentTypes) > 1)
+                {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
             @else
-			     {!! Button::success(trans('texts.pay_now'))->asLinkTo('/payment/' . $invitation->invitation_key)->large() !!}
-            @endif
+                {!! Button::success(trans('texts.pay_now'))->asLinkTo('/payment/' . $invitation->invitation_key)->large() !!}
+            @endif            
 		@else 
 			{!! Button::normal('Download PDF')->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
 		@endif
@@ -55,10 +52,9 @@
 			invoice.is_quote = {{ $invoice->is_quote ? 'true' : 'false' }};
 			invoice.contact = {!! $contact->toJson() !!};
 
-			function getPDFString() {
-	  	  var doc = generatePDF(invoice, invoice.invoice_design.javascript);
-				if (!doc) return;
-				return doc.output('datauristring');
+			function getPDFString(cb) {
+    	  	    doc = generatePDF(invoice, invoice.invoice_design.javascript);
+                doc.getDataUrl(cb);
 			}
 
 			$(function() {

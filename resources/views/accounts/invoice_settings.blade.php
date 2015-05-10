@@ -4,7 +4,7 @@
     @parent
 
         <style type="text/css">
-            div.checkbox {
+            .input-group-addon div.checkbox {
                 display: inline;
             }
             span.input-group-addon {
@@ -17,51 +17,102 @@
 	@parent
 	@include('accounts.nav_advanced')
 
-	{!! Former::open()->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!}
-	{!! Former::populate($account) !!}
-	{!! Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) !!}
-	{!! Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) !!}
-  {!! Former::populateField('share_counter', intval($account->share_counter)) !!}
+	{!! Former::open()->addClass('warn-on-exit') !!}
+	{{ Former::populate($account) }}
+	{{ Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) }}
+	{{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}
+    {{ Former::populateField('share_counter', intval($account->share_counter)) }}
+    {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
+    {{ Former::populateField('utf8_invoices', intval($account->utf8_invoices)) }}
+    {{ Former::populateField('auto_wrap', intval($account->auto_wrap)) }}
+
+<div class="row">
+    <div class="col-md-6">
 
 
-	{!! Former::legend('invoice_fields') !!}
-	{!! Former::text('custom_invoice_label1')->label(trans('texts.field_label'))
-			->append(Former::checkbox('custom_invoice_taxes1')->raw() . trans('texts.charge_taxes')) !!}
-	{!! Former::text('custom_invoice_label2')->label(trans('texts.field_label'))
-			->append(Former::checkbox('custom_invoice_taxes2')->raw() . ' ' . trans('texts.charge_taxes')) !!}			
-	<p>&nbsp;</p>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.invoice_fields') !!}</h3>
+      </div>
+        <div class="panel-body">	
+        {!! Former::text('custom_invoice_label1')->label(trans('texts.field_label'))
+        		->append(Former::checkbox('custom_invoice_taxes1')->raw() . trans('texts.charge_taxes')) !!}
+        {!! Former::text('custom_invoice_label2')->label(trans('texts.field_label'))
+        		->append(Former::checkbox('custom_invoice_taxes2')->raw() . ' ' . trans('texts.charge_taxes')) !!}			
+	   </div>
+    </div>
 
-	{!! Former::legend('client_fields') !!}
-	{!! Former::text('custom_client_label1')->label(trans('texts.field_label')) !!}
-	{!! Former::text('custom_client_label2')->label(trans('texts.field_label')) !!}
-	<p>&nbsp;</p>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.client_fields') !!}</h3>
+      </div>
+        <div class="panel-body">    
+	   {!! Former::text('custom_client_label1')->label(trans('texts.field_label')) !!}
+	   {!! Former::text('custom_client_label2')->label(trans('texts.field_label')) !!}
+	   </div>
+    </div>
 
-	{!! Former::legend('company_fields') !!}
-	{!! Former::text('custom_label1')->label(trans('texts.field_label')) !!}
-	{!! Former::text('custom_value1')->label(trans('texts.field_value')) !!}
-	<p>&nbsp;</p>
-	{!! Former::text('custom_label2')->label(trans('texts.field_label')) !!}
-	{!! Former::text('custom_value2')->label(trans('texts.field_value')) !!}
-	<p>&nbsp;</p>
 
-	{!! Former::legend('invoice_number') !!}
-	{!! Former::text('invoice_number_prefix')->label(trans('texts.invoice_number_prefix')) !!}
-	{!! Former::text('invoice_number_counter')->label(trans('texts.invoice_number_counter')) !!}
-	<p>&nbsp;</p>
-	
-	{!! Former::legend('quote_number') !!}
-	{!! Former::text('quote_number_prefix')->label(trans('texts.quote_number_prefix')) !!}
-	{!! Former::text('quote_number_counter')->label(trans('texts.quote_number_counter'))
-			->append(Former::checkbox('share_counter')->raw()->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter')) !!}
-	<p>&nbsp;</p>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.company_fields') !!}</h3>
+      </div>
+        <div class="panel-body">        
+    	{!! Former::text('custom_label1')->label(trans('texts.field_label')) !!}
+    	{!! Former::text('custom_value1')->label(trans('texts.field_value')) !!}
+    	<p>&nbsp;</p>
+    	{!! Former::text('custom_label2')->label(trans('texts.field_label')) !!}
+    	{!! Former::text('custom_value2')->label(trans('texts.field_value')) !!}
+        </div>
+    </div>
 
-	{!! Former::legend('email_settings') !!}
-	{!! Former::checkbox('pdf_email_attachment') !!}
-	<p>&nbsp;</p>
+    </div>
+    <div class="col-md-6">
 
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.invoice_number') !!}</h3>
+      </div>
+        <div class="panel-body">        
+    	{!! Former::text('invoice_number_prefix')->label(trans('texts.invoice_number_prefix')) !!}
+    	{!! Former::text('invoice_number_counter')->label(trans('texts.invoice_number_counter')) !!}
+        </div>
+    </div>
+
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.quote_number') !!}</h3>
+      </div>
+        <div class="panel-body">        
+    	{!! Former::text('quote_number_prefix')->label(trans('texts.quote_number_prefix')) !!}
+    	{!! Former::text('quote_number_counter')->label(trans('texts.quote_number_counter'))
+	   		->append(Former::checkbox('share_counter')->raw()->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter')) !!}
+	   </div>
+    </div>
+
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.pdf_settings') !!}</h3>
+      </div>
+        <div class="panel-body">        	   
+       {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
+       {!! Former::checkbox('utf8_invoices')->text(trans('texts.enable')) !!}
+       <div style="display:none">
+       {!! Former::checkbox('auto_wrap')->text(trans('texts.enable')) !!}
+       </div>
+	</div>
+    </div>
+    </div>
+    </div>
+    
 	@if (Auth::user()->isPro())
-	{!! Former::actions( Button::success(trans('texts.save'))->large()->submit()->appendIcon(Icon::create('floppy-disk'))) !!}
+    <center>
+	   {!! Button::success(trans('texts.save'))->large()->submit()->appendIcon(Icon::create('floppy-disk')) !!}
+    </center>
 	@else
+
 	<script>
     $(function() {   
     	$('form.warn-on-exit input').prop('disabled', true);
@@ -87,4 +138,8 @@
 	</script>
 
 
+@stop
+
+@section('onReady')
+    $('#custom_invoice_label1').focus();
 @stop

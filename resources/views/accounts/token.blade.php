@@ -8,9 +8,11 @@
       'name' => 'required',
   )); !!}
 
-  {!! Former::legend($title) !!}
-
-  <p>&nbsp;</p>
+<div class="panel panel-default">
+<div class="panel-heading">
+    <h3 class="panel-title">{!! trans($title) !!}</h3>
+</div>
+<div class="panel-body">
 
   @if ($token)
     {!! Former::populate($token) !!}    
@@ -18,13 +20,18 @@
 
   {!! Former::text('name') !!}
 
-  <p>&nbsp;</p>
+</div>
+</div>
   
   {!! Former::actions( 
       Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')),
-      Button::normal(trans('texts.cancel'))->asLinkTo('/company/advanced_settings/user_management')->appendIcon(Icon::create('remove-circle'))->large()
+      Button::normal(trans('texts.cancel'))->asLinkTo('/company/advanced_settings/token_management')->appendIcon(Icon::create('remove-circle'))->large()
   ) !!}
 
   {!! Former::close() !!}
 
+@stop
+
+@section('onReady')
+    $('#name').focus();
 @stop

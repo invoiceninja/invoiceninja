@@ -4,7 +4,6 @@
 	@parent	
 
   {!! Former::open('gateways/delete')->addClass('user-form') !!}
-  {!! Former::legend(trans('texts.online_payments')) !!}
 
   <div style="display:none">
     {!! Former::text('accountGatewayPublicId') !!}
@@ -13,23 +12,23 @@
 
 
   @if ($showAdd)
-      {!! Button::success(trans('texts.add_gateway'))
+      {!! Button::primary(trans('texts.add_gateway'))
             ->asLinkTo('/gateways/create')
             ->withAttributes(['class' => 'pull-right'])
-            ->appendIcon(Icon::create('plus-sign'))
-            ->large() !!}
+            ->appendIcon(Icon::create('plus-sign')) !!}
   @endif
 
   {!! Datatable::table()
       ->addColumn(
         trans('texts.name'),
+        trans('texts.payment_type_id'),
         trans('texts.action'))
       ->setUrl(url('api/gateways/'))
       ->setOptions('sPaginationType', 'bootstrap')
       ->setOptions('bFilter', false)
       ->setOptions('bAutoWidth', false)
-      ->setOptions('aoColumns', [[ "sWidth"=> "80%" ], ["sWidth"=> "20%"]])
-      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1]]])
+      ->setOptions('aoColumns', [[ "sWidth"=> "50%" ], [ "sWidth"=> "30%" ], ["sWidth"=> "20%"]])
+      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[2]]])
       ->render('datatable') !!}
 
   <script>

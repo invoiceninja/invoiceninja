@@ -27,6 +27,7 @@ class Handler extends ExceptionHandler {
 	{
         Utils::logError(Utils::getErrorString($e));
         return false;
+        
 		//return parent::report($e);
 	}
 
@@ -39,6 +40,15 @@ class Handler extends ExceptionHandler {
 	 */
 	public function render($request, Exception $e)
 	{
-        return parent::render($request, $e);
+        if (Utils::isNinjaProd()) {
+            $data = [
+                'error' => get_class($e),
+                'hideHeader' => true,
+            ];
+            
+            return response()->view('error', $data);
+        } else {
+            return parent::render($request, $e);
+        }
 	}
 }

@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use App\Models\Gateway;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AccountGateway extends EntityModel
@@ -26,8 +27,12 @@ class AccountGateway extends EntityModel
         return $arrayOfImages;
     }
 
-    public function isPayPal() {
-        return $this->gateway_id == GATEWAY_PAYPAL_EXPRESS;
+    public function getPaymentType() {
+        return Gateway::getPaymentType($this->gateway_id);
+    }
+    
+    public function isPaymentType($type) {
+        return $this->getPaymentType() == $type;
     }
 }
 

@@ -10,15 +10,22 @@
       'email' => 'required|email',
   )); !!}
 
-  {!! Former::legend($title) !!}
-
   @if ($user)
     {!! Former::populate($user) !!}    
   @endif
 
+<div class="panel panel-default">
+<div class="panel-heading">
+    <h3 class="panel-title">{!! $title !!}</h3>
+</div>
+<div class="panel-body">
+
   {!! Former::text('first_name') !!}
   {!! Former::text('last_name') !!}
   {!! Former::text('email') !!}
+
+</div>
+</div>
 
   {!! Former::actions( 
       Button::success(trans($user && $user->confirmed ? 'texts.save' : 'texts.send_invite'))->submit()->large()->appendIcon(Icon::create($user && $user->confirmed ? 'floppy-disk' : 'send')),
@@ -27,4 +34,8 @@
 
   {!! Former::close() !!}
 
+@stop
+
+@section('onReady')
+    $('#first_name').focus();
 @stop

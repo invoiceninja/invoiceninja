@@ -35,7 +35,7 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
         
         @if (Utils::isNinjaProd())
-          <button type="button" class="btn btn-primary" onclick="showProPlan('invoice_designs')">{{ trans('texts.go_pro') }}</button>
+          <button type="button" class="btn btn-primary" onclick="submitProPlan('invoice_designs')">{{ trans('texts.go_pro') }}</button>
         @else
           <button type="button" class="btn btn-primary" onclick="buyProduct('{{ INVOICE_DESIGNS_AFFILIATE_KEY }}', '{{ PRODUCT_INVOICE_DESIGNS }}')">{{ trans('texts.buy') }}</button>
         @endif
@@ -81,18 +81,19 @@
   var needsRefresh = false;
 
   function refreshPDF() {
+    getPDFString(refreshPDFCB);
+  }
+  
+  function refreshPDFCB(string) {
+    if (!string) return;
     PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
-    if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChromium))) {
-      var string = getPDFString();
-      if (!string) return;
+    if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChromium))) { 
       $('#theFrame').attr('src', string).show();    
     } else {      
       if (isRefreshing) {
         needsRefresh = true;
         return;
       }
-      var string = getPDFString();
-      if (!string) return;
       isRefreshing = true;
       var pdfAsArray = convertDataURIToBinary(string);  
       PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {

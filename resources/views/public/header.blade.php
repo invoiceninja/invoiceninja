@@ -53,6 +53,10 @@ body {
     padding: 28px 0;
 }
 
+#footer .bottom a {
+    color: #636262;
+}
+
 #footer .menu-item-31 a:before {
     content: '';
     display: inline-block;
@@ -92,6 +96,15 @@ table.table thead .sorting_asc:after { content: '' !important }
 table.table thead .sorting_desc:after { content: '' !important}
 table.table thead .sorting_asc_disabled:after { content: '' !important }
 table.table thead .sorting_desc_disabled:after { content: '' !important }
+
+.dataTables_length {
+    padding-left: 20px;
+    padding-top: 8px;
+}
+
+.dataTables_length label {
+    font-weight: 500;
+}
 
 @media screen and (min-width: 700px) { 
     #footer .top {
@@ -192,15 +205,15 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
 
     <div class="container">
       @if (Session::has('warning'))
-      <div class="alert alert-warning">{{ Session::get('warning') }}</div>
+      <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
       @endif
 
       @if (Session::has('message'))
-      <div class="alert alert-info">{{ Session::get('message') }}</div>
+      <div class="alert alert-info">{!! Session::get('message') !!}</div>
       @endif
 
       @if (Session::has('error'))
-      <div class="alert alert-danger">{{ Session::get('error') }}</div>
+      <div class="alert alert-danger">{!! Session::get('error') !!}</div>
       @endif
   </div>
 
@@ -212,9 +225,6 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
             @if (!isset($hideLogo) || !$hideLogo)                                    
             <div id="footer-menu" class="menu-wrap">
                 <ul id="menu-footer-menu" class="menu">
-                    <li id="menu-item-30" class="menu-item-30">
-                        {!! link_to(NINJA_WEB_URL . '/contact', trans('texts.support')) !!}
-                    </li>
                     <li id="menu-item-31" class="menu-item-31">                    
                         {!! link_to('#', 'Facebook', ['target' => '_blank', 'onclick' => 'openUrl("https://www.facebook.com/invoiceninja", "/footer/social/facebook")']) !!}
                     </li>
@@ -224,6 +234,9 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
                     <li id="menu-item-33" class="menu-item-33">
                         {!! link_to('#', 'GitHub', ['target' => '_blank', 'onclick' => 'openUrl("https://github.com/hillelcoren/invoice-ninja", "/footer/social/github")']) !!}
                     </li>                    
+                    <li id="menu-item-30" class="menu-item-30">
+                        {!! link_to(NINJA_WEB_URL . '/contact', trans('texts.contact')) !!}
+                    </li>
                 </ul>
             </div>      
             @endif   
@@ -232,7 +245,7 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
     
     <div class="bottom">
         <div class="wrap">
-            <div class="copy">Copyright &copy;2015 InvoiceNinja. All rights reserved.</div>
+            <div class="copy">Copyright &copy;2015 <a href="{{ NINJA_WEB_URL }}" target="_blank">Invoice Ninja</a>. All rights reserved.</div>
         </div><!-- .wrap -->
     </div><!-- .bottom -->
 </footer><!-- #footer -->

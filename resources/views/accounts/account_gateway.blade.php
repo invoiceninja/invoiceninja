@@ -6,11 +6,17 @@
     {!! Former::open($url)->method($method)->rule()->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!} 
     {!! Former::populate($account) !!}
 
-    {!! Former::legend($title) !!}
+
+    <div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">{!! trans($title) !!}</h3>
+    </div>
+    <div class="panel-body">
         
     @if ($accountGateway)
+        {!! Former::populateField('payment_type_id', $paymentTypeId) !!}
         {!! Former::populateField('gateway_id', $accountGateway->gateway_id) !!}
-        {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}
+        {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}        
         @if ($config)
             @foreach ($accountGateway->fields as $field => $junk)
                 @if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
@@ -20,13 +26,20 @@
                 @endif
             @endforeach
         @endif
+    @else
+        {!! Former::populateField('gateway_id', GATEWAY_STRIPE) !!}
     @endif
-    
-    
-    {!! Former::select('gateway_id')->label('Select Gateway')->addOption('', '')
+        
+    {!! Former::select('payment_type_id')
+        ->options($paymentTypes)
+        ->addGroupClass('payment-type-option')
+        ->onchange('setPaymentType()') !!}
+
+    {!! Former::select('gateway_id')
         ->dataClass('gateway-dropdown')
-        ->fromQuery($gateways, 'name', 'id')
-        ->onchange('setFieldsShown()'); !!}
+        ->addGroupClass('gateway-option')
+        ->fromQuery($selectGateways, 'name', 'id')
+        ->onchange('setFieldsShown()') !!}
 
     @foreach ($gateways as $gateway)
 
@@ -36,7 +49,7 @@
                 @if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
                     {{-- do nothing --}}
                 @elseif ($field == 'testMode' || $field == 'developerMode') 
-                    {{-- Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable') --}}              
+                    {!! Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable')->value('true') !!}
                 @elseif ($field == 'username' || $field == 'password') 
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
                 @else
@@ -61,11 +74,16 @@
         
     @endforeach
 
-    {!! Former::checkboxes('creditCardTypes[]')->label('Accepted Credit Cards')
-            ->checkboxes($creditCardTypes)->class('creditcard-types')
+    {!! Former::checkboxes('creditCardTypes[]')
+            ->label('Accepted Credit Cards')
+            ->checkboxes($creditCardTypes)
+            ->class('creditcard-types')
+            ->addGroupClass('gateway-option')
     !!}
 
-
+    </div>
+    </div>
+    
     <p/>&nbsp;<p/>
 
     {!! Former::actions( 
@@ -76,8 +94,27 @@
 
     <script type="text/javascript">
 
-    function setFieldsShown() {
-        var val = $('#gateway_id').val();
+    function setPaymentType() {
+        var val = $('#payment_type_id').val();
+        if (val == 'PAYMENT_TYPE_CREDIT_CARD') {
+            $('.gateway-option').show();
+            setFieldsShown();
+        } else {
+            $('.gateway-option').hide();
+
+            if (val == 'PAYMENT_TYPE_PAYPAL') {
+                setFieldsShown({{ GATEWAY_PAYPAL_EXPRESS }});
+            } else {
+                setFieldsShown({{ GATEWAY_BITPAY }});
+            }
+        }        
+    }
+
+    function setFieldsShown(val) {
+        if (!val) {
+            val = $('#gateway_id').val();
+        }
+
         $('.gateway-fields').hide();
         $('#gateway_' + val + '_div').show();
     }
@@ -88,6 +125,13 @@
             openUrl(url, '/affiliate/' + host);
         }
     }
+
+    $(function() {
+        setPaymentType();
+        @if ($accountGateway)
+            $('.payment-type-option').hide();
+        @endif
+    })
 
     </script>
 

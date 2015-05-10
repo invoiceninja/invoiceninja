@@ -34,7 +34,7 @@ class HandleInvoiceViewed {
         {
             if ($user->{'notify_viewed'})
             {
-                $this->userMailer->sendNotification($user, $invoice, 'viewed', $payment);
+                $this->userMailer->sendNotification($user, $invoice, 'viewed');
             }
         }
 	}

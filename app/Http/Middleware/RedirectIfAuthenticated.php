@@ -1,6 +1,8 @@
 <?php namespace App\Http\Middleware;
 
+use Session;
 use Closure;
+use App\Models\Client;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\RedirectResponse;
 
@@ -33,8 +35,10 @@ class RedirectIfAuthenticated {
 	 */
 	public function handle($request, Closure $next)
 	{
-		if ($this->auth->check())
+        if ($this->auth->check() && Client::scope()->count() > 0)
 		{
+            Session::reflash();
+
 			return new RedirectResponse(url('/dashboard'));
 		}
 

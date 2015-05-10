@@ -35,7 +35,7 @@ class AccountRepository
         $user = new User();
         if (!$firstName && !$lastName && !$email && !$password) {
             $user->password = str_random(RANDOM_KEY_LENGTH);
-            //$user->email = $user->username = str_random(RANDOM_KEY_LENGTH);
+            $user->username = str_random(RANDOM_KEY_LENGTH);
         } else {
             $user->first_name = $firstName;
             $user->last_name = $lastName;
@@ -44,7 +44,7 @@ class AccountRepository
         }
 
         $user->confirmed = !Utils::isNinja();
-        $user->registered = !Utils::isNinja();
+        $user->registered = !Utils::isNinja() && $user->email;
 
         if (!$user->confirmed) {
             $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
@@ -108,19 +108,19 @@ class AccountRepository
         if (Auth::user()->isPro()) {
             return false;
         }
-
-        $ninjaAccount = $this->getNinjaAccount();
-        $lastInvoice = Invoice::withTrashed()->whereAccountId($ninjaAccount->id)->orderBy('public_id', 'DESC')->first();
-        $publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
-
-        $ninjaClient = $this->getNinjaClient($ninjaAccount);
-        $invitation = $this->createNinjaInvoice($publicId, $ninjaAccount, $ninjaClient);
+        
+        $client = $this->getNinjaClient(Auth::user()->account);
+        $invitation = $this->createNinjaInvoice($client);
 
         return $invitation;
     }
 
-    private function createNinjaInvoice($publicId, $account, $client)
+    public function createNinjaInvoice($client)
     {
+        $account = $this->getNinjaAccount();
+        $lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
+        $publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
+
         $invoice = new Invoice();
         $invoice->account_id = $account->id;
         $invoice->user_id = $account->users()->first()->id;
@@ -174,7 +174,6 @@ class AccountRepository
             $user->confirmed = true;
             $user->email = 'contact@invoiceninja.com';
             $user->password = $random;
-            $user->password_confirmation = $random;
             $user->username = $random;
             $user->first_name = 'Invoice';
             $user->last_name = 'Ninja';
@@ -193,27 +192,29 @@ class AccountRepository
         return $account;
     }
 
-    private function getNinjaClient($ninjaAccount)
+    public function getNinjaClient($account)
     {
-        $client = Client::whereAccountId($ninjaAccount->id)->wherePublicId(Auth::user()->account_id)->first();
+        $account->load('users');
+        $ninjaAccount = $this->getNinjaAccount();
+        $client = Client::whereAccountId($ninjaAccount->id)->wherePublicId($account->id)->first();
 
         if (!$client) {
             $client = new Client();
-            $client->public_id = Auth::user()->account_id;
+            $client->public_id = $account->id;
             $client->user_id = $ninjaAccount->users()->first()->id;
             $client->currency_id = 1;
             foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone'] as $field) {
-                $client->$field = Auth::user()->account->$field;
+                $client->$field = $account->$field;
             }
             $ninjaAccount->clients()->save($client);
 
             $contact = new Contact();
             $contact->user_id = $ninjaAccount->users()->first()->id;
             $contact->account_id = $ninjaAccount->id;
-            $contact->public_id = Auth::user()->account_id;
+            $contact->public_id = $account->id;
             $contact->is_primary = true;
             foreach (['first_name', 'last_name', 'email', 'phone'] as $field) {
-                $contact->$field = Auth::user()->$field;
+                $contact->$field = $account->users()->first()->$field;
             }
             $client->contacts()->save($contact);
         }
@@ -223,13 +224,13 @@ class AccountRepository
 
     public function registerUser($user)
     {
-        $url = NINJA_APP_URL.'/signup/register';
+        $url = (Utils::isNinjaDev() ? '' : NINJA_APP_URL) . '/signup/register';
         $data = '';
         $fields = [
-      'first_name' => urlencode($user->first_name),
-      'last_name' => urlencode($user->last_name),
-      'email' => urlencode($user->email),
-    ];
+            'first_name' => urlencode($user->first_name),
+            'last_name' => urlencode($user->last_name),
+            'email' => urlencode($user->email),
+        ];
 
         foreach ($fields as $key => $value) {
             $data .= $key.'='.$value.'&';

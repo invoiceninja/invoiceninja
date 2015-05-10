@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Gateway;
+use App\Models\PaymentTerm;
 
 class PaymentLibrariesSeeder extends Seeder
 {
@@ -22,7 +23,8 @@ class PaymentLibrariesSeeder extends Seeder
 			['name' => 'PaymentSense', 'provider' => 'PaymentSense', 'payment_library_id' => 1],
 			['name' => 'Realex', 'provider' => 'Realex_Remote', 'payment_library_id' => 1],
 			['name' => 'Sisow', 'provider' => 'Sisow', 'payment_library_id' => 1],
-			['name' => 'Skrill', 'provider' => 'Skrill', 'payment_library_id' => 1]
+			['name' => 'Skrill', 'provider' => 'Skrill', 'payment_library_id' => 1],
+            ['name' => 'BitPay', 'provider' => 'BitPay', 'payment_library_id' => 1],
 		];
 		
 		foreach ($gateways as $gateway)
@@ -33,5 +35,16 @@ class PaymentLibrariesSeeder extends Seeder
 			}
 		}
 
+        $paymentTerms = [
+            ['num_days' => -1, 'name' => 'Net 0']
+        ];
+
+        foreach ($paymentTerms as $paymentTerm)
+        {
+            if (!DB::table('payment_terms')->where('name', '=', $paymentTerm['name'])->get())
+            {
+                PaymentTerm::create($paymentTerm);
+            }
+        }
 	}
 }

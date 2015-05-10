@@ -11,7 +11,7 @@
 		</div>
 
         @if ($gatewayLink)
-            {!! Button::link($gatewayLink, trans('texts.view_in_stripe'), ['target' => '_blank']) !!}
+            {!! Button::normal(trans('texts.view_in_stripe'))->asLinkTo($gatewayLink)->withAttributes(['target' => '_blank']) !!}
         @endif
 
 		@if ($client->trashed())
@@ -43,6 +43,8 @@
 	</small></h3>
 	@endif
 
+    <div class="panel panel-default">
+    <div class="panel-body">
 	<div class="row">
 
 		<div class="col-md-3">
@@ -139,8 +141,8 @@
 
 		</div>
 	</div>
-
-	<p>&nbsp;</p>
+    </div>
+    </div>
 
 	<ul class="nav nav-tabs nav-justified">
 		{!! HTML::tab_link('#activity', trans('texts.activity'), true) !!}
@@ -216,7 +218,7 @@
 		    	->setUrl(url('api/invoices/' . $client->public_id))
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
-		    	->setOptions('aaSorting', [['0', 'asc']])
+		    	->setOptions('aaSorting', [['0', 'desc']])
 		    	->render('datatable') !!}
 
         </div>
@@ -232,7 +234,7 @@
 				->setUrl(url('api/payments/' . $client->public_id))
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
-				->setOptions('aaSorting', [['0', 'asc']])
+				->setOptions('aaSorting', [['0', 'desc']])
 				->render('datatable') !!}
 
         </div>

@@ -5,6 +5,12 @@
 
 		<script src="{!! asset('js/pdf_viewer.js') !!}" type="text/javascript"></script>
 		<script src="{!! asset('js/compatibility.js') !!}" type="text/javascript"></script>
+
+        @if (Auth::user()->account->utf8_invoices)
+            <script src="{{ asset('vendor/pdfmake/build/pdfmake.min.js') }}" type="text/javascript"></script>
+            <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
+        @endif
+
 @stop
 
 @section('content')	
@@ -26,7 +32,7 @@
       }
     }
 
-    function getPDFString() {
+    function getPDFString(cb) {
       invoice.is_pro = {!! Auth::user()->isPro() ? 'true' : 'false' !!};
       invoice.account.hide_quantity = $('#hide_quantity').is(":checked");
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
@@ -35,11 +41,8 @@
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
 
-      var doc = generatePDF(invoice, getDesignJavascript(), true);
-      if (!doc) {
-        return;
-      }
-      return doc.output('datauristring');
+      doc = generatePDF(invoice, getDesignJavascript(), true);
+      doc.getDataUrl(cb);
     }
 
     $(function() {   
@@ -69,29 +72,37 @@
       {!! Former::populateField('hide_quantity', intval($account->hide_quantity)) !!}
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
 
-      {!! Former::legend('invoice_design') !!}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.invoice_design') !!}</h3>
+      </div>
+        <div class="panel-body">    
 
 
-      @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS)      
-        {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}        
-      @else 
-        {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id') !!}
-      @endif
+          @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS)      
+            {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}        
+          @else 
+            {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id') !!}
+          @endif
 
-      
+          
 
-      {!! Former::text('primary_color') !!}
-      {!! Former::text('secondary_color') !!}
+          {!! Former::text('primary_color') !!}
+          {!! Former::text('secondary_color') !!}
+          </div>
+      </div>
 
-      <p>&nbsp;</p>
-      <p>&nbsp;</p>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.invoice_options') !!}</h3>
+      </div>
+        <div class="panel-body">    
+    
+          {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) !!}
+          {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help')) !!}
+        </div>
+    </div>
 
-      {!! Former::legend('invoice_options') !!}
-      {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) !!}
-      {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help')) !!}
-
-      <p>&nbsp;</p>
-      <p>&nbsp;</p>
 
       @if (Auth::user()->isPro())
       {!! Former::actions( Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}

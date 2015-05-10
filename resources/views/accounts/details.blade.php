@@ -11,7 +11,7 @@
 
 	</style>
 
-	{!! Former::open_for_files()->addClass('col-md-10 col-md-offset-1 warn-on-exit')->rules(array(
+	{!! Former::open_for_files()->addClass('warn-on-exit')->rules(array(
   		'name' => 'required',
   		'email' => 'email|required'
 	)) !!}
@@ -25,10 +25,21 @@
 	@endif
 	
 	<div class="row">
-		<div class="col-md-5">
+		<div class="col-md-6">
 
-			{!! Former::legend('details') !!}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.details') !!}</h3>
+          </div>
+            <div class="panel-body">
+			
 			{!! Former::text('name') !!}
+
+            @if (Auth::user()->isPro() && Utils::isNinja())
+                {{ Former::setOption('capitalize_translations', false) }}
+                {!! Former::text('subdomain')->placeholder('texts.www')->onchange('onSubdomainChange()') !!}                
+            @endif
+
             {!! Former::text('id_number') !!}
             {!! Former::text('vat_number') !!}
 			{!! Former::text('work_email') !!}
@@ -44,8 +55,15 @@
 
 			{!! Former::select('size_id')->addOption('','')->fromQuery($sizes, 'name', 'id') !!}
 			{!! Former::select('industry_id')->addOption('','')->fromQuery($industries, 'name', 'id') !!}
+            </div>
+        </div>
 
-			{!! Former::legend('address') !!}	
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.address') !!}</h3>
+          </div>
+            <div class="panel-body">
+            
 			{!! Former::text('address1') !!}
 			{!! Former::text('address2') !!}
 			{!! Former::text('city') !!}
@@ -54,12 +72,18 @@
 			{!! Former::select('country_id')->addOption('','')
 				->fromQuery($countries, 'name', 'id') !!}
 
+            </div>
+        </div>
 		</div>
 	
-		<div class="col-md-5 col-md-offset-1">		
+		<div class="col-md-6">		
 
 			@if ($showUser)
-				{!! Former::legend('users') !!}
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">{!! trans('texts.users') !!}</h3>
+              </div>
+                <div class="panel-body">
 				{!! Former::text('first_name') !!}
 				{!! Former::text('last_name') !!}
                 {!! Former::text('email') !!}
@@ -69,9 +93,17 @@
                 @elseif (Auth::user()->registered)
                     {!! Former::actions( Button::primary(trans('texts.resend_confirmation'))->asLinkTo('/resend_confirmation')->small() ) !!}
                 @endif
+                </div>
+            </div>
 			@endif
 
-			{!! Former::legend('localization') !!}
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.localization') !!}</h3>
+          </div>
+            <div class="panel-body">
+
 			{!! Former::select('language_id')->addOption('','')
 				->fromQuery($languages, 'name', 'id') !!}			
 			{!! Former::select('currency_id')->addOption('','')
@@ -82,14 +114,15 @@
 				->fromQuery($dateFormats, 'label', 'id') !!}
 			{!! Former::select('datetime_format_id')->addOption('','')
 				->fromQuery($datetimeFormats, 'label', 'id') !!}
-
-
+            </div>
+        </div>
 		</div>
 	</div>
 	
 	<center>
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
+
 
 
     <div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel" aria-hidden="true">
@@ -144,12 +177,10 @@
     </div>
 
 
-	{!! Former::close() !!}
+    {!! Former::close() !!}
 
 	{!! Form::open(['url' => 'remove_logo', 'class' => 'removeLogoForm']) !!}	
 	{!! Form::close() !!}
-
-
 
 
 	<script type="text/javascript">
@@ -235,6 +266,7 @@
               '&confirm_password=' + encodeURIComponent($('form #confirm_password').val()),
               success: function(result) { 
                 if (result == 'success') {
+                  NINJA.formIsChanged = false;
                   $('#changePasswordButton').hide();
                   $('#successDiv').show();
                   $('#cancelChangePasswordButton').html('{{ trans('texts.close') }}');
@@ -248,7 +280,18 @@
             });     
         }
 
+        function onSubdomainChange() {
+            var input = $('#subdomain');
+            var val = input.val();
+            if (!val) return;
+            val = val.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase().substring(0, {{ MAX_SUBDOMAIN_LENGTH }});
+            input.val(val);
+        }
+
 	</script>
 
+@stop
 
+@section('onReady')
+    $('#name').focus();
 @stop

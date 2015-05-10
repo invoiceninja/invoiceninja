@@ -187,7 +187,7 @@ class Activity extends Eloquent
             $diff = floatval($invoice->amount) - floatval($invoice->getOriginal('amount'));
 
             $fieldChanged = false;
-            foreach (['invoice_number', 'po_number', 'invoice_date', 'due_date', 'terms', 'public_notes', 'invoice_footer'] as $field) {
+            foreach (['invoice_number', 'po_number', 'invoice_date', 'due_date', 'terms', 'public_notes', 'invoice_footer', 'partial'] as $field) {
                 if ($invoice->$field != $invoice->getOriginal($field)) {
                     $fieldChanged = true;
                     break;
@@ -214,7 +214,6 @@ class Activity extends Eloquent
 
                 if ($invoice->isPaid() && $invoice->balance > 0) {
                     $invoice->invoice_status_id = INVOICE_STATUS_PARTIAL;
-                    $invoice->save();
                 }
             }
         }
@@ -292,6 +291,9 @@ class Activity extends Eloquent
             $invoice = $payment->invoice;
             $invoice->balance = $invoice->balance - $payment->amount;
             $invoice->invoice_status_id = ($invoice->balance > 0) ? INVOICE_STATUS_PARTIAL : INVOICE_STATUS_PAID;
+            if ($invoice->partial > 0) {
+                $invoice->partial = max(0, $invoice->partial - $payment->amount);
+            }
             $invoice->save();
         }
 

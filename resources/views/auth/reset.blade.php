@@ -102,4 +102,10 @@
 
 </div>
 
+<script type="text/javascript">
+    $(function() {
+        $('#email').focus();            
+    })
+</script>
+
 @stop

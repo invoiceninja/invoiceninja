@@ -32,10 +32,6 @@
   @parent
   @include('accounts.nav_advanced')
 
-  {!! Former::open() !!}
-  {!! Former::legend('data_visualizations') !!}
-  {!! Former::close() !!}
-
   <div id="tooltip" class="hidden">
     <p>
       <strong><span id="tooltipTitle"></span></strong>
@@ -48,7 +44,7 @@
 
   <form class="form-inline" role="form">
     Group By &nbsp;&nbsp;
-    <select id="groupBySelect" class="form-control" onchange="update()">
+    <select id="groupBySelect" class="form-control" onchange="update()" style="background-color:white !important">
       <option>Clients</option>
       <option>Invoices</option>
       <option>Products</option>

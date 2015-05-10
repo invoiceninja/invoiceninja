@@ -1,5 +1,5 @@
 /*!
- * jQuery JavaScript Library v1.11.2
+ * jQuery JavaScript Library v1.11.3
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -9,7 +9,7 @@
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2014-12-17T15:27Z
+ * Date: 2015-04-28T16:19Z
  */
 
 (function( global, factory ) {
@@ -64,7 +64,7 @@ var support = {};
 
 
 var
-	version = "1.11.2",
+	version = "1.11.3",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -569,7 +569,12 @@ jQuery.each("Boolean Number String Function Array Date RegExp Object Error".spli
 });
 
 function isArraylike( obj ) {
-	var length = obj.length,
+
+	// Support: iOS 8.2 (not reproducible in simulator)
+	// `in` check used to prevent JIT error (gh-2145)
+	// hasOwn isn't used here due to false negatives
+	// regarding Nodelist length in IE
+	var length = "length" in obj && obj.length,
 		type = jQuery.type( obj );
 
 	if ( type === "function" || jQuery.isWindow( obj ) ) {
@@ -31531,16 +31536,25 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
 
 var invoiceOld;
-function generatePDF(invoice, javascript, force) {
+function generatePDF(invoice, javascript, force, cb) {
   invoice = calculateAmounts(invoice);
   var a = copyInvoice(invoice);
   var b = copyInvoice(invoiceOld);
   if (!force && _.isEqual(a, b)) {
     return;
   }
+  pdfmakeMarker = "//pdfmake";
   invoiceOld = invoice;
   report_id = invoice.invoice_design_id;
-  doc = GetPdf(invoice, javascript);
+  if(javascript.slice(0, pdfmakeMarker.length) === pdfmakeMarker) {
+    doc = GetPdfMake(invoice, javascript, cb);
+    //doc.getDataUrl(cb);
+  } else {
+    doc = GetPdf(invoice, javascript);
+    doc.getDataUrl = function(cb) {
+      cb( this.output("datauristring"));  
+    };    
+  }
   return doc;
 }
 
@@ -31601,6 +31615,12 @@ function GetPdf(invoice, javascript){
   //set default style for report
   doc.setFont('Helvetica','');
 
+  // For partial payments show "Amount Due" rather than "Balance Due"
+  if (!invoiceLabels.balance_due_orig) {
+    invoiceLabels.balance_due_orig = invoiceLabels.balance_due;
+  }
+  invoiceLabels.balance_due = NINJA.parseFloat(invoice.partial) ? invoiceLabels.amount_due : invoiceLabels.balance_due_orig;
+
   eval(javascript);
 
   // add footer
@@ -31610,8 +31630,9 @@ function GetPdf(invoice, javascript){
     SetPdfColor(invoice.invoice_design_id == 2 || invoice.invoice_design_id == 3 ? 'White' : 'Black',doc);
     var top = doc.internal.pageSize.height - layout.marginLeft;
     if (!invoice.is_pro) top -= 25;
-    var numLines = invoice.invoice_footer.split("\n").length - 1;
-    doc.text(layout.marginLeft, top - (numLines * 8), invoice.invoice_footer);
+    var footer = doc.splitTextToSize(invoice.invoice_footer, 500);
+    var numLines = footer.length - 1;
+    doc.text(layout.marginLeft, top - (numLines * 8), footer);    
   }
 
   return doc;
@@ -31898,7 +31919,7 @@ function isValidEmailAddress(emailAddress) {
 $(function() {
     $.ajaxSetup({
         headers: {
-            'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
 });
@@ -32009,34 +32030,6 @@ if (window.ko) {
       ko.applyBindingsToNode(element, { attr: { placeholder: underlyingObservable } } );
     }
   };
-}
-
-function wordWrapText(value, width)
-{
-  var doc = new jsPDF('p', 'pt');
-  doc.setFont('Helvetica','');
-  doc.setFontSize(10);
-
-  var lines = value.split("\n");
-  for (var i = 0; i < lines.length; i++) {
-    var numLines = doc.splitTextToSize(lines[i], width).length;
-    if (numLines <= 1) continue;
-    var j = 0; space = lines[i].length;
-    while (j++ < lines[i].length) {
-      if (lines[i].charAt(j) === ' ') space = j;
-    }
-    if (space == lines[i].length) space = width/6;
-    lines[i + 1] = lines[i].substring(space + 1) + ' ' + (lines[i + 1] || '');
-    lines[i] = lines[i].substring(0, space);
-  }
-
-  var newValue = (lines.join("\n")).trim();
-
-  if (value == newValue) {
-    return newValue;
-  } else {
-    return wordWrapText(newValue, width);
-  }
 }
 
 function getClientDisplayName(client)
@@ -32233,13 +32226,20 @@ function displayInvoice(doc, invoice, x, y, layout, rightAlignX) {
 }
 
 function getInvoiceDetails(invoice) {
-  return [
+  var fields = [
     {'invoice_number': invoice.invoice_number},
     {'po_number': invoice.po_number},
     {'invoice_date': invoice.invoice_date},
     {'due_date': invoice.due_date},
-    {'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)},
   ];
+
+  if (NINJA.parseFloat(invoice.partial)) {
+    fields.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
+  }
+
+  fields.push({'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)})
+
+  return fields;
 }
 
 function getInvoiceDetailsHeight(invoice, layout) {
@@ -32294,6 +32294,10 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
     data.push({'paid_to_date': formatMoney(paid, invoice.client.currency_id)});
   }
 
+  if (NINJA.parseFloat(invoice.partial) && invoice.total_amount != invoice.subtotal_amount) {
+    data.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
+  }
+
   var options = {
     hasheader: true,
     rightAlignX: 550,
@@ -32320,7 +32324,7 @@ function concatStrings() {
       concatStr += ' ';
     }
   }
-  return data.length ? concatStr : false;
+  return data.length ? concatStr : "";
 }
 
 function displayGrid(doc, invoice, data, x, y, layout, options)  {
@@ -32408,17 +32412,19 @@ function displayNotesAndTerms(doc, layout, invoice, y)
   var origY = y;
 
   if (invoice.public_notes) {
-    doc.text(layout.marginLeft, y, invoice.public_notes);
-    y += 16 + (doc.splitTextToSize(invoice.public_notes, 300).length * doc.internal.getFontSize());
+    var notes = doc.splitTextToSize(invoice.public_notes, 260);
+    doc.text(layout.marginLeft, y, notes);
+    y += 16 + (notes.length * doc.internal.getFontSize());
   }
 
   if (invoice.terms) {
-    doc.setFontType("bold");
+    var terms = doc.splitTextToSize(invoice.terms, 260);
+    doc.setFontType("bold");    
     doc.text(layout.marginLeft, y, invoiceLabels.terms);
     y += 16;
     doc.setFontType("normal");
-    doc.text(layout.marginLeft, y, invoice.terms);
-    y += 16 + (doc.splitTextToSize(invoice.terms, 300).length * doc.internal.getFontSize());
+    doc.text(layout.marginLeft, y, terms);
+    y += 16 + (terms.length * doc.internal.getFontSize());
   }
 
   return y - origY;
@@ -32490,10 +32496,16 @@ function calculateAmounts(invoice) {
     total += roundToTwo(invoice.custom_value2);
   }
 
-  invoice.balance_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
+  invoice.total_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
   invoice.discount_amount = discount;
   invoice.tax_amount = tax;
   invoice.has_taxes = hasTaxes;
+
+  if (NINJA.parseFloat(invoice.partial)) {
+    invoice.balance_amount = roundToTwo(invoice.partial);
+  } else {
+    invoice.balance_amount = invoice.total_amount;
+  }
 
   return invoice;
 }
@@ -32809,6 +32821,18 @@ function displayInvoiceItems(doc, invoice, layout) {
 }
 
 
+// http://stackoverflow.com/questions/11941876/correctly-suppressing-warnings-in-datatables
+window.alert = (function() {
+    var nativeAlert = window.alert;
+    return function(message) {
+        window.alert = nativeAlert;
+        message && message.indexOf("DataTables warning") === 0 ?
+            console.error(message) :
+            nativeAlert(message);
+    }
+})();
+
+
 // http://stackoverflow.com/questions/1068834/object-comparison-in-javascript
 function objectEquals(x, y) {
     // if both are function
@@ -33043,4 +33067,221 @@ function roundToTwo(num, toString) {
 
 function truncate(str, length) {
   return (str && str.length > length) ? (str.substr(0, length-1) + '...') : str;
+}
+function GetPdfMake(invoice, javascript, callback) {
+    var account = invoice.account;
+    eval(javascript);
+
+/*
+var fonts = {
+Roboto: {
+normal: 'Roboto-Regular.ttf',
+bold: 'Roboto-Medium.ttf',
+italics: 'Roboto-Italic.ttf',
+bolditalics: 'Roboto-Italic.ttf'
+},
+};
+*/
+
+doc = pdfMake.createPdf(dd);
+doc.save = function(fileName) {
+    this.download(fileName);
+};
+return doc;
+}
+function notesAndTerms(invoice)
+{
+    var text = [];
+    if (invoice.public_notes) {
+        text.push({text:invoice.public_notes, style:'notes'});
+    }
+
+    if (invoice.terms) {
+        text.push({text:invoiceLabels.terms, style:'termsLabel'});
+        text.push({text:invoice.terms, style:'terms'});
+    }
+
+    return text;
+}
+
+function invoiceLines(invoice) {
+    var grid = 
+    [[{text: invoiceLabels.item, style: 'tableHeader'}, 
+    {text: invoiceLabels.description, style: 'tableHeader'}, 
+    {text: invoiceLabels.unit_cost, style: 'tableHeader'}, 
+    {text: invoiceLabels.quantity, style: 'tableHeader'}, 
+    {text: invoice.has_taxes?invoiceLabels.tax:'', style: 'tableHeader'}, 
+    {text: invoiceLabels.line_total, style: 'tableHeader'}]];
+    var total = 0;
+    var shownItem = false;
+    var currencyId = invoice && invoice.client ? invoice.client.currency_id : 1;
+    var hideQuantity = invoice.account.hide_quantity == '1';
+
+    for (var i = 0; i < invoice.invoice_items.length; i++) {
+        var row = [];
+        var item = invoice.invoice_items[i];
+        var cost = formatMoney(item.cost, currencyId, true);
+        var qty = NINJA.parseFloat(item.qty) ? roundToTwo(NINJA.parseFloat(item.qty)) + '' : '';
+        var notes = item.notes;
+        var productKey = item.product_key;
+        var tax = "";
+        if (item.tax && parseFloat(item.tax.rate)) {
+            tax = parseFloat(item.tax.rate);
+        } else if (item.tax_rate && parseFloat(item.tax_rate)) {
+            tax = parseFloat(item.tax_rate);
+        }
+
+// show at most one blank line
+if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
+    continue;
+}
+shownItem = true;
+
+// process date variables
+if (invoice.is_recurring) {
+    notes = processVariables(notes);
+    productKey = processVariables(productKey);
+}
+
+var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
+if (tax) {
+    lineTotal += lineTotal * tax / 100;
+}
+if (lineTotal) {
+    total += lineTotal;
+}
+lineTotal = formatMoney(lineTotal, currencyId);
+
+rowStyle = i%2===0?'odd':'even';
+
+row[0] = {style:["productKey", rowStyle], text:productKey};
+row[1] = {style:["notes", rowStyle], text:notes};
+row[2] = {style:["cost", rowStyle], text:cost};
+row[3] = {style:["quantity", rowStyle], text:qty};
+row[4] = {style:["tax", rowStyle], text:""+tax};
+row[5] = {style:["lineTotal", rowStyle], text:lineTotal};
+
+grid.push(row);
+}
+return grid;
+}
+
+function subtotals(invoice)
+{
+    if (!invoice) {
+        return;
+    }
+
+    var data = [
+    [invoiceLabels.subtotal, formatMoney(invoice.subtotal_amount, invoice.client.currency_id)],
+    ];
+    if(invoice.discount_amount != 0) {
+        data.push([invoiceLabels.discount, formatMoney(invoice.discount_amount, invoice.client.currency_id)]);
+    }
+
+    if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {
+        data.push([invoiceLabels.custom_invoice_label1, formatMoney(invoice.custom_value1, invoice.client.currency_id)]);
+    }
+    if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 == '1') {
+        data.push([invoiceLabels.custom_invoice_label2, formatMoney(invoice.custom_value2, invoice.client.currency_id)]);
+    }
+
+    if(invoice.tax && invoice.tax.name || invoice.tax_name) {
+        data.push([invoiceLabels.tax, formatMoney(invoice.tax_amount, invoice.client.currency_id)]);
+    }
+
+    if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {
+        data.push([invoiceLabels.custom_invoice_label1, formatMoney(invoice.custom_value1, invoice.client.currency_id)]);
+    }
+    if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 != '1') {
+        data.push([invoiceLabels.custom_invoice_label2, formatMoney(invoice.custom_value2, invoice.client.currency_id)]);
+    }
+
+    var paid = invoice.amount - invoice.balance;
+    if (invoice.account.hide_paid_to_date != '1' || paid) {
+        data.push([invoiceLabels.paid_to_date, formatMoney(paid, invoice.client.currency_id)]);
+    }
+
+    data.push([{text:invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due, style:'balanceDueLabel'},
+        {text:formatMoney(invoice.balance_amount, invoice.client.currency_id), style:'balanceDueValue'}]);
+    return data;
+}
+
+function accountDetails(account) {
+    var data = [];
+    if(account.name) data.push({text:account.name, style:'accountName'});
+    if(account.id_number) data.push({text:account.id_number, style:'accountDetails'});
+    if(account.vat_number) data.push({text:account.vat_number, style:'accountDetails'});
+    if(account.work_email) data.push({text:account.work_email, style:'accountDetails'});
+    if(account.work_phone) data.push({text:account.work_phone, style:'accountDetails'});
+    return data;
+}
+
+function accountAddress(account) {
+    var address = '';
+    if (account.city || account.state || account.postal_code) {
+        address = ((account.city ? account.city + ', ' : '') + account.state + ' ' + account.postal_code).trim();
+    }    
+    var data = [];
+    if(account.address1) data.push({text:account.address1, style:'accountDetails'});
+    if(account.address2) data.push({text:account.address2, style:'accountDetails'});
+    if(address) data.push({text:address, style:'accountDetails'});
+    if(account.country) data.push({text:account.country.name, style: 'accountDetails'});
+    return data;
+}
+
+function invoiceDetails(invoice) {
+    var data = [
+        [
+            invoice.is_quote ? invoiceLabels.quote_number : invoiceLabels.invoice_number,
+            {style: 'bold', text: invoice.invoice_number},
+        ],
+        [
+            invoice.is_quote ? invoiceLabels.quote_date : invoiceLabels.invoice_date, 
+            invoice.invoice_date, 
+        ],
+        [
+            invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due, 
+            formatMoney(invoice.balance_amount, invoice.client.currency_id), 
+        ],
+    ];
+
+    return data;
+}
+
+function clientDetails(invoice) {
+    var client = invoice.client;
+    if (!client) {
+        return;
+    }
+    var fields = [
+        getClientDisplayName(client),
+        client.id_number,
+        client.vat_number,
+        concatStrings(client.address1, client.address2),
+        concatStrings(client.city, client.state, client.postal_code),
+        client.country ? client.country.name : false,
+        invoice.contact && getClientDisplayName(client) != invoice.contact.email ? invoice.contact.email : false,
+        invoice.client.custom_value1 ? invoice.account['custom_client_label1'] + ' ' + invoice.client.custom_value1 : false,
+        invoice.client.custom_value2 ? invoice.account['custom_client_label2'] + ' ' + invoice.client.custom_value2 : false,
+    ];
+
+    var data = [];
+    for (var i=0; i<fields.length; i++) {
+        var field = fields[i];
+        if (!field) {
+            continue;
+        }
+        data.push(field);        
+    }    
+    return data;
+}
+
+
+function primaryColor( defaultColor) {
+    return NINJA.primaryColor?NINJA.primaryColor:defaultColor;
+}
+
+function secondaryColor( defaultColor) {
+    return NINJA.primaryColor?NINJA.secondaryColor:defaultColor;
 }

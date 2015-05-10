@@ -10,7 +10,9 @@ use Redirect;
 use DB;
 use Event;
 use URL;
-
+use Datatable;
+use finfo;
+use Request;
 use App\Models\Invoice;
 use App\Models\Invitation;
 use App\Models\Client;
@@ -25,7 +27,6 @@ use App\Models\PaymentTerm;
 use App\Models\InvoiceDesign;
 use App\Models\AccountGateway;
 use App\Models\Activity;
-
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
@@ -176,9 +177,19 @@ class InvoiceController extends BaseController
 
         $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
         $client = $invoice->client;
+        $account = $client->account;
 
         if (!$client || $client->is_deleted) {
             return View::make('invoices.deleted');
+        }
+
+        if ($account->subdomain) {
+            $server = explode('.', Request::server('HTTP_HOST'));
+            $subdomain = $server[0];
+
+            if (!in_array($subdomain, ['app', 'www']) && $subdomain != $account->subdomain) {
+                return View::make('invoices.deleted');
+            }
         }
 
         if (!Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
@@ -188,13 +199,13 @@ class InvoiceController extends BaseController
 
         Session::set($invitationKey, true);
         Session::set('invitation_key', $invitationKey);
-        Session::set('white_label', $client->account->isWhiteLabel());
+        Session::set('white_label', $account->isWhiteLabel());
 
-        $client->account->loadLocalizationSettings();
+        $account->loadLocalizationSettings();
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-        $invoice->is_pro = $client->account->isPro();
+        $invoice->is_pro = $account->isPro();
         
         $contact = $invitation->contact;
         $contact->setVisible([
@@ -203,16 +214,30 @@ class InvoiceController extends BaseController
             'email',
             'phone', ]);
 
+        // Determine payment options
+        $paymentTypes = [];
+        if ($client->getGatewayToken()) {
+            $paymentTypes[] = [
+                'url' => URL::to("payment/{$invitation->invitation_key}/".PAYMENT_TYPE_TOKEN), 'label' => trans('texts.use_card_on_file')
+            ];
+        }
+        foreach([PAYMENT_TYPE_CREDIT_CARD, PAYMENT_TYPE_PAYPAL, PAYMENT_TYPE_BITCOIN] as $type) {
+            if ($account->getGatewayByType($type)) {
+                $paymentTypes[] = [
+                    'url' => URL::to("/payment/{$invitation->invitation_key}/{$type}"), 'label' => trans('texts.'.strtolower($type))
+                ];
+            }
+        }
+        
         $data = array(
             'isConverted' => $invoice->quote_invoice_id ? true : false,
             'showBreadcrumbs' => false,
-            'hideLogo' => $client->account->isWhiteLabel(),
+            'hideLogo' => $account->isWhiteLabel(),
             'invoice' => $invoice->hidePrivateFields(),
             'invitation' => $invitation,
-            'invoiceLabels' => $client->account->getInvoiceLabels(),
+            'invoiceLabels' => $account->getInvoiceLabels(),
             'contact' => $contact,
-            'hasToken' => $client->getGatewayToken(),
-            'countGateways' => AccountGateway::scope(false, $client->account->id)->count(),
+            'paymentTypes' => $paymentTypes
         );
 
         return View::make('invoices.view', $data);
@@ -331,7 +356,7 @@ class InvoiceController extends BaseController
             'sizes' => Cache::get('sizes'),
             'paymentTerms' => Cache::get('paymentTerms'),
             'industries' => Cache::get('industries'),
-            'invoiceDesigns' => InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+            'invoiceDesigns' => InvoiceDesign::availableDesigns(),
             'frequencies' => array(
                 1 => 'Weekly',
                 2 => 'Two weeks',
@@ -423,13 +448,12 @@ class InvoiceController extends BaseController
                 $url = URL::to('clients/'.$client->public_id);
                 Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
             }
-            
-            /*
-            This causes an error message. Commenting out. will return later.
-            if (!empty(Input::get('pdfupload')) && strpos(Input::get('pdfupload'), 'data:application/pdf;base64,') === 0) {
-                $this->storePDF(Input::get('pdfupload'), $invoice->id);
+
+            $pdfUpload = Input::get('pdfupload');
+            if (!empty($pdfUpload) && strpos($pdfUpload, 'data:application/pdf;base64,') === 0) {
+                $this->storePDF(Input::get('pdfupload'), $invoice);
             }
-            */
+
             if ($action == 'clone') {
                 return $this->cloneInvoice($publicId);
             } elseif ($action == 'convert') {
@@ -567,23 +591,15 @@ class InvoiceController extends BaseController
             'invoice' => $invoice,
             'versionsJson' => json_encode($versionsJson),
             'versionsSelect' => $versionsSelect,
-            'invoiceDesigns' => InvoiceDesign::where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get(),
+            'invoiceDesigns' => InvoiceDesign::availableDesigns(),
         ];
 
         return View::make('invoices.history', $data);
     }
     
-    private function storePDF($encodedString, $invoiceId)
+    private function storePDF($encodedString, $invoice)
     {
-        $uploadsDir = storage_path().'/pdfcache/';
         $encodedString = str_replace('data:application/pdf;base64,', '', $encodedString);
-        $name = 'cache-'.$invoiceId.'.pdf';
-        
-        if (file_put_contents($uploadsDir.$name, base64_decode($encodedString)) !== false) {
-            $finfo = new finfo(FILEINFO_MIME);
-            if ($finfo->file($uploadsDir.$name) !== 'application/pdf; charset=binary') {
-                unlink($uploadsDir.$name);
-            }
-        }
+        file_put_contents($invoice->getPDFPath(), base64_decode($encodedString));
     }
 }

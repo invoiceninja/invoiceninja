@@ -173,7 +173,7 @@ return array(
   'are_you_sure' => 'Are you sure?',
 
   // payment pages
-  'payment_type_id' => 'Payment type',
+  'payment_type_id' => 'Payment Type',
   'amount' => 'Amount',
 
   // account/company pages
@@ -187,7 +187,7 @@ return array(
   'remove_logo' => 'Remove logo',
   'logo_help' => 'Supported: JPEG, GIF and PNG. Recommended size: 200px width by 120px height',
   'payment_gateway' => 'Payment Gateway',
-  'gateway_id' => 'Provider',
+  'gateway_id' => 'Gateway',
   'email_notifications' => 'Email Notifications',
   'email_sent' => 'Email me when an invoice is <b>sent</b>',
   'email_viewed' => 'Email me when an invoice is <b>viewed</b>',
@@ -207,7 +207,7 @@ return array(
   'client_will_create' => 'client will be created',
   'clients_will_create' => 'clients will be created',
   'email_settings' => 'Email Settings',
-  'pdf_email_attachment' => 'Attach PDF to Emails',
+  'pdf_email_attachment' => 'Attach to Emails',
 
   // application messages
   'created_client' => 'Successfully created client',
@@ -255,13 +255,13 @@ return array(
   'confirmation_subject' => 'Invoice Ninja Account Confirmation',
   'confirmation_header' => 'Account Confirmation',
   'confirmation_message' => 'Please access the link below to confirm your account.',
-  'invoice_subject' => 'New invoice from :account',
+  'invoice_subject' => 'New invoice :invoice from :account',
   'invoice_message' => 'To view your invoice for :amount, click the link below.',
   'payment_subject' => 'Payment Received',
   'payment_message' => 'Thank you for your payment of :amount.',
   'email_salutation' => 'Dear :name,',
   'email_signature' => 'Regards,',
-  'email_from' => 'The InvoiceNinja Team',
+  'email_from' => 'The Invoice Ninja Team',
   'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/company/notifications',
   'invoice_link_message' => 'To view your client invoice click the link below:',
   'notification_invoice_paid_subject' => 'Invoice :invoice was paid by :client',
@@ -585,5 +585,46 @@ return array(
   'resend_confirmation' => 'Resend confirmation email',
   'confirmation_resent' => 'The confirmation email was resent',
   
-    
+  'gateway_help_42' => ':link to sign up for BitPay.<br/>Note: use a Legacy API Key, not an API token.',
+  'payment_type_credit_card' => 'Credit card',
+  'payment_type_paypal' => 'PayPal',
+  'payment_type_bitcoin' => 'Bitcoin',
+  'knowledge_base' => 'Knowledge Base',
+  'partial' => 'Partial',
+  'partial_remaining' => ':partial of :balance',
+
+  'more_fields' => 'More Fields',
+  'less_fields' => 'Less Fields',
+  'client_name' => 'Client Name',
+  'pdf_settings' => 'PDF Settings',
+  'utf8_invoices' => 'Cyrillic Support <sup>Beta</sup>',
+  'product_settings' => 'Product Settings',
+  'auto_wrap' => 'Auto Line Wrap',
+  'duplicate_post' => 'Warning: the previous page was submitted twice. The second submission had been ignored.',
+  'view_documentation' => 'View Documentation',
+  'app_title' => 'Free Open-Source Online Invoicing',
+  'app_description' => 'Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
+  
+  'rows' => 'rows',
+  'www' => 'www',
+  'logo' => 'Logo',
+  'subdomain' => 'Subdomain',
+  'provide_name_or_email' => 'Please provide a contact name or email',
+  'charts_and_reports' => 'Charts & Reports',
+  'chart' => 'Chart',
+  'report' => 'Report',
+  'group_by' => 'Group by',
+  'paid' => 'Paid',
+  'enable_report' => 'Report',
+  'enable_chart' => 'Chart',
+  'totals' => 'Totals',
+  'run' => 'Run',
+  'export' => 'Export',
+  'documentation' => 'Documentation',
+  'zapier' => 'Zapier <sup>Beta</sup>',
+  'recurring' => 'Recurring',
+  'last_invoice_sent' => 'Last invoice sent :date',
+
+  'processed_updates' => 'Successfully completed update',
+
 );

@@ -25,10 +25,26 @@ body {
     background: #f9f9f9;
     border: 1px solid #ebe7e7;
     border-radius: 3px;
-    margin: 6px 0 6px 0;
     font-size: 16px;
     min-height: 42px !important;
     font-weight: 400;
+}
+
+div.col-md-3,
+div.col-md-5,
+div.col-md-6,
+div.col-md-7,
+div.col-md-9,
+div.col-md-12 {
+    margin: 6px 0 6px 0;
+}
+
+span.dropdown-toggle {
+    border-color: #ebe7e7;
+}
+
+.dropdown-toggle {
+    margin: 0px !important;
 }
 
 .container input[placeholder],
@@ -128,7 +144,7 @@ header h3 em {
 'city' => 'required',
 'state' => 'required',
 'postal_code' => 'required',
-'country' => 'required',
+'country_id' => 'required',
 'phone' => 'required',
 'email' => 'required|email'
 )) !!}
@@ -137,6 +153,9 @@ header h3 em {
   {{ Former::populate($client) }}
   {{ Former::populateField('first_name', $contact->first_name) }}
   {{ Former::populateField('last_name', $contact->last_name) }}
+  @if (!$client->country_id && $client->account->country_id)
+    {{ Former::populateField('country_id', $client->account->country_id) }} 
+  @endif
 @endif
 
 <div class="container">
@@ -190,24 +209,27 @@ header h3 em {
 
         <h3>{{ trans('texts.billing_address') }} &nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 {!! Former::text('address1')->placeholder(trans('texts.address1'))->raw() !!}
             </div>
-        </div>
-        <div class="row">
             <div class="col-md-6">
                 {!! Former::text('address2')->placeholder(trans('texts.address2'))->raw() !!}
             </div>            
+        </div>
+        <div class="row">
             <div class="col-md-6">
                 {!! Former::text('city')->placeholder(trans('texts.city'))->raw() !!}
+            </div>
+            <div class="col-md-6">
+                {!! Former::text('state')->placeholder(trans('texts.state'))->raw() !!}
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
-                {!! Former::text('state')->placeholder(trans('texts.state'))->raw() !!}
+                {!! Former::text('postal_code')->placeholder(trans('texts.postal_code'))->raw() !!}
             </div>
             <div class="col-md-6">
-                {!! Former::text('postal_code')->placeholder(trans('texts.postal_code'))->raw() !!}
+                {!! Former::select('country_id')->placeholder(trans('texts.country_id'))->fromQuery($countries, 'name', 'id')->raw() !!}                
             </div>
         </div>
 
@@ -262,7 +284,7 @@ header h3 em {
                 @if ($client && $account->showTokenCheckbox())        
                     <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
                     <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
-                    <span class="help-block" style="font-size:15px">{{ trans('texts.token_billing_secure', ['stripe_link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) }}</span>
+                    <span class="help-block" style="font-size:15px">{!! trans('texts.token_billing_secure', ['stripe_link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}</span>
                 @endif                    
             </div>  
 
@@ -316,6 +338,8 @@ header h3 em {
         $('select').change(function() {
             $(this).css({color:'#444444'});
         });
+
+        $('#country_id').combobox();
     });
 
 </script>

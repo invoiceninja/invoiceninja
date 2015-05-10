@@ -1,11 +1,16 @@
 <?php namespace App\Models;
 
+use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends EntityModel
 {
     use SoftDeletes;
     protected $dates = ['deleted_at'];
+
+    protected $casts = [
+        'is_recurring' => 'boolean',
+    ];
 
     public function account()
     {
@@ -47,6 +52,17 @@ class Invoice extends EntityModel
         return $this->invoice_number;
     }
 
+    public function getFileName()
+    {
+        $entityType = $this->getEntityType();
+        return trans("texts.$entityType") . '_' . $this->invoice_number . '.pdf';
+    }
+
+    public function getPDFPath()
+    {
+        return storage_path() . '/pdfcache/cache-' . $this->id . '.pdf';
+    }
+
     public function getLink()
     {
         return link_to('invoices/'.$this->public_id, $this->invoice_number);
@@ -70,6 +86,11 @@ class Invoice extends EntityModel
     public function isPaid()
     {
         return $this->invoice_status_id >= INVOICE_STATUS_PAID;
+    }
+
+    public function getRequestedAmount()
+    {
+        return $this->partial > 0 ? $this->partial : $this->balance;
     }
 
     public function hidePrivateFields()
@@ -99,6 +120,7 @@ class Invoice extends EntityModel
             'custom_value2',
             'custom_taxes1',
             'custom_taxes2',
+            'partial',
         ]);
 
         $this->client->setVisible([

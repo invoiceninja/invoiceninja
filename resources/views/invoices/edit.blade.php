@@ -5,6 +5,12 @@
 
 		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
 		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
+
+        @if (Auth::user()->account->utf8_invoices)
+            <script src="{{ asset('vendor/pdfmake/build/pdfmake.min.js') }}" type="text/javascript"></script>
+            <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
+        @endif
+
 @stop
 
 @section('content')
@@ -18,21 +24,26 @@
 
 	{!! Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
 		'client' => 'required',
-		'email' => 'required',
 		'product_key' => 'max:20'
 	)) !!}	
+
 
 	<input type="submit" style="display:none" name="submitButton" id="submitButton">
 
 	<div data-bind="with: invoice">
+    <div class="panel panel-default">
+    <div class="panel-body" style="padding-bottom: 0px;">
+
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-4" id="col_1">
 
     		@if ($invoice && $invoice->id)
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
-					<div class="col-lg-8 col-sm-8" style="padding-top: 10px">
-						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm, text: getClientDisplayName(ko.toJS(client()))"></a>
+					<div class="col-lg-8 col-sm-8">
+                        <h4><div data-bind="text: getClientDisplayName(ko.toJS(client()))"></div></h4>
+						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
+                        {!! link_to('/clients/'.$invoice->client->public_id, trans('texts.view_client'), ['target' => '_blank']) !!}                        
 					</div>
 				</div>    				
 				<div style="display:none">
@@ -42,7 +53,10 @@
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-					<a id="createClientLink" class="pointer" data-bind="click: $root.showClientForm, text: $root.clientLinkText"></a>					
+					<a id="createClientLink" class="pointer" data-bind="click: $root.showClientForm, text: $root.clientLinkText"></a>
+                    <span data-bind="visible: $root.invoice().client().public_id() > 0">| 
+                        <a data-bind="attr: {href: '{{ url('/clients') }}/' + $root.invoice().client().public_id()}" target="_blank">{{ trans('texts.view_client') }}</a>
+                    </span>
 				</div>
 			</div>
 
@@ -51,7 +65,7 @@
 			@endif
 
 			<div data-bind="with: client">
-				<div style="display:none" class="form-group" data-bind="visible: contacts().length > 0 &amp;&amp; contacts()[0].email(), foreach: contacts">
+				<div style="display:none" class="form-group" data-bind="visible: contacts().length > 0 &amp;&amp; (contacts()[0].email() || contacts()[0].first_name()), foreach: contacts">
 					<div class="col-lg-8 col-lg-offset-4">
 						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}" onclick="refreshPDF()">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check'}">
@@ -68,6 +82,8 @@
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'invoice_date\')"></i>') !!}
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') !!}							
+                
+                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()') !!}
 			</div>
 			@if ($entityType == ENTITY_INVOICE)
 				<div data-bind="visible: is_recurring" style="display: none">
@@ -83,8 +99,24 @@
 					</div>
 				@else 
 				<div data-bind="visible: invoice_status_id() === 0">
-					{!! Former::checkbox('recurring')->onclick('setEmailEnabled()')->text(trans('texts.enable').' &nbsp;&nbsp; <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> '.trans('texts.learn_more').'</a>')->data_bind("checked: is_recurring")
-						->inlineHelp($invoice && $invoice->last_sent_date ? 'Last invoice sent ' . Utils::dateToString($invoice->last_sent_date) : '') !!}
+                    <div class="form-group">
+                        <label for="" class="control-label col-lg-4 col-sm-4">
+                            {{ trans('texts.recurring') }}
+                        </label>
+                        <div class="col-lg-8 col-sm-8">
+                            <div class="checkbox">
+                                <label for="recurring" class="">
+                                    <input onclick="onRecurringEnabled()" data-bind="checked: is_recurring" id="recurring" type="checkbox" name="recurring" value="1">{{ trans('texts.enable') }} &nbsp;&nbsp; 
+                                    <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> {{ trans('texts.learn_more') }}</a>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    @if ($invoice && $invoice->last_sent_date)
+                        <div class="pull-right">
+                            {{ trans('texts.last_invoice_sent', ['date' => Utils::dateToString($invoice->last_sent_date)]) }}
+                        </div>
+                    @endif
 				</div>			
 				@endif
 			@endif
@@ -102,7 +134,7 @@
 			{{-- Former::select('currency_id')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") --}}
 			
 			<div class="form-group" style="margin-bottom: 8px">
-				<label for="recurring" class="control-label col-lg-4 col-sm-4">{{ trans('texts.taxes') }}</label>
+				<label for="taxes" class="control-label col-lg-4 col-sm-4">{{ trans('texts.taxes') }}</label>
 				<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
 					<a href="#" data-bind="click: $root.showTaxesForm"><i class="glyphicon glyphicon-list-alt"></i> {{ trans('texts.manage_rates') }}</a>
 				</div>
@@ -112,8 +144,6 @@
 	</div>
 
 	<p>&nbsp;</p>
-
-	{!! Former::hidden('data')->data_bind("value: ko.mapping.toJSON(model)") !!}	
 
 	<div class="table-responsive">
 	<table class="table invoice-table" style="margin-bottom: 0px !important">
@@ -135,11 +165,11 @@
 					<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 				</td>
 				<td>	            	
-                    {!! Former::text('product_key')->useDatalist($products->toArray(), 'product_key')->onkeyup('onItemChange()')
-					->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') !!}
+                {!! Former::text('product_key')->useDatalist($products->toArray(), 'product_key')->onkeyup('onItemChange()')
+				       ->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') !!}
 				</td>
 				<td>
-					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: none;" class="form-control word-wrap"></textarea>
+					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown'" rows="1" cols="60" style="resize: vertical" class="form-control word-wrap"></textarea>
 				</td>
 				<td>
 					<input onkeyup="onItemChange()" data-bind="value: prettyCost, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control"//>
@@ -163,7 +193,7 @@
 		<tfoot>
 			<tr>
 				<td class="hide-border"/>
-				<td colspan="2" rowspan="6" style="vertical-align:top">
+				<td class="hide-border" colspan="2" rowspan="6" style="vertical-align:top">
 					<br/>
                     <div role="tabpanel">
 
@@ -263,9 +293,9 @@
 
 			<tr>
 				<td class="hide-border" colspan="3"/>
-				<td style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
-				<td colspan="{{ $account->hide_quantity ? 1 : 2 }}"><b>{{ trans($entityType == ENTITY_INVOICE ? 'texts.balance_due' : 'texts.total') }}</b></td>
-				<td style="text-align: right"><span data-bind="text: totals.total"/></td>
+				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+				<td class="hide-border" colspan="{{ $account->hide_quantity ? 1 : 2 }}"><b>{{ trans($entityType == ENTITY_INVOICE ? 'texts.balance_due' : 'texts.total') }}</b></td>
+				<td class="hide-border" style="text-align: right"><span data-bind="text: totals.total"></span></td>
 			</tr>
 
 		</tfoot>
@@ -273,7 +303,9 @@
 
 	</table>
 	</div>
-
+    </div>
+    </div>
+    
 	<p>&nbsp;</p>
 	<div class="form-actions">
 
@@ -281,6 +313,8 @@
 			{!! Former::populateField('entityType', $entityType) !!}
 			{!! Former::text('entityType') !!}
 			{!! Former::text('action') !!}
+            {!! Former::text('data')->data_bind("value: ko.mapping.toJSON(model)") !!}    
+            {!! Former::text('pdfupload') !!}    
 				
 			@if ($invoice && $invoice->id)
 				{!! Former::populateField('id', $invoice->public_id) !!}
@@ -290,9 +324,9 @@
 
 
 		@if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS)
-			{!! Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
+			{!! Former::select('invoice_design_id')->style('display:'.($account->utf8_invoices ? 'none' : 'inline').';width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
 		@else 
-			{!! Former::select('invoice_design_id')->style('display:inline;width:150px')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
+			{!! Former::select('invoice_design_id')->style('display:'.($account->utf8_invoices ? 'none' : 'inline').';width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
 		{!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}	
@@ -334,14 +368,14 @@
 				</div>		
 
 			@else
-				{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()')) !!}			
+				{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 			@endif
 
             @if (!$invoice || ($invoice && !$invoice->is_recurring))
 			 {!! Button::normal(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
             @endif
 
-			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE && !$invoice->is_recurring)
+			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE && !$invoice->is_recurring && !$invoice->isPaid())
 				{!! Button::primary(trans('texts.enter_payment'))->withAttributes(array('onclick' => 'onPaymentClick()'))->appendIcon(Icon::create('usd')) !!}		
 			@endif
 		@elseif ($invoice && $invoice->trashed() && !$invoice->is_deleted == '1')
@@ -355,101 +389,110 @@
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
-			{!! trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="showProPlan(\'remove_logo\')">'.trans('texts.pro_plan.remove_logo_link').'</a>']) !!}
+			{!! trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="submitProPlan(\'remove_logo\')">'.trans('texts.pro_plan.remove_logo_link').'</a>']) !!}
 		</div>
 	@endif
 
 	<div class="modal fade" id="clientModal" tabindex="-1" role="dialog" aria-labelledby="clientModalLabel" aria-hidden="true">
-	  <div class="modal-dialog large-dialog">
-	    <div class="modal-content">
+	  <div class="modal-dialog" data-bind="css: {'large-dialog': $root.showMore}">
+	    <div class="modal-content" style="background-color: #f8f8f8">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 	        <h4 class="modal-title" id="clientModalLabel">{{ trans('texts.client') }}</h4>
 	      </div>
 
-	      <div class="container" style="width: 100%">
-		<div style="background-color: #fff" class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
-			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
+       <div class="container" style="width: 100%; padding-bottom: 0px !important">
+       <div class="panel panel-default">
+        <div class="panel-body">
 
-				{!! Former::legend('organization') !!}
-				{!! Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }") !!}
-                                {!! Former::text('id_number')->data_bind("value: id_number, valueUpdate: 'afterkeydown'") !!}
-                                {!! Former::text('vat_number')->data_bind("value: vat_number, valueUpdate: 'afterkeydown'") !!}
-                
-				{!! Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") !!}
+        <div class="row" data-bind="with: client" onkeypress="clientModalEnterClick(event)">
+            <div style="margin-left:0px;margin-right:0px" data-bind="css: {'col-md-6': $root.showMore}">
 
-				@if (Auth::user()->isPro())				
-					@if ($account->custom_client_label1)
-						{!! Former::text('custom_value1')->label($account->custom_client_label1)
-							->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") !!}
-					@endif
-					@if ($account->custom_client_label2)
-						{!! Former::text('custom_value2')->label($account->custom_client_label2)
-							->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") !!}
-					@endif
-				@endif				
-				
-				{!! Former::legend('address') !!}
-				{!! Former::text('address1')->data_bind("value: address1, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('address2')->data_bind("value: address2, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::select('country_id')->addOption('','')->addGroupClass('country_select')
-					->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") !!}
-					
-			</div>
-			<div class="col-md-6" style="margin-left:0px;margin-right:0px" >
+                {!! Former::text('name')->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }")->label('client_name') !!}
+                <span data-bind="visible: $root.showMore">
+                    {!! Former::text('id_number')->data_bind("value: id_number, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('vat_number')->data_bind("value: vat_number, valueUpdate: 'afterkeydown'") !!}
+                    
+                    {!! Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") !!}
 
+                    @if (Auth::user()->isPro())             
+                        @if ($account->custom_client_label1)
+                            {!! Former::text('custom_value1')->label($account->custom_client_label1)
+                                ->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") !!}
+                        @endif
+                        @if ($account->custom_client_label2)
+                            {!! Former::text('custom_value2')->label($account->custom_client_label2)
+                                ->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") !!}
+                        @endif
+                    @endif              
 
-				{!! Former::legend('contacts') !!}
-				<div data-bind='template: { foreach: contacts,
-			                            beforeRemove: hideContact,
-			                            afterAdd: showContact }'>
-					{!! Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown'") !!}
-					{!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") !!}
-					{!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") !!}
-					{!! Former::text('email')->data_bind('value: email, valueUpdate: \'afterkeydown\', attr: {id:\'email\'+$index()}') !!}
-					{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") !!}
+                    &nbsp;
 
-					<div class="form-group">
-						<div class="col-lg-8 col-lg-offset-4">
-							<span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
-								{!! link_to('#', trans('texts.remove_contact').' -', array('data-bind'=>'click: $parent.removeContact')) !!}
-							</span>					
-							<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right greenlink bold">
-								{!! link_to('#', trans('texts.add_contact').' +', array('data-bind'=>'click: $parent.addContact')) !!}
-							</span>
-						</div>
-					</div>
-				</div>
+                    {!! Former::text('address1')->data_bind("value: address1, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('address2')->data_bind("value: address2, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('city')->data_bind("value: city, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('state')->data_bind("value: state, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('postal_code')->data_bind("value: postal_code, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::select('country_id')->addOption('','')->addGroupClass('country_select')
+                        ->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") !!}
+                </span>
 
-				{!! Former::legend('additional_info') !!}
-				{!! Former::select('payment_terms')->addOption('','0')->data_bind('value: payment_terms')
-					->fromQuery($paymentTerms, 'name', 'num_days') !!}
-				{!! Former::select('currency_id')->addOption('','')->data_bind('value: currency_id')
-					->fromQuery($currencies, 'name', 'id') !!}
-				{!! Former::select('size_id')->addOption('','')->data_bind('value: size_id')
-					->fromQuery($sizes, 'name', 'id') !!}
-				{!! Former::select('industry_id')->addOption('','')->data_bind('value: industry_id')
-					->fromQuery($industries, 'name', 'id') !!}
-				{!! Former::textarea('private_notes')->data_bind('value: private_notes') !!}
+            </div>
+            <div style="margin-left:0px;margin-right:0px" data-bind="css: {'col-md-6': $root.showMore}">
 
+                <div data-bind='template: { foreach: contacts,
+                                        beforeRemove: hideContact,
+                                        afterAdd: showContact }'>
+                    {!! Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") !!}
+                    {!! Former::text('email')->data_bind('value: email, valueUpdate: \'afterkeydown\', attr: {id:\'email\'+$index()}') !!}                    
+                    {!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") !!}                    
+                    <div class="form-group">
+                        <div class="col-lg-8 col-lg-offset-4">
+                            <span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
+                                {!! link_to('#', trans('texts.remove_contact').' -', array('data-bind'=>'click: $parent.removeContact')) !!}
+                            </span>                 
+                            <span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right greenlink bold">
+                                {!! link_to('#', trans('texts.add_contact').' +', array('data-bind'=>'click: $parent.addContact')) !!}
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-			</div>
-		</div>
-		</div>
+                <span data-bind="visible: $root.showMore">                
+                    &nbsp;
+                </span>
 
-	     <div class="modal-footer" style="margin-top: 0px">
-	      	<span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">{{ trans('texts.provide_email') }}</span><span>&nbsp;</span>
-	      	<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-	        <button id="clientDoneButton" type="button" class="btn btn-primary" data-bind="click: $root.clientFormComplete">{{ trans('texts.done') }}</button>	      	
-	     </div>
-	  		
-	    </div>
-	  </div>
-	</div>
+                {!! Former::select('currency_id')->addOption('','')->data_bind('value: currency_id')
+                    ->fromQuery($currencies, 'name', 'id') !!}
+
+                <span data-bind="visible: $root.showMore">                
+                {!! Former::select('payment_terms')->addOption('','')->data_bind('value: payment_terms')
+                    ->fromQuery($paymentTerms, 'name', 'num_days') !!}
+                {!! Former::select('size_id')->addOption('','')->data_bind('value: size_id')
+                    ->fromQuery($sizes, 'name', 'id') !!}
+                {!! Former::select('industry_id')->addOption('','')->data_bind('value: industry_id')
+                    ->fromQuery($industries, 'name', 'id') !!}
+                {!! Former::textarea('private_notes')->data_bind('value: private_notes') !!}
+                </span>
+            </div>
+            </div>
+        </div>
+        </div>
+        </div>
+
+         <div class="modal-footer" style="margin-top: 0px; padding-top:0px;">
+            <span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">{{ trans('texts.provide_name_or_email') }}</span><span>&nbsp;</span>
+            <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
+            <button type="button" class="btn btn-default" data-bind="click: $root.showMoreFields, text: $root.showMore() ? '{{ trans('texts.less_fields') }}' : '{{ trans('texts.more_fields') }}'"></button>
+            <button id="clientDoneButton" type="button" class="btn btn-primary" data-bind="click: $root.clientFormComplete">{{ trans('texts.done') }}</button>          
+         </div>
+            
+        </div>
+      </div>
+    </div>
 
 	<div class="modal fade" id="taxModal" tabindex="-1" role="dialog" aria-labelledby="taxModalLabel" aria-hidden="true">
 	  <div class="modal-dialog">
@@ -526,8 +569,7 @@
 
 	{!! Former::close() !!}
 
-
-	</div>
+    </div>
 
 	<script type="text/javascript">
 	
@@ -588,7 +630,7 @@
 			});
 		}		
 
-		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount').change(function() {
+		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial').change(function() {
 			setTimeout(function() {
 				refreshPDF();
 			}, 1);
@@ -642,10 +684,16 @@
 	});	
 
 	function applyComboboxListeners() {
-		var selectorStr = '.invoice-table input, .invoice-table select, .invoice-table textarea';		
+        var selectorStr = '.invoice-table input, .invoice-table select, .invoice-table textarea';		
 		$(selectorStr).off('blur').on('blur', function() {
 			refreshPDF();
 		});
+
+        $('textarea').on('keyup focus', function(e) {            
+            while($(this).outerHeight() < this.scrollHeight + parseFloat($(this).css("borderTopWidth")) + parseFloat($(this).css("borderBottomWidth"))) {
+                $(this).height($(this).height()+1);
+            };
+        });        
 
 		@if (Auth::user()->account->fill_products)
 			$('.datalist').on('input', function() {			                
@@ -672,12 +720,14 @@
 		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
 
-        if (!invoice.terms) {            
-            invoice.terms = wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300);
-        }
-        if (!invoice.invoice_footer) {
-            invoice.invoice_footer = wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}', 600);
-        }
+        @if (!$invoice)
+            if (!invoice.terms) {
+                invoice.terms = wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300);
+            }
+            if (!invoice.invoice_footer) {
+                invoice.invoice_footer = wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}', 600);
+            }
+        @endif
 
 		@if (file_exists($account->getLogoPath()))
 			invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
@@ -688,13 +738,14 @@
         return invoice;
 	}
 
-	function getPDFString() {		
+	function getPDFString(cb) {		
 		var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
-		var doc = generatePDF(invoice, design);
-		if (!doc) return;
-		return doc.output('datauristring');
+        doc = generatePDF(invoice, design, false);
+        if (!doc) return;
+        //return doc.output('datauristring');
+        doc.getDataUrl(cb);
 	}
 
 	function getDesignJavascript() {
@@ -714,12 +765,13 @@
 		var design  = getDesignJavascript();
 		if (!design) return;
 		var doc = generatePDF(invoice, design, true);
-		doc.save('Invoice-' + $('#invoice_number').val() + '.pdf');
+        var type = invoice.is_quote ? '{{ trans('texts.'.ENTITY_QUOTE) }}' : '{{ trans('texts.'.ENTITY_INVOICE) }}';
+		doc.save(type +'-' + $('#invoice_number').val() + '.pdf');
 	}
 
 	function onEmailClick() {
 		if (confirm('{{ trans("texts.confirm_email_$entityType") }}')) {
-			submitAction('email');
+			preparePdfData('email');
 		}
 	}
 
@@ -729,15 +781,21 @@
 				submitAction('');
 			}
 		} else {
-			var invoice = createInvoiceModel();
-			var design  = getDesignJavascript();
-			if (!design) return;
-			var doc = generatePDF(invoice, design, true);
-			
-			$('form.form-horizontal.warn-on-exit').append('<input type="hidden" name="pdfupload" value="'+doc.output('datauristring')+'">');
-			submitAction('');
+            preparePdfData('');
 		}
 	}
+
+    function preparePdfData(action) {
+        var invoice = createInvoiceModel();
+        var design  = getDesignJavascript();
+        if (!design) return;
+        
+        doc = generatePDF(invoice, design, true);
+        doc.getDataUrl( function(pdfString){
+            $('#pdfupload').val(pdfString);            
+            submitAction(action);     
+        });             
+    }
 
 	function submitAction(value) {
 		if (!isSaveValid()) {
@@ -752,7 +810,7 @@
 		var isValid = false;
 		for (var i=0; i<model.invoice().client().contacts().length; i++) {
 			var contact = model.invoice().client().contacts()[i];
-			if (isValidEmailAddress(contact.email())) {
+			if (isValidEmailAddress(contact.email()) || contact.first_name()) {
 				isValid = true;
 			} else {
 				isValid = false;
@@ -843,25 +901,36 @@
 
 	function ViewModel(data) {
 		var self = this;
+        self.showMore = ko.observable(false);
 		//self.invoice = data ? false : new InvoiceModel();
 		self.invoice = ko.observable(data ? false : new InvoiceModel());
 		self.tax_rates = ko.observableArray();
 
 		self.loadClient = function(client) {
 			ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
-			self.setDueDate();
+            @if (!$invoice)
+			 self.setDueDate();
+            @endif
 		}
 
+        self.showMoreFields = function() {
+            self.showMore(!self.showMore());
+        }
+
 		self.setDueDate = function() {
-			var paymentTerms = parseInt(self.invoice().client().payment_terms());
-			if (paymentTerms && !self.invoice().due_date())
+            @if ($entityType == ENTITY_INVOICE)
+            var paymentTerms = parseInt(self.invoice().client().payment_terms());
+            if (paymentTerms && paymentTerms != 0 && !self.invoice().due_date())
 			{
+                console.log("here");
+                if (paymentTerms == -1) paymentTerms = 0;
 				var dueDate = $('#invoice_date').datepicker('getDate');
 				dueDate.setDate(dueDate.getDate() + paymentTerms);
 				self.invoice().due_date(dueDate);	
 				// We're using the datepicker to handle the date formatting 
 				self.invoice().due_date($('#due_date').val());
 			}			
+            @endif
 		}
 
 		self.invoice_taxes = ko.observable({{ Auth::user()->account->invoice_taxes ? 'true' : 'false' }});
@@ -984,10 +1053,23 @@
 		self.clientFormComplete = function() {
 			trackUrl('/save_client_form');
 
+            var email = $('#email0').val();
+            var firstName = $('#first_name').val();
+            var lastName = $('#last_name').val();
+            var name = $('#name').val();
+
+            if (name) {
+                //
+            } else if (firstName || lastName) {
+                name = firstName + ' ' + lastName;
+            } else {
+                name = email;
+            }
+
 			var isValid = true;
 			$("input[name='email']").each(function(item, value) {
 				var email = $(value).val();
-				if (!email || !isValidEmailAddress(email)) {
+				if (!name && (!email || !isValidEmailAddress(email))) {
 					isValid = false;					
 				}
 			});
@@ -996,24 +1078,11 @@
 				return;
 			}
 
-			var email = $('#email0').val();
-			var firstName = $('#first_name').val();
-			var lastName = $('#last_name').val();
-			var name = $('#name').val();
-
 			if (self.invoice().client().public_id() == 0) {
 				self.invoice().client().public_id(-1);
 			}
 
 			model.setDueDate();
-
-			if (name) {
-				//
-			} else if (firstName || lastName) {
-				name = firstName + ' ' + lastName;
-			} else {
-				name = email;
-			}
 
 			setComboboxValue($('.client_select'), -1, name);
 
@@ -1032,7 +1101,7 @@
 		self.clientLinkText = ko.computed(function() {
 			if (self.invoice().client().public_id())
 			{
-				return "{{ trans('texts.edit_client_details') }}";
+				return "{{ trans('texts.edit_client') }}";
 			}
 			else
 			{
@@ -1058,10 +1127,10 @@
 		self.frequency_id = ko.observable('');
 		//self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
         self.terms = ko.observable('');
-        self.default_terms = ko.observable({{ $account->invoice_terms ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300) : '');
+        self.default_terms = ko.observable({{ !$invoice && $account->invoice_terms ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300) : '');
         self.set_default_terms = ko.observable(false);
         self.invoice_footer = ko.observable('');
-        self.default_footer = ko.observable({{ $account->invoice_footer ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}', 600) : '');
+        self.default_footer = ko.observable({{ !$invoice && $account->invoice_footer ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}', 600) : '');
         self.set_default_footer = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
@@ -1077,7 +1146,8 @@
 		self.invoice_items = ko.observableArray();
 		self.amount = ko.observable(0);
 		self.balance = ko.observable(0);
-		self.invoice_design_id = ko.observable({{ $account->invoice_design_id }});
+		self.invoice_design_id = ko.observable({{ $account->utf8_invoices ? 1 : $account->invoice_design_id }});
+        self.partial = ko.observable(0);            
 
 		self.custom_value1 = ko.observable(0);
 		self.custom_value2 = ko.observable(0);
@@ -1087,7 +1157,7 @@
 		self.mapping = {
 			'client': {
 		        create: function(options) {
-		            return new ClientModel(options.data);
+                    return new ClientModel(options.data);
 		        }
 			},
 		    'invoice_items': {
@@ -1111,9 +1181,8 @@
 			applyComboboxListeners();			
 		}
 
-		if (data) {
+        if (data) {
 			ko.mapping.fromJS(data, self.mapping, self);			
-			self.is_recurring(parseInt(data.is_recurring));
 		} else {
 			self.addItem();
 		}
@@ -1237,26 +1306,19 @@
         	}
     	});
 
-		this.totals.rawPaidToDate = ko.computed(function() {
+		self.totals.rawPaidToDate = ko.computed(function() {
 			return accounting.toFixed(self.amount(),2) - accounting.toFixed(self.balance(),2);
 		});
 
-		this.totals.paidToDate = ko.computed(function() {
+		self.totals.paidToDate = ko.computed(function() {
 			var total = self.totals.rawPaidToDate();
 		    return formatMoney(total, self.client().currency_id());
 		});
 
-		this.totals.total = ko.computed(function() {
+		self.totals.rawTotal = ko.computed(function() {
     	    var total = accounting.toFixed(self.totals.rawSubtotal(),2);	    
     	    var discount = self.totals.rawDiscounted();
     	    total -= discount;
-
-    	    /*
-    	    var discount = parseFloat(self.discount());
-    	    if (discount > 0) {
-    	    	total = roundToTwo(total * ((100 - discount)/100));
-    	    }
-    			*/
 
     	    var customValue1 = roundToTwo(self.custom_value1());
     	    var customValue2 = roundToTwo(self.custom_value2());
@@ -1287,8 +1349,12 @@
         		total -= paid;
         	}
 
-    	    return formatMoney(total, self.client().currency_id());
+    	    return total;
       	});
+
+        self.totals.total = ko.computed(function() {
+            return formatMoney(self.partial() ? self.partial() : self.totals.rawTotal(), self.client().currency_id());
+        });        
 
       	self.onDragged = function(item) {
       		refreshPDF();
@@ -1321,19 +1387,18 @@
 		self.mapping = {
 	    	'contacts': {
 	        	create: function(options) {
-	        			var model = new ContactModel(options.data);
-	        			model.send_invoice(options.data.send_invoice == '1');
-	        			return model;
+	        		var model = new ContactModel(options.data);
+	        		model.send_invoice(options.data.send_invoice == '1');
+	        		return model;
 	        	}
 	    	}
 		}
-
 
 		self.showContact = function(elem) { if (elem.nodeType === 1) $(elem).hide().slideDown() }
 		self.hideContact = function(elem) { if (elem.nodeType === 1) $(elem).slideUp(function() { $(elem).remove(); }) }
 
 		self.addContact = function() {
-			var contact = new ContactModel();
+            var contact = new ContactModel();
 			contact.send_invoice(true);
 			self.contacts.push(contact);
 			return false;
@@ -1388,11 +1453,13 @@
 			if (self.first_name() || self.last_name()) {
 				str += self.first_name() + ' ' + self.last_name() + '<br/>';
 			}			
-			str += self.email();
+            if (self.email()) {
+                str += self.email() + '<br/>';    
+            }			
 
 			@if (Utils::isConfirmed())
 			if (self.invitation_link()) {
-				str += '<br/><a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_as_recipient') }}</a>';
+				str += '<a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_as_recipient') }}</a>';
 			}
 			@endif
 			
@@ -1572,9 +1639,11 @@
 			model.invoice().addItem();
 		}
 
+        /*
 		$('.word-wrap').each(function(index, input) {
 			$(input).height($(input).val().split('\n').length * 20);
 		});
+        */
 	}
 
 	function onTaxRateChange()
@@ -1593,10 +1662,18 @@
 		}
 	}
 
-    function setEmailEnabled()
+    function onPartialChange()
+    {
+        var val = NINJA.parseFloat($('#partial').val());
+        val = Math.max(Math.min(val, model.invoice().totals.rawTotal()), 0);
+        $('#partial').val(val || '');
+    }
+
+    function onRecurringEnabled()
     {
         if ($('#recurring').prop('checked')) {
             $('#email_button').attr('disabled', true);
+            model.invoice().partial('');
         } else {
             $('#email_button').removeAttr('disabled');
         }
@@ -1622,20 +1699,17 @@
 	}
 
 	@if ($data)
-		window.model = new ViewModel({{ $data }});				
+		window.model = new ViewModel({!! $data !!});        
 	@else 
 		window.model = new ViewModel();
 		model.addTaxRate();
 		@foreach ($taxRates as $taxRate)
-			model.addTaxRate({{ $taxRate }});
+			model.addTaxRate({!! $taxRate !!});
 		@endforeach
 		@if ($invoice)
 			var invoice = {!! $invoice !!};
 			ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);			
-			if (model.invoice().is_recurring() === '0') {
-				model.invoice().is_recurring(false);
-			}
-			var invitationContactIds = {!! json_encode($invitationContactIds) !!};		
+            var invitationContactIds = {!! json_encode($invitationContactIds) !!};		
 			var client = clientMap[invoice.client.public_id];
 			if (client) { // in case it's deleted
 				for (var i=0; i<client.contacts.length; i++) {
@@ -1666,6 +1740,7 @@
 
 	// display blank instead of '0'
 	if (!NINJA.parseFloat(model.invoice().discount())) model.invoice().discount('');
+    if (!NINJA.parseFloat(model.invoice().partial())) model.invoice().partial('');
 	if (!model.invoice().custom_value1()) model.invoice().custom_value1('');
 	if (!model.invoice().custom_value2()) model.invoice().custom_value2('');
 

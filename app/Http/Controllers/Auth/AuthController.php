@@ -2,8 +2,9 @@
 
 use Auth;
 use Event;
+use Utils;
 use Illuminate\Http\Request;
-
+use App\Models\User;
 use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\Auth\Guard;
@@ -42,6 +43,15 @@ class AuthController extends Controller {
 
 		$this->middleware('guest', ['except' => 'getLogout']);
 	}
+
+    public function getLoginWrapper()
+    {
+        if (!Utils::isNinja() && !User::count()) {
+            return redirect()->to('invoice_now');
+        }
+
+        return self::getLogin();
+    }
 
     public function postLoginWrapper(Request $request)
     {

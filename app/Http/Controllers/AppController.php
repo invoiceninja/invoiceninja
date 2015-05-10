@@ -9,6 +9,9 @@ use Exception;
 use Input;
 use Utils;
 use View;
+use Session;
+use Cookie;
+use Response;
 use App\Models\User;
 use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
@@ -33,7 +36,15 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        return View::make('setup');
+        $view = View::make('setup');
+
+        /*
+        $cookie = Cookie::forget('ninja_session', '/', 'www.ninja.dev');
+        Cookie::queue($cookie);
+        return Response::make($view)->withCookie($cookie);
+        */
+
+        return Response::make($view);
     }
 
     public function doSetup()
@@ -95,6 +106,7 @@ class AppController extends BaseController
         // Artisan::call('migrate:rollback', array('--force' => true)); // Debug Purposes
         Artisan::call('migrate', array('--force' => true));
         Artisan::call('db:seed', array('--force' => true));
+        Artisan::call('optimize', array('--force' => true));
         
         $firstName = trim(Input::get('first_name'));
         $lastName = trim(Input::get('last_name'));
@@ -159,6 +171,7 @@ class AppController extends BaseController
             try {
                 Artisan::call('migrate', array('--force' => true));
                 Artisan::call('db:seed', array('--force' => true));
+                Artisan::call('optimize', array('--force' => true));
             } catch (Exception $e) {
                 Response::make($e->getMessage(), 500);
             }
@@ -172,7 +185,10 @@ class AppController extends BaseController
         if (!Utils::isNinja()) {
             try {
                 Artisan::call('migrate', array('--force' => true));
+                Artisan::call('db:seed', array('--force' => true, '--class' => 'PaymentLibrariesSeeder'));
+                Artisan::call('optimize', array('--force' => true));
                 Cache::flush();
+                Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {
                 Response::make($e->getMessage(), 500);
             }

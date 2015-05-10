@@ -5,7 +5,6 @@
 	@include('accounts.nav_advanced')
 
   {!! Former::open('tokens/delete')->addClass('user-form') !!}
-  {!! Former::legend('token_management') !!}
 
   <div style="display:none">
     {!! Former::text('tokenPublicId') !!}
@@ -13,9 +12,15 @@
   {!! Former::close() !!}
 
 
-  @if (Utils::isPro())
-    {!! Button::success(trans('texts.add_token'))->asLinkTo('/tokens/create')->withAttributes(['class' => 'pull-right'])->appendIcon(Icon::create('plus-sign')) !!}
+  <div class="pull-right">
+  {!! Button::normal(trans('texts.documentation'))->asLinkTo(NINJA_WEB_URL.'/knowledgebase/api-documentation/')->withAttributes(['target' => '_blank']) !!}
+  @if (Utils::isNinja())  
+    {!! Button::normal(trans('texts.zapier'))->asLinkTo(ZAPIER_URL)->withAttributes(['target' => '_blank']) !!}
   @endif
+  @if (Utils::isPro())
+    {!! Button::primary(trans('texts.add_token'))->asLinkTo('/tokens/create')->appendIcon(Icon::create('plus-sign')) !!}
+  @endif
+  </div>
 
   <!--
     <label for="trashed" style="font-weight:normal; margin-left: 10px;">

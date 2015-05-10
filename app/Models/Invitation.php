@@ -9,7 +9,7 @@ class Invitation extends EntityModel
 
     public function invoice()
     {
-        return $this->belongsTo('App\Models\Invoice');
+        return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
     public function contact()
@@ -29,6 +29,13 @@ class Invitation extends EntityModel
 
     public function getLink()
     {
-        return SITE_URL.'/view/'.$this->invitation_key;
+        $this->load('account');
+        $url = SITE_URL;
+
+        if ($this->account->subdomain) {
+            $url = str_replace('://www.', "://{$this->account->subdomain}.", $url);
+        }
+
+        return "{$url}/view/{$this->invitation_key}";
     }
 }

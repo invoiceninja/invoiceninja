@@ -8,16 +8,25 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
 
 var invoiceOld;
-function generatePDF(invoice, javascript, force) {
+function generatePDF(invoice, javascript, force, cb) {
   invoice = calculateAmounts(invoice);
   var a = copyInvoice(invoice);
   var b = copyInvoice(invoiceOld);
   if (!force && _.isEqual(a, b)) {
     return;
   }
+  pdfmakeMarker = "//pdfmake";
   invoiceOld = invoice;
   report_id = invoice.invoice_design_id;
-  doc = GetPdf(invoice, javascript);
+  if(javascript.slice(0, pdfmakeMarker.length) === pdfmakeMarker) {
+    doc = GetPdfMake(invoice, javascript, cb);
+    //doc.getDataUrl(cb);
+  } else {
+    doc = GetPdf(invoice, javascript);
+    doc.getDataUrl = function(cb) {
+      cb( this.output("datauristring"));  
+    };    
+  }
   return doc;
 }
 
@@ -78,6 +87,12 @@ function GetPdf(invoice, javascript){
   //set default style for report
   doc.setFont('Helvetica','');
 
+  // For partial payments show "Amount Due" rather than "Balance Due"
+  if (!invoiceLabels.balance_due_orig) {
+    invoiceLabels.balance_due_orig = invoiceLabels.balance_due;
+  }
+  invoiceLabels.balance_due = NINJA.parseFloat(invoice.partial) ? invoiceLabels.amount_due : invoiceLabels.balance_due_orig;
+
   eval(javascript);
 
   // add footer
@@ -87,8 +102,9 @@ function GetPdf(invoice, javascript){
     SetPdfColor(invoice.invoice_design_id == 2 || invoice.invoice_design_id == 3 ? 'White' : 'Black',doc);
     var top = doc.internal.pageSize.height - layout.marginLeft;
     if (!invoice.is_pro) top -= 25;
-    var numLines = invoice.invoice_footer.split("\n").length - 1;
-    doc.text(layout.marginLeft, top - (numLines * 8), invoice.invoice_footer);
+    var footer = doc.splitTextToSize(invoice.invoice_footer, 500);
+    var numLines = footer.length - 1;
+    doc.text(layout.marginLeft, top - (numLines * 8), footer);    
   }
 
   return doc;
@@ -375,7 +391,7 @@ function isValidEmailAddress(emailAddress) {
 $(function() {
     $.ajaxSetup({
         headers: {
-            'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
 });
@@ -486,34 +502,6 @@ if (window.ko) {
       ko.applyBindingsToNode(element, { attr: { placeholder: underlyingObservable } } );
     }
   };
-}
-
-function wordWrapText(value, width)
-{
-  var doc = new jsPDF('p', 'pt');
-  doc.setFont('Helvetica','');
-  doc.setFontSize(10);
-
-  var lines = value.split("\n");
-  for (var i = 0; i < lines.length; i++) {
-    var numLines = doc.splitTextToSize(lines[i], width).length;
-    if (numLines <= 1) continue;
-    var j = 0; space = lines[i].length;
-    while (j++ < lines[i].length) {
-      if (lines[i].charAt(j) === ' ') space = j;
-    }
-    if (space == lines[i].length) space = width/6;
-    lines[i + 1] = lines[i].substring(space + 1) + ' ' + (lines[i + 1] || '');
-    lines[i] = lines[i].substring(0, space);
-  }
-
-  var newValue = (lines.join("\n")).trim();
-
-  if (value == newValue) {
-    return newValue;
-  } else {
-    return wordWrapText(newValue, width);
-  }
 }
 
 function getClientDisplayName(client)
@@ -710,13 +698,20 @@ function displayInvoice(doc, invoice, x, y, layout, rightAlignX) {
 }
 
 function getInvoiceDetails(invoice) {
-  return [
+  var fields = [
     {'invoice_number': invoice.invoice_number},
     {'po_number': invoice.po_number},
     {'invoice_date': invoice.invoice_date},
     {'due_date': invoice.due_date},
-    {'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)},
   ];
+
+  if (NINJA.parseFloat(invoice.partial)) {
+    fields.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
+  }
+
+  fields.push({'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)})
+
+  return fields;
 }
 
 function getInvoiceDetailsHeight(invoice, layout) {
@@ -771,6 +766,10 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
     data.push({'paid_to_date': formatMoney(paid, invoice.client.currency_id)});
   }
 
+  if (NINJA.parseFloat(invoice.partial) && invoice.total_amount != invoice.subtotal_amount) {
+    data.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
+  }
+
   var options = {
     hasheader: true,
     rightAlignX: 550,
@@ -797,7 +796,7 @@ function concatStrings() {
       concatStr += ' ';
     }
   }
-  return data.length ? concatStr : false;
+  return data.length ? concatStr : "";
 }
 
 function displayGrid(doc, invoice, data, x, y, layout, options)  {
@@ -885,17 +884,19 @@ function displayNotesAndTerms(doc, layout, invoice, y)
   var origY = y;
 
   if (invoice.public_notes) {
-    doc.text(layout.marginLeft, y, invoice.public_notes);
-    y += 16 + (doc.splitTextToSize(invoice.public_notes, 300).length * doc.internal.getFontSize());
+    var notes = doc.splitTextToSize(invoice.public_notes, 260);
+    doc.text(layout.marginLeft, y, notes);
+    y += 16 + (notes.length * doc.internal.getFontSize());
   }
 
   if (invoice.terms) {
-    doc.setFontType("bold");
+    var terms = doc.splitTextToSize(invoice.terms, 260);
+    doc.setFontType("bold");    
     doc.text(layout.marginLeft, y, invoiceLabels.terms);
     y += 16;
     doc.setFontType("normal");
-    doc.text(layout.marginLeft, y, invoice.terms);
-    y += 16 + (doc.splitTextToSize(invoice.terms, 300).length * doc.internal.getFontSize());
+    doc.text(layout.marginLeft, y, terms);
+    y += 16 + (terms.length * doc.internal.getFontSize());
   }
 
   return y - origY;
@@ -967,10 +968,16 @@ function calculateAmounts(invoice) {
     total += roundToTwo(invoice.custom_value2);
   }
 
-  invoice.balance_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
+  invoice.total_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
   invoice.discount_amount = discount;
   invoice.tax_amount = tax;
   invoice.has_taxes = hasTaxes;
+
+  if (NINJA.parseFloat(invoice.partial)) {
+    invoice.balance_amount = roundToTwo(invoice.partial);
+  } else {
+    invoice.balance_amount = invoice.total_amount;
+  }
 
   return invoice;
 }
@@ -1284,6 +1291,18 @@ function displayInvoiceItems(doc, invoice, layout) {
 
   return y;
 }
+
+
+// http://stackoverflow.com/questions/11941876/correctly-suppressing-warnings-in-datatables
+window.alert = (function() {
+    var nativeAlert = window.alert;
+    return function(message) {
+        window.alert = nativeAlert;
+        message && message.indexOf("DataTables warning") === 0 ?
+            console.error(message) :
+            nativeAlert(message);
+    }
+})();
 
 
 // http://stackoverflow.com/questions/1068834/object-comparison-in-javascript

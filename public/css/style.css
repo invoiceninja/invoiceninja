@@ -1,9 +1,10 @@
 body { background: #f8f8f8 !important;
     font-family: 'Roboto', sans-serif;
+    font-size: 15px;
 }
 .bold { font-weight: 700; }
 a {color:#0b4d78;}
-a:hover { text-decoration: none; color: #0a3857;}
+/*a:hover { text-decoration: none; color: #0a3857;}*/
 .breadcrumb {
 padding: 8px 0!important;
 }
@@ -36,10 +37,10 @@ display: block;
 width: 100%;
 height: 40px;
 padding: 9px 12px;
-font-size: 14px;
+font-size: 16px;
 line-height: 1.42857143;
-color: #555;
-background-color: #fff;
+color: #000 !important;
+background: #f9f9f9 !important;
 background-image: none;
 border: 1px solid #dfe0e1;
 border-radius: 2px;
@@ -792,6 +793,7 @@ body.modal-open { overflow:inherit; padding-right:inherit !important; }
 .radio input[type="radio"],
 .checkbox input[type="checkbox"] {
     margin-left: 0;
+    padding-left: 0px !important;
     margin-right: 5px;
     height: inherit;
     width: inherit;
@@ -799,4 +801,73 @@ body.modal-open { overflow:inherit; padding-right:inherit !important; }
     display: inline-block;
     position: relative;
     margin-top: 3px;
+}
+
+div.checkbox > label {
+    padding-left: 0px !important;
+}
+
+.container input[type=text],
+.container input[type=email],
+.container textarea,
+.container select {
+    font-size: 16px;
+    font-weight: 400;
+    width: 100%;
+    color: #000 !important;
+    background: #f9f9f9 !important;
+    /*border: 1px solid #ebe7e7;*/
+    border-radius: 3px;
+}
+
+.container input[placeholder],
+.container textarea[placeholder],
+.container select[placeholder] {
+   color: #444444;
+}
+
+.container input:disabled,
+.container textarea:disabled,
+.container select:disabled {
+    background-color: #EEE !important;
+}
+
+.panel-title {
+    font-size: 18px;
+    color: white;
+}
+
+.panel-heading {
+    /*background-color: #e37329 !important;*/
+    background-color: #0b4d78 !important;
+}
+
+/*
+.panel-default {
+    border-color: #e37329 !important;
+}
+*/
+
+.alert-hide {
+  position: absolute;
+  margin-left: 25%;
+  z-index: 9999;
+}
+
+div.dataTables_length {
+    padding-left: 20px;
+    padding-top: 10px;
+}
+
+div.dataTables_length select {
+    background-color: white !important;
+}
+
+div.dataTables_length label {
+    font-weight: 500;
+}
+
+a .glyphicon,
+button .glyphicon {
+    padding-left: 8px;
 }

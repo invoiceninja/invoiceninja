@@ -1,10 +1,5 @@
 @extends('header')
 
-
-@section('onReady')
-	$('input#name').focus();
-@stop
-
 @section('content')
 
 	
@@ -14,18 +9,23 @@
 	)) !!}
 	
 	<div class="row">
-		<div class="col-md-8">
+        <div class="col-md-10 col-md-offset-1">
+
+            <div class="panel panel-default">
+            <div class="panel-body">
 
 			{!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
 			{!! Former::text('amount') !!}
 			{!! Former::text('credit_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 			{!! Former::textarea('private_notes') !!}
 
-		</div>
-		<div class="col-md-6">
+            </div>
+            </div>
 
-		</div>
-	</div>
+        </div>
+    </div>
+
+
 	<center class="buttons">
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo('/credits')->appendIcon(Icon::create('remove-circle')) !!}
@@ -55,8 +55,18 @@
 		$('#currency_id').combobox();
 		$('#credit_date').datepicker('update', new Date());
 
+        @if (!$clientPublicId)
+            $('.client-select input.form-control').focus();
+        @else
+            $('#amount').focus();
+        @endif
+
 	});
 
 	</script>
 
+@stop
+
+@section('onReady')
+    //$('.client-select input.form-control').focus();
 @stop

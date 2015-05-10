@@ -3,19 +3,26 @@
 @section('content') 
   @parent
 
-  {!! Former::open()->addClass('col-md-10 col-md-offset-1 warn-on-exit') !!}
+  {!! Former::open()->addClass('warn-on-exit') !!}
   {{ Former::populateField('fill_products', intval($account->fill_products)) }}
   {{ Former::populateField('update_products', intval($account->update_products)) }}
 
 
-  {!! Former::legend(trans('texts.product_library')) !!}
-  {!! Former::checkbox('fill_products')->text(trans('texts.fill_products_help')) !!}
-  {!! Former::checkbox('update_products')->text(trans('texts.update_products_help')) !!}
-  &nbsp;
-  {!! Former::actions( Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
-  {!! Former::close() !!}
+  <div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">{!! trans('texts.product_settings') !!}</h3>
+  </div>  
+  <div class="panel-body">
 
-  {!! Button::success(trans('texts.create_product'))
+      {!! Former::checkbox('fill_products')->text(trans('texts.fill_products_help')) !!}
+      {!! Former::checkbox('update_products')->text(trans('texts.update_products_help')) !!}
+      &nbsp;
+      {!! Former::actions( Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) ) !!}
+      {!! Former::close() !!}
+  </div>
+  </div>
+
+  {!! Button::primary(trans('texts.create_product'))
         ->asLinkTo('/products/create')
         ->withAttributes(['class' => 'pull-right'])
         ->appendIcon(Icon::create('plus-sign')) !!}

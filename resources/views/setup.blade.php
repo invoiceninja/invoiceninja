@@ -6,6 +6,13 @@
     <meta name="csrf-token" content="<?= csrf_token() ?>">
     <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+
+    <style type="text/css">
+    body {
+        background-color: #f8f8f8;
+    }
+    </style>
+
   </head>
 
   <body>
@@ -23,7 +30,7 @@
         @if (!extension_loaded('fileinfo'))
             <div class="alert alert-warning">Warning: The <a href="http://php.net/manual/en/book.fileinfo.php" target="_blank">fileinfo</a> extension needs to be installed and enabled.</div>
         @endif
-        @if (!@fopen(base_path()."/.env", 'w'))
+        @if (!@fopen(base_path()."/.env", 'a'))
             <div class="alert alert-warning">Warning: Permission denied to write config file
                 <pre>sudo chown yourname:www-data /path/to/ninja</pre>
             </div>

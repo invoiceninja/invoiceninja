@@ -10,12 +10,20 @@
 	{{ Former::populateField('notify_paid', intval(Auth::user()->notify_paid)) }}
     {{ Former::populateField('notify_approved', intval(Auth::user()->notify_approved)) }}
 
-	{!! Former::legend(trans('texts.email_notifications')) !!}
-	{!! Former::checkbox('notify_sent')->label('&nbsp;')->text(trans('texts.email_sent')) !!}
-	{!! Former::checkbox('notify_viewed')->label('&nbsp;')->text(trans('texts.email_viewed')) !!}
-    {!! Former::checkbox('notify_paid')->label('&nbsp;')->text(trans('texts.email_paid')) !!}    
-    {!! Former::checkbox('notify_approved')->label('&nbsp;')->text(trans('texts.email_approved')) !!}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.email_notifications') !!}</h3>
+      </div>
+        <div class="panel-body">
+    	{!! Former::checkbox('notify_sent')->label('&nbsp;')->text(trans('texts.email_sent')) !!}
+    	{!! Former::checkbox('notify_viewed')->label('&nbsp;')->text(trans('texts.email_viewed')) !!}
+        {!! Former::checkbox('notify_paid')->label('&nbsp;')->text(trans('texts.email_paid')) !!}    
+        {!! Former::checkbox('notify_approved')->label('&nbsp;')->text(trans('texts.email_approved')) !!}
+        </div>
+    </div>
 
+
+    <!--
 	{!! Former::legend(trans('texts.site_updates')) !!}
 
 	<div class="form-group">
@@ -37,13 +45,21 @@
 	  	<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
 
   </div></div>
+    -->
 
-	{!! Former::legend(trans('texts.custom_messages')) !!}
-    {!! Former::textarea('invoice_terms')->label(trans('texts.default_invoice_terms'))
-            ->onchange("$('#invoice_terms').val(wordWrapText($('#invoice_terms').val(), 300))") !!}
-    {!! Former::textarea('invoice_footer')->label(trans('texts.default_invoice_footer'))
-            ->onchange("$('#invoice_footer').val(wordWrapText($('#invoice_footer').val(), 600))") !!}
-	{!! Former::textarea('email_footer')->label(trans('texts.default_email_footer')) !!} 
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.custom_messages') !!}</h3>
+      </div>
+        <div class="panel-body">
+        {!! Former::textarea('invoice_terms')->label(trans('texts.default_invoice_terms'))->rows(4)
+                ->onchange("$('#invoice_terms').val(wordWrapText($('#invoice_terms').val(), 300))") !!}
+        {!! Former::textarea('invoice_footer')->label(trans('texts.default_invoice_footer'))->rows(4)
+                ->onchange("$('#invoice_footer').val(wordWrapText($('#invoice_footer').val(), 600))") !!}
+        {!! Former::textarea('email_footer')->label(trans('texts.default_email_footer'))->rows(4) !!} 
+        </div>
+    </div>
 
 	{!! Former::actions( 
             Button::success(trans('texts.save'))
