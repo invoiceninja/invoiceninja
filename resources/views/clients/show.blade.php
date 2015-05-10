@@ -218,7 +218,7 @@
 		    	->setUrl(url('api/invoices/' . $client->public_id))
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
-		    	->setOptions('aaSorting', [['0', 'asc']])
+		    	->setOptions('aaSorting', [['0', 'desc']])
 		    	->render('datatable') !!}
 
         </div>
@@ -234,7 +234,7 @@
 				->setUrl(url('api/payments/' . $client->public_id))
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
-				->setOptions('aaSorting', [['0', 'asc']])
+				->setOptions('aaSorting', [['0', 'desc']])
 				->render('datatable') !!}
 
         </div>

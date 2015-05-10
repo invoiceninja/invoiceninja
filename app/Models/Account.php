@@ -378,3 +378,10 @@ class Account extends Eloquent
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
     }
 }
+
+Account::updating(function ($account) {
+    // Lithuanian requires UTF8 support
+    if (!Utils::isPro()) {
+        $account->utf8_invoices = ($account->language_id == 13) ? 1 : 0;
+    }
+});

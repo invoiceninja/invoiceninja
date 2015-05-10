@@ -3250,3 +3250,8 @@ div.dataTables_length select {
 div.dataTables_length label {
     font-weight: 500;
 }
+
+a .glyphicon,
+button .glyphicon {
+    padding-left: 8px;
+}

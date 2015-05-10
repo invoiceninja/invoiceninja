@@ -134,7 +134,7 @@
 			{{-- Former::select('currency_id')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") --}}
 			
 			<div class="form-group" style="margin-bottom: 8px">
-				<label for="recurring" class="control-label col-lg-4 col-sm-4">{{ trans('texts.taxes') }}</label>
+				<label for="taxes" class="control-label col-lg-4 col-sm-4">{{ trans('texts.taxes') }}</label>
 				<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
 					<a href="#" data-bind="click: $root.showTaxesForm"><i class="glyphicon glyphicon-list-alt"></i> {{ trans('texts.manage_rates') }}</a>
 				</div>
@@ -368,7 +368,7 @@
 				</div>		
 
 			@else
-				{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()')) !!}			
+				{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 			@endif
 
             @if (!$invoice || ($invoice && !$invoice->is_recurring))

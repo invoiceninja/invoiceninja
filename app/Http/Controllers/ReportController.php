@@ -66,12 +66,17 @@ class ReportController extends BaseController
 
         $displayData = [];
         $exportData = [];
-        $columns = [];
         $reportTotals = [
                     'amount' => [],
                     'balance' => [],
                     'paid' => []
                 ];
+
+        if ($reportType) {
+            $columns = ['client', 'amount', 'paid', 'balance'];
+        } else {
+            $columns = ['client', 'invoice_number', 'invoice_date', 'amount', 'paid', 'balance'];
+        }
 
 
         if (Auth::user()->account->isPro()) {
@@ -95,11 +100,9 @@ class ReportController extends BaseController
                 if ($reportType) {
                     $query->groupBy('clients.id');
                     array_push($select, DB::raw('sum(invoices.amount) amount'), DB::raw('sum(invoices.balance) balance'), DB::raw('sum(invoices.amount - invoices.balance) paid'));
-                    $columns = ['client', 'amount', 'paid', 'balance'];
                 } else {
                     array_push($select, 'invoices.invoice_number', 'invoices.amount', 'invoices.balance', 'invoices.invoice_date', DB::raw('(invoices.amount - invoices.balance) paid'));
                     $query->orderBy('invoices.id');
-                    $columns = ['client', 'invoice_number', 'invoice_date', 'amount', 'paid', 'balance'];
                 }
                                     
                 $query->select($select);

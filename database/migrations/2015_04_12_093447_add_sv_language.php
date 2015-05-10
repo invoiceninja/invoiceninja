@@ -15,8 +15,7 @@ class AddSvLanguage extends Migration {
         DB::table('languages')->insert(['name' => 'Swedish', 'locale' => 'sv']);
         DB::table('languages')->insert(['name' => 'Spanish - Spain', 'locale' => 'es_ES']);
         DB::table('languages')->insert(['name' => 'French - Canada', 'locale' => 'fr_CA']);
-
-        DB::table('payment_terms')->insert(['num_days' => -1, 'name' => 'Net 0']);
+        DB::table('languages')->insert(['name' => 'Lithuanian', 'locale' => 'lt']);
 	}
 
 	/**
@@ -38,8 +37,8 @@ class AddSvLanguage extends Migration {
             $language->delete();
         }
 
-        if ($paymentTerm = \App\Models\PaymentTerm::whereName('Net 0')->first()) {
-            $paymentTerm->delete();
+        if ($language = \App\Models\Language::whereLocale('lt')->first()) {
+            $language->delete();
         }
 	}
 

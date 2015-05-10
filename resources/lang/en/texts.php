@@ -625,4 +625,6 @@ return array(
   'recurring' => 'Recurring',
   'last_invoice_sent' => 'Last invoice sent :date',
 
+  'processed_updates' => 'Successfully completed update',
+
 );

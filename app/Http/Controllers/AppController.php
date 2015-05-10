@@ -185,8 +185,10 @@ class AppController extends BaseController
         if (!Utils::isNinja()) {
             try {
                 Artisan::call('migrate', array('--force' => true));
+                Artisan::call('db:seed', array('--force' => true, '--class' => 'PaymentLibrariesSeeder'));
                 Artisan::call('optimize', array('--force' => true));
                 Cache::flush();
+                Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {
                 Response::make($e->getMessage(), 500);
             }

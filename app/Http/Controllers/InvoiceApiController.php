@@ -6,8 +6,10 @@ use Response;
 use Input;
 use App\Models\Invoice;
 use App\Models\Client;
+use App\Models\Contact;
 use App\Models\Product;
 use App\Models\Invitation;
+use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 
@@ -15,9 +17,10 @@ class InvoiceApiController extends Controller
 {
     protected $invoiceRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, Mailer $mailer)
+    public function __construct(InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, Mailer $mailer)
     {
         $this->invoiceRepo = $invoiceRepo;
+        $this->clientRepo = $clientRepo;
         $this->mailer = $mailer;
     }
 
@@ -56,22 +59,46 @@ class InvoiceApiController extends Controller
             }
         }
 
-        // check the client id is set and exists
-        if (!isset($data['client_id'])) {
-            $error = trans('validation.required', ['attribute' => 'client_id']);
-        } else {
+        if (isset($data['email'])) {
+            $contact = Contact::scope()->with('client')->whereEmail($data['email'])->first();
+            if ($contact) {
+                $client = $contact->client;
+            } else {
+                $clientData = ['contact' => ['email' => $data['email']]];
+                foreach (['name', 'private_notes'] as $field) {
+                    if (isset($data[$field])) {
+                        $clientData[$field] = $data[$field];
+                    }
+                }
+                foreach (['first_name', 'last_name'] as $field) {
+                    if (isset($data[$field])) {
+                        $clientData[$field] = $data[$field];
+                    }
+                }
+                $error = $this->clientRepo->getErrors($clientData);
+                if (!$error) {
+                    $client = $this->clientRepo->save(false, $clientData, false);
+                }
+            }
+        } else if (isset($data['client_id'])) {
             $client = Client::scope($data['client_id'])->first();
-            if (!$client) {
+        }
+
+        if (!$error) {
+            if (!isset($data['client_id']) && !isset($data['email'])) {
+                $error = trans('validation.', ['attribute' => 'client_id or email']);
+            } else if (!$client) {
                 $error = trans('validation.not_in', ['attribute' => 'client_id']);
             }
         }
-        
+
         if ($error) {
             $response = json_encode($error, JSON_PRETTY_PRINT);
         } else {
             $data = self::prepareData($data);
             $data['client_id'] = $client->id;
             $invoice = $this->invoiceRepo->save(false, $data, false);
+            $invoice->load('invoice_items');
 
             $invitation = Invitation::createNew();
             $invitation->invoice_id = $invoice->id;
@@ -79,8 +106,11 @@ class InvoiceApiController extends Controller
             $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
             $invitation->save();
 
+            if (isset($data['email_invoice']) && $data['email_invoice']) {
+                $this->mailer->sendInvoice($invoice);
+            }
+
             // prepare the return data
-            $invoice->load('invoice_items');
             $invoice = $invoice->toArray();
             $invoice['link'] = $invitation->getLink();
             unset($invoice['account']);
@@ -115,6 +145,7 @@ class InvoiceApiController extends Controller
             'custom_value2' => 0,
             'custom_taxes1' => false,
             'custom_taxes2' => false,
+            'partial' => 0
         ];
 
         if (!isset($data['invoice_date'])) {

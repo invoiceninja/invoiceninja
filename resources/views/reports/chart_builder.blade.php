@@ -86,7 +86,7 @@
                             {{ trans("texts.{$column}") }}
                         </th>
                     @endforeach
-                </tr>
+                </tr>                
             </thead>
             <tbody>
                 @foreach ($displayData as $record)
@@ -120,9 +120,6 @@
                         @foreach ($reportTotals['balance'] as $currencyId => $total)
                             <b>{{ Utils::formatMoney($total, $currencyId) }}</b><br/>
                         @endforeach
-                    </td>
-                    <td>
-                        
                     </td>
                 </tr>                
             </tfoot>
