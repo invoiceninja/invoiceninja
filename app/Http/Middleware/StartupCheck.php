@@ -1,5 +1,6 @@
 <?php namespace app\Http\Middleware;
 
+use Request;
 use Closure;
 use Utils;
 use App;
