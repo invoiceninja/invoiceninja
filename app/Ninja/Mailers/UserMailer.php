@@ -39,7 +39,7 @@ class UserMailer extends Mailer
             return;
         }
         
-        $entityType = $invoice->getEntityType();
+        $entityType = $notificationType == 'approved' ? ENTITY_QUOTE : ENTITY_INVOICE;
         $view = "{$entityType}_{$notificationType}";
 
         $data = [

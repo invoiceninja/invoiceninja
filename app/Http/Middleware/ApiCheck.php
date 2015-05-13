@@ -35,7 +35,7 @@ class ApiCheck {
         }
 
         if (!Utils::isNinja()) {
-            return null;
+            return $next($request);
         }
 
         if (!Utils::isPro()) {
