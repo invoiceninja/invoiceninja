@@ -73,16 +73,6 @@ get('/password/reset/{token}', array('as' => 'forgot', 'uses' => 'Auth\PasswordC
 post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
 get('/user/confirm/{code}', 'UserController@confirm');
 
-/*
-// Confide routes
-Route::get('login', 'UserController@login');
-Route::post('login', 'UserController@do_login');
-Route::get('forgot_password', 'UserController@forgot_password');
-Route::post('forgot_password', 'UserController@do_forgot_password');
-Route::get('user/reset/{token?}', 'UserController@reset_password');
-Route::post('user/reset', 'UserController@do_reset_password');
-Route::get('logout', 'UserController@logout');
-*/
 
 if (Utils::isNinja()) {
     Route::post('/signup/register', 'AccountController@doRegister');
@@ -512,7 +502,6 @@ Validator::extend('has_credit', function($attribute, $value, $parameters) {
 
     return $credit >= $amount;
 });
-
 
 /*
 // Log all SQL queries to laravel.log

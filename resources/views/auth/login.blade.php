@@ -137,8 +137,10 @@
             <p>&nbsp;</p>
             <p>&nbsp;</p>
 
+            <!--
             <iframe allowTransparency="true" frameborder="0" scrolling="no" src="https://bitnami.com/product/invoice-ninja/widget" style="border:none;width:230px; height:100px;"></iframe>
-
+            -->
+            
         </center>
 
     </div>

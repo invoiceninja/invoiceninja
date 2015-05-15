@@ -54,21 +54,25 @@ class DashboardController extends BaseController
                 ->where('activity_type_id', '>', 0)
                 ->orderBy('created_at', 'desc')->take(14)->get();
 
-        $pastDue = Invoice::scope()
-                ->where('due_date', '<', date('Y-m-d'))
-                ->where('balance', '>', 0)
-                ->where('is_recurring', '=', false)
-                ->where('is_quote', '=', false)
-                ->where('is_deleted', '=', false)
-                ->orderBy('due_date', 'asc')->take(6)->get();
+        $pastDue = Invoice::scope()->whereHas('client', function($query) {
+                        $query->where('deleted_at', '=', null);
+                    })
+                    ->where('due_date', '<', date('Y-m-d'))
+                    ->where('balance', '>', 0)
+                    ->where('is_recurring', '=', false)
+                    ->where('is_quote', '=', false)
+                    ->where('is_deleted', '=', false)
+                    ->orderBy('due_date', 'asc')->take(6)->get();
 
-        $upcoming = Invoice::scope()
-                  ->where('due_date', '>=', date('Y-m-d'))
-                  ->where('balance', '>', 0)
-                  ->where('is_recurring', '=', false)
-                  ->where('is_quote', '=', false)
-                  ->where('is_deleted', '=', false)
-                  ->orderBy('due_date', 'asc')->take(6)->get();
+        $upcoming = Invoice::scope()->whereHas('client', function($query) {
+                        $query->where('deleted_at', '=', null);
+                    })
+                    ->where('due_date', '>=', date('Y-m-d'))
+                    ->where('balance', '>', 0)
+                    ->where('is_recurring', '=', false)
+                    ->where('is_quote', '=', false)
+                    ->where('is_deleted', '=', false)
+                    ->orderBy('due_date', 'asc')->take(6)->get();
 
         $data = [
       'paidToDate' => $paidToDate,

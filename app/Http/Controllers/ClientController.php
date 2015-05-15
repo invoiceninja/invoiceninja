@@ -112,13 +112,13 @@ class ClientController extends BaseController
         Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 
         $actionLinks = [
-            ['label' => trans('texts.create_invoice'), 'url' => URL::to('invoices/create/'.$client->public_id)],
-            ['label' => trans('texts.enter_payment'), 'url' => URL::to('payments/create/'.$client->public_id)],
-            ['label' => trans('texts.enter_credit'), 'url' => URL::to('credits/create/'.$client->public_id)],
+            ['label' => trans('texts.create_invoice'), 'url' => '/invoices/create/'.$client->public_id],
+            ['label' => trans('texts.enter_payment'), 'url' => '/payments/create/'.$client->public_id],
+            ['label' => trans('texts.enter_credit'), 'url' => '/credits/create/'.$client->public_id],
         ];
 
         if (Utils::isPro()) {
-            array_unshift($actionLinks, ['label' => trans('texts.create_quote'), 'url' => URL::to('quotes/create/'.$client->public_id)]);
+            array_unshift($actionLinks, ['label' => trans('texts.create_quote'), 'url' => '/quotes/create/'.$client->public_id]);
         }
 
         $data = array(

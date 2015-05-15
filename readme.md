@@ -1,6 +1,5 @@
 # Invoice Ninja
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
-##### Please [click here](https://bitnami.com/stack/invoice-ninja) to vote for us to be added to Bitnami's one-click install library
 
 If you'd like to use our code to sell your own invoicing app we have an affiliate program. Get in touch for more details.
 

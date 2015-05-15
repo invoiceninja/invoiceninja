@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4093891914bbd46ffab78737da36898a",
+    "hash": "456867b27b6caddd5d681f7bad019be4",
     "packages": [
         {
             "name": "alfaproject/omnipay-neteller",
@@ -335,12 +335,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Chumper/Datatable.git",
-                "reference": "7fa47cb5469f07c620fb69dee94b8e1a96943ee2"
+                "reference": "7fa47cb"
             },
             "dist": {
                 "type": "zip",
                 "url": "https://api.github.com/repos/Chumper/Datatable/zipball/7fa47cb5469f07c620fb69dee94b8e1a96943ee2",
-                "reference": "7fa47cb5469f07c620fb69dee94b8e1a96943ee2",
+                "reference": "7fa47cb",
                 "shasum": ""
             },
             "require": {

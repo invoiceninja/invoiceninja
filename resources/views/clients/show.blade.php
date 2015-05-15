@@ -15,7 +15,7 @@
         @endif
 
 		@if ($client->trashed())
-			{!! Button::primary(trans('texts.restore_client'), ['onclick' => 'onRestoreClick()']) !!}
+			{!! Button::primary(trans('texts.restore_client'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
 		@else
 		    {!! DropdownButton::normal(trans('texts.edit_client'))
                 ->withAttributes(['class'=>'normalDropDown'])
