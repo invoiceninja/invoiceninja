@@ -33070,24 +33070,28 @@ function truncate(str, length) {
 }
 function GetPdfMake(invoice, javascript, callback) {
     var account = invoice.account;
+    var baseDD = {
+        pageMargins: [40, 40, 40, 40]
+    };
     eval(javascript);
+    dd = _.extend(dd, baseDD);
+    
+    /*
+    var fonts = {
+        Roboto: {
+            normal: 'Roboto-Regular.ttf',
+            bold: 'Roboto-Medium.ttf',
+            italics: 'Roboto-Italic.ttf',
+            bolditalics: 'Roboto-Italic.ttf'
+        },
+    };
+    */
 
-/*
-var fonts = {
-Roboto: {
-normal: 'Roboto-Regular.ttf',
-bold: 'Roboto-Medium.ttf',
-italics: 'Roboto-Italic.ttf',
-bolditalics: 'Roboto-Italic.ttf'
-},
-};
-*/
-
-doc = pdfMake.createPdf(dd);
-doc.save = function(fileName) {
-    this.download(fileName);
-};
-return doc;
+    doc = pdfMake.createPdf(dd);
+    doc.save = function(fileName) {
+        this.download(fileName);
+    };
+    return doc;
 }
 function notesAndTerms(invoice)
 {
@@ -33105,13 +33109,17 @@ function notesAndTerms(invoice)
 }
 
 function invoiceLines(invoice) {
-    var grid = 
-    [[{text: invoiceLabels.item, style: 'tableHeader'}, 
-    {text: invoiceLabels.description, style: 'tableHeader'}, 
-    {text: invoiceLabels.unit_cost, style: 'tableHeader'}, 
-    {text: invoiceLabels.quantity, style: 'tableHeader'}, 
-    {text: invoice.has_taxes?invoiceLabels.tax:'', style: 'tableHeader'}, 
-    {text: invoiceLabels.line_total, style: 'tableHeader'}]];
+    var grid = [
+        [
+            {text: invoiceLabels.item, style: 'tableHeader'}, 
+            {text: invoiceLabels.description, style: 'tableHeader'}, 
+            {text: invoiceLabels.unit_cost, style: 'tableHeader'}, 
+            {text: invoiceLabels.quantity, style: 'tableHeader'}, 
+            {text: invoice.has_taxes?invoiceLabels.tax:'', style: 'tableHeader'}, 
+            {text: invoiceLabels.line_total, style: 'tableHeader'}
+        ]
+    ];
+
     var total = 0;
     var shownItem = false;
     var currencyId = invoice && invoice.client ? invoice.client.currency_id : 1;
@@ -33131,37 +33139,37 @@ function invoiceLines(invoice) {
             tax = parseFloat(item.tax_rate);
         }
 
-// show at most one blank line
-if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
-    continue;
-}
-shownItem = true;
+    // show at most one blank line
+    if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
+        continue;
+    }
+    shownItem = true;
 
-// process date variables
-if (invoice.is_recurring) {
-    notes = processVariables(notes);
-    productKey = processVariables(productKey);
-}
+    // process date variables
+    if (invoice.is_recurring) {
+        notes = processVariables(notes);
+        productKey = processVariables(productKey);
+    }
 
-var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
-if (tax) {
-    lineTotal += lineTotal * tax / 100;
-}
-if (lineTotal) {
-    total += lineTotal;
-}
-lineTotal = formatMoney(lineTotal, currencyId);
+    var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
+    if (tax) {
+        lineTotal += lineTotal * tax / 100;
+    }
+    if (lineTotal) {
+        total += lineTotal;
+    }
+    lineTotal = formatMoney(lineTotal, currencyId);
 
-rowStyle = i%2===0?'odd':'even';
+    rowStyle = i%2===0?'odd':'even';
 
-row[0] = {style:["productKey", rowStyle], text:productKey};
-row[1] = {style:["notes", rowStyle], text:notes};
-row[2] = {style:["cost", rowStyle], text:cost};
-row[3] = {style:["quantity", rowStyle], text:qty};
-row[4] = {style:["tax", rowStyle], text:""+tax};
-row[5] = {style:["lineTotal", rowStyle], text:lineTotal};
+    row[0] = {style:["productKey", rowStyle], text:productKey};
+    row[1] = {style:["notes", rowStyle], text:notes};
+    row[2] = {style:["cost", rowStyle], text:cost};
+    row[3] = {style:["quantity", rowStyle], text:qty};
+    row[4] = {style:["tax", rowStyle], text:""+tax};
+    row[5] = {style:["lineTotal", rowStyle], text:lineTotal};
 
-grid.push(row);
+    grid.push(row);
 }
 return grid;
 }
@@ -33173,8 +33181,9 @@ function subtotals(invoice)
     }
 
     var data = [
-    [invoiceLabels.subtotal, formatMoney(invoice.subtotal_amount, invoice.client.currency_id)],
+        [invoiceLabels.subtotal, formatMoney(invoice.subtotal_amount, invoice.client.currency_id)],
     ];
+
     if(invoice.discount_amount != 0) {
         data.push([invoiceLabels.discount, formatMoney(invoice.discount_amount, invoice.client.currency_id)]);
     }
@@ -33254,6 +33263,7 @@ function clientDetails(invoice) {
     if (!client) {
         return;
     }
+
     var fields = [
         getClientDisplayName(client),
         client.id_number,

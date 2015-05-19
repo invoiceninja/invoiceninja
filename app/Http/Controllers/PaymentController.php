@@ -483,7 +483,7 @@ class PaymentController extends BaseController
                 $license->save();
             }
 
-            return $productId == PRODUCT_INVOICE_DESIGNS ? $_ENV['INVOICE_DESIGNS'] : 'valid';
+            return $productId == PRODUCT_INVOICE_DESIGNS ? file_get_contents(storage_path() . '/invoice_designs.txt') : 'valid';
         } else {
             return 'invalid';
         }

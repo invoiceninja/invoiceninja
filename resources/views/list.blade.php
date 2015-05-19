@@ -21,7 +21,7 @@
 
 	<div id="top_right_buttons" class="pull-right">
 		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" class="form-control pull-left" placeholder="{{ trans('texts.filter') }}"/> 
-		{!! Button::primary(trans("texts.new_$entityType"))->asLinkTo("/{$entityType}s/create")->withAttributes(array('class' => 'pull-right'))->appendIcon(Icon::create('plus-sign')) !!}	
+		{!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->withAttributes(array('class' => 'pull-right'))->appendIcon(Icon::create('plus-sign')) !!}	
         
 	</div>
 

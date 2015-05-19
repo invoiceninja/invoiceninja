@@ -88,7 +88,7 @@
 
     {!! Former::actions( 
         Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')),
-        $countGateways > 0 ? Button::normal(trans('texts.cancel'))->large()->asLinkTo('/company/payments')->appendIcon(Icon::create('remove-circle')) : false) !!}
+        $countGateways > 0 ? Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/company/payments'))->appendIcon(Icon::create('remove-circle')) : false) !!}
     {!! Former::close() !!}
 
 

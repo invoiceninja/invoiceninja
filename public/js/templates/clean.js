@@ -25,7 +25,6 @@ var dd = {
       fontSize: 11
     },
     {
-      style: 'tableExample',
       table: {
         headerRows: 1,
         widths: ['auto', 'auto', '*'],
@@ -45,14 +44,11 @@ var dd = {
           return (i === 0 || i === node.table.body.length) ? .5 : 0;
         },
         vLineWidth: function (i, node) {
-          return 0;//(i === 0 || i === node.table.widths.length) ? 2 : 1;
+          return 0;
         },
         hLineColor: function (i, node) {
-          return '#D8D8D8';//(i === 0 || i === node.table.body.length) ? 'black' : 'gray';
+          return '#D8D8D8';
         },
-        /*vLineColor: function (i, node) {
-          return (i === 0 || i === node.table.widths.length) ? 'black' : 'gray';
-        },*/
         paddingLeft: function(i, node) { return 8; },
         paddingRight: function(i, node) { return 8; },
         paddingTop: function(i, node) { return 4; },
@@ -187,6 +183,5 @@ var dd = {
       fontSize: 10,
       margin: [0, 10, 0, 4]
     }
-  },
-  pageMargins: [40, 40, 40, 40]
+  }  
 };

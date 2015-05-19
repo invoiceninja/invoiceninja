@@ -211,7 +211,18 @@
   }
 
 
-  $(function() {
+  // keep the token cookie valid to prevent token mismatch errors
+  function keepAlive() {
+    window.setTimeout(function() { 
+        $.get('{{ URL::to('/keep_alive') }}', function(data) {
+            keepAlive();
+        })
+    }, 1000 * 60 * 60);
+  }      
+
+  $(function() {    
+    keepAlive();    
+
     window.setTimeout(function() { 
         $(".alert-hide").fadeOut(500);
     }, 2000);
