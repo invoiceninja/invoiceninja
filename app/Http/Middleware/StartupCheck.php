@@ -138,10 +138,6 @@ class StartupCheck
                         $design->save();
                     }
 
-                    if (!Utils::isNinjaProd()) {
-                        Cache::forget('invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId());
-                    }
-
                     Session::flash('message', trans('texts.bought_designs'));
                 }
             } elseif ($productId == PRODUCT_WHITE_LABEL) {

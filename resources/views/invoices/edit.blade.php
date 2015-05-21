@@ -7,7 +7,7 @@
 		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
 
         @if (Auth::user()->account->utf8_invoices)
-            <script src="{{ asset('vendor/pdfmake/build/pdfmake.min.js') }}" type="text/javascript"></script>
+            <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
             <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
         @endif
 

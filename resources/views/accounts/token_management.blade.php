@@ -18,7 +18,7 @@
     {!! Button::normal(trans('texts.zapier'))->asLinkTo(ZAPIER_URL)->withAttributes(['target' => '_blank']) !!}
   @endif
   @if (Utils::isPro())
-    {!! Button::primary(trans('texts.add_token'))->asLinkTo('/tokens/create')->appendIcon(Icon::create('plus-sign')) !!}
+    {!! Button::primary(trans('texts.add_token'))->asLinkTo(URL::to('/tokens/create'))->appendIcon(Icon::create('plus-sign')) !!}
   @endif
   </div>
 
