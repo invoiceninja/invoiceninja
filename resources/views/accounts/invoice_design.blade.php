@@ -40,6 +40,7 @@
 
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
+      NINJA.fontSize = parseInt($('#font_size').val());
 
       doc = generatePDF(invoice, getDesignJavascript(), true);
       doc.getDataUrl(cb);
@@ -80,15 +81,18 @@
 
 
           @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS)      
-            {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}        
+            {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}
           @else 
             {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id') !!}
           @endif
 
-          
+          @if (Auth::user()->account->utf8_invoices)
+            {!! Former::text('font_size')->type('number')->min('0')->step('1')->style('width:120px') !!}
+          @endif          
 
           {!! Former::text('primary_color') !!}
           {!! Former::text('secondary_color') !!}
+
           </div>
       </div>
 

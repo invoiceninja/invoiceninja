@@ -1,11 +1,53 @@
+var NINJA = NINJA || {};
+
 function GetPdfMake(invoice, javascript, callback) {
     var account = invoice.account;
     var baseDD = {
-        pageMargins: [40, 40, 40, 40]
+        pageMargins: [40, 40, 40, 40],
+        styles: {
+            bold: {
+                bold: true
+            },            
+            cost: {
+                alignment: 'right'
+            },
+            quantity: {
+                alignment: 'right'
+            },
+            tax: {
+                alignment: 'right'
+            },
+            lineTotal: {
+                alignment: 'right'
+            },
+            right: {
+                alignment: 'right'
+            },
+            subtotals: {
+                alignment: 'right'
+            },            
+            termsLabel: {
+                bold: true,
+                margin: [0, 10, 0, 4]
+            }            
+        },
+        footer: function(){
+            f = [{ text:invoice.invoice_footer?invoice.invoice_footer:"", margin: [40, 0]}]
+            if (!invoice.is_pro && logoImages.imageLogo1) {
+                f.push({
+                    image: logoImages.imageLogo1,
+                    width: 150,
+                    margin: [40,0]
+                });
+                }
+            return f;
+        },
+
     };
-    eval(javascript);
-    dd = _.extend(dd, baseDD);
-    
+
+    eval(javascript);    
+    dd = $.extend(true, baseDD, dd);    
+
     /*
     var fonts = {
         Roboto: {
@@ -23,7 +65,8 @@ function GetPdfMake(invoice, javascript, callback) {
     };
     return doc;
 }
-function notesAndTerms(invoice)
+
+NINJA.notesAndTerms = function(invoice)
 {
     var text = [];
     if (invoice.public_notes) {
@@ -38,7 +81,7 @@ function notesAndTerms(invoice)
     return text;
 }
 
-function invoiceLines(invoice) {
+NINJA.invoiceLines = function(invoice) {
     var grid = [
         [
             {text: invoiceLabels.item, style: 'tableHeader'}, 
@@ -69,42 +112,43 @@ function invoiceLines(invoice) {
             tax = parseFloat(item.tax_rate);
         }
 
-    // show at most one blank line
-    if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
-        continue;
-    }
-    shownItem = true;
+        // show at most one blank line
+        if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
+            continue;
+        }
+        shownItem = true;
 
-    // process date variables
-    if (invoice.is_recurring) {
-        notes = processVariables(notes);
-        productKey = processVariables(productKey);
-    }
+        // process date variables
+        if (invoice.is_recurring) {
+            notes = processVariables(notes);
+            productKey = processVariables(productKey);
+        }
 
-    var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
-    if (tax) {
-        lineTotal += lineTotal * tax / 100;
-    }
-    if (lineTotal) {
-        total += lineTotal;
-    }
-    lineTotal = formatMoney(lineTotal, currencyId);
+        var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
+        if (tax) {
+            lineTotal += lineTotal * tax / 100;
+        }
+        if (lineTotal) {
+            total += lineTotal;
+        }
+        lineTotal = formatMoney(lineTotal, currencyId);
 
-    rowStyle = i%2===0?'odd':'even';
+        rowStyle = i%2===0?'odd':'even';
 
-    row[0] = {style:["productKey", rowStyle], text:productKey};
-    row[1] = {style:["notes", rowStyle], text:notes};
-    row[2] = {style:["cost", rowStyle], text:cost};
-    row[3] = {style:["quantity", rowStyle], text:qty};
-    row[4] = {style:["tax", rowStyle], text:""+tax};
-    row[5] = {style:["lineTotal", rowStyle], text:lineTotal};
+        row[0] = {style:["productKey", rowStyle], text:productKey};
+        row[1] = {style:["notes", rowStyle], text:notes};
+        row[2] = {style:["cost", rowStyle], text:cost};
+        row[3] = {style:["quantity", rowStyle], text:qty};
+        row[4] = {style:["tax", rowStyle], text:""+tax};
+        row[5] = {style:["lineTotal", rowStyle], text:lineTotal};
 
-    grid.push(row);
+        grid.push(row);
+    }   
+
+    return grid;
 }
-return grid;
-}
 
-function subtotals(invoice)
+NINJA.subtotals = function(invoice)
 {
     if (!invoice) {
         return;
@@ -146,7 +190,7 @@ function subtotals(invoice)
     return data;
 }
 
-function accountDetails(account) {
+NINJA.accountDetails = function(account) {
     var data = [];
     if(account.name) data.push({text:account.name, style:'accountName'});
     if(account.id_number) data.push({text:account.id_number, style:'accountDetails'});
@@ -156,7 +200,7 @@ function accountDetails(account) {
     return data;
 }
 
-function accountAddress(account) {
+NINJA.accountAddress = function(account) {
     var address = '';
     if (account.city || account.state || account.postal_code) {
         address = ((account.city ? account.city + ', ' : '') + account.state + ' ' + account.postal_code).trim();
@@ -169,7 +213,7 @@ function accountAddress(account) {
     return data;
 }
 
-function invoiceDetails(invoice) {
+NINJA.invoiceDetails = function(invoice) {
     var data = [
         [
             invoice.is_quote ? invoiceLabels.quote_number : invoiceLabels.invoice_number,
@@ -188,7 +232,7 @@ function invoiceDetails(invoice) {
     return data;
 }
 
-function clientDetails(invoice) {
+NINJA.clientDetails = function(invoice) {    
     var client = invoice.client;
     if (!client) {
         return;
@@ -212,16 +256,23 @@ function clientDetails(invoice) {
         if (!field) {
             continue;
         }
-        data.push(field);        
-    }    
+        data.push([field]);        
+    }
+    if (!data.length) {
+        data.push(['']);
+    }
     return data;
 }
 
 
-function primaryColor( defaultColor) {
-    return NINJA.primaryColor?NINJA.primaryColor:defaultColor;
+NINJA.getPrimaryColor = function(defaultColor) {
+    return NINJA.primaryColor ? NINJA.primaryColor : defaultColor;
 }
 
-function secondaryColor( defaultColor) {
-    return NINJA.primaryColor?NINJA.secondaryColor:defaultColor;
+NINJA.getSecondaryColor = function(defaultColor) {
+    return NINJA.primaryColor ? NINJA.secondaryColor : defaultColor;
+}
+
+NINJA.getEntityLabel = function(invoice) {
+    return invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice;
 }

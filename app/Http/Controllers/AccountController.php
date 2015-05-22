@@ -331,6 +331,9 @@ class AccountController extends BaseController
             $account->primary_color = Input::get('primary_color');
             $account->secondary_color = Input::get('secondary_color');
             $account->invoice_design_id =  Input::get('invoice_design_id');
+            if (Input::has('font_size')) {
+                $account->font_size =  intval(Input::get('font_size'));
+            }
             $account->save();
 
             Session::flash('message', trans('texts.updated_settings'));

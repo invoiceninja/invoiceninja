@@ -279,6 +279,7 @@ define('MAX_NUM_CLIENTS', 500);
 define('MAX_NUM_CLIENTS_PRO', 20000);
 define('MAX_NUM_USERS', 20);
 define('MAX_SUBDOMAIN_LENGTH', 30);
+define('DEFAULT_FONT_SIZE', 9);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);
