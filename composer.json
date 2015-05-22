@@ -33,7 +33,7 @@
         "coatesap/omnipay-realex": "~2.0",
         "fruitcakestudio/omnipay-sisow": "~2.0",
         "alfaproject/omnipay-skrill": "dev-master",
-		"laravelcollective/html": "~5.0"
+		"laravelcollective/html": "~5.0",
         "omnipay/bitpay": "dev-master"
 	},
 	"require-dev": {
