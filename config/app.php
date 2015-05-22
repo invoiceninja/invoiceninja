@@ -146,7 +146,7 @@ return [
 		'Intervention\Image\ImageServiceProvider',
     	'Webpatser\Countries\CountriesServiceProvider',
     	'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-		'Collective\Html\HtmlServiceProvider',
+    	'Illuminate\Html\HtmlServiceProvider',
 
 		/*
 		 * Application Service Providers...
@@ -244,8 +244,8 @@ return [
 		// Added Class Aliases
 
 		'Utils'			  => 'App\Libraries\Utils',
-		'Form'			  => 'Collective\Html\FormFacade',
-		'Html'			  => 'Collective\Html\HtmlFacade',
+		'Form'			  => 'Illuminate\Html\FormFacade',
+		'HTML'			  => 'Illuminate\Html\HtmlFacade',
 		'SSH' 			  => 'Illuminate\Support\Facades\SSH',
 		'Alert'           => 'Bootstrapper\Facades\Alert',
 		'Badge'           => 'Bootstrapper\Facades\Badge',
