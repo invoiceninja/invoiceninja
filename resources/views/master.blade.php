@@ -4,7 +4,7 @@
     <title>Invoice Ninja | {{ isset($title) ? $title : ' ' . trans('texts.app_title') }}</title> 
     <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}" />
 
-    <!-- Source: https://github.com/hillelcoren/invoice-ninja -->
+	{{-- Source: https://github.com/hillelcoren/invoice-ninja --}}
     <!-- Version: {{ NINJA_VERSION }} -->
 
     <meta charset="utf-8">
