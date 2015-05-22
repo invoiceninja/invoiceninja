@@ -33,9 +33,9 @@
         "coatesap/omnipay-realex": "~2.0",
         "fruitcakestudio/omnipay-sisow": "~2.0",
         "alfaproject/omnipay-skrill": "dev-master",
-        "illuminate/html": "5.*",
         "omnipay/bitpay": "dev-master",
-		"guzzlehttp/guzzle": "~4.0"
+		"guzzlehttp/guzzle": "~4.0",
+        "laravelcollective/html": "~5.0"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

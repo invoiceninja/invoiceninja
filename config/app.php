@@ -187,7 +187,7 @@ return [
 		'File'            => 'Illuminate\Support\Facades\File',
 		//'Form'            => 'Illuminate\Support\Facades\Form',
 		'Hash'            => 'Illuminate\Support\Facades\Hash',
-		'HTML'            => 'Illuminate\Support\Facades\HTML',
+		//'HTML'            => 'Illuminate\Support\Facades\HTML',
 		'Input'           => 'Illuminate\Support\Facades\Input',
 		'Lang'            => 'Illuminate\Support\Facades\Lang',
 		'Log'             => 'Illuminate\Support\Facades\Log',
@@ -244,8 +244,8 @@ return [
 		// Added Class Aliases
 
 		'Utils'			  => 'App\Libraries\Utils',
-		'Form'			  => 'Illuminate\Html\FormFacade',
-		'HTML'			  => 'Illuminate\Html\HtmlFacade',
+		'Form'			  => 'Collective\Html\FormFacade',
+		'HTML'			  => 'Collective\Html\HtmlFacade',
 		'SSH' 			  => 'Illuminate\Support\Facades\SSH',
 		'Alert'           => 'Bootstrapper\Facades\Alert',
 		'Badge'           => 'Bootstrapper\Facades\Badge',
@@ -255,7 +255,7 @@ return [
 		'ButtonToolbar'   => 'Bootstrapper\Facades\ButtonToolbar',
 		'Carousel'        => 'Bootstrapper\Facades\Carousel',
 		'DropdownButton'  => 'Bootstrapper\Facades\DropdownButton',
-		'Form'            => 'Bootstrapper\Facades\Form',
+		//'Form'            => 'Bootstrapper\Facades\Form', //need to clarify this guy
 		'Helpers'         => 'Bootstrapper\Facades\Helpers',
 		'Icon'            => 'Bootstrapper\Facades\Icon',
 		//'Image'           => 'Bootstrapper\Facades\Image',
