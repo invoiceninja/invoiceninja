@@ -107,8 +107,8 @@
                 return '';
             }
 
-            keys = ['footer', 'account', 'client', 'amount', 'link'];
-            vals = [{!! json_encode($emailFooter) !!}, '{!! Auth::user()->account->getDisplayName() !!}', 'Client Name', formatMoney(100), '{!! NINJA_WEB_URL !!}']
+            keys = ['footer', 'account', 'client', 'amount', 'link', 'contact'];
+            vals = [{!! json_encode($emailFooter) !!}, '{!! Auth::user()->account->getDisplayName() !!}', 'Client Name', formatMoney(100), '{!! NINJA_WEB_URL !!}', 'Contact Name']
 
             for (var i=0; i<keys.length; i++) {
                 var regExp = new RegExp('\\$'+keys[i], 'g');
