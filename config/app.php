@@ -1,5 +1,7 @@
 <?php
 
+use App\Libraries\Utils;
+
 return [
 
 	/*
@@ -125,8 +127,8 @@ return [
 		'Illuminate\Filesystem\FilesystemServiceProvider',
 		'Illuminate\Foundation\Providers\FoundationServiceProvider',
 		'Illuminate\Hashing\HashServiceProvider',
-		'Illuminate\Mail\MailServiceProvider',
-		'Illuminate\Pagination\PaginationServiceProvider',
+		(isset($_ENV['POSTMARK_API_TOKEN']) ? 'Postmark\Adapters\LaravelMailProvider' : 'Illuminate\Mail\MailServiceProvider'),
+        'Illuminate\Pagination\PaginationServiceProvider',
 		'Illuminate\Pipeline\PipelineServiceProvider',
 		'Illuminate\Queue\QueueServiceProvider',
 		'Illuminate\Redis\RedisServiceProvider',

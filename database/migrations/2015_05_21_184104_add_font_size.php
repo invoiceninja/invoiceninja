@@ -15,7 +15,7 @@ class AddFontSize extends Migration {
         Schema::table('accounts', function($table)
         {
             $table->smallInteger('font_size')->default(DEFAULT_FONT_SIZE);
-        });     
+        });
 	}
 
 	/**

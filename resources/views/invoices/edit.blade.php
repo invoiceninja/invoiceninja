@@ -1179,6 +1179,7 @@
 			@endif
 			self.invoice_items.push(itemModel);	
 			applyComboboxListeners();			
+            return itemModel;
 		}
 
         if (data) {
@@ -1522,13 +1523,14 @@
 
 	function ItemModel(data) {
 		var self = this;		
-		this.product_key = ko.observable('');
-		this.notes = ko.observable('');
-		this.cost = ko.observable(0);
-		this.qty = ko.observable(0);
+		self.product_key = ko.observable('');
+		self.notes = ko.observable('');
+		self.cost = ko.observable(0);
+		self.qty = ko.observable(0);
 		self.tax_name = ko.observable('');
 		self.tax_rate = ko.observable(0);
-		this.actionsVisible = ko.observable(false);
+		self.task_public_id = ko.observable('');
+        self.actionsVisible = ko.observable(false);
 		
 		self._tax = ko.observable();
 		this.tax = ko.computed({
@@ -1727,6 +1729,21 @@
             //}
 			model.invoice().custom_taxes1({{ $account->custom_invoice_taxes1 ? 'true' : 'false' }});
 			model.invoice().custom_taxes2({{ $account->custom_invoice_taxes2 ? 'true' : 'false' }});
+
+            @if (isset($tasks) && $tasks)
+                // move the blank invoice line item to the end
+                var blank = model.invoice().invoice_items.pop();
+                var tasks = {!! $tasks !!};
+                for (var i=0; i<tasks.length; i++) {
+                    var task = tasks[i];                    
+                    var item = model.invoice().addItem();
+                    item.notes(task.description);
+                    item.product_key(task.startTime);
+                    item.qty(task.duration);
+                    item.task_public_id(task.publicId);
+                }        
+                model.invoice().invoice_items.push(blank);            
+            @endif
 		@endif
 	@endif
 

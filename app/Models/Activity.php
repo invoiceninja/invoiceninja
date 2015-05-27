@@ -317,6 +317,9 @@ class Activity extends Eloquent
 
             $invoice = $payment->invoice;
             $invoice->balance = $invoice->balance + $payment->amount;
+            if ($invoice->isPaid() && $invoice->balance > 0) {
+                $invoice->invoice_status_id = ($invoice->balance == $invoice->amount ? INVOICE_STATUS_DRAFT : INVOICE_STATUS_PARTIAL);
+            }
             $invoice->save();
 
             $activity = Activity::getBlank();

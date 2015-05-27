@@ -4,6 +4,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Invitation;
 use App\Models\Product;
+use App\Models\Task;
 use Utils;
 
 class InvoiceRepository
@@ -374,7 +375,11 @@ class InvoiceRepository
                 continue;
             }
 
-            if ($item['product_key']) {
+            if (isset($item['task_public_id']) && $item['task_public_id']) {
+                $task = Task::scope($item['task_public_id'])->where('invoice_id', '=', null)->firstOrFail();
+                $task->invoice_id = $invoice->id;
+                $task->save();
+            } else if ($item['product_key']) {
                 $product = Product::findProductByKey(trim($item['product_key']));
 
                 if (!$product) {

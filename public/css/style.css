@@ -842,11 +842,9 @@ div.checkbox > label {
     background-color: #0b4d78 !important;
 }
 
-/*
-.panel-default {
-    border-color: #e37329 !important;
+div.alert {
+    z-index: 0;
 }
-*/
 
 .alert-hide {
   position: absolute;

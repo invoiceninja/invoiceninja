@@ -78,6 +78,7 @@ if (Utils::isNinja()) {
     Route::post('/signup/register', 'AccountController@doRegister');
     Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
     Route::get('/demo', 'AccountController@demo');
+    Route::get('/keep_alive', 'HomeController@keepAlive');
 }
 
 Route::group(['middleware' => 'auth'], function() {
@@ -85,8 +86,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
-    Route::get('keep_alive', 'HomeController@keepAlive');
-
+    
     Route::get('api/users', array('as'=>'api.users', 'uses'=>'UserController@getDatatable'));
     Route::resource('users', 'UserController');
     Route::post('users/delete', 'UserController@delete');
@@ -122,6 +122,11 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
     Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));
     Route::post('clients/bulk', 'ClientController@bulk');
+
+    Route::resource('tasks', 'TaskController');
+    Route::get('api/tasks/{client_id?}', array('as'=>'api.tasks', 'uses'=>'TaskController@getDatatable'));
+    Route::get('tasks/create/{client_id?}', 'TaskController@create');
+    Route::post('tasks/bulk', 'TaskController@bulk');
 
     Route::get('recurring_invoices', 'InvoiceController@recurringIndex');
     Route::get('api/recurring_invoices/{client_id?}', array('as'=>'api.recurring_invoices', 'uses'=>'InvoiceController@getRecurringDatatable'));
@@ -216,6 +221,7 @@ define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
 define('ENTITY_PAYMENT', 'payment');
 define('ENTITY_CREDIT', 'credit');
 define('ENTITY_QUOTE', 'quote');
+define('ENTITY_TASK', 'task');
 
 define('PERSON_CONTACT', 'contact');
 define('PERSON_USER', 'user');
@@ -421,12 +427,21 @@ HTML::macro('menu_link', function($type) {
     $Types = ucfirst($types);
     $class = ( Request::is($types) || Request::is('*'.$type.'*')) && !Request::is('*advanced_settings*') ? ' active' : '';
 
-    return '<li class="dropdown '.$class.'">
+    $str = '<li class="dropdown '.$class.'">
            <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>
            <ul class="dropdown-menu" id="menu1">
-             <li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>
-            </ul>
+             <li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
+
+    if ($type == ENTITY_INVOICE && Auth::user()->isPro()) {
+        $str .= '<li class="divider"></li>
+                <li><a href="'.URL::to('quotes').'">'.trans("texts.quotes").'</a></li>
+                <li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';
+    }
+
+    $str .= '</ul>
           </li>';
+
+    return $str;
 });
 
 HTML::macro('image_data', function($imagePath) {
@@ -538,3 +553,4 @@ if (Auth::check() && Auth::user()->id === 1)
   Auth::loginUsingId(1);
 }
 */
+

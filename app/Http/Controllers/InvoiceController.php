@@ -327,7 +327,8 @@ class InvoiceController extends BaseController
                 'method' => 'POST',
                 'url' => 'invoices',
                 'title' => trans('texts.new_invoice'),
-                'client' => $client, );
+                'client' => $client,
+                'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null);
         $data = array_merge($data, self::getViewModel());
 
         return View::make('invoices.edit', $data);

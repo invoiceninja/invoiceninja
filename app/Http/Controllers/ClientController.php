@@ -20,6 +20,7 @@ use App\Models\PaymentTerm;
 use App\Models\Industry;
 use App\Models\Currency;
 use App\Models\Country;
+use App\Models\Task;
 
 use App\Ninja\Repositories\ClientRepository;
 
@@ -112,7 +113,7 @@ class ClientController extends BaseController
         Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 
         $actionLinks = [
-            ['label' => trans('texts.create_invoice'), 'url' => '/invoices/create/'.$client->public_id],
+            ['label' => trans('texts.create_task'), 'url' => '/tasks/create/'.$client->public_id],
             ['label' => trans('texts.enter_payment'), 'url' => '/payments/create/'.$client->public_id],
             ['label' => trans('texts.enter_credit'), 'url' => '/credits/create/'.$client->public_id],
         ];
@@ -128,6 +129,8 @@ class ClientController extends BaseController
             'credit' => $client->getTotalCredit(),
             'title' => trans('texts.view_client'),
             'hasRecurringInvoices' => Invoice::scope()->where('is_recurring', '=', true)->whereClientId($client->id)->count() > 0,
+            'hasQuotes' => Invoice::scope()->where('is_quote', '=', true)->whereClientId($client->id)->count() > 0,
+            'hasTasks' => Task::scope()->whereClientId($client->id)->count() > 0,
             'gatewayLink' => $client->getGatewayLink(),
         );
 

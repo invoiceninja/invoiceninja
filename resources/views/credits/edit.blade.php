@@ -66,7 +66,3 @@
 	</script>
 
 @stop
-
-@section('onReady')
-    //$('.client-select input.form-control').focus();
-@stop
