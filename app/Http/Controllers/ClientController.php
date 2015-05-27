@@ -59,7 +59,7 @@ class ClientController extends BaseController
             ->addColumn('name', function ($model) { return link_to('clients/'.$model->public_id, $model->name); })
             ->addColumn('first_name', function ($model) { return link_to('clients/'.$model->public_id, $model->first_name.' '.$model->last_name); })
             ->addColumn('email', function ($model) { return link_to('clients/'.$model->public_id, $model->email); })
-            ->addColumn('created_at', function ($model) { return Utils::timestampToDateString(strtotime($model->created_at)); })
+            ->addColumn('clients.created_at', function ($model) { return Utils::timestampToDateString(strtotime($model->created_at)); })
             ->addColumn('last_login', function ($model) { return Utils::timestampToDateString(strtotime($model->last_login)); })
             ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id); })
             ->addColumn('dropdown', function ($model) {
