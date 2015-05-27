@@ -325,6 +325,7 @@ class PaymentController extends BaseController
             'countries' => Cache::get('countries'),
             'currencyId' => $client->currency_id,
             'account' => $client->account,
+            'hideLogo' => $account->isWhiteLabel(),
         ];
 
         return View::make('payments.payment', $data);
