@@ -375,7 +375,7 @@
 			 {!! Button::normal(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
             @endif
 
-			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE && !$invoice->is_recurring && !$invoice->isPaid())
+			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE && !$invoice->is_recurring && $invoice->balance > 0)
 				{!! Button::primary(trans('texts.enter_payment'))->withAttributes(array('onclick' => 'onPaymentClick()'))->appendIcon(Icon::create('usd')) !!}		
 			@endif
 		@elseif ($invoice && $invoice->trashed() && !$invoice->is_deleted == '1')

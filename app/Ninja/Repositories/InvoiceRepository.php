@@ -159,7 +159,7 @@ class InvoiceRepository
                 }
 
                 if ($entityType == ENTITY_INVOICE) {
-                    if ($model->invoice_status_id < INVOICE_STATUS_PAID) {
+                    if ($model->balance > 0) {
                         $str .= '<li><a href="'.\URL::to('payments/create/'.$model->client_public_id.'/'.$model->public_id).'">'.trans('texts.enter_payment').'</a></li>';
                     }
 
