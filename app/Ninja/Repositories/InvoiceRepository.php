@@ -378,6 +378,7 @@ class InvoiceRepository
             if (isset($item['task_public_id']) && $item['task_public_id']) {
                 $task = Task::scope($item['task_public_id'])->where('invoice_id', '=', null)->firstOrFail();
                 $task->invoice_id = $invoice->id;
+                $task->client_id = $invoice->client_id;
                 $task->save();
             } else if ($item['product_key']) {
                 $product = Product::findProductByKey(trim($item['product_key']));

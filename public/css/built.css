@@ -3227,7 +3227,7 @@ div.checkbox > label {
 }
 
 div.alert {
-    z-index: 0;
+    z-index: 1;
 }
 
 .alert-hide {

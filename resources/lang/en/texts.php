@@ -667,7 +667,9 @@ return array(
   'create_task' => 'Create Task',
   'stopped_task' => 'Successfully stopped task',
   'invoice_task' => 'Invoice Task',
-
+  'invoice_labels' => 'Invoice Labels',
+  'prefix' => 'Prefix',
+  'counter' => 'Counter',
 
 
 );

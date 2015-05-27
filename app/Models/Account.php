@@ -212,6 +212,8 @@ class Account extends Eloquent
     public function getInvoiceLabels()
     {
         $data = [];
+        $custom = (array) json_decode($this->invoice_labels);
+
         $fields = [
             'invoice',
             'invoice_date',
@@ -241,7 +243,11 @@ class Account extends Eloquent
         ];
 
         foreach ($fields as $field) {
-            $data[$field] = trans("texts.$field");
+            if (isset($custom[$field]) && $custom[$field]) {
+                $data[$field] = $custom[$field];
+            } else {
+                $data[$field] = trans("texts.$field");
+            }
         }
 
         return $data;

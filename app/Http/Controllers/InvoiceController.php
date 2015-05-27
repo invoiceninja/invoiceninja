@@ -228,7 +228,7 @@ class InvoiceController extends BaseController
                 ];
             }
         }
-        
+
         $data = array(
             'isConverted' => $invoice->quote_invoice_id ? true : false,
             'showBreadcrumbs' => false,
@@ -367,7 +367,9 @@ class InvoiceController extends BaseController
                 6 => 'Six months',
                 7 => 'Annually',
             ),
-            'recurringHelp' => $recurringHelp
+            'recurringHelp' => $recurringHelp,
+            'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
+
         ];
 
     }

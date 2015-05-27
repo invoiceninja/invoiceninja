@@ -150,10 +150,10 @@
 		<thead>
 			<tr>
 				<th style="min-width:32px;" class="hide-border"></th>
-				<th style="min-width:160px">{{ trans('texts.item') }}</th>
-				<th style="width:100%">{{ trans('texts.description') }}</th>
-				<th style="min-width:120px">{{ trans('texts.unit_cost') }}</th>
-				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}">{{ trans('texts.quantity') }}</th>
+				<th style="min-width:160px">{{ $invoiceLabels['item'] }}</th>
+				<th style="width:100%">{{ $invoiceLabels['description'] }}</th>
+				<th style="min-width:120px">{{ $invoiceLabels['unit_cost'] }}</th>
+				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}">{{ $invoiceLabels['quantity'] }}</th>
 				<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
 				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
 				<th style="min-width:32px;" class="hide-border"></th>

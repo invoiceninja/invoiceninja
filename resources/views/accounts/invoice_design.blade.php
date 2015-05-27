@@ -42,6 +42,19 @@
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
 
+      var fields = ['item', 'description', 'unit_cost', 'quantity'];
+      invoiceLabels.old = {};        
+      for (var i=0; i<fields.length; i++) {
+        var field = fields[i];
+        var val = $('#labels_' + field).val();
+        if (invoiceLabels.old.hasOwnProperty(field)) {
+            invoiceLabels.old[field] = invoiceLabels[field];
+        }
+        if (val) {
+            invoiceLabels[field] = val;
+        }
+      }      
+
       doc = generatePDF(invoice, getDesignJavascript(), true);
       doc.getDataUrl(cb);
     }
@@ -72,6 +85,9 @@
       {!! Former::populate($account) !!}
       {!! Former::populateField('hide_quantity', intval($account->hide_quantity)) !!}
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
+      @foreach ($invoiceLabels as $field => $value)
+        {!! Former::populateField("labels_{$field}", $value) !!}
+      @endforeach      
 
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -95,6 +111,20 @@
 
           </div>
       </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.invoice_labels') !!}</h3>
+      </div>
+        <div class="panel-body">    
+    
+          {!! Former::text('labels_item')->label(trans('texts.item')) !!}
+          {!! Former::text('labels_description')->label(trans('texts.description')) !!}
+          {!! Former::text('labels_unit_cost')->label(trans('texts.unit_cost')) !!}
+          {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
+
+        </div>
+    </div>
 
     <div class="panel panel-default">
       <div class="panel-heading">
