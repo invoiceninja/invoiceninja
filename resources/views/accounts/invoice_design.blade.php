@@ -85,9 +85,11 @@
       {!! Former::populate($account) !!}
       {!! Former::populateField('hide_quantity', intval($account->hide_quantity)) !!}
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
-      @foreach ($invoiceLabels as $field => $value)
-        {!! Former::populateField("labels_{$field}", $value) !!}
-      @endforeach      
+      @if ($invoiceLabels)
+        @foreach ($invoiceLabels as $field => $value)
+          {!! Former::populateField("labels_{$field}", $value) !!}
+        @endforeach
+      @endif
 
     <div class="panel panel-default">
       <div class="panel-heading">
