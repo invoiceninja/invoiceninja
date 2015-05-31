@@ -45,7 +45,7 @@
     ////////////////////////////////////////////////////////////////////
 
     // Where Former should look for translations
-    'translate_from'          => 'validation.attributes',
+    'translate_from'          => 'texts',
 
     // Whether text that comes out of the translated
     // should be capitalized (ex: email => Email) automatically

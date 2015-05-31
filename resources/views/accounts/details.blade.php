@@ -38,7 +38,7 @@
             @if (Auth::user()->isPro() && Utils::isNinja())
                 {{ Former::setOption('capitalize_translations', false) }}
                 {!! Former::text('subdomain')->placeholder('texts.www')->onchange('onSubdomainChange()') !!}                
-            @endif
+            @endif            
 
             {!! Former::text('id_number') !!}
             {!! Former::text('vat_number') !!}
