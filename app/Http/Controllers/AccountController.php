@@ -209,7 +209,7 @@ class AccountController extends BaseController
 
                 $data['invoice'] = $invoice;
                 $data['invoiceDesigns'] = InvoiceDesign::availableDesigns();
-                $data['invoiceLabels'] = json_decode($account->invoice_labels);
+                $data['invoiceLabels'] = json_decode($account->invoice_labels) ?: [];
             } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
                 $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
                 $data['quoteEmail'] = $account->getEmailTemplate(ENTITY_QUOTE);
