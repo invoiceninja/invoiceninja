@@ -19,8 +19,9 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 * Live PDF generation
 * Integrates with 30+ payment providers
 * Recurring invoices
-* Tax rates and payment terms
+* Tasks with time-tracking
 * Multi-user support
+* Tax rates and payment terms
 * Partial payments
 * Custom email templates
 * [Zapier](https://zapier.com/) integration

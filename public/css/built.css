@@ -3204,6 +3204,12 @@ div.checkbox > label {
     border-radius: 3px;
 }
 
+.container input:focus,
+.container textarea:focus,
+.container select:focus {
+    background: #fff !important;
+}
+
 .container input[placeholder],
 .container textarea[placeholder],
 .container select[placeholder] {

@@ -7,6 +7,40 @@ class Gateway extends Eloquent
 {
     public $timestamps = true;
 
+    public static $paymentTypes = [
+        PAYMENT_TYPE_CREDIT_CARD,
+        PAYMENT_TYPE_PAYPAL,
+        PAYMENT_TYPE_BITCOIN,
+        //PAYMENT_TYPE_DWOLLA
+    ];
+
+    public static $hiddenFields = [
+        // PayPal
+        'headerImageUrl',
+        'solutionType',
+        'landingPage',
+        'brandName',
+        'logoImageUrl',
+        'borderColor',
+        // Dwolla
+        'gatewaySession',
+        'purchaseOrder',
+        'Callback',
+        'Redirect',
+        'shipping',
+        'tax',
+        'discount',
+        'notes',
+        'AllowFundingSources',
+        'AllowGuestCheckout',
+    ];
+
+    public static $optionalFields = [
+        // PayPal
+        'testMode',
+        'developerMode',
+    ];
+
     public function getLogoUrl()
     {
         return '/images/gateways/logo_'.$this->provider.'.png';
@@ -24,6 +58,8 @@ class Gateway extends Eloquent
             $link = 'https://www.2checkout.com/referral?r=2c37ac2298';
         } elseif ($this->id == GATEWAY_BITPAY) {
             $link = 'https://bitpay.com/dashboard/signup';
+        } elseif ($this->id == GATEWAY_DWOLLA) {
+            $link = 'https://www.dwolla.com/register';
         }
 
         $key = 'texts.gateway_help_'.$this->id;
@@ -42,6 +78,8 @@ class Gateway extends Eloquent
             return PAYMENT_TYPE_PAYPAL;
         } else if ($gatewayId == GATEWAY_BITPAY) {
             return PAYMENT_TYPE_BITCOIN;
+        } else if ($gatewayId == GATEWAY_DWOLLA) {
+            return PAYMENT_TYPE_DWOLLA;
         } else {
             return PAYMENT_TYPE_CREDIT_CARD;
         }

@@ -76,9 +76,16 @@ class ClientController extends BaseController
                     if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
                         $str .= '<li><a href="'.URL::to('clients/'.$model->public_id.'/edit').'">'.trans('texts.edit_client').'</a></li>
 						    <li class="divider"></li>
-						    <li><a href="'.URL::to('invoices/create/'.$model->public_id).'">'.trans('texts.new_invoice').'</a></li>
-						    <li><a href="'.URL::to('payments/create/'.$model->public_id).'">'.trans('texts.new_payment').'</a></li>
-						    <li><a href="'.URL::to('credits/create/'.$model->public_id).'">'.trans('texts.new_credit').'</a></li>
+						    <li><a href="'.URL::to('tasks/create/'.$model->public_id).'">'.trans('texts.new_task').'</a></li>
+                            <li><a href="'.URL::to('invoices/create/'.$model->public_id).'">'.trans('texts.new_invoice').'</a></li>';
+
+                        if (Auth::user()->isPro()) {
+                            $str .= '<li><a href="'.URL::to('quotes/create/'.$model->public_id).'">'.trans('texts.new_quote').'</a></li>';
+                        }
+
+                        $str .= '<li class="divider"></li>
+                            <li><a href="'.URL::to('payments/create/'.$model->public_id).'">'.trans('texts.enter_payment').'</a></li>
+						    <li><a href="'.URL::to('credits/create/'.$model->public_id).'">'.trans('texts.enter_credit').'</a></li>
 						    <li class="divider"></li>
 						    <li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans('texts.archive_client').'</a></li>';
                     } else {
@@ -113,15 +120,18 @@ class ClientController extends BaseController
         Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 
         $actionLinks = [
-            ['label' => trans('texts.create_task'), 'url' => '/tasks/create/'.$client->public_id],
-            ['label' => trans('texts.enter_payment'), 'url' => '/payments/create/'.$client->public_id],
-            ['label' => trans('texts.enter_credit'), 'url' => '/credits/create/'.$client->public_id],
+            ['label' => trans('texts.new_task'), 'url' => '/tasks/create/'.$client->public_id]
         ];
 
         if (Utils::isPro()) {
-            array_unshift($actionLinks, ['label' => trans('texts.create_quote'), 'url' => '/quotes/create/'.$client->public_id]);
+            array_push($actionLinks, ['label' => trans('texts.new_quote'), 'url' => '/quotes/create/'.$client->public_id]);
         }
 
+        array_push($actionLinks,
+            ['label' => trans('texts.enter_payment'), 'url' => '/payments/create/'.$client->public_id],
+            ['label' => trans('texts.enter_credit'), 'url' => '/credits/create/'.$client->public_id]
+        );
+        
         $data = array(
             'actionLinks' => $actionLinks,
             'showBreadcrumbs' => false,

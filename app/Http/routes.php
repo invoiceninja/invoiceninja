@@ -31,6 +31,7 @@ Route::get('/', 'HomeController@showIndex');
 Route::get('terms', 'HomeController@showTerms');
 Route::get('log_error', 'HomeController@logError');
 Route::get('invoice_now', 'HomeController@invoiceNow');
+Route::get('keep_alive', 'HomeController@keepAlive');
 Route::post('get_started', 'AccountController@getStarted');
 
 // Client visible pages
@@ -78,7 +79,6 @@ if (Utils::isNinja()) {
     Route::post('/signup/register', 'AccountController@doRegister');
     Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
     Route::get('/demo', 'AccountController@demo');
-    Route::get('/keep_alive', 'HomeController@keepAlive');
 }
 
 Route::group(['middleware' => 'auth'], function() {
@@ -339,6 +339,7 @@ define('GATEWAY_BEANSTREAM', 29);
 define('GATEWAY_PSIGATE', 30);
 define('GATEWAY_MOOLAH', 31);
 define('GATEWAY_BITPAY', 42);
+define('GATEWAY_DWOLLA', 43);
 
 define('EVENT_CREATE_CLIENT', 1);
 define('EVENT_CREATE_INVOICE', 2);
@@ -383,6 +384,7 @@ define('TOKEN_BILLING_ALWAYS', 4);
 define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
 define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
 define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');
+define('PAYMENT_TYPE_DWOLLA', 'PAYMENT_TYPE_DWOLLA');
 define('PAYMENT_TYPE_TOKEN', 'PAYMENT_TYPE_TOKEN');
 define('PAYMENT_TYPE_ANY', 'PAYMENT_TYPE_ANY');
 

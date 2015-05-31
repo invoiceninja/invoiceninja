@@ -83,6 +83,7 @@
             url = '/track' + url.replace('http:/', '');
             dataLayer.push({'event':url, 'eventLabel':this.src});
         }        
+        function trackEvent(category, action) {}
     </script>
     @elseif (isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])  
     <script>
@@ -97,12 +98,17 @@
         function trackUrl(url) {
             url = '/track' + url.replace('http:/', '');
             ga('send', 'pageview', url);  
-            //ga('send', 'event', 'photo', 'hover', this.src);
+            
+        }
+
+        function trackEvent(category, action) {
+            ga('send', 'event', category, action, this.src);
         }
     </script>
     @else
     <script>
         function trackUrl(url) {}
+        function trackEvent(category, action) {}
     </script>
     @endif
 

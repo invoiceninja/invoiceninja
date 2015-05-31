@@ -19,7 +19,7 @@
         {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}        
         @if ($config)
             @foreach ($accountGateway->fields as $field => $junk)
-                @if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
+                @if (in_array($field, $hiddenFields))
                     {{-- do nothing --}}
                 @elseif (isset($config->$field))
                     {{ Former::populateField($accountGateway->gateway_id.'_'.$field, $config->$field) }}
@@ -46,9 +46,11 @@
         <div id="gateway_{{ $gateway->id }}_div" class='gateway-fields' style="display: none">
             @foreach ($gateway->fields as $field => $details)
 
-                @if (in_array($field, ['solutionType', 'landingPage', 'headerImageUrl', 'brandName']))
+                @if (in_array($field, $hiddenFields))
                     {{-- do nothing --}}
-                @elseif ($field == 'testMode' || $field == 'developerMode') 
+                @elseif ($gateway->id == GATEWAY_DWOLLA && ($field == 'Key' || $field == 'Secret'))
+                    {{-- do nothing --}}
+                @elseif ($field == 'testMode' || $field == 'developerMode' || $field == 'sandbox') 
                     {!! Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable')->value('true') !!}
                 @elseif ($field == 'username' || $field == 'password') 
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
@@ -104,6 +106,8 @@
 
             if (val == 'PAYMENT_TYPE_PAYPAL') {
                 setFieldsShown({{ GATEWAY_PAYPAL_EXPRESS }});
+            } else if (val == 'PAYMENT_TYPE_DWOLLA') {
+                setFieldsShown({{ GATEWAY_DWOLLA }});
             } else {
                 setFieldsShown({{ GATEWAY_BITPAY }});
             }

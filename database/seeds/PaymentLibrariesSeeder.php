@@ -25,6 +25,7 @@ class PaymentLibrariesSeeder extends Seeder
 			['name' => 'Sisow', 'provider' => 'Sisow', 'payment_library_id' => 1],
 			['name' => 'Skrill', 'provider' => 'Skrill', 'payment_library_id' => 1],
             ['name' => 'BitPay', 'provider' => 'BitPay', 'payment_library_id' => 1],
+            ['name' => 'Dwolla', 'provider' => 'Dwolla', 'payment_library_id' => 1],
 		];
 		
 		foreach ($gateways as $gateway)

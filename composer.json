@@ -36,7 +36,8 @@
         "omnipay/bitpay": "dev-master",
 		"guzzlehttp/guzzle": "~5.0",
         "laravelcollective/html": "~5.0",
-        "wildbit/laravel-postmark-provider": "dev-master"
+        "wildbit/laravel-postmark-provider": "dev-master",
+        "mach-kernel/omnipay-dwolla": "dev-master"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

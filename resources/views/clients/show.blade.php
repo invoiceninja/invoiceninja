@@ -25,7 +25,7 @@
 			    ]
 			  )->split() !!}
 
-			{!! DropdownButton::primary(trans('texts.create_invoice'))
+			{!! DropdownButton::primary(trans('texts.new_invoice'))
                     ->withAttributes(['class'=>'primaryDropDown'])
                     ->withContents($actionLinks)->split() !!}
 		@endif

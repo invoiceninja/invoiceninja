@@ -135,8 +135,8 @@ return array(
   'filter' => 'Filter',
   'new_client' => 'New Client',
   'new_invoice' => 'New Invoice',
-  'new_payment' => 'New Payment',
-  'new_credit' => 'New Credit',
+  'new_payment' => 'Enter Payment',
+  'new_credit' => 'Enter Credit',
   'contact' => 'Contact',
   'date_created' => 'Date Created',
   'last_login' => 'Last Login',
@@ -671,5 +671,7 @@ return array(
   'prefix' => 'Prefix',
   'counter' => 'Counter',
 
+  'payment_type_dwolla' => 'Dwolla',
+  'gateway_help_43' => ':link to sign up for Dwolla.',
 
 );
