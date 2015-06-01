@@ -823,7 +823,7 @@ div.checkbox > label {
 .container input:focus,
 .container textarea:focus,
 .container select:focus {
-    background: #fff !important;
+    background: #fdfdfd !important;
 }
 
 .container input[placeholder],

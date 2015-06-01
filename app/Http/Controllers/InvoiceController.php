@@ -27,6 +27,7 @@ use App\Models\PaymentTerm;
 use App\Models\InvoiceDesign;
 use App\Models\AccountGateway;
 use App\Models\Activity;
+use App\Models\Gateway;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
