@@ -186,7 +186,7 @@ class AccountGatewayController extends BaseController
             $gatewayId = GATEWAY_PAYPAL_EXPRESS;
         } elseif ($paymentType == PAYMENT_TYPE_BITCOIN) {
             $gatewayId = GATEWAY_BITPAY;
-        } elseif ($paymentType = PAYMENT_TYPE_DWOLLA) {
+        } elseif ($paymentType == PAYMENT_TYPE_DWOLLA) {
             $gatewayId = GATEWAY_DWOLLA;
         }
 
