@@ -106,7 +106,7 @@
       success: function(result) { 
         if (result) {
           localStorage.setItem('guest_key', '');
-          trackUrl('/signed_up');
+          trackEvent('/account', '/signed_up');
           NINJA.isRegistered = true;
           $('#signUpButton').hide();
           $('#myAccountButton').html(result);          
@@ -150,7 +150,7 @@
 
   @if (Auth::check() && !Auth::user()->isPro())
   function submitProPlan(feature) {
-    trackUrl('/submit_pro_plan/' + feature);
+    trackEvent('/account', '/submit_pro_plan/' + feature);
     if (NINJA.isRegistered) {
       $('#proPlanDiv, #proPlanFooter').hide();
       $('#proPlanWorking').show();
@@ -263,7 +263,7 @@
     validateSignUp();
 
     $('#signUpModal').on('shown.bs.modal', function () {
-      trackUrl('/view_sign_up');
+      trackEvent('/account', '/view_sign_up');
       $(['first_name','last_name','email','password']).each(function(i, field) {
         var $input = $('form.signUpForm #new_'+field);
         if (!$input.val()) {

@@ -204,7 +204,7 @@ class PaymentController extends BaseController
             $gateway->$function($val);
         }
 
-        if ($accountGateway->gateway->id == GATEWAY_DWOLLA) {
+        if ($accountGateway->gateway->id == GATEWAY_DWOLLA && isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET'])) {
             $gateway->setKeySecret($_ENV['DWOLLA_KEY'], $_ENV['DWOLLA_SECRET']);
         }
 
@@ -444,6 +444,7 @@ class PaymentController extends BaseController
                 'message' => $affiliate->payment_subtitle,
                 'license' => $licenseKey,
                 'hideHeader' => true,
+                'productId' => $license->product_id
             ];
 
             $name = "{$license->first_name} {$license->last_name}";

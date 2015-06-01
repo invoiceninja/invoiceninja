@@ -48,7 +48,8 @@
 
                 @if (in_array($field, $hiddenFields))
                     {{-- do nothing --}}
-                @elseif ($gateway->id == GATEWAY_DWOLLA && ($field == 'Key' || $field == 'Secret'))
+                @elseif ($gateway->id == GATEWAY_DWOLLA && ($field == 'Key' || $field == 'Secret') 
+                    && isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET']))
                     {{-- do nothing --}}
                 @elseif ($field == 'testMode' || $field == 'developerMode' || $field == 'sandbox') 
                     {!! Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable')->value('true') !!}
