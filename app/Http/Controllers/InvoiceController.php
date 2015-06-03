@@ -59,10 +59,14 @@ class InvoiceController extends BaseController
             'columns' => Utils::trans(['checkbox', 'invoice_number', 'client', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status', 'action']),
         ];
 
-        $recurringInvoices = Invoice::scope()->where('is_recurring', '=', true);
+        $recurringInvoices = Invoice::scope()
+                                ->where('is_recurring', '=', true);
 
         if (Session::get('show_trash:invoice')) {
             $recurringInvoices->withTrashed();
+        } else {
+            $recurringInvoices->join('clients', 'clients.id', '=', 'invoices.client_id')
+                                ->where('clients.deleted_at', '=', null);
         }
 
         if ($recurringInvoices->count() > 0) {

@@ -83,7 +83,8 @@
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') !!}							
                 
-                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()') !!}
+                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()')
+                            ->rel('tooltip')->data_toggle('tooltip')->data_placement('bottom')->title(trans('texts.partial_value')) !!}
 			</div>
 			@if ($entityType == ENTITY_INVOICE)
 				<div data-bind="visible: is_recurring" style="display: none">
@@ -313,7 +314,7 @@
 			{!! Former::populateField('entityType', $entityType) !!}
 			{!! Former::text('entityType') !!}
 			{!! Former::text('action') !!}
-            {!! Former::text('data')->data_bind("value: ko.mapping.toJSON(model)") !!}    
+            {!! Former::text('data')->data_bind("value: ko.mapping.toJSON(model)") !!}
             {!! Former::text('pdfupload') !!}    
 				
 			@if ($invoice && $invoice->id)
@@ -597,7 +598,7 @@
 			}
 		});
 
-		$('[rel=tooltip]').tooltip();
+		$('[rel=tooltip]').tooltip({'trigger':'manual'});
 
 		$('#invoice_date, #due_date, #start_date, #end_date').datepicker();
 
@@ -770,14 +771,14 @@
 	}
 
 	function onEmailClick() {
-		if (confirm('{{ trans("texts.confirm_email_$entityType") }}')) {
+		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}')) {
 			preparePdfData('email');
 		}
 	}
 
 	function onSaveClick() {
 		if (model.invoice().is_recurring()) {
-			if (confirm('{{ trans("texts.confirm_recurring_email_$entityType") }}')) {
+			if (confirm('{!! trans("texts.confirm_recurring_email_$entityType") !!}')) {
 				submitAction('');
 			}
 		} else {
@@ -802,6 +803,7 @@
 			model.showClientForm();
 			return;
 		}
+        onPartialChange(true);
 		$('#action').val(value);
 		$('#submitButton').click();
 	}
@@ -866,7 +868,7 @@
 	}
 
 	function onDeleteClick() {
-		if (confirm('Are you sure you want to delete this {{ $entityType }}?')) {
+        if (confirm('{!! trans("texts.are_you_sure") !!}')) {		
 			submitAction('delete');		
 		}		
 	}
@@ -1664,11 +1666,19 @@
 		}
 	}
 
-    function onPartialChange()
+    function onPartialChange(silent)
     {
         var val = NINJA.parseFloat($('#partial').val());
+        var oldVal = val;
         val = Math.max(Math.min(val, model.invoice().totals.rawTotal()), 0);
-        $('#partial').val(val || '');
+        model.invoice().partial(val || '');
+        
+        if (!silent && val != oldVal) {
+            $('#partial').tooltip('show');
+            setTimeout(function() {
+                $('#partial').tooltip('hide');
+            }, 5000);
+        }
     }
 
     function onRecurringEnabled()

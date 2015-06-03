@@ -52,7 +52,7 @@
 
 	function submitForm(action) {
 		if (action == 'delete') {
-			if (!confirm('Are you sure?')) {
+            if (!confirm('{!! trans("texts.are_you_sure") !!}')) {			
 				return;
 			}
 		}		

@@ -52,10 +52,10 @@ class InvoiceRepository
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('invoices.account_id', '=', $accountId)
                     ->where('invoices.is_quote', '=', false)
-                    ->where('clients.deleted_at', '=', null)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('invoices.is_recurring', '=', true)
                     ->where('contacts.is_primary', '=', true)
+                    ->where('clients.deleted_at', '=', null)
                     ->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'invoices.deleted_at', 'invoices.is_deleted');
 
         if ($clientPublicId) {
@@ -292,6 +292,12 @@ class InvoiceRepository
         $invoice->terms = trim($data['terms']) ? trim($data['terms']) : (!$publicId && $account->invoice_terms ? $account->invoice_terms : '');
         $invoice->invoice_footer = trim($data['invoice_footer']) ? trim($data['invoice_footer']) : (!$publicId && $account->invoice_footer ? $account->invoice_footer : '');
         $invoice->public_notes = trim($data['public_notes']);
+
+        // process date variables
+        $invoice->terms = Utils::processVariables($invoice->terms);
+        $invoice->invoice_footer = Utils::processVariables($invoice->invoice_footer);
+        $invoice->public_notes = Utils::processVariables($invoice->public_notes);
+
         $invoice->po_number = trim($data['po_number']);
         $invoice->invoice_design_id = $data['invoice_design_id'];
 

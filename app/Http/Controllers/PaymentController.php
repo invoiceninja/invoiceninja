@@ -205,7 +205,9 @@ class PaymentController extends BaseController
         }
 
         if ($accountGateway->gateway->id == GATEWAY_DWOLLA && isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET'])) {
-            $gateway->setKeySecret($_ENV['DWOLLA_KEY'], $_ENV['DWOLLA_SECRET']);
+            $gateway->setKey($_ENV['DWOLLA_KEY']);
+            $gateway->setSecret($_ENV['DWOLLA_SECRET']);
+            $gateway->setSandbox(false);
         }
 
         return $gateway;
@@ -272,6 +274,7 @@ class PaymentController extends BaseController
             'amount' => $invoice->getRequestedAmount(),
             'card' => $card,
             'currency' => $currencyCode,
+            'redirect' => URL::to('complete'), // Dwolla: remove 
             'returnUrl' => URL::to('complete'),
             'cancelUrl' => $invitation->getLink(),
             'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
@@ -470,7 +473,7 @@ class PaymentController extends BaseController
         $productId = Input::get('product_id', PRODUCT_ONE_CLICK_INSTALL);
 
         $license = License::where('license_key', '=', $licenseKey)
-                    ->where('is_claimed', '<', 3)
+                    ->where('is_claimed', '<', 5)
                     ->where('product_id', '=', $productId)
                     ->first();
 
@@ -506,6 +509,7 @@ class PaymentController extends BaseController
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
+                Utils::logError('Payment Error [invalid]');
                 return Redirect::to('payment/'.$invitationKey)
                     ->withErrors($validator);
             }
@@ -530,7 +534,7 @@ class PaymentController extends BaseController
         
         try {
             $gateway = self::createGateway($accountGateway);
-            $details = self::getPaymentDetails($invitation, $useToken || !$onSite ? false : Input::all());
+            $details = self::getPaymentDetails($invitation, ($useToken || !$onSite) ? false : Input::all());
             
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
                 if ($useToken) {
@@ -555,6 +559,10 @@ class PaymentController extends BaseController
                     
                         $token->token = $cardReference;
                         $token->save();
+                    } else {
+                        Session::flash('error', $tokenResponse->getMessage());
+                        Utils::logError('Payment Error [no-token-ref]: ' . $tokenResponse->getMessage());
+                        return Redirect::to('payment/'.$invitationKey)->withInput();
                     }
                 }
             }
@@ -565,6 +573,7 @@ class PaymentController extends BaseController
             if (!$ref) {
                 
                 Session::flash('error', $response->getMessage());
+                Utils::logError('Payment Error [no-ref]: ' . $response->getMessage());
 
                 if ($onSite) {
                     return Redirect::to('payment/'.$invitationKey)->withInput();
@@ -573,9 +582,14 @@ class PaymentController extends BaseController
                 }
             }
 
-            if ($response->isSuccessful()) {
+            if ($response->isSuccessful() && $accountGateway->gateway_id != GATEWAY_DWOLLA) {
                 $payment = self::createPayment($invitation, $ref);
                 Session::flash('message', trans('texts.applied_payment'));
+
+                if ($account->account_key == NINJA_ACCOUNT_KEY) {
+                    Session::flash('trackEventCategory', '/account');
+                    Session::flash('trackEventAction', '/buy_pro_plan');
+                }
 
                 return Redirect::to('view/'.$payment->invitation->invitation_key);
             } elseif ($response->isRedirect()) {
@@ -587,13 +601,14 @@ class PaymentController extends BaseController
                 $response->redirect();
             } else {
                 Session::flash('error', $response->getMessage());
+                Utils::logError('Payment Error [fatal]: ' . $response->getMessage());
 
                 return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
             }
         } catch (\Exception $e) {
             $errorMessage = trans('texts.payment_error');
             Session::flash('error', $errorMessage."<p>".$e->getMessage());
-            Utils::logError(Utils::getErrorString($e));
+            Utils::logError('Payment Error [uncaught]:' . Utils::getErrorString($e));
 
             if ($onSite) {
                 return Redirect::to('payment/'.$invitationKey)->withInput();

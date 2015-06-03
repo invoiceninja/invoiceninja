@@ -78,6 +78,11 @@ class PaymentRepository
             $rules['payment_type_id'] = 'has_credit:'.$input['client'].','.$input['amount'];
         }
 
+        if (isset($input['invoice']) && $input['invoice']) {
+            $invoice = Invoice::scope($input['invoice'])->firstOrFail();
+            $rules['amount'] .= "|less_than:{$invoice->balance}";
+        }
+
         $validator = \Validator::make($input, $rules);
 
         if ($validator->fails()) {

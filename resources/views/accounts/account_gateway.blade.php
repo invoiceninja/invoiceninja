@@ -48,7 +48,7 @@
 
                 @if (in_array($field, $hiddenFields))
                     {{-- do nothing --}}
-                @elseif ($gateway->id == GATEWAY_DWOLLA && ($field == 'Key' || $field == 'Secret') 
+                @elseif ($gateway->id == GATEWAY_DWOLLA && ($field == 'key' || $field == 'secret') 
                     && isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET']))
                     {{-- do nothing --}}
                 @elseif ($field == 'testMode' || $field == 'developerMode' || $field == 'sandbox') 

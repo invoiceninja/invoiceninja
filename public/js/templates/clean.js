@@ -1,4 +1,14 @@
 //pdfmake
+
+/*
+var dd = { 
+    content: 'wqy中文wqy',
+    defaultStyle: {
+        font: 'wqy'
+    }
+};
+*/
+
 var dd = {
     content: [
     {
@@ -113,6 +123,7 @@ var dd = {
     ],
 
     defaultStyle: {
+        //font: 'arialuni',
         fontSize: NINJA.fontSize,
         margin: [8, 4, 8, 4]
     },

@@ -32,7 +32,7 @@ function GetPdfMake(invoice, javascript, callback) {
             }            
         },
         footer: function(){
-            f = [{ text:invoice.invoice_footer?invoice.invoice_footer:"", margin: [40, 0]}]
+            f = [{ text:invoice.invoice_footer?processVariables(invoice.invoice_footer):"", margin: [40, 0]}]
             if (!invoice.is_pro && logoImages.imageLogo1) {
                 f.push({
                     image: logoImages.imageLogo1,
@@ -49,7 +49,24 @@ function GetPdfMake(invoice, javascript, callback) {
     dd = $.extend(true, baseDD, dd);    
 
     /*
-    var fonts = {
+    pdfMake.fonts = {
+        wqy: {
+            normal: 'wqy.ttf',
+            bold: 'wqy.ttf',
+            italics: 'wqy.ttf',
+            bolditalics: 'wqy.ttf'
+        }
+    };
+    */
+    
+    /*
+    pdfMake.fonts = {
+        NotoSansCJKsc: {
+            normal: 'NotoSansCJKsc-Regular.ttf',
+            bold: 'NotoSansCJKsc-Medium.ttf',
+            italics: 'NotoSansCJKsc-Italic.ttf',
+            bolditalics: 'NotoSansCJKsc-Italic.ttf'
+        },
         Roboto: {
             normal: 'Roboto-Regular.ttf',
             bold: 'Roboto-Medium.ttf',
@@ -58,7 +75,7 @@ function GetPdfMake(invoice, javascript, callback) {
         },
     };
     */
-
+    
     doc = pdfMake.createPdf(dd);
     doc.save = function(fileName) {
         this.download(fileName);
@@ -70,12 +87,12 @@ NINJA.notesAndTerms = function(invoice)
 {
     var text = [];
     if (invoice.public_notes) {
-        text.push({text:invoice.public_notes, style:'notes'});
+        text.push({text:processVariables(invoice.public_notes), style:'notes'});
     }
 
     if (invoice.terms) {
         text.push({text:invoiceLabels.terms, style:'termsLabel'});
-        text.push({text:invoice.terms, style:'terms'});
+        text.push({text:processVariables(invoice.terms), style:'terms'});
     }
 
     return text;
@@ -210,6 +227,8 @@ NINJA.accountAddress = function(account) {
     if(account.address2) data.push({text:account.address2, style:'accountDetails'});
     if(address) data.push({text:address, style:'accountDetails'});
     if(account.country) data.push({text:account.country.name, style: 'accountDetails'});
+    if(account.custom_label1 && account.custom_value1) data.push({text:account.custom_label1 +' '+ account.custom_value1, style: 'accountDetails'});
+    if(account.custom_label2 && account.custom_value2) data.push({text:account.custom_label2 +' '+ account.custom_value2, style: 'accountDetails'});
     return data;
 }
 

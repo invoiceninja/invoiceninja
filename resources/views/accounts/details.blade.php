@@ -204,7 +204,7 @@
 		});
 		
 		function deleteLogo() {
-			if (confirm("{{ trans('texts.are_you_sure') }}")) {
+			if (confirm("{!! trans('texts.are_you_sure') !!}")) {
 				$('.removeLogoForm').submit();
 			}
 		}

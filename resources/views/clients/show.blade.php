@@ -297,7 +297,7 @@
 	}
 
 	function onDeleteClick() {
-		if (confirm("{{ trans('texts.are_you_sure') }}")) {
+		if (confirm("{!! trans('texts.are_you_sure') !!}")) {
 			$('#action').val('delete');
 			$('.mainForm').submit();
 		}

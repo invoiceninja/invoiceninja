@@ -109,6 +109,10 @@
         $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function() {
             NINJA.formIsChanged = true;      
         }); 
+
+        @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))
+            trackEvent('{{ session('trackEventCategory') }}', '{{ session('trackEventAction') }}');            
+        @endif
     });
     $('form').submit(function() {
         NINJA.formIsChanged = false;
@@ -124,7 +128,6 @@
         trackEvent('/view_link', track ? track : url);
         window.open(url, '_blank');
     }
-
 
 //$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });
 </script> 

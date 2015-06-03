@@ -11,7 +11,7 @@ class Gateway extends Eloquent
         PAYMENT_TYPE_CREDIT_CARD,
         PAYMENT_TYPE_PAYPAL,
         PAYMENT_TYPE_BITCOIN,
-        //PAYMENT_TYPE_DWOLLA
+        PAYMENT_TYPE_DWOLLA
     ];
 
     public static $hiddenFields = [
@@ -23,22 +23,15 @@ class Gateway extends Eloquent
         'logoImageUrl',
         'borderColor',
         // Dwolla
-        'gatewaySession',
-        'purchaseOrder',
-        'Callback',
-        'Redirect',
-        'shipping',
-        'tax',
-        'discount',
-        'notes',
-        'AllowFundingSources',
-        'AllowGuestCheckout',
+        'redirect',
     ];
 
     public static $optionalFields = [
         // PayPal
         'testMode',
         'developerMode',
+        // Dwolla
+        'sandbox',
     ];
 
     public function getLogoUrl()

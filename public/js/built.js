@@ -31637,7 +31637,7 @@ function GetPdf(invoice, javascript){
     SetPdfColor(invoice.invoice_design_id == 2 || invoice.invoice_design_id == 3 ? 'White' : 'Black',doc);
     var top = doc.internal.pageSize.height - layout.marginLeft;
     if (!invoice.is_pro) top -= 25;
-    var footer = doc.splitTextToSize(invoice.invoice_footer, 500);
+    var footer = doc.splitTextToSize(processVariables(invoice.invoice_footer), 500);
     var numLines = footer.length - 1;
     doc.text(layout.marginLeft, top - (numLines * 8), footer);    
   }
@@ -32419,13 +32419,13 @@ function displayNotesAndTerms(doc, layout, invoice, y)
   var origY = y;
 
   if (invoice.public_notes) {
-    var notes = doc.splitTextToSize(invoice.public_notes, 260);
+    var notes = doc.splitTextToSize(processVariables(invoice.public_notes), 260);
     doc.text(layout.marginLeft, y, notes);
     y += 16 + (notes.length * doc.internal.getFontSize());
   }
 
   if (invoice.terms) {
-    var terms = doc.splitTextToSize(invoice.terms, 260);
+    var terms = doc.splitTextToSize(processVariables(invoice.terms), 260);
     doc.setFontType("bold");    
     doc.text(layout.marginLeft, y, invoiceLabels.terms);
     y += 16;
@@ -33136,7 +33136,7 @@ function GetPdfMake(invoice, javascript, callback) {
             }            
         },
         footer: function(){
-            f = [{ text:invoice.invoice_footer?invoice.invoice_footer:"", margin: [40, 0]}]
+            f = [{ text:invoice.invoice_footer?processVariables(invoice.invoice_footer):"", margin: [40, 0]}]
             if (!invoice.is_pro && logoImages.imageLogo1) {
                 f.push({
                     image: logoImages.imageLogo1,
@@ -33153,7 +33153,24 @@ function GetPdfMake(invoice, javascript, callback) {
     dd = $.extend(true, baseDD, dd);    
 
     /*
-    var fonts = {
+    pdfMake.fonts = {
+        wqy: {
+            normal: 'wqy.ttf',
+            bold: 'wqy.ttf',
+            italics: 'wqy.ttf',
+            bolditalics: 'wqy.ttf'
+        }
+    };
+    */
+    
+    /*
+    pdfMake.fonts = {
+        NotoSansCJKsc: {
+            normal: 'NotoSansCJKsc-Regular.ttf',
+            bold: 'NotoSansCJKsc-Medium.ttf',
+            italics: 'NotoSansCJKsc-Italic.ttf',
+            bolditalics: 'NotoSansCJKsc-Italic.ttf'
+        },
         Roboto: {
             normal: 'Roboto-Regular.ttf',
             bold: 'Roboto-Medium.ttf',
@@ -33162,7 +33179,7 @@ function GetPdfMake(invoice, javascript, callback) {
         },
     };
     */
-
+    
     doc = pdfMake.createPdf(dd);
     doc.save = function(fileName) {
         this.download(fileName);
@@ -33174,12 +33191,12 @@ NINJA.notesAndTerms = function(invoice)
 {
     var text = [];
     if (invoice.public_notes) {
-        text.push({text:invoice.public_notes, style:'notes'});
+        text.push({text:processVariables(invoice.public_notes), style:'notes'});
     }
 
     if (invoice.terms) {
         text.push({text:invoiceLabels.terms, style:'termsLabel'});
-        text.push({text:invoice.terms, style:'terms'});
+        text.push({text:processVariables(invoice.terms), style:'terms'});
     }
 
     return text;
@@ -33314,6 +33331,8 @@ NINJA.accountAddress = function(account) {
     if(account.address2) data.push({text:account.address2, style:'accountDetails'});
     if(address) data.push({text:address, style:'accountDetails'});
     if(account.country) data.push({text:account.country.name, style: 'accountDetails'});
+    if(account.custom_label1 && account.custom_value1) data.push({text:account.custom_label1 +' '+ account.custom_value1, style: 'accountDetails'});
+    if(account.custom_label2 && account.custom_value2) data.push({text:account.custom_label2 +' '+ account.custom_value2, style: 'accountDetails'});
     return data;
 }
 

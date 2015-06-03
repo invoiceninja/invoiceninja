@@ -643,5 +643,9 @@ return array(
   'prefix' => 'Prefix',
   'counter' => 'Counter',
 
+  'payment_type_dwolla' => 'Dwolla',
+  'gateway_help_43' => ':link to sign up for Dwolla.',
+  'partial_value' => 'Must be greater than zero and less than the total',
+
 
 );

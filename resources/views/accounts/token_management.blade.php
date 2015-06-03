@@ -60,7 +60,7 @@
     }
 
   function deleteToken(id) {
-    if (!confirm('Are you sure?')) {
+    if (!confirm("{!! trans('texts.are_you_sure') !!}")) {
       return;
     }
 
