@@ -443,7 +443,7 @@ return array(
   'share_invoice_counter' => 'Share invoice counter',
   'invoice_issued_to' => 'Invoice issued to',
   'invalid_counter' => 'To prevent a possible conflict please set either an invoice or quote number prefix',
-  'mark_sent' => 'Mark sent',
+  'mark_sent' => 'Mark Sent',
 
   'gateway_help_1' => ':link to sign up for Authorize.net.',
   'gateway_help_2' => ':link to sign up for Authorize.net.',
@@ -674,5 +674,6 @@ return array(
   'payment_type_dwolla' => 'Dwolla',
   'gateway_help_43' => ':link to sign up for Dwolla.',
   'partial_value' => 'Must be greater than zero and less than the total',
+  'more_actions' => 'More Actions',
 
 );

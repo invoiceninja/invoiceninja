@@ -465,7 +465,8 @@ class InvoiceRepository
           'custom_value1',
           'custom_value2',
           'custom_taxes1',
-          'custom_taxes2', ] as $field) {
+          'custom_taxes2',
+          'partial'] as $field) {
             $clone->$field = $invoice->$field;
         }
 

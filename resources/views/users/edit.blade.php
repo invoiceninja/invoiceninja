@@ -28,8 +28,8 @@
 </div>
 
   {!! Former::actions( 
-      Button::success(trans($user && $user->confirmed ? 'texts.save' : 'texts.send_invite'))->submit()->large()->appendIcon(Icon::create($user && $user->confirmed ? 'floppy-disk' : 'send')),
-      Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/user_management'))->appendIcon(Icon::create('remove-circle'))->large()
+      Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/user_management'))->appendIcon(Icon::create('remove-circle'))->large(),
+      Button::success(trans($user && $user->confirmed ? 'texts.save' : 'texts.send_invite'))->submit()->large()->appendIcon(Icon::create($user && $user->confirmed ? 'floppy-disk' : 'send'))
   )!!}
 
   {!! Former::close() !!}

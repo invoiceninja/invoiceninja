@@ -24,8 +24,8 @@
 </div>
   
   {!! Former::actions( 
-      Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')),
-      Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/token_management'))->appendIcon(Icon::create('remove-circle'))->large()
+      Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/token_management'))->appendIcon(Icon::create('remove-circle'))->large(),
+      Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
   ) !!}
 
   {!! Former::close() !!}

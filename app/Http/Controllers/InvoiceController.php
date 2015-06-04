@@ -13,6 +13,7 @@ use URL;
 use Datatable;
 use finfo;
 use Request;
+use DropdownButton;
 use App\Models\Invoice;
 use App\Models\Invitation;
 use App\Models\Client;
@@ -280,6 +281,40 @@ class InvoiceController extends BaseController
         $invoice->end_date = Utils::fromSqlDate($invoice->end_date);
         $invoice->is_pro = Auth::user()->isPro();
 
+        $actions = [
+            ['url' => 'javascript:onCloneClick()', 'label' => trans("texts.clone_{$entityType}")],
+            ['url' => URL::to("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans("texts.view_history")],
+            DropdownButton::DIVIDER
+        ];
+
+        if ($invoice->invoice_status_id < INVOICE_STATUS_SENT && !$invoice->is_recurring) {
+            $actions[] = ['url' => 'javascript:onMarkClick()', 'label' => trans("texts.mark_sent")];
+        }
+
+        if ($entityType == ENTITY_QUOTE) {
+            if ($invoice->quote_invoice_id) {
+                $actions[] = ['url' => URL::to("invoices/{$invoice->quote_invoice_id}/edit"), 'label' => trans("texts.view_invoice")];
+            } else {
+                $actions[] = ['url' => 'javascript:onConvertClick()', 'label' => trans("texts.convert_to_invoice")];
+            }
+        } elseif ($entityType == ENTITY_INVOICE) {
+            if ($invoice->quote_id) {
+                $actions[] = ['url' => URL::to("quotes/{$invoice->quote_id}/edit"), 'label' => trans("texts.view_quote")];
+            }
+
+            if (!$invoice->is_recurring && $invoice->balance > 0) {
+                $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
+            }
+        }
+
+        if (count($actions) > 3) {
+            $actions[] = DropdownButton::DIVIDER;
+        }
+
+        $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans("texts.archive_{$entityType}")];
+        $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_{$entityType}")];
+
+
         $data = array(
                 'entityType' => $entityType,
                 'showBreadcrumbs' => $clone,
@@ -290,7 +325,8 @@ class InvoiceController extends BaseController
                 'invitationContactIds' => $contactIds,
                 'url' => $url,
                 'title' => trans("texts.edit_{$entityType}"),
-                'client' => $invoice->client, );
+                'client' => $invoice->client, 
+                'actions' => $actions);
         $data = array_merge($data, self::getViewModel());
 
         // Set the invitation link on the client's contacts

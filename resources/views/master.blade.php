@@ -20,7 +20,7 @@
 
     <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100" rel="stylesheet" type="text/css">
     <link href="//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700" rel="stylesheet" type="text/css">
-    <link href="{{ asset('favicon.png') }}" rel="shortcut icon">
+    <link href="{{ asset('favicon.png?test') }}" rel="shortcut icon">
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}" />
 
     <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    

@@ -46,8 +46,8 @@
 
 
 	{!! Former::actions( 
-            Button::success(trans('texts.import'))->submit()->large()->appendIcon(Icon::create('floppy-disk')),
-            Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/company/import_export'))->appendIcon(Icon::create('remove-circle'))) !!}
+            Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/company/import_export'))->appendIcon(Icon::create('remove-circle')),
+            Button::success(trans('texts.import'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}
 	{!! Former::close() !!}
 
 	<script type="text/javascript">

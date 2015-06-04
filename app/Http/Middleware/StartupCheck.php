@@ -51,7 +51,7 @@ class StartupCheck
             'countries' => 'App\Models\Country',
         ];
         foreach ($cachedTables as $name => $class) {
-            if (!Cache::has($name)) {
+            if (Input::has('clear_cache') || !Cache::has($name)) {
                 if ($name == 'paymentTerms') {
                     $orderBy = 'num_days';
                 } elseif (in_array($name, ['currencies', 'sizes', 'industries', 'languages', 'countries'])) {
