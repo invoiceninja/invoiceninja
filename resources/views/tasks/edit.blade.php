@@ -180,7 +180,6 @@
     }
 
     $(function() {
-
         var $clientSelect = $('select#client');     
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];

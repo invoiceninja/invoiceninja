@@ -66,7 +66,7 @@ table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
     color:#fff;
 }
 table.dataTable tr:hover {
-    background-color: #f0f9ff !important;
+    background-color: #F2F5FE !important;
 }
 th:first-child {
     border-radius: 3px 0 0 0;

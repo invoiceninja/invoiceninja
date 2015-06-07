@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c3732ac70e554cbab216fc1993487412",
+    "hash": "d0351e24aaf5ec67780a029d5deaebf4",
     "packages": [
         {
             "name": "alfaproject/omnipay-neteller",
@@ -1170,6 +1170,63 @@
             "time": "2014-09-09 13:34:57"
         },
         {
+            "name": "dwolla/omnipay-dwolla",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Dwolla/omnipay-dwolla.git",
+                "reference": "f6cf1650a368fd9388a63c5af47be2873782c006"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Dwolla/omnipay-dwolla/zipball/f6cf1650a368fd9388a63c5af47be2873782c006",
+                "reference": "f6cf1650a368fd9388a63c5af47be2873782c006",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Dwolla\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrian Macneil",
+                    "email": "adrian@adrianmacneil.com"
+                },
+                {
+                    "name": "David Stancu",
+                    "homepage": "https://github.com/mach-kernel"
+                }
+            ],
+            "description": "Dwolla support for the Omnipay payment library",
+            "homepage": "https://github.com/mach-kernel/omnipay-dwolla",
+            "keywords": [
+                "dwolla",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2015-06-04 22:32:07"
+        },
+        {
             "name": "fruitcakestudio/omnipay-sisow",
             "version": "v2.0.1",
             "source": {
@@ -2114,63 +2171,6 @@
                 "purchase"
             ],
             "time": "2015-03-26 11:54:18"
-        },
-        {
-            "name": "mach-kernel/omnipay-dwolla",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mach-kernel/omnipay-dwolla.git",
-                "reference": "cdf228962a28ea1d9d150e33ef25f0e57f157124"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mach-kernel/omnipay-dwolla/zipball/cdf228962a28ea1d9d150e33ef25f0e57f157124",
-                "reference": "cdf228962a28ea1d9d150e33ef25f0e57f157124",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/common": "~2.0"
-            },
-            "require-dev": {
-                "omnipay/tests": "~2.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Omnipay\\Dwolla\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Adrian Macneil",
-                    "email": "adrian@adrianmacneil.com"
-                },
-                {
-                    "name": "David Stancu",
-                    "homepage": "https://github.com/mach-kernel"
-                }
-            ],
-            "description": "Dwolla support for the Omnipay payment library",
-            "homepage": "https://github.com/mach-kernel/omnipay-dwolla",
-            "keywords": [
-                "dwolla",
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment"
-            ],
-            "time": "2014-06-10 16:41:50"
         },
         {
             "name": "maximebf/debugbar",
@@ -4109,16 +4109,16 @@
         },
         {
             "name": "omnipay/targetpay",
-            "version": "v2.2.0",
+            "version": "v2.2.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/omnipay/targetpay.git",
-                "reference": "7274721c97f6f8ad3d2a8b4dea474ac548c45bac"
+                "url": "https://github.com/thephpleague/omnipay-targetpay.git",
+                "reference": "fc74d5d0f7929ce86298faec9e195985d7d4afe0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/omnipay/targetpay/zipball/7274721c97f6f8ad3d2a8b4dea474ac548c45bac",
-                "reference": "7274721c97f6f8ad3d2a8b4dea474ac548c45bac",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-targetpay/zipball/fc74d5d0f7929ce86298faec9e195985d7d4afe0",
+                "reference": "fc74d5d0f7929ce86298faec9e195985d7d4afe0",
                 "shasum": ""
             },
             "require": {
@@ -4149,11 +4149,11 @@
                 },
                 {
                     "name": "Omnipay Contributors",
-                    "homepage": "https://github.com/omnipay/targetpay/contributors"
+                    "homepage": "https://github.com/thephpleague/omnipay-targetpay/contributors"
                 }
             ],
             "description": "TargetPay driver for the Omnipay payment processing library",
-            "homepage": "https://github.com/omnipay/targetpay",
+            "homepage": "https://github.com/thephpleague/omnipay-targetpay",
             "keywords": [
                 "gateway",
                 "merchant",
@@ -4162,7 +4162,7 @@
                 "payment",
                 "targetpay"
             ],
-            "time": "2014-04-14 12:23:56"
+            "time": "2014-09-17 00:38:39"
         },
         {
             "name": "omnipay/worldpay",
@@ -5993,16 +5993,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.6.10",
+            "version": "4.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "7b5fe98b28302a8b25693b2298bca74463336975"
+                "reference": "c2241b8d3381be3e4c6125ae347687d59f286784"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/7b5fe98b28302a8b25693b2298bca74463336975",
-                "reference": "7b5fe98b28302a8b25693b2298bca74463336975",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c2241b8d3381be3e4c6125ae347687d59f286784",
+                "reference": "c2241b8d3381be3e4c6125ae347687d59f286784",
                 "shasum": ""
             },
             "require": {
@@ -6013,7 +6013,7 @@
                 "ext-spl": "*",
                 "php": ">=5.3.3",
                 "phpspec/prophecy": "~1.3,>=1.3.1",
-                "phpunit/php-code-coverage": "~2.0,>=2.0.11",
+                "phpunit/php-code-coverage": "~2.1",
                 "phpunit/php-file-iterator": "~1.4",
                 "phpunit/php-text-template": "~1.2",
                 "phpunit/php-timer": "~1.0",
@@ -6035,7 +6035,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.6.x-dev"
+                    "dev-master": "4.7.x-dev"
                 }
             },
             "autoload": {
@@ -6061,7 +6061,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-06-03 05:03:30"
+            "time": "2015-06-05 04:14:02"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -6551,7 +6551,7 @@
         "alfaproject/omnipay-skrill": 20,
         "omnipay/bitpay": 20,
         "wildbit/laravel-postmark-provider": 20,
-        "mach-kernel/omnipay-dwolla": 20
+        "dwolla/omnipay-dwolla": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

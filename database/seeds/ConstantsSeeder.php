@@ -111,23 +111,6 @@ class ConstantsSeeder extends Seeder
 		PaymentTerm::create(array('num_days' => 60, 'name' => 'Net 60'));
 		PaymentTerm::create(array('num_days' => 90, 'name' => 'Net 90'));
         
-		DatetimeFormat::create(array('format' => 'd/M/Y g:i a', 'label' => '10/Mar/2013'));
-		DatetimeFormat::create(array('format' => 'd-M-Yk g:i a', 'label' => '10-Mar-2013'));
-		DatetimeFormat::create(array('format' => 'd/F/Y g:i a', 'label' => '10/March/2013'));
-		DatetimeFormat::create(array('format' => 'd-F-Y g:i a', 'label' => '10-March-2013'));
-		DatetimeFormat::create(array('format' => 'M j, Y g:i a', 'label' => 'Mar 10, 2013 6:15 pm'));
-		DatetimeFormat::create(array('format' => 'F j, Y g:i a', 'label' => 'March 10, 2013 6:15 pm'));
-		DatetimeFormat::create(array('format' => 'D M jS, Y g:ia', 'label' => 'Mon March 10th, 2013 6:15 pm'));
-		
-		DateFormat::create(array('format' => 'd/M/Y', 'picker_format' => 'dd/M/yyyy', 'label' => '10/Mar/2013'));
-		DateFormat::create(array('format' => 'd-M-Y', 'picker_format' => 'dd-M-yyyy', 'label' => '10-Mar-2013'));
-		DateFormat::create(array('format' => 'd/F/Y', 'picker_format' => 'dd/MM/yyyy', 'label' => '10/March/2013'));
-		DateFormat::create(array('format' => 'd-F-Y', 'picker_format' => 'dd-MM-yyyy', 'label' => '10-March-2013'));
-		DateFormat::create(array('format' => 'M j, Y', 'picker_format' => 'M d, yyyy', 'label' => 'Mar 10, 2013'));
-		DateFormat::create(array('format' => 'F j, Y', 'picker_format' => 'MM d, yyyy', 'label' => 'March 10, 2013'));
-		DateFormat::create(array('format' => 'D M j, Y', 'picker_format' => 'D MM d, yyyy', 'label' => 'Mon March 10, 2013'));			
-		DateFormat::create(array('format' => 'Y-M-d', 'picker_format' => 'yyyy-M-dd', 'label' => '2013-03-10'));
-		
 		PaymentLibrary::create(['name' => 'Omnipay']);
         PaymentLibrary::create(['name' => 'PHP-Payments [Deprecated]']);
 

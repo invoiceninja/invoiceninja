@@ -59,7 +59,10 @@ class StartupCheck
                 } else {
                     $orderBy = 'id';
                 }
-                Cache::forever($name, $class::orderBy($orderBy)->get());
+                $tableData = $class::orderBy($orderBy)->get();
+                if (count($tableData)) {
+                    Cache::forever($name, $tableData);
+                }
             }
         }
 

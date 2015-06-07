@@ -3,12 +3,22 @@
 use App\Models\Gateway;
 use App\Models\PaymentTerm;
 use App\Models\Currency;
+use App\Models\DateFormat;
+use App\Models\DatetimeFormat;
 
 class PaymentLibrariesSeeder extends Seeder
 {
     public function run()
     {
         Eloquent::unguard();
+
+        $this->createGateways();
+        $this->createPaymentTerms();
+        $this->createDateFormats();
+        $this->createDatetimeFormats();
+    }
+
+    private function createGateways() {
 
         $gateways = [
             ['name' => 'BeanStream', 'provider' => 'BeanStream', 'payment_library_id' => 2],
@@ -33,6 +43,10 @@ class PaymentLibrariesSeeder extends Seeder
                 Gateway::create($gateway);
             }
         }
+
+    }
+
+    private function createPaymentTerms() {
 
         $paymentTerms = [
             ['num_days' => -1, 'name' => 'Net 0'],
@@ -74,4 +88,47 @@ class PaymentLibrariesSeeder extends Seeder
             }
         }
     }
+
+    private function createDateFormats() {
+
+        $formats = [
+            ['format' => 'd/M/Y', 'picker_format' => 'dd/M/yyyy', 'label' => '10/Mar/2013'],
+            ['format' => 'd-M-Y', 'picker_format' => 'dd-M-yyyy', 'label' => '10-Mar-2013'],
+            ['format' => 'd/F/Y', 'picker_format' => 'dd/MM/yyyy', 'label' => '10/March/2013'],
+            ['format' => 'd-F-Y', 'picker_format' => 'dd-MM-yyyy', 'label' => '10-March-2013'],
+            ['format' => 'M j, Y', 'picker_format' => 'M d, yyyy', 'label' => 'Mar 10, 2013'],
+            ['format' => 'F j, Y', 'picker_format' => 'MM d, yyyy', 'label' => 'March 10, 2013'],
+            ['format' => 'D M j, Y', 'picker_format' => 'D MM d, yyyy', 'label' => 'Mon March 10, 2013'],
+            ['format' => 'Y-M-d', 'picker_format' => 'yyyy-M-dd', 'label' => '2013-03-10'],
+            ['format' => 'd/m/Y', 'picker_format' => 'dd/mm/yyyy', 'label' => '20/03/2013'],
+        ];
+        
+        foreach ($formats as $format) {
+            if (!DB::table('date_formats')->whereLabel($format['label'])->get()) {
+                DateFormat::create($format);
+            }
+        }
+    }
+
+    private function createDatetimeFormats() {
+
+        $formats = [
+            ['format' => 'd/M/Y g:i a', 'label' => '10/Mar/2013'],
+            ['format' => 'd-M-Yk g:i a', 'label' => '10-Mar-2013'],
+            ['format' => 'd/F/Y g:i a', 'label' => '10/March/2013'],
+            ['format' => 'd-F-Y g:i a', 'label' => '10-March-2013'],
+            ['format' => 'M j, Y g:i a', 'label' => 'Mar 10, 2013 6:15 pm'],
+            ['format' => 'F j, Y g:i a', 'label' => 'March 10, 2013 6:15 pm'],
+            ['format' => 'D M jS, Y g:ia', 'label' => 'Mon March 10th, 2013 6:15 pm'],
+            ['format' => 'Y-M-d g:i a', 'label' => '2013-03-10 6:15 pm'],
+            ['format' => 'd/m/Y g:i a', 'label' => '20/03/2013 6:15 pm'],
+        ];
+        
+        foreach ($formats as $format) {
+            if (!DB::table('datetime_formats')->whereLabel($format['label'])->get()) {
+                DatetimeFormat::create($format);
+            }
+        }
+    }
+
 }

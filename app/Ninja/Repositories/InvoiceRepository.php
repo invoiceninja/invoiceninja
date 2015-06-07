@@ -435,7 +435,7 @@ class InvoiceRepository
             && $account->share_counter) {
 
             $invoiceNumber = $invoice->invoice_number;
-            if (strpos($invoiceNumber, $account->quote_number_prefix) === 0) {
+            if ($account->quote_number_prefix && strpos($invoiceNumber, $account->quote_number_prefix) === 0) {
                 $invoiceNumber = substr($invoiceNumber, strlen($account->quote_number_prefix));
             }
             $clone->invoice_number = $account->invoice_number_prefix.$invoiceNumber;

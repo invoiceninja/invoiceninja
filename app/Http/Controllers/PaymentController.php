@@ -204,10 +204,14 @@ class PaymentController extends BaseController
             $gateway->$function($val);
         }
 
-        if ($accountGateway->gateway->id == GATEWAY_DWOLLA && isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET'])) {
-            $gateway->setKey($_ENV['DWOLLA_KEY']);
-            $gateway->setSecret($_ENV['DWOLLA_SECRET']);
-            $gateway->setSandbox(false);
+        if ($accountGateway->gateway->id == GATEWAY_DWOLLA) {
+            if ($gateway->getSandbox() && isset($_ENV['DWOLLA_SANDBOX_KEY']) && isset($_ENV['DWOLLA_SANSBOX_SECRET'])) {
+                $gateway->setKey($_ENV['DWOLLA_SANDBOX_KEY']);
+                $gateway->setSecret($_ENV['DWOLLA_SANSBOX_SECRET']);
+            } elseif (isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET'])) {
+                $gateway->setKey($_ENV['DWOLLA_KEY']);
+                $gateway->setSecret($_ENV['DWOLLA_SECRET']);
+            }
         }
 
         return $gateway;
@@ -274,7 +278,6 @@ class PaymentController extends BaseController
             'amount' => $invoice->getRequestedAmount(),
             'card' => $card,
             'currency' => $currencyCode,
-            'redirect' => URL::to('complete'), // Dwolla: remove 
             'returnUrl' => URL::to('complete'),
             'cancelUrl' => $invitation->getLink(),
             'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
@@ -582,7 +585,7 @@ class PaymentController extends BaseController
                 }
             }
 
-            if ($response->isSuccessful() && $accountGateway->gateway_id != GATEWAY_DWOLLA) {
+            if ($response->isSuccessful()) {
                 $payment = self::createPayment($invitation, $ref);
                 Session::flash('message', trans('texts.applied_payment'));
 

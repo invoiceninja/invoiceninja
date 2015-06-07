@@ -2450,7 +2450,7 @@ table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
     color:#fff;
 }
 table.dataTable tr:hover {
-    background-color: #f0f9ff !important;
+    background-color: #F2F5FE !important;
 }
 th:first-child {
     border-radius: 3px 0 0 0;
@@ -2472,7 +2472,7 @@ border-bottom: none;
 }
 .table-striped>tbody>tr:nth-child(odd)>tr, 
 .table-striped>tbody>tr:nth-child(odd)>th {
-background-color: #FDFDFD;
+/*background-color: #FDFDFD;*/
 }
 table.table thead .sorting_asc {
 background: url('../images/sort_asc.png') no-repeat 90% 50%;

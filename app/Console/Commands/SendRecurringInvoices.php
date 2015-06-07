@@ -51,7 +51,7 @@ class SendRecurringInvoices extends Command
             $invoice = Invoice::createNew($recurInvoice);
             $invoice->client_id = $recurInvoice->client_id;
             $invoice->recurring_invoice_id = $recurInvoice->id;
-            $invoice->invoice_number = 'R'.$recurInvoice->account->getNextInvoiceNumber();
+            $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber(false, 'R');
             $invoice->amount = $recurInvoice->amount;
             $invoice->balance = $recurInvoice->amount;
             $invoice->invoice_date = date_create()->format('Y-m-d');

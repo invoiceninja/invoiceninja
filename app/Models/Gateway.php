@@ -23,7 +23,7 @@ class Gateway extends Eloquent
         'logoImageUrl',
         'borderColor',
         // Dwolla
-        'redirect',
+        'returnUrl',
     ];
 
     public static $optionalFields = [
