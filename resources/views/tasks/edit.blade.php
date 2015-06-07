@@ -209,7 +209,7 @@
             $('#amount').focus();
         @endif
 
-        $('input[type=radio').change(function(event) {
+        $('input[type=radio]').change(function(event) {
             var val = $(event.target).val();
             if (val == 'timer') {
                 $('#datetime-details').hide();
