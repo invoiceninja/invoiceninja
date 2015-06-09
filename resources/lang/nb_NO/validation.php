@@ -72,7 +72,8 @@ return array(
 	"positive" => ":attribute m&#229; v&#230;re mer enn null.",
 	"has_credit" => "Klienten har ikke h&#248;y nok kreditt.",
 	"notmasked" => "Verdiene er skjult",
-
+    "less_than" => 'The :attribute must be less than :value',
+    
 	/*
 	|--------------------------------------------------------------------------
 	| Custom Validation Language Lines

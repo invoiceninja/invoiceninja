@@ -74,8 +74,8 @@
         <h3 class="panel-title">{!! trans('texts.invoice_number') !!}</h3>
       </div>
         <div class="panel-body">        
-    	{!! Former::text('invoice_number_prefix')->label(trans('texts.invoice_number_prefix')) !!}
-    	{!! Former::text('invoice_number_counter')->label(trans('texts.invoice_number_counter')) !!}
+    	{!! Former::text('invoice_number_prefix')->label(trans('texts.prefix')) !!}
+    	{!! Former::text('invoice_number_counter')->label(trans('texts.counter')) !!}
         </div>
     </div>
 
@@ -85,8 +85,8 @@
         <h3 class="panel-title">{!! trans('texts.quote_number') !!}</h3>
       </div>
         <div class="panel-body">        
-    	{!! Former::text('quote_number_prefix')->label(trans('texts.quote_number_prefix')) !!}
-    	{!! Former::text('quote_number_counter')->label(trans('texts.quote_number_counter'))
+    	{!! Former::text('quote_number_prefix')->label(trans('texts.prefix')) !!}
+    	{!! Former::text('quote_number_counter')->label(trans('texts.counter'))
 	   		->append(Former::checkbox('share_counter')->raw()->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter')) !!}
 	   </div>
     </div>

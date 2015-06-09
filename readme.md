@@ -7,7 +7,7 @@ If you'd like to use our code to sell your own invoicing app we have an affiliat
 
 To setup the site you can either use the [zip file](https://www.invoiceninja.com/knowledgebase/self-host/) (easier to run) or checkout the code from GitHub (easier to make changes).
 
-For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). For discussion of the code please use the [Google Group](https://groups.google.com/d/forum/invoiceninja).
+For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). For discussion of the application please use our [forum](http://www.invoiceninja.com/forums/).
 
 If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
 
@@ -19,8 +19,9 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 * Live PDF generation
 * Integrates with 30+ payment providers
 * Recurring invoices
-* Tax rates and payment terms
+* Tasks with time-tracking
 * Multi-user support
+* Tax rates and payment terms
 * Partial payments
 * Custom email templates
 * [Zapier](https://zapier.com/) integration

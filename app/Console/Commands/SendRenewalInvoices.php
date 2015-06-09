@@ -31,7 +31,7 @@ class SendRenewalInvoices extends Command
 
         $accounts = Account::whereRaw('datediff(curdate(), pro_plan_paid) = 355')->get();
         $this->info(count($accounts).' accounts found');
-        dd(0);
+
         foreach ($accounts as $account) {
             $client = $this->accountRepo->getNinjaClient($account);
             $invitation = $this->accountRepo->createNinjaInvoice($client);

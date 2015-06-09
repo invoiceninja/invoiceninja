@@ -116,7 +116,6 @@ class AppController extends BaseController
         $user = $account->users()->first();
 
         //Auth::login($user, true);
-        $this->accountRepo->registerUser($user);
 
         return Redirect::to('/login');
     }

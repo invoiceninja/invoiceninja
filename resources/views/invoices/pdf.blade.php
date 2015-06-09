@@ -120,7 +120,7 @@
   }
 
   function showMoreDesigns() {
-    trackUrl('/view_more_designs');
+    trackEvent('/account', '/view_more_designs');
     $('#moreDesignsModal').modal('show');
   }
 

@@ -49,7 +49,6 @@ class ClientRepository
     {
         if (!$publicId || $publicId == "-1") {
             $client = Client::createNew();
-            $client->currency_id = 1;
             $contact = Contact::createNew();
             $contact->is_primary = true;
             $contact->send_invoice = true;

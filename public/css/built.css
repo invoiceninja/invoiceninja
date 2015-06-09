@@ -2449,6 +2449,9 @@ table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
     background-color: #e37329 !important;
     color:#fff;
 }
+table.dataTable tr:hover {
+    background-color: #F2F5FE !important;
+}
 th:first-child {
     border-radius: 3px 0 0 0;
     border-left: none;
@@ -2467,9 +2470,9 @@ border-bottom: 1px solid #dfe0e1;
 table.dataTable.no-footer {
 border-bottom: none;
 }
-.table-striped>tbody>tr:nth-child(odd)>td, 
+.table-striped>tbody>tr:nth-child(odd)>tr, 
 .table-striped>tbody>tr:nth-child(odd)>th {
-background-color: #FDFDFD;
+/*background-color: #FDFDFD;*/
 }
 table.table thead .sorting_asc {
 background: url('../images/sort_asc.png') no-repeat 90% 50%;
@@ -2617,7 +2620,11 @@ margin-left: 0px;
 .btn-primary i{
 border-color: #0b4d78;
 }
-.form-actions .btn { margin-left: 10px; }
+
+.form-actions .btn,
+.form-actions div.btn-group { 
+    margin-left: 10px; 
+}
 
 .form-actions .btn.btn-success:first-child {
 margin-left: 10px !important;
@@ -2863,7 +2870,7 @@ background-clip: padding-box;
 .dashboard .panel-body {padding: 0;}
 
 .dashboard .table-striped>tbody>tr>td, .table-striped>tbody>tr>th { background-color: #fbfbfb;}
-.dashboard .table-striped>tbody>tr:nth-child(odd)>td, .table-striped>tbody>tr:nth-child(odd)>th {
+.dashboard .table-striped>tbody>tr:nth-child(odd)>tr, .table-striped>tbody>tr:nth-child(odd)>th {
 background-color: #fff;
 } 
 .dashboard th {
@@ -3204,6 +3211,12 @@ div.checkbox > label {
     border-radius: 3px;
 }
 
+.container input:focus,
+.container textarea:focus,
+.container select:focus {
+    background: #fdfdfd !important;
+}
+
 .container input[placeholder],
 .container textarea[placeholder],
 .container select[placeholder] {
@@ -3226,11 +3239,9 @@ div.checkbox > label {
     background-color: #0b4d78 !important;
 }
 
-/*
-.panel-default {
-    border-color: #e37329 !important;
+div.alert {
+    z-index: 1;
 }
-*/
 
 .alert-hide {
   position: absolute;

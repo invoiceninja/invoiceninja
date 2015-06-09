@@ -15,11 +15,13 @@ class PaymentRepository
                     ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
+                    ->leftJoin('account_gateways', 'account_gateways.id', '=', 'payments.account_gateway_id')
+                    ->leftJoin('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
                     ->where('payments.account_id', '=', \Auth::user()->account_id)
                     ->where('clients.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
                     ->where('contacts.deleted_at', '=', null)
-                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type', 'payments.account_gateway_id', 'payments.deleted_at', 'payments.is_deleted', 'invoices.is_deleted as invoice_is_deleted');
+                    ->select('payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type', 'payments.account_gateway_id', 'payments.deleted_at', 'payments.is_deleted', 'invoices.is_deleted as invoice_is_deleted', 'gateways.name as gateway_name');
 
         if (!\Session::get('show_trash:payment')) {
             $query->where('payments.deleted_at', '=', null)
@@ -76,6 +78,11 @@ class PaymentRepository
 
         if ($input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
             $rules['payment_type_id'] = 'has_credit:'.$input['client'].','.$input['amount'];
+        }
+
+        if (isset($input['invoice']) && $input['invoice']) {
+            $invoice = Invoice::scope($input['invoice'])->firstOrFail();
+            $rules['amount'] .= "|less_than:{$invoice->balance}";
         }
 
         $validator = \Validator::make($input, $rules);

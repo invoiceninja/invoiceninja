@@ -102,7 +102,7 @@ function GetPdf(invoice, javascript){
     SetPdfColor(invoice.invoice_design_id == 2 || invoice.invoice_design_id == 3 ? 'White' : 'Black',doc);
     var top = doc.internal.pageSize.height - layout.marginLeft;
     if (!invoice.is_pro) top -= 25;
-    var footer = doc.splitTextToSize(invoice.invoice_footer, 500);
+    var footer = doc.splitTextToSize(processVariables(invoice.invoice_footer), 500);
     var numLines = footer.length - 1;
     doc.text(layout.marginLeft, top - (numLines * 8), footer);    
   }
@@ -884,13 +884,13 @@ function displayNotesAndTerms(doc, layout, invoice, y)
   var origY = y;
 
   if (invoice.public_notes) {
-    var notes = doc.splitTextToSize(invoice.public_notes, 260);
+    var notes = doc.splitTextToSize(processVariables(invoice.public_notes), 260);
     doc.text(layout.marginLeft, y, notes);
     y += 16 + (notes.length * doc.internal.getFontSize());
   }
 
   if (invoice.terms) {
-    var terms = doc.splitTextToSize(invoice.terms, 260);
+    var terms = doc.splitTextToSize(processVariables(invoice.terms), 260);
     doc.setFontType("bold");    
     doc.text(layout.marginLeft, y, invoiceLabels.terms);
     y += 16;
@@ -1539,4 +1539,31 @@ function roundToTwo(num, toString) {
 
 function truncate(str, length) {
   return (str && str.length > length) ? (str.substr(0, length-1) + '...') : str;
+}
+
+// http://codeaid.net/javascript/convert-seconds-to-hours-minutes-and-seconds-%28javascript%29
+function secondsToTime(secs)
+{
+    secs = Math.round(secs);
+    var hours = Math.floor(secs / (60 * 60));
+
+    var divisor_for_minutes = secs % (60 * 60);
+    var minutes = Math.floor(divisor_for_minutes / 60);
+
+    var divisor_for_seconds = divisor_for_minutes % 60;
+    var seconds = Math.ceil(divisor_for_seconds);
+
+    var obj = {
+        "h": hours,
+        "m": minutes,
+        "s": seconds
+    };
+    return obj;
+}
+
+function twoDigits(value) {
+   if (value < 10) {
+       return '0' + value;
+   }
+   return value;
 }

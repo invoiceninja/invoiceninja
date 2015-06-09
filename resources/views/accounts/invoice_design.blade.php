@@ -7,7 +7,7 @@
 		<script src="{!! asset('js/compatibility.js') !!}" type="text/javascript"></script>
 
         @if (Auth::user()->account->utf8_invoices)
-            <script src="{{ asset('vendor/pdfmake/build/pdfmake.min.js') }}" type="text/javascript"></script>
+            <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
             <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
         @endif
 
@@ -40,6 +40,20 @@
 
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
+      NINJA.fontSize = parseInt($('#font_size').val());
+
+      var fields = ['item', 'description', 'unit_cost', 'quantity'];
+      invoiceLabels.old = {};        
+      for (var i=0; i<fields.length; i++) {
+        var field = fields[i];
+        var val = $('#labels_' + field).val();
+        if (invoiceLabels.old.hasOwnProperty(field)) {
+            invoiceLabels.old[field] = invoiceLabels[field];
+        }
+        if (val) {
+            invoiceLabels[field] = val;
+        }
+      }      
 
       doc = generatePDF(invoice, getDesignJavascript(), true);
       doc.getDataUrl(cb);
@@ -71,6 +85,9 @@
       {!! Former::populate($account) !!}
       {!! Former::populateField('hide_quantity', intval($account->hide_quantity)) !!}
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
+        @foreach ($invoiceLabels as $field => $value)
+          {!! Former::populateField("labels_{$field}", $value) !!}
+        @endforeach
 
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -80,17 +97,34 @@
 
 
           @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS)      
-            {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}        
+            {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}
           @else 
             {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id') !!}
           @endif
 
-          
+          @if (Auth::user()->account->utf8_invoices)
+            {!! Former::text('font_size')->type('number')->min('0')->step('1')->style('width:120px') !!}
+          @endif          
 
           {!! Former::text('primary_color') !!}
           {!! Former::text('secondary_color') !!}
+
           </div>
       </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.invoice_labels') !!}</h3>
+      </div>
+        <div class="panel-body">    
+    
+          {!! Former::text('labels_item')->label(trans('texts.item')) !!}
+          {!! Former::text('labels_description')->label(trans('texts.description')) !!}
+          {!! Former::text('labels_unit_cost')->label(trans('texts.unit_cost')) !!}
+          {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
+
+        </div>
+    </div>
 
     <div class="panel panel-default">
       <div class="panel-heading">

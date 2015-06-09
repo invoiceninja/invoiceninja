@@ -98,4 +98,12 @@ header h3 em {
 </div>
 
 
+<script type="text/javascript">
+
+$(function() {
+    trackEvent('license', 'product_{{ $productId }}');
+})
+
+</script>
+
 @stop

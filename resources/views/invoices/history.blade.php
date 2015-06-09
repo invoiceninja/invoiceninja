@@ -7,7 +7,7 @@
     <script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
 
     @if (Auth::user()->account->utf8_invoices)
-        <script src="{{ asset('vendor/pdfmake/build/pdfmake.min.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
         <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
     @endif
 
@@ -53,7 +53,7 @@
 
     {!! Former::open()->addClass('form-inline')->onchange('refreshPDF()') !!}
     {!! Former::select('version')->options($versionsSelect)->label(trans('select_version'))->style('background-color: white !important') !!}
-    {!! Button::primary(trans('texts.edit_' . $invoice->getEntityType()))->asLinkTo('/' . $invoice->getEntityType() . 's/' . $invoice->public_id . '/edit')->withAttributes(array('class' => 'pull-right')) !!}    
+    {!! Button::primary(trans('texts.edit_' . $invoice->getEntityType()))->asLinkTo(URL::to('/' . $invoice->getEntityType() . 's/' . $invoice->public_id . '/edit'))->withAttributes(array('class' => 'pull-right')) !!}    
     {!! Former::close() !!}
 
     <br/>&nbsp;<br/>

@@ -19,7 +19,8 @@
     "spectrum": "~1.3.4",
     "d3": "~3.4.11",
     "handsontable": "*",
-    "pdfmake": "*"
+    "pdfmake": "*",
+    "moment": "*"
   },
   "resolutions": {
     "jquery": "~1.11"

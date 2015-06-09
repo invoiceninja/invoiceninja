@@ -317,7 +317,20 @@ class Activity extends Eloquent
 
             $invoice = $payment->invoice;
             $invoice->balance = $invoice->balance + $payment->amount;
+            if ($invoice->isPaid() && $invoice->balance > 0) {
+                $invoice->invoice_status_id = ($invoice->balance == $invoice->amount ? INVOICE_STATUS_DRAFT : INVOICE_STATUS_PARTIAL);
+            }
             $invoice->save();
+
+            // deleting a payment from credit creates a new credit
+            if ($payment->payment_type_id == PAYMENT_TYPE_CREDIT) {
+                $credit = Credit::createNew();
+                $credit->client_id = $client->id;
+                $credit->credit_date = Carbon::now()->toDateTimeString();
+                $credit->balance = $credit->amount = $payment->amount;
+                $credit->private_notes = $payment->transaction_reference;
+                $credit->save();
+            }
 
             $activity = Activity::getBlank();
             $activity->payment_id = $payment->id;

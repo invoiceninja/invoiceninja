@@ -9,6 +9,10 @@
 		{!! Former::text('id') !!}
 	</div>
 
+    @if ($entityType == ENTITY_TASK)
+        {!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
+    @endif
+
 	{!! DropdownButton::normal(trans('texts.archive'))->withContents([
 		      ['label' => trans('texts.archive_'.$entityType), 'url' => 'javascript:submitForm("archive")'],
 		      ['label' => trans('texts.delete_'.$entityType), 'url' => 'javascript:submitForm("delete")'],
@@ -20,9 +24,11 @@
 	</label>
 
 	<div id="top_right_buttons" class="pull-right">
-		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" class="form-control pull-left" placeholder="{{ trans('texts.filter') }}"/> 
-		{!! Button::primary(trans("texts.new_$entityType"))->asLinkTo("/{$entityType}s/create")->withAttributes(array('class' => 'pull-right'))->appendIcon(Icon::create('plus-sign')) !!}	
-        
+		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" class="form-control pull-left" placeholder="{{ trans('texts.filter') }}"/>         
+        @if (Auth::user()->isPro() && $entityType == ENTITY_INVOICE)        
+            {!! Button::normal(trans('texts.quotes'))->asLinkTo(URL::to('/quotes'))->appendIcon(Icon::create('list')) !!}
+        @endif
+		{!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->appendIcon(Icon::create('plus-sign')) !!}
 	</div>
 
     @if (isset($secEntityType))
@@ -46,7 +52,7 @@
 
 	function submitForm(action) {
 		if (action == 'delete') {
-			if (!confirm('Are you sure?')) {
+            if (!confirm('{!! trans("texts.are_you_sure") !!}')) {			
 				return;
 			}
 		}		
@@ -79,6 +85,16 @@
 		$('#statusId').val(statusId);
 		submitForm('mark');
 	}
+
+    function stopTask(id) {
+        $('#id').val(id);
+        submitForm('stop');
+    }
+
+    function invoiceTask(id) {
+        $('#id').val(id);
+        submitForm('invoice');
+    }
 
 	function setTrashVisible() {
 		var checked = $('#trashed').is(':checked');
@@ -114,7 +130,7 @@
 
         window.onDatatableReady = function() {      
             $(':checkbox').click(function() {
-                setArchiveEnabled();
+                setBulkActionsEnabled();
             }); 
 
             $('tbody tr').click(function(event) {        
@@ -122,7 +138,7 @@
                     $checkbox = $(this).closest('tr').find(':checkbox:not(:disabled)');             
                     var checked = $checkbox.prop('checked');
                     $checkbox.prop('checked', !checked);
-                    setArchiveEnabled();
+                    setBulkActionsEnabled();
                 }
             });
 
@@ -137,7 +153,7 @@
 
         }   
 
-        $('.archive').prop('disabled', true);
+        $('.archive, .invoice').prop('disabled', true);
         $('.archive:not(.dropdown-toggle)').click(function() {
             submitForm('archive');
         });
@@ -146,9 +162,11 @@
             $(this).closest('table').find(':checkbox:not(:disabled)').prop('checked', this.checked);
         });
 
-        function setArchiveEnabled() {
+        function setBulkActionsEnabled() {
             var checked = $('tbody :checkbox:checked').length > 0;
-            $('button.archive').prop('disabled', !checked); 
+            $('button.archive, button.invoice').prop('disabled', !checked); 
+
+
         }
 
     });

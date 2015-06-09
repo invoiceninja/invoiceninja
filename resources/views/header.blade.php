@@ -106,7 +106,7 @@
       success: function(result) { 
         if (result) {
           localStorage.setItem('guest_key', '');
-          trackUrl('/signed_up');
+          trackEvent('/account', '/signed_up');
           NINJA.isRegistered = true;
           $('#signUpButton').hide();
           $('#myAccountButton').html(result);          
@@ -150,7 +150,7 @@
 
   @if (Auth::check() && !Auth::user()->isPro())
   function submitProPlan(feature) {
-    trackUrl('/submit_pro_plan/' + feature);
+    trackEvent('/account', '/submit_pro_plan/' + feature);
     if (NINJA.isRegistered) {
       $('#proPlanDiv, #proPlanFooter').hide();
       $('#proPlanWorking').show();
@@ -211,7 +211,18 @@
   }
 
 
-  $(function() {
+  // keep the token cookie valid to prevent token mismatch errors
+  function keepAlive() {
+    window.setTimeout(function() { 
+        $.get('{{ URL::to('/keep_alive') }}', function(data) {
+            keepAlive();
+        })
+    }, 1000 * 60 * 60);
+  }      
+
+  $(function() {    
+    keepAlive();    
+
     window.setTimeout(function() { 
         $(".alert-hide").fadeOut(500);
     }, 2000);
@@ -252,7 +263,7 @@
     validateSignUp();
 
     $('#signUpModal').on('shown.bs.modal', function () {
-      trackUrl('/view_sign_up');
+      trackEvent('/account', '/view_sign_up');
       $(['first_name','last_name','email','password']).each(function(i, field) {
         var $input = $('form.signUpForm #new_'+field);
         if (!$input.val()) {
@@ -299,9 +310,7 @@
       <ul class="nav navbar-nav" style="font-weight: bold">
         {!! HTML::nav_link('dashboard', 'dashboard') !!}
         {!! HTML::menu_link('client') !!}
-        @if (Utils::isPro())
-          {!! HTML::menu_link('quote') !!}
-        @endif
+        {!! HTML::menu_link('task') !!}
         {!! HTML::menu_link('invoice') !!}
         {!! HTML::menu_link('payment') !!}
         {!! HTML::menu_link('credit') !!}
@@ -404,10 +413,6 @@
 <br/>
 <div class="container">		
 
-  @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-  {!! HTML::breadcrumbs() !!}
-  @endif
-
   @if (Session::has('warning'))
   <div class="alert alert-warning">{{ Session::get('warning') }}</div>
   @endif
@@ -425,6 +430,10 @@
 
   @if (Session::has('error'))
   <div class="alert alert-danger">{{ Session::get('error') }}</div>
+  @endif
+
+  @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
+  {!! HTML::breadcrumbs() !!}
   @endif
 
   @yield('content')		

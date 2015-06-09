@@ -74,7 +74,8 @@ return array(
     "positive" => ":attribute doit être supérieur à zero.",
     "has_credit" => "Le client n'a pas un crédit suffisant.",
     "notmasked" => "Les valeurs sont masquées",
-
+    "less_than" => 'The :attribute must be less than :value',
+    
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines
