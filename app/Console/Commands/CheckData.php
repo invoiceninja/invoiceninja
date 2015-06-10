@@ -49,24 +49,6 @@ class CheckData extends Command {
         $today = new DateTime();
 
         if (!$this->option('client_id')) {
-            // update client deletion activities with the client's current balance
-            $activities = DB::table('activities')
-                        ->join('clients', 'clients.id', '=', 'activities.client_id')
-                        ->where('activities.activity_type_id', '=', ACTIVITY_TYPE_DELETE_CLIENT)
-                        ->where('activities.balance', '=', 0)
-                        ->where('clients.balance', '!=', 0)
-                        ->get(['activities.id', 'clients.balance']);
-
-            $this->info(count($activities) . ' delete client activities with zero balance');
-
-            if ($this->option('fix') == 'true') {
-                foreach ($activities as $activity) {
-                    DB::table('activities')
-                        ->where('id', $activity->id)
-                        ->update(['balance' => $activity->balance]);
-                }
-            }
-
             // update client paid_to_date value
             $clients = DB::table('clients')
                         ->join('payments', 'payments.client_id', '=', 'clients.id')
@@ -77,7 +59,7 @@ class CheckData extends Command {
                         ->havingRaw('clients.paid_to_date != sum(payments.amount) and clients.paid_to_date != 999999999.9999')
                         ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(payments.amount) as amount')]);
             $this->info(count($clients) . ' clients with incorrect paid to date');
-
+            
             if ($this->option('fix') == 'true') {
                 foreach ($clients as $client) {
                     DB::table('clients')

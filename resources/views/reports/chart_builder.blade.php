@@ -28,7 +28,7 @@
             <div class="panel-body">    
 
 
-			{!! Former::open()->addClass('warn-on-exit') !!}            
+			{!! Former::open()->rules(['start_date' => 'required', 'end_date' => 'required'])->addClass('warn-on-exit') !!}            
 
             <div style="display:none">
             {!! Former::text('action') !!}
