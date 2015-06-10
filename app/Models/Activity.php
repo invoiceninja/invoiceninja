@@ -406,7 +406,7 @@ class Activity extends Eloquent
     public static function createCredit($credit)
     {
         $activity = Activity::getBlank();
-        $activity->message = Utils::encodeActivity(Auth::user(), 'entered '.Utils::formatMoney($credit->amount, $credit->client->currency_id).' credit');
+        $activity->message = Utils::encodeActivity(Auth::user(), 'entered '.Utils::formatMoney($credit->amount, $credit->client->getCurrencyId()).' credit');
         $activity->credit_id = $credit->id;
         $activity->client_id = $credit->client_id;
         $activity->activity_type_id = ACTIVITY_TYPE_CREATE_CREDIT;
@@ -421,7 +421,7 @@ class Activity extends Eloquent
             $activity->credit_id = $credit->id;
             $activity->client_id = $credit->client_id;
             $activity->activity_type_id = ACTIVITY_TYPE_DELETE_CREDIT;
-            $activity->message = Utils::encodeActivity(Auth::user(), 'deleted '.Utils::formatMoney($credit->balance, $credit->client->currency_id).' credit');
+            $activity->message = Utils::encodeActivity(Auth::user(), 'deleted '.Utils::formatMoney($credit->balance, $credit->client->getCurrencyId()).' credit');
             $activity->balance = $credit->client->balance;
             $activity->save();
         } else {
@@ -460,7 +460,7 @@ class Activity extends Eloquent
         $activity->client_id = $credit->client_id;
         $activity->credit_id = $credit->id;
         $activity->activity_type_id = ACTIVITY_TYPE_ARCHIVE_CREDIT;
-        $activity->message = Utils::encodeActivity(Auth::user(), 'archived '.Utils::formatMoney($credit->balance, $credit->client->currency_id).' credit');
+        $activity->message = Utils::encodeActivity(Auth::user(), 'archived '.Utils::formatMoney($credit->balance, $credit->client->getCurrencyId()).' credit');
         $activity->balance = $credit->client->balance;
         $activity->save();
     }
@@ -471,7 +471,7 @@ class Activity extends Eloquent
         $activity->client_id = $credit->client_id;
         $activity->credit_id = $credit->id;
         $activity->activity_type_id = ACTIVITY_TYPE_RESTORE_CREDIT;
-        $activity->message = Utils::encodeActivity(Auth::user(), 'restored '.Utils::formatMoney($credit->balance, $credit->client->currency_id).' credit');
+        $activity->message = Utils::encodeActivity(Auth::user(), 'restored '.Utils::formatMoney($credit->balance, $credit->client->getCurrencyId()).' credit');
         $activity->balance = $credit->client->balance;
         $activity->save();
     }

@@ -122,16 +122,16 @@
 			<table class="table" style="width:300px">
 				<tr>
 					<td><small>{{ trans('texts.paid_to_date') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($client->paid_to_date, $client->currency_id) }}</td>
+					<td style="text-align: right">{{ Utils::formatMoney($client->paid_to_date, $client->getCurrencyId()) }}</td>
 				</tr>
 				<tr>
 					<td><small>{{ trans('texts.balance') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($client->balance, $client->currency_id) }}</td>
+					<td style="text-align: right">{{ Utils::formatMoney($client->balance, $client->getCurrencyId()) }}</td>
 				</tr>
 				@if ($credit > 0)
 				<tr>
 					<td><small>{{ trans('texts.credit') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($credit, $client->currency_id) }}</td>
+					<td style="text-align: right">{{ Utils::formatMoney($credit, $client->getCurrencyId()) }}</td>
 				</tr>
 				@endif
 			</table>

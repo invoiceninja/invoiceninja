@@ -48,7 +48,7 @@
 
 			@if (file_exists($account->getLogoPath()))
 				<center>
-					{!! HTML::image($account->getLogoPath(), "Logo") !!} &nbsp;
+					{!! HTML::image($account->getLogoPath().'?no_cache='.time(), "Logo") !!} &nbsp;
 					<a href="#" onclick="deleteLogo()">{{ trans('texts.remove_logo') }}</a>
 				</center><br/>
 			@endif

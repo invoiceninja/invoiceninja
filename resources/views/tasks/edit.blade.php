@@ -129,7 +129,7 @@
     
     var clients = {!! $clients !!};
     
-    function tock() {
+    function tock(duration) {
         var timeLabels = {};
         @foreach (['hour', 'minute', 'second'] as $period)
             timeLabels['{{ $period }}'] = '{{ trans("texts.{$period}") }}';
@@ -137,14 +137,14 @@
         @endforeach
 
         var now = Math.floor(Date.now() / 1000);
-        var duration = secondsToTime(now - NINJA.startTime); 
         var data = [];
         var periods = ['hour', 'minute', 'second'];
+        var parts = secondsToTime(duration);
 
         for (var i=0; i<periods.length; i++) {
             var period = periods[i];
             var letter = period.charAt(0);
-            var value = duration[letter];            
+            var value = parts[letter];            
             if (!value && !data.length) {
                 continue;
             }
@@ -155,7 +155,7 @@
         $('#duration-text').html(data.length ? data.join(', ') : '0 ' + timeLabels['seconds']);
 
         setTimeout(function() {
-            tock();
+            tock(duration+1);
         }, 1000);
     }
 
@@ -237,7 +237,7 @@
         @if ($task)
             NINJA.startTime = {{ strtotime($task->start_time) }};            
             @if ($task->duration == -1)
-                tock();
+                tock({{ $duration }});
             @else
                 var date = new Date(NINJA.startTime * 1000);
                 var hours = date.getHours();

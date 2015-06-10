@@ -285,7 +285,7 @@ class PaymentController extends BaseController
     }
 
     public function show_payment($invitationKey, $paymentType = false)
-    {        
+    {
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
         $client = $invoice->client;
@@ -293,8 +293,9 @@ class PaymentController extends BaseController
         $useToken = false;
 
         if (!$paymentType) {
-            $paymentType = $account->account_gateways[0]->getPaymentType();
-        } else if ($paymentType == PAYMENT_TYPE_TOKEN) {
+            $paymentType = Session::get('payment_type', $account->account_gateways[0]->getPaymentType());
+        }
+        if ($paymentType == PAYMENT_TYPE_TOKEN) {
             $useToken = true;
             $paymentType = PAYMENT_TYPE_CREDIT_CARD;
         }
@@ -324,7 +325,7 @@ class PaymentController extends BaseController
             'gateway' => $gateway,
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
             'countries' => Cache::get('countries'),
-            'currencyId' => $client->currency_id,
+            'currencyId' => $client->getCurrencyId(),
             'account' => $client->account,
             'hideLogo' => $account->isWhiteLabel(),
         ];
@@ -514,7 +515,8 @@ class PaymentController extends BaseController
             if ($validator->fails()) {
                 Utils::logError('Payment Error [invalid]');
                 return Redirect::to('payment/'.$invitationKey)
-                    ->withErrors($validator);
+                    ->withErrors($validator)
+                    ->withInput();
             }
         }
 

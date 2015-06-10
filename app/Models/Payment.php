@@ -34,7 +34,7 @@ class Payment extends EntityModel
 
     public function getAmount()
     {
-        return Utils::formatMoney($this->amount, $this->client->currency_id);
+        return Utils::formatMoney($this->amount, $this->client->getCurrencyId());
     }
 
     public function getName()

@@ -233,7 +233,7 @@ class Utils
     public static function formatMoney($value, $currencyId = false)
     {
         if (!$currencyId) {
-            $currencyId = Session::get(SESSION_CURRENCY);
+            $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
         }
 
         foreach (Cache::get('currencies') as $currency) {

@@ -157,13 +157,14 @@ class TaskController extends BaseController
     public function edit($publicId)
     {
         $task = Task::scope($publicId)->with('client')->firstOrFail();
-
+        
         $data = [
             'task' => $task,
             'clientPublicId' => $task->client ? $task->client->public_id : 0,
             'method' => 'PUT',
             'url' => 'tasks/'.$publicId,
             'title' => trans('texts.edit_task'),
+            'duration' => time() - strtotime($task->start_time),
         ];
 
         $data = array_merge($data, self::getViewModel());

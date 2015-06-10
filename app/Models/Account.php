@@ -168,7 +168,7 @@ class Account extends Eloquent
         // confirm the invoice number isn't already taken 
         do {
             $number = $prefix.str_pad($counter, 4, "0", STR_PAD_LEFT);
-            $check = Invoice::scope()->whereInvoiceNumber($number)->withTrashed()->first();
+            $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
             $counter++;
         } while ($check);
 
@@ -247,14 +247,21 @@ class Account extends Eloquent
             'quote_number',
             'total',
             'invoice_issued_to',
+            'date',
+            'rate',
+            'hours',
         ];
 
         foreach ($fields as $field) {
             if (isset($custom[$field]) && $custom[$field]) {
                 $data[$field] = $custom[$field];
             } else {
-                $data[$field] = trans("texts.$field");
+                $data[$field] = uctrans("texts.$field");
             }
+        }
+
+        foreach (['item', 'quantity', 'unit_cost'] as $field) {
+            $data["{$field}_orig"] = $data[$field];
         }
 
         return $data;

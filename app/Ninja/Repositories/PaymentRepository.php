@@ -102,8 +102,12 @@ class PaymentRepository
             $payment = Payment::createNew();
         }
 
-        $paymentTypeId = $input['payment_type_id'] ? $input['payment_type_id'] : null;
-        $payment->payment_type_id = $paymentTypeId;
+        $paymentTypeId = false;
+        if (isset($input['payment_type_id'])) {
+            $paymentTypeId = $input['payment_type_id'] ? $input['payment_type_id'] : null;
+            $payment->payment_type_id = $paymentTypeId;
+        }
+
         $payment->payment_date = Utils::toSqlDate($input['payment_date']);
         $payment->transaction_reference = trim($input['transaction_reference']);
 

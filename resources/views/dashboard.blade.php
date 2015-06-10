@@ -98,7 +98,7 @@
                             <td>{!! $invoice->getLink() !!}</td>
                             <td>{{ $invoice->client->getDisplayName() }}</td>
                             <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
-                            <td>{{ Utils::formatMoney($invoice->balance, $invoice->client->currency_id) }}</td>
+                            <td>{{ Utils::formatMoney($invoice->balance, $invoice->client->getCurrencyId()) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -125,7 +125,7 @@
                             <td>{!! $invoice->getLink() !!}</td>
                             <td>{{ $invoice->client->getDisplayName() }}</td>
                             <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
-                            <td>{{ Utils::formatMoney($invoice->balance, $invoice->client->currency_id) }}</td>
+                            <td>{{ Utils::formatMoney($invoice->balance, $invoice->client->getCurrencyId()) }}</td>
                         </tr>
                         @endforeach
                     </tbody>

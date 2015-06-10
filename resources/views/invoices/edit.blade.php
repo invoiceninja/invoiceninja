@@ -43,7 +43,7 @@
 					<div class="col-lg-8 col-sm-8">
                         <h4><div data-bind="text: getClientDisplayName(ko.toJS(client()))"></div></h4>
 						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
-                        {!! link_to('/clients/'.$invoice->client->public_id, trans('texts.view_client'), ['target' => '_blank']) !!}                        
+                        {!! link_to('/clients/'.$invoice->client->public_id, trans('texts.view_client'), ['target' => '_blank']) !!}
 					</div>
 				</div>    				
 				<div style="display:none">
@@ -151,10 +151,10 @@
 		<thead>
 			<tr>
 				<th style="min-width:32px;" class="hide-border"></th>
-				<th style="min-width:160px">{{ $invoiceLabels['item'] }}</th>
+				<th style="min-width:160px" data-bind="text: productLabel"></th>
 				<th style="width:100%">{{ $invoiceLabels['description'] }}</th>
-				<th style="min-width:120px">{{ $invoiceLabels['unit_cost'] }}</th>
-				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}">{{ $invoiceLabels['quantity'] }}</th>
+				<th style="min-width:120px" data-bind="text: costLabel"></th>
+				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel"></th>
 				<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
 				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
 				<th style="min-width:32px;" class="hide-border"></th>
@@ -699,6 +699,10 @@
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
 
+        invoiceLabels.item = invoice.has_tasks ? invoiceLabels.date : invoiceLabels.item_orig;
+        invoiceLabels.quantity = invoice.has_tasks ? invoiceLabels.hours : invoiceLabels.quantity_orig;
+        invoiceLabels.unit_cost = invoice.has_tasks ? invoiceLabels.rate : invoiceLabels.unit_cost_orig;        
+
         return invoice;
 	}
 
@@ -1090,7 +1094,6 @@
 		self.discount = ko.observable('');
 		self.is_amount_discount = ko.observable(0);
 		self.frequency_id = ko.observable('');
-		//self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
         self.terms = ko.observable('');
         self.default_terms = ko.observable({{ !$invoice && $account->invoice_terms ? 'true' : 'false' }} ? wordWrapText('{!! str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) !!}', 300) : '');
         self.set_default_terms = ko.observable(false);
@@ -1113,6 +1116,7 @@
 		self.balance = ko.observable(0);
 		self.invoice_design_id = ko.observable({{ $account->utf8_invoices ? 1 : $account->invoice_design_id }});
         self.partial = ko.observable(0);            
+        self.has_tasks = ko.observable(false);
 
 		self.custom_value1 = ko.observable(0);
 		self.custom_value2 = ko.observable(0);
@@ -1153,6 +1157,18 @@
 			self.addItem();
 		}
 
+        self.productLabel = ko.computed(function() {
+            return self.has_tasks() ? invoiceLabels['date'] : invoiceLabels['item'];
+        }, this);
+        
+        self.qtyLabel = ko.computed(function() {
+            return self.has_tasks() ? invoiceLabels['hours'] : invoiceLabels['quantity'];
+        }, this);
+        
+        self.costLabel = ko.computed(function() {
+            return self.has_tasks() ? invoiceLabels['rate'] : invoiceLabels['unit_cost'];
+        }, this);
+        
 		self._tax = ko.observable();
 		this.tax = ko.computed({
 			read: function () {
@@ -1240,35 +1256,35 @@
 		});
 
 		self.totals.taxAmount = ko.computed(function() {
-	    var total = self.totals.rawSubtotal();
-	    var discount = self.totals.rawDiscounted();
-	    total -= discount;
+    	    var total = self.totals.rawSubtotal();
+    	    var discount = self.totals.rawDiscounted();
+    	    total -= discount;
 
-	    /*
-	    var discount = parseFloat(self.discount());
-	    if (discount > 0) {
-	    	total = roundToTwo(total * ((100 - discount)/100));
-	    }
-			*/
+    	    /*
+    	    var discount = parseFloat(self.discount());
+    	    if (discount > 0) {
+    	    	total = roundToTwo(total * ((100 - discount)/100));
+    	    }
+    			*/
 
-	    var customValue1 = roundToTwo(self.custom_value1());
-	    var customValue2 = roundToTwo(self.custom_value2());
-	    var customTaxes1 = self.custom_taxes1() == 1;
-	    var customTaxes2 = self.custom_taxes2() == 1;
-	    
-	    if (customValue1 && customTaxes1) {
-	    	total = NINJA.parseFloat(total) + customValue1;
-	    }
-	    if (customValue2 && customTaxes2) {
-	    	total = NINJA.parseFloat(total) + customValue2;
-	    }
+    	    var customValue1 = roundToTwo(self.custom_value1());
+    	    var customValue2 = roundToTwo(self.custom_value2());
+    	    var customTaxes1 = self.custom_taxes1() == 1;
+    	    var customTaxes2 = self.custom_taxes2() == 1;
+    	    
+    	    if (customValue1 && customTaxes1) {
+    	    	total = NINJA.parseFloat(total) + customValue1;
+    	    }
+    	    if (customValue2 && customTaxes2) {
+    	    	total = NINJA.parseFloat(total) + customValue2;
+    	    }
 
 			var taxRate = parseFloat(self.tax_rate());
 			if (taxRate > 0) {
 				var tax = roundToTwo(total * (taxRate/100));			
         		return formatMoney(tax, self.client().currency_id());
         	} else {
-        		return formatMoney(0);
+        		return formatMoney(0, self.client().currency_id());
         	}
     	});
 
@@ -1715,7 +1731,8 @@
                     item.qty(task.duration);
                     item.task_public_id(task.publicId);
                 }        
-                model.invoice().invoice_items.push(blank);            
+                model.invoice().invoice_items.push(blank);
+                model.invoice().has_tasks(true);
             @endif
 		@endif
 	@endif

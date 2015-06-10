@@ -272,7 +272,8 @@ class InvoiceRepository
         $invoice->invoice_number = trim($data['invoice_number']);
         $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
         $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
-
+        $invoice->has_tasks = isset($data['has_tasks']) ? $data['has_tasks'] : false;
+        
         if (!$publicId) {
             $invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
         }

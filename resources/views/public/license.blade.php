@@ -101,7 +101,7 @@ header h3 em {
 <script type="text/javascript">
 
 $(function() {
-    trackEvent('license', 'product_{{ $productId }}');
+    trackEvent('/license', '/product_{{ $productId }}');
 })
 
 </script>

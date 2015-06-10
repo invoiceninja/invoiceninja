@@ -19,13 +19,13 @@ class ContactMailer extends Mailer
         $subject = trans("texts.{$entityType}_subject", ['invoice' => $invoice->invoice_number, 'account' => $invoice->account->getDisplayName()]);
         $accountName = $invoice->account->getDisplayName();
         $emailTemplate = $invoice->account->getEmailTemplate($entityType);
-        $invoiceAmount = Utils::formatMoney($invoice->getRequestedAmount(), $invoice->client->currency_id);
+        $invoiceAmount = Utils::formatMoney($invoice->getRequestedAmount(), $invoice->client->getCurrencyId());
 
         foreach ($invoice->invitations as $invitation) {
-            if (!$invitation->user || !$invitation->user->email) {
+            if (!$invitation->user || !$invitation->user->email || $invitation->user->trashed()) {
                 return false;
             }
-            if (!$invitation->contact || !$invitation->contact->email) {
+            if (!$invitation->contact || !$invitation->contact->email || $invitation->contact->trashed()) {
                 return false;
             }
 
@@ -72,7 +72,7 @@ class ContactMailer extends Mailer
             '$footer' => $payment->account->getEmailFooter(),
             '$client' => $payment->client->getDisplayName(),
             '$account' => $accountName,
-            '$amount' => Utils::formatMoney($payment->amount, $payment->client->currency_id)
+            '$amount' => Utils::formatMoney($payment->amount, $payment->client->getCurrencyId())
         ];
 
         $data = ['body' => str_replace(array_keys($variables), array_values($variables), $emailTemplate)];

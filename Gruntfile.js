@@ -108,6 +108,7 @@ module.exports = function(grunt) {
       css_public: {
         src: [
           'public/vendor/bootstrap/dist/css/bootstrap.min.css',
+          'public/vendor/font-awesome/css/font-awesome.min.css',
           /*
           'public/css/bootstrap.splash.css',
           'public/css/splash.css',
