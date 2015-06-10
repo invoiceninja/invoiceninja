@@ -1,5 +1,6 @@
 <?php namespace app\Http\Middleware;
 
+use Request;
 use Closure;
 use Utils;
 use App;
@@ -50,7 +51,10 @@ class StartupCheck
             'countries' => 'App\Models\Country',
         ];
         foreach ($cachedTables as $name => $class) {
-            if (!Cache::has($name)) {
+            if (Input::has('clear_cache')) {
+                Session::flash('message', 'Cache cleared');
+            }
+            if (Input::has('clear_cache') || !Cache::has($name)) {
                 if ($name == 'paymentTerms') {
                     $orderBy = 'num_days';
                 } elseif (in_array($name, ['currencies', 'sizes', 'industries', 'languages', 'countries'])) {
@@ -58,7 +62,10 @@ class StartupCheck
                 } else {
                     $orderBy = 'id';
                 }
-                Cache::forever($name, $class::orderBy($orderBy)->get());
+                $tableData = $class::orderBy($orderBy)->get();
+                if (count($tableData)) {
+                    Cache::forever($name, $tableData);
+                }
             }
         }
 
@@ -135,10 +142,6 @@ class StartupCheck
                         $design->name = $item->name;
                         $design->javascript = $item->javascript;
                         $design->save();
-                    }
-
-                    if (!Utils::isNinjaProd()) {
-                        Cache::forget('invoice_designs_cache_'.Auth::user()->maxInvoiceDesignId());
                     }
 
                     Session::flash('message', trans('texts.bought_designs'));

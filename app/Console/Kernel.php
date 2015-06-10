@@ -14,7 +14,6 @@ class Kernel extends ConsoleKernel {
 		'App\Console\Commands\SendRecurringInvoices',
 		'App\Console\Commands\CreateRandomData',
 		'App\Console\Commands\ResetData',
-		'App\Console\Commands\ImportTimesheetData',
 		'App\Console\Commands\CheckData',
         'App\Console\Commands\SendRenewalInvoices',
 	];

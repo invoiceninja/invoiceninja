@@ -4,6 +4,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Invitation;
 use App\Models\Product;
+use App\Models\Task;
 use Utils;
 
 class InvoiceRepository
@@ -51,10 +52,10 @@ class InvoiceRepository
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('invoices.account_id', '=', $accountId)
                     ->where('invoices.is_quote', '=', false)
-                    ->where('clients.deleted_at', '=', null)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('invoices.is_recurring', '=', true)
                     ->where('contacts.is_primary', '=', true)
+                    ->where('clients.deleted_at', '=', null)
                     ->select('clients.public_id as client_public_id', 'clients.name as client_name', 'invoices.public_id', 'amount', 'frequencies.name as frequency', 'start_date', 'end_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'invoices.deleted_at', 'invoices.is_deleted');
 
         if ($clientPublicId) {
@@ -158,7 +159,7 @@ class InvoiceRepository
                 }
 
                 if ($entityType == ENTITY_INVOICE) {
-                    if ($model->invoice_status_id < INVOICE_STATUS_PAID) {
+                    if ($model->balance > 0) {
                         $str .= '<li><a href="'.\URL::to('payments/create/'.$model->client_public_id.'/'.$model->public_id).'">'.trans('texts.enter_payment').'</a></li>';
                     }
 
@@ -271,7 +272,8 @@ class InvoiceRepository
         $invoice->invoice_number = trim($data['invoice_number']);
         $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
         $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
-
+        $invoice->has_tasks = isset($data['has_tasks']) ? $data['has_tasks'] : false;
+        
         if (!$publicId) {
             $invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
         }
@@ -291,6 +293,12 @@ class InvoiceRepository
         $invoice->terms = trim($data['terms']) ? trim($data['terms']) : (!$publicId && $account->invoice_terms ? $account->invoice_terms : '');
         $invoice->invoice_footer = trim($data['invoice_footer']) ? trim($data['invoice_footer']) : (!$publicId && $account->invoice_footer ? $account->invoice_footer : '');
         $invoice->public_notes = trim($data['public_notes']);
+
+        // process date variables
+        $invoice->terms = Utils::processVariables($invoice->terms);
+        $invoice->invoice_footer = Utils::processVariables($invoice->invoice_footer);
+        $invoice->public_notes = Utils::processVariables($invoice->public_notes);
+
         $invoice->po_number = trim($data['po_number']);
         $invoice->invoice_design_id = $data['invoice_design_id'];
 
@@ -374,7 +382,12 @@ class InvoiceRepository
                 continue;
             }
 
-            if ($item['product_key']) {
+            if (isset($item['task_public_id']) && $item['task_public_id']) {
+                $task = Task::scope($item['task_public_id'])->where('invoice_id', '=', null)->firstOrFail();
+                $task->invoice_id = $invoice->id;
+                $task->client_id = $invoice->client_id;
+                $task->save();
+            } else if ($item['product_key']) {
                 $product = Product::findProductByKey(trim($item['product_key']));
 
                 if (!$product) {
@@ -423,7 +436,7 @@ class InvoiceRepository
             && $account->share_counter) {
 
             $invoiceNumber = $invoice->invoice_number;
-            if (strpos($invoiceNumber, $account->quote_number_prefix) === 0) {
+            if ($account->quote_number_prefix && strpos($invoiceNumber, $account->quote_number_prefix) === 0) {
                 $invoiceNumber = substr($invoiceNumber, strlen($account->quote_number_prefix));
             }
             $clone->invoice_number = $account->invoice_number_prefix.$invoiceNumber;
@@ -453,7 +466,8 @@ class InvoiceRepository
           'custom_value1',
           'custom_value2',
           'custom_taxes1',
-          'custom_taxes2', ] as $field) {
+          'custom_taxes2',
+          'partial'] as $field) {
             $clone->$field = $invoice->$field;
         }
 

@@ -10,7 +10,7 @@ use View;
 use Validator;
 use stdClass;
 use URL;
-
+use Utils;
 use App\Models\Gateway;
 use App\Models\Account;
 use App\Models\AccountGateway;
@@ -69,6 +69,7 @@ class AccountGatewayController extends BaseController
         $data['method'] = 'PUT';
         $data['title'] = trans('texts.edit_gateway') . ' - ' . $accountGateway->gateway->name;
         $data['config'] = $configFields;
+        $data['hiddenFields'] = Gateway::$hiddenFields;
         $data['paymentTypeId'] = $accountGateway->getPaymentType();
         $data['selectGateways'] = Gateway::where('id', '=', $accountGateway->gateway_id)->get();
 
@@ -97,6 +98,7 @@ class AccountGatewayController extends BaseController
         $data['method'] = 'POST';
         $data['title'] = trans('texts.add_gateway');
         $data['selectGateways'] = Gateway::where('payment_library_id', '=', 1)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->orderBy('name')->get();
+        $data['hiddenFields'] = Gateway::$hiddenFields;
 
         return View::make('accounts.account_gateway', $data);
     }
@@ -107,7 +109,7 @@ class AccountGatewayController extends BaseController
         $account = Auth::user()->account;
 
         $paymentTypes = [];
-        foreach ([PAYMENT_TYPE_CREDIT_CARD, PAYMENT_TYPE_PAYPAL, PAYMENT_TYPE_BITCOIN] as $type) {
+        foreach (Gateway::$paymentTypes as $type) {
             if ($accountGateway || !$account->getGatewayByType($type)) {
                 $paymentTypes[$type] = trans('texts.'.strtolower($type));
 
@@ -132,7 +134,9 @@ class AccountGatewayController extends BaseController
         $gateways = Gateway::where('payment_library_id', '=', 1)->orderBy('name')->get();
 
         foreach ($gateways as $gateway) {
-            $gateway->fields = $gateway->getFields();
+            $fields = $gateway->getFields();
+            asort($fields);
+            $gateway->fields = $fields;
             if ($accountGateway && $accountGateway->gateway_id == $gateway->id) {
                 $accountGateway->fields = $gateway->fields;
             }
@@ -182,6 +186,8 @@ class AccountGatewayController extends BaseController
             $gatewayId = GATEWAY_PAYPAL_EXPRESS;
         } elseif ($paymentType == PAYMENT_TYPE_BITCOIN) {
             $gatewayId = GATEWAY_BITPAY;
+        } elseif ($paymentType == PAYMENT_TYPE_DWOLLA) {
+            $gatewayId = GATEWAY_DWOLLA;
         }
 
         if (!$gatewayId) {
@@ -192,9 +198,14 @@ class AccountGatewayController extends BaseController
 
         $gateway = Gateway::findOrFail($gatewayId);
         $fields = $gateway->getFields();
+        $optional = array_merge(Gateway::$hiddenFields, Gateway::$optionalFields);
+
+        if (Utils::isNinja() && $gatewayId == GATEWAY_DWOLLA) {
+            $optional = array_merge($optional, ['key', 'secret']);
+        }
 
         foreach ($fields as $field => $details) {
-            if (!in_array($field, ['testMode', 'developerMode', 'headerImageUrl', 'solutionType', 'landingPage', 'brandName', 'logoImageUrl', 'borderColor'])) {
+            if (!in_array($field, $optional)) {
                 if (strtolower($gateway->name) == 'beanstream') {
                     if (in_array($field, ['merchant_id', 'passCode'])) {
                         $rules[$gateway->id.'_'.$field] = 'required';

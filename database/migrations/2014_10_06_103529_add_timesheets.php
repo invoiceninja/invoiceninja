@@ -142,11 +142,11 @@ class AddTimesheets extends Migration {
 	 */
 	public function down()
 	{
-        Schema::drop('timesheet_events');
-        Schema::drop('timesheet_event_sources');
-        Schema::drop('timesheets');
-        Schema::drop('project_codes');
-        Schema::drop('projects');
+        Schema::dropIfExists('timesheet_events');
+        Schema::dropIfExists('timesheet_event_sources');
+        Schema::dropIfExists('timesheets');
+        Schema::dropIfExists('project_codes');
+        Schema::dropIfExists('projects');
 	}
 
 }

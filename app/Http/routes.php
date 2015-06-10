@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -32,6 +31,7 @@ Route::get('/', 'HomeController@showIndex');
 Route::get('terms', 'HomeController@showTerms');
 Route::get('log_error', 'HomeController@logError');
 Route::get('invoice_now', 'HomeController@invoiceNow');
+Route::get('keep_alive', 'HomeController@keepAlive');
 Route::post('get_started', 'AccountController@getStarted');
 
 // Client visible pages
@@ -74,16 +74,6 @@ get('/password/reset/{token}', array('as' => 'forgot', 'uses' => 'Auth\PasswordC
 post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
 get('/user/confirm/{code}', 'UserController@confirm');
 
-/*
-// Confide routes
-Route::get('login', 'UserController@login');
-Route::post('login', 'UserController@do_login');
-Route::get('forgot_password', 'UserController@forgot_password');
-Route::post('forgot_password', 'UserController@do_forgot_password');
-Route::get('user/reset/{token?}', 'UserController@reset_password');
-Route::post('user/reset', 'UserController@do_reset_password');
-Route::get('logout', 'UserController@logout');
-*/
 
 if (Utils::isNinja()) {
     Route::post('/signup/register', 'AccountController@doRegister');
@@ -96,7 +86,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
-
+    
     Route::get('api/users', array('as'=>'api.users', 'uses'=>'UserController@getDatatable'));
     Route::resource('users', 'UserController');
     Route::post('users/delete', 'UserController@delete');
@@ -132,6 +122,11 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
     Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));
     Route::post('clients/bulk', 'ClientController@bulk');
+
+    Route::resource('tasks', 'TaskController');
+    Route::get('api/tasks/{client_id?}', array('as'=>'api.tasks', 'uses'=>'TaskController@getDatatable'));
+    Route::get('tasks/create/{client_id?}', 'TaskController@create');
+    Route::post('tasks/bulk', 'TaskController@bulk');
 
     Route::get('recurring_invoices', 'InvoiceController@recurringIndex');
     Route::get('api/recurring_invoices/{client_id?}', array('as'=>'api.recurring_invoices', 'uses'=>'InvoiceController@getRecurringDatatable'));
@@ -226,6 +221,7 @@ define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
 define('ENTITY_PAYMENT', 'payment');
 define('ENTITY_CREDIT', 'credit');
 define('ENTITY_QUOTE', 'quote');
+define('ENTITY_TASK', 'task');
 
 define('PERSON_CONTACT', 'contact');
 define('PERSON_USER', 'user');
@@ -289,6 +285,7 @@ define('MAX_NUM_CLIENTS', 500);
 define('MAX_NUM_CLIENTS_PRO', 20000);
 define('MAX_NUM_USERS', 20);
 define('MAX_SUBDOMAIN_LENGTH', 30);
+define('DEFAULT_FONT_SIZE', 9);
 
 define('INVOICE_STATUS_DRAFT', 1);
 define('INVOICE_STATUS_SENT', 2);
@@ -342,6 +339,7 @@ define('GATEWAY_BEANSTREAM', 29);
 define('GATEWAY_PSIGATE', 30);
 define('GATEWAY_MOOLAH', 31);
 define('GATEWAY_BITPAY', 42);
+define('GATEWAY_DWOLLA', 43);
 
 define('EVENT_CREATE_CLIENT', 1);
 define('EVENT_CREATE_INVOICE', 2);
@@ -355,7 +353,7 @@ define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
 define('NINJA_GATEWAY_CONFIG', '');
 define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
 define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-define('NINJA_VERSION', '2.0.1');
+define('NINJA_VERSION', '2.2.0');
 define('NINJA_DATE', '2000-01-01');
 define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
 define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
@@ -386,6 +384,7 @@ define('TOKEN_BILLING_ALWAYS', 4);
 define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
 define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
 define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');
+define('PAYMENT_TYPE_DWOLLA', 'PAYMENT_TYPE_DWOLLA');
 define('PAYMENT_TYPE_TOKEN', 'PAYMENT_TYPE_TOKEN');
 define('PAYMENT_TYPE_ANY', 'PAYMENT_TYPE_ANY');
 
@@ -397,11 +396,6 @@ define('GATEWAY_GOOGLE', 33);
 define('GATEWAY_QUICKBOOKS', 35);
 */
 
-/**
- * TEST VALUES FOR THE CREDIT CARDS
- * NUMBER IS FOR THE BINARY COUNT FOR WHICH IMAGES TO DISPLAY
- * card IS FOR CARD IMAGE AND text IS FOR CARD NAME (TO ADD TO alt FOR IMAGE)
-**/
 $creditCards = [
             1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
             2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
@@ -411,75 +405,6 @@ $creditCards = [
         ];
 
 define('CREDIT_CARDS', serialize($creditCards));
-
-
-HTML::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
-    $class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2.'/*') ) ? ' class="active"' : '';
-    $title = ucwords(trans("texts.$text")) . Utils::getProLabel($text);
-    return '<li'.$class.'><a href="'.URL::to($url).'" '.$extra.'>'.$title.'</a></li>';
-});
-
-HTML::macro('tab_link', function($url, $text, $active = false) {
-    $class = $active ? ' class="active"' : '';
-    return '<li'.$class.'><a href="'.URL::to($url).'" data-toggle="tab">'.$text.'</a></li>';
-});
-
-HTML::macro('menu_link', function($type) {
-    $types = $type.'s';
-    $Type = ucfirst($type);
-    $Types = ucfirst($types);
-    $class = ( Request::is($types) || Request::is('*'.$type.'*')) && !Request::is('*advanced_settings*') ? ' active' : '';
-
-    return '<li class="dropdown '.$class.'">
-           <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>
-           <ul class="dropdown-menu" id="menu1">
-             <li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>
-            </ul>
-          </li>';
-});
-
-HTML::macro('image_data', function($imagePath) {
-    return 'data:image/jpeg;base64,' . base64_encode(file_get_contents(public_path().'/'.$imagePath));
-});
-
-
-HTML::macro('breadcrumbs', function() {
-    $str = '<ol class="breadcrumb">';
-
-    // Get the breadcrumbs by exploding the current path.
-    $basePath = Utils::basePath();
-    $parts = explode('?', $_SERVER['REQUEST_URI']);
-    $path = $parts[0];
-
-    if ($basePath != '/') {
-        $path = str_replace($basePath, '', $path);
-    }
-    $crumbs = explode('/', $path);
-
-    foreach ($crumbs as $key => $val) {
-        if (is_numeric($val)) {
-            unset($crumbs[$key]);
-        }
-    }
-
-    $crumbs = array_values($crumbs);
-    for ($i=0; $i<count($crumbs); $i++) {
-        $crumb = trim($crumbs[$i]);
-        if (!$crumb) {
-            continue;
-        }
-        if ($crumb == 'company') {
-            return '';
-        }
-        $name = trans("texts.$crumb");
-        if ($i==count($crumbs)-1) {
-            $str .= "<li class='active'>$name</li>";
-        } else {
-            $str .= '<li>'.link_to($crumb, $name).'</li>';
-        }
-    }
-    return $str . '</ol>';
-});
 
 function uctrans($text)
 {
@@ -499,21 +424,6 @@ function otrans($text)
         return $string != $english ? $string : '';
     }
 }
-
-Validator::extend('positive', function($attribute, $value, $parameters) {
-    return Utils::parseFloat($value) >= 0;
-});
-
-Validator::extend('has_credit', function($attribute, $value, $parameters) {
-    $publicClientId = $parameters[0];
-    $amount = $parameters[1];
-
-    $client = \App\Models\Client::scope($publicClientId)->firstOrFail();
-    $credit = $client->getTotalCredit();
-
-    return $credit >= $amount;
-});
-
 
 /*
 // Log all SQL queries to laravel.log

@@ -77,6 +77,12 @@
 
   var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
 
+  if (window.invoice) {
+    invoiceLabels.item = invoice.has_tasks ? invoiceLabels.date : invoiceLabels.item_orig;
+    invoiceLabels.quantity = invoice.has_tasks ? invoiceLabels.hours : invoiceLabels.quantity_orig;
+    invoiceLabels.unit_cost = invoice.has_tasks ? invoiceLabels.rate : invoiceLabels.unit_cost_orig;    
+  }
+
   var isRefreshing = false;
   var needsRefresh = false;
 
@@ -120,7 +126,7 @@
   }
 
   function showMoreDesigns() {
-    trackUrl('/view_more_designs');
+    trackEvent('/account', '/view_more_designs');
     $('#moreDesignsModal').modal('show');
   }
 

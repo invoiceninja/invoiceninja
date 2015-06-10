@@ -183,7 +183,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('username')->unique();
             $t->string('email')->nullable();
             $t->string('password');
-            $t->string('confirmation_code');
+            $t->string('confirmation_code')->nullable();
             $t->boolean('registered')->default(false);
             $t->boolean('confirmed')->default(false);
             $t->integer('theme_id')->nullable();
@@ -355,8 +355,8 @@ class ConfideSetupUsersTable extends Migration {
             $t->softDeletes();
 
             $t->string('transaction_reference')->nullable();
-            $t->timestamp('sent_date');
-            $t->timestamp('viewed_date');
+            $t->timestamp('sent_date')->nullable();
+            $t->timestamp('viewed_date')->nullable();
 
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
             $t->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');

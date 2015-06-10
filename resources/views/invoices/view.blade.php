@@ -9,7 +9,7 @@
 		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
 
         @if ($invoice->client->account->utf8_invoices)
-            <script src="{{ asset('vendor/pdfmake/build/pdfmake.min.js') }}" type="text/javascript"></script>
+            <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
             <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
         @endif
 
@@ -29,14 +29,14 @@
         @if ($invoice->is_quote)            
             {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
             @if (!$isConverted)
-                {!! Button::success(trans('texts.approve'))->asLinkTo('/approve/' . $invitation->invitation_key)->large() !!}
+                {!! Button::success(trans('texts.approve'))->asLinkTo(URL::to('/approve/' . $invitation->invitation_key))->large() !!}
             @endif
 		@elseif ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)
             {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
             @if (count($paymentTypes) > 1)
                 {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
             @else
-                {!! Button::success(trans('texts.pay_now'))->asLinkTo('/payment/' . $invitation->invitation_key)->large() !!}
+                {!! Button::success(trans('texts.pay_now'))->asLinkTo(URL::to('/payment/' . $invitation->invitation_key))->large() !!}
             @endif            
 		@else 
 			{!! Button::normal('Download PDF')->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}

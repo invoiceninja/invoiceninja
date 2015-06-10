@@ -65,7 +65,7 @@ class EntityModel extends Eloquent
             $accountId = Auth::user()->account_id;
         }
 
-        $query->whereAccountId($accountId);
+        $query->where($this->getTable() .'.account_id', '=', $accountId);
 
         if ($publicId) {
             if (is_array($publicId)) {

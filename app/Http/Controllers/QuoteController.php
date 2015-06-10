@@ -20,6 +20,7 @@ use App\Models\Size;
 use App\Models\TaxRate;
 use App\Models\Invitation;
 use App\Models\Activity;
+use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;

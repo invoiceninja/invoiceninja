@@ -16,13 +16,14 @@ class ReportController extends BaseController
     public function d3()
     {
         $message = '';
+        $fileName = storage_path() . '/dataviz_sample.txt';
 
         if (Auth::user()->account->isPro()) {
             $account = Account::where('id', '=', Auth::user()->account->id)->with(['clients.invoices.invoice_items', 'clients.contacts'])->first();
             $account = $account->hideFieldsForViz();
             $clients = $account->clients->toJson();
-        } elseif (isset($_ENV['DATA_VIZ_SAMPLE'])) {
-            $clients = $_ENV['DATA_VIZ_SAMPLE'];
+        } elseif (file_exists($fileName)) {
+            $clients = file_get_contents($fileName);
             $message = trans('texts.sample_data');
         } else {
             $clients = '[]';

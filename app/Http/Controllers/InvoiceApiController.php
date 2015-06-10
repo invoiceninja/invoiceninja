@@ -60,10 +60,11 @@ class InvoiceApiController extends Controller
         }
 
         if (isset($data['email'])) {
-            $contact = Contact::scope()->with('client')->whereEmail($data['email'])->first();
-            if ($contact) {
-                $client = $contact->client;
-            } else {
+            $client = Client::scope()->whereHas('contacts', function($query) use ($data) {
+                $query->where('email', '=', $data['email']);
+            })->first();
+            
+            if (!$client) {
                 $clientData = ['contact' => ['email' => $data['email']]];
                 foreach (['name', 'private_notes'] as $field) {
                     if (isset($data[$field])) {

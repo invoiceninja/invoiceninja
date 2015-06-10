@@ -27,8 +27,8 @@
 
 
 	<center class="buttons">
+        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
-        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo('/credits')->appendIcon(Icon::create('remove-circle')) !!}
 	</center>
 
 	{!! Former::close() !!}
@@ -65,8 +65,4 @@
 
 	</script>
 
-@stop
-
-@section('onReady')
-    //$('.client-select input.form-control').focus();
 @stop

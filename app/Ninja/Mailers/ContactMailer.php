@@ -2,6 +2,7 @@
 
 use Utils;
 use Event;
+use URL;
 
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -19,13 +20,13 @@ class ContactMailer extends Mailer
         $subject = trans("texts.{$entityType}_subject", ['invoice' => $invoice->invoice_number, 'account' => $invoice->account->getDisplayName()]);
         $accountName = $invoice->account->getDisplayName();
         $emailTemplate = $invoice->account->getEmailTemplate($entityType);
-        $invoiceAmount = Utils::formatMoney($invoice->getRequestedAmount(), $invoice->client->currency_id);
+        $invoiceAmount = Utils::formatMoney($invoice->getRequestedAmount(), $invoice->client->getCurrencyId());
 
         foreach ($invoice->invitations as $invitation) {
-            if (!$invitation->user || !$invitation->user->email) {
+            if (!$invitation->user || !$invitation->user->email || $invitation->user->trashed()) {
                 return false;
             }
-            if (!$invitation->contact || !$invitation->contact->email) {
+            if (!$invitation->contact || !$invitation->contact->email || $invitation->contact->trashed()) {
                 return false;
             }
 
@@ -40,6 +41,18 @@ class ContactMailer extends Mailer
                 '$contact' => $invitation->contact->getDisplayName(),
                 '$amount' => $invoiceAmount
             ];
+
+            // Add variables for available payment types
+            foreach([PAYMENT_TYPE_CREDIT_CARD, PAYMENT_TYPE_PAYPAL, PAYMENT_TYPE_BITCOIN] as $type) {
+                if ($invoice->account->getGatewayByType($type)) {
+
+                    // Changes "PAYMENT_TYPE_CREDIT_CARD" to "$credit_card_link"
+                    $gateway_slug = '$'.strtolower(str_replace('PAYMENT_TYPE_', '', $type)).'_link';
+
+                    $variables[$gateway_slug] = URL::to("/payment/{$invitation->invitation_key}/{$type}");
+
+                }
+            }
 
             $data['body'] = str_replace(array_keys($variables), array_values($variables), $emailTemplate);
             $data['link'] = $invitation->getLink();
@@ -72,7 +85,7 @@ class ContactMailer extends Mailer
             '$footer' => $payment->account->getEmailFooter(),
             '$client' => $payment->client->getDisplayName(),
             '$account' => $accountName,
-            '$amount' => Utils::formatMoney($payment->amount, $payment->client->currency_id)
+            '$amount' => Utils::formatMoney($payment->amount, $payment->client->getCurrencyId())
         ];
 
         $data = ['body' => str_replace(array_keys($variables), array_values($variables), $emailTemplate)];

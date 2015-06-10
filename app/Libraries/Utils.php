@@ -233,7 +233,7 @@ class Utils
     public static function formatMoney($value, $currencyId = false)
     {
         if (!$currencyId) {
-            $currencyId = Session::get(SESSION_CURRENCY);
+            $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
         }
 
         foreach (Cache::get('currencies') as $currency) {
@@ -333,7 +333,23 @@ class Utils
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
-        $dateTime = DateTime::createFromFormat('Y-m-d', $date, new DateTimeZone($timezone));
+        $dateTime = DateTime::createFromFormat('Y-m-d', $date);
+        $dateTime->setTimeZone(new DateTimeZone($timezone));
+
+        return $formatResult ? $dateTime->format($format) : $dateTime;
+    }
+
+    public static function fromSqlDateTime($date, $formatResult = true)
+    {
+        if (!$date || $date == '0000-00-00 00:00:00') {
+            return '';
+        }
+
+        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        $format = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
+        
+        $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        $dateTime->setTimeZone(new DateTimeZone($timezone));
 
         return $formatResult ? $dateTime->format($format) : $dateTime;
     }
@@ -404,6 +420,9 @@ class Utils
             if (count($matches) == 0) {
                 continue;
             }
+            usort($matches, function($a, $b) {
+                return strlen($b) - strlen($a);
+            });
             foreach ($matches as $match) {
                 $offset = 0;
                 $addArray = explode('+', $match);

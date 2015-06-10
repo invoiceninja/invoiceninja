@@ -107,8 +107,24 @@
                 return '';
             }
 
-            keys = ['footer', 'account', 'client', 'amount', 'link'];
-            vals = [{!! json_encode($emailFooter) !!}, '{!! Auth::user()->account->getDisplayName() !!}', 'Client Name', formatMoney(100), '{!! NINJA_WEB_URL !!}']
+            keys = ['footer', 'account', 'client', 'amount', 'link', 'contact'];
+            vals = [{!! json_encode($emailFooter) !!}, '{!! Auth::user()->account->getDisplayName() !!}', 'Client Name', formatMoney(100), '{!! NINJA_WEB_URL !!}', 'Contact Name'];
+
+            // Add any available payment method links
+            <?php
+            foreach([PAYMENT_TYPE_CREDIT_CARD, PAYMENT_TYPE_PAYPAL, PAYMENT_TYPE_BITCOIN] as $type) {
+                if (Auth::user()->account->getGatewayByType($type)) {
+
+                    // Changes "PAYMENT_TYPE_CREDIT_CARD" to "credit_card"
+                    $gateway_slug = strtolower(str_replace('PAYMENT_TYPE_', '', $type)).'_link';
+
+                    echo "keys.push('$gateway_slug'); ";
+                    echo "vals.push('".URL::to("/payment/xxxxxx/{$type}")."'); ";
+                    echo "\n";
+                    
+                }
+            }
+            ?>
 
             for (var i=0; i<keys.length; i++) {
                 var regExp = new RegExp('\\$'+keys[i], 'g');

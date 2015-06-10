@@ -13,9 +13,9 @@
 
 
   <div class="pull-right">  
-    {!! Button::normal(trans('texts.api_tokens'))->asLinkTo('/company/advanced_settings/token_management')->appendIcon(Icon::create('cloud')) !!}
+    {!! Button::normal(trans('texts.api_tokens'))->asLinkTo(URL::to('/company/advanced_settings/token_management'))->appendIcon(Icon::create('cloud')) !!}
     @if (Utils::isPro())    
-        {!! Button::primary(trans('texts.add_user'))->asLinkTo('/users/create')->appendIcon(Icon::create('plus-sign')) !!}
+        {!! Button::primary(trans('texts.add_user'))->asLinkTo(URL::to('/users/create'))->appendIcon(Icon::create('plus-sign')) !!}
     @endif
   </div>
 
@@ -58,7 +58,7 @@
     }
 
   function deleteUser(id) {
-    if (!confirm('Are you sure?')) {
+    if (!confirm("{!! trans('texts.are_you_sure') !!}")) {    
       return;
     }
 

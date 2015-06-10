@@ -160,12 +160,19 @@ class Account extends Eloquent
         return $height;
     }
 
-    public function getNextInvoiceNumber($isQuote = false)
+    public function getNextInvoiceNumber($isQuote = false, $prefix = '')
     {
         $counter = $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
-        $prefix = $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
+        $prefix .= $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
+            
+        // confirm the invoice number isn't already taken 
+        do {
+            $number = $prefix.str_pad($counter, 4, "0", STR_PAD_LEFT);
+            $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
+            $counter++;
+        } while ($check);
 
-        return $prefix.str_pad($counter, 4, "0", STR_PAD_LEFT);
+        return $number;
     }
 
     public function incrementCounter($invoiceNumber, $isQuote = false, $isRecurring)
@@ -212,6 +219,8 @@ class Account extends Eloquent
     public function getInvoiceLabels()
     {
         $data = [];
+        $custom = (array) json_decode($this->invoice_labels);
+
         $fields = [
             'invoice',
             'invoice_date',
@@ -238,10 +247,21 @@ class Account extends Eloquent
             'quote_number',
             'total',
             'invoice_issued_to',
+            'date',
+            'rate',
+            'hours',
         ];
 
         foreach ($fields as $field) {
-            $data[$field] = trans("texts.$field");
+            if (isset($custom[$field]) && $custom[$field]) {
+                $data[$field] = $custom[$field];
+            } else {
+                $data[$field] = uctrans("texts.$field");
+            }
+        }
+
+        foreach (['item', 'quantity', 'unit_cost'] as $field) {
+            $data["{$field}_orig"] = $data[$field];
         }
 
         return $data;

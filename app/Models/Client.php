@@ -148,6 +148,15 @@ class Client extends EntityModel
         $token = $this->getGatewayToken();
         return $token ? "https://dashboard.stripe.com/customers/{$token}" : false;
     }
+
+    public function getCurrencyId()
+    {
+        if (!$this->account) {
+            $this->load('account');
+        }
+
+        return $this->currency_id ?: ($this->account->currency_id ?: DEFAULT_CURRENCY);
+    }
 }
 
 /*

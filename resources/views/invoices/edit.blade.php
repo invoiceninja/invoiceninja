@@ -7,7 +7,7 @@
 		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
 
         @if (Auth::user()->account->utf8_invoices)
-            <script src="{{ asset('vendor/pdfmake/build/pdfmake.min.js') }}" type="text/javascript"></script>
+            <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
             <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
         @endif
 
@@ -43,7 +43,7 @@
 					<div class="col-lg-8 col-sm-8">
                         <h4><div data-bind="text: getClientDisplayName(ko.toJS(client()))"></div></h4>
 						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
-                        {!! link_to('/clients/'.$invoice->client->public_id, trans('texts.view_client'), ['target' => '_blank']) !!}                        
+                        {!! link_to('/clients/'.$invoice->client->public_id, trans('texts.view_client'), ['target' => '_blank']) !!}
 					</div>
 				</div>    				
 				<div style="display:none">
@@ -83,7 +83,8 @@
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') !!}							
                 
-                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()') !!}
+                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()')
+                            ->rel('tooltip')->data_toggle('tooltip')->data_placement('bottom')->title(trans('texts.partial_value')) !!}
 			</div>
 			@if ($entityType == ENTITY_INVOICE)
 				<div data-bind="visible: is_recurring" style="display: none">
@@ -150,10 +151,10 @@
 		<thead>
 			<tr>
 				<th style="min-width:32px;" class="hide-border"></th>
-				<th style="min-width:160px">{{ trans('texts.item') }}</th>
-				<th style="width:100%">{{ trans('texts.description') }}</th>
-				<th style="min-width:120px">{{ trans('texts.unit_cost') }}</th>
-				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}">{{ trans('texts.quantity') }}</th>
+				<th style="min-width:160px" data-bind="text: productLabel"></th>
+				<th style="width:100%">{{ $invoiceLabels['description'] }}</th>
+				<th style="min-width:120px" data-bind="text: costLabel"></th>
+				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel"></th>
 				<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
 				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
 				<th style="min-width:32px;" class="hide-border"></th>
@@ -313,7 +314,7 @@
 			{!! Former::populateField('entityType', $entityType) !!}
 			{!! Former::text('entityType') !!}
 			{!! Former::text('action') !!}
-            {!! Former::text('data')->data_bind("value: ko.mapping.toJSON(model)") !!}    
+            {!! Former::text('data')->data_bind("value: ko.mapping.toJSON(model)") !!}
             {!! Former::text('pdfupload') !!}    
 				
 			@if ($invoice && $invoice->id)
@@ -332,52 +333,19 @@
 		{!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}	
         
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))
-			@if ($invoice && $invoice->id)		
 
-				<div id="primaryActions" style="text-align:left" class="btn-group dropup">
-					<button class="btn-success btn" type="button">{{ trans("texts.save_{$entityType}") }}</button>
-					<button class="btn-success btn dropdown-toggle" type="button" data-toggle="dropdown"> 
-						<span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu">
-						<li><a href="javascript:onSaveClick()" id="saveButton">{{ trans("texts.save_{$entityType}") }}</a></li>
-						<li><a href="javascript:onCloneClick()">{{ trans("texts.clone_{$entityType}") }}</a></li>
-                        <li><a href="{{ URL::to("{$entityType}s/{$entityType}_history/{$invoice->public_id}") }}">{{ trans("texts.view_history") }}</a></li>
-                        <li class="divider"></li>                            
-
-                        @if ($invoice->invoice_status_id < INVOICE_STATUS_SENT && !$invoice->is_recurring)
-                            <li><a href="javascript:onMarkClick()">{{ trans("texts.mark_sent") }}</a></li>
-                        @endif
-
-						@if ($invoice && $entityType == ENTITY_QUOTE)			
-							@if ($invoice->quote_invoice_id)
-								<li><a href="{{ URL::to("invoices/{$invoice->quote_invoice_id}/edit") }}">{{ trans("texts.view_invoice") }}</a></li>
-							@else
-								<li><a href="javascript:onConvertClick()">{{ trans("texts.convert_to_invoice") }}</a></li>
-							@endif
-						@elseif ($invoice && $entityType == ENTITY_INVOICE)
-							@if ($invoice->quote_id)
-								<li><a href="{{ URL::to("quotes/{$invoice->quote_id}/edit") }}">{{ trans("texts.view_quote") }}</a></li>
-							@endif
-						@endif
-
-						<li class="divider"></li>
-						<li><a href="javascript:onArchiveClick()">{{ trans("texts.archive_{$entityType}") }}</a></li>
-						<li><a href="javascript:onDeleteClick()">{{ trans("texts.delete_{$entityType}") }}</a></li>
-					</ul>
-				</div>		
-
-			@else
-				{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
-			@endif
+			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 
             @if (!$invoice || ($invoice && !$invoice->is_recurring))
-			 {!! Button::normal(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
+			     {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
             @endif
 
-			@if ($invoice && $invoice->id && $entityType == ENTITY_INVOICE && !$invoice->is_recurring && !$invoice->isPaid())
-				{!! Button::primary(trans('texts.enter_payment'))->withAttributes(array('onclick' => 'onPaymentClick()'))->appendIcon(Icon::create('usd')) !!}		
-			@endif
+            @if ($invoice && $invoice->id)                
+                {!! DropdownButton::normal(trans('texts.more_actions'))
+                      ->withContents($actions)
+                      ->dropup() !!}
+            @endif            
+
 		@elseif ($invoice && $invoice->trashed() && !$invoice->is_deleted == '1')
 			{!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
 		@endif
@@ -597,7 +565,7 @@
 			}
 		});
 
-		$('[rel=tooltip]').tooltip();
+		$('[rel=tooltip]').tooltip({'trigger':'manual'});
 
 		$('#invoice_date, #due_date, #start_date, #end_date').datepicker();
 
@@ -663,10 +631,6 @@
 			onPaymentClick();
 		});
 
-		$('#primaryActions > button:first').click(function() {
-			onSaveClick();
-		});
-
 		$('label.radio').addClass('radio-inline');
 
 		applyComboboxListeners();
@@ -722,10 +686,10 @@
 
         @if (!$invoice)
             if (!invoice.terms) {
-                invoice.terms = wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300);
+                invoice.terms = wordWrapText('{!! str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) !!}', 300);
             }
             if (!invoice.invoice_footer) {
-                invoice.invoice_footer = wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}', 600);
+                invoice.invoice_footer = wordWrapText('{!! str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) !!}', 600);
             }
         @endif
 
@@ -734,6 +698,10 @@
 			invoice.imageWidth = {{ $account->getLogoWidth() }};
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
+
+        invoiceLabels.item = invoice.has_tasks ? invoiceLabels.date : invoiceLabels.item_orig;
+        invoiceLabels.quantity = invoice.has_tasks ? invoiceLabels.hours : invoiceLabels.quantity_orig;
+        invoiceLabels.unit_cost = invoice.has_tasks ? invoiceLabels.rate : invoiceLabels.unit_cost_orig;        
 
         return invoice;
 	}
@@ -760,7 +728,7 @@
 	}
 
 	function onDownloadClick() {
-		trackUrl('/download_pdf');
+		trackEvent('/activity', '/download_pdf');
 		var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
@@ -770,14 +738,14 @@
 	}
 
 	function onEmailClick() {
-		if (confirm('{{ trans("texts.confirm_email_$entityType") }}')) {
+		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}')) {
 			preparePdfData('email');
 		}
 	}
 
 	function onSaveClick() {
 		if (model.invoice().is_recurring()) {
-			if (confirm('{{ trans("texts.confirm_recurring_email_$entityType") }}')) {
+			if (confirm('{!! trans("texts.confirm_recurring_email_$entityType") !!}')) {
 				submitAction('');
 			}
 		} else {
@@ -802,6 +770,7 @@
 			model.showClientForm();
 			return;
 		}
+        onPartialChange(true);
 		$('#action').val(value);
 		$('#submitButton').click();
 	}
@@ -866,7 +835,7 @@
 	}
 
 	function onDeleteClick() {
-		if (confirm('Are you sure you want to delete this {{ $entityType }}?')) {
+        if (confirm('{!! trans("texts.are_you_sure") !!}')) {		
 			submitAction('delete');		
 		}		
 	}
@@ -1043,7 +1012,7 @@
 		}
 
 		self.showClientForm = function() {
-			trackUrl('/view_client_form');
+			trackEvent('/activity', '/view_client_form');
 			self.clientBackup = ko.mapping.toJS(self.invoice().client);
 
 			$('#emailError').css( "display", "none" );			
@@ -1051,7 +1020,7 @@
 		}
 
 		self.clientFormComplete = function() {
-			trackUrl('/save_client_form');
+			trackEvent('/activity', '/save_client_form');
 
             var email = $('#email0').val();
             var firstName = $('#first_name').val();
@@ -1125,12 +1094,11 @@
 		self.discount = ko.observable('');
 		self.is_amount_discount = ko.observable(0);
 		self.frequency_id = ko.observable('');
-		//self.currency_id = ko.observable({{ $client && $client->currency_id ? $client->currency_id : Session::get(SESSION_CURRENCY) }});
         self.terms = ko.observable('');
-        self.default_terms = ko.observable({{ !$invoice && $account->invoice_terms ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}', 300) : '');
+        self.default_terms = ko.observable({{ !$invoice && $account->invoice_terms ? 'true' : 'false' }} ? wordWrapText('{!! str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) !!}', 300) : '');
         self.set_default_terms = ko.observable(false);
         self.invoice_footer = ko.observable('');
-        self.default_footer = ko.observable({{ !$invoice && $account->invoice_footer ? 'true' : 'false' }} ? wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}', 600) : '');
+        self.default_footer = ko.observable({{ !$invoice && $account->invoice_footer ? 'true' : 'false' }} ? wordWrapText('{!! str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) !!}', 600) : '');
         self.set_default_footer = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
@@ -1148,6 +1116,7 @@
 		self.balance = ko.observable(0);
 		self.invoice_design_id = ko.observable({{ $account->utf8_invoices ? 1 : $account->invoice_design_id }});
         self.partial = ko.observable(0);            
+        self.has_tasks = ko.observable(false);
 
 		self.custom_value1 = ko.observable(0);
 		self.custom_value2 = ko.observable(0);
@@ -1179,6 +1148,7 @@
 			@endif
 			self.invoice_items.push(itemModel);	
 			applyComboboxListeners();			
+            return itemModel;
 		}
 
         if (data) {
@@ -1187,6 +1157,18 @@
 			self.addItem();
 		}
 
+        self.productLabel = ko.computed(function() {
+            return self.has_tasks() ? invoiceLabels['date'] : invoiceLabels['item'];
+        }, this);
+        
+        self.qtyLabel = ko.computed(function() {
+            return self.has_tasks() ? invoiceLabels['hours'] : invoiceLabels['quantity'];
+        }, this);
+        
+        self.costLabel = ko.computed(function() {
+            return self.has_tasks() ? invoiceLabels['rate'] : invoiceLabels['unit_cost'];
+        }, this);
+        
 		self._tax = ko.observable();
 		this.tax = ko.computed({
 			read: function () {
@@ -1274,35 +1256,35 @@
 		});
 
 		self.totals.taxAmount = ko.computed(function() {
-	    var total = self.totals.rawSubtotal();
-	    var discount = self.totals.rawDiscounted();
-	    total -= discount;
+    	    var total = self.totals.rawSubtotal();
+    	    var discount = self.totals.rawDiscounted();
+    	    total -= discount;
 
-	    /*
-	    var discount = parseFloat(self.discount());
-	    if (discount > 0) {
-	    	total = roundToTwo(total * ((100 - discount)/100));
-	    }
-			*/
+    	    /*
+    	    var discount = parseFloat(self.discount());
+    	    if (discount > 0) {
+    	    	total = roundToTwo(total * ((100 - discount)/100));
+    	    }
+    			*/
 
-	    var customValue1 = roundToTwo(self.custom_value1());
-	    var customValue2 = roundToTwo(self.custom_value2());
-	    var customTaxes1 = self.custom_taxes1() == 1;
-	    var customTaxes2 = self.custom_taxes2() == 1;
-	    
-	    if (customValue1 && customTaxes1) {
-	    	total = NINJA.parseFloat(total) + customValue1;
-	    }
-	    if (customValue2 && customTaxes2) {
-	    	total = NINJA.parseFloat(total) + customValue2;
-	    }
+    	    var customValue1 = roundToTwo(self.custom_value1());
+    	    var customValue2 = roundToTwo(self.custom_value2());
+    	    var customTaxes1 = self.custom_taxes1() == 1;
+    	    var customTaxes2 = self.custom_taxes2() == 1;
+    	    
+    	    if (customValue1 && customTaxes1) {
+    	    	total = NINJA.parseFloat(total) + customValue1;
+    	    }
+    	    if (customValue2 && customTaxes2) {
+    	    	total = NINJA.parseFloat(total) + customValue2;
+    	    }
 
 			var taxRate = parseFloat(self.tax_rate());
 			if (taxRate > 0) {
 				var tax = roundToTwo(total * (taxRate/100));			
         		return formatMoney(tax, self.client().currency_id());
         	} else {
-        		return formatMoney(0);
+        		return formatMoney(0, self.client().currency_id());
         	}
     	});
 
@@ -1522,13 +1504,14 @@
 
 	function ItemModel(data) {
 		var self = this;		
-		this.product_key = ko.observable('');
-		this.notes = ko.observable('');
-		this.cost = ko.observable(0);
-		this.qty = ko.observable(0);
+		self.product_key = ko.observable('');
+		self.notes = ko.observable('');
+		self.cost = ko.observable(0);
+		self.qty = ko.observable(0);
 		self.tax_name = ko.observable('');
 		self.tax_rate = ko.observable(0);
-		this.actionsVisible = ko.observable(false);
+		self.task_public_id = ko.observable('');
+        self.actionsVisible = ko.observable(false);
 		
 		self._tax = ko.observable();
 		this.tax = ko.computed({
@@ -1662,11 +1645,19 @@
 		}
 	}
 
-    function onPartialChange()
+    function onPartialChange(silent)
     {
         var val = NINJA.parseFloat($('#partial').val());
+        var oldVal = val;
         val = Math.max(Math.min(val, model.invoice().totals.rawTotal()), 0);
-        $('#partial').val(val || '');
+        model.invoice().partial(val || '');
+        
+        if (!silent && val != oldVal) {
+            $('#partial').tooltip('show');
+            setTimeout(function() {
+                $('#partial').tooltip('hide');
+            }, 5000);
+        }
     }
 
     function onRecurringEnabled()
@@ -1727,6 +1718,22 @@
             //}
 			model.invoice().custom_taxes1({{ $account->custom_invoice_taxes1 ? 'true' : 'false' }});
 			model.invoice().custom_taxes2({{ $account->custom_invoice_taxes2 ? 'true' : 'false' }});
+
+            @if (isset($tasks) && $tasks)
+                // move the blank invoice line item to the end
+                var blank = model.invoice().invoice_items.pop();
+                var tasks = {!! $tasks !!};
+                for (var i=0; i<tasks.length; i++) {
+                    var task = tasks[i];                    
+                    var item = model.invoice().addItem();
+                    item.notes(task.description);
+                    item.product_key(task.startTime);
+                    item.qty(task.duration);
+                    item.task_public_id(task.publicId);
+                }        
+                model.invoice().invoice_items.push(blank);
+                model.invoice().has_tasks(true);
+            @endif
 		@endif
 	@endif
 

@@ -15,19 +15,17 @@
         @endif
 
 		@if ($client->trashed())
-			{!! Button::primary(trans('texts.restore_client'), ['onclick' => 'onRestoreClick()']) !!}
+			{!! Button::primary(trans('texts.restore_client'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
 		@else
 		    {!! DropdownButton::normal(trans('texts.edit_client'))
                 ->withAttributes(['class'=>'normalDropDown'])
                 ->withContents([
-			      ['label' => trans('texts.edit_client'), 'url' => URL::to('clients/' . $client->public_id . '/edit')],
-			      DropdownButton::DIVIDER,
 			      ['label' => trans('texts.archive_client'), 'url' => "javascript:onArchiveClick()"],
 			      ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
 			    ]
 			  )->split() !!}
 
-			{!! DropdownButton::primary(trans('texts.create_invoice'))
+			{!! DropdownButton::primary(trans('texts.new_invoice'))
                     ->withAttributes(['class'=>'primaryDropDown'])
                     ->withContents($actionLinks)->split() !!}
 		@endif
@@ -124,16 +122,16 @@
 			<table class="table" style="width:300px">
 				<tr>
 					<td><small>{{ trans('texts.paid_to_date') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($client->paid_to_date, $client->currency_id) }}</td>
+					<td style="text-align: right">{{ Utils::formatMoney($client->paid_to_date, $client->getCurrencyId()) }}</td>
 				</tr>
 				<tr>
 					<td><small>{{ trans('texts.balance') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($client->balance, $client->currency_id) }}</td>
+					<td style="text-align: right">{{ Utils::formatMoney($client->balance, $client->getCurrencyId()) }}</td>
 				</tr>
 				@if ($credit > 0)
 				<tr>
 					<td><small>{{ trans('texts.credit') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($credit, $client->currency_id) }}</td>
+					<td style="text-align: right">{{ Utils::formatMoney($credit, $client->getCurrencyId()) }}</td>
 				</tr>
 				@endif
 			</table>
@@ -146,7 +144,10 @@
 
 	<ul class="nav nav-tabs nav-justified">
 		{!! HTML::tab_link('#activity', trans('texts.activity'), true) !!}
-		@if (Utils::isPro())
+        @if ($hasTasks)
+            {!! HTML::tab_link('#tasks', trans('texts.tasks')) !!}
+        @endif
+		@if ($hasQuotes && Utils::isPro())
 			{!! HTML::tab_link('#quotes', trans('texts.quotes')) !!}
 		@endif
 		{!! HTML::tab_link('#invoices', trans('texts.invoices')) !!}
@@ -172,7 +173,26 @@
 
         </div>
 
-    @if (Utils::isPro())
+    @if ($hasTasks)
+        <div class="tab-pane" id="tasks">
+
+            {!! Datatable::table()
+                ->addColumn(
+                    trans('texts.date'),
+                    trans('texts.duration'),
+                    trans('texts.description'),
+                    trans('texts.status'))
+                ->setUrl(url('api/tasks/'. $client->public_id))
+                ->setOptions('sPaginationType', 'bootstrap')
+                ->setOptions('bFilter', false)
+                ->setOptions('aaSorting', [['0', 'desc']])
+                ->render('datatable') !!}
+
+        </div>
+    @endif
+
+
+    @if (Utils::isPro() && $hasQuotes)
         <div class="tab-pane" id="quotes">
 
 			{!! Datatable::table()
@@ -277,7 +297,7 @@
 	}
 
 	function onDeleteClick() {
-		if (confirm("{{ trans('texts.are_you_sure') }}")) {
+		if (confirm("{!! trans('texts.are_you_sure') !!}")) {
 			$('#action').val('delete');
 			$('.mainForm').submit();
 		}

@@ -18,7 +18,7 @@
 		"patricktalmadge/bootstrapper": "5.5.x",
 		"anahkiasen/former": "4.0.*@dev",
 		"barryvdh/laravel-debugbar": "~2.0.2",
-		"chumper/datatable": "dev-develop",
+		"chumper/datatable": "dev-develop#7fa47cb",
 		"omnipay/omnipay": "2.3.x",
 		"intervention/image": "dev-master",
 		"webpatser/laravel-countries": "dev-master",
@@ -33,8 +33,11 @@
         "coatesap/omnipay-realex": "~2.0",
         "fruitcakestudio/omnipay-sisow": "~2.0",
         "alfaproject/omnipay-skrill": "dev-master",
-        "illuminate/html": "5.*",
-        "omnipay/bitpay": "dev-master"
+        "omnipay/bitpay": "dev-master",
+		"guzzlehttp/guzzle": "~5.0",
+        "laravelcollective/html": "~5.0",
+        "wildbit/laravel-postmark-provider": "dev-master",
+        "Dwolla/omnipay-dwolla": "dev-master"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

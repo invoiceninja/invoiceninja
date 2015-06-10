@@ -38,7 +38,7 @@
             @if (Auth::user()->isPro() && Utils::isNinja())
                 {{ Former::setOption('capitalize_translations', false) }}
                 {!! Former::text('subdomain')->placeholder('texts.www')->onchange('onSubdomainChange()') !!}                
-            @endif
+            @endif            
 
             {!! Former::text('id_number') !!}
             {!! Former::text('vat_number') !!}
@@ -48,7 +48,7 @@
 
 			@if (file_exists($account->getLogoPath()))
 				<center>
-					{!! HTML::image($account->getLogoPath(), "Logo") !!} &nbsp;
+					{!! HTML::image($account->getLogoPath().'?no_cache='.time(), "Logo") !!} &nbsp;
 					<a href="#" onclick="deleteLogo()">{{ trans('texts.remove_logo') }}</a>
 				</center><br/>
 			@endif
@@ -91,7 +91,7 @@
                 @if (Auth::user()->confirmed)                
                     {!! Former::actions( Button::primary(trans('texts.change_password'))->small()->withAttributes(['onclick'=>'showChangePassword()'])) !!}
                 @elseif (Auth::user()->registered)
-                    {!! Former::actions( Button::primary(trans('texts.resend_confirmation'))->asLinkTo('/resend_confirmation')->small() ) !!}
+                    {!! Former::actions( Button::primary(trans('texts.resend_confirmation'))->asLinkTo(URL::to('/resend_confirmation'))->small() ) !!}
                 @endif
                 </div>
             </div>
@@ -204,7 +204,7 @@
 		});
 		
 		function deleteLogo() {
-			if (confirm("{{ trans('texts.are_you_sure') }}")) {
+			if (confirm("{!! trans('texts.are_you_sure') !!}")) {
 				$('.removeLogoForm').submit();
 			}
 		}

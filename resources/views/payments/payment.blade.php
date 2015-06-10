@@ -191,16 +191,16 @@ header h3 em {
         <h3>{{ trans('texts.contact_information') }}</h3>
         <div class="row">
             <div class="col-md-6">
-                {!! Former::text('first_name')->placeholder(trans('texts.first_name'))->raw() !!}
+                {!! Former::text('first_name')->placeholder(trans('texts.first_name'))->label('') !!}
             </div>
             <div class="col-md-6">
-                {!! Former::text('last_name')->placeholder(trans('texts.last_name'))->raw() !!}
+                {!! Former::text('last_name')->placeholder(trans('texts.last_name'))->label('') !!}
             </div>
         </div>
         @if (isset($paymentTitle))
         <div class="row">
             <div class="col-md-12">
-                {!! Former::text('email')->placeholder(trans('texts.email'))->raw() !!}
+                {!! Former::text('email')->placeholder(trans('texts.email'))->label('') !!}
             </div>
         </div>
         @endif
@@ -210,26 +210,26 @@ header h3 em {
         <h3>{{ trans('texts.billing_address') }} &nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
         <div class="row">
             <div class="col-md-6">
-                {!! Former::text('address1')->placeholder(trans('texts.address1'))->raw() !!}
+                {!! Former::text('address1')->placeholder(trans('texts.address1'))->label('') !!}
             </div>
             <div class="col-md-6">
-                {!! Former::text('address2')->placeholder(trans('texts.address2'))->raw() !!}
+                {!! Former::text('address2')->placeholder(trans('texts.address2'))->label('') !!}
             </div>            
         </div>
         <div class="row">
             <div class="col-md-6">
-                {!! Former::text('city')->placeholder(trans('texts.city'))->raw() !!}
+                {!! Former::text('city')->placeholder(trans('texts.city'))->label('') !!}
             </div>
             <div class="col-md-6">
-                {!! Former::text('state')->placeholder(trans('texts.state'))->raw() !!}
+                {!! Former::text('state')->placeholder(trans('texts.state'))->label('') !!}
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
-                {!! Former::text('postal_code')->placeholder(trans('texts.postal_code'))->raw() !!}
+                {!! Former::text('postal_code')->placeholder(trans('texts.postal_code'))->label('') !!}
             </div>
             <div class="col-md-6">
-                {!! Former::select('country_id')->placeholder(trans('texts.country_id'))->fromQuery($countries, 'name', 'id')->raw() !!}                
+                {!! Former::select('country_id')->placeholder(trans('texts.country_id'))->fromQuery($countries, 'name', 'id')->label('') !!}
             </div>
         </div>
 
@@ -238,10 +238,10 @@ header h3 em {
         <h3>{{ trans('texts.billing_method') }}</h3>
         <div class="row">
             <div class="col-md-9">
-                {!! Former::text('card_number')->placeholder(trans('texts.card_number'))->raw() !!}
+                {!! Former::text('card_number')->placeholder(trans('texts.card_number'))->label('') !!}
             </div>
             <div class="col-md-3">
-                {!! Former::text('cvv')->placeholder(trans('texts.cvv'))->raw() !!}
+                {!! Former::text('cvv')->placeholder(trans('texts.cvv'))->label('') !!}
             </div>
         </div>
         <div class="row">
@@ -258,7 +258,7 @@ header h3 em {
                       ->addOption('09 - September', '9')
                       ->addOption('10 - October', '10')
                       ->addOption('11 - November', '11')
-                      ->addOption('12 - December', '12')->raw()
+                      ->addOption('12 - December', '12')->label('')
                     !!}
             </div>
             <div class="col-md-6">
@@ -273,7 +273,7 @@ header h3 em {
                     ->addOption('2022', '2022')
                     ->addOption('2023', '2023')
                     ->addOption('2024', '2024')
-                    ->addOption('2025', '2025')->raw()
+                    ->addOption('2025', '2025')->label('')
                   !!}
             </div>
         </div>

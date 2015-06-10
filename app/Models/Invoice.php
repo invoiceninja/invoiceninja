@@ -10,6 +10,7 @@ class Invoice extends EntityModel
 
     protected $casts = [
         'is_recurring' => 'boolean',
+        'has_tasks' => 'boolean',
     ];
 
     public function account()
@@ -121,6 +122,7 @@ class Invoice extends EntityModel
             'custom_taxes1',
             'custom_taxes2',
             'partial',
+            'has_tasks',
         ]);
 
         $this->client->setVisible([

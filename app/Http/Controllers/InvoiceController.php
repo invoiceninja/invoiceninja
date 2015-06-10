@@ -13,6 +13,7 @@ use URL;
 use Datatable;
 use finfo;
 use Request;
+use DropdownButton;
 use App\Models\Invoice;
 use App\Models\Invitation;
 use App\Models\Client;
@@ -27,6 +28,7 @@ use App\Models\PaymentTerm;
 use App\Models\InvoiceDesign;
 use App\Models\AccountGateway;
 use App\Models\Activity;
+use App\Models\Gateway;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
@@ -58,10 +60,14 @@ class InvoiceController extends BaseController
             'columns' => Utils::trans(['checkbox', 'invoice_number', 'client', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status', 'action']),
         ];
 
-        $recurringInvoices = Invoice::scope()->where('is_recurring', '=', true);
+        $recurringInvoices = Invoice::scope()
+                                ->where('is_recurring', '=', true);
 
         if (Session::get('show_trash:invoice')) {
             $recurringInvoices->withTrashed();
+        } else {
+            $recurringInvoices->join('clients', 'clients.id', '=', 'invoices.client_id')
+                                ->where('clients.deleted_at', '=', null);
         }
 
         if ($recurringInvoices->count() > 0) {
@@ -221,14 +227,14 @@ class InvoiceController extends BaseController
                 'url' => URL::to("payment/{$invitation->invitation_key}/".PAYMENT_TYPE_TOKEN), 'label' => trans('texts.use_card_on_file')
             ];
         }
-        foreach([PAYMENT_TYPE_CREDIT_CARD, PAYMENT_TYPE_PAYPAL, PAYMENT_TYPE_BITCOIN] as $type) {
+        foreach(Gateway::$paymentTypes as $type) {
             if ($account->getGatewayByType($type)) {
                 $paymentTypes[] = [
                     'url' => URL::to("/payment/{$invitation->invitation_key}/{$type}"), 'label' => trans('texts.'.strtolower($type))
                 ];
             }
         }
-        
+
         $data = array(
             'isConverted' => $invoice->quote_invoice_id ? true : false,
             'showBreadcrumbs' => false,
@@ -275,6 +281,40 @@ class InvoiceController extends BaseController
         $invoice->end_date = Utils::fromSqlDate($invoice->end_date);
         $invoice->is_pro = Auth::user()->isPro();
 
+        $actions = [
+            ['url' => 'javascript:onCloneClick()', 'label' => trans("texts.clone_{$entityType}")],
+            ['url' => URL::to("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans("texts.view_history")],
+            DropdownButton::DIVIDER
+        ];
+
+        if ($invoice->invoice_status_id < INVOICE_STATUS_SENT && !$invoice->is_recurring) {
+            $actions[] = ['url' => 'javascript:onMarkClick()', 'label' => trans("texts.mark_sent")];
+        }
+
+        if ($entityType == ENTITY_QUOTE) {
+            if ($invoice->quote_invoice_id) {
+                $actions[] = ['url' => URL::to("invoices/{$invoice->quote_invoice_id}/edit"), 'label' => trans("texts.view_invoice")];
+            } else {
+                $actions[] = ['url' => 'javascript:onConvertClick()', 'label' => trans("texts.convert_to_invoice")];
+            }
+        } elseif ($entityType == ENTITY_INVOICE) {
+            if ($invoice->quote_id) {
+                $actions[] = ['url' => URL::to("quotes/{$invoice->quote_id}/edit"), 'label' => trans("texts.view_quote")];
+            }
+
+            if (!$invoice->is_recurring && $invoice->balance > 0) {
+                $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
+            }
+        }
+
+        if (count($actions) > 3) {
+            $actions[] = DropdownButton::DIVIDER;
+        }
+
+        $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans("texts.archive_{$entityType}")];
+        $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_{$entityType}")];
+
+
         $data = array(
                 'entityType' => $entityType,
                 'showBreadcrumbs' => $clone,
@@ -285,7 +325,8 @@ class InvoiceController extends BaseController
                 'invitationContactIds' => $contactIds,
                 'url' => $url,
                 'title' => trans("texts.edit_{$entityType}"),
-                'client' => $invoice->client, );
+                'client' => $invoice->client, 
+                'actions' => $actions);
         $data = array_merge($data, self::getViewModel());
 
         // Set the invitation link on the client's contacts
@@ -327,7 +368,8 @@ class InvoiceController extends BaseController
                 'method' => 'POST',
                 'url' => 'invoices',
                 'title' => trans('texts.new_invoice'),
-                'client' => $client, );
+                'client' => $client,
+                'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null);
         $data = array_merge($data, self::getViewModel());
 
         return View::make('invoices.edit', $data);
@@ -366,7 +408,9 @@ class InvoiceController extends BaseController
                 6 => 'Six months',
                 7 => 'Annually',
             ),
-            'recurringHelp' => $recurringHelp
+            'recurringHelp' => $recurringHelp,
+            'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
+
         ];
 
     }

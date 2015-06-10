@@ -94,14 +94,12 @@
                     </thead>
                     <tbody>
                         @foreach ($pastDue as $invoice)
-                        @if (!$invoice->client->trashed())
                         <tr>
                             <td>{!! $invoice->getLink() !!}</td>
                             <td>{{ $invoice->client->getDisplayName() }}</td>
                             <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
-                            <td>{{ Utils::formatMoney($invoice->balance, $invoice->client->currency_id) }}</td>
+                            <td>{{ Utils::formatMoney($invoice->balance, $invoice->client->getCurrencyId()) }}</td>
                         </tr>
-                        @endif
                         @endforeach
                     </tbody>
                 </table>
@@ -123,14 +121,12 @@
                     </thead>
                     <tbody>
                         @foreach ($upcoming as $invoice)
-                        @if (!$invoice->client->trashed())
                         <tr>
                             <td>{!! $invoice->getLink() !!}</td>
                             <td>{{ $invoice->client->getDisplayName() }}</td>
                             <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
-                            <td>{{ Utils::formatMoney($invoice->balance, $invoice->client->currency_id) }}</td>
+                            <td>{{ Utils::formatMoney($invoice->balance, $invoice->client->getCurrencyId()) }}</td>
                         </tr>
-                        @endif
                         @endforeach
                     </tbody>
                 </table>

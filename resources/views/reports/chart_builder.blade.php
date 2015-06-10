@@ -12,7 +12,7 @@
 
 
    {!! Button::primary(trans('texts.data_visualizations'))
-            ->asLinkTo('/company/advanced_settings/data_visualizations')
+            ->asLinkTo(URL::to('/company/advanced_settings/data_visualizations'))
             ->withAttributes(['class' => 'pull-right'])
             ->appendIcon(Icon::create('globe')) !!}
 
@@ -28,7 +28,7 @@
             <div class="panel-body">    
 
 
-			{!! Former::open()->addClass('warn-on-exit') !!}            
+			{!! Former::open()->rules(['start_date' => 'required', 'end_date' => 'required'])->addClass('warn-on-exit') !!}            
 
             <div style="display:none">
             {!! Former::text('action') !!}

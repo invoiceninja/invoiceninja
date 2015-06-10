@@ -1,5 +1,7 @@
 <?php namespace App\Http\Controllers;
 
+use Response;
+use Request;
 use Redirect;
 use Auth;
 use View;
@@ -8,6 +10,7 @@ use Session;
 use App\Models\Account;
 use App\Libraries\Utils;
 use App\Ninja\Mailers\Mailer;
+use Symfony\Component\Security\Core\Util\StringUtils;
 
 class HomeController extends BaseController
 {
@@ -75,5 +78,10 @@ class HomeController extends BaseController
     public function logError()
     {
         return Utils::logError(Input::get('error'), 'JavaScript');
+    }
+
+    public function keepAlive()
+    {
+        return RESULT_SUCCESS;
     }
 }

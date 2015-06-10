@@ -31,9 +31,12 @@ class Invitation extends EntityModel
     {
         $this->load('account');
         $url = SITE_URL;
-
+                
         if ($this->account->subdomain) {
-            $url = str_replace('://www.', "://{$this->account->subdomain}.", $url);
+            $parsedUrl = parse_url($url);
+            $host = explode('.', $parsedUrl['host']);
+            $subdomain = $host[0];
+            $url = str_replace("://{$subdomain}.", "://{$this->account->subdomain}.", $url);
         }
 
         return "{$url}/view/{$this->invitation_key}";

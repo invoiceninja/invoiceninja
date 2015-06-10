@@ -209,6 +209,7 @@ class AccountController extends BaseController
 
                 $data['invoice'] = $invoice;
                 $data['invoiceDesigns'] = InvoiceDesign::availableDesigns();
+                $data['invoiceLabels'] = json_decode($account->invoice_labels) ?: [];
             } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
                 $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
                 $data['quoteEmail'] = $account->getEmailTemplate(ENTITY_QUOTE);
@@ -331,6 +332,16 @@ class AccountController extends BaseController
             $account->primary_color = Input::get('primary_color');
             $account->secondary_color = Input::get('secondary_color');
             $account->invoice_design_id =  Input::get('invoice_design_id');
+            if (Input::has('font_size')) {
+                $account->font_size =  intval(Input::get('font_size'));
+            }
+            
+            $labels = [];
+            foreach (['item', 'description', 'unit_cost', 'quantity'] as $field) {
+                $labels[$field] = trim(Input::get("labels_{$field}"));
+            }
+            $account->invoice_labels = json_encode($labels);
+
             $account->save();
 
             Session::flash('message', trans('texts.updated_settings'));

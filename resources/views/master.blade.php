@@ -15,12 +15,12 @@
     <meta property="og:description" content="Simple, Intuitive Invoicing." />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="<?= csrf_token() ?>">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100" rel="stylesheet" type="text/css">
     <link href="//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700" rel="stylesheet" type="text/css">
-    <link href="{{ asset('favicon.png') }}" rel="shortcut icon">
+    <link href="{{ asset('favicon.png?test') }}" rel="shortcut icon">
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}" />
 
     <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    
@@ -79,10 +79,7 @@
     <!-- End Google Tag Manager -->
 
     <script>
-        function trackUrl(url) {
-            url = '/track' + url.replace('http:/', '');
-            dataLayer.push({'event':url, 'eventLabel':this.src});
-        }        
+        function trackEvent(category, action) {}
     </script>
     @elseif (isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])  
     <script>
@@ -94,15 +91,13 @@
         ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}', 'auto');        
         ga('send', 'pageview');
 
-        function trackUrl(url) {
-            url = '/track' + url.replace('http:/', '');
-            ga('send', 'pageview', url);  
-            //ga('send', 'event', 'photo', 'hover', this.src);
+        function trackEvent(category, action) {
+            ga('send', 'event', category, action, this.src);
         }
     </script>
     @else
     <script>
-        function trackUrl(url) {}
+        function trackEvent(category, action) {}
     </script>
     @endif
 
@@ -114,6 +109,10 @@
         $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function() {
             NINJA.formIsChanged = true;      
         }); 
+
+        @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))
+            trackEvent('{{ session('trackEventCategory') }}', '{{ session('trackEventAction') }}');            
+        @endif
     });
     $('form').submit(function() {
         NINJA.formIsChanged = false;
@@ -126,10 +125,9 @@
         }
     }); 
     function openUrl(url, track) {
-        trackUrl(track ? track : url);
+        trackEvent('/view_link', track ? track : url);
         window.open(url, '_blank');
     }
-
 
 //$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });
 </script> 

@@ -13,7 +13,7 @@
 
   @if ($showAdd)
       {!! Button::primary(trans('texts.add_gateway'))
-            ->asLinkTo('/gateways/create')
+            ->asLinkTo(URL::to('/gateways/create'))
             ->withAttributes(['class' => 'pull-right'])
             ->appendIcon(Icon::create('plus-sign')) !!}
   @endif
@@ -51,7 +51,7 @@
   */
 
   function deleteAccountGateway(id) {
-    if (!confirm('Are you sure?')) {
+    if (!confirm("{!! trans('texts.are_you_sure') !!}")) {
       return;
     }
 

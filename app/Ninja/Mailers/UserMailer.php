@@ -39,7 +39,7 @@ class UserMailer extends Mailer
             return;
         }
         
-        $entityType = $invoice->getEntityType();
+        $entityType = $notificationType == 'approved' ? ENTITY_QUOTE : ENTITY_INVOICE;
         $view = "{$entityType}_{$notificationType}";
 
         $data = [
@@ -47,13 +47,13 @@ class UserMailer extends Mailer
             'clientName' => $invoice->client->getDisplayName(),
             'accountName' => $invoice->account->getDisplayName(),
             'userName' => $user->getDisplayName(),
-            'invoiceAmount' => Utils::formatMoney($invoice->amount, $invoice->client->currency_id),
+            'invoiceAmount' => Utils::formatMoney($invoice->amount, $invoice->client->getCurrencyId()),
             'invoiceNumber' => $invoice->invoice_number,
             'invoiceLink' => SITE_URL."/{$entityType}s/{$invoice->public_id}",
         ];
 
         if ($payment) {
-            $data['paymentAmount'] = Utils::formatMoney($payment->amount, $invoice->client->currency_id);
+            $data['paymentAmount'] = Utils::formatMoney($payment->amount, $invoice->client->getCurrencyId());
         }
 
         $subject = trans("texts.notification_{$entityType}_{$notificationType}_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->getDisplayName()]);
