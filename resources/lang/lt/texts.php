@@ -678,6 +678,18 @@ return array(
   'gateway_help_43' => ':link to sign up for Dwolla.',
   'partial_value' => 'Must be greater than zero and less than the total',
   'more_actions' => 'More Actions',
+
+  'pro_plan_title' => 'NINJA PRO',
+  'pro_plan_call_to_action' => 'Upgrade Now!',
+  'pro_plan_feature1' => 'Create Unlimited Clients',
+  'pro_plan_feature2' => 'Access to 10 Beautiful Invoice Designs',
+  'pro_plan_feature3' => 'Custom URLs - "YourBrand.InvoiceNinja.com"',
+  'pro_plan_feature4' => 'Remove "Created by Invoice Ninja"',
+  'pro_plan_feature5' => 'Multi-user Access & Activity Tracking',
+  'pro_plan_feature6' => 'Create Quotes & Pro-forma Invoices',
+  'pro_plan_feature7' => 'Customize Invoice Field Titles & Numbering',
+  'pro_plan_feature8' => 'Option to Attach PDFs to Client Emails',
+
     
 );
 

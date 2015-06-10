@@ -144,27 +144,35 @@
     $('#signUpModal').modal('show');    
   }
 
+  NINJA.proPlanFeature = '';
+  function showProPlan(feature) {
+    $('#proPlanModal').modal('show');
+    trackEvent('/account', '/show_pro_plan/' + feature);
+    NINJA.proPlanFeature = feature;
+  }
+
+  function hideProPlan() {
+    $('#proPlanModal').modal('hide');
+  }
+
   function buyProduct(affiliateKey, productId) {
     window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/license?affiliate_key=' + affiliateKey + '&product_id=' + productId + '&return_url=' + window.location);
   }
 
   @if (Auth::check() && !Auth::user()->isPro())
-  function submitProPlan(feature) {
-    trackEvent('/account', '/submit_pro_plan/' + feature);
-    if (NINJA.isRegistered) {
-      $('#proPlanDiv, #proPlanFooter').hide();
-      $('#proPlanWorking').show();
-
+  function submitProPlan() {
+    trackEvent('/account', '/submit_pro_plan/' + NINJA.proPlanFeature);
+    if (NINJA.isRegistered) {      
       $.ajax({
         type: 'POST',
         url: '{{ URL::to('account/go_pro') }}',
         success: function(result) { 
           NINJA.formIsChanged = false;
-          window.location = '/view/' + result;
+          window.location = '/payment/' + result;
         }
       });     
     } else {
-      $('#proPlanModal').modal('hide');
+      $('#proPlanModal').modal('hide');    
       $('#go_pro').val('true');
       showSignUp();
     }
@@ -321,7 +329,7 @@
           @if (!Auth::user()->registered)
             {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal'))->small() !!} &nbsp;
           @elseif (!Auth::user()->isPro())
-            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'onclick' => 'submitProPlan("")'))->small() !!} &nbsp;
+            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'onclick' => 'showProPlan("")'))->small() !!} &nbsp;
           @endif
         @endif
 
@@ -526,47 +534,36 @@
 
 @if (Auth::check() && !Auth::user()->isPro())
   <div class="modal fade" id="proPlanModal" tabindex="-1" role="dialog" aria-labelledby="proPlanModalLabel" aria-hidden="true">
-    <div class="modal-dialog medium-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title" id="proPlanModalLabel">{{ trans('texts.pro_plan_product') }}</h4>
+    <div class="modal-dialog large-dialog">
+      <div class="modal-content pro-plan-modal">
+        
+
+        <div class="pull-right">
+            <img onclick="hideProPlan()" class="close" src="{{ asset('images/pro_plan/close.png') }}"/>
+        </div>        
+        <div class="row">
+
+            <div class="col-md-7 left-side">
+                <center>
+                    <h2>{{ trans('texts.pro_plan_title') }}</h2>
+                    <img class="img-responsive price" alt="Only $50 Per Year" src="{{ asset('images/pro_plan/price.png') }}"/>
+                    <a class="button" href="#" onclick="submitProPlan()">{{ trans('texts.pro_plan_call_to_action') }}</a>
+                </center>
+            </div>
+            <div class="col-md-5">
+                <ul>
+                    <li>{{ trans('texts.pro_plan_feature1') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature2') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature3') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature4') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature5') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature6') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature7') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature8') }}</li>
+                </ul>
+            </div>
         </div>
 
-        <div style="background-color: #fff; padding-left: 16px; padding-right: 16px" id="proPlanDiv">
-          <section class="plans">
-            <div class="row">
-              <div class="col-md-12">
-                <h2>Go Pro to Unlock Premium Invoice Ninja Features</h2>
-                <p>We believe that the free version of Invoice Ninja is a truly awesome product loaded 
-                  with the key features you need to bill your clients electronically. But for those who 
-                  crave still more Ninja awesomeness, we've unmasked the Invoice Ninja Pro plan, which 
-                  offers more versatility, power and customization options for just $50 per year. </p>
-              </div>
-            </div>              
-
-            @include('plans')
-            &nbsp;
-      </div>
-
-
-      <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="proPlanWorking">
-        <h3>{{ trans('texts.working') }}...</h3>
-        <div class="progress progress-striped active">
-          <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-        </div>
-      </div>
-
-      <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="proPlanSuccess">
-        &nbsp;<br/>
-        {{ trans('texts.pro_plan_success') }}
-        <br/>&nbsp;
-      </div>
-
-       <div class="modal-footer" style="margin-top: 0px" id="proPlanFooter">
-          <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>          
-          <button type="button" class="btn btn-primary" id="proPlanButton" onclick="submitProPlan()">{{ trans('texts.sign_up') }}</button>                    
-       </div>     
       </div>
     </div>
   </div>

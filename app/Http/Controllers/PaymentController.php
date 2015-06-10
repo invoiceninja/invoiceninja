@@ -292,7 +292,9 @@ class PaymentController extends BaseController
         $account = $client->account;
         $useToken = false;
 
-        if (!$paymentType) {
+        if ($paymentType) {
+            $paymentType = 'PAYMENT_TYPE_' . strtoupper($paymentType);
+        } else {
             $paymentType = Session::get('payment_type', $account->account_gateways[0]->getPaymentType());
         }
         if ($paymentType == PAYMENT_TYPE_TOKEN) {

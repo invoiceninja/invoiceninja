@@ -229,8 +229,9 @@ class InvoiceController extends BaseController
         }
         foreach(Gateway::$paymentTypes as $type) {
             if ($account->getGatewayByType($type)) {
-                $paymentTypes[] = [
-                    'url' => URL::to("/payment/{$invitation->invitation_key}/{$type}"), 'label' => trans('texts.'.strtolower($type))
+                $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
+                $paymentTypes[] = [                
+                    'url' => URL::to("/payment/{$invitation->invitation_key}/{$typeLink}"), 'label' => trans('texts.'.strtolower($type))
                 ];
             }
         }

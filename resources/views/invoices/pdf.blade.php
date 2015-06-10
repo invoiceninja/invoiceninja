@@ -35,7 +35,7 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
         
         @if (Utils::isNinjaProd())
-          <button type="button" class="btn btn-primary" onclick="submitProPlan('invoice_designs')">{{ trans('texts.go_pro') }}</button>
+          <button type="button" class="btn btn-primary" onclick="showProPlan('invoice_designs')">{{ trans('texts.go_pro') }}</button>
         @else
           <button type="button" class="btn btn-primary" onclick="buyProduct('{{ INVOICE_DESIGNS_AFFILIATE_KEY }}', '{{ PRODUCT_INVOICE_DESIGNS }}')">{{ trans('texts.buy') }}</button>
         @endif
