@@ -725,10 +725,16 @@ class AccountController extends BaseController
     {
         $affiliate = Affiliate::where('affiliate_key', '=', SELF_HOST_AFFILIATE_KEY)->first();
 
+        $email = trim(Input::get('email'));
+
+        if (!$email || $email == 'user@example.com') {
+            return RESULT_SUCCESS;
+        }
+
         $license = new License();
         $license->first_name = Input::get('first_name');
         $license->last_name = Input::get('last_name');
-        $license->email = Input::get('email');
+        $license->email = $email;
         $license->transaction_reference = Request::getClientIp();
         $license->license_key = Utils::generateLicense();
         $license->affiliate_id = $affiliate->id;
@@ -736,7 +742,7 @@ class AccountController extends BaseController
         $license->is_claimed = 1;
         $license->save();
 
-        return '';
+        return RESULT_SUCCESS;
     }
 
     public function cancelAccount()

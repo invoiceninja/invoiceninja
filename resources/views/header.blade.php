@@ -388,22 +388,18 @@
         </div>
       </form>
 
-      <ul class="nav navbar-nav navbar-right">	      
+      <ul class="nav navbar-nav navbar-right"> 
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            @if (Session::get(SESSION_LOCALE) == 'en')
-              {{ trans('texts.history') }} <b class="caret"></b>              
-            @else
-              <span class="glyphicon glyphicon-time" title="{{ trans('texts.history') }}"/>
-            @endif
+            <span class="glyphicon glyphicon-time" title="{{ trans('texts.history') }}"/>
           </a>
           <ul class="dropdown-menu">	        		        	
             @if (count(Session::get(RECENTLY_VIEWED)) == 0)
-            <li><a href="#">{{ trans('texts.no_items') }}</a></li>
+                <li><a href="#">{{ trans('texts.no_items') }}</a></li>
             @else
-            @foreach (Session::get(RECENTLY_VIEWED) as $link)
-            <li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
-            @endforeach
+                @foreach (Session::get(RECENTLY_VIEWED) as $link)
+                    <li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
+                @endforeach
             @endif
           </ul>
         </li>
