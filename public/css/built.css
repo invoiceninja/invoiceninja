@@ -3273,7 +3273,7 @@ button .glyphicon {
     background-color: #4b4b4b;
     padding-bottom: 40px;
     padding-right: 25px;
-    /*opacity:0.96 !important;*/
+    opacity:0.95 !important;
 }
 
 .pro-plan-modal .left-side {
