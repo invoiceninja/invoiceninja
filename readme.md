@@ -1,7 +1,7 @@
 # Invoice Ninja
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
-If you'd like to use our code to sell your own invoicing app we have an affiliate program. Get in touch for more details.
+If you'd like to use our code to sell your own invoicing app email us for details about our affiliate program.
 
 ### Getting Started
 
