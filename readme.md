@@ -11,7 +11,7 @@ If you have any questions or comments please use our [support forum](https://www
 
 If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
 
-Developed by [Hillel Coren](http://hillelcoren.com/) | Designed by [kantorp-wegl.in](http://kantorp-wegl.in/).
+Developed by [hillelcoren.com](http://hillelcoren.com/) | Designed by [kantorp-wegl.in](http://kantorp-wegl.in/).
 
 ### Features
 
