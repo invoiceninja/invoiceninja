@@ -7,7 +7,7 @@ If you'd like to use our code to sell your own invoicing app we have an affiliat
 
 To setup the site you can either use the [zip file](https://www.invoiceninja.com/knowledgebase/self-host/) (easier to run) or checkout the code from GitHub (easier to make changes).
 
-For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). For discussion of the app please use our [new forum](http://www.invoiceninja.com/forums). 
+For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). If you have any questions or comments please use our [support forum](https://www.invoiceninja.com/forums/forum/support/).
 
 If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
 
