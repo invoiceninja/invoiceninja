@@ -45,6 +45,7 @@ class EnableResumingTasks extends Migration {
 	 */
 	public function down()
 	{
+
         Schema::table('tasks', function($table)
         {
             $table->dropColumn('is_running');
