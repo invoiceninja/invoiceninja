@@ -32588,7 +32588,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     }
     shownItem = true;
 
-    var numLines = doc.splitTextToSize(item.notes, 200).length + 2;
+    var numLines = Math.max(doc.splitTextToSize(item.notes, 200).length, doc.splitTextToSize(item.product_key, 60).length) + 2;
     //console.log('num lines %s', numLines);
 
     var y = tableTop + (line * layout.tableRowHeight) + (2 * layout.tablePadding);

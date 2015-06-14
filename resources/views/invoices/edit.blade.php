@@ -24,7 +24,7 @@
 
 	{!! Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
 		'client' => 'required',
-		'product_key' => 'max:20'
+		'product_key' => 'max:255'
 	)) !!}	
 
 
