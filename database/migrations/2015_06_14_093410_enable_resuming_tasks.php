@@ -48,7 +48,7 @@ class EnableResumingTasks extends Migration {
         {
             $table->dropColumn('is_running');
             $table->dropColumn('resume_time');
-            $table->dropColumn('end_time');
+            $table->dropColumn('break_duration');
         });
 	}
 
