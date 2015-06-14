@@ -60,7 +60,7 @@ class TaskRepository
             $task->description = trim($data['description']);
         }
 
-        $timeLog = $task->time_log ? json_decode($task->time_log) : [];
+        $timeLog = $task->time_log ? json_decode($task->time_log, true) : [];
 
         if ($data['action'] == 'start') {
             $task->start_time = Carbon::now()->toDateTimeString();
