@@ -60,13 +60,17 @@ class TaskRepository
             $task->description = trim($data['description']);
         }
 
+        $timeLog = $task->time_log ? json_decode($task->time_log) : [];
+
         if ($data['action'] == 'start') {
             $task->start_time = Carbon::now()->toDateTimeString();
             $task->is_running = true;
+            $timeLog[] = [strtotime('now'), false];
         } else if ($data['action'] == 'resume') {
             $task->break_duration = strtotime('now') - strtotime($task->start_time) + $task->duration;
             $task->resume_time = Carbon::now()->toDateTimeString();
             $task->is_running = true;
+            $timeLog[] = [strtotime('now'), false];
         } else if ($data['action'] == 'stop' && $task->is_running) {
             if ($task->resume_time) {
                 $task->duration = $task->duration + strtotime('now') - strtotime($task->resume_time);
@@ -74,6 +78,7 @@ class TaskRepository
             } else {
                 $task->duration = strtotime('now') - strtotime($task->start_time);
             }
+            $timeLog[count($timeLog)-1][1] = strtotime('now');
             $task->is_running = false;
         } else if ($data['action'] == 'save' && !$task->is_running) {
             $task->start_time = $data['start_time'];
@@ -83,6 +88,7 @@ class TaskRepository
 
         $task->duration = max($task->duration, 0);
         $task->break_duration = max($task->break_duration, 0);
+        $task->time_log = json_encode($timeLog);
 
         $task->save();
 

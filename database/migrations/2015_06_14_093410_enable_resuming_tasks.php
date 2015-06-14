@@ -13,10 +13,11 @@ class EnableResumingTasks extends Migration {
 	public function up()
 	{
         Schema::table('tasks', function($table)
-        {            
+        {
             $table->boolean('is_running')->default(false);
             $table->integer('break_duration')->nullable();
             $table->timestamp('resume_time')->nullable();
+            $table->text('time_log')->nullable();
         });
 
         $tasks = DB::table('tasks')
@@ -49,6 +50,7 @@ class EnableResumingTasks extends Migration {
             $table->dropColumn('is_running');
             $table->dropColumn('resume_time');
             $table->dropColumn('break_duration');
+            $table->dropColumn('time_log');
         });
 	}
 

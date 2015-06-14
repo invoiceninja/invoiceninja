@@ -690,5 +690,6 @@ return array(
   'resume' => 'Resume',
   'break_duration' => 'Break',
   'edit_details' => 'Edit Details',
+  'work' => 'Work',
 
 );

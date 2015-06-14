@@ -55,9 +55,6 @@
                             @if ($task->duration)
                                 {{ trans('texts.duration') }}: <span id="durationText"></span><br/>
                             @endif
-                            @if ($task->break_duration)
-                                {{ trans('texts.break_duration') }}: <span id="breakDurationText"></span><br/>
-                            @endif                            
                             <p>{!! Button::primary(trans('texts.edit_details'))->withAttributes(['onclick'=>'showTimeDetails()'])->small() !!}</p>
                         </div>
                     </div>
@@ -94,7 +91,7 @@
 
                     <div class="form-group">
                         <label class="control-label col-lg-4 col-sm-4">
-                            {{ trans('texts.duration') }}
+                            {{ trans('texts.work') }}
                         </label>
                         <div class="col-lg-8 col-sm-8 time-input">
                             <input class="form-control" id="duration_hours" placeholder="{{ uctrans('texts.hours') }}" 
@@ -285,7 +282,7 @@
         @if ($task)
             NINJA.startTime = {{ strtotime($task->start_time) }};            
             @if ($task->is_running)
-                tock({{ $task->duration ?: strtotime('now') - strtotime($task->start_time) }});
+                tock({{ $duration }});
             @else
                 var date = new Date(NINJA.startTime * 1000);
                 var hours = date.getHours();

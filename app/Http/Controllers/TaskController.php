@@ -163,7 +163,8 @@ class TaskController extends BaseController
             'clientPublicId' => $task->client ? $task->client->public_id : 0,
             'method' => 'PUT',
             'url' => 'tasks/'.$publicId,
-            'title' => trans('texts.edit_task')
+            'title' => trans('texts.edit_task'),
+            'duration' => $task->resume_time ? ($task->duration + strtotime('now') - strtotime($task->resume_time)) : (strtotime('now') - strtotime($task->start_time))
         ];
 
         $data = array_merge($data, self::getViewModel());
