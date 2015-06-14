@@ -84,8 +84,15 @@ class ContactMailer extends Mailer
 
         $data = ['body' => str_replace(array_keys($variables), array_values($variables), $emailTemplate)];
 
-        $user = $payment->invitation->user;
-        $this->sendTo($payment->contact->email, $user->email, $accountName, $subject, $view, $data);
+        if ($payment->invitation) {
+            $user = $payment->invitation->user;
+            $contact = $payment->contact->email;
+        } else {
+            $user = $payment->user;
+            $contact = $payment->client->contacts[0];
+        }
+
+        $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);
     }
 
     public function sendLicensePaymentConfirmation($name, $email, $amount, $license, $productId)

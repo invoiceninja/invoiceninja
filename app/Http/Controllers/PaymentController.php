@@ -733,14 +733,19 @@ class PaymentController extends BaseController
                 ->withErrors($errors)
                 ->withInput();
         } else {
-            $this->paymentRepo->save($publicId, Input::all());
+            $payment = $this->paymentRepo->save($publicId, Input::all());
 
             if ($publicId) {
                 Session::flash('message', trans('texts.updated_payment'));
 
                 return Redirect::to('payments/');
             } else {
-                Session::flash('message', trans('texts.created_payment'));
+                if (Input::get('email_receipt')) {
+                    $this->contactMailer->sendPaymentConfirmation($payment);
+                    Session::flash('message', trans('texts.created_payment_emailed_client'));
+                } else {
+                    Session::flash('message', trans('texts.created_payment'));
+                }
 
                 return Redirect::to('clients/'.Input::get('client'));
             }

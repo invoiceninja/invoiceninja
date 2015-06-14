@@ -694,5 +694,7 @@ return array(
   'timezone_unset' => 'Please :link to set your timezone',
   'click_here' => 'click here',
 
+  'email_receipt' => 'Email payment receipt to the client',
+  'created_payment_emailed_client' => 'Successfully created payment and emailed client',
 
 );
