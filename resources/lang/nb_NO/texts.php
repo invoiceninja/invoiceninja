@@ -688,5 +688,9 @@ return array(
   'pro_plan_feature7' => 'Customize Invoice Field Titles & Numbering',
   'pro_plan_feature8' => 'Option to Attach PDFs to Client Emails',
 
+  'resume' => 'Resume',
+  'break_duration' => 'Break',
+  'edit_details' => 'Edit Details',
+
   
 );
