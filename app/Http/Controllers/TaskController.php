@@ -65,7 +65,7 @@ class TaskController extends BaseController
         }
 
         return $table->addColumn('start_time', function($model) { return Utils::fromSqlDateTime($model->start_time); })
-                ->addColumn('duration', function($model) { return gmdate('H:i:s', $model->duration == -1 ? time() - strtotime($model->start_time) : $model->duration); })
+                ->addColumn('duration', function($model) { return gmdate('H:i:s', $model->is_running ? time() - strtotime($model->start_time) : $model->duration); })
                 ->addColumn('description', function($model) { return $model->description; })
                 ->addColumn('invoice_number', function($model) { return self::getStatusLabel($model); })
                 ->addColumn('dropdown', function ($model) {
@@ -81,7 +81,7 @@ class TaskController extends BaseController
 
                         if ($model->invoice_number) {
                             $str .= '<li>' . link_to("/invoices/{$model->invoice_public_id}/edit", trans('texts.view_invoice')) . '</li>';
-                        } elseif ($model->duration == -1) {
+                        } elseif ($model->is_running) {
                             $str .= '<li><a href="javascript:stopTask('.$model->public_id.')">'.trans('texts.stop_task').'</a></li>';
                         } elseif (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
                             $str .= '<li><a href="javascript:invoiceTask('.$model->public_id.')">'.trans('texts.invoice_task').'</a></li>';
@@ -107,7 +107,7 @@ class TaskController extends BaseController
         if ($model->invoice_number) {
             $class = 'success';
             $label = trans('texts.invoiced');
-        } elseif ($model->duration == -1) {
+        } elseif ($model->is_running) {
             $class = 'primary';
             $label = trans('texts.running');
         } else {
@@ -163,8 +163,7 @@ class TaskController extends BaseController
             'clientPublicId' => $task->client ? $task->client->public_id : 0,
             'method' => 'PUT',
             'url' => 'tasks/'.$publicId,
-            'title' => trans('texts.edit_task'),
-            'duration' => time() - strtotime($task->start_time),
+            'title' => trans('texts.edit_task')
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -196,11 +195,7 @@ class TaskController extends BaseController
 
         Session::flash('message', trans($publicId ? 'texts.updated_task' : 'texts.created_task'));
 
-        if (Input::get('action') == 'stop') {
-            return Redirect::to("tasks");
-        } else {
-            return Redirect::to("tasks/{$task->public_id}/edit");
-        }        
+        return Redirect::to("tasks/{$task->public_id}/edit");
     }
 
     public function bulk()
@@ -228,7 +223,7 @@ class TaskController extends BaseController
                     }
                 }
 
-                if ($task->duration == -1) {
+                if ($task->is_running) {
                     Session::flash('error', trans('texts.task_error_running'));
                     return Redirect::to('tasks');
                 } else if ($task->invoice_id) {
