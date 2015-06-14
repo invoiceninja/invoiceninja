@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use Auth;
 use View;
 use URL;
 use Utils;
@@ -8,6 +9,7 @@ use Datatable;
 use Validator;
 use Redirect;
 use Session;
+use DropdownButton;
 use App\Models\Client;
 use App\Models\Task;
 
@@ -44,7 +46,12 @@ class TaskController extends BaseController
      * @return Response
      */
     public function index()
-    {        
+    {
+        if (!Auth::user()->account->timezone) {
+            $link = link_to('/company/details', trans('texts.click_here'), ['target' => '_blank']);
+            Session::flash('warning', trans('texts.timezone_unset', ['link' => $link]));
+        }
+
         return View::make('list', array(
             'entityType' => ENTITY_TASK,
             'title' => trans('texts.tasks'),
@@ -156,7 +163,21 @@ class TaskController extends BaseController
      */
     public function edit($publicId)
     {
-        $task = Task::scope($publicId)->with('client')->firstOrFail();
+        $task = Task::scope($publicId)->with('client', 'invoice')->firstOrFail();
+
+        $actions = [];
+        if ($task->invoice) {
+            $actions[] = ['url' => URL::to("inovices/{$task->invoice->public_id}/edit"), 'label' => trans("texts.view_invoice")];
+        } else {
+            $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans("texts.invoice_task")];
+        }
+        $actions[] = DropdownButton::DIVIDER;
+        if (!$task->trashed()) {
+            $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_task')];
+            $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_task')];
+        } else {
+            $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_task')];
+        }
         
         $data = [
             'task' => $task,
@@ -164,7 +185,8 @@ class TaskController extends BaseController
             'method' => 'PUT',
             'url' => 'tasks/'.$publicId,
             'title' => trans('texts.edit_task'),
-            'duration' => $task->resume_time ? ($task->duration + strtotime('now') - strtotime($task->resume_time)) : (strtotime('now') - strtotime($task->start_time))
+            'duration' => $task->resume_time ? ($task->duration + strtotime('now') - strtotime($task->resume_time)) : (strtotime('now') - strtotime($task->start_time)),
+            'actions' => $actions
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -192,8 +214,13 @@ class TaskController extends BaseController
 
     private function save($publicId = null)
     {
-        $task = $this->taskRepo->save($publicId, Input::all());
+        $action = Input::get('action');
 
+        if (in_array($action, ['archive', 'delete', 'invoice', 'restore'])) {
+            return self::bulk();
+        }
+
+        $task = $this->taskRepo->save($publicId, Input::all());
         Session::flash('message', trans($publicId ? 'texts.updated_task' : 'texts.created_task'));
 
         return Redirect::to("tasks/{$task->public_id}/edit");

@@ -25,6 +25,10 @@
     @endif
 
     <div style="display:none">
+        @if ($task)
+            {!! Former::text('id') !!}
+            {!! Former::populateField('id', $task->public_id) !!}
+        @endif
         {!! Former::text('action') !!}
         {!! Former::text('start_time') !!}
         {!! Former::text('duration') !!}
@@ -144,6 +148,10 @@
             @if ($task)
                 {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
                 {!! Button::primary(trans('texts.resume'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'resume-button']) !!}
+                {!! DropdownButton::normal(trans('texts.more_actions'))
+                      ->withContents($actions)
+                      ->large()
+                      ->dropup() !!}
             @else
                 {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button', 'style' => 'display:none']) !!}
                 {!! Button::success(trans('texts.start'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'start-button']) !!}
@@ -181,7 +189,7 @@
             var period = periods[i];
             var letter = period.charAt(0);
             var value = parts[letter];            
-            if (!value || data.length) {
+            if (!value) {
                 continue;
             }
             period = value == 1 ? timeLabels[period] : timeLabels[period + 's'];
@@ -214,6 +222,12 @@
     function submitAction(action) {
         $('#action').val(action);
         $('.task-form').submit();
+    }
+
+    function onDeleteClick() {
+        if (confirm('{!! trans("texts.are_you_sure") !!}')) {       
+            submitAction('delete');     
+        }       
     }
 
     function showTimeDetails() {
@@ -317,7 +331,7 @@
             @endif
         @endif
 
-        determineEndTime();    
+        determineEndTime();        
     });    
 
     </script>

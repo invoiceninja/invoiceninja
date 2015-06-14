@@ -691,6 +691,10 @@ return array(
   'resume' => 'Resume',
   'break_duration' => 'Break',
   'edit_details' => 'Edit Details',
+  'work' => 'Work',
+  'timezone_unset' => 'Please :link to set your timezone',
+  'click_here' => 'click here',
+
 
   
 );

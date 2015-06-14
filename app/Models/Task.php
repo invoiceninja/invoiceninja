@@ -13,6 +13,11 @@ class Task extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
+    public function invoice()
+    {
+        return $this->belongsTo('App\Models\Invoice');
+    }
+
     public function client()
     {
         return $this->belongsTo('App\Models\Client')->withTrashed();
