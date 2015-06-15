@@ -67,6 +67,7 @@ get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegiste
 post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
 get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));
 post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper'));
+//get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper'));
 get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogout'));
 get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
 post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
@@ -93,6 +94,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
     Route::post('users/change_password', 'UserController@changePassword');
+    Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
 
     Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
     Route::resource('tokens', 'TokenController');
@@ -313,6 +315,7 @@ define('SESSION_DATE_PICKER_FORMAT', 'datePickerFormat');
 define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
 define('SESSION_COUNTER', 'sessionCounter');
 define('SESSION_LOCALE', 'sessionLocale');
+define('SESSION_USER_ACCOUNTS', 'userAccounts');
 
 define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
 define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
@@ -356,7 +359,7 @@ define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
 define('NINJA_GATEWAY_CONFIG', '');
 define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
 define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-define('NINJA_VERSION', '2.2.1');
+define('NINJA_VERSION', '2.2.2');
 define('NINJA_DATE', '2000-01-01');
 define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
 define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
