@@ -1,4 +1,4 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteRule "^.env" - [F,L]
+  RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
