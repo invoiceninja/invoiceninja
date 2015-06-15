@@ -224,7 +224,7 @@ class InvoiceController extends BaseController
         $paymentTypes = [];
         if ($client->getGatewayToken()) {
             $paymentTypes[] = [
-                'url' => URL::to("payment/{$invitation->invitation_key}/".PAYMENT_TYPE_TOKEN), 'label' => trans('texts.use_card_on_file')
+                'url' => URL::to("payment/{$invitation->invitation_key}/token"), 'label' => trans('texts.use_card_on_file')
             ];
         }
         foreach(Gateway::$paymentTypes as $type) {
