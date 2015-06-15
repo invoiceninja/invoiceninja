@@ -86,13 +86,15 @@ class ContactMailer extends Mailer
 
         if ($payment->invitation) {
             $user = $payment->invitation->user;
-            $contact = $payment->contact->email;
+            $contact = $payment->contact;
         } else {
             $user = $payment->user;
             $contact = $payment->client->contacts[0];
         }
 
-        $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);
+        if ($user->email && $contact->email) {
+            $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);
+        }
     }
 
     public function sendLicensePaymentConfirmation($name, $email, $amount, $license, $productId)
