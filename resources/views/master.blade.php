@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{App::getLocale()}}">
 <head>
     <title>Invoice Ninja | {{ isset($title) ? $title : ' ' . trans('texts.app_title') }}</title> 
     <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}" />
