@@ -186,6 +186,13 @@
     });
   }
 
+  function unlinkAccount(userAccountId, userId) {
+    if (confirm('{!! trans("texts.are_you_sure") !!}')) {       
+        window.location = '{{ URL::to('/unlink_account') }}' + '/' + userAccountId + '/' + userId;        
+    }       
+    return false;
+  }
+
   function wordWrapText(value, width)
   {
     @if (Auth::user()->account->auto_wrap)
@@ -321,7 +328,6 @@
         {!! HTML::menu_link('task') !!}
         {!! HTML::menu_link('invoice') !!}
         {!! HTML::menu_link('payment') !!}
-        {!! HTML::menu_link('credit') !!}
       </ul>
 
       <div class="navbar-form navbar-right">
@@ -333,60 +339,66 @@
           @endif
         @endif
 
-        @if (Auth::user()->getPopOverText() && !Utils::isRegistered())
-        <button id="ninjaPopOver" type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="{{ Auth::user()->getPopOverText() }}" data-html="true" style="display:none">
-          {{ trans('texts.sign_up') }}
-        </button>
-        @endif
-
-        @if (Auth::user()->getPopOverText())
-        <script>
-          $(function() {
-            if (screen.width < 1170) return;
-            $('#ninjaPopOver').show().popover('show').hide();
-            $('body').click(function() {
-              $('#ninjaPopOver').popover('hide');
-            });    
-          });
-        </script>
-        @endif
-
-        <div class="btn-group">
+        <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
             <div id="myAccountButton" class="ellipsis" style="max-width:100px">
-              {{ Auth::user()->getDisplayName() }}
+                @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
+                    {{ Auth::user()->account->getDisplayName() }}
+                @else
+                    {{ Auth::user()->getDisplayName() }}
+                @endif
               <span class="caret"></span>
             </div>            
           </button>			
-          <ul class="dropdown-menu" role="menu">
+          <ul class="dropdown-menu user-accounts" role="menu">
+            @if (session(SESSION_USER_ACCOUNTS))
+                @foreach (session(SESSION_USER_ACCOUNTS) as $item)
+                    <li><a href='{{ URL::to("/switch_account/{$item->user_id}") }}'>
+                        @if ($item->user_id == Auth::user()->id)
+                            <b>
+                        @endif
+                        @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
+                            <div class="pull-right glyphicon glyphicon-remove remove" onclick="return unlinkAccount({{ $item->id }}, {{ $item->user_id }})"></div>
+                        @endif
+                        <div class="account" style="padding-right:28px">{{ $item->account_name }}</div>
+                        <div class="user">{{ $item->user_name }}</div>
+                        @if ($item->user_id == Auth::user()->id)
+                            </b>
+                        @endif
+                    </a></li>        
+                @endforeach
+            @else
+                <li><a href='#'><b>
+                    <div class="account">{{ Auth::user()->account->name ?: trans('texts.untitled') }}</div>
+                    <div class="user">{{ Auth::user()->getDisplayName() }}</div>
+                </b></a></li>
+            @endif            
+            <li class="divider"></li>                
+            @if (Auth::user()->isPro() && (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5))
+                <li>{!! link_to('/login', trans('texts.add_account')) !!}</li>
+            @endif
+            <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
+          </ul>
+        </div>
+
+      </div>	
+      
+      <ul class="nav navbar-nav navbar-right"> 
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
+          </a>
+          <ul class="dropdown-menu">
             <li>{!! link_to('company/details', uctrans('texts.company_details')) !!}</li>
             <li>{!! link_to('company/payments', uctrans('texts.online_payments')) !!}</li>
             <li>{!! link_to('company/products', uctrans('texts.product_library')) !!}</li>
             <li>{!! link_to('company/notifications', uctrans('texts.notifications')) !!}</li>
             <li>{!! link_to('company/import_export', uctrans('texts.import_export')) !!}</li>
             <li><a href="{{ url('company/advanced_settings/invoice_settings') }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
-
-            <li class="divider"></li>
-            <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
           </ul>
-        </div>
+        </li>
+      </ul>
 
-
-        @if (Auth::user()->getPopOverText() && Utils::isRegistered())
-        <button id="ninjaPopOver" type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="{{ Auth::user()->getPopOverText() }}" data-html="true" style="display:none">
-          {{ Auth::user()->getDisplayName() }}
-        </button>
-        @endif
-
-      </div>	
-
-
-      <form class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" id="search" style="width: {{ Session::get(SESSION_LOCALE) == 'en' ? 180 : 140 }}px" 
-            class="form-control" placeholder="{{ trans('texts.search') }}">
-        </div>
-      </form>
 
       <ul class="nav navbar-nav navbar-right"> 
         <li class="dropdown">
@@ -404,6 +416,15 @@
           </ul>
         </li>
       </ul>
+
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" id="search" style="width: {{ Session::get(SESSION_LOCALE) == 'en' ? 180 : 140 }}px" 
+            class="form-control" placeholder="{{ trans('texts.search') }}">
+        </div>
+      </form>
+
+
       
       
     </div><!-- /.navbar-collapse -->

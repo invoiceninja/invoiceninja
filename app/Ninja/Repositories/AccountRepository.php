@@ -4,6 +4,8 @@ use Auth;
 use Request;
 use Session;
 use Utils;
+use DB;
+use stdClass;
 
 use App\Models\AccountGateway;
 use App\Models\Invitation;
@@ -14,6 +16,7 @@ use App\Models\Language;
 use App\Models\Contact;
 use App\Models\Account;
 use App\Models\User;
+use App\Models\UserAccount;
 
 class AccountRepository
 {
@@ -243,5 +246,130 @@ class AccountRepository
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_exec($ch);
         curl_close($ch);
+    }
+
+    public function findUserAccounts($userId1, $userId2 = false)
+    {
+        $query = UserAccount::where('user_id1', '=', $userId1)
+                                ->orWhere('user_id2', '=', $userId1)
+                                ->orWhere('user_id3', '=', $userId1)
+                                ->orWhere('user_id4', '=', $userId1)
+                                ->orWhere('user_id5', '=', $userId1);
+
+        if ($userId2) {
+            $query->orWhere('user_id1', '=', $userId2)
+                    ->orWhere('user_id2', '=', $userId2)
+                    ->orWhere('user_id3', '=', $userId2)
+                    ->orWhere('user_id4', '=', $userId2)
+                    ->orWhere('user_id5', '=', $userId2);
+        }
+
+        return $query->first(['id', 'user_id1', 'user_id2', 'user_id3', 'user_id4', 'user_id5']);
+    }
+
+    public function prepareUsersData($record) {
+
+        if (!$record) {
+            return false;
+        }
+
+        $userIds = [];
+        for ($i=1; $i<=5; $i++) {
+            $field = "user_id$i";
+            if ($record->$field) {
+                $userIds[] = $record->$field;
+            }
+        }
+
+        $users = User::with('account')
+                    ->whereIn('id', $userIds)
+                    ->get();
+
+        $data = [];
+        foreach ($users as $user) {
+            $item = new stdClass();
+            $item->id = $record->id;
+            $item->user_id = $user->id;
+            $item->user_name = $user->getDisplayName();
+            $item->account_id = $user->account->id;
+            $item->account_name = $user->account->getDisplayName();
+            $item->pro_plan_paid = $user->account->pro_plan_paid;
+            $data[] = $item;
+        }
+
+        return $data;
+    }
+
+    public function loadAccounts($userId) {
+        $record = self::findUserAccounts($userId);
+        return self::prepareUsersData($record);
+    }
+
+    public function syncAccounts($userId, $proPlanPaid) {
+        $users = self::loadAccounts($userId);
+        self::syncUserAccounts($users, $proPlanPaid);
+    }
+
+    public function syncUserAccounts($users, $proPlanPaid = false) {
+
+        if (!$proPlanPaid) {
+            foreach ($users as $user) {
+                if ($user->pro_plan_paid && $user->pro_plan_paid != '0000-00-00') {
+                    $proPlanPaid = $user->pro_plan_paid;
+                    break;
+                }
+            }
+        }
+
+        if (!$proPlanPaid) {
+            return;
+        }
+
+        $accountIds = [];
+        foreach ($users as $user) {
+            if ($user->pro_plan_paid != $proPlanPaid) {
+                $accountIds[] = $user->account_id;
+            }
+        }
+
+        if (count($accountIds)) {
+            DB::table('accounts')
+                ->whereIn('id', $accountIds)
+                ->update(['pro_plan_paid' => $proPlanPaid]);
+        }
+    }
+
+    public function associateAccounts($userId1, $userId2) {
+
+        $record = self::findUserAccounts($userId1, $userId2);
+
+        if ($record) {
+            foreach ([$userId1, $userId2] as $userId) {
+                if (!$record->hasUserId($userId)) {
+                    $record->setUserId($userId);
+                }
+            }
+        } else {
+            $record = new UserAccount();
+            $record->user_id1 = $userId1;
+            $record->user_id2 = $userId2;
+        }
+
+        $record->save();
+
+        $users = self::prepareUsersData($record);
+        self::syncUserAccounts($users);
+
+        return $users;
+    }
+
+    public function unlinkAccount($userAccountId, $userId) {
+
+        $userAccount = UserAccount::whereId($userAccountId)->first();
+
+        if ($userAccount->hasUserId(Auth::user()->id)) {
+            $userAccount->removeUserId($userId);
+            $userAccount->save();
+        }
     }
 }

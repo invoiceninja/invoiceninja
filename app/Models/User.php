@@ -128,6 +128,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return Session::get(SESSION_COUNTER, 0);
     }
 
+    /*
     public function getPopOverText()
     {
         if (!Utils::isNinja() || !Auth::check() || Session::has('error')) {
@@ -146,7 +147,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         return false;
     }
-
+    */
+    
     public function afterSave($success = true, $forced = false)
     {
         if ($this->email) {
@@ -174,6 +176,24 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function getRememberTokenName()
     {
         return 'remember_token';
+    }
+
+    public function clearSession()
+    {
+        $keys = [
+            RECENTLY_VIEWED,
+            SESSION_USER_ACCOUNTS,
+            SESSION_TIMEZONE,
+            SESSION_DATE_FORMAT,
+            SESSION_DATE_PICKER_FORMAT,
+            SESSION_DATETIME_FORMAT,
+            SESSION_CURRENCY,
+            SESSION_LOCALE,
+        ];
+
+        foreach ($keys as $key) {
+            Session::forget($key);
+        }
     }
 
 }

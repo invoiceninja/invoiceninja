@@ -1,9 +1,9 @@
 <?php namespace App\Listeners;
 
 use Auth;
-
+use Session;
 use App\Events\UserSettingsChanged;
-
+use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
@@ -14,9 +14,9 @@ class HandleUserSettingsChanged {
 	 *
 	 * @return void
 	 */
-	public function __construct()
+	public function __construct(AccountRepository $accountRepo)
 	{
-		//
+        $this->accountRepo = $accountRepo;
 	}
 
 	/**
@@ -29,6 +29,9 @@ class HandleUserSettingsChanged {
 	{
         $account = Auth::user()->account;
         $account->loadLocalizationSettings();
+
+        $users = $this->accountRepo->loadAccounts(Auth::user()->id);
+        Session::put(SESSION_USER_ACCOUNTS, $users);
 	}
 
 }

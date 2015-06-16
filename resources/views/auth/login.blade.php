@@ -79,7 +79,13 @@
                 {!! Former::hidden('remember')->raw() !!}
             </p>
 
-            <p>{!! Button::success(trans('texts.lets_go'))->large()->submit()->block() !!}</p>
+            <p>{!! Button::success(trans(Utils::allowNewAccounts() ? 'texts.login' : 'texts.lets_go'))->large()->submit()->block() !!}</p>
+
+            @if (Utils::allowNewAccounts())
+                <center><p>- {{ trans('texts.or') }} -</p></center>
+                <p>{!! Button::primary(trans('texts.new_account'))->asLinkTo(URL::to('/invoice_now?logout=true'))->large()->submit()->block() !!}</p>
+            @endif
+
 
             <p class="link">
                 {!! link_to('/forgot', trans('texts.forgot_password')) !!}

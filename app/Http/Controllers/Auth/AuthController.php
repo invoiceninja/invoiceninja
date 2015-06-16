@@ -3,10 +3,12 @@
 use Auth;
 use Event;
 use Utils;
+use Session;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
+use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\Registrar;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
@@ -28,6 +30,7 @@ class AuthController extends Controller {
 
     protected $loginPath = '/login';
     protected $redirectTo = '/dashboard';
+    protected $accountRepo;
 
 	/**
 	 * Create a new authentication controller instance.
@@ -36,12 +39,13 @@ class AuthController extends Controller {
 	 * @param  \Illuminate\Contracts\Auth\Registrar  $registrar
 	 * @return void
 	 */
-	public function __construct(Guard $auth, Registrar $registrar)
+	public function __construct(Guard $auth, Registrar $registrar, AccountRepository $repo)
 	{
 		$this->auth = $auth;
 		$this->registrar = $registrar;
+        $this->accountRepo = $repo;
 
-		$this->middleware('guest', ['except' => 'getLogout']);
+		//$this->middleware('guest', ['except' => 'getLogout']);
 	}
 
     public function getLoginWrapper()
@@ -55,13 +59,36 @@ class AuthController extends Controller {
 
     public function postLoginWrapper(Request $request)
     {
+        $userId = Auth::check() ? Auth::user()->id : null;
         $response = self::postLogin($request);
 
         if (Auth::check()) {
             Event::fire(new UserLoggedIn());
+
+            if (Utils::isPro()) {
+                $users = false;
+                // we're linking a new account
+                if ($userId && Auth::user()->id != $userId) {
+                    $users = $this->accountRepo->associateAccounts($userId, Auth::user()->id);
+                    Session::flash('message', trans('texts.associated_accounts'));
+                // check if other accounts are linked
+                } else {
+                    $users = $this->accountRepo->loadAccounts(Auth::user()->id);
+                }
+                
+                Session::put(SESSION_USER_ACCOUNTS, $users);
+            }
         }
 
         return $response;
     }
 
+    public function getLogoutWrapper()
+    {
+        $response = self::getLogout();
+
+        Session::flush();
+
+        return $response;
+    }
 }

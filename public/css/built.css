@@ -3345,3 +3345,18 @@ button .glyphicon {
     width: 35px;
     margin-top: 20px;
 }
+
+ul.user-accounts div.account {
+    font-size: large;
+}
+
+ul.user-accounts div.remove {
+    padding-top: 14px;
+    color: #BBB;
+    visibility: hidden;
+}
+
+ul.user-accounts a:hover div.remove {
+    visibility: visible;
+}
+

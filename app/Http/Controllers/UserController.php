@@ -7,6 +7,7 @@ use DB;
 use Event;
 use Input;
 use View;
+use Request;
 use Redirect;
 use Session;
 use URL;
@@ -309,10 +310,8 @@ class UserController extends BaseController
             }
         }
 
-        Session::forget('news_feed_id');
-        Session::forget('news_feed_message');
-
         Auth::logout();
+        Session::flush();
 
         return Redirect::to('/')->with('clearGuestKey', true);
     }
@@ -341,5 +340,33 @@ class UserController extends BaseController
         $user->save();
 
         return RESULT_SUCCESS;
+    }
+
+    public function switchAccount($newUserId) 
+    {
+        $oldUserId = Auth::user()->id;
+        $referer = Request::header('referer');
+        $account = $this->accountRepo->findUserAccounts($newUserId, $oldUserId);
+        
+        if ($account) {
+            if ($account->hasUserId($newUserId) && $account->hasUserId($oldUserId)) {
+                Auth::loginUsingId($newUserId);
+                Auth::user()->account->loadLocalizationSettings();
+            }
+        }
+        
+        return Redirect::to($referer);
+    }
+
+    public function unlinkAccount($userAccountId, $userId)
+    {
+        $this->accountRepo->unlinkAccount($userAccountId, $userId);
+        $referer = Request::header('referer');
+
+        $users = $this->accountRepo->loadAccounts(Auth::user()->id);
+        Session::put(SESSION_USER_ACCOUNTS, $users);
+
+        Session::flash('message', trans('texts.unlinked_account'));
+        return Redirect::to($referer);
     }
 }

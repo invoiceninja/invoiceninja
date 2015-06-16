@@ -44,6 +44,10 @@ class AppServiceProvider extends ServiceProvider {
                 $str .= '<li class="divider"></li>
                         <li><a href="'.URL::to('quotes').'">'.trans("texts.quotes").'</a></li>
                         <li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';
+            } else if ($type == ENTITY_CLIENT) {
+                $str .= '<li class="divider"></li>
+                        <li><a href="'.URL::to('credits').'">'.trans("texts.credits").'</a></li>
+                        <li><a href="'.URL::to('credits/create').'">'.trans("texts.new_credit").'</a></li>';
             }
 
             $str .= '</ul>

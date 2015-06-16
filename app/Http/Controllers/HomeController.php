@@ -45,6 +45,11 @@ class HomeController extends BaseController
     
     public function invoiceNow()
     {
+        if (Auth::check() && Input::get('logout')) {
+            Auth::user()->clearSession();
+            Auth::logout();
+        }
+
         if (Auth::check()) {
             return Redirect::to('invoices/create')->with('sign_up', Input::get('sign_up'));
         } else {

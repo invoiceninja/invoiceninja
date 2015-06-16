@@ -1,8 +1,10 @@
 <?php namespace App\Exceptions;
 
+use Redirect;
 use Utils;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Database\Eloquent\ModelNotFoundException; 
 
 class Handler extends ExceptionHandler {
 
@@ -39,7 +41,12 @@ class Handler extends ExceptionHandler {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function render($request, Exception $e)
-	{
+	{     
+
+        if ($e instanceof ModelNotFoundException) {
+            return Redirect::to('/');
+        }
+
         if (Utils::isNinjaProd()) {
             $data = [
                 'error' => get_class($e),
