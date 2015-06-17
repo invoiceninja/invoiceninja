@@ -630,8 +630,9 @@ class PaymentController extends BaseController
         $invoice = $invitation->invoice;
         $accountGateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'));
 
-        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY) {
-            $account = Account::find($invoice->client->public_id);
+        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY 
+                && $invoice->amount == PRO_PLAN_PRICE) {
+            $account = Account::with('users')->find($invoice->client->public_id);
             if ($account->pro_plan_paid && $account->pro_plan_paid != '0000-00-00') {
                 $date = DateTime::createFromFormat('Y-m-d', $account->pro_plan_paid);
                 $account->pro_plan_paid = $date->modify('+1 year')->format('Y-m-d');
@@ -639,6 +640,9 @@ class PaymentController extends BaseController
                 $account->pro_plan_paid = date_create()->format('Y-m-d');
             }
             $account->save();
+
+            $user = $account->users()->first();
+            $this->accountRepo->syncAccounts($user->id, $account->pro_plan_paid);
         }
 
         $payment = Payment::createNew($invitation);

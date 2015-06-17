@@ -51,12 +51,17 @@ class Utils
 
     public static function isNinjaProd()
     {
-        return isset($_ENV['NINJA_PROD']) && $_ENV['NINJA_PROD'];
+        return isset($_ENV['NINJA_PROD']) && $_ENV['NINJA_PROD'] == 'true';
     }
 
     public static function isNinjaDev()
     {
-        return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'];
+        return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'] == 'true';
+    }
+
+    public static function allowNewAccounts()
+    {
+        return isset($_ENV['ALLOW_NEW_ACCOUNTS']) && $_ENV['ALLOW_NEW_ACCOUNTS'] == 'true';
     }
 
     public static function isPro()

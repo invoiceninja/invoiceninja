@@ -696,5 +696,12 @@ return array(
 
   'email_receipt' => 'Email payment receipt to the client',
   'created_payment_emailed_client' => 'Successfully created payment and emailed client',
+  'add_account' => 'Add Account',
+  'untitled' => 'Untitled',
+  'new_account' => 'New Account',
+  'associated_accounts' => 'Successfully linked accounts',
+  'unlinked_account' => 'Successfully unlinked accounts',
+  'login' => 'Login',
+  'or' => 'or',
 
 );

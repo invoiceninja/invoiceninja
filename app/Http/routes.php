@@ -67,8 +67,7 @@ get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegiste
 post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
 get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));
 post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper'));
-//get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper'));
-get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogout'));
+get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper'));
 get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
 post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
 get('/password/reset/{token}', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
@@ -95,6 +94,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
+    Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
 
     Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
     Route::resource('tokens', 'TokenController');

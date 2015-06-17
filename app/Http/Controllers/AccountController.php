@@ -77,10 +77,12 @@ class AccountController extends BaseController
     {
         if (Auth::check()) {
             return Redirect::to('invoices/create');
-        } elseif (!Utils::isNinja() && Account::count() > 0) {
-            return Redirect::to('/login');
         }
 
+        if (!Utils::isNinja() && !Utils::allowNewAccounts() && Account::count() > 0) {
+            return Redirect::to('/login');
+        }
+        
         $user = false;
         $guestKey = Input::get('guest_key');
 
@@ -728,7 +730,7 @@ class AccountController extends BaseController
         $email = trim(Input::get('email'));
 
         if (!$email || $email == 'user@example.com') {
-            return RESULT_SUCCESS;
+            return '';
         }
 
         $license = new License();
@@ -742,7 +744,7 @@ class AccountController extends BaseController
         $license->is_claimed = 1;
         $license->save();
 
-        return RESULT_SUCCESS;
+        return '';
     }
 
     public function cancelAccount()
@@ -762,6 +764,7 @@ class AccountController extends BaseController
         $account->forceDelete();
 
         Auth::logout();
+        Session::flush();
 
         return Redirect::to('/')->with('clearGuestKey', true);
     }

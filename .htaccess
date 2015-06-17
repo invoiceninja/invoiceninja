@@ -1,4 +1,5 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteRule ^(.*)$ public/$1 [L]
+  RewriteRule "^.env" - [F,L]
+  RewriteRule "^storage" - [F,L]
 </IfModule>
