@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
+use Config;
 use Input;
 use Utils;
 use DB;
@@ -149,53 +150,90 @@ class ReportController extends BaseController
                     $reportTotals['balance'][$currencyId] += $record->balance;
                 }
 
-                if ($action == 'export') {
+                if ($action == 'export')
+                {
                     self::export($exportData, $reportTotals);
                 }
             }
 
-            if ($enableChart) {
-                foreach ([ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_CREDIT] as $entityType) {
-                    $records = DB::table($entityType.'s')
-                                ->select(DB::raw('sum(amount) as total, concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date)) as '.$groupBy))
-                                ->where('account_id', '=', Auth::user()->account_id)
-                                ->where($entityType.'s.is_deleted', '=', false)
-                                ->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
-                                ->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))
-                                ->groupBy($groupBy);
+            if ($enableChart)
+            {
+                foreach ([ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_CREDIT] as $entityType)
+                {
+                    // SQLite does not support the YEAR(), MONTH(), WEEK() and similar functions.
+                    // Let's see if SQLite is being used.
+                    if (Config::get('database.connections.'.Config::get('database.default').'.driver') == 'sqlite')
+                    {
+                        // Replace the unsupported function with it's date format counterpart
+                        switch ($groupBy)
+                        {
+                            case 'MONTH':
+                                $dateFormat = '%m';     // returns 01-12
+                                break;
+                            case 'WEEK':
+                                $dateFormat = '%W';     // returns 00-53
+                                break;
+                            case 'DAYOFYEAR':
+                                $dateFormat = '%j';     // returns 001-366
+                                break;
+                            default:
+                                $dateFormat = '%m';     // MONTH by default
+                                break;
+                        }
 
-                    if ($entityType == ENTITY_INVOICE) {
+                        // Concatenate the year and the chosen timeframe (Month, Week or Day)
+                        $timeframe = 'strftime("%Y", '.$entityType.'_date) || strftime("'.$dateFormat.'", '.$entityType.'_date)';
+                    }
+                    else
+                    {
+                        // Supported by Laravel's other DBMS drivers (MySQL, MSSQL and PostgreSQL)
+                        $timeframe = 'concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date))';
+                    }
+
+                    $records = DB::table($entityType.'s')
+                        ->select(DB::raw('sum(amount) as total, '.$timeframe.' as '.$groupBy))
+                        ->where('account_id', '=', Auth::user()->account_id)
+                        ->where($entityType.'s.is_deleted', '=', false)
+                        ->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
+                        ->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))
+                        ->groupBy($groupBy);
+
+                    if ($entityType == ENTITY_INVOICE)
+                    {
                         $records->where('is_quote', '=', false)
                                 ->where('is_recurring', '=', false);
                     }
 
                     $totals = $records->lists('total');
-                    $dates = $records->lists($groupBy);
-                    $data = array_combine($dates, $totals);
+                    $dates  = $records->lists($groupBy);
+                    $data   = array_combine($dates, $totals);
 
                     $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
                     $endDate->modify('+1 '.$padding);
                     $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
-                    $period = new DatePeriod($startDate, $interval, $endDate);
+                    $period   = new DatePeriod($startDate, $interval, $endDate);
                     $endDate->modify('-1 '.$padding);
 
                     $totals = [];
 
-                    foreach ($period as $d) {
+                    foreach ($period as $d)
+                    {
                         $dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');
                         $date = $d->format('Y'.$dateFormat);
                         $totals[] = isset($data[$date]) ? $data[$date] : 0;
-                    
-                        if ($entityType == ENTITY_INVOICE) {
+
+                        if ($entityType == ENTITY_INVOICE)
+                        {
                             $labelFormat = $groupBy == 'DAYOFYEAR' ? 'j' : ($groupBy == 'WEEK' ? 'W' : 'F');
-                            $label = $d->format($labelFormat);
+                            $label       = $d->format($labelFormat);
                             $labels[] = $label;
                         }
                     }
-                    
+
                     $max = max($totals);
 
-                    if ($max > 0) {
+                    if ($max > 0)
+                    {
                         $datasets[] = [
                             'totals' => $totals,
                             'colors' => $entityType == ENTITY_INVOICE ? '78,205,196' : ($entityType == ENTITY_CREDIT ? '199,244,100' : '255,107,107'),
