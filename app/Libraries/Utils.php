@@ -251,6 +251,10 @@ class Utils
             $currency = Currency::find(1);
         }
 
+        if (!$value) {
+            $value = 0;
+        }
+
         Cache::add('currency', $currency, DEFAULT_QUERY_CACHE);
 
         return $currency->symbol.number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
@@ -352,7 +356,7 @@ class Utils
 
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
-        
+
         $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $date);
         $dateTime->setTimeZone(new DateTimeZone($timezone));
 
