@@ -15,11 +15,7 @@ class Mailer
 
         Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $subject, $data) {
             $replyEmail = $fromEmail;
-
-            // http://stackoverflow.com/questions/2421234/gmail-appearing-to-ignore-reply-to
-            if (Utils::isNinja() && $toEmail != CONTACT_EMAIL) {
-                $fromEmail = NINJA_FROM_EMAIL;
-            }
+            $fromEmail = NINJA_FROM_EMAIL;
             
             if(isset($data['invoice_id'])) {
                 $invoice = Invoice::with('account')->where('id', '=', $data['invoice_id'])->get()->first();

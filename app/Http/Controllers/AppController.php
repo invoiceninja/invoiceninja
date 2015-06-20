@@ -13,6 +13,7 @@ use Session;
 use Cookie;
 use Response;
 use App\Models\User;
+use App\Models\Account;
 use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use Redirect;
@@ -32,17 +33,11 @@ class AppController extends BaseController
 
     public function showSetup()
     {
-        if (Utils::isNinja() || Utils::isDatabaseSetup()) {
+        if (Utils::isNinja() || (Utils::isDatabaseSetup() && Account::count() > 0)) {
             return Redirect::to('/');
         }
 
         $view = View::make('setup');
-
-        /*
-        $cookie = Cookie::forget('ninja_session', '/', 'www.ninja.dev');
-        Cookie::queue($cookie);
-        return Response::make($view)->withCookie($cookie);
-        */
 
         return Response::make($view);
     }

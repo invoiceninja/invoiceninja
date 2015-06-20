@@ -704,4 +704,6 @@ return array(
   'login' => 'Login',
   'or' => 'or',
 
+  'email_error' => 'There was a problem sending the email',
+
 );

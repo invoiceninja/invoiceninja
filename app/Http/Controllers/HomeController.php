@@ -27,10 +27,8 @@ class HomeController extends BaseController
     {
         Session::reflash();
         
-        if (!Utils::isDatabaseSetup()) {
+        if (!Utils::isNinja() && (!Utils::isDatabaseSetup() || Account::count() == 0)) {
             return Redirect::to('/setup');
-        } elseif (Account::count() == 0) {
-            return Redirect::to('/invoice_now');
         } elseif (Auth::check()) {
             return Redirect::to('/dashboard');
         } else {
