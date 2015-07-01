@@ -685,6 +685,14 @@ class PaymentController extends BaseController
         $accountGateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'));
         $gateway = self::createGateway($accountGateway);
 
+        // Check for Dwolla payment error
+        if ($accountGateway->isGateway(GATEWAY_DWOLLA) && Input::get('error')) {
+            $errorMessage = trans('texts.payment_error')."\n\n".Input::get('error_description');
+            Session::flash('error', $errorMessage);
+            Utils::logError($errorMessage);
+            return Redirect::to('view/'.$invitation->invitation_key);
+        }
+
         try {
             if (method_exists($gateway, 'completePurchase')) {
                 $details = self::getPaymentDetails($invitation);

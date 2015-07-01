@@ -200,7 +200,7 @@ class AccountGatewayController extends BaseController
         $fields = $gateway->getFields();
         $optional = array_merge(Gateway::$hiddenFields, Gateway::$optionalFields);
 
-        if (Utils::isNinja() && $gatewayId == GATEWAY_DWOLLA) {
+        if ($gatewayId == GATEWAY_DWOLLA) {
             $optional = array_merge($optional, ['key', 'secret']);
         }
 
