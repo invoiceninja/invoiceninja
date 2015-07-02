@@ -77,4 +77,34 @@ class EntityModel extends Eloquent
 
         return $query;
     }
+
+    public function getName()
+    {
+        return $this->public_id;
+    }
+
+    // Remap ids to public_ids and show name
+    public function toPublicArray()
+    {
+        $data = $this->toArray();
+
+        foreach ($this->attributes as $key => $val) {
+            if (strpos($key, '_id')) {
+                list($field, $id) = explode('_', $key);
+                if ($field == 'account') {
+                    // do nothing
+                } else {
+                    $entity = @$this->$field;
+                    if ($entity) {
+                        $data["{$field}_name"] = $entity->getName();
+                    }
+                }
+            }
+        }
+
+        $data = Utils::hideIds($data);
+
+        return $data;
+    }
+
 }

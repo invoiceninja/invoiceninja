@@ -74,7 +74,7 @@ class Client extends EntityModel
 
     public function getName()
     {
-        return $this->getDisplayName();
+        return $this->name;
     }
 
     public function getDisplayName()
@@ -82,8 +82,9 @@ class Client extends EntityModel
         if ($this->name) {
             return $this->name;
         }
-
+    
         $this->load('contacts');
+
         $contact = $this->contacts()->first();
 
         return $contact->getDisplayName();

@@ -54,7 +54,11 @@ class ContactMailer extends Mailer
             $data['invoice_id'] = $invoice->id;
 
             $fromEmail = $invitation->user->email;
-            $this->sendTo($invitation->contact->email, $fromEmail, $accountName, $subject, $view, $data);
+            $response = $this->sendTo($invitation->contact->email, $fromEmail, $accountName, $subject, $view, $data);
+
+            if ($response !== true) {
+                return $response;
+            }
 
             Activity::emailInvoice($invitation);
         }

@@ -48,6 +48,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->belongsTo('App\Models\Theme');
     }
 
+    public function getName()
+    {
+        return $this->getDisplayName();
+    }
+
     public function getPersonType()
     {
         return PERSON_USER;

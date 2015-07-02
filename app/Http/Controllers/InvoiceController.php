@@ -236,6 +236,11 @@ class InvoiceController extends BaseController
             }
         }
 
+        $paymentURL = '';
+        if (count($paymentTypes)) {
+            $paymentURL = $paymentTypes[0]['url'];
+        }
+
         $data = array(
             'isConverted' => $invoice->quote_invoice_id ? true : false,
             'showBreadcrumbs' => false,
@@ -244,7 +249,8 @@ class InvoiceController extends BaseController
             'invitation' => $invitation,
             'invoiceLabels' => $account->getInvoiceLabels(),
             'contact' => $contact,
-            'paymentTypes' => $paymentTypes
+            'paymentTypes' => $paymentTypes,
+            'paymentURL' => $paymentURL
         );
 
         return View::make('invoices.view', $data);
@@ -505,9 +511,13 @@ class InvoiceController extends BaseController
                 return $this->convertQuote($publicId);
             } elseif ($action == 'email') {
                 if (Auth::user()->confirmed && !Auth::user()->isDemo()) {
-                    $message = trans("texts.emailed_{$entityType}");
-                    $this->mailer->sendInvoice($invoice);
-                    Session::flash('message', $message);
+                    $response = $this->mailer->sendInvoice($invoice);
+                    if ($response === true) {
+                        $message = trans("texts.emailed_{$entityType}");
+                        Session::flash('message', $message);
+                    } else {
+                        Session::flash('error', $response);
+                    }
                 } else {
                     $errorMessage = trans(Auth::user()->registered ? 'texts.confirmation_required' : 'texts.registration_required');
                     Session::flash('error', $errorMessage);

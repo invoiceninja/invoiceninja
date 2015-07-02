@@ -16,9 +16,9 @@ class PaymentApiController extends Controller
 
     public function index()
     {
-        $payments = Payment::scope()->orderBy('created_at', 'desc')->get();
-        $payments = Utils::remapPublicIds($payments->toArray());
-
+        $payments = Payment::scope()->with('client', 'contact', 'invitation', 'user', 'invoice')->orderBy('created_at', 'desc')->get();
+        $payments = Utils::remapPublicIds($payments);
+        
         $response = json_encode($payments, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders(count($payments));
 

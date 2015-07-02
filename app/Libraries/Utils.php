@@ -568,14 +568,15 @@ class Utils
     {
         $curl = curl_init();
 
-        $jsonEncodedData = json_encode($data->toJson());
+        $jsonEncodedData = json_encode($data->toPublicArray());
+        
         $opts = [
-        CURLOPT_URL => $subscription->target_url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POST => 1,
-        CURLOPT_POSTFIELDS => $jsonEncodedData,
-        CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
+            CURLOPT_URL => $subscription->target_url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => $jsonEncodedData,
+            CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
         ];
 
         curl_setopt_array($curl, $opts);
@@ -591,25 +592,37 @@ class Utils
     }
 
 
-    public static function remapPublicIds(array $data)
+    public static function remapPublicIds($items)
     {
         $return = [];
-
-        foreach ($data as $key => $val) {
-            if ($key === 'public_id') {
-                $key = 'id';
-            } elseif (strpos($key, '_id')) {
-                continue;
-            }
-
-            if (is_array($val)) {
-                $val = Utils::remapPublicIds($val);
-            }
-
-            $return[$key] = $val;
+        
+        foreach ($items as $item) {
+            $return[] = $item->toPublicArray();
         }
 
         return $return;
+    }
+
+    public static function hideIds($data)
+    {
+        $publicId = null;
+
+        foreach ($data as $key => $val) {
+            if (is_array($val)) {
+                $data[$key] = Utils::hideIds($val);
+            } else if ($key == 'id' || strpos($key, '_id')) {
+                if ($key == 'public_id') {
+                    $publicId = $val;
+                }
+                unset($data[$key]);
+            }
+        }
+
+        if ($publicId) {
+            $data['id'] = $publicId;
+        }
+        
+        return $data;
     }
 
     public static function getApiHeaders($count = 0)
