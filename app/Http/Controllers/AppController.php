@@ -37,14 +37,12 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        $view = View::make('setup');
-
-        return Response::make($view);
+        return View::make('setup');
     }
 
     public function doSetup()
     {
-        if (Utils::isNinja() || Utils::isDatabaseSetup()) {
+        if (Utils::isNinja() || (Utils::isDatabaseSetup() && Account::count() > 0)) {
             return Redirect::to('/');
         }
 
@@ -108,8 +106,6 @@ class AppController extends BaseController
         $password = trim(Input::get('password'));
         $account = $this->accountRepo->create($firstName, $lastName, $email, $password);
         $user = $account->users()->first();
-
-        //Auth::login($user, true);
 
         return Redirect::to('/login');
     }

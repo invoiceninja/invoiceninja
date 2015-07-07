@@ -460,10 +460,11 @@ class PaymentController extends BaseController
             $this->contactMailer->sendLicensePaymentConfirmation($name, $license->email, $affiliate->price, $license->license_key, $license->product_id);
 
             if (Session::has('return_url')) {
-                return Redirect::away(Session::get('return_url')."?license_key={$license->license_key}&product_id=".Session::get('product_id'));
-            } else {
-                return View::make('public.license', $data);
+                $data['redirectTo'] = Session::get('return_url')."?license_key={$license->license_key}&product_id=".Session::get('product_id');
+                $data['message'] = "Redirecting to " . Session::get('return_url');
             }
+
+            return View::make('public.license', $data);
         } catch (\Exception $e) {
             $errorMessage = trans('texts.payment_error');
             Session::flash('error', $errorMessage);

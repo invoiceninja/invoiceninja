@@ -79,11 +79,11 @@
                 {!! Former::hidden('remember')->raw() !!}
             </p>
 
-            <p>{!! Button::success(trans(Utils::allowNewAccounts() ? 'texts.login' : 'texts.lets_go'))->large()->submit()->block() !!}</p>
+            <p>{!! Button::success(trans(Input::get('new_account') && Utils::allowNewAccounts() ? 'texts.login' : 'texts.lets_go'))->large()->submit()->block() !!}</p>
 
-            @if (Utils::allowNewAccounts())
+            @if (Input::get('new_account') && Utils::allowNewAccounts())
                 <center><p>- {{ trans('texts.or') }} -</p></center>
-                <p>{!! Button::primary(trans('texts.new_account'))->asLinkTo(URL::to('/invoice_now?logout=true'))->large()->submit()->block() !!}</p>
+                <p>{!! Button::primary(trans('texts.new_account'))->asLinkTo(URL::to('/invoice_now?new_account=true'))->large()->submit()->block() !!}</p>
             @endif
 
 
@@ -110,11 +110,8 @@
             @endif
 
             @if (Session::has('error'))
-            <div class="alert alert-danger">{{ Session::get('error') }}</div>
+            <div class="alert alert-danger"><li>{{ Session::get('error') }}</li></div>
             @endif
-
-
-
 
         </div>
 

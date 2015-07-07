@@ -354,6 +354,7 @@ define('EVENT_CREATE_PAYMENT', 4);
 
 define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
 define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
+define('PREV_USER_ID', 'PREV_USER_ID');
 define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
 define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
 define('NINJA_GATEWAY_CONFIG', '');
@@ -364,6 +365,7 @@ define('NINJA_DATE', '2000-01-01');
 define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
 define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
 define('ZAPIER_URL', 'https://zapier.com/developer/invite/11276/85cf0ee4beae8e802c6c579eb4e351f1/');
+define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
 
 define('COUNT_FREE_DESIGNS', 4);
 define('PRODUCT_ONE_CLICK_INSTALL', 1);

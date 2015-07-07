@@ -65,7 +65,7 @@ module.exports = function(grunt) {
           'public/js/lightbox.min.js',
           'public/js/bootstrap-combobox.js',
           'public/js/script.js',
-          'public/js/pdf.pdfmake.js'
+          'public/js/pdf.pdfmake.js',
         ],
         dest: 'public/js/built.js',
         nonull: true

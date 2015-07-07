@@ -1,6 +1,7 @@
 <iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></iframe>
 <canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
+@if (!Utils::isNinja() || !Utils::isPro())
 <div class="modal fade" id="moreDesignsModal" tabindex="-1" role="dialog" aria-labelledby="moreDesignsModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -43,7 +44,7 @@
     </div>
   </div>
 </div>
-
+@endif
 
 
 <script type="text/javascript">

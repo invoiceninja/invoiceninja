@@ -201,4 +201,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         }
     }
 
+    public static function updateUser($user)
+    {
+        if ($user->password != !$user->getOriginal('password')) {
+            $user->failed_logins = 0;
+        }
+    }
+
 }
+
+User::updating(function ($user) {
+    User::updateUser($user);
+});

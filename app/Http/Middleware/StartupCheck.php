@@ -157,6 +157,14 @@ class StartupCheck
             }
         }
 
-        return $next($request);
+        if (preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
+            Session::flash('error', trans('texts.old_browser'));
+        }
+
+        // for security prevent displaying within an iframe 
+        $response = $next($request);
+        $response->headers->set('X-Frame-Options', 'DENY');
+
+        return $response;
     }
 }

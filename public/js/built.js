@@ -32341,8 +32341,12 @@ function getInvoiceDetails(invoice) {
     {'due_date': invoice.due_date},
   ];
 
+  if (NINJA.parseFloat(invoice.balance) < NINJA.parseFloat(invoice.amount)) {
+    fields.push({'total': formatMoney(invoice.amount, invoice.client.currency_id)});
+  }
+
   if (NINJA.parseFloat(invoice.partial)) {
-    fields.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
+    fields.push({'balance': formatMoney(invoice.total_amount, invoice.client.currency_id)});
   }
 
   fields.push({'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)})
@@ -32398,12 +32402,16 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
   }
 
   var paid = invoice.amount - invoice.balance;
+  if (paid) {
+    data.push({'total': formatMoney(invoice.amount, invoice.client.currency_id)});
+  }
+
   if (invoice.account.hide_paid_to_date != '1' || paid) {
     data.push({'paid_to_date': formatMoney(paid, invoice.client.currency_id)});
   }
 
   if (NINJA.parseFloat(invoice.partial) && invoice.total_amount != invoice.subtotal_amount) {
-    data.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
+    data.push({'balance': formatMoney(invoice.total_amount, invoice.client.currency_id)});
   }
 
   var options = {

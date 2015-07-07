@@ -16,9 +16,10 @@ class Mailer
 
         try {
             Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $subject, $data) {
+
                 $replyEmail = $fromEmail;
-                $fromEmail = NINJA_FROM_EMAIL;
-                
+                $fromEmail = CONTACT_EMAIL;
+
                 if(isset($data['invoice_id'])) {
                     $invoice = Invoice::with('account')->where('id', '=', $data['invoice_id'])->get()->first();
                     if($invoice->account->pdf_email_attachment && file_exists($invoice->getPDFPath())) {
@@ -31,7 +32,7 @@ class Mailer
                 
                 $message->to($toEmail)->from($fromEmail, $fromName)->replyTo($replyEmail, $fromName)->subject($subject);
             });
-
+            
             return true;
         } catch (Exception $e) {
             $response = $e->getResponse()->getBody()->getContents();

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Invoice Ninja | {{ isset($title) ? $title : ' ' . trans('texts.app_title') }}</title> 
+    <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }} | </title> 
     <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}" />
 
     <!-- Source: https://github.com/hillelcoren/invoice-ninja -->

@@ -61,7 +61,7 @@ class Utils
 
     public static function allowNewAccounts()
     {
-        return isset($_ENV['ALLOW_NEW_ACCOUNTS']) && $_ENV['ALLOW_NEW_ACCOUNTS'] == 'true';
+        return Utils::isNinja() || (isset($_ENV['ALLOW_NEW_ACCOUNTS']) && $_ENV['ALLOW_NEW_ACCOUNTS'] == 'true');
     }
 
     public static function isPro()

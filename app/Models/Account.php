@@ -133,6 +133,13 @@ class Account extends Eloquent
         return false;
     }
 
+    /*
+    public function hasLogo()
+    {
+        file_exists($this->getLogoPath());
+    }
+    */
+
     public function getLogoPath()
     {
         return 'logo/'.$this->account_key.'.jpg';
@@ -250,6 +257,7 @@ class Account extends Eloquent
             'date',
             'rate',
             'hours',
+            'balance',
         ];
 
         foreach ($fields as $field) {

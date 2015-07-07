@@ -43,6 +43,11 @@ class Invoice extends EntityModel
         return $this->belongsTo('App\Models\InvoiceDesign');
     }
 
+    public function recurring_invoice()
+    {
+        return $this->belongsTo('App\Models\Invoice');
+    }
+
     public function invitations()
     {
         return $this->hasMany('App\Models\Invitation')->orderBy('invitations.contact_id');

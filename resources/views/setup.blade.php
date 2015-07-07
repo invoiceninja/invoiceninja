@@ -36,7 +36,7 @@
                 <pre>sudo chown yourname:www-data /path/to/ninja</pre>
             </div>
         @endif
-        If you need help you can either post to our <a href="https://groups.google.com/forum/#!forum/invoiceninja" target="_blank">Google Group</a> 
+        If you need help you can either post to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> 
         or email us at <a href="mailto:contact@invoiceninja.com" target="_blank">contact@invoiceninja.com</a>.
         <p>
 <pre>-- Commands to create a MySQL database and user
@@ -94,13 +94,20 @@ FLUSH PRIVILEGES;</pre>
         <h3 class="panel-title">Email Settings</h3>
       </div>
       <div class="panel-body">
-        {!! Former::select('mail[driver]')->label('Driver')->options(['smtp' => 'SMTP', 'mail' => 'Mail', 'sendmail' => 'Sendmail']) !!}
-        {!! Former::text('mail[host]')->label('Host')->value('localhost') !!}
-        {!! Former::text('mail[port]')->label('Port')->value('587') !!}
-        {!! Former::select('mail[encryption]')->label('Encryption')->options(['tls' => 'TLS', 'ssl' => 'SSL']) !!}
-        {!! Former::text('mail[from][name]')->label('From Name') !!}
-        {!! Former::text('mail[username]')->label('Email') !!}
-        {!! Former::password('mail[password]')->label('Password') !!}    
+        {!! Former::select('mail[driver]')->label('Driver')->options(['smtp' => 'SMTP', 'mail' => 'Mail', 'sendmail' => 'Sendmail'])
+                 ->value(isset($_ENV['MAIL_DRIVER']) ? $_ENV['MAIL_DRIVER'] : 'smtp') !!}
+        {!! Former::text('mail[host]')->label('Host')
+                ->value(isset($_ENV['MAIL_HOST']) ? $_ENV['MAIL_HOST'] : '') !!}
+        {!! Former::text('mail[port]')->label('Port')
+                ->value(isset($_ENV['MAIL_PORT']) ? $_ENV['MAIL_PORT'] : '587')  !!}
+        {!! Former::select('mail[encryption]')->label('Encryption')->options(['tls' => 'TLS', 'ssl' => 'SSL'])
+                ->value(isset($_ENV['MAIL_ENCRYPTION']) ? $_ENV['MAIL_ENCRYPTION'] : 'tls')  !!}
+        {!! Former::text('mail[from][name]')->label('From Name')
+                ->value(isset($_ENV['MAIL_FROM_NAME']) ? $_ENV['MAIL_FROM_NAME'] : '')  !!}
+        {!! Former::text('mail[username]')->label('Email')
+                ->value(isset($_ENV['MAIL_USERNAME']) ? $_ENV['MAIL_USERNAME'] : '')  !!}
+        {!! Former::password('mail[password]')->label('Password')
+                ->value(isset($_ENV['MAIL_PASSWORD']) ? $_ENV['MAIL_PASSWORD'] : '')  !!}    
         {!! Former::actions( Button::primary('Send test email')->small()->withAttributes(['onclick' => 'testMail()']), '&nbsp;&nbsp;<span id="mailTestResult"/>' ) !!}            
       </div>
     </div>
@@ -117,6 +124,7 @@ FLUSH PRIVILEGES;</pre>
         {!! Former::password('password') !!}        
       </div>
     </div>
+
 
     {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.NINJA_APP_URL.'/terms" target="_blank">'.trans('texts.terms_of_service').'</a>'])) !!}
     {!! Former::actions( Button::primary('Submit')->large()->submit() ) !!}        
