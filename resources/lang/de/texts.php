@@ -419,7 +419,7 @@ return array(
   'confirm_email_quote' => 'Bist du sicher, dass du dieses Angebot per E-Mail versenden möchtest',
   'confirm_recurring_email_invoice' => 'Wiederkehrende Rechnung ist aktiv. Bis du sicher, dass du diese Rechnung weiterhin als E-Mail verschicken möchtest?',
 
-  'cancel_account' => 'Account Kündigen',
+  'cancel_account' => 'Konto Kündigen',
   'cancel_account_message' => 'Warnung: Alle Daten werden unwiderruflich und vollständig gelöscht, es gibt kein zurück.',
   'go_back' => 'Zurück',
 
@@ -481,7 +481,7 @@ return array(
   'restored_client' => 'Kunde erfolgreich wiederhergestellt',
   'restored_payment' => 'Zahlung erfolgreich wiederhergestellt',
   'restored_credit' => 'Guthaben erfolgreich wiederhergestellt',
-  
+
   'reason_for_canceling' => 'Hilf uns, unser Angebot zu verbessern, indem du uns mitteilst, weswegen du dich dazu entschieden hast, unseren Service nicht länger zu nutzen.',
   'discount_percent' => 'Prozent',
   'discount_amount' => 'Wert',
@@ -562,7 +562,7 @@ return array(
 
   'api_tokens' => 'API Token',
   'users_and_tokens' => 'Benutzer & Token',
-  'account_login' => 'Account Login',
+  'account_login' => 'Konto Login',
   'recover_password' => 'Passwort wiederherstellen',
   'forgot_password' => 'Passwort vergessen?',
   'email_address' => 'E-Mail-Adresse',
@@ -597,7 +597,7 @@ return array(
   'view_documentation' => 'Dokumentation anzeigen',
   'app_title' => 'Kostenlose Online Open-Source Rechnungsausstellung',
   'app_description' => 'Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
-  
+
   'rows' => 'Zeilen',
   'www' => 'www',
   'logo' => 'Logo',
@@ -660,7 +660,7 @@ return array(
   'create_task' => 'Aufgabe erstellen',
   'stopped_task' => 'Aufgabe erfolgreich angehalten',
   'invoice_task' => 'Aufgabe in Rechnung stellen',
-  'invoice_labels' => 'Rechnung Etiketten',
+  'invoice_labels' => 'Rechnung Spaltenüberschriften',
   'prefix' => 'Präfix',
   'counter' => 'Zähler',
 
@@ -670,32 +670,32 @@ return array(
   'more_actions' => 'More Actions',
 
   'pro_plan_title' => 'NINJA PRO',
-  'pro_plan_call_to_action' => 'Upgrade Now!',
-  'pro_plan_feature1' => 'Create Unlimited Clients',
-  'pro_plan_feature2' => 'Access to 10 Beautiful Invoice Designs',
-  'pro_plan_feature3' => 'Custom URLs - "YourBrand.InvoiceNinja.com"',
-  'pro_plan_feature4' => 'Remove "Created by Invoice Ninja"',
-  'pro_plan_feature5' => 'Multi-user Access & Activity Tracking',
-  'pro_plan_feature6' => 'Create Quotes & Pro-forma Invoices',
-  'pro_plan_feature7' => 'Customize Invoice Field Titles & Numbering',
-  'pro_plan_feature8' => 'Option to Attach PDFs to Client Emails',
+  'pro_plan_call_to_action' => 'Jetzt Upgraden!',
+  'pro_plan_feature1' => 'Unlimitierte Anzahl Kunden erstellen',
+  'pro_plan_feature2' => 'Zugriff ui 10 schönen Rechnungsdesigns',
+  'pro_plan_feature3' => 'Benutzerdefinierte URLs - "DeineFirma.InvoiceNinja.com"',
+  'pro_plan_feature4' => '"Created by Invoice Ninja" entfernen',
+  'pro_plan_feature5' => 'Multi-Benutzer Zugriff & Aktivitätstracking',
+  'pro_plan_feature6' => 'Angebote & pro-forma Rechnungen erstellen',
+  'pro_plan_feature7' => 'Rechungstitelfelder und Nummerierung anpassen',
+  'pro_plan_feature8' => 'PDFs an E-Mails zu Kunden anhängen',
 
-  'resume' => 'Resume',
-  'break_duration' => 'Break',
-  'edit_details' => 'Edit Details',
-  'work' => 'Work',
-  'timezone_unset' => 'Please :link to set your timezone',
-  'click_here' => 'click here',
+  'resume' => 'Fortfahren',
+  'break_duration' => 'Pause',
+  'edit_details' => 'Details bearbeiten',
+  'work' => 'Arbeiten',
+  'timezone_unset' => 'Bitte :link um deine Zeitzone zu setzen',
+  'click_here' => 'hier klicken',
 
-  'email_receipt' => 'Email payment receipt to the client',
-  'created_payment_emailed_client' => 'Successfully created payment and emailed client',
-  'add_account' => 'Add Account',
-  'untitled' => 'Untitled',
-  'new_account' => 'New Account',
-  'associated_accounts' => 'Successfully linked accounts',
-  'unlinked_account' => 'Successfully unlinked accounts',
+  'email_receipt' => 'Zahlungsbestätigung an Kunden per E-Mail senden',
+  'created_payment_emailed_client' => 'Zahlung erfolgreich erstellt und Kunde per E-Mail benachrichtigt',
+  'add_account' => 'Konto hinzufügen',
+  'untitled' => 'Unbenannt',
+  'new_account' => 'Neues Konto',
+  'associated_accounts' => 'Konten erfolgreich verlinkt',
+  'unlinked_account' => 'Konten erfolgreich getrennt',
   'login' => 'Login',
-  'or' => 'or',
+  'or' => 'oder',
 
 
 );

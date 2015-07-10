@@ -29,7 +29,10 @@ class Invitation extends EntityModel
 
     public function getLink()
     {
-        $this->load('account');
+        if (!$this->account) {
+            $this->load('account');
+        }
+        
         $url = SITE_URL;
                 
         if ($this->account->subdomain) {
@@ -40,5 +43,10 @@ class Invitation extends EntityModel
         }
 
         return "{$url}/view/{$this->invitation_key}";
+    }
+
+    public function getName()
+    {
+        return $this->invitation_key;
     }
 }

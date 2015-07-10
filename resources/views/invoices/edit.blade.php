@@ -96,7 +96,7 @@
 				</div>
 				@if ($invoice && $invoice->recurring_invoice_id)
 					<div class="pull-right" style="padding-top: 6px">
-						Created by a {!! link_to('/invoices/'.$invoice->recurring_invoice_id, 'recurring invoice') !!}
+                        {!! trans('texts.created_by_recurring', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, $invoice->recurring_invoice->invoice_number)]) !!}
 					</div>
 				@else 
 				<div data-bind="visible: invoice_status_id() === 0">
@@ -438,7 +438,8 @@
 
                 <span data-bind="visible: $root.showMore">                
                 {!! Former::select('payment_terms')->addOption('','')->data_bind('value: payment_terms')
-                    ->fromQuery($paymentTerms, 'name', 'num_days') !!}
+                    ->fromQuery($paymentTerms, 'name', 'num_days')
+                    ->help(trans('texts.payment_terms_help')) !!}
                 {!! Former::select('size_id')->addOption('','')->data_bind('value: size_id')
                     ->fromQuery($sizes, 'name', 'id') !!}
                 {!! Former::select('industry_id')->addOption('','')->data_bind('value: industry_id')
@@ -738,20 +739,44 @@
 	}
 
 	function onEmailClick() {
-		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}')) {
+        if (!NINJA.isRegistered) {
+            alert("{{ trans('texts.registration_required') }}");
+            return;
+        }
+
+		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}' + '\n\n' + getSendToEmails())) {
 			preparePdfData('email');
 		}
 	}
 
 	function onSaveClick() {
 		if (model.invoice().is_recurring()) {
-			if (confirm('{!! trans("texts.confirm_recurring_email_$entityType") !!}')) {
+            if (!NINJA.isRegistered) {
+                alert("{{ trans('texts.registration_required') }}");
+                return;
+            }
+            
+			if (confirm('{!! trans("texts.confirm_recurring_email_$entityType") !!}' + '\n\n' + getSendToEmails() + '\n' + '{!! trans("texts.confirm_recurring_timing") !!}')) {
 				submitAction('');
 			}
 		} else {
             preparePdfData('');
 		}
 	}
+
+    function getSendToEmails() {
+        var client = model.invoice().client();
+        var parts = [];
+
+        for (var i=0; i<client.contacts().length; i++) {
+            var contact = client.contacts()[i];
+            if (contact.send_invoice()) {
+                parts.push(contact.displayName());
+            }
+        }        
+
+        return parts.join('\n');
+    }
 
     function preparePdfData(action) {
         var invoice = createInvoiceModel();
@@ -1430,6 +1455,22 @@
 		self.send_invoice = ko.observable(false);
 		self.invitation_link = ko.observable('');		
 
+        if (data) {
+            ko.mapping.fromJS(data, {}, this);      
+        }       
+
+        self.displayName = ko.computed(function() {
+            var str = '';
+            if (self.first_name() || self.last_name()) {
+                str += self.first_name() + ' ' + self.last_name() + '\n';
+            }           
+            if (self.email()) {
+                str += self.email() + '\n';
+            }           
+
+            return str;
+        });
+
 		self.email.display = ko.computed(function() {
 			var str = '';
 			if (self.first_name() || self.last_name()) {
@@ -1447,10 +1488,6 @@
 			
 			return str;
 		});		
-		
-		if (data) {
-			ko.mapping.fromJS(data, {}, this);		
-		}		
 	}
 
 	function TaxRateModel(data) {

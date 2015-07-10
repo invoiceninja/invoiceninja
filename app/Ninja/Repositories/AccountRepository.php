@@ -294,6 +294,7 @@ class AccountRepository
             $item->account_id = $user->account->id;
             $item->account_name = $user->account->getDisplayName();
             $item->pro_plan_paid = $user->account->pro_plan_paid;
+            $item->account_key = file_exists($user->account->getLogoPath()) ? $user->account->account_key : null;
             $data[] = $item;
         }
 
@@ -363,11 +364,19 @@ class AccountRepository
         return $users;
     }
 
-    public function unlinkAccount($userAccountId, $userId) {
+    public function unlinkAccount($account) {
+        foreach ($account->users as $user) {
+            if ($userAccount = self::findUserAccounts($user->id)) {
+                $userAccount->removeUserId($user->id);
+                $userAccount->save();
+            }
+        }
+    }
+
+    public function unlinkUser($userAccountId, $userId) {
 
         $userAccount = UserAccount::whereId($userAccountId)->first();
-
-        if ($userAccount->hasUserId(Auth::user()->id)) {
+        if ($userAccount->hasUserId($userId)) {
             $userAccount->removeUserId($userId);
             $userAccount->save();
         }

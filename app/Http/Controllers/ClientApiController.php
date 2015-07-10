@@ -24,8 +24,11 @@ class ClientApiController extends Controller
 
     public function index()
     {
-        $clients = Client::scope()->with('contacts')->orderBy('created_at', 'desc')->get();
-        $clients = Utils::remapPublicIds($clients->toArray());
+        $clients = Client::scope()
+                    ->with('country', 'contacts', 'industry', 'size', 'currency')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+        $clients = Utils::remapPublicIds($clients);
 
         $response = json_encode($clients, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders(count($clients));
@@ -43,9 +46,9 @@ class ClientApiController extends Controller
 
             return Response::make($error, 500, $headers);
         } else {
-            $client = $this->clientRepo->save(false, $data, false);
-            $client->load('contacts');
-            $client = Utils::remapPublicIds($client->toArray());
+            $client = $this->clientRepo->save(isset($data['id']) ? $data['id'] : false, $data, false);
+            $client = Client::scope($client->public_id)->with('country', 'contacts', 'industry', 'size', 'currency')->first();
+            $client = Utils::remapPublicIds([$client]);
             $response = json_encode($client, JSON_PRETTY_PRINT);
             $headers = Utils::getApiHeaders();
 

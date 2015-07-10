@@ -48,6 +48,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->belongsTo('App\Models\Theme');
     }
 
+    public function getName()
+    {
+        return $this->getDisplayName();
+    }
+
     public function getPersonType()
     {
         return PERSON_USER;
@@ -196,4 +201,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         }
     }
 
+    public static function updateUser($user)
+    {
+        if ($user->password != !$user->getOriginal('password')) {
+            $user->failed_logins = 0;
+        }
+    }
+
 }
+
+User::updating(function ($user) {
+    User::updateUser($user);
+});

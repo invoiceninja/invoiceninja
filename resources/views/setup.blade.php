@@ -6,10 +6,11 @@
     <meta name="csrf-token" content="<?= csrf_token() ?>">
     <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
     <style type="text/css">
     body {
-        background-color: #f8f8f8;
+        background-color: #FEFEFE;
     }
     </style>
 
@@ -35,7 +36,7 @@
                 <pre>sudo chown yourname:www-data /path/to/ninja</pre>
             </div>
         @endif
-        If you need help you can either post to our <a href="https://groups.google.com/forum/#!forum/invoiceninja" target="_blank">Google Group</a> 
+        If you need help you can either post to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> 
         or email us at <a href="mailto:contact@invoiceninja.com" target="_blank">contact@invoiceninja.com</a>.
         <p>
 <pre>-- Commands to create a MySQL database and user
@@ -64,7 +65,7 @@ FLUSH PRIVILEGES;</pre>
         <h3 class="panel-title">Application Settings</h3>
       </div>
       <div class="panel-body">
-        {!! Former::text('app[url]')->label('URL')->value(Request::root()) !!}        
+        {!! Former::text('app[url]')->label('URL')->value(isset($_ENV['APP_URL']) ? $_ENV['APP_URL'] : Request::root()) !!}
       </div>
     </div>
 
@@ -73,12 +74,17 @@ FLUSH PRIVILEGES;</pre>
         <h3 class="panel-title">Database Connection</h3>
       </div>
       <div class="panel-body">
-        {!! Former::select('database[default]')->label('Driver')->options(['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite']) !!}
-        {!! Former::text('database[type][host]')->label('Host')->value('localhost') !!}
-        {!! Former::text('database[type][database]')->label('Database')->value('ninja') !!}
-        {!! Former::text('database[type][username]')->label('Username')->value('ninja') !!}
-        {!! Former::password('database[type][password]')->label('Password')->value('ninja') !!}
-        {!! Former::actions( Button::normal('Test connection')->withAttributes(['onclick' => 'testDatabase()']), '&nbsp;&nbsp;<span id="dbTestResult"/>' ) !!}      
+        {!! Former::select('database[default]')->label('Driver')->options(['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'])
+                ->value(isset($_ENV['DB_TYPE']) ? $_ENV['DB_TYPE'] : 'mysql') !!}
+        {!! Former::text('database[type][host]')->label('Host')->value('localhost') 
+                ->value(isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : '') !!}
+        {!! Former::text('database[type][database]')->label('Database')->value('ninja') 
+                ->value(isset($_ENV['DB_DATABASE']) ? $_ENV['DB_DATABASE'] : '') !!}
+        {!! Former::text('database[type][username]')->label('Username')->value('ninja') 
+                ->value(isset($_ENV['DB_USERNAME']) ? $_ENV['DB_USERNAME'] : '') !!}
+        {!! Former::password('database[type][password]')->label('Password')->value('ninja') 
+                ->value(isset($_ENV['DB_PASSWORD']) ? $_ENV['DB_PASSWORD'] : '') !!}
+        {!! Former::actions( Button::primary('Test connection')->small()->withAttributes(['onclick' => 'testDatabase()']), '&nbsp;&nbsp;<span id="dbTestResult"/>' ) !!}      
       </div>
     </div>
 
@@ -88,14 +94,21 @@ FLUSH PRIVILEGES;</pre>
         <h3 class="panel-title">Email Settings</h3>
       </div>
       <div class="panel-body">
-        {!! Former::select('mail[driver]')->label('Driver')->options(['smtp' => 'SMTP', 'mail' => 'Mail', 'sendmail' => 'Sendmail']) !!}
-        {!! Former::text('mail[host]')->label('Host')->value('localhost') !!}
-        {!! Former::text('mail[port]')->label('Port')->value('587') !!}
-        {!! Former::select('mail[encryption]')->label('Encryption')->options(['tls' => 'TLS', 'ssl' => 'SSL']) !!}
-        {!! Former::text('mail[from][name]')->label('From Name') !!}
-        {!! Former::text('mail[username]')->label('Email') !!}
-        {!! Former::password('mail[password]')->label('Password') !!}    
-        {!! Former::actions( Button::normal('Send test email')->withAttributes(['onclick' => 'testMail()']), '&nbsp;&nbsp;<span id="mailTestResult"/>' ) !!}            
+        {!! Former::select('mail[driver]')->label('Driver')->options(['smtp' => 'SMTP', 'mail' => 'Mail', 'sendmail' => 'Sendmail'])
+                 ->value(isset($_ENV['MAIL_DRIVER']) ? $_ENV['MAIL_DRIVER'] : 'smtp') !!}
+        {!! Former::text('mail[host]')->label('Host')
+                ->value(isset($_ENV['MAIL_HOST']) ? $_ENV['MAIL_HOST'] : '') !!}
+        {!! Former::text('mail[port]')->label('Port')
+                ->value(isset($_ENV['MAIL_PORT']) ? $_ENV['MAIL_PORT'] : '587')  !!}
+        {!! Former::select('mail[encryption]')->label('Encryption')->options(['tls' => 'TLS', 'ssl' => 'SSL'])
+                ->value(isset($_ENV['MAIL_ENCRYPTION']) ? $_ENV['MAIL_ENCRYPTION'] : 'tls')  !!}
+        {!! Former::text('mail[from][name]')->label('From Name')
+                ->value(isset($_ENV['MAIL_FROM_NAME']) ? $_ENV['MAIL_FROM_NAME'] : '')  !!}
+        {!! Former::text('mail[username]')->label('Email')
+                ->value(isset($_ENV['MAIL_USERNAME']) ? $_ENV['MAIL_USERNAME'] : '')  !!}
+        {!! Former::password('mail[password]')->label('Password')
+                ->value(isset($_ENV['MAIL_PASSWORD']) ? $_ENV['MAIL_PASSWORD'] : '')  !!}    
+        {!! Former::actions( Button::primary('Send test email')->small()->withAttributes(['onclick' => 'testMail()']), '&nbsp;&nbsp;<span id="mailTestResult"/>' ) !!}            
       </div>
     </div>
 
@@ -112,8 +125,9 @@ FLUSH PRIVILEGES;</pre>
       </div>
     </div>
 
+
     {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.NINJA_APP_URL.'/terms" target="_blank">'.trans('texts.terms_of_service').'</a>'])) !!}
-    {!! Former::actions( Button::primary('Submit')->submit() ) !!}        
+    {!! Former::actions( Button::primary('Submit')->large()->submit() ) !!}        
     {!! Former::close() !!}
 
   </div>

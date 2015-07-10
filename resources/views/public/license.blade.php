@@ -77,7 +77,11 @@ header h3 em {
     <div class="row">
         <div class="col-md-7">
             <header>
-                <h2>License Key<br/><small>{{ $message }}</small></h2>                
+                @if (isset($redirectTo))
+                    <h2>Payment Complete</h2>
+                @else 
+                    <h2>License Key<br/><small>{{ $message }}</small></h2>                
+                @endif                    
             </header>
         </div>
     </div>
@@ -87,9 +91,16 @@ header h3 em {
 
     <div class="row">
       <div class="col-md-12">
-        <h2 style="text-align:center">{{ $license }}</h2>      
-      </div>
-    </div>    
+        <h2 style="text-align:center">
+            @if (isset($redirectTo))
+                {{ $message }}
+            @else
+                {{ $license }}
+            @endif
+        </h2>      
+      </div>      
+    </div>  
+
 </div>
 </div>
 
@@ -102,6 +113,13 @@ header h3 em {
 
 $(function() {
     trackEvent('/license', '/product_{{ $productId }}');
+
+    @if (isset($redirectTo))
+        setTimeout(function() {
+            location.href = "{!! $redirectTo !!}";
+        }, 3000);
+    @endif
+
 })
 
 </script>

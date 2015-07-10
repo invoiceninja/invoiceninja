@@ -704,4 +704,12 @@ return array(
   'login' => 'Login',
   'or' => 'or',
 
+  'email_error' => 'There was a problem sending the email',
+  'created_by_recurring' => 'Created by recurring invoice :invoice',
+  'confirm_recurring_timing' => 'Note: emails are sent at the start of the hour.',
+  'old_browser' => 'Please use a <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">newer browser</a>',
+  'payment_terms_help' => 'Sets the default invoice due date',
+  'unlink_account' => 'Unlink Account',
+  'unlink' => 'Unlink',
+
 );

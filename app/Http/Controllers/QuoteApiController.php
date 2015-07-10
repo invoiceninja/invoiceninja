@@ -16,8 +16,8 @@ class QuoteApiController extends Controller
 
     public function index()
     {
-        $invoices = Invoice::scope()->where('invoices.is_quote', '=', true)->orderBy('created_at', 'desc')->get();
-        $invoices = Utils::remapPublicIds($invoices->toArray());
+        $invoices = Invoice::scope()->with('client', 'user')->where('invoices.is_quote', '=', true)->orderBy('created_at', 'desc')->get();
+        $invoices = Utils::remapPublicIds($invoices);
 
         $response = json_encode($invoices, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders(count($invoices));

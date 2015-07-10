@@ -243,6 +243,7 @@ class ReportController extends BaseController
             'reportType' => $reportType,
             'enableChart' => $enableChart,
             'enableReport' => $enableReport,
+            'title' => trans('texts.charts_and_reports'),
         ];
 
         return View::make('reports.chart_builder', $params);

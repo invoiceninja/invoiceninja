@@ -84,9 +84,10 @@ class AccountController extends BaseController
         }
         
         $user = false;
-        $guestKey = Input::get('guest_key');
+        $guestKey = Input::get('guest_key'); // local storage key to login until registered
+        $prevUserId = Session::pull(PREV_USER_ID); // last user id used to link to new account
 
-        if ($guestKey) {
+        if ($guestKey && !$prevUserId) {
             $user = User::where('password', '=', $guestKey)->first();
 
             if ($user && $user->registered) {
@@ -99,6 +100,11 @@ class AccountController extends BaseController
             $user = $account->users()->first();
 
             Session::forget(RECENTLY_VIEWED);
+
+            if ($prevUserId) {
+                $users = $this->accountRepo->associateAccounts($user->id, $prevUserId);
+                Session::put(SESSION_USER_ACCOUNTS, $users);
+            }
         }
 
         Auth::login($user, true);
@@ -154,6 +160,7 @@ class AccountController extends BaseController
                 'currencies' => Cache::get('currencies'),
                 'languages' => Cache::get('languages'),
                 'showUser' => Auth::user()->id === Auth::user()->account->users()->first()->id,
+                'title' => trans('texts.company_details'),
             ];
 
             return View::make('accounts.details', $data);
@@ -166,21 +173,26 @@ class AccountController extends BaseController
             if ($count == 0) {
                 return Redirect::to('gateways/create');
             } else {
-                return View::make('accounts.payments', ['showAdd' => $count < 3]);
+                return View::make('accounts.payments', [
+                    'showAdd' => $count < 3,
+                    'title' => trans('texts.online_payments')
+                ]);
             }
         } elseif ($section == ACCOUNT_NOTIFICATIONS) {
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+                'title' => trans('texts.notifications'),
             ];
 
             return View::make('accounts.notifications', $data);
         } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
-            return View::make('accounts.import_export');
+            return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
         } elseif ($section == ACCOUNT_ADVANCED_SETTINGS) {
             $account = Auth::user()->account;
             $data = [
                 'account' => $account,
                 'feature' => $subSection,
+                'title' => trans('texts.invoice_settings'),
             ];
 
             if ($subSection == ACCOUNT_INVOICE_DESIGN) {
@@ -212,17 +224,22 @@ class AccountController extends BaseController
                 $data['invoice'] = $invoice;
                 $data['invoiceDesigns'] = InvoiceDesign::availableDesigns();
                 $data['invoiceLabels'] = json_decode($account->invoice_labels) ?: [];
+                $data['title'] = trans('texts.invoice_design');
             } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
                 $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
                 $data['quoteEmail'] = $account->getEmailTemplate(ENTITY_QUOTE);
                 $data['paymentEmail'] = $account->getEmailTemplate(ENTITY_PAYMENT);
                 $data['emailFooter'] = $account->getEmailFooter();                
+                $data['title'] = trans('texts.email_templates');
+            } else if ($subSection == ACCOUNT_USER_MANAGEMENT) {
+                $data['title'] = trans('texts.users_and_tokens');
             }
 
             return View::make("accounts.{$subSection}", $data);
         } elseif ($section == ACCOUNT_PRODUCTS) {
             $data = [
                 'account' => Auth::user()->account,
+                'title' => trans('texts.product_library'),
             ];
 
             return View::make('accounts.products', $data);
@@ -704,8 +721,6 @@ class AccountController extends BaseController
 
         if (Utils::isNinja()) {
             $this->userMailer->sendConfirmation($user);
-        } else {
-            $this->accountRepo->registerUser($user);
         }
 
         $activities = Activity::scope()->get();
@@ -761,6 +776,7 @@ class AccountController extends BaseController
         }
 
         $account = Auth::user()->account;
+        $this->accountRepo->unlinkAccount($account);
         $account->forceDelete();
 
         Auth::logout();

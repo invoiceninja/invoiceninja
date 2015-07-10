@@ -83,6 +83,7 @@ class DashboardController extends BaseController
       'activities' => $activities,
       'pastDue' => $pastDue,
       'upcoming' => $upcoming,
+      'title' => trans('texts.dashboard'),
     ];
 
         return View::make('dashboard', $data);
