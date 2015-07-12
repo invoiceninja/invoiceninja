@@ -25,6 +25,23 @@
       }
     }
 
+    @if (Auth::check() && Auth::user()->dark_mode)
+        body {
+            background: #000 !important;
+            color: white !important;
+        }
+
+        .panel-body {
+            background: #272822 !important;
+            /*background: #e6e6e6 !important;*/
+        }
+
+        .panel-default {
+            border-color: #444;
+        }
+    @endif
+
+
   </style>
 
   @include('script')
@@ -309,6 +326,15 @@
       showSignUp();
     @endif
 
+    $('ul.navbar-settings, ul.navbar-history').hover(function () {
+        //$('.user-accounts').find('li').hide();
+        //$('.user-accounts').css({display: 'none'});
+        //console.log($('.user-accounts').dropdown(''))
+        if ($('.user-accounts').css('display') == 'block') {
+            $('.user-accounts').dropdown('toggle');
+        }
+    });
+
     @yield('onReady')
 
   });
@@ -409,7 +435,7 @@
 
       </div>	
       
-      <ul class="nav navbar-nav navbar-right"> 
+      <ul class="nav navbar-nav navbar-right navbar-settings"> 
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
@@ -426,7 +452,7 @@
       </ul>
 
 
-      <ul class="nav navbar-nav navbar-right"> 
+      <ul class="nav navbar-nav navbar-right navbar-history"> 
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             <span class="glyphicon glyphicon-time" title="{{ trans('texts.history') }}"/>

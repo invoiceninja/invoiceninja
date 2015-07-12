@@ -276,9 +276,9 @@ return array(
 
   // Payment page
   'secure_payment' => 'Secure Payment',
-  'card_number' => 'Card number',
-  'expiration_month' => 'Expiration month',
-  'expiration_year' => 'Expiration year',
+  'card_number' => 'Card Number',
+  'expiration_month' => 'Expiration Month',
+  'expiration_year' => 'Expiration Year',
   'cvv' => 'CVV',
 
   // Security alerts
@@ -526,11 +526,11 @@ return array(
   'token_billing_secure' => 'The data is stored securely by :stripe_link',
 
   'support' => 'Support',
-  'contact_information' => 'Contact information',
+  'contact_information' => 'Contact Information',
   '256_encryption' => '256-Bit Encryption',
   'amount_due' => 'Amount due',
-  'billing_address' => 'Billing address',
-  'billing_method' => 'Billing method',
+  'billing_address' => 'Billing Address',
+  'billing_method' => 'Billing Method',
   'order_overview' => 'Order overview',
   'match_address' => '*Address must match address associated with credit card.',
   'click_once' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.',
@@ -711,5 +711,16 @@ return array(
   'payment_terms_help' => 'Sets the default invoice due date',
   'unlink_account' => 'Unlink Account',
   'unlink' => 'Unlink',
+  'show_address' => 'Show Address',
+  'show_address_help' => 'Require client to provide their billing address',
+  'update_address' => 'Update Address',
+  'update_address_help' => 'Update client\'s address with provided details',
+  'times' => 'Times',
+  'set_now' => 'Set now',
+  'dark_mode' => 'Dark Mode',
+  'dark_mode_help' => 'Show white text on black background',
+  'add_to_invoice' => 'Add to invoice :invoice',
+  'create_new_invoice' => 'Create new invoice',
+  'task_errors' => 'Please correct any overlapping times',
 
 );

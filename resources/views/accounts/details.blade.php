@@ -22,6 +22,9 @@
 		{{ Former::populateField('last_name', $account->users()->first()->last_name) }}
 		{{ Former::populateField('email', $account->users()->first()->email) }}	
 		{{ Former::populateField('phone', $account->users()->first()->phone) }}
+        @if (Utils::isNinja())
+            {{ Former::populateField('dark_mode', intval($account->users()->first()->dark_mode)) }}        
+        @endif
 	@endif
 	
 	<div class="row">
@@ -88,6 +91,10 @@
 				{!! Former::text('last_name') !!}
                 {!! Former::text('email') !!}
 				{!! Former::text('phone') !!}
+                @if (Utils::isNinja())
+                    {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help')) !!}
+                @endif
+                
                 @if (Auth::user()->confirmed)                
                     {!! Former::actions( Button::primary(trans('texts.change_password'))->small()->withAttributes(['onclick'=>'showChangePassword()'])) !!}
                 @elseif (Auth::user()->registered)

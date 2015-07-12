@@ -2433,6 +2433,8 @@ th {border-left: 1px solid #d26b26; }
 .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
 vertical-align: middle;
 border-top: none;
+}
+table.invoice-table>thead>tr>th, table.invoice-table>tbody>tr>th, table.invoice-table>tfoot>tr>th, table.invoice-table>thead>tr>td, table.invoice-table>tbody>tr>td, table.invoice-table>tfoot>tr>td {
 border-bottom: 1px solid #dfe0e1;
 }
 table.dataTable.no-footer {

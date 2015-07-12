@@ -647,6 +647,9 @@ class AccountController extends BaseController
                 $user->username = trim(Input::get('email'));
                 $user->email = trim(strtolower(Input::get('email')));
                 $user->phone = trim(Input::get('phone'));
+                if (Utils::isNinja()) {
+                    $user->dark_mode = Input::get('dark_mode') ? true : false;
+                }
                 $user->save();
             }
                 

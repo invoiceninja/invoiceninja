@@ -705,6 +705,25 @@ return array(
   'login' => 'Login',
   'or' => 'or',
 
+  'email_error' => 'There was a problem sending the email',
+  'created_by_recurring' => 'Created by recurring invoice :invoice',
+  'confirm_recurring_timing' => 'Note: emails are sent at the start of the hour.',
+  'old_browser' => 'Please use a <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">newer browser</a>',
+  'payment_terms_help' => 'Sets the default invoice due date',
+  'unlink_account' => 'Unlink Account',
+  'unlink' => 'Unlink',
+  'show_address' => 'Show Address',
+  'show_address_help' => 'Require client to provide their billing address',
+  'update_address' => 'Update Address',
+  'update_address_help' => 'Update client\'s address with provided details',
+  'times' => 'Times',
+  'set_now' => 'Set now',
+  'dark_mode' => 'Dark Mode',
+  'dark_mode_help' => 'Show white text on black background',
+  'add_to_invoice' => 'Add to invoice :invoice',
+  'create_new_invoice' => 'Create new invoice',
+  'task_errors' => 'Please correct any overlapping times',
+
 
   
 );

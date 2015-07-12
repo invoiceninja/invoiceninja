@@ -375,10 +375,9 @@ class InvoiceController extends BaseController
                 'method' => 'POST',
                 'url' => 'invoices',
                 'title' => trans('texts.new_invoice'),
-                'client' => $client,
-                'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null);
+                'client' => $client);
         $data = array_merge($data, self::getViewModel());
-
+        
         return View::make('invoices.edit', $data);
     }
 
@@ -417,7 +416,7 @@ class InvoiceController extends BaseController
             ),
             'recurringHelp' => $recurringHelp,
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
-
+            'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
         ];
 
     }

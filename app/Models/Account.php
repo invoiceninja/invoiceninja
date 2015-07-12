@@ -171,7 +171,7 @@ class Account extends Eloquent
     {
         $counter = $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
         $prefix .= $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
-            
+        
         // confirm the invoice number isn't already taken 
         do {
             $number = $prefix.str_pad($counter, 4, "0", STR_PAD_LEFT);
@@ -186,11 +186,14 @@ class Account extends Eloquent
     {
         // check if the user modified the invoice number
         if (!$isRecurring && $invoiceNumber != $this->getNextInvoiceNumber($isQuote)) {
-            $number = intval(preg_replace('/[^0-9]/', '', $invoiceNumber));
+            // remove the prefix
+            $prefix = $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
+            $invoiceNumber = preg_replace('/^'.$prefix.'/', '', $invoiceNumber);
+            $invoiceNumber = intval(preg_replace('/[^0-9]/', '', $invoiceNumber));
             if ($isQuote && !$this->share_counter) {
-                $this->quote_number_counter = $number + 1;
+                $this->quote_number_counter = $invoiceNumber + 1;
             } else {
-                $this->invoice_number_counter = $number + 1;
+                $this->invoice_number_counter = $invoiceNumber + 1;
             }
         // otherwise, just increment the counter
         } else {

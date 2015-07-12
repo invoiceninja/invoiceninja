@@ -646,6 +646,10 @@
 		setComboboxValue($('.client_select'), 
 			client.public_id(), 
 			client.name.display());		
+
+        @if (isset($tasks) && $tasks)
+            NINJA.formIsChanged = true;
+        @endif
 	});	
 
 	function applyComboboxListeners() {
@@ -1755,23 +1759,24 @@
             //}
 			model.invoice().custom_taxes1({{ $account->custom_invoice_taxes1 ? 'true' : 'false' }});
 			model.invoice().custom_taxes2({{ $account->custom_invoice_taxes2 ? 'true' : 'false' }});
-
-            @if (isset($tasks) && $tasks)
-                // move the blank invoice line item to the end
-                var blank = model.invoice().invoice_items.pop();
-                var tasks = {!! $tasks !!};
-                for (var i=0; i<tasks.length; i++) {
-                    var task = tasks[i];                    
-                    var item = model.invoice().addItem();
-                    item.notes(task.description);
-                    item.product_key(task.startTime);
-                    item.qty(task.duration);
-                    item.task_public_id(task.publicId);
-                }        
-                model.invoice().invoice_items.push(blank);
-                model.invoice().has_tasks(true);
-            @endif
 		@endif
+
+        @if (isset($tasks) && $tasks)
+            // move the blank invoice line item to the end
+            var blank = model.invoice().invoice_items.pop();
+            var tasks = {!! $tasks !!};
+            console.log(tasks);
+            for (var i=0; i<tasks.length; i++) {
+                var task = tasks[i];                    
+                var item = model.invoice().addItem();
+                item.notes(task.description);
+                item.product_key(task.startTime);
+                item.qty(task.duration);
+                item.task_public_id(task.publicId);
+            }        
+            model.invoice().invoice_items.push(blank);
+            model.invoice().has_tasks(true);
+        @endif        
 	@endif
 
 	model.invoice().tax(model.getTaxRate(model.invoice().tax_name(), model.invoice().tax_rate()));			

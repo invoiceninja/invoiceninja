@@ -233,33 +233,41 @@ class PaymentController extends BaseController
 
     private function convertInputForOmnipay($input)
     {
-        $country = Country::find($input['country_id']);
-
-        return [
+        $data = [
             'firstName' => $input['first_name'],
             'lastName' => $input['last_name'],
             'number' => $input['card_number'],
             'expiryMonth' => $input['expiration_month'],
             'expiryYear' => $input['expiration_year'],
             'cvv' => $input['cvv'],
-            'billingAddress1' => $input['address1'],
-            'billingAddress2' => $input['address2'],
-            'billingCity' => $input['city'],
-            'billingState' => $input['state'],
-            'billingPostcode' => $input['postal_code'],
-            'billingCountry' => $country->iso_3166_2,
-            'shippingAddress1' => $input['address1'],
-            'shippingAddress2' => $input['address2'],
-            'shippingCity' => $input['city'],
-            'shippingState' => $input['state'],
-            'shippingPostcode' => $input['postal_code'],
-            'shippingCountry' => $country->iso_3166_2
         ];
+
+        if (isset($input['country_id'])) {
+            $country = Country::find($input['country_id']);
+
+            $data = array_merge($data, [
+                'billingAddress1' => $input['address1'],
+                'billingAddress2' => $input['address2'],
+                'billingCity' => $input['city'],
+                'billingState' => $input['state'],
+                'billingPostcode' => $input['postal_code'],
+                'billingCountry' => $country->iso_3166_2,
+                'shippingAddress1' => $input['address1'],
+                'shippingAddress2' => $input['address2'],
+                'shippingCity' => $input['city'],
+                'shippingState' => $input['state'],
+                'shippingPostcode' => $input['postal_code'],
+                'shippingCountry' => $country->iso_3166_2
+            ]);
+        }
+
+        return $data;
     }
 
     private function getPaymentDetails($invitation, $input = null)
     {
         $invoice = $invitation->invoice;
+        $account = $invoice->account;
         $key = $invoice->account_id.'-'.$invoice->invoice_number;
         $currencyCode = $invoice->client->currency ? $invoice->client->currency->code : ($invoice->account->currency ? $invoice->account->currency->code : 'USD');
 
@@ -330,6 +338,7 @@ class PaymentController extends BaseController
             'currencyId' => $client->getCurrencyId(),
             'account' => $client->account,
             'hideLogo' => $account->isWhiteLabel(),
+            'showAddress' => $accountGateway->show_address,
         ];
 
         return View::make('payments.payment', $data);
@@ -498,19 +507,30 @@ class PaymentController extends BaseController
 
     public function do_payment($invitationKey, $onSite = true, $useToken = false)
     {
-        $rules = array(
+        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        $invoice = $invitation->invoice;
+        $client = $invoice->client;
+        $account = $client->account;
+        $accountGateway = $account->getGatewayByType(Session::get('payment_type'));
+
+        $rules = [
             'first_name' => 'required',
             'last_name' => 'required',
             'card_number' => 'required',
             'expiration_month' => 'required',
             'expiration_year' => 'required',
             'cvv' => 'required',
-            'address1' => 'required',
-            'city' => 'required',
-            'state' => 'required',
-            'postal_code' => 'required',
-            'country_id' => 'required',
-        );
+        ];
+
+        if ($accountGateway->show_address) {
+            $rules = array_merge($rules, [
+                'address1' => 'required',
+                'city' => 'required',
+                'state' => 'required',
+                'postal_code' => 'required',
+                'country_id' => 'required',
+            ]);
+        }
 
         if ($onSite) {
             $validator = Validator::make(Input::all(), $rules);
@@ -522,23 +542,16 @@ class PaymentController extends BaseController
                     ->withInput();
             }
         }
-
-        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
-        $invoice = $invitation->invoice;
-        $client = $invoice->client;
-        $account = $client->account;
-        $accountGateway = $account->getGatewayByType(Session::get('payment_type'));
-        
-        /*
-        if ($onSite) {
+                
+        if ($onSite && $accountGateway->update_address) {
             $client->address1 = trim(Input::get('address1'));
             $client->address2 = trim(Input::get('address2'));
             $client->city = trim(Input::get('city'));
             $client->state = trim(Input::get('state'));
             $client->postal_code = trim(Input::get('postal_code'));
+            $client->country_id = Input::get('country_id');
             $client->save();
         }
-        */
         
         try {
             $gateway = self::createGateway($accountGateway);

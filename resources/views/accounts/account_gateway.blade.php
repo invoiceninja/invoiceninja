@@ -14,9 +14,12 @@
     <div class="panel-body">
         
     @if ($accountGateway)
-        {!! Former::populateField('payment_type_id', $paymentTypeId) !!}
         {!! Former::populateField('gateway_id', $accountGateway->gateway_id) !!}
-        {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}        
+        {!! Former::populateField('payment_type_id', $paymentTypeId) !!}
+        {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}
+        {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}        
+        {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
+
         @if ($config)
             @foreach ($accountGateway->fields as $field => $junk)
                 @if (in_array($field, $hiddenFields))
@@ -28,6 +31,8 @@
         @endif
     @else
         {!! Former::populateField('gateway_id', GATEWAY_STRIPE) !!}
+        {!! Former::populateField('show_address', 1) !!}        
+        {!! Former::populateField('update_address', 1) !!}
     @endif
         
     {!! Former::select('payment_type_id')
@@ -76,6 +81,15 @@
         </div>
         
     @endforeach
+
+    {!! Former::checkbox('show_address')
+            ->label(trans('texts.billing_address'))
+            ->text(trans('texts.show_address_help'))
+            ->addGroupClass('gateway-option') !!}
+    {!! Former::checkbox('update_address')
+            ->label(' ')
+            ->text(trans('texts.update_address_help'))
+            ->addGroupClass('gateway-option') !!}
 
     {!! Former::checkboxes('creditCardTypes[]')
             ->label('Accepted Credit Cards')
@@ -131,11 +145,25 @@
         }
     }
 
+    function enableUpdateAddress(event) {
+        var disabled = !$('#show_address').is(':checked');
+        $('#update_address').prop('disabled', disabled);
+        $('label[for=update_address]').css('color', disabled ? '#888' : '#000');
+        if (disabled) {
+            $('#update_address').prop('checked', false);
+        } else if (event) {            
+            $('#update_address').prop('checked', true);
+        }
+    }
+
     $(function() {
         setPaymentType();
         @if ($accountGateway)
             $('.payment-type-option').hide();
         @endif
+
+        $('#show_address').change(enableUpdateAddress);
+        enableUpdateAddress();
     })
 
     </script>

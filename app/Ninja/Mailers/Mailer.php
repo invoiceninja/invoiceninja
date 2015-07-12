@@ -34,10 +34,14 @@ class Mailer
             });
             
             return true;
-        } catch (Exception $e) {
-            $response = $e->getResponse()->getBody()->getContents();
-            $response = json_decode($response);
-            return nl2br($response->Message);
+        } catch (Exception $exception) {
+            if (method_exists($exception, 'getResponse')) {
+                $response = $exception->getResponse()->getBody()->getContents();
+                $response = json_decode($response);
+                return nl2br($response->Message);
+            } else {
+                return $exception->getMessage();
+            }
         }
     }
 }

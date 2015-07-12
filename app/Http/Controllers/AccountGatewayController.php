@@ -257,6 +257,8 @@ class AccountGatewayController extends BaseController
             }
 
             $accountGateway->accepted_credit_cards = $cardCount;
+            $accountGateway->show_address = Input::get('show_address') ? true : false;
+            $accountGateway->update_address = Input::get('update_address') ? true : false;
             $accountGateway->config = json_encode($config);
 
             if ($accountGatewayPublicId) {
@@ -278,7 +280,7 @@ class AccountGatewayController extends BaseController
 
             Session::flash('message', $message);
 
-            return Redirect::to('company/payments');
+            return Redirect::to("gateways/{$accountGateway->public_id}/edit");
         }
     }
 

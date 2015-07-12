@@ -207,6 +207,7 @@ header h3 em {
 
         <p>&nbsp;<br/>&nbsp;</p>
 
+        @if ($showAddress)
         <h3>{{ trans('texts.billing_address') }} &nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
         <div class="row">
             <div class="col-md-6">
@@ -234,6 +235,7 @@ header h3 em {
         </div>
 
         <p>&nbsp;<br/>&nbsp;</p>
+        @endif
 
         <h3>{{ trans('texts.billing_method') }}</h3>
         <div class="row">
