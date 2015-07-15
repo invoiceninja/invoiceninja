@@ -132,7 +132,6 @@
 
     <script type="text/javascript">
 
-    
     var clients = {!! $clients !!};
     var timeLabels = {};
     @foreach (['hour', 'minute', 'second'] as $period)
@@ -225,25 +224,25 @@
 
         self.startTime.pretty = ko.computed({
             read: function() {
-                return self.startTime() ? moment.unix(self.startTime()).format('MMM D YYYY h:mm:ss a') : '';    
+                return self.startTime() ? moment.unix(self.startTime()).utcOffset({{ $minuteOffset }}).format('MMM D YYYY h:mm:ss a') : '';    
             }, 
             write: function(data) {
-                self.startTime(moment(data, 'MMM D YYYY h:mm:ss a').unix());
+                self.startTime(moment(data, 'MMM D YYYY h:mm:ss a').utcOffset({{ $minuteOffset }}).unix());
             }
         });
 
         self.endTime.pretty = ko.computed({
             read: function() {
-                return self.endTime() ? moment.unix(self.endTime()).format('MMM D YYYY h:mm:ss a') : '';
+                return self.endTime() ? moment.unix(self.endTime()).utcOffset({{ $minuteOffset }}).format('MMM D YYYY h:mm:ss a') : '';
             }, 
             write: function(data) {
-                self.endTime(moment(data, 'MMM D YYYY h:mm:ss a').unix());
+                self.endTime(moment(data, 'MMM D YYYY h:mm:ss a').utcOffset({{ $minuteOffset }}).unix());
             }
         });
 
         self.setNow = function() {
-            self.startTime(moment().unix());
-            self.endTime(moment().unix());            
+            self.startTime(moment().utcOffset({{ $minuteOffset }}).unix());
+            self.endTime(moment().utcOffset({{ $minuteOffset }}).unix());            
         }
 
         self.duration.pretty = ko.computed(function() {

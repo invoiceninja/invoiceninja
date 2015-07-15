@@ -10,9 +10,10 @@ use Validator;
 use Redirect;
 use Session;
 use DropdownButton;
+use DateTime;
+use DateTimeZone;
 use App\Models\Client;
 use App\Models\Task;
-
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 
@@ -35,10 +36,7 @@ class TaskController extends BaseController
      */
     public function index()
     {
-        if (!Auth::user()->account->timezone) {
-            $link = link_to('/company/details', trans('texts.click_here'), ['target' => '_blank']);
-            Session::flash('warning', trans('texts.timezone_unset', ['link' => $link]));
-        }
+        self::checkTimezone();
 
         return View::make('list', array(
             'entityType' => ENTITY_TASK,
@@ -130,12 +128,15 @@ class TaskController extends BaseController
      */
     public function create($clientPublicId = 0)
     {
+        self::checkTimezone();
+
         $data = [
             'task' => null,
             'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
             'method' => 'POST',
             'url' => 'tasks',
             'title' => trans('texts.new_task'),
+            'minuteOffset' => Utils::getTiemstampOffset(),
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -151,6 +152,8 @@ class TaskController extends BaseController
      */
     public function edit($publicId)
     {
+        self::checkTimezone();
+
         $task = Task::scope($publicId)->with('client', 'invoice')->firstOrFail();
 
         $actions = [];
@@ -174,7 +177,7 @@ class TaskController extends BaseController
         } else {
             $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_task')];
         }
-    
+
         $data = [
             'task' => $task,
             'clientPublicId' => $task->client ? $task->client->public_id : 0,
@@ -183,6 +186,7 @@ class TaskController extends BaseController
             'title' => trans('texts.edit_task'),
             'duration' => $task->is_running ? $task->getCurrentDuration() : $task->getDuration(),
             'actions' => $actions,
+            'minuteOffset' => Utils::getTiemstampOffset(),
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -279,6 +283,14 @@ class TaskController extends BaseController
             } else {
                 return Redirect::to('tasks');
             }
+        }
+    }
+
+    private function checkTimezone()
+    {
+        if (!Auth::user()->account->timezone) {
+            $link = link_to('/company/details', trans('texts.click_here'), ['target' => '_blank']);
+            Session::flash('warning', trans('texts.timezone_unset', ['link' => $link]));
         }
     }
 }

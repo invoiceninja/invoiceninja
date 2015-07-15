@@ -315,6 +315,16 @@ class Utils
         return $date->format($format);
     }
 
+    public static function getTiemstampOffset()
+    {
+        $timezone = new DateTimeZone(Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE));
+        $datetime = new DateTime('now', $timezone);
+        $offset = $timezone->getOffset($datetime);
+        $minutes = $offset / 60;
+
+        return $minutes;
+    }
+
     public static function toSqlDate($date, $formatResult = true)
     {
         if (!$date) {
