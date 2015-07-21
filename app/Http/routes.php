@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -247,6 +246,8 @@ define('ACCOUNT_USER_MANAGEMENT', 'user_management');
 define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
 define('ACCOUNT_EMAIL_TEMPLATES', 'email_templates');
 define('ACCOUNT_TOKEN_MANAGEMENT', 'token_management');
+define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
+
 
 define('ACTIVITY_TYPE_CREATE_CLIENT', 1);
 define('ACTIVITY_TYPE_ARCHIVE_CLIENT', 2);
@@ -300,6 +301,7 @@ define('INVOICE_STATUS_PARTIAL', 4);
 define('INVOICE_STATUS_PAID', 5);
 
 define('PAYMENT_TYPE_CREDIT', 1);
+define('CUSTOM_DESIGN', 11);
 
 define('FREQUENCY_WEEKLY', 1);
 define('FREQUENCY_TWO_WEEKS', 2);

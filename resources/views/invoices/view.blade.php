@@ -53,8 +53,7 @@
 			invoice.contact = {!! $contact->toJson() !!};
 
 			function getPDFString(cb) {
-    	  	    doc = generatePDF(invoice, invoice.invoice_design.javascript);
-                doc.getDataUrl(cb);
+    	  	    generatePDF(invoice, invoice.invoice_design.javascript, true, cb);
 			}
 
 			$(function() {

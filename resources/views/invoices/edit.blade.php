@@ -67,7 +67,7 @@
 			<div data-bind="with: client">
 				<div style="display:none" class="form-group" data-bind="visible: contacts().length > 0 &amp;&amp; (contacts()[0].email() || contacts()[0].first_name()), foreach: contacts">
 					<div class="col-lg-8 col-lg-offset-4">
-						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}" onclick="refreshPDF()">
+						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}" onclick="refreshPDF(true)">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check'}">
 								<span data-bind="html: email.display"/>
 						</label>
@@ -325,9 +325,9 @@
 
 
 		@if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS)
-			{!! Former::select('invoice_design_id')->style('display:'.($account->utf8_invoices ? 'none' : 'inline').';width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
+			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
 		@else 
-			{!! Former::select('invoice_design_id')->style('display:'.($account->utf8_invoices ? 'none' : 'inline').';width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
+			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
 		{!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}	
@@ -485,10 +485,10 @@
 			    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }">
 			    		<td style="width:30px" class="hide-border"></td>
 			            <td style="width:60px">
-			            	<input onkeyup="onTaxRateChange()" data-bind="value: name, valueUpdate: 'afterkeydown'" class="form-control" onchange="refreshPDF()"//>			            	
+			            	<input onkeyup="onTaxRateChange()" data-bind="value: name, valueUpdate: 'afterkeydown'" class="form-control" onchange="refreshPDF(true)"//>
 			            </td>
 			            <td style="width:60px">
-			            	<input onkeyup="onTaxRateChange()" data-bind="value: prettyRate, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF()"//>
+			            	<input onkeyup="onTaxRateChange()" data-bind="value: prettyRate, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF(true)"//>
 			            </td>
 			        	<td style="width:30px; cursor:pointer" class="hide-border td-icon">
 			        		&nbsp;<i style="width:12px;" data-bind="click: $root.removeTaxRate, visible: actionsVisible() &amp;&amp; !isEmpty()" class="fa fa-minus-circle redlink" title="Remove item"/>
@@ -589,7 +589,7 @@
 				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));
 				model.invoice().client().country = false;				
 			}
-			refreshPDF();
+			refreshPDF(true);
 		});
 
 		// If no clients exists show the client form when clicking on the client select input
@@ -601,7 +601,7 @@
 
 		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial').change(function() {
 			setTimeout(function() {
-				refreshPDF();
+				refreshPDF(true);
 			}, 1);
 		});
 
@@ -616,7 +616,7 @@
 		}).on('hidden.bs.modal', function () {
 			if (model.clientBackup) {
 				model.loadClient(model.clientBackup);
-				refreshPDF();
+				refreshPDF(true);
 			}
 		})
 		
@@ -639,7 +639,7 @@
 		@if ($client)
 			$input.trigger('change');
 		@else 
-			refreshPDF();
+			refreshPDF(true);
 		@endif
 
 		var client = model.invoice().client();
@@ -655,7 +655,7 @@
 	function applyComboboxListeners() {
         var selectorStr = '.invoice-table input, .invoice-table select, .invoice-table textarea';		
 		$(selectorStr).off('blur').on('blur', function() {
-			refreshPDF();
+			refreshPDF(true);
 		});
 
         $('textarea').on('keyup focus', function(e) {            
@@ -711,14 +711,11 @@
         return invoice;
 	}
 
-	function getPDFString(cb) {		
+	function getPDFString(cb, force) {
 		var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
-        doc = generatePDF(invoice, design, false);
-        if (!doc) return;
-        //return doc.output('datauristring');
-        doc.getDataUrl(cb);
+        generatePDF(invoice, design, force, cb);
 	}
 
 	function getDesignJavascript() {
@@ -728,7 +725,8 @@
 			model.invoice().invoice_design_id(1);
 			return invoiceDesigns[0].javascript;
 		} else {
-			return invoiceDesigns[id-1].javascript;
+            var design = _.find(invoiceDesigns, function(design){ return design.id == id});
+            return design ? design.javascript : '';
 		}
 	}
 
@@ -1091,7 +1089,7 @@
 			$('#emailError').css( "display", "none" );
 			//$('.client_select input.form-control').focus();						
 
-			refreshPDF();
+			refreshPDF(true);
 			model.clientBackup = false;
 			$('#clientModal').modal('hide');						
 		}		
@@ -1143,7 +1141,7 @@
 		self.invoice_items = ko.observableArray();
 		self.amount = ko.observable(0);
 		self.balance = ko.observable(0);
-		self.invoice_design_id = ko.observable({{ $account->utf8_invoices ? 1 : $account->invoice_design_id }});
+		self.invoice_design_id = ko.observable({{ $account->invoice_design_id }});
         self.partial = ko.observable(0);            
         self.has_tasks = ko.observable(false);
 
@@ -1252,7 +1250,7 @@
 
 		self.removeItem = function(item) {
 			self.invoice_items.remove(item);
-			refreshPDF();
+			refreshPDF(true);
 		}
 
 
@@ -1368,7 +1366,7 @@
         });        
 
       	self.onDragged = function(item) {
-      		refreshPDF();
+      		refreshPDF(true);
       	}
 	}
 

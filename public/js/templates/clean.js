@@ -1,162 +1,173 @@
-//pdfmake
-
-/*
-var dd = { 
-    content: 'wqy中文wqy',
-    defaultStyle: {
-        font: 'wqy'
-    }
-};
-*/
-
-var dd = {
-    content: [
-    {
-        columns: [
-        [
-            invoice.image?
+{
+    "content": [{
+        "columns": [
             {
-                image: invoice.image,
-                fit: [150, 80]
-            }:""
-        ],
-        {
-            stack: NINJA.accountDetails(account)
-        },
-        {
-            stack: NINJA.accountAddress(account)
-        }
+                "image": "$accountLogo",
+                "width": 100
+            },
+            {
+                "stack": "$accountDetails",
+                "margin": [80, 0, 0, 0]
+            },
+            {
+                "stack": "$accountAddress"
+            }
         ]
     },
     {
-        text:(NINJA.getEntityLabel(invoice)).toUpperCase(),
-        margin: [8, 70, 8, 16],
-        style: 'primaryColor',
-        fontSize: NINJA.fontSize + 2
+        "text": "$entityTypeUpper",
+        "margin": [8, 50, 8, 5],
+        "style": "entityTypeLabel"
+        
     },
     {
-        table: {
-            headerRows: 1,
-            widths: ['auto', 'auto', '*'],
-            body: [
+        "table": {
+            "headerRows": 1,
+            "widths": ["auto", "auto", "*"],
+            "body": [
                 [
                 {
-                    table: { 
-                        body: NINJA.invoiceDetails(invoice),
+                    "table": { 
+                        "body": "$invoiceDetails"
                     },
-                    layout: 'noBorders',
+                    "margin": [0, 4, 12, 4],            
+                    "layout": "noBorders"
                 }, 
                 {
-                    table: { 
-                        body: NINJA.clientDetails(invoice), 
-                    },
-                    layout: 'noBorders',
-                },                 
-                ''
+                    "stack": "$clientDetails"
+                },
+                {
+                    "text": ""
+                }
                 ]
             ]
         },
-        layout: {
-            hLineWidth: function (i, node) {
-                return (i === 0 || i === node.table.body.length) ? .5 : 0;
-            },
-            vLineWidth: function (i, node) {
-                return 0;
-            },
-            hLineColor: function (i, node) {
-                return '#D8D8D8';
-            },
-            paddingLeft: function(i, node) { return 8; },
-            paddingRight: function(i, node) { return 8; },
-            paddingTop: function(i, node) { return 4; },
-            paddingBottom: function(i, node) { return 4; }
+        "layout": {
+            "hLineWidth": "$borderTopAndBottom:.5",
+            "vLineWidth": "$borderNone",
+            "hLineColor": "#D8D8D8",
+            "paddingLeft": "$padding:8", 
+            "paddingRight": "$padding:8", 
+            "paddingTop": "$padding:4", 
+            "paddingBottom": "$padding:4"            
         }
     },
-    '\n',
     {
-        table: {
-            headerRows: 1,
-            widths: ['15%', '*', 'auto', 'auto', 'auto', 'auto'],
-            body: NINJA.invoiceLines(invoice),
+        "style": "invoiceLineItemsTable",
+        "table": {
+            "headerRows": 1,
+            "widths": "$invoiceLineItemColumns",
+            "body": "$invoiceLineItems"
         },
-        layout: {
-            hLineWidth: function (i, node) {
-                return i === 0 ? 0 : .5;
-            },
-            vLineWidth: function (i, node) {
-                return 0;
-            },
-            hLineColor: function (i, node) {
-                return '#D8D8D8';
-            },
-            paddingLeft: function(i, node) { return 8; },
-            paddingRight: function(i, node) { return 8; },
-            paddingTop: function(i, node) { return 8; },
-            paddingBottom: function(i, node) { return 8; }      
-        },
-    },    
-    '\n',
-    {
-        columns: [
-        NINJA.notesAndTerms(invoice),
-        {
-            style: 'subtotals',
-            table: {
-                widths: ['*', '*'],
-                body: NINJA.subtotals(invoice),
-            },
-            layout: {
-                hLineWidth: function (i, node) {
-                    return 0;
-                },
-                vLineWidth: function (i, node) {
-                    return 0;
-                },
-                paddingLeft: function(i, node) { return 8; },
-                paddingRight: function(i, node) { return 8; },
-                paddingTop: function(i, node) { return 4; },
-                paddingBottom: function(i, node) { return 4; }      
-            },
+        "layout": {
+            "hLineWidth": "$borderNotTop:.5",
+            "vLineWidth": "$borderNone",
+            "hLineColor": "#D8D8D8",
+            "paddingLeft": "$padding:8", 
+            "paddingRight": "$padding:8", 
+            "paddingTop": "$padding:14", 
+            "paddingBottom": "$padding:14"            
         }
+    },
+    {
+        "columns": [
+            "$notesAndTerms",
+            {
+                "table": {
+                    "widths": ["*", "*"],
+                    "body": "$subtotals"
+                },
+                "layout": {
+                    "hLineWidth": "$borderNone",
+                    "vLineWidth": "$borderNone",
+                    "paddingLeft": "$padding:8", 
+                    "paddingRight": "$padding:8", 
+                    "paddingTop": "$padding:4", 
+                    "paddingBottom": "$padding:4" 
+                }
+            }
         ]
-    },
+    }
     ],
-
-    defaultStyle: {
-        //font: 'arialuni',
-        fontSize: NINJA.fontSize,
-        margin: [8, 4, 8, 4]
+    "defaultStyle": {
+        "fontSize": "$fontSize",
+        "margin": [8, 4, 8, 4]
     },
-    styles: {
-        primaryColor:{
-            color: NINJA.getPrimaryColor('#299CC2')
-        },
-        accountName: {
-            margin: [4, 2, 4, 2],
-            color: NINJA.getPrimaryColor('#299CC2') 
-        },
-        accountDetails: {
-            margin: [4, 2, 4, 2],
-            color: '#AAA9A9'
-        },
-        even: {
-        },
-        odd: {
-            fillColor:'#F4F4F4'
-        },
-        productKey: {
-            color: NINJA.getPrimaryColor('#299CC2')      
-        },
-        tableHeader: {
-            bold: true
-        },
-        balanceDueLabel: {
-            fontSize: NINJA.fontSize + 2 
-        },
-        balanceDueValue: {
-            fontSize: NINJA.fontSize + 2,
-            color: NINJA.getPrimaryColor('#299CC2')      
-        },
+    "footer": {
+        "text": "$invoiceFooter",
+        "margin": [40, -20, 40, 0],
+        "alignment": "left"
     },
-    pageMargins: [40, 40, 40, 40],
-};
+    "styles": {
+        "entityTypeLabel": {
+            "fontSize": "$fontSizeLargest",
+            "color": "$primaryColor:#299CC2"
+        },
+        "primaryColor":{
+            "color": "$primaryColor:#299CC2"
+        },
+        "accountName": {
+            "color": "$primaryColor:#299CC2",
+            "bold": true
+        },
+        "accountDetails": {
+            "margin": [0, 2, 0, 2]
+        },
+        "clientDetails": {
+            "margin": [0, 2, 0, 2]
+        },
+        "notesAndTerms": {
+            "margin": [0, 2, 0, 2]
+        },
+        "accountAddress": {
+            "margin": [0, 2, 0, 2]
+        },
+        "odd": {
+            "fillColor": "#fbfbfb"
+        },
+        "productKey": {
+            "color": "$primaryColor:#299CC2",
+            "bold": true
+        },
+        "balanceDueLabel": {
+            "fontSize": "$fontSizeLargest"
+        },
+        "balanceDue": {
+            "fontSize": "$fontSizeLargest",
+            "color": "$primaryColor:#299CC2"
+        },  
+        "invoiceNumber": {
+            "bold": true
+        },
+        "tableHeader": {
+            "bold": true,
+            "fontSize": "$fontSizeLargest"
+        },
+        "invoiceLineItemsTable": {
+            "margin": [0, 16, 0, 16]
+        },
+        "clientName": {
+            "bold": true
+        },
+        "cost": {
+            "alignment": "right"
+        },
+        "quantity": {
+            "alignment": "right"
+        },
+        "tax": {
+            "alignment": "right"
+        },
+        "lineTotal": {
+            "alignment": "right"
+        },
+        "subtotals": {
+            "alignment": "right"
+        },            
+        "termsLabel": {
+            "bold": true,
+            "margin": [0, 10, 0, 4]
+        }           
+    },
+    "pageMargins": [40, 40, 40, 40]
+}

@@ -213,6 +213,10 @@ class InvoiceController extends BaseController
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->is_pro = $account->isPro();
         
+        if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
+            $invoice->invoice_design->javascript = $account->custom_design;
+        }
+
         $contact = $invitation->contact;
         $contact->setVisible([
             'first_name',

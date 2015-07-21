@@ -590,7 +590,7 @@ return array(
   'less_fields' => 'Moins de champs',
   'client_name' => 'Nom du client',
   'pdf_settings' => 'Réglages PDF',
-  'utf8_invoices' => 'Cyrillic Support <sup>Beta</sup>',
+  'utf8_invoices' => 'New PDF Engine <sup>Beta</sup>',
   'product_settings' => 'Réglages du produit',
   'auto_wrap' => 'Auto Line Wrap',
   'duplicate_post' => 'Warning: the previous page was submitted twice. The second submission had been ignored.',
@@ -715,6 +715,20 @@ return array(
   'add_to_invoice' => 'Add to invoice :invoice',
   'create_new_invoice' => 'Create new invoice',
   'task_errors' => 'Please correct any overlapping times',
+  'from' => 'From',
+  'to' => 'To',
+  'font_size' => 'Font Size',
+  'primary_color' => 'Primary Color',
+  'secondary_color' => 'Secondary Color',
+  'customize_design' => 'Customize Design',
+
+  'content' => 'Content',
+  'styles' => 'Styles',
+  'defaults' => 'Defaults',
+  'margins' => 'Margins',
+  'header' => 'Header',
+  'footer' => 'Footer',
+  'custom' => 'Custom',
 
 
 

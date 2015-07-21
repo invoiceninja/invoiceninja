@@ -12,6 +12,10 @@ class Account extends Eloquent
     use SoftDeletes;
     protected $dates = ['deleted_at'];
 
+    protected $casts = [
+        'utf8_invoice' => 'boolean',
+    ];
+
     public function users()
     {
         return $this->hasMany('App\Models\User');
@@ -261,6 +265,8 @@ class Account extends Eloquent
             'rate',
             'hours',
             'balance',
+            'from',
+            'to',
         ];
 
         foreach ($fields as $field) {

@@ -63,12 +63,11 @@
   logoImages.imageLogoHeight3 = 81/2;
 
   @if (file_exists($account->getLogoPath()))
+  window.accountLogo = "{{ HTML::image_data($account->getLogoPath()) }}";
   if (window.invoice) {
-    invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
+    invoice.image = window.accountLogo;
     invoice.imageWidth = {{ $account->getLogoWidth() }};
     invoice.imageHeight = {{ $account->getLogoHeight() }};    
-  } else {
-    window.accountLogo = "{{ HTML::image_data($account->getLogoPath()) }}";
   }
   @endif
 
@@ -87,8 +86,8 @@
   var isRefreshing = false;
   var needsRefresh = false;
 
-  function refreshPDF() {
-    getPDFString(refreshPDFCB);
+  function refreshPDF(force) {
+    getPDFString(refreshPDFCB, force);
   }
   
   function refreshPDFCB(string) {

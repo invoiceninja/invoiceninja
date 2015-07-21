@@ -40,8 +40,8 @@ return array(
   'taxes' => 'Taxes',
   'tax' => 'Tax',
   'item' => 'Item',
-  'description' => 'Description',
-  'unit_cost' => 'Unit Cost',
+  'description' => 'Description', 
+  'unit_cost' => 'Cost',
   'quantity' => 'Quantity',
   'line_total' => 'Line Total',
   'subtotal' => 'Subtotal',
@@ -401,9 +401,9 @@ return array(
 
   'invoice_fields' => 'Invoice Fields',
   'invoice_options' => 'Invoice Options',
-  'hide_quantity' => 'Hide quantity',
+  'hide_quantity' => 'Hide Quantity',
   'hide_quantity_help' => 'If your line items quantities are always 1, then you can declutter invoices by no longer displaying this field.',
-  'hide_paid_to_date' => 'Hide paid to date',
+  'hide_paid_to_date' => 'Hide Paid to Date',
   'hide_paid_to_date_help' => 'Only display the "Paid to Date" area on your invoices once a payment has been received.',
 
   'charge_taxes' => 'Charge taxes',
@@ -597,7 +597,7 @@ return array(
   'less_fields' => 'Less Fields',
   'client_name' => 'Client Name',
   'pdf_settings' => 'PDF Settings',
-  'utf8_invoices' => 'Cyrillic Support <sup>Beta</sup>',
+  'utf8_invoices' => 'New PDF Engine <sup>Beta</sup>',
   'product_settings' => 'Product Settings',
   'auto_wrap' => 'Auto Line Wrap',
   'duplicate_post' => 'Warning: the previous page was submitted twice. The second submission had been ignored.',
@@ -722,5 +722,21 @@ return array(
   'add_to_invoice' => 'Add to invoice :invoice',
   'create_new_invoice' => 'Create new invoice',
   'task_errors' => 'Please correct any overlapping times',
+  'from' => 'From',
+  'to' => 'To',
+  'font_size' => 'Font Size',
+  'primary_color' => 'Primary Color',
+  'secondary_color' => 'Secondary Color',
+  'customize_design' => 'Customize Design',
+
+  'content' => 'Content',
+  'styles' => 'Styles',
+  'defaults' => 'Defaults',
+  'margins' => 'Margins',
+  'header' => 'Header',
+  'footer' => 'Footer',
+  'custom' => 'Custom',
+
 
 );
+

@@ -71,3 +71,4 @@ If you'd like to translate the site please use [caouecs/Laravel4-long](https://g
 * [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) - List of languages ​​for Laravel4
 * [bgrins/spectrum](https://github.com/bgrins/spectrum) - The No Hassle JavaScript Colorpicker
 * [lokesh/lightbox2](https://github.com/lokesh/lightbox2/) - The original lightbox script
+* [josdejong/jsoneditor](https://github.com/josdejong/jsoneditor/) - A web-based tool to view, edit and format JSON
