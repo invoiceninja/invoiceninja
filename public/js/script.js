@@ -1593,3 +1593,14 @@ function twoDigits(value) {
    }
    return value;
 }
+
+function toSnakeCase(str) {
+    if (!str) return '';
+    return str.replace(/([A-Z])/g, function($1){return "_"+$1.toLowerCase();});
+}
+
+function getDescendantProp(obj, desc) {
+    var arr = desc.split(".");
+    while(arr.length && (obj = obj[arr.shift()]));
+    return obj;
+}

@@ -146,7 +146,8 @@ class Account extends Eloquent
 
     public function getLogoPath()
     {
-        return 'logo/'.$this->account_key.'.jpg';
+        $fileName = 'logo/' . $this->account_key;
+        return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
     }
 
     public function getLogoWidth()
@@ -267,6 +268,9 @@ class Account extends Eloquent
             'balance',
             'from',
             'to',
+            'invoice_to',
+            'details',
+            'invoice_no',
         ];
 
         foreach ($fields as $field) {
@@ -418,7 +422,7 @@ class Account extends Eloquent
 
 Account::updating(function ($account) {
     // Lithuanian requires UTF8 support
-    if (!Utils::isPro()) {
-        $account->utf8_invoices = ($account->language_id == 13) ? 1 : 0;
+    if (!Utils::isPro() && $account->language_id == 13) {
+        $account->utf8_invoices = true;
     }
 });

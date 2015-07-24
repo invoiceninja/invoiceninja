@@ -44,6 +44,8 @@ class DashboardController extends BaseController
             ->where('accounts.id', '=', Auth::user()->account_id)
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
+            ->where('invoices.is_quote', '=', false)
+            ->where('invoices.is_recurring', '=', false)
             ->groupBy('accounts.id')
             ->groupBy(DB::raw('CASE WHEN clients.currency_id IS NULL THEN CASE WHEN accounts.currency_id IS NULL THEN 1 ELSE accounts.currency_id END ELSE clients.currency_id END'))
             ->get();

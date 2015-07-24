@@ -100,7 +100,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function maxInvoiceDesignId()
     {
-        return $this->isPro() ? 11 : COUNT_FREE_DESIGNS;
+        return $this->isPro() ? 11 : (Utils::isNinja() ? COUNT_FREE_DESIGNS : COUNT_FREE_DESIGNS_SELF_HOST);
     }
 
     public function getDisplayName()

@@ -365,12 +365,15 @@ define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
 define('NINJA_APP_URL', 'https://app.invoiceninja.com');
 define('NINJA_VERSION', '2.2.2');
 define('NINJA_DATE', '2000-01-01');
+
 define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
 define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
 define('ZAPIER_URL', 'https://zapier.com/developer/invite/11276/85cf0ee4beae8e802c6c579eb4e351f1/');
 define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
+define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
 
 define('COUNT_FREE_DESIGNS', 4);
+define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design
 define('PRODUCT_ONE_CLICK_INSTALL', 1);
 define('PRODUCT_INVOICE_DESIGNS', 2);
 define('PRODUCT_WHITE_LABEL', 3);
@@ -436,7 +439,6 @@ function otrans($text)
     }
 }
 
-/*
 // Log all SQL queries to laravel.log
 Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 {
@@ -461,7 +463,6 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 
     Log::info($query, $data);
 });
-*/
 
 /*
 if (Auth::check() && Auth::user()->id === 1)

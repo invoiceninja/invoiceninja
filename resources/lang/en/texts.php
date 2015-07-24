@@ -736,7 +736,8 @@ return array(
   'header' => 'Header',
   'footer' => 'Footer',
   'custom' => 'Custom',
-
+  'invoice_to' => 'Invoice to',
+  'invoice_no' => 'Invoice No.',
 
 );
 

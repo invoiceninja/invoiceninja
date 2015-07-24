@@ -97,7 +97,7 @@
       $('#theFrame').attr('src', string).show();    
     } else {      
       if (isRefreshing) {
-        needsRefresh = true;
+        //needsRefresh = true;
         return;
       }
       isRefreshing = true;

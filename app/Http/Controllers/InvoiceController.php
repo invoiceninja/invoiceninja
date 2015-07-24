@@ -329,7 +329,6 @@ class InvoiceController extends BaseController
         $data = array(
                 'entityType' => $entityType,
                 'showBreadcrumbs' => $clone,
-                'account' => $invoice->account,
                 'invoice' => $invoice,
                 'data' => false,
                 'method' => $method,
@@ -364,7 +363,6 @@ class InvoiceController extends BaseController
     {
         $client = null;
         $invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
-        $account = Account::with('country')->findOrFail(Auth::user()->account_id);
 
         if ($clientPublicId) {
             $client = Client::scope($clientPublicId)->firstOrFail();
@@ -372,7 +370,6 @@ class InvoiceController extends BaseController
 
         $data = array(
                 'entityType' => ENTITY_INVOICE,
-                'account' => $account,
                 'invoice' => null,
                 'data' => Input::old('data'),
                 'invoiceNumber' => $invoiceNumber,
@@ -399,7 +396,7 @@ class InvoiceController extends BaseController
         }
 
         return [
-            'account' => Auth::user()->account,
+            'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
             'countries' => Cache::get('countries'),
             'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),

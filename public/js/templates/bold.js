@@ -13,7 +13,7 @@
             {"text":"$yourInvoiceUpper", "style": "yourInvoice"},
             "$clientDetails"
             ],
-            "margin": [-32, 150, 0, 0]
+            "margin": [-32, 120, 0, 0]
         },
         {
             "canvas": [
@@ -22,21 +22,21 @@
                 "x": 0, 
                 "y": 0, 
                 "w": 225, 
-                "h": 80,
+                "h": "$invoiceDetailsHeight",
                 "r":0, 
                 "lineWidth": 1,
-                "color": "#36a399"
+                "color": "$primaryColor:#36a498"
             }
             ],
             "width":10,
-            "margin":[-10,150,0,0]
+            "margin":[-10,120,0,0]
         },
         {	
             "table": { 
                 "body": "$invoiceDetails"
             },
             "layout": "noBorders",
-            "margin": [0, 160, 0, 0]
+            "margin": [0, 130, 0, 0]
         }
         ]
     },
@@ -93,8 +93,21 @@
         {"canvas": [{ "type": "line", "x1": 0, "y1": 0, "x2": 150, "y2":0,"lineWidth": 60,"lineColor":"#2e2b2b"}],"width":100,"margin":[0,0,0,0]},
         {"canvas": [{ "type": "line", "x1": 149, "y1": 0, "x2": 600, "y2":0,"lineWidth": 200,"lineColor":"#2e2b2b"}],"width":10,"margin":[0,0,0,0]},
         {
-            "stack": "$accountDetails",
-            "margin": [380, 16, 0, 0]
+            "columns": [
+                {
+                    "text": " ",
+                    "width": 260
+                },
+                {
+                    "stack": "$accountDetails",
+                    "margin": [0, 16, 0, 0],
+                    "width": 140
+                },
+                {
+                    "stack": "$accountAddress",
+                    "margin": [20, 16, 0, 0]
+                }
+            ]
         }
     ],
     "defaultStyle": {
@@ -103,13 +116,18 @@
         },
         "styles": {
             "primaryColor":{
-                "color": "$primaryColor:#299CC2"
+                "color": "$primaryColor:#36a498"
             },
             "accountName": {
+                "bold": true,
                 "margin": [4, 2, 4, 2],
-                "color": "$primaryColor:#299CC2"
+                "color": "$primaryColor:#36a498"
             },
             "accountDetails": {
+                "margin": [4, 2, 4, 2],
+                "color": "#AAA9A9"
+            },
+            "accountAddress": {
                 "margin": [4, 2, 4, 2],
                 "color": "#AAA9A9"
             },
@@ -118,7 +136,7 @@
                 "margin": [0,0,0,0]
             },
             "productKey": {
-                "color": "$primaryColor:#299CC2"
+                "color": "$primaryColor:#36a498"
             },
             "balanceDueLabel": {
                 "fontSize": "$fontSizeLargest",
@@ -126,7 +144,7 @@
             },
             "balanceDue": {
                 "fontSize": "$fontSizeLargest",
-                "color": "$primaryColor:#299CC2",
+                "color": "$primaryColor:#36a498",
                 "bold": true
             },
             "invoiceDetails": {
@@ -146,18 +164,18 @@
                 "bold": true
             },
             "productKey": {
-                "color": "$primaryColor:#299CC2",
+                "color": "$primaryColor:#36a498",
                 "margin": [40,0,0,0],
                 "bold": true
             },
             "yourInvoice": {
                 "bold": true, 
                 "fontSize": 14, 
-                "color": "#36a399",
+                "color": "$primaryColor:#36a498",
                 "margin": [0,0,0,8]
             },
             "invoiceLineItemsTable": {
-                "margin": [0, 16, 0, 16]
+                "margin": [0, 26, 0, 16]
             },            
             "clientName": {
                 "bold": true
@@ -181,7 +199,7 @@
             },            
             "termsLabel": {
                 "bold": true,
-                "margin": [0, 10, 0, 4]
+                "margin": [0, 0, 0, 4]
             }            
         },
         "pageMargins": [0, 80, 0, 40]

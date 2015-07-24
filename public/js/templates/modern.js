@@ -91,7 +91,7 @@
         {
             "canvas": [
             { 
-                "type": "line", "x1": 0, "y1": 0, "x2": 600, "y2": 0,"lineWidth": 100,"lineColor":"#f26621"
+                "type": "line", "x1": 0, "y1": 0, "x2": 600, "y2": 0,"lineWidth": 100,"lineColor":"$primaryColor:#f26621"
             }]
             ,"width":10
         },
@@ -119,7 +119,7 @@
         ],
         "header": [
         {
-            "canvas": [{ "type": "line", "x1": 0, "y1": 0, "x2": 600, "y2": 0,"lineWidth": 200,"lineColor":"#f26621"}],"width":10
+            "canvas": [{ "type": "line", "x1": 0, "y1": 0, "x2": 600, "y2": 0,"lineWidth": 200,"lineColor":"$primaryColor:#f26621"}],"width":10
         },
         {
             "columns": [
@@ -206,7 +206,7 @@
             },            
             "termsLabel": {
                 "bold": true,
-                "margin": [0, 10, 0, 4]
+                "margin": [0, 0, 0, 4]
             },
             "invoiceNumberLabel": {
                 "bold": true

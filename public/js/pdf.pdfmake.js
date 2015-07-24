@@ -14,8 +14,6 @@ NINJA.TEMPLATES = {
 };
 
 function GetPdfMake(invoice, javascript, callback) {    
-    //console.log("== GetPdfMake.. ");
-    //console.log(javascript);
 
     javascript = NINJA.decodeJavascript(invoice, javascript);
 
@@ -33,6 +31,11 @@ function GetPdfMake(invoice, javascript, callback) {
             var parts = val.split(':');
             return function (i, node) {
                 return i === 0 ? 0 : parseFloat(parts[1]);
+            };
+        } else if ((val+'').indexOf('$border') === 0) {            
+            var parts = val.split(':');
+            return function (i, node) {
+                return parseFloat(parts[1]);
             };
         } else if ((val+'').indexOf('$padding') === 0) {
             var parts = val.split(':');
@@ -53,6 +56,11 @@ function GetPdfMake(invoice, javascript, callback) {
 
     //console.log(javascript);
     var dd = JSON.parse(javascript, jsonCallBack);
+
+    if (!invoice.is_pro && dd.footer.hasOwnProperty('columns')) {
+        dd.footer.columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130})
+    }
+
     //console.log(JSON.stringify(dd));
 
     /*
@@ -78,6 +86,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
     var account = invoice.account;
     var blankImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
 
+    // search/replace variables
     var json = {
         'accountName': account.name || ' ',
         'accountLogo': window.accountLogo || blankImage,
@@ -95,20 +104,60 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'balanceDue': formatMoney(invoice.balance_amount, invoice.client.currency_id),
         'balanceDueLabel': invoiceLabels.balance_due,
         'invoiceFooter': account.invoice_footer || ' ',
+        'invoiceNumber': invoice.invoice_number || ' ',
         'entityType': invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice,
         'entityTypeUpper': (invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),
         'yourInvoice': invoiceLabels.your_invoice,
         'yourInvoiceUpper': invoiceLabels.your_invoice.toUpperCase(),
         'invoiceIssuedTo': invoiceLabels.invoice_issued_to + ':',
+        'invoiceTo': invoiceLabels.invoice_to + ':',
+        'details': invoiceLabels.details + ':',
+        'fromUpper': invoiceLabels.from.toUpperCase() + ':',
+        'toUpper': invoiceLabels.to.toUpperCase() + ':',
         'fontSize': NINJA.fontSize,
         'fontSizeLarger': NINJA.fontSize + 1,
-        'fontSizeLargest': NINJA.fontSize + 2,        
+        'fontSizeLargest': NINJA.fontSize + 2,
     }
 
     for (var key in json) {
         var regExp = new RegExp('"\\$'+key+'"', 'g');
         var val = JSON.stringify(json[key]);
         javascript = javascript.replace(regExp, val);
+    }
+
+    // search/replace labels 
+    var regExp = new RegExp('"\\$\\\w*?Label(UC)?"', 'g');
+    var matches = javascript.match(regExp);    
+    
+    if (matches) {
+        for (var i=0; i<matches.length; i++) {
+            var match = matches[i];
+            field = match.substring(2, match.indexOf('Label'));
+            field = toSnakeCase(field);
+            var label = invoiceLabels[field];
+            if (match.indexOf('UC') >= 0) {
+                if (!label) console.log('match: ' + field);
+                label = label.toUpperCase();
+            }
+            javascript = javascript.replace(match, '"'+label+'"');
+        }
+    }
+
+    // search/replace values 
+    var regExp = new RegExp('"\\$\\\w*?Value"', 'g');
+    var matches = javascript.match(regExp);    
+    
+    if (matches) {
+        for (var i=0; i<matches.length; i++) {
+            var match = matches[i];
+            field = match.substring(2, match.indexOf('Value'));
+            field = toSnakeCase(field);
+            var value = getDescendantProp(invoice, field) || ' ';
+            if (field.indexOf('date') >= 0) {
+                value = moment(value, 'YYYY-MM-DD').format('MMM D YYYY');
+            }
+            javascript = javascript.replace(match, '"'+value+'"');
+        }
     }
 
     return javascript;
@@ -124,7 +173,7 @@ NINJA.notesAndTerms = function(invoice)
     }
 
     if (invoice.terms) {
-        data.push({text:invoiceLabels.terms, style: ['bold']});
+        data.push({text:invoiceLabels.terms, style: ['termsLabel']});
         data.push({text:invoice.terms, style: ['terms']});
     }
 
@@ -174,8 +223,7 @@ NINJA.invoiceLines = function(invoice) {
         }
         
         // show at most one blank line
-        //if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
-        if ((!cost || cost == '0.00') && !notes && !productKey) {
+        if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
             continue;
         }
 
@@ -259,7 +307,6 @@ NINJA.subtotals = function(invoice, removeBalance)
         ]);
     }        
 
-    //return data;
     return NINJA.prepareDataPairs(data, 'subtotals');
 }
 
@@ -328,7 +375,7 @@ NINJA.invoiceDetails = function(invoice) {
     }
 
     data.push([
-        {text: invoiceLabels.balance_due},
+        {text: invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
         {text: formatMoney(invoice.balance_amount, invoice.client.currency_id), style: ['invoiceDetailBalanceDue']}
     ])
 

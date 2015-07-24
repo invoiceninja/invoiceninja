@@ -82,10 +82,16 @@
     }
     ],
     "footer": {
-        "text": "$invoiceFooter",
-        "margin": [40, -40, 40, 0],
-        "alignment": "left"
-    },    
+        "columns": [
+            {
+                "text": "$invoiceFooter",
+                "alignment": "left",
+                "margin": [0, 0, 0, 12]
+
+            }
+        ],
+        "margin": [40, -20, 40, 40]
+    },
     "defaultStyle": {
         "fontSize": "$fontSize",
         "margin": [8, 4, 8, 4]
@@ -126,8 +132,8 @@
         },            
         "termsLabel": {
             "bold": true,
-            "margin": [0, 10, 0, 4]
+            "margin": [0, 0, 0, 4]
         }           
      },
-    "pageMargins": [40, 40, 40, 40]
+    "pageMargins": [40, 40, 40, 60]
 }

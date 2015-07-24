@@ -132,7 +132,6 @@
 						Former::select('is_amount_discount')->addOption(trans('texts.discount_percent'), '0')
 						->addOption(trans('texts.discount_amount'), '1')->data_bind("value: is_amount_discount")->raw()
 			) !!}			
-			{{-- Former::select('currency_id')->addOption('', '')->fromQuery($currencies, 'name', 'id')->data_bind("value: currency_id") --}}
 			
 			<div class="form-group" style="margin-bottom: 8px">
 				<label for="taxes" class="control-label col-lg-4 col-sm-4">{{ trans('texts.taxes') }}</label>
@@ -324,7 +323,7 @@
 		</div>
 
 
-		@if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS)
+		@if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
 		@else 
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
@@ -588,7 +587,7 @@
 			} else {
 				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));
 				model.invoice().client().country = false;				
-			}
+			}            
 			refreshPDF(true);
 		});
 
@@ -600,7 +599,7 @@
 		}		
 
 		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial').change(function() {
-			setTimeout(function() {
+			setTimeout(function() {                
 				refreshPDF(true);
 			}, 1);
 		});
@@ -712,7 +711,7 @@
 	}
 
 	function getPDFString(cb, force) {
-		var invoice = createInvoiceModel();
+        var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
         generatePDF(invoice, design, force, cb);
@@ -918,7 +917,6 @@
             var paymentTerms = parseInt(self.invoice().client().payment_terms());
             if (paymentTerms && paymentTerms != 0 && !self.invoice().due_date())
 			{
-                console.log("here");
                 if (paymentTerms == -1) paymentTerms = 0;
 				var dueDate = $('#invoice_date').datepicker('getDate');
 				dueDate.setDate(dueDate.getDate() + paymentTerms);
@@ -1763,7 +1761,7 @@
             // move the blank invoice line item to the end
             var blank = model.invoice().invoice_items.pop();
             var tasks = {!! $tasks !!};
-            console.log(tasks);
+            
             for (var i=0; i<tasks.length; i++) {
                 var task = tasks[i];                    
                 var item = model.invoice().addItem();

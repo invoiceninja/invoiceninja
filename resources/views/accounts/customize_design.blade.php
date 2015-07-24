@@ -79,16 +79,16 @@
 
     function onSelectChange()
     {
-        var id = $('#invoice_design_id').val();
-        
+        var id = $('#invoice_design_id').val();        
         if (parseInt(id)) {
-            customDesign = JSON.parse(invoiceDesigns[id-1].javascript);
+            var design = _.find(invoiceDesigns, function(design){ return design.id == id});
+            customDesign = JSON.parse(design.javascript);
         } else {
             customDesign = origCustomDesign;
         }
 
         loadEditor(editorSection);
-        refreshPDF(true);
+        refreshPDF(true);          
     }
 
     function submitForm()
@@ -104,9 +104,6 @@
           var options = {
             mode: 'form',
             modes: ['form', 'code'],
-            error: function (err) {
-              console.error(err.toString());
-            },
             change: function() {
               saveEditor();
             }
@@ -127,7 +124,7 @@
   <div class="row">
     <div class="col-md-6">
 
-      {!! Former::open()->addClass('warn-on-exit')->onchange('refreshPDF()') !!}      
+      {!! Former::open()->addClass('warn-on-exit') !!}      
       {!! Former::populateField('invoice_design_id', $account->invoice_design_id) !!}
 
         <div style="display:none">
@@ -146,13 +143,16 @@
         </ul>
     </div>
     <div id="jsoneditor" style="width: 550px; height: 743px;"></div>
-        
     <p>&nbsp;</p>
 
-      {!! Former::actions( 
-            Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->onchange('onSelectChange()')->raw(),
-            Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->large()->appendIcon(Icon::create('floppy-disk'))
-        ) !!}
+    <div>
+    {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->onchange('onSelectChange()')->raw() !!}
+    <div class="pull-right">
+        {!! Button::normal(trans('texts.documentation'))->asLinkTo(PDFMAKE_DOCS)->withAttributes(['target' => '_blank'])->appendIcon(Icon::create('info-sign')) !!}
+        {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/invoice_design'))->appendIcon(Icon::create('remove-circle')) !!}
+        {!! Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->appendIcon(Icon::create('floppy-disk')) !!}
+    </div>
+    </div>
 
       @if (!Auth::user()->isPro())
       <script>

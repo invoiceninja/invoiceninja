@@ -188,7 +188,7 @@ class AccountController extends BaseController
         } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
             return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
         } elseif ($section == ACCOUNT_ADVANCED_SETTINGS) {
-            $account = Auth::user()->account;
+            $account = Auth::user()->account->load('country');
             $data = [
                 'account' => $account,
                 'feature' => $subSection,
@@ -215,8 +215,8 @@ class AccountController extends BaseController
                 $invoice->account = json_decode($account->toJson());
                 $invoice->amount = $invoice->balance = 100;
 
-                $invoice->terms = $account->invoice_terms;
-                $invoice->invoice_footer = $account->invoice_footer;
+                $invoice->terms = trim($account->invoice_terms);
+                $invoice->invoice_footer = trim($account->invoice_footer);
 
                 $contact->email = 'contact@gmail.com';
                 $client->contacts = [$contact];
@@ -244,7 +244,7 @@ class AccountController extends BaseController
                 }
 
                 if ($subSection == ACCOUNT_CUSTOMIZE_DESIGN) {
-                    $data['customDesign'] = $account->custom_design ?: $design;
+                    $data['customDesign'] = $account->custom_design && !$design ? $account->custom_design : $design;
                 }
             } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
                 $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
@@ -701,14 +701,22 @@ class AccountController extends BaseController
 
                 $image = Image::make($path);
                 $mimeType = $file->getMimeType();
-
-                if ($image->width() == 200 && $mimeType == 'image/jpeg') {
+                
+                if ($mimeType == 'image/jpeg') {
                     $file->move('logo/', $account->account_key . '.jpg');
+                } else if ($mimeType == 'image/png') {
+                    $file->move('logo/', $account->account_key . '.png');
+                
+                    if (!$account->utf8_invoices) {
+                        $account->utf8_invoices = true;
+                        $account->save();
+                    }
                 } else {
                     $image->resize(200, 120, function ($constraint) {
                         $constraint->aspectRatio();
                     });
-                    Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image)->save($account->getLogoPath());
+                    Image::canvas($image->width(), $image->height(), '#FFFFFF')
+                        ->insert($image)->save('logo/'.$this->account_key.'.jpg');
                 }
             }
 
