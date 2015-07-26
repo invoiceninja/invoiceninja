@@ -3,11 +3,11 @@
         "columns": [
             {
                 "image": "$accountLogo",
-                "width": 100
+                "width": 140
             },
             {
                 "stack": "$accountDetails",
-                "margin": [80, 0, 0, 0]
+                "margin": [40, 0, 0, 0]
             },
             {
                 "stack": "$accountAddress"
@@ -15,7 +15,7 @@
         ]
     },
     {
-        "text": "$entityTypeUpper",
+        "text": "$entityTypeUC",
         "margin": [8, 50, 8, 5],
         "style": "entityTypeLabel"
         
@@ -43,13 +43,13 @@
             ]
         },
         "layout": {
-            "hLineWidth": "$borderTopAndBottom:.5",
-            "vLineWidth": "$borderNone",
+            "hLineWidth": "$firstAndLast:.5",
+            "vLineWidth": "$none",
             "hLineColor": "#D8D8D8",
-            "paddingLeft": "$padding:8", 
-            "paddingRight": "$padding:8", 
-            "paddingTop": "$padding:4", 
-            "paddingBottom": "$padding:4"            
+            "paddingLeft": "$amount:8", 
+            "paddingRight": "$amount:8", 
+            "paddingTop": "$amount:4", 
+            "paddingBottom": "$amount:4"            
         }
     },
     {
@@ -60,13 +60,13 @@
             "body": "$invoiceLineItems"
         },
         "layout": {
-            "hLineWidth": "$borderNotTop:.5",
-            "vLineWidth": "$borderNone",
+            "hLineWidth": "$notFirst:.5",
+            "vLineWidth": "$none",
             "hLineColor": "#D8D8D8",
-            "paddingLeft": "$padding:8", 
-            "paddingRight": "$padding:8", 
-            "paddingTop": "$padding:14", 
-            "paddingBottom": "$padding:14"            
+            "paddingLeft": "$amount:8", 
+            "paddingRight": "$amount:8", 
+            "paddingTop": "$amount:14", 
+            "paddingBottom": "$amount:14"            
         }
     },
     {
@@ -78,12 +78,12 @@
                     "body": "$subtotals"
                 },
                 "layout": {
-                    "hLineWidth": "$borderNone",
-                    "vLineWidth": "$borderNone",
-                    "paddingLeft": "$padding:8", 
-                    "paddingRight": "$padding:8", 
-                    "paddingTop": "$padding:4", 
-                    "paddingBottom": "$padding:4" 
+                    "hLineWidth": "$none",
+                    "vLineWidth": "$none",
+                    "paddingLeft": "$amount:8", 
+                    "paddingRight": "$amount:8", 
+                    "paddingTop": "$amount:4", 
+                    "paddingBottom": "$amount:4" 
                 }
             }
         ]

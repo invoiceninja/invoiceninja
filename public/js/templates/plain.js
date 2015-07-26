@@ -48,13 +48,13 @@
             "body": "$invoiceLineItems"
         },
         "layout": {
-            "hLineWidth": "$borderNotTop:1",
-            "vLineWidth": "$borderNone",
+            "hLineWidth": "$notFirst:1",
+            "vLineWidth": "$none",
             "hLineColor": "#e6e6e6",
-            "paddingLeft": "$padding:8", 
-            "paddingRight": "$padding:8", 
-            "paddingTop": "$padding:8", 
-            "paddingBottom": "$padding:8"            
+            "paddingLeft": "$amount:8", 
+            "paddingRight": "$amount:8", 
+            "paddingTop": "$amount:8", 
+            "paddingBottom": "$amount:8"            
         }
     },    
     {
@@ -70,12 +70,12 @@
                     "body": "$subtotals"
                 },
                 "layout": {
-                    "hLineWidth": "$borderNone",
-                    "vLineWidth": "$borderNone",
-                    "paddingLeft": "$padding:8", 
-                    "paddingRight": "$padding:8", 
-                    "paddingTop": "$padding:4", 
-                    "paddingBottom": "$padding:4" 
+                    "hLineWidth": "$none",
+                    "vLineWidth": "$none",
+                    "paddingLeft": "$amount:8", 
+                    "paddingRight": "$amount:8", 
+                    "paddingTop": "$amount:4", 
+                    "paddingBottom": "$amount:4" 
                 }
             }
         ]

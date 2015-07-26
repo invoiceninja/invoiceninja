@@ -244,7 +244,7 @@ class AccountController extends BaseController
                 }
 
                 if ($subSection == ACCOUNT_CUSTOMIZE_DESIGN) {
-                    $data['customDesign'] = $account->custom_design && !$design ? $account->custom_design : $design;
+                    $data['customDesign'] = ($account->custom_design && !$design) ? $account->custom_design : $design;
                 }
             } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
                 $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
@@ -698,25 +698,21 @@ class AccountController extends BaseController
             if ($file = Input::file('logo')) {
                 $path = Input::file('logo')->getRealPath();
                 File::delete('logo/'.$account->account_key.'.jpg');
+                File::delete('logo/'.$account->account_key.'.png');
 
                 $image = Image::make($path);
                 $mimeType = $file->getMimeType();
-                
-                if ($mimeType == 'image/jpeg') {
+
+                if ($mimeType == 'image/jpeg' && $account->utf8_invoices) {
                     $file->move('logo/', $account->account_key . '.jpg');
-                } else if ($mimeType == 'image/png') {
+                } else if ($mimeType == 'image/png' && $account->utf8_invoices) {
                     $file->move('logo/', $account->account_key . '.png');
-                
-                    if (!$account->utf8_invoices) {
-                        $account->utf8_invoices = true;
-                        $account->save();
-                    }
                 } else {
                     $image->resize(200, 120, function ($constraint) {
                         $constraint->aspectRatio();
                     });
                     Image::canvas($image->width(), $image->height(), '#FFFFFF')
-                        ->insert($image)->save('logo/'.$this->account_key.'.jpg');
+                        ->insert($image)->save('logo/'.$account->account_key.'.jpg');
                 }
             }
 
@@ -730,6 +726,7 @@ class AccountController extends BaseController
     public function removeLogo()
     {
         File::delete('logo/'.Auth::user()->account->account_key.'.jpg');
+        File::delete('logo/'.Auth::user()->account->account_key.'.png');
 
         Session::flash('message', trans('texts.removed_logo'));
 

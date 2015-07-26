@@ -36,7 +36,7 @@
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoice = {!! json_encode($invoice) !!};      
     var sections = ['content', 'styles', 'defaultStyle', 'pageMargins', 'header', 'footer'];
-    var customDesign = origCustomDesign = {!! $customDesign !!};
+    var customDesign = origCustomDesign = {!! $customDesign ?: 'JSON.parse(invoiceDesigns[0].javascript);' !!};
 
     function getPDFString(cb, force) {
       invoice.is_pro = {!! Auth::user()->isPro() ? 'true' : 'false' !!};
@@ -57,8 +57,10 @@
         showMoreDesigns(); 
         $('#invoice_design_id').val(1);
         return invoiceDesigns[0].javascript;        
-      } else {
+      } else if (customDesign) {
         return JSON.stringify(customDesign);
+      } else {
+        return invoiceDesigns[0].javascript;
       }
     }
 
@@ -150,7 +152,9 @@
     <div class="pull-right">
         {!! Button::normal(trans('texts.documentation'))->asLinkTo(PDFMAKE_DOCS)->withAttributes(['target' => '_blank'])->appendIcon(Icon::create('info-sign')) !!}
         {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/invoice_design'))->appendIcon(Icon::create('remove-circle')) !!}
-        {!! Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->appendIcon(Icon::create('floppy-disk')) !!}
+        @if (Auth::user()->isPro())
+            {!! Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->appendIcon(Icon::create('floppy-disk')) !!}
+        @endif
     </div>
     </div>
 

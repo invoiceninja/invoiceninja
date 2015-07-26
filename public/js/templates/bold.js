@@ -10,7 +10,7 @@
         {
             "width": 300,
             "stack": [
-            {"text":"$yourInvoiceUpper", "style": "yourInvoice"},
+            {"text":"$yourInvoiceLabelUC", "style": "yourInvoice"},
             "$clientDetails"
             ],
             "margin": [-32, 120, 0, 0]
@@ -48,12 +48,12 @@
             "body": "$invoiceLineItems"
         },
         "layout": {
-            "hLineWidth": "$borderNone",
-            "vLineWidth": "$borderNone",
-            "paddingLeft": "$padding:8", 
-            "paddingRight": "$padding:8", 
-            "paddingTop": "$padding:14", 
-            "paddingBottom": "$padding:14"            
+            "hLineWidth": "$none",
+            "vLineWidth": "$none",
+            "paddingLeft": "$amount:8", 
+            "paddingRight": "$amount:8", 
+            "paddingTop": "$amount:14", 
+            "paddingBottom": "$amount:14"            
         }
     },    
     {
@@ -69,12 +69,12 @@
                 "body": "$subtotals"
             },
             "layout": {
-                "hLineWidth": "$borderNone",
-                "vLineWidth": "$borderNone",
-                "paddingLeft": "$padding:8", 
-                "paddingRight": "$padding:8", 
-                "paddingTop": "$padding:4", 
-                "paddingBottom": "$padding:4"  
+                "hLineWidth": "$none",
+                "vLineWidth": "$none",
+                "paddingLeft": "$amount:8", 
+                "paddingRight": "$amount:8", 
+                "paddingTop": "$amount:4", 
+                "paddingBottom": "$amount:4"  
             }
         }]
     }

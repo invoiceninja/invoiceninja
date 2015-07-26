@@ -33260,30 +33260,25 @@ function GetPdfMake(invoice, javascript, callback) {
     javascript = NINJA.decodeJavascript(invoice, javascript);
 
     function jsonCallBack(key, val) {        
-        if ((val+'').indexOf('$borderTopAndBottom') === 0) {            
+        if ((val+'').indexOf('$firstAndLast') === 0) {
             var parts = val.split(':');
             return function (i, node) {
                 return (i === 0 || i === node.table.body.length) ? parseFloat(parts[1]) : 0;
             };
-        } else if ((val+'').indexOf('$borderNone') === 0) {
+        } else if ((val+'').indexOf('$none') === 0) {
             return function (i, node) {
                 return 0;
             };
-        } else if ((val+'').indexOf('$borderNotTop') === 0) {
+        } else if ((val+'').indexOf('$notFirst') === 0) {
             var parts = val.split(':');
             return function (i, node) {
                 return i === 0 ? 0 : parseFloat(parts[1]);
             };
-        } else if ((val+'').indexOf('$border') === 0) {            
+        } else if ((val+'').indexOf('$amount') === 0) {            
             var parts = val.split(':');
             return function (i, node) {
                 return parseFloat(parts[1]);
             };
-        } else if ((val+'').indexOf('$padding') === 0) {
-            var parts = val.split(':');
-            return function (i, node) {
-                return parseInt(parts[1], 10);
-            };            
         } else if ((val+'').indexOf('$primaryColor') === 0) {
             var parts = val.split(':');
             return NINJA.primaryColor || parts[1];
@@ -33344,18 +33339,10 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'subtotalsHeight': NINJA.subtotals(invoice).length * 22,
         'subtotalsWithoutBalance': NINJA.subtotals(invoice, true),        
         'balanceDue': formatMoney(invoice.balance_amount, invoice.client.currency_id),
-        'balanceDueLabel': invoiceLabels.balance_due,
         'invoiceFooter': account.invoice_footer || ' ',
         'invoiceNumber': invoice.invoice_number || ' ',
         'entityType': invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice,
-        'entityTypeUpper': (invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),
-        'yourInvoice': invoiceLabels.your_invoice,
-        'yourInvoiceUpper': invoiceLabels.your_invoice.toUpperCase(),
-        'invoiceIssuedTo': invoiceLabels.invoice_issued_to + ':',
-        'invoiceTo': invoiceLabels.invoice_to + ':',
-        'details': invoiceLabels.details + ':',
-        'fromUpper': invoiceLabels.from.toUpperCase() + ':',
-        'toUpper': invoiceLabels.to.toUpperCase() + ':',
+        'entityTypeUC': (invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),
         'fontSize': NINJA.fontSize,
         'fontSizeLarger': NINJA.fontSize + 1,
         'fontSizeLargest': NINJA.fontSize + 2,
@@ -33368,7 +33355,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
     }
 
     // search/replace labels 
-    var regExp = new RegExp('"\\$\\\w*?Label(UC)?"', 'g');
+    var regExp = new RegExp('"\\$\\\w*?Label(UC)?(:)?(\\\?)?"', 'g');
     var matches = javascript.match(regExp);    
     
     if (matches) {
@@ -33376,13 +33363,21 @@ NINJA.decodeJavascript = function(invoice, javascript)
             var match = matches[i];
             field = match.substring(2, match.indexOf('Label'));
             field = toSnakeCase(field);
-            var label = invoiceLabels[field];
-            if (match.indexOf('UC') >= 0) {
-                if (!label) console.log('match: ' + field);
-                label = label.toUpperCase();
+            var value = getDescendantProp(invoice, field);
+            if (match.indexOf('?') < 0) {
+                var label = invoiceLabels[field];            
+                if (match.indexOf('UC') >= 0) {
+                    if (!label) console.log('match: ' + field);
+                    label = label.toUpperCase();
+                }
+                if (match.indexOf(':') >= 0) {
+                    label = label + ':';
+                }
+            } else {
+                label = ' ';
             }
             javascript = javascript.replace(match, '"'+label+'"');
-        }
+        }        
     }
 
     // search/replace values 
@@ -33394,8 +33389,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
             var match = matches[i];
             field = match.substring(2, match.indexOf('Value'));
             field = toSnakeCase(field);
-            var value = getDescendantProp(invoice, field) || ' ';
-            if (field.indexOf('date') >= 0) {
+            var value = getDescendantProp(invoice, field) || ' ';            
+            if (field.toLowerCase().indexOf('date') >= 0 && value != ' ') {
                 value = moment(value, 'YYYY-MM-DD').format('MMM D YYYY');
             }
             javascript = javascript.replace(match, '"'+value+'"');
@@ -33594,11 +33589,11 @@ NINJA.invoiceDetails = function(invoice) {
         ],
         [
             {text: invoiceLabels.invoice_date}, 
-            {text: invoice.invoice_date}            
+            {text: moment(invoice.invoice_date, 'YYYY-MM-DD').format('MMM D YYYY')}
         ],
         [
             {text: invoiceLabels.due_date}, 
-            {text: invoice.due_date}
+            {text: invoice.due_date ? moment(invoice.due_date, 'YYYY-MM-DD').format('MMM D YYYY') : false}
         ]
     ];
 
