@@ -12,7 +12,7 @@ use Input;
 use Log;
 use DateTime;
 use stdClass;
-use Carbon;
+use Jenssegers\Date\Date;
 
 use App\Models\Currency;
 
@@ -304,7 +304,10 @@ class Utils
         if (!$timestamp) {
             return '';
         }
-        $date = Carbon::createFromTimeStamp($timestamp);
+
+        Date::setLocale(\App::getLocale());
+
+        $date = Date::createFromTimeStamp($timestamp);
         if ($timezone) {
             $date->tz = $timezone;
         }
@@ -334,7 +337,9 @@ class Utils
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
-        $dateTime = DateTime::createFromFormat($format, $date, new DateTimeZone($timezone));
+        Date::setLocale(\App::getLocale());
+
+        $dateTime = Date::createFromFormat($format, $date, new DateTimeZone($timezone));
 
         return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
     }
@@ -348,9 +353,10 @@ class Utils
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
-        $dateTime = DateTime::createFromFormat('Y-m-d', $date);
-        $dateTime->setTimeZone(new DateTimeZone($timezone));
+        Date::setLocale(\App::getLocale());
 
+        $dateTime = Date::createFromFormat('Y-m-d', $date);
+        $dateTime->setTimeZone(new DateTimeZone($timezone));
         return $formatResult ? $dateTime->format($format) : $dateTime;
     }
 
@@ -362,8 +368,10 @@ class Utils
 
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
-        
-        $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+
+        Date::setLocale(\App::getLocale());
+
+        $dateTime = Date::createFromFormat('Y-m-d H:i:s', $date);
         $dateTime->setTimeZone(new DateTimeZone($timezone));
 
         return $formatResult ? $dateTime->format($format) : $dateTime;
@@ -713,3 +721,4 @@ class Utils
         return $val;
     }
 }
+
