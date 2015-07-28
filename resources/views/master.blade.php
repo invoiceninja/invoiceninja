@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{App::getLocale()}}">
 <head>
     <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }} | </title> 
     <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}" />
@@ -18,8 +18,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100" rel="stylesheet" type="text/css">
-    <link href="//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700&subset=latin,latin-ext" rel="stylesheet" type="text/css">
     <link href="{{ asset('favicon.png?test') }}" rel="shortcut icon">
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}" />
 
@@ -53,6 +53,10 @@
                 'sSearch': ''
             }
         } );
+           
+        $.extend( true, $.fn.datepicker.defaults, {
+            language:'{{App::getLocale()}}'
+        });
     </script>
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->

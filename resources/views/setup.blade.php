@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{App::getLocale()}}">
   <head>
     <title>Invoice Ninja | Setup</title> 
     <meta charset="utf-8">    
