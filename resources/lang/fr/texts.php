@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 return array(
 
@@ -35,11 +35,11 @@ return array(
   'invoice_number_short' => 'Facture #',
   'po_number' => 'Numéro du bon de commande',
   'po_number_short' => 'Bon de commande #',
-  'frequency_id' => 'Fréquence', 
+  'frequency_id' => 'Fréquence',
   'discount' => 'Remise',
   'taxes' => 'Taxes',
   'tax' => 'Taxe',
-  'item' => 'Article', 
+  'item' => 'Article',
   'description' => 'Description',
   'unit_cost' => 'Coût unitaire',
   'quantity' => 'Quantité',
@@ -117,11 +117,11 @@ return array(
   'billed_client' => 'client facturé',
   'billed_clients' => 'clients facturés',
   'active_client' => 'client actif',
-  'active_clients' => 'clients actifs',  
+  'active_clients' => 'clients actifs',
   'invoices_past_due' => 'Date limite de paiement dépassée',
   'upcoming_invoices' => 'Factures à venir',
   'average_invoice' => 'Moyenne de facturation',
-  
+
   // list pages
   'archive' => 'Archiver',
   'delete' => 'Supprimer',
@@ -276,7 +276,7 @@ return array(
   // Payment page
   'secure_payment' => 'Paiement sécurisé',
   'card_number' => 'Numéro de carte',
-  'expiration_month' => 'Mois d\'expiration',  
+  'expiration_month' => 'Mois d\'expiration',
   'expiration_year' => 'Année d\'expiration',
   'cvv' => 'CVV',
 
@@ -297,8 +297,8 @@ return array(
     'remove_logo_link' => 'Cliquez ici',
   ],
 
-  'logout' => 'Se déconnecter',    
-  'sign_up_to_save' => 'Connectez vous pour sauvegarder votre travail',  
+  'logout' => 'Se déconnecter',
+  'sign_up_to_save' => 'Connectez vous pour sauvegarder votre travail',
   'agree_to_terms' =>'J\'accepte les conditions d\'utilisation d\'Invoice ninja :terms',
   'terms_of_service' => 'Conditions d\'utilisation',
   'email_taken' => 'L\'adresse courriel existe déjà',
@@ -319,7 +319,7 @@ return array(
   'field_label' => 'Nom du champ',
   'field_value' => 'Valeur du champ',
   'edit' => 'Éditer',
-  'view_as_recipient' => 'Voir en tant que destinataire',    
+  'view_as_recipient' => 'Voir en tant que destinataire',
 
   // product management
   'product_library' => 'Inventaire',
@@ -387,7 +387,7 @@ return array(
   'notification_quote_sent_subject' => 'Le devis :invoice a été envoyé à :client',
   'notification_quote_viewed_subject' => 'Le devis :invoice a été visionné par :client',
   'notification_quote_sent' => 'Le devis :invoice de :amount a été envoyé au client :client.',
-  'notification_quote_viewed' => 'Le devis :invoice de :amount a été visioné par le client :client.',  
+  'notification_quote_viewed' => 'Le devis :invoice de :amount a été visioné par le client :client.',
 
   'session_expired' => 'Votre session a expiré.',
 
@@ -426,7 +426,7 @@ return array(
   'sample_data' => 'Données fictives présentées',
   'hide' => 'Cacher',
   'new_version_available' => 'Une nouvelle version de :releases_link est disponible. Vous utilisez v:user_version, la plus récente est v:latest_version',
-    
+
 
   'invoice_settings' => 'Paramètres des factures',
   'invoice_number_prefix' => 'Préfixe du numéro de facture',
@@ -436,7 +436,7 @@ return array(
   'share_invoice_counter' => 'Partager le compteur de facture',
   'invoice_issued_to' => 'Facture destinée à',
   'invalid_counter' => 'Pour éviter un éventuel conflit, merci de définir un préfixe pour le numéro de facture ou pour le numéro de devis',
-  'mark_sent' => 'Marquer comme envoyé',    
+  'mark_sent' => 'Marquer comme envoyé',
 
   'gateway_help_1' => ':link to sign up for Authorize.net.',
   'gateway_help_2' => ':link to sign up for Authorize.net.',
@@ -452,7 +452,7 @@ return array(
   'more_designs_self_host_text' => '',
   'buy' => 'Acheter',
   'bought_designs' => 'Les nouveaux modèles ont été ajoutés avec succès',
-  
+
   'sent' => 'envoyé',
   'timesheets' => 'Feuilles de temps',
 
@@ -460,7 +460,7 @@ return array(
   'payment_cvv' => '*Numéro à 3 ou 4 chiffres au dos de votre carte',
   'payment_footer1' => '*L\'adresse de facturation doit correspondre à celle enregistrée avec votre carte bancaire',
   'payment_footer2' => '*Merci de cliquer sur "Payer maintenant" une seule fois. Le processus peut prendre jusqu\'à 1 minute.',
-  'vat_number' => 'Numéro de TVA',    
+  'vat_number' => 'Numéro de TVA',
 
   'id_number' => 'Numéro ID',
   'white_label_link' => 'Marque blanche',
@@ -485,7 +485,7 @@ return array(
   'reason_for_canceling' => 'Aidez nous à améliorer notre site en nous disant pourquoi vous partez.',
   'discount_percent' => 'Pourcent',
   'discount_amount' => 'Montant',
-  
+
   'invoice_history' => 'Historique des factures',
   'quote_history' => 'Historique des devis',
   'current_version' => 'Version courante',
@@ -503,7 +503,7 @@ return array(
   'payment_email' => 'Email de paiement',
   'quote_email' => 'Email de déclaration',
   'reset_all' => 'Réinitialiser',
-  'approve' => 'Accepter',  
+  'approve' => 'Accepter',
 
   'token_billing_type_id' => 'Token Billing',
   'token_billing_help' => 'Enables you to store credit cards with your gateway, and charge them at a later date.',
@@ -527,7 +527,7 @@ return array(
   'order_overview' => 'Order overview',
   'match_address' => '*Address must match address associated with credit card.',
   'click_once' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.',
-  
+
   'default_invoice_footer' => 'Définir par défaut',
   'invoice_footer' => 'Pied de facture',
   'save_as_default_footer' => 'Définir comme pied de facture par défatu',
@@ -577,7 +577,7 @@ return array(
   'notification_quote_approved' => 'The following client :client approved Quote :invoice for :amount.',
   'resend_confirmation' => 'Resend confirmation email',
   'confirmation_resent' => 'The confirmation email was resent',
-  
+
   'gateway_help_42' => ':link to sign up for BitPay.<br/>Note: use a Legacy API Key, not an API token.',
   'payment_type_credit_card' => 'Carte de crédit',
   'payment_type_paypal' => 'PayPal',
@@ -585,7 +585,7 @@ return array(
   'knowledge_base' => 'Base de connaissances',
   'partial' => 'Partiel',
   'partial_remaining' => ':partial de :balance',
-  
+
   'more_fields' => 'Plus de champs',
   'less_fields' => 'Moins de champs',
   'client_name' => 'Nom du client',
@@ -597,7 +597,7 @@ return array(
   'view_documentation' => 'Voir documentation',
   'app_title' => 'Free Open-Source Online Invoicing',
   'app_description' => 'Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
-  
+
   'rows' => 'lignes',
   'www' => 'www',
   'logo' => 'Logo',
@@ -628,7 +628,7 @@ return array(
   'archive_task' => 'Archiver tâche',
   'restore_task' => 'Restaurer tâche',
   'delete_task' => 'Supprimer tâche',
-  'stop_task' => 'Arrêter tâcher',
+  'stop_task' => 'Arrêter tâche',
   'time' => 'Temps',
   'start' => 'Début',
   'stop' => 'Fin',
@@ -682,7 +682,7 @@ return array(
 
   'resume' => 'Resume',
   'break_duration' => 'Break',
-  'edit_details' => 'Editer détails',
+  'edit_details' => 'Modifier',
   'work' => 'Travail',
   'timezone_unset' => 'Please :link to set your timezone',
   'click_here' => 'cliquer ici',
