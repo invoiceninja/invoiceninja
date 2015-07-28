@@ -68,7 +68,11 @@
     {
         editorSection = section;
         editor.set(customDesign[section]);
-        editor.expandAll();        
+
+        // the function throws an error if the editor is in code view
+        try {
+            editor.expandAll();            
+        } catch(err) {}
     }    
 
     function saveEditor(data)

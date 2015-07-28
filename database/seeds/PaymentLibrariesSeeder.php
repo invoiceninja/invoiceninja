@@ -5,6 +5,7 @@ use App\Models\PaymentTerm;
 use App\Models\Currency;
 use App\Models\DateFormat;
 use App\Models\DatetimeFormat;
+use App\Models\InvoiceDesign;
 
 class PaymentLibrariesSeeder extends Seeder
 {
@@ -16,6 +17,7 @@ class PaymentLibrariesSeeder extends Seeder
         $this->createPaymentTerms();
         $this->createDateFormats();
         $this->createDatetimeFormats();
+        $this->createInvoiceDesigns();
     }
 
     private function createGateways() {
@@ -127,6 +129,35 @@ class PaymentLibrariesSeeder extends Seeder
         foreach ($formats as $format) {
             if (!DB::table('datetime_formats')->whereLabel($format['label'])->get()) {
                 DatetimeFormat::create($format);
+            }
+        }
+    }
+
+    private function createInvoiceDesigns() {
+        $designs = [
+            'Clean',
+            'Bold',
+            'Modern',
+            'Plain',
+            'Business',
+            'Creative',
+            'Elegant',
+            'Hipster',
+            'Playful',
+            'Photo',
+        ];
+        
+        foreach ($designs as $design) {
+            $fileName = storage_path() . '/templates/' . strtolower($design) . '.js';
+            $pdfmake = file_get_contents($fileName);
+            if ($pdfmake) {
+                $record = InvoiceDesign::whereName($design)->first();
+                if (!$record) {
+                    $record = new InvoiceDesign;
+                    $record->name = $design;
+                }
+                $record->pdfmake = $pdfmake;
+                $record->save();
             }
         }
     }

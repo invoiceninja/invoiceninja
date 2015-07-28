@@ -233,7 +233,7 @@ class AccountController extends BaseController
                 $data['invoice'] = $invoice;
                 $data['invoiceLabels'] = json_decode($account->invoice_labels) ?: [];
                 $data['title'] = trans('texts.invoice_design');
-                $data['invoiceDesigns'] = InvoiceDesign::availableDesigns($subSection == ACCOUNT_CUSTOMIZE_DESIGN);
+                $data['invoiceDesigns'] = InvoiceDesign::getDesigns($subSection == ACCOUNT_CUSTOMIZE_DESIGN);
 
                 $design = false;
                 foreach ($data['invoiceDesigns'] as $item) {

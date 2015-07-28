@@ -2,32 +2,38 @@
 
 use Eloquent;
 use Auth;
+use Cache;
 use App\Models\InvoiceDesign;
 
 class InvoiceDesign extends Eloquent
 {
     public $timestamps = false;
 
-    public function scopeAvailableDesigns($query, $utf8 = false)
+    public static function getDesigns($forceUtf8 = false)
     {
         $account = Auth::user()->account;
-        $designs = $query->where('id', '<=', Auth::user()->maxInvoiceDesignId())->orderBy('id')->get();
+        $designs = Cache::get('invoiceDesigns');
+        $utf8 = $forceUtf8 || $account->utf8_invoices;
 
         foreach ($designs as $design) {
-            $fileName = public_path(strtolower("js/templates/{$design->name}.js"));
-            if (($utf8 || Auth::user()->account->utf8_invoices) && file_exists($fileName)) {
-                $design->javascript = file_get_contents($fileName);
+            if ($design->id > Auth::user()->maxInvoiceDesignId()) {
+                $designs->pull($design->id);
             }
-            
+
+            if ($utf8) {
+                $design->javascript = $design->pdfmake;
+            }
+            $design->pdfmake = null;
+
             if ($design->id == CUSTOM_DESIGN) {
-                if ($account->utf8_invoices && $account->custom_design) {
+                if ($utf8 && $account->custom_design) {
                     $design->javascript = $account->custom_design;
                 } else {
                     $designs->pop();
                 }
             }
         }
-
+        
         return $designs;
     }
 }

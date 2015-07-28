@@ -49,6 +49,7 @@ class StartupCheck
             'paymentTerms' => 'App\Models\PaymentTerm',
             'paymentTypes' => 'App\Models\PaymentType',
             'countries' => 'App\Models\Country',
+            'invoiceDesigns' => 'App\Models\InvoiceDesign',
         ];
         foreach ($cachedTables as $name => $class) {
             if (Input::has('clear_cache')) {

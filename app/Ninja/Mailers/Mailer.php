@@ -30,7 +30,11 @@ class Mailer
                     }
                 }
                 
-                $message->to($toEmail)->from($fromEmail, $fromName)->replyTo($replyEmail, $fromName)->subject($subject);
+                $message->to($toEmail)
+                        ->from($fromEmail, $fromName)
+                        ->replyTo($replyEmail, $fromName)
+                        ->subject($subject);
+
             });
             
             return true;

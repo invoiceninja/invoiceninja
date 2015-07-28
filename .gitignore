@@ -29,10 +29,3 @@
 /_ide_helper.php
 /.idea
 /.project
-
-/public/js/templates/business.js
-/public/js/templates/creative.js
-/public/js/templates/elegant.js
-/public/js/templates/hipster.js
-/public/js/templates/photo.js
-/public/js/templates/playful.js

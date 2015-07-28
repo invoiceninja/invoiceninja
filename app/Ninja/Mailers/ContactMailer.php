@@ -73,6 +73,8 @@ class ContactMailer extends Mailer
         }
 
         Event::fire(new InvoiceSent($invoice));
+
+        return $response;
     }
 
     public function sendPaymentConfirmation(Payment $payment)

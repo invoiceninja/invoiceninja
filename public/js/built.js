@@ -33294,7 +33294,7 @@ function GetPdfMake(invoice, javascript, callback) {
     //console.log(javascript);
     var dd = JSON.parse(javascript, jsonCallBack);
 
-    if (!invoice.is_pro && dd.footer.hasOwnProperty('columns')) {
+    if (!invoice.is_pro && dd.hasOwnProperty('footer') && dd.footer.hasOwnProperty('columns')) {
         dd.footer.columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130})
     }
 
