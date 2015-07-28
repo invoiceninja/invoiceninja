@@ -347,11 +347,11 @@ NINJA.invoiceDetails = function(invoice) {
         ],
         [
             {text: invoiceLabels.invoice_date}, 
-            {text: moment(invoice.invoice_date, 'YYYY-MM-DD').format('MMM D YYYY')}
+            {text: invoice.invoice_date}
         ],
         [
             {text: invoiceLabels.due_date}, 
-            {text: invoice.due_date ? moment(invoice.due_date, 'YYYY-MM-DD').format('MMM D YYYY') : false}
+            {text: invoice.due_date}
         ]
     ];
 
