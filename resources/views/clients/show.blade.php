@@ -112,7 +112,7 @@
                     <i class="fa fa-envelope" style="width: 20px"></i>{!! HTML::mailto($contact->email, $contact->email) !!}<br/>
                 @endif
                 @if ($contact->phone)
-                    <i class="fa fa-phone" style="width: 20px"></i>{!! Utils::formatPhoneNumber($contact->phone) !!}
+                    <i class="fa fa-phone" style="width: 20px"></i>{!! Utils::formatPhoneNumber($contact->phone) !!}<br/>
                 @endif		  		
 		  	@endforeach
 		</div>

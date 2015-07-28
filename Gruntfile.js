@@ -51,7 +51,17 @@ module.exports = function(grunt) {
           'public/vendor/knockout-mapping/build/output/knockout.mapping-latest.js',
           'public/vendor/knockout-sortable/build/knockout-sortable.min.js',
           'public/vendor/underscore/underscore.js',
-          'public/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js',
+          'public/vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js',
+          'public/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.de.min.js',
+          'public/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.da.min.js',
+          'public/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.pt-BR.min.js',
+          'public/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.nl.min.js',
+          'public/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.fr.min.js',
+          'public/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.it.min.js',
+          'public/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.lt.min.js',
+          'public/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.no.min.js',
+          'public/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.es.min.js',
+          'public/vendor/bootstrap-datepicker/dist/locales/bootstrap-datepicker.sv.min.js',
           'public/vendor/typeahead.js/dist/typeahead.min.js',
           'public/vendor/accounting/accounting.min.js',
           'public/vendor/spectrum/spectrum.js',
@@ -65,7 +75,7 @@ module.exports = function(grunt) {
           'public/js/lightbox.min.js',
           'public/js/bootstrap-combobox.js',
           'public/js/script.js',
-          'public/js/pdf.pdfmake.js'
+          'public/js/pdf.pdfmake.js',
         ],
         dest: 'public/js/built.js',
         nonull: true
@@ -79,8 +89,8 @@ module.exports = function(grunt) {
           'public/js/simpleexpand.js',
         */
           'public/vendor/bootstrap/dist/js/bootstrap.min.js',
-          'public/js/bootstrap-combobox.js',          
-          
+          'public/js/bootstrap-combobox.js',
+
         ],
         dest: 'public/js/built.public.js',
         nonull: true
@@ -91,7 +101,7 @@ module.exports = function(grunt) {
           'public/vendor/datatables/media/css/jquery.dataTables.css',
           'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',
           'public/vendor/font-awesome/css/font-awesome.min.css',
-          'public/vendor/bootstrap-datepicker/css/datepicker3.css',
+          'public/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css',
           'public/vendor/spectrum/spectrum.css',
           'public/css/bootstrap-combobox.css',
           'public/css/typeahead.js-bootstrap.css',
@@ -115,7 +125,7 @@ module.exports = function(grunt) {
           */
           'public/css/bootstrap-combobox.css',
           'public/vendor/datatables/media/css/jquery.dataTables.css',
-          'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',          
+          'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',
         ],
         dest: 'public/css/built.public.css',
         nonull: true,

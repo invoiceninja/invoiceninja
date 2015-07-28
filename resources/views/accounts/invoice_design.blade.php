@@ -27,8 +27,9 @@
         showMoreDesigns(); 
         $('#invoice_design_id').val(1);
         return invoiceDesigns[0].javascript;        
-      } else {
-        return invoiceDesigns[id-1].javascript;
+      } else {        
+        var design = _.find(invoiceDesigns, function(design){ return design.id == id});
+        return design ? design.javascript : '';
       }
     }
 
@@ -55,8 +56,7 @@
         }
       }      
 
-      doc = generatePDF(invoice, getDesignJavascript(), true);
-      doc.getDataUrl(cb);
+      generatePDF(invoice, getDesignJavascript(), true, cb);      
     }
 
     $(function() {   
@@ -96,7 +96,7 @@
         <div class="panel-body">    
 
 
-          @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS)      
+          @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
             {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}
           @else 
             {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id') !!}
@@ -108,6 +108,10 @@
 
           {!! Former::text('primary_color') !!}
           {!! Former::text('secondary_color') !!}
+
+          {!! Former::actions( 
+                Button::primary(trans('texts.customize_design'))->small()->asLinkTo(URL::to('/company/advanced_settings/customize_design'))
+            ) !!}
 
           </div>
       </div>

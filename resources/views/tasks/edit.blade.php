@@ -4,10 +4,6 @@
 
     <style type="text/css">
 
-    .date-group div.input-group {
-        width: 250px;
-    }
-
     .time-input input,
     .time-input select {
         float: left;
@@ -16,22 +12,23 @@
     </style>
 
 
-    {!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit task-form')->method($method)->rules(array(
-
-    )) !!}
-
+    {!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit task-form')->method($method)->rules(array()) !!}
     @if ($task)
         {!! Former::populate($task) !!}
+        {!! Former::populateField('id', $task->public_id) !!}
     @endif
 
     <div style="display:none">
+        @if ($task)
+            {!! Former::text('id') !!}
+            {!! Former::text('invoice_id') !!}
+        @endif
         {!! Former::text('action') !!}
-        {!! Former::text('start_time') !!}
-        {!! Former::text('duration') !!}
+        {!! Former::text('time_log') !!}
     </div>
     
     <div class="row">
-        <div class="col-md-10 col-md-offset-1">
+        <div class="col-md-12">
 
             <div class="panel panel-default">
             <div class="panel-body">
@@ -39,85 +36,94 @@
             {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
             {!! Former::textarea('description')->rows(3) !!}
 
-            @if ($task && $task->duration == -1)
-                <center>                    
-                    <div id="duration-text" style="font-size: 36px; font-weight: 300; padding: 30px 0 20px 0"/>
-                </center>
-            @else
-                @if (!$task)
-                    {!! Former::radios('task_type')->radios([
-                            trans('texts.timer') => array('name' => 'task_type', 'value' => 'timer'),
-                            trans('texts.manual') => array('name' => 'task_type', 'value' => 'manual'),
-                    ])->inline()->check('timer')->label('&nbsp;') !!}
-                    <div id="datetime-details" style="display: none">
-                    <br>
-                @else
-                    <div>
-                @endif
-                    {!! Former::text('date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
-                            ->append('<i class="glyphicon glyphicon-calendar"></i>')->addGroupClass('date-group time-input') !!}
+            @if ($task)
 
-                    <div class="form-group">
-                        <label for="time" class="control-label col-lg-4 col-sm-4">
-                            {{ trans('texts.time') }}
-                        </label>
-                        <div class="col-lg-8 col-sm-8 time-input">
-                            <input class="form-control" id="start_hours" placeholder="{{ uctrans('texts.hours') }}" 
-                                name="value" size="3" type="number" min="1" max="12" step="1"/>
-                            <input class="form-control" id="start_minutes" placeholder="{{ uctrans('texts.minutes') }}" 
-                                name="value" size="2" type="number" min="0" max="59" step="1"/>
-                            <input class="form-control" id="start_seconds" placeholder="{{ uctrans('texts.seconds') }}" 
-                                name="value" size="2" type="number" min="0" max="59" step="1"/>                            
-                            <select class="form-control" id="start_ampm">
-                                <option>AM</option>
-                                <option>PM</option>
-                            </select>
-                        </div>
-                    </div>                    
+                <div class="form-group simple-time" id="editDetailsLink">
+                    <label for="simple-time" class="control-label col-lg-4 col-sm-4">  
+                    </label>
+                    <div class="col-lg-8 col-sm-8" style="padding-top: 10px">
+                        <p>{{ $task->getStartTime() }}<p/>
 
-                    <div class="form-group">
-                        <label class="control-label col-lg-4 col-sm-4">
-                            {{ trans('texts.duration') }}
-                        </label>
-                        <div class="col-lg-8 col-sm-8 time-input">
-                            <input class="form-control" id="duration_hours" placeholder="{{ uctrans('texts.hours') }}" 
-                                name="value" size="3" type="number" min="0" step="1"/>
-                            <input class="form-control" id="duration_minutes" placeholder="{{ uctrans('texts.minutes') }}" 
-                                name="value" size="2" type="number" min="0" max="59" step="1"/>
-                            <input class="form-control" id="duration_seconds" placeholder="{{ uctrans('texts.seconds') }}" 
-                                name="value" size="2" type="number" min="0" max="59" step="1"/>
-                        </div>
-                    </div>                    
+                        @if ($task->hasPreviousDuration())
+                            {{ trans('texts.duration') . ': ' . gmdate('H:i:s', $task->getDuration()) }}<br/>
+                        @endif
 
-                    <div class="form-group end-time">
-                        <label for="end-time" class="control-label col-lg-4 col-sm-4">
-                            {{ trans('texts.end') }}
-                        </label>
-                        <div class="col-lg-8 col-sm-8" style="padding-top: 10px">
-                        </div>
+                        @if (!$task->is_running)
+                            <p>{!! Button::primary(trans('texts.edit_details'))->withAttributes(['onclick'=>'showTimeDetails()'])->small() !!}</p>
+                        @endif
                     </div>
-
                 </div>
+
+                @if ($task->is_running)
+                    <center>                    
+                        <div id="duration-text" style="font-size: 36px; font-weight: 300; padding: 30px 0 20px 0"/>
+                    </center>
+                @endif
+
+            @else
+                {!! Former::radios('task_type')->radios([
+                        trans('texts.timer') => array('name' => 'task_type', 'value' => 'timer'),
+                        trans('texts.manual') => array('name' => 'task_type', 'value' => 'manual'),
+                ])->inline()->check('timer')->label('&nbsp;') !!}
             @endif
 
+            <div class="form-group simple-time" id="datetime-details" style="display: none">
+                <label for="simple-time" class="control-label col-lg-4 col-sm-4">
+                    {{ trans('texts.times') }}
+                </label>
+                <div class="col-lg-8 col-sm-8">
+
+                <table class="table" style="margin-bottom: 0px !important;">
+                    <tbody data-bind="foreach: $root.time_log">
+                        <tr data-bind="event: { mouseover: showActions, mouseout: hideActions }">
+                            <td style="padding: 0px 12px 12px 0 !important">
+                                <div data-bind="css: { 'has-error': !isStartValid() }">
+                                    <input type="text" data-bind="value: startTime.pretty, event:{ change: $root.refresh }" 
+                                        class="form-control" placeholder="{{ trans('texts.start_time') }}"/>
+                                </div>
+                            </td>
+                            <td style="padding: 0px 12px 12px 0 !important">
+                                <div data-bind="css: { 'has-error': !isEndValid() }">
+                                    <input type="text" data-bind="value: endTime.pretty, event:{ change: $root.refresh }" 
+                                        class="form-control" placeholder="{{ trans('texts.end_time') }}"/>
+                                </div>
+                            </td>
+                            <td style="width:100px">                                
+                                <div data-bind="text: duration.pretty, visible: !isEmpty()"></div>
+                                <a href="#" data-bind="click: function() { setNow(), $root.refresh() }, visible: isEmpty()">{{ trans('texts.set_now') }}</a>
+                            </td>                            
+                            <td style="width:30px" class="td-icon">
+                                <i style="width:12px;cursor:pointer" data-bind="click: $root.removeItem, visible: actionsVisible() &amp;&amp; !isEmpty()" class="fa fa-minus-circle redlink" title="Remove item"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+
             </div>
             </div>
 
-        </div>
+        </div>        
     </div>
 
 
     <center class="buttons">
-        @if ($task && $task->duration == -1)
+        @if ($task && $task->is_running)
             {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}            
             {!! Button::primary(trans('texts.stop'))->large()->appendIcon(Icon::create('stop'))->withAttributes(['id' => 'stop-button']) !!}            
         @else
             {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
             @if ($task)
                 {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
+                {!! Button::primary(trans('texts.resume'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'resume-button']) !!}
+                {!! DropdownButton::normal(trans('texts.more_actions'))
+                      ->withContents($actions)
+                      ->large()
+                      ->dropup() !!}
             @else
-                {!! Button::success(trans('texts.start'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'start-button']) !!}
                 {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button', 'style' => 'display:none']) !!}
+                {!! Button::success(trans('texts.start'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'start-button']) !!}
             @endif
         @endif
     </center>
@@ -126,17 +132,23 @@
 
     <script type="text/javascript">
 
-    
     var clients = {!! $clients !!};
+    var timeLabels = {};
+    @foreach (['hour', 'minute', 'second'] as $period)
+        timeLabels['{{ $period }}'] = '{{ trans("texts.{$period}") }}';
+        timeLabels['{{ $period }}s'] = '{{ trans("texts.{$period}s") }}';
+    @endforeach
     
     function tock(duration) {
-        var timeLabels = {};
-        @foreach (['hour', 'minute', 'second'] as $period)
-            timeLabels['{{ $period }}'] = '{{ trans("texts.{$period}") }}';
-            timeLabels['{{ $period }}s'] = '{{ trans("texts.{$period}s") }}';
-        @endforeach
+        var str = convertDurationToString(duration);
+        $('#duration-text').html(str);
 
-        var now = Math.floor(Date.now() / 1000);
+        setTimeout(function() {
+            tock(duration+1);
+        }, 1000);
+    }
+
+    function convertDurationToString(duration) {
         var data = [];
         var periods = ['hour', 'minute', 'second'];
         var parts = secondsToTime(duration);
@@ -145,46 +157,183 @@
             var period = periods[i];
             var letter = period.charAt(0);
             var value = parts[letter];            
-            if (!value && !data.length) {
+            if (!value) {
                 continue;
             }
             period = value == 1 ? timeLabels[period] : timeLabels[period + 's'];
             data.push(value + ' ' + period);
         }
 
-        $('#duration-text').html(data.length ? data.join(', ') : '0 ' + timeLabels['seconds']);
-
-        setTimeout(function() {
-            tock(duration+1);
-        }, 1000);
+        return data.length ? data.join(', ') : '0 ' + timeLabels['seconds'];
     }
 
-    function determineEndTime() {        
-        var startDate = moment($('#date').datepicker('getDate'));
-        var parts = [$('#start_hours').val(), $('#start_minutes').val(), $('#start_seconds').val(), $('#start_ampm').val()];
-        var date = moment(startDate.format('YYYY-MM-DD') + ' ' + parts.join(':'), 'YYYY-MM-DD h:m:s:a', true);
-        var duration = (parseInt($('#duration_seconds').val(), 10) || 0) 
-                        + (60 * (parseInt($('#duration_minutes').val(), 10) || 0))
-                        + (60 * 60 * (parseInt($('#duration_hours').val(), 10)) || 0);        
+    function submitAction(action, invoice_id) {
+        model.refresh();
+        var data = [];
+        for (var i=0; i<model.time_log().length; i++) {
+            var timeLog = model.time_log()[i];
+            if (!timeLog.isEmpty()) {
+                data.push([timeLog.startTime(),timeLog.endTime()]);
+            }
+            @if ($task && !$task->is_running)
+                if (!timeLog.isStartValid() || !timeLog.isEndValid()) {
+                    alert("{{ trans('texts.task_errors') }}");
+                    showTimeDetails();
+                    return;
+                }
+            @endif
 
-        $('#start_time').val(date.utc().format("YYYY-MM-DD HH:mm:ss"));
-        $('#duration').val(duration);
-
-        date.add(duration, 's')
-        $('div.end-time div').html(date.local().calendar());        
-    }
-
-    function submitAction(action) {
+        }        
+        $('#invoice_id').val(invoice_id);
+        $('#time_log').val(JSON.stringify(data));
         $('#action').val(action);
         $('.task-form').submit();
     }
+
+    function onDeleteClick() {
+        if (confirm('{!! trans("texts.are_you_sure") !!}')) {       
+            submitAction('delete');     
+        }       
+    }
+
+    function showTimeDetails() {
+        $('#datetime-details').fadeIn();
+        $('#editDetailsLink').hide();
+    }
+
+    function TimeModel(data) {
+        console.log('== TimeModel ==');
+        console.log(data);
+
+        var self = this;
+        self.startTime = ko.observable(0);
+        self.endTime = ko.observable(0);
+        self.duration = ko.observable(0);
+        self.actionsVisible = ko.observable(false);
+        self.isStartValid = ko.observable(true);
+        self.isEndValid = ko.observable(true);
+
+        if (data) {
+            self.startTime(data[0]);
+            self.endTime(data[1]);
+        };
+
+        self.isEmpty = ko.computed(function() {
+            return !self.startTime() && !self.endTime();
+        });
+
+        self.startTime.pretty = ko.computed({
+            read: function() {
+                return self.startTime() ? moment.unix(self.startTime()).utcOffset({{ $minuteOffset }}).format('MMM D YYYY h:mm:ss a') : '';    
+            }, 
+            write: function(data) {
+                self.startTime(moment(data, 'MMM D YYYY h:mm:ss a').utcOffset({{ $minuteOffset }}).unix());
+            }
+        });
+
+        self.endTime.pretty = ko.computed({
+            read: function() {
+                return self.endTime() ? moment.unix(self.endTime()).utcOffset({{ $minuteOffset }}).format('MMM D YYYY h:mm:ss a') : '';
+            }, 
+            write: function(data) {
+                self.endTime(moment(data, 'MMM D YYYY h:mm:ss a').utcOffset({{ $minuteOffset }}).unix());
+            }
+        });
+
+        self.setNow = function() {
+            self.startTime(moment().utcOffset({{ $minuteOffset }}).unix());
+            self.endTime(moment().utcOffset({{ $minuteOffset }}).unix());            
+        }
+
+        self.duration.pretty = ko.computed(function() {
+            var duration = false;
+            var start = self.startTime();
+            var end = self.endTime();
+
+            if (start && end) {
+                var duration = end - start;
+            }
+
+            var duration = moment.duration(duration * 1000);
+            return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss")
+        }, self);
+
+        /*
+        self.isEmpty = function() {
+            return false;
+        };
+        */        
+
+        self.hideActions = function() {
+            self.actionsVisible(false);
+        };
+
+        self.showActions = function() {
+            self.actionsVisible(true);
+        };       
+    }
+
+    function ViewModel(data) {
+        console.log('== ViewModel ==');
+        console.log(data);
+
+        var self = this;
+        self.time_log = ko.observableArray();
+
+        if (data) {
+            data = JSON.parse(data.time_log);
+            console.log(data);
+            for (var i=0; i<data.length; i++) {
+                self.time_log.push(new TimeModel(data[i]));
+            }            
+        }
+        self.time_log.push(new TimeModel());
+
+        self.removeItem = function(item) {            
+            self.time_log.remove(item);   
+            self.refresh();         
+        }
+
+        self.refresh = function() {
+            var hasEmpty = false;
+            var lastTime = 0;
+            for (var i=0; i<self.time_log().length; i++) {
+                var timeLog = self.time_log()[i];
+                var startValid = true;
+                var endValid = true;
+                if (timeLog.isEmpty()) {
+                    hasEmpty = true;
+                } else {
+                    if (timeLog.startTime() < lastTime || timeLog.startTime() > timeLog.endTime()) {
+                        startValid = false;
+                    }
+                    if (timeLog.endTime() < Math.min(timeLog.startTime(), lastTime)) {
+                        endValid = false;
+                    }
+                    lastTime = Math.max(lastTime, timeLog.endTime());                    
+                }
+                timeLog.isStartValid(startValid);
+                timeLog.isEndValid(endValid);
+            }
+            if (!hasEmpty) {
+                self.addItem();
+            }
+        }
+
+        self.addItem = function() {
+            self.time_log.push(new TimeModel());
+        }            
+    }
+
+    window.model = new ViewModel({!! $task !!});
+    ko.applyBindings(model);
 
     $(function() {
         var $clientSelect = $('select#client');     
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];
             $clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
-        }        
+        }   
 
         if ({{ $clientPublicId ? 'true' : 'false' }}) {
             $clientSelect.val({{ $clientPublicId }});
@@ -197,10 +346,6 @@
         @else
             var date = new Date();
             $('#date').datepicker('update', date);
-            $('#start_hours').val((date.getHours() % 12) || 12);
-            $('#start_minutes').val(date.getMinutes());
-            $('#start_seconds').val(date.getSeconds());
-            $('#start_ampm').val(date.getHours() >= 12 ? 'PM' : 'AM');
         @endif
 
         @if (!$task && !$clientPublicId)
@@ -216,8 +361,8 @@
             } else {
                 $('#datetime-details').fadeIn();        
             }
-                $('#start-button').toggle();
-                $('#save-button').toggle();
+            $('#start-button').toggle();
+            $('#save-button').toggle();
         })
 
         $('#start-button').click(function() {
@@ -229,42 +374,15 @@
         $('#stop-button').click(function() {
             submitAction('stop');
         });
-
-        $('.time-input').on('keyup change', (function() {
-            determineEndTime();
-        }));
+        $('#resume-button').click(function() {
+            submitAction('resume');
+        });
 
         @if ($task)
-            NINJA.startTime = {{ strtotime($task->start_time) }};            
-            @if ($task->duration == -1)
+            @if ($task->is_running)
                 tock({{ $duration }});
-            @else
-                var date = new Date(NINJA.startTime * 1000);
-                var hours = date.getHours();
-                var pm = false;
-                if (hours >= 12) {
-                    pm = true;
-                    if (hours > 12) {
-                        hours -= 12;
-                    }
-                }
-                if (!hours) {
-                    hours = 12;                    
-                }
-
-                $('#start_hours').val(hours);
-                $('#start_minutes').val(twoDigits(date.getMinutes()));
-                $('#start_seconds').val(twoDigits(date.getSeconds()));
-                $('#start_ampm').val(pm ? 'PM' : 'AM');
-                
-                var parts = secondsToTime({{ $task->duration }});
-                $('#duration_hours').val(parts['h']);
-                $('#duration_minutes').val(parts['m']);
-                $('#duration_seconds').val(parts['s']);            
             @endif
         @endif
-
-        determineEndTime();    
     });    
 
     </script>

@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use Auth;
 use View;
 use URL;
 use Utils;
@@ -8,34 +9,24 @@ use Datatable;
 use Validator;
 use Redirect;
 use Session;
+use DropdownButton;
+use DateTime;
+use DateTimeZone;
 use App\Models\Client;
 use App\Models\Task;
-
-/*
-use Auth;
-use Cache;
-
-use App\Models\Activity;
-use App\Models\Contact;
-use App\Models\Invoice;
-use App\Models\Size;
-use App\Models\PaymentTerm;
-use App\Models\Industry;
-use App\Models\Currency;
-use App\Models\Country;
-*/
-
 use App\Ninja\Repositories\TaskRepository;
+use App\Ninja\Repositories\InvoiceRepository;
 
 class TaskController extends BaseController
 {
     protected $taskRepo;
 
-    public function __construct(TaskRepository $taskRepo)
+    public function __construct(TaskRepository $taskRepo, InvoiceRepository $invoiceRepo)
     {
         parent::__construct();
 
         $this->taskRepo = $taskRepo;
+        $this->invoiceRepo = $invoiceRepo;
     }
 
     /**
@@ -44,7 +35,9 @@ class TaskController extends BaseController
      * @return Response
      */
     public function index()
-    {        
+    {
+        self::checkTimezone();
+
         return View::make('list', array(
             'entityType' => ENTITY_TASK,
             'title' => trans('texts.tasks'),
@@ -64,8 +57,8 @@ class TaskController extends BaseController
                   ->addColumn('client_name', function ($model) { return $model->client_public_id ? link_to('clients/'.$model->client_public_id, Utils::getClientDisplayName($model)) : ''; });
         }
 
-        return $table->addColumn('start_time', function($model) { return Utils::fromSqlDateTime($model->start_time); })
-                ->addColumn('duration', function($model) { return gmdate('H:i:s', $model->duration == -1 ? time() - strtotime($model->start_time) : $model->duration); })
+        return $table->addColumn('created_at', function($model) { return Task::calcStartTime($model); })
+                ->addColumn('time_log', function($model) { return gmdate('H:i:s', Task::calcDuration($model)); })
                 ->addColumn('description', function($model) { return $model->description; })
                 ->addColumn('invoice_number', function($model) { return self::getStatusLabel($model); })
                 ->addColumn('dropdown', function ($model) {
@@ -81,7 +74,7 @@ class TaskController extends BaseController
 
                         if ($model->invoice_number) {
                             $str .= '<li>' . link_to("/invoices/{$model->invoice_public_id}/edit", trans('texts.view_invoice')) . '</li>';
-                        } elseif ($model->duration == -1) {
+                        } elseif ($model->is_running) {
                             $str .= '<li><a href="javascript:stopTask('.$model->public_id.')">'.trans('texts.stop_task').'</a></li>';
                         } elseif (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
                             $str .= '<li><a href="javascript:invoiceTask('.$model->public_id.')">'.trans('texts.invoice_task').'</a></li>';
@@ -107,7 +100,7 @@ class TaskController extends BaseController
         if ($model->invoice_number) {
             $class = 'success';
             $label = trans('texts.invoiced');
-        } elseif ($model->duration == -1) {
+        } elseif ($model->is_running) {
             $class = 'primary';
             $label = trans('texts.running');
         } else {
@@ -135,12 +128,15 @@ class TaskController extends BaseController
      */
     public function create($clientPublicId = 0)
     {
+        self::checkTimezone();
+
         $data = [
             'task' => null,
             'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
             'method' => 'POST',
             'url' => 'tasks',
             'title' => trans('texts.new_task'),
+            'minuteOffset' => Utils::getTiemstampOffset(),
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -156,15 +152,41 @@ class TaskController extends BaseController
      */
     public function edit($publicId)
     {
-        $task = Task::scope($publicId)->with('client')->firstOrFail();
-        
+        self::checkTimezone();
+
+        $task = Task::scope($publicId)->with('client', 'invoice')->firstOrFail();
+
+        $actions = [];
+        if ($task->invoice) {
+            $actions[] = ['url' => URL::to("inovices/{$task->invoice->public_id}/edit"), 'label' => trans("texts.view_invoice")];
+        } else {
+            $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans("texts.create_invoice")];
+
+            // check for any open invoices
+            $invoices = $task->client_id ? $this->invoiceRepo->findOpenInvoices($task->client_id) : [];
+
+            foreach ($invoices as $invoice) {
+                $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans("texts.add_to_invoice", ["invoice" => $invoice->invoice_number])];
+            }
+        }
+
+        $actions[] = DropdownButton::DIVIDER;
+        if (!$task->trashed()) {
+            $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_task')];
+            $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_task')];
+        } else {
+            $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_task')];
+        }
+
         $data = [
             'task' => $task,
             'clientPublicId' => $task->client ? $task->client->public_id : 0,
             'method' => 'PUT',
             'url' => 'tasks/'.$publicId,
             'title' => trans('texts.edit_task'),
-            'duration' => time() - strtotime($task->start_time),
+            'duration' => $task->is_running ? $task->getCurrentDuration() : $task->getDuration(),
+            'actions' => $actions,
+            'minuteOffset' => Utils::getTiemstampOffset(),
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -192,15 +214,16 @@ class TaskController extends BaseController
 
     private function save($publicId = null)
     {
-        $task = $this->taskRepo->save($publicId, Input::all());
+        $action = Input::get('action');
 
+        if (in_array($action, ['archive', 'delete', 'invoice', 'restore', 'add_to_invoice'])) {
+            return self::bulk();
+        }
+
+        $task = $this->taskRepo->save($publicId, Input::all());
         Session::flash('message', trans($publicId ? 'texts.updated_task' : 'texts.created_task'));
 
-        if (Input::get('action') == 'stop') {
-            return Redirect::to("tasks");
-        } else {
-            return Redirect::to("tasks/{$task->public_id}/edit");
-        }        
+        return Redirect::to("tasks/{$task->public_id}/edit");
     }
 
     public function bulk()
@@ -212,12 +235,11 @@ class TaskController extends BaseController
             $this->taskRepo->save($ids, ['action' => $action]);
             Session::flash('message', trans('texts.stopped_task'));
             return Redirect::to('tasks');
-        } else if ($action == 'invoice') {
-
+        } else if ($action == 'invoice' || $action == 'add_to_invoice') {
             $tasks = Task::scope($ids)->with('client')->get();
             $clientPublicId = false;
             $data = [];
-
+            
             foreach ($tasks as $task) {
                 if ($task->client) {
                     if (!$clientPublicId) {
@@ -228,23 +250,28 @@ class TaskController extends BaseController
                     }
                 }
 
-                if ($task->duration == -1) {
+                if ($task->is_running) {
                     Session::flash('error', trans('texts.task_error_running'));
                     return Redirect::to('tasks');
                 } else if ($task->invoice_id) {
                     Session::flash('error', trans('texts.task_error_invoiced'));
                     return Redirect::to('tasks');
                 }
-
+                
                 $data[] = [
                     'publicId' => $task->public_id,
                     'description' => $task->description,
-                    'startTime' => Utils::fromSqlDateTime($task->start_time),
-                    'duration' => round($task->duration / (60 * 60), 2)
+                    'startTime' => $task->getStartTime(),
+                    'duration' => $task->getHours(),
                 ];
             }
 
-            return Redirect::to("invoices/create/{$clientPublicId}")->with('tasks', $data);
+            if ($action == 'invoice') {
+                return Redirect::to("invoices/create/{$clientPublicId}")->with('tasks', $data);
+            } else {
+                $invoiceId = Input::get('invoice_id');
+                return Redirect::to("invoices/{$invoiceId}/edit")->with('tasks', $data);
+            }
         } else {
             $count = $this->taskRepo->bulk($ids, $action);
 
@@ -256,6 +283,14 @@ class TaskController extends BaseController
             } else {
                 return Redirect::to('tasks');
             }
+        }
+    }
+
+    private function checkTimezone()
+    {
+        if (!Auth::user()->account->timezone) {
+            $link = link_to('/company/details', trans('texts.click_here'), ['target' => '_blank']);
+            Session::flash('warning', trans('texts.timezone_unset', ['link' => $link]));
         }
     }
 }

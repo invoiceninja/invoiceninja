@@ -22,6 +22,11 @@ class Payment extends EntityModel
         return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User')->withTrashed();
+    }
+
     public function account()
     {
         return $this->belongsTo('App\Models\Account');

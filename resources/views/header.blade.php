@@ -25,6 +25,23 @@
       }
     }
 
+    @if (Auth::check() && Auth::user()->dark_mode)
+        body {
+            background: #000 !important;
+            color: white !important;
+        }
+
+        .panel-body {
+            background: #272822 !important;
+            /*background: #e6e6e6 !important;*/
+        }
+
+        .panel-default {
+            border-color: #444;
+        }
+    @endif
+
+
   </style>
 
   @include('script')
@@ -144,27 +161,35 @@
     $('#signUpModal').modal('show');    
   }
 
+  NINJA.proPlanFeature = '';
+  function showProPlan(feature) {
+    $('#proPlanModal').modal('show');
+    trackEvent('/account', '/show_pro_plan/' + feature);
+    NINJA.proPlanFeature = feature;
+  }
+
+  function hideProPlan() {
+    $('#proPlanModal').modal('hide');
+  }
+
   function buyProduct(affiliateKey, productId) {
     window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/license?affiliate_key=' + affiliateKey + '&product_id=' + productId + '&return_url=' + window.location);
   }
 
   @if (Auth::check() && !Auth::user()->isPro())
-  function submitProPlan(feature) {
-    trackEvent('/account', '/submit_pro_plan/' + feature);
-    if (NINJA.isRegistered) {
-      $('#proPlanDiv, #proPlanFooter').hide();
-      $('#proPlanWorking').show();
-
+  function submitProPlan() {
+    trackEvent('/account', '/submit_pro_plan/' + NINJA.proPlanFeature);
+    if (NINJA.isRegistered) {      
       $.ajax({
         type: 'POST',
         url: '{{ URL::to('account/go_pro') }}',
         success: function(result) { 
           NINJA.formIsChanged = false;
-          window.location = '/view/' + result;
+          window.location = '/payment/' + result;
         }
       });     
     } else {
-      $('#proPlanModal').modal('hide');
+      $('#proPlanModal').modal('hide');    
       $('#go_pro').val('true');
       showSignUp();
     }
@@ -176,6 +201,19 @@
     $.get('/hide_message', function(response) {
       console.log('Reponse: %s', response);
     });
+  }
+
+  function showUnlink(userAccountId, userId) {    
+    NINJA.unlink = {
+        'userAccountId': userAccountId,
+        'userId': userId
+    };
+    $('#unlinkModal').modal('show');    
+    return false;
+  }
+
+  function unlinkAccount() {    
+    window.location = '{{ URL::to('/unlink_account') }}' + '/' + NINJA.unlink.userAccountId + '/' + NINJA.unlink.userId;    
   }
 
   function wordWrapText(value, width)
@@ -227,7 +265,14 @@
         $(".alert-hide").fadeOut(500);
     }, 2000);
 
+    $('#search').blur(function(){
+      $('#search').css('width', '150px');
+      $('ul.navbar-right').show();
+    });
+
     $('#search').focus(function(){
+      $('#search').css('width', '256px');
+      $('ul.navbar-right').hide();
       if (!window.hasOwnProperty('searchData')) {
         $.get('{{ URL::route('getSearchData') }}', function(data) {                         
           window.searchData = true;                     
@@ -281,6 +326,15 @@
       showSignUp();
     @endif
 
+    $('ul.navbar-settings, ul.navbar-history').hover(function () {
+        //$('.user-accounts').find('li').hide();
+        //$('.user-accounts').css({display: 'none'});
+        //console.log($('.user-accounts').dropdown(''))
+        if ($('.user-accounts').css('display') == 'block') {
+            $('.user-accounts').dropdown('toggle');
+        }
+    });
+
     @yield('onReady')
 
   });
@@ -301,7 +355,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a href="{{ URL::to(NINJA_WEB_URL) }}" class='navbar-brand'>
+      <a href="{{ URL::to(NINJA_WEB_URL) }}" class='navbar-brand' target="_blank">
         <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:18px;width:auto"/>
       </a>	    
     </div>
@@ -313,7 +367,6 @@
         {!! HTML::menu_link('task') !!}
         {!! HTML::menu_link('invoice') !!}
         {!! HTML::menu_link('payment') !!}
-        {!! HTML::menu_link('credit') !!}
       </ul>
 
       <div class="navbar-form navbar-right">
@@ -321,85 +374,109 @@
           @if (!Auth::user()->registered)
             {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal'))->small() !!} &nbsp;
           @elseif (!Auth::user()->isPro())
-            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'onclick' => 'submitProPlan("")'))->small() !!} &nbsp;
+            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'onclick' => 'showProPlan("")'))->small() !!} &nbsp;
           @endif
         @endif
 
-        @if (Auth::user()->getPopOverText() && !Utils::isRegistered())
-        <button id="ninjaPopOver" type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="{{ Auth::user()->getPopOverText() }}" data-html="true" style="display:none">
-          {{ trans('texts.sign_up') }}
-        </button>
-        @endif
-
-        @if (Auth::user()->getPopOverText())
-        <script>
-          $(function() {
-            if (screen.width < 1170) return;
-            $('#ninjaPopOver').show().popover('show').hide();
-            $('body').click(function() {
-              $('#ninjaPopOver').popover('hide');
-            });    
-          });
-        </script>
-        @endif
-
-        <div class="btn-group">
+        <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
             <div id="myAccountButton" class="ellipsis" style="max-width:100px">
-              {{ Auth::user()->getDisplayName() }}
+                @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
+                    {{ Auth::user()->account->getDisplayName() }}
+                @else
+                    {{ Auth::user()->getDisplayName() }}
+                @endif
               <span class="caret"></span>
             </div>            
           </button>			
-          <ul class="dropdown-menu" role="menu">
+          <ul class="dropdown-menu user-accounts" role="menu">
+            @if (session(SESSION_USER_ACCOUNTS))
+                @foreach (session(SESSION_USER_ACCOUNTS) as $item)
+                    @if ($item->user_id == Auth::user()->id)
+                        @include('user_account', [
+                            'user_account_id' => $item->id,
+                            'user_id' => $item->user_id,
+                            'account_name' => $item->account_name,
+                            'user_name' => $item->user_name,
+                            'account_key' => $item->account_key,
+                            'selected' => true,
+                            'show_remove' => count(session(SESSION_USER_ACCOUNTS)) > 1,
+                        ])
+                    @endif
+                @endforeach
+                @foreach (session(SESSION_USER_ACCOUNTS) as $item)
+                    @if ($item->user_id != Auth::user()->id)
+                        @include('user_account', [
+                            'user_account_id' => $item->id,
+                            'user_id' => $item->user_id,
+                            'account_name' => $item->account_name,
+                            'user_name' => $item->user_name,
+                            'account_key' => $item->account_key,
+                            'selected' => false,
+                            'show_remove' => count(session(SESSION_USER_ACCOUNTS)) > 1,
+                        ])
+                    @endif
+                @endforeach
+            @else
+                @include('user_account', [
+                    'account_name' => Auth::user()->account->name ?: trans('texts.untitled'), 
+                    'user_name' => Auth::user()->getDisplayName(),
+                    'account_key' => Auth::user()->account->account_key,
+                    'selected' => true,
+                ])
+            @endif            
+            <li class="divider"></li>                
+            @if (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
+                <li>{!! link_to('/login?new_account=true', trans('texts.add_account')) !!}</li>
+            @endif
+            <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
+          </ul>
+        </div>
+
+      </div>	
+      
+      <ul class="nav navbar-nav navbar-right navbar-settings"> 
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
+          </a>
+          <ul class="dropdown-menu">
             <li>{!! link_to('company/details', uctrans('texts.company_details')) !!}</li>
             <li>{!! link_to('company/payments', uctrans('texts.online_payments')) !!}</li>
             <li>{!! link_to('company/products', uctrans('texts.product_library')) !!}</li>
             <li>{!! link_to('company/notifications', uctrans('texts.notifications')) !!}</li>
             <li>{!! link_to('company/import_export', uctrans('texts.import_export')) !!}</li>
-            <li><a href="{{ url('company/advanced_settings/invoice_settings') }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
-
-            <li class="divider"></li>
-            <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
+            <li><a href="{{ url('company/advanced_settings/invoice_design') }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
           </ul>
-        </div>
+        </li>
+      </ul>
 
 
-        @if (Auth::user()->getPopOverText() && Utils::isRegistered())
-        <button id="ninjaPopOver" type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="{{ Auth::user()->getPopOverText() }}" data-html="true" style="display:none">
-          {{ Auth::user()->getDisplayName() }}
-        </button>
-        @endif
-
-      </div>	
-
-
-      <form class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" id="search" style="width: {{ Session::get(SESSION_LOCALE) == 'en' ? 180 : 140 }}px" 
-            class="form-control" placeholder="{{ trans('texts.search') }}">
-        </div>
-      </form>
-
-      <ul class="nav navbar-nav navbar-right">	      
+      <ul class="nav navbar-nav navbar-right navbar-history"> 
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            @if (Session::get(SESSION_LOCALE) == 'en')
-              {{ trans('texts.history') }} <b class="caret"></b>              
-            @else
-              <span class="glyphicon glyphicon-time" title="{{ trans('texts.history') }}"/>
-            @endif
+            <span class="glyphicon glyphicon-time" title="{{ trans('texts.history') }}"/>
           </a>
           <ul class="dropdown-menu">	        		        	
             @if (count(Session::get(RECENTLY_VIEWED)) == 0)
-            <li><a href="#">{{ trans('texts.no_items') }}</a></li>
+                <li><a href="#">{{ trans('texts.no_items') }}</a></li>
             @else
-            @foreach (Session::get(RECENTLY_VIEWED) as $link)
-            <li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
-            @endforeach
+                @foreach (Session::get(RECENTLY_VIEWED) as $link)
+                    <li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
+                @endforeach
             @endif
           </ul>
         </li>
       </ul>
+
+      <form class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" id="search" style="width: 150px" 
+            class="form-control" placeholder="{{ trans('texts.search') }}">
+        </div>
+      </form>
+
+
       
       
     </div><!-- /.navbar-collapse -->
@@ -414,7 +491,7 @@
 <div class="container">		
 
   @if (Session::has('warning'))
-  <div class="alert alert-warning">{{ Session::get('warning') }}</div>
+  <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
   @endif
 
   @if (Session::has('message'))
@@ -429,7 +506,7 @@
   @endif
 
   @if (Session::has('error'))
-  <div class="alert alert-danger">{{ Session::get('error') }}</div>
+  <div class="alert alert-danger">{!! Session::get('error') !!}</div>
   @endif
 
   @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
@@ -524,49 +601,60 @@
 </div>
 @endif
 
+@if (Auth::check() && session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
+<div class="modal fade" id="unlinkModal" tabindex="-1" role="dialog" aria-labelledby="unlinkModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">{{ trans('texts.unlink_account') }}</h4>
+      </div>
+
+      <div class="container">        
+        <h3>{{ trans('texts.are_you_sure') }}</h3>        
+      </div>
+
+      <div class="modal-footer" id="signUpFooter">          
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
+        <button type="button" class="btn btn-primary" onclick="unlinkAccount()">{{ trans('texts.unlink') }}</button>           
+      </div>
+    </div>
+  </div>
+</div>
+@endif
+
 @if (Auth::check() && !Auth::user()->isPro())
   <div class="modal fade" id="proPlanModal" tabindex="-1" role="dialog" aria-labelledby="proPlanModalLabel" aria-hidden="true">
-    <div class="modal-dialog medium-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title" id="proPlanModalLabel">{{ trans('texts.pro_plan_product') }}</h4>
+    <div class="modal-dialog large-dialog">
+      <div class="modal-content pro-plan-modal">
+        
+
+        <div class="pull-right">
+            <img onclick="hideProPlan()" class="close" src="{{ asset('images/pro_plan/close.png') }}"/>
+        </div>        
+        <div class="row">
+
+            <div class="col-md-7 left-side">
+                <center>
+                    <h2>{{ trans('texts.pro_plan_title') }}</h2>
+                    <img class="img-responsive price" alt="Only $50 Per Year" src="{{ asset('images/pro_plan/price.png') }}"/>
+                    <a class="button" href="#" onclick="submitProPlan()">{{ trans('texts.pro_plan_call_to_action') }}</a>
+                </center>
+            </div>
+            <div class="col-md-5">
+                <ul>
+                    <li>{{ trans('texts.pro_plan_feature1') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature2') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature3') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature4') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature5') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature6') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature7') }}</li>
+                    <li>{{ trans('texts.pro_plan_feature8') }}</li>
+                </ul>
+            </div>
         </div>
 
-        <div style="background-color: #fff; padding-left: 16px; padding-right: 16px" id="proPlanDiv">
-          <section class="plans">
-            <div class="row">
-              <div class="col-md-12">
-                <h2>Go Pro to Unlock Premium Invoice Ninja Features</h2>
-                <p>We believe that the free version of Invoice Ninja is a truly awesome product loaded 
-                  with the key features you need to bill your clients electronically. But for those who 
-                  crave still more Ninja awesomeness, we've unmasked the Invoice Ninja Pro plan, which 
-                  offers more versatility, power and customization options for just $50 per year. </p>
-              </div>
-            </div>              
-
-            @include('plans')
-            &nbsp;
-      </div>
-
-
-      <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="proPlanWorking">
-        <h3>{{ trans('texts.working') }}...</h3>
-        <div class="progress progress-striped active">
-          <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-        </div>
-      </div>
-
-      <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="proPlanSuccess">
-        &nbsp;<br/>
-        {{ trans('texts.pro_plan_success') }}
-        <br/>&nbsp;
-      </div>
-
-       <div class="modal-footer" style="margin-top: 0px" id="proPlanFooter">
-          <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>          
-          <button type="button" class="btn btn-primary" id="proPlanButton" onclick="submitProPlan()">{{ trans('texts.sign_up') }}</button>                    
-       </div>     
       </div>
     </div>
   </div>
@@ -574,7 +662,7 @@
 
 @endif
 
-{{-- Per our license, please do not remove or modify this link. --}}
+{{-- Per our license, please do not remove or modify this section. --}}
 @if (!Utils::isNinja())    
 <div class="container">
   {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> | 

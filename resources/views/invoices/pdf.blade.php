@@ -1,6 +1,7 @@
 <iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></iframe>
 <canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
+@if (!Utils::isNinja() || !Utils::isPro())
 <div class="modal fade" id="moreDesignsModal" tabindex="-1" role="dialog" aria-labelledby="moreDesignsModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -35,7 +36,7 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
         
         @if (Utils::isNinjaProd())
-          <button type="button" class="btn btn-primary" onclick="submitProPlan('invoice_designs')">{{ trans('texts.go_pro') }}</button>
+          <button type="button" class="btn btn-primary" onclick="showProPlan('invoice_designs')">{{ trans('texts.go_pro') }}</button>
         @else
           <button type="button" class="btn btn-primary" onclick="buyProduct('{{ INVOICE_DESIGNS_AFFILIATE_KEY }}', '{{ PRODUCT_INVOICE_DESIGNS }}')">{{ trans('texts.buy') }}</button>
         @endif
@@ -43,7 +44,7 @@
     </div>
   </div>
 </div>
-
+@endif
 
 
 <script type="text/javascript">
@@ -62,12 +63,11 @@
   logoImages.imageLogoHeight3 = 81/2;
 
   @if (file_exists($account->getLogoPath()))
+  window.accountLogo = "{{ HTML::image_data($account->getLogoPath()) }}";
   if (window.invoice) {
-    invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
+    invoice.image = window.accountLogo;
     invoice.imageWidth = {{ $account->getLogoWidth() }};
     invoice.imageHeight = {{ $account->getLogoHeight() }};    
-  } else {
-    window.accountLogo = "{{ HTML::image_data($account->getLogoPath()) }}";
   }
   @endif
 
@@ -86,8 +86,8 @@
   var isRefreshing = false;
   var needsRefresh = false;
 
-  function refreshPDF() {
-    getPDFString(refreshPDFCB);
+  function refreshPDF(force) {
+    getPDFString(refreshPDFCB, force);
   }
   
   function refreshPDFCB(string) {
@@ -97,7 +97,7 @@
       $('#theFrame').attr('src', string).show();    
     } else {      
       if (isRefreshing) {
-        needsRefresh = true;
+        //needsRefresh = true;
         return;
       }
       isRefreshing = true;

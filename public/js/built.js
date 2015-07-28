@@ -27152,1688 +27152,24 @@ d[b]="undefined"!==f.getType(g)?g:f.visitModel(j,c,a);break;default:d[b]=c(j,a.p
   }
 }.call(this));
 
-/* =========================================================
- * bootstrap-datepicker.js
- * Repo: https://github.com/eternicode/bootstrap-datepicker/
- * Demo: http://eternicode.github.io/bootstrap-datepicker/
- * Docs: http://bootstrap-datepicker.readthedocs.org/
- * Forked from http://www.eyecon.ro/bootstrap-datepicker
- * =========================================================
- * Started by Stefan Petre; improvements by Andrew Rowls + contributors
+/*!
+ * Datepicker for Bootstrap v1.4.0 (https://github.com/eternicode/bootstrap-datepicker)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ========================================================= */
-
-(function($, undefined){
-
-	var $window = $(window);
-
-	function UTCDate(){
-		return new Date(Date.UTC.apply(Date, arguments));
-	}
-	function UTCToday(){
-		var today = new Date();
-		return UTCDate(today.getFullYear(), today.getMonth(), today.getDate());
-	}
-	function alias(method){
-		return function(){
-			return this[method].apply(this, arguments);
-		};
-	}
-
-	var DateArray = (function(){
-		var extras = {
-			get: function(i){
-				return this.slice(i)[0];
-			},
-			contains: function(d){
-				// Array.indexOf is not cross-browser;
-				// $.inArray doesn't work with Dates
-				var val = d && d.valueOf();
-				for (var i=0, l=this.length; i < l; i++)
-					if (this[i].valueOf() === val)
-						return i;
-				return -1;
-			},
-			remove: function(i){
-				this.splice(i,1);
-			},
-			replace: function(new_array){
-				if (!new_array)
-					return;
-				if (!$.isArray(new_array))
-					new_array = [new_array];
-				this.clear();
-				this.push.apply(this, new_array);
-			},
-			clear: function(){
-				this.length = 0;
-			},
-			copy: function(){
-				var a = new DateArray();
-				a.replace(this);
-				return a;
-			}
-		};
-
-		return function(){
-			var a = [];
-			a.push.apply(a, arguments);
-			$.extend(a, extras);
-			return a;
-		};
-	})();
-
-
-	// Picker object
-
-	var Datepicker = function(element, options){
-		this.dates = new DateArray();
-		this.viewDate = UTCToday();
-		this.focusDate = null;
-
-		this._process_options(options);
-
-		this.element = $(element);
-		this.isInline = false;
-		this.isInput = this.element.is('input');
-		this.component = this.element.is('.date') ? this.element.find('.add-on, .input-group-addon, .btn') : false;
-		this.hasInput = this.component && this.element.find('input').length;
-		if (this.component && this.component.length === 0)
-			this.component = false;
-
-		this.picker = $(DPGlobal.template);
-		this._buildEvents();
-		this._attachEvents();
-
-		if (this.isInline){
-			this.picker.addClass('datepicker-inline').appendTo(this.element);
-		}
-		else {
-			this.picker.addClass('datepicker-dropdown dropdown-menu');
-		}
-
-		if (this.o.rtl){
-			this.picker.addClass('datepicker-rtl');
-		}
-
-		this.viewMode = this.o.startView;
-
-		if (this.o.calendarWeeks)
-			this.picker.find('tfoot th.today, tfoot th.clear')
-						.attr('colspan', function(i, val){
-							return parseInt(val) + 1;
-						});
-
-		this._allow_update = false;
-
-		this.setStartDate(this._o.startDate);
-		this.setEndDate(this._o.endDate);
-		this.setDaysOfWeekDisabled(this.o.daysOfWeekDisabled);
-
-		this.fillDow();
-		this.fillMonths();
-
-		this._allow_update = true;
-
-		this.update();
-		this.showMode();
-
-		if (this.isInline){
-			this.show();
-		}
-	};
-
-	Datepicker.prototype = {
-		constructor: Datepicker,
-
-		_process_options: function(opts){
-			// Store raw options for reference
-			this._o = $.extend({}, this._o, opts);
-			// Processed options
-			var o = this.o = $.extend({}, this._o);
-
-			// Check if "de-DE" style date is available, if not language should
-			// fallback to 2 letter code eg "de"
-			var lang = o.language;
-			if (!dates[lang]){
-				lang = lang.split('-')[0];
-				if (!dates[lang])
-					lang = defaults.language;
-			}
-			o.language = lang;
-
-			switch (o.startView){
-				case 2:
-				case 'decade':
-					o.startView = 2;
-					break;
-				case 1:
-				case 'year':
-					o.startView = 1;
-					break;
-				default:
-					o.startView = 0;
-			}
-
-			switch (o.minViewMode){
-				case 1:
-				case 'months':
-					o.minViewMode = 1;
-					break;
-				case 2:
-				case 'years':
-					o.minViewMode = 2;
-					break;
-				default:
-					o.minViewMode = 0;
-			}
-
-			o.startView = Math.max(o.startView, o.minViewMode);
-
-			// true, false, or Number > 0
-			if (o.multidate !== true){
-				o.multidate = Number(o.multidate) || false;
-				if (o.multidate !== false)
-					o.multidate = Math.max(0, o.multidate);
-				else
-					o.multidate = 1;
-			}
-			o.multidateSeparator = String(o.multidateSeparator);
-
-			o.weekStart %= 7;
-			o.weekEnd = ((o.weekStart + 6) % 7);
-
-			var format = DPGlobal.parseFormat(o.format);
-			if (o.startDate !== -Infinity){
-				if (!!o.startDate){
-					if (o.startDate instanceof Date)
-						o.startDate = this._local_to_utc(this._zero_time(o.startDate));
-					else
-						o.startDate = DPGlobal.parseDate(o.startDate, format, o.language);
-				}
-				else {
-					o.startDate = -Infinity;
-				}
-			}
-			if (o.endDate !== Infinity){
-				if (!!o.endDate){
-					if (o.endDate instanceof Date)
-						o.endDate = this._local_to_utc(this._zero_time(o.endDate));
-					else
-						o.endDate = DPGlobal.parseDate(o.endDate, format, o.language);
-				}
-				else {
-					o.endDate = Infinity;
-				}
-			}
-
-			o.daysOfWeekDisabled = o.daysOfWeekDisabled||[];
-			if (!$.isArray(o.daysOfWeekDisabled))
-				o.daysOfWeekDisabled = o.daysOfWeekDisabled.split(/[,\s]*/);
-			o.daysOfWeekDisabled = $.map(o.daysOfWeekDisabled, function(d){
-				return parseInt(d, 10);
-			});
-
-			var plc = String(o.orientation).toLowerCase().split(/\s+/g),
-				_plc = o.orientation.toLowerCase();
-			plc = $.grep(plc, function(word){
-				return (/^auto|left|right|top|bottom$/).test(word);
-			});
-			o.orientation = {x: 'auto', y: 'auto'};
-			if (!_plc || _plc === 'auto')
-				; // no action
-			else if (plc.length === 1){
-				switch (plc[0]){
-					case 'top':
-					case 'bottom':
-						o.orientation.y = plc[0];
-						break;
-					case 'left':
-					case 'right':
-						o.orientation.x = plc[0];
-						break;
-				}
-			}
-			else {
-				_plc = $.grep(plc, function(word){
-					return (/^left|right$/).test(word);
-				});
-				o.orientation.x = _plc[0] || 'auto';
-
-				_plc = $.grep(plc, function(word){
-					return (/^top|bottom$/).test(word);
-				});
-				o.orientation.y = _plc[0] || 'auto';
-			}
-		},
-		_events: [],
-		_secondaryEvents: [],
-		_applyEvents: function(evs){
-			for (var i=0, el, ch, ev; i < evs.length; i++){
-				el = evs[i][0];
-				if (evs[i].length === 2){
-					ch = undefined;
-					ev = evs[i][1];
-				}
-				else if (evs[i].length === 3){
-					ch = evs[i][1];
-					ev = evs[i][2];
-				}
-				el.on(ev, ch);
-			}
-		},
-		_unapplyEvents: function(evs){
-			for (var i=0, el, ev, ch; i < evs.length; i++){
-				el = evs[i][0];
-				if (evs[i].length === 2){
-					ch = undefined;
-					ev = evs[i][1];
-				}
-				else if (evs[i].length === 3){
-					ch = evs[i][1];
-					ev = evs[i][2];
-				}
-				el.off(ev, ch);
-			}
-		},
-		_buildEvents: function(){
-			if (this.isInput){ // single input
-				this._events = [
-					[this.element, {
-						focus: $.proxy(this.show, this),
-						keyup: $.proxy(function(e){
-							if ($.inArray(e.keyCode, [27,37,39,38,40,32,13,9]) === -1)
-								this.update();
-						}, this),
-						keydown: $.proxy(this.keydown, this)
-					}]
-				];
-			}
-			else if (this.component && this.hasInput){ // component: input + button
-				this._events = [
-					// For components that are not readonly, allow keyboard nav
-					[this.element.find('input'), {
-						focus: $.proxy(this.show, this),
-						keyup: $.proxy(function(e){
-							if ($.inArray(e.keyCode, [27,37,39,38,40,32,13,9]) === -1)
-								this.update();
-						}, this),
-						keydown: $.proxy(this.keydown, this)
-					}],
-					[this.component, {
-						click: $.proxy(this.show, this)
-					}]
-				];
-			}
-			else if (this.element.is('div')){  // inline datepicker
-				this.isInline = true;
-			}
-			else {
-				this._events = [
-					[this.element, {
-						click: $.proxy(this.show, this)
-					}]
-				];
-			}
-			this._events.push(
-				// Component: listen for blur on element descendants
-				[this.element, '*', {
-					blur: $.proxy(function(e){
-						this._focused_from = e.target;
-					}, this)
-				}],
-				// Input: listen for blur on element
-				[this.element, {
-					blur: $.proxy(function(e){
-						this._focused_from = e.target;
-					}, this)
-				}]
-			);
-
-			this._secondaryEvents = [
-				[this.picker, {
-					click: $.proxy(this.click, this)
-				}],
-				[$(window), {
-					resize: $.proxy(this.place, this)
-				}],
-				[$(document), {
-					'mousedown touchstart': $.proxy(function(e){
-						// Clicked outside the datepicker, hide it
-						if (!(
-							this.element.is(e.target) ||
-							this.element.find(e.target).length ||
-							this.picker.is(e.target) ||
-							this.picker.find(e.target).length
-						)){
-							this.hide();
-						}
-					}, this)
-				}]
-			];
-		},
-		_attachEvents: function(){
-			this._detachEvents();
-			this._applyEvents(this._events);
-		},
-		_detachEvents: function(){
-			this._unapplyEvents(this._events);
-		},
-		_attachSecondaryEvents: function(){
-			this._detachSecondaryEvents();
-			this._applyEvents(this._secondaryEvents);
-		},
-		_detachSecondaryEvents: function(){
-			this._unapplyEvents(this._secondaryEvents);
-		},
-		_trigger: function(event, altdate){
-			var date = altdate || this.dates.get(-1),
-				local_date = this._utc_to_local(date);
-
-			this.element.trigger({
-				type: event,
-				date: local_date,
-				dates: $.map(this.dates, this._utc_to_local),
-				format: $.proxy(function(ix, format){
-					if (arguments.length === 0){
-						ix = this.dates.length - 1;
-						format = this.o.format;
-					}
-					else if (typeof ix === 'string'){
-						format = ix;
-						ix = this.dates.length - 1;
-					}
-					format = format || this.o.format;
-					var date = this.dates.get(ix);
-					return DPGlobal.formatDate(date, format, this.o.language);
-				}, this)
-			});
-		},
-
-		show: function(){
-			if (!this.isInline)
-				this.picker.appendTo('body');
-			this.picker.show();
-			this.place();
-			this._attachSecondaryEvents();
-			this._trigger('show');
-		},
-
-		hide: function(){
-			if (this.isInline)
-				return;
-			if (!this.picker.is(':visible'))
-				return;
-			this.focusDate = null;
-			this.picker.hide().detach();
-			this._detachSecondaryEvents();
-			this.viewMode = this.o.startView;
-			this.showMode();
-
-			if (
-				this.o.forceParse &&
-				(
-					this.isInput && this.element.val() ||
-					this.hasInput && this.element.find('input').val()
-				)
-			)
-				this.setValue();
-			this._trigger('hide');
-		},
-
-		remove: function(){
-			this.hide();
-			this._detachEvents();
-			this._detachSecondaryEvents();
-			this.picker.remove();
-			delete this.element.data().datepicker;
-			if (!this.isInput){
-				delete this.element.data().date;
-			}
-		},
-
-		_utc_to_local: function(utc){
-			return utc && new Date(utc.getTime() + (utc.getTimezoneOffset()*60000));
-		},
-		_local_to_utc: function(local){
-			return local && new Date(local.getTime() - (local.getTimezoneOffset()*60000));
-		},
-		_zero_time: function(local){
-			return local && new Date(local.getFullYear(), local.getMonth(), local.getDate());
-		},
-		_zero_utc_time: function(utc){
-			return utc && new Date(Date.UTC(utc.getUTCFullYear(), utc.getUTCMonth(), utc.getUTCDate()));
-		},
-
-		getDates: function(){
-			return $.map(this.dates, this._utc_to_local);
-		},
-
-		getUTCDates: function(){
-			return $.map(this.dates, function(d){
-				return new Date(d);
-			});
-		},
-
-		getDate: function(){
-			return this._utc_to_local(this.getUTCDate());
-		},
-
-		getUTCDate: function(){
-			return new Date(this.dates.get(-1));
-		},
-
-		setDates: function(){
-			var args = $.isArray(arguments[0]) ? arguments[0] : arguments;
-			this.update.apply(this, args);
-			this._trigger('changeDate');
-			this.setValue();
-		},
-
-		setUTCDates: function(){
-			var args = $.isArray(arguments[0]) ? arguments[0] : arguments;
-			this.update.apply(this, $.map(args, this._utc_to_local));
-			this._trigger('changeDate');
-			this.setValue();
-		},
-
-		setDate: alias('setDates'),
-		setUTCDate: alias('setUTCDates'),
-
-		setValue: function(){
-			var formatted = this.getFormattedDate();
-			if (!this.isInput){
-				if (this.component){
-					this.element.find('input').val(formatted).change();
-				}
-			}
-			else {
-				this.element.val(formatted).change();
-			}
-		},
-
-		getFormattedDate: function(format){
-			if (format === undefined)
-				format = this.o.format;
-
-			var lang = this.o.language;
-			return $.map(this.dates, function(d){
-				return DPGlobal.formatDate(d, format, lang);
-			}).join(this.o.multidateSeparator);
-		},
-
-		setStartDate: function(startDate){
-			this._process_options({startDate: startDate});
-			this.update();
-			this.updateNavArrows();
-		},
-
-		setEndDate: function(endDate){
-			this._process_options({endDate: endDate});
-			this.update();
-			this.updateNavArrows();
-		},
-
-		setDaysOfWeekDisabled: function(daysOfWeekDisabled){
-			this._process_options({daysOfWeekDisabled: daysOfWeekDisabled});
-			this.update();
-			this.updateNavArrows();
-		},
-
-		place: function(){
-			if (this.isInline)
-				return;
-			var calendarWidth = this.picker.outerWidth(),
-				calendarHeight = this.picker.outerHeight(),
-				visualPadding = 10,
-				windowWidth = $window.width(),
-				windowHeight = $window.height(),
-				scrollTop = $window.scrollTop();
-
-			var parentsZindex = [];
-			this.element.parents().each(function() {
-				var itemZIndex = $(this).css('z-index');
-				if ( itemZIndex !== 'auto' && itemZIndex !== 0 ) parentsZindex.push( parseInt( itemZIndex ) );
-			});
-			var zIndex = Math.max.apply( Math, parentsZindex ) + 10;
-			var offset = this.component ? this.component.parent().offset() : this.element.offset();
-			var height = this.component ? this.component.outerHeight(true) : this.element.outerHeight(false);
-			var width = this.component ? this.component.outerWidth(true) : this.element.outerWidth(false);
-			var left = offset.left,
-				top = offset.top;
-
-			this.picker.removeClass(
-				'datepicker-orient-top datepicker-orient-bottom '+
-				'datepicker-orient-right datepicker-orient-left'
-			);
-
-			if (this.o.orientation.x !== 'auto'){
-				this.picker.addClass('datepicker-orient-' + this.o.orientation.x);
-				if (this.o.orientation.x === 'right')
-					left -= calendarWidth - width;
-			}
-			// auto x orientation is best-placement: if it crosses a window
-			// edge, fudge it sideways
-			else {
-				// Default to left
-				this.picker.addClass('datepicker-orient-left');
-				if (offset.left < 0)
-					left -= offset.left - visualPadding;
-				else if (offset.left + calendarWidth > windowWidth)
-					left = windowWidth - calendarWidth - visualPadding;
-			}
-
-			// auto y orientation is best-situation: top or bottom, no fudging,
-			// decision based on which shows more of the calendar
-			var yorient = this.o.orientation.y,
-				top_overflow, bottom_overflow;
-			if (yorient === 'auto'){
-				top_overflow = -scrollTop + offset.top - calendarHeight;
-				bottom_overflow = scrollTop + windowHeight - (offset.top + height + calendarHeight);
-				if (Math.max(top_overflow, bottom_overflow) === bottom_overflow)
-					yorient = 'top';
-				else
-					yorient = 'bottom';
-			}
-			this.picker.addClass('datepicker-orient-' + yorient);
-			if (yorient === 'top')
-				top += height;
-			else
-				top -= calendarHeight + parseInt(this.picker.css('padding-top'));
-
-			this.picker.css({
-				top: top,
-				left: left,
-				zIndex: zIndex
-			});
-		},
-
-		_allow_update: true,
-		update: function(){
-			if (!this._allow_update)
-				return;
-
-			var oldDates = this.dates.copy(),
-				dates = [],
-				fromArgs = false;
-			if (arguments.length){
-				$.each(arguments, $.proxy(function(i, date){
-					if (date instanceof Date)
-						date = this._local_to_utc(date);
-					dates.push(date);
-				}, this));
-				fromArgs = true;
-			}
-			else {
-				dates = this.isInput
-						? this.element.val()
-						: this.element.data('date') || this.element.find('input').val();
-				if (dates && this.o.multidate)
-					dates = dates.split(this.o.multidateSeparator);
-				else
-					dates = [dates];
-				delete this.element.data().date;
-			}
-
-			dates = $.map(dates, $.proxy(function(date){
-				return DPGlobal.parseDate(date, this.o.format, this.o.language);
-			}, this));
-			dates = $.grep(dates, $.proxy(function(date){
-				return (
-					date < this.o.startDate ||
-					date > this.o.endDate ||
-					!date
-				);
-			}, this), true);
-			this.dates.replace(dates);
-
-			if (this.dates.length)
-				this.viewDate = new Date(this.dates.get(-1));
-			else if (this.viewDate < this.o.startDate)
-				this.viewDate = new Date(this.o.startDate);
-			else if (this.viewDate > this.o.endDate)
-				this.viewDate = new Date(this.o.endDate);
-
-			if (fromArgs){
-				// setting date by clicking
-				this.setValue();
-			}
-			else if (dates.length){
-				// setting date by typing
-				if (String(oldDates) !== String(this.dates))
-					this._trigger('changeDate');
-			}
-			if (!this.dates.length && oldDates.length)
-				this._trigger('clearDate');
-
-			this.fill();
-		},
-
-		fillDow: function(){
-			var dowCnt = this.o.weekStart,
-				html = '<tr>';
-			if (this.o.calendarWeeks){
-				var cell = '<th class="cw">&nbsp;</th>';
-				html += cell;
-				this.picker.find('.datepicker-days thead tr:first-child').prepend(cell);
-			}
-			while (dowCnt < this.o.weekStart + 7){
-				html += '<th class="dow">'+dates[this.o.language].daysMin[(dowCnt++)%7]+'</th>';
-			}
-			html += '</tr>';
-			this.picker.find('.datepicker-days thead').append(html);
-		},
-
-		fillMonths: function(){
-			var html = '',
-			i = 0;
-			while (i < 12){
-				html += '<span class="month">'+dates[this.o.language].monthsShort[i++]+'</span>';
-			}
-			this.picker.find('.datepicker-months td').html(html);
-		},
-
-		setRange: function(range){
-			if (!range || !range.length)
-				delete this.range;
-			else
-				this.range = $.map(range, function(d){
-					return d.valueOf();
-				});
-			this.fill();
-		},
-
-		getClassNames: function(date){
-			var cls = [],
-				year = this.viewDate.getUTCFullYear(),
-				month = this.viewDate.getUTCMonth(),
-				today = new Date();
-			if (date.getUTCFullYear() < year || (date.getUTCFullYear() === year && date.getUTCMonth() < month)){
-				cls.push('old');
-			}
-			else if (date.getUTCFullYear() > year || (date.getUTCFullYear() === year && date.getUTCMonth() > month)){
-				cls.push('new');
-			}
-			if (this.focusDate && date.valueOf() === this.focusDate.valueOf())
-				cls.push('focused');
-			// Compare internal UTC date with local today, not UTC today
-			if (this.o.todayHighlight &&
-				date.getUTCFullYear() === today.getFullYear() &&
-				date.getUTCMonth() === today.getMonth() &&
-				date.getUTCDate() === today.getDate()){
-				cls.push('today');
-			}
-			if (this.dates.contains(date) !== -1)
-				cls.push('active');
-			if (date.valueOf() < this.o.startDate || date.valueOf() > this.o.endDate ||
-				$.inArray(date.getUTCDay(), this.o.daysOfWeekDisabled) !== -1){
-				cls.push('disabled');
-			}
-			if (this.range){
-				if (date > this.range[0] && date < this.range[this.range.length-1]){
-					cls.push('range');
-				}
-				if ($.inArray(date.valueOf(), this.range) !== -1){
-					cls.push('selected');
-				}
-			}
-			return cls;
-		},
-
-		fill: function(){
-			var d = new Date(this.viewDate),
-				year = d.getUTCFullYear(),
-				month = d.getUTCMonth(),
-				startYear = this.o.startDate !== -Infinity ? this.o.startDate.getUTCFullYear() : -Infinity,
-				startMonth = this.o.startDate !== -Infinity ? this.o.startDate.getUTCMonth() : -Infinity,
-				endYear = this.o.endDate !== Infinity ? this.o.endDate.getUTCFullYear() : Infinity,
-				endMonth = this.o.endDate !== Infinity ? this.o.endDate.getUTCMonth() : Infinity,
-				todaytxt = dates[this.o.language].today || dates['en'].today || '',
-				cleartxt = dates[this.o.language].clear || dates['en'].clear || '',
-				tooltip;
-			if (isNaN(year) || isNaN(month)) return;
-			this.picker.find('.datepicker-days thead th.datepicker-switch')
-						.text(dates[this.o.language].months[month]+' '+year);
-			this.picker.find('tfoot th.today')
-						.text(todaytxt)
-						.toggle(this.o.todayBtn !== false);
-			this.picker.find('tfoot th.clear')
-						.text(cleartxt)
-						.toggle(this.o.clearBtn !== false);
-			this.updateNavArrows();
-			this.fillMonths();
-			var prevMonth = UTCDate(year, month-1, 28),
-				day = DPGlobal.getDaysInMonth(prevMonth.getUTCFullYear(), prevMonth.getUTCMonth());
-			prevMonth.setUTCDate(day);
-			prevMonth.setUTCDate(day - (prevMonth.getUTCDay() - this.o.weekStart + 7)%7);
-			var nextMonth = new Date(prevMonth);
-			nextMonth.setUTCDate(nextMonth.getUTCDate() + 42);
-			nextMonth = nextMonth.valueOf();
-			var html = [];
-			var clsName;
-			while (prevMonth.valueOf() < nextMonth){
-				if (prevMonth.getUTCDay() === this.o.weekStart){
-					html.push('<tr>');
-					if (this.o.calendarWeeks){
-						// ISO 8601: First week contains first thursday.
-						// ISO also states week starts on Monday, but we can be more abstract here.
-						var
-							// Start of current week: based on weekstart/current date
-							ws = new Date(+prevMonth + (this.o.weekStart - prevMonth.getUTCDay() - 7) % 7 * 864e5),
-							// Thursday of this week
-							th = new Date(Number(ws) + (7 + 4 - ws.getUTCDay()) % 7 * 864e5),
-							// First Thursday of year, year from thursday
-							yth = new Date(Number(yth = UTCDate(th.getUTCFullYear(), 0, 1)) + (7 + 4 - yth.getUTCDay())%7*864e5),
-							// Calendar week: ms between thursdays, div ms per day, div 7 days
-							calWeek =  (th - yth) / 864e5 / 7 + 1;
-						html.push('<td class="cw">'+ calWeek +'</td>');
-
-					}
-				}
-				clsName = this.getClassNames(prevMonth);
-				clsName.push('day');
-
-				if (this.o.beforeShowDay !== $.noop){
-					var before = this.o.beforeShowDay(this._utc_to_local(prevMonth));
-					if (before === undefined)
-						before = {};
-					else if (typeof(before) === 'boolean')
-						before = {enabled: before};
-					else if (typeof(before) === 'string')
-						before = {classes: before};
-					if (before.enabled === false)
-						clsName.push('disabled');
-					if (before.classes)
-						clsName = clsName.concat(before.classes.split(/\s+/));
-					if (before.tooltip)
-						tooltip = before.tooltip;
-				}
-
-				clsName = $.unique(clsName);
-				html.push('<td class="'+clsName.join(' ')+'"' + (tooltip ? ' title="'+tooltip+'"' : '') + '>'+prevMonth.getUTCDate() + '</td>');
-				tooltip = null;
-				if (prevMonth.getUTCDay() === this.o.weekEnd){
-					html.push('</tr>');
-				}
-				prevMonth.setUTCDate(prevMonth.getUTCDate()+1);
-			}
-			this.picker.find('.datepicker-days tbody').empty().append(html.join(''));
-
-			var months = this.picker.find('.datepicker-months')
-						.find('th:eq(1)')
-							.text(year)
-							.end()
-						.find('span').removeClass('active');
-
-			$.each(this.dates, function(i, d){
-				if (d.getUTCFullYear() === year)
-					months.eq(d.getUTCMonth()).addClass('active');
-			});
-
-			if (year < startYear || year > endYear){
-				months.addClass('disabled');
-			}
-			if (year === startYear){
-				months.slice(0, startMonth).addClass('disabled');
-			}
-			if (year === endYear){
-				months.slice(endMonth+1).addClass('disabled');
-			}
-
-			html = '';
-			year = parseInt(year/10, 10) * 10;
-			var yearCont = this.picker.find('.datepicker-years')
-								.find('th:eq(1)')
-									.text(year + '-' + (year + 9))
-									.end()
-								.find('td');
-			year -= 1;
-			var years = $.map(this.dates, function(d){
-					return d.getUTCFullYear();
-				}),
-				classes;
-			for (var i = -1; i < 11; i++){
-				classes = ['year'];
-				if (i === -1)
-					classes.push('old');
-				else if (i === 10)
-					classes.push('new');
-				if ($.inArray(year, years) !== -1)
-					classes.push('active');
-				if (year < startYear || year > endYear)
-					classes.push('disabled');
-				html += '<span class="' + classes.join(' ') + '">'+year+'</span>';
-				year += 1;
-			}
-			yearCont.html(html);
-		},
-
-		updateNavArrows: function(){
-			if (!this._allow_update)
-				return;
-
-			var d = new Date(this.viewDate),
-				year = d.getUTCFullYear(),
-				month = d.getUTCMonth();
-			switch (this.viewMode){
-				case 0:
-					if (this.o.startDate !== -Infinity && year <= this.o.startDate.getUTCFullYear() && month <= this.o.startDate.getUTCMonth()){
-						this.picker.find('.prev').css({visibility: 'hidden'});
-					}
-					else {
-						this.picker.find('.prev').css({visibility: 'visible'});
-					}
-					if (this.o.endDate !== Infinity && year >= this.o.endDate.getUTCFullYear() && month >= this.o.endDate.getUTCMonth()){
-						this.picker.find('.next').css({visibility: 'hidden'});
-					}
-					else {
-						this.picker.find('.next').css({visibility: 'visible'});
-					}
-					break;
-				case 1:
-				case 2:
-					if (this.o.startDate !== -Infinity && year <= this.o.startDate.getUTCFullYear()){
-						this.picker.find('.prev').css({visibility: 'hidden'});
-					}
-					else {
-						this.picker.find('.prev').css({visibility: 'visible'});
-					}
-					if (this.o.endDate !== Infinity && year >= this.o.endDate.getUTCFullYear()){
-						this.picker.find('.next').css({visibility: 'hidden'});
-					}
-					else {
-						this.picker.find('.next').css({visibility: 'visible'});
-					}
-					break;
-			}
-		},
-
-		click: function(e){
-			e.preventDefault();
-			var target = $(e.target).closest('span, td, th'),
-				year, month, day;
-			if (target.length === 1){
-				switch (target[0].nodeName.toLowerCase()){
-					case 'th':
-						switch (target[0].className){
-							case 'datepicker-switch':
-								this.showMode(1);
-								break;
-							case 'prev':
-							case 'next':
-								var dir = DPGlobal.modes[this.viewMode].navStep * (target[0].className === 'prev' ? -1 : 1);
-								switch (this.viewMode){
-									case 0:
-										this.viewDate = this.moveMonth(this.viewDate, dir);
-										this._trigger('changeMonth', this.viewDate);
-										break;
-									case 1:
-									case 2:
-										this.viewDate = this.moveYear(this.viewDate, dir);
-										if (this.viewMode === 1)
-											this._trigger('changeYear', this.viewDate);
-										break;
-								}
-								this.fill();
-								break;
-							case 'today':
-								var date = new Date();
-								date = UTCDate(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
-
-								this.showMode(-2);
-								var which = this.o.todayBtn === 'linked' ? null : 'view';
-								this._setDate(date, which);
-								break;
-							case 'clear':
-								var element;
-								if (this.isInput)
-									element = this.element;
-								else if (this.component)
-									element = this.element.find('input');
-								if (element)
-									element.val("").change();
-								this.update();
-								this._trigger('changeDate');
-								if (this.o.autoclose)
-									this.hide();
-								break;
-						}
-						break;
-					case 'span':
-						if (!target.is('.disabled')){
-							this.viewDate.setUTCDate(1);
-							if (target.is('.month')){
-								day = 1;
-								month = target.parent().find('span').index(target);
-								year = this.viewDate.getUTCFullYear();
-								this.viewDate.setUTCMonth(month);
-								this._trigger('changeMonth', this.viewDate);
-								if (this.o.minViewMode === 1){
-									this._setDate(UTCDate(year, month, day));
-								}
-							}
-							else {
-								day = 1;
-								month = 0;
-								year = parseInt(target.text(), 10)||0;
-								this.viewDate.setUTCFullYear(year);
-								this._trigger('changeYear', this.viewDate);
-								if (this.o.minViewMode === 2){
-									this._setDate(UTCDate(year, month, day));
-								}
-							}
-							this.showMode(-1);
-							this.fill();
-						}
-						break;
-					case 'td':
-						if (target.is('.day') && !target.is('.disabled')){
-							day = parseInt(target.text(), 10)||1;
-							year = this.viewDate.getUTCFullYear();
-							month = this.viewDate.getUTCMonth();
-							if (target.is('.old')){
-								if (month === 0){
-									month = 11;
-									year -= 1;
-								}
-								else {
-									month -= 1;
-								}
-							}
-							else if (target.is('.new')){
-								if (month === 11){
-									month = 0;
-									year += 1;
-								}
-								else {
-									month += 1;
-								}
-							}
-							this._setDate(UTCDate(year, month, day));
-						}
-						break;
-				}
-			}
-			if (this.picker.is(':visible') && this._focused_from){
-				$(this._focused_from).focus();
-			}
-			delete this._focused_from;
-		},
-
-		_toggle_multidate: function(date){
-			var ix = this.dates.contains(date);
-			if (!date){
-				this.dates.clear();
-			}
-			if (this.o.multidate === 1 && ix === 0){
-                // single datepicker, don't remove selected date
-            }
-			else if (ix !== -1){
-				this.dates.remove(ix);
-			}
-			else {
-				this.dates.push(date);
-			}
-			if (typeof this.o.multidate === 'number')
-				while (this.dates.length > this.o.multidate)
-					this.dates.remove(0);
-		},
-
-		_setDate: function(date, which){
-			if (!which || which === 'date')
-				this._toggle_multidate(date && new Date(date));
-			if (!which || which  === 'view')
-				this.viewDate = date && new Date(date);
-
-			this.fill();
-			this.setValue();
-			this._trigger('changeDate');
-			var element;
-			if (this.isInput){
-				element = this.element;
-			}
-			else if (this.component){
-				element = this.element.find('input');
-			}
-			if (element){
-				element.change();
-			}
-			if (this.o.autoclose && (!which || which === 'date')){
-				this.hide();
-			}
-		},
-
-		moveMonth: function(date, dir){
-			if (!date)
-				return undefined;
-			if (!dir)
-				return date;
-			var new_date = new Date(date.valueOf()),
-				day = new_date.getUTCDate(),
-				month = new_date.getUTCMonth(),
-				mag = Math.abs(dir),
-				new_month, test;
-			dir = dir > 0 ? 1 : -1;
-			if (mag === 1){
-				test = dir === -1
-					// If going back one month, make sure month is not current month
-					// (eg, Mar 31 -> Feb 31 == Feb 28, not Mar 02)
-					? function(){
-						return new_date.getUTCMonth() === month;
-					}
-					// If going forward one month, make sure month is as expected
-					// (eg, Jan 31 -> Feb 31 == Feb 28, not Mar 02)
-					: function(){
-						return new_date.getUTCMonth() !== new_month;
-					};
-				new_month = month + dir;
-				new_date.setUTCMonth(new_month);
-				// Dec -> Jan (12) or Jan -> Dec (-1) -- limit expected date to 0-11
-				if (new_month < 0 || new_month > 11)
-					new_month = (new_month + 12) % 12;
-			}
-			else {
-				// For magnitudes >1, move one month at a time...
-				for (var i=0; i < mag; i++)
-					// ...which might decrease the day (eg, Jan 31 to Feb 28, etc)...
-					new_date = this.moveMonth(new_date, dir);
-				// ...then reset the day, keeping it in the new month
-				new_month = new_date.getUTCMonth();
-				new_date.setUTCDate(day);
-				test = function(){
-					return new_month !== new_date.getUTCMonth();
-				};
-			}
-			// Common date-resetting loop -- if date is beyond end of month, make it
-			// end of month
-			while (test()){
-				new_date.setUTCDate(--day);
-				new_date.setUTCMonth(new_month);
-			}
-			return new_date;
-		},
-
-		moveYear: function(date, dir){
-			return this.moveMonth(date, dir*12);
-		},
-
-		dateWithinRange: function(date){
-			return date >= this.o.startDate && date <= this.o.endDate;
-		},
-
-		keydown: function(e){
-			if (this.picker.is(':not(:visible)')){
-				if (e.keyCode === 27) // allow escape to hide and re-show picker
-					this.show();
-				return;
-			}
-			var dateChanged = false,
-				dir, newDate, newViewDate,
-				focusDate = this.focusDate || this.viewDate;
-			switch (e.keyCode){
-				case 27: // escape
-					if (this.focusDate){
-						this.focusDate = null;
-						this.viewDate = this.dates.get(-1) || this.viewDate;
-						this.fill();
-					}
-					else
-						this.hide();
-					e.preventDefault();
-					break;
-				case 37: // left
-				case 39: // right
-					if (!this.o.keyboardNavigation)
-						break;
-					dir = e.keyCode === 37 ? -1 : 1;
-					if (e.ctrlKey){
-						newDate = this.moveYear(this.dates.get(-1) || UTCToday(), dir);
-						newViewDate = this.moveYear(focusDate, dir);
-						this._trigger('changeYear', this.viewDate);
-					}
-					else if (e.shiftKey){
-						newDate = this.moveMonth(this.dates.get(-1) || UTCToday(), dir);
-						newViewDate = this.moveMonth(focusDate, dir);
-						this._trigger('changeMonth', this.viewDate);
-					}
-					else {
-						newDate = new Date(this.dates.get(-1) || UTCToday());
-						newDate.setUTCDate(newDate.getUTCDate() + dir);
-						newViewDate = new Date(focusDate);
-						newViewDate.setUTCDate(focusDate.getUTCDate() + dir);
-					}
-					if (this.dateWithinRange(newDate)){
-						this.focusDate = this.viewDate = newViewDate;
-						this.setValue();
-						this.fill();
-						e.preventDefault();
-					}
-					break;
-				case 38: // up
-				case 40: // down
-					if (!this.o.keyboardNavigation)
-						break;
-					dir = e.keyCode === 38 ? -1 : 1;
-					if (e.ctrlKey){
-						newDate = this.moveYear(this.dates.get(-1) || UTCToday(), dir);
-						newViewDate = this.moveYear(focusDate, dir);
-						this._trigger('changeYear', this.viewDate);
-					}
-					else if (e.shiftKey){
-						newDate = this.moveMonth(this.dates.get(-1) || UTCToday(), dir);
-						newViewDate = this.moveMonth(focusDate, dir);
-						this._trigger('changeMonth', this.viewDate);
-					}
-					else {
-						newDate = new Date(this.dates.get(-1) || UTCToday());
-						newDate.setUTCDate(newDate.getUTCDate() + dir * 7);
-						newViewDate = new Date(focusDate);
-						newViewDate.setUTCDate(focusDate.getUTCDate() + dir * 7);
-					}
-					if (this.dateWithinRange(newDate)){
-						this.focusDate = this.viewDate = newViewDate;
-						this.setValue();
-						this.fill();
-						e.preventDefault();
-					}
-					break;
-				case 32: // spacebar
-					// Spacebar is used in manually typing dates in some formats.
-					// As such, its behavior should not be hijacked.
-					break;
-				case 13: // enter
-					focusDate = this.focusDate || this.dates.get(-1) || this.viewDate;
-					if (this.o.keyboardNavigation) {
-						this._toggle_multidate(focusDate);
-						dateChanged = true;
-					}
-					this.focusDate = null;
-					this.viewDate = this.dates.get(-1) || this.viewDate;
-					this.setValue();
-					this.fill();
-					if (this.picker.is(':visible')){
-						e.preventDefault();
-						if (this.o.autoclose)
-							this.hide();
-					}
-					break;
-				case 9: // tab
-					this.focusDate = null;
-					this.viewDate = this.dates.get(-1) || this.viewDate;
-					this.fill();
-					this.hide();
-					break;
-			}
-			if (dateChanged){
-				if (this.dates.length)
-					this._trigger('changeDate');
-				else
-					this._trigger('clearDate');
-				var element;
-				if (this.isInput){
-					element = this.element;
-				}
-				else if (this.component){
-					element = this.element.find('input');
-				}
-				if (element){
-					element.change();
-				}
-			}
-		},
-
-		showMode: function(dir){
-			if (dir){
-				this.viewMode = Math.max(this.o.minViewMode, Math.min(2, this.viewMode + dir));
-			}
-			this.picker
-				.find('>div')
-				.hide()
-				.filter('.datepicker-'+DPGlobal.modes[this.viewMode].clsName)
-					.css('display', 'block');
-			this.updateNavArrows();
-		}
-	};
-
-	var DateRangePicker = function(element, options){
-		this.element = $(element);
-		this.inputs = $.map(options.inputs, function(i){
-			return i.jquery ? i[0] : i;
-		});
-		delete options.inputs;
-
-		$(this.inputs)
-			.datepicker(options)
-			.bind('changeDate', $.proxy(this.dateUpdated, this));
-
-		this.pickers = $.map(this.inputs, function(i){
-			return $(i).data('datepicker');
-		});
-		this.updateDates();
-	};
-	DateRangePicker.prototype = {
-		updateDates: function(){
-			this.dates = $.map(this.pickers, function(i){
-				return i.getUTCDate();
-			});
-			this.updateRanges();
-		},
-		updateRanges: function(){
-			var range = $.map(this.dates, function(d){
-				return d.valueOf();
-			});
-			$.each(this.pickers, function(i, p){
-				p.setRange(range);
-			});
-		},
-		dateUpdated: function(e){
-			// `this.updating` is a workaround for preventing infinite recursion
-			// between `changeDate` triggering and `setUTCDate` calling.  Until
-			// there is a better mechanism.
-			if (this.updating)
-				return;
-			this.updating = true;
-
-			var dp = $(e.target).data('datepicker'),
-				new_date = dp.getUTCDate(),
-				i = $.inArray(e.target, this.inputs),
-				l = this.inputs.length;
-			if (i === -1)
-				return;
-
-			$.each(this.pickers, function(i, p){
-				if (!p.getUTCDate())
-					p.setUTCDate(new_date);
-			});
-
-			if (new_date < this.dates[i]){
-				// Date being moved earlier/left
-				while (i >= 0 && new_date < this.dates[i]){
-					this.pickers[i--].setUTCDate(new_date);
-				}
-			}
-			else if (new_date > this.dates[i]){
-				// Date being moved later/right
-				while (i < l && new_date > this.dates[i]){
-					this.pickers[i++].setUTCDate(new_date);
-				}
-			}
-			this.updateDates();
-
-			delete this.updating;
-		},
-		remove: function(){
-			$.map(this.pickers, function(p){ p.remove(); });
-			delete this.element.data().datepicker;
-		}
-	};
-
-	function opts_from_el(el, prefix){
-		// Derive options from element data-attrs
-		var data = $(el).data(),
-			out = {}, inkey,
-			replace = new RegExp('^' + prefix.toLowerCase() + '([A-Z])');
-		prefix = new RegExp('^' + prefix.toLowerCase());
-		function re_lower(_,a){
-			return a.toLowerCase();
-		}
-		for (var key in data)
-			if (prefix.test(key)){
-				inkey = key.replace(replace, re_lower);
-				out[inkey] = data[key];
-			}
-		return out;
-	}
-
-	function opts_from_locale(lang){
-		// Derive options from locale plugins
-		var out = {};
-		// Check if "de-DE" style date is available, if not language should
-		// fallback to 2 letter code eg "de"
-		if (!dates[lang]){
-			lang = lang.split('-')[0];
-			if (!dates[lang])
-				return;
-		}
-		var d = dates[lang];
-		$.each(locale_opts, function(i,k){
-			if (k in d)
-				out[k] = d[k];
-		});
-		return out;
-	}
-
-	var old = $.fn.datepicker;
-	$.fn.datepicker = function(option){
-		var args = Array.apply(null, arguments);
-		args.shift();
-		var internal_return;
-		this.each(function(){
-			var $this = $(this),
-				data = $this.data('datepicker'),
-				options = typeof option === 'object' && option;
-			if (!data){
-				var elopts = opts_from_el(this, 'date'),
-					// Preliminary otions
-					xopts = $.extend({}, defaults, elopts, options),
-					locopts = opts_from_locale(xopts.language),
-					// Options priority: js args, data-attrs, locales, defaults
-					opts = $.extend({}, defaults, locopts, elopts, options);
-				if ($this.is('.input-daterange') || opts.inputs){
-					var ropts = {
-						inputs: opts.inputs || $this.find('input').toArray()
-					};
-					$this.data('datepicker', (data = new DateRangePicker(this, $.extend(opts, ropts))));
-				}
-				else {
-					$this.data('datepicker', (data = new Datepicker(this, opts)));
-				}
-			}
-			if (typeof option === 'string' && typeof data[option] === 'function'){
-				internal_return = data[option].apply(data, args);
-				if (internal_return !== undefined)
-					return false;
-			}
-		});
-		if (internal_return !== undefined)
-			return internal_return;
-		else
-			return this;
-	};
-
-	var defaults = $.fn.datepicker.defaults = {
-		autoclose: false,
-		beforeShowDay: $.noop,
-		calendarWeeks: false,
-		clearBtn: false,
-		daysOfWeekDisabled: [],
-		endDate: Infinity,
-		forceParse: true,
-		format: 'mm/dd/yyyy',
-		keyboardNavigation: true,
-		language: 'en',
-		minViewMode: 0,
-		multidate: false,
-		multidateSeparator: ',',
-		orientation: "auto",
-		rtl: false,
-		startDate: -Infinity,
-		startView: 0,
-		todayBtn: false,
-		todayHighlight: false,
-		weekStart: 0
-	};
-	var locale_opts = $.fn.datepicker.locale_opts = [
-		'format',
-		'rtl',
-		'weekStart'
-	];
-	$.fn.datepicker.Constructor = Datepicker;
-	var dates = $.fn.datepicker.dates = {
-		en: {
-			days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-			daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-			daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
-			months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-			monthsShort: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-			today: "Today",
-			clear: "Clear"
-		}
-	};
-
-	var DPGlobal = {
-		modes: [
-			{
-				clsName: 'days',
-				navFnc: 'Month',
-				navStep: 1
-			},
-			{
-				clsName: 'months',
-				navFnc: 'FullYear',
-				navStep: 1
-			},
-			{
-				clsName: 'years',
-				navFnc: 'FullYear',
-				navStep: 10
-		}],
-		isLeapYear: function(year){
-			return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0));
-		},
-		getDaysInMonth: function(year, month){
-			return [31, (DPGlobal.isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
-		},
-		validParts: /dd?|DD?|mm?|MM?|yy(?:yy)?/g,
-		nonpunctuation: /[^ -\/:-@\[\u3400-\u9fff-`{-~\t\n\r]+/g,
-		parseFormat: function(format){
-			// IE treats \0 as a string end in inputs (truncating the value),
-			// so it's a bad format delimiter, anyway
-			var separators = format.replace(this.validParts, '\0').split('\0'),
-				parts = format.match(this.validParts);
-			if (!separators || !separators.length || !parts || parts.length === 0){
-				throw new Error("Invalid date format.");
-			}
-			return {separators: separators, parts: parts};
-		},
-		parseDate: function(date, format, language){
-			if (!date)
-				return undefined;
-			if (date instanceof Date)
-				return date;
-			if (typeof format === 'string')
-				format = DPGlobal.parseFormat(format);
-			var part_re = /([\-+]\d+)([dmwy])/,
-				parts = date.match(/([\-+]\d+)([dmwy])/g),
-				part, dir, i;
-			if (/^[\-+]\d+[dmwy]([\s,]+[\-+]\d+[dmwy])*$/.test(date)){
-				date = new Date();
-				for (i=0; i < parts.length; i++){
-					part = part_re.exec(parts[i]);
-					dir = parseInt(part[1]);
-					switch (part[2]){
-						case 'd':
-							date.setUTCDate(date.getUTCDate() + dir);
-							break;
-						case 'm':
-							date = Datepicker.prototype.moveMonth.call(Datepicker.prototype, date, dir);
-							break;
-						case 'w':
-							date.setUTCDate(date.getUTCDate() + dir * 7);
-							break;
-						case 'y':
-							date = Datepicker.prototype.moveYear.call(Datepicker.prototype, date, dir);
-							break;
-					}
-				}
-				return UTCDate(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0);
-			}
-			parts = date && date.match(this.nonpunctuation) || [];
-			date = new Date();
-			var parsed = {},
-				setters_order = ['yyyy', 'yy', 'M', 'MM', 'm', 'mm', 'd', 'dd'],
-				setters_map = {
-					yyyy: function(d,v){
-						return d.setUTCFullYear(v);
-					},
-					yy: function(d,v){
-						return d.setUTCFullYear(2000+v);
-					},
-					m: function(d,v){
-						if (isNaN(d))
-							return d;
-						v -= 1;
-						while (v < 0) v += 12;
-						v %= 12;
-						d.setUTCMonth(v);
-						while (d.getUTCMonth() !== v)
-							d.setUTCDate(d.getUTCDate()-1);
-						return d;
-					},
-					d: function(d,v){
-						return d.setUTCDate(v);
-					}
-				},
-				val, filtered;
-			setters_map['M'] = setters_map['MM'] = setters_map['mm'] = setters_map['m'];
-			setters_map['dd'] = setters_map['d'];
-			date = UTCDate(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
-			var fparts = format.parts.slice();
-			// Remove noop parts
-			if (parts.length !== fparts.length){
-				fparts = $(fparts).filter(function(i,p){
-					return $.inArray(p, setters_order) !== -1;
-				}).toArray();
-			}
-			// Process remainder
-			function match_part(){
-				var m = this.slice(0, parts[i].length),
-					p = parts[i].slice(0, m.length);
-				return m === p;
-			}
-			if (parts.length === fparts.length){
-				var cnt;
-				for (i=0, cnt = fparts.length; i < cnt; i++){
-					val = parseInt(parts[i], 10);
-					part = fparts[i];
-					if (isNaN(val)){
-						switch (part){
-							case 'MM':
-								filtered = $(dates[language].months).filter(match_part);
-								val = $.inArray(filtered[0], dates[language].months) + 1;
-								break;
-							case 'M':
-								filtered = $(dates[language].monthsShort).filter(match_part);
-								val = $.inArray(filtered[0], dates[language].monthsShort) + 1;
-								break;
-						}
-					}
-					parsed[part] = val;
-				}
-				var _date, s;
-				for (i=0; i < setters_order.length; i++){
-					s = setters_order[i];
-					if (s in parsed && !isNaN(parsed[s])){
-						_date = new Date(date);
-						setters_map[s](_date, parsed[s]);
-						if (!isNaN(_date))
-							date = _date;
-					}
-				}
-			}
-			return date;
-		},
-		formatDate: function(date, format, language){
-			if (!date)
-				return '';
-			if (typeof format === 'string')
-				format = DPGlobal.parseFormat(format);
-			var val = {
-				d: date.getUTCDate(),
-				D: dates[language].daysShort[date.getUTCDay()],
-				DD: dates[language].days[date.getUTCDay()],
-				m: date.getUTCMonth() + 1,
-				M: dates[language].monthsShort[date.getUTCMonth()],
-				MM: dates[language].months[date.getUTCMonth()],
-				yy: date.getUTCFullYear().toString().substring(2),
-				yyyy: date.getUTCFullYear()
-			};
-			val.dd = (val.d < 10 ? '0' : '') + val.d;
-			val.mm = (val.m < 10 ? '0' : '') + val.m;
-			date = [];
-			var seps = $.extend([], format.separators);
-			for (var i=0, cnt = format.parts.length; i <= cnt; i++){
-				if (seps.length)
-					date.push(seps.shift());
-				date.push(val[format.parts[i]]);
-			}
-			return date.join('');
-		},
-		headTemplate: '<thead>'+
-							'<tr>'+
-								'<th class="prev">&laquo;</th>'+
-								'<th colspan="5" class="datepicker-switch"></th>'+
-								'<th class="next">&raquo;</th>'+
-							'</tr>'+
-						'</thead>',
-		contTemplate: '<tbody><tr><td colspan="7"></td></tr></tbody>',
-		footTemplate: '<tfoot>'+
-							'<tr>'+
-								'<th colspan="7" class="today"></th>'+
-							'</tr>'+
-							'<tr>'+
-								'<th colspan="7" class="clear"></th>'+
-							'</tr>'+
-						'</tfoot>'
-	};
-	DPGlobal.template = '<div class="datepicker">'+
-							'<div class="datepicker-days">'+
-								'<table class=" table-condensed">'+
-									DPGlobal.headTemplate+
-									'<tbody></tbody>'+
-									DPGlobal.footTemplate+
-								'</table>'+
-							'</div>'+
-							'<div class="datepicker-months">'+
-								'<table class="table-condensed">'+
-									DPGlobal.headTemplate+
-									DPGlobal.contTemplate+
-									DPGlobal.footTemplate+
-								'</table>'+
-							'</div>'+
-							'<div class="datepicker-years">'+
-								'<table class="table-condensed">'+
-									DPGlobal.headTemplate+
-									DPGlobal.contTemplate+
-									DPGlobal.footTemplate+
-								'</table>'+
-							'</div>'+
-						'</div>';
-
-	$.fn.datepicker.DPGlobal = DPGlobal;
-
-
-	/* DATEPICKER NO CONFLICT
-	* =================== */
-
-	$.fn.datepicker.noConflict = function(){
-		$.fn.datepicker = old;
-		return this;
-	};
-
-
-	/* DATEPICKER DATA-API
-	* ================== */
-
-	$(document).on(
-		'focus.datepicker.data-api click.datepicker.data-api',
-		'[data-provide="datepicker"]',
-		function(e){
-			var $this = $(this);
-			if ($this.data('datepicker'))
-				return;
-			e.preventDefault();
-			// component click requires us to explicitly show it
-			$this.datepicker('show');
-		}
-	);
-	$(function(){
-		$('[data-provide="datepicker-inline"]').datepicker();
-	});
-
-}(window.jQuery));
-
+ * Copyright 2012 Stefan Petre
+ * Improvements by Andrew Rowls
+ * Licensed under the Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0)
+ */
+!function(a,b){function c(){return new Date(Date.UTC.apply(Date,arguments))}function d(){var a=new Date;return c(a.getFullYear(),a.getMonth(),a.getDate())}function e(a,b){return a.getUTCFullYear()===b.getUTCFullYear()&&a.getUTCMonth()===b.getUTCMonth()&&a.getUTCDate()===b.getUTCDate()}function f(a){return function(){return this[a].apply(this,arguments)}}function g(b,c){function d(a,b){return b.toLowerCase()}var e,f=a(b).data(),g={},h=new RegExp("^"+c.toLowerCase()+"([A-Z])");c=new RegExp("^"+c.toLowerCase());for(var i in f)c.test(i)&&(e=i.replace(h,d),g[e]=f[i]);return g}function h(b){var c={};if(p[b]||(b=b.split("-")[0],p[b])){var d=p[b];return a.each(o,function(a,b){b in d&&(c[b]=d[b])}),c}}var i=function(){var b={get:function(a){return this.slice(a)[0]},contains:function(a){for(var b=a&&a.valueOf(),c=0,d=this.length;d>c;c++)if(this[c].valueOf()===b)return c;return-1},remove:function(a){this.splice(a,1)},replace:function(b){b&&(a.isArray(b)||(b=[b]),this.clear(),this.push.apply(this,b))},clear:function(){this.length=0},copy:function(){var a=new i;return a.replace(this),a}};return function(){var c=[];return c.push.apply(c,arguments),a.extend(c,b),c}}(),j=function(b,c){this._process_options(c),this.dates=new i,this.viewDate=this.o.defaultViewDate,this.focusDate=null,this.element=a(b),this.isInline=!1,this.isInput=this.element.is("input"),this.component=this.element.hasClass("date")?this.element.find(".add-on, .input-group-addon, .btn"):!1,this.hasInput=this.component&&this.element.find("input").length,this.component&&0===this.component.length&&(this.component=!1),this.picker=a(q.template),this._buildEvents(),this._attachEvents(),this.isInline?this.picker.addClass("datepicker-inline").appendTo(this.element):this.picker.addClass("datepicker-dropdown dropdown-menu"),this.o.rtl&&this.picker.addClass("datepicker-rtl"),this.viewMode=this.o.startView,this.o.calendarWeeks&&this.picker.find("tfoot .today, tfoot .clear").attr("colspan",function(a,b){return parseInt(b)+1}),this._allow_update=!1,this.setStartDate(this._o.startDate),this.setEndDate(this._o.endDate),this.setDaysOfWeekDisabled(this.o.daysOfWeekDisabled),this.setDatesDisabled(this.o.datesDisabled),this.fillDow(),this.fillMonths(),this._allow_update=!0,this.update(),this.showMode(),this.isInline&&this.show()};j.prototype={constructor:j,_process_options:function(e){this._o=a.extend({},this._o,e);var f=this.o=a.extend({},this._o),g=f.language;switch(p[g]||(g=g.split("-")[0],p[g]||(g=n.language)),f.language=g,f.startView){case 2:case"decade":f.startView=2;break;case 1:case"year":f.startView=1;break;default:f.startView=0}switch(f.minViewMode){case 1:case"months":f.minViewMode=1;break;case 2:case"years":f.minViewMode=2;break;default:f.minViewMode=0}f.startView=Math.max(f.startView,f.minViewMode),f.multidate!==!0&&(f.multidate=Number(f.multidate)||!1,f.multidate!==!1&&(f.multidate=Math.max(0,f.multidate))),f.multidateSeparator=String(f.multidateSeparator),f.weekStart%=7,f.weekEnd=(f.weekStart+6)%7;var h=q.parseFormat(f.format);if(f.startDate!==-1/0&&(f.startDate=f.startDate?f.startDate instanceof Date?this._local_to_utc(this._zero_time(f.startDate)):q.parseDate(f.startDate,h,f.language):-1/0),1/0!==f.endDate&&(f.endDate=f.endDate?f.endDate instanceof Date?this._local_to_utc(this._zero_time(f.endDate)):q.parseDate(f.endDate,h,f.language):1/0),f.daysOfWeekDisabled=f.daysOfWeekDisabled||[],a.isArray(f.daysOfWeekDisabled)||(f.daysOfWeekDisabled=f.daysOfWeekDisabled.split(/[,\s]*/)),f.daysOfWeekDisabled=a.map(f.daysOfWeekDisabled,function(a){return parseInt(a,10)}),f.datesDisabled=f.datesDisabled||[],!a.isArray(f.datesDisabled)){var i=[];i.push(q.parseDate(f.datesDisabled,h,f.language)),f.datesDisabled=i}f.datesDisabled=a.map(f.datesDisabled,function(a){return q.parseDate(a,h,f.language)});var j=String(f.orientation).toLowerCase().split(/\s+/g),k=f.orientation.toLowerCase();if(j=a.grep(j,function(a){return/^auto|left|right|top|bottom$/.test(a)}),f.orientation={x:"auto",y:"auto"},k&&"auto"!==k)if(1===j.length)switch(j[0]){case"top":case"bottom":f.orientation.y=j[0];break;case"left":case"right":f.orientation.x=j[0]}else k=a.grep(j,function(a){return/^left|right$/.test(a)}),f.orientation.x=k[0]||"auto",k=a.grep(j,function(a){return/^top|bottom$/.test(a)}),f.orientation.y=k[0]||"auto";else;if(f.defaultViewDate){var l=f.defaultViewDate.year||(new Date).getFullYear(),m=f.defaultViewDate.month||0,o=f.defaultViewDate.day||1;f.defaultViewDate=c(l,m,o)}else f.defaultViewDate=d();f.showOnFocus=f.showOnFocus!==b?f.showOnFocus:!0},_events:[],_secondaryEvents:[],_applyEvents:function(a){for(var c,d,e,f=0;f<a.length;f++)c=a[f][0],2===a[f].length?(d=b,e=a[f][1]):3===a[f].length&&(d=a[f][1],e=a[f][2]),c.on(e,d)},_unapplyEvents:function(a){for(var c,d,e,f=0;f<a.length;f++)c=a[f][0],2===a[f].length?(e=b,d=a[f][1]):3===a[f].length&&(e=a[f][1],d=a[f][2]),c.off(d,e)},_buildEvents:function(){var b={keyup:a.proxy(function(b){-1===a.inArray(b.keyCode,[27,37,39,38,40,32,13,9])&&this.update()},this),keydown:a.proxy(this.keydown,this)};this.o.showOnFocus===!0&&(b.focus=a.proxy(this.show,this)),this.isInput?this._events=[[this.element,b]]:this.component&&this.hasInput?this._events=[[this.element.find("input"),b],[this.component,{click:a.proxy(this.show,this)}]]:this.element.is("div")?this.isInline=!0:this._events=[[this.element,{click:a.proxy(this.show,this)}]],this._events.push([this.element,"*",{blur:a.proxy(function(a){this._focused_from=a.target},this)}],[this.element,{blur:a.proxy(function(a){this._focused_from=a.target},this)}]),this._secondaryEvents=[[this.picker,{click:a.proxy(this.click,this)}],[a(window),{resize:a.proxy(this.place,this)}],[a(document),{"mousedown touchstart":a.proxy(function(a){this.element.is(a.target)||this.element.find(a.target).length||this.picker.is(a.target)||this.picker.find(a.target).length||this.hide()},this)}]]},_attachEvents:function(){this._detachEvents(),this._applyEvents(this._events)},_detachEvents:function(){this._unapplyEvents(this._events)},_attachSecondaryEvents:function(){this._detachSecondaryEvents(),this._applyEvents(this._secondaryEvents)},_detachSecondaryEvents:function(){this._unapplyEvents(this._secondaryEvents)},_trigger:function(b,c){var d=c||this.dates.get(-1),e=this._utc_to_local(d);this.element.trigger({type:b,date:e,dates:a.map(this.dates,this._utc_to_local),format:a.proxy(function(a,b){0===arguments.length?(a=this.dates.length-1,b=this.o.format):"string"==typeof a&&(b=a,a=this.dates.length-1),b=b||this.o.format;var c=this.dates.get(a);return q.formatDate(c,b,this.o.language)},this)})},show:function(){return this.element.attr("readonly")&&this.o.enableOnReadonly===!1?void 0:(this.isInline||this.picker.appendTo(this.o.container),this.place(),this.picker.show(),this._attachSecondaryEvents(),this._trigger("show"),(window.navigator.msMaxTouchPoints||"ontouchstart"in document)&&this.o.disableTouchKeyboard&&a(this.element).blur(),this)},hide:function(){return this.isInline?this:this.picker.is(":visible")?(this.focusDate=null,this.picker.hide().detach(),this._detachSecondaryEvents(),this.viewMode=this.o.startView,this.showMode(),this.o.forceParse&&(this.isInput&&this.element.val()||this.hasInput&&this.element.find("input").val())&&this.setValue(),this._trigger("hide"),this):this},remove:function(){return this.hide(),this._detachEvents(),this._detachSecondaryEvents(),this.picker.remove(),delete this.element.data().datepicker,this.isInput||delete this.element.data().date,this},_utc_to_local:function(a){return a&&new Date(a.getTime()+6e4*a.getTimezoneOffset())},_local_to_utc:function(a){return a&&new Date(a.getTime()-6e4*a.getTimezoneOffset())},_zero_time:function(a){return a&&new Date(a.getFullYear(),a.getMonth(),a.getDate())},_zero_utc_time:function(a){return a&&new Date(Date.UTC(a.getUTCFullYear(),a.getUTCMonth(),a.getUTCDate()))},getDates:function(){return a.map(this.dates,this._utc_to_local)},getUTCDates:function(){return a.map(this.dates,function(a){return new Date(a)})},getDate:function(){return this._utc_to_local(this.getUTCDate())},getUTCDate:function(){var a=this.dates.get(-1);return"undefined"!=typeof a?new Date(a):null},clearDates:function(){var a;this.isInput?a=this.element:this.component&&(a=this.element.find("input")),a&&a.val("").change(),this.update(),this._trigger("changeDate"),this.o.autoclose&&this.hide()},setDates:function(){var b=a.isArray(arguments[0])?arguments[0]:arguments;return this.update.apply(this,b),this._trigger("changeDate"),this.setValue(),this},setUTCDates:function(){var b=a.isArray(arguments[0])?arguments[0]:arguments;return this.update.apply(this,a.map(b,this._utc_to_local)),this._trigger("changeDate"),this.setValue(),this},setDate:f("setDates"),setUTCDate:f("setUTCDates"),setValue:function(){var a=this.getFormattedDate();return this.isInput?this.element.val(a).change():this.component&&this.element.find("input").val(a).change(),this},getFormattedDate:function(c){c===b&&(c=this.o.format);var d=this.o.language;return a.map(this.dates,function(a){return q.formatDate(a,c,d)}).join(this.o.multidateSeparator)},setStartDate:function(a){return this._process_options({startDate:a}),this.update(),this.updateNavArrows(),this},setEndDate:function(a){return this._process_options({endDate:a}),this.update(),this.updateNavArrows(),this},setDaysOfWeekDisabled:function(a){return this._process_options({daysOfWeekDisabled:a}),this.update(),this.updateNavArrows(),this},setDatesDisabled:function(a){this._process_options({datesDisabled:a}),this.update(),this.updateNavArrows()},place:function(){if(this.isInline)return this;var b=this.picker.outerWidth(),c=this.picker.outerHeight(),d=10,e=a(this.o.container).width(),f=a(this.o.container).height(),g=a(this.o.container).scrollTop(),h=a(this.o.container).offset(),i=[];this.element.parents().each(function(){var b=a(this).css("z-index");"auto"!==b&&0!==b&&i.push(parseInt(b))});var j=Math.max.apply(Math,i)+10,k=this.component?this.component.parent().offset():this.element.offset(),l=this.component?this.component.outerHeight(!0):this.element.outerHeight(!1),m=this.component?this.component.outerWidth(!0):this.element.outerWidth(!1),n=k.left-h.left,o=k.top-h.top;this.picker.removeClass("datepicker-orient-top datepicker-orient-bottom datepicker-orient-right datepicker-orient-left"),"auto"!==this.o.orientation.x?(this.picker.addClass("datepicker-orient-"+this.o.orientation.x),"right"===this.o.orientation.x&&(n-=b-m)):k.left<0?(this.picker.addClass("datepicker-orient-left"),n-=k.left-d):n+b>e?(this.picker.addClass("datepicker-orient-right"),n=k.left+m-b):this.picker.addClass("datepicker-orient-left");var p,q,r=this.o.orientation.y;if("auto"===r&&(p=-g+o-c,q=g+f-(o+l+c),r=Math.max(p,q)===q?"top":"bottom"),this.picker.addClass("datepicker-orient-"+r),"top"===r?o+=l:o-=c+parseInt(this.picker.css("padding-top")),this.o.rtl){var s=e-(n+m);this.picker.css({top:o,right:s,zIndex:j})}else this.picker.css({top:o,left:n,zIndex:j});return this},_allow_update:!0,update:function(){if(!this._allow_update)return this;var b=this.dates.copy(),c=[],d=!1;return arguments.length?(a.each(arguments,a.proxy(function(a,b){b instanceof Date&&(b=this._local_to_utc(b)),c.push(b)},this)),d=!0):(c=this.isInput?this.element.val():this.element.data("date")||this.element.find("input").val(),c=c&&this.o.multidate?c.split(this.o.multidateSeparator):[c],delete this.element.data().date),c=a.map(c,a.proxy(function(a){return q.parseDate(a,this.o.format,this.o.language)},this)),c=a.grep(c,a.proxy(function(a){return a<this.o.startDate||a>this.o.endDate||!a},this),!0),this.dates.replace(c),this.dates.length?this.viewDate=new Date(this.dates.get(-1)):this.viewDate<this.o.startDate?this.viewDate=new Date(this.o.startDate):this.viewDate>this.o.endDate&&(this.viewDate=new Date(this.o.endDate)),d?this.setValue():c.length&&String(b)!==String(this.dates)&&this._trigger("changeDate"),!this.dates.length&&b.length&&this._trigger("clearDate"),this.fill(),this},fillDow:function(){var a=this.o.weekStart,b="<tr>";if(this.o.calendarWeeks){this.picker.find(".datepicker-days thead tr:first-child .datepicker-switch").attr("colspan",function(a,b){return parseInt(b)+1});var c='<th class="cw">&#160;</th>';b+=c}for(;a<this.o.weekStart+7;)b+='<th class="dow">'+p[this.o.language].daysMin[a++%7]+"</th>";b+="</tr>",this.picker.find(".datepicker-days thead").append(b)},fillMonths:function(){for(var a="",b=0;12>b;)a+='<span class="month">'+p[this.o.language].monthsShort[b++]+"</span>";this.picker.find(".datepicker-months td").html(a)},setRange:function(b){b&&b.length?this.range=a.map(b,function(a){return a.valueOf()}):delete this.range,this.fill()},getClassNames:function(b){var c=[],d=this.viewDate.getUTCFullYear(),f=this.viewDate.getUTCMonth(),g=new Date;return b.getUTCFullYear()<d||b.getUTCFullYear()===d&&b.getUTCMonth()<f?c.push("old"):(b.getUTCFullYear()>d||b.getUTCFullYear()===d&&b.getUTCMonth()>f)&&c.push("new"),this.focusDate&&b.valueOf()===this.focusDate.valueOf()&&c.push("focused"),this.o.todayHighlight&&b.getUTCFullYear()===g.getFullYear()&&b.getUTCMonth()===g.getMonth()&&b.getUTCDate()===g.getDate()&&c.push("today"),-1!==this.dates.contains(b)&&c.push("active"),(b.valueOf()<this.o.startDate||b.valueOf()>this.o.endDate||-1!==a.inArray(b.getUTCDay(),this.o.daysOfWeekDisabled))&&c.push("disabled"),this.o.datesDisabled.length>0&&a.grep(this.o.datesDisabled,function(a){return e(b,a)}).length>0&&c.push("disabled","disabled-date"),this.range&&(b>this.range[0]&&b<this.range[this.range.length-1]&&c.push("range"),-1!==a.inArray(b.valueOf(),this.range)&&c.push("selected")),c},fill:function(){var d,e=new Date(this.viewDate),f=e.getUTCFullYear(),g=e.getUTCMonth(),h=this.o.startDate!==-1/0?this.o.startDate.getUTCFullYear():-1/0,i=this.o.startDate!==-1/0?this.o.startDate.getUTCMonth():-1/0,j=1/0!==this.o.endDate?this.o.endDate.getUTCFullYear():1/0,k=1/0!==this.o.endDate?this.o.endDate.getUTCMonth():1/0,l=p[this.o.language].today||p.en.today||"",m=p[this.o.language].clear||p.en.clear||"";if(!isNaN(f)&&!isNaN(g)){this.picker.find(".datepicker-days thead .datepicker-switch").text(p[this.o.language].months[g]+" "+f),this.picker.find("tfoot .today").text(l).toggle(this.o.todayBtn!==!1),this.picker.find("tfoot .clear").text(m).toggle(this.o.clearBtn!==!1),this.updateNavArrows(),this.fillMonths();var n=c(f,g-1,28),o=q.getDaysInMonth(n.getUTCFullYear(),n.getUTCMonth());n.setUTCDate(o),n.setUTCDate(o-(n.getUTCDay()-this.o.weekStart+7)%7);var r=new Date(n);r.setUTCDate(r.getUTCDate()+42),r=r.valueOf();for(var s,t=[];n.valueOf()<r;){if(n.getUTCDay()===this.o.weekStart&&(t.push("<tr>"),this.o.calendarWeeks)){var u=new Date(+n+(this.o.weekStart-n.getUTCDay()-7)%7*864e5),v=new Date(Number(u)+(11-u.getUTCDay())%7*864e5),w=new Date(Number(w=c(v.getUTCFullYear(),0,1))+(11-w.getUTCDay())%7*864e5),x=(v-w)/864e5/7+1;t.push('<td class="cw">'+x+"</td>")}if(s=this.getClassNames(n),s.push("day"),this.o.beforeShowDay!==a.noop){var y=this.o.beforeShowDay(this._utc_to_local(n));y===b?y={}:"boolean"==typeof y?y={enabled:y}:"string"==typeof y&&(y={classes:y}),y.enabled===!1&&s.push("disabled"),y.classes&&(s=s.concat(y.classes.split(/\s+/))),y.tooltip&&(d=y.tooltip)}s=a.unique(s),t.push('<td class="'+s.join(" ")+'"'+(d?' title="'+d+'"':"")+">"+n.getUTCDate()+"</td>"),d=null,n.getUTCDay()===this.o.weekEnd&&t.push("</tr>"),n.setUTCDate(n.getUTCDate()+1)}this.picker.find(".datepicker-days tbody").empty().append(t.join(""));var z=this.picker.find(".datepicker-months").find("th:eq(1)").text(f).end().find("span").removeClass("active");if(a.each(this.dates,function(a,b){b.getUTCFullYear()===f&&z.eq(b.getUTCMonth()).addClass("active")}),(h>f||f>j)&&z.addClass("disabled"),f===h&&z.slice(0,i).addClass("disabled"),f===j&&z.slice(k+1).addClass("disabled"),this.o.beforeShowMonth!==a.noop){var A=this;a.each(z,function(b,c){if(!a(c).hasClass("disabled")){var d=new Date(f,b,1),e=A.o.beforeShowMonth(d);e===!1&&a(c).addClass("disabled")}})}t="",f=10*parseInt(f/10,10);var B=this.picker.find(".datepicker-years").find("th:eq(1)").text(f+"-"+(f+9)).end().find("td");f-=1;for(var C,D=a.map(this.dates,function(a){return a.getUTCFullYear()}),E=-1;11>E;E++)C=["year"],-1===E?C.push("old"):10===E&&C.push("new"),-1!==a.inArray(f,D)&&C.push("active"),(h>f||f>j)&&C.push("disabled"),t+='<span class="'+C.join(" ")+'">'+f+"</span>",f+=1;B.html(t)}},updateNavArrows:function(){if(this._allow_update){var a=new Date(this.viewDate),b=a.getUTCFullYear(),c=a.getUTCMonth();switch(this.viewMode){case 0:this.picker.find(".prev").css(this.o.startDate!==-1/0&&b<=this.o.startDate.getUTCFullYear()&&c<=this.o.startDate.getUTCMonth()?{visibility:"hidden"}:{visibility:"visible"}),this.picker.find(".next").css(1/0!==this.o.endDate&&b>=this.o.endDate.getUTCFullYear()&&c>=this.o.endDate.getUTCMonth()?{visibility:"hidden"}:{visibility:"visible"});break;case 1:case 2:this.picker.find(".prev").css(this.o.startDate!==-1/0&&b<=this.o.startDate.getUTCFullYear()?{visibility:"hidden"}:{visibility:"visible"}),this.picker.find(".next").css(1/0!==this.o.endDate&&b>=this.o.endDate.getUTCFullYear()?{visibility:"hidden"}:{visibility:"visible"})}}},click:function(b){b.preventDefault();var d,e,f,g=a(b.target).closest("span, td, th");if(1===g.length)switch(g[0].nodeName.toLowerCase()){case"th":switch(g[0].className){case"datepicker-switch":this.showMode(1);break;case"prev":case"next":var h=q.modes[this.viewMode].navStep*("prev"===g[0].className?-1:1);switch(this.viewMode){case 0:this.viewDate=this.moveMonth(this.viewDate,h),this._trigger("changeMonth",this.viewDate);break;case 1:case 2:this.viewDate=this.moveYear(this.viewDate,h),1===this.viewMode&&this._trigger("changeYear",this.viewDate)}this.fill();break;case"today":var i=new Date;i=c(i.getFullYear(),i.getMonth(),i.getDate(),0,0,0),this.showMode(-2);var j="linked"===this.o.todayBtn?null:"view";this._setDate(i,j);break;case"clear":this.clearDates()}break;case"span":g.hasClass("disabled")||(this.viewDate.setUTCDate(1),g.hasClass("month")?(f=1,e=g.parent().find("span").index(g),d=this.viewDate.getUTCFullYear(),this.viewDate.setUTCMonth(e),this._trigger("changeMonth",this.viewDate),1===this.o.minViewMode&&this._setDate(c(d,e,f))):(f=1,e=0,d=parseInt(g.text(),10)||0,this.viewDate.setUTCFullYear(d),this._trigger("changeYear",this.viewDate),2===this.o.minViewMode&&this._setDate(c(d,e,f))),this.showMode(-1),this.fill());break;case"td":g.hasClass("day")&&!g.hasClass("disabled")&&(f=parseInt(g.text(),10)||1,d=this.viewDate.getUTCFullYear(),e=this.viewDate.getUTCMonth(),g.hasClass("old")?0===e?(e=11,d-=1):e-=1:g.hasClass("new")&&(11===e?(e=0,d+=1):e+=1),this._setDate(c(d,e,f)))}this.picker.is(":visible")&&this._focused_from&&a(this._focused_from).focus(),delete this._focused_from},_toggle_multidate:function(a){var b=this.dates.contains(a);if(a||this.dates.clear(),-1!==b?(this.o.multidate===!0||this.o.multidate>1||this.o.toggleActive)&&this.dates.remove(b):this.o.multidate===!1?(this.dates.clear(),this.dates.push(a)):this.dates.push(a),"number"==typeof this.o.multidate)for(;this.dates.length>this.o.multidate;)this.dates.remove(0)},_setDate:function(a,b){b&&"date"!==b||this._toggle_multidate(a&&new Date(a)),b&&"view"!==b||(this.viewDate=a&&new Date(a)),this.fill(),this.setValue(),b&&"view"===b||this._trigger("changeDate");var c;this.isInput?c=this.element:this.component&&(c=this.element.find("input")),c&&c.change(),!this.o.autoclose||b&&"date"!==b||this.hide()},moveMonth:function(a,c){if(!a)return b;if(!c)return a;var d,e,f=new Date(a.valueOf()),g=f.getUTCDate(),h=f.getUTCMonth(),i=Math.abs(c);if(c=c>0?1:-1,1===i)e=-1===c?function(){return f.getUTCMonth()===h}:function(){return f.getUTCMonth()!==d},d=h+c,f.setUTCMonth(d),(0>d||d>11)&&(d=(d+12)%12);else{for(var j=0;i>j;j++)f=this.moveMonth(f,c);d=f.getUTCMonth(),f.setUTCDate(g),e=function(){return d!==f.getUTCMonth()}}for(;e();)f.setUTCDate(--g),f.setUTCMonth(d);return f},moveYear:function(a,b){return this.moveMonth(a,12*b)},dateWithinRange:function(a){return a>=this.o.startDate&&a<=this.o.endDate},keydown:function(a){if(!this.picker.is(":visible"))return void(27===a.keyCode&&this.show());var b,c,e,f=!1,g=this.focusDate||this.viewDate;switch(a.keyCode){case 27:this.focusDate?(this.focusDate=null,this.viewDate=this.dates.get(-1)||this.viewDate,this.fill()):this.hide(),a.preventDefault();break;case 37:case 39:if(!this.o.keyboardNavigation)break;b=37===a.keyCode?-1:1,a.ctrlKey?(c=this.moveYear(this.dates.get(-1)||d(),b),e=this.moveYear(g,b),this._trigger("changeYear",this.viewDate)):a.shiftKey?(c=this.moveMonth(this.dates.get(-1)||d(),b),e=this.moveMonth(g,b),this._trigger("changeMonth",this.viewDate)):(c=new Date(this.dates.get(-1)||d()),c.setUTCDate(c.getUTCDate()+b),e=new Date(g),e.setUTCDate(g.getUTCDate()+b)),this.dateWithinRange(e)&&(this.focusDate=this.viewDate=e,this.setValue(),this.fill(),a.preventDefault());break;case 38:case 40:if(!this.o.keyboardNavigation)break;b=38===a.keyCode?-1:1,a.ctrlKey?(c=this.moveYear(this.dates.get(-1)||d(),b),e=this.moveYear(g,b),this._trigger("changeYear",this.viewDate)):a.shiftKey?(c=this.moveMonth(this.dates.get(-1)||d(),b),e=this.moveMonth(g,b),this._trigger("changeMonth",this.viewDate)):(c=new Date(this.dates.get(-1)||d()),c.setUTCDate(c.getUTCDate()+7*b),e=new Date(g),e.setUTCDate(g.getUTCDate()+7*b)),this.dateWithinRange(e)&&(this.focusDate=this.viewDate=e,this.setValue(),this.fill(),a.preventDefault());break;case 32:break;case 13:g=this.focusDate||this.dates.get(-1)||this.viewDate,this.o.keyboardNavigation&&(this._toggle_multidate(g),f=!0),this.focusDate=null,this.viewDate=this.dates.get(-1)||this.viewDate,this.setValue(),this.fill(),this.picker.is(":visible")&&(a.preventDefault(),"function"==typeof a.stopPropagation?a.stopPropagation():a.cancelBubble=!0,this.o.autoclose&&this.hide());break;case 9:this.focusDate=null,this.viewDate=this.dates.get(-1)||this.viewDate,this.fill(),this.hide()}if(f){this._trigger(this.dates.length?"changeDate":"clearDate");var h;this.isInput?h=this.element:this.component&&(h=this.element.find("input")),h&&h.change()}},showMode:function(a){a&&(this.viewMode=Math.max(this.o.minViewMode,Math.min(2,this.viewMode+a))),this.picker.children("div").hide().filter(".datepicker-"+q.modes[this.viewMode].clsName).css("display","block"),this.updateNavArrows()}};var k=function(b,c){this.element=a(b),this.inputs=a.map(c.inputs,function(a){return a.jquery?a[0]:a}),delete c.inputs,m.call(a(this.inputs),c).bind("changeDate",a.proxy(this.dateUpdated,this)),this.pickers=a.map(this.inputs,function(b){return a(b).data("datepicker")}),this.updateDates()};k.prototype={updateDates:function(){this.dates=a.map(this.pickers,function(a){return a.getUTCDate()}),this.updateRanges()},updateRanges:function(){var b=a.map(this.dates,function(a){return a.valueOf()});a.each(this.pickers,function(a,c){c.setRange(b)})},dateUpdated:function(b){if(!this.updating){this.updating=!0;var c=a(b.target).data("datepicker"),d=c.getUTCDate(),e=a.inArray(b.target,this.inputs),f=e-1,g=e+1,h=this.inputs.length;if(-1!==e){if(a.each(this.pickers,function(a,b){b.getUTCDate()||b.setUTCDate(d)}),d<this.dates[f])for(;f>=0&&d<this.dates[f];)this.pickers[f--].setUTCDate(d);else if(d>this.dates[g])for(;h>g&&d>this.dates[g];)this.pickers[g++].setUTCDate(d);this.updateDates(),delete this.updating}}},remove:function(){a.map(this.pickers,function(a){a.remove()}),delete this.element.data().datepicker}};var l=a.fn.datepicker,m=function(c){var d=Array.apply(null,arguments);d.shift();var e;return this.each(function(){var f=a(this),i=f.data("datepicker"),l="object"==typeof c&&c;if(!i){var m=g(this,"date"),o=a.extend({},n,m,l),p=h(o.language),q=a.extend({},n,p,m,l);if(f.hasClass("input-daterange")||q.inputs){var r={inputs:q.inputs||f.find("input").toArray()};f.data("datepicker",i=new k(this,a.extend(q,r)))}else f.data("datepicker",i=new j(this,q))}return"string"==typeof c&&"function"==typeof i[c]&&(e=i[c].apply(i,d),e!==b)?!1:void 0}),e!==b?e:this};a.fn.datepicker=m;var n=a.fn.datepicker.defaults={autoclose:!1,beforeShowDay:a.noop,beforeShowMonth:a.noop,calendarWeeks:!1,clearBtn:!1,toggleActive:!1,daysOfWeekDisabled:[],datesDisabled:[],endDate:1/0,forceParse:!0,format:"mm/dd/yyyy",keyboardNavigation:!0,language:"en",minViewMode:0,multidate:!1,multidateSeparator:",",orientation:"auto",rtl:!1,startDate:-1/0,startView:0,todayBtn:!1,todayHighlight:!1,weekStart:0,disableTouchKeyboard:!1,enableOnReadonly:!0,container:"body"},o=a.fn.datepicker.locale_opts=["format","rtl","weekStart"];a.fn.datepicker.Constructor=j;var p=a.fn.datepicker.dates={en:{days:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],daysShort:["Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun"],daysMin:["Su","Mo","Tu","We","Th","Fr","Sa","Su"],months:["January","February","March","April","May","June","July","August","September","October","November","December"],monthsShort:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],today:"Today",clear:"Clear"}},q={modes:[{clsName:"days",navFnc:"Month",navStep:1},{clsName:"months",navFnc:"FullYear",navStep:1},{clsName:"years",navFnc:"FullYear",navStep:10}],isLeapYear:function(a){return a%4===0&&a%100!==0||a%400===0},getDaysInMonth:function(a,b){return[31,q.isLeapYear(a)?29:28,31,30,31,30,31,31,30,31,30,31][b]},validParts:/dd?|DD?|mm?|MM?|yy(?:yy)?/g,nonpunctuation:/[^ -\/:-@\[\u3400-\u9fff-`{-~\t\n\r]+/g,parseFormat:function(a){var b=a.replace(this.validParts,"\x00").split("\x00"),c=a.match(this.validParts);if(!b||!b.length||!c||0===c.length)throw new Error("Invalid date format.");return{separators:b,parts:c}},parseDate:function(d,e,f){function g(){var a=this.slice(0,m[k].length),b=m[k].slice(0,a.length);return a.toLowerCase()===b.toLowerCase()}if(!d)return b;if(d instanceof Date)return d;"string"==typeof e&&(e=q.parseFormat(e));var h,i,k,l=/([\-+]\d+)([dmwy])/,m=d.match(/([\-+]\d+)([dmwy])/g);if(/^[\-+]\d+[dmwy]([\s,]+[\-+]\d+[dmwy])*$/.test(d)){for(d=new Date,k=0;k<m.length;k++)switch(h=l.exec(m[k]),i=parseInt(h[1]),h[2]){case"d":d.setUTCDate(d.getUTCDate()+i);break;case"m":d=j.prototype.moveMonth.call(j.prototype,d,i);break;case"w":d.setUTCDate(d.getUTCDate()+7*i);break;case"y":d=j.prototype.moveYear.call(j.prototype,d,i)}return c(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),0,0,0)}m=d&&d.match(this.nonpunctuation)||[],d=new Date;var n,o,r={},s=["yyyy","yy","M","MM","m","mm","d","dd"],t={yyyy:function(a,b){return a.setUTCFullYear(b)},yy:function(a,b){return a.setUTCFullYear(2e3+b)},m:function(a,b){if(isNaN(a))return a;for(b-=1;0>b;)b+=12;for(b%=12,a.setUTCMonth(b);a.getUTCMonth()!==b;)a.setUTCDate(a.getUTCDate()-1);return a},d:function(a,b){return a.setUTCDate(b)}};t.M=t.MM=t.mm=t.m,t.dd=t.d,d=c(d.getFullYear(),d.getMonth(),d.getDate(),0,0,0);var u=e.parts.slice();if(m.length!==u.length&&(u=a(u).filter(function(b,c){return-1!==a.inArray(c,s)}).toArray()),m.length===u.length){var v;for(k=0,v=u.length;v>k;k++){if(n=parseInt(m[k],10),h=u[k],isNaN(n))switch(h){case"MM":o=a(p[f].months).filter(g),n=a.inArray(o[0],p[f].months)+1;break;case"M":o=a(p[f].monthsShort).filter(g),n=a.inArray(o[0],p[f].monthsShort)+1}r[h]=n}var w,x;for(k=0;k<s.length;k++)x=s[k],x in r&&!isNaN(r[x])&&(w=new Date(d),t[x](w,r[x]),isNaN(w)||(d=w))}return d},formatDate:function(b,c,d){if(!b)return"";"string"==typeof c&&(c=q.parseFormat(c));var e={d:b.getUTCDate(),D:p[d].daysShort[b.getUTCDay()],DD:p[d].days[b.getUTCDay()],m:b.getUTCMonth()+1,M:p[d].monthsShort[b.getUTCMonth()],MM:p[d].months[b.getUTCMonth()],yy:b.getUTCFullYear().toString().substring(2),yyyy:b.getUTCFullYear()};e.dd=(e.d<10?"0":"")+e.d,e.mm=(e.m<10?"0":"")+e.m,b=[];for(var f=a.extend([],c.separators),g=0,h=c.parts.length;h>=g;g++)f.length&&b.push(f.shift()),b.push(e[c.parts[g]]);return b.join("")},headTemplate:'<thead><tr><th class="prev">&#171;</th><th colspan="5" class="datepicker-switch"></th><th class="next">&#187;</th></tr></thead>',contTemplate:'<tbody><tr><td colspan="7"></td></tr></tbody>',footTemplate:'<tfoot><tr><th colspan="7" class="today"></th></tr><tr><th colspan="7" class="clear"></th></tr></tfoot>'};q.template='<div class="datepicker"><div class="datepicker-days"><table class=" table-condensed">'+q.headTemplate+"<tbody></tbody>"+q.footTemplate+'</table></div><div class="datepicker-months"><table class="table-condensed">'+q.headTemplate+q.contTemplate+q.footTemplate+'</table></div><div class="datepicker-years"><table class="table-condensed">'+q.headTemplate+q.contTemplate+q.footTemplate+"</table></div></div>",a.fn.datepicker.DPGlobal=q,a.fn.datepicker.noConflict=function(){return a.fn.datepicker=l,this},a.fn.datepicker.version="1.4.0",a(document).on("focus.datepicker.data-api click.datepicker.data-api",'[data-provide="datepicker"]',function(b){var c=a(this);c.data("datepicker")||(b.preventDefault(),m.call(c,"show"))}),a(function(){m.call(a('[data-provide="datepicker-inline"]'))})}(window.jQuery);
+!function(a){a.fn.datepicker.dates.de={days:["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag","Sonntag"],daysShort:["Son","Mon","Die","Mit","Don","Fre","Sam","Son"],daysMin:["So","Mo","Di","Mi","Do","Fr","Sa","So"],months:["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"],monthsShort:["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"],today:"Heute",clear:"Löschen",weekStart:1,format:"dd.mm.yyyy"}}(jQuery);
+!function(a){a.fn.datepicker.dates.da={days:["Søndag","Mandag","Tirsdag","Onsdag","Torsdag","Fredag","Lørdag","Søndag"],daysShort:["Søn","Man","Tir","Ons","Tor","Fre","Lør","Søn"],daysMin:["Sø","Ma","Ti","On","To","Fr","Lø","Sø"],months:["Januar","Februar","Marts","April","Maj","Juni","Juli","August","September","Oktober","November","December"],monthsShort:["Jan","Feb","Mar","Apr","Maj","Jun","Jul","Aug","Sep","Okt","Nov","Dec"],today:"I Dag",clear:"Nulstil"}}(jQuery);
+!function(a){a.fn.datepicker.dates["pt-BR"]={days:["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"],daysShort:["Dom","Seg","Ter","Qua","Qui","Sex","Sáb","Dom"],daysMin:["Do","Se","Te","Qu","Qu","Se","Sa","Do"],months:["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"],monthsShort:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],today:"Hoje",clear:"Limpar"}}(jQuery);
+!function(a){a.fn.datepicker.dates.nl={days:["zondag","maandag","dinsdag","woensdag","donderdag","vrijdag","zaterdag","zondag"],daysShort:["zo","ma","di","wo","do","vr","za","zo"],daysMin:["zo","ma","di","wo","do","vr","za","zo"],months:["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"],monthsShort:["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"],today:"Vandaag",clear:"Wissen",weekStart:1,format:"dd-mm-yyyy"}}(jQuery);
+!function(a){a.fn.datepicker.dates.fr={days:["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"],daysShort:["dim.","lun.","mar.","mer.","jeu.","ven.","sam.","dim."],daysMin:["d","l","ma","me","j","v","s","d"],months:["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"],monthsShort:["janv.","févr.","mars","avril","mai","juin","juil.","août","sept.","oct.","nov.","déc."],today:"Aujourd'hui",clear:"Effacer",weekStart:1,format:"dd/mm/yyyy"}}(jQuery);
+!function(a){a.fn.datepicker.dates.it={days:["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato","Domenica"],daysShort:["Dom","Lun","Mar","Mer","Gio","Ven","Sab","Dom"],daysMin:["Do","Lu","Ma","Me","Gi","Ve","Sa","Do"],months:["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"],monthsShort:["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"],today:"Oggi",clear:"Cancella",weekStart:1,format:"dd/mm/yyyy"}}(jQuery);
+!function(a){a.fn.datepicker.dates.lt={days:["Sekmadienis","Pirmadienis","Antradienis","Trečiadienis","Ketvirtadienis","Penktadienis","Šeštadienis","Sekmadienis"],daysShort:["S","Pr","A","T","K","Pn","Š","S"],daysMin:["Sk","Pr","An","Tr","Ke","Pn","Št","Sk"],months:["Sausis","Vasaris","Kovas","Balandis","Gegužė","Birželis","Liepa","Rugpjūtis","Rugsėjis","Spalis","Lapkritis","Gruodis"],monthsShort:["Sau","Vas","Kov","Bal","Geg","Bir","Lie","Rugp","Rugs","Spa","Lap","Gru"],today:"Šiandien",weekStart:1}}(jQuery);
+!function(a){a.fn.datepicker.dates.no={days:["Søndag","Mandag","Tirsdag","Onsdag","Torsdag","Fredag","Lørdag"],daysShort:["Søn","Man","Tir","Ons","Tor","Fre","Lør"],daysMin:["Sø","Ma","Ti","On","To","Fr","Lø"],months:["Januar","Februar","Mars","April","Mai","Juni","Juli","August","September","Oktober","November","Desember"],monthsShort:["Jan","Feb","Mar","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Des"],today:"I dag",clear:"Nullstill",weekStart:1,format:"dd.mm.yyyy"}}(jQuery);
+!function(a){a.fn.datepicker.dates.es={days:["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"],daysShort:["Dom","Lun","Mar","Mié","Jue","Vie","Sáb","Dom"],daysMin:["Do","Lu","Ma","Mi","Ju","Vi","Sa","Do"],months:["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"],monthsShort:["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"],today:"Hoy",clear:"Borrar",weekStart:1,format:"dd/mm/yyyy"}}(jQuery);
+!function(a){a.fn.datepicker.dates.sv={days:["Söndag","Måndag","Tisdag","Onsdag","Torsdag","Fredag","Lördag","Söndag"],daysShort:["Sön","Mån","Tis","Ons","Tor","Fre","Lör","Sön"],daysMin:["Sö","Må","Ti","On","To","Fr","Lö","Sö"],months:["Januari","Februari","Mars","April","Maj","Juni","Juli","Augusti","September","Oktober","November","December"],monthsShort:["Jan","Feb","Mar","Apr","Maj","Jun","Jul","Aug","Sep","Okt","Nov","Dec"],today:"Idag",format:"yyyy-mm-dd",weekStart:1,clear:"Rensa"}}(jQuery);
 /*!
  * typeahead.js 0.9.3
  * https://github.com/twitter/typeahead
@@ -31543,33 +29879,51 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
 
 var invoiceOld;
+var refreshTimer;
 function generatePDF(invoice, javascript, force, cb) {
+  if (!invoice || !javascript) {
+    return;
+  }
+  console.log('== generatePDF - force: %s', force);
+  if (force || !invoiceOld) {
+    refreshTimer = null;
+  } else {
+      if (refreshTimer) {
+        clearTimeout(refreshTimer);    
+      }
+      refreshTimer = setTimeout(function() {
+        generatePDF(invoice, javascript, true, cb);
+      }, 500);
+      return;
+  }
+
   invoice = calculateAmounts(invoice);
-  var a = copyInvoice(invoice);
-  var b = copyInvoice(invoiceOld);
+  var a = copyObject(invoice);
+  var b = copyObject(invoiceOld);
   if (!force && _.isEqual(a, b)) {
     return;
   }
-  pdfmakeMarker = "//pdfmake";
   invoiceOld = invoice;
-  report_id = invoice.invoice_design_id;
+  pdfmakeMarker = "{";
   if(javascript.slice(0, pdfmakeMarker.length) === pdfmakeMarker) {
     doc = GetPdfMake(invoice, javascript, cb);
-    //doc.getDataUrl(cb);
   } else {
     doc = GetPdf(invoice, javascript);
     doc.getDataUrl = function(cb) {
       cb( this.output("datauristring"));  
     };    
   }
+
+  if (cb) {
+     doc.getDataUrl(cb);
+  }
+
   return doc;
 }
 
-function copyInvoice(orig) {
+function copyObject(orig) {
   if (!orig) return false;
-  var copy = JSON.stringify(orig);
-  var copy = JSON.parse(copy);
-  return copy;
+  return JSON.parse(JSON.stringify(orig));
 }
 
 
@@ -32240,8 +30594,12 @@ function getInvoiceDetails(invoice) {
     {'due_date': invoice.due_date},
   ];
 
+  if (NINJA.parseFloat(invoice.balance) < NINJA.parseFloat(invoice.amount)) {
+    fields.push({'total': formatMoney(invoice.amount, invoice.client.currency_id)});
+  }
+
   if (NINJA.parseFloat(invoice.partial)) {
-    fields.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
+    fields.push({'balance': formatMoney(invoice.total_amount, invoice.client.currency_id)});
   }
 
   fields.push({'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)})
@@ -32297,12 +30655,16 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
   }
 
   var paid = invoice.amount - invoice.balance;
+  if (paid) {
+    data.push({'total': formatMoney(invoice.amount, invoice.client.currency_id)});
+  }
+
   if (invoice.account.hide_paid_to_date != '1' || paid) {
     data.push({'paid_to_date': formatMoney(paid, invoice.client.currency_id)});
   }
 
   if (NINJA.parseFloat(invoice.partial) && invoice.total_amount != invoice.subtotal_amount) {
-    data.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
+    data.push({'balance': formatMoney(invoice.total_amount, invoice.client.currency_id)});
   }
 
   var options = {
@@ -32588,7 +30950,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     }
     shownItem = true;
 
-    var numLines = doc.splitTextToSize(item.notes, 200).length + 2;
+    var numLines = Math.max(doc.splitTextToSize(item.notes, 200).length, doc.splitTextToSize(item.product_key, 60).length) + 2;
     //console.log('num lines %s', numLines);
 
     var y = tableTop + (line * layout.tableRowHeight) + (2 * layout.tablePadding);
@@ -33102,75 +31464,79 @@ function twoDigits(value) {
    }
    return value;
 }
+
+function toSnakeCase(str) {
+    if (!str) return '';
+    return str.replace(/([A-Z])/g, function($1){return "_"+$1.toLowerCase();});
+}
+
+function getDescendantProp(obj, desc) {
+    var arr = desc.split(".");
+    while(arr.length && (obj = obj[arr.shift()]));
+    return obj;
+}
 var NINJA = NINJA || {};
 
-function GetPdfMake(invoice, javascript, callback) {
-    var account = invoice.account;
-    var baseDD = {
-        pageMargins: [40, 40, 40, 40],
-        styles: {
-            bold: {
-                bold: true
-            },            
-            cost: {
-                alignment: 'right'
-            },
-            quantity: {
-                alignment: 'right'
-            },
-            tax: {
-                alignment: 'right'
-            },
-            lineTotal: {
-                alignment: 'right'
-            },
-            right: {
-                alignment: 'right'
-            },
-            subtotals: {
-                alignment: 'right'
-            },            
-            termsLabel: {
-                bold: true,
-                margin: [0, 10, 0, 4]
-            }            
-        },
-        footer: function(){
-            f = [{ text:invoice.invoice_footer?processVariables(invoice.invoice_footer):"", margin: [40, 0]}]
-            if (!invoice.is_pro && logoImages.imageLogo1) {
-                f.push({
-                    image: logoImages.imageLogo1,
-                    width: 150,
-                    margin: [40,0]
-                });
-                }
-            return f;
-        },
+NINJA.TEMPLATES = {
+    CLEAN: "1",
+    BOLD:"2",
+    MODERN: "3",
+    NORMAL:"4",
+    BUSINESS:"5",
+    CREATIVE:"6",
+    ELEGANT:"7",
+    HIPSTER:"8",
+    PLAYFUL:"9",
+    PHOTO:"10"
+};
 
-    };
+function GetPdfMake(invoice, javascript, callback) {    
 
-    eval(javascript);    
-    dd = $.extend(true, baseDD, dd);    
+    javascript = NINJA.decodeJavascript(invoice, javascript);
 
-    /*
-    pdfMake.fonts = {
-        wqy: {
-            normal: 'wqy.ttf',
-            bold: 'wqy.ttf',
-            italics: 'wqy.ttf',
-            bolditalics: 'wqy.ttf'
+    function jsonCallBack(key, val) {        
+        if ((val+'').indexOf('$firstAndLast') === 0) {
+            var parts = val.split(':');
+            return function (i, node) {
+                return (i === 0 || i === node.table.body.length) ? parseFloat(parts[1]) : 0;
+            };
+        } else if ((val+'').indexOf('$none') === 0) {
+            return function (i, node) {
+                return 0;
+            };
+        } else if ((val+'').indexOf('$notFirst') === 0) {
+            var parts = val.split(':');
+            return function (i, node) {
+                return i === 0 ? 0 : parseFloat(parts[1]);
+            };
+        } else if ((val+'').indexOf('$amount') === 0) {            
+            var parts = val.split(':');
+            return function (i, node) {
+                return parseFloat(parts[1]);
+            };
+        } else if ((val+'').indexOf('$primaryColor') === 0) {
+            var parts = val.split(':');
+            return NINJA.primaryColor || parts[1];
+        } else if ((val+'').indexOf('$secondaryColor') === 0) {
+            var parts = val.split(':');
+            return NINJA.secondaryColor || parts[1];
         }
-    };
-    */
-    
+
+        return val;
+    }
+
+
+    //console.log(javascript);
+    var dd = JSON.parse(javascript, jsonCallBack);
+
+    if (!invoice.is_pro && dd.hasOwnProperty('footer') && dd.footer.hasOwnProperty('columns')) {
+        dd.footer.columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130})
+    }
+
+    //console.log(JSON.stringify(dd));
+
     /*
-    pdfMake.fonts = {
-        NotoSansCJKsc: {
-            normal: 'NotoSansCJKsc-Regular.ttf',
-            bold: 'NotoSansCJKsc-Medium.ttf',
-            italics: 'NotoSansCJKsc-Italic.ttf',
-            bolditalics: 'NotoSansCJKsc-Italic.ttf'
-        },
+    var fonts = {
         Roboto: {
             normal: 'Roboto-Regular.ttf',
             bold: 'Roboto-Medium.ttf',
@@ -33187,30 +31553,123 @@ function GetPdfMake(invoice, javascript, callback) {
     return doc;
 }
 
+NINJA.decodeJavascript = function(invoice, javascript)
+{
+    var account = invoice.account;
+    var blankImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=';
+
+    // search/replace variables
+    var json = {
+        'accountName': account.name || ' ',
+        'accountLogo': window.accountLogo || blankImage,
+        'accountDetails': NINJA.accountDetails(invoice), 
+        'accountAddress': NINJA.accountAddress(invoice),
+        'invoiceDetails': NINJA.invoiceDetails(invoice),
+        'invoiceDetailsHeight': NINJA.invoiceDetails(invoice).length * 22,
+        'invoiceLineItems': NINJA.invoiceLines(invoice),
+        'invoiceLineItemColumns': NINJA.invoiceColumns(invoice),
+        'clientDetails': NINJA.clientDetails(invoice),
+        'notesAndTerms': NINJA.notesAndTerms(invoice),
+        'subtotals': NINJA.subtotals(invoice),
+        'subtotalsHeight': NINJA.subtotals(invoice).length * 22,
+        'subtotalsWithoutBalance': NINJA.subtotals(invoice, true),        
+        'balanceDue': formatMoney(invoice.balance_amount, invoice.client.currency_id),
+        'invoiceFooter': account.invoice_footer || ' ',
+        'invoiceNumber': invoice.invoice_number || ' ',
+        'entityType': invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice,
+        'entityTypeUC': (invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),
+        'fontSize': NINJA.fontSize,
+        'fontSizeLarger': NINJA.fontSize + 1,
+        'fontSizeLargest': NINJA.fontSize + 2,
+    }
+
+    for (var key in json) {
+        var regExp = new RegExp('"\\$'+key+'"', 'g');
+        var val = JSON.stringify(json[key]);
+        javascript = javascript.replace(regExp, val);
+    }
+
+    // search/replace labels 
+    var regExp = new RegExp('"\\$\\\w*?Label(UC)?(:)?(\\\?)?"', 'g');
+    var matches = javascript.match(regExp);    
+    
+    if (matches) {
+        for (var i=0; i<matches.length; i++) {
+            var match = matches[i];
+            field = match.substring(2, match.indexOf('Label'));
+            field = toSnakeCase(field);
+            var value = getDescendantProp(invoice, field);
+            if (match.indexOf('?') < 0) {
+                var label = invoiceLabels[field];            
+                if (match.indexOf('UC') >= 0) {
+                    if (!label) console.log('match: ' + field);
+                    label = label.toUpperCase();
+                }
+                if (match.indexOf(':') >= 0) {
+                    label = label + ':';
+                }
+            } else {
+                label = ' ';
+            }
+            javascript = javascript.replace(match, '"'+label+'"');
+        }        
+    }
+
+    // search/replace values 
+    var regExp = new RegExp('"\\$\\\w*?Value"', 'g');
+    var matches = javascript.match(regExp);    
+    
+    if (matches) {
+        for (var i=0; i<matches.length; i++) {
+            var match = matches[i];
+            field = match.substring(2, match.indexOf('Value'));
+            field = toSnakeCase(field);
+            var value = getDescendantProp(invoice, field) || ' ';            
+            if (field.toLowerCase().indexOf('date') >= 0 && value != ' ') {
+                value = moment(value, 'YYYY-MM-DD').format('MMM D YYYY');
+            }
+            javascript = javascript.replace(match, '"'+value+'"');
+        }
+    }
+
+    return javascript;
+}
+
 NINJA.notesAndTerms = function(invoice)
 {
-    var text = [];
+    var data = [];
+
     if (invoice.public_notes) {
-        text.push({text:processVariables(invoice.public_notes), style:'notes'});
+        data.push({text:invoice.public_notes, style: ['notes']});
+        data.push({text:' '});
     }
 
     if (invoice.terms) {
-        text.push({text:invoiceLabels.terms, style:'termsLabel'});
-        text.push({text:processVariables(invoice.terms), style:'terms'});
+        data.push({text:invoiceLabels.terms, style: ['termsLabel']});
+        data.push({text:invoice.terms, style: ['terms']});
     }
 
-    return text;
+    return NINJA.prepareDataList(data, 'notesAndTerms');
+}
+
+NINJA.invoiceColumns = function(invoice)
+{
+    if (invoice.has_taxes) {
+        return ["15%", "*", "auto", "auto", "auto", "15%"];
+    } else {
+        return ["15%", "*", "auto", "auto", "15%"]
+    }
 }
 
 NINJA.invoiceLines = function(invoice) {
     var grid = [
         [
-            {text: invoiceLabels.item, style: 'tableHeader'}, 
-            {text: invoiceLabels.description, style: 'tableHeader'}, 
-            {text: invoiceLabels.unit_cost, style: 'tableHeader'}, 
-            {text: invoiceLabels.quantity, style: 'tableHeader'}, 
-            {text: invoice.has_taxes?invoiceLabels.tax:'', style: 'tableHeader'}, 
-            {text: invoiceLabels.line_total, style: 'tableHeader'}
+            {text: invoiceLabels.item, style: ['tableHeader', 'itemTableHeader']}, 
+            {text: invoiceLabels.description, style: ['tableHeader', 'descriptionTableHeader']}, 
+            {text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']}, 
+            {text: invoiceLabels.quantity, style: ['tableHeader', 'qtyTableHeader']}, 
+            {text: invoice.has_taxes ? invoiceLabels.tax : '', style: ['tableHeader', 'taxTableHeader']}, 
+            {text: invoiceLabels.line_total, style: ['tableHeader', 'lineTotalTableHeader']}
         ]
     ];
 
@@ -33220,23 +31679,26 @@ NINJA.invoiceLines = function(invoice) {
     var hideQuantity = invoice.account.hide_quantity == '1';
 
     for (var i = 0; i < invoice.invoice_items.length; i++) {
+        
         var row = [];
         var item = invoice.invoice_items[i];
         var cost = formatMoney(item.cost, currencyId, true);
         var qty = NINJA.parseFloat(item.qty) ? roundToTwo(NINJA.parseFloat(item.qty)) + '' : '';
         var notes = item.notes;
         var productKey = item.product_key;
-        var tax = "";
+        var tax = '';        
+        
         if (item.tax && parseFloat(item.tax.rate)) {
             tax = parseFloat(item.tax.rate);
         } else if (item.tax_rate && parseFloat(item.tax_rate)) {
             tax = parseFloat(item.tax_rate);
         }
-
+        
         // show at most one blank line
         if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
             continue;
         }
+
         shownItem = true;
 
         // process date variables
@@ -33254,139 +31716,164 @@ NINJA.invoiceLines = function(invoice) {
         }
         lineTotal = formatMoney(lineTotal, currencyId);
 
-        rowStyle = i%2===0?'odd':'even';
+        rowStyle = (i % 2 == 0) ? 'odd' : 'even';
+        
+        row.push({style:["productKey", rowStyle], text:productKey || ' '}); // product key can be blank when selecting from a datalist
+        row.push({style:["notes", rowStyle], text:notes || ' '}); 
+        row.push({style:["cost", rowStyle], text:cost});
+        row.push({style:["quantity", rowStyle], text:qty || ' '});
 
-        row[0] = {style:["productKey", rowStyle], text:productKey};
-        row[1] = {style:["notes", rowStyle], text:notes};
-        row[2] = {style:["cost", rowStyle], text:cost};
-        row[3] = {style:["quantity", rowStyle], text:qty};
-        row[4] = {style:["tax", rowStyle], text:""+tax};
-        row[5] = {style:["lineTotal", rowStyle], text:lineTotal};
+        if (invoice.has_taxes) {
+            row.push({style:["tax", rowStyle], text: tax+'' || ''});
+        }
+
+        row.push({style:["lineTotal", rowStyle], text:lineTotal || ' '});
 
         grid.push(row);
     }   
 
-    return grid;
+    return NINJA.prepareDataTable(grid, 'invoiceItems');
 }
 
-NINJA.subtotals = function(invoice)
+NINJA.subtotals = function(invoice, removeBalance)
 {
     if (!invoice) {
         return;
     }
 
-    var data = [
-        [invoiceLabels.subtotal, formatMoney(invoice.subtotal_amount, invoice.client.currency_id)],
-    ];
+    var account = invoice.account;
+    var data = [];
+    data.push([{text: invoiceLabels.subtotal}, {text: formatMoney(invoice.subtotal_amount, invoice.client.currency_id)}]);
 
-    if(invoice.discount_amount != 0) {
-        data.push([invoiceLabels.discount, formatMoney(invoice.discount_amount, invoice.client.currency_id)]);
+    if (invoice.discount_amount != 0) {
+        data.push([{text: invoiceLabels.discount}, {text: formatMoney(invoice.discount_amount, invoice.client.currency_id)}]);        
     }
-
+    
     if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 == '1') {
-        data.push([invoiceLabels.custom_invoice_label1, formatMoney(invoice.custom_value1, invoice.client.currency_id)]);
+        data.push([{text: account.custom_invoice_label1}, {text: formatMoney(invoice.custom_value1, invoice.client.currency_id)}]);        
     }
     if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 == '1') {
-        data.push([invoiceLabels.custom_invoice_label2, formatMoney(invoice.custom_value2, invoice.client.currency_id)]);
+        data.push([{text: account.custom_invoice_label2}, {text: formatMoney(invoice.custom_value2, invoice.client.currency_id)}]);        
     }
 
-    if(invoice.tax && invoice.tax.name || invoice.tax_name) {
-        data.push([invoiceLabels.tax, formatMoney(invoice.tax_amount, invoice.client.currency_id)]);
+    if (invoice.tax && invoice.tax.name || invoice.tax_name) {
+        data.push([{text: invoiceLabels.tax}, {text: formatMoney(invoice.tax_amount, invoice.client.currency_id)}]);        
     }
-
-    if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {
-        data.push([invoiceLabels.custom_invoice_label1, formatMoney(invoice.custom_value1, invoice.client.currency_id)]);
+    
+    if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {        
+        data.push([{text: account.custom_invoice_label1}, {text: formatMoney(invoice.custom_value1, invoice.client.currency_id)}]);
     }
     if (NINJA.parseFloat(invoice.custom_value2) && invoice.custom_taxes2 != '1') {
-        data.push([invoiceLabels.custom_invoice_label2, formatMoney(invoice.custom_value2, invoice.client.currency_id)]);
-    }
-
-    var paid = invoice.amount - invoice.balance;
-    if (invoice.account.hide_paid_to_date != '1' || paid) {
-        data.push([invoiceLabels.paid_to_date, formatMoney(paid, invoice.client.currency_id)]);
-    }
-
-    data.push([{text:invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due, style:'balanceDueLabel'},
-        {text:formatMoney(invoice.balance_amount, invoice.client.currency_id), style:'balanceDueValue'}]);
-    return data;
-}
-
-NINJA.accountDetails = function(account) {
-    var data = [];
-    if(account.name) data.push({text:account.name, style:'accountName'});
-    if(account.id_number) data.push({text:account.id_number, style:'accountDetails'});
-    if(account.vat_number) data.push({text:account.vat_number, style:'accountDetails'});
-    if(account.work_email) data.push({text:account.work_email, style:'accountDetails'});
-    if(account.work_phone) data.push({text:account.work_phone, style:'accountDetails'});
-    return data;
-}
-
-NINJA.accountAddress = function(account) {
-    var address = '';
-    if (account.city || account.state || account.postal_code) {
-        address = ((account.city ? account.city + ', ' : '') + account.state + ' ' + account.postal_code).trim();
+        data.push([{text: account.custom_invoice_label2}, {text: formatMoney(invoice.custom_value2, invoice.client.currency_id)}]);        
     }    
-    var data = [];
-    if(account.address1) data.push({text:account.address1, style:'accountDetails'});
-    if(account.address2) data.push({text:account.address2, style:'accountDetails'});
-    if(address) data.push({text:address, style:'accountDetails'});
-    if(account.country) data.push({text:account.country.name, style: 'accountDetails'});
-    if(account.custom_label1 && account.custom_value1) data.push({text:account.custom_label1 +' '+ account.custom_value1, style: 'accountDetails'});
-    if(account.custom_label2 && account.custom_value2) data.push({text:account.custom_label2 +' '+ account.custom_value2, style: 'accountDetails'});
-    return data;
+
+	var paid = invoice.amount - invoice.balance;
+    if (invoice.account.hide_paid_to_date != '1' || paid) {
+        data.push([{text:invoiceLabels.paid_to_date}, {text:formatMoney(paid, invoice.client.currency_id)}]);        
+    }
+
+    if (!removeBalance) {
+        data.push([
+            {text:invoice.is_quote ? invoiceLabels.balance_due : invoiceLabels.balance_due, style:['balanceDueLabel']},
+            {text:formatMoney(invoice.balance_amount, invoice.client.currency_id), style:['balanceDue']}
+        ]);
+    }        
+
+    return NINJA.prepareDataPairs(data, 'subtotals');
+}
+
+NINJA.accountDetails = function(invoice) {
+    var account = invoice.account;
+    var data = [
+        {text:account.name, style: ['accountName']},
+        {text:account.id_number},
+        {text:account.vat_number},
+        {text:account.work_email},
+        {text:account.work_phone}
+    ];	
+    return NINJA.prepareDataList(data, 'accountDetails');
+}
+
+NINJA.accountAddress = function(invoice) {
+    var account = invoice.account;    
+    var cityStatePostal = '';
+    if (account.city || account.state || account.postal_code) {
+        cityStatePostal = ((account.city ? account.city + ', ' : '') + account.state + ' ' + account.postal_code).trim();
+    }   
+
+	var data = [
+        {text: account.address1},
+        {text: account.address2},
+        {text: cityStatePostal},
+        {text: account.country ? account.country.name : ''}
+    ];
+    
+    return NINJA.prepareDataList(data, 'accountAddress');
 }
 
 NINJA.invoiceDetails = function(invoice) {
+
     var data = [
         [
-            invoice.is_quote ? invoiceLabels.quote_number : invoiceLabels.invoice_number,
-            {style: 'bold', text: invoice.invoice_number},
+            {text: (invoice.is_quote ? invoiceLabels.quote_number : invoiceLabels.invoice_number), style: ['invoiceNumberLabel']},
+            {text: invoice.invoice_number, style: ['invoiceNumber']}
         ],
         [
-            invoice.is_quote ? invoiceLabels.quote_date : invoiceLabels.invoice_date, 
-            invoice.invoice_date, 
+            {text: invoiceLabels.po_number},            
+            {text: invoice.po_number}
         ],
         [
-            invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due, 
-            formatMoney(invoice.balance_amount, invoice.client.currency_id), 
+            {text: invoiceLabels.invoice_date}, 
+            {text: invoice.invoice_date}
         ],
+        [
+            {text: invoiceLabels.due_date}, 
+            {text: invoice.due_date}
+        ]
     ];
 
-    return data;
+    if (NINJA.parseFloat(invoice.balance) < NINJA.parseFloat(invoice.amount)) {
+        data.push([
+            {text: invoiceLabels.total},
+            {text: formatMoney(invoice.amount, invoice.client.currency_id)}
+        ]);
+    }
+
+    if (NINJA.parseFloat(invoice.partial)) {
+        data.push([
+            {text: invoiceLabels.balance},
+            {text: formatMoney(invoice.total_amount, invoice.client.currency_id)}
+        ]);
+    }
+
+    data.push([
+        {text: invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
+        {text: formatMoney(invoice.balance_amount, invoice.client.currency_id), style: ['invoiceDetailBalanceDue']}
+    ])
+
+    return NINJA.prepareDataPairs(data, 'invoiceDetails');
 }
 
-NINJA.clientDetails = function(invoice) {    
+NINJA.clientDetails = function(invoice) {
     var client = invoice.client;
+    var data;
     if (!client) {
         return;
     }
+    var contact = client.contacts[0];
+    var clientName = client.name || (contact.first_name || contact.last_name ? (contact.first_name + ' ' + contact.last_name) : contact.email);
+    var clientEmail = client.contacts[0].email == clientName ? '' : client.contacts[0].email; 
 
-    var fields = [
-        getClientDisplayName(client),
-        client.id_number,
-        client.vat_number,
-        concatStrings(client.address1, client.address2),
-        concatStrings(client.city, client.state, client.postal_code),
-        client.country ? client.country.name : false,
-        invoice.contact && getClientDisplayName(client) != invoice.contact.email ? invoice.contact.email : false,
-        invoice.client.custom_value1 ? invoice.account['custom_client_label1'] + ' ' + invoice.client.custom_value1 : false,
-        invoice.client.custom_value2 ? invoice.account['custom_client_label2'] + ' ' + invoice.client.custom_value2 : false,
+    data = [
+        {text:clientName || ' ', style: ['clientName']},
+        {text:client.address1},
+        {text:concatStrings(client.city, client.state, client.postal_code)},
+        {text:client.country ? client.country.name : ''},
+        {text:clientEmail}
     ];
 
-    var data = [];
-    for (var i=0; i<fields.length; i++) {
-        var field = fields[i];
-        if (!field) {
-            continue;
-        }
-        data.push([field]);        
-    }
-    if (!data.length) {
-        data.push(['']);
-    }
-    return data;
+    return NINJA.prepareDataList(data, 'clientDetails');
 }
-
 
 NINJA.getPrimaryColor = function(defaultColor) {
     return NINJA.primaryColor ? NINJA.primaryColor : defaultColor;
@@ -33396,6 +31883,62 @@ NINJA.getSecondaryColor = function(defaultColor) {
     return NINJA.primaryColor ? NINJA.secondaryColor : defaultColor;
 }
 
-NINJA.getEntityLabel = function(invoice) {
-    return invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice;
+// remove blanks and add section style to all elements
+NINJA.prepareDataList = function(oldData, section) {
+    var newData = [];
+    for (var i=0; i<oldData.length; i++) {
+        var item = NINJA.processItem(oldData[i], section);
+        if (item.text) {
+            newData.push(item);
+        }
+    }
+    return newData;    
+}
+
+NINJA.prepareDataTable = function(oldData, section) {
+    var newData = [];
+    for (var i=0; i<oldData.length; i++) {
+        var row = oldData[i];        
+        var newRow = [];
+        for (var j=0; j<row.length; j++) {
+            var item = NINJA.processItem(row[j], section);
+            if (item.text) {
+                newRow.push(item);
+            }
+        }            
+        if (newRow.length) {
+            newData.push(newRow);
+        }
+    }
+    return newData;    
+}
+
+NINJA.prepareDataPairs = function(oldData, section) {
+    var newData = [];
+    for (var i=0; i<oldData.length; i++) {
+        var row = oldData[i];
+        var isBlank = false;
+        for (var j=0; j<row.length; j++) {
+            var item = NINJA.processItem(row[j], section);
+            if (!item.text) {
+                isBlank = true;                    
+            }
+            if (j == 1) {
+                NINJA.processItem(row[j], section + "Value");
+            }
+        }            
+        if (!isBlank) {
+            newData.push(oldData[i]);
+        }
+    }
+    return newData;    
+}
+
+NINJA.processItem = function(item, section) {
+    if (item.style && item.style instanceof Array) {
+        item.style.push(section);
+    } else {
+        item.style = [section];
+    }
+    return item;
 }

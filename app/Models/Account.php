@@ -12,6 +12,10 @@ class Account extends Eloquent
     use SoftDeletes;
     protected $dates = ['deleted_at'];
 
+    protected $casts = [
+        'utf8_invoice' => 'boolean',
+    ];
+
     public function users()
     {
         return $this->hasMany('App\Models\User');
@@ -133,9 +137,17 @@ class Account extends Eloquent
         return false;
     }
 
+    /*
+    public function hasLogo()
+    {
+        file_exists($this->getLogoPath());
+    }
+    */
+
     public function getLogoPath()
     {
-        return 'logo/'.$this->account_key.'.jpg';
+        $fileName = 'logo/' . $this->account_key;
+        return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
     }
 
     public function getLogoWidth()
@@ -164,7 +176,7 @@ class Account extends Eloquent
     {
         $counter = $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
         $prefix .= $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
-            
+        
         // confirm the invoice number isn't already taken 
         do {
             $number = $prefix.str_pad($counter, 4, "0", STR_PAD_LEFT);
@@ -179,11 +191,14 @@ class Account extends Eloquent
     {
         // check if the user modified the invoice number
         if (!$isRecurring && $invoiceNumber != $this->getNextInvoiceNumber($isQuote)) {
-            $number = intval(preg_replace('/[^0-9]/', '', $invoiceNumber));
+            // remove the prefix
+            $prefix = $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
+            $invoiceNumber = preg_replace('/^'.$prefix.'/', '', $invoiceNumber);
+            $invoiceNumber = intval(preg_replace('/[^0-9]/', '', $invoiceNumber));
             if ($isQuote && !$this->share_counter) {
-                $this->quote_number_counter = $number + 1;
+                $this->quote_number_counter = $invoiceNumber + 1;
             } else {
-                $this->invoice_number_counter = $number + 1;
+                $this->invoice_number_counter = $invoiceNumber + 1;
             }
         // otherwise, just increment the counter
         } else {
@@ -250,6 +265,12 @@ class Account extends Eloquent
             'date',
             'rate',
             'hours',
+            'balance',
+            'from',
+            'to',
+            'invoice_to',
+            'details',
+            'invoice_no',
         ];
 
         foreach ($fields as $field) {
@@ -401,7 +422,7 @@ class Account extends Eloquent
 
 Account::updating(function ($account) {
     // Lithuanian requires UTF8 support
-    if (!Utils::isPro()) {
-        $account->utf8_invoices = ($account->language_id == 13) ? 1 : 0;
+    if (!Utils::isPro() && $account->language_id == 13) {
+        $account->utf8_invoices = true;
     }
 });

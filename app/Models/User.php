@@ -48,6 +48,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->belongsTo('App\Models\Theme');
     }
 
+    public function getName()
+    {
+        return $this->getDisplayName();
+    }
+
     public function getPersonType()
     {
         return PERSON_USER;
@@ -95,7 +100,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function maxInvoiceDesignId()
     {
-        return $this->isPro() ? 10 : COUNT_FREE_DESIGNS;
+        return $this->isPro() ? 11 : (Utils::isNinja() ? COUNT_FREE_DESIGNS : COUNT_FREE_DESIGNS_SELF_HOST);
     }
 
     public function getDisplayName()
@@ -128,6 +133,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return Session::get(SESSION_COUNTER, 0);
     }
 
+    /*
     public function getPopOverText()
     {
         if (!Utils::isNinja() || !Auth::check() || Session::has('error')) {
@@ -146,7 +152,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
         return false;
     }
-
+    */
+    
     public function afterSave($success = true, $forced = false)
     {
         if ($this->email) {
@@ -176,4 +183,33 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return 'remember_token';
     }
 
+    public function clearSession()
+    {
+        $keys = [
+            RECENTLY_VIEWED,
+            SESSION_USER_ACCOUNTS,
+            SESSION_TIMEZONE,
+            SESSION_DATE_FORMAT,
+            SESSION_DATE_PICKER_FORMAT,
+            SESSION_DATETIME_FORMAT,
+            SESSION_CURRENCY,
+            SESSION_LOCALE,
+        ];
+
+        foreach ($keys as $key) {
+            Session::forget($key);
+        }
+    }
+
+    public static function updateUser($user)
+    {
+        if ($user->password != !$user->getOriginal('password')) {
+            $user->failed_logins = 0;
+        }
+    }
+
 }
+
+User::updating(function ($user) {
+    User::updateUser($user);
+});

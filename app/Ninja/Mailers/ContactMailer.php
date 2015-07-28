@@ -7,6 +7,7 @@ use URL;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Activity;
+use App\Models\Gateway;
 use App\Events\InvoiceSent;
 
 class ContactMailer extends Mailer
@@ -21,6 +22,8 @@ class ContactMailer extends Mailer
         $accountName = $invoice->account->getDisplayName();
         $emailTemplate = $invoice->account->getEmailTemplate($entityType);
         $invoiceAmount = Utils::formatMoney($invoice->getRequestedAmount(), $invoice->client->getCurrencyId());
+
+        $this->initClosure($invoice);
 
         foreach ($invoice->invitations as $invitation) {
             if (!$invitation->user || !$invitation->user->email || $invitation->user->trashed()) {
@@ -39,28 +42,27 @@ class ContactMailer extends Mailer
                 '$client' => $invoice->client->getDisplayName(),
                 '$account' => $accountName,
                 '$contact' => $invitation->contact->getDisplayName(),
-                '$amount' => $invoiceAmount
+                '$amount' => $invoiceAmount,
+                '$advancedRawInvoice->' => '$'
             ];
 
             // Add variables for available payment types
-            foreach([PAYMENT_TYPE_CREDIT_CARD, PAYMENT_TYPE_PAYPAL, PAYMENT_TYPE_BITCOIN] as $type) {
-                if ($invoice->account->getGatewayByType($type)) {
-
-                    // Changes "PAYMENT_TYPE_CREDIT_CARD" to "$credit_card_link"
-                    $gateway_slug = '$'.strtolower(str_replace('PAYMENT_TYPE_', '', $type)).'_link';
-
-                    $variables[$gateway_slug] = URL::to("/payment/{$invitation->invitation_key}/{$type}");
-
-                }
+            foreach (Gateway::getPaymentTypeLinks() as $type) {
+                $variables["\${$type}_link"] = URL::to("/payment/{$invitation->invitation_key}/{$type}");
             }
 
             $data['body'] = str_replace(array_keys($variables), array_values($variables), $emailTemplate);
+            $data['body'] = preg_replace_callback('/\{\{\$?(.*)\}\}/', $this->advancedTemplateHandler, $data['body']);
             $data['link'] = $invitation->getLink();
             $data['entityType'] = $entityType;
             $data['invoice_id'] = $invoice->id;
 
             $fromEmail = $invitation->user->email;
-            $this->sendTo($invitation->contact->email, $fromEmail, $accountName, $subject, $view, $data);
+            $response = $this->sendTo($invitation->contact->email, $fromEmail, $accountName, $subject, $view, $data);
+
+            if ($response !== true) {
+                return $response;
+            }
 
             Activity::emailInvoice($invitation);
         }
@@ -71,6 +73,8 @@ class ContactMailer extends Mailer
         }
 
         Event::fire(new InvoiceSent($invoice));
+
+        return $response;
     }
 
     public function sendPaymentConfirmation(Payment $payment)
@@ -90,8 +94,17 @@ class ContactMailer extends Mailer
 
         $data = ['body' => str_replace(array_keys($variables), array_values($variables), $emailTemplate)];
 
-        $user = $payment->invitation->user;
-        $this->sendTo($payment->contact->email, $user->email, $accountName, $subject, $view, $data);
+        if ($payment->invitation) {
+            $user = $payment->invitation->user;
+            $contact = $payment->contact;
+        } else {
+            $user = $payment->user;
+            $contact = $payment->client->contacts[0];
+        }
+
+        if ($user->email && $contact->email) {
+            $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);
+        }
     }
 
     public function sendLicensePaymentConfirmation($name, $email, $amount, $license, $productId)
@@ -115,5 +128,23 @@ class ContactMailer extends Mailer
         ];
         
         $this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
+
+    private function initClosure($object)
+    {
+        $this->advancedTemplateHandler = function($match) use ($object) {
+            for ($i = 1; $i < count($match); $i++) {
+                $blobConversion = $match[$i];
+
+                if (isset($$blobConversion)) {
+                    return $$blobConversion;
+                } else if (preg_match('/trans\(([\w\.]+)\)/', $blobConversion, $regexTranslation)) {
+                    return trans($regexTranslation[1]);
+                } else if (strpos($blobConversion, '->') !== false) {
+                    return Utils::stringToObjectResolution($object, $blobConversion);
+                }
+
+            }
+        };
     }
 }

@@ -8,7 +8,11 @@
 @section('content')
 <div class="row">
 
-	{!! Former::open($url)->addClass('col-md-12 warn-on-exit')->method($method) !!}
+	{!! Former::open($url)
+            ->rules(
+                ['email' => 'email']
+            )->addClass('col-md-12 warn-on-exit')
+            ->method($method) !!}
 
 	@if ($client)
 		{!! Former::populate($client) !!}
@@ -100,7 +104,8 @@
             {!! Former::select('currency_id')->addOption('','')
                 ->fromQuery($currencies, 'name', 'id') !!}
 			{!! Former::select('payment_terms')->addOption('','')
-				->fromQuery($paymentTerms, 'name', 'num_days') !!}
+				->fromQuery($paymentTerms, 'name', 'num_days')
+                ->help(trans('texts.payment_terms_help')) !!}
 			{!! Former::select('size_id')->addOption('','')
 				->fromQuery($sizes, 'name', 'id') !!}
 			{!! Former::select('industry_id')->addOption('','')

@@ -36,7 +36,7 @@
             @if (count($paymentTypes) > 1)
                 {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
             @else
-                {!! Button::success(trans('texts.pay_now'))->asLinkTo(URL::to('/payment/' . $invitation->invitation_key))->large() !!}
+                {!! Button::success(trans('texts.pay_now'))->asLinkTo(URL::to($paymentURL))->large() !!}
             @endif            
 		@else 
 			{!! Button::normal('Download PDF')->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
@@ -53,8 +53,7 @@
 			invoice.contact = {!! $contact->toJson() !!};
 
 			function getPDFString(cb) {
-    	  	    doc = generatePDF(invoice, invoice.invoice_design.javascript);
-                doc.getDataUrl(cb);
+    	  	    generatePDF(invoice, invoice.invoice_design.javascript, true, cb);
 			}
 
 			$(function() {

@@ -7,6 +7,7 @@ use DB;
 use Event;
 use Input;
 use View;
+use Request;
 use Redirect;
 use Session;
 use URL;
@@ -300,23 +301,24 @@ class UserController extends BaseController
      * Log the user out of the application.
      *
      */
+    /*
     public function logout()
     {
         if (Auth::check()) {
             if (!Auth::user()->registered) {
                 $account = Auth::user()->account;
+                $this->accountRepo->unlinkAccount($account);
                 $account->forceDelete();
             }
         }
 
-        Session::forget('news_feed_id');
-        Session::forget('news_feed_message');
-
         Auth::logout();
+        Session::flush();
 
         return Redirect::to('/')->with('clearGuestKey', true);
     }
-
+    */
+    
     public function changePassword()
     {
         // check the current password is correct
@@ -341,5 +343,37 @@ class UserController extends BaseController
         $user->save();
 
         return RESULT_SUCCESS;
+    }
+
+    public function switchAccount($newUserId) 
+    {
+        $oldUserId = Auth::user()->id;
+        $referer = Request::header('referer');
+        $account = $this->accountRepo->findUserAccounts($newUserId, $oldUserId);
+        
+        if ($account) {
+            if ($account->hasUserId($newUserId) && $account->hasUserId($oldUserId)) {
+                Auth::loginUsingId($newUserId);
+                Auth::user()->account->loadLocalizationSettings();
+
+                // regenerate token to prevent open pages
+                // from saving under the wrong account
+                Session::put('_token', str_random(40));
+            }
+        }
+        
+        return Redirect::to($referer);
+    }
+
+    public function unlinkAccount($userAccountId, $userId)
+    {
+        $this->accountRepo->unlinkUser($userAccountId, $userId);
+        $referer = Request::header('referer');
+
+        $users = $this->accountRepo->loadAccounts(Auth::user()->id);
+        Session::put(SESSION_USER_ACCOUNTS, $users);
+
+        Session::flash('message', trans('texts.unlinked_account'));
+        return Redirect::to($referer);
     }
 }

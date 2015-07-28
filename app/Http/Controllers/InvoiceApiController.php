@@ -26,7 +26,7 @@ class InvoiceApiController extends Controller
 
     public function index()
     {
-        $invoices = Invoice::scope()->with('invitations')->where('invoices.is_quote', '=', false)->orderBy('created_at', 'desc')->get();
+        $invoices = Invoice::scope()->with('client', 'invitations.account')->where('invoices.is_quote', '=', false)->orderBy('created_at', 'desc')->get();
 
         // Add the first invitation link to the data
         foreach ($invoices as $key => $invoice) {
@@ -36,7 +36,7 @@ class InvoiceApiController extends Controller
             unset($invoice['invitations']);
         }
 
-        $invoices = Utils::remapPublicIds($invoices->toArray());
+        $invoices = Utils::remapPublicIds($invoices);
                 
         $response = json_encode($invoices, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders(count($invoices));
@@ -99,7 +99,6 @@ class InvoiceApiController extends Controller
             $data = self::prepareData($data);
             $data['client_id'] = $client->id;
             $invoice = $this->invoiceRepo->save(false, $data, false);
-            $invoice->load('invoice_items');
 
             $invitation = Invitation::createNew();
             $invitation->invoice_id = $invoice->id;
@@ -112,13 +111,9 @@ class InvoiceApiController extends Controller
             }
 
             // prepare the return data
-            $invoice = $invoice->toArray();
-            $invoice['link'] = $invitation->getLink();
-            unset($invoice['account']);
-            unset($invoice['client']);
-            $invoice = Utils::remapPublicIds($invoice);
-            $invoice['client_id'] = $client->public_id;
-            
+            $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->first();
+            $invoice = Utils::remapPublicIds([$invoice]);
+
             $response = json_encode($invoice, JSON_PRETTY_PRINT);
         }
 

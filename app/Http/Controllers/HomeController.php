@@ -27,10 +27,8 @@ class HomeController extends BaseController
     {
         Session::reflash();
         
-        if (!Utils::isDatabaseSetup()) {
+        if (!Utils::isNinja() && (!Utils::isDatabaseSetup() || Account::count() == 0)) {
             return Redirect::to('/setup');
-        } elseif (Account::count() == 0) {
-            return Redirect::to('/invoice_now');
         } elseif (Auth::check()) {
             return Redirect::to('/dashboard');
         } else {
@@ -45,6 +43,12 @@ class HomeController extends BaseController
     
     public function invoiceNow()
     {
+        if (Auth::check() && Input::get('new_account')) {
+            Session::put(PREV_USER_ID, Auth::user()->id);
+            Auth::user()->clearSession();
+            Auth::logout();
+        }
+
         if (Auth::check()) {
             return Redirect::to('invoices/create')->with('sign_up', Input::get('sign_up'));
         } else {

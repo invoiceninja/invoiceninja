@@ -21,7 +21,7 @@ class AddTasks extends Migration {
             $table->timestamps();
             $table->softDeletes();
 
-            $table->timestamp('start_time');
+            $table->timestamp('start_time')->nullable();
             $table->integer('duration')->nullable();
             $table->string('description')->nullable();
             $table->boolean('is_deleted')->default(false);

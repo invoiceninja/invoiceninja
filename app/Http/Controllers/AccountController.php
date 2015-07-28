@@ -77,14 +77,17 @@ class AccountController extends BaseController
     {
         if (Auth::check()) {
             return Redirect::to('invoices/create');
-        } elseif (!Utils::isNinja() && Account::count() > 0) {
-            return Redirect::to('/login');
         }
 
+        if (!Utils::isNinja() && !Utils::allowNewAccounts() && Account::count() > 0) {
+            return Redirect::to('/login');
+        }
+        
         $user = false;
-        $guestKey = Input::get('guest_key');
+        $guestKey = Input::get('guest_key'); // local storage key to login until registered
+        $prevUserId = Session::pull(PREV_USER_ID); // last user id used to link to new account
 
-        if ($guestKey) {
+        if ($guestKey && !$prevUserId) {
             $user = User::where('password', '=', $guestKey)->first();
 
             if ($user && $user->registered) {
@@ -97,6 +100,11 @@ class AccountController extends BaseController
             $user = $account->users()->first();
 
             Session::forget(RECENTLY_VIEWED);
+
+            if ($prevUserId) {
+                $users = $this->accountRepo->associateAccounts($user->id, $prevUserId);
+                Session::put(SESSION_USER_ACCOUNTS, $users);
+            }
         }
 
         Auth::login($user, true);
@@ -152,6 +160,7 @@ class AccountController extends BaseController
                 'currencies' => Cache::get('currencies'),
                 'languages' => Cache::get('languages'),
                 'showUser' => Auth::user()->id === Auth::user()->account->users()->first()->id,
+                'title' => trans('texts.company_details'),
             ];
 
             return View::make('accounts.details', $data);
@@ -164,26 +173,33 @@ class AccountController extends BaseController
             if ($count == 0) {
                 return Redirect::to('gateways/create');
             } else {
-                return View::make('accounts.payments', ['showAdd' => $count < 3]);
+                return View::make('accounts.payments', [
+                    'showAdd' => $count < 3,
+                    'title' => trans('texts.online_payments')
+                ]);
             }
         } elseif ($section == ACCOUNT_NOTIFICATIONS) {
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+                'title' => trans('texts.notifications'),
             ];
 
             return View::make('accounts.notifications', $data);
         } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
-            return View::make('accounts.import_export');
+            return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
         } elseif ($section == ACCOUNT_ADVANCED_SETTINGS) {
-            $account = Auth::user()->account;
+            $account = Auth::user()->account->load('country');
             $data = [
                 'account' => $account,
                 'feature' => $subSection,
+                'title' => trans('texts.invoice_settings'),
             ];
 
-            if ($subSection == ACCOUNT_INVOICE_DESIGN) {
+            if ($subSection == ACCOUNT_INVOICE_DESIGN
+                    || $subSection == ACCOUNT_CUSTOMIZE_DESIGN) {
                 $invoice = new stdClass();
                 $client = new stdClass();
+                $contact = new stdClass();
                 $invoiceItem = new stdClass();
 
                 $client->name = 'Sample Client';
@@ -194,10 +210,16 @@ class AccountController extends BaseController
                 $client->work_phone = '';
                 $client->work_email = '';
 
-                $invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber();
+                $invoice->invoice_number = $account->getNextInvoiceNumber();
                 $invoice->invoice_date = date_create()->format('Y-m-d');
-                $invoice->account = json_decode(Auth::user()->account->toJson());
+                $invoice->account = json_decode($account->toJson());
                 $invoice->amount = $invoice->balance = 100;
+
+                $invoice->terms = trim($account->invoice_terms);
+                $invoice->invoice_footer = trim($account->invoice_footer);
+
+                $contact->email = 'contact@gmail.com';
+                $client->contacts = [$contact];
 
                 $invoiceItem->cost = 100;
                 $invoiceItem->qty = 1;
@@ -207,20 +229,38 @@ class AccountController extends BaseController
                 $invoice->client = $client;
                 $invoice->invoice_items = [$invoiceItem];
 
+                $data['account'] = $account;
                 $data['invoice'] = $invoice;
-                $data['invoiceDesigns'] = InvoiceDesign::availableDesigns();
                 $data['invoiceLabels'] = json_decode($account->invoice_labels) ?: [];
+                $data['title'] = trans('texts.invoice_design');
+                $data['invoiceDesigns'] = InvoiceDesign::getDesigns($subSection == ACCOUNT_CUSTOMIZE_DESIGN);
+
+                $design = false;
+                foreach ($data['invoiceDesigns'] as $item) {
+                    if ($item->id == $account->invoice_design_id) {
+                        $design = $item->javascript;
+                        break;
+                    }
+                }
+
+                if ($subSection == ACCOUNT_CUSTOMIZE_DESIGN) {
+                    $data['customDesign'] = ($account->custom_design && !$design) ? $account->custom_design : $design;
+                }
             } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
                 $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
                 $data['quoteEmail'] = $account->getEmailTemplate(ENTITY_QUOTE);
                 $data['paymentEmail'] = $account->getEmailTemplate(ENTITY_PAYMENT);
-                $data['emailFooter'] = $account->getEmailFooter();                
+                $data['emailFooter'] = $account->getEmailFooter();
+                $data['title'] = trans('texts.email_templates');
+            } else if ($subSection == ACCOUNT_USER_MANAGEMENT) {
+                $data['title'] = trans('texts.users_and_tokens');
             }
 
             return View::make("accounts.{$subSection}", $data);
         } elseif ($section == ACCOUNT_PRODUCTS) {
             $data = [
                 'account' => Auth::user()->account,
+                'title' => trans('texts.product_library'),
             ];
 
             return View::make('accounts.products', $data);
@@ -244,12 +284,32 @@ class AccountController extends BaseController
                 return AccountController::saveInvoiceSettings();
             } elseif ($subSection == ACCOUNT_INVOICE_DESIGN) {
                 return AccountController::saveInvoiceDesign();
+            } elseif ($subSection == ACCOUNT_CUSTOMIZE_DESIGN) {
+                return AccountController::saveCustomizeDesign();
             } elseif ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
                 return AccountController::saveEmailTemplates();
             }
         } elseif ($section == ACCOUNT_PRODUCTS) {
             return AccountController::saveProducts();
         }
+    }
+
+    private function saveCustomizeDesign() {
+        if (Auth::user()->account->isPro()) {
+            $account = Auth::user()->account;
+            $account->custom_design = Input::get('custom_design');
+            $account->invoice_design_id = CUSTOM_DESIGN;
+
+            if (!$account->utf8_invoices) {
+                $account->utf8_invoices = true;
+            }
+
+            $account->save();
+            
+            Session::flash('message', trans('texts.updated_settings'));
+        }
+
+        return Redirect::to('company/advanced_settings/customize_design');
     }
 
     private function saveEmailTemplates()
@@ -628,6 +688,9 @@ class AccountController extends BaseController
                 $user->username = trim(Input::get('email'));
                 $user->email = trim(strtolower(Input::get('email')));
                 $user->phone = trim(Input::get('phone'));
+                if (Utils::isNinja()) {
+                    $user->dark_mode = Input::get('dark_mode') ? true : false;
+                }
                 $user->save();
             }
                 
@@ -635,17 +698,21 @@ class AccountController extends BaseController
             if ($file = Input::file('logo')) {
                 $path = Input::file('logo')->getRealPath();
                 File::delete('logo/'.$account->account_key.'.jpg');
+                File::delete('logo/'.$account->account_key.'.png');
 
                 $image = Image::make($path);
                 $mimeType = $file->getMimeType();
 
-                if ($image->width() == 200 && $mimeType == 'image/jpeg') {
+                if ($mimeType == 'image/jpeg' && $account->utf8_invoices) {
                     $file->move('logo/', $account->account_key . '.jpg');
+                } else if ($mimeType == 'image/png' && $account->utf8_invoices) {
+                    $file->move('logo/', $account->account_key . '.png');
                 } else {
                     $image->resize(200, 120, function ($constraint) {
                         $constraint->aspectRatio();
                     });
-                    Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image)->save($account->getLogoPath());
+                    Image::canvas($image->width(), $image->height(), '#FFFFFF')
+                        ->insert($image)->save('logo/'.$account->account_key.'.jpg');
                 }
             }
 
@@ -659,6 +726,7 @@ class AccountController extends BaseController
     public function removeLogo()
     {
         File::delete('logo/'.Auth::user()->account->account_key.'.jpg');
+        File::delete('logo/'.Auth::user()->account->account_key.'.png');
 
         Session::flash('message', trans('texts.removed_logo'));
 
@@ -702,8 +770,6 @@ class AccountController extends BaseController
 
         if (Utils::isNinja()) {
             $this->userMailer->sendConfirmation($user);
-        } else {
-            $this->accountRepo->registerUser($user);
         }
 
         $activities = Activity::scope()->get();
@@ -725,10 +791,16 @@ class AccountController extends BaseController
     {
         $affiliate = Affiliate::where('affiliate_key', '=', SELF_HOST_AFFILIATE_KEY)->first();
 
+        $email = trim(Input::get('email'));
+
+        if (!$email || $email == 'user@example.com') {
+            return '';
+        }
+
         $license = new License();
         $license->first_name = Input::get('first_name');
         $license->last_name = Input::get('last_name');
-        $license->email = Input::get('email');
+        $license->email = $email;
         $license->transaction_reference = Request::getClientIp();
         $license->license_key = Utils::generateLicense();
         $license->affiliate_id = $affiliate->id;
@@ -753,9 +825,11 @@ class AccountController extends BaseController
         }
 
         $account = Auth::user()->account;
+        $this->accountRepo->unlinkAccount($account);
         $account->forceDelete();
 
         Auth::logout();
+        Session::flush();
 
         return Redirect::to('/')->with('clearGuestKey', true);
     }

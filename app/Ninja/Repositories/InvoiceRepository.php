@@ -536,4 +536,16 @@ class InvoiceRepository
 
         return count($invoices);
     }
+
+    public function findOpenInvoices($clientId)
+    {
+        return Invoice::scope()
+                ->whereClientId($clientId)
+                ->whereIsQuote(false)
+                ->whereIsRecurring(false)
+                ->whereHasTasks(true)
+                ->where('balance', '>', 0)
+                ->select(['public_id', 'invoice_number'])
+                ->get();
+    }
 }

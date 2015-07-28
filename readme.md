@@ -1,17 +1,19 @@
 # Invoice Ninja
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
-If you'd like to use our code to sell your own invoicing app we have an affiliate program. Get in touch for more details.
+If you'd like to use our code to sell your own invoicing app email us for details about our affiliate program.
 
-### Introduction
+### Installation Options
 
-To setup the site you can either use the [zip file](https://www.invoiceninja.com/knowledgebase/self-host/) (easier to run) or checkout the code from GitHub (easier to make changes).
+* [Zip - Free](https://www.invoiceninja.com/knowledgebase/self-host/)
+* [Bitnami - Free](https://bitnami.com/stack/invoice-ninja)
+* [Softaculous - $30](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
 
-For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). For discussion of the app please use our [new forum](http://www.invoiceninja.com/forums). 
+### Getting Started
+
+If you have any questions or comments please use our [support forum](https://www.invoiceninja.com/forums/forum/support/). For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). 
 
 If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
-
-Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kantorp-wegl.in](http://kantorp-wegl.in/).
 
 ### Features
 
@@ -33,12 +35,11 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 * [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
 * [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
 
-### Documentation 
-
-* [Self Host](https://www.invoiceninja.com/knowledgebase/self-host/)
+### Documentation
 * [Ubuntu and Apache](http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/)
 * [Debian and Nginx](https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/)
 * [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
+* [User Guide](https://www.invoiceninja.com/user-guide/)
 * [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
 
 ### Frameworks/Libraries
@@ -70,3 +71,4 @@ Developed by [@hillelcoren](https://twitter.com/hillelcoren) | Designed by [kant
 * [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) - List of languages ​​for Laravel4
 * [bgrins/spectrum](https://github.com/bgrins/spectrum) - The No Hassle JavaScript Colorpicker
 * [lokesh/lightbox2](https://github.com/lokesh/lightbox2/) - The original lightbox script
+* [josdejong/jsoneditor](https://github.com/josdejong/jsoneditor/) - A web-based tool to view, edit and format JSON

@@ -200,7 +200,7 @@ class AccountGatewayController extends BaseController
         $fields = $gateway->getFields();
         $optional = array_merge(Gateway::$hiddenFields, Gateway::$optionalFields);
 
-        if (Utils::isNinja() && $gatewayId == GATEWAY_DWOLLA) {
+        if ($gatewayId == GATEWAY_DWOLLA) {
             $optional = array_merge($optional, ['key', 'secret']);
         }
 
@@ -257,6 +257,8 @@ class AccountGatewayController extends BaseController
             }
 
             $accountGateway->accepted_credit_cards = $cardCount;
+            $accountGateway->show_address = Input::get('show_address') ? true : false;
+            $accountGateway->update_address = Input::get('update_address') ? true : false;
             $accountGateway->config = json_encode($config);
 
             if ($accountGatewayPublicId) {
@@ -278,7 +280,7 @@ class AccountGatewayController extends BaseController
 
             Session::flash('message', $message);
 
-            return Redirect::to('company/payments');
+            return Redirect::to("gateways/{$accountGateway->public_id}/edit");
         }
     }
 

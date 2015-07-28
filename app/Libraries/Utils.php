@@ -51,12 +51,17 @@ class Utils
 
     public static function isNinjaProd()
     {
-        return isset($_ENV['NINJA_PROD']) && $_ENV['NINJA_PROD'];
+        return isset($_ENV['NINJA_PROD']) && $_ENV['NINJA_PROD'] == 'true';
     }
 
     public static function isNinjaDev()
     {
-        return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'];
+        return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'] == 'true';
+    }
+
+    public static function allowNewAccounts()
+    {
+        return Utils::isNinja() || (isset($_ENV['ALLOW_NEW_ACCOUNTS']) && $_ENV['ALLOW_NEW_ACCOUNTS'] == 'true');
     }
 
     public static function isPro()
@@ -246,6 +251,10 @@ class Utils
             $currency = Currency::find(1);
         }
 
+        if (!$value) {
+            $value = 0;
+        }
+
         Cache::add('currency', $currency, DEFAULT_QUERY_CACHE);
 
         return $currency->symbol.number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
@@ -310,6 +319,16 @@ class Utils
         return $date->format($format);
     }
 
+    public static function getTiemstampOffset()
+    {
+        $timezone = new DateTimeZone(Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE));
+        $datetime = new DateTime('now', $timezone);
+        $offset = $timezone->getOffset($datetime);
+        $minutes = $offset / 60;
+
+        return $minutes;
+    }
+
     public static function toSqlDate($date, $formatResult = true)
     {
         if (!$date) {
@@ -347,7 +366,7 @@ class Utils
 
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
-        
+
         $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', $date);
         $dateTime->setTimeZone(new DateTimeZone($timezone));
 
@@ -563,14 +582,15 @@ class Utils
     {
         $curl = curl_init();
 
-        $jsonEncodedData = json_encode($data->toJson());
+        $jsonEncodedData = json_encode($data->toPublicArray());
+        
         $opts = [
-        CURLOPT_URL => $subscription->target_url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POST => 1,
-        CURLOPT_POSTFIELDS => $jsonEncodedData,
-        CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
+            CURLOPT_URL => $subscription->target_url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => $jsonEncodedData,
+            CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
         ];
 
         curl_setopt_array($curl, $opts);
@@ -586,25 +606,37 @@ class Utils
     }
 
 
-    public static function remapPublicIds(array $data)
+    public static function remapPublicIds($items)
     {
         $return = [];
-
-        foreach ($data as $key => $val) {
-            if ($key === 'public_id') {
-                $key = 'id';
-            } elseif (strpos($key, '_id')) {
-                continue;
-            }
-
-            if (is_array($val)) {
-                $val = Utils::remapPublicIds($val);
-            }
-
-            $return[$key] = $val;
+        
+        foreach ($items as $item) {
+            $return[] = $item->toPublicArray();
         }
 
         return $return;
+    }
+
+    public static function hideIds($data)
+    {
+        $publicId = null;
+
+        foreach ($data as $key => $val) {
+            if (is_array($val)) {
+                $data[$key] = Utils::hideIds($val);
+            } else if ($key == 'id' || strpos($key, '_id')) {
+                if ($key == 'public_id') {
+                    $publicId = $val;
+                }
+                unset($data[$key]);
+            }
+        }
+
+        if ($publicId) {
+            $data['id'] = $publicId;
+        }
+        
+        return $data;
     }
 
     public static function getApiHeaders($count = 0)
@@ -658,5 +690,30 @@ class Utils
         }
 
         fwrite($output, "\n");
+    }
+    
+    public static function stringToObjectResolution($baseObject, $rawPath)
+    {
+        $val = '';
+        
+        if (!is_object($baseObject)) {
+          return $val;
+        }
+        
+        $path = preg_split('/->/', $rawPath);
+        $node = $baseObject;
+        
+        while (($prop = array_shift($path)) !== null) {
+            if (property_exists($node, $prop)) {
+                $val = $node->$prop;
+                $node = $node->$prop;
+            } else if (is_object($node) && isset($node->$prop)) {
+                $node = $node->{$prop};
+            } else if ( method_exists($node, $prop)) {
+                $val = call_user_func(array($node, $prop));
+            }
+        }
+        
+        return $val;
     }
 }

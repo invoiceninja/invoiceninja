@@ -108,7 +108,14 @@ class PaymentRepository
             $payment->payment_type_id = $paymentTypeId;
         }
 
-        $payment->payment_date = Utils::toSqlDate($input['payment_date']);
+        if (isset($input['payment_date_sql'])) {
+            $payment->payment_date = $input['payment_date_sql'];
+        } elseif (isset($input['payment_date'])) {
+            $payment->payment_date = Utils::toSqlDate($input['payment_date']);
+        } else {
+            $payment->payment_date = date('Y-m-d');
+        }
+         
         $payment->transaction_reference = trim($input['transaction_reference']);
 
         if (!$publicId) {

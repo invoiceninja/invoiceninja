@@ -34,5 +34,9 @@ class AccountGateway extends EntityModel
     public function isPaymentType($type) {
         return $this->getPaymentType() == $type;
     }
+
+    public function isGateway($gatewayId) {
+        return $this->gateway_id == $gatewayId;
+    }
 }
 

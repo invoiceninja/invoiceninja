@@ -38,6 +38,11 @@ class Contact extends EntityModel
     }
     */
 
+    public function getName()
+    {
+        return $this->getDisplayName();
+    }
+
     public function getDisplayName()
     {
         if ($this->getFullName()) {

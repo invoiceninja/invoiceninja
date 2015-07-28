@@ -83,6 +83,8 @@ th {border-left: 1px solid #d26b26; }
 .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
 vertical-align: middle;
 border-top: none;
+}
+table.invoice-table>thead>tr>th, table.invoice-table>tbody>tr>th, table.invoice-table>tfoot>tr>th, table.invoice-table>thead>tr>td, table.invoice-table>tbody>tr>td, table.invoice-table>tfoot>tr>td {
 border-bottom: 1px solid #dfe0e1;
 }
 table.dataTable.no-footer {
@@ -884,3 +886,95 @@ a .glyphicon,
 button .glyphicon {
     padding-left: 8px;
 }
+
+.pro-plan-modal {
+    background-color: #4b4b4b;
+    padding-bottom: 40px;
+    padding-right: 25px;
+    opacity:0.95 !important;
+}
+
+.pro-plan-modal .left-side {
+    margin-top: 50px;
+}
+
+.pro-plan-modal h2 {
+    color: #36c157;
+    font-size: 71px;
+    font-weight: 800;
+}
+
+.pro-plan-modal img.price {
+    height: 90px;
+}
+
+.pro-plan-modal a.button {
+    font-family: 'roboto_slabregular', Georgia, Times, serif;
+    background: #f38c4f; 
+    background: -moz-linear-gradient(top,  #f38c4f 0%, #db7134 100%); 
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f38c4f), color-stop(100%,#db7134)); 
+    background: -webkit-linear-gradient(top,  #f38c4f 0%,#db7134 100%); 
+    background: -o-linear-gradient(top,  #f38c4f 0%,#db7134 100%); 
+    background: -ms-linear-gradient(top,  #f38c4f 0%,#db7134 100%); 
+    background: linear-gradient(to bottom,  #f38c4f 0%,#db7134 100%); 
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f38c4f', endColorstr='#db7134',GradientType=0 ); 
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, .25);
+    width: 68%;
+    margin-top: 20px;
+    font-size: 28px;
+    color: #fff;
+    border-radius: 10px;
+    padding: 20px 0;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.pro-plan-modal a.button:hover {
+    background: #db7134; /* Old browsers */
+    background: -moz-linear-gradient(top,  #db7134 0%, #f38c4f 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#db7134), color-stop(100%,#f38c4f)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #db7134 0%,#f38c4f 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #db7134 0%,#f38c4f 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #db7134 0%,#f38c4f 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #db7134 0%,#f38c4f 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#db7134', endColorstr='#f38c4f',GradientType=0 ); /* IE6-9 */
+}
+
+
+.pro-plan-modal ul {
+    color: #fff;
+    list-style: none;
+    padding: 0 0 30px 0;
+    text-align: left;
+    white-space: pre-line;
+    margin: 0;
+}
+
+.pro-plan-modal ul li {
+    font-family: 'roboto_slabregular', Georgia, Times, serif;
+    background: url('../images/pro_plan/check.png') no-repeat 0px 12px;
+    display: inline-block;
+    font-size: 17px;
+    line-height: 36px;
+    padding: 0 0 0 19px;
+}
+
+.pro-plan-modal img.close {
+    width: 35px;
+    margin-top: 20px;
+}
+
+ul.user-accounts div.account {
+    font-size: large;
+}
+
+ul.user-accounts div.remove {
+    padding-top: 14px;
+    color: #BBB;
+    visibility: hidden;
+}
+
+ul.user-accounts a:hover div.remove {
+    visibility: visible;
+}
+

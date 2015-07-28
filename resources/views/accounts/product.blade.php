@@ -4,7 +4,7 @@
   @parent
 
   {!! Former::open($url)->method($method)
-      ->rules(['product_key' => 'required|max:20'])
+      ->rules(['product_key' => 'required|max:255'])
       ->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!}
 
 

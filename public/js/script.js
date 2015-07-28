@@ -8,33 +8,51 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
 
 var invoiceOld;
+var refreshTimer;
 function generatePDF(invoice, javascript, force, cb) {
+  if (!invoice || !javascript) {
+    return;
+  }
+  console.log('== generatePDF - force: %s', force);
+  if (force || !invoiceOld) {
+    refreshTimer = null;
+  } else {
+      if (refreshTimer) {
+        clearTimeout(refreshTimer);    
+      }
+      refreshTimer = setTimeout(function() {
+        generatePDF(invoice, javascript, true, cb);
+      }, 500);
+      return;
+  }
+
   invoice = calculateAmounts(invoice);
-  var a = copyInvoice(invoice);
-  var b = copyInvoice(invoiceOld);
+  var a = copyObject(invoice);
+  var b = copyObject(invoiceOld);
   if (!force && _.isEqual(a, b)) {
     return;
   }
-  pdfmakeMarker = "//pdfmake";
   invoiceOld = invoice;
-  report_id = invoice.invoice_design_id;
+  pdfmakeMarker = "{";
   if(javascript.slice(0, pdfmakeMarker.length) === pdfmakeMarker) {
     doc = GetPdfMake(invoice, javascript, cb);
-    //doc.getDataUrl(cb);
   } else {
     doc = GetPdf(invoice, javascript);
     doc.getDataUrl = function(cb) {
       cb( this.output("datauristring"));  
     };    
   }
+
+  if (cb) {
+     doc.getDataUrl(cb);
+  }
+
   return doc;
 }
 
-function copyInvoice(orig) {
+function copyObject(orig) {
   if (!orig) return false;
-  var copy = JSON.stringify(orig);
-  var copy = JSON.parse(copy);
-  return copy;
+  return JSON.parse(JSON.stringify(orig));
 }
 
 
@@ -705,8 +723,12 @@ function getInvoiceDetails(invoice) {
     {'due_date': invoice.due_date},
   ];
 
+  if (NINJA.parseFloat(invoice.balance) < NINJA.parseFloat(invoice.amount)) {
+    fields.push({'total': formatMoney(invoice.amount, invoice.client.currency_id)});
+  }
+
   if (NINJA.parseFloat(invoice.partial)) {
-    fields.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
+    fields.push({'balance': formatMoney(invoice.total_amount, invoice.client.currency_id)});
   }
 
   fields.push({'balance_due': formatMoney(invoice.balance_amount, invoice.client.currency_id)})
@@ -762,12 +784,16 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
   }
 
   var paid = invoice.amount - invoice.balance;
+  if (paid) {
+    data.push({'total': formatMoney(invoice.amount, invoice.client.currency_id)});
+  }
+
   if (invoice.account.hide_paid_to_date != '1' || paid) {
     data.push({'paid_to_date': formatMoney(paid, invoice.client.currency_id)});
   }
 
   if (NINJA.parseFloat(invoice.partial) && invoice.total_amount != invoice.subtotal_amount) {
-    data.push({'total': formatMoney(invoice.total_amount, invoice.client.currency_id)});
+    data.push({'balance': formatMoney(invoice.total_amount, invoice.client.currency_id)});
   }
 
   var options = {
@@ -1053,7 +1079,7 @@ function displayInvoiceItems(doc, invoice, layout) {
     }
     shownItem = true;
 
-    var numLines = doc.splitTextToSize(item.notes, 200).length + 2;
+    var numLines = Math.max(doc.splitTextToSize(item.notes, 200).length, doc.splitTextToSize(item.product_key, 60).length) + 2;
     //console.log('num lines %s', numLines);
 
     var y = tableTop + (line * layout.tableRowHeight) + (2 * layout.tablePadding);
@@ -1566,4 +1592,15 @@ function twoDigits(value) {
        return '0' + value;
    }
    return value;
+}
+
+function toSnakeCase(str) {
+    if (!str) return '';
+    return str.replace(/([A-Z])/g, function($1){return "_"+$1.toLowerCase();});
+}
+
+function getDescendantProp(obj, desc) {
+    var arr = desc.split(".");
+    while(arr.length && (obj = obj[arr.shift()]));
+    return obj;
 }
