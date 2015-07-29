@@ -69,9 +69,14 @@ class Invoice extends EntityModel
         return storage_path() . '/pdfcache/cache-' . $this->id . '.pdf';
     }
 
+    public static function calcLink($invoice)
+    {
+        return link_to('invoices/' . $invoice->public_id, $invoice->invoice_number);
+    }
+
     public function getLink()
     {
-        return link_to('invoices/'.$this->public_id, $this->invoice_number);
+        return self::calcLink($this);
     }
 
     public function getEntityType()

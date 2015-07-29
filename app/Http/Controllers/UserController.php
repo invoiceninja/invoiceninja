@@ -95,7 +95,7 @@ class UserController extends BaseController
         $user->force_pdfjs = true;
         $user->save();
 
-        Session::flash('message', trans('texts.security.updated_settings'));
+        Session::flash('message', trans('texts.updated_settings'));
 
         return Redirect::to('/dashboard');
     }
@@ -132,9 +132,12 @@ class UserController extends BaseController
      */
     public function create()
     {
-        if (!Auth::user()->confirmed) {
+        if (!Auth::user()->registered) {
             Session::flash('error', trans('texts.register_to_add_user'));
-
+            return Redirect::to('company/advanced_settings/user_management');
+        }        
+        if (!Auth::user()->confirmed) {
+            Session::flash('error', trans('texts.confirmation_required'));
             return Redirect::to('company/advanced_settings/user_management');
         }
 

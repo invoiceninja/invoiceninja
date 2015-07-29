@@ -336,6 +336,7 @@ class PaymentController extends BaseController
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
             'countries' => Cache::get('countries'),
             'currencyId' => $client->getCurrencyId(),
+            'currencyCode' => $client->currency->code,
             'account' => $client->account,
             'hideLogo' => $account->isWhiteLabel(),
             'showAddress' => $accountGateway->show_address,

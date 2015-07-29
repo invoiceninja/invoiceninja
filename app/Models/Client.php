@@ -76,14 +76,16 @@ class Client extends EntityModel
     {
         return $this->name;
     }
-
+    
     public function getDisplayName()
     {
         if ($this->name) {
             return $this->name;
         }
-    
-        $this->load('contacts');
+        
+        if (!$this->contacts || !count($this->contacts)) {
+            $this->load('contacts');
+        }
 
         $contact = $this->contacts()->first();
 
@@ -152,11 +154,15 @@ class Client extends EntityModel
 
     public function getCurrencyId()
     {
+        if ($this->currency_id) {
+            return $this->currency_id;
+        }
+
         if (!$this->account) {
             $this->load('account');
         }
 
-        return $this->currency_id ?: ($this->account->currency_id ?: DEFAULT_CURRENCY);
+        return $this->account->currency_id ?: DEFAULT_CURRENCY;
     }
 }
 

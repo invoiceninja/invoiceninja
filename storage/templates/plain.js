@@ -11,7 +11,7 @@
         [
             {
                 "image": "$accountLogo",
-                "width": 100
+                "fit": [120, 80]
             }
         ]        
     ]},
@@ -66,13 +66,13 @@
             {
                 "style": "subtotals",
                 "table": {
-                    "widths": ["*", "*"],
+                    "widths": ["*", "auto"],
                     "body": "$subtotals"
                 },
                 "layout": {
                     "hLineWidth": "$none",
                     "vLineWidth": "$none",
-                    "paddingLeft": "$amount:8", 
+                    "paddingLeft": "$amount:34", 
                     "paddingRight": "$amount:8", 
                     "paddingTop": "$amount:4", 
                     "paddingBottom": "$amount:4" 

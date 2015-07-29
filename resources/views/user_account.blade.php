@@ -2,7 +2,7 @@
     @if (isset($user_id) && $show_remove)
         <a href='{{ URL::to("/switch_account/{$user_id}") }}'>
     @else 
-        <a href='#' onclick="return false;">
+        <a href='{{ URL::to("/company/details") }}'>
     @endif
 
         @if (isset($show_remove) && $show_remove)
@@ -10,7 +10,9 @@
         @endif
 
         @if (file_exists('logo/'.$account_key.'.jpg'))
-            <img class="pull-left" style="width: 40px; min-height: 40px; margin-right: 16px" src="{{ asset('logo/'.$account_key.'.jpg') }}"/>
+            <div class="pull-left" style="height: 40px; margin-right: 16px;">
+                <img style="width: 40px; margin-top:6px" src="{{ asset('logo/'.$account_key.'.jpg') }}"/>
+            </div>
         @else
             <div class="pull-left" style="width: 40px; min-height: 40px; margin-right: 16px">&nbsp;</div>
         @endif

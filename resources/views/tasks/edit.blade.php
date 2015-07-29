@@ -223,7 +223,7 @@
         });
 
         self.startTime.pretty = ko.computed({
-            read: function() {
+            read: function() {                
                 return self.startTime() ? moment.unix(self.startTime()).utcOffset({{ $minuteOffset }}).format('MMM D YYYY h:mm:ss a') : '';    
             }, 
             write: function(data) {
@@ -341,13 +341,6 @@
 
         $clientSelect.combobox();
      
-        @if ($task)   
-            $('#date').datepicker('update', new Date('{{ Utils::fromSqlDateTime($task->start_time) }}'));
-        @else
-            var date = new Date();
-            $('#date').datepicker('update', date);
-        @endif
-
         @if (!$task && !$clientPublicId)
             $('.client-select input.form-control').focus();
         @else
