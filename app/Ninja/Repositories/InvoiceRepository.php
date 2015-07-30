@@ -266,15 +266,18 @@ class InvoiceRepository
             $account->save();
         }
 
-        $invoice->client_id = $data['client_id'];
+        if (isset($data['invoice_number'])) {
+            $invoice->invoice_number = trim($data['invoice_number']);
+        }
+
         $invoice->discount = round(Utils::parseFloat($data['discount']), 2);
         $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
-        $invoice->invoice_number = trim($data['invoice_number']);
         $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
         $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
         $invoice->has_tasks = isset($data['has_tasks']) ? $data['has_tasks'] : false;
         
         if (!$publicId) {
+            $invoice->client_id = $data['client_id'];
             $invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
         }
         
@@ -543,8 +546,9 @@ class InvoiceRepository
                 ->whereClientId($clientId)
                 ->whereIsQuote(false)
                 ->whereIsRecurring(false)
+                ->whereDeletedAt(null)
                 ->whereHasTasks(true)
-                ->where('balance', '>', 0)
+                ->where('invoice_status_id', '<', 5)
                 ->select(['public_id', 'invoice_number'])
                 ->get();
     }

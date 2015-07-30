@@ -50,12 +50,14 @@ class InvoiceApiController extends Controller
         $error = null;
                 
         // check if the invoice number is set and unique
-        if (!isset($data['invoice_number'])) {
+        if (!isset($data['invoice_number']) && !isset($data['id'])) {
             $data['invoice_number'] = Auth::user()->account->getNextInvoiceNumber();
-        } else {
+        } else if (isset($data['invoice_number'])) {            
             $invoice = Invoice::scope()->where('invoice_number', '=', $data['invoice_number'])->first();
             if ($invoice) {
                 $error = trans('validation.unique', ['attribute' => 'texts.invoice_number']);
+            } else {
+                $data['id'] = $invoice->public_id;
             }
         }
 
@@ -98,13 +100,15 @@ class InvoiceApiController extends Controller
         } else {
             $data = self::prepareData($data);
             $data['client_id'] = $client->id;
-            $invoice = $this->invoiceRepo->save(false, $data, false);
+            $invoice = $this->invoiceRepo->save(isset($data['id']) ? $data['id'] : false, $data, false);
 
-            $invitation = Invitation::createNew();
-            $invitation->invoice_id = $invoice->id;
-            $invitation->contact_id = $client->contacts[0]->id;
-            $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
-            $invitation->save();
+            if (!isset($data['id'])) {
+                $invitation = Invitation::createNew();
+                $invitation->invoice_id = $invoice->id;
+                $invitation->contact_id = $client->contacts[0]->id;
+                $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
+                $invitation->save();
+            }
 
             if (isset($data['email_invoice']) && $data['email_invoice']) {
                 $this->mailer->sendInvoice($invoice);

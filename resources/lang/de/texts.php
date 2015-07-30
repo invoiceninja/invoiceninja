@@ -688,9 +688,9 @@ return array(
 
   'email_receipt' => 'Zahlungsbestätigung an Kunden per E-Mail senden',
   'created_payment_emailed_client' => 'Zahlung erfolgreich erstellt und Kunde per E-Mail benachrichtigt',
-  'add_account' => 'Konto hinzufügen',
+  'add_company' => 'Konto hinzufügen',
   'untitled' => 'Unbenannt',
-  'new_account' => 'Neues Konto',
+  'new_company' => 'Neues Konto',
   'associated_accounts' => 'Konten erfolgreich verlinkt',
   'unlinked_account' => 'Konten erfolgreich getrennt',
   'login' => 'Login',

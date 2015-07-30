@@ -427,7 +427,7 @@
             @endif            
             <li class="divider"></li>                
             @if (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
-                <li>{!! link_to('/login?new_account=true', trans('texts.add_account')) !!}</li>
+                <li>{!! link_to('/login?new_company=true', trans('texts.add_company')) !!}</li>
             @endif
             <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
           </ul>
@@ -462,7 +462,9 @@
                 <li><a href="#">{{ trans('texts.no_items') }}</a></li>
             @else
                 @foreach (Session::get(RECENTLY_VIEWED) as $link)
-                    <li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
+                    @if (property_exists($link, 'accountId') && $link->accountId == Auth::user()->account_id)
+                        <li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
+                    @endif
                 @endforeach
             @endif
           </ul>

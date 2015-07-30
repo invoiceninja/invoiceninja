@@ -689,9 +689,9 @@ return array(
 
   'email_receipt' => 'Email payment receipt to the client',
   'created_payment_emailed_client' => 'Paiement crée avec succès et envoyé au client',
-  'add_account' => 'Ajouter compte',
+  'add_company' => 'Ajouter compte',
   'untitled' => 'Sans titre',
-  'new_account' => 'Nouveau compte',
+  'new_company' => 'Nouveau compte',
   'associated_accounts' => 'Successfully linked accounts',
   'unlinked_account' => 'Successfully unlinked accounts',
   'login' => 'Connexion',

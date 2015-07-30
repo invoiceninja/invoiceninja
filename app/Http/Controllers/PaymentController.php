@@ -61,11 +61,12 @@ class PaymentController extends BaseController
         }
 
         $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
-        $color = $invitation->account->primary_color ? $invitation->account->primary_color : '#0b4d78';
+        $account = $invitation->account;
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         
         $data = [
             'color' => $color,
-            'hideLogo' => Session::get('white_label'),
+            'hideLogo' => $account->isWhiteLabel(),
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
             'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date'])
@@ -336,7 +337,7 @@ class PaymentController extends BaseController
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
             'countries' => Cache::get('countries'),
             'currencyId' => $client->getCurrencyId(),
-            'currencyCode' => $client->currency->code,
+            'currencyCode' => $client->currency ? $client->currency->code : ($account->currency ? $account->currency->code : 'USD'),
             'account' => $client->account,
             'hideLogo' => $account->isWhiteLabel(),
             'showAddress' => $accountGateway->show_address,

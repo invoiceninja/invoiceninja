@@ -6,7 +6,7 @@
     @endif
 
         @if (isset($show_remove) && $show_remove)
-            <div class="pull-right glyphicon glyphicon-remove remove" onclick="return showUnlink({{ $user_account_id }}, {{ $user_id }})"></div>
+            <div class="pull-right glyphicon glyphicon-remove remove" onclick="return showUnlink({{ $user_account_id }}, {{ $user_id }})" title="{{ trans('texts.unlink') }}"></div>
         @endif
 
         @if (file_exists('logo/'.$account_key.'.jpg'))

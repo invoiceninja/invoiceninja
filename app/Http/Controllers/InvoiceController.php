@@ -86,11 +86,12 @@ class InvoiceController extends BaseController
         }
 
         $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
-        $color = $invitation->account->primary_color ? $invitation->account->primary_color : '#0b4d78';
+        $account = $invitation->account;
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         
         $data = [
             'color' => $color,
-            'hideLogo' => Session::get('white_label'),
+            'hideLogo' => $account->isWhiteLabel(),
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
             'columns' => Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date']),
@@ -205,7 +206,6 @@ class InvoiceController extends BaseController
 
         Session::set($invitationKey, true);
         Session::set('invitation_key', $invitationKey);
-        Session::set('white_label', $account->isWhiteLabel());
 
         $account->loadLocalizationSettings();
 

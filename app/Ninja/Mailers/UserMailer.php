@@ -47,7 +47,7 @@ class UserMailer extends Mailer
             'clientName' => $invoice->client->getDisplayName(),
             'accountName' => $invoice->account->getDisplayName(),
             'userName' => $user->getDisplayName(),
-            'invoiceAmount' => Utils::formatMoney($invoice->amount, $invoice->client->getCurrencyId()),
+            'invoiceAmount' => Utils::formatMoney($invoice->getRequestedAmount(), $invoice->client->getCurrencyId()),
             'invoiceNumber' => $invoice->invoice_number,
             'invoiceLink' => SITE_URL."/{$entityType}s/{$invoice->public_id}",
         ];
