@@ -390,7 +390,7 @@ class InvoiceRepository
                 $task->invoice_id = $invoice->id;
                 $task->client_id = $invoice->client_id;
                 $task->save();
-            } else if ($item['product_key']) {
+            } else if ($item['product_key'] && !$invoice->has_tasks) {
                 $product = Product::findProductByKey(trim($item['product_key']));
 
                 if (!$product) {

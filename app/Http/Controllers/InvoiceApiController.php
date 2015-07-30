@@ -26,7 +26,11 @@ class InvoiceApiController extends Controller
 
     public function index()
     {
-        $invoices = Invoice::scope()->with('client', 'invitations.account')->where('invoices.is_quote', '=', false)->orderBy('created_at', 'desc')->get();
+        $invoices = Invoice::scope()
+                        ->with('client', 'invitations.account')
+                        ->where('invoices.is_quote', '=', false)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
 
         // Add the first invitation link to the data
         foreach ($invoices as $key => $invoice) {
@@ -100,7 +104,7 @@ class InvoiceApiController extends Controller
         } else {
             $data = self::prepareData($data);
             $data['client_id'] = $client->id;
-            $invoice = $this->invoiceRepo->save(isset($data['id']) ? $data['id'] : false, $data, false);
+            $invoice = $this->invoiceRepo->save(false, $data, false);
 
             if (!isset($data['id'])) {
                 $invitation = Invitation::createNew();
