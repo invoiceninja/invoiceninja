@@ -158,7 +158,7 @@ class StartupCheck
             }
         }
 
-        if (preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
+        if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
             Session::flash('error', trans('texts.old_browser'));
         }
 
