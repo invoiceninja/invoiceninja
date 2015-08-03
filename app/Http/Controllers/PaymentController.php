@@ -543,18 +543,19 @@ class PaymentController extends BaseController
                     ->withErrors($validator)
                     ->withInput();
             }
+
+
+            if ($accountGateway->update_address) {
+                $client->address1 = trim(Input::get('address1'));
+                $client->address2 = trim(Input::get('address2'));
+                $client->city = trim(Input::get('city'));
+                $client->state = trim(Input::get('state'));
+                $client->postal_code = trim(Input::get('postal_code'));
+                $client->country_id = Input::get('country_id');
+                $client->save();
+            }
         }
-                
-        if ($onSite && $accountGateway->update_address) {
-            $client->address1 = trim(Input::get('address1'));
-            $client->address2 = trim(Input::get('address2'));
-            $client->city = trim(Input::get('city'));
-            $client->state = trim(Input::get('state'));
-            $client->postal_code = trim(Input::get('postal_code'));
-            $client->country_id = Input::get('country_id');
-            $client->save();
-        }
-        
+                        
         try {
             $gateway = self::createGateway($accountGateway);
             $details = self::getPaymentDetails($invitation, ($useToken || !$onSite) ? false : Input::all());

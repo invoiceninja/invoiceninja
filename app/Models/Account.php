@@ -315,7 +315,7 @@ class Account extends Eloquent
     public function isWhiteLabel()
     {
         if (Utils::isNinja()) {
-            return self::isPro();
+            return self::isPro() && $this->pro_plan_paid != NINJA_DATE;
         } else {
             return $this->pro_plan_paid == NINJA_DATE;
         }

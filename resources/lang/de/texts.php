@@ -732,7 +732,8 @@ return array(
   'invoice_to' => 'Rechnunge an',
   'invoice_no' => 'Rechnung Nr.',
   'recent_payments' => 'Kürzliche Zahlungen',
-  'outstanding' => 'Ausstehend',
+  'manage_companies' => 'Manage Companies',
+  
 
 
 );

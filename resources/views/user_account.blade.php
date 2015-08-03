@@ -1,13 +1,9 @@
 <li style="margin-top: 4px; margin-bottom: 4px; min-width: 220px; cursor: pointer">
-    @if (isset($user_id) && $show_remove)
-        <a href='{{ URL::to("/switch_account/{$user_id}") }}'>
+    @if (isset($user_id))
+        <a href="{{ URL::to("/switch_account/{$user_id}") }}">
     @else 
-        <a href='{{ URL::to("/company/details") }}'>
+        <a href="{{ URL::to("/company/details") }}">
     @endif
-
-        @if (isset($show_remove) && $show_remove)
-            <div class="pull-right glyphicon glyphicon-remove remove" onclick="return showUnlink({{ $user_account_id }}, {{ $user_id }})" title="{{ trans('texts.unlink') }}"></div>
-        @endif
 
         @if (file_exists('logo/'.$account_key.'.jpg'))
             <div class="pull-left" style="height: 40px; margin-right: 16px;">

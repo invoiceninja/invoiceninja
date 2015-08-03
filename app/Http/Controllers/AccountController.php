@@ -639,6 +639,7 @@ class AccountController extends BaseController
     {
         $rules = array(
             'name' => 'required',
+            'logo' => 'sometimes|max:1024|mimes:jpeg,gif,png',
         );
 
         $user = Auth::user()->account->users()->orderBy('id')->first();

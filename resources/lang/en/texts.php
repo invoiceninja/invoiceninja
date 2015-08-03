@@ -740,7 +740,8 @@ return array(
   'invoice_no' => 'Invoice No.',
   'recent_payments' => 'Recent Payments',
   'outstanding' => 'Outstanding',
-
+  'manage_companies' => 'Manage Companies',
+  
 
 );
 

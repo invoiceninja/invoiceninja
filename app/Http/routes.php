@@ -1,5 +1,7 @@
 <?php
 
+//dd("We're currently undergoing a brief maintenance, we'll be right back.");
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -95,6 +97,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
+    Route::get('/manage_companies', 'UserController@manageCompanies');
 
     Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
     Route::resource('tokens', 'TokenController');
@@ -363,7 +366,7 @@ define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
 define('NINJA_GATEWAY_CONFIG', '');
 define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
 define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-define('NINJA_VERSION', '2.2.2');
+define('NINJA_VERSION', '2.3.0');
 define('NINJA_DATE', '2000-01-01');
 
 define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');

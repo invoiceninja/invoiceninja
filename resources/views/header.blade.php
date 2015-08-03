@@ -203,19 +203,6 @@
     });
   }
 
-  function showUnlink(userAccountId, userId) {    
-    NINJA.unlink = {
-        'userAccountId': userAccountId,
-        'userId': userId
-    };
-    $('#unlinkModal').modal('show');    
-    return false;
-  }
-
-  function unlinkAccount() {    
-    window.location = '{{ URL::to('/unlink_account') }}' + '/' + NINJA.unlink.userAccountId + '/' + NINJA.unlink.userId;    
-  }
-
   function wordWrapText(value, width)
   {
     @if (Auth::user()->account->auto_wrap)
@@ -389,7 +376,7 @@
               <span class="caret"></span>
             </div>            
           </button>			
-          <ul class="dropdown-menu user-accounts" role="menu">
+          <ul class="dropdown-menu user-accounts">
             @if (session(SESSION_USER_ACCOUNTS))
                 @foreach (session(SESSION_USER_ACCOUNTS) as $item)
                     @if ($item->user_id == Auth::user()->id)
@@ -400,7 +387,6 @@
                             'user_name' => $item->user_name,
                             'account_key' => $item->account_key,
                             'selected' => true,
-                            'show_remove' => count(session(SESSION_USER_ACCOUNTS)) > 1,
                         ])
                     @endif
                 @endforeach
@@ -413,7 +399,6 @@
                             'user_name' => $item->user_name,
                             'account_key' => $item->account_key,
                             'selected' => false,
-                            'show_remove' => count(session(SESSION_USER_ACCOUNTS)) > 1,
                         ])
                     @endif
                 @endforeach
@@ -428,6 +413,9 @@
             <li class="divider"></li>                
             @if (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
                 <li>{!! link_to('/login?new_company=true', trans('texts.add_company')) !!}</li>
+            @endif
+            @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
+                <li>{!! link_to('/manage_companies', trans('texts.manage_companies')) !!}</li>
             @endif
             <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
           </ul>
@@ -597,28 +585,6 @@
       <div class="modal-footer" id="signUpFooter">	      	
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
         <button type="button" class="btn btn-primary" onclick="logout(true)">{{ trans('texts.logout') }}</button>	      	
-      </div>
-    </div>
-  </div>
-</div>
-@endif
-
-@if (Auth::check() && session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
-<div class="modal fade" id="unlinkModal" tabindex="-1" role="dialog" aria-labelledby="unlinkModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">{{ trans('texts.unlink_account') }}</h4>
-      </div>
-
-      <div class="container">        
-        <h3>{{ trans('texts.are_you_sure') }}</h3>        
-      </div>
-
-      <div class="modal-footer" id="signUpFooter">          
-        <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-        <button type="button" class="btn btn-primary" onclick="unlinkAccount()">{{ trans('texts.unlink') }}</button>           
       </div>
     </div>
   </div>
