@@ -382,10 +382,6 @@ class UserController extends BaseController
 
     public function manageCompanies()
     {
-        $data = [
-
-        ];
-
-        return View::make('users.account_management', $data);
+        return View::make('users.account_management');
     }
 }

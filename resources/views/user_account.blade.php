@@ -1,5 +1,5 @@
 <li style="margin-top: 4px; margin-bottom: 4px; min-width: 220px; cursor: pointer">
-    @if (isset($user_id))
+    @if (isset($user_id) && $user_id != Auth::user()->id)
         <a href="{{ URL::to("/switch_account/{$user_id}") }}">
     @else 
         <a href="{{ URL::to("/company/details") }}">

@@ -6,7 +6,7 @@ use Session;
 use Utils;
 use DB;
 use stdClass;
-
+use Schema;
 use App\Models\AccountGateway;
 use App\Models\Invitation;
 use App\Models\Invoice;
@@ -250,6 +250,10 @@ class AccountRepository
 
     public function findUserAccounts($userId1, $userId2 = false)
     {
+        if (!Schema::hasTable('user_accounts')) {
+            return false;
+        }
+
         $query = UserAccount::where('user_id1', '=', $userId1)
                                 ->orWhere('user_id2', '=', $userId1)
                                 ->orWhere('user_id3', '=', $userId1)

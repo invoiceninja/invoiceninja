@@ -94,7 +94,7 @@
 					{!! Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
 								->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') !!}
 				</div>
-				@if ($invoice && $invoice->recurring_invoice_id)
+				@if ($invoice && $invoice->recurring_invoice)
 					<div class="pull-right" style="padding-top: 6px">
                         {!! trans('texts.created_by_recurring', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, $invoice->recurring_invoice->invoice_number)]) !!}
 					</div>

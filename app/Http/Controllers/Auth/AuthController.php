@@ -62,7 +62,7 @@ class AuthController extends Controller {
         $userId = Auth::check() ? Auth::user()->id : null;
         $user = User::where('email', '=', $request->input('email'))->first();
 
-        if ($user->failed_logins >= 3) {
+        if ($user && $user->failed_logins >= 3) {
             Session::flash('error', 'These credentials do not match our records.');
             return redirect()->to('login');
         }

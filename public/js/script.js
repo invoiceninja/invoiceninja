@@ -13,7 +13,7 @@ function generatePDF(invoice, javascript, force, cb) {
   if (!invoice || !javascript) {
     return;
   }
-  console.log('== generatePDF - force: %s', force);
+  //console.log('== generatePDF - force: %s', force);
   if (force || !invoiceOld) {
     refreshTimer = null;
   } else {

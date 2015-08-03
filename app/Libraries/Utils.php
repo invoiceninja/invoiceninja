@@ -3,6 +3,7 @@
 use Auth;
 use Cache;
 use DB;
+use App;
 use Schema;
 use Session;
 use Request;
@@ -67,6 +68,11 @@ class Utils
     public static function isPro()
     {
         return Auth::check() && Auth::user()->isPro();
+    }
+
+    public static function isEnglish()
+    {
+        return App::getLocale() == 'en';
     }
 
     public static function getUserType()
