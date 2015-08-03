@@ -389,6 +389,7 @@ class PaymentController extends BaseController
             'currencyId' => 1,
             'paymentTitle' => $affiliate->payment_title,
             'paymentSubtitle' => $affiliate->payment_subtitle,
+            'showAddress' => true,
         ];
 
         return View::make('payments.payment', $data);
