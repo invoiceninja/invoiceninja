@@ -316,6 +316,9 @@ class AccountRepository
     }
 
     public function syncUserAccounts($users, $proPlanPaid = false) {
+        if (!$users) {
+            return;
+        }
 
         if (!$proPlanPaid) {
             foreach ($users as $user) {

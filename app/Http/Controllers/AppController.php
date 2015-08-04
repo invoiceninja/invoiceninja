@@ -176,7 +176,7 @@ class AppController extends BaseController
 
     public function update()
     {
-        if (!Utils::isNinja() && Auth::check()) {
+        if (!Utils::isNinja()) {
             try {
                 Artisan::call('migrate', array('--force' => true));
                 Artisan::call('db:seed', array('--force' => true, '--class' => 'PaymentLibrariesSeeder'));
