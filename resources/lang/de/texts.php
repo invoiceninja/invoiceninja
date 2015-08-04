@@ -733,7 +733,7 @@ return array(
   'invoice_no' => 'Rechnung Nr.',
   'recent_payments' => 'Kürzliche Zahlungen',
   'manage_companies' => 'Manage Companies',
-  
+  'total_revenue' => 'Total Revenue',  
 
 
 );

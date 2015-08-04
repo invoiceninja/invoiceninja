@@ -7,6 +7,9 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <img src="{{ asset('images/totalinvoices.png') }}" class="in-image"/>  
+                <div class="in-thin">
+                    {{ trans('texts.total_revenue') }}
+                </div>
                 <div class="in-bold">
                     @if (count($paidToDate))
                         @foreach ($paidToDate as $item)
@@ -15,9 +18,6 @@
                     @else
                         {{ Utils::formatMoney(0) }}
                     @endif
-                </div>
-                <div class="in-thin">
-                    {{ trans('texts.in_total_revenue') }}
                 </div>
             </div>
         </div>

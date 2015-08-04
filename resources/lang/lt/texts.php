@@ -744,7 +744,7 @@ return array(
   'recent_payments' => 'Recent Payments',
   'outstanding' => 'Outstanding',
   'manage_companies' => 'Manage Companies',
-  
+  'total_revenue' => 'Total Revenue',    
 
 
     

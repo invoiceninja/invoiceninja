@@ -72,9 +72,9 @@ class HomeController extends BaseController
                 $user->news_feed_id = $newsFeedId;
                 $user->save();
             }
-
-            Session::forget('news_feed_message');
         }
+        
+        Session::forget('news_feed_message');
 
         return 'success';
     }
