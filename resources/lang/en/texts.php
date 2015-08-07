@@ -742,6 +742,8 @@ return array(
   'outstanding' => 'Outstanding',
   'manage_companies' => 'Manage Companies',
   'total_revenue' => 'Total Revenue',
+
+  'current_user' => 'Current User',
   
 
 );

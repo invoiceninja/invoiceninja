@@ -877,9 +877,6 @@ function displayGrid(doc, invoice, data, x, y, layout, options)  {
         key = invoice.account[key];
       } else if (key === 'tax' && invoice.tax_name) {
         key = invoice.tax_name + ' ' + (invoice.tax_rate*1).toString() + '%';
-        if (invoice.tax_name.toLowerCase().indexOf(invoiceLabels['tax'].toLowerCase()) == -1) {
-            key = invoiceLabels['tax'] + ': ' + key;
-        }
       } else if (key === 'discount' && NINJA.parseFloat(invoice.discount) && !parseInt(invoice.is_amount_discount)) {
         key = invoiceLabels[key] + ' ' + parseFloat(invoice.discount) + '%';
       } else {

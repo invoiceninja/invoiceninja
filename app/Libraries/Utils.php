@@ -341,10 +341,11 @@ class Utils
             return;
         }
 
-        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        //$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
-        $dateTime = DateTime::createFromFormat($format, $date, new DateTimeZone($timezone));
+        //$dateTime = DateTime::createFromFormat($format, $date, new DateTimeZone($timezone));
+        $dateTime = DateTime::createFromFormat($format, $date);
 
         return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
     }
@@ -355,11 +356,11 @@ class Utils
             return '';
         }
 
-        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        //$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
         $dateTime = DateTime::createFromFormat('Y-m-d', $date);
-        $dateTime->setTimeZone(new DateTimeZone($timezone));
+        //$dateTime->setTimeZone(new DateTimeZone($timezone));
 
         return $formatResult ? $dateTime->format($format) : $dateTime;
     }

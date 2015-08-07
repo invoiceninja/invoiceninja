@@ -385,7 +385,7 @@
                             'user_id' => $item->user_id,
                             'account_name' => $item->account_name,
                             'user_name' => $item->user_name,
-                            'account_key' => $item->account_key,
+                            'logo_path' => isset($item->logo_path) ? $item->logo_path : "",
                             'selected' => true,
                         ])
                     @endif
@@ -397,7 +397,7 @@
                             'user_id' => $item->user_id,
                             'account_name' => $item->account_name,
                             'user_name' => $item->user_name,
-                            'account_key' => $item->account_key,
+                            'logo_path' => isset($item->logo_path) ? $item->logo_path : "",
                             'selected' => false,
                         ])
                     @endif
@@ -406,16 +406,15 @@
                 @include('user_account', [
                     'account_name' => Auth::user()->account->name ?: trans('texts.untitled'), 
                     'user_name' => Auth::user()->getDisplayName(),
-                    'account_key' => Auth::user()->account->account_key,
+                    'logo_path' => Auth::user()->account->getLogoPath(),
                     'selected' => true,
                 ])
             @endif            
             <li class="divider"></li>                
-            @if (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
-                <li>{!! link_to('/login?new_company=true', trans('texts.add_company')) !!}</li>
-            @endif
             @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
                 <li>{!! link_to('/manage_companies', trans('texts.manage_companies')) !!}</li>
+            @elseif (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
+                <li>{!! link_to('/login?new_company=true', trans('texts.add_company')) !!}</li>
             @endif
             <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
           </ul>

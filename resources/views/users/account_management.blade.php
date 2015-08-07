@@ -2,18 +2,39 @@
 
 @section('content')
 
+
+<center>
+    {!! Button::success(trans('texts.add_company'))->asLinkTo('/login?new_company=true') !!}
+</center>
+
 <p>&nbsp;</p>
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+    </div>
+</div>
 
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
         <div class="panel panel-default">
             <div class="panel-body">
             <table class="table table-striped">
-            @foreach (Session::get(SESSION_USER_ACCOUNTS) as $account)                
+            @foreach (Session::get(SESSION_USER_ACCOUNTS) as $account)
                 <tr>
-                    <td><b>{{ $account->account_name }}</b></td>
-                    <td>{{ $account->user_name }}</td>
-                    <td>{!! Button::primary(trans('texts.unlink'))->small()->withAttributes(['onclick'=>"return showUnlink({$account->id}, {$account->user_id})"]) !!}</td>
+                    <td>
+                    @if (isset($account->logo_path))
+                        {!! HTML::image($account->logo_path.'?no_cache='.time(), 'Logo', ['width' => 100]) !!}
+                    @endif
+                    </td>                    
+                    <td>
+                        <h3>{{ $account->account_name }}<br/>
+                        <small>{{ $account->user_name }}
+                            @if ($account->user_id == Auth::user()->id)
+                            | {{ trans('texts.current_user')}}
+                            @endif
+                        </small></h3>
+                    </td>
+                    <td>{!! Button::primary(trans('texts.unlink'))->withAttributes(['onclick'=>"return showUnlink({$account->id}, {$account->user_id})"]) !!}</td>
                 </tr>
             @endforeach
             </table>

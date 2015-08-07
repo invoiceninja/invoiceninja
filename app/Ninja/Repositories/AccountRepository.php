@@ -298,7 +298,7 @@ class AccountRepository
             $item->account_id = $user->account->id;
             $item->account_name = $user->account->getDisplayName();
             $item->pro_plan_paid = $user->account->pro_plan_paid;
-            $item->account_key = file_exists($user->account->getLogoPath()) ? $user->account->account_key : null;
+            $item->logo_path = file_exists($user->account->getLogoPath()) ? $user->account->getLogoPath() : null;
             $data[] = $item;
         }
 

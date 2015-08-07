@@ -147,6 +147,7 @@ class Account extends Eloquent
     public function getLogoPath()
     {
         $fileName = 'logo/' . $this->account_key;
+
         return file_exists($fileName.'.png') && $this->utf8_invoices ? $fileName.'.png' : $fileName.'.jpg';
     }
 

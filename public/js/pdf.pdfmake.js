@@ -142,7 +142,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
     }
 
     // search/replace values 
-    var regExp = new RegExp('"\\$\\\w*?Value"', 'g');
+    var regExp = new RegExp('"\\$[\\\w\\\.]*?Value"', 'g');
     var matches = javascript.match(regExp);    
     
     if (matches) {
@@ -151,6 +151,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
             field = match.substring(2, match.indexOf('Value'));
             field = toSnakeCase(field);
             var value = getDescendantProp(invoice, field) || ' ';            
+    
             if (field.toLowerCase().indexOf('date') >= 0 && value != ' ') {
                 value = moment(value, 'YYYY-MM-DD').format('MMM D YYYY');
             }
@@ -283,7 +284,8 @@ NINJA.subtotals = function(invoice, removeBalance)
     }
 
     if (invoice.tax && invoice.tax.name || invoice.tax_name) {
-        data.push([{text: invoiceLabels.tax}, {text: formatMoney(invoice.tax_amount, invoice.client.currency_id)}]);        
+        var taxStr = invoice.tax_name + ' ' + (invoice.tax_rate*1).toString() + '%';
+        data.push([{text: taxStr}, {text: formatMoney(invoice.tax_amount, invoice.client.currency_id)}]);        
     }
     
     if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {        
