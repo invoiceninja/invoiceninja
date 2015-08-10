@@ -17,8 +17,12 @@
 	
 	@if ($invoice && $invoice->id)
 		<ol class="breadcrumb">
-			<li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
-			<li class='active'>{{ $invoice->invoice_number }}</li>
+            @if ($isRecurring)
+             <li>{!! link_to('invoices', trans('texts.recurring_invoice')) !!}</li>
+            @else
+			 <li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
+			 <li class='active'>{{ $invoice->invoice_number }}</li>
+            @endif
 		</ol>  
 	@endif
 
@@ -79,53 +83,41 @@
 		<div class="col-md-4" id="col_2">
 			<div data-bind="visible: !is_recurring()">
 				{!! Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_date"))
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'invoice_date\')"></i>') !!}
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('invoice_date') !!}
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'due_date\')"></i>') !!}							
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('due_date') !!}							
                 
                 {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()')
                             ->rel('tooltip')->data_toggle('tooltip')->data_placement('bottom')->title(trans('texts.partial_value')) !!}
 			</div>
 			@if ($entityType == ENTITY_INVOICE)
 				<div data-bind="visible: is_recurring" style="display: none">
-					{!! Former::select('frequency_id')->options($frequencies)->data_bind("value: frequency_id") !!}
+					{!! Former::select('frequency_id')->options($frequencies)->data_bind("value: frequency_id")
+                            ->appendIcon('question-sign')->addGroupClass('frequency_id') !!}
 					{!! Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
-								->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') !!}
+								->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('start_date') !!}
 					{!! Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
-								->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') !!}
+								->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('end_date') !!}
 				</div>
 				@if ($invoice && $invoice->recurring_invoice)
 					<div class="pull-right" style="padding-top: 6px">
-                        {!! trans('texts.created_by_recurring', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, $invoice->recurring_invoice->invoice_number)]) !!}
+                        {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
 					</div>
-				@else 
-				<div data-bind="visible: invoice_status_id() === 0">
-                    <div class="form-group">
-                        <label for="" class="control-label col-lg-4 col-sm-4">
-                            {{ trans('texts.recurring') }}
-                        </label>
-                        <div class="col-lg-8 col-sm-8">
-                            <div class="checkbox">
-                                <label for="recurring" class="">
-                                    <input onclick="onRecurringEnabled()" data-bind="checked: is_recurring" id="recurring" type="checkbox" name="recurring" value="1">{{ trans('texts.enable') }} &nbsp;&nbsp; 
-                                    <a href="#" onclick="showLearnMore()"><i class="glyphicon glyphicon-question-sign"></i> {{ trans('texts.learn_more') }}</a>
-                                </label>
-                            </div>
-                        </div>
+				@elseif ($invoice && $invoice->last_sent_date)
+                    <div class="pull-right" style="padding-top: 6px">
+                        {!! trans('texts.last_invoice_sent', [
+                                'date' => link_to('/invoices/'.$invoice->recurring_invoices->last()->public_id, Utils::dateToString($invoice->last_sent_date))
+                            ]) !!}
                     </div>
-                    @if ($invoice && $invoice->last_sent_date)
-                        <div class="pull-right">
-                            {{ trans('texts.last_invoice_sent', ['date' => Utils::dateToString($invoice->last_sent_date)]) }}
-                        </div>
-                    @endif
-				</div>			
-				@endif
+                @endif
 			@endif
 			
 		</div>
 
 		<div class="col-md-4" id="col_2">
-			{!! Former::text('invoice_number')->label(trans("texts.{$entityType}_number_short"))->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
+            @if (!$isRecurring)
+			 {!! Former::text('invoice_number')->label(trans("texts.{$entityType}_number_short"))->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
+            @endif
 			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
@@ -334,10 +326,7 @@
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))
 
 			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
-
-            @if (!$invoice || ($invoice && !$invoice->is_recurring))
-			     {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
-            @endif
+		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
 
             @if ($invoice && $invoice->id)                
                 {!! DropdownButton::normal(trans('texts.more_actions'))
@@ -604,6 +593,20 @@
 			}, 1);
 		});
 
+        $('.frequency_id .input-group-addon').click(function() {
+            showLearnMore();
+        });
+
+        var fields = ['invoice_date', 'due_date', 'start_date', 'end_date'];
+        for (var i=0; i<fields.length; i++) {
+            var field = fields[i];
+            (function (_field) {
+                $('.' + _field + ' .input-group-addon').click(function() {
+                    toggleDatePicker(_field);
+                });                
+            })(field);
+        }
+
 		@if ($client || $invoice || count($clients) == 0)
 			$('#invoice_number').focus();
 		@else
@@ -687,6 +690,10 @@
 		invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
 		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
+
+        if (invoice.is_recurring) {
+            invoice.invoice_number = '0000';
+        }
 
         @if (!$invoice)
             if (!invoice.terms) {
@@ -1115,10 +1122,10 @@
 		var self = this;		
 		this.client = ko.observable(data ? false : new ClientModel());		
 		self.account = {!! $account !!};
-		this.id = ko.observable('');
+		self.id = ko.observable('');
 		self.discount = ko.observable('');
 		self.is_amount_discount = ko.observable(0);
-		self.frequency_id = ko.observable('');
+		self.frequency_id = ko.observable(4); // default to monthly 
         self.terms = ko.observable('');
         self.default_terms = ko.observable({{ !$invoice && $account->invoice_terms ? 'true' : 'false' }} ? wordWrapText('{!! str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) !!}', 300) : '');
         self.set_default_terms = ko.observable(false);
@@ -1134,7 +1141,7 @@
 		self.end_date = ko.observable('');
 		self.tax_name = ko.observable();
 		self.tax_rate = ko.observable();
-		self.is_recurring = ko.observable(false);
+		self.is_recurring = ko.observable({{ $isRecurring ? 'true' : 'false' }});
 		self.invoice_status_id = ko.observable(0);
 		self.invoice_items = ko.observableArray();
 		self.amount = ko.observable(0);

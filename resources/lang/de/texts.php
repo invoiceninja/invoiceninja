@@ -697,7 +697,6 @@ return array(
   'or' => 'oder',
 
   'email_error' => 'Es gab ein Problem beim Senden dieses E-Mails.',
-  'created_by_recurring' => 'Erzeugt durch die wiederkehrende Rechnung :invoice',
   'confirm_recurring_timing' => 'Beachten Sie: E-Mails werden zu Beginn der Stunde gesendet.',
   'old_browser' => 'Bitte verwenden Sie einen <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">neueren Browser</a>',
   'payment_terms_help' => 'Setzt das Standardfälligkeitssdatum',
@@ -734,6 +733,12 @@ return array(
   'recent_payments' => 'Kürzliche Zahlungen',
   'manage_companies' => 'Manage Companies',
   'total_revenue' => 'Total Revenue',  
+
+  'current_user' => 'Current User',
+  'new_recurring_invoice' => 'New Recurring Invoice',
+  'recurring_invoice' => 'Recurring Invoice',
+  'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice',
+  'created_by_invoice' => 'Created by :invoice',
 
 
 );

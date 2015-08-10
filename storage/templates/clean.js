@@ -30,7 +30,7 @@
                     "table": { 
                         "body": "$invoiceDetails"
                     },
-                    "margin": [0, 4, 12, 4],            
+                    "margin": [0, 4, 12, 4],
                     "layout": "noBorders"
                 }, 
                 {
@@ -74,7 +74,7 @@
             "$notesAndTerms",
             {
                 "table": {
-                    "widths": ["*", "auto"],
+                    "widths": ["*", "40%"],
                     "body": "$subtotals"
                 },
                 "layout": {
@@ -114,6 +114,9 @@
             "color": "$primaryColor:#37a3c6",
             "bold": true
         },
+        "invoiceDetails": {
+            "margin": [0, 0, 8, 0]
+        }, 
         "accountDetails": {
             "margin": [0, 2, 0, 2]
         },
@@ -134,10 +137,10 @@
             "bold": true
         },
         "balanceDueLabel": {
-            "fontSize": "$fontSizeLargest"
+            "fontSize": "$fontSizeLarger"
         },
         "balanceDue": {
-            "fontSize": "$fontSizeLargest",
+            "fontSize": "$fontSizeLarger",
             "color": "$primaryColor:#37a3c6"
         },  
         "invoiceNumber": {
@@ -145,7 +148,7 @@
         },
         "tableHeader": {
             "bold": true,
-            "fontSize": "$fontSizeLargest"
+            "fontSize": "$fontSizeLarger"
         },
         "invoiceLineItemsTable": {
             "margin": [0, 16, 0, 16]

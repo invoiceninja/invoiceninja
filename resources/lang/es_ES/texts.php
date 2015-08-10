@@ -706,7 +706,6 @@ return array(
   'or' => 'or',
 
   'email_error' => 'There was a problem sending the email',
-  'created_by_recurring' => 'Created by recurring invoice :invoice',
   'confirm_recurring_timing' => 'Note: emails are sent at the start of the hour.',
   'old_browser' => 'Please use a <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">newer browser</a>',
   'payment_terms_help' => 'Sets the default invoice due date',
@@ -743,6 +742,12 @@ return array(
   'outstanding' => 'Outstanding',
   'manage_companies' => 'Manage Companies',
   'total_revenue' => 'Total Revenue',
+
+  'current_user' => 'Current User',
+  'new_recurring_invoice' => 'New Recurring Invoice',
+  'recurring_invoice' => 'Recurring Invoice',
+  'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice',
+  'created_by_invoice' => 'Created by :invoice',
 
 
 

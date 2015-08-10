@@ -37,7 +37,7 @@
             "$notesAndTerms",
             {
                 "table": {
-                    "widths": ["*", "auto"],
+                    "widths": ["*", "40%"],
                     "body": "$subtotalsWithoutBalance"
                 },
                 "layout": {

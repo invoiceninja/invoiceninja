@@ -66,7 +66,7 @@
             {
                 "style": "subtotals",
                 "table": {
-                    "widths": ["*", "auto"],
+                    "widths": ["*", "40%"],
                     "body": "$subtotals"
                 },
                 "layout": {

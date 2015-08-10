@@ -280,7 +280,7 @@ class InvoiceController extends BaseController
             $method = 'POST';
             $url = "{$entityType}s";
         } else {
-            Utils::trackViewed($invoice->invoice_number.' - '.$invoice->client->getDisplayName(), $invoice->getEntityType());
+            Utils::trackViewed($invoice->getDisplayName().' - '.$invoice->client->getDisplayName(), $invoice->getEntityType());
             $method = 'PUT';
             $url = "{$entityType}s/{$publicId}";
         }
@@ -335,6 +335,7 @@ class InvoiceController extends BaseController
                 'url' => $url,
                 'title' => trans("texts.edit_{$entityType}"),
                 'client' => $invoice->client, 
+                'isRecurring' => $invoice->is_recurring,
                 'actions' => $actions);
         $data = array_merge($data, self::getViewModel());
 
@@ -358,10 +359,10 @@ class InvoiceController extends BaseController
         return View::make('invoices.edit', $data);
     }
 
-    public function create($clientPublicId = 0)
+    public function create($clientPublicId = 0, $isRecurring = false)
     {
         $client = null;
-        $invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
+        $invoiceNumber = $isRecurring ? microtime(true) : Auth::user()->account->getNextInvoiceNumber();
 
         if ($clientPublicId) {
             $client = Client::scope($clientPublicId)->firstOrFail();
@@ -375,10 +376,16 @@ class InvoiceController extends BaseController
                 'method' => 'POST',
                 'url' => 'invoices',
                 'title' => trans('texts.new_invoice'),
+                'isRecurring' => $isRecurring,
                 'client' => $client);
         $data = array_merge($data, self::getViewModel());
         
         return View::make('invoices.edit', $data);
+    }
+
+    public function createRecurring($clientPublicId = 0)
+    {
+        return self::create($clientPublicId, true);
     }
 
     private static function getViewModel()
@@ -510,7 +517,16 @@ class InvoiceController extends BaseController
                 return $this->convertQuote($publicId);
             } elseif ($action == 'email') {
                 if (Auth::user()->confirmed && !Auth::user()->isDemo()) {
-                    $response = $this->mailer->sendInvoice($invoice);
+                    if ($invoice->is_recurring) {
+                        if ($invoice->shouldSendToday()) {
+                            $invoice = $this->invoiceRepo->createRecurringInvoice($invoice);
+                            $response = $this->mailer->sendInvoice($invoice);
+                        } else {
+                            $response = trans('texts.recurring_too_soon');
+                        }
+                    } else {
+                        $response = $this->mailer->sendInvoice($invoice);
+                    }
                     if ($response === true) {
                         $message = trans("texts.emailed_{$entityType}");
                         Session::flash('message', $message);

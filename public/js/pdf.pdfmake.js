@@ -262,7 +262,7 @@ NINJA.invoiceLines = function(invoice) {
     return NINJA.prepareDataTable(grid, 'invoiceItems');
 }
 
-NINJA.subtotals = function(invoice, removeBalance)
+NINJA.subtotals = function(invoice, hideBalance)
 {
     if (!invoice) {
         return;
@@ -300,7 +300,7 @@ NINJA.subtotals = function(invoice, removeBalance)
         data.push([{text:invoiceLabels.paid_to_date}, {text:formatMoney(paid, invoice.client.currency_id)}]);        
     }
 
-    if (!removeBalance) {
+    if (!hideBalance) {
         var isPartial = NINJA.parseFloat(invoice.partial);
         data.push([
             {text: isPartial ? invoiceLabels.amount_due : invoiceLabels.balance_due, style:['balanceDueLabel']},

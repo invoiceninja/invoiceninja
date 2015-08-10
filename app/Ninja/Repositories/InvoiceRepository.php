@@ -1,11 +1,12 @@
 <?php namespace App\Ninja\Repositories;
 
+use Carbon;
+use Utils;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Invitation;
 use App\Models\Product;
 use App\Models\Task;
-use Utils;
 
 class InvoiceRepository
 {
@@ -551,5 +552,77 @@ class InvoiceRepository
                 ->where('invoice_status_id', '<', 5)
                 ->select(['public_id', 'invoice_number'])
                 ->get();
+    }
+
+    public function createRecurringInvoice($recurInvoice)
+    {
+        $recurInvoice->load('account.timezone', 'invoice_items', 'client', 'user');
+
+        if ($recurInvoice->client->deleted_at) {
+            return false;
+        }
+
+        if (!$recurInvoice->user->confirmed) {
+            return false;
+        }
+
+        if (!$recurInvoice->shouldSendToday()) {
+            return false;
+        }
+
+        $invoice = Invoice::createNew($recurInvoice);
+        $invoice->client_id = $recurInvoice->client_id;
+        $invoice->recurring_invoice_id = $recurInvoice->id;
+        $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber(false, 'R');
+        $invoice->amount = $recurInvoice->amount;
+        $invoice->balance = $recurInvoice->amount;
+        $invoice->invoice_date = date_create()->format('Y-m-d');
+        $invoice->discount = $recurInvoice->discount;
+        $invoice->po_number = $recurInvoice->po_number;
+        $invoice->public_notes = Utils::processVariables($recurInvoice->public_notes);
+        $invoice->terms = Utils::processVariables($recurInvoice->terms);
+        $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer);
+        $invoice->tax_name = $recurInvoice->tax_name;
+        $invoice->tax_rate = $recurInvoice->tax_rate;
+        $invoice->invoice_design_id = $recurInvoice->invoice_design_id;
+        $invoice->custom_value1 = $recurInvoice->custom_value1;
+        $invoice->custom_value2 = $recurInvoice->custom_value2;
+        $invoice->custom_taxes1 = $recurInvoice->custom_taxes1;
+        $invoice->custom_taxes2 = $recurInvoice->custom_taxes2;
+        $invoice->is_amount_discount = $recurInvoice->is_amount_discount;
+
+        if ($invoice->client->payment_terms != 0) {
+            $days = $invoice->client->payment_terms;
+            if ($days == -1) {
+                $days = 0;
+            }
+            $invoice->due_date = date_create()->modify($days.' day')->format('Y-m-d');
+        }
+
+        $invoice->save();
+
+        foreach ($recurInvoice->invoice_items as $recurItem) {
+            $item = InvoiceItem::createNew($recurItem);
+            $item->product_id = $recurItem->product_id;
+            $item->qty = $recurItem->qty;
+            $item->cost = $recurItem->cost;
+            $item->notes = Utils::processVariables($recurItem->notes);
+            $item->product_key = Utils::processVariables($recurItem->product_key);
+            $item->tax_name = $recurItem->tax_name;
+            $item->tax_rate = $recurItem->tax_rate;
+            $invoice->invoice_items()->save($item);
+        }
+
+        foreach ($recurInvoice->invitations as $recurInvitation) {
+            $invitation = Invitation::createNew($recurInvitation);
+            $invitation->contact_id = $recurInvitation->contact_id;
+            $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
+            $invoice->invitations()->save($invitation);
+        }
+
+        $recurInvoice->last_sent_date = Carbon::now()->toDateTimeString();
+        $recurInvoice->save();
+
+        return $invoice;
     }
 }

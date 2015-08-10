@@ -83,10 +83,6 @@ class Client extends EntityModel
             return $this->name;
         }
         
-        if (!$this->contacts || !count($this->contacts)) {
-            $this->load('contacts');
-        }
-
         $contact = $this->contacts()->first();
 
         return $contact->getDisplayName();

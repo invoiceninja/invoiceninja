@@ -158,7 +158,8 @@ class QuoteController extends BaseController
           'paymentTerms' => Cache::get('paymentTerms'),
           'industries' => Cache::get('industries'),
           'invoiceDesigns' => InvoiceDesign::getDesigns(),
-          'invoiceLabels' => Auth::user()->account->getInvoiceLabels()
+          'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
+          'isRecurring' => false,
         ];
     }
 

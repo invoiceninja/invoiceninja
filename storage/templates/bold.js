@@ -65,13 +65,13 @@
         "$notesAndTerms",
         {
             "table": {
-                "widths": ["*", "auto"],
+                "widths": ["*", "40%"],
                 "body": "$subtotals"
             },
             "layout": {
                 "hLineWidth": "$none",
                 "vLineWidth": "$none",
-                "paddingLeft": "$amount:34", 
+                "paddingLeft": "$amount:8", 
                 "paddingRight": "$amount:8", 
                 "paddingTop": "$amount:4", 
                 "paddingBottom": "$amount:4"  
