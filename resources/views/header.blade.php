@@ -253,12 +253,12 @@
     }, 2000);
 
     $('#search').blur(function(){
-      $('#search').css('width', '{{ Utils::isEnglish() ? 150 : 100 }}px');
+      $('#search').css('width', '{{ Utils::isEnglish() ? 150 : 110 }}px');
       $('ul.navbar-right').show();
     });
 
     $('#search').focus(function(){
-      $('#search').css('width', '{{ Utils::isEnglish() ? 256 : 206 }}px');
+      $('#search').css('width', '{{ Utils::isEnglish() ? 256 : 216 }}px');
       $('ul.navbar-right').hide();
       if (!window.hasOwnProperty('searchData')) {
         $.get('{{ URL::route('getSearchData') }}', function(data) {                         
@@ -460,7 +460,7 @@
 
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="text" id="search" style="width: {{ Utils::isEnglish() ? 150 : 100 }}px" 
+          <input type="text" id="search" style="width: {{ Utils::isEnglish() ? 150 : 110 }}px" 
             class="form-control" placeholder="{{ trans('texts.search') }}">
         </div>
       </form>

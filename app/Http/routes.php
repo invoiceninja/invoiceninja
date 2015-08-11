@@ -326,6 +326,7 @@ define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
 
 define('DEFAULT_TIMEZONE', 'US/Eastern');
 define('DEFAULT_CURRENCY', 1); // US Dollar
+define('DEFAULT_LANGUAGE', 1); // English
 define('DEFAULT_DATE_FORMAT', 'M j, Y');
 define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');

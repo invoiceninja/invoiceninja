@@ -46,7 +46,7 @@ class TaskRepository
     }
 
     public function save($publicId, $data)
-    {
+    {        
         if ($publicId) {
             $task = Task::scope($publicId)->firstOrFail();
         } else {
@@ -60,8 +60,14 @@ class TaskRepository
             $task->description = trim($data['description']);
         }
 
-        //$timeLog = $task->time_log ? json_decode($task->time_log, true) : [];
-        $timeLog = isset($data['time_log']) ? json_decode($data['time_log']) : [];
+        if (isset($data['time_log'])) {
+            $timeLog = json_decode($data['time_log']);
+        } elseif ($task->time_log) {
+            $timeLog = json_decode($task->time_log);
+        } else {
+            $timeLog = [];
+        }
+
         if ($data['action'] == 'start') {
             $task->is_running = true;
             $timeLog[] = [strtotime('now'), false];

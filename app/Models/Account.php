@@ -4,7 +4,7 @@ use Eloquent;
 use Utils;
 use Session;
 use DateTime;
-
+use App;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends Eloquent
@@ -90,6 +90,11 @@ class Account extends Eloquent
         } else {
             return count($this->account_gateways) > 0;
         }
+    }
+
+    public function isEnglish()
+    {
+        return !$this->language_id || $this->language_id == DEFAULT_LANGUAGE;
     }
 
     public function getDisplayName()
@@ -229,6 +234,8 @@ class Account extends Eloquent
         Session::put(SESSION_DATETIME_FORMAT, $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT);
         Session::put(SESSION_CURRENCY, $this->currency_id ? $this->currency_id : DEFAULT_CURRENCY);
         Session::put(SESSION_LOCALE, $this->language_id ? $this->language->locale : DEFAULT_LOCALE);
+
+        App::setLocale(session(SESSION_LOCALE));
     }
 
     public function getInvoiceLabels()
@@ -277,7 +284,7 @@ class Account extends Eloquent
             if (isset($custom[$field]) && $custom[$field]) {
                 $data[$field] = $custom[$field];
             } else {
-                $data[$field] = uctrans("texts.$field");
+                $data[$field] = $this->isEnglish() ? uctrans("texts.$field") : trans("texts.$field");
             }
         }
 
@@ -348,6 +355,8 @@ class Account extends Eloquent
                     'invoice_status_id',
                     'invoice_items',
                     'created_at',
+                    'is_recurring',
+                    'is_quote',
                 ]);
 
                 foreach ($invoice->invoice_items as $invoiceItem) {

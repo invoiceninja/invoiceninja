@@ -214,6 +214,8 @@ class InvoiceController extends BaseController
         
         if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
             $invoice->invoice_design->javascript = $account->custom_design;
+        } elseif ($account->utf8_invoices) {
+            $invoice->invoice_design->javascript = $invoice->invoice_design->pdfmake;
         }
 
         $contact = $invitation->contact;
@@ -253,7 +255,7 @@ class InvoiceController extends BaseController
             'invoiceLabels' => $account->getInvoiceLabels(),
             'contact' => $contact,
             'paymentTypes' => $paymentTypes,
-            'paymentURL' => $paymentURL
+            'paymentURL' => $paymentURL,
         );
 
         return View::make('invoices.view', $data);

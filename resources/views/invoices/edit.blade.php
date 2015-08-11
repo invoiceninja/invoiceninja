@@ -57,7 +57,7 @@
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-					<a id="createClientLink" class="pointer" data-bind="click: $root.showClientForm, text: $root.clientLinkText"></a>
+					<a id="createClientLink" class="pointer" data-bind="click: $root.showClientForm, html: $root.clientLinkText"></a>
                     <span data-bind="visible: $root.invoice().client().public_id() > 0">| 
                         <a data-bind="attr: {href: '{{ url('/clients') }}/' + $root.invoice().client().public_id()}" target="_blank">{{ trans('texts.view_client') }}</a>
                     </span>
@@ -673,9 +673,15 @@
 					var product = products[i];
 					if (product.product_key == key) {
 						var model = ko.dataFor(this);					
-						model.notes(product.notes);
-						model.cost(accounting.toFixed(product.cost,2));
-						model.qty(1);
+                        if (!model.notes()) {
+						  model.notes(product.notes);
+                        }
+                        if (!model.cost()) {
+						  model.cost(accounting.toFixed(product.cost,2));
+                        }
+                        if (!model.qty()) {
+						  model.qty(1);
+                        }
 						break;
 					}
 				}
