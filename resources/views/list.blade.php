@@ -24,13 +24,16 @@
 	</label>
 
 	<div id="top_right_buttons" class="pull-right">
-		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" class="form-control pull-left" placeholder="{{ trans('texts.filter') }}"/>         
+		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" class="form-control pull-left" placeholder="{{ trans('texts.filter') }}"/>
         @if (Auth::user()->isPro() && $entityType == ENTITY_INVOICE)        
             {!! Button::normal(trans('texts.quotes'))->asLinkTo(URL::to('/quotes'))->appendIcon(Icon::create('list')) !!}
         @elseif ($entityType == ENTITY_CLIENT)        
             {!! Button::normal(trans('texts.credits'))->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('list')) !!}
         @endif
-		{!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->appendIcon(Icon::create('plus-sign')) !!}
+
+        @if ($entityType != ENTITY_TASK || Auth::user()->account->timezone_id)
+		  {!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->appendIcon(Icon::create('plus-sign')) !!}
+        @endif
 	</div>
 
     @if (isset($secEntityType))

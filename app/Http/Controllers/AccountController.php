@@ -75,18 +75,18 @@ class AccountController extends BaseController
 
     public function getStarted()
     {
-        if (Auth::check()) {
-            return Redirect::to('invoices/create');
-        }
-
-        if (!Utils::isNinja() && !Utils::allowNewAccounts() && Account::count() > 0) {
-            return Redirect::to('/login');
-        }
-        
         $user = false;
         $guestKey = Input::get('guest_key'); // local storage key to login until registered
         $prevUserId = Session::pull(PREV_USER_ID); // last user id used to link to new account
 
+        if (Auth::check()) {
+            return Redirect::to('invoices/create');
+        }
+
+        if (!Utils::isNinja() && (Account::count() > 0 && !$prevUserId)) {
+            return Redirect::to('/login');
+        }
+        
         if ($guestKey && !$prevUserId) {
             $user = User::where('password', '=', $guestKey)->first();
 
@@ -149,6 +149,7 @@ class AccountController extends BaseController
     public function showSection($section = ACCOUNT_DETAILS, $subSection = false)
     {
         if ($section == ACCOUNT_DETAILS) {
+            $primaryUser = Auth::user()->account->users()->orderBy('id')->first();
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
                 'countries' => Cache::get('countries'),
@@ -159,8 +160,9 @@ class AccountController extends BaseController
                 'datetimeFormats' => Cache::get('datetimeFormats'),
                 'currencies' => Cache::get('currencies'),
                 'languages' => Cache::get('languages'),
-                'showUser' => Auth::user()->id === Auth::user()->account->users()->first()->id,
+                'showUser' => Auth::user()->id === $primaryUser->id,
                 'title' => trans('texts.company_details'),
+                'primaryUser' => $primaryUser,
             ];
 
             return View::make('accounts.details', $data);
@@ -211,7 +213,7 @@ class AccountController extends BaseController
                 $client->work_email = '';
 
                 $invoice->invoice_number = $account->getNextInvoiceNumber();
-                $invoice->invoice_date = date_create()->format('Y-m-d');
+                $invoice->invoice_date = Utils::fromSqlDate(date('Y-m-d'));
                 $invoice->account = json_decode($account->toJson());
                 $invoice->amount = $invoice->balance = 100;
 
@@ -637,9 +639,10 @@ class AccountController extends BaseController
     {
         $rules = array(
             'name' => 'required',
+            'logo' => 'sometimes|max:1024|mimes:jpeg,gif,png',
         );
 
-        $user = Auth::user()->account->users()->first();
+        $user = Auth::user()->account->users()->orderBy('id')->first();
 
         if (Auth::user()->id === $user->id) {
             $rules['email'] = 'email|required|unique:users,email,'.$user->id.',id';

@@ -60,8 +60,7 @@ class InvoiceController extends BaseController
             'columns' => Utils::trans(['checkbox', 'invoice_number', 'client', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status', 'action']),
         ];
 
-        $recurringInvoices = Invoice::scope()
-                                ->where('is_recurring', '=', true);
+        $recurringInvoices = Invoice::scope()->where('is_recurring', '=', true);
 
         if (Session::get('show_trash:invoice')) {
             $recurringInvoices->withTrashed();
@@ -86,11 +85,12 @@ class InvoiceController extends BaseController
         }
 
         $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
-        $color = $invitation->account->primary_color ? $invitation->account->primary_color : '#0b4d78';
+        $account = $invitation->account;
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         
         $data = [
             'color' => $color,
-            'hideLogo' => Session::get('white_label'),
+            'hideLogo' => $account->isWhiteLabel(),
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
             'columns' => Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date']),
@@ -205,7 +205,6 @@ class InvoiceController extends BaseController
 
         Session::set($invitationKey, true);
         Session::set('invitation_key', $invitationKey);
-        Session::set('white_label', $account->isWhiteLabel());
 
         $account->loadLocalizationSettings();
 
@@ -215,6 +214,8 @@ class InvoiceController extends BaseController
         
         if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
             $invoice->invoice_design->javascript = $account->custom_design;
+        } elseif ($account->utf8_invoices) {
+            $invoice->invoice_design->javascript = $invoice->invoice_design->pdfmake;
         }
 
         $contact = $invitation->contact;
@@ -254,7 +255,7 @@ class InvoiceController extends BaseController
             'invoiceLabels' => $account->getInvoiceLabels(),
             'contact' => $contact,
             'paymentTypes' => $paymentTypes,
-            'paymentURL' => $paymentURL
+            'paymentURL' => $paymentURL,
         );
 
         return View::make('invoices.view', $data);
@@ -281,7 +282,7 @@ class InvoiceController extends BaseController
             $method = 'POST';
             $url = "{$entityType}s";
         } else {
-            Utils::trackViewed($invoice->invoice_number.' - '.$invoice->client->getDisplayName(), $invoice->getEntityType());
+            Utils::trackViewed($invoice->getDisplayName().' - '.$invoice->client->getDisplayName(), $invoice->getEntityType());
             $method = 'PUT';
             $url = "{$entityType}s/{$publicId}";
         }
@@ -336,6 +337,7 @@ class InvoiceController extends BaseController
                 'url' => $url,
                 'title' => trans("texts.edit_{$entityType}"),
                 'client' => $invoice->client, 
+                'isRecurring' => $invoice->is_recurring,
                 'actions' => $actions);
         $data = array_merge($data, self::getViewModel());
 
@@ -359,10 +361,10 @@ class InvoiceController extends BaseController
         return View::make('invoices.edit', $data);
     }
 
-    public function create($clientPublicId = 0)
+    public function create($clientPublicId = 0, $isRecurring = false)
     {
         $client = null;
-        $invoiceNumber = Auth::user()->account->getNextInvoiceNumber();
+        $invoiceNumber = $isRecurring ? microtime(true) : Auth::user()->account->getNextInvoiceNumber();
 
         if ($clientPublicId) {
             $client = Client::scope($clientPublicId)->firstOrFail();
@@ -376,10 +378,16 @@ class InvoiceController extends BaseController
                 'method' => 'POST',
                 'url' => 'invoices',
                 'title' => trans('texts.new_invoice'),
+                'isRecurring' => $isRecurring,
                 'client' => $client);
         $data = array_merge($data, self::getViewModel());
         
         return View::make('invoices.edit', $data);
+    }
+
+    public function createRecurring($clientPublicId = 0)
+    {
+        return self::create($clientPublicId, true);
     }
 
     private static function getViewModel()
@@ -511,7 +519,16 @@ class InvoiceController extends BaseController
                 return $this->convertQuote($publicId);
             } elseif ($action == 'email') {
                 if (Auth::user()->confirmed && !Auth::user()->isDemo()) {
-                    $response = $this->mailer->sendInvoice($invoice);
+                    if ($invoice->is_recurring) {
+                        if ($invoice->shouldSendToday()) {
+                            $invoice = $this->invoiceRepo->createRecurringInvoice($invoice);
+                            $response = $this->mailer->sendInvoice($invoice);
+                        } else {
+                            $response = trans('texts.recurring_too_soon');
+                        }
+                    } else {
+                        $response = $this->mailer->sendInvoice($invoice);
+                    }
                     if ($response === true) {
                         $message = trans("texts.emailed_{$entityType}");
                         Session::flash('message', $message);

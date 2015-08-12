@@ -18,12 +18,12 @@
 
 	{{ Former::populate($account) }}
 	@if ($showUser)
-		{{ Former::populateField('first_name', $account->users()->first()->first_name) }}
-		{{ Former::populateField('last_name', $account->users()->first()->last_name) }}
-		{{ Former::populateField('email', $account->users()->first()->email) }}	
-		{{ Former::populateField('phone', $account->users()->first()->phone) }}
+		{{ Former::populateField('first_name', $primaryUser->first_name) }}
+		{{ Former::populateField('last_name', $primaryUser->last_name) }}
+		{{ Former::populateField('email', $primaryUser->email) }}	
+		{{ Former::populateField('phone', $primaryUser->phone) }}
         @if (Utils::isNinja())
-            {{ Former::populateField('dark_mode', intval($account->users()->first()->dark_mode)) }}        
+            {{ Former::populateField('dark_mode', intval($primaryUser->dark_mode)) }}        
         @endif
 	@endif
 	
@@ -51,7 +51,7 @@
 
 			@if (file_exists($account->getLogoPath()))
 				<center>
-					{!! HTML::image($account->getLogoPath().'?no_cache='.time(), "Logo") !!} &nbsp;
+					{!! HTML::image($account->getLogoPath().'?no_cache='.time(), 'Logo', ['width' => 200]) !!} &nbsp;
 					<a href="#" onclick="deleteLogo()">{{ trans('texts.remove_logo') }}</a>
 				</center><br/>
 			@endif

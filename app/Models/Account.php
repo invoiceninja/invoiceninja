@@ -4,7 +4,7 @@ use Eloquent;
 use Utils;
 use Session;
 use DateTime;
-
+use App;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends Eloquent
@@ -92,6 +92,11 @@ class Account extends Eloquent
         }
     }
 
+    public function isEnglish()
+    {
+        return !$this->language_id || $this->language_id == DEFAULT_LANGUAGE;
+    }
+
     public function getDisplayName()
     {
         if ($this->name) {
@@ -147,7 +152,8 @@ class Account extends Eloquent
     public function getLogoPath()
     {
         $fileName = 'logo/' . $this->account_key;
-        return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
+
+        return file_exists($fileName.'.png') && $this->utf8_invoices ? $fileName.'.png' : $fileName.'.jpg';
     }
 
     public function getLogoWidth()
@@ -176,37 +182,36 @@ class Account extends Eloquent
     {
         $counter = $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
         $prefix .= $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
-        
+        $counterOffset = 0;
+
         // confirm the invoice number isn't already taken 
         do {
             $number = $prefix.str_pad($counter, 4, "0", STR_PAD_LEFT);
             $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
             $counter++;
+            $counterOffset++;
         } while ($check);
+
+        // update the invoice counter to be caught up
+        if ($counterOffset > 1) {
+            if ($isQuote && !$this->share_counter) {
+                $this->quote_number_counter += $counterOffset - 1;
+            } else {
+                $this->invoice_number_counter += $counterOffset - 1;
+            }
+
+            $this->save();
+        }
 
         return $number;
     }
 
-    public function incrementCounter($invoiceNumber, $isQuote = false, $isRecurring)
+    public function incrementCounter($isQuote = false)
     {
-        // check if the user modified the invoice number
-        if (!$isRecurring && $invoiceNumber != $this->getNextInvoiceNumber($isQuote)) {
-            // remove the prefix
-            $prefix = $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
-            $invoiceNumber = preg_replace('/^'.$prefix.'/', '', $invoiceNumber);
-            $invoiceNumber = intval(preg_replace('/[^0-9]/', '', $invoiceNumber));
-            if ($isQuote && !$this->share_counter) {
-                $this->quote_number_counter = $invoiceNumber + 1;
-            } else {
-                $this->invoice_number_counter = $invoiceNumber + 1;
-            }
-        // otherwise, just increment the counter
+        if ($isQuote && !$this->share_counter) {
+            $this->quote_number_counter += 1;
         } else {
-            if ($isQuote && !$this->share_counter) {
-                $this->quote_number_counter += 1;
-            } else {
-                $this->invoice_number_counter += 1;
-            }
+            $this->invoice_number_counter += 1;
         }
 
         $this->save();
@@ -229,6 +234,8 @@ class Account extends Eloquent
         Session::put(SESSION_DATETIME_FORMAT, $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT);
         Session::put(SESSION_CURRENCY, $this->currency_id ? $this->currency_id : DEFAULT_CURRENCY);
         Session::put(SESSION_LOCALE, $this->language_id ? $this->language->locale : DEFAULT_LOCALE);
+
+        App::setLocale(session(SESSION_LOCALE));
     }
 
     public function getInvoiceLabels()
@@ -277,7 +284,7 @@ class Account extends Eloquent
             if (isset($custom[$field]) && $custom[$field]) {
                 $data[$field] = $custom[$field];
             } else {
-                $data[$field] = uctrans("texts.$field");
+                $data[$field] = $this->isEnglish() ? uctrans("texts.$field") : trans("texts.$field");
             }
         }
 
@@ -315,11 +322,11 @@ class Account extends Eloquent
 
     public function isWhiteLabel()
     {
-        if (Utils::isNinjaProd()) {
-            return false;
+        if (Utils::isNinja()) {
+            return self::isPro() && $this->pro_plan_paid != NINJA_DATE;
+        } else {
+            return $this->pro_plan_paid == NINJA_DATE;
         }
-
-        return $this->pro_plan_paid == NINJA_DATE;
     }
 
     public function getSubscription($eventId)
@@ -348,6 +355,8 @@ class Account extends Eloquent
                     'invoice_status_id',
                     'invoice_items',
                     'created_at',
+                    'is_recurring',
+                    'is_quote',
                 ]);
 
                 foreach ($invoice->invoice_items as $invoiceItem) {

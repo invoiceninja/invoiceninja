@@ -43,7 +43,7 @@ class HomeController extends BaseController
     
     public function invoiceNow()
     {
-        if (Auth::check() && Input::get('new_account')) {
+        if (Auth::check() && Input::get('new_company')) {
             Session::put(PREV_USER_ID, Auth::user()->id);
             Auth::user()->clearSession();
             Auth::logout();
@@ -72,9 +72,9 @@ class HomeController extends BaseController
                 $user->news_feed_id = $newsFeedId;
                 $user->save();
             }
-
-            Session::forget('news_feed_message');
         }
+        
+        Session::forget('news_feed_message');
 
         return 'success';
     }

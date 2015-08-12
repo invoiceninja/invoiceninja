@@ -3,6 +3,7 @@
 use Auth;
 use Cache;
 use DB;
+use App;
 use Schema;
 use Session;
 use Request;
@@ -61,12 +62,17 @@ class Utils
 
     public static function allowNewAccounts()
     {
-        return Utils::isNinja() || (isset($_ENV['ALLOW_NEW_ACCOUNTS']) && $_ENV['ALLOW_NEW_ACCOUNTS'] == 'true');
+        return Utils::isNinja() || Auth::check();
     }
 
     public static function isPro()
     {
         return Auth::check() && Auth::user()->isPro();
+    }
+
+    public static function isEnglish()
+    {
+        return App::getLocale() == 'en';
     }
 
     public static function getUserType()
@@ -335,10 +341,11 @@ class Utils
             return;
         }
 
-        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        //$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
-        $dateTime = DateTime::createFromFormat($format, $date, new DateTimeZone($timezone));
+        //$dateTime = DateTime::createFromFormat($format, $date, new DateTimeZone($timezone));
+        $dateTime = DateTime::createFromFormat($format, $date);
 
         return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
     }
@@ -349,11 +356,11 @@ class Utils
             return '';
         }
 
-        $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
+        //$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
         $dateTime = DateTime::createFromFormat('Y-m-d', $date);
-        $dateTime->setTimeZone(new DateTimeZone($timezone));
+        //$dateTime->setTimeZone(new DateTimeZone($timezone));
 
         return $formatResult ? $dateTime->format($format) : $dateTime;
     }
@@ -400,10 +407,12 @@ class Utils
         }
 
         $object = new stdClass();
+        $object->accountId = Auth::user()->account_id;
         $object->url = $url;
         $object->name = ucwords($type).': '.$name;
 
         $data = [];
+        $counts = [];
 
         for ($i = 0; $i<count($viewed); $i++) {
             $item = $viewed[$i];
@@ -412,12 +421,22 @@ class Utils
                 continue;
             }
 
+            // temporary fix to check for new property in session
+            if (!property_exists($item, 'accountId')) {
+                continue;
+            }
+
             array_unshift($data, $item);
+            if (isset($counts[$item->accountId])) {
+                $counts[$item->accountId]++;
+            } else {
+                $counts[$item->accountId] = 1;
+            }
         }
 
         array_unshift($data, $object);
-
-        if (count($data) > RECENTLY_VIEWED_LIMIT) {
+        
+        if (isset($counts[Auth::user()->account_id]) && $counts[Auth::user()->account_id] > RECENTLY_VIEWED_LIMIT) {
             array_pop($data);
         }
 

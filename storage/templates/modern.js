@@ -4,7 +4,7 @@
         "columns": [
         {
             "image": "$accountLogo",
-            "width": 80,
+            "fit": [120, 80],
             "margin": [0, 60, 0, 30]
         },
         {
@@ -37,13 +37,13 @@
             "$notesAndTerms",
             {
                 "table": {
-                    "widths": ["*", "*"],
+                    "widths": ["*", "40%"],
                     "body": "$subtotalsWithoutBalance"
                 },
                 "layout": {
                     "hLineWidth": "$none",
                     "vLineWidth": "$none",
-                    "paddingLeft": "$amount:8", 
+                    "paddingLeft": "$amount:34", 
                     "paddingRight": "$amount:8", 
                     "paddingTop": "$amount:4", 
                     "paddingBottom": "$amount:4"  

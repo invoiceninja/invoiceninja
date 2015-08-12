@@ -1,4 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="{{ App::getLocale() }}">
+<head>
+  <meta charset="utf-8">
+</head>
 <body>
 @if (false && !$invitationMessage)
     @include('emails.confirm_action', ['user' => $user])

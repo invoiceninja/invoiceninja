@@ -74,6 +74,7 @@
   var NINJA = NINJA || {};
   NINJA.primaryColor = "{{ $account->primary_color }}";
   NINJA.secondaryColor = "{{ $account->secondary_color }}";
+  NINJA.fontSize = {{ $account->font_size }};
 
   var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
 

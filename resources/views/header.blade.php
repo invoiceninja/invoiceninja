@@ -203,19 +203,6 @@
     });
   }
 
-  function showUnlink(userAccountId, userId) {    
-    NINJA.unlink = {
-        'userAccountId': userAccountId,
-        'userId': userId
-    };
-    $('#unlinkModal').modal('show');    
-    return false;
-  }
-
-  function unlinkAccount() {    
-    window.location = '{{ URL::to('/unlink_account') }}' + '/' + NINJA.unlink.userAccountId + '/' + NINJA.unlink.userId;    
-  }
-
   function wordWrapText(value, width)
   {
     @if (Auth::user()->account->auto_wrap)
@@ -266,12 +253,12 @@
     }, 2000);
 
     $('#search').blur(function(){
-      $('#search').css('width', '150px');
+      $('#search').css('width', '{{ Utils::isEnglish() ? 150 : 110 }}px');
       $('ul.navbar-right').show();
     });
 
     $('#search').focus(function(){
-      $('#search').css('width', '256px');
+      $('#search').css('width', '{{ Utils::isEnglish() ? 256 : 216 }}px');
       $('ul.navbar-right').hide();
       if (!window.hasOwnProperty('searchData')) {
         $.get('{{ URL::route('getSearchData') }}', function(data) {                         
@@ -389,7 +376,7 @@
               <span class="caret"></span>
             </div>            
           </button>			
-          <ul class="dropdown-menu user-accounts" role="menu">
+          <ul class="dropdown-menu user-accounts">
             @if (session(SESSION_USER_ACCOUNTS))
                 @foreach (session(SESSION_USER_ACCOUNTS) as $item)
                     @if ($item->user_id == Auth::user()->id)
@@ -398,9 +385,8 @@
                             'user_id' => $item->user_id,
                             'account_name' => $item->account_name,
                             'user_name' => $item->user_name,
-                            'account_key' => $item->account_key,
+                            'logo_path' => isset($item->logo_path) ? $item->logo_path : "",
                             'selected' => true,
-                            'show_remove' => count(session(SESSION_USER_ACCOUNTS)) > 1,
                         ])
                     @endif
                 @endforeach
@@ -411,9 +397,8 @@
                             'user_id' => $item->user_id,
                             'account_name' => $item->account_name,
                             'user_name' => $item->user_name,
-                            'account_key' => $item->account_key,
+                            'logo_path' => isset($item->logo_path) ? $item->logo_path : "",
                             'selected' => false,
-                            'show_remove' => count(session(SESSION_USER_ACCOUNTS)) > 1,
                         ])
                     @endif
                 @endforeach
@@ -421,13 +406,15 @@
                 @include('user_account', [
                     'account_name' => Auth::user()->account->name ?: trans('texts.untitled'), 
                     'user_name' => Auth::user()->getDisplayName(),
-                    'account_key' => Auth::user()->account->account_key,
+                    'logo_path' => Auth::user()->account->getLogoPath(),
                     'selected' => true,
                 ])
             @endif            
             <li class="divider"></li>                
-            @if (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
-                <li>{!! link_to('/login?new_account=true', trans('texts.add_account')) !!}</li>
+            @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
+                <li>{!! link_to('/manage_companies', trans('texts.manage_companies')) !!}</li>
+            @elseif (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
+                <li>{!! link_to('/login?new_company=true', trans('texts.add_company')) !!}</li>
             @endif
             <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
           </ul>
@@ -462,7 +449,9 @@
                 <li><a href="#">{{ trans('texts.no_items') }}</a></li>
             @else
                 @foreach (Session::get(RECENTLY_VIEWED) as $link)
-                    <li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
+                    @if (property_exists($link, 'accountId') && $link->accountId == Auth::user()->account_id)
+                        <li><a href="{{ $link->url }}">{{ $link->name }}</a></li>	
+                    @endif
                 @endforeach
             @endif
           </ul>
@@ -471,7 +460,7 @@
 
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="text" id="search" style="width: 150px" 
+          <input type="text" id="search" style="width: {{ Utils::isEnglish() ? 150 : 110 }}px" 
             class="form-control" placeholder="{{ trans('texts.search') }}">
         </div>
       </form>
@@ -595,28 +584,6 @@
       <div class="modal-footer" id="signUpFooter">	      	
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
         <button type="button" class="btn btn-primary" onclick="logout(true)">{{ trans('texts.logout') }}</button>	      	
-      </div>
-    </div>
-  </div>
-</div>
-@endif
-
-@if (Auth::check() && session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
-<div class="modal fade" id="unlinkModal" tabindex="-1" role="dialog" aria-labelledby="unlinkModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">{{ trans('texts.unlink_account') }}</h4>
-      </div>
-
-      <div class="container">        
-        <h3>{{ trans('texts.are_you_sure') }}</h3>        
-      </div>
-
-      <div class="modal-footer" id="signUpFooter">          
-        <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-        <button type="button" class="btn btn-primary" onclick="unlinkAccount()">{{ trans('texts.unlink') }}</button>           
       </div>
     </div>
   </div>

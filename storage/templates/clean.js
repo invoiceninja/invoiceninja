@@ -3,7 +3,7 @@
         "columns": [
             {
                 "image": "$accountLogo",
-                "width": 140
+                "fit": [120, 80]
             },
             {
                 "stack": "$accountDetails",
@@ -16,7 +16,7 @@
     },
     {
         "text": "$entityTypeUC",
-        "margin": [8, 50, 8, 5],
+        "margin": [8, 30, 8, 5],
         "style": "entityTypeLabel"
         
     },
@@ -30,7 +30,7 @@
                     "table": { 
                         "body": "$invoiceDetails"
                     },
-                    "margin": [0, 4, 12, 4],            
+                    "margin": [0, 4, 12, 4],
                     "layout": "noBorders"
                 }, 
                 {
@@ -70,17 +70,17 @@
         }
     },
     {
-        "columns": [
+        "columns": [        
             "$notesAndTerms",
             {
                 "table": {
-                    "widths": ["*", "*"],
+                    "widths": ["*", "40%"],
                     "body": "$subtotals"
                 },
                 "layout": {
                     "hLineWidth": "$none",
                     "vLineWidth": "$none",
-                    "paddingLeft": "$amount:8", 
+                    "paddingLeft": "$amount:34", 
                     "paddingRight": "$amount:8", 
                     "paddingTop": "$amount:4", 
                     "paddingBottom": "$amount:4" 
@@ -97,12 +97,10 @@
         "columns": [
             {
                 "text": "$invoiceFooter",
-                "alignment": "left",
-                "margin": [0, 0, 0, 12]
-
+                "alignment": "left"
             }
         ],
-        "margin": [40, -20, 40, 40]
+        "margin": [40, -20, 40, 0]
     },
     "styles": {
         "entityTypeLabel": {
@@ -116,6 +114,9 @@
             "color": "$primaryColor:#37a3c6",
             "bold": true
         },
+        "invoiceDetails": {
+            "margin": [0, 0, 8, 0]
+        }, 
         "accountDetails": {
             "margin": [0, 2, 0, 2]
         },
@@ -136,10 +137,10 @@
             "bold": true
         },
         "balanceDueLabel": {
-            "fontSize": "$fontSizeLargest"
+            "fontSize": "$fontSizeLarger"
         },
         "balanceDue": {
-            "fontSize": "$fontSizeLargest",
+            "fontSize": "$fontSizeLarger",
             "color": "$primaryColor:#37a3c6"
         },  
         "invoiceNumber": {
@@ -147,7 +148,7 @@
         },
         "tableHeader": {
             "bold": true,
-            "fontSize": "$fontSizeLargest"
+            "fontSize": "$fontSizeLarger"
         },
         "invoiceLineItemsTable": {
             "margin": [0, 16, 0, 16]
@@ -171,8 +172,7 @@
             "alignment": "right"
         },            
         "termsLabel": {
-            "bold": true,
-            "margin": [0, 0, 0, 4]
+            "bold": true
         }           
     },
     "pageMargins": [40, 40, 40, 60]

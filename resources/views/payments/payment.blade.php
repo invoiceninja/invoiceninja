@@ -169,7 +169,7 @@ header h3 em {
             <header>
                 @if ($client)
                     <h2>{{ $client->getDisplayName() }}</h2>
-                    <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ Utils::formatMoney($amount, $currencyId) }}</em></span></h3>
+                    <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ Utils::formatMoney($amount, $currencyId) }} {{ $currencyCode }}</em></span></h3>
                 @elseif ($paymentTitle)
                     <h2>{{ $paymentTitle }}<br/><small>{{ $paymentSubtitle }}</small></h2>                    
                 @endif

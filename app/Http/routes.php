@@ -95,6 +95,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
+    Route::get('/manage_companies', 'UserController@manageCompanies');
 
     Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
     Route::resource('tokens', 'TokenController');
@@ -130,7 +131,6 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('tasks/create/{client_id?}', 'TaskController@create');
     Route::post('tasks/bulk', 'TaskController@bulk');
 
-    Route::get('recurring_invoices', 'InvoiceController@recurringIndex');
     Route::get('api/recurring_invoices/{client_id?}', array('as'=>'api.recurring_invoices', 'uses'=>'InvoiceController@getRecurringDatatable'));
 
     Route::get('invoices/invoice_history/{invoice_id}', 'InvoiceController@invoiceHistory');
@@ -139,6 +139,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::resource('invoices', 'InvoiceController');
     Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));
     Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
+    Route::get('recurring_invoices/create/{client_id?}', 'InvoiceController@createRecurring');
     Route::get('invoices/{public_id}/clone', 'InvoiceController@cloneInvoice');
     Route::post('invoices/bulk', 'InvoiceController@bulk');
 
@@ -325,6 +326,7 @@ define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
 
 define('DEFAULT_TIMEZONE', 'US/Eastern');
 define('DEFAULT_CURRENCY', 1); // US Dollar
+define('DEFAULT_LANGUAGE', 1); // English
 define('DEFAULT_DATE_FORMAT', 'M j, Y');
 define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
 define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
@@ -363,7 +365,7 @@ define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
 define('NINJA_GATEWAY_CONFIG', '');
 define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
 define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-define('NINJA_VERSION', '2.2.2');
+define('NINJA_VERSION', '2.3.0');
 define('NINJA_DATE', '2000-01-01');
 
 define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');

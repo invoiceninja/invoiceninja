@@ -65,7 +65,7 @@
         "$notesAndTerms",
         {
             "table": {
-                "widths": ["*", "*"],
+                "widths": ["*", "40%"],
                 "body": "$subtotals"
             },
             "layout": {

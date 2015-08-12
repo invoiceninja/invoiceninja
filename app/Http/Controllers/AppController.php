@@ -88,7 +88,7 @@ class AppController extends BaseController
                     "MAIL_HOST={$mail['host']}\n".
                     "MAIL_USERNAME={$mail['username']}\n".
                     "MAIL_FROM_NAME={$mail['from']['name']}\n".
-                    "MAIL_PASSWORD={$mail['password']}\n";
+                    "MAIL_PASSWORD={$mail['password']}";
 
         // Write Config Settings
         $fp = fopen(base_path()."/.env", 'w');
