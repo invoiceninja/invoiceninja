@@ -270,15 +270,11 @@
     }
 
     function ViewModel(data) {
-        console.log('== ViewModel ==');
-        console.log(data);
-
         var self = this;
         self.time_log = ko.observableArray();
 
         if (data) {
             data = JSON.parse(data.time_log);
-            console.log(data);
             for (var i=0; i<data.length; i++) {
                 self.time_log.push(new TimeModel(data[i]));
             }            

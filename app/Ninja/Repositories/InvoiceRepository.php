@@ -315,6 +315,7 @@ class InvoiceRepository
         }
 
         $total = 0;
+        $itemTax = 0;
 
         foreach ($data['invoice_items'] as $item) {
             $item = (array) $item;
@@ -324,15 +325,29 @@ class InvoiceRepository
 
             $invoiceItemCost = round(Utils::parseFloat($item['cost']), 2);
             $invoiceItemQty = round(Utils::parseFloat($item['qty']), 2);
-            $invoiceItemTaxRate = 0;
-
-            if (isset($item['tax_rate']) && Utils::parseFloat($item['tax_rate']) > 0) {
-                $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate']);
-            }
 
             $lineTotal = $invoiceItemCost * $invoiceItemQty;
+            $total += round($lineTotal, 2);
+        }
 
-            $total += round($lineTotal + ($lineTotal * $invoiceItemTaxRate / 100), 2);
+        foreach ($data['invoice_items'] as $item) {
+            $item = (array) $item;
+            if (isset($item['tax_rate']) && Utils::parseFloat($item['tax_rate']) > 0) {
+                $invoiceItemCost = round(Utils::parseFloat($item['cost']), 2);
+                $invoiceItemQty = round(Utils::parseFloat($item['qty']), 2);
+                $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate']);
+                $lineTotal = $invoiceItemCost * $invoiceItemQty;
+
+                if ($invoice->discount > 0) {
+                    if ($invoice->is_amount_discount) {
+                        $lineTotal -= round(($lineTotal/$total) * $invoice->discount, 2);
+                    } else {
+                        $lineTotal -= round($lineTotal * ($invoice->discount/100), 2);
+                    }
+                }
+
+                $itemTax += round($lineTotal * $invoiceItemTaxRate / 100, 2);
+            }
         }
 
         if ($invoice->discount > 0) {
@@ -358,6 +373,7 @@ class InvoiceRepository
 
         $total += $total * $invoice->tax_rate / 100;
         $total = round($total, 2);
+        $total += $itemTax;
 
         // custom fields not charged taxes
         if ($invoice->custom_value1 && !$invoice->custom_taxes1) {

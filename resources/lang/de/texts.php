@@ -713,7 +713,6 @@ return array(
   'add_to_invoice' => 'Zur Rechnung :invoice hinzufügen',
   'create_new_invoice' => 'Neue Rechnung erstellen',
   'task_errors' => 'Bitte korrigieren Sie alle überlappenden Zeiten',
-  'utf8_invoices' => 'Neue PDF Engine <sup>Beta</sup>',
   'from' => 'Von',
   'to' => 'An',
   'font_size' => 'Schriftgrösse',
@@ -732,7 +731,7 @@ return array(
   'invoice_no' => 'Rechnung Nr.',
   'recent_payments' => 'Kürzliche Zahlungen',
   'manage_companies' => 'Unternehmen verwalten',
-  'total_revenue' => 'Gesamteinnahmen',  
+  'total_revenue' => 'Gesamteinnahmen',
 
   'current_user' => 'Aktueller Benutzer',
   'new_recurring_invoice' => 'Neue wiederkehrende Rechnung',

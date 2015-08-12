@@ -597,7 +597,6 @@ return array(
   'less_fields' => 'Less Fields',
   'client_name' => 'Client Name',
   'pdf_settings' => 'PDF Settings',
-  'utf8_invoices' => 'New PDF Engine <sup>Beta</sup>',
   'product_settings' => 'Product Settings',
   'auto_wrap' => 'Auto Line Wrap',
   'duplicate_post' => 'Warning: the previous page was submitted twice. The second submission had been ignored.',

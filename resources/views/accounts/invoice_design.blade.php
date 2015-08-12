@@ -3,13 +3,10 @@
 @section('head')
 	@parent
 
-		<script src="{!! asset('js/pdf_viewer.js') !!}" type="text/javascript"></script>
-		<script src="{!! asset('js/compatibility.js') !!}" type="text/javascript"></script>
-
-        @if (Auth::user()->account->utf8_invoices)
-            <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
-            <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
-        @endif
+		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
+		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
 
 @stop
 
@@ -102,10 +99,7 @@
             {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id') !!}
           @endif
 
-          @if (Auth::user()->account->utf8_invoices)
-            {!! Former::text('font_size')->type('number')->min('0')->step('1')->style('width:120px') !!}
-          @endif          
-
+          {!! Former::text('font_size')->type('number')->min('0')->step('1')->style('width:120px') !!}
           {!! Former::text('primary_color') !!}
           {!! Former::text('secondary_color') !!}
 

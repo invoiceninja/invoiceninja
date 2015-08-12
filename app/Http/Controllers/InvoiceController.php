@@ -214,7 +214,7 @@ class InvoiceController extends BaseController
         
         if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
             $invoice->invoice_design->javascript = $account->custom_design;
-        } elseif ($account->utf8_invoices) {
+        } else {
             $invoice->invoice_design->javascript = $invoice->invoice_design->pdfmake;
         }
 

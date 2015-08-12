@@ -5,11 +5,8 @@
 
 		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
 		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
-
-        @if (Auth::user()->account->utf8_invoices)
-            <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
-            <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
-        @endif
+        <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>    
 
 @stop
 
@@ -138,7 +135,7 @@
 	<p>&nbsp;</p>
 
 	<div class="table-responsive">
-	<table class="table invoice-table" style="margin-bottom: 0px !important">
+	<table class="table invoice-table">
 		<thead>
 			<tr>
 				<th style="min-width:32px;" class="hide-border"></th>
@@ -245,6 +242,15 @@
 					<td style="text-align: right;padding-right: 28px" colspan="2"><input class="form-control" data-bind="value: custom_value2, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
+
+            <tr style="display:none" data-bind="visible: $root.invoice_item_taxes.show &amp;&amp; totals.hasItemTaxes">
+                <td class="hide-border" colspan="4"/>
+                @if (!$account->hide_quantity)
+                    <td>{{ trans('texts.tax') }}</td>
+                @endif
+                <td style="min-width:120px"><span data-bind="html: totals.itemTaxRates"/></td>
+                <td style="text-align: right"><span data-bind="html: totals.itemTaxAmounts"/></td>
+            </tr>
 
 			<tr style="display:none" data-bind="visible: $root.invoice_taxes.show">
 				<td class="hide-border" colspan="3"/>
@@ -1298,13 +1304,6 @@
     	    var discount = self.totals.rawDiscounted();
     	    total -= discount;
 
-    	    /*
-    	    var discount = parseFloat(self.discount());
-    	    if (discount > 0) {
-    	    	total = roundToTwo(total * ((100 - discount)/100));
-    	    }
-    			*/
-
     	    var customValue1 = roundToTwo(self.custom_value1());
     	    var customValue2 = roundToTwo(self.custom_value2());
     	    var customTaxes1 = self.custom_taxes1() == 1;
@@ -1325,6 +1324,65 @@
         		return formatMoney(0, self.client().currency_id());
         	}
     	});
+
+        self.totals.itemTaxes = ko.computed(function() {
+            var taxes = {};
+            var total = self.totals.rawSubtotal();
+            for(var i=0; i<self.invoice_items().length; i++) {
+                var item = self.invoice_items()[i];
+                var lineTotal = item.totals.rawTotal();
+                if (self.discount()) {
+                    if (parseInt(self.is_amount_discount())) {
+                        lineTotal -= roundToTwo((lineTotal/total) * self.discount());
+                    } else {
+                        lineTotal -= roundToTwo(lineTotal * (self.discount()/100));
+                    }
+                }
+                var taxAmount = roundToTwo(lineTotal * item.tax_rate() / 100);
+                if (taxAmount) {
+                    var key = item.tax_name() + item.tax_rate();
+                    if (taxes.hasOwnProperty(key)) {
+                        taxes[key].amount += taxAmount;
+                    } else {
+                        taxes[key] = {name:item.tax_name(), rate:item.tax_rate(), amount:taxAmount};
+                    }
+                }               
+            }
+            return taxes;
+        });
+
+        self.totals.hasItemTaxes = ko.computed(function() {
+            var count = 0;
+            var taxes = self.totals.itemTaxes();
+            for (var key in taxes) {
+                if (taxes.hasOwnProperty(key)) {
+                    count++;
+                }
+            }
+            return count > 0;
+        });
+
+        self.totals.itemTaxRates = ko.computed(function() {            
+            var taxes = self.totals.itemTaxes();
+            var parts = [];            
+            for (var key in taxes) {
+                if (taxes.hasOwnProperty(key)) {
+                    parts.push(taxes[key].name + ' ' + (taxes[key].rate*1) + '%');
+                }                
+            }
+            return parts.join('<br/>');
+        });
+
+        self.totals.itemTaxAmounts = ko.computed(function() {
+            var taxes = self.totals.itemTaxes();
+            var parts = [];            
+            for (var key in taxes) {
+                if (taxes.hasOwnProperty(key)) {
+                    parts.push(formatMoney(taxes[key].amount, self.client().currency_id()));
+                }                
+            }
+            return parts.join('<br/>');
+        });
 
 		self.totals.rawPaidToDate = ko.computed(function() {
 			return accounting.toFixed(self.amount(),2) - accounting.toFixed(self.balance(),2);
@@ -1352,10 +1410,17 @@
     	    	total = NINJA.parseFloat(total) + customValue2;
     	    }
 
-    			var taxRate = parseFloat(self.tax_rate());
-    			if (taxRate > 0) {
+			var taxRate = parseFloat(self.tax_rate());
+			if (taxRate > 0) {
         		total = NINJA.parseFloat(total) + roundToTwo((total * (taxRate/100)));
-        	}        	
+        	}
+
+            var taxes = self.totals.itemTaxes();
+            for (var key in taxes) {
+                if (taxes.hasOwnProperty(key)) {
+                    total += taxes[key].amount;
+                }
+            }
 
     	    if (customValue1 && !customTaxes1) {
     	    	total = NINJA.parseFloat(total) + customValue1;
@@ -1530,8 +1595,8 @@
 		self.displayName = ko.computed({
 			read: function () {
 				var name = self.name() ? self.name() : '';
-				var rate = self.rate() ? parseFloat(self.rate()) + '% ' : '';
-				return rate + name;
+				var rate = self.rate() ? parseFloat(self.rate()) + '%' : '';
+				return name + ' ' + rate;
 			},
 	        write: function (value) {
 	            // do nothing
@@ -1605,7 +1670,6 @@
 
 		if (data) {
 			ko.mapping.fromJS(data, self.mapping, this);			
-			//if (this.cost()) this.cost(formatMoney(this.cost(), model ? model.invoice().currency_id() : 1, true));
 		}
 
 		self.wrapped_notes = ko.computed({
@@ -1625,11 +1689,7 @@
 		this.totals.rawTotal = ko.computed(function() {
 			var cost = roundToTwo(NINJA.parseFloat(self.cost()));
 			var qty = roundToTwo(NINJA.parseFloat(self.qty()));
-			var taxRate = NINJA.parseFloat(self.tax_rate());
-        	var value = cost * qty;        	
-        	if (taxRate > 0) {
-        		value += value * (taxRate/100);
-        	}    	
+			var value = cost * qty;        	
         	return value ? roundToTwo(value) : 0;
       	});
 

@@ -12,10 +12,12 @@ class Account extends Eloquent
     use SoftDeletes;
     protected $dates = ['deleted_at'];
 
+    /*
     protected $casts = [
-        'utf8_invoice' => 'boolean',
+        'hide_quantity' => 'boolean',
     ];
-
+    */
+    
     public function users()
     {
         return $this->hasMany('App\Models\User');
@@ -153,7 +155,7 @@ class Account extends Eloquent
     {
         $fileName = 'logo/' . $this->account_key;
 
-        return file_exists($fileName.'.png') && $this->utf8_invoices ? $fileName.'.png' : $fileName.'.jpg';
+        return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
     }
 
     public function getLogoWidth()
@@ -428,10 +430,3 @@ class Account extends Eloquent
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
     }
 }
-
-Account::updating(function ($account) {
-    // Lithuanian requires UTF8 support
-    if (!Utils::isPro() && $account->language_id == 13) {
-        $account->utf8_invoices = true;
-    }
-});
