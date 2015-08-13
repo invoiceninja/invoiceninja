@@ -583,7 +583,7 @@ return array(
   'payment_type_paypal' => 'PayPal',
   'payment_type_bitcoin' => 'Bitcoin',
   'knowledge_base' => 'FAQ',
-  'partial' => 'Parziell',
+  'partial' => 'Partiell',
   'partial_remaining' => ':partial von :balance',
 
   'more_fields' => 'Weitere Felder',
