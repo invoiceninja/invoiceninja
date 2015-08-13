@@ -671,7 +671,7 @@ return array(
   'pro_plan_title' => 'NINJA PRO',
   'pro_plan_call_to_action' => 'Jetzt Upgraden!',
   'pro_plan_feature1' => 'Unlimitierte Anzahl Kunden erstellen',
-  'pro_plan_feature2' => 'Zugriff ui 10 schönen Rechnungsdesigns',
+  'pro_plan_feature2' => 'Zugriff auf 10 schöne Rechnungsdesigns',
   'pro_plan_feature3' => 'Benutzerdefinierte URLs - "DeineFirma.InvoiceNinja.com"',
   'pro_plan_feature4' => '"Erstellt durch Invoice Ninja" entfernen',
   'pro_plan_feature5' => 'Multi-Benutzer Zugriff & Aktivitätstracking',
