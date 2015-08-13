@@ -202,6 +202,10 @@
 
     function TimeModel(data) {
         var self = this;
+
+        var dateTimeFormat = '{{ $datetimeFormat }}';
+        var timezone = '{{ $timezone }}';
+
         self.startTime = ko.observable(0);
         self.endTime = ko.observable(0);
         self.duration = ko.observable(0);
@@ -220,25 +224,25 @@
 
         self.startTime.pretty = ko.computed({
             read: function() {                
-                return self.startTime() ? moment.unix(self.startTime()).utcOffset({{ $minuteOffset }}).format('MMM D YYYY h:mm:ss a') : '';    
+                return self.startTime() ? moment.unix(self.startTime()).tz(timezone).format(dateTimeFormat) : '';    
             }, 
             write: function(data) {
-                self.startTime(moment(data, 'MMM D YYYY h:mm:ss a').utcOffset({{ $minuteOffset }}).unix());
+                self.startTime(moment(data, dateTimeFormat).tz(timezone).unix());
             }
         });
 
         self.endTime.pretty = ko.computed({
             read: function() {
-                return self.endTime() ? moment.unix(self.endTime()).utcOffset({{ $minuteOffset }}).format('MMM D YYYY h:mm:ss a') : '';
+                return self.endTime() ? moment.unix(self.endTime()).tz(timezone).format(dateTimeFormat) : '';
             }, 
             write: function(data) {
-                self.endTime(moment(data, 'MMM D YYYY h:mm:ss a').utcOffset({{ $minuteOffset }}).unix());
+                self.endTime(moment(data, dateTimeFormat).tz(timezone).unix());
             }
         });
 
         self.setNow = function() {
-            self.startTime(moment().utcOffset({{ $minuteOffset }}).unix());
-            self.endTime(moment().utcOffset({{ $minuteOffset }}).unix());            
+            self.startTime(moment.tz(timezone).unix());
+            self.endTime(moment.tz(timezone).unix());
         }
 
         self.duration.pretty = ko.computed(function() {
