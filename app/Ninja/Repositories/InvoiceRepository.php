@@ -410,17 +410,16 @@ class InvoiceRepository
             } else if ($item['product_key'] && !$invoice->has_tasks) {
                 $product = Product::findProductByKey(trim($item['product_key']));
 
-                if (!$product) {
-                    $product = Product::createNew();
-                    $product->product_key = trim($item['product_key']);
-                }
-
                 if (\Auth::user()->account->update_products) {
+                    if (!$product) {
+                        $product = Product::createNew();
+                        $product->product_key = trim($item['product_key']);
+                    }
+
                     $product->notes = $item['notes'];
                     $product->cost = $item['cost'];
+                    $product->save();
                 }
-
-                $product->save();
             }
 
             $invoiceItem = InvoiceItem::createNew();

@@ -39,7 +39,7 @@ class Mailer
             
             return true;
         } catch (Exception $exception) {
-            if (method_exists($exception, 'getResponse')) {
+            if (isset($_ENV['POSTMARK_API_TOKEN'])) {
                 $response = $exception->getResponse()->getBody()->getContents();
                 $response = json_decode($response);
                 return nl2br($response->Message);
