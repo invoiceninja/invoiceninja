@@ -730,6 +730,7 @@ return array(
   'invoice_to' => 'Rechnung an',
   'invoice_no' => 'Rechnung Nr.',
   'recent_payments' => 'Kürzliche Zahlungen',
+  'outstanding' => 'Ausstehend',
   'manage_companies' => 'Unternehmen verwalten',
   'total_revenue' => 'Gesamteinnahmen',
 
