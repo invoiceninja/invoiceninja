@@ -394,10 +394,10 @@ return array(
 
   'invoice_fields' => 'Rechnungsfelder',
   'invoice_options' => 'Rechnungsoptionen',
-  'hide_quantity' => 'Anzahl verbergen',
+  'hide_quantity' => 'Menge verbergen',
   'hide_quantity_help' => 'Wenn deine Menge immer 1 beträgt, kannst du deine Rechnung einfach halten, indem du dieses Feld entfernst.',
-  'hide_paid_to_date' => 'Bereits gezahlt ausblenden',
-  'hide_paid_to_date_help' => 'Bereits gezahlt nur anzeigen, wenn eine Zahlung eingegangen ist.',
+  'hide_paid_to_date' => '"Bereits gezahlt" ausblenden',
+  'hide_paid_to_date_help' => '"Bereits gezahlt" nur anzeigen, wenn eine Zahlung eingegangen ist.',
 
   'charge_taxes' => 'Steuern erheben',
   'user_management' => 'Benutzerverwaltung',
@@ -406,7 +406,7 @@ return array(
   'sent_invite' => 'Einladung erfolgreich gesendet',
   'updated_user' => 'Benutzer erfolgreich aktualisiert',
   'invitation_message' => 'Du wurdest von :invitor eingeladen.',
-  'register_to_add_user' => 'Bitte registrieren um einen Benutzer hinzuzufügen',
+  'register_to_add_user' => 'Bitte registrieren, um einen Benutzer hinzuzufügen',
   'user_state' => 'Status',
   'edit_user' => 'Benutzer bearbeiten',
   'delete_user' => 'Benutzer löschen',
