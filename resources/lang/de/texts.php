@@ -739,6 +739,6 @@ return array(
   'recurring_invoice' => 'Wiederkehrende Rechnung',
   'recurring_too_soon' => 'Es ist zu früh, um die nächste wiederkehrende Rechnung zu erstellen',
   'created_by_invoice' => 'Erstellt durch :invoice',
-
+  'primary_user' => 'Primary User',
 
 );

@@ -742,7 +742,7 @@ return array(
   'recurring_invoice' => 'Recurring Invoice',
   'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice',
   'created_by_invoice' => 'Created by :invoice',
-
+  'primary_user' => 'Primary User',
 
     
 );
