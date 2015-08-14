@@ -13,4 +13,7 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 
+    # Enable this to enforce https access
+#    RewriteCond %{SERVER_PORT} 80
+#    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R,L]
 </IfModule>
