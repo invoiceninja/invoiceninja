@@ -40,7 +40,6 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
 use App\Events\UserLoggedIn;
-use App\Events\UserSettingsChanged;
 
 class AccountController extends BaseController
 {
@@ -686,7 +685,7 @@ class AccountController extends BaseController
                 $user->username = trim(Input::get('email'));
                 $user->email = trim(strtolower(Input::get('email')));
                 $user->phone = trim(Input::get('phone'));
-                if (Utils::isNinja()) {
+                if (Utils::isNinjaDev()) {
                     $user->dark_mode = Input::get('dark_mode') ? true : false;
                 }
                 $user->save();
@@ -698,7 +697,6 @@ class AccountController extends BaseController
                 File::delete('logo/'.$account->account_key.'.jpg');
                 File::delete('logo/'.$account->account_key.'.png');
 
-                $image = Image::make($path);
                 $mimeType = $file->getMimeType();
 
                 if ($mimeType == 'image/jpeg') {
@@ -706,15 +704,19 @@ class AccountController extends BaseController
                 } else if ($mimeType == 'image/png') {
                     $file->move('logo/', $account->account_key . '.png');
                 } else {
-                    $image->resize(200, 120, function ($constraint) {
-                        $constraint->aspectRatio();
-                    });
-                    Image::canvas($image->width(), $image->height(), '#FFFFFF')
-                        ->insert($image)->save('logo/'.$account->account_key.'.jpg');
+                    if (extension_loaded('fileinfo')) {
+                        $image = Image::make($path);
+                        $image->resize(200, 120, function ($constraint) {
+                            $constraint->aspectRatio();
+                        });
+                        Image::canvas($image->width(), $image->height(), '#FFFFFF')
+                            ->insert($image)->save('logo/'.$account->account_key.'.jpg');
+                    } else {
+                        Session::flash('warning', 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.');
+                    }
                 }
             }
 
-            Event::fire(new UserSettingsChanged());
             Session::flash('message', trans('texts.updated_settings'));
 
             return Redirect::to('company/details');
@@ -764,9 +766,9 @@ class AccountController extends BaseController
         $user->username = $user->email;
         $user->password = bcrypt(trim(Input::get('new_password')));
         $user->registered = true;
-        $user->save();
+        $user->save();        
 
-        if (Utils::isNinja()) {
+        if (Utils::isNinjaProd()) {
             $this->userMailer->sendConfirmation($user);
         }
 

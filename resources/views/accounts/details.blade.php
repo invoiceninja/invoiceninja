@@ -22,7 +22,7 @@
 		{{ Former::populateField('last_name', $primaryUser->last_name) }}
 		{{ Former::populateField('email', $primaryUser->email) }}	
 		{{ Former::populateField('phone', $primaryUser->phone) }}
-        @if (Utils::isNinja())
+        @if (Utils::isNinjaDev())
             {{ Former::populateField('dark_mode', intval($primaryUser->dark_mode)) }}        
         @endif
 	@endif
@@ -84,14 +84,14 @@
 			@if ($showUser)
             <div class="panel panel-default">
               <div class="panel-heading">
-                <h3 class="panel-title">{!! trans('texts.users') !!}</h3>
+                <h3 class="panel-title">{!! trans('texts.primary_user') !!}</h3>
               </div>
                 <div class="panel-body">
 				{!! Former::text('first_name') !!}
 				{!! Former::text('last_name') !!}
                 {!! Former::text('email') !!}
 				{!! Former::text('phone') !!}
-                @if (Utils::isNinja())
+                @if (Utils::isNinjaDev())
                     {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help')) !!}
                 @endif
                 

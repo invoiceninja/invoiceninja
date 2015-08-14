@@ -112,9 +112,9 @@
 		</div>
 
 		<div class="col-md-4" id="col_2">
-            @if (!$isRecurring)
+            <span data-bind="visible: !is_recurring()">
 			 {!! Former::text('invoice_number')->label(trans("texts.{$entityType}_number_short"))->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
-            @endif
+            </span>
 			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
@@ -151,9 +151,11 @@
 		<tbody data-bind="sortable: { data: invoice_items, afterMove: onDragged }">
 			<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
 				<td class="hide-border td-icon">
-					<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-sort"></i>
+					<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp;
+                        $index() < ($parent.invoice_items().length - 1) &amp;&amp;
+                        $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 				</td>
-				<td>	            	
+				<td>
                 {!! Former::text('product_key')->useDatalist($products->toArray(), 'product_key')->onkeyup('onItemChange()')
 				       ->raw()->data_bind("value: product_key, valueUpdate: 'afterkeydown'")->addClass('datalist') !!}
 				</td>
@@ -172,8 +174,10 @@
 				<td style="text-align:right;padding-top:9px !important">
 					<div class="line-total" data-bind="text: totals.total"></div>
 				</td>
-				<td style="cursor:pointer" class="hide-border td-icon">
-					&nbsp;<i style="display:none" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; $parent.invoice_items().length > 1" class="fa fa-minus-circle redlink" title="Remove item"/>
+				<td style="cursor:pointer" class="hide-border td-icon"> &nbsp;
+                    <i style="display:none" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; 
+                    $index() < ($parent.invoice_items().length - 1) &amp;&amp;
+                    $parent.invoice_items().length > 1" class="fa fa-minus-circle redlink" title="Remove item"/>
 				</td>
 			</tr>
 		</tbody>

@@ -17,10 +17,11 @@ class Mailer
         try {
             Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $subject, $data) {
 
+                $toEmail = strtolower($toEmail);
                 $replyEmail = $fromEmail;
                 $fromEmail = CONTACT_EMAIL;
 
-                if(isset($data['invoice_id'])) {
+                if (isset($data['invoice_id'])) {
                     $invoice = Invoice::with('account')->where('id', '=', $data['invoice_id'])->get()->first();
                     if($invoice->account->pdf_email_attachment && file_exists($invoice->getPDFPath())) {
                         $message->attach(

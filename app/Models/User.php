@@ -2,7 +2,9 @@
 
 use Session;
 use Auth;
+use Event;
 use App\Libraries\Utils;
+use App\Events\UserSettingsChanged;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -213,3 +215,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 User::updating(function ($user) {
     User::updateUser($user);
 });
+
+User::updated(function ($user) {
+    Event::fire(new UserSettingsChanged());
+});
+

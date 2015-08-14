@@ -29947,12 +29947,14 @@ function GetPdf(invoice, javascript){
     lineTotalRight: 550
   };
 
+  /*
   if (invoice.has_taxes)
   {
     layout.descriptionLeft -= 20;
     layout.unitCostRight -= 40;
     layout.qtyRight -= 40;
   }
+  */
 
   /*
    @param orientation One of "portrait" or "landscape" (or shortcuts "p" (Default), "l")
@@ -30899,8 +30901,7 @@ function calculateAmounts(invoice) {
   invoice.discount_amount = discount;
   invoice.tax_amount = tax;
   invoice.item_taxes = taxes;
-  invoice.has_taxes = hasTaxes;
-
+  
   if (NINJA.parseFloat(invoice.partial)) {
     invoice.balance_amount = roundToTwo(invoice.partial);
   } else {
@@ -30944,11 +30945,12 @@ function displayInvoiceHeader(doc, invoice, layout) {
   }
   doc.text(totalX, layout.tableTop, invoiceLabels.line_total);
 
+  /*
   if (invoice.has_taxes)
   {
     doc.text(taxX, layout.tableTop, invoiceLabels.tax);
   }
-
+  */
 }
 
 function displayInvoiceItems(doc, invoice, layout) {
@@ -31131,10 +31133,11 @@ function displayInvoiceItems(doc, invoice, layout) {
 
       doc.line(qtyX-45, y-16,qtyX-45, y+55);
 
+      /*
       if (invoice.has_taxes) {
         doc.line(taxX-15, y-16,taxX-15, y+55);
       }
-
+      */
       doc.line(totalX-27, y-16,totalX-27, y+55);
 
     }
@@ -31197,9 +31200,11 @@ function displayInvoiceItems(doc, invoice, layout) {
     doc.line(layout.descriptionLeft-8, topX,layout.descriptionLeft-8, y);
     doc.line(layout.unitCostRight-55, topX,layout.unitCostRight-55, y);
     doc.line(layout.qtyRight-50, topX,layout.qtyRight-50, y);
+    /*
     if (invoice.has_taxes) {
       doc.line(layout.taxRight-28, topX,layout.taxRight-28, y);
     }
+    */
     doc.line(totalX-25, topX,totalX-25, y+90);
     doc.line(totalX+45, topX,totalX+45, y+90);
   }
@@ -31605,7 +31610,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'subtotalsHeight': NINJA.subtotals(invoice).length * 22,
         'subtotalsWithoutBalance': NINJA.subtotals(invoice, true),        
         'balanceDue': formatMoney(invoice.balance_amount, invoice.client.currency_id),
-        'invoiceFooter': account.invoice_footer || ' ',
+        'invoiceFooter': invoice.invoice_footer || ' ',
         'invoiceNumber': invoice.invoice_number || ' ',
         'entityType': invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice,
         'entityTypeUC': (invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),

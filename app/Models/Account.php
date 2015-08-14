@@ -4,7 +4,9 @@ use Eloquent;
 use Utils;
 use Session;
 use DateTime;
+use Event;
 use App;
+use App\Events\UserSettingsChanged;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends Eloquent
@@ -324,7 +326,7 @@ class Account extends Eloquent
 
     public function isWhiteLabel()
     {
-        if (Utils::isNinja()) {
+        if (Utils::isNinjaProd()) {
             return self::isPro() && $this->pro_plan_paid != NINJA_DATE;
         } else {
             return $this->pro_plan_paid == NINJA_DATE;
@@ -430,3 +432,7 @@ class Account extends Eloquent
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
     }
 }
+
+Account::updated(function ($account) {
+    Event::fire(new UserSettingsChanged());
+});

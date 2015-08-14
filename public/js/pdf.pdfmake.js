@@ -97,7 +97,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'subtotalsHeight': NINJA.subtotals(invoice).length * 22,
         'subtotalsWithoutBalance': NINJA.subtotals(invoice, true),        
         'balanceDue': formatMoney(invoice.balance_amount, invoice.client.currency_id),
-        'invoiceFooter': account.invoice_footer || ' ',
+        'invoiceFooter': invoice.invoice_footer || ' ',
         'invoiceNumber': invoice.invoice_number || ' ',
         'entityType': invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice,
         'entityTypeUC': (invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),

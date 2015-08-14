@@ -268,7 +268,7 @@ class ClientController extends BaseController
                     $record = Contact::createNew();
                 }
 
-                $record->email = trim(strtolower($contact->email));
+                $record->email = trim($contact->email);
                 $record->first_name = trim($contact->first_name);
                 $record->last_name = trim($contact->last_name);
                 $record->phone = trim($contact->phone);

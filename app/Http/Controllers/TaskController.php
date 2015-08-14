@@ -289,7 +289,7 @@ class TaskController extends BaseController
     private function checkTimezone()
     {
         if (!Auth::user()->account->timezone) {
-            $link = link_to('/company/details', trans('texts.click_here'), ['target' => '_blank']);
+            $link = link_to('/company/details?focus=timezone_id', trans('texts.click_here'), ['target' => '_blank']);
             Session::flash('warning', trans('texts.timezone_unset', ['link' => $link]));
         }
     }

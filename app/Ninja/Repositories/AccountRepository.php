@@ -272,7 +272,6 @@ class AccountRepository
     }
 
     public function prepareUsersData($record) {
-
         if (!$record) {
             return false;
         }
@@ -381,7 +380,6 @@ class AccountRepository
     }
 
     public function unlinkUser($userAccountId, $userId) {
-
         $userAccount = UserAccount::whereId($userAccountId)->first();
         if ($userAccount->hasUserId($userId)) {
             $userAccount->removeUserId($userId);
