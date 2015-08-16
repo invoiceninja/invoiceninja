@@ -635,6 +635,7 @@
 
 {{-- Per our license, please do not remove or modify this section. --}}
 @if (!Utils::isNinjaProd())
+<p>&nbsp;</p>
 <div class="container">
   {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> | 
   @if (Auth::user()->account->isWhiteLabel())  

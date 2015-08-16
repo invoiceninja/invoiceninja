@@ -154,7 +154,7 @@
     <div>
     {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->onchange('onSelectChange()')->raw() !!}
     <div class="pull-right">
-        {!! Button::normal(trans('texts.documentation'))->asLinkTo(PDFMAKE_DOCS)->withAttributes(['target' => '_blank'])->appendIcon(Icon::create('info-sign')) !!}
+        {!! Button::normal(trans('texts.help'))->withAttributes(['onclick' => 'showHelp()'])->appendIcon(Icon::create('question-sign')) !!}
         {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/invoice_design'))->appendIcon(Icon::create('remove-circle')) !!}
         @if (Auth::user()->isPro())
             {!! Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->appendIcon(Icon::create('floppy-disk')) !!}
@@ -162,15 +162,43 @@
     </div>
     </div>
 
-      @if (!Auth::user()->isPro())
       <script>
-          $(function() {   
+      @if (!Auth::user()->isPro())
+        $(function() {   
             $('form.warn-on-exit input').prop('disabled', true);
-          });
-      </script> 
+        });
       @endif
 
+        function showHelp() {            
+            $('#helpModal').modal('show');   
+        }   
+
+      </script> 
+
       {!! Former::close() !!}
+
+
+    <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="helpModalLabel">{{ trans('texts.help') }}</h4>
+          </div>
+
+          <div class="panel-body" style="background-color: #fff">
+            {!! trans('texts.customize_help') !!}
+          </div>
+
+         <div class="modal-footer" style="margin-top: 0px">
+            <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>            
+         </div>
+            
+        </div>
+      </div>
+    </div>
+
+
 
     </div>
     <div class="col-md-6">

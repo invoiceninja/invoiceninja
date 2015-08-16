@@ -748,6 +748,12 @@ return array(
   'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice',
   'created_by_invoice' => 'Created by :invoice',
   'primary_user' => 'Primary User',
+  'help' => 'Help',
+  'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provide\'s a great way to see the library in action.</p>
+                        <p>You can access any invoice field by adding <code>Value</code> to the end. For example <code>$invoiceNumberValue</code> displays the invoice number.</p>
+                        <p>To access a child property using dot notation. For example to show the client name you could use <code>$client.nameValue</code>.</p>
+                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>'
+  
 
 
 );
