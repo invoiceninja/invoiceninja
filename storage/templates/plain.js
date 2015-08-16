@@ -23,17 +23,17 @@
 				"margin": [0,40,0,0]
 			},
 			{
-                "canvas": [{ "type": "rect", "x": 0, "y": 0, "w": 175, "h": 15, "r":0, "lineWidth": 1, "color":"#e6e6e6"}],
-                "width":10,
-                "margin":[0,70,0,0]
-            },
-			{
 				"width":200,
                 "table": { 
                     "body": "$invoiceDetails"
                 },
-                "layout": "noBorders",
-				"margin":[0,40,0,0]
+                "layout": {
+                    "hLineWidth": "$none",
+                    "vLineWidth": "$none",
+                    "hLineColor": "#E6E6E6",
+                    "paddingLeft": "$amount:10", 
+                    "paddingRight": "$amount:10"
+                }
 			}
 		]
 	},	
@@ -60,20 +60,18 @@
     {
         "columns": [
             "$notesAndTerms",
-    		{
-                "canvas": [{ "type": "rect", "x": -360, "y": 0, "w": 200, "h": 20,"r":0, "lineWidth": 2, "color":"#e6e6e6","lineColor":"#e6e6e6"}],"width":10,"margin":[420,37,0,0]
-            },
             {
+                "width": 160,
                 "style": "subtotals",
                 "table": {
-                    "widths": ["*", "40%"],
+                    "widths": [60, 60],
                     "body": "$subtotals"
                 },
                 "layout": {
                     "hLineWidth": "$none",
                     "vLineWidth": "$none",
-                    "paddingLeft": "$amount:34", 
-                    "paddingRight": "$amount:8", 
+                    "paddingLeft": "$amount:10", 
+                    "paddingRight": "$amount:10", 
                     "paddingTop": "$amount:4", 
                     "paddingBottom": "$amount:4" 
                 }
@@ -133,7 +131,19 @@
         "termsLabel": {
             "bold": true,
             "margin": [0, 0, 0, 4]
-        }           
+        },
+        "invoiceDetailBalanceDueLabel": {
+            "fillColor": "#e6e6e6"
+        },
+        "invoiceDetailBalanceDue": {
+            "fillColor": "#e6e6e6"
+        },
+        "balanceDueLabel": {
+            "fillColor": "#e6e6e6"
+        },
+        "balanceDue": {
+            "fillColor": "#e6e6e6"
+        }
      },
     "pageMargins": [40, 40, 40, 60]
 }
