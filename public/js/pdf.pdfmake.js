@@ -327,7 +327,9 @@ NINJA.accountAddress = function(invoice) {
     {text: account.address1},
     {text: account.address2},
     {text: cityStatePostal},
-    {text: account.country ? account.country.name : ''}
+    {text: account.country ? account.country.name : ''},
+    {text: invoice.account.custom_value1 ? invoice.account.custom_label1 + ' ' + invoice.account.custom_value1 : false},
+    {text: invoice.account.custom_value2 ? invoice.account.custom_label2 + ' ' + invoice.account.custom_value2 : false}
     ];
     
     return NINJA.prepareDataList(data, 'accountAddress');
@@ -388,11 +390,13 @@ NINJA.clientDetails = function(invoice) {
     var clientEmail = client.contacts[0].email == clientName ? '' : client.contacts[0].email; 
 
     data = [
-    {text:clientName || ' ', style: ['clientName']},
-    {text:client.address1},
-    {text:concatStrings(client.city, client.state, client.postal_code)},
-    {text:client.country ? client.country.name : ''},
-    {text:clientEmail}
+        {text:clientName || ' ', style: ['clientName']},
+        {text:client.address1},
+        {text:concatStrings(client.city, client.state, client.postal_code)},
+        {text:client.country ? client.country.name : ''},
+        {text:clientEmail},
+        {text: invoice.client.custom_value1 ? invoice.account.custom_client_label1 + ' ' + invoice.client.custom_value1 : false},
+        {text: invoice.client.custom_value2 ? invoice.account.custom_client_label2 + ' ' + invoice.client.custom_value2 : false}
     ];
 
     return NINJA.prepareDataList(data, 'clientDetails');
