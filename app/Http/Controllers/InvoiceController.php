@@ -594,7 +594,7 @@ class InvoiceController extends BaseController
         }
 
         if ($action == 'restore' && $count == 1) {
-            return Redirect::to("{$entityType}s/".$ids[0]);
+            return Redirect::to("{$entityType}s/".Utils::getFirst($ids));
         } else {
             return Redirect::to("{$entityType}s");
         }

@@ -31511,6 +31511,11 @@ function getDescendantProp(obj, desc) {
     while(arr.length && (obj = obj[arr.shift()]));
     return obj;
 }
+
+function doubleDollarSign(str) {
+    if (!str) return '';
+    return str.replace(/\$/g, '\$\$\$');
+}
 var NINJA = NINJA || {};
 
 NINJA.TEMPLATES = {
@@ -31622,6 +31627,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
     for (var key in json) {
         var regExp = new RegExp('"\\$'+key+'"', 'g');
         var val = JSON.stringify(json[key]);
+        val = doubleDollarSign(val);
         javascript = javascript.replace(regExp, val);
     }
 
@@ -31664,7 +31670,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
             field = match.substring(2, match.indexOf('Value'));
             field = toSnakeCase(field);
             var value = getDescendantProp(invoice, field) || ' ';            
-    
+            value = doubleDollarSign(value);
+
             if (field.toLowerCase().indexOf('date') >= 0 && value != ' ') {
                 value = moment(value, 'YYYY-MM-DD').format('MMM D YYYY');
             }
@@ -31695,9 +31702,9 @@ NINJA.notesAndTerms = function(invoice)
 NINJA.invoiceColumns = function(invoice)
 {
     if (invoice.account.hide_quantity == '1') {
-        return ["15%", "*", "auto", "15%"];
+        return ["15%", "*", "10%", "15%"];
     } else {
-        return ["15%", "*", "auto", "auto", "15%"];
+        return ["15%", "*", "10%", "auto", "15%"];
     }
 }
 

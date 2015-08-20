@@ -735,4 +735,12 @@ class Utils
         
         return $val;
     }
+
+    public static function getFirst($values) {
+        if (is_array($values)) {
+            return count($values) ? $values[0] : false;
+        } else {
+            return $values;
+        }
+    }
 }

@@ -1640,3 +1640,8 @@ function getDescendantProp(obj, desc) {
     while(arr.length && (obj = obj[arr.shift()]));
     return obj;
 }
+
+function doubleDollarSign(str) {
+    if (!str) return '';
+    return str.replace(/\$/g, '\$\$\$');
+}

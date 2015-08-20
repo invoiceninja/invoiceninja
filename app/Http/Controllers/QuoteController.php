@@ -185,7 +185,11 @@ class QuoteController extends BaseController
             Session::flash('message', $message);
         }
 
-        return Redirect::to('quotes');
+        if ($action == 'restore' && $count == 1) {
+            return Redirect::to("quotes/".Utils::getFirst($ids));
+        } else {
+            return Redirect::to("quotes");
+        }
     }
 
     public function approve($invitationKey)

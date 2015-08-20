@@ -306,7 +306,7 @@ class ClientController extends BaseController
         Session::flash('message', $message);
 
         if ($action == 'restore' && $count == 1) {
-            return Redirect::to('clients/'.$ids[0]);
+            return Redirect::to('clients/'.Utils::getFirst($ids));
         } else {
             return Redirect::to('clients');
         }
