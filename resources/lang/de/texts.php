@@ -46,7 +46,7 @@ return array(
   'line_total' => 'Summe',
   'subtotal' => 'Zwischensumme',
   'paid_to_date' => 'Bereits gezahlt',
-  'balance_due' => 'Rechnungsbetrag',
+  'balance_due' => 'Geschuldeter Betrag',
   'invoice_design_id' => 'Design',
   'terms' => 'Bedingungen',
   'your_invoice' => 'Ihre Rechnung',

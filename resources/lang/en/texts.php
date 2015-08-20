@@ -574,6 +574,7 @@ return array(
   'forgot_password' => 'Forgot your password?',
   'email_address' => 'Email address',
   'lets_go' => 'Let\'s go',
+  //'lets_go' => 'Login',
   'password_recovery' => 'Password Recovery',
   'send_email' => 'Send email',
   'set_password' => 'Set Password',

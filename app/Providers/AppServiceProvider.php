@@ -72,7 +72,7 @@ class AppServiceProvider extends ServiceProvider {
 
             // Get the breadcrumbs by exploding the current path.
             $basePath = Utils::basePath();
-            $parts = explode('?', $_SERVER['REQUEST_URI']);
+            $parts = explode('?', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
             $path = $parts[0];
 
             if ($basePath != '/') {

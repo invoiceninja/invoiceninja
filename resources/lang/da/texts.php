@@ -743,17 +743,17 @@
    'manage_companies' => 'Manage Companies',
    'total_revenue' => 'Total Revenue',
 
-   'current_user' => 'Current User',
-   'new_recurring_invoice' => 'New Recurring Invoice',
-   'recurring_invoice' => 'Recurring Invoice',
-   'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice',
-   'created_by_invoice' => 'Created by :invoice',
-   'primary_user' => 'Primary User',
-   'help' => 'Help',
-   'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provide\'s a great way to see the library in action.</p>
-                        <p>You can access any invoice field by adding <code>Value</code> to the end. For example <code>$invoiceNumberValue</code> displays the invoice number.</p>
-                        <p>To access a child property using dot notation. For example to show the client name you could use <code>$client.nameValue</code>.</p>
-                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>'
+   'current_user' => 'Nuværende bruger',
+   'new_recurring_invoice' => 'Ny gentaget fakture',
+   'recurring_invoice' => 'Gentaget faktura',
+   'recurring_too_soon' => 'Det er for tidligt at generere den næste faktura',
+   'created_by_invoice' => 'Oprettet fra :invoice',
+   'primary_user' => 'Primær bruger',
+   'help' => 'Hjælp',
+   'customize_help' => '<p>Vi bruger <a href="http://pdfmake.org/" target="_blank">pdfmake</a> til at definere faktura design felter. pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">legeplads</a> giver en god mulighed for at se biblioteket i aktion.</p>
+                        <p>Du kan tilgå alle faktura felter ved at tilføje <code>Value</code> til slutningen. For eksempel viser <code>$invoiceNumberValue</code> fakturanummeret.</p>
+                        <p>For at tilgå under indstillingerne ved hjælp af dot notation. For eksempel kan man for at vise klient navnet bruge <code>$client.nameValue</code>.</p>
+                        <p>Hvis du mangler svar på nogen spørgsmål så post et spørgsmål i vores <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
   
 
  ); 

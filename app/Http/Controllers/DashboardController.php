@@ -116,18 +116,18 @@ class DashboardController extends BaseController
 
 
         $data = [
-      'account' => Auth::user()->account,
-      'paidToDate' => $paidToDate,
-      'balances' => $balances,
-      'averageInvoice' => $averageInvoice,
-      'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
-      'activeClients' => $metrics ? $metrics->active_clients : 0,
-      'activities' => $activities,
-      'pastDue' => $pastDue,
-      'upcoming' => $upcoming,
-      'payments' => $payments,
-      'title' => trans('texts.dashboard'),
-    ];
+            'account' => Auth::user()->account,
+            'paidToDate' => $paidToDate,
+            'balances' => $balances,
+            'averageInvoice' => $averageInvoice,
+            'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
+            'activeClients' => $metrics ? $metrics->active_clients : 0,
+            'activities' => $activities,
+            'pastDue' => $pastDue,
+            'upcoming' => $upcoming,
+            'payments' => $payments,
+            'title' => trans('texts.dashboard'),
+        ];
 
         return View::make('dashboard', $data);
     }

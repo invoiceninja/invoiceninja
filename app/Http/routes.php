@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -26,6 +25,13 @@ Route::get('setup', 'AppController@showSetup');
 Route::post('setup', 'AppController@doSetup');
 Route::get('install', 'AppController@install');
 Route::get('update', 'AppController@update');
+
+/*
+// Codeception code coverage
+Route::get('/c3.php', function () {
+    include '../c3.php';
+});
+*/
 
 // Public pages
 Route::get('/', 'HomeController@showIndex');
@@ -393,6 +399,9 @@ define('USER_TYPE_SELF_HOST', 'SELF_HOST');
 define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
 define('NEW_VERSION_AVAILABLE', 'NEW_VERSION_AVAILABLE');
 
+define('TEST_USERNAME', 'user@email.com');
+define('TEST_PASSWORD', 'password');
+
 define('TOKEN_BILLING_DISABLED', 1);
 define('TOKEN_BILLING_OPT_IN', 2);
 define('TOKEN_BILLING_OPT_OUT', 3);
@@ -404,14 +413,6 @@ define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');
 define('PAYMENT_TYPE_DWOLLA', 'PAYMENT_TYPE_DWOLLA');
 define('PAYMENT_TYPE_TOKEN', 'PAYMENT_TYPE_TOKEN');
 define('PAYMENT_TYPE_ANY', 'PAYMENT_TYPE_ANY');
-
-/*
-define('GATEWAY_AMAZON', 30);
-define('GATEWAY_BLUEPAY', 31);
-define('GATEWAY_BRAINTREE', 32);
-define('GATEWAY_GOOGLE', 33);
-define('GATEWAY_QUICKBOOKS', 35);
-*/
 
 $creditCards = [
             1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
@@ -468,7 +469,6 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
     Log::info($query, $data);
 });
 */
-
 
 /*
 if (Auth::check() && Auth::user()->id === 1)

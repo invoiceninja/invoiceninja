@@ -100,7 +100,7 @@
 					<div class="pull-right" style="padding-top: 6px">
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
 					</div>
-				@elseif ($invoice && $invoice->last_sent_date)
+				@elseif ($invoice && $invoice->last_sent_date && $invoice->recurring_invoices->last())
                     <div class="pull-right" style="padding-top: 6px">
                         {!! trans('texts.last_invoice_sent', [
                                 'date' => link_to('/invoices/'.$invoice->recurring_invoices->last()->public_id, Utils::dateToString($invoice->last_sent_date))
@@ -336,7 +336,7 @@
 		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))
 
 			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
-		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'email_button', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
+		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
 
             @if ($invoice && $invoice->id)                
                 {!! DropdownButton::normal(trans('texts.more_actions'))
@@ -1777,10 +1777,10 @@
     function onRecurringEnabled()
     {
         if ($('#recurring').prop('checked')) {
-            $('#email_button').attr('disabled', true);
+            $('#emailButton').attr('disabled', true);
             model.invoice().partial('');
         } else {
-            $('#email_button').removeAttr('disabled');
+            $('#emailButton').removeAttr('disabled');
         }
     }
 
