@@ -19,7 +19,7 @@
             "style": "invoiceLineItemsTable",            
             "table": {
                 "headerRows": 1,
-                "widths": ["15%", "*", "auto", "auto", "auto"],
+                "widths": "$$invoiceLineItemColumns",
                 "body": "$invoiceLineItems"
             },
             "layout": {
