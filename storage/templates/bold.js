@@ -44,7 +44,7 @@
         "style": "invoiceLineItemsTable",
         "table": {
             "headerRows": 1,
-            "widths": "$$invoiceLineItemColumns",
+            "widths": "$invoiceLineItemColumns",
             "body": "$invoiceLineItems"
         },
         "layout": {
