@@ -312,13 +312,13 @@ return array(
 
   'pro_plan_product' => 'Pro Plan',
   'pro_plan_description' => 'Jahresmitgliedschaft beim Invoice Ninja Pro Plan.',
-  'pro_plan_success' => 'Danke, dass du Invoice Ninja\'s Pro gewählt hast!<p/>&nbsp;<br/>
+  'pro_plan_success' => 'Danke, dass Sie Invoice Ninja\'s Pro gewählt haben!<p/>&nbsp;<br/>
                           <b>Nächste Schritte</b>Eine bezahlbare Rechnung wurde an die Mailadresse,
-                          welche mit deinem Account verbunden ist, geschickt. Um alle der umfangreichen 
-                          Pro Funktionen freizuschalten, folge bitte den Anweisungen in der Rechnung um ein Jahr
+                          welche mit Ihrem Account verbunden ist, geschickt. Um alle der umfangreichen 
+                          Pro Funktionen freizuschalten, folgen Sie bitte den Anweisungen in der Rechnung um ein Jahr
                           die Pro Funktionen zu nutzen.
-                          Du findest die Rechnung nicht? Du benötigst weitere Hilfe? Wir helfen gerne
-                          -- schick uns doch eine Email an contact@invoice-ninja.com',
+                          Sie finden die Rechnung nicht? Sie benötigen weitere Hilfe? Wir helfen gerne
+                          -- schicken Sie uns doch eine Email an contact@invoice-ninja.com',
 
   'unsaved_changes' => 'Es liegen ungespeicherte Änderungen vor',
   'custom_fields' => 'Benutzerdefinierte Felder',
@@ -463,7 +463,7 @@ return array(
   'sent' => 'gesendet',
   
   'vat_number' => 'USt-IdNr.',
-  'timesheets' => 'Timesheets',
+  'timesheets' => 'Zeittabellen',
 
   'payment_title' => 'Geben Sie Ihre Rechnungsadresse und Ihre Kreditkarteninformationen ein',
   'payment_cvv' => '*Dies ist die 3-4-stellige Nummer auf der Rückseite Ihrer Kreditkarte',
@@ -514,7 +514,7 @@ return array(
   'approve' => 'Zustimmen',
 
   'token_billing_type_id' => 'Token Billing',
-  'token_billing_help' => 'Ermöglicht dir, Kreditkarten mit Ihrem Gateway zu speichern und diese zu einem späteren Zeitpunkt zu belasten.',
+  'token_billing_help' => 'Ermöglicht Ihnen, Kreditkarten mit Ihrem Gateway zu speichern und diese zu einem späteren Zeitpunkt zu belasten.',
   'token_billing_1' => 'Deaktiviert',
   'token_billing_2' => 'Opt-in - Kontrollkästchen wird angezeigt ist aber nicht ausgewählt',
   'token_billing_3' => 'Opt-out - Kontrollkästchen wird angezeigt und ist ausgewählt',
