@@ -20,7 +20,7 @@
   @endif
 
   {!! Former::text('product_key')->label('texts.product') !!}
-  {!! Former::textarea('notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'") !!}
+  {!! Former::textarea('notes') !!}
   {!! Former::text('cost') !!}
 
   </div>
@@ -34,29 +34,6 @@
   {!! Former::close() !!}
 
   <script type="text/javascript">
-
-  function ViewModel(data) {
-    var self = this;
-    @if ($product)
-      self.notes = ko.observable(wordWrapText('{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($product->notes)) }}', 300));
-    @else
-      self.notes = ko.observable('');
-    @endif
-    
-    self.wrapped_notes = ko.computed({
-      read: function() {
-        return self.notes();
-      },
-      write: function(value) {
-        value = wordWrapText(value, 235);
-        self.notes(value);
-      },
-      owner: this
-    });
-  }
-
-  window.model = new ViewModel();
-  ko.applyBindings(model);  
 
   $(function() {
     $('#product_key').focus();

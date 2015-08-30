@@ -47,20 +47,24 @@ class InvoiceCest
         $I->amOnPage('/recurring_invoices/create');
 
         $I->selectDropdown($I, $clientName, '.client_select .dropdown-toggle');
-        //$I->selectOption('#frequency_id', Helper::getRandom('Frequency'));
-        $I->selectDataPicker($I, '#start_date');
         $I->selectDataPicker($I, '#end_date', '+ 1 week');
-
         $I->fillField('#po_number', rand(100, 200));
         $I->fillField('#discount', rand(0, 20));
-
+        
         $this->fillItems($I);
-
-        $I->executeJS('submitAction()');
+        
+        $I->executeJS("submitAction('email')");
         $I->wait(1);
         $I->see($clientName);
-    }    
 
+        $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
+        $I->click('Recurring Invoice');
+        $I->see($clientName);
+
+        $I->click('#lastInvoiceSent');
+        $I->see($invoiceNumber);
+    }
+    
     public function editInvoice(AcceptanceTester $I)
     {
         $I->wantTo('edit an invoice');
@@ -111,25 +115,6 @@ class InvoiceCest
     }
     */
 
-    /*
-    public function indexInvoice(AcceptanceTester $I)
-    {
-        $I->wantTo('list invoices');
-
-        $I->amOnPage('/invoices');
-        $I->seeCurrentUrlEquals('/invoices');
-
-        $random_invoice_number = Helper::getRandom('Invoice', 'invoice_number', [
-            'is_quote' => 0,
-            'is_recurring' => false
-        ]);
-
-        if ($random_invoice_number) {
-            $I->wait(2);
-            $I->see($random_invoice_number);
-        }
-    }
-    */
 
     private function fillItems(AcceptanceTester $I, $max = 2)
     {

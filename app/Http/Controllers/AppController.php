@@ -101,6 +101,7 @@ class AppController extends BaseController
         if (Industry::count() == 0) {
             Artisan::call('db:seed', array('--force' => true));
         }
+        Cache::flush();
         Artisan::call('optimize', array('--force' => true));
         
         $firstName = trim(Input::get('first_name'));

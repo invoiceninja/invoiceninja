@@ -219,227 +219,229 @@ Route::get('/forgot_password', function() {
 });
 
 
-define('CONTACT_EMAIL', Config::get('mail.from.address'));
-define('CONTACT_NAME', Config::get('mail.from.name'));
-define('SITE_URL', Config::get('app.url'));
+if (!defined('CONTACT_EMAIL')) {
+    define('CONTACT_EMAIL', Config::get('mail.from.address'));
+    define('CONTACT_NAME', Config::get('mail.from.name'));
+    define('SITE_URL', Config::get('app.url'));
 
-define('ENV_DEVELOPMENT', 'local');
-define('ENV_STAGING', 'staging');
-define('ENV_PRODUCTION', 'fortrabbit');
+    define('ENV_DEVELOPMENT', 'local');
+    define('ENV_STAGING', 'staging');
+    define('ENV_PRODUCTION', 'fortrabbit');
 
-define('RECENTLY_VIEWED', 'RECENTLY_VIEWED');
-define('ENTITY_CLIENT', 'client');
-define('ENTITY_INVOICE', 'invoice');
-define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
-define('ENTITY_PAYMENT', 'payment');
-define('ENTITY_CREDIT', 'credit');
-define('ENTITY_QUOTE', 'quote');
-define('ENTITY_TASK', 'task');
+    define('RECENTLY_VIEWED', 'RECENTLY_VIEWED');
+    define('ENTITY_CLIENT', 'client');
+    define('ENTITY_INVOICE', 'invoice');
+    define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
+    define('ENTITY_PAYMENT', 'payment');
+    define('ENTITY_CREDIT', 'credit');
+    define('ENTITY_QUOTE', 'quote');
+    define('ENTITY_TASK', 'task');
 
-define('PERSON_CONTACT', 'contact');
-define('PERSON_USER', 'user');
+    define('PERSON_CONTACT', 'contact');
+    define('PERSON_USER', 'user');
 
-define('ACCOUNT_DETAILS', 'details');
-define('ACCOUNT_NOTIFICATIONS', 'notifications');
-define('ACCOUNT_IMPORT_EXPORT', 'import_export');
-define('ACCOUNT_PAYMENTS', 'payments');
-define('ACCOUNT_MAP', 'import_map');
-define('ACCOUNT_EXPORT', 'export');
-define('ACCOUNT_PRODUCTS', 'products');
-define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
-define('ACCOUNT_INVOICE_SETTINGS', 'invoice_settings');
-define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
-define('ACCOUNT_CHART_BUILDER', 'chart_builder');
-define('ACCOUNT_USER_MANAGEMENT', 'user_management');
-define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
-define('ACCOUNT_EMAIL_TEMPLATES', 'email_templates');
-define('ACCOUNT_TOKEN_MANAGEMENT', 'token_management');
-define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
-
-
-define('ACTIVITY_TYPE_CREATE_CLIENT', 1);
-define('ACTIVITY_TYPE_ARCHIVE_CLIENT', 2);
-define('ACTIVITY_TYPE_DELETE_CLIENT', 3);
-
-define('ACTIVITY_TYPE_CREATE_INVOICE', 4);
-define('ACTIVITY_TYPE_UPDATE_INVOICE', 5);
-define('ACTIVITY_TYPE_EMAIL_INVOICE', 6);
-define('ACTIVITY_TYPE_VIEW_INVOICE', 7);
-define('ACTIVITY_TYPE_ARCHIVE_INVOICE', 8);
-define('ACTIVITY_TYPE_DELETE_INVOICE', 9);
-
-define('ACTIVITY_TYPE_CREATE_PAYMENT', 10);
-define('ACTIVITY_TYPE_UPDATE_PAYMENT', 11);
-define('ACTIVITY_TYPE_ARCHIVE_PAYMENT', 12);
-define('ACTIVITY_TYPE_DELETE_PAYMENT', 13);
-
-define('ACTIVITY_TYPE_CREATE_CREDIT', 14);
-define('ACTIVITY_TYPE_UPDATE_CREDIT', 15);
-define('ACTIVITY_TYPE_ARCHIVE_CREDIT', 16);
-define('ACTIVITY_TYPE_DELETE_CREDIT', 17);
-
-define('ACTIVITY_TYPE_CREATE_QUOTE', 18);
-define('ACTIVITY_TYPE_UPDATE_QUOTE', 19);
-define('ACTIVITY_TYPE_EMAIL_QUOTE', 20);
-define('ACTIVITY_TYPE_VIEW_QUOTE', 21);
-define('ACTIVITY_TYPE_ARCHIVE_QUOTE', 22);
-define('ACTIVITY_TYPE_DELETE_QUOTE', 23);
-
-define('ACTIVITY_TYPE_RESTORE_QUOTE', 24);
-define('ACTIVITY_TYPE_RESTORE_INVOICE', 25);
-define('ACTIVITY_TYPE_RESTORE_CLIENT', 26);
-define('ACTIVITY_TYPE_RESTORE_PAYMENT', 27);
-define('ACTIVITY_TYPE_RESTORE_CREDIT', 28);
-define('ACTIVITY_TYPE_APPROVE_QUOTE', 29);
-
-define('DEFAULT_INVOICE_NUMBER', '0001');
-define('RECENTLY_VIEWED_LIMIT', 8);
-define('LOGGED_ERROR_LIMIT', 100);
-define('RANDOM_KEY_LENGTH', 32);
-define('MAX_NUM_CLIENTS', 500);
-define('MAX_NUM_CLIENTS_PRO', 20000);
-define('MAX_NUM_USERS', 20);
-define('MAX_SUBDOMAIN_LENGTH', 30);
-define('DEFAULT_FONT_SIZE', 9);
-
-define('INVOICE_STATUS_DRAFT', 1);
-define('INVOICE_STATUS_SENT', 2);
-define('INVOICE_STATUS_VIEWED', 3);
-define('INVOICE_STATUS_PARTIAL', 4);
-define('INVOICE_STATUS_PAID', 5);
-
-define('PAYMENT_TYPE_CREDIT', 1);
-define('CUSTOM_DESIGN', 11);
-
-define('FREQUENCY_WEEKLY', 1);
-define('FREQUENCY_TWO_WEEKS', 2);
-define('FREQUENCY_FOUR_WEEKS', 3);
-define('FREQUENCY_MONTHLY', 4);
-define('FREQUENCY_THREE_MONTHS', 5);
-define('FREQUENCY_SIX_MONTHS', 6);
-define('FREQUENCY_ANNUALLY', 7);
-
-define('SESSION_TIMEZONE', 'timezone');
-define('SESSION_CURRENCY', 'currency');
-define('SESSION_DATE_FORMAT', 'dateFormat');
-define('SESSION_DATE_PICKER_FORMAT', 'datePickerFormat');
-define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
-define('SESSION_COUNTER', 'sessionCounter');
-define('SESSION_LOCALE', 'sessionLocale');
-define('SESSION_USER_ACCOUNTS', 'userAccounts');
-
-define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
-define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
-
-define('DEFAULT_TIMEZONE', 'US/Eastern');
-define('DEFAULT_CURRENCY', 1); // US Dollar
-define('DEFAULT_LANGUAGE', 1); // English
-define('DEFAULT_DATE_FORMAT', 'M j, Y');
-define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
-define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
-define('DEFAULT_QUERY_CACHE', 120); // minutes
-define('DEFAULT_LOCALE', 'en');
-
-define('RESULT_SUCCESS', 'success');
-define('RESULT_FAILURE', 'failure');
+    define('ACCOUNT_DETAILS', 'details');
+    define('ACCOUNT_NOTIFICATIONS', 'notifications');
+    define('ACCOUNT_IMPORT_EXPORT', 'import_export');
+    define('ACCOUNT_PAYMENTS', 'payments');
+    define('ACCOUNT_MAP', 'import_map');
+    define('ACCOUNT_EXPORT', 'export');
+    define('ACCOUNT_PRODUCTS', 'products');
+    define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
+    define('ACCOUNT_INVOICE_SETTINGS', 'invoice_settings');
+    define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
+    define('ACCOUNT_CHART_BUILDER', 'chart_builder');
+    define('ACCOUNT_USER_MANAGEMENT', 'user_management');
+    define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
+    define('ACCOUNT_EMAIL_TEMPLATES', 'email_templates');
+    define('ACCOUNT_TOKEN_MANAGEMENT', 'token_management');
+    define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
 
 
-define('PAYMENT_LIBRARY_OMNIPAY', 1);
-define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
+    define('ACTIVITY_TYPE_CREATE_CLIENT', 1);
+    define('ACTIVITY_TYPE_ARCHIVE_CLIENT', 2);
+    define('ACTIVITY_TYPE_DELETE_CLIENT', 3);
 
-define('GATEWAY_AUTHORIZE_NET', 1);
-define('GATEWAY_AUTHORIZE_NET_SIM', 2);
-define('GATEWAY_PAYPAL_EXPRESS', 17);
-define('GATEWAY_PAYPAL_PRO', 18);
-define('GATEWAY_STRIPE', 23);
-define('GATEWAY_TWO_CHECKOUT', 27);
-define('GATEWAY_BEANSTREAM', 29);
-define('GATEWAY_PSIGATE', 30);
-define('GATEWAY_MOOLAH', 31);
-define('GATEWAY_BITPAY', 42);
-define('GATEWAY_DWOLLA', 43);
+    define('ACTIVITY_TYPE_CREATE_INVOICE', 4);
+    define('ACTIVITY_TYPE_UPDATE_INVOICE', 5);
+    define('ACTIVITY_TYPE_EMAIL_INVOICE', 6);
+    define('ACTIVITY_TYPE_VIEW_INVOICE', 7);
+    define('ACTIVITY_TYPE_ARCHIVE_INVOICE', 8);
+    define('ACTIVITY_TYPE_DELETE_INVOICE', 9);
 
-define('EVENT_CREATE_CLIENT', 1);
-define('EVENT_CREATE_INVOICE', 2);
-define('EVENT_CREATE_QUOTE', 3);
-define('EVENT_CREATE_PAYMENT', 4);
+    define('ACTIVITY_TYPE_CREATE_PAYMENT', 10);
+    define('ACTIVITY_TYPE_UPDATE_PAYMENT', 11);
+    define('ACTIVITY_TYPE_ARCHIVE_PAYMENT', 12);
+    define('ACTIVITY_TYPE_DELETE_PAYMENT', 13);
 
-define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
-define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
-define('PREV_USER_ID', 'PREV_USER_ID');
-define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
-define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
-define('NINJA_GATEWAY_CONFIG', '');
-define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
-define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-define('NINJA_VERSION', '2.3.3');
-define('NINJA_DATE', '2000-01-01');
+    define('ACTIVITY_TYPE_CREATE_CREDIT', 14);
+    define('ACTIVITY_TYPE_UPDATE_CREDIT', 15);
+    define('ACTIVITY_TYPE_ARCHIVE_CREDIT', 16);
+    define('ACTIVITY_TYPE_DELETE_CREDIT', 17);
 
-define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
-define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
-define('ZAPIER_URL', 'https://zapier.com/developer/invite/11276/85cf0ee4beae8e802c6c579eb4e351f1/');
-define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
-define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
+    define('ACTIVITY_TYPE_CREATE_QUOTE', 18);
+    define('ACTIVITY_TYPE_UPDATE_QUOTE', 19);
+    define('ACTIVITY_TYPE_EMAIL_QUOTE', 20);
+    define('ACTIVITY_TYPE_VIEW_QUOTE', 21);
+    define('ACTIVITY_TYPE_ARCHIVE_QUOTE', 22);
+    define('ACTIVITY_TYPE_DELETE_QUOTE', 23);
 
-define('COUNT_FREE_DESIGNS', 4);
-define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design
-define('PRODUCT_ONE_CLICK_INSTALL', 1);
-define('PRODUCT_INVOICE_DESIGNS', 2);
-define('PRODUCT_WHITE_LABEL', 3);
-define('PRODUCT_SELF_HOST', 4);
-define('WHITE_LABEL_AFFILIATE_KEY', '92D2J5');
-define('INVOICE_DESIGNS_AFFILIATE_KEY', 'T3RS74');
-define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
+    define('ACTIVITY_TYPE_RESTORE_QUOTE', 24);
+    define('ACTIVITY_TYPE_RESTORE_INVOICE', 25);
+    define('ACTIVITY_TYPE_RESTORE_CLIENT', 26);
+    define('ACTIVITY_TYPE_RESTORE_PAYMENT', 27);
+    define('ACTIVITY_TYPE_RESTORE_CREDIT', 28);
+    define('ACTIVITY_TYPE_APPROVE_QUOTE', 29);
 
-define('PRO_PLAN_PRICE', 50);
-define('WHITE_LABEL_PRICE', 20);
-define('INVOICE_DESIGNS_PRICE', 10);
+    define('DEFAULT_INVOICE_NUMBER', '0001');
+    define('RECENTLY_VIEWED_LIMIT', 8);
+    define('LOGGED_ERROR_LIMIT', 100);
+    define('RANDOM_KEY_LENGTH', 32);
+    define('MAX_NUM_CLIENTS', 500);
+    define('MAX_NUM_CLIENTS_PRO', 20000);
+    define('MAX_NUM_USERS', 20);
+    define('MAX_SUBDOMAIN_LENGTH', 30);
+    define('DEFAULT_FONT_SIZE', 9);
 
-define('USER_TYPE_SELF_HOST', 'SELF_HOST');
-define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
-define('NEW_VERSION_AVAILABLE', 'NEW_VERSION_AVAILABLE');
+    define('INVOICE_STATUS_DRAFT', 1);
+    define('INVOICE_STATUS_SENT', 2);
+    define('INVOICE_STATUS_VIEWED', 3);
+    define('INVOICE_STATUS_PARTIAL', 4);
+    define('INVOICE_STATUS_PAID', 5);
 
-define('TEST_USERNAME', 'user@email.com');
-define('TEST_PASSWORD', 'password');
+    define('PAYMENT_TYPE_CREDIT', 1);
+    define('CUSTOM_DESIGN', 11);
 
-define('TOKEN_BILLING_DISABLED', 1);
-define('TOKEN_BILLING_OPT_IN', 2);
-define('TOKEN_BILLING_OPT_OUT', 3);
-define('TOKEN_BILLING_ALWAYS', 4);
+    define('FREQUENCY_WEEKLY', 1);
+    define('FREQUENCY_TWO_WEEKS', 2);
+    define('FREQUENCY_FOUR_WEEKS', 3);
+    define('FREQUENCY_MONTHLY', 4);
+    define('FREQUENCY_THREE_MONTHS', 5);
+    define('FREQUENCY_SIX_MONTHS', 6);
+    define('FREQUENCY_ANNUALLY', 7);
 
-define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
-define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
-define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');
-define('PAYMENT_TYPE_DWOLLA', 'PAYMENT_TYPE_DWOLLA');
-define('PAYMENT_TYPE_TOKEN', 'PAYMENT_TYPE_TOKEN');
-define('PAYMENT_TYPE_ANY', 'PAYMENT_TYPE_ANY');
+    define('SESSION_TIMEZONE', 'timezone');
+    define('SESSION_CURRENCY', 'currency');
+    define('SESSION_DATE_FORMAT', 'dateFormat');
+    define('SESSION_DATE_PICKER_FORMAT', 'datePickerFormat');
+    define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
+    define('SESSION_COUNTER', 'sessionCounter');
+    define('SESSION_LOCALE', 'sessionLocale');
+    define('SESSION_USER_ACCOUNTS', 'userAccounts');
 
-$creditCards = [
-            1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
-            2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
-            4 => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
-            8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
-            16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover']
-        ];
+    define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
+    define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
 
-define('CREDIT_CARDS', serialize($creditCards));
+    define('DEFAULT_TIMEZONE', 'US/Eastern');
+    define('DEFAULT_CURRENCY', 1); // US Dollar
+    define('DEFAULT_LANGUAGE', 1); // English
+    define('DEFAULT_DATE_FORMAT', 'M j, Y');
+    define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
+    define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
+    define('DEFAULT_QUERY_CACHE', 120); // minutes
+    define('DEFAULT_LOCALE', 'en');
 
-function uctrans($text)
-{
-    return ucwords(trans($text));
-}
+    define('RESULT_SUCCESS', 'success');
+    define('RESULT_FAILURE', 'failure');
 
-// optional trans: only return the string if it's translated
-function otrans($text)
-{
-    $locale = Session::get(SESSION_LOCALE);
 
-    if ($locale == 'en') {
-        return trans($text);
-    } else {
-        $string = trans($text);
-        $english = trans($text, [], 'en');
-        return $string != $english ? $string : '';
+    define('PAYMENT_LIBRARY_OMNIPAY', 1);
+    define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
+
+    define('GATEWAY_AUTHORIZE_NET', 1);
+    define('GATEWAY_AUTHORIZE_NET_SIM', 2);
+    define('GATEWAY_PAYPAL_EXPRESS', 17);
+    define('GATEWAY_PAYPAL_PRO', 18);
+    define('GATEWAY_STRIPE', 23);
+    define('GATEWAY_TWO_CHECKOUT', 27);
+    define('GATEWAY_BEANSTREAM', 29);
+    define('GATEWAY_PSIGATE', 30);
+    define('GATEWAY_MOOLAH', 31);
+    define('GATEWAY_BITPAY', 42);
+    define('GATEWAY_DWOLLA', 43);
+
+    define('EVENT_CREATE_CLIENT', 1);
+    define('EVENT_CREATE_INVOICE', 2);
+    define('EVENT_CREATE_QUOTE', 3);
+    define('EVENT_CREATE_PAYMENT', 4);
+
+    define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
+    define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
+    define('PREV_USER_ID', 'PREV_USER_ID');
+    define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
+    define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
+    define('NINJA_GATEWAY_CONFIG', '');
+    define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
+    define('NINJA_APP_URL', 'https://app.invoiceninja.com');
+    define('NINJA_VERSION', '2.3.3');
+    define('NINJA_DATE', '2000-01-01');
+
+    define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
+    define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
+    define('ZAPIER_URL', 'https://zapier.com/developer/invite/11276/85cf0ee4beae8e802c6c579eb4e351f1/');
+    define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
+    define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
+
+    define('COUNT_FREE_DESIGNS', 4);
+    define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design
+    define('PRODUCT_ONE_CLICK_INSTALL', 1);
+    define('PRODUCT_INVOICE_DESIGNS', 2);
+    define('PRODUCT_WHITE_LABEL', 3);
+    define('PRODUCT_SELF_HOST', 4);
+    define('WHITE_LABEL_AFFILIATE_KEY', '92D2J5');
+    define('INVOICE_DESIGNS_AFFILIATE_KEY', 'T3RS74');
+    define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
+
+    define('PRO_PLAN_PRICE', 50);
+    define('WHITE_LABEL_PRICE', 20);
+    define('INVOICE_DESIGNS_PRICE', 10);
+
+    define('USER_TYPE_SELF_HOST', 'SELF_HOST');
+    define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
+    define('NEW_VERSION_AVAILABLE', 'NEW_VERSION_AVAILABLE');
+
+    define('TEST_USERNAME', 'user@example.com');
+    define('TEST_PASSWORD', 'password');
+
+    define('TOKEN_BILLING_DISABLED', 1);
+    define('TOKEN_BILLING_OPT_IN', 2);
+    define('TOKEN_BILLING_OPT_OUT', 3);
+    define('TOKEN_BILLING_ALWAYS', 4);
+
+    define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
+    define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
+    define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');
+    define('PAYMENT_TYPE_DWOLLA', 'PAYMENT_TYPE_DWOLLA');
+    define('PAYMENT_TYPE_TOKEN', 'PAYMENT_TYPE_TOKEN');
+    define('PAYMENT_TYPE_ANY', 'PAYMENT_TYPE_ANY');
+
+    $creditCards = [
+                1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
+                2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
+                4 => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
+                8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
+                16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover']
+            ];
+
+    define('CREDIT_CARDS', serialize($creditCards));
+
+    function uctrans($text)
+    {
+        return ucwords(trans($text));
+    }
+
+    // optional trans: only return the string if it's translated
+    function otrans($text)
+    {
+        $locale = Session::get(SESSION_LOCALE);
+
+        if ($locale == 'en') {
+            return trans($text);
+        } else {
+            $string = trans($text);
+            $english = trans($text, [], 'en');
+            return $string != $english ? $string : '';
+        }
     }
 }
 

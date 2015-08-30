@@ -100,10 +100,10 @@
 					<div class="pull-right" style="padding-top: 6px">
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
 					</div>
-				@elseif ($invoice && $invoice->last_sent_date && $invoice->recurring_invoices->last())
+				@elseif ($invoice && isset($lastSent) && $lastSent)
                     <div class="pull-right" style="padding-top: 6px">
                         {!! trans('texts.last_invoice_sent', [
-                                'date' => link_to('/invoices/'.$invoice->recurring_invoices->last()->public_id, Utils::dateToString($invoice->last_sent_date))
+                                'date' => link_to('/invoices/'.$lastSent->public_id, Utils::dateToString($invoice->last_sent_date), ['id' => 'lastInvoiceSent'])
                             ]) !!}
                     </div>
                 @endif

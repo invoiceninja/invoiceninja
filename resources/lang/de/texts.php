@@ -31,7 +31,7 @@ return array(
   'client' => 'Kunde',
   'invoice_date' => 'Rechnungsdatum',
   'due_date' => 'Fällig am',
-  'invoice_number' => 'Rechungsnummer',
+  'invoice_number' => 'Rechnungsnummer',
   'invoice_number_short' => 'Rechnung #',
   'po_number' => 'Bestellnummer',
   'po_number_short' => 'BN #',
@@ -346,7 +346,7 @@ return array(
 
   'chart_builder' => 'Diagrammersteller',
   'ninja_email_footer' => 'Nutze :site um Kunden Rechnungen zu stellen und online bezahlt zu werden, kostenlos!',
-  'go_pro' => 'Werde Pro-Mitglied',
+  'go_pro' => 'Go Pro',
 
   // Quotes
   'quote' => 'Angebot',

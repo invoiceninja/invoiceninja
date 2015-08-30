@@ -7,5 +7,9 @@
 class_name: FunctionalTester
 modules:
     enabled:
-        # add framework module here
         - \Helper\Functional
+        - PhpBrowser:
+            url: 'http://ninja.dev/'
+        - Laravel5:
+            environment_file: '.env'
+            cleanup: false

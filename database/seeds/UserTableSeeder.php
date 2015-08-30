@@ -23,6 +23,8 @@ class UserTableSeeder extends Seeder
             'username' => TEST_USERNAME,
             'account_id' => $account->id,
             'password' => Hash::make(TEST_PASSWORD),
+            'registered' => true,
+            'confirmed' => true,
         ]);
 	}
 

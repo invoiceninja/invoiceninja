@@ -221,7 +221,8 @@ class ReportController extends BaseController
                     foreach ($period as $d)
                     {
                         $dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');
-                        $date = $d->format('Y'.$dateFormat);
+                        // MySQL returns 1-366 for DAYOFYEAR, whereas PHP returns 0-365
+                        $date = $groupBy == 'DAYOFYEAR' ? $d->format('Y') . ($d->format($dateFormat) + 1) : $d->format('Y'.$dateFormat);
                         $totals[] = isset($data[$date]) ? $data[$date] : 0;
 
                         if ($entityType == ENTITY_INVOICE)

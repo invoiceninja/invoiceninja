@@ -25,7 +25,7 @@ class ChartsAndReportsCest
 
         $faker = Faker\Factory::create();
 
-        $I->wantTo("Run the report");
+        $I->wantTo('Run the report');
 
 		$I->amOnPage('/company/advanced_settings/charts_and_reports');
  

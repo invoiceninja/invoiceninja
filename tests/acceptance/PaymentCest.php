@@ -20,7 +20,7 @@ class PaymentCest
         $clientName = $I->grabFromDatabase('clients', 'name');
         $amount = rand(1, 30);
 
-        $I->wantTo("enter a payment");
+        $I->wantTo('enter a payment');
         $I->amOnPage('/payments/create');
 
         $I->selectDropdown($I,  $clientName, '.client-select .dropdown-toggle');
@@ -40,7 +40,7 @@ class PaymentCest
     {
         $ref = $this->faker->text(12);
         
-        $I->wantTo("edit a payment");
+        $I->wantTo('edit a payment');
         $I->amOnPage('/payments/1/edit');
 
         $I->selectDataPicker($I, '#payment_date', 'now + 2 day');
@@ -52,7 +52,7 @@ class PaymentCest
 
     public function listPayments(AcceptanceTester $I)
     {
-        $I->wantTo("list payments");
+        $I->wantTo('list payments');
         $I->amOnPage('/payments');
 
         $I->seeNumberOfElements('tbody tr[role=row]', [1, 10]);

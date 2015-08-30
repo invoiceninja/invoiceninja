@@ -69,7 +69,7 @@ class TaskCest
 
     public function listTasks(AcceptanceTester $I)
     {
-        $I->wantTo("list tasks");
+        $I->wantTo('list tasks');
         $I->amOnPage('/tasks');
 
         $I->seeNumberOfElements('tbody tr[role=row]', [1, 10]);

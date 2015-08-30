@@ -326,6 +326,7 @@ class InvoiceController extends BaseController
         $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans("texts.archive_{$entityType}")];
         $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_{$entityType}")];
 
+        $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
 
         $data = array(
                 'entityType' => $entityType,
@@ -336,9 +337,10 @@ class InvoiceController extends BaseController
                 'invitationContactIds' => $contactIds,
                 'url' => $url,
                 'title' => trans("texts.edit_{$entityType}"),
-                'client' => $invoice->client, 
+                'client' => $invoice->client,
                 'isRecurring' => $invoice->is_recurring,
-                'actions' => $actions);
+                'actions' => $actions,
+                'lastSent' => $lastSent);
         $data = array_merge($data, self::getViewModel());
 
         // Set the invitation link on the client's contacts
