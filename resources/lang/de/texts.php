@@ -31,7 +31,7 @@ return array(
   'client' => 'Kunde',
   'invoice_date' => 'Rechnungsdatum',
   'due_date' => 'Fällig am',
-  'invoice_number' => 'Rechungsnummer',
+  'invoice_number' => 'Rechnungsnummer',
   'invoice_number_short' => 'Rechnung #',
   'po_number' => 'Bestellnummer',
   'po_number_short' => 'BN #',
@@ -46,7 +46,7 @@ return array(
   'line_total' => 'Summe',
   'subtotal' => 'Zwischensumme',
   'paid_to_date' => 'Bereits gezahlt',
-  'balance_due' => 'Rechnungsbetrag',
+  'balance_due' => 'Geschuldeter Betrag',
   'invoice_design_id' => 'Design',
   'terms' => 'Bedingungen',
   'your_invoice' => 'Ihre Rechnung',
@@ -96,7 +96,8 @@ return array(
   'import' => 'Importieren',
   'download' => 'Downloaden',
   'cancel' => 'Abbrechen',
-  'provide_email' => 'Bitte gib eine gültige E-Mail Adresse an',
+  'close' => 'Schließen',
+  'provide_email' => 'Bitte gib eine gültige E-Mail-Adresse an',
   'powered_by' => 'Powered by',
   'no_items' => 'Keine Objekte',
 
@@ -106,7 +107,7 @@ return array(
         <p>Benutze :MONTH, :QUARTER oder :YEAR für ein dynamisches Datum. Grundlegende Mathematik funktioniert genauso gut, zum Beispiel :MONTH-1.</p>
         <p>Beispiel zu dynamischen Rechnungs-Variabeln:</p>
         <ul>
-          <li>"Fitnessstudio Mitgliedschaft für den Monat :MONTH" => "Fitnessstudio Mitgliedschaft für den Monat Juli"</li>
+          <li>"Fitnessstudio-Mitgliedschaft für den Monat :MONTH" => "Fitnessstudio-Mitgliedschaft für den Monat Juli"</li>
           <li>":YEAR+1 Jahresbeitrag" => "2015 Jahresbeitrag"</li>
           <li>"Vorschusszahlung für :QUARTER+1" => "Vorschusszahlung für Q2"</li>
         </ul>',
@@ -205,7 +206,7 @@ return array(
   'import_to' => 'Importieren nach',
   'client_will_create' => 'Kunde wird erstellt',
   'clients_will_create' => 'Kunden werden erstellt',
-  'email_settings' => 'E-Mail Einstellungen',
+  'email_settings' => 'E-Mail-Einstellungen',
   'pdf_email_attachment' => 'PDF an E-Mails anhängen',
 
   // application messages
@@ -218,7 +219,7 @@ return array(
   'limit_clients' => 'Entschuldige, das überschreitet das Limit von :count Kunden',
   'payment_error' => 'Es ist ein Fehler während der Zahlung aufgetreten. Bitte versuche es später noch einmal.',
   'registration_required' => 'Bitte melde dich an um eine Rechnung zu versenden',
-  'confirmation_required' => 'Bitte bestätige deine E-Mail Adresse',
+  'confirmation_required' => 'Bitte bestätige deine E-Mail-Adresse',
 
   'updated_client' => 'Kunde erfolgreich aktualisiert',
   'created_client' => 'Kunde erfolgreich erstellt',
@@ -251,16 +252,17 @@ return array(
   'deleted_credits' => ':count Guthaben erfolgreich gelöscht',
 
   // Emails
-  'confirmation_subject' => 'Invoice Ninja Kontobestätigung',
+  'confirmation_subject' => 'InvoiceNinja Kontobestätigung',
   'confirmation_header' => 'Kontobestätigung',
   'confirmation_message' => 'Bitte klicke auf den folgenden Link um dein Konto zu bestätigen.',
-  'invoice_message' => 'Um Ihre Rechnung über :amount einzusehen, klicken Sie bitte auf den folgenden Link.',
+  'invoice_subject' => 'Neue Rechnung :invoice von :account',
+  'invoice_message' => 'Um Ihre Rechnung über :amount einzusehen, klicken Sie bitte auf den folgenden Link:',
   'payment_subject' => 'Zahlungseingang',
   'payment_message' => 'Vielen Dank für Ihre Zahlung von :amount.',
   'email_salutation' => 'Sehr geehrte/r :name,',
   'email_signature' => 'Mit freundlichen Grüßen,',
   'email_from' => 'Das InvoiceNinja Team',
-  'user_email_footer' => 'Um deine E-Mail Benachrichtigungen anzupassen besuche bitte '.SITE_URL.'/company/notifications',
+  'user_email_footer' => 'Um deine E-Mail-Benachrichtigungen anzupassen besuche bitte '.SITE_URL.'/company/notifications',
   'invoice_link_message' => 'Um deine Kundenrechnung anzuschauen, klicke auf den folgenden Link:',
   'notification_invoice_paid_subject' => 'Die Rechnung :invoice wurde von :client bezahlt',
   'notification_invoice_sent_subject' => 'Die Rechnung :invoice wurde an :client versendet',
@@ -269,8 +271,9 @@ return array(
   'notification_invoice_sent' => 'Dem folgenden Kunden :client wurde die Rechnung :invoice über :amount zugesendet.',
   'notification_invoice_viewed' => 'Der folgende Kunde :client hat sich Rechnung :invoice über :amount angesehen.',
   'reset_password' => 'Du kannst dein Passwort zurücksetzen, indem du auf den folgenden Link klickst:',
-  'reset_password_footer' => 'Wenn du das Zurücksetzen des Passworts nicht beantragt hast benachrichtige bitte unseren Support: ' . CONTACT_EMAIL,
+  'reset_password_footer' => 'Wenn du das Zurücksetzen des Passworts nicht beantragt hast, benachrichtige bitte unseren Support: ' . CONTACT_EMAIL,
 
+  
   // Payment page
   'secure_payment' => 'Sichere Zahlung',
   'card_number' => 'Kartennummer',
@@ -281,7 +284,7 @@ return array(
   // Security alerts
   'security' => array(
     'too_many_attempts' => 'Zu viele Versuche. Bitte probiere es in ein paar Minuten erneut.',
-    'wrong_credentials' => 'Falsche E-Mail Adresse oder falsches Passwort.',
+    'wrong_credentials' => 'Falsche E-Mail-Adresse oder falsches Passwort.',
     'confirmation' => 'Dein Konto wurde bestätigt!',
     'wrong_confirmation' => 'Falscher Bestätigungscode.',
     'password_forgot' => 'Weitere Informationen um das Passwort zurückzusetzen wurden dir per E-Mail zugeschickt.',
@@ -291,27 +294,31 @@ return array(
 
   // Pro Plan
   'pro_plan' => [
-    'remove_logo' => ':link, um das Invoice Ninja Logo zu entfernen, indem du dem Pro Plan beitrittst',
+    'remove_logo' => ':link, um das InvoiceNinja-Logo zu entfernen, indem du dem Pro Plan beitrittst',
     'remove_logo_link' => 'Klicke hier',
   ],
 
   'logout' => 'Ausloggen',
   'sign_up_to_save' => 'Melde dich an, um deine Arbeit zu speichern',
-  'agree_to_terms' =>'Ich akzeptiere die Invoice Ninja :terms',
+  'agree_to_terms' =>'Ich akzeptiere die InvoiceNinja :terms',
   'terms_of_service' => 'Service-Bedingungen',
-  'email_taken' => 'Diese E-Mail Adresse ist bereits registriert',
+  'email_taken' => 'Diese E-Mail-Adresse ist bereits registriert',
   'working' => 'Wird bearbeitet',
   'success' => 'Erfolg',
-  'success_message' => 'Du hast dich erfolgreich registriert. Bitte besuche den Link in deiner Bestätigungsmail um deine E-Mail Adresse zu verifizieren.',
+  'success_message' => 'Du hast dich erfolgreich registriert. Bitte besuche den Link in deiner Bestätigungsmail um deine E-Mail-Adresse zu verifizieren.',
   'erase_data' => 'Diese Aktion wird deine Daten dauerhaft löschen.',
   'password' => 'Passwort',
-  'invoice_subject' => 'Neue Rechnung :invoice von :account',
   'close' => 'Schließen',
 
   'pro_plan_product' => 'Pro Plan',
   'pro_plan_description' => 'Jahresmitgliedschaft beim Invoice Ninja Pro Plan.',
-  'pro_plan_success' => 'Danke für den Beitritt! Sobald die Rechnung bezahlt wurde, beginnt deine Pro Plan Mitgliedschaft.',
-  'pro_plan_success' => 'Danke für den Beitritt! Sobald die Rechnung bezahlt wurde,Beim Auswählen eines Produktes werden beginnt deine Pro Plan Mitgliedschaft.',
+  'pro_plan_success' => 'Danke, dass Sie Invoice Ninja\'s Pro gewählt haben!<p/>&nbsp;<br/>
+                          <b>Nächste Schritte</b>Eine bezahlbare Rechnung wurde an die Mailadresse,
+                          welche mit Ihrem Account verbunden ist, geschickt. Um alle der umfangreichen 
+                          Pro Funktionen freizuschalten, folgen Sie bitte den Anweisungen in der Rechnung um ein Jahr
+                          die Pro Funktionen zu nutzen.
+                          Sie finden die Rechnung nicht? Sie benötigen weitere Hilfe? Wir helfen gerne
+                          -- schicken Sie uns doch eine Email an contact@invoice-ninja.com',
 
   'unsaved_changes' => 'Es liegen ungespeicherte Änderungen vor',
   'custom_fields' => 'Benutzerdefinierte Felder',
@@ -320,6 +327,7 @@ return array(
   'field_label' => 'Feldbezeichnung',
   'field_value' => 'Feldwert',
   'edit' => 'Bearbeiten',
+  'set_name' => 'Den Firmennamen setzen',
   'view_as_recipient' => 'Als Empfänger betrachten',
 
   // product management
@@ -336,7 +344,7 @@ return array(
   'created_product' => 'Produkt erfolgreich erstellt',
   'archived_product' => 'Produkt erfolgreich archiviert',
   'product_library' => 'Produktbibliothek',
-  'pro_plan_custom_fields' => ':link to enable custom fields by joining the Pro Plan',
+  'pro_plan_custom_fields' => ':link um durch eine Pro-Mitgliedschaft erweiterte Felder zu aktivieren',
 
   'advanced_settings' => 'Erweiterte Einstellungen',
   'pro_plan_advanced_settings' => ':link um durch eine Pro-Mitgliedschaft erweiterte Einstellungen zu aktivieren',
@@ -346,7 +354,7 @@ return array(
 
   'chart_builder' => 'Diagrammersteller',
   'ninja_email_footer' => 'Nutze :site um Kunden Rechnungen zu stellen und online bezahlt zu werden, kostenlos!',
-  'go_pro' => 'Werde Pro-Mitglied',
+  'go_pro' => 'Go Pro',
 
   // Quotes
   'quote' => 'Angebot',
@@ -394,19 +402,19 @@ return array(
 
   'invoice_fields' => 'Rechnungsfelder',
   'invoice_options' => 'Rechnungsoptionen',
-  'hide_quantity' => 'Anzahl verbergen',
+  'hide_quantity' => 'Menge verbergen',
   'hide_quantity_help' => 'Wenn deine Menge immer 1 beträgt, kannst du deine Rechnung einfach halten, indem du dieses Feld entfernst.',
-  'hide_paid_to_date' => 'Bereits gezahlt ausblenden',
-  'hide_paid_to_date_help' => 'Bereits gezahlt nur anzeigen, wenn eine Zahlung eingegangen ist.',
+  'hide_paid_to_date' => '"Bereits gezahlt" ausblenden',
+  'hide_paid_to_date_help' => '"Bereits gezahlt" nur anzeigen, wenn eine Zahlung eingegangen ist.',
 
   'charge_taxes' => 'Steuern erheben',
   'user_management' => 'Benutzerverwaltung',
-  'add_user' => 'Add User',
+  'add_user' => 'Benutzer hinzufügen',
   'send_invite' => 'Einladung senden',
   'sent_invite' => 'Einladung erfolgreich gesendet',
   'updated_user' => 'Benutzer erfolgreich aktualisiert',
   'invitation_message' => 'Du wurdest von :invitor eingeladen.',
-  'register_to_add_user' => 'Bitte registrieren um einen Benutzer hinzuzufügen',
+  'register_to_add_user' => 'Bitte registrieren, um einen Benutzer hinzuzufügen',
   'user_state' => 'Status',
   'edit_user' => 'Benutzer bearbeiten',
   'delete_user' => 'Benutzer löschen',
@@ -435,7 +443,7 @@ return array(
   'quote_number_counter' => 'Zähler für Angebotsnummer',
   'share_invoice_counter' => 'Zähler der Rechnung teilen',
   'invoice_issued_to' => 'Rechnung ausgestellt für',
-  'invalid_counter' => 'Bitte setze, um Probleme zu vermeiden, entweder ein Rechnungs-oder Angebotspräfix.',
+  'invalid_counter' => 'Bitte setze, um Probleme zu vermeiden, entweder ein Rechnungs- oder Angebotspräfix.',
   'mark_sent' => 'Als gesendet markieren',
 
   'gateway_help_1' => ':link um sich bei Authorize.net anzumelden.',
@@ -452,15 +460,15 @@ return array(
   'more_designs_self_host_text' => '',
   'buy' => 'Kaufen',
   'bought_designs' => 'Die zusätzliche Rechnungsvorlagen wurden erfolgreich hinzugefügt',
-
   'sent' => 'gesendet',
-  'timesheets' => 'Timesheets',
+  
+  'vat_number' => 'USt-IdNr.',
+  'timesheets' => 'Zeittabellen',
 
   'payment_title' => 'Geben Sie Ihre Rechnungsadresse und Ihre Kreditkarteninformationen ein',
   'payment_cvv' => '*Dies ist die 3-4-stellige Nummer auf der Rückseite Ihrer Kreditkarte',
   'payment_footer1' => '*Die Rechnungsadresse muss mit der Adresse der Kreditkarte übereinstimmen.',
   'payment_footer2' => '*Bitte drücken Sie nur einmal auf "Jetzt bezahlen" - die  Verarbeitung der Transaktion kann bis zu einer Minute dauern.',
-  'vat_number' => 'USt-IdNr.',
 
   'id_number' => 'ID-Nummer',
   'white_label_link' => 'Branding entfernen',
@@ -506,7 +514,7 @@ return array(
   'approve' => 'Zustimmen',
 
   'token_billing_type_id' => 'Token Billing',
-  'token_billing_help' => 'Enables you to store credit cards with your gateway, and charge them at a later date.',
+  'token_billing_help' => 'Ermöglicht Ihnen, Kreditkarten mit Ihrem Gateway zu speichern und diese zu einem späteren Zeitpunkt zu belasten.',
   'token_billing_1' => 'Deaktiviert',
   'token_billing_2' => 'Opt-in - Kontrollkästchen wird angezeigt ist aber nicht ausgewählt',
   'token_billing_3' => 'Opt-out - Kontrollkästchen wird angezeigt und ist ausgewählt',
@@ -519,8 +527,8 @@ return array(
   'token_billing_secure' => 'Die Daten werden sicher von :stripe_link gespeichert.',
 
   'support' => 'Support',
-  'contact_information' => 'Kontakt Informationen',
-  '256_encryption' => '256-Bit Verschlüsselung',
+  'contact_information' => 'Kontakt-Informationen',
+  '256_encryption' => '256-Bit-Verschlüsselung',
   'amount_due' => 'Fälliger Betrag',
   'billing_address' => 'Rechnungsadresse',
   'billing_method' => 'Abrechnungsmethode',
@@ -528,9 +536,9 @@ return array(
   'match_address' => '*Die Rechnungsadresse muss mit der Adresse der Kreditkarte übereinstimmen.',
   'click_once' => '*Bitte drücken Sie nur einmal auf "Jetzt bezahlen" - die  Verarbeitung der Transaktion kann bis zu einer Minute dauern.',
 
-  'default_invoice_footer' => 'Standard Fußzeile festlegen',
+  'default_invoice_footer' => 'Standard-Fußzeile festlegen',
   'invoice_footer' => 'Fußzeile',
-  'save_as_default_footer' => 'Als Standard Fußzeile speichern',
+  'save_as_default_footer' => 'Als Standard-Fußzeile speichern',
 
   'token_management' => 'Token Verwaltung',
   'tokens' => 'Token',
@@ -567,7 +575,7 @@ return array(
   'forgot_password' => 'Passwort vergessen?',
   'email_address' => 'E-Mail-Adresse',
   'lets_go' => "Auf geht's",
-  'password_recovery' => 'Passwort Wiederherstellung',
+  'password_recovery' => 'Passwort-Wiederherstellung',
   'send_email' => 'E-Mail verschicken',
   'set_password' => 'Passwort festlegen',
   'converted' => 'Umgewandelt',
@@ -578,25 +586,24 @@ return array(
   'resend_confirmation' => 'Bestätigungsmail erneut senden',
   'confirmation_resent' => 'Bestätigungsemail wurde erneut gesendet',
 
-  'gateway_help_42' => ':link to sign up for BitPay.<br/>Note: use a Legacy API Key, not an API token.',
+  'gateway_help_42' => ':link zum Registrieren auf BitPay.<br/>Hinweis: benutze einen Legacy API Key, keinen API token.',
   'payment_type_credit_card' => 'Kreditkarte',
   'payment_type_paypal' => 'PayPal',
   'payment_type_bitcoin' => 'Bitcoin',
-  'knowledge_base' => 'Wissensdatenbank',
-  'partial' => 'Parziell',
+  'knowledge_base' => 'FAQ',
+  'partial' => 'Partiell',
   'partial_remaining' => ':partial von :balance',
 
   'more_fields' => 'Weitere Felder',
   'less_fields' => 'Weniger Felder',
   'client_name' => 'Kundenname',
   'pdf_settings' => 'PDF Einstellungen',
-  'utf8_invoices' => 'Cyrillic Unterstützung <sup>Beta</sup>',
   'product_settings' => 'Produkt Einstellungen',
   'auto_wrap' => 'Automatischer Zeilenumbruch',
   'duplicate_post' => 'Achtung: Die vorherige Seite wurde zweimal abgeschickt. Das zweite Abschicken wurde ignoriert.',
   'view_documentation' => 'Dokumentation anzeigen',
   'app_title' => 'Kostenlose Online Open-Source Rechnungsausstellung',
-  'app_description' => 'Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
+  'app_description' => 'InvoiceNinja ist eine kostenlose, quelloffene Lösung für die Rechnungsstellung und Abrechnung von Kunden. Mit Invoice Ninja kannst du einfach schöne Rechnungen erstellen und verschicken, von jedem Gerät mit Internetzugang. Deine Kunden können die Rechnungen drucken, als PDF Datei herunterladen und sogar online im System bezahlen.',
 
   'rows' => 'Zeilen',
   'www' => 'www',
@@ -642,7 +649,7 @@ return array(
   'minutes' => 'Minuten',
   'hour' => 'Stunde',
   'hours' => 'Stunden',
-  'task_details' => 'Aufgaben Details',
+  'task_details' => 'Aufgaben-Details',
   'duration' => 'Dauer',
   'end_time' => 'Endzeit',
   'end' => 'Ende',
@@ -665,16 +672,16 @@ return array(
   'counter' => 'Zähler',
 
   'payment_type_dwolla' => 'Dwolla',
-  'gateway_help_43' => ':link to sign up for Dwolla.',
-  'partial_value' => 'Must be greater than zero and less than the total',
-  'more_actions' => 'More Actions',
+  'gateway_help_43' => ':link zum Registrieren auf Dwolla.',
+  'partial_value' => 'Muss größer als Null und kleiner als der Gesamtbetrag sein',
+  'more_actions' => 'Weitere Aktionen',
 
   'pro_plan_title' => 'NINJA PRO',
   'pro_plan_call_to_action' => 'Jetzt Upgraden!',
   'pro_plan_feature1' => 'Unlimitierte Anzahl Kunden erstellen',
-  'pro_plan_feature2' => 'Zugriff ui 10 schönen Rechnungsdesigns',
+  'pro_plan_feature2' => 'Zugriff auf 10 schöne Rechnungsdesigns',
   'pro_plan_feature3' => 'Benutzerdefinierte URLs - "DeineFirma.InvoiceNinja.com"',
-  'pro_plan_feature4' => '"Created by Invoice Ninja" entfernen',
+  'pro_plan_feature4' => '"Erstellt durch Invoice Ninja" entfernen',
   'pro_plan_feature5' => 'Multi-Benutzer Zugriff & Aktivitätstracking',
   'pro_plan_feature6' => 'Angebote & pro-forma Rechnungen erstellen',
   'pro_plan_feature7' => 'Rechungstitelfelder und Nummerierung anpassen',
@@ -689,13 +696,63 @@ return array(
 
   'email_receipt' => 'Zahlungsbestätigung an Kunden per E-Mail senden',
   'created_payment_emailed_client' => 'Zahlung erfolgreich erstellt und Kunde per E-Mail benachrichtigt',
-  'add_account' => 'Konto hinzufügen',
+  'add_company' => 'Konto hinzufügen',
   'untitled' => 'Unbenannt',
-  'new_account' => 'Neues Konto',
+  'new_company' => 'Neues Konto',
   'associated_accounts' => 'Konten erfolgreich verlinkt',
   'unlinked_account' => 'Konten erfolgreich getrennt',
   'login' => 'Login',
   'or' => 'oder',
 
+  'email_error' => 'Es gab ein Problem beim Senden dieses E-Mails.',
+  'confirm_recurring_timing' => 'Beachten Sie: E-Mails werden zu Beginn der Stunde gesendet.',
+  'old_browser' => 'Bitte verwenden Sie einen <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">neueren Browser</a>',
+  'payment_terms_help' => 'Setzt das Standardfälligkeitsdatum',
+  'unlink_account' => 'Konten Trennen',
+  'unlink' => 'Trennen',
+  'show_address' => 'Adresse Anzeigen',
+  'show_address_help' => 'Verlange von Kunden ihre Rechnungsadresse anzugeben',
+  'update_address' => 'Adresse Aktualisieren',
+  'update_address_help' => 'Kundenadresse mit den gemachten Angaben aktualisieren',
+  'times' => 'Zeiten',
+  'set_now' => 'Jetzt setzen',
+  'dark_mode' => 'Dunkler Modus',
+  'dark_mode_help' => 'Weißer Text auf schwarzem Hintergrund anzeigen',
+  'add_to_invoice' => 'Zur Rechnung :invoice hinzufügen',
+  'create_new_invoice' => 'Neue Rechnung erstellen',
+  'task_errors' => 'Bitte korrigieren Sie alle überlappenden Zeiten',
+  'from' => 'Von',
+  'to' => 'An',
+  'font_size' => 'Schriftgröße',
+  'primary_color' => 'Primäre Farbe',
+  'secondary_color' => 'Sekundäre Farbe',
+  'customize_design' => 'Design Anpassen',
+
+  'content' => 'Inhalt',
+  'styles' => 'Stile',
+  'defaults' => 'Standards',
+  'margins' => 'Außenabstände',
+  'header' => 'Kopfzeile',
+  'footer' => 'Fußzeile',
+  'custom' => 'Benutzerdefiniert',
+  'invoice_to' => 'Rechnung an',
+  'invoice_no' => 'Rechnung Nr.',
+  'recent_payments' => 'Kürzliche Zahlungen',
+  'outstanding' => 'Ausstehend',
+  'manage_companies' => 'Unternehmen verwalten',
+  'total_revenue' => 'Gesamteinnahmen',
+
+  'current_user' => 'Aktueller Benutzer',
+  'new_recurring_invoice' => 'Neue wiederkehrende Rechnung',
+  'recurring_invoice' => 'Wiederkehrende Rechnung',
+  'recurring_too_soon' => 'Es ist zu früh, um die nächste wiederkehrende Rechnung zu erstellen',
+  'created_by_invoice' => 'Erstellt durch :invoice',
+  'primary_user' => 'Primärer Benutzer',
+  'help' => 'Hilfe',
+  'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provide\'s a great way to see the library in action.</p>
+                        <p>You can access any invoice field by adding <code>Value</code> to the end. For example <code>$invoiceNumberValue</code> displays the invoice number.</p>
+                        <p>To access a child property using dot notation. For example to show the client name you could use <code>$client.nameValue</code>.</p>
+                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>'
+  
 
 );

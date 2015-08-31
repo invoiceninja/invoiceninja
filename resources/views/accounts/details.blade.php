@@ -18,10 +18,13 @@
 
 	{{ Former::populate($account) }}
 	@if ($showUser)
-		{{ Former::populateField('first_name', $account->users()->first()->first_name) }}
-		{{ Former::populateField('last_name', $account->users()->first()->last_name) }}
-		{{ Former::populateField('email', $account->users()->first()->email) }}	
-		{{ Former::populateField('phone', $account->users()->first()->phone) }}
+		{{ Former::populateField('first_name', $primaryUser->first_name) }}
+		{{ Former::populateField('last_name', $primaryUser->last_name) }}
+		{{ Former::populateField('email', $primaryUser->email) }}	
+		{{ Former::populateField('phone', $primaryUser->phone) }}
+        @if (Utils::isNinjaDev())
+            {{ Former::populateField('dark_mode', intval($primaryUser->dark_mode)) }}        
+        @endif
 	@endif
 	
 	<div class="row">
@@ -48,7 +51,7 @@
 
 			@if (file_exists($account->getLogoPath()))
 				<center>
-					{!! HTML::image($account->getLogoPath().'?no_cache='.time(), "Logo") !!} &nbsp;
+					{!! HTML::image($account->getLogoPath().'?no_cache='.time(), 'Logo', ['width' => 200]) !!} &nbsp;
 					<a href="#" onclick="deleteLogo()">{{ trans('texts.remove_logo') }}</a>
 				</center><br/>
 			@endif
@@ -81,13 +84,17 @@
 			@if ($showUser)
             <div class="panel panel-default">
               <div class="panel-heading">
-                <h3 class="panel-title">{!! trans('texts.users') !!}</h3>
+                <h3 class="panel-title">{!! trans('texts.primary_user') !!}</h3>
               </div>
                 <div class="panel-body">
 				{!! Former::text('first_name') !!}
 				{!! Former::text('last_name') !!}
                 {!! Former::text('email') !!}
 				{!! Former::text('phone') !!}
+                @if (Utils::isNinjaDev())
+                    {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help')) !!}
+                @endif
+                
                 @if (Auth::user()->confirmed)                
                     {!! Former::actions( Button::primary(trans('texts.change_password'))->small()->withAttributes(['onclick'=>'showChangePassword()'])) !!}
                 @elseif (Auth::user()->registered)

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{App::getLocale()}}">
   <head>
     <title>Invoice Ninja | Setup</title> 
     <meta charset="utf-8">    
@@ -7,6 +7,7 @@
     <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('favicon.png?test') }}" rel="shortcut icon">
 
     <style type="text/css">
     body {
@@ -28,8 +29,8 @@
         @if (version_compare(phpversion(), '5.4.0', '<'))
             <div class="alert alert-warning">Warning: The application requires PHP >= 5.4.0</div>
         @endif
-        @if (!extension_loaded('fileinfo'))
-            <div class="alert alert-warning">Warning: The <a href="http://php.net/manual/en/book.fileinfo.php" target="_blank">fileinfo</a> extension needs to be installed and enabled.</div>
+        @if (!function_exists('proc_open'))
+            <div class="alert alert-warning">Warning: <a href="http://php.net/manual/en/function.proc-open.php" target="_blank">proc_open</a> must be enabled.</div>
         @endif
         @if (!@fopen(base_path()."/.env", 'a'))
             <div class="alert alert-warning">Warning: Permission denied to write config file

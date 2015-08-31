@@ -2433,6 +2433,8 @@ th {border-left: 1px solid #d26b26; }
 .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
 vertical-align: middle;
 border-top: none;
+}
+table.invoice-table>thead>tr>th, table.invoice-table>tbody>tr>th, table.invoice-table>tfoot>tr>th, table.invoice-table>thead>tr>td, table.invoice-table>tbody>tr>td, table.invoice-table>tfoot>tr>td {
 border-bottom: 1px solid #dfe0e1;
 }
 table.dataTable.no-footer {
@@ -2837,15 +2839,12 @@ background-clip: padding-box;
 
 .dashboard .panel-body {padding: 0;}
 
-.dashboard .table-striped>tbody>tr>td, .table-striped>tbody>tr>th { background-color: #fbfbfb;}
-.dashboard .table-striped>tbody>tr:nth-child(odd)>tr, .table-striped>tbody>tr:nth-child(odd)>th {
-background-color: #fff;
-} 
 .dashboard th {
 border-left: none;
     background-color: #fbfbfb;
     border-bottom: 1px solid #dfe0e1;
 }
+
 .dashboard table.table thead > tr > th {
 border-bottom-width: 1px;
 }

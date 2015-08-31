@@ -43,14 +43,15 @@ class HomeController extends BaseController
     
     public function invoiceNow()
     {
-        if (Auth::check() && Input::get('new_account')) {
+        if (Auth::check() && Input::get('new_company')) {
             Session::put(PREV_USER_ID, Auth::user()->id);
             Auth::user()->clearSession();
             Auth::logout();
         }
 
         if (Auth::check()) {
-            return Redirect::to('invoices/create')->with('sign_up', Input::get('sign_up'));
+            $redirectTo = Input::get('redirect_to', 'invoices/create');
+            return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
         } else {
             return View::make('public.header', ['invoiceNow' => true]);
         }
@@ -72,9 +73,9 @@ class HomeController extends BaseController
                 $user->news_feed_id = $newsFeedId;
                 $user->save();
             }
-
-            Session::forget('news_feed_message');
         }
+        
+        Session::forget('news_feed_message');
 
         return 'success';
     }

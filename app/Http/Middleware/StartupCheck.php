@@ -49,6 +49,7 @@ class StartupCheck
             'paymentTerms' => 'App\Models\PaymentTerm',
             'paymentTypes' => 'App\Models\PaymentType',
             'countries' => 'App\Models\Country',
+            'invoiceDesigns' => 'App\Models\InvoiceDesign',
         ];
         foreach ($cachedTables as $name => $class) {
             if (Input::has('clear_cache')) {
@@ -74,7 +75,7 @@ class StartupCheck
             $count = Session::get(SESSION_COUNTER, 0);
             Session::put(SESSION_COUNTER, ++$count);
 
-            if (!Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && !Session::has('news_feed_id')) {
+            if (isset($_SERVER['REQUEST_URI']) && !Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && !Session::has('news_feed_id')) {
                 $data = false;
                 if (Utils::isNinja()) {
                     $data = Utils::getNewsFeedResponse();
@@ -127,37 +128,39 @@ class StartupCheck
         }
 
         // Check if the user is claiming a license (ie, additional invoices, white label, etc.)
-        $claimingLicense = Utils::startsWith($_SERVER['REQUEST_URI'], '/claim_license');
-        if (!$claimingLicense && Input::has('license_key') && Input::has('product_id')) {
-            $licenseKey = Input::get('license_key');
-            $productId = Input::get('product_id');
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $claimingLicense = Utils::startsWith($_SERVER['REQUEST_URI'], '/claim_license');
+            if (!$claimingLicense && Input::has('license_key') && Input::has('product_id')) {
+                $licenseKey = Input::get('license_key');
+                $productId = Input::get('product_id');
 
-            $data = trim(file_get_contents((Utils::isNinjaDev() ? 'http://www.ninja.dev' : NINJA_APP_URL)."/claim_license?license_key={$licenseKey}&product_id={$productId}"));
+                $data = trim(file_get_contents((Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL)."/claim_license?license_key={$licenseKey}&product_id={$productId}"));
+                
+                if ($productId == PRODUCT_INVOICE_DESIGNS) {
+                    if ($data = json_decode($data)) {
+                        foreach ($data as $item) {
+                            $design = new InvoiceDesign();
+                            $design->id = $item->id;
+                            $design->name = $item->name;
+                            $design->javascript = $item->javascript;
+                            $design->save();
+                        }
 
-            if ($productId == PRODUCT_INVOICE_DESIGNS) {
-                if ($data = json_decode($data)) {
-                    foreach ($data as $item) {
-                        $design = new InvoiceDesign();
-                        $design->id = $item->id;
-                        $design->name = $item->name;
-                        $design->javascript = $item->javascript;
-                        $design->save();
+                        Session::flash('message', trans('texts.bought_designs'));
                     }
+                } elseif ($productId == PRODUCT_WHITE_LABEL) {
+                    if ($data == 'valid') {
+                        $account = Auth::user()->account;
+                        $account->pro_plan_paid = NINJA_DATE;
+                        $account->save();
 
-                    Session::flash('message', trans('texts.bought_designs'));
-                }
-            } elseif ($productId == PRODUCT_WHITE_LABEL) {
-                if ($data == 'valid') {
-                    $account = Auth::user()->account;
-                    $account->pro_plan_paid = NINJA_DATE;
-                    $account->save();
-
-                    Session::flash('message', trans('texts.bought_white_label'));
+                        Session::flash('message', trans('texts.bought_white_label'));
+                    }
                 }
             }
         }
-
-        if (preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
+        
+        if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
             Session::flash('error', trans('texts.old_browser'));
         }
 

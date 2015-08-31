@@ -214,6 +214,8 @@ class Activity extends Eloquent
 
                 if ($invoice->isPaid() && $invoice->balance > 0) {
                     $invoice->invoice_status_id = INVOICE_STATUS_PARTIAL;
+                } elseif ($invoice->invoice_status_id && $invoice->balance == 0) {
+                    $invoice->invoice_status_id = INVOICE_STATUS_PAID;
                 }
             }
         }

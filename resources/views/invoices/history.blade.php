@@ -5,12 +5,8 @@
 
     <script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
     <script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
-
-    @if (Auth::user()->account->utf8_invoices)
-        <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
-        <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
-    @endif
-
+    <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
 
   <script>
 
@@ -37,8 +33,7 @@
             invoiceDesign = invoiceDesigns[0];
         }
         
-        doc = generatePDF(invoice, invoiceDesign.javascript, true);
-        doc.getDataUrl(cb);
+        generatePDF(invoice, invoiceDesign.javascript, true, cb);        
     }
 
     $(function() {   

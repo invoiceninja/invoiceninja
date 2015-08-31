@@ -23,8 +23,6 @@
 	{{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}
     {{ Former::populateField('share_counter', intval($account->share_counter)) }}
     {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
-    {{ Former::populateField('utf8_invoices', intval($account->utf8_invoices)) }}
-    {{ Former::populateField('auto_wrap', intval($account->auto_wrap)) }}
 
 <div class="row">
     <div class="col-md-6">
@@ -98,10 +96,6 @@
       </div>
         <div class="panel-body">        	   
        {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
-       {!! Former::checkbox('utf8_invoices')->text(trans('texts.enable')) !!}
-       <div style="display:none">
-       {!! Former::checkbox('auto_wrap')->text(trans('texts.enable')) !!}
-       </div>
 	</div>
     </div>
     </div>

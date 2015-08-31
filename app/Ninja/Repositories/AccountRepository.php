@@ -6,7 +6,7 @@ use Session;
 use Utils;
 use DB;
 use stdClass;
-
+use Schema;
 use App\Models\AccountGateway;
 use App\Models\Invitation;
 use App\Models\Invoice;
@@ -250,6 +250,10 @@ class AccountRepository
 
     public function findUserAccounts($userId1, $userId2 = false)
     {
+        if (!Schema::hasTable('user_accounts')) {
+            return false;
+        }
+
         $query = UserAccount::where('user_id1', '=', $userId1)
                                 ->orWhere('user_id2', '=', $userId1)
                                 ->orWhere('user_id3', '=', $userId1)
@@ -268,7 +272,6 @@ class AccountRepository
     }
 
     public function prepareUsersData($record) {
-
         if (!$record) {
             return false;
         }
@@ -294,7 +297,7 @@ class AccountRepository
             $item->account_id = $user->account->id;
             $item->account_name = $user->account->getDisplayName();
             $item->pro_plan_paid = $user->account->pro_plan_paid;
-            $item->account_key = file_exists($user->account->getLogoPath()) ? $user->account->account_key : null;
+            $item->logo_path = file_exists($user->account->getLogoPath()) ? $user->account->getLogoPath() : null;
             $data[] = $item;
         }
 
@@ -312,6 +315,9 @@ class AccountRepository
     }
 
     public function syncUserAccounts($users, $proPlanPaid = false) {
+        if (!$users) {
+            return;
+        }
 
         if (!$proPlanPaid) {
             foreach ($users as $user) {
@@ -374,7 +380,6 @@ class AccountRepository
     }
 
     public function unlinkUser($userAccountId, $userId) {
-
         $userAccount = UserAccount::whereId($userAccountId)->first();
         if ($userAccount->hasUserId($userId)) {
             $userAccount->removeUserId($userId);

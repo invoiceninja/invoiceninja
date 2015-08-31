@@ -20,7 +20,8 @@
     "d3": "3.4.11",
     "handsontable": "*",
     "pdfmake": "*",
-    "moment": "*"
+    "moment": "*",
+    "jsoneditor": "*"
   },
   "resolutions": {
     "jquery": "~1.11"

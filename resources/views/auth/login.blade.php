@@ -79,11 +79,11 @@
                 {!! Former::hidden('remember')->raw() !!}
             </p>
 
-            <p>{!! Button::success(trans(Input::get('new_account') && Utils::allowNewAccounts() ? 'texts.login' : 'texts.lets_go'))->large()->submit()->block() !!}</p>
+            <p>{!! Button::success(trans(Input::get('new_company') ? 'texts.login' : 'texts.lets_go'))->large()->submit()->block() !!}</p>
 
-            @if (Input::get('new_account') && Utils::allowNewAccounts())
+            @if (Input::get('new_company') && Utils::allowNewAccounts())
                 <center><p>- {{ trans('texts.or') }} -</p></center>
-                <p>{!! Button::primary(trans('texts.new_account'))->asLinkTo(URL::to('/invoice_now?new_account=true'))->large()->submit()->block() !!}</p>
+                <p>{!! Button::primary(trans('texts.new_company'))->asLinkTo(URL::to('/invoice_now?new_company=true&sign_up=true'))->large()->submit()->block() !!}</p>
             @endif
 
 
