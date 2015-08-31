@@ -75,11 +75,12 @@ class QuoteController extends BaseController
         }
 
         $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
-        $color = $invitation->account->primary_color ? $invitation->account->primary_color : '#0b4d78';
+        $account = $invitation->account;
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         
         $data = [
           'color' => $color,
-          'hideLogo' => Session::get('white_label'),
+          'hideLogo' => $account->isWhiteLabel(),
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
           'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
@@ -156,8 +157,9 @@ class QuoteController extends BaseController
           'sizes' => Cache::get('sizes'),
           'paymentTerms' => Cache::get('paymentTerms'),
           'industries' => Cache::get('industries'),
-          'invoiceDesigns' => InvoiceDesign::availableDesigns(),
-          'invoiceLabels' => Auth::user()->account->getInvoiceLabels()
+          'invoiceDesigns' => InvoiceDesign::getDesigns(),
+          'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
+          'isRecurring' => false,
         ];
     }
 
@@ -183,7 +185,11 @@ class QuoteController extends BaseController
             Session::flash('message', $message);
         }
 
-        return Redirect::to('quotes');
+        if ($action == 'restore' && $count == 1) {
+            return Redirect::to("quotes/".Utils::getFirst($ids));
+        } else {
+            return Redirect::to("quotes");
+        }
     }
 
     public function approve($invitationKey)

@@ -268,7 +268,7 @@ class ClientController extends BaseController
                     $record = Contact::createNew();
                 }
 
-                $record->email = trim(strtolower($contact->email));
+                $record->email = trim($contact->email);
                 $record->first_name = trim($contact->first_name);
                 $record->last_name = trim($contact->last_name);
                 $record->phone = trim($contact->phone);
@@ -306,7 +306,7 @@ class ClientController extends BaseController
         Session::flash('message', $message);
 
         if ($action == 'restore' && $count == 1) {
-            return Redirect::to('clients/'.$ids[0]);
+            return Redirect::to('clients/'.Utils::getFirst($ids));
         } else {
             return Redirect::to('clients');
         }

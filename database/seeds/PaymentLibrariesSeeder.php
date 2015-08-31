@@ -5,6 +5,7 @@ use App\Models\PaymentTerm;
 use App\Models\Currency;
 use App\Models\DateFormat;
 use App\Models\DatetimeFormat;
+use App\Models\InvoiceDesign;
 
 class PaymentLibrariesSeeder extends Seeder
 {
@@ -16,6 +17,7 @@ class PaymentLibrariesSeeder extends Seeder
         $this->createPaymentTerms();
         $this->createDateFormats();
         $this->createDatetimeFormats();
+        $this->createInvoiceDesigns();
     }
 
     private function createGateways() {
@@ -62,7 +64,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'US Dollar', 'code' => 'USD', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Pound Sterling', 'code' => 'GBP', 'symbol' => '£', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Euro', 'code' => 'EUR', 'symbol' => '€', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['name' => 'Rand', 'code' => 'ZAR', 'symbol' => 'R', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'South African Rand', 'code' => 'ZAR', 'symbol' => 'R', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Danish Krone', 'code' => 'DKK', 'symbol' => 'kr ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Israeli Shekel', 'code' => 'ILS', 'symbol' => 'NIS ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Swedish Krona', 'code' => 'SEK', 'symbol' => 'kr ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
@@ -80,10 +82,16 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Malaysian Ringgit', 'code' => 'MYR', 'symbol' => 'RM', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Brazilian Real', 'code' => 'BRL', 'symbol' => 'R$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Thai baht', 'code' => 'THB', 'symbol' => 'THB ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'Nigerian Naira', 'code' => 'NGN', 'symbol' => 'NGN ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'Argentine Peso', 'code' => 'ARS', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
         ];
 
         foreach ($currencies as $currency) {
-            if (!DB::table('currencies')->whereName($currency['name'])->get()) {
+            $record = Currency::whereCode($currency['code'])->first();
+            if ($record) {
+                $record->name = $currency['name'];
+                $record->save();
+            } else {
                 Currency::create($currency);
             }
         }
@@ -127,6 +135,39 @@ class PaymentLibrariesSeeder extends Seeder
         foreach ($formats as $format) {
             if (!DB::table('datetime_formats')->whereLabel($format['label'])->get()) {
                 DatetimeFormat::create($format);
+            }
+        }
+    }
+
+    private function createInvoiceDesigns() {
+        $designs = [
+            'Clean',
+            'Bold',
+            'Modern',
+            'Plain',
+            'Business',
+            'Creative',
+            'Elegant',
+            'Hipster',
+            'Playful',
+            'Photo',
+        ];
+        
+        for ($i=0; $i<count($designs); $i++) {
+            $design = $designs[$i];
+            $fileName = storage_path() . '/templates/' . strtolower($design) . '.js';
+            if (file_exists($fileName)) {
+                $pdfmake = file_get_contents($fileName);
+                if ($pdfmake) {
+                    $record = InvoiceDesign::whereName($design)->first();
+                    if (!$record) {
+                        $record = new InvoiceDesign;
+                        $record->id = $i + 1;
+                        $record->name = $design;
+                    }
+                    $record->pdfmake = $pdfmake;
+                    $record->save();
+                }
             }
         }
     }

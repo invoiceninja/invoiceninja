@@ -165,7 +165,7 @@
 
 	var ctx = document.getElementById('monthly-reports').getContext('2d');
 	var chart = {
-		labels: {!! json_encode($labels) !!},		
+		labels: {!! json_encode($labels) !!},
 		datasets: [
 		@foreach ($datasets as $dataset)
 			{

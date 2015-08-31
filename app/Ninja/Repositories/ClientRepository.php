@@ -120,7 +120,7 @@ class ClientRepository
         if (isset($data['contact'])) {
             $info = $data['contact'];
             if (isset($info['email'])) {
-                $contact->email = trim(strtolower($info['email']));
+                $contact->email = trim($info['email']);
             }
             if (isset($info['first_name'])) {
                 $contact->first_name = trim($info['first_name']);
@@ -145,7 +145,7 @@ class ClientRepository
                 }
 
                 if (isset($record['email'])) {
-                    $contact->email = trim(strtolower($record['email']));
+                    $contact->email = trim($record['email']);
                 }
                 if (isset($record['first_name'])) {
                     $contact->first_name = trim($record['first_name']);

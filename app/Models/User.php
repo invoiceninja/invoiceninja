@@ -2,7 +2,9 @@
 
 use Session;
 use Auth;
+use Event;
 use App\Libraries\Utils;
+use App\Events\UserSettingsChanged;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -100,7 +102,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function maxInvoiceDesignId()
     {
-        return $this->isPro() ? 10 : COUNT_FREE_DESIGNS;
+        return $this->isPro() ? 11 : (Utils::isNinja() ? COUNT_FREE_DESIGNS : COUNT_FREE_DESIGNS_SELF_HOST);
     }
 
     public function getDisplayName()
@@ -213,3 +215,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 User::updating(function ($user) {
     User::updateUser($user);
 });
+
+User::updated(function ($user) {
+    Event::fire(new UserSettingsChanged());
+});
+

@@ -37,13 +37,19 @@ class AppServiceProvider extends ServiceProvider {
 
             $str = '<li class="dropdown '.$class.'">
                    <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>
-                   <ul class="dropdown-menu" id="menu1">
-                     <li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
+                   <ul class="dropdown-menu" id="menu1">';
 
-            if ($type == ENTITY_INVOICE && Auth::user()->isPro()) {
-                $str .= '<li class="divider"></li>
+            if ($type != ENTITY_TASK || Auth::user()->account->timezone_id) {
+                $str .= '<li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
+            }
+            
+            if ($type == ENTITY_INVOICE) {
+                $str .= '<li><a href="'.URL::to('recurring_invoices/create').'">'.trans("texts.new_recurring_invoice").'</a></li>';
+                if (Auth::user()->isPro()) {
+                    $str .= '<li class="divider"></li>
                         <li><a href="'.URL::to('quotes').'">'.trans("texts.quotes").'</a></li>
                         <li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';
+                }
             } else if ($type == ENTITY_CLIENT) {
                 $str .= '<li class="divider"></li>
                         <li><a href="'.URL::to('credits').'">'.trans("texts.credits").'</a></li>
@@ -66,7 +72,7 @@ class AppServiceProvider extends ServiceProvider {
 
             // Get the breadcrumbs by exploding the current path.
             $basePath = Utils::basePath();
-            $parts = explode('?', $_SERVER['REQUEST_URI']);
+            $parts = explode('?', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
             $path = $parts[0];
 
             if ($basePath != '/') {

@@ -73,8 +73,8 @@ return array(
 
     "positive" => ":attribute moet groter zijn dan nul.",
     "has_credit" => "De klant heeft niet voldoende krediet.",
-    "notmasked" => "The values are masked",
-    "less_than" => 'The :attribute must be less than :value',
+    "notmasked" => "De waarden zijn verborgen",
+    "less_than" => 'Het :attribute moet minder zijn dan :value',
     
     /*
     |--------------------------------------------------------------------------

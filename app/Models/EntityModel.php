@@ -44,7 +44,7 @@ class EntityModel extends Eloquent
 
     public function getActivityKey()
     {
-        return '[' . $this->getEntityType().':'.$this->public_id.':'.$this->getName() . ']';
+        return '[' . $this->getEntityType().':'.$this->public_id.':'.$this->getDisplayName() . ']';
     }
 
     /*
@@ -81,6 +81,11 @@ class EntityModel extends Eloquent
     public function getName()
     {
         return $this->public_id;
+    }
+
+    public function getDisplayName()
+    {
+        return $this->getName();
     }
 
     // Remap ids to public_ids and show name

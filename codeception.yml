@@ -1,0 +1,27 @@
+actor: Tester
+paths:
+    tests: tests
+    log: tests/_output
+    data: tests/_data
+    support: tests/_support
+    envs: tests/_envs
+settings:
+    bootstrap: _bootstrap.php
+    colors: true
+    memory_limit: 1024M
+extensions:
+    enabled:
+        - Codeception\Extension\RunFailed
+        - Codeception\Extension\Recorder
+    config:
+        Codeception\Extension\Recorder:
+            delete_successful: false
+modules:
+    config:
+        Db:
+            dsn: 'mysql:dbname=ninja;host=localhost;'
+            user: 'ninja'
+            password: 'ninja'
+            dump: tests/_data/dump.sql
+            populate: true
+            cleanup: false

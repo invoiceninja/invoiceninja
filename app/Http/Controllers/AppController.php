@@ -34,7 +34,7 @@ class AppController extends BaseController
 
     public function showSetup()
     {
-        if (Utils::isNinja() || (Utils::isDatabaseSetup() && Account::count() > 0)) {
+        if (Utils::isNinjaProd() || (Utils::isDatabaseSetup() && Account::count() > 0)) {
             return Redirect::to('/');
         }
 
@@ -43,7 +43,7 @@ class AppController extends BaseController
 
     public function doSetup()
     {
-        if (Utils::isNinja() || (Utils::isDatabaseSetup() && Account::count() > 0)) {
+        if (Utils::isNinjaProd() || (Utils::isDatabaseSetup() && Account::count() > 0)) {
             return Redirect::to('/');
         }
 
@@ -88,7 +88,7 @@ class AppController extends BaseController
                     "MAIL_HOST={$mail['host']}\n".
                     "MAIL_USERNAME={$mail['username']}\n".
                     "MAIL_FROM_NAME={$mail['from']['name']}\n".
-                    "MAIL_PASSWORD={$mail['password']}\n";
+                    "MAIL_PASSWORD={$mail['password']}";
 
         // Write Config Settings
         $fp = fopen(base_path()."/.env", 'w');
@@ -101,6 +101,7 @@ class AppController extends BaseController
         if (Industry::count() == 0) {
             Artisan::call('db:seed', array('--force' => true));
         }
+        Cache::flush();
         Artisan::call('optimize', array('--force' => true));
         
         $firstName = trim(Input::get('first_name'));
@@ -159,7 +160,7 @@ class AppController extends BaseController
 
     public function install()
     {
-        if (!Utils::isNinja() && !Utils::isDatabaseSetup()) {
+        if (!Utils::isNinjaProd() && !Utils::isDatabaseSetup()) {
             try {
                 Artisan::call('migrate', array('--force' => true));
                 if (Industry::count() == 0) {
@@ -176,7 +177,7 @@ class AppController extends BaseController
 
     public function update()
     {
-        if (!Utils::isNinja()) {
+        if (!Utils::isNinjaProd()) {
             try {
                 Artisan::call('migrate', array('--force' => true));
                 Artisan::call('db:seed', array('--force' => true, '--class' => 'PaymentLibrariesSeeder'));

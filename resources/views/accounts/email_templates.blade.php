@@ -108,7 +108,7 @@
             }
 
             keys = ['footer', 'account', 'client', 'amount', 'link', 'contact'];
-            vals = [{!! json_encode($emailFooter) !!}, '{!! Auth::user()->account->getDisplayName() !!}', 'Client Name', formatMoney(100), '{!! NINJA_WEB_URL !!}', 'Contact Name'];
+            vals = [{!! json_encode($emailFooter) !!}, '{!! Auth::user()->account->getDisplayName() !!}', 'Client Name', formatMoney(100), '{!! SITE_URL . '/view/...' !!}', 'Contact Name'];
 
             // Add any available payment method links
             @foreach (\App\Models\Gateway::getPaymentTypeLinks() as $type)
