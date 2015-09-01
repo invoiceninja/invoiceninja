@@ -30,3 +30,4 @@
 /.idea
 /.project
 tests/_output/
+tests/_bootstrap.php
