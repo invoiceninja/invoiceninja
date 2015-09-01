@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../helpers/Helper.php';
 
 use \AcceptanceTester;
 use Faker\Factory;

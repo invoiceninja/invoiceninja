@@ -51,6 +51,7 @@ class SettingsCest
         $I->see('Successfully updated settings');
     }
 
+    /*
     public function onlinePayments(FunctionalTester $I)
     {
         $gateway = $I->grabRecord('account_gateways', array('gateway_id' => 23));
@@ -73,16 +74,15 @@ class SettingsCest
             $apiKey = $config->apiKey;
         }
 
-        /*
-        $I->amOnPage('/gateways/1/edit');
-        $I->click('Save');
+        // $I->amOnPage('/gateways/1/edit');
+        // $I->click('Save');
             
-        $I->seeResponseCodeIs(200);
-        $I->see('Successfully updated gateway');
-        $I->seeRecord('account_gateways', array('config' => '{"apiKey":"ASHHOWAH"}'));
-        */
+        // $I->seeResponseCodeIs(200);
+        // $I->see('Successfully updated gateway');
+        // $I->seeRecord('account_gateways', array('config' => '{"apiKey":"ASHHOWAH"}'));
     }
-
+    */
+    
     public function createProduct(FunctionalTester $I)
     {
         $I->wantTo('create a product');
@@ -92,7 +92,7 @@ class SettingsCest
 
         $I->fillField(['name' => 'product_key'], $productKey);
         $I->fillField(['name' => 'notes'], $this->faker->text(80));
-        $I->fillField(['name' => 'cost'], $this->faker->numberBetween(1,20));
+        $I->fillField(['name' => 'cost'], $this->faker->numberBetween(1, 20));
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
@@ -190,4 +190,38 @@ class SettingsCest
         $I->click('Run');
         $I->seeResponseCodeIs(200);
     }
+    
+    public function createUser(FunctionalTester $I)
+    {
+        $I->wantTo('create a user');
+        $I->amOnPage('/users/create');
+
+        $email = $this->faker->safeEmail;
+
+        $I->fillField(['name' => 'first_name'], $this->faker->firstName);
+        $I->fillField(['name' => 'last_name'], $this->faker->lastName);
+        $I->fillField(['name' => 'email'], $email);
+        $I->click('Send invitation');
+
+        $I->seeResponseCodeIs(200);
+        $I->see('Successfully sent invitation');
+        $I->seeRecord('users', array('email' => $email));
+    }
+
+    public function createToken(FunctionalTester $I)
+    {
+        $I->wantTo('create a token');
+        $I->amOnPage('/tokens/create');
+
+        $name = $this->faker->firstName;
+
+        $I->fillField(['name' => 'name'], $name);
+        $I->click('Save');
+
+        $I->seeResponseCodeIs(200);
+        $I->see('Successfully created token');
+        $I->seeRecord('account_tokens', array('name' => $name));
+    }
+
+
 }

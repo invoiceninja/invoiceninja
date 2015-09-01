@@ -1,16 +1,9 @@
 <?php 
 
 $I = new AcceptanceTester($scenario);
+$I->checkIfLogin($I);
 
 $I->wantTo('Test all pages load');
-$I->amOnPage('/login');
-//$I->see(trans('texts.forgot_password'));
-
-// Login as test user
-$I->fillField(['name' => 'email'], 'hillelcoren@gmail.com');
-$I->fillField(['name' => 'password'], '4uejs%2ksl#271df');
-$I->click('Let\'s go');
-$I->see('Dashboard');
 
 // Top level navigation
 $I->amOnPage('/dashboard');

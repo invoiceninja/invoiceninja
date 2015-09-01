@@ -26,7 +26,10 @@
             @endif
 
             @if (!$payment || !$payment->account_gateway_id)
-			 {!! Former::select('payment_type_id')->addOption('','')->fromQuery($paymentTypes, 'name', 'id') !!}
+			 {!! Former::select('payment_type_id')
+                    ->addOption('','')
+                    ->fromQuery($paymentTypes, 'name', 'id')
+                    ->addGroupClass('payment-type-select') !!}
             @endif
 
 			{!! Former::text('payment_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') !!}

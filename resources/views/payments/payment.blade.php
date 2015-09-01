@@ -230,7 +230,7 @@ header h3 em {
                 {!! Former::text('postal_code')->placeholder(trans('texts.postal_code'))->label('') !!}
             </div>
             <div class="col-md-6">
-                {!! Former::select('country_id')->placeholder(trans('texts.country_id'))->fromQuery($countries, 'name', 'id')->label('') !!}
+                {!! Former::select('country_id')->placeholder(trans('texts.country_id'))->fromQuery($countries, 'name', 'id')->label('')->addGroupClass('country-select') !!}
             </div>
         </div>
 

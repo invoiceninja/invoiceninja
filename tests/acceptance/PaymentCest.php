@@ -17,16 +17,38 @@ class PaymentCest
 
     public function create(AcceptanceTester $I)
     {
-        $clientName = $I->grabFromDatabase('clients', 'name');
-        $amount = rand(1, 30);
+        $clientEmail = $this->faker->safeEmail;
+        $productKey = $this->faker->text(10);
+        $amount = rand(1, 10);
 
         $I->wantTo('enter a payment');
-        $I->amOnPage('/payments/create');
 
-        $I->selectDropdown($I,  $clientName, '.client-select .dropdown-toggle');
+        // create client
+        $I->amOnPage('/clients/create');
+        $I->fillField(['name' => 'email'], $clientEmail);
+        $I->click('Save');
+        $I->see($clientEmail);
+
+        // create product
+        $I->amOnPage('/products/create');
+        $I->fillField(['name' => 'product_key'], $productKey);
+        $I->fillField(['name' => 'notes'], $this->faker->text(80));
+        $I->fillField(['name' => 'cost'], $this->faker->numberBetween(1, 20));
+        $I->click('Save');
+        $I->see($productKey);
+
+        // create invoice
+        $I->amOnPage('/invoices/create');
+        $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
+        $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
+        $I->click('Save');
+        $I->see($clientEmail);
+
+        $I->amOnPage('/payments/create');
+        $I->selectDropdown($I,  $clientEmail, '.client-select .dropdown-toggle');
         $I->selectDropdownRow($I, 1, '.invoice-select .combobox-container');
         $I->fillField(['name' => 'amount'], $amount);
-        $I->selectDropdownRow($I, 1, 'div.panel-body div.form-group:nth-child(4) .combobox-container');
+        $I->selectDropdown($I, 'Cash', '.payment-type-select .dropdown-toggle');
         $I->selectDataPicker($I, '#payment_date', 'now + 1 day');
         $I->fillField(['name' => 'transaction_reference'], $this->faker->text(12));
 
