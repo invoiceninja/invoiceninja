@@ -67,6 +67,7 @@ module.exports = function(grunt) {
           'public/vendor/spectrum/spectrum.js',
           'public/vendor/jspdf/dist/jspdf.min.js',
           'public/vendor/moment/min/moment.min.js',
+          'public/vendor/moment-timezone/builds/moment-timezone-with-data.min.js',
           //'public/vendor/moment-duration-format/lib/moment-duration-format.js',
           //'public/vendor/handsontable/dist/jquery.handsontable.full.min.js',
           //'public/vendor/pdfmake/build/pdfmake.min.js',

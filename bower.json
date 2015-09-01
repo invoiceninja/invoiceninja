@@ -25,5 +25,8 @@
   },
   "resolutions": {
     "jquery": "~1.11"
+  },
+  "devDependencies": {
+    "moment-timezone": "~0.4.0"
   }
 }

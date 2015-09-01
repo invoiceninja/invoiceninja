@@ -136,7 +136,8 @@ class TaskController extends BaseController
             'method' => 'POST',
             'url' => 'tasks',
             'title' => trans('texts.new_task'),
-            'minuteOffset' => Utils::getTiemstampOffset(),
+            'timezone' => Auth::user()->account->timezone->name,
+            'datetimeFormat' => Auth::user()->account->datetime_format->format_moment_sec
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -186,7 +187,8 @@ class TaskController extends BaseController
             'title' => trans('texts.edit_task'),
             'duration' => $task->is_running ? $task->getCurrentDuration() : $task->getDuration(),
             'actions' => $actions,
-            'minuteOffset' => Utils::getTiemstampOffset(),
+            'timezone' => Auth::user()->account->timezone->name,
+            'datetimeFormat' => Auth::user()->account->datetime_format->format_moment_sec
         ];
 
         $data = array_merge($data, self::getViewModel());
