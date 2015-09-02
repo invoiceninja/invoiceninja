@@ -715,7 +715,7 @@ return array(
   'update_address' => 'Update Address',
   'update_address_help' => 'Update client\'s address with provided details',
   'times' => 'Times',
-  'set_now' => 'Set now',
+  'set_now' => 'Set to now',
   'dark_mode' => 'Dark Mode',
   'dark_mode_help' => 'Show white text on black background',
   'add_to_invoice' => 'Add to invoice :invoice',
