@@ -18,11 +18,11 @@ If you'd like to translate the site please use [caouecs/Laravel4-long](https://g
 ### Features
 
 * Built using Laravel 5
-* Live PDF generation
+* Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Integrates with 30+ payment providers
 * Recurring invoices
 * Tasks with time-tracking
-* Multi-user support
+* Multi-user/multi-company support
 * Tax rates and payment terms
 * Partial payments
 * Custom email templates

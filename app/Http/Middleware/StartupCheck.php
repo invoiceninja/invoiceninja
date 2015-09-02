@@ -51,10 +51,10 @@ class StartupCheck
             'countries' => 'App\Models\Country',
             'invoiceDesigns' => 'App\Models\InvoiceDesign',
         ];
+        if (Input::has('clear_cache')) {
+            Session::flash('message', 'Cache cleared');
+        }
         foreach ($cachedTables as $name => $class) {
-            if (Input::has('clear_cache')) {
-                Session::flash('message', 'Cache cleared');
-            }
             if (Input::has('clear_cache') || !Cache::has($name)) {
                 if ($name == 'paymentTerms') {
                     $orderBy = 'num_days';

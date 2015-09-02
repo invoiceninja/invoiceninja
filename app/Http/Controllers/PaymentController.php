@@ -358,7 +358,11 @@ class PaymentController extends BaseController
             }
         }
 
-        Session::set('product_id', Input::get('product_id', PRODUCT_ONE_CLICK_INSTALL));
+        if (Input::has('product_id')) {
+            Session::set('product_id', Input::get('product_id'));
+        } else if (!Session::has('product_id')) {
+            Session::set('product_id', PRODUCT_ONE_CLICK_INSTALL);
+        }
 
         if (!Session::get('affiliate_id')) {
             return Utils::fatalError();

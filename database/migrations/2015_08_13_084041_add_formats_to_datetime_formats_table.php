@@ -3,36 +3,37 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddFormatsToDatetimeFormatsTable extends Migration {
+class AddFormatsToDatetimeFormatsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        DB::table('date_formats')
+            ->where('label', '20/03/2013')
+            ->update(['label' => '20-03-2013']);
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
-		Schema::table('datetime_formats', function(Blueprint $t)
-		{
-            $t->string('format_sec');
-            $t->string('format_moment');
-            $t->string('format_moment_sec');
-		});
-	}
+        DB::table('datetime_formats')
+            ->where('label', '20/03/2013 6:15 pm')
+            ->update(['label' => '20-03-2013 6:15 pm']);
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
-		Schema::table('datetime_formats', function(Blueprint $t)
-		{
-            $t->dropColumn('format_sec');
-            $t->dropColumn('format_moment');
-            $t->dropColumn('format_moment_sec');
-		});
-	}
+        Schema::table('datetime_formats', function (Blueprint $table) {
+            $table->string('format_moment');
+        });
+    }
 
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('datetime_formats', function (Blueprint $table) {
+            $table->dropColumn('format_moment');
+        });
+    }
 }

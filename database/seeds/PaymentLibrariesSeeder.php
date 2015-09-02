@@ -108,12 +108,17 @@ class PaymentLibrariesSeeder extends Seeder
             ['format' => 'F j, Y', 'picker_format' => 'MM d, yyyy', 'label' => 'March 10, 2013'],
             ['format' => 'D M j, Y', 'picker_format' => 'D MM d, yyyy', 'label' => 'Mon March 10, 2013'],
             ['format' => 'Y-M-d', 'picker_format' => 'yyyy-M-dd', 'label' => '2013-03-10'],
-            ['format' => 'd/m/Y', 'picker_format' => 'dd/mm/yyyy', 'label' => '20/03/2013'],
-            ['format' => 'd.m.Y', 'picker_format' => 'dd.mm.yyyy', 'label' => '20.03.2013']
+            ['format' => 'd-m-Y', 'picker_format' => 'dd-mm-yyyy', 'label' => '20-03-2013'],
+            ['format' => 'm/d/Y', 'picker_format' => 'mm/dd/yyyy', 'label' => '03/20/2013']
         ];
         
         foreach ($formats as $format) {
-            if (!DB::table('date_formats')->whereLabel($format['label'])->get()) {
+            $record = DateFormat::whereLabel($format['label'])->first();
+            if ($record) {
+                $record->format = $format['format'];
+                $record->picker_format = $format['picker_format'];
+                $record->save();
+            } else {
                 DateFormat::create($format);
             }
         }
@@ -124,78 +129,63 @@ class PaymentLibrariesSeeder extends Seeder
         $formats = [
             [
                 'format' => 'd/M/Y g:i a',
-                'format_sec' => 'd/M/Y g:i:s a',
-                'format_moment' => 'DD/MMM/YYYY h:mm a',
-                'format_moment_sec' => 'DD/MMM/YYYY h:mm:ss a',
+                'format_moment' => 'DD/MMM/YYYY h:mm:ss a',
                 'label' => '10/Mar/2013'
             ],
             [
                 'format' => 'd-M-Yk g:i a',
-                'format_sec' => 'd-M-Yk g:i:s a',
-                'format_moment' => 'DD-MMM-YYYY h:mm a',
-                'format_moment_sec' => 'DD-MMM-YYYY h:mm:ss a',
+                'format_moment' => 'DD-MMM-YYYY h:mm:ss a',
                 'label' => '10-Mar-2013'
             ],
             [
                 'format' => 'd/F/Y g:i a',
-                'format_sec' => 'd/F/Y g:i:s a',
-                'format_moment' => 'DD/MMMM/YYYY h:mm a',
-                'format_moment_sec' => 'DD/MMMM/YYYY h:mm:ss a',
+                'format_moment' => 'DD/MMMM/YYYY h:mm:ss a',
                 'label' => '10/March/2013'
             ],
             [
                 'format' => 'd-F-Y g:i a',
-                'format_sec' => 'd-F-Y g:i:s a',
-                'format_moment' => 'DD-MMMM-YYYY h:mm a',
-                'format_moment_sec' => 'DD-MMMM-YYYY h:mm:ss a',
+                'format_moment' => 'DD-MMMM-YYYY h:mm:ss a',
                 'label' => '10-March-2013'
             ],
             [
                 'format' => 'M j, Y g:i a',
-                'format_sec' => 'M j, Y g:i:s a',
-                'format_moment' => 'MMM D, YYYY h:mm a',
-                'format_moment_sec' => 'MMM D, YYYY h:mm:ss a',
+                'format_moment' => 'MMM D, YYYY h:mm:ss a',
                 'label' => 'Mar 10, 2013 6:15 pm'
             ],
             [
                 'format' => 'F j, Y g:i a',
-                'format_sec' => 'F j, Y g:i:s a',
-                'format_moment' => 'MMMM D, YYYY h:mm a',
-                'format_moment_sec' => 'MMMM D, YYYY h:mm:ss a',
+                'format_moment' => 'MMMM D, YYYY h:mm:ss a',
                 'label' => 'March 10, 2013 6:15 pm'
             ],
             [
                 'format' => 'D M jS, Y g:ia',
-                'format_sec' => 'D M jS, Y g:i:sa',
-                'format_moment' => 'ddd MMM Do, YYYY h:mma',
-                'format_moment_sec' => 'ddd MMM Do, YYYY h:mm:ssa',
+                'format_moment' => 'ddd MMM Do, YYYY h:mm:ss a',
                 'label' => 'Mon March 10th, 2013 6:15 pm'
             ],
             [
                 'format' => 'Y-M-d g:i a',
-                'format_sec' => 'Y-M-d g:i:s a',
-                'format_moment' => 'YYYY-MMM-DD h:mm a',
-                'format_moment_sec' => 'YYYY-MMM-DD h:mm:ss a',
+                'format_moment' => 'YYYY-MMM-DD h:mm:ss a',
                 'label' => '2013-03-10 6:15 pm'
             ],
             [
-                'format' => 'd/m/Y g:i a',
-                'format_sec' => 'd/m/Y g:i:s a',
-                'format_moment' => 'DD/MM/YYYY h:mm a',
-                'format_moment_sec' => 'DD/MM/YYYY h:mm:ss a',
-                'label' => '20/03/2013 6:15 pm'
+                'format' => 'd-m-Y g:i a',
+                'format_moment' => 'DD-MM-YYYY h:mm:ss a',
+                'label' => '20-03-2013 6:15 pm'
             ],
             [
-                'format' => 'd.m.Y H:i',
-                'format_sec' => 'd.m.Y H:i:s',
-                'format_moment' => 'DD.MM.YYYY HH:mm',
-                'format_moment_sec' => 'DD.MM.YYYY HH:mm:ss',
-                'label' => '20.03.2013 18:15'
+                'format' => 'm/d/Y H:i',
+                'format_moment' => 'MM/DD/YYYY HH:mm:ss',
+                'label' => '03/20/2013 6:15 pm'
             ]
         ];
         
         foreach ($formats as $format) {
-            if (!DB::table('datetime_formats')->whereLabel($format['label'])->get()) {
+            $record = DatetimeFormat::whereLabel($format['label'])->first();
+            if ($record) {
+                $record->format = $format['format'];
+                $record->format_moment = $format['format_moment'];
+                $record->save();
+            } else {
                 DatetimeFormat::create($format);
             }
         }

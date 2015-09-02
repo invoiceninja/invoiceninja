@@ -9,15 +9,17 @@ use Exception;
 use Input;
 use Utils;
 use View;
+use Event;
 use Session;
 use Cookie;
 use Response;
+use Redirect;
 use App\Models\User;
 use App\Models\Account;
 use App\Models\Industry;
 use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
-use Redirect;
+use App\Events\UserSettingsChanged;
 
 class AppController extends BaseController
 {
@@ -183,6 +185,7 @@ class AppController extends BaseController
                 Artisan::call('db:seed', array('--force' => true, '--class' => 'PaymentLibrariesSeeder'));
                 Artisan::call('optimize', array('--force' => true));
                 Cache::flush();
+                Event::fire(new UserSettingsChanged());
                 Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {
                 Response::make($e->getMessage(), 500);
