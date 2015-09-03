@@ -37,11 +37,8 @@ class AppServiceProvider extends ServiceProvider {
 
             $str = '<li class="dropdown '.$class.'">
                    <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>
-                   <ul class="dropdown-menu" id="menu1">';
-
-            if ($type != ENTITY_TASK || Auth::user()->account->timezone_id) {
-                $str .= '<li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
-            }
+                   <ul class="dropdown-menu" id="menu1">
+                   <li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
             
             if ($type == ENTITY_INVOICE) {
                 $str .= '<li><a href="'.URL::to('recurring_invoices/create').'">'.trans("texts.new_recurring_invoice").'</a></li>';

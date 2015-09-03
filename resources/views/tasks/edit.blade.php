@@ -41,7 +41,7 @@
                     <label for="simple-time" class="control-label col-lg-4 col-sm-4">  
                     </label>
                     <div class="col-lg-8 col-sm-8" style="padding-top: 10px">
-                        <p>{{ $task->getStartTime() }}<p/>
+                        <p>{{ $task->getStartTime() }} {{ $timezone }}<p/>
 
                         @if ($task->hasPreviousDuration())
                             {{ trans('texts.duration') . ': ' . gmdate('H:i:s', $task->getDuration()) }}<br/>

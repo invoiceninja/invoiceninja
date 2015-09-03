@@ -743,4 +743,13 @@ class Utils
             return $values;
         }
     }
+
+    // nouns in German and French should be uppercase
+    public static function transFlowText($key) {
+        $str = trans("texts.$key");
+        if (!in_array(App::getLocale(), ['de', 'fr'])) {
+            $str = strtolower($str);
+        }
+        return $str;
+    }
 }

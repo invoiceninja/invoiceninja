@@ -20,7 +20,7 @@
 	
 	&nbsp;<label for="trashed" style="font-weight:normal; margin-left: 10px;">
 		<input id="trashed" type="checkbox" onclick="setTrashVisible()" 
-			{{ Session::get("show_trash:{$entityType}") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}} {{ strtolower(trans('texts.'.$entityType.'s')) }}
+			{{ Session::get("show_trash:{$entityType}") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}} {{ Utils::transFlowText($entityType.'s') }}
 	</label>
 
 	<div id="top_right_buttons" class="pull-right">
@@ -31,9 +31,8 @@
             {!! Button::normal(trans('texts.credits'))->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('list')) !!}
         @endif
 
-        @if ($entityType != ENTITY_TASK || Auth::user()->account->timezone_id)
-		  {!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->appendIcon(Icon::create('plus-sign')) !!}
-        @endif
+        {!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->appendIcon(Icon::create('plus-sign')) !!}
+        
 	</div>
 
     @if (isset($secEntityType))

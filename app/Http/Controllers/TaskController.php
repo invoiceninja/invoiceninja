@@ -36,8 +36,6 @@ class TaskController extends BaseController
      */
     public function index()
     {
-        self::checkTimezone();
-
         return View::make('list', array(
             'entityType' => ENTITY_TASK,
             'title' => trans('texts.tasks'),
@@ -128,16 +126,14 @@ class TaskController extends BaseController
      */
     public function create($clientPublicId = 0)
     {
-        self::checkTimezone();
-
         $data = [
             'task' => null,
             'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
             'method' => 'POST',
             'url' => 'tasks',
             'title' => trans('texts.new_task'),
-            'timezone' => Auth::user()->account->timezone->name,
-            'datetimeFormat' => Auth::user()->account->datetime_format ? Auth::user()->account->datetime_format->format_moment : 'DD/MMM/YYYY h:mm:ss a'
+            'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
+            'datetimeFormat' => Auth::user()->account->datetime_format ? Auth::user()->account->datetime_format->format_moment : DEFAULT_DATETIME_MOMENT_FORMAT
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -153,8 +149,6 @@ class TaskController extends BaseController
      */
     public function edit($publicId)
     {
-        self::checkTimezone();
-
         $task = Task::scope($publicId)->with('client', 'invoice')->firstOrFail();
 
         $actions = [];
@@ -187,8 +181,8 @@ class TaskController extends BaseController
             'title' => trans('texts.edit_task'),
             'duration' => $task->is_running ? $task->getCurrentDuration() : $task->getDuration(),
             'actions' => $actions,
-            'timezone' => Auth::user()->account->timezone->name,
-            'datetimeFormat' => Auth::user()->account->datetime_format ? Auth::user()->account->datetime_format->format_moment : 'DD/MMM/YYYY h:mm:ss a'
+            'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
+            'datetimeFormat' => Auth::user()->account->datetime_format ? Auth::user()->account->datetime_format->format_moment : DEFAULT_DATETIME_MOMENT_FORMAT
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -285,14 +279,6 @@ class TaskController extends BaseController
             } else {
                 return Redirect::to('tasks');
             }
-        }
-    }
-
-    private function checkTimezone()
-    {
-        if (!Auth::user()->account->timezone) {
-            $link = link_to('/company/details?focus=timezone_id', trans('texts.click_here'), ['target' => '_blank']);
-            Session::flash('warning', trans('texts.timezone_unset', ['link' => $link]));
         }
     }
 }
