@@ -1,11 +1,11 @@
-{{ trans('texts.email_salutation', ['name' => $userName]) }}
+{!! trans('texts.email_salutation', ['name' => $userName]) !!}
 
-{{ trans("texts.notification_{$entityType}_paid", ['amount' => $paymentAmount, 'client' => $clientName, 'invoice' => $invoiceNumber]) }}
+{!! trans("texts.notification_{$entityType}_paid", ['amount' => $paymentAmount, 'client' => $clientName, 'invoice' => $invoiceNumber]) !!}
 
-{{ trans("texts.{$entityType}_link_message") }}
-{{ $invoiceLink }}
+{!! trans("texts.{$entityType}_link_message") !!}
+{!! $invoiceLink !!}
 
-{{ trans('texts.email_signature') }}
-{{ trans('texts.email_from') }}
+{!! trans('texts.email_signature') !!}
+{!! trans('texts.email_from') !!}
 
-{{ trans('texts.user_email_footer') }}
+{!! trans('texts.user_email_footer') !!}
