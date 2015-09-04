@@ -715,7 +715,7 @@ return array(
   'update_address' => 'Adresse Aktualisieren',
   'update_address_help' => 'Kundenadresse mit den gemachten Angaben aktualisieren',
   'times' => 'Zeiten',
-  'set_now' => 'Auf <em>Jetzt</em> setzen',
+  'set_now' => 'Auf Jetzt setzen',
   'dark_mode' => 'Dunkler Modus',
   'dark_mode_help' => 'Weißer Text auf schwarzem Hintergrund anzeigen',
   'add_to_invoice' => 'Zur Rechnung :invoice hinzufügen',

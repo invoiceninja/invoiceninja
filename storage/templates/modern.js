@@ -177,6 +177,15 @@
                 "color": "#FFFFFF",
                 "fontSize": "$fontSizeLargest"
             },
+            "costTableHeader": {
+                "alignment": "right"
+            },
+            "qtyTableHeader": {
+                "alignment": "right"
+            },
+            "lineTotalTableHeader": {
+                "alignment": "right"
+            },            
             "balanceDueLabel": {
                 "fontSize": "$fontSizeLargest",
                 "color":"#FFFFFF",

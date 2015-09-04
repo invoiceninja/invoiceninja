@@ -110,6 +110,15 @@
         "tableHeader": {
             "bold": true
         },
+        "costTableHeader": {
+            "alignment": "right"
+        },
+        "qtyTableHeader": {
+            "alignment": "right"
+        },
+        "lineTotalTableHeader": {
+            "alignment": "right"
+        },        
         "invoiceLineItemsTable": {
             "margin": [0, 16, 0, 16]
         },

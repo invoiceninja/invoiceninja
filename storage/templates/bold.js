@@ -44,7 +44,7 @@
         "style": "invoiceLineItemsTable",
         "table": {
             "headerRows": 1,
-            "widths": "$invoiceLineItemColumns",
+            "widths": ["15%", "*", "12%", "$quantityWidth", "22%"],
             "body": "$invoiceLineItems"
         },
         "layout": {
@@ -53,7 +53,7 @@
             "paddingLeft": "$amount:8", 
             "paddingRight": "$amount:8", 
             "paddingTop": "$amount:14", 
-            "paddingBottom": "$amount:14"            
+            "paddingBottom": "$amount:14"
         }
     },    
     {
@@ -163,6 +163,16 @@
                 "fontSize": 12,
                 "bold": true
             },
+            "costTableHeader": {
+                "alignment": "right"
+            },
+            "qtyTableHeader": {
+                "alignment": "right"
+            },
+            "lineTotalTableHeader": {
+                "alignment": "right",
+                "margin": [0, 0, 40, 0]
+            },
             "productKey": {
                 "color": "$primaryColor:#36a498",
                 "margin": [40,0,0,0],
@@ -191,7 +201,7 @@
             },
             "lineTotal": {
                 "alignment": "right",
-                "margin": [0,0,40,0]
+                "margin": [0, 0, 40, 0]
             },
             "subtotals": {
                 "alignment": "right",

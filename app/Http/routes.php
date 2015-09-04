@@ -337,7 +337,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('DEFAULT_LANGUAGE', 1); // English
     define('DEFAULT_DATE_FORMAT', 'M j, Y');
     define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');
-    define('DEFAULT_DATETIME_FORMAT', 'F j, Y, g:i a');
+    define('DEFAULT_DATETIME_FORMAT', 'F j, Y g:i a');
     define('DEFAULT_DATETIME_MOMENT_FORMAT', 'MMM D, YYYY h:mm:ss a');
     define('DEFAULT_QUERY_CACHE', 120); // minutes
     define('DEFAULT_LOCALE', 'en');

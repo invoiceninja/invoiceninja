@@ -91,6 +91,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'invoiceDetailsHeight': NINJA.invoiceDetails(invoice).length * 22,
         'invoiceLineItems': NINJA.invoiceLines(invoice),
         'invoiceLineItemColumns': NINJA.invoiceColumns(invoice),
+        'quantityWidth': NINJA.quantityWidth(invoice),
         'clientDetails': NINJA.clientDetails(invoice),
         'notesAndTerms': NINJA.notesAndTerms(invoice),
         'subtotals': NINJA.subtotals(invoice),
@@ -107,9 +108,15 @@ NINJA.decodeJavascript = function(invoice, javascript)
     }
 
     for (var key in json) {
-        var regExp = new RegExp('"\\$'+key+'"', 'g');
-        var val = JSON.stringify(json[key]);
-        val = doubleDollarSign(val);
+        // remove trailing commas for these fields
+        if (['quantityWidth'].indexOf(key) >= 0) {
+            var regExp = new RegExp('"\\$'+key+'",', 'g');
+            val = json[key];
+        } else {
+            var regExp = new RegExp('"\\$'+key+'"', 'g');
+            var val = JSON.stringify(json[key]);
+            val = doubleDollarSign(val);
+        }
         javascript = javascript.replace(regExp, val);
     }
 
@@ -184,10 +191,15 @@ NINJA.notesAndTerms = function(invoice)
 NINJA.invoiceColumns = function(invoice)
 {
     if (invoice.account.hide_quantity == '1') {
-        return ["15%", "*", "10%", "15%"];
+        return ["15%", "*", "15%", "15%"];
     } else {
-        return ["15%", "*", "10%", "auto", "15%"];
+        return ["15%", "*", "14%", "14%", "14%"];
     }
+}
+
+NINJA.quantityWidth = function(invoice)
+{
+    return invoice.account.hide_quantity == '1' ? '' : '"12%", ';
 }
 
 NINJA.invoiceLines = function(invoice) {

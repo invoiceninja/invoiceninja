@@ -55,7 +55,7 @@ class TaskController extends BaseController
                   ->addColumn('client_name', function ($model) { return $model->client_public_id ? link_to('clients/'.$model->client_public_id, Utils::getClientDisplayName($model)) : ''; });
         }
 
-        return $table->addColumn('created_at', function($model) { return Task::calcStartTime($model); })
+        return $table->addColumn('created_at', function($model) { return link_to("tasks/{$model->public_id}/edit", Task::calcStartTime($model)); })
                 ->addColumn('time_log', function($model) { return gmdate('H:i:s', Task::calcDuration($model)); })
                 ->addColumn('description', function($model) { return $model->description; })
                 ->addColumn('invoice_number', function($model) { return self::getStatusLabel($model); })
