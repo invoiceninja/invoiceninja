@@ -40,8 +40,10 @@
             {!! Former::populateField('enable_chart', intval($enableChart)) !!}
 
 			{!! Former::text('start_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
+                    ->addGroupClass('start_date')
 					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') !!}
 			{!! Former::text('end_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
+                    ->addGroupClass('end_date')
 					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') !!}
 
             <p>&nbsp;</p>
@@ -184,6 +186,15 @@
 		scaleStartValue: 0,
 		scaleLabel : "<%=value%>",
 	};
+
+    $(function() {
+        $('.start_date .input-group-addon').click(function() {
+            toggleDatePicker('start_date');
+        });
+        $('.end_date .input-group-addon').click(function() {
+            toggleDatePicker('end_date');
+        });
+    })
 
 	new Chart(ctx).{!! $chartType !!}(chart, options);
 

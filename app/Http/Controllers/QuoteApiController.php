@@ -14,13 +14,19 @@ class QuoteApiController extends Controller
         $this->invoiceRepo = $invoiceRepo;
     }
 
-    public function index()
+    public function index($clientPublicId = false)
     {
         $invoices = Invoice::scope()
                         ->with('client', 'user')
-                        ->where('invoices.is_quote', '=', true)
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+                        ->where('invoices.is_quote', '=', true);
+
+        if ($clientPublicId) {
+            $invoices->whereHas('client', function($query) use ($clientPublicId) {
+                $query->where('public_id', '=', $clientPublicId);
+            });
+        }
+
+        $invoices = $invoices->orderBy('created_at', 'desc')->get();
         $invoices = Utils::remapPublicIds($invoices);
 
         $response = json_encode($invoices, JSON_PRETTY_PRINT);

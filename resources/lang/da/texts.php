@@ -755,5 +755,18 @@
                         <p>For at tilgå under indstillingerne ved hjælp af dot notation. For eksempel kan man for at vise klient navnet bruge <code>$client.nameValue</code>.</p>
                         <p>Hvis du mangler svar på nogen spørgsmål så post et spørgsmål i vores <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
   
+   'invoice_due_date' => 'Due Date',
+   'quote_due_date' => 'Valid Until',
+   'valid_until' => 'Valid Until',
+   'reset_terms' => 'Reset terms',
+   'reset_footer' => 'Reset footer',
+   'invoices_sent' => ':count invoice sent|:count invoices sent',
+   'status_draft' => 'Draft',
+   'status_sent' => 'Sent',
+   'status_viewed' => 'Viewed',
+   'status_partial' => 'Partial',
+   'status_paid' => 'Paid',
+   'show_line_item_tax' => 'Display <b>line item taxes</b> inline',
+
 
  ); 

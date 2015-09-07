@@ -447,7 +447,7 @@ class PaymentController extends BaseController
 
                 if (!$response->isSuccessful()) {
                     Session::flash('error', $response->getMessage());
-                    Utils::logError($response->getMessage());
+                    Utils::logError('Payment Error [license]: ' . $response->getMessage());
 
                     return Redirect::to('license')->withInput();
                 }
@@ -484,7 +484,7 @@ class PaymentController extends BaseController
         } catch (\Exception $e) {
             $errorMessage = trans('texts.payment_error');
             Session::flash('error', $errorMessage);
-            Utils::logError(Utils::getErrorString($e));
+            Utils::logError('Payment Error [license-uncaught]: ' . Utils::getErrorString($e));
 
             return Redirect::to('license')->withInput();
         }
@@ -543,7 +543,7 @@ class PaymentController extends BaseController
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
-                Utils::logError('Payment Error [invalid]');
+                //Utils::logError('Payment Error [invalid]');
                 return Redirect::to('payment/'.$invitationKey)
                     ->withErrors($validator)
                     ->withInput();
@@ -711,7 +711,7 @@ class PaymentController extends BaseController
         if ($accountGateway->isGateway(GATEWAY_DWOLLA) && Input::get('error')) {
             $errorMessage = trans('texts.payment_error')."\n\n".Input::get('error_description');
             Session::flash('error', $errorMessage);
-            Utils::logError($errorMessage);
+            Utils::logError('Payment Error [dwolla]: ' . $errorMessage);
             return Redirect::to('view/'.$invitation->invitation_key);
         }
 
@@ -729,7 +729,7 @@ class PaymentController extends BaseController
                 } else {
                     $errorMessage = trans('texts.payment_error')."\n\n".$response->getMessage();
                     Session::flash('error', $errorMessage);
-                    Utils::logError($errorMessage);
+                    Utils::logError('Payment Error [offsite]: ' . $errorMessage);
 
                     return Redirect::to('view/'.$invitation->invitation_key);
                 }
@@ -742,7 +742,7 @@ class PaymentController extends BaseController
         } catch (\Exception $e) {
             $errorMessage = trans('texts.payment_error');
             Session::flash('error', $errorMessage);
-            Utils::logError($errorMessage."\n\n".$e->getMessage());
+            Utils::logError('Payment Error [offsite-uncaught]: ' . $errorMessage."\n\n".$e->getMessage());
 
             return Redirect::to('view/'.$invitation->invitation_key);
         }

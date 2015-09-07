@@ -6,7 +6,7 @@ class Country extends Eloquent
 {
     public $timestamps = false;
 
-    protected $visible = ['id', 'name'];
+    protected $visible = ['id', 'name', 'swap_postal_code'];
 
     public function getName() 
     {

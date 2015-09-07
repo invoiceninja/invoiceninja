@@ -16,12 +16,18 @@ class PaymentApiController extends Controller
         $this->paymentRepo = $paymentRepo;
     }
 
-    public function index()
+    public function index($clientPublicId = false)
     {
         $payments = Payment::scope()
-                        ->with('client', 'contact', 'invitation', 'user', 'invoice')
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+                        ->with('client', 'contact', 'invitation', 'user', 'invoice');
+
+        if ($clientPublicId) {
+            $payments->whereHas('client', function($query) use ($clientPublicId) {
+                $query->where('public_id', '=', $clientPublicId);
+            });
+        }
+
+        $payments = $payments->orderBy('created_at', 'desc')->get();
         $payments = Utils::remapPublicIds($payments);
         
         $response = json_encode($payments, JSON_PRETTY_PRINT);

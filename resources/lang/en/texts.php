@@ -58,8 +58,8 @@ return array(
   'enable' => 'Enable',
   'learn_more' => 'Learn more',
   'manage_rates' => 'Manage rates',
-  'note_to_client' => 'Note to client',
-  'invoice_terms' => 'Invoice terms',
+  'note_to_client' => 'Note to Client',
+  'invoice_terms' => 'Invoice Terms',
   'save_as_default_terms' => 'Save as default terms',
   'download_pdf' => 'Download PDF',
   'pay_now' => 'Pay Now',
@@ -536,7 +536,7 @@ return array(
   'click_once' => '*Please click "PAY NOW" only once - transaction may take up to 1 minute to process.',
 
   'default_invoice_footer' => 'Set default <b>invoice footer</b>',
-  'invoice_footer' => 'Invoice footer',
+  'invoice_footer' => 'Invoice Footer',
   'save_as_default_footer' => 'Save as default footer',
 
   'token_management' => 'Token Management',
@@ -752,8 +752,20 @@ return array(
   'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provide\'s a great way to see the library in action.</p>
                         <p>You can access any invoice field by adding <code>Value</code> to the end. For example <code>$invoiceNumberValue</code> displays the invoice number.</p>
                         <p>To access a child property using dot notation. For example to show the client name you could use <code>$client.nameValue</code>.</p>
-                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>'
+                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
   
+  'invoice_due_date' => 'Due Date',
+  'quote_due_date' => 'Valid Until',
+  'valid_until' => 'Valid Until',
+  'reset_terms' => 'Reset terms',
+  'reset_footer' => 'Reset footer',
+  'invoices_sent' => ':count invoice sent|:count invoices sent',
+  'status_draft' => 'Draft',
+  'status_sent' => 'Sent',
+  'status_viewed' => 'Viewed',
+  'status_partial' => 'Partial',
+  'status_paid' => 'Paid',
+  'show_line_item_tax' => 'Display <b>line item taxes</b> inline',
 
 );
 

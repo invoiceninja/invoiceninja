@@ -35,7 +35,7 @@
       invoice.account.hide_quantity = $('#hide_quantity').is(":checked");
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
       invoice.invoice_design_id = $('#invoice_design_id').val();
-
+      
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
@@ -82,6 +82,7 @@
       {!! Former::populate($account) !!}
       {!! Former::populateField('hide_quantity', intval($account->hide_quantity)) !!}
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
+
         @foreach ($invoiceLabels as $field => $value)
           {!! Former::populateField("labels_{$field}", $value) !!}
         @endforeach
@@ -136,14 +137,14 @@
     </div>
 
 
-      @if (Auth::user()->isPro())
-      {!! Former::actions( Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}
-      @else
-      <script>
-          $(function() {   
-            $('form.warn-on-exit input').prop('disabled', true);
-          });
-      </script> 
+    @if (Auth::user()->isPro())
+        {!! Former::actions( Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}
+    @else
+        <script>
+              $(function() {   
+                $('form.warn-on-exit input').prop('disabled', true);
+              });
+          </script> 
       @endif
 
       {!! Former::close() !!}

@@ -32,7 +32,10 @@
                     ->addGroupClass('payment-type-select') !!}
             @endif
 
-			{!! Former::text('payment_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+			{!! Former::text('payment_date')
+                        ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
+                        ->addGroupClass('payment_date')
+                        ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 			{!! Former::text('transaction_reference') !!}
 
             @if (!$payment)
@@ -76,6 +79,10 @@
         @elseif (!$payment)
             $('#amount').focus();
         @endif
+
+        $('.payment_date .input-group-addon').click(function() {
+            toggleDatePicker('payment_date');
+        });
 	});
 
 	</script>

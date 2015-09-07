@@ -144,10 +144,6 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
         $('[name="guest_key"]').val(localStorage.getItem('guest_key'));
     }
 
-    @if (isset($invoiceNow) && $invoiceNow)
-    getStarted();
-    @endif
-
     function isStorageSupported() {
         if ('localStorage' in window && window['localStorage'] !== null) {
           var storage = window.localStorage;

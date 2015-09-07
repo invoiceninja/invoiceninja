@@ -3,17 +3,12 @@
     {
         "columns": [
         {
-            "image": "$accountLogo",
-            "width": 80,
-            "margin": [60, -40, 0, 0]
-        },
-        {
-            "width": 300,
+            "width": 380,
             "stack": [
             {"text":"$yourInvoiceLabelUC", "style": "yourInvoice"},
             "$clientDetails"
             ],
-            "margin": [-32, 120, 0, 0]
+            "margin": [60, 100, 0, 10]
         },
         {
             "canvas": [
@@ -29,14 +24,14 @@
             }
             ],
             "width":10,
-            "margin":[-10,120,0,0]
+            "margin":[-10,100,0,10]
         },
         {	
             "table": { 
                 "body": "$invoiceDetails"
             },
             "layout": "noBorders",
-            "margin": [0, 130, 0, 0]
+            "margin": [0, 110, 0, 0]
         }
         ]
     },
@@ -44,7 +39,7 @@
         "style": "invoiceLineItemsTable",
         "table": {
             "headerRows": 1,
-            "widths": ["15%", "*", "12%", "$quantityWidth", "22%"],
+            "widths": ["15%", "*", "14%", "$quantityWidth", "22%"],
             "body": "$invoiceLineItems"
         },
         "layout": {
@@ -80,36 +75,58 @@
     }
     ],
     "footer": [
-        {"canvas": [{ "type": "line", "x1": 0, "y1": 0, "x2": 600, "y2": 0,"lineWidth": 100,"lineColor":"#2e2b2b"}]},
+        {"canvas": [{ "type": "line", "x1": 0, "y1": 0, "x2": 600, "y2": 0,"lineWidth": 100,"lineColor":"$secondaryColor:#2e2b2b"}]},
         {
             "text": "$invoiceFooter",
-            "margin": [40, -20, 40, 0],
+            "margin": [40, 0, 40, 0],
             "alignment": "left",
             "color": "#FFFFFF"
         }
     ],
     "header": [
-        {"canvas": [{ "type": "line", "x1": 0, "y1": 0, "x2": 50, "y2":0,"lineWidth": 200,"lineColor":"#2e2b2b"}],"width":100,"margin":[0,0,0,0]},
-        {"canvas": [{ "type": "line", "x1": 0, "y1": 0, "x2": 150, "y2":0,"lineWidth": 60,"lineColor":"#2e2b2b"}],"width":100,"margin":[0,0,0,0]},
-        {"canvas": [{ "type": "line", "x1": 149, "y1": 0, "x2": 600, "y2":0,"lineWidth": 200,"lineColor":"#2e2b2b"}],"width":10,"margin":[0,0,0,0]},
-        {
+          {
+            "canvas": [
+              {
+                "type": "line",
+                "x1": 0,
+                "y1": 0,
+                "x2": 600,
+                "y2": 0,
+                "lineWidth": 200,
+                "lineColor": "$secondaryColor:#2e2b2b"
+              }
+            ],
+            "width": 10
+          },
+          {
             "columns": [
-                {
-                    "text": " ",
-                    "width": 260
-                },
-                {
-                    "stack": "$accountDetails",
-                    "margin": [0, 16, 0, 0],
-                    "width": 140
-                },
-                {
-                    "stack": "$accountAddress",
-                    "margin": [20, 16, 0, 0]
-                }
+              { 
+                "image": "$accountLogo",
+                "fit": [120, 80],
+                "margin": [30, 20, 0, 0]
+              },
+              {
+                "stack": "$accountDetails",
+                "margin": [
+                  0,
+                  16,
+                  0,
+                  0
+                ],
+                "width": 140
+              },
+              {
+                "stack": "$accountAddress",
+                "margin": [
+                  20,
+                  16,
+                  0,
+                  0
+                ]
+              }
             ]
-        }
-    ],
+          }
+        ],
     "defaultStyle": {
             "fontSize": "$fontSize",
             "margin": [8, 4, 8, 4]
@@ -120,16 +137,19 @@
             },
             "accountName": {
                 "bold": true,
-                "margin": [4, 2, 4, 2],
+                "margin": [4, 2, 4, 1],
                 "color": "$primaryColor:#36a498"
             },
             "accountDetails": {
-                "margin": [4, 2, 4, 2],
-                "color": "#AAA9A9"
+                "margin": [4, 2, 4, 1],
+                "color": "#FFFFFF"
             },
             "accountAddress": {
-                "margin": [4, 2, 4, 2],
-                "color": "#AAA9A9"
+                "margin": [4, 2, 4, 1],
+                "color": "#FFFFFF"
+            },
+            "clientDetails": {
+                "margin": [0, 2, 0, 1]
             },
             "odd": {
                 "fillColor": "#ebebeb",
@@ -167,6 +187,9 @@
                 "alignment": "right"
             },
             "qtyTableHeader": {
+                "alignment": "right"
+            },
+            "taxTableHeader": {
                 "alignment": "right"
             },
             "lineTotalTableHeader": {

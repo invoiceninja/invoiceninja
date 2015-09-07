@@ -156,6 +156,9 @@
         "qtyTableHeader": {
             "alignment": "right"
         },
+        "taxTableHeader": {
+            "alignment": "right"
+        },
         "lineTotalTableHeader": {
             "alignment": "right"
         },        

@@ -92,15 +92,19 @@ class ContactMailer extends Mailer
             '$amount' => Utils::formatMoney($payment->amount, $payment->client->getCurrencyId())
         ];
 
-        $data = ['body' => str_replace(array_keys($variables), array_values($variables), $emailTemplate)];
-
         if ($payment->invitation) {
             $user = $payment->invitation->user;
             $contact = $payment->contact;
+            $variables['$link'] = $payment->invitation->getLink();
         } else {
             $user = $payment->user;
             $contact = $payment->client->contacts[0];
+            $variables['$link'] = $payment->invoice->invitations[0]->getLink();
         }
+
+        $data = ['body' => str_replace(array_keys($variables), array_values($variables), $emailTemplate)];
+        
+        //$data['invoice_id'] = $payment->invoice->id;
 
         if ($user->email && $contact->email) {
             $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);

@@ -182,9 +182,14 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
     Route::resource('ping', 'ClientApiController@ping');
     Route::resource('clients', 'ClientApiController');
-    Route::resource('invoices', 'InvoiceApiController');
+    Route::get('quotes/{client_id?}', 'QuoteApiController@index');
     Route::resource('quotes', 'QuoteApiController');
+    Route::get('invoices/{client_id?}', 'InvoiceApiController@index');
+    Route::resource('invoices', 'InvoiceApiController');
+    Route::get('payments/{client_id?}', 'PaymentApiController@index');
     Route::resource('payments', 'PaymentApiController');
+    Route::get('tasks/{client_id?}', 'TaskApiController@index');
+    Route::resource('tasks', 'TaskApiController');
     Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
 });

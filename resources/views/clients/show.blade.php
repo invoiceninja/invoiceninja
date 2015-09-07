@@ -200,7 +200,7 @@
 	    			trans('texts.quote_number'),
 	    			trans('texts.quote_date'),
 	    			trans('texts.total'),
-	    			trans('texts.due_date'),
+	    			trans('texts.valid_until'),
 	    			trans('texts.status'))
 		    	->setUrl(url('api/quotes/'. $client->public_id))
 		    	->setOptions('sPaginationType', 'bootstrap')

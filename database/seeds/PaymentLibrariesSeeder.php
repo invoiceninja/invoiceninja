@@ -6,6 +6,7 @@ use App\Models\Currency;
 use App\Models\DateFormat;
 use App\Models\DatetimeFormat;
 use App\Models\InvoiceDesign;
+use App\Models\Country;
 
 class PaymentLibrariesSeeder extends Seeder
 {
@@ -18,6 +19,7 @@ class PaymentLibrariesSeeder extends Seeder
         $this->createDateFormats();
         $this->createDatetimeFormats();
         $this->createInvoiceDesigns();
+        $this->updateSwapPostalCode();
     }
 
     private function createGateways() {
@@ -221,6 +223,40 @@ class PaymentLibrariesSeeder extends Seeder
                     $record->save();
                 }
             }
+        }
+    }
+
+    private function updateSwapPostalCode() {
+        // Source: http://www.bitboost.com/ref/international-address-formats.html
+        $countries = [
+            'AR',
+            'AT',
+            'CH',
+            'BE',
+            'DE',
+            'DK',
+            'ES',
+            'FI',
+            'FR',
+            'GL',
+            'IL',
+            'IS',
+            'IT',
+            'LU',
+            'MY',
+            'MX',
+            'NL',
+            'PL',
+            'PT',
+            'SE',
+            'UY',
+        ];
+
+        for ($i=0; $i<count($countries); $i++) {
+            $code = $countries[$i];
+            $country = Country::where('iso_3166_2', '=', $code)->first();
+            $country->swap_postal_code = true;
+            $country->save();
         }
     }
 

@@ -72,7 +72,7 @@
                 <h3 class="panel-title in-bold-white">
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.notifications') }}
                     <div class="pull-right" style="font-size:14px;padding-top:4px">
-                        {{ $invoicesSent }} {{ Utils::pluralize('invoice', $invoicesSent) }} {{ trans('texts.sent') }}
+                        {{ trans_choice('texts.invoices_sent', $invoicesSent) }}
                     </div>
                 </h3>
             </div>

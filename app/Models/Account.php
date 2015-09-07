@@ -16,7 +16,7 @@ class Account extends Eloquent
 
     /*
     protected $casts = [
-        'hide_quantity' => 'boolean',
+        'invoice_settings' => 'object',
     ];
     */
     
@@ -282,6 +282,7 @@ class Account extends Eloquent
             'invoice_to',
             'details',
             'invoice_no',
+            'valid_until',
         ];
 
         foreach ($fields as $field) {
@@ -394,11 +395,8 @@ class Account extends Eloquent
         }
 
         $template = "\$client,<p/>\r\n\r\n" .
-                    trans("texts.{$entityType}_message", ['amount' => '$amount']) . "<p/>\r\n\r\n";
-
-        if ($entityType != ENTITY_PAYMENT) {
-            $template .= "<a href=\"\$link\">\$link</a><p/>\r\n\r\n";
-        }
+                    trans("texts.{$entityType}_message", ['amount' => '$amount']) . "<p/>\r\n\r\n" .
+                    "<a href=\"\$link\">\$link</a><p/>\r\n\r\n";
 
         if ($message) {
             $template .= "$message<p/>\r\n\r\n";
@@ -411,7 +409,7 @@ class Account extends Eloquent
     {
         if ($this->email_footer) {
             // Add line breaks if HTML isn't already being used
-            return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;            
+            return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;
         } else {
             return "<p>" . trans('texts.email_signature') . "<br>\$account</p>";
         }

@@ -184,6 +184,7 @@ class Invoice extends EntityModel
             'custom_invoice_label1',
             'custom_invoice_label2',
             'pdf_email_attachment',
+            'show_item_taxes',
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {

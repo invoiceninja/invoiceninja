@@ -387,11 +387,12 @@ class AccountController extends BaseController
             $account->hide_paid_to_date = Input::get('hide_paid_to_date') ? true : false;
             $account->primary_color = Input::get('primary_color');
             $account->secondary_color = Input::get('secondary_color');
-            $account->invoice_design_id =  Input::get('invoice_design_id');
+            $account->invoice_design_id = Input::get('invoice_design_id');
+
             if (Input::has('font_size')) {
                 $account->font_size =  intval(Input::get('font_size'));
             }
-            
+
             $labels = [];
             foreach (['item', 'description', 'unit_cost', 'quantity'] as $field) {
                 $labels[$field] = trim(Input::get("labels_{$field}"));

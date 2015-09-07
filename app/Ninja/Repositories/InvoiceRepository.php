@@ -190,7 +190,7 @@ class InvoiceRepository
     }
 
     private function getStatusLabel($statusId, $statusName) {
-        $label = trans("texts.{$statusName}");
+        $label = trans("texts.status_" . strtolower($statusName));
         $class = 'default';
         switch ($statusId) {
             case INVOICE_STATUS_SENT:
@@ -206,7 +206,7 @@ class InvoiceRepository
                 $class = 'success';
                 break;
         }
-        return "<h4><div class=\"label label-{$class}\">$statusName</div></h4>";
+        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 
     public function getErrors($input)

@@ -807,6 +807,21 @@ function displaySubtotals(doc, layout, invoice, y, rightAlignTitleX)
   return displayGrid(doc, invoice, data, 300, y, layout, options) + 10;
 }
 
+function formatAddress(city, state, zip, swap) {
+    var str = '';
+    if (swap) {
+        str += zip ? zip + ' ' : '';
+        str += city ? city : '';
+        str += (city && state) ? ', ' : (city ? ' ' : '');
+        str += state;        
+    } else {
+        str += city ? city : '';
+        str += (city && state) ? ', ' : (state ? ' ' : '');
+        str += state + ' ' + zip;
+    }
+    return str;
+}
+
 function concatStrings() {
   var concatStr = '';
   var data = [];

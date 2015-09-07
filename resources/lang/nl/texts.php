@@ -747,7 +747,20 @@ return array(
   'customize_help' => '<p>We gebruiken <a href="http://pdfmake.org/" target="_blank">pdfmake</a> om de factuur ontwerpen declaratief te definieren. De pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> is een interessante manier om de library in actie te zien.</p>
                         <p>Je kan elk factuur veld gebruiken door <code>Veld</code> toe te voegen op het einde. Bijvoorbeeld <code>$invoiceNumberValue</code> toont de factuur nummer.</p>
                         <p>Gebruik dot notatie om een "kind eigenschap" te gebruiken. Bijvoorbeeld voor de klant naam te tonen gebruik je <code>$client.nameValue</code>.</p>
-                        <p>Als je ergens hulp bij nodig hebt, post dan een vraag op ons <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>'
+                        <p>Als je ergens hulp bij nodig hebt, post dan een vraag op ons <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
+
+  'invoice_due_date' => 'Due Date',
+  'quote_due_date' => 'Valid Until',
+  'valid_until' => 'Valid Until',
+  'reset_terms' => 'Reset terms',
+  'reset_footer' => 'Reset footer',
+  'invoices_sent' => ':count invoice sent|:count invoices sent',
+  'status_draft' => 'Draft',
+  'status_sent' => 'Sent',
+  'status_viewed' => 'Viewed',
+  'status_partial' => 'Partial',
+  'status_paid' => 'Paid',
+  'show_line_item_tax' => 'Display <b>line item taxes</b> inline',
   
 
   

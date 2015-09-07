@@ -246,8 +246,13 @@ class InvoiceController extends BaseController
             $paymentURL = $paymentTypes[0]['url'];
         }
 
+        $showApprove = $invoice->quote_invoice_id ? false : true;
+        if ($invoice->due_date) {
+            $showApprove = time() < strtotime($invoice->due_date);
+        }
+
         $data = array(
-            'isConverted' => $invoice->quote_invoice_id ? true : false,
+            'showApprove' => $showApprove,
             'showBreadcrumbs' => false,
             'hideLogo' => $account->isWhiteLabel(),
             'invoice' => $invoice->hidePrivateFields(),
@@ -265,7 +270,7 @@ class InvoiceController extends BaseController
     {
         $invoice = Invoice::scope($publicId)->withTrashed()->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items')->firstOrFail();
         $entityType = $invoice->getEntityType();
-
+        
         $contactIds = DB::table('invitations')
             ->join('contacts', 'contacts.id', '=', 'invitations.contact_id')
             ->where('invitations.invoice_id', '=', $invoice->id)
@@ -472,10 +477,12 @@ class InvoiceController extends BaseController
             $account = Auth::user()->account;
             if ($account->invoice_taxes != $input->invoice_taxes
                         || $account->invoice_item_taxes != $input->invoice_item_taxes
-                        || $account->invoice_design_id != $input->invoice->invoice_design_id) {
+                        || $account->invoice_design_id != $input->invoice->invoice_design_id
+                        || $account->show_item_taxes != $input->show_item_taxes) {
                 $account->invoice_taxes = $input->invoice_taxes;
                 $account->invoice_item_taxes = $input->invoice_item_taxes;
                 $account->invoice_design_id = $input->invoice->invoice_design_id;
+                $account->show_item_taxes = $input->show_item_taxes;
                 $account->save();
             }
 

@@ -24,13 +24,19 @@ class InvoiceApiController extends Controller
         $this->mailer = $mailer;
     }
 
-    public function index()
+    public function index($clientPublicId = false)
     {
         $invoices = Invoice::scope()
                         ->with('client', 'invitations.account')
-                        ->where('invoices.is_quote', '=', false)
-                        ->orderBy('created_at', 'desc')
-                        ->get();
+                        ->where('invoices.is_quote', '=', false);
+
+        if ($clientPublicId) {
+            $invoices->whereHas('client', function($query) use ($clientPublicId) {
+                $query->where('public_id', '=', $clientPublicId);
+            });
+        }
+
+        $invoices = $invoices->orderBy('created_at', 'desc')->get();
 
         // Add the first invitation link to the data
         foreach ($invoices as $key => $invoice) {

@@ -14,7 +14,7 @@
         ]
     },
     {
-        "canvas": [{ "type": "rect", "x": 0, "y": 0, "w": 515, "h": 26, "r":0, "lineWidth": 1, "color":"#403d3d"}],"width":10,"margin":[0,25,0,-30]},
+        "canvas": [{ "type": "rect", "x": 0, "y": 0, "w": 515, "h": 26, "r":0, "lineWidth": 1, "color":"$secondaryColor:#403d3d"}],"width":10,"margin":[0,25,0,-30]},
         {
             "style": "invoiceLineItemsTable",            
             "table": {
@@ -63,7 +63,7 @@
                     "h": 26,
                     "r": 0,
                     "lineWidth": 1,
-                    "color": "#403d3d"
+                    "color": "$secondaryColor:#403d3d"
                 }
                 ],
                 "width": 10,
@@ -181,6 +181,9 @@
                 "alignment": "right"
             },
             "qtyTableHeader": {
+                "alignment": "right"
+            },
+            "taxTableHeader": {
                 "alignment": "right"
             },
             "lineTotalTableHeader": {

@@ -81,8 +81,8 @@
 			<div data-bind="visible: !is_recurring()">
 				{!! Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_date"))
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('invoice_date') !!}
-				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")
-							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('due_date') !!}							
+				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_due_date"))
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('due_date') !!}
                 
                 {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()')
                             ->rel('tooltip')->data_toggle('tooltip')->data_placement('bottom')->title(trans('texts.partial_value')) !!}
@@ -202,16 +202,24 @@
                             ->label(null)->style('resize: none; min-width: 450px;')->rows(3) !!}                            
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
-                            {!! Former::textarea('terms')->data_bind("value:wrapped_terms, placeholder: default_terms, valueUpdate: 'afterkeydown'")
+                            {!! Former::textarea('terms')->data_bind("value:wrapped_terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
                             ->label(false)->style('resize: none; min-width: 450px')->rows(3)
-                            ->help('<label class="checkbox" style="width: 200px">
-                                        <input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'</label>') !!}
+                            ->help('<div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
+                                        </label>
+                                        <div class="pull-right"><a href="#" onclick="return resetTerms()">' . trans("texts.reset_terms") . '</a></div>
+                                    </div>') !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="footer">
-                            {!! Former::textarea('invoice_footer')->data_bind("value:wrapped_footer, placeholder: default_footer, valueUpdate: 'afterkeydown'")
+                            {!! Former::textarea('invoice_footer')->data_bind("value:wrapped_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
                             ->label(false)->style('resize: none; min-width: 450px')->rows(3)
-                            ->help('<label class="checkbox" style="width: 200px">
-                                        <input type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'</label>') !!}
+                            ->help('<div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
+                                        </label>
+                                        <div class="pull-right"><a href="#" onclick="return resetFooter()">' . trans("texts.reset_footer") . '</a></div>
+                                    </div>') !!}
                         </div>
                     </div>
                 </div>
@@ -500,6 +508,8 @@
 				->label(trans('texts.settings'))->data_bind('checked: $root.invoice_taxes, enable: $root.tax_rates().length > 1') !!}
 			{!! Former::checkbox('invoice_item_taxes')->text(trans('texts.enable_line_item_tax'))
 				->label('&nbsp;')->data_bind('checked: $root.invoice_item_taxes, enable: $root.tax_rates().length > 1') !!}
+            {!! Former::checkbox('show_item_taxes')->text(trans('texts.show_line_item_tax'))
+                ->label('&nbsp;')->data_bind('checked: $root.show_item_taxes, enable: $root.tax_rates().length > 1') !!}
 
 			<br/>
 
@@ -546,19 +556,12 @@
 
 	$(function() {
 		$('#country_id').combobox().on('change', function(e) {
-			var countryId = parseInt($('input[name=country_id]').val(), 10);	
-			var foundMatch = false;
-			$('#country_id option').each(function() {
-				var itemId = parseInt($(this).val(), 10);					
-				if (countryId === itemId) {
-					foundMatch = true;
-					var country = {id:countryId, name:$(this).text()};
-					model.invoice().client().country = country;
-					model.invoice().client().country_id(countryId);
-					return;					
-				}
-			});
-			if (!foundMatch) {
+			var countryId = $('input[name=country_id]').val();
+            var country = _.findWhere(countries, {id: countryId});
+			if (country) {
+                model.invoice().client().country = country;
+                model.invoice().client().country_id(countryId);
+            } else {
 				model.invoice().client().country = false;
 				model.invoice().client().country_id(0);
 			}
@@ -702,10 +705,11 @@
 	}
 
 	function createInvoiceModel() {
-		var invoice = ko.toJS(model).invoice;		
+		var invoice = ko.toJS(model).invoice;
 		invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
 		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
+        invoice.account.show_item_taxes = $('#show_item_taxes').is(':checked');
 
         if (invoice.is_recurring) {
             invoice.invoice_number = '0000';
@@ -751,6 +755,18 @@
             return design ? design.javascript : '';
 		}
 	}
+
+    function resetTerms() {
+        model.invoice().terms(model.invoice().default_terms());
+        refreshPDF();
+        return false;
+    }
+
+    function resetFooter() {
+        model.invoice().invoice_footer(model.invoice().default_footer());
+        refreshPDF();
+        return false;
+    }
 
 	function onDownloadClick() {
 		trackEvent('/activity', '/download_pdf');
@@ -952,6 +968,7 @@
 
 		self.invoice_taxes = ko.observable({{ Auth::user()->account->invoice_taxes ? 'true' : 'false' }});
 		self.invoice_item_taxes = ko.observable({{ Auth::user()->account->invoice_item_taxes ? 'true' : 'false' }});
+        self.show_item_taxes = ko.observable({{ Auth::user()->account->show_item_taxes ? 'true' : 'false' }});
 		
 		self.mapping = {
 		    'invoice': {
@@ -1056,7 +1073,8 @@
 
 		self.taxFormComplete = function() {
 			model.taxBackup = false;
-			$('#taxModal').modal('hide');	
+			$('#taxModal').modal('hide');
+            refreshPDF();
 		}
 
 		self.showClientForm = function() {
@@ -1143,10 +1161,12 @@
 		self.is_amount_discount = ko.observable(0);
 		self.frequency_id = ko.observable(4); // default to monthly 
         self.terms = ko.observable('');
-        self.default_terms = ko.observable({{ !$invoice && $account->invoice_terms ? 'true' : 'false' }} ? wordWrapText('{!! str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) !!}', 300) : '');
+        self.default_terms = ko.observable("{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}");
+        self.terms_placeholder = ko.observable({{ !$invoice && $account->invoice_terms ? 'true' : 'false' }} ? self.default_terms() : '');
         self.set_default_terms = ko.observable(false);
         self.invoice_footer = ko.observable('');
-        self.default_footer = ko.observable({{ !$invoice && $account->invoice_footer ? 'true' : 'false' }} ? wordWrapText('{!! str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) !!}', 600) : '');
+        self.default_footer = ko.observable("{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}");
+        self.footer_placeholder = ko.observable({{ !$invoice && $account->invoice_footer ? 'true' : 'false' }} ? self.default_footer() : '');
         self.set_default_footer = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
@@ -1786,7 +1806,8 @@
 
 	var products = {!! $products !!};
 	var clients = {!! $clients !!};	
-	
+	var countries = {!! $countries !!};
+
 	var clientMap = {};
 	var $clientSelect = $('select#client');
 	var invoiceDesigns = {!! $invoiceDesigns !!};
