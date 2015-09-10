@@ -26,8 +26,14 @@ class AccountRepository
         $account->ip = Request::getClientIp();
         $account->account_key = str_random(RANDOM_KEY_LENGTH);
 
-        if (Session::has(SESSION_LOCALE)) {
-            $locale = Session::get(SESSION_LOCALE);
+        // Track referal code
+        if ($referralCode = Session::get(SESSION_REFERRAL_CODE)) {
+            if ($user = User::whereReferralCode($referralCode)->first()) {
+                $account->referral_user_id = $user->id;
+            }
+        }
+
+        if ($locale = Session::get(SESSION_LOCALE)) {
             if ($language = Language::whereLocale($locale)->first()) {
                 $account->language_id = $language->id;
             }
@@ -188,7 +194,7 @@ class AccountRepository
             $accountGateway->user_id = $user->id;
             $accountGateway->gateway_id = NINJA_GATEWAY_ID;
             $accountGateway->public_id = 1;
-            $accountGateway->config = NINJA_GATEWAY_CONFIG;
+            $accountGateway->config = env(NINJA_GATEWAY_CONFIG);
             $account->account_gateways()->save($accountGateway);
         }
 
@@ -206,7 +212,7 @@ class AccountRepository
             $client->public_id = $account->id;
             $client->user_id = $ninjaAccount->users()->first()->id;
             $client->currency_id = 1;
-            foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone'] as $field) {
+            foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id'] as $field) {
                 $client->$field = $account->$field;
             }
             $ninjaAccount->clients()->save($client);

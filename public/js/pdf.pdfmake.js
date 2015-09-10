@@ -266,8 +266,7 @@ NINJA.invoiceLines = function(invoice) {
 
         var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
         if (showItemTaxes && tax) {
-            tax = lineTotal * tax / 100;
-            lineTotal += tax;
+            lineTotal += lineTotal * tax / 100;
         }
         lineTotal = formatMoney(lineTotal, currencyId);
 
@@ -280,7 +279,7 @@ NINJA.invoiceLines = function(invoice) {
             row.push({style:["quantity", rowStyle], text:qty || ' '});
         }
         if (showItemTaxes) {
-            row.push({style:["tax", rowStyle], text:tax ? tax.toFixed(2) : ' '});
+            row.push({style:["tax", rowStyle], text:(tax ? tax.toString() + '%') : ' '});
         }
         row.push({style:["lineTotal", rowStyle], text:lineTotal || ' '});
 
@@ -447,6 +446,8 @@ NINJA.clientDetails = function(invoice) {
 
     data = [
         {text:clientName || ' ', style: ['clientName']},
+        {text:client.id_number},
+        {text:client.vat_number},
         {text:client.address1},
         {text:client.address2},
         {text:cityStatePostal},

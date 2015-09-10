@@ -32,10 +32,13 @@ class Invitation extends EntityModel
         if (!$this->account) {
             $this->load('account');
         }
-        
+
         $url = SITE_URL;
+        $iframe_url = $this->account->iframe_url;
                 
-        if ($this->account->subdomain) {
+        if ($iframe_url) {
+            return "{$iframe_url}?{$this->invitation_key}";
+        } else if ($this->account->subdomain) {
             $parsedUrl = parse_url($url);
             $host = explode('.', $parsedUrl['host']);
             $subdomain = $host[0];

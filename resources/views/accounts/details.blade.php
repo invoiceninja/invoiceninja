@@ -17,6 +17,7 @@
 	)) !!}
 
 	{{ Former::populate($account) }}
+    {{ Former::populateField('military_time', intval($account->military_time)) }}
 	@if ($showUser)
 		{{ Former::populateField('first_name', $primaryUser->first_name) }}
 		{{ Former::populateField('last_name', $primaryUser->last_name) }}
@@ -37,12 +38,6 @@
             <div class="panel-body">
 			
 			{!! Former::text('name') !!}
-
-            @if (Auth::user()->isPro() && Utils::isNinja())
-                {{ Former::setOption('capitalize_translations', false) }}
-                {!! Former::text('subdomain')->placeholder('texts.www')->onchange('onSubdomainChange()') !!}                
-            @endif            
-
             {!! Former::text('id_number') !!}
             {!! Former::text('vat_number') !!}
 			{!! Former::text('work_email') !!}
@@ -111,16 +106,18 @@
           </div>
             <div class="panel-body">
 
-			{!! Former::select('language_id')->addOption('','')
-				->fromQuery($languages, 'name', 'id') !!}			
 			{!! Former::select('currency_id')->addOption('','')
 				->fromQuery($currencies, 'name', 'id') !!}			
+            {!! Former::select('language_id')->addOption('','')
+                ->fromQuery($languages, 'name', 'id') !!}           
 			{!! Former::select('timezone_id')->addOption('','')
 				->fromQuery($timezones, 'location', 'id') !!}
 			{!! Former::select('date_format_id')->addOption('','')
 				->fromQuery($dateFormats, 'label', 'id') !!}
 			{!! Former::select('datetime_format_id')->addOption('','')
 				->fromQuery($datetimeFormats, 'label', 'id') !!}
+            {!! Former::checkbox('military_time')->text(trans('texts.enable')) !!}
+
             </div>
         </div>
 		</div>
@@ -286,15 +283,6 @@
               }
             });     
         }
-
-        function onSubdomainChange() {
-            var input = $('#subdomain');
-            var val = input.val();
-            if (!val) return;
-            val = val.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase().substring(0, {{ MAX_SUBDOMAIN_LENGTH }});
-            input.val(val);
-        }
-
 	</script>
 
 @stop

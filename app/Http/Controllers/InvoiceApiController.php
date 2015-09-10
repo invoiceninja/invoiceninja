@@ -108,7 +108,7 @@ class InvoiceApiController extends Controller
         if ($error) {
             $response = json_encode($error, JSON_PRETTY_PRINT);
         } else {
-            $data = self::prepareData($data);
+            $data = self::prepareData($data, $client);
             $data['client_id'] = $client->id;
             $invoice = $this->invoiceRepo->save(false, $data, false);
 
@@ -136,10 +136,10 @@ class InvoiceApiController extends Controller
         return Response::make($response, $error ? 400 : 200, $headers);
     }
 
-    private function prepareData($data)
+    private function prepareData($data, $client)
     {
         $account = Auth::user()->account;
-        $account->loadLocalizationSettings();
+        $account->loadLocalizationSettings($client);
         
         // set defaults for optional fields
         $fields = [

@@ -12,29 +12,22 @@ use Omnipay;
 use CreditCard;
 use URL;
 use Cache;
-use Event;
-use DateTime;
-use App\Models\Account;
 use App\Models\Invoice;
 use App\Models\Invitation;
 use App\Models\Client;
 use App\Models\PaymentType;
-use App\Models\Country;
 use App\Models\License;
 use App\Models\Payment;
 use App\Models\Affiliate;
-use App\Models\AccountGatewayToken;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\ContactMailer;
-use App\Events\InvoicePaid;
+use App\Services\PaymentService;
 
 class PaymentController extends BaseController
 {
-    protected $creditRepo;
-
-    public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer)
+    public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService)
     {
         parent::__construct();
 
@@ -42,6 +35,7 @@ class PaymentController extends BaseController
         $this->invoiceRepo = $invoiceRepo;
         $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
+        $this->paymentService = $paymentService;
     }
 
     public function index()
@@ -191,36 +185,9 @@ class PaymentController extends BaseController
         return View::make('payments.edit', $data);
     }
 
-    private function createGateway($accountGateway)
-    {
-        $gateway = Omnipay::create($accountGateway->gateway->provider);
-        $config = json_decode($accountGateway->config);
-
-        foreach ($config as $key => $val) {
-            if (!$val) {
-                continue;
-            }
-
-            $function = "set".ucfirst($key);
-            $gateway->$function($val);
-        }
-
-        if ($accountGateway->gateway->id == GATEWAY_DWOLLA) {
-            if ($gateway->getSandbox() && isset($_ENV['DWOLLA_SANDBOX_KEY']) && isset($_ENV['DWOLLA_SANSBOX_SECRET'])) {
-                $gateway->setKey($_ENV['DWOLLA_SANDBOX_KEY']);
-                $gateway->setSecret($_ENV['DWOLLA_SANSBOX_SECRET']);
-            } elseif (isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET'])) {
-                $gateway->setKey($_ENV['DWOLLA_KEY']);
-                $gateway->setSecret($_ENV['DWOLLA_SECRET']);
-            }
-        }
-
-        return $gateway;
-    }
-
     private function getLicensePaymentDetails($input, $affiliate)
     {
-        $data = self::convertInputForOmnipay($input);
+        $data = $this->paymentService->convertInputForOmnipay($input);
         $card = new CreditCard($data);
 
         return [
@@ -229,67 +196,6 @@ class PaymentController extends BaseController
             'currency' => 'USD',
             'returnUrl' => URL::to('license_complete'),
             'cancelUrl' => URL::to('/')
-        ];
-    }
-
-    private function convertInputForOmnipay($input)
-    {
-        $data = [
-            'firstName' => $input['first_name'],
-            'lastName' => $input['last_name'],
-            'number' => $input['card_number'],
-            'expiryMonth' => $input['expiration_month'],
-            'expiryYear' => $input['expiration_year'],
-            'cvv' => $input['cvv'],
-        ];
-
-        if (isset($input['country_id'])) {
-            $country = Country::find($input['country_id']);
-
-            $data = array_merge($data, [
-                'billingAddress1' => $input['address1'],
-                'billingAddress2' => $input['address2'],
-                'billingCity' => $input['city'],
-                'billingState' => $input['state'],
-                'billingPostcode' => $input['postal_code'],
-                'billingCountry' => $country->iso_3166_2,
-                'shippingAddress1' => $input['address1'],
-                'shippingAddress2' => $input['address2'],
-                'shippingCity' => $input['city'],
-                'shippingState' => $input['state'],
-                'shippingPostcode' => $input['postal_code'],
-                'shippingCountry' => $country->iso_3166_2
-            ]);
-        }
-
-        return $data;
-    }
-
-    private function getPaymentDetails($invitation, $input = null)
-    {
-        $invoice = $invitation->invoice;
-        $account = $invoice->account;
-        $key = $invoice->account_id.'-'.$invoice->invoice_number;
-        $currencyCode = $invoice->client->currency ? $invoice->client->currency->code : ($invoice->account->currency ? $invoice->account->currency->code : 'USD');
-
-        if ($input) {
-            $data = self::convertInputForOmnipay($input);
-            Session::put($key, $data);
-        } elseif (Session::get($key)) {
-            $data = Session::get($key);
-        } else {
-            $data = [];
-        }
-
-        $card = new CreditCard($data);
-
-        return [
-            'amount' => $invoice->getRequestedAmount(),
-            'card' => $card,
-            'currency' => $currencyCode,
-            'returnUrl' => URL::to('complete'),
-            'cancelUrl' => $invitation->getLink(),
-            'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
         ];
     }
 
@@ -434,21 +340,13 @@ class PaymentController extends BaseController
             if ($testMode) {
                 $ref = 'TEST_MODE';
             } else {
-                $gateway = self::createGateway($accountGateway);
+                $gateway = $this->paymentService->createGateway($accountGateway);
                 $details = self::getLicensePaymentDetails(Input::all(), $affiliate);
                 $response = $gateway->purchase($details)->send();
                 $ref = $response->getTransactionReference();
 
-                if (!$ref) {
-                    Session::flash('error', $response->getMessage());
-
-                    return Redirect::to('license')->withInput();
-                }
-
-                if (!$response->isSuccessful()) {
-                    Session::flash('error', $response->getMessage());
-                    Utils::logError('Payment Error [license]: ' . $response->getMessage());
-
+                if (!$response->isSuccessful() || !$ref) {
+                    $this->error('License', $response->getMessage(), $accountGateway);
                     return Redirect::to('license')->withInput();
                 }
             }
@@ -482,10 +380,7 @@ class PaymentController extends BaseController
 
             return View::make('public.license', $data);
         } catch (\Exception $e) {
-            $errorMessage = trans('texts.payment_error');
-            Session::flash('error', $errorMessage);
-            Utils::logError('Payment Error [license-uncaught]: ' . Utils::getErrorString($e));
-
+            $this->error('License-Uncaught', false, $accountGateway, $e);
             return Redirect::to('license')->withInput();
         }
     }
@@ -549,7 +444,6 @@ class PaymentController extends BaseController
                     ->withInput();
             }
 
-
             if ($accountGateway->update_address) {
                 $client->address1 = trim(Input::get('address1'));
                 $client->address2 = trim(Input::get('address2'));
@@ -560,49 +454,31 @@ class PaymentController extends BaseController
                 $client->save();
             }
         }
-                        
+
         try {
-            $gateway = self::createGateway($accountGateway);
-            $details = self::getPaymentDetails($invitation, ($useToken || !$onSite) ? false : Input::all());
-            
+            $gateway = $this->paymentService->createGateway($accountGateway);
+            $details = $this->paymentService->getPaymentDetails($invitation, ($useToken || !$onSite) ? false : Input::all());
+
+            // check if we're creating/using a billing token
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
                 if ($useToken) {
                     $details['cardReference'] = $client->getGatewayToken();
                 } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing')) {
-                    $tokenResponse = $gateway->createCard($details)->send();
-                    $cardReference = $tokenResponse->getCardReference();
-
-                    if ($cardReference) {
-                        $details['cardReference'] = $cardReference;
-
-                        $token = AccountGatewayToken::where('client_id', '=', $client->id)
-                                    ->where('account_gateway_id', '=', $accountGateway->id)->first();
-
-                        if (!$token) {
-                            $token = new AccountGatewayToken();
-                            $token->account_id = $account->id;
-                            $token->contact_id = $invitation->contact_id;
-                            $token->account_gateway_id = $accountGateway->id;
-                            $token->client_id = $client->id;
-                        }
-                    
-                        $token->token = $cardReference;
-                        $token->save();
+                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id);
+                    if ($token) {
+                        $details['cardReference'] = $token;
                     } else {
-                        Session::flash('error', $tokenResponse->getMessage());
-                        Utils::logError('Payment Error [no-token-ref]: ' . $tokenResponse->getMessage());
+                        $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
                         return Redirect::to('payment/'.$invitationKey)->withInput();
                     }
                 }
             }
-            
+
             $response = $gateway->purchase($details)->send();
             $ref = $response->getTransactionReference();
 
             if (!$ref) {
-                
-                Session::flash('error', $response->getMessage());
-                Utils::logError('Payment Error [no-ref]: ' . $response->getMessage());
+                $this->error('No-Ref', $response->getMessage(), $accountGateway);
 
                 if ($onSite) {
                     return Redirect::to('payment/'.$invitationKey)->withInput();
@@ -612,7 +488,7 @@ class PaymentController extends BaseController
             }
 
             if ($response->isSuccessful()) {
-                $payment = self::createPayment($invitation, $ref);
+                $payment = $this->paymentService->createPayment($invitation, $ref);
                 Session::flash('message', trans('texts.applied_payment'));
 
                 if ($account->account_key == NINJA_ACCOUNT_KEY) {
@@ -629,63 +505,17 @@ class PaymentController extends BaseController
                 Session::save();
                 $response->redirect();
             } else {
-                Session::flash('error', $response->getMessage());
-                Utils::logError('Payment Error [fatal]: ' . $response->getMessage());
-
+                $this->error('Fatal', $response->getMessage(), $accountGateway);
                 return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
             }
         } catch (\Exception $e) {
-            $errorMessage = trans('texts.payment_error');
-            Session::flash('error', $errorMessage."<p>".$e->getMessage());
-            Utils::logError('Payment Error [uncaught]:' . Utils::getErrorString($e));
-
+            $this->error('Uncaught', false, $accountGateway, $e);
             if ($onSite) {
                 return Redirect::to('payment/'.$invitationKey)->withInput();
             } else {
                 return Redirect::to('view/'.$invitationKey);
             }
         }
-    }
-
-    private function createPayment($invitation, $ref, $payerId = null)
-    {
-        $invoice = $invitation->invoice;
-        $accountGateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'));
-
-        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY 
-                && $invoice->amount == PRO_PLAN_PRICE) {
-            $account = Account::with('users')->find($invoice->client->public_id);
-            if ($account->pro_plan_paid && $account->pro_plan_paid != '0000-00-00') {
-                $date = DateTime::createFromFormat('Y-m-d', $account->pro_plan_paid);
-                $account->pro_plan_paid = $date->modify('+1 year')->format('Y-m-d');
-            } else {
-                $account->pro_plan_paid = date_create()->format('Y-m-d');
-            }
-            $account->save();
-
-            $user = $account->users()->first();
-            $this->accountRepo->syncAccounts($user->id, $account->pro_plan_paid);
-        }
-
-        $payment = Payment::createNew($invitation);
-        $payment->invitation_id = $invitation->id;
-        $payment->account_gateway_id = $accountGateway->id;
-        $payment->invoice_id = $invoice->id;
-        $payment->amount = $invoice->getRequestedAmount();
-        $payment->client_id = $invoice->client_id;
-        $payment->contact_id = $invitation->contact_id;
-        $payment->transaction_reference = $ref;
-        $payment->payment_date = date_create()->format('Y-m-d');
-        
-        if ($payerId) {
-            $payment->payer_id = $payerId;
-        }
-
-        $payment->save();
-
-        Event::fire(new InvoicePaid($payment));
-
-        return $payment;
     }
 
     public function offsite_payment()
@@ -705,45 +535,37 @@ class PaymentController extends BaseController
         $invoice = $invitation->invoice;
 
         $accountGateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'));
-        $gateway = self::createGateway($accountGateway);
+        $gateway = $this->paymentService->createGateway($accountGateway);
 
         // Check for Dwolla payment error
         if ($accountGateway->isGateway(GATEWAY_DWOLLA) && Input::get('error')) {
-            $errorMessage = trans('texts.payment_error')."\n\n".Input::get('error_description');
-            Session::flash('error', $errorMessage);
-            Utils::logError('Payment Error [dwolla]: ' . $errorMessage);
+            $this->error('Dwolla', Input::get('error_description'), $accountGateway);
             return Redirect::to('view/'.$invitation->invitation_key);
         }
 
         try {
             if (method_exists($gateway, 'completePurchase')) {
-                $details = self::getPaymentDetails($invitation);
+                $details = $this->paymentService->getPaymentDetails($invitation);
                 $response = $gateway->completePurchase($details)->send();
                 $ref = $response->getTransactionReference();
 
                 if ($response->isSuccessful()) {
-                    $payment = self::createPayment($invitation, $ref, $payerId);
+                    $payment = $this->paymentService->createPayment($invitation, $ref, $payerId);
                     Session::flash('message', trans('texts.applied_payment'));
 
                     return Redirect::to('view/'.$invitation->invitation_key);
                 } else {
-                    $errorMessage = trans('texts.payment_error')."\n\n".$response->getMessage();
-                    Session::flash('error', $errorMessage);
-                    Utils::logError('Payment Error [offsite]: ' . $errorMessage);
-
+                    $this->error('offsite', $response->getMessage(), $accountGateway);
                     return Redirect::to('view/'.$invitation->invitation_key);
                 }
             } else {
-                $payment = self::createPayment($invitation, $token, $payerId);
+                $payment = $this->paymentService->createPayment($invitation, $token, $payerId);
                 Session::flash('message', trans('texts.applied_payment'));
 
                 return Redirect::to('view/'.$invitation->invitation_key);
             }
         } catch (\Exception $e) {
-            $errorMessage = trans('texts.payment_error');
-            Session::flash('error', $errorMessage);
-            Utils::logError('Payment Error [offsite-uncaught]: ' . $errorMessage."\n\n".$e->getMessage());
-
+            $this->error('Offsite-uncaught', false, $accountGateway, $e);
             return Redirect::to('view/'.$invitation->invitation_key);
         }
     }
@@ -798,5 +620,25 @@ class PaymentController extends BaseController
         }
 
         return Redirect::to('payments');
+    }
+
+    private function error($type, $error, $accountGateway, $exception = false)
+    {
+        if (!$error) {
+            if ($exception) {
+                $error = $exception->getMessage();
+            } else {
+                $error = trans('texts.payment_error');
+            }
+        }
+
+        $message = '';
+        if ($accountGateway && $accountGateway->gateway) {
+            $message = $accountGateway->gateway->name . ': ';
+        }
+        $message .= $error;
+
+        Session::flash('error', $message);
+        Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message));
     }
 }

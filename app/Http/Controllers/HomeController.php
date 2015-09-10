@@ -40,6 +40,11 @@ class HomeController extends BaseController
     {
         return View::make('public.terms', ['hideHeader' => true]);
     }
+
+    public function viewLogo()
+    {
+        return View::make('public.logo');
+    }
     
     public function invoiceNow()
     {

@@ -14,14 +14,19 @@ class ContactMailer extends Mailer
 {
     public function sendInvoice(Invoice $invoice)
     {
-        $invoice->load('invitations', 'client', 'account');
+        $invoice->load('invitations', 'client.language', 'account');
         $entityType = $invoice->getEntityType();
+
+        $client = $invoice->client;
+        $account = $invoice->account;
+
+        $account->loadLocalizationSettings($client);
 
         $view = 'invoice';
         $subject = trans("texts.{$entityType}_subject", ['invoice' => $invoice->invoice_number, 'account' => $invoice->account->getDisplayName()]);
         $accountName = $invoice->account->getDisplayName();
         $emailTemplate = $invoice->account->getEmailTemplate($entityType);
-        $invoiceAmount = Utils::formatMoney($invoice->getRequestedAmount(), $invoice->client->getCurrencyId());
+        $invoiceAmount = Utils::formatMoney($invoice->getRequestedAmount(), $client->getCurrencyId());
 
         $this->initClosure($invoice);
 
@@ -39,7 +44,7 @@ class ContactMailer extends Mailer
             $variables = [
                 '$footer' => $invoice->account->getEmailFooter(),
                 '$link' => $invitation->getLink(),
-                '$client' => $invoice->client->getDisplayName(),
+                '$client' => $client->getDisplayName(),
                 '$account' => $accountName,
                 '$contact' => $invitation->contact->getDisplayName(),
                 '$amount' => $invoiceAmount,
@@ -66,11 +71,13 @@ class ContactMailer extends Mailer
 
             Activity::emailInvoice($invitation);
         }
-
+        
         if (!$invoice->isSent()) {
             $invoice->invoice_status_id = INVOICE_STATUS_SENT;
             $invoice->save();
         }
+        
+        $account->loadLocalizationSettings();
 
         Event::fire(new InvoiceSent($invoice));
 
@@ -79,17 +86,22 @@ class ContactMailer extends Mailer
 
     public function sendPaymentConfirmation(Payment $payment)
     {
+        $account = $payment->account;
+        $client = $payment->client;
+
+        $account->loadLocalizationSettings($client);
+
         $invoice = $payment->invoice;
         $view = 'payment_confirmation';
         $subject = trans('texts.payment_subject', ['invoice' => $invoice->invoice_number]);
-        $accountName = $payment->account->getDisplayName();
-        $emailTemplate = $invoice->account->getEmailTemplate(ENTITY_PAYMENT);
+        $accountName = $account->getDisplayName();
+        $emailTemplate = $account->getEmailTemplate(ENTITY_PAYMENT);
 
         $variables = [
-            '$footer' => $payment->account->getEmailFooter(),
-            '$client' => $payment->client->getDisplayName(),
+            '$footer' => $account->getEmailFooter(),
+            '$client' => $client->getDisplayName(),
             '$account' => $accountName,
-            '$amount' => Utils::formatMoney($payment->amount, $payment->client->getCurrencyId())
+            '$amount' => Utils::formatMoney($payment->amount, $client->getCurrencyId())
         ];
 
         if ($payment->invitation) {
@@ -98,7 +110,7 @@ class ContactMailer extends Mailer
             $variables['$link'] = $payment->invitation->getLink();
         } else {
             $user = $payment->user;
-            $contact = $payment->client->contacts[0];
+            $contact = $client->contacts[0];
             $variables['$link'] = $payment->invoice->invitations[0]->getLink();
         }
 
@@ -109,6 +121,8 @@ class ContactMailer extends Mailer
         if ($user->email && $contact->email) {
             $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);
         }
+
+        $account->loadLocalizationSettings();
     }
 
     public function sendLicensePaymentConfirmation($name, $email, $amount, $license, $productId)

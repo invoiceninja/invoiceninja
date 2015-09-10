@@ -40,6 +40,7 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
 use App\Events\UserLoggedIn;
+use App\Events\UserSettingsChanged;
 
 class AccountController extends BaseController
 {
@@ -341,38 +342,60 @@ class AccountController extends BaseController
     private function saveInvoiceSettings()
     {
         if (Auth::user()->account->isPro()) {
-            $account = Auth::user()->account;
-
-            $account->custom_label1 = trim(Input::get('custom_label1'));
-            $account->custom_value1 = trim(Input::get('custom_value1'));
-            $account->custom_label2 = trim(Input::get('custom_label2'));
-            $account->custom_value2 = trim(Input::get('custom_value2'));
-            $account->custom_client_label1 = trim(Input::get('custom_client_label1'));
-            $account->custom_client_label2 = trim(Input::get('custom_client_label2'));
-            $account->custom_invoice_label1 = trim(Input::get('custom_invoice_label1'));
-            $account->custom_invoice_label2 = trim(Input::get('custom_invoice_label2'));
-            $account->custom_invoice_taxes1 = Input::get('custom_invoice_taxes1') ? true : false;
-            $account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;
-
-            $account->invoice_number_prefix = Input::get('invoice_number_prefix');
-            $account->invoice_number_counter = Input::get('invoice_number_counter');
-            $account->quote_number_prefix = Input::get('quote_number_prefix');
-            $account->share_counter = Input::get('share_counter') ? true : false;
-
-            $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
-            $account->auto_wrap = Input::get('auto_wrap') ? true : false;
-
-            if (!$account->share_counter) {
-                $account->quote_number_counter = Input::get('quote_number_counter');
+            
+            $rules = [];
+            $user = Auth::user();
+            $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
+            $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('substr(string, start)')), 0, MAX_SUBDOMAIN_LENGTH));
+            if (!$subdomain || in_array($subdomain, ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner'])) {
+                $subdomain = null;
+            }
+            if ($subdomain) {
+                $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id";
             }
 
-            if (!$account->share_counter && $account->invoice_number_prefix == $account->quote_number_prefix) {
-                Session::flash('error', trans('texts.invalid_counter'));
+            $validator = Validator::make(Input::all(), $rules);
 
-                return Redirect::to('company/advanced_settings/invoice_settings')->withInput();
+            if ($validator->fails()) {
+                return Redirect::to('company/details')
+                    ->withErrors($validator)
+                    ->withInput();
             } else {
-                $account->save();
-                Session::flash('message', trans('texts.updated_settings'));
+
+                $account = Auth::user()->account;
+                $account->subdomain = $subdomain;
+                $account->iframe_url = $iframeURL;
+                $account->custom_label1 = trim(Input::get('custom_label1'));
+                $account->custom_value1 = trim(Input::get('custom_value1'));
+                $account->custom_label2 = trim(Input::get('custom_label2'));
+                $account->custom_value2 = trim(Input::get('custom_value2'));
+                $account->custom_client_label1 = trim(Input::get('custom_client_label1'));
+                $account->custom_client_label2 = trim(Input::get('custom_client_label2'));
+                $account->custom_invoice_label1 = trim(Input::get('custom_invoice_label1'));
+                $account->custom_invoice_label2 = trim(Input::get('custom_invoice_label2'));
+                $account->custom_invoice_taxes1 = Input::get('custom_invoice_taxes1') ? true : false;
+                $account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;
+
+                $account->invoice_number_prefix = Input::get('invoice_number_prefix');
+                $account->invoice_number_counter = Input::get('invoice_number_counter');
+                $account->quote_number_prefix = Input::get('quote_number_prefix');
+                $account->share_counter = Input::get('share_counter') ? true : false;
+
+                $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
+                $account->auto_wrap = Input::get('auto_wrap') ? true : false;
+
+                if (!$account->share_counter) {
+                    $account->quote_number_counter = Input::get('quote_number_counter');
+                }
+
+                if (!$account->share_counter && $account->invoice_number_prefix == $account->quote_number_prefix) {
+                    Session::flash('error', trans('texts.invalid_counter'));
+
+                    return Redirect::to('company/advanced_settings/invoice_settings')->withInput();
+                } else {
+                    $account->save();
+                    Session::flash('message', trans('texts.updated_settings'));
+                }
             }
         }
 
@@ -643,14 +666,6 @@ class AccountController extends BaseController
             $rules['email'] = 'email|required|unique:users,email,'.$user->id.',id';
         }
 
-        $subdomain = preg_replace('/[^a-zA-Z0-9_\-]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
-        if (!$subdomain || in_array($subdomain, ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner'])) {
-            $subdomain = null;
-        }
-        if ($subdomain) {
-            $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id";
-        }
-
         $validator = Validator::make(Input::all(), $rules);
 
         if ($validator->fails()) {
@@ -660,7 +675,6 @@ class AccountController extends BaseController
         } else {
             $account = Auth::user()->account;
             $account->name = trim(Input::get('name'));
-            $account->subdomain = $subdomain;
             $account->id_number = trim(Input::get('id_number'));
             $account->vat_number = trim(Input::get('vat_number'));
             $account->work_email = trim(Input::get('work_email'));
@@ -678,6 +692,7 @@ class AccountController extends BaseController
             $account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
             $account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1; // US Dollar
             $account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
+            $account->military_time = Input::get('military_time') ? true : false;
             $account->save();
 
             if (Auth::user()->id === $user->id) {
@@ -718,8 +733,9 @@ class AccountController extends BaseController
                 }
             }
 
-            Session::flash('message', trans('texts.updated_settings'));
+            Event::fire(new UserSettingsChanged());
 
+            Session::flash('message', trans('texts.updated_settings'));
             return Redirect::to('company/details');
         }
     }

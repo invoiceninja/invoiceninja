@@ -156,6 +156,7 @@ class QuoteController extends BaseController
           'currencies' => Cache::get('currencies'),
           'sizes' => Cache::get('sizes'),
           'paymentTerms' => Cache::get('paymentTerms'),
+          'languages' => Cache::get('languages'),
           'industries' => Cache::get('industries'),
           'invoiceDesigns' => InvoiceDesign::getDesigns(),
           'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),

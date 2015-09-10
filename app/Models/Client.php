@@ -54,6 +54,11 @@ class Client extends EntityModel
         return $this->belongsTo('App\Models\Currency');
     }
 
+    public function language()
+    {
+        return $this->belongsTo('App\Models\Language');
+    }
+
     public function size()
     {
         return $this->belongsTo('App\Models\Size');

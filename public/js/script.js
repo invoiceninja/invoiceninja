@@ -524,17 +524,25 @@ if (window.ko) {
   };
 }
 
+function getContactDisplayName(contact)
+{
+    var str = '';
+    if (contact.first_name || contact.last_name) {
+        str += contact.first_name + ' ' + contact.last_name;
+    }
+    if (str && contact.email) {
+        str += ' - ';
+    }
+    return str + contact.email;
+}
+
 function getClientDisplayName(client)
 {
   var contact = client.contacts ? client.contacts[0] : false;
   if (client.name) {
     return client.name;
   } else if (contact) {
-    if (contact.first_name || contact.last_name) {
-      return contact.first_name + ' ' + contact.last_name;
-    } else {
-      return contact.email;
-    }
+    return getContactDisplayName(contact);
   }
   return '';
 }

@@ -102,7 +102,11 @@
             <div class="panel-body">
 			
             {!! Former::select('currency_id')->addOption('','')
+                ->placeholder($account->currency ? $account->currency->name : '')
                 ->fromQuery($currencies, 'name', 'id') !!}
+            {!! Former::select('language_id')->addOption('','')
+                ->placeholder($account->language ? $account->language->name : '')
+                ->fromQuery($languages, 'name', 'id') !!}
 			{!! Former::select('payment_terms')->addOption('','')
 				->fromQuery($paymentTerms, 'name', 'num_days')
                 ->help(trans('texts.payment_terms_help')) !!}

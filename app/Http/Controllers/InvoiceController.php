@@ -206,7 +206,7 @@ class InvoiceController extends BaseController
         Session::set($invitationKey, true);
         Session::set('invitation_key', $invitationKey);
 
-        $account->loadLocalizationSettings();
+        $account->loadLocalizationSettings($client);
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
@@ -296,6 +296,7 @@ class InvoiceController extends BaseController
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->start_date = Utils::fromSqlDate($invoice->start_date);
         $invoice->end_date = Utils::fromSqlDate($invoice->end_date);
+        $invoice->last_sent_date = Utils::fromSqlDate($invoice->last_sent_date);
         $invoice->is_pro = Auth::user()->isPro();
 
         $actions = [
@@ -417,6 +418,7 @@ class InvoiceController extends BaseController
             'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->orderBy('name')->get(),
             'currencies' => Cache::get('currencies'),
+            'languages' => Cache::get('languages'),
             'sizes' => Cache::get('sizes'),
             'paymentTerms' => Cache::get('paymentTerms'),
             'industries' => Cache::get('industries'),
@@ -531,7 +533,12 @@ class InvoiceController extends BaseController
                     if ($invoice->is_recurring) {
                         if ($invoice->shouldSendToday()) {
                             $invoice = $this->invoiceRepo->createRecurringInvoice($invoice);
-                            $response = $this->mailer->sendInvoice($invoice);
+                            // in case auto-bill is enabled
+                            if ($invoice->isPaid()) {
+                                $response = true;
+                            } else {
+                                $response = $this->mailer->sendInvoice($invoice);
+                            }
                         } else {
                             $response = trans('texts.recurring_too_soon');
                         }

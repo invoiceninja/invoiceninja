@@ -767,6 +767,14 @@ return array(
   'status_paid' => 'Paid',
   'show_line_item_tax' => 'Display <b>line item taxes</b> inline',
 
+  'iframe_url' => 'Website',
+  'iframe_url_help1' => 'Copy the following code to a page on your site.',
+  'iframe_url_help2' => 'You can test the feature by clicking \'View as recipient\' for an invoice.',
+
+  'auto_bill' => 'Auto Bill',
+  'military_time' => '24 Hour Time',
+  'last_sent' => 'Last Sent',
+
 
 
 );

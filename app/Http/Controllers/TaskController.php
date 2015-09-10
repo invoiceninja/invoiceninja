@@ -133,7 +133,7 @@ class TaskController extends BaseController
             'url' => 'tasks',
             'title' => trans('texts.new_task'),
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
-            'datetimeFormat' => Auth::user()->account->datetime_format ? Auth::user()->account->datetime_format->format_moment : DEFAULT_DATETIME_MOMENT_FORMAT
+            'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -182,7 +182,7 @@ class TaskController extends BaseController
             'duration' => $task->is_running ? $task->getCurrentDuration() : $task->getDuration(),
             'actions' => $actions,
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
-            'datetimeFormat' => Auth::user()->account->datetime_format ? Auth::user()->account->datetime_format->format_moment : DEFAULT_DATETIME_MOMENT_FORMAT
+            'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
         ];
 
         $data = array_merge($data, self::getViewModel());

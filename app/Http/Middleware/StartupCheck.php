@@ -118,8 +118,13 @@ class StartupCheck
                 }
             }
         } elseif (Auth::check()) {
-            $locale = Session::get(SESSION_LOCALE, DEFAULT_LOCALE);
+            $locale = Auth::user()->account->language ? Auth::user()->account->language->locale : DEFAULT_LOCALE;
             App::setLocale($locale);
+        }
+
+        // Track the referral code
+        if (Input::has('rc')) {
+            Session::set(SESSION_REFERRAL_CODE, Input::get('rc'));
         }
 
         // Make sure the account/user localization settings are in the session
@@ -164,9 +169,8 @@ class StartupCheck
             Session::flash('error', trans('texts.old_browser'));
         }
 
-        // for security prevent displaying within an iframe 
         $response = $next($request);
-        $response->headers->set('X-Frame-Options', 'DENY');
+        //$response->headers->set('X-Frame-Options', 'DENY');
 
         return $response;
     }

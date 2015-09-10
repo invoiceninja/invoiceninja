@@ -19,8 +19,8 @@ If you'd like to translate the site please use [caouecs/Laravel4-long](https://g
 
 * Built using Laravel 5
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
-* Integrates with 30+ payment providers
-* Recurring invoices
+* Integrates with 30+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
+* Recurring invoices with auto-billing
 * Tasks with time-tracking
 * Multi-user/multi-company support
 * Tax rates and payment terms

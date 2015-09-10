@@ -35,7 +35,7 @@ return array(
   'invoice_number_short' => 'Invoice #',
   'po_number' => 'PO Number',
   'po_number_short' => 'PO #',
-  'frequency_id' => 'How often',
+  'frequency_id' => 'How Often',
   'discount' => 'Discount',
   'taxes' => 'Taxes',
   'tax' => 'Tax',
@@ -207,7 +207,7 @@ return array(
   'client_will_create' => 'client will be created',
   'clients_will_create' => 'clients will be created',
   'email_settings' => 'Email Settings',
-  'pdf_email_attachment' => 'Attach to Emails',
+  'pdf_email_attachment' => 'Attach PDFs',
 
   // application messages
   'created_client' => 'Successfully created client',
@@ -767,5 +767,14 @@ return array(
   'status_paid' => 'Paid',
   'show_line_item_tax' => 'Display <b>line item taxes</b> inline',
 
+  'iframe_url' => 'Website',
+  'iframe_url_help1' => 'Copy the following code to a page on your site.',
+  'iframe_url_help2' => 'You can test the feature by clicking \'View as recipient\' for an invoice.',
+
+  'auto_bill' => 'Auto Bill',
+  'military_time' => '24 Hour Time',
+  'last_sent' => 'Last Sent',
+
+  
 );
 

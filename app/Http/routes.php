@@ -39,10 +39,12 @@ Route::get('terms', 'HomeController@showTerms');
 Route::get('log_error', 'HomeController@logError');
 Route::get('invoice_now', 'HomeController@invoiceNow');
 Route::get('keep_alive', 'HomeController@keepAlive');
+Route::get('referral_code/{email}', 'UserController@claimReferralCode');
 Route::post('get_started', 'AccountController@getStarted');
 
 // Client visible pages
 Route::get('view/{invitation_key}', 'InvoiceController@view');
+Route::get('view', 'HomeController@viewLogo');
 Route::get('approve/{invitation_key}', 'QuoteController@approve');
 Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
 Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
@@ -306,6 +308,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('MAX_NUM_CLIENTS_PRO', 20000);
     define('MAX_NUM_USERS', 20);
     define('MAX_SUBDOMAIN_LENGTH', 30);
+    define('MAX_IFRAME_URL_LENGTH', 250);
     define('DEFAULT_FONT_SIZE', 9);
 
     define('INVOICE_STATUS_DRAFT', 1);
@@ -333,6 +336,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('SESSION_COUNTER', 'sessionCounter');
     define('SESSION_LOCALE', 'sessionLocale');
     define('SESSION_USER_ACCOUNTS', 'userAccounts');
+    define('SESSION_REFERRAL_CODE', 'referralCode');
 
     define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
     define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
@@ -376,7 +380,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PREV_USER_ID', 'PREV_USER_ID');
     define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
     define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
-    define('NINJA_GATEWAY_CONFIG', '');
+    define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
     define('NINJA_VERSION', '2.3.4');

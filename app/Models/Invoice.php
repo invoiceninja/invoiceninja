@@ -11,6 +11,7 @@ class Invoice extends EntityModel
     protected $casts = [
         'is_recurring' => 'boolean',
         'has_tasks' => 'boolean',
+        'auto_bill' => 'boolean',
     ];
 
     public function account()

@@ -341,10 +341,7 @@ class Utils
             return;
         }
 
-        //$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
-
-        //$dateTime = DateTime::createFromFormat($format, $date, new DateTimeZone($timezone));
         $dateTime = DateTime::createFromFormat($format, $date);
 
         return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
@@ -356,11 +353,8 @@ class Utils
             return '';
         }
 
-        //$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
-
         $dateTime = DateTime::createFromFormat('Y-m-d', $date);
-        //$dateTime->setTimeZone(new DateTimeZone($timezone));
 
         return $formatResult ? $dateTime->format($format) : $dateTime;
     }
@@ -751,5 +745,35 @@ class Utils
             $str = strtolower($str);
         }
         return $str;
+    }
+
+    public static function getSubdomainPlaceholder() {
+        $parts = parse_url(SITE_URL);
+        $subdomain = '';
+        if (isset($parts['host'])) {
+            $host = explode('.', $parts['host']);
+            if (count($host) > 2) {
+                $subdomain = $host[0];
+            }
+        }
+        return $subdomain;
+    }
+
+    public static function getDomainPlaceholder() {
+        $parts = parse_url(SITE_URL);
+        $domain = '';
+        if (isset($parts['host'])) {
+            $host = explode('.', $parts['host']);
+            if (count($host) > 2) {
+                array_shift($host);
+                $domain .= implode('.', $host);
+            } else {
+                $domain .= $parts['host'];
+            }
+        }
+        if (isset($parts['path'])) {
+            $domain .= $parts['path'];
+        }
+        return $domain;
     }
 }

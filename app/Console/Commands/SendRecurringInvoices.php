@@ -41,8 +41,8 @@ class SendRecurringInvoices extends Command
 
             $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
 
-            if ($invoice) {
-                $recurInvoice->account->loadLocalizationSettings();
+            if ($invoice && !$invoice->isPaid()) {
+                $recurInvoice->account->loadLocalizationSettings($invoice->client);
                 $this->mailer->sendInvoice($invoice);
             }
         }

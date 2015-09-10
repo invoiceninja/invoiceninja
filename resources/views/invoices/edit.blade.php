@@ -50,7 +50,7 @@
 				<div style="display:none">
     		@endif
 
-			{!! Former::select('client')->addOption('', '')->data_bind("dropdown: client")->addGroupClass('client_select closer-row') !!}
+			{!! Former::select('client')->addOption('', '')->data_bind("dropdown: client")->addClass('client-input')->addGroupClass('client_select closer-row') !!}
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
@@ -101,10 +101,20 @@
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
 					</div>
 				@elseif ($invoice && isset($lastSent) && $lastSent)
-                    <div class="pull-right" style="padding-top: 6px">
-                        {!! trans('texts.last_invoice_sent', [
-                                'date' => link_to('/invoices/'.$lastSent->public_id, Utils::dateToString($invoice->last_sent_date), ['id' => 'lastInvoiceSent'])
-                            ]) !!}
+                    <div class="form-group" data-bind="visible: !show_last_sent_date()" >
+                        <label for="client" class="control-label col-lg-4 col-sm-4">{{ trans('texts.last_sent') }}</label>
+                        <div class="col-lg-8 col-sm-8">
+                            <div style="padding-top:10px">
+                                <a href="#" data-bind="click: $root.clickLastSentDate">{{ Utils::dateToString($invoice->last_sent_date) }}</a> -
+                                {!! link_to('/invoices/'.$lastSent->public_id, trans('texts.view_invoice'), ['id' => 'lastInvoiceSent', 'target' => '_blank']) !!}
+                            </div>
+                        </div>
+                    </div>                  
+                    <div data-bind="visible: show_last_sent_date()" style="display:none">
+                        {!! Former::text('last_sent_date')->data_bind("datePicker: last_sent_date, valueUpdate: 'afterkeydown', visible: show_last_sent_date()")
+                                ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+                                ->label(trans('texts.last_sent'))
+                                ->appendIcon('calendar')->addGroupClass('last_sent_date') !!}                                        
                     </div>
                 @endif
 			@endif
@@ -113,7 +123,15 @@
 
 		<div class="col-md-4" id="col_2">
             <span data-bind="visible: !is_recurring()">
-			 {!! Former::text('invoice_number')->label(trans("texts.{$entityType}_number_short"))->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
+            {!! Former::text('invoice_number')
+                        ->label(trans("texts.{$entityType}_number_short"))
+                        ->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
+            </span>            
+            <span data-bind="visible: is_recurring()" style="display: none">
+            {!! Former::checkbox('auto_bill')
+                        ->label(trans('texts.auto_bill'))
+                        ->text(trans('texts.enable'))
+                        ->data_bind("checked: auto_bill, valueUpdate: 'afterkeydown'") !!}
             </span>
 			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
@@ -124,7 +142,7 @@
 			
 			<div class="form-group" style="margin-bottom: 8px">
 				<label for="taxes" class="control-label col-lg-4 col-sm-4">{{ trans('texts.taxes') }}</label>
-				<div class="col-lg-8 col-sm-8" style="padding-top: 7px">
+				<div class="col-lg-8 col-sm-8" style="padding-top: 10px">
 					<a href="#" data-bind="click: $root.showTaxesForm"><i class="glyphicon glyphicon-list-alt"></i> {{ trans('texts.manage_rates') }}</a>
 				</div>
 			</div>
@@ -439,10 +457,16 @@
                     &nbsp;
                 </span>
 
-                {!! Former::select('currency_id')->addOption('','')->data_bind('value: currency_id')
+                {!! Former::select('currency_id')->addOption('','')
+                    ->placeholder($account->currency ? $account->currency->name : '')
+                    ->data_bind('value: currency_id')
                     ->fromQuery($currencies, 'name', 'id') !!}
 
-                <span data-bind="visible: $root.showMore">                
+                <span data-bind="visible: $root.showMore">
+                {!! Former::select('language_id')->addOption('','')
+                    ->placeholder($account->language ? $account->language->name : '')
+                    ->data_bind('value: language_id')
+                    ->fromQuery($languages, 'name', 'id') !!}                
                 {!! Former::select('payment_terms')->addOption('','')->data_bind('value: payment_terms')
                     ->fromQuery($paymentTerms, 'name', 'num_days')
                     ->help(trans('texts.payment_terms_help')) !!}
@@ -569,7 +593,7 @@
 
 		$('[rel=tooltip]').tooltip({'trigger':'manual'});
 
-		$('#invoice_date, #due_date, #start_date, #end_date').datepicker();
+		$('#invoice_date, #due_date, #start_date, #end_date, #last_sent_date').datepicker();
 
 		@if ($client && !$invoice)
 			$('input[name=client]').val({{ $client->public_id }});
@@ -584,13 +608,15 @@
 		var $input = $('select#client');
 		$input.combobox().on('change', function(e) {
 			var clientId = parseInt($('input[name=client]').val(), 10);		
-			if (clientId > 0) { 
-				model.loadClient(clientMap[clientId]);				
+            if (clientId > 0) { 
+				model.loadClient(clientMap[clientId]);
+                // we enable searching by contact but the selection must be the client 
+                $('.client-input').val(getClientDisplayName(clientMap[clientId]));
 			} else {
 				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));
 				model.invoice().client().country = false;				
 			}            
-			refreshPDF(true);
+            refreshPDF(true);
 		});
 
 		// If no clients exists show the client form when clicking on the client select input
@@ -610,7 +636,7 @@
             showLearnMore();
         });
 
-        var fields = ['invoice_date', 'due_date', 'start_date', 'end_date'];
+        var fields = ['invoice_date', 'due_date', 'start_date', 'end_date', 'last_sent_date'];
         for (var i=0; i<fields.length; i++) {
             var field = fields[i];
             (function (_field) {
@@ -796,7 +822,7 @@
                 return;
             }
             
-			if (confirm('{!! trans("texts.confirm_recurring_email_$entityType") !!}' + '\n\n' + getSendToEmails() + '\n' + '{!! trans("texts.confirm_recurring_timing") !!}')) {
+			if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
 				submitAction('');
 			}
 		} else {
@@ -936,9 +962,14 @@
 	function ViewModel(data) {
 		var self = this;
         self.showMore = ko.observable(false);
+
 		//self.invoice = data ? false : new InvoiceModel();
 		self.invoice = ko.observable(data ? false : new InvoiceModel());
 		self.tax_rates = ko.observableArray();
+
+        self.clickLastSentDate = function() {
+            self.invoice().show_last_sent_date(true);
+        }
 
 		self.loadClient = function(client) {
 			ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
@@ -1175,9 +1206,11 @@
 		self.due_date = ko.observable('');
 		self.start_date = ko.observable('{{ Utils::today() }}');
 		self.end_date = ko.observable('');
+        self.last_sent_date = ko.observable('');
 		self.tax_name = ko.observable();
 		self.tax_rate = ko.observable();
 		self.is_recurring = ko.observable({{ $isRecurring ? 'true' : 'false' }});
+        self.auto_bill = ko.observable();
 		self.invoice_status_id = ko.observable(0);
 		self.invoice_items = ko.observableArray();
 		self.amount = ko.observable(0);
@@ -1185,6 +1218,7 @@
 		self.invoice_design_id = ko.observable({{ $account->invoice_design_id }});
         self.partial = ko.observable(0);            
         self.has_tasks = ko.observable(false);
+        self.show_last_sent_date = ko.observable(false);
 
 		self.custom_value1 = ko.observable(0);
 		self.custom_value2 = ko.observable(0);
@@ -1489,6 +1523,7 @@
 		self.size_id = ko.observable('');
 		self.industry_id = ko.observable('');
 		self.currency_id = ko.observable('');
+        self.language_id = ko.observable('');
 		self.website = ko.observable('');
 		self.payment_terms = ko.observable(0);
 		self.contacts = ko.observableArray();
@@ -1814,14 +1849,19 @@
 
 	for (var i=0; i<clients.length; i++) {
 		var client = clients[i];
-		for (var j=0; j<client.contacts.length; j++) {
+		var clientName = getClientDisplayName(client);
+        for (var j=0; j<client.contacts.length; j++) {
 			var contact = client.contacts[j];
+            var contactName = getContactDisplayName(contact);
 			if (contact.is_primary) {
 				contact.send_invoice = true;
 			}
+            if (clientName != contactName) {
+                $clientSelect.append(new Option(contactName, client.public_id)); 
+            }
 		}
 		clientMap[client.public_id] = client;
-		$clientSelect.append(new Option(getClientDisplayName(client), client.public_id)); 
+        $clientSelect.append(new Option(clientName, client.public_id)); 
 	}
 
 	@if ($data)

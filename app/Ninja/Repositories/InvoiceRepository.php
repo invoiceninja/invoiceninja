@@ -7,9 +7,15 @@ use App\Models\InvoiceItem;
 use App\Models\Invitation;
 use App\Models\Product;
 use App\Models\Task;
+use App\Services\PaymentService;
 
 class InvoiceRepository
 {
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
+
     public function getInvoices($accountId, $clientPublicId = false, $entityType = ENTITY_INVOICE, $filter = false)
     {
         $query = \DB::table('invoices')
@@ -287,6 +293,12 @@ class InvoiceRepository
             $invoice->start_date = Utils::toSqlDate($data['start_date']);
             $invoice->end_date = Utils::toSqlDate($data['end_date']);
             $invoice->due_date = null;
+            $invoice->auto_bill = isset($data['auto_bill']) && $data['auto_bill'] ? true : false;
+
+            if (isset($data['show_last_sent_date']) && $data['show_last_sent_date']
+                    && isset($data['last_sent_date']) && $data['last_sent_date']) {
+                $invoice->last_sent_date = Utils::toSqlDate($data['last_sent_date']);
+            }
         } else {
             $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
             $invoice->frequency_id = 0;
@@ -635,8 +647,14 @@ class InvoiceRepository
             $invoice->invitations()->save($invitation);
         }
 
-        $recurInvoice->last_sent_date = Carbon::now()->toDateTimeString();
+        $recurInvoice->last_sent_date = date('Y-m-d');
         $recurInvoice->save();
+
+        if ($recurInvoice->auto_bill) {
+            if ($this->paymentService->autoBillInvoice($invoice)) {
+                $invoice->invoice_status_id = INVOICE_STATUS_PAID;
+            }
+        }
 
         return $invoice;
     }

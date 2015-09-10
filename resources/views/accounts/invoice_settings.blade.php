@@ -69,6 +69,19 @@
 
     <div class="panel panel-default">
       <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.email_settings') !!}</h3>
+      </div>
+        <div class="panel-body">
+            {{ Former::setOption('capitalize_translations', false) }}
+            {!! Former::text('subdomain')->placeholder(trans('texts.www'))->onchange('onSubdomainChange()') !!}
+            {!! Former::text('iframe_url')->placeholder('http://invoices.example.com/')
+                    ->onchange('onDomainChange()')->appendIcon('question-sign')->addGroupClass('iframe_url') !!}
+            {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
         <h3 class="panel-title">{!! trans('texts.invoice_number') !!}</h3>
       </div>
         <div class="panel-body">        
@@ -90,14 +103,6 @@
     </div>
 
 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.pdf_settings') !!}</h3>
-      </div>
-        <div class="panel-body">        	   
-       {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
-	</div>
-    </div>
     </div>
     </div>
     
@@ -114,6 +119,35 @@
 	</script>	
 	@endif
 
+
+    <div class="modal fade" id="iframeHelpModal" tabindex="-1" role="dialog" aria-labelledby="iframeHelpModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="min-width:150px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="iframeHelpModalLabel">{{ trans('texts.iframe_url') }}</h4>
+                </div>
+
+                <div class="modal-body">
+                    <p>{{ trans('texts.iframe_url_help1') }}</p>
+                    <pre>&lt;iframe id="iFrame" width="800" height="1000"&gt;&lt;/iframe&gt;
+&lt;script language="javascript"&gt;
+    var iframe = document.getElementById('iFrame');
+    iframe.src = '{{ SITE_URL }}/view/' 
+                 + window.location.search.substring(1);
+&lt;/script&gt;</pre>
+                    <p>{{ trans('texts.iframe_url_help2') }}</p>
+                    </div>
+
+                <div class="modal-footer" style="margin-top: 0px">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
 	{!! Former::close() !!}
 
 
@@ -124,6 +158,22 @@
 			$('#quote_number_counter').prop('disabled', disabled);
 			$('#quote_number_counter').val(disabled ? '' : '{!! $account->quote_number_counter !!}');			
 		}
+
+    function onSubdomainChange() {
+        var input = $('#subdomain');
+        var val = input.val();
+        if (!val) return;
+        val = val.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase().substring(0, {{ MAX_SUBDOMAIN_LENGTH }});
+        input.val(val);
+    }
+
+    function onDomainChange() {
+
+    }
+
+    $('.iframe_url .input-group-addon').click(function() {
+        $('#iframeHelpModal').modal('show');
+    });
 
     $(function() {       	
     	setQuoteNumberEnabled();

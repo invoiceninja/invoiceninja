@@ -105,6 +105,9 @@ class ClientRepository
         if (isset($data['currency_id'])) {
             $client->currency_id = $data['currency_id'] ? $data['currency_id'] : null;
         }
+        if (isset($data['language_id'])) {
+            $client->language_id = $data['language_id'] ? $data['language_id'] : null;
+        }
         if (isset($data['payment_terms'])) {
             $client->payment_terms = $data['payment_terms'];
         }

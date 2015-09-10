@@ -113,6 +113,17 @@ class Account extends Eloquent
         return $user->getDisplayName();
     }
 
+    public function getMomentDateTimeFormat()
+    {
+        $format = $this->datetime_format ? $this->datetime_format->format_moment : DEFAULT_DATETIME_MOMENT_FORMAT;
+
+        if ($this->military_time) {
+            $format = str_replace('h:mm:ss a', 'H:mm:ss', $format);
+        }
+
+        return $format;
+    }
+
     public function getTimezone()
     {
         if ($this->timezone) {
@@ -228,18 +239,27 @@ class Account extends Eloquent
         return $language->locale;
     }
 
-    public function loadLocalizationSettings()
+    public function loadLocalizationSettings($client = false)
     {
         $this->load('timezone', 'date_format', 'datetime_format', 'language');
 
         Session::put(SESSION_TIMEZONE, $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE);
         Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
         Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
-        Session::put(SESSION_DATETIME_FORMAT, $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT);
-        Session::put(SESSION_CURRENCY, $this->currency_id ? $this->currency_id : DEFAULT_CURRENCY);
-        Session::put(SESSION_LOCALE, $this->language_id ? $this->language->locale : DEFAULT_LOCALE);
 
-        App::setLocale(session(SESSION_LOCALE));
+        $currencyId = ($client && $client->currency_id) ? $client->currency_id : $this->currency_id ?: DEFAULT_CURRENCY; 
+        $locale = ($client && $client->language_id) ? $client->language->locale : ($this->language_id ? $this->Language->locale : DEFAULT_LOCALE); 
+
+        Session::put(SESSION_CURRENCY, $currencyId);
+        Session::put(SESSION_LOCALE, $locale);
+
+        App::setLocale($locale);
+
+        $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
+        if ($this->military_time) {
+            $format = str_replace('g:i a', 'H:i', $format);
+        }
+        Session::put(SESSION_DATETIME_FORMAT, $format);
     }
 
     public function getInvoiceLabels()

@@ -183,6 +183,10 @@ class Activity extends Eloquent
             $activity->balance = $invoice->client->balance;
             $activity->adjustment = $adjustment;
             $activity->save();
+
+            // Release any tasks associated with the deleted invoice
+            Task::where('invoice_id', '=', $invoice->id)
+                    ->update(['invoice_id' => null]);
         } else {
             $diff = floatval($invoice->amount) - floatval($invoice->getOriginal('amount'));
 

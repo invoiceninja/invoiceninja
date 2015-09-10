@@ -30,7 +30,7 @@
                     "table": { 
                         "body": "$invoiceDetails"
                     },
-                    "margin": [0, 4, 12, 4],
+                    "margin": [0, 0, 12, 4],
                     "layout": "noBorders"
                 }, 
                 {
@@ -48,8 +48,8 @@
             "hLineColor": "#D8D8D8",
             "paddingLeft": "$amount:8", 
             "paddingRight": "$amount:8", 
-            "paddingTop": "$amount:4", 
-            "paddingBottom": "$amount:4"            
+            "paddingTop": "$amount:6", 
+            "paddingBottom": "$amount:2"            
         }
     },
     {

@@ -99,6 +99,10 @@
 		  	   <p>{!! $client->getWebsite() !!}</p>
             @endif
 
+            @if ($client->language)
+                <p><i class="fa fa-language" style="width: 20px"></i>{{ $client->language->name }}</p>
+            @endif
+
 		  	<p>{{ $client->payment_terms ? trans('texts.payment_terms') . ": Net " . $client->payment_terms : '' }}</p>
 		</div>
 
