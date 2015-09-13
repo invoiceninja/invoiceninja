@@ -1,0 +1,24 @@
+# Codeception Test Suite Configuration
+#
+# Suite for acceptance tests.
+# Perform tests in browser using the WebDriver or PhpBrowser.
+# If you need both WebDriver and PHPBrowser tests - create a separate suite.
+
+class_name: AcceptanceTester
+modules:
+    enabled:
+        - WebDriver:
+            url: 'http://ninja.dev/'
+            host: 127.0.0.1
+            window_size: 1024x768
+            wait: 5
+            browser: phantomjs
+            capabilities:
+                unexpectedAlertBehaviour: 'accept'
+                webStorageEnabled: true
+        - Db:
+            dsn: 'mysql:dbname=ninja;host=localhost;'
+            user: 'ninja'
+            password: 'ninja'
+            dump: tests/_data/dump.sql
+        - \Helper\Acceptance

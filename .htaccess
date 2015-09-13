@@ -1,0 +1,5 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule "^.env" - [F,L]
+  RewriteRule "^storage" - [F,L]
+</IfModule>
