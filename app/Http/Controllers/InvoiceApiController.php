@@ -78,7 +78,7 @@ class InvoiceApiController extends Controller
             
             if (!$client) {
                 $clientData = ['contact' => ['email' => $data['email']]];
-                foreach (['name', 'private_notes'] as $field) {
+                foreach (['name', 'private_notes', 'vat_number'] as $field) {
                     if (isset($data[$field])) {
                         $clientData[$field] = $data[$field];
                     }
