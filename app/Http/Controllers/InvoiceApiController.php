@@ -58,10 +58,18 @@ class InvoiceApiController extends Controller
     {
         $data = Input::all();
         $error = null;
-                
+        
+        $data['is_quote'] = isset($data['is_quote']) && $data['is_quote'] ? true : false;
+        
+        if(true === $data['is_quote']){
+            $entityType = ENTITY_QUOTE;
+        }else{
+            $entityType = ENTITY_INVOICE;
+        }
+        
         // check if the invoice number is set and unique
         if (!isset($data['invoice_number']) && !isset($data['id'])) {
-            $data['invoice_number'] = Auth::user()->account->getNextInvoiceNumber();
+            $data['invoice_number'] = Auth::user()->account->getNextInvoiceNumber($data['is_quote']);
         } else if (isset($data['invoice_number'])) {            
             $invoice = Invoice::scope()->where('invoice_number', '=', $data['invoice_number'])->first();
             if ($invoice) {
@@ -110,7 +118,7 @@ class InvoiceApiController extends Controller
         } else {
             $data = self::prepareData($data, $client);
             $data['client_id'] = $client->id;
-            $invoice = $this->invoiceRepo->save(false, $data, false);
+            $invoice = $this->invoiceRepo->save(false, $data, $entityType);
 
             if (!isset($data['id'])) {
                 $invitation = Invitation::createNew();
@@ -170,7 +178,7 @@ class InvoiceApiController extends Controller
                 $data[$key] = $val;
             }
         }
-
+        
         // hardcode some fields
         $fields = [
             'is_recurring' => false
