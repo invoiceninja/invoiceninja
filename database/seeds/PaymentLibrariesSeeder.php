@@ -86,6 +86,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Thai baht', 'code' => 'THB', 'symbol' => 'THB ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Nigerian Naira', 'code' => 'NGN', 'symbol' => 'NGN ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Argentine Peso', 'code' => 'ARS', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'Romanian Leu', 'code' => 'RON', 'symbol' => 'RON', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
         ];
 
         foreach ($currencies as $currency) {
