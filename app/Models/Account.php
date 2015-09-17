@@ -25,6 +25,13 @@ class Account extends Eloquent
         return $this->hasMany('App\Models\User');
     }
 
+    public function getPrimaryUser()
+    {
+        return $this->hasMany('App\Models\User')
+                ->whereRaw('public_id = 0 OR public_id IS NULL')
+                ->first();
+    }
+
     public function clients()
     {
         return $this->hasMany('App\Models\Client');
@@ -405,13 +412,33 @@ class Account extends Eloquent
         return $this;
     }
 
+    public function getEmailSubject($entityType)
+    {
+        $field = "email_subject_{$entityType}";
+        $value = $this->$field;
+
+        if ($value) {
+            return $value;
+        }
+
+        if (strpos($entityType, 'reminder') !== false) {
+            $entityType = 'reminder';
+        }
+
+        return trans("texts.{$entityType}_subject", ['invoice' => '$invoice', 'account' => '$account']);
+    }
+
     public function getEmailTemplate($entityType, $message = false)
     {
-        $field = "email_template_$entityType";
+        $field = "email_template_{$entityType}";
         $template = $this->$field;
 
         if ($template) {
             return $template;
+        }
+
+        if (strpos($entityType, 'reminder') >= 0) {
+            $entityType = ENTITY_INVOICE;
         }
 
         $template = "\$client,<p/>\r\n\r\n" .
@@ -431,7 +458,7 @@ class Account extends Eloquent
             // Add line breaks if HTML isn't already being used
             return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;
         } else {
-            return "<p>" . trans('texts.email_signature') . "<br>\$account</p>";
+            return "<p>" . trans('texts.email_signature') . "\n<br>\$account</p>";
         }
     }
 
@@ -448,6 +475,20 @@ class Account extends Eloquent
     public function selectTokenCheckbox()
     {
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
+    }
+
+    public function getSiteUrl()
+    {
+        $url = SITE_URL;
+        $iframe_url = $this->iframe_url;
+                
+        if ($iframe_url) {
+            return "{$iframe_url}/?";
+        } else if ($this->subdomain) {
+            $url = Utils::replaceSubdomain($url, $this->subdomain);
+        }
+
+        return $url;
     }
 }
 

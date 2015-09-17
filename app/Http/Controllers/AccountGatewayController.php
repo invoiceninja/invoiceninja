@@ -239,7 +239,7 @@ class AccountGatewayController extends BaseController
             foreach ($fields as $field => $details) {
                 $value = trim(Input::get($gateway->id.'_'.$field));
                 // if the new value is masked use the original value
-                if ($value && $value === str_repeat('*', strlen($value))) {
+                if ($oldConfig && $value && $value === str_repeat('*', strlen($value))) {
                     $value = $oldConfig->$field;
                 }
                 if (!$value && ($field == 'testMode' || $field == 'developerMode')) {

@@ -111,7 +111,7 @@ class CheckData extends Command {
                                 ->first(['invoices.amount', 'invoices.is_recurring', 'invoices.is_quote', 'invoices.deleted_at', 'invoices.id', 'invoices.is_deleted']);
 
                     // Check if this invoice was once set as recurring invoice
-                    if (!$invoice->is_recurring && DB::table('invoices')
+                    if ($invoice && !$invoice->is_recurring && DB::table('invoices')
                             ->where('recurring_invoice_id', '=', $activity->invoice_id)
                             ->first(['invoices.id'])) {
                         $invoice->is_recurring = 1;

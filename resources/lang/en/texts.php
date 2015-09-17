@@ -389,7 +389,7 @@ return array(
   'deleted_quotes' => 'Successfully deleted :count quotes',
   'converted_to_invoice' => 'Successfully converted quote to invoice',
 
-  'quote_subject' => 'New quote from :account',
+  'quote_subject' => 'New quote $quote from :account',
   'quote_message' => 'To view your quote for :amount, click the link below.',
   'quote_link_message' => 'To view your client quote click the link below:',
   'notification_quote_sent_subject' => 'Quote :invoice was sent to :client',
@@ -424,7 +424,7 @@ return array(
 
   'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
   'confirm_email_quote' => 'Are you sure you want to email this quote?',
-  'confirm_recurring_email_invoice' => 'Recurring is enabled, are you sure you want this invoice emailed?',
+  'confirm_recurring_email_invoice' => 'Are you sure you want this invoice emailed?',
 
   'cancel_account' => 'Cancel Account',
   'cancel_account_message' => 'Warning: This will permanently erase all of your data, there is no undo.',
@@ -774,6 +774,18 @@ return array(
   'auto_bill' => 'Auto Bill',
   'military_time' => '24 Hour Time',
   'last_sent' => 'Last Sent',
+
+  'reminder_emails' => 'Reminder Emails',
+  'templates_and_reminders' => 'Templates & Reminders',
+  'subject' => 'Subject',
+  'body' => 'Body',
+  'first_reminder' => 'First Reminder',
+  'second_reminder' => 'Second Reminder',
+  'third_reminder' => 'Third Reminder',
+  'num_days_reminder' => 'Days after due date',
+  'reminder_subject' => 'Reminder: Invoice :invoice from :account',
+  'reset' => 'Reset',
+  'invoice_not_found' => 'The requested invoice is not available',
 
   
 );

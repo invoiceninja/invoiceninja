@@ -159,7 +159,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
             var match = matches[i];
             field = match.substring(2, match.indexOf('Value'));
             field = toSnakeCase(field);
-            var value = getDescendantProp(invoice, field) || ' ';            
+            var value = getDescendantProp(invoice, field) || ' ';
             value = doubleDollarSign(value);
 
             if (field.toLowerCase().indexOf('date') >= 0 && value != ' ') {
@@ -279,7 +279,7 @@ NINJA.invoiceLines = function(invoice) {
             row.push({style:["quantity", rowStyle], text:qty || ' '});
         }
         if (showItemTaxes) {
-            row.push({style:["tax", rowStyle], text:(tax ? tax.toString() + '%') : ' '});
+            row.push({style:["tax", rowStyle], text:tax ? (tax.toString() + '%') : ' '});
         }
         row.push({style:["lineTotal", rowStyle], text:lineTotal || ' '});
 

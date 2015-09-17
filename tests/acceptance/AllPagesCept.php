@@ -70,7 +70,7 @@ $I->see('Invoice Fields');
 $I->amOnPage('/company/advanced_settings/invoice_design');
 $I->see('Invoice Design');
 
-$I->amOnPage('/company/advanced_settings/email_templates');
+$I->amOnPage('/company/advanced_settings/templates_and_reminders');
 $I->see('Invoice Email');
 
 $I->amOnPage('/company/advanced_settings/charts_and_reports');

@@ -26,7 +26,7 @@ class OnlinePaymentCest
         $I->wantTo('create a gateway');
         $I->amOnPage('/company/payments');
 
-        if (strpos($I->grabFromCurrentUrl(), 'create') > 0) {
+        if (strpos($I->grabFromCurrentUrl(), 'create') !== false) {
             $I->fillField(['name' =>'23_apiKey'], Fixtures::get('gateway_key'));
             $I->selectOption('#token_billing_type_id', 4);
             $I->click('Save');
@@ -86,6 +86,7 @@ class OnlinePaymentCest
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->checkOption('#auto_bill');
         $I->executeJS('preparePdfData(\'email\')');
+        $I->wait(2);
         $I->see("$0.00");
  
    }

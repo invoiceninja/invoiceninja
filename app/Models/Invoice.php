@@ -262,6 +262,57 @@ class Invoice extends EntityModel
 
         return false;
     }
+
+    public function getReminder() {
+        for ($i=1; $i<=3; $i++) {
+            $field = "enable_reminder{$i}";
+            if (!$this->account->$field) {
+                continue;
+            }
+            $field = "num_days_reminder{$i}";
+            $date = date('Y-m-d', strtotime("- {$this->account->$field} days"));
+
+            if ($this->due_date == $date) {
+                return "reminder{$i}";
+            }
+        }
+
+        return false;
+    }
+
+    public function updateCachedPDF($encodedString = false)
+    {
+        if (!$encodedString) {
+            $invitation = $this->invitations[0];
+            $key = $invitation->getLink();
+
+            $curl = curl_init();
+            $jsonEncodedData = json_encode([
+                'targetUrl' => SITE_URL . "/view/{$key}/?phantomjs=true",
+                'requestType' => 'raw',
+            ]);
+            
+            $opts = [
+                CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY'),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POST => 1,
+                CURLOPT_POSTFIELDS => $jsonEncodedData,
+                CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
+            ];
+
+            curl_setopt_array($curl, $opts);
+            $encodedString = strip_tags(curl_exec($curl));
+            curl_close($curl);
+
+            if (!$encodedString) {
+                return false;
+            }
+        }
+        
+        $encodedString = str_replace('data:application/pdf;base64,', '', $encodedString);
+        file_put_contents($this->getPDFPath(), base64_decode($encodedString));
+    }
 }
 
 Invoice::creating(function ($invoice) {

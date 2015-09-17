@@ -249,10 +249,14 @@ class AccountController extends BaseController
                 if ($subSection == ACCOUNT_CUSTOMIZE_DESIGN) {
                     $data['customDesign'] = ($account->custom_design && !$design) ? $account->custom_design : $design;
                 }
-            } else if ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
-                $data['invoiceEmail'] = $account->getEmailTemplate(ENTITY_INVOICE);
-                $data['quoteEmail'] = $account->getEmailTemplate(ENTITY_QUOTE);
-                $data['paymentEmail'] = $account->getEmailTemplate(ENTITY_PAYMENT);
+            } else if ($subSection == ACCOUNT_TEMPLATES_AND_REMINDERS) {
+                $data['templates'] = [];
+                foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type) {
+                    $data['templates'][$type] = [
+                        'subject' => $account->getEmailSubject($type),
+                        'template' => $account->getEmailTemplate($type),
+                    ];
+                }
                 $data['emailFooter'] = $account->getEmailFooter();
                 $data['title'] = trans('texts.email_templates');
             } else if ($subSection == ACCOUNT_USER_MANAGEMENT) {
@@ -289,7 +293,7 @@ class AccountController extends BaseController
                 return AccountController::saveInvoiceDesign();
             } elseif ($subSection == ACCOUNT_CUSTOMIZE_DESIGN) {
                 return AccountController::saveCustomizeDesign();
-            } elseif ($subSection == ACCOUNT_EMAIL_TEMPLATES) {
+            } elseif ($subSection == ACCOUNT_TEMPLATES_AND_REMINDERS) {
                 return AccountController::saveEmailTemplates();
             }
         } elseif ($section == ACCOUNT_PRODUCTS) {
@@ -315,16 +319,28 @@ class AccountController extends BaseController
         if (Auth::user()->account->isPro()) {
             $account = Auth::user()->account;
 
-            $account->email_template_invoice = Input::get('email_template_invoice', $account->getEmailTemplate(ENTITY_INVOICE));
-            $account->email_template_quote = Input::get('email_template_quote', $account->getEmailTemplate(ENTITY_QUOTE));
-            $account->email_template_payment = Input::get('email_template_payment', $account->getEmailTemplate(ENTITY_PAYMENT));
+            foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type) {
+                $subjectField = "email_subject_{$type}";
+                $account->$subjectField = Input::get($subjectField, $account->getEmailSubject($type));
+
+                $bodyField = "email_template_{$type}";
+                $account->$bodyField = Input::get($bodyField, $account->getEmailTemplate($type));
+            }
+
+            foreach ([REMINDER1, REMINDER2, REMINDER3] as $type) {
+                $enableField = "enable_{$type}";
+                $account->$enableField = Input::get($enableField) ? true : false;
+
+                $numDaysField = "num_days_{$type}";
+                $account->$numDaysField = Input::get($numDaysField);
+            }
 
             $account->save();
 
             Session::flash('message', trans('texts.updated_settings'));
         }
         
-        return Redirect::to('company/advanced_settings/email_templates');
+        return Redirect::to('company/advanced_settings/templates_and_reminders');
     }
 
     private function saveProducts()
@@ -346,7 +362,7 @@ class AccountController extends BaseController
             $rules = [];
             $user = Auth::user();
             $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
-            $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('substr(string, start)')), 0, MAX_SUBDOMAIN_LENGTH));
+            $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
             if (!$subdomain || in_array($subdomain, ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner'])) {
                 $subdomain = null;
             }
@@ -361,7 +377,6 @@ class AccountController extends BaseController
                     ->withErrors($validator)
                     ->withInput();
             } else {
-
                 $account = Auth::user()->account;
                 $account->subdomain = $subdomain;
                 $account->iframe_url = $iframeURL;

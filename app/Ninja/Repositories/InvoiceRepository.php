@@ -658,4 +658,25 @@ class InvoiceRepository
 
         return $invoice;
     }
+
+    public function findNeedingReminding($account)
+    {
+        $dates = [];
+        for ($i=1; $i<=3; $i++) {
+            $field = "enable_reminder{$i}";
+            if (!$account->$field) {
+                continue;
+            }
+            $field = "num_days_reminder{$i}";
+            $dates[] = "due_date = '" . date('Y-m-d', strtotime("- {$account->$field} days")) . "'";
+        }
+        $sql = implode(' OR ', $dates);
+
+        $invoices = Invoice::whereAccountId($account->id)
+                    ->where('balance', '>', 0)
+                    ->whereRaw($sql)
+                    ->get();
+
+        return $invoices;
+    }
 }

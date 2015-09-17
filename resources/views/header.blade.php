@@ -250,7 +250,7 @@
 
     window.setTimeout(function() { 
         $(".alert-hide").fadeOut(500);
-    }, 2000);
+    }, 3000);
 
     $('#search').blur(function(){
       $('#search').css('width', '{{ Utils::isEnglish() ? 150 : 110 }}px');

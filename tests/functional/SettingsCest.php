@@ -170,16 +170,16 @@ class SettingsCest
     public function updateEmailTemplates(FunctionalTester $I)
     {
         $I->wantTo('update email templates');
-        $I->amOnPage('/company/advanced_settings/email_templates');
+        $I->amOnPage('/company/advanced_settings/templates_and_reminders');
 
         $string = $this->faker->text(100);
 
-        $I->fillField(['name' => 'email_template_payment'], $string);
+        $I->fillField(['name' => 'email_template_invoice'], $string);
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
         $I->see('Successfully updated settings');
-        $I->seeRecord('accounts', array('email_template_payment' => $string));
+        $I->seeRecord('accounts', array('email_template_invoice' => $string));
     }
 
     public function runReport(FunctionalTester $I)

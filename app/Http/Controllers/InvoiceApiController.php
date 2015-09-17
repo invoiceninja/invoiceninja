@@ -62,12 +62,10 @@ class InvoiceApiController extends Controller
         // check if the invoice number is set and unique
         if (!isset($data['invoice_number']) && !isset($data['id'])) {
             $data['invoice_number'] = Auth::user()->account->getNextInvoiceNumber();
-        } else if (isset($data['invoice_number'])) {            
+        } else if (isset($data['invoice_number'])) {
             $invoice = Invoice::scope()->where('invoice_number', '=', $data['invoice_number'])->first();
             if ($invoice) {
                 $error = trans('validation.unique', ['attribute' => 'texts.invoice_number']);
-            } else {
-                $data['id'] = $invoice->public_id;
             }
         }
 

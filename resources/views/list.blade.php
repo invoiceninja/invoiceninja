@@ -133,13 +133,12 @@
         })
 
         window.onDatatableReady = function() {      
-            $(':checkbox').unbind('click').click(function() {
+            $(':checkbox').click(function() {
                 setBulkActionsEnabled();
             }); 
 
-            $('tbody tr').unbind('click').click(function(event) {        
+            $('tbody tr').unbind('click').click(function(event) {
                 if (event.target.type !== 'checkbox' && event.target.type !== 'button' && event.target.tagName.toLowerCase() !== 'a') {
-                    console.log('click');
                     $checkbox = $(this).closest('tr').find(':checkbox:not(:disabled)');
                     var checked = $checkbox.prop('checked');
                     $checkbox.prop('checked', !checked);

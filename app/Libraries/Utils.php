@@ -776,4 +776,14 @@ class Utils
         }
         return $domain;
     }
+
+    public static function replaceSubdomain($domain, $subdomain) {
+        $parsedUrl = parse_url($domain);
+        $host = explode('.', $parsedUrl['host']);
+        if (count($host) > 0) {
+            $oldSubdomain = $host[0];
+            $domain = str_replace("://{$oldSubdomain}.", "://{$subdomain}.", $domain);
+        }
+        return $domain;
+    }
 }

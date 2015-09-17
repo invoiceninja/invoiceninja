@@ -21,48 +21,106 @@
     {!! Former::populateField('email_template_payment', $paymentEmail) !!}
 
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.invoice_email') !!}</h3>
-      </div>
-        <div class="panel-body">
-        <div class="row">
-            <div class="col-md-6">
-                {!! Former::textarea('email_template_invoice')->raw() !!}
-            </div>
-            <div class="col-md-6" id="invoice_preview"></div>
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.email_templates') !!}</h3>
         </div>
+        <div class="panel-body">
+            <div class="row">
+
+                <div role="tabpanel">
+                    <ul class="nav nav-tabs" role="tablist" style="border: none">
+                        <li role="presentation" class="active"><a href="#invoice" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.invoice_email') }}</a></li>
+                        <li role="presentation"><a href="#quote" aria-controls="terms" role="tab" data-toggle="tab">{{ trans('texts.quote_email') }}</a></li>
+                        <li role="presentation"><a href="#payment" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.payment_email') }}</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="invoice">
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    {!! Former::textarea('email_template_invoice')->raw() !!}
+                                </div>
+                                <div class="col-md-6" id="invoice_preview"></div>
+                            </div>
+                        </div>
+
+                        <div role="tabpanel" class="tab-pane" id="quote">
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    {!! Former::textarea('email_template_quote')->raw() !!}
+                                </div>
+                                <div class="col-md-6" id="quote_preview"></div>
+                            </div>
+                        </div>
+
+
+                        <div role="tabpanel" class="tab-pane" id="payment">
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    {!! Former::textarea('email_template_payment')->raw() !!}
+                                </div>
+                                <div class="col-md-6" id="payment_preview"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 
-    
+    <p>&nbsp;</p>
+
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.quote_email') !!}</h3>
-      </div>
-        <div class="panel-body">
-        <div class="row">
-            <div class="col-md-6">
-                {!! Former::textarea('email_template_quote')->raw() !!}
-            </div>
-            <div class="col-md-6" id="quote_preview"></div>
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.reminder_emails') !!}</h3>
         </div>
+        <div class="panel-body">
+            <div class="row">
+
+                <div role="tabpanel">
+                    <ul class="nav nav-tabs" role="tablist" style="border: none">
+                        <li role="presentation" class="active"><a href="#invoice" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.invoice_email') }}</a></li>
+                        <li role="presentation"><a href="#quote" aria-controls="terms" role="tab" data-toggle="tab">{{ trans('texts.quote_email') }}</a></li>
+                        <li role="presentation"><a href="#payment" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.payment_email') }}</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="invoice">
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    {!! Former::textarea('email_template_invoice')->raw() !!}
+                                </div>
+                                <div class="col-md-6" id="invoice_preview"></div>
+                            </div>
+                        </div>
+
+                        <div role="tabpanel" class="tab-pane" id="quote">
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    {!! Former::textarea('email_template_quote')->raw() !!}
+                                </div>
+                                <div class="col-md-6" id="quote_preview"></div>
+                            </div>
+                        </div>
+
+
+                        <div role="tabpanel" class="tab-pane" id="payment">
+                            <div class="panel-body">
+                                <div class="col-md-6">
+                                    {!! Former::textarea('email_template_payment')->raw() !!}
+                                </div>
+                                <div class="col-md-6" id="payment_preview"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 
 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.payment_email') !!}</h3>
-      </div>
-        <div class="panel-body">
-        <div class="row">
-            <div class="col-md-6">
-                {!! Former::textarea('email_template_payment')->raw() !!}
-            </div>
-            <div class="col-md-6" id="payment_preview"></div>
-        </div>
-        </div>
-    </div>
 
     @if (Auth::user()->isPro())
         <center>

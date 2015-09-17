@@ -21,25 +21,25 @@ class Mailer
                 $replyEmail = $fromEmail;
                 $fromEmail = CONTACT_EMAIL;
 
+                $message->to($toEmail)
+                        ->from($fromEmail, $fromName)
+                        ->replyTo($replyEmail, $fromName)
+                        ->subject($subject);
+
                 if (isset($data['invoice_id'])) {
-                    $invoice = Invoice::with('account')->where('id', '=', $data['invoice_id'])->get()->first();
-                    if($invoice->account->pdf_email_attachment && file_exists($invoice->getPDFPath())) {
+                    $invoice = Invoice::with('account')->where('id', '=', $data['invoice_id'])->first();
+                    if ($invoice->account->pdf_email_attachment && file_exists($invoice->getPDFPath())) {
                         $message->attach(
                             $invoice->getPDFPath(),
                             array('as' => $invoice->getFileName(), 'mime' => 'application/pdf')
                         );
                     }
                 }
-                
-                $message->to($toEmail)
-                        ->from($fromEmail, $fromName)
-                        ->replyTo($replyEmail, $fromName)
-                        ->subject($subject);
-
             });
             
             return true;
         } catch (Exception $exception) {
+            Utils::logError('Email Error: ' . $exception->getMessage());
             if (isset($_ENV['POSTMARK_API_TOKEN'])) {
                 $response = $exception->getResponse()->getBody()->getContents();
                 $response = json_decode($response);

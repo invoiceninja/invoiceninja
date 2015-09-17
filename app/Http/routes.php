@@ -225,7 +225,6 @@ Route::get('/forgot_password', function() {
     return Redirect::to(NINJA_APP_URL.'/forgot', 301);
 });
 
-
 if (!defined('CONTACT_EMAIL')) {
     define('CONTACT_EMAIL', Config::get('mail.from.address'));
     define('CONTACT_NAME', Config::get('mail.from.name'));
@@ -260,7 +259,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_CHART_BUILDER', 'chart_builder');
     define('ACCOUNT_USER_MANAGEMENT', 'user_management');
     define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
-    define('ACCOUNT_EMAIL_TEMPLATES', 'email_templates');
+    define('ACCOUNT_TEMPLATES_AND_REMINDERS', 'templates_and_reminders');
     define('ACCOUNT_TOKEN_MANAGEMENT', 'token_management');
     define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
 
@@ -391,6 +390,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ZAPIER_URL', 'https://zapier.com/developer/invite/11276/85cf0ee4beae8e802c6c579eb4e351f1/');
     define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
     define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
+    define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/single/browser/v1/');
 
     define('COUNT_FREE_DESIGNS', 4);
     define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design
@@ -424,6 +424,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_TYPE_DWOLLA', 'PAYMENT_TYPE_DWOLLA');
     define('PAYMENT_TYPE_TOKEN', 'PAYMENT_TYPE_TOKEN');
     define('PAYMENT_TYPE_ANY', 'PAYMENT_TYPE_ANY');
+
+    define('REMINDER1', 'reminder1');
+    define('REMINDER2', 'reminder2');
+    define('REMINDER3', 'reminder3');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
@@ -488,3 +492,4 @@ if (Auth::check() && Auth::user()->id === 1)
   Auth::loginUsingId(1);
 }
 */
+

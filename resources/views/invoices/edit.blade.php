@@ -106,7 +106,7 @@
                         <div class="col-lg-8 col-sm-8">
                             <div style="padding-top:10px">
                                 <a href="#" data-bind="click: $root.clickLastSentDate">{{ Utils::dateToString($invoice->last_sent_date) }}</a> -
-                                {!! link_to('/invoices/'.$lastSent->public_id, trans('texts.view_invoice'), ['id' => 'lastInvoiceSent', 'target' => '_blank']) !!}
+                                {!! link_to('/invoices/'.$lastSent->public_id, trans('texts.view_invoice'), ['id' => 'lastInvoiceSent']) !!}
                             </div>
                         </div>
                     </div>                  
@@ -783,14 +783,18 @@
 	}
 
     function resetTerms() {
-        model.invoice().terms(model.invoice().default_terms());
-        refreshPDF();
+        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+            model.invoice().terms(model.invoice().default_terms());
+            refreshPDF();
+        }
         return false;
     }
 
     function resetFooter() {
-        model.invoice().invoice_footer(model.invoice().default_footer());
-        refreshPDF();
+        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+            model.invoice().invoice_footer(model.invoice().default_footer());
+            refreshPDF();
+        }
         return false;
     }
 
@@ -806,7 +810,7 @@
 
 	function onEmailClick() {
         if (!NINJA.isRegistered) {
-            alert("{{ trans('texts.registration_required') }}");
+            alert("{!! trans('texts.registration_required') !!}");
             return;
         }
 
@@ -817,11 +821,6 @@
 
 	function onSaveClick() {
 		if (model.invoice().is_recurring()) {
-            if (!NINJA.isRegistered) {
-                alert("{{ trans('texts.registration_required') }}");
-                return;
-            }
-            
 			if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
 				submitAction('');
 			}
@@ -851,9 +850,9 @@
         
         doc = generatePDF(invoice, design, true);
         doc.getDataUrl( function(pdfString){
-            $('#pdfupload').val(pdfString);            
-            submitAction(action);     
-        });             
+            $('#pdfupload').val(pdfString);
+            submitAction(action);
+        });
     }
 
 	function submitAction(value) {

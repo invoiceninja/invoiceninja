@@ -182,7 +182,7 @@
             }
             @if ($task && !$task->is_running)
                 if (!timeLog.isStartValid() || !timeLog.isEndValid()) {
-                    alert("{{ trans('texts.task_errors') }}");
+                    alert("{!! trans('texts.task_errors') !!}");
                     showTimeDetails();
                     return;
                 }

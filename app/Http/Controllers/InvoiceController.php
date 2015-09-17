@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App;
 use Auth;
 use Session;
 use Utils;
@@ -174,11 +175,16 @@ class InvoiceController extends BaseController
 
     public function view($invitationKey)
     {
-        $invitation = Invitation::where('invitation_key', '=', $invitationKey)->firstOrFail();
-        $invoice = $invitation->invoice;
+        $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
+        
+        if (!$invitation) {
+            App::abort(404, trans('texts.invoice_not_found'));
+        }
 
+        $invoice = $invitation->invoice;
+        
         if (!$invoice || $invoice->is_deleted) {
-            return View::make('invoices.deleted');
+            App::abort(404, trans('texts.invoice_not_found'));
         }
 
         $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
@@ -186,7 +192,7 @@ class InvoiceController extends BaseController
         $account = $client->account;
 
         if (!$client || $client->is_deleted) {
-            return View::make('invoices.deleted');
+            App::abort(404, trans('texts.invoice_not_found'));
         }
 
         if ($account->subdomain) {
@@ -198,7 +204,7 @@ class InvoiceController extends BaseController
             }
         }
 
-        if (!Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
+        if (!Input::has('phantomjs') && !Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             Activity::viewInvoice($invitation);
             Event::fire(new InvoiceViewed($invoice));
         }
@@ -261,6 +267,7 @@ class InvoiceController extends BaseController
             'contact' => $contact,
             'paymentTypes' => $paymentTypes,
             'paymentURL' => $paymentURL,
+            'phantomjs' => Input::has('phantomjs'),
         );
 
         return View::make('invoices.view', $data);
@@ -521,7 +528,7 @@ class InvoiceController extends BaseController
 
             $pdfUpload = Input::get('pdfupload');
             if (!empty($pdfUpload) && strpos($pdfUpload, 'data:application/pdf;base64,') === 0) {
-                $this->storePDF(Input::get('pdfupload'), $invoice);
+                $invoice->updateCachedPDF(Input::get('pdfupload'));
             }
 
             if ($action == 'clone') {
@@ -683,11 +690,5 @@ class InvoiceController extends BaseController
         ];
 
         return View::make('invoices.history', $data);
-    }
-    
-    private function storePDF($encodedString, $invoice)
-    {
-        $encodedString = str_replace('data:application/pdf;base64,', '', $encodedString);
-        file_put_contents($invoice->getPDFPath(), base64_decode($encodedString));
     }
 }

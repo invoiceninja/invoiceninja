@@ -88,7 +88,7 @@
   var needsRefresh = false;
 
   function refreshPDF(force) {
-    getPDFString(refreshPDFCB, force);
+    return getPDFString(refreshPDFCB, force);
   }
   
   function refreshPDFCB(string) {
