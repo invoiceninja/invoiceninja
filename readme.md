@@ -1,3 +1,5 @@
+![alt tag](https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png)
+
 # Invoice Ninja
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
@@ -26,6 +28,7 @@ If you'd like to translate the site please use [caouecs/Laravel4-long](https://g
 * Tasks with time-tracking
 * Multi-user/multi-company support
 * Tax rates and payment terms
+* Reminder emails
 * Partial payments
 * Custom email templates
 * [Zapier](https://zapier.com/) integration
