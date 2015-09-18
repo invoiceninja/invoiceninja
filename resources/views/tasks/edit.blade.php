@@ -299,6 +299,12 @@
         self.refresh = function() {
             var hasEmpty = false;
             var lastTime = 0;
+            self.time_log.sort(function(left, right) {
+                if (left.isEmpty() || right.isEmpty()) {
+                    return -1;
+                }
+                return left.startTime() - right.startTime();
+            });
             for (var i=0; i<self.time_log().length; i++) {
                 var timeLog = self.time_log()[i];
                 var startValid = true;
