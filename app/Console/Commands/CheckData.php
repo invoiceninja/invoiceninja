@@ -197,7 +197,7 @@ class CheckData extends Command {
                         $activityFix = 0;
                     }
                 } else if ($activity->activity_type_id == ACTIVITY_TYPE_DELETE_PAYMENT) {
-                    // **Fix for delting payment after deleting invoice**
+                    // **Fix for deleting payment after deleting invoice**
                     if ($activity->adjustment != 0 && $invoice->is_deleted && $activity->created_at > $invoice->deleted_at) {
                         $this->info("Incorrect adjustment for deleted payment adjustment:{$activity->adjustment}");
                         $foundProblem = true;

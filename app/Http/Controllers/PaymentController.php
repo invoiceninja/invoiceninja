@@ -218,8 +218,12 @@ class PaymentController extends BaseController
         }
         Session::put('payment_type', $paymentType);
 
+        $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
+        $gateway = $accountGateway->gateway;
+        $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
+
         // Handle offsite payments
-        if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD) {
+        if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD || $gateway->id == GATEWAY_EWAY) {
             if (Session::has('error')) {
                 Session::reflash();
                 return Redirect::to('view/'.$invitationKey);
@@ -227,10 +231,6 @@ class PaymentController extends BaseController
                 return self::do_payment($invitationKey, false, $useToken);
             }
         }
-
-        $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
-        $gateway = $accountGateway->gateway;
-        $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
         $data = [
             'showBreadcrumbs' => false,
@@ -327,7 +327,8 @@ class PaymentController extends BaseController
 
         if ($validator->fails()) {
             return Redirect::to('license')
-                ->withErrors($validator);
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $account = $this->accountRepo->getNinjaAccount();
@@ -438,7 +439,6 @@ class PaymentController extends BaseController
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
-                //Utils::logError('Payment Error [invalid]');
                 return Redirect::to('payment/'.$invitationKey)
                     ->withErrors($validator)
                     ->withInput();
@@ -456,8 +456,16 @@ class PaymentController extends BaseController
         }
 
         try {
+            // For offsite payments send the client's details on file
+            // If we're using a token then we don't need to send any other data
+            if (!$onSite || $useToken) {
+                $data = false;
+            } else {
+                $data = Input::all();
+            }
+
             $gateway = $this->paymentService->createGateway($accountGateway);
-            $details = $this->paymentService->getPaymentDetails($invitation, ($useToken || !$onSite) ? false : Input::all());
+            $details = $this->paymentService->getPaymentDetails($invitation, $data);
 
             // check if we're creating/using a billing token
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
@@ -475,7 +483,13 @@ class PaymentController extends BaseController
             }
 
             $response = $gateway->purchase($details)->send();
-            $ref = $response->getTransactionReference();
+
+            if ($accountGateway->gateway_id == GATEWAY_EWAY) {
+                $ref = $response->getData()['AccessCode'];
+                $token = $response->getCardReference();
+            } else {
+                $ref = $response->getTransactionReference();
+            }
 
             if (!$ref) {
                 $this->error('No-Ref', $response->getMessage(), $accountGateway);

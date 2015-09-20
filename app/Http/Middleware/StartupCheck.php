@@ -37,39 +37,6 @@ class StartupCheck
             return $next($request);
         }
 
-        // Check data has been cached
-        $cachedTables = [
-            'currencies' => 'App\Models\Currency',
-            'sizes' => 'App\Models\Size',
-            'industries' => 'App\Models\Industry',
-            'timezones' => 'App\Models\Timezone',
-            'dateFormats' => 'App\Models\DateFormat',
-            'datetimeFormats' => 'App\Models\DatetimeFormat',
-            'languages' => 'App\Models\Language',
-            'paymentTerms' => 'App\Models\PaymentTerm',
-            'paymentTypes' => 'App\Models\PaymentType',
-            'countries' => 'App\Models\Country',
-            'invoiceDesigns' => 'App\Models\InvoiceDesign',
-        ];
-        if (Input::has('clear_cache')) {
-            Session::flash('message', 'Cache cleared');
-        }
-        foreach ($cachedTables as $name => $class) {
-            if (Input::has('clear_cache') || !Cache::has($name)) {
-                if ($name == 'paymentTerms') {
-                    $orderBy = 'num_days';
-                } elseif (in_array($name, ['currencies', 'sizes', 'industries', 'languages', 'countries'])) {
-                    $orderBy = 'name';
-                } else {
-                    $orderBy = 'id';
-                }
-                $tableData = $class::orderBy($orderBy)->get();
-                if (count($tableData)) {
-                    Cache::forever($name, $tableData);
-                }
-            }
-        }
-
         // check the application is up to date and for any news feed messages
         if (Auth::check()) {
             $count = Session::get(SESSION_COUNTER, 0);
@@ -122,11 +89,6 @@ class StartupCheck
             App::setLocale($locale);
         }
 
-        // Track the referral code
-        if (Input::has('rc')) {
-            Session::set(SESSION_REFERRAL_CODE, Input::get('rc'));
-        }
-
         // Make sure the account/user localization settings are in the session
         if (Auth::check() && !Session::has(SESSION_TIMEZONE)) {
             Event::fire(new UserSettingsChanged());
@@ -147,10 +109,11 @@ class StartupCheck
                             $design = new InvoiceDesign();
                             $design->id = $item->id;
                             $design->name = $item->name;
-                            $design->javascript = $item->javascript;
+                            $design->pdfmake = $item->pdfmake;
                             $design->save();
                         }
 
+                        Cache::forget('invoiceDesigns');
                         Session::flash('message', trans('texts.bought_designs'));
                     }
                 } elseif ($productId == PRODUCT_WHITE_LABEL) {
@@ -164,6 +127,40 @@ class StartupCheck
                 }
             }
         }
+
+        // Check data has been cached
+        $cachedTables = [
+            'currencies' => 'App\Models\Currency',
+            'sizes' => 'App\Models\Size',
+            'industries' => 'App\Models\Industry',
+            'timezones' => 'App\Models\Timezone',
+            'dateFormats' => 'App\Models\DateFormat',
+            'datetimeFormats' => 'App\Models\DatetimeFormat',
+            'languages' => 'App\Models\Language',
+            'paymentTerms' => 'App\Models\PaymentTerm',
+            'paymentTypes' => 'App\Models\PaymentType',
+            'countries' => 'App\Models\Country',
+            'invoiceDesigns' => 'App\Models\InvoiceDesign',
+        ];
+        if (Input::has('clear_cache')) {
+            Session::flash('message', 'Cache cleared');
+        }
+        foreach ($cachedTables as $name => $class) {
+            if (Input::has('clear_cache') || !Cache::has($name)) {
+                if ($name == 'paymentTerms') {
+                    $orderBy = 'num_days';
+                } elseif (in_array($name, ['currencies', 'sizes', 'industries', 'languages', 'countries'])) {
+                    $orderBy = 'name';
+                } else {
+                    $orderBy = 'id';
+                }
+                $tableData = $class::orderBy($orderBy)->get();
+                if (count($tableData)) {
+                    Cache::forever($name, $tableData);
+                }
+            }
+        }
+
         
         if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
             Session::flash('error', trans('texts.old_browser'));

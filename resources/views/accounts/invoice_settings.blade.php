@@ -72,10 +72,12 @@
         <h3 class="panel-title">{!! trans('texts.email_settings') !!}</h3>
       </div>
         <div class="panel-body">
-            {{ Former::setOption('capitalize_translations', false) }}
-            {!! Former::text('subdomain')->placeholder(trans('texts.www'))->onchange('onSubdomainChange()') !!}
-            {!! Former::text('iframe_url')->placeholder('http://invoices.example.com/')
-                    ->onchange('onDomainChange()')->appendIcon('question-sign')->addGroupClass('iframe_url') !!}
+            @if (Utils::isNinja())
+                {{ Former::setOption('capitalize_translations', false) }}
+                {!! Former::text('subdomain')->placeholder(trans('texts.www'))->onchange('onSubdomainChange()') !!}
+                {!! Former::text('iframe_url')->placeholder('http://invoices.example.com/')
+                        ->onchange('onDomainChange()')->appendIcon('question-sign')->addGroupClass('iframe_url') !!}
+            @endif
             {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
         </div>
     </div>
@@ -130,9 +132,9 @@
 
                 <div class="modal-body">
                     <p>{{ trans('texts.iframe_url_help1') }}</p>
-                    <pre>&lt;iframe id="iFrame" width="800" height="1000"&gt;&lt;/iframe&gt;
+                    <pre>&lt;iframe id="invoiceIFrame" width="800" height="1000"&gt;&lt;/iframe&gt;
 &lt;script language="javascript"&gt;
-    var iframe = document.getElementById('iFrame');
+    var iframe = document.getElementById('invoiceIFrame');
     iframe.src = '{{ SITE_URL }}/view/' 
                  + window.location.search.substring(1);
 &lt;/script&gt;</pre>

@@ -397,4 +397,16 @@ class AccountRepository
     {
         return Account::whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1')->get();
     }
+
+    public function getReferralCode()
+    {
+        do {
+            $code = strtoupper(str_random(8));
+            $match = User::whereReferralCode($code)
+                        ->withTrashed()
+                        ->first();
+        } while ($match);
+        
+        return $code;
+    }
 }

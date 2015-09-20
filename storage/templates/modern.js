@@ -1,20 +1,18 @@
 {
     "content": [
-    {
-        "columns": [
         {
-            "image": "$accountLogo",
-            "fit": [120, 80],
-            "margin": [0, 60, 0, 30]
+            "columns": [
+            {
+                "image": "$accountLogo",
+                "fit": [120, 80],
+                "margin": [0, 60, 0, 30]
+            },
+            {
+                "stack": "$clientDetails",
+                "margin": [260, 80, 0, 0]
+            }
+            ]
         },
-        {
-            "stack": "$clientDetails",
-            "margin": [260, 80, 0, 0]
-        }
-        ]
-    },
-    {
-        "canvas": [{ "type": "rect", "x": 0, "y": 0, "w": 515, "h": 26, "r":0, "lineWidth": 1, "color":"$secondaryColor:#403d3d"}],"width":10,"margin":[0,25,0,-30]},
         {
             "style": "invoiceLineItemsTable",            
             "table": {
@@ -24,8 +22,9 @@
             },
             "layout": {
                 "hLineWidth": "$notFirst:.5",
-                "vLineWidth": "$none",
+                "vLineWidth": "$notFirstAndLastColumn:.5",
                 "hLineColor": "#888888",
+                "vLineColor": "#FFFFFF",
                 "paddingLeft": "$amount:8", 
                 "paddingRight": "$amount:8", 
                 "paddingTop": "$amount:8", 
@@ -92,17 +91,22 @@
             "canvas": [
             { 
                 "type": "line", "x1": 0, "y1": 0, "x2": 600, "y2": 0,"lineWidth": 100,"lineColor":"$primaryColor:#f26621"
-            }]
-            ,"width":10
-        },
-        {
+                }]
+                ,"width":10
+            },
+            {
             "columns": [
-            {   
-                "text": "$invoiceFooter",
-                "margin": [40, -30, 40, 0],
-                "alignment": "left",
-                "color": "#FFFFFF",
-                "width": 350
+            {
+                "width": 350,
+                "stack": [
+                {
+                    "text": "$invoiceFooter",
+                    "margin": [40, -40, 40, 0],
+                    "alignment": "left",
+                    "color": "#FFFFFF"
+                    
+                }
+                ]
             },
             {
                 "stack": "$accountDetails",
@@ -175,7 +179,8 @@
             "tableHeader": {
                 "bold": true,
                 "color": "#FFFFFF",
-                "fontSize": "$fontSizeLargest"
+                "fontSize": "$fontSizeLargest",
+                "fillColor": "$secondaryColor:#403d3d"
             },
             "costTableHeader": {
                 "alignment": "right"

@@ -185,7 +185,7 @@ return array(
   'users' => 'Users',
   'localization' => 'Localization',
   'remove_logo' => 'Remove logo',
-  'logo_help' => 'Supported: JPEG, GIF and PNG. Recommended size: 200px width by 120px height',
+  'logo_help' => 'Supported: JPEG, GIF and PNG',
   'payment_gateway' => 'Payment Gateway',
   'gateway_id' => 'Gateway',
   'email_notifications' => 'Email Notifications',
@@ -672,7 +672,7 @@ return array(
   'counter' => 'Counter',
 
   'payment_type_dwolla' => 'Dwolla',
-  'gateway_help_43' => ':link to sign up for Dwolla.',
+  'gateway_help_43' => ':link to sign up for Dwolla.<br/>Note: remove dashes from the Destination/Dwolla Id',
   'partial_value' => 'Must be greater than zero and less than the total',
   'more_actions' => 'More Actions',
 
@@ -765,7 +765,7 @@ return array(
   'status_viewed' => 'Viewed',
   'status_partial' => 'Partial',
   'status_paid' => 'Paid',
-  'show_line_item_tax' => 'Display <b>line item taxes</b> inline',
+  'show_line_item_tax' => 'Display <b>line item taxes inline</b>',
 
   'iframe_url' => 'Website',
   'iframe_url_help1' => 'Copy the following code to a page on your site.',
@@ -787,6 +787,9 @@ return array(
   'reset' => 'Reset',
   'invoice_not_found' => 'The requested invoice is not available',
 
-  
+  'referral_program' => 'Referral Program',
+  'referral_code' => 'Referral Code',
+  'last_sent_on' => 'Last sent on :date',
+
 );
 

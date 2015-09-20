@@ -101,20 +101,8 @@
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
 					</div>
 				@elseif ($invoice && isset($lastSent) && $lastSent)
-                    <div class="form-group" data-bind="visible: !show_last_sent_date()" >
-                        <label for="client" class="control-label col-lg-4 col-sm-4">{{ trans('texts.last_sent') }}</label>
-                        <div class="col-lg-8 col-sm-8">
-                            <div style="padding-top:10px">
-                                <a href="#" data-bind="click: $root.clickLastSentDate">{{ Utils::dateToString($invoice->last_sent_date) }}</a> -
-                                {!! link_to('/invoices/'.$lastSent->public_id, trans('texts.view_invoice'), ['id' => 'lastInvoiceSent']) !!}
-                            </div>
-                        </div>
-                    </div>                  
-                    <div data-bind="visible: show_last_sent_date()" style="display:none">
-                        {!! Former::text('last_sent_date')->data_bind("datePicker: last_sent_date, valueUpdate: 'afterkeydown', visible: show_last_sent_date()")
-                                ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
-                                ->label(trans('texts.last_sent'))
-                                ->appendIcon('calendar')->addGroupClass('last_sent_date') !!}                                        
+                    <div class="pull-right" style="padding-top: 6px">
+                        {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, Utils::dateToString($invoice->last_sent_date))]) !!}
                     </div>
                 @endif
 			@endif
@@ -192,8 +180,8 @@
 				<td style="text-align:right;padding-top:9px !important">
 					<div class="line-total" data-bind="text: totals.total"></div>
 				</td>
-				<td style="cursor:pointer" class="hide-border td-icon"> &nbsp;
-                    <i style="display:none" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; 
+				<td style="cursor:pointer" class="hide-border td-icon">
+                    <i style="display:none;padding-left:4px" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; 
                     $index() < ($parent.invoice_items().length - 1) &amp;&amp;
                     $parent.invoice_items().length > 1" class="fa fa-minus-circle redlink" title="Remove item"/>
 				</td>
@@ -966,10 +954,6 @@
 		self.invoice = ko.observable(data ? false : new InvoiceModel());
 		self.tax_rates = ko.observableArray();
 
-        self.clickLastSentDate = function() {
-            self.invoice().show_last_sent_date(true);
-        }
-
 		self.loadClient = function(client) {
 			ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
             @if (!$invoice)
@@ -1217,7 +1201,6 @@
 		self.invoice_design_id = ko.observable({{ $account->invoice_design_id }});
         self.partial = ko.observable(0);            
         self.has_tasks = ko.observable(false);
-        self.show_last_sent_date = ko.observable(false);
 
 		self.custom_value1 = ko.observable(0);
 		self.custom_value2 = ko.observable(0);
@@ -1641,7 +1624,7 @@
 
 		this.prettyRate = ko.computed({
 	        read: function () {
-	            return this.rate() ? this.rate() : '';
+	            return this.rate() ? roundToTwo(this.rate()) : '';
 	        },
 	        write: function (value) {
 	            this.rate(value);

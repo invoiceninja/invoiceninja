@@ -93,7 +93,7 @@
 
         var entityTypes = ['invoice', 'quote', 'payment', 'reminder1', 'reminder2', 'reminder3'];
         var stringTypes = ['subject', 'template'];
-        var templates = {!! json_encode($templates) !!};
+        var templates = {!! json_encode($defaultTemplates) !!};
 
         function refreshPreview() {
             for (var i=0; i<entityTypes.length; i++) {
@@ -109,7 +109,6 @@
         }
 
         $(function() {
-
             for (var i=0; i<entityTypes.length; i++) {
                 var entityType = entityTypes[i];
                 for (var j=0; j<stringTypes.length; j++) {
@@ -118,8 +117,21 @@
                     $(idName).keyup(refreshPreview);
                 }
             }
+
+            for (var i=1; i<=3; i++) {
+                $('#enable_reminder' + i).bind('click', {id: i}, function(event) {
+                    enableReminder(event.data.id)
+                });
+                enableReminder(i);
+            }
+
             refreshPreview();
         });
+
+        function enableReminder(id) {            
+            var checked = $('#enable_reminder' + id).is(':checked');
+            $('.enable-reminder' + id).attr('disabled', !checked)
+        }
 
         function processVariables(str) {
             if (!str) {

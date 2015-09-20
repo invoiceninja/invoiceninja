@@ -62,7 +62,7 @@ class PaymentService {
         } elseif (Session::get($key)) {
             $data = Session::get($key);
         } else {
-            $data = [];
+            $data = $this->createDataForClient($invitation);
         }
 
         $card = new CreditCard($data);
@@ -74,6 +74,8 @@ class PaymentService {
             'returnUrl' => URL::to('complete'),
             'cancelUrl' => $invitation->getLink(),
             'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
+            'transactionId' => $invoice->invoice_number,
+            'transactionType' => 'Purchase',
         ];
     }
 
@@ -108,6 +110,34 @@ class PaymentService {
         }
 
         return $data;
+    }
+
+    public function createDataForClient($invitation)
+    {
+        $invoice = $invitation->invoice;
+        $client = $invoice->client;
+        $contact = $invitation->contact ?: $client->contacts()->first();
+
+        return [
+            'email' => $contact->email,
+            'company' => $client->getDisplayName(),
+            'firstName' => $contact->first_name,
+            'lastName' => $contact->last_name,
+            'billingAddress1' => $client->address1,
+            'billingAddress2' => $client->address2,
+            'billingCity' => $client->city,
+            'billingPostcode' => $client->postal_code,
+            'billingState' => $client->state,
+            'billingCountry' => $client->country->iso_3166_2,
+            'billingPhone' => $contact->phone,
+            'shippingAddress1' => $client->address1,
+            'shippingAddress2' => $client->address2,
+            'shippingCity' => $client->city,
+            'shippingPostcode' => $client->postal_code,
+            'shippingState' => $client->state,
+            'shippingCountry' => $client->country->iso_3166_2,
+            'shippingPhone' => $contact->phone,
+        ];
     }
 
     public function createToken($gateway, $details, $accountGateway, $client, $contactId)

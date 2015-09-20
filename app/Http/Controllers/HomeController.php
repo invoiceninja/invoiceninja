@@ -54,6 +54,13 @@ class HomeController extends BaseController
             Auth::logout();
         }
 
+        // Track the referral/campaign code
+        foreach (['rc', 'utm_campaign'] as $code) {
+            if (Input::has($code)) {
+                Session::set(SESSION_REFERRAL_CODE, Input::get($code));
+            }
+        }
+
         if (Auth::check()) {
             $redirectTo = Input::get('redirect_to', 'invoices/create');
             return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));

@@ -385,28 +385,4 @@ class UserController extends BaseController
         return View::make('users.account_management');
     }
 
-    public function claimReferralCode($email)
-    {
-        $user = User::whereEmail($email)
-                    ->whereReferralCode(null)
-                    ->whereConfirmed(true)
-                    ->first();
-        
-        if ($user) {
-            do {
-                $code = strtoupper(str_random(8));
-                $match = User::whereReferralCode($code)
-                            ->withTrashed()
-                            ->first();
-            } while ($match);
-            
-            $user->referral_code = $code;
-            $user->save();
-
-            return $code;
-        }
-
-        return Redirect::to('/');
-    }
-
 }

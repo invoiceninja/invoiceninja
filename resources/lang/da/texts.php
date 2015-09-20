@@ -185,7 +185,7 @@
    'users' => 'Brugere', 
    'localization' => 'Lokalisering', 
    'remove_logo' => 'Fjern logo', 
-   'logo_help' => 'Understøttede filtyper: JPEG, GIF og PNG. Anbefalet størrelse: 200px bredde og 120px højde', 
+   'logo_help' => 'Understøttede filtyper: JPEG, GIF og PNG', 
    'payment_gateway' => 'Betalingsløsning', 
    'gateway_id' => 'Kort betalings udbyder', 
    'email_notifications' => 'Notifikation via e-mail', 
@@ -788,6 +788,9 @@
    'reset' => 'Reset',
    'invoice_not_found' => 'The requested invoice is not available',
 
+   'referral_program' => 'Referral Program',
+   'referral_code' => 'Referral Code',
+   'last_sent_on' => 'Last sent on :date',
 
 
  ); 

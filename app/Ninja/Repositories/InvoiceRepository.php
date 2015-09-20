@@ -289,16 +289,15 @@ class InvoiceRepository
         }
         
         if ($invoice->is_recurring) {
+            if ($invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
+                $invoice->last_sent_date = null;
+            }
+
             $invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
             $invoice->start_date = Utils::toSqlDate($data['start_date']);
             $invoice->end_date = Utils::toSqlDate($data['end_date']);
             $invoice->due_date = null;
             $invoice->auto_bill = isset($data['auto_bill']) && $data['auto_bill'] ? true : false;
-
-            if (isset($data['show_last_sent_date']) && $data['show_last_sent_date']
-                    && isset($data['last_sent_date']) && $data['last_sent_date']) {
-                $invoice->last_sent_date = Utils::toSqlDate($data['last_sent_date']);
-            }
         } else {
             $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
             $invoice->frequency_id = 0;

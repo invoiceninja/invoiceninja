@@ -185,7 +185,7 @@ return array(
   'users' => 'Brukere',
   'localization' => 'Lokaliseing',
   'remove_logo' => 'Fjern logo',
-  'logo_help' => 'St&#248;ttedefiltyper: JPEG, GIF og PNG. Anbefalt st&#248;rrelse: 200px bredde by 120px h&#248;yde',
+  'logo_help' => 'St&#248;ttedefiltyper: JPEG, GIF og PNG',
   'payment_gateway' => 'Betalingsl&#248;sning',
   'gateway_id' => 'Tilbyder',
   'email_notifications' => 'Varsel via email',
@@ -787,6 +787,9 @@ return array(
   'reset' => 'Reset',
   'invoice_not_found' => 'The requested invoice is not available',
 
+  'referral_program' => 'Referral Program',
+  'referral_code' => 'Referral Code',
+  'last_sent_on' => 'Last sent on :date',
 
   
 );

@@ -185,7 +185,7 @@ return array(
   'users' => 'Användare',
   'localization' => 'Språkanpassning',
   'remove_logo' => 'Ta bort logga',
-  'logo_help' => 'Giltiga format: JPEG, GIF och PNG. Rekommenderad storlek: 200 x 120 pixlar (BxH)',
+  'logo_help' => 'Giltiga format: JPEG, GIF och PNG',
   'payment_gateway' => 'Betalningstjänst',
   'gateway_id' => 'Tjänst',
   'email_notifications' => 'Notifieringar',
@@ -785,6 +785,9 @@ return array(
   'reset' => 'Reset',
   'invoice_not_found' => 'The requested invoice is not available',
 
+  'referral_program' => 'Referral Program',
+  'referral_code' => 'Referral Code',
+  'last_sent_on' => 'Last sent on :date',
 
   
 );

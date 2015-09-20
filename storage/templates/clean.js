@@ -30,7 +30,7 @@
                     "table": { 
                         "body": "$invoiceDetails"
                     },
-                    "margin": [0, 0, 12, 4],
+                    "margin": [0, 0, 12, 0],
                     "layout": "noBorders"
                 }, 
                 {
@@ -49,7 +49,7 @@
             "paddingLeft": "$amount:8", 
             "paddingRight": "$amount:8", 
             "paddingTop": "$amount:6", 
-            "paddingBottom": "$amount:2"            
+            "paddingBottom": "$amount:6"
         }
     },
     {

@@ -356,6 +356,10 @@ class InvoiceController extends BaseController
                 'lastSent' => $lastSent);
         $data = array_merge($data, self::getViewModel());
 
+        if ($clone) {
+            $data['formIsChanged'] = true;
+        }
+
         // Set the invitation link on the client's contacts
         if (!$clone) {
             $clients = $data['clients'];
@@ -526,9 +530,11 @@ class InvoiceController extends BaseController
                 Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
             }
 
-            $pdfUpload = Input::get('pdfupload');
-            if (!empty($pdfUpload) && strpos($pdfUpload, 'data:application/pdf;base64,') === 0) {
-                $invoice->updateCachedPDF(Input::get('pdfupload'));
+            if ($invoice->account->pdf_email_attachment) {
+                $pdfUpload = Input::get('pdfupload');
+                if (!empty($pdfUpload) && strpos($pdfUpload, 'data:application/pdf;base64,') === 0) {
+                    $invoice->updateCachedPDF(Input::get('pdfupload'));
+                }
             }
 
             if ($action == 'clone') {

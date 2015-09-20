@@ -40,10 +40,15 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Skrill', 'provider' => 'Skrill', 'payment_library_id' => 1],
             ['name' => 'BitPay', 'provider' => 'BitPay', 'payment_library_id' => 1],
             ['name' => 'Dwolla', 'provider' => 'Dwolla', 'payment_library_id' => 1],
+            ['name' => 'Eway Rapid', 'provider' => 'Eway_RapidShared', 'payment_library_id' => 1],
         ];
 
         foreach ($gateways as $gateway) {
-            if (!DB::table('gateways')->where('name', '=', $gateway['name'])->get()) {
+            $record = Gateway::where('name', '=', $gateway['name'])->first();
+            if ($record) {
+                $record->provider = $gateway['provider'];
+                $record->save();
+            } else {
                 Gateway::create($gateway);
             }
         }
@@ -86,6 +91,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Thai baht', 'code' => 'THB', 'symbol' => 'THB ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Nigerian Naira', 'code' => 'NGN', 'symbol' => 'NGN ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Argentine Peso', 'code' => 'ARS', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'Bangladeshi Taka', 'code' => 'BDT', 'symbol' => 'Tk', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
         ];
 
         foreach ($currencies as $currency) {

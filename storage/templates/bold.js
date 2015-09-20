@@ -39,7 +39,7 @@
         "style": "invoiceLineItemsTable",
         "table": {
             "headerRows": 1,
-            "widths": ["15%", "*", "14%", "$quantityWidth", "22%"],
+            "widths": ["22%", "*", "14%", "$quantityWidth", "$taxWidth", "22%"],
             "body": "$invoiceLineItems"
         },
         "layout": {
@@ -74,13 +74,19 @@
         }]
     }
     ],
-    "footer": [
-        {"canvas": [{ "type": "line", "x1": 0, "y1": 0, "x2": 600, "y2": 0,"lineWidth": 100,"lineColor":"$secondaryColor:#2e2b2b"}]},
+    "footer":
+    [
+        {"canvas": [{ "type": "line", "x1": 0, "y1": 0, "x2": 600, "y2": 0,"lineWidth": 100,"lineColor":"$secondaryColor:#292526"}]},
         {
-            "text": "$invoiceFooter",
-            "margin": [40, 0, 40, 0],
-            "alignment": "left",
-            "color": "#FFFFFF"
+            "columns":
+                [
+                    {
+                        "text": "$invoiceFooter",
+                        "margin": [40, -40, 40, 0],
+                        "alignment": "left",
+                        "color": "#FFFFFF"
+                    }
+                ]
         }
     ],
     "header": [
@@ -93,7 +99,7 @@
                 "x2": 600,
                 "y2": 0,
                 "lineWidth": 200,
-                "lineColor": "$secondaryColor:#2e2b2b"
+                "lineColor": "$secondaryColor:#292526"
               }
             ],
             "width": 10
@@ -209,7 +215,7 @@
             },
             "invoiceLineItemsTable": {
                 "margin": [0, 26, 0, 16]
-            },            
+            },
             "clientName": {
                 "bold": true
             },
@@ -229,11 +235,11 @@
             "subtotals": {
                 "alignment": "right",
                 "margin": [0,0,40,0]
-            },            
+            },
             "termsLabel": {
                 "bold": true,
                 "margin": [0, 0, 0, 4]
-            }            
+            }
         },
         "pageMargins": [0, 80, 0, 40]
     }

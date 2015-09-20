@@ -68,6 +68,8 @@ class TaskRepository
             $timeLog = [];
         }
 
+        array_multisort($timeLog);
+
         if (isset($data['action'])) {
             if ($data['action'] == 'start') {
                 $task->is_running = true;

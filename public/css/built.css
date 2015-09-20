@@ -2404,6 +2404,9 @@ margin-top: 0;
 margin-bottom: 0;
 padding-top: 10px;
 }
+.form-control-static {
+    padding-top: 11px;
+}
 textarea.form-control {
     /*height: auto !important;*/
     min-height: 40px;

@@ -184,7 +184,7 @@ return array(
   'users' => 'Gebruikers',
   'localization' => 'Localisatie',
   'remove_logo' => 'Verwijder logo',
-  'logo_help' => 'Ondersteund: JPEG, GIF en PNG. Aangeraden hoogte: 120px',
+  'logo_help' => 'Ondersteund: JPEG, GIF en PNG',
   'payment_gateway' => 'Betalingsmiddel',
   'gateway_id' => 'Leverancier',
   'email_notifications' => 'E-mail meldingen',
@@ -782,5 +782,8 @@ return array(
   'reset' => 'Reset',
   'invoice_not_found' => 'The requested invoice is not available',
 
+  'referral_program' => 'Referral Program',
+  'referral_code' => 'Referral Code',
+  'last_sent_on' => 'Last sent on :date',
   
 );

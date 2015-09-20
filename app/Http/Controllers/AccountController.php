@@ -33,6 +33,7 @@ use App\Models\DateFormat;
 use App\Models\DatetimeFormat;
 use App\Models\Language;
 use App\Models\Size;
+use App\Models\Gateway;
 use App\Models\Timezone;
 use App\Models\Industry;
 use App\Models\InvoiceDesign;
@@ -150,7 +151,7 @@ class AccountController extends BaseController
     public function showSection($section = ACCOUNT_DETAILS, $subSection = false)
     {
         if ($section == ACCOUNT_DETAILS) {
-            $primaryUser = Auth::user()->account->users()->orderBy('id')->first();
+            $primaryUser = Auth::user()->account->getPrimaryUser();
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
                 'countries' => Cache::get('countries'),
@@ -177,7 +178,7 @@ class AccountController extends BaseController
                 return Redirect::to('gateways/create');
             } else {
                 return View::make('accounts.payments', [
-                    'showAdd' => $count < 3,
+                    'showAdd' => $count < count(Gateway::$paymentTypes),
                     'title' => trans('texts.online_payments')
                 ]);
             }
@@ -251,10 +252,15 @@ class AccountController extends BaseController
                 }
             } else if ($subSection == ACCOUNT_TEMPLATES_AND_REMINDERS) {
                 $data['templates'] = [];
+                $data['defaultTemplates'] = [];
                 foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type) {
                     $data['templates'][$type] = [
                         'subject' => $account->getEmailSubject($type),
                         'template' => $account->getEmailTemplate($type),
+                    ];
+                    $data['defaultTemplates'][$type] = [
+                        'subject' => $account->getDefaultEmailSubject($type),
+                        'template' => $account->getDefaultEmailTemplate($type),
                     ];
                 }
                 $data['emailFooter'] = $account->getEmailFooter();
@@ -321,18 +327,22 @@ class AccountController extends BaseController
 
             foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type) {
                 $subjectField = "email_subject_{$type}";
-                $account->$subjectField = Input::get($subjectField, $account->getEmailSubject($type));
+                $subject = Input::get($subjectField, $account->getEmailSubject($type));
+                $account->$subjectField = ($subject == $account->getDefaultEmailSubject($type) ? null : $subject);
 
                 $bodyField = "email_template_{$type}";
-                $account->$bodyField = Input::get($bodyField, $account->getEmailTemplate($type));
+                $body = Input::get($bodyField, $account->getEmailTemplate($type));
+                $account->$bodyField = ($body == $account->getDefaultEmailTemplate($type) ? null : $body);
             }
 
             foreach ([REMINDER1, REMINDER2, REMINDER3] as $type) {
                 $enableField = "enable_{$type}";
                 $account->$enableField = Input::get($enableField) ? true : false;
 
-                $numDaysField = "num_days_{$type}";
-                $account->$numDaysField = Input::get($numDaysField);
+                if ($account->$enableField) {
+                    $numDaysField = "num_days_{$type}";
+                    $account->$numDaysField = Input::get($numDaysField);
+                }
             }
 
             $account->save();
@@ -716,6 +726,11 @@ class AccountController extends BaseController
                 $user->username = trim(Input::get('email'));
                 $user->email = trim(strtolower(Input::get('email')));
                 $user->phone = trim(Input::get('phone'));
+                if (Utils::isNinja()) {
+                    if (Input::get('referral_code')) {
+                        $user->referral_code = $this->accountRepo->getReferralCode();
+                    }
+                }
                 if (Utils::isNinjaDev()) {
                     $user->dark_mode = Input::get('dark_mode') ? true : false;
                 }

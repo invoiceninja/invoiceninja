@@ -185,7 +185,7 @@ return array(
   'users' => 'Utilisateurs',
   'localization' => 'Localisation',
   'remove_logo' => 'Supprimer le logo',
-  'logo_help' => 'Formats supportés: JPEG, GIF et PNG. Hauteur recommandé: 120px',
+  'logo_help' => 'Formats supportés: JPEG, GIF et PNG',
   'payment_gateway' => 'Passerelle de paiement',
   'gateway_id' => 'Fournisseur',
   'email_notifications' => 'Notifications par courriel',
@@ -779,6 +779,9 @@ return array(
   'reset' => 'Reset',
   'invoice_not_found' => 'The requested invoice is not available',
   
+  'referral_program' => 'Referral Program',
+  'referral_code' => 'Referral Code',
+  'last_sent_on' => 'Last sent on :date',
 
 
 );

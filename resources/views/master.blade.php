@@ -112,10 +112,10 @@
 @yield('body')
 
 <script type="text/javascript">
-    NINJA.formIsChanged = false;
+    NINJA.formIsChanged = {{ isset($formIsChanged) && $formIsChanged ? 'true' : 'false' }};
     $(function() {      
         $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function() {
-            NINJA.formIsChanged = true;      
+            NINJA.formIsChanged = true;
         }); 
 
         @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))

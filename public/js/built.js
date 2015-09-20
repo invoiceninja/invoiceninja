@@ -31546,6 +31546,14 @@ function doubleDollarSign(str) {
     if (!str) return '';
     return str.replace(/\$/g, '\$\$\$');
 }
+
+function truncate(string, length){
+   if (string.length > length) {
+      return string.substring(0, length) + '...';
+   } else {
+      return string;
+   }
+};
 var NINJA = NINJA || {};
 
 NINJA.TEMPLATES = {
@@ -31575,12 +31583,17 @@ function GetPdfMake(invoice, javascript, callback) {
             return function (i, node) {
                 return 0;
             };
+        } else if ((val+'').indexOf('$notFirstAndLastColumn') === 0) {
+            var parts = val.split(':');
+            return function (i, node) {
+                return (i === 0 || i === node.table.widths.length) ? 0 : parseFloat(parts[1]);
+            };
         } else if ((val+'').indexOf('$notFirst') === 0) {
             var parts = val.split(':');
             return function (i, node) {
                 return i === 0 ? 0 : parseFloat(parts[1]);
             };
-        } else if ((val+'').indexOf('$amount') === 0) {            
+        } else if ((val+'').indexOf('$amount') === 0) {
             var parts = val.split(':');
             return function (i, node) {
                 return parseFloat(parts[1]);
@@ -31599,12 +31612,18 @@ function GetPdfMake(invoice, javascript, callback) {
 
     //console.log(javascript);
     var dd = JSON.parse(javascript, jsonCallBack);
-
-    if (!invoice.is_pro && dd.hasOwnProperty('footer') && dd.footer.hasOwnProperty('columns')) {
-        dd.footer.columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130})
+    var designId = invoice.invoice_design_id;
+    if (!invoice.is_pro) {
+        if (designId == NINJA.TEMPLATES.CLEAN || designId == NINJA.TEMPLATES.NORMAL) {
+            dd.footer.columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, 0, 0, 0]})
+        } else if (designId == NINJA.TEMPLATES.BOLD) {
+            dd.footer[1].columns.push({image: logoImages.imageLogo2, alignment: 'right', width: 130, margin: [0, -20, 20, 0]})
+        } else if (designId == NINJA.TEMPLATES.MODERN) {
+            dd.footer[1].columns[0].stack.push({image: logoImages.imageLogo3, alignment: 'left', width: 130, margin: [40, 6, 0, 0]});
+        }
     }
 
-    //console.log(JSON.stringify(dd));
+    //console.log(JSON.stringify(dd.footer[1].columns));
 
     /*
     var fonts = {
@@ -31640,6 +31659,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'invoiceLineItems': NINJA.invoiceLines(invoice),
         'invoiceLineItemColumns': NINJA.invoiceColumns(invoice),
         'quantityWidth': NINJA.quantityWidth(invoice),
+        'taxWidth': NINJA.taxWidth(invoice),
         'clientDetails': NINJA.clientDetails(invoice),
         'notesAndTerms': NINJA.notesAndTerms(invoice),
         'subtotals': NINJA.subtotals(invoice),
@@ -31647,7 +31667,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'subtotalsWithoutBalance': NINJA.subtotals(invoice, true),        
         'subtotalsBalance': NINJA.subtotalsBalance(invoice),
         'balanceDue': formatMoney(invoice.balance_amount, invoice.client.currency_id),
-        'invoiceFooter': invoice.invoice_footer || ' ',
+        'invoiceFooter': NINJA.invoiceFooter(invoice),
         'invoiceNumber': invoice.invoice_number || ' ',
         'entityType': invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice,
         'entityTypeUC': (invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),
@@ -31658,7 +31678,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
 
     for (var key in json) {
         // remove trailing commas for these fields
-        if (['quantityWidth'].indexOf(key) >= 0) {
+        if (['quantityWidth', 'taxWidth'].indexOf(key) >= 0) {
             var regExp = new RegExp('"\\$'+key+'",', 'g');
             val = json[key];
         } else {
@@ -31754,9 +31774,23 @@ NINJA.invoiceColumns = function(invoice)
     return columns;
 }
 
+NINJA.invoiceFooter = function(invoice)
+{
+    if (!invoice.is_pro && invoice.invoice_design_id == 3) {
+        return invoice.invoice_footer ? invoice.invoice_footer.substring(0, 200) : ' ';
+    } else {
+        return invoice.invoice_footer || ' ';
+    }
+}
+
 NINJA.quantityWidth = function(invoice)
 {
     return invoice.account.hide_quantity == '1' ? '' : '"14%", ';
+}
+
+NINJA.taxWidth = function(invoice)
+{
+    return invoice.account.show_item_taxes == '1' ? '"14%", ' : '';
 }
 
 NINJA.invoiceLines = function(invoice) {

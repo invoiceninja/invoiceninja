@@ -86,14 +86,25 @@
 				{!! Former::text('last_name') !!}
                 {!! Former::text('email') !!}
 				{!! Former::text('phone') !!}
-                @if (Utils::isNinjaDev())
-                    {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help')) !!}
+                @if (Utils::isNinja() && $primaryUser->confirmed)
+                    @if ($primaryUser->referral_code)
+                        {!! Former::plaintext('referral_code')
+                                ->value($primaryUser->referral_code . ' <a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>') !!}
+                    @else
+                        {!! Former::checkbox('referral_code')
+                                ->text(trans('texts.enable') . ' <a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>')  !!}
+                    @endif                    
                 @endif
+                @if (false && Utils::isNinjaDev())
+                    {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help')) !!}
+                @endif                
                 
-                @if (Auth::user()->confirmed)                
-                    {!! Former::actions( Button::primary(trans('texts.change_password'))->small()->withAttributes(['onclick'=>'showChangePassword()'])) !!}
-                @elseif (Auth::user()->registered)
-                    {!! Former::actions( Button::primary(trans('texts.resend_confirmation'))->asLinkTo(URL::to('/resend_confirmation'))->small() ) !!}
+                @if (Utils::isNinja())
+                    @if (Auth::user()->confirmed)                
+                        {!! Former::actions( Button::primary(trans('texts.change_password'))->small()->withAttributes(['onclick'=>'showChangePassword()'])) !!}
+                    @elseif (Auth::user()->registered)
+                        {!! Former::actions( Button::primary(trans('texts.resend_confirmation'))->asLinkTo(URL::to('/resend_confirmation'))->small() ) !!}
+                    @endif
                 @endif
                 </div>
             </div>

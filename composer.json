@@ -37,7 +37,7 @@
 		"guzzlehttp/guzzle": "~5.0",
         "laravelcollective/html": "~5.0",
         "wildbit/laravel-postmark-provider": "dev-master",
-        "Dwolla/omnipay-dwolla": "dev-master"        
+        "Dwolla/omnipay-dwolla": "dev-master"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

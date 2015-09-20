@@ -412,6 +412,15 @@ class Account extends Eloquent
         return $this;
     }
 
+    public function getDefaultEmailSubject($entityType)
+    {
+        if (strpos($entityType, 'reminder') !== false) {
+            $entityType = 'reminder';
+        }
+
+        return trans("texts.{$entityType}_subject", ['invoice' => '$invoice', 'account' => '$account']);
+    }
+
     public function getEmailSubject($entityType)
     {
         $field = "email_subject_{$entityType}";
@@ -421,22 +430,11 @@ class Account extends Eloquent
             return $value;
         }
 
-        if (strpos($entityType, 'reminder') !== false) {
-            $entityType = 'reminder';
-        }
-
-        return trans("texts.{$entityType}_subject", ['invoice' => '$invoice', 'account' => '$account']);
+        return $this->getDefaultEmailSubject($entityType);
     }
 
-    public function getEmailTemplate($entityType, $message = false)
+    public function getDefaultEmailTemplate($entityType, $message = false)
     {
-        $field = "email_template_{$entityType}";
-        $template = $this->$field;
-
-        if ($template) {
-            return $template;
-        }
-
         if (strpos($entityType, 'reminder') >= 0) {
             $entityType = ENTITY_INVOICE;
         }
@@ -450,6 +448,18 @@ class Account extends Eloquent
         }
 
         return $template . "\$footer";
+    }
+
+    public function getEmailTemplate($entityType, $message = false)
+    {
+        $field = "email_template_{$entityType}";
+        $template = $this->$field;
+
+        if ($template) {
+            return $template;
+        }
+
+        return $this->getDefaultEmailTemplate($entityType, $message);
     }
 
     public function getEmailFooter()
