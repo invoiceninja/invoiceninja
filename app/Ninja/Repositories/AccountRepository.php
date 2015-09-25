@@ -233,7 +233,11 @@ class AccountRepository
 
     public function registerUser($user)
     {
-        $url = (Utils::isNinjaDev() ? '' : NINJA_APP_URL) . '/signup/register';
+        if ($user->email == TEST_USERNAME) {
+            return false;
+        }
+
+        $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . '/signup/register';
         $data = '';
         $fields = [
             'first_name' => urlencode($user->first_name),
@@ -250,6 +254,7 @@ class AccountRepository
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, count($fields));
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
         curl_close($ch);
     }

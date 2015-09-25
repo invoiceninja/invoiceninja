@@ -26,10 +26,8 @@ class StartupCheck
     public function handle($request, Closure $next)
     {
         // Ensure all request are over HTTPS in production
-        if (App::environment() == ENV_PRODUCTION) {
-            if (!Request::secure()) {
-                return Redirect::secure(Request::getRequestUri());
-            }
+        if (App::environment() == ENV_PRODUCTION && !Request::secure()) {
+            return Redirect::secure(Request::getRequestUri());
         }
 
         // If the database doens't yet exist we'll skip the rest
@@ -37,7 +35,19 @@ class StartupCheck
             return $next($request);
         }
 
-        // check the application is up to date and for any news feed messages
+        // Check if a new version was installed
+        if (!Utils::isNinja()) {
+            $file = storage_path() . '/version.txt';
+            $version = @file_get_contents($file);
+            if ($version != NINJA_VERSION) {
+                $handle = fopen($file, 'w');
+                fwrite($handle, NINJA_VERSION);
+                fclose($handle);
+                return Redirect::to('/update');
+            }
+        }
+
+        // Check the application is up to date and for any news feed messages
         if (Auth::check()) {
             $count = Session::get(SESSION_COUNTER, 0);
             Session::put(SESSION_COUNTER, ++$count);
@@ -160,8 +170,8 @@ class StartupCheck
                 }
             }
         }
-
         
+        // Show message to IE 8 and before users
         if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
             Session::flash('error', trans('texts.old_browser'));
         }

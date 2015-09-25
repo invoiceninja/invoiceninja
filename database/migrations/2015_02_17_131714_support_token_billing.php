@@ -14,7 +14,7 @@ class SupportTokenBilling extends Migration {
 	{
         Schema::table('accounts', function($table)
         {
-            $table->smallInteger('token_billing_type_id')->default(TOKEN_BILLING_OPT_IN);
+            $table->smallInteger('token_billing_type_id')->default(TOKEN_BILLING_ALWAYS);
         });
 
         Schema::create('account_gateway_tokens', function($table)
@@ -35,7 +35,7 @@ class SupportTokenBilling extends Migration {
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
         });
 
-        DB::table('accounts')->update(['token_billing_type_id' => TOKEN_BILLING_OPT_IN]);
+        DB::table('accounts')->update(['token_billing_type_id' => TOKEN_BILLING_ALWAYS]);
 	}
 
 	/**

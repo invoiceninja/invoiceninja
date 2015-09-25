@@ -40,6 +40,7 @@ use App\Models\InvoiceDesign;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
+use App\Events\UserSignedUp;
 use App\Events\UserLoggedIn;
 use App\Events\UserSettingsChanged;
 
@@ -109,7 +110,8 @@ class AccountController extends BaseController
         }
 
         Auth::login($user, true);
-        Event::fire(new UserLoggedIn());
+        event(new UserSignedUp());
+        event(new UserLoggedIn());
         
         $redirectTo = Input::get('redirect_to', 'invoices/create');
         return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
@@ -151,7 +153,7 @@ class AccountController extends BaseController
     public function showSection($section = ACCOUNT_DETAILS, $subSection = false)
     {
         if ($section == ACCOUNT_DETAILS) {
-            $primaryUser = Auth::user()->account->getPrimaryUser();
+            $primaryUser = Auth::user()->account->users()->orderBy('id')->first();
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
                 'countries' => Cache::get('countries'),
@@ -721,6 +723,7 @@ class AccountController extends BaseController
             $account->save();
 
             if (Auth::user()->id === $user->id) {
+                $user = Auth::user();
                 $user->first_name = trim(Input::get('first_name'));
                 $user->last_name = trim(Input::get('last_name'));
                 $user->username = trim(Input::get('email'));
@@ -837,11 +840,10 @@ class AccountController extends BaseController
     public function doRegister()
     {
         $affiliate = Affiliate::where('affiliate_key', '=', SELF_HOST_AFFILIATE_KEY)->first();
-
         $email = trim(Input::get('email'));
-
-        if (!$email || $email == 'user@example.com') {
-            return '';
+        
+        if (!$email || $email == TEST_USERNAME) {
+            return RESULT_FAILURE;
         }
 
         $license = new License();
@@ -855,7 +857,7 @@ class AccountController extends BaseController
         $license->is_claimed = 1;
         $license->save();
 
-        return '';
+        return RESULT_SUCCESS;
     }
 
     public function cancelAccount()

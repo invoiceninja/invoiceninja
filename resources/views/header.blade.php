@@ -637,7 +637,8 @@
 @if (!Utils::isNinjaProd())
 <p>&nbsp;</p>
 <div class="container">
-  {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> | 
+  {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> -
+  {!! link_to(GITHUB_RELEASES, 'v' . NINJA_VERSION, ['target' => '_blank']) !!} | 
   @if (Auth::user()->account->isWhiteLabel())  
     {{ trans('texts.white_labeled') }}
   @else

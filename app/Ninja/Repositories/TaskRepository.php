@@ -45,8 +45,22 @@ class TaskRepository
         return $query;
     }
 
+    public function getErrors($input)
+    {
+        $rules = [
+            'time_log' => 'time_log',
+        ];
+        $validator = \Validator::make($input, $rules);
+
+        if ($validator->fails()) {
+            return $validator;
+        }
+        
+        return false;
+    }
+
     public function save($publicId, $data)
-    {        
+    {
         if ($publicId) {
             $task = Task::scope($publicId)->firstOrFail();
         } else {

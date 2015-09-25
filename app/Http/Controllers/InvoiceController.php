@@ -12,7 +12,6 @@ use DB;
 use Event;
 use URL;
 use Datatable;
-use finfo;
 use Request;
 use DropdownButton;
 use App\Models\Invoice;

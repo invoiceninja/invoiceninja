@@ -216,6 +216,14 @@ class TaskController extends BaseController
             return self::bulk();
         }
 
+        if ($validator = $this->taskRepo->getErrors(Input::all())) {
+            $url = $publicId ? 'tasks/'.$publicId.'/edit' : 'tasks/create';
+            Session::flash('error', trans('texts.task_errors'));
+            return Redirect::to($url)
+                ->withErrors($validator)
+                ->withInput();
+        }
+
         $task = $this->taskRepo->save($publicId, Input::all());
         Session::flash('message', trans($publicId ? 'texts.updated_task' : 'texts.created_task'));
 

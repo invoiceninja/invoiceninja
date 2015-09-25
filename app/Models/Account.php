@@ -25,13 +25,6 @@ class Account extends Eloquent
         return $this->hasMany('App\Models\User');
     }
 
-    public function getPrimaryUser()
-    {
-        return $this->hasMany('App\Models\User')
-                ->whereRaw('public_id = 0 OR public_id IS NULL')
-                ->first();
-    }
-
     public function clients()
     {
         return $this->hasMany('App\Models\Client');

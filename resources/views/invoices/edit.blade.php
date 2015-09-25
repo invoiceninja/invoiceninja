@@ -1847,7 +1847,7 @@
 	}
 
 	@if ($data)
-		window.model = new ViewModel({!! $data !!});        
+		window.model = new ViewModel({!! $data !!});
 	@else 
 		window.model = new ViewModel();
 		model.addTaxRate();

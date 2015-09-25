@@ -76,7 +76,9 @@
             @endif
 
             @if ($gateway->id == GATEWAY_STRIPE)
-                {!! Former::select('token_billing_type_id')->options($tokenBillingOptions)->help(trans('texts.token_billing_help')) !!}
+                {!! Former::select('token_billing_type_id')
+                        ->options($tokenBillingOptions)
+                        ->help(trans('texts.token_billing_help')) !!}
             @endif
         </div>
         

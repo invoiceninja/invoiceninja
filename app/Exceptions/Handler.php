@@ -27,11 +27,13 @@ class Handler extends ExceptionHandler {
 	 */
 	public function report(Exception $e)
 	{
-        Utils::logError(Utils::getErrorString($e));
-        return false;
-        
-		//return parent::report($e);
-	}
+        if (Utils::isNinja()) {
+            Utils::logError(Utils::getErrorString($e));
+            return false;
+        } else {
+            return parent::report($e);
+        }
+    }
 
 	/**
 	 * Render an exception into an HTTP response.
@@ -41,8 +43,7 @@ class Handler extends ExceptionHandler {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function render($request, Exception $e)
-	{     
-
+	{
         if ($e instanceof ModelNotFoundException) {
             return Redirect::to('/');
         }

@@ -5,6 +5,7 @@ use Auth;
 use Event;
 use App\Libraries\Utils;
 use App\Events\UserSettingsChanged;
+use App\Events\UserSignedUp;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -35,7 +36,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @var array
      */
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'confirmation_code'];
 
     use SoftDeletes;
     protected $dates = ['deleted_at'];
@@ -203,20 +204,30 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         }
     }
 
-    public static function updateUser($user)
+    public static function onUpdatingUser($user)
     {
-        if ($user->password != !$user->getOriginal('password')) {
+        if ($user->password != $user->getOriginal('password')) {
             $user->failed_logins = 0;
         }
+    }
+
+    public static function onUpdatedUser($user)
+    {
+        if (!$user->getOriginal('email')
+            || $user->getOriginal('email') == TEST_USERNAME
+            || $user->getOriginal('username') == TEST_USERNAME) {
+            event(new UserSignedUp());
+        }
+
+        event(new UserSettingsChanged());
     }
 
 }
 
 User::updating(function ($user) {
-    User::updateUser($user);
+    User::onUpdatingUser($user);
 });
 
 User::updated(function ($user) {
-    Event::fire(new UserSettingsChanged());
+    User::onUpdatedUser($user);
 });
-

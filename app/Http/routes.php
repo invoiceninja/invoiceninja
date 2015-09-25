@@ -391,6 +391,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
     define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
     define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/single/browser/v1/');
+    define('GITHUB_RELEASES', 'https://github.com/hillelcoren/invoice-ninja/releases');
     define('REFERRAL_PROGRAM_URL', false);
 
     define('COUNT_FREE_DESIGNS', 4);
@@ -460,7 +461,6 @@ if (!defined('CONTACT_EMAIL')) {
     }
 }
 
-/*
 // Log all SQL queries to laravel.log
 Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 {
@@ -485,7 +485,7 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 
     Log::info($query, $data);
 });
-*/
+
 
 /*
 if (Auth::check() && Auth::user()->id === 1)

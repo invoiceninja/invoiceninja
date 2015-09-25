@@ -180,15 +180,7 @@
             if (!timeLog.isEmpty()) {
                 data.push([timeLog.startTime(),timeLog.endTime()]);
             }
-            @if ($task && !$task->is_running)
-                if (!timeLog.isStartValid() || !timeLog.isEndValid()) {
-                    alert("{!! trans('texts.task_errors') !!}");
-                    showTimeDetails();
-                    return;
-                }
-            @endif
-
-        }        
+        }
         $('#invoice_id').val(invoice_id);
         $('#time_log').val(JSON.stringify(data));
         $('#action').val(action);
@@ -279,6 +271,15 @@
         };       
     }
 
+    function loadTimeLog(data) {
+        model.time_log.removeAll();
+        data = JSON.parse(data);
+        for (var i=0; i<data.length; i++) {
+            model.time_log.push(new TimeModel(data[i]));
+        }
+        model.time_log.push(new TimeModel());
+    }
+
     function ViewModel(data) {
         var self = this;
         self.time_log = ko.observableArray();
@@ -287,31 +288,36 @@
             data = JSON.parse(data.time_log);
             for (var i=0; i<data.length; i++) {
                 self.time_log.push(new TimeModel(data[i]));
-            }            
+            }
         }
         self.time_log.push(new TimeModel());
 
-        self.removeItem = function(item) {            
-            self.time_log.remove(item);   
-            self.refresh();         
+        self.removeItem = function(item) {
+            self.time_log.remove(item);
+            self.refresh();
         }
 
         self.refresh = function() {
             var hasEmpty = false;
             var lastTime = 0;
-            self.time_log.sort(function(left, right) {
-                if (left.isEmpty() || right.isEmpty()) {
-                    return -1;
+            for (var i=0; i<self.time_log().length; i++) {
+                var timeLog = self.time_log()[i];
+                if (timeLog.isEmpty()) {
+                    hasEmpty = true;
                 }
-                return left.startTime() - right.startTime();
-            });
+            }
+            if (!hasEmpty) {
+                self.addItem();
+            }
+        }
+
+        self.showTimeOverlaps = function() {
+            var lastTime = 0;
             for (var i=0; i<self.time_log().length; i++) {
                 var timeLog = self.time_log()[i];
                 var startValid = true;
                 var endValid = true;
-                if (timeLog.isEmpty()) {
-                    hasEmpty = true;
-                } else {
+                if (!timeLog.isEmpty()) {
                     if (timeLog.startTime() < lastTime || timeLog.startTime() > timeLog.endTime()) {
                         startValid = false;
                     }
@@ -322,9 +328,6 @@
                 }
                 timeLog.isStartValid(startValid);
                 timeLog.isEndValid(endValid);
-            }
-            if (!hasEmpty) {
-                self.addItem();
             }
         }
 
@@ -360,7 +363,7 @@
             if (val == 'timer') {
                 $('#datetime-details').hide();
             } else {
-                $('#datetime-details').fadeIn();        
+                $('#datetime-details').fadeIn();
             }
             $('#start-button').toggle();
             $('#save-button').toggle();
@@ -383,6 +386,12 @@
             @if ($task->is_running)
                 tock({{ $duration }});
             @endif
+        @endif
+
+        @if (Session::has('error'))
+            loadTimeLog({!! json_encode(Input::old('time_log')) !!});
+            model.showTimeOverlaps();
+            showTimeDetails();
         @endif
     });    
 

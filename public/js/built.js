@@ -31834,7 +31834,7 @@ NINJA.invoiceLines = function(invoice) {
         }
 
         // show at most one blank line
-        if (shownItem && (!cost || cost == '0.00') && !notes && !productKey) {
+        if (shownItem && (!cost || cost == '0.00' || cost == '0,00') && !notes && !productKey) {
             continue;
         }
 

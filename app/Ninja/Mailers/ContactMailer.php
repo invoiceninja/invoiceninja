@@ -38,7 +38,7 @@ class ContactMailer extends Mailer
             } else {
                 $user = $invitation->user;
                 if ($invitation->user->trashed()) {
-                    $user = $account->getPrimaryUser();
+                    $user = $account->users()->orderBy('id')->first();
                 }
             }
         
