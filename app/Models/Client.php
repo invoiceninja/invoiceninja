@@ -39,11 +39,6 @@ class Client extends EntityModel
         return $this->hasMany('App\Models\Contact');
     }
 
-    public function projects()
-    {
-        return $this->hasMany('App\Models\Project');
-    }
-
     public function country()
     {
         return $this->belongsTo('App\Models\Country');
