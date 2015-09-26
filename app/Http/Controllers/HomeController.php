@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Response;
-use Request;
 use Redirect;
 use Auth;
 use View;
@@ -99,6 +98,6 @@ class HomeController extends BaseController
 
     public function keepAlive()
     {
-        return RESULT_SUCCESS;
+        return Auth::check() ? RESULT_SUCCESS : RESULT_FAILURE;
     }
 }

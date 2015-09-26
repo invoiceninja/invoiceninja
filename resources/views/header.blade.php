@@ -236,20 +236,37 @@
   }
 
 
+  var redirectTimer = null;
+  function startWarnSessionTimeout() {
+    var oneMinute = 1000 * 60;
+    var twoMinutes = oneMinute * 2;
+    var twoHours = oneMinute * 120;
+    setTimeout(function() {
+        warnSessionExpring();
+    }, (twoHours - twoMinutes));
+  }
+
+  function warnSessionExpring() {
+    $("#keepAliveDiv").fadeIn();
+    redirectTimer = setTimeout(function() {
+        NINJA.formIsChanged = false;
+        window.location = '{{ URL::to('/dashboard') }}';
+    }, 1000 * 60);
+  }
+
   // keep the token cookie valid to prevent token mismatch errors
   function keepAlive() {
-    window.setTimeout(function() { 
-        $.get('{{ URL::to('/keep_alive') }}', function(data) {
-            keepAlive();
-        })
-    }, 1000 * 60 * 60);
-  }      
+    clearTimeout(redirectTimer);
+    $('#keepAliveDiv').fadeOut();
+    $.get('{{ URL::to('/keep_alive') }}');
+    startWarnSessionTimeout();
+  }
 
-  $(function() {    
-    keepAlive();    
+  $(function() {
+    startWarnSessionTimeout();
 
     window.setTimeout(function() { 
-        $(".alert-hide").fadeOut(500);
+        $(".alert-hide").fadeOut();
     }, 3000);
 
     $('#search').blur(function(){
@@ -483,6 +500,10 @@
 <br/>
 <div class="container">		
 
+  <div class="alert alert-warning" id="keepAliveDiv" style="display:none">
+    {!! trans('texts.page_expire', ['click_here' => link_to('#', trans('texts.click_here'), ['onclick' => 'keepAlive()'])]) !!}
+  </div>
+
   @if (Session::has('warning'))
   <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
   @endif
@@ -499,11 +520,11 @@
   @endif
 
   @if (Session::has('error'))
-  <div class="alert alert-danger">{!! Session::get('error') !!}</div>
+      <div class="alert alert-danger">{!! Session::get('error') !!}</div>
   @endif
 
   @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-  {!! HTML::breadcrumbs() !!}
+    {!! HTML::breadcrumbs() !!}
   @endif
 
   @yield('content')		
