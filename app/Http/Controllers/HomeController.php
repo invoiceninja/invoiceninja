@@ -98,6 +98,6 @@ class HomeController extends BaseController
 
     public function keepAlive()
     {
-        return Auth::check() ? RESULT_SUCCESS : RESULT_FAILURE;
+        return RESULT_SUCCESS;
     }
 }

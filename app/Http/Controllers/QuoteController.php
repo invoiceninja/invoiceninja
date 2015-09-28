@@ -71,7 +71,7 @@ class QuoteController extends BaseController
     {
         $invitationKey = Session::get('invitation_key');
         if (!$invitationKey) {
-            return Redirect::to('/setup');
+            app()->abort(404);
         }
 
         $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();

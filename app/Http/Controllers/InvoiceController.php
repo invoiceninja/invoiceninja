@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use App;
 use Auth;
 use Session;
 use Utils;
@@ -81,7 +80,7 @@ class InvoiceController extends BaseController
     {
         $invitationKey = Session::get('invitation_key');
         if (!$invitationKey) {
-            return Redirect::to('/setup');
+            app()->abort(404);
         }
 
         $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
@@ -109,7 +108,6 @@ class InvoiceController extends BaseController
 
     public function getClientDatatable()
     {
-        //$accountId = Auth::user()->account_id;
         $search = Input::get('sSearch');
         $invitationKey = Session::get('invitation_key');
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
@@ -177,13 +175,13 @@ class InvoiceController extends BaseController
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
         
         if (!$invitation) {
-            App::abort(404, trans('texts.invoice_not_found'));
+            app()->abort(404, trans('texts.invoice_not_found'));
         }
 
         $invoice = $invitation->invoice;
         
         if (!$invoice || $invoice->is_deleted) {
-            App::abort(404, trans('texts.invoice_not_found'));
+            app()->abort(404, trans('texts.invoice_not_found'));
         }
 
         $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
@@ -191,7 +189,7 @@ class InvoiceController extends BaseController
         $account = $client->account;
 
         if (!$client || $client->is_deleted) {
-            App::abort(404, trans('texts.invoice_not_found'));
+            app()->abort(404, trans('texts.invoice_not_found'));
         }
 
         if ($account->subdomain) {

@@ -199,8 +199,10 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
     </div>
 </nav>
 
-
     <div class="container">
+
+      @include('partials.warn_session', ['redirectTo' => '/'])
+
       @if (Session::has('warning'))
       <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
       @endif

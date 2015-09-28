@@ -235,36 +235,7 @@
     @endif
   }
 
-
-  var redirectTimer = null;
-  function startWarnSessionTimeout() {
-    var oneMinute = 1000 * 60;
-    var twoMinutes = oneMinute * 2;
-    var twoHours = oneMinute * 120;
-    setTimeout(function() {
-        warnSessionExpring();
-    }, (twoHours - twoMinutes));
-  }
-
-  function warnSessionExpring() {
-    $("#keepAliveDiv").fadeIn();
-    redirectTimer = setTimeout(function() {
-        NINJA.formIsChanged = false;
-        window.location = '{{ URL::to('/dashboard') }}';
-    }, 1000 * 60);
-  }
-
-  // keep the token cookie valid to prevent token mismatch errors
-  function keepAlive() {
-    clearTimeout(redirectTimer);
-    $('#keepAliveDiv').fadeOut();
-    $.get('{{ URL::to('/keep_alive') }}');
-    startWarnSessionTimeout();
-  }
-
   $(function() {
-    startWarnSessionTimeout();
-
     window.setTimeout(function() { 
         $(".alert-hide").fadeOut();
     }, 3000);
@@ -495,14 +466,10 @@
   </div>
 </nav>
 
-
-
 <br/>
-<div class="container">		
-
-  <div class="alert alert-warning" id="keepAliveDiv" style="display:none">
-    {!! trans('texts.page_expire', ['click_here' => link_to('#', trans('texts.click_here'), ['onclick' => 'keepAlive()'])]) !!}
-  </div>
+<div class="container">
+  
+  @include('partials.warn_session', ['redirectTo' => '/dashboard'])
 
   @if (Session::has('warning'))
   <div class="alert alert-warning">{!! Session::get('warning') !!}</div>

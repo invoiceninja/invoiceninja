@@ -108,12 +108,13 @@
         function trackEvent(category, action) {}
     </script>
     @endif
-
+    
 @yield('body')
 
 <script type="text/javascript">
     NINJA.formIsChanged = {{ isset($formIsChanged) && $formIsChanged ? 'true' : 'false' }};
-    $(function() {      
+
+    $(function() {
         $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function() {
             NINJA.formIsChanged = true;
         }); 

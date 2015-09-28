@@ -169,6 +169,7 @@ class ContactMailer extends Mailer
             '$client' => $data['client']->getDisplayName(),
             '$account' => $data['account']->getDisplayName(),
             '$contact' => $data['invitation']->contact->getDisplayName(),
+            '$firstName' => $data['invitation']->contact->first_name,
             '$amount' => Utils::formatMoney($data['amount'], $data['client']->getCurrencyId()),
             '$invoice' => $data['invitation']->invoice->invoice_number,
             '$quote' => $data['invitation']->invoice->invoice_number,

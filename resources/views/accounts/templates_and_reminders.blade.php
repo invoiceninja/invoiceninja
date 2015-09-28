@@ -145,6 +145,7 @@
                 'amount', 
                 'link', 
                 'contact', 
+                'firstName',
                 'invoice', 
                 'quote'
             ];
@@ -156,6 +157,7 @@
                 formatMoney(100), 
                 "{{ Auth::user()->account->getSiteUrl() . '...' }}", 
                 "Contact Name", 
+                "First Name",
                 "0001", 
                 "0001"
             ];
