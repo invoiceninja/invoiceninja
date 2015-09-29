@@ -461,6 +461,7 @@ if (!defined('CONTACT_EMAIL')) {
     }
 }
 
+/*
 // Log all SQL queries to laravel.log
 Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 {
@@ -485,7 +486,7 @@ Event::listen('illuminate.query', function($query, $bindings, $time, $name)
 
     Log::info($query, $data);
 });
-
+*/
 
 /*
 if (Auth::check() && Auth::user()->id === 1)
