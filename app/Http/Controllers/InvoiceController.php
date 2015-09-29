@@ -586,7 +586,7 @@ class InvoiceController extends BaseController
     {
         Session::reflash();
 
-        return Redirect::to('invoices/'.$publicId.'/edit');
+        return Redirect::to("invoices/{$publicId}/edit");
     }
 
     /**

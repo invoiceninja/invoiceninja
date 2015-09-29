@@ -119,6 +119,13 @@ class TaskController extends BaseController
         return $this->save();
     }
 
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return Redirect::to("tasks/{$publicId}/edit");
+    }
+
     /**
      * Show the form for creating a new resource.
      *

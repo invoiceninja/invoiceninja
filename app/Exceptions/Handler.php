@@ -49,8 +49,7 @@ class Handler extends ExceptionHandler {
         }
         
         // In production, except for maintenance mode, we'll show a custom error screen
-        //if (Utils::isNinjaProd() && $e->getStatusCode() != 503) {
-        if (Utils::isNinjaProd()) {
+        if (Utils::isNinjaProd() && !Utils::isDownForMaintenance()) {
             $data = [
                 'error' => get_class($e),
                 'hideHeader' => true,

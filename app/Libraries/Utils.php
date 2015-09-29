@@ -40,6 +40,11 @@ class Utils
         }
     }
 
+    public static function isDownForMaintenance()
+    {
+        return file_exists(storage_path() . '/framework/down');
+    }
+
     public static function isProd()
     {
         return App::environment() == ENV_PRODUCTION;

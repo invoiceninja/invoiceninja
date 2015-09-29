@@ -691,21 +691,17 @@
             while($(this).outerHeight() < this.scrollHeight + parseFloat($(this).css("borderTopWidth")) + parseFloat($(this).css("borderBottomWidth"))) {
                 $(this).height($(this).height()+1);
             };
-        });        
+        });
 
 		@if (Auth::user()->account->fill_products)
-			$('.datalist').on('input', function() {			                
+			$('.datalist').on('input', function() {
 				var key = $(this).val();
 				for (var i=0; i<products.length; i++) {
 					var product = products[i];
 					if (product.product_key == key) {
-						var model = ko.dataFor(this);					
-                        if (!model.notes()) {
-						  model.notes(product.notes);
-                        }
-                        if (!model.cost()) {
-						  model.cost(accounting.toFixed(product.cost,2));
-                        }
+						var model = ko.dataFor(this);
+                        model.notes(product.notes);
+                        model.cost(accounting.toFixed(product.cost,2));
                         if (!model.qty()) {
 						  model.qty(1);
                         }
@@ -1741,23 +1737,22 @@
 			} else {
 				return total ? formatMoney(total, 1) : '';
 			}
-  	});
+      	});
 
-  	this.hideActions = function() {
-		this.actionsVisible(false);
-  	}
+        this.hideActions = function() {
+            this.actionsVisible(false);
+        }
 
-  	this.showActions = function() {
-		this.actionsVisible(true);
-  	}
+        this.showActions = function() {
+            this.actionsVisible(true);
+        }
 
-  	this.isEmpty = function() {
-  		return !self.product_key() && !self.notes() && !self.cost() && (!self.qty() || {{ $account->hide_quantity ? 'true' : 'false' }});
-  	}
+        this.isEmpty = function() {
+            return !self.product_key() && !self.notes() && !self.cost() && (!self.qty() || {{ $account->hide_quantity ? 'true' : 'false' }});
+        }
 
-  	this.onSelect = function(){              
+        this.onSelect = function() {}
     }
-	}
 
 	function onItemChange()
 	{
@@ -1772,12 +1767,6 @@
 		if (!hasEmpty) {
 			model.invoice().addItem();
 		}
-
-        /*
-		$('.word-wrap').each(function(index, input) {
-			$(input).height($(input).val().split('\n').length * 20);
-		});
-        */
 	}
 
 	function onTaxRateChange()

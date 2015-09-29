@@ -62,8 +62,12 @@
 @section('body')
 <div class="container">
 
+    @include('partials.warn_session', ['redirectTo' => '/login'])
 
-    {!! Former::open('login')->rules(['email' => 'required|email', 'password' => 'required'])->addClass('form-signin') !!}
+
+    {!! Former::open('login')
+            ->rules(['email' => 'required|email', 'password' => 'required'])
+            ->addClass('form-signin warn-on-exit') !!}
     {{ Former::populateField('remember', 'true') }}
 
     <div class="modal-header">
