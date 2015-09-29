@@ -40,7 +40,7 @@ class Invitation extends EntityModel
         if ($iframe_url) {
             return "{$iframe_url}/?{$this->invitation_key}";
         } else if ($this->account->subdomain) {
-            $url = Utils::replaceSubdomain($url, $this->subdomain);
+            $url = Utils::replaceSubdomain($url, $this->account->subdomain);
         }
 
         return "{$url}/view/{$this->invitation_key}";

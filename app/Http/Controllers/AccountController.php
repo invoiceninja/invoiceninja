@@ -113,7 +113,7 @@ class AccountController extends BaseController
         event(new UserSignedUp());
         event(new UserLoggedIn());
         
-        $redirectTo = Input::get('redirect_to', 'invoices/create');
+        $redirectTo = Input::get('redirect_to') ?: 'invoices/create';
         return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
     }
 
