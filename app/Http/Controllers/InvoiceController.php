@@ -527,10 +527,10 @@ class InvoiceController extends BaseController
                 Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
             }
 
-            if ($invoice->account->pdf_email_attachment) {
+            if ($invoice->account->pdf_email_attachment && !$invoice->is_recurring) {
                 $pdfUpload = Input::get('pdfupload');
                 if (!empty($pdfUpload) && strpos($pdfUpload, 'data:application/pdf;base64,') === 0) {
-                    $invoice->updateCachedPDF(Input::get('pdfupload'));
+                    $invoice->updateCachedPDF($pdfUpload);
                 }
             }
 

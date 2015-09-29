@@ -128,14 +128,14 @@ class PaymentService {
             'billingCity' => $client->city,
             'billingPostcode' => $client->postal_code,
             'billingState' => $client->state,
-            'billingCountry' => $client->country->iso_3166_2,
+            'billingCountry' => $client->country ? $client->country->iso_3166_2 : '',
             'billingPhone' => $contact->phone,
             'shippingAddress1' => $client->address1,
             'shippingAddress2' => $client->address2,
             'shippingCity' => $client->city,
             'shippingPostcode' => $client->postal_code,
             'shippingState' => $client->state,
-            'shippingCountry' => $client->country->iso_3166_2,
+            'shippingCountry' => $client->country ? $client->country->iso_3166_2 : '',
             'shippingPhone' => $contact->phone,
         ];
     }

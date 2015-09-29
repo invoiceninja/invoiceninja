@@ -42,9 +42,6 @@ class SendRecurringInvoices extends Command
 
             if ($invoice && !$invoice->isPaid()) {
                 $recurInvoice->account->loadLocalizationSettings($invoice->client);
-                if ($invoice->account->pdf_email_attachment) {
-                    $invoice->updateCachedPDF();
-                }
                 $this->mailer->sendInvoice($invoice);
             }
         }

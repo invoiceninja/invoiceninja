@@ -655,6 +655,10 @@ class InvoiceRepository
             }
         }
 
+        if ($recurInvoice->account->pdf_email_attachment) {
+            $invoice->updateCachedPDF();
+        }
+
         return $invoice;
     }
 

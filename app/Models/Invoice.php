@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use Utils;
 use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -284,14 +285,15 @@ class Invoice extends EntityModel
     {
         if (!$encodedString) {
             $invitation = $this->invitations[0];
-            $key = $invitation->getLink();
+            $link = $invitation->getLink();
 
             $curl = curl_init();
             $jsonEncodedData = json_encode([
-                'targetUrl' => SITE_URL . "/view/{$key}/?phantomjs=true",
+                'targetUrl' => "{$link}?phantomjs=true",
                 'requestType' => 'raw',
+                'delayTime' => 3000,
             ]);
-            
+
             $opts = [
                 CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY'),
                 CURLOPT_RETURNTRANSFER => true,
@@ -304,14 +306,12 @@ class Invoice extends EntityModel
             curl_setopt_array($curl, $opts);
             $encodedString = strip_tags(curl_exec($curl));
             curl_close($curl);
-
-            if (!$encodedString) {
-                return false;
-            }
         }
         
         $encodedString = str_replace('data:application/pdf;base64,', '', $encodedString);
-        file_put_contents($this->getPDFPath(), base64_decode($encodedString));
+        if ($encodedString = base64_decode($encodedString)) {
+            file_put_contents($this->getPDFPath(), $encodedString);
+        }
     }
 }
 

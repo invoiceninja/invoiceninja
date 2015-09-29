@@ -21,6 +21,10 @@ class ContactMailer extends Mailer
         $client = $invoice->client;
         $account = $invoice->account;
 
+        if ($invoice->trashed() || $client->trashed()) {
+            return false;
+        }
+
         $account->loadLocalizationSettings($client);
 
         $view = 'invoice';
