@@ -79,7 +79,7 @@ class PaymentService {
         ];
     }
 
-    private function convertInputForOmnipay($input)
+    public function convertInputForOmnipay($input)
     {
         $data = [
             'firstName' => $input['first_name'],

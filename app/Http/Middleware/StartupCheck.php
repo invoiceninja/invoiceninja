@@ -159,7 +159,7 @@ class StartupCheck
             if (Input::has('clear_cache') || !Cache::has($name)) {
                 if ($name == 'paymentTerms') {
                     $orderBy = 'num_days';
-                } elseif (in_array($name, ['currencies', 'sizes', 'industries', 'languages', 'countries'])) {
+                } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries'])) {
                     $orderBy = 'name';
                 } else {
                     $orderBy = 'id';

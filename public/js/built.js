@@ -31573,44 +31573,59 @@ function GetPdfMake(invoice, javascript, callback) {
 
     javascript = NINJA.decodeJavascript(invoice, javascript);
 
-    function jsonCallBack(key, val) {        
-        if ((val+'').indexOf('$firstAndLast') === 0) {
-            var parts = val.split(':');
-            return function (i, node) {
-                return (i === 0 || i === node.table.body.length) ? parseFloat(parts[1]) : 0;
-            };
-        } else if ((val+'').indexOf('$none') === 0) {
-            return function (i, node) {
-                return 0;
-            };
-        } else if ((val+'').indexOf('$notFirstAndLastColumn') === 0) {
-            var parts = val.split(':');
-            return function (i, node) {
-                return (i === 0 || i === node.table.widths.length) ? 0 : parseFloat(parts[1]);
-            };
-        } else if ((val+'').indexOf('$notFirst') === 0) {
-            var parts = val.split(':');
-            return function (i, node) {
-                return i === 0 ? 0 : parseFloat(parts[1]);
-            };
-        } else if ((val+'').indexOf('$amount') === 0) {
-            var parts = val.split(':');
-            return function (i, node) {
-                return parseFloat(parts[1]);
-            };
-        } else if ((val+'').indexOf('$primaryColor') === 0) {
-            var parts = val.split(':');
-            return NINJA.primaryColor || parts[1];
-        } else if ((val+'').indexOf('$secondaryColor') === 0) {
-            var parts = val.split(':');
-            return NINJA.secondaryColor || parts[1];
+    function jsonCallBack(key, val) {
+
+        // handle custom functions
+        if (typeof val === 'string') {
+            if (val.indexOf('$firstAndLast') === 0) {
+                var parts = val.split(':');
+                return function (i, node) {
+                    return (i === 0 || i === node.table.body.length) ? parseFloat(parts[1]) : 0;
+                };
+            } else if (val.indexOf('$none') === 0) {
+                return function (i, node) {
+                    return 0;
+                };
+            } else if (val.indexOf('$notFirstAndLastColumn') === 0) {
+                var parts = val.split(':');
+                return function (i, node) {
+                    return (i === 0 || i === node.table.widths.length) ? 0 : parseFloat(parts[1]);
+                };
+            } else if (val.indexOf('$notFirst') === 0) {
+                var parts = val.split(':');
+                return function (i, node) {
+                    return i === 0 ? 0 : parseFloat(parts[1]);
+                };
+            } else if (val.indexOf('$amount') === 0) {
+                var parts = val.split(':');
+                return function (i, node) {
+                    return parseFloat(parts[1]);
+                };
+            } else if (val.indexOf('$primaryColor') === 0) {
+                var parts = val.split(':');
+                return NINJA.primaryColor || parts[1];
+            } else if (val.indexOf('$secondaryColor') === 0) {
+                var parts = val.split(':');
+                return NINJA.secondaryColor || parts[1];
+            }
         }
 
+        // check for markdown
+        if (key === 'text') {
+            val = NINJA.parseMarkdownText(val, true);
+        }
+        /*
+        if (key === 'stack') {
+            val = NINJA.parseMarkdownStack(val);
+            val = NINJA.parseMarkdownText(val, false);
+        }
+        */
+        
         return val;
     }
 
 
-    //console.log(javascript);
+    // Add ninja logo to the footer
     var dd = JSON.parse(javascript, jsonCallBack);
     var designId = invoice.invoice_design_id;
     if (!invoice.is_pro) {
@@ -31622,8 +31637,6 @@ function GetPdfMake(invoice, javascript, callback) {
             dd.footer[1].columns[0].stack.push({image: logoImages.imageLogo3, alignment: 'left', width: 130, margin: [40, 6, 0, 0]});
         }
     }
-
-    //console.log(JSON.stringify(dd.footer[1].columns));
 
     /*
     var fonts = {
@@ -31705,7 +31718,6 @@ NINJA.decodeJavascript = function(invoice, javascript)
                 }
                 var label = invoiceLabels[field];            
                 if (match.indexOf('UC') >= 0) {
-                    if (!label) console.log('match: ' + field);
                     label = label.toUpperCase();
                 }
                 if (match.indexOf(':') >= 0) {
@@ -31740,18 +31752,19 @@ NINJA.decodeJavascript = function(invoice, javascript)
     return javascript;
 }
 
+
 NINJA.notesAndTerms = function(invoice)
 {
     var data = [];
 
     if (invoice.public_notes) {
-        data.push({text:invoice.public_notes, style: ['notes']});
+        data.push({stack:[{text: invoice.public_notes, style: ['notes']}]});
         data.push({text:' '});
     }
 
     if (invoice.terms) {
         data.push({text:invoiceLabels.terms, style: ['termsLabel']});
-        data.push({text:invoice.terms, style: ['terms']});
+        data.push({stack:[{text: invoice.terms, style: ['terms']}]});
     }
 
     return NINJA.prepareDataList(data, 'notesAndTerms');
@@ -31802,7 +31815,7 @@ NINJA.invoiceLines = function(invoice) {
 
     var grid = [[
         {text: invoiceLabels.item, style: ['tableHeader', 'itemTableHeader']}, 
-        {text: invoiceLabels.description, style: ['tableHeader', 'descriptionTableHeader']}, 
+        {text: invoiceLabels.description, style: ['tableHeader', 'descriptionTableHeader']},
         {text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']}
     ]];
 
@@ -31855,7 +31868,7 @@ NINJA.invoiceLines = function(invoice) {
         rowStyle = (i % 2 == 0) ? 'odd' : 'even';
         
         row.push({style:["productKey", rowStyle], text:productKey || ' '}); // product key can be blank when selecting from a datalist
-        row.push({style:["notes", rowStyle], text:notes || ' '}); 
+        row.push({style:["notes", rowStyle], stack:[{text:notes || ' '}]}); 
         row.push({style:["cost", rowStyle], text:cost});
         if (!hideQuantity) {
             row.push({style:["quantity", rowStyle], text:qty || ' '});
@@ -32055,7 +32068,7 @@ NINJA.prepareDataList = function(oldData, section) {
     var newData = [];
     for (var i=0; i<oldData.length; i++) {
         var item = NINJA.processItem(oldData[i], section);
-        if (item.text) {
+        if (item.text || item.stack) {
             newData.push(item);
         }
     }
@@ -32069,7 +32082,7 @@ NINJA.prepareDataTable = function(oldData, section) {
         var newRow = [];
         for (var j=0; j<row.length; j++) {
             var item = NINJA.processItem(row[j], section);
-            if (item.text) {
+            if (item.text || item.stack) {
                 newRow.push(item);
             }
         }            
@@ -32108,4 +32121,88 @@ NINJA.processItem = function(item, section) {
         item.style = [section];
     }
     return item;
+}
+
+
+NINJA.parseMarkdownText = function(val, groupText)
+{
+    var rules = [
+        ['\\\*\\\*(\\\w.+?)\\\*\\\*', {'bold': true}], // **value**
+        ['\\\*(\\\w.+?)\\\*', {'italics': true}], // *value*
+        ['^##(.+?)$', {'style': 'subheader'}], // ## Header
+        ['^#(.+?)$', {'style': 'header'}] // # Subheader
+    ];
+
+    var parts = typeof val === 'string' ? [val] : val;
+    for (var i=0; i<rules.length; i++) {
+        var rule = rules[i];
+        var formatter = function(data) {
+            return $.extend(data, rule[1]);
+        }
+        parts = NINJA.parseRegExp(parts, rule[0], formatter, true);
+    }
+
+    return parts.length > 1 ? parts : val;
+}
+
+/*
+NINJA.parseMarkdownStack = function(val)
+{
+    if (val.length == 1) {
+        var item = val[0];
+        var line = item.hasOwnProperty('text') ? item.text : item;
+
+        if (typeof line === 'string') {
+            line = [line];
+        }
+        
+        var regExp = '^\\\* (.*[\r\n|\n|\r]?)';
+        var formatter = function(data) {
+            return {"ul": [data.text]};
+        }
+
+        val = NINJA.parseRegExp(line, regExp, formatter, false);
+    }
+    
+    return val;
+}
+*/
+
+NINJA.parseRegExp = function(val, regExpStr, formatter, groupText)
+{
+    var regExp = new RegExp(regExpStr, 'gm');
+    var parts = [];
+    
+    for (var i=0; i<val.length; i++) {
+        var line = val[i];
+        parts = parts.concat(NINJA.parseRegExpLine(line, regExp, formatter, groupText));
+    }
+
+    return parts.length > 1 ? parts : val;
+}
+
+NINJA.parseRegExpLine = function(line, regExp, formatter, groupText)
+{
+    var parts = [];
+    var lastIndex = 0;
+    
+    while (match = regExp.exec(line)) {
+        if (match.index > lastIndex) {
+            parts.push(line.substring(lastIndex, match.index));
+        }
+        var data = {};
+        data.text = match[1];
+        data = formatter(data);
+        parts.push(data);
+        lastIndex = match.index + match[0].length;
+    }
+
+    if (parts.length) {
+        if (lastIndex < line.length) {
+            parts.push(line.substring(lastIndex));
+        }
+        return parts;
+    }
+
+    return line;
 }

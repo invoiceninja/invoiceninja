@@ -88,10 +88,11 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Guatemalan Quetzal', 'code' => 'GTQ', 'symbol' => 'Q', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Malaysian Ringgit', 'code' => 'MYR', 'symbol' => 'RM', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Brazilian Real', 'code' => 'BRL', 'symbol' => 'R$', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
-            ['name' => 'Thai baht', 'code' => 'THB', 'symbol' => 'THB ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'Thai Baht', 'code' => 'THB', 'symbol' => 'THB ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Nigerian Naira', 'code' => 'NGN', 'symbol' => 'NGN ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Argentine Peso', 'code' => 'ARS', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
             ['name' => 'Bangladeshi Taka', 'code' => 'BDT', 'symbol' => 'Tk', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'United Arab Emirates Dirham', 'code' => 'AED', 'symbol' => 'DH ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
         ];
 
         foreach ($currencies as $currency) {
@@ -143,7 +144,7 @@ class PaymentLibrariesSeeder extends Seeder
                 'label' => '10/Mar/2013'
             ],
             [
-                'format' => 'd-M-Yk g:i a',
+                'format' => 'd-M-Y g:i a',
                 'format_moment' => 'DD-MMM-YYYY h:mm:ss a',
                 'label' => '10-Mar-2013'
             ],

@@ -9,8 +9,12 @@
 
 @if (!Auth::user()->account->isPro())
 <center>
-    <div style="font-size:larger;" class="col-md-8 col-md-offset-2">{!! trans('texts.pro_plan_advanced_settings', ['link'=>'<a href="#" onclick="showProPlan(\''.$feature.'\')">'.trans('texts.pro_plan.remove_logo_link').'</a>']) !!}</div>
-    &nbsp;<p/>&nbsp;
+    <div style="font-size:larger;" class="col-md-8 col-md-offset-2">
+        {!! trans('texts.pro_plan_advanced_settings', ['link'=>'<a href="#" onclick="showProPlan(\''.$feature.'\')">'.trans('texts.pro_plan.remove_logo_link').'</a>']) !!}
+    </div>
+
+    <p>&nbsp;<p/>
+
 </center>    
 @endif
 

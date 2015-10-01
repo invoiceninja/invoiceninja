@@ -22,11 +22,20 @@
 
 </div>
 </div>
+
+    @if (Auth::user()->isPro())
+      {!! Former::actions( 
+          Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/token_management'))->appendIcon(Icon::create('remove-circle'))->large(),
+          Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
+      ) !!}
+    @else
+        <script>
+            $(function() {
+                $('form.warn-on-exit input').prop('disabled', true);
+            });
+        </script>
+    @endif
   
-  {!! Former::actions( 
-      Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/token_management'))->appendIcon(Icon::create('remove-circle'))->large(),
-      Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
-  ) !!}
 
   {!! Former::close() !!}
 

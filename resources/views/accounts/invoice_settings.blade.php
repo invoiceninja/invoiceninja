@@ -108,18 +108,17 @@
     </div>
     </div>
     
-	@if (Auth::user()->isPro())
-    <center>
-	   {!! Button::success(trans('texts.save'))->large()->submit()->appendIcon(Icon::create('floppy-disk')) !!}
-    </center>
-	@else
-
-	<script>
-    $(function() {   
-    	$('form.warn-on-exit input').prop('disabled', true);
-    });
-	</script>	
-	@endif
+    @if (Auth::user()->isPro())
+        <center>
+            {!! Button::success(trans('texts.save'))->large()->submit()->appendIcon(Icon::create('floppy-disk')) !!}
+        </center>
+    @else
+        <script>
+            $(function() {
+                $('form.warn-on-exit input').prop('disabled', true);
+            });
+        </script>
+    @endif
 
 
     <div class="modal fade" id="iframeHelpModal" tabindex="-1" role="dialog" aria-labelledby="iframeHelpModalLabel" aria-hidden="true">

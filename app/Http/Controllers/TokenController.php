@@ -99,6 +99,7 @@ class TokenController extends BaseController
           'method' => 'POST',
           'url' => 'tokens',
           'title' => trans('texts.add_token'),
+          'feature' => 'tokens',
         ];
 
         return View::make('accounts.token', $data);
