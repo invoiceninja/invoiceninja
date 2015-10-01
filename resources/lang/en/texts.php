@@ -22,7 +22,7 @@ return array(
   'additional_info' => 'Additional Info',
   'payment_terms' => 'Payment Terms',
   'currency_id' => 'Currency',
-  'size_id' => 'Size',
+  'size_id' => 'Company Size',
   'industry_id' => 'Industry',
   'private_notes' => 'Private Notes',
 

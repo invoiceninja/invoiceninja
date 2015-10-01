@@ -573,8 +573,8 @@ NINJA.parseMarkdownText = function(val, groupText)
     var rules = [
         ['\\\*\\\*(\\\w.+?)\\\*\\\*', {'bold': true}], // **value**
         ['\\\*(\\\w.+?)\\\*', {'italics': true}], // *value*
-        ['^##(.+?)$', {'style': 'subheader'}], // ## Header
-        ['^#(.+?)$', {'style': 'header'}] // # Subheader
+        ['^##(.*)', {'style': 'subheader'}], // ## Header
+        ['^#(.*)', {'style': 'header'}] // # Subheader
     ];
 
     var parts = typeof val === 'string' ? [val] : val;

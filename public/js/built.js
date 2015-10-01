@@ -32101,17 +32101,17 @@ NINJA.prepareDataPairs = function(oldData, section) {
         for (var j=0; j<row.length; j++) {
             var item = NINJA.processItem(row[j], section);
             if (!item.text) {
-                isBlank = true;                    
+                isBlank = true;
             }
             if (j == 1) {
                 NINJA.processItem(row[j], section + "Value");
             }
-        }            
+        }
         if (!isBlank) {
             newData.push(oldData[i]);
         }
     }
-    return newData;    
+    return newData;
 }
 
 NINJA.processItem = function(item, section) {
@@ -32129,8 +32129,8 @@ NINJA.parseMarkdownText = function(val, groupText)
     var rules = [
         ['\\\*\\\*(\\\w.+?)\\\*\\\*', {'bold': true}], // **value**
         ['\\\*(\\\w.+?)\\\*', {'italics': true}], // *value*
-        ['^##(.+?)$', {'style': 'subheader'}], // ## Header
-        ['^#(.+?)$', {'style': 'header'}] // # Subheader
+        ['^##(.*)', {'style': 'subheader'}], // ## Header
+        ['^#(.*)', {'style': 'header'}] // # Subheader
     ];
 
     var parts = typeof val === 'string' ? [val] : val;
