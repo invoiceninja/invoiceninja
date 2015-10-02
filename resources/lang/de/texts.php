@@ -265,10 +265,10 @@ return array(
   'user_email_footer' => 'Um deine E-Mail-Benachrichtigungen anzupassen besuche bitte '.SITE_URL.'/company/notifications',
   'invoice_link_message' => 'Um deine Kundenrechnung anzuschauen, klicke auf den folgenden Link:',
   'notification_invoice_paid_subject' => 'Die Rechnung :invoice wurde von :client bezahlt.',
-  'notification_invoice_sent_subject' => 'Die Rechnung :invoice wurde an :client versandt.',
+  'notification_invoice_sent_subject' => 'Die Rechnung :invoice wurde an :client versendet.',
   'notification_invoice_viewed_subject' => 'Die Rechnung :invoice wurde von :client angeschaut.',
   'notification_invoice_paid' => 'Eine Zahlung von :amount wurde von :client bezüglich Rechnung :invoice getätigt.',
-  'notification_invoice_sent' => 'Dem Kunden :client wurde die Rechnung :invoice über :amount versandt.',
+  'notification_invoice_sent' => 'Dem Kunden :client wurde die Rechnung :invoice über :amount versendet.',
   'notification_invoice_viewed' => 'Der Kunde :client hat sich die Rechnung :invoice über :amount angesehen.',
   'reset_password' => 'Du kannst dein Passwort zurücksetzen, indem du auf den folgenden Link klickst:',
   'reset_password_footer' => 'Wenn du das Zurücksetzen des Passworts nicht beantragt hast, benachrichtige bitte unseren Support: ' . CONTACT_EMAIL,
@@ -761,7 +761,7 @@ return array(
   'reset_footer' => 'Reset footer',
   'invoices_sent' => ':count invoice sent|:count invoices sent',
   'status_draft' => 'Entwurf',
-  'status_sent' => 'Versandt',
+  'status_sent' => 'Versendet',
   'status_viewed' => 'Angesehen',
   'status_partial' => 'Teilweise',
   'status_paid' => 'Bezahlt',
@@ -789,7 +789,7 @@ return array(
 
   'referral_program' => 'Referral Program',
   'referral_code' => 'Referral Code',
-  'last_sent_on' => 'Zuletzt versandt am :date',
+  'last_sent_on' => 'Zuletzt versendet am :date',
 
   'page_expire' => 'Diese Seite wird bald ablaufen, :click_here um weiter zu arbeiten',
 
