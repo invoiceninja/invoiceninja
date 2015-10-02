@@ -123,6 +123,7 @@
       success: function(result) { 
         if (result) {
           localStorage.setItem('guest_key', '');
+          fbq('track', 'CompleteRegistration');
           trackEvent('/account', '/signed_up');
           NINJA.isRegistered = true;
           $('#signUpButton').hide();
@@ -164,6 +165,7 @@
   NINJA.proPlanFeature = '';
   function showProPlan(feature) {
     $('#proPlanModal').modal('show');
+    fbq('track', 'InitiateCheckout');
     trackEvent('/account', '/show_pro_plan/' + feature);
     NINJA.proPlanFeature = feature;
   }
@@ -178,6 +180,7 @@
 
   @if (Auth::check() && !Auth::user()->isPro())
   function submitProPlan() {
+    fbq('track', 'AddPaymentInfo');
     trackEvent('/account', '/submit_pro_plan/' + NINJA.proPlanFeature);
     if (NINJA.isRegistered) {      
       $.ajax({

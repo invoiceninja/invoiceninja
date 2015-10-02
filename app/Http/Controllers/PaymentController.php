@@ -368,7 +368,8 @@ class PaymentController extends BaseController
                 'message' => $affiliate->payment_subtitle,
                 'license' => $licenseKey,
                 'hideHeader' => true,
-                'productId' => $license->product_id
+                'productId' => $license->product_id,
+                'price' => $affiliate->price,
             ];
 
             $name = "{$license->first_name} {$license->last_name}";

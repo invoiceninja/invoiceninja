@@ -13,6 +13,7 @@ class Account extends Eloquent
 {
     use SoftDeletes;
     protected $dates = ['deleted_at'];
+    protected $hidden = ['ip'];
 
     /*
     protected $casts = [

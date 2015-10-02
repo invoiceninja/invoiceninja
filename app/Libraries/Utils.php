@@ -599,9 +599,8 @@ class Utils
     public static function notifyZapier($subscription, $data)
     {
         $curl = curl_init();
-
         $jsonEncodedData = json_encode($data->toPublicArray());
-        
+
         $opts = [
             CURLOPT_URL => $subscription->target_url,
             CURLOPT_RETURNTRANSFER => true,
@@ -635,14 +634,23 @@ class Utils
         return $return;
     }
 
-    public static function hideIds($data)
+    public static function hideIds($data, $mapped = false)
     {
         $publicId = null;
 
+        if (!$mapped) {
+            $mapped = [];
+        }
+
         foreach ($data as $key => $val) {
             if (is_array($val)) {
-                $data[$key] = Utils::hideIds($val);
-            } else if ($key == 'id' || strpos($key, '_id')) {
+                if ($key == 'account' || isset($mapped[$key])) {
+                    unset($data[$key]);
+                } else {
+                    $mapped[$key] = true;
+                    $data[$key] = Utils::hideIds($val, $mapped);
+                }
+            } elseif ($key == 'id' || strpos($key, '_id')) {
                 if ($key == 'public_id') {
                     $publicId = $val;
                 }
