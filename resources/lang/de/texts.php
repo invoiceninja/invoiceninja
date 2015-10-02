@@ -348,7 +348,7 @@ return array(
 
   'advanced_settings' => 'Erweiterte Einstellungen',
   'pro_plan_advanced_settings' => ':link um durch eine Pro-Mitgliedschaft erweiterte Einstellungen zu aktivieren',
-  'invoice_design' => 'Rechnungsvorlage',
+  'invoice_design' => 'Rechnungsdesign',
   'specify_colors' => 'Farben wählen',
   'specify_colors_label' => 'Wähle die in der Rechnung verwendeten Farben',
 
@@ -452,14 +452,14 @@ return array(
   'gateway_help_23' => 'Anmerkung: benutze deinen secret API key, nicht deinen publishable API key.',
   'gateway_help_27' => ':link um sich bei TwoCheckout anzumelden.',
 
-  'more_designs' => 'Weitere Vorlagen',
-  'more_designs_title' => 'Zusätzliche Rechnungsvorlagen',
-  'more_designs_cloud_header' => 'Werde Pro-Mitglied für zusätzliche Rechnungsvorlagen',
+  'more_designs' => 'Weitere Designs',
+  'more_designs_title' => 'Zusätzliche Rechnungsdesigns',
+  'more_designs_cloud_header' => 'Werde Pro-Mitglied für zusätzliche Rechnungsdesigns',
   'more_designs_cloud_text' => '',
-  'more_designs_self_host_header' => 'Erhalte 6 zusätzliche Rechnungsvorlagen für nur $'.INVOICE_DESIGNS_PRICE,
+  'more_designs_self_host_header' => 'Erhalte 6 zusätzliche Rechnungsdesigns für nur $'.INVOICE_DESIGNS_PRICE,
   'more_designs_self_host_text' => '',
   'buy' => 'Kaufen',
-  'bought_designs' => 'Die zusätzliche Rechnungsvorlagen wurden erfolgreich hinzugefügt',
+  'bought_designs' => 'Die zusätzliche Rechnungsdesigns wurden erfolgreich hinzugefügt',
   'sent' => 'gesendet',
   
   'vat_number' => 'USt-IdNr.',
