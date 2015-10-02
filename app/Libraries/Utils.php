@@ -330,7 +330,7 @@ class Utils
         return $date->format($format);
     }
 
-    public static function getTiemstampOffset()
+    public static function getTimestampOffset()
     {
         $timezone = new DateTimeZone(Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE));
         $datetime = new DateTime('now', $timezone);
