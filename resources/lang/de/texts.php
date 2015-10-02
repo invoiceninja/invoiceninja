@@ -348,7 +348,7 @@ return array(
 
   'advanced_settings' => 'Erweiterte Einstellungen',
   'pro_plan_advanced_settings' => ':link um durch eine Pro-Mitgliedschaft erweiterte Einstellungen zu aktivieren',
-  'invoice_design' => 'Rechnungsvorlage',
+  'invoice_design' => 'Rechnungsdesign',
   'specify_colors' => 'Farben wählen',
   'specify_colors_label' => 'Wähle die in der Rechnung verwendeten Farben',
 
