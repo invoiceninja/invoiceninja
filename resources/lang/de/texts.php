@@ -22,7 +22,7 @@ return array(
   'additional_info' => 'Zusätzliche Info',
   'payment_terms' => 'Zahlungsbedingungen',
   'currency_id' => 'Währung',
-  'size_id' => 'Größe',
+  'size_id' => 'Firmengröße',
   'industry_id' => 'Kategorie',
   'private_notes' => 'Notizen',
 
