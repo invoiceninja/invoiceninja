@@ -330,16 +330,6 @@ class Utils
         return $date->format($format);
     }
 
-    public static function getTimestampOffset()
-    {
-        $timezone = new DateTimeZone(Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE));
-        $datetime = new DateTime('now', $timezone);
-        $offset = $timezone->getOffset($datetime);
-        $minutes = $offset / 60;
-
-        return $minutes;
-    }
-
     public static function toSqlDate($date, $formatResult = true)
     {
         if (!$date) {
@@ -377,6 +367,13 @@ class Utils
         $dateTime->setTimeZone(new DateTimeZone($timezone));
 
         return $formatResult ? $dateTime->format($format) : $dateTime;
+    }
+
+    public static function formatTime($t)
+    {
+        // http://stackoverflow.com/a/3172665
+        $f = ':';
+        return sprintf("%02d%s%02d%s%02d", floor($t/3600), $f, ($t/60)%60, $f, $t%60);
     }
 
     public static function today($formatResult = true)

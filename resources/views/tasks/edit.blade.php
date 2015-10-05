@@ -50,7 +50,7 @@
                         <p/>
 
                         @if ($task->hasPreviousDuration())
-                            {{ trans('texts.duration') . ': ' . gmdate('H:i:s', $task->getDuration()) }}<br/>
+                            {{ trans('texts.duration') . ': ' . Utils::formatTime($task->getDuration()) }}<br/>
                         @endif
 
                         @if (!$task->is_running)
