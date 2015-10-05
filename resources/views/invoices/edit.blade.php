@@ -1171,12 +1171,16 @@
 		self.is_amount_discount = ko.observable(0);
 		self.frequency_id = ko.observable(4); // default to monthly 
         self.terms = ko.observable('');
-        self.default_terms = ko.observable("{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}");
-        self.terms_placeholder = ko.observable({{ !$invoice && $account->invoice_terms ? 'true' : 'false' }} ? self.default_terms() : '');
+        //self.default_terms = ko.observable("{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_terms)) }}");
+        //self.terms_placeholder = ko.observable({{ !$invoice && $account->invoice_terms ? 'true' : 'false' }} ? self.default_terms() : '');
+        self.default_terms = ko.observable(account.invoice_terms);
+        self.terms_placeholder = ko.observable({{ !$invoice && $account->invoice_terms ? 'account.invoice_terms' : false}});
         self.set_default_terms = ko.observable(false);
         self.invoice_footer = ko.observable('');
-        self.default_footer = ko.observable("{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}");
-        self.footer_placeholder = ko.observable({{ !$invoice && $account->invoice_footer ? 'true' : 'false' }} ? self.default_footer() : '');
+        //self.default_footer = ko.observable("{{ str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) }}");
+        //self.footer_placeholder = ko.observable({{ !$invoice && $account->invoice_footer ? 'true' : 'false' }} ? self.default_footer() : '');
+        self.default_footer = ko.observable(account.invoice_footer);
+        self.footer_placeholder = ko.observable({{ !$invoice && $account->invoice_footer ? 'account.invoice_footer' : false}});
         self.set_default_footer = ko.observable(false);
 		self.public_notes = ko.observable('');		
 		self.po_number = ko.observable('');
@@ -1813,6 +1817,7 @@
 	var products = {!! $products !!};
 	var clients = {!! $clients !!};	
 	var countries = {!! $countries !!};
+    var account = {!! Auth::user()->account !!};
 
 	var clientMap = {};
 	var $clientSelect = $('select#client');

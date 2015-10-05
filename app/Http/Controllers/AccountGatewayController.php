@@ -97,7 +97,11 @@ class AccountGatewayController extends BaseController
         $data['url'] = 'gateways';
         $data['method'] = 'POST';
         $data['title'] = trans('texts.add_gateway');
-        $data['selectGateways'] = Gateway::where('payment_library_id', '=', 1)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->orderBy('name')->get();
+        $data['selectGateways'] = Gateway::where('payment_library_id', '=', 1)
+                                    ->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)
+                                    ->where('id', '!=', GATEWAY_BITPAY)
+                                    ->where('id', '!=', GATEWAY_DWOLLA)
+                                    ->orderBy('name')->get();
         $data['hiddenFields'] = Gateway::$hiddenFields;
 
         return View::make('accounts.account_gateway', $data);
