@@ -93,6 +93,26 @@ class Client extends EntityModel
         return ENTITY_CLIENT;
     }
 
+    public function hasAddress()
+    {
+        $fields = [
+            'address1',
+            'address2',
+            'city',
+            'state',
+            'postal_code',
+            'country_id',
+        ];
+
+        foreach ($fields as $field) {
+            if ($this->$field) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function getWebsite()
     {
         if (!$this->website) {

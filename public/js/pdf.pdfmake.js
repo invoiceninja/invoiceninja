@@ -183,12 +183,10 @@ NINJA.decodeJavascript = function(invoice, javascript)
             var match = matches[i];
             field = match.substring(2, match.indexOf('Value'));
             field = toSnakeCase(field);
+            
             var value = getDescendantProp(invoice, field) || ' ';
             value = doubleDollarSign(value);
 
-            if (field.toLowerCase().indexOf('date') >= 0 && value != ' ') {
-                value = moment(value, 'YYYY-MM-DD').format('MMM D YYYY');
-            }
             javascript = javascript.replace(match, '"'+value+'"');
         }
     }

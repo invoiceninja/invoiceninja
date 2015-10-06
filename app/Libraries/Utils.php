@@ -203,49 +203,6 @@ class Utils
         return floatval($value);
     }
 
-    public static function formatPhoneNumber($phoneNumber)
-    {
-        $phoneNumber = preg_replace('/[^0-9a-zA-Z]/', '', $phoneNumber);
-
-        if (!$phoneNumber) {
-            return '';
-        }
-
-        if (strlen($phoneNumber) > 10) {
-            $countryCode = substr($phoneNumber, 0, strlen($phoneNumber)-10);
-            $areaCode = substr($phoneNumber, -10, 3);
-            $nextThree = substr($phoneNumber, -7, 3);
-            $lastFour = substr($phoneNumber, -4, 4);
-
-            $phoneNumber = '+'.$countryCode.' ('.$areaCode.') '.$nextThree.'-'.$lastFour;
-        } elseif (strlen($phoneNumber) == 10 && in_array(substr($phoneNumber, 0, 3), array(653, 656, 658, 659))) {
-            /**
-             * SG country code are 653, 656, 658, 659
-             * US area code consist of 650, 651 and 657
-             * @see http://en.wikipedia.org/wiki/Telephone_numbers_in_Singapore#Numbering_plan
-             * @see http://www.bennetyee.org/ucsd-pages/area.html
-             */
-            $countryCode = substr($phoneNumber, 0, 2);
-            $nextFour = substr($phoneNumber, 2, 4);
-            $lastFour = substr($phoneNumber, 6, 4);
-
-            $phoneNumber = '+'.$countryCode.' '.$nextFour.' '.$lastFour;
-        } elseif (strlen($phoneNumber) == 10) {
-            $areaCode = substr($phoneNumber, 0, 3);
-            $nextThree = substr($phoneNumber, 3, 3);
-            $lastFour = substr($phoneNumber, 6, 4);
-
-            $phoneNumber = '('.$areaCode.') '.$nextThree.'-'.$lastFour;
-        } elseif (strlen($phoneNumber) == 7) {
-            $nextThree = substr($phoneNumber, 0, 3);
-            $lastFour = substr($phoneNumber, 3, 4);
-
-            $phoneNumber = $nextThree.'-'.$lastFour;
-        }
-
-        return $phoneNumber;
-    }
-
     public static function formatMoney($value, $currencyId = false)
     {
         if (!$currencyId) {

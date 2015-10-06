@@ -526,14 +526,11 @@ if (window.ko) {
 
 function getContactDisplayName(contact)
 {
-    var str = '';
     if (contact.first_name || contact.last_name) {
-        str += contact.first_name + ' ' + contact.last_name;
+        return contact.first_name + ' ' + contact.last_name;
+    } else {
+        return contact.email;
     }
-    if (str && contact.email) {
-        str += ' - ';
-    }
-    return str + contact.email;
 }
 
 function getClientDisplayName(client)

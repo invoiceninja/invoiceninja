@@ -30404,14 +30404,11 @@ if (window.ko) {
 
 function getContactDisplayName(contact)
 {
-    var str = '';
     if (contact.first_name || contact.last_name) {
-        str += contact.first_name + ' ' + contact.last_name;
+        return contact.first_name + ' ' + contact.last_name;
+    } else {
+        return contact.email;
     }
-    if (str && contact.email) {
-        str += ' - ';
-    }
-    return str + contact.email;
 }
 
 function getClientDisplayName(client)
@@ -31739,12 +31736,10 @@ NINJA.decodeJavascript = function(invoice, javascript)
             var match = matches[i];
             field = match.substring(2, match.indexOf('Value'));
             field = toSnakeCase(field);
+            
             var value = getDescendantProp(invoice, field) || ' ';
             value = doubleDollarSign(value);
 
-            if (field.toLowerCase().indexOf('date') >= 0 && value != ' ') {
-                value = moment(value, 'YYYY-MM-DD').format('MMM D YYYY');
-            }
             javascript = javascript.replace(match, '"'+value+'"');
         }
     }

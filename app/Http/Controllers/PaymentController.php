@@ -246,6 +246,7 @@ class PaymentController extends BaseController
             'currencyCode' => $client->currency ? $client->currency->code : ($account->currency ? $account->currency->code : 'USD'),
             'account' => $client->account,
             'hideLogo' => $account->isWhiteLabel(),
+            'hideHeader' => $account->isNinjaAccount(),
             'showAddress' => $accountGateway->show_address,
         ];
 

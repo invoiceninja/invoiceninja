@@ -677,7 +677,7 @@ class InvoiceRepository
 
         $invoices = Invoice::whereAccountId($account->id)
                     ->where('balance', '>', 0)
-                    ->whereRaw($sql)
+                    ->whereRaw('(' . $sql . ')')
                     ->get();
 
         return $invoices;

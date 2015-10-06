@@ -348,6 +348,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('DEFAULT_DATETIME_MOMENT_FORMAT', 'MMM D, YYYY h:mm:ss a');
     define('DEFAULT_QUERY_CACHE', 120); // minutes
     define('DEFAULT_LOCALE', 'en');
+    define('DEFAULT_MAP_ZOOM', 10);
 
     define('RESULT_SUCCESS', 'success');
     define('RESULT_FAILURE', 'failure');
@@ -387,7 +388,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
     define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
-    define('ZAPIER_URL', 'https://zapier.com/developer/invite/11276/85cf0ee4beae8e802c6c579eb4e351f1/');
+    define('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja');
     define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
     define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
     define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/single/browser/v1/');

@@ -61,22 +61,39 @@
         });
         */
         
+        @if (env('FACEBOOK_PIXEL'))
+            <!-- Facebook Pixel Code -->
+            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+            n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+            document,'script','//connect.facebook.net/en_US/fbevents.js');
+
+            fbq('init', '{{ env('FACEBOOK_PIXEL') }}');
+            fbq('track', "PageView");
+
+            (function() {
+              var _fbq = window._fbq || (window._fbq = []);
+              if (!_fbq.loaded) {
+                var fbds = document.createElement('script');
+                fbds.async = true;
+                fbds.src = '//connect.facebook.net/en_US/fbds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(fbds, s);
+                _fbq.loaded = true;
+             }
+            })();
+            
+        @else
+            function fbq() {
+                // do nothing
+            };
+        @endif
+
+        window._fbq = window._fbq || [];
+            
     </script>
 
-    <!-- Facebook Pixel Code -->
-    <script>
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-    document,'script','//connect.facebook.net/en_US/fbevents.js');
-
-    fbq('init', '{{ env('FACEBOOK_PIXEL') }}');
-    fbq('track', "PageView");</script>
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=770151509796760&ev=PageView&noscript=1"
-    /></noscript>
-    <!-- End Facebook Pixel Code -->
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -135,7 +152,10 @@
         }); 
 
         @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))
-            trackEvent('{{ session('trackEventCategory') }}', '{{ session('trackEventAction') }}');            
+            trackEvent('{{ session('trackEventCategory') }}', '{{ session('trackEventAction') }}');
+            @if (Session::get('trackEventAction') === '/buy_pro_plan'))
+                window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_BUY_PRO') }}', {'value':'{{ PRO_PLAN_PRICE }}.00','currency':'USD'}]);
+            @endif
         @endif
     });
     $('form').submit(function() {

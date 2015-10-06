@@ -592,7 +592,7 @@ return array(
   'run' => 'Ejecutar',
   'export' => 'Exportar',
   'documentation' => 'Documentación',
-  'zapier' => 'Zapier <sup>Beta</sup>',
+  'zapier' => 'Zapier',
   'recurring' => 'Recurrente',
   'last_invoice_sent' => 'Ultima factura enviada en :date',
 
@@ -770,6 +770,8 @@ return array(
   'last_sent_on' => 'ültimo enviado en :date',
 
   'page_expire' => 'Esta página expirará pronto, :click_here para que siga funcionando',
+  'upcoming_quotes' => 'Upcoming Quotes',
+  'expired_quotes' => 'Expired Quotes',
 
 
 );

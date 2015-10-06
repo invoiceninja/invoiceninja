@@ -621,7 +621,7 @@
    'run' => 'Kør', 
    'export' => 'Eksport', 
    'documentation' => 'Dokumentation', 
-   'zapier' => 'Zapier <sup>Beta</sup>', 
+   'zapier' => 'Zapier', 
    'recurring' => 'Gentagne', 
    'last_invoice_sent' => 'Sidste faktura sendt :date', 
    
@@ -793,6 +793,8 @@
    'last_sent_on' => 'Last sent on :date',
 
    'page_expire' => 'This page will expire soon, :click_here to keep working',
+   'upcoming_quotes' => 'Upcoming Quotes',
+   'expired_quotes' => 'Expired Quotes',
 
 
  ); 

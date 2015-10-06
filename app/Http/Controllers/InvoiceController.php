@@ -258,6 +258,7 @@ class InvoiceController extends BaseController
             'showApprove' => $showApprove,
             'showBreadcrumbs' => false,
             'hideLogo' => $account->isWhiteLabel(),
+            'hideHeader' => $account->isNinjaAccount(),
             'invoice' => $invoice->hidePrivateFields(),
             'invitation' => $invitation,
             'invoiceLabels' => $account->getInvoiceLabels(),

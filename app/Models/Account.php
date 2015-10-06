@@ -321,13 +321,18 @@ class Account extends Eloquent
         return $data;
     }
 
+    public function isNinjaAccount()
+    {
+        return $this->account_key === NINJA_ACCOUNT_KEY;
+    }
+
     public function isPro()
     {
         if (!Utils::isNinjaProd()) {
             return true;
         }
 
-        if ($this->account_key == NINJA_ACCOUNT_KEY) {
+        if ($this->isNinjaAccount()) {
             return true;
         }
 
@@ -348,6 +353,10 @@ class Account extends Eloquent
 
     public function isWhiteLabel()
     {
+        if ($this->isNinjaAccount()) {
+            return false;
+        }
+
         if (Utils::isNinjaProd()) {
             return self::isPro() && $this->pro_plan_paid != NINJA_DATE;
         } else {

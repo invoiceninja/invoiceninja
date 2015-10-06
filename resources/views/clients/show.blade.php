@@ -1,7 +1,25 @@
 @extends('header')
 
-@section('content')
+@section('head')
+    @parent
 
+    @if ($client->hasAddress())
+        <style>
+          #map {
+            width: 100%;
+            height: 200px;
+            border-width: 1px;
+            border-style: solid;
+            border-color: #ddd;
+          }
+        </style>
+
+        <script src="https://maps.googleapis.com/maps/api/js"></script>
+    @endif
+@stop
+
+
+@section('content')
 
 	<div class="pull-right">
 		{!! Former::open('clients/bulk')->addClass('mainForm') !!}
@@ -81,7 +99,7 @@
             @endif
 
             @if ($client->work_phone)
-                <i class="fa fa-phone" style="width: 20px"></i>{{ Utils::formatPhoneNumber($client->work_phone) }}
+                <i class="fa fa-phone" style="width: 20px"></i>{{ $client->work_phone }}
             @endif
 
             @if ($client->private_notes)
@@ -116,14 +134,14 @@
                     <i class="fa fa-envelope" style="width: 20px"></i>{!! HTML::mailto($contact->email, $contact->email) !!}<br/>
                 @endif
                 @if ($contact->phone)
-                    <i class="fa fa-phone" style="width: 20px"></i>{!! Utils::formatPhoneNumber($contact->phone) !!}<br/>
+                    <i class="fa fa-phone" style="width: 20px"></i>{{ $contact->phone }}<br/>
                 @endif		  		
 		  	@endforeach
 		</div>
 
-		<div class="col-md-6">
+		<div class="col-md-4">
 			<h3>{{ trans('texts.standing') }}
-			<table class="table" style="width:300px">
+			<table class="table" style="width:100%">
 				<tr>
 					<td><small>{{ trans('texts.paid_to_date') }}</small></td>
 					<td style="text-align: right">{{ Utils::formatMoney($client->paid_to_date, $client->getCurrencyId()) }}</td>
@@ -140,11 +158,15 @@
 				@endif
 			</table>
 			</h3>
-
 		</div>
 	</div>
     </div>
     </div>
+
+    @if ($client->hasAddress())
+        <div id="map"></div>
+        <br/>
+    @endif
 
 	<ul class="nav nav-tabs nav-justified">
 		{!! HTML::tab_link('#activity', trans('texts.activity'), true) !!}
@@ -306,6 +328,50 @@
 			$('.mainForm').submit();
 		}
 	}
+
+    @if ($client->hasAddress())
+        function initialize() {
+            var mapCanvas = document.getElementById('map');
+            var mapOptions = {
+                zoom: {{ DEFAULT_MAP_ZOOM }},
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                zoomControl: true,
+            };
+
+            var map = new google.maps.Map(mapCanvas, mapOptions)
+            var address = "{{ "{$client->address1} {$client->address2} {$client->city} {$client->state} {$client->postal_code} " . ($client->country ? $client->country->name : '') }}";
+            
+            geocoder = new google.maps.Geocoder();
+            geocoder.geocode( { 'address': address}, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                  if (status != google.maps.GeocoderStatus.ZERO_RESULTS) {
+                    var result = results[0];
+                    map.setCenter(result.geometry.location);
+                    
+                    var infowindow = new google.maps.InfoWindow(
+                        { content: '<b>'+result.formatted_address+'</b>',
+                        size: new google.maps.Size(150, 50)
+                    });
+
+                    var marker = new google.maps.Marker({
+                        position: result.geometry.location,
+                        map: map, 
+                        title:address,
+                    }); 
+                    google.maps.event.addListener(marker, 'click', function() {
+                        infowindow.open(map, marker);
+                    });
+                } else {
+                    $('#map').hide();
+                }
+            } else {
+              $('#map').hide();
+          }
+      });
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+    @endif
 
 	</script>
 

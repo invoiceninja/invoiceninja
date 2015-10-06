@@ -61,7 +61,7 @@ class Activity extends Eloquent
 
     public static function updateClient($client)
     {
-        if ($client->is_deleted && !$client->getOriginal('is_deleted')) {
+        if ($client->isBeingDeleted()) {
             $activity = Activity::getBlank();
             $activity->client_id = $client->id;
             $activity->activity_type_id = ACTIVITY_TYPE_DELETE_CLIENT;
@@ -166,7 +166,7 @@ class Activity extends Eloquent
     {
         $client = $invoice->client;
 
-        if ($invoice->is_deleted && !$invoice->getOriginal('is_deleted')) {
+        if ($invoice->isBeingDeleted()) {
             $adjustment = 0;
             if (!$invoice->is_quote && !$invoice->is_recurring) {
                 $adjustment = $invoice->balance * -1;
@@ -315,7 +315,7 @@ class Activity extends Eloquent
 
     public static function updatePayment($payment)
     {
-        if ($payment->is_deleted && !$payment->getOriginal('is_deleted')) {
+        if ($payment->isBeingDeleted()) {
             $client = $payment->client;
             $client->balance = $client->balance + $payment->amount;
             $client->paid_to_date = $client->paid_to_date - $payment->amount;
@@ -422,7 +422,7 @@ class Activity extends Eloquent
 
     public static function updateCredit($credit)
     {
-        if ($credit->is_deleted && !$credit->getOriginal('is_deleted')) {
+        if ($credit->isBeingDeleted()) {
             $activity = Activity::getBlank();
             $activity->credit_id = $credit->id;
             $activity->client_id = $credit->client_id;

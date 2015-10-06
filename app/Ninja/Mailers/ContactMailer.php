@@ -27,6 +27,10 @@ class ContactMailer extends Mailer
 
         $account->loadLocalizationSettings($client);
 
+        if ($account->pdf_email_attachment) {
+            $invoice->updateCachedPDF();
+        }
+
         $view = 'invoice';
         $accountName = $invoice->account->getDisplayName();
         $emailTemplate = $invoice->account->getEmailTemplate($reminder ?: $entityType);

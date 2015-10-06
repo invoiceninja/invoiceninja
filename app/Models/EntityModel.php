@@ -112,4 +112,8 @@ class EntityModel extends Eloquent
         return $data;
     }
 
+    public function isBeingDeleted()
+    {
+        return $this->is_deleted && !$this->getOriginal('is_deleted');
+    }
 }

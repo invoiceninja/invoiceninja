@@ -77,9 +77,10 @@ class DashboardController extends BaseController
                     //->where('invoices.is_quote', '=', false)
                     ->where('invoices.balance', '>', 0)
                     ->where('invoices.is_deleted', '=', false)
+                    ->where('invoices.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
                     ->where('invoices.due_date', '<', date('Y-m-d'))
-                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id'])
+                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'is_quote'])
                     ->orderBy('invoices.due_date', 'asc')
                     ->take(50)
                     ->get();
@@ -90,6 +91,7 @@ class DashboardController extends BaseController
                     ->where('invoices.account_id', '=', Auth::user()->account_id)
                     ->where('clients.deleted_at', '=', null)
                     ->where('contacts.deleted_at', '=', null)
+                    ->where('invoices.deleted_at', '=', null)
                     ->where('invoices.is_recurring', '=', false)
                     //->where('invoices.is_quote', '=', false)
                     ->where('invoices.balance', '>', 0)
@@ -98,7 +100,7 @@ class DashboardController extends BaseController
                     ->where('invoices.due_date', '>=', date('Y-m-d'))
                     ->orderBy('invoices.due_date', 'asc')
                     ->take(50)
-                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id'])
+                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'is_quote'])
                     ->get();
 
         $payments = DB::table('payments')
@@ -114,6 +116,14 @@ class DashboardController extends BaseController
                     ->take(50)
                     ->get();
 
+        $hasQuotes = false;
+        foreach ([$upcoming, $pastDue] as $data) {
+            foreach ($data as $invoice) {
+                if ($invoice->is_quote) {
+                    $hasQuotes = true;
+                }
+            }
+        }
 
         $data = [
             'account' => Auth::user()->account,
@@ -127,6 +137,7 @@ class DashboardController extends BaseController
             'upcoming' => $upcoming,
             'payments' => $payments,
             'title' => trans('texts.dashboard'),
+            'hasQuotes' => $hasQuotes,
         ];
 
         return View::make('dashboard', $data);

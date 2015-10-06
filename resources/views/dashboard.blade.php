@@ -12,11 +12,11 @@
                 </div>
                 <div class="in-bold">
                     @if (count($paidToDate))
-                        @foreach ($paidToDate as $item)
-                            {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
-                        @endforeach
+                    @foreach ($paidToDate as $item)
+                    {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
+                    @endforeach
                     @else
-                        {{ Utils::formatMoney(0) }}
+                    {{ Utils::formatMoney(0) }}
                     @endif
                 </div>
             </div>
@@ -31,11 +31,11 @@
                 </div>
                 <div class="in-bold">
                     @if (count($averageInvoice))
-                        @foreach ($averageInvoice as $item)
-                            {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
-                        @endforeach
+                    @foreach ($averageInvoice as $item)
+                    {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
+                    @endforeach
                     @else
-                        {{ Utils::formatMoney(0) }}
+                    {{ Utils::formatMoney(0) }}
                     @endif
                 </div>
             </div>
@@ -50,11 +50,11 @@
                 </div>
                 <div class="in-bold">
                     @if (count($balances))
-                        @foreach ($balances as $item)
-                            {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
-                        @endforeach
+                    @foreach ($balances as $item)
+                    {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
+                    @endforeach
                     @else
-                        {{ Utils::formatMoney(0) }}
+                    {{ Utils::formatMoney(0) }}
                     @endif
                 </div>
             </div>
@@ -66,7 +66,7 @@
 <p>&nbsp;</p>
 
 <div class="row">
-    <div class="col-md-6">  
+    <div class="col-md-6">
         <div class="panel panel-default dashboard" style="height:320px">
             <div class="panel-heading" style="background-color:#0b4d78 !important">
                 <h3 class="panel-title in-bold-white">
@@ -85,6 +85,9 @@
                 @endforeach
             </ul>
         </div>  
+    </div>
+
+    <div class="col-md-6">
         <div class="panel panel-default dashboard" style="height:320px;">
             <div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
                 <h3 class="panel-title" style="color: black !important">
@@ -112,7 +115,40 @@
                 </table>
             </div>
         </div>
-        
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">  
+        <div class="panel panel-default dashboard" style="height:320px;">
+            <div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
+                <h3 class="panel-title" style="color: black !important">
+                    <i class="glyphicon glyphicon-time"></i> {{ trans('texts.upcoming_invoices') }}
+                </h3>
+            </div>
+            <div class="panel-body" style="height:274px;overflow-y:auto;">
+                <table class="table table-striped">
+                    <thead>
+                        <th>{{ trans('texts.invoice_number_short') }}</th>
+                        <th>{{ trans('texts.client') }}</th>
+                        <th>{{ trans('texts.due_date') }}</th>
+                        <th>{{ trans('texts.balance_due') }}</th>
+                    </thead>
+                    <tbody>
+                        @foreach ($upcoming as $invoice)
+                            @if (!$invoice->is_quote)
+                                <tr>
+                                    <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
+                                    <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
+                                    <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
+                                    <td>{{ Utils::formatMoney($invoice->balance, $invoice->currency_id ?: ($account->currency_id ?: DEFAULT_CURRENCY)) }}</td>
+                                </tr>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
     <div class="col-md-6">  
         <div class="panel panel-default dashboard" style="height:320px">
@@ -131,47 +167,89 @@
                     </thead>
                     <tbody>
                         @foreach ($pastDue as $invoice)
-                        <tr>
-                            <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
-                            <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
-                            <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
-                            <td>{{ Utils::formatMoney($invoice->balance, $invoice->currency_id ?: ($account->currency_id ?: DEFAULT_CURRENCY)) }}</td>
-                        </tr>
+                            @if (!$invoice->is_quote)
+                                <tr>
+                                    <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
+                                    <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
+                                    <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
+                                    <td>{{ Utils::formatMoney($invoice->balance, $invoice->currency_id ?: ($account->currency_id ?: DEFAULT_CURRENCY)) }}</td>
+                                </tr>
+                            @endif
                         @endforeach
                     </tbody>
                 </table>
             </div>
         </div>  
-        <div class="panel panel-default dashboard" style="height:320px;">
-            <div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
-                <h3 class="panel-title" style="color: black !important">
-                    <i class="glyphicon glyphicon-time"></i> {{ trans('texts.upcoming_invoices') }}
-                </h3>
-            </div>
-            <div class="panel-body" style="height:274px;overflow-y:auto;">
-                <table class="table table-striped">
-                    <thead>
-                        <th>{{ trans('texts.invoice_number_short') }}</th>
-                        <th>{{ trans('texts.client') }}</th>
-                        <th>{{ trans('texts.due_date') }}</th>
-                        <th>{{ trans('texts.balance_due') }}</th>
-                    </thead>
-                    <tbody>
-                        @foreach ($upcoming as $invoice)
-                        <tr>
-                            <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
-                            <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
-                            <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
-                            <td>{{ Utils::formatMoney($invoice->balance, $invoice->currency_id ?: ($account->currency_id ?: DEFAULT_CURRENCY)) }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
     </div>
 </div>
+
+@if ($hasQuotes)
+    <div class="row">
+        <div class="col-md-6">  
+            <div class="panel panel-default dashboard" style="height:320px;">
+                <div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
+                    <h3 class="panel-title" style="color: black !important">
+                        <i class="glyphicon glyphicon-time"></i> {{ trans('texts.upcoming_quotes') }}
+                    </h3>
+                </div>
+                <div class="panel-body" style="height:274px;overflow-y:auto;">
+                    <table class="table table-striped">
+                        <thead>
+                            <th>{{ trans('texts.quote_number_short') }}</th>
+                            <th>{{ trans('texts.client') }}</th>
+                            <th>{{ trans('texts.due_date') }}</th>
+                            <th>{{ trans('texts.balance_due') }}</th>
+                        </thead>
+                        <tbody>
+                            @foreach ($upcoming as $invoice)
+                                @if ($invoice->is_quote)
+                                    <tr>
+                                        <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
+                                        <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
+                                        <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
+                                        <td>{{ Utils::formatMoney($invoice->balance, $invoice->currency_id ?: ($account->currency_id ?: DEFAULT_CURRENCY)) }}</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">  
+            <div class="panel panel-default dashboard" style="height:320px">
+                <div class="panel-heading" style="background-color:#e37329 !important">
+                    <h3 class="panel-title in-bold-white">
+                        <i class="glyphicon glyphicon-time"></i> {{ trans('texts.expired_quotes') }}
+                    </h3>
+                </div>
+                <div class="panel-body" style="height:274px;overflow-y:auto;">
+                    <table class="table table-striped">
+                        <thead>
+                            <th>{{ trans('texts.quote_number_short') }}</th>
+                            <th>{{ trans('texts.client') }}</th>
+                            <th>{{ trans('texts.due_date') }}</th>
+                            <th>{{ trans('texts.balance_due') }}</th>
+                        </thead>
+                        <tbody>
+                            @foreach ($pastDue as $invoice)
+                                @if ($invoice->is_quote)
+                                    <tr>
+                                        <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
+                                        <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
+                                        <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
+                                        <td>{{ Utils::formatMoney($invoice->balance, $invoice->currency_id ?: ($account->currency_id ?: DEFAULT_CURRENCY)) }}</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>  
+        </div>
+    </div>
+@endif
+
 
 <div class="row">
     <div class="col-md-6">  
