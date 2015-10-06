@@ -7,7 +7,7 @@
 
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Please help our project by voting for our app on [Product Hunt](http://www.producthunt.com/tech/invoice-ninja).
+Please help our project by voting for us on [Product Hunt](http://www.producthunt.com/tech/invoice-ninja).
 
 If you'd like to use our code to sell your own invoicing app email us for details about our affiliate program.
 
