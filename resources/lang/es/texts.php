@@ -22,7 +22,7 @@ return array(
    'additional_info' => 'Información adicional',
    'payment_terms' => 'Plazos de pago', //
    'currency_id' => 'Divisa',
-   'size_id' => 'Tamaño',
+   'size_id' => 'Tamaño de la Empresa',
    'industry_id' => 'Industria',
    'private_notes' => 'Notas Privadas',
 
