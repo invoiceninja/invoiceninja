@@ -12,13 +12,11 @@ Please help our project by voting for us on [Product Hunt](http://www.producthun
 If you'd like to use our code to sell your own invoicing app email us for details about our affiliate program.
 
 ### Installation Options
-
 * [Zip - Free](https://www.invoiceninja.com/knowledgebase/self-host/)
 * [Bitnami - Free](https://bitnami.com/stack/invoice-ninja)
 * [Softaculous - $30](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
 
 ### Features
-
 * Built using Laravel 5
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Integrates with 30+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
@@ -32,12 +30,6 @@ If you'd like to use our code to sell your own invoicing app email us for detail
 * [Zapier](https://zapier.com/) integration
 * [D3.js](http://d3js.org/) visualizations
 
-### Contributors
-
-* [Troels Liebe Bentsen](https://github.com/tlbdk)
-* [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
-* [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
-
 ### Documentation
 * [Ubuntu and Apache](http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/)
 * [Debian and Nginx](https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/)
@@ -46,6 +38,11 @@ If you'd like to use our code to sell your own invoicing app email us for detail
 * [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
+
+### Contributors
+* [Troels Liebe Bentsen](https://github.com/tlbdk)
+* [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
+* [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
 
 ### Frameworks/Libraries
 * [laravel/laravel](https://github.com/laravel/laravel) - A PHP Framework For Web Artisans
