@@ -19,7 +19,11 @@ If you'd like to use our code to sell your own invoicing app email us for detail
 
 ### Getting Started
 
-If you have any questions or comments please use our [support forum](https://www.invoiceninja.com/forums/forum/support/). For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). 
+* [User Guide](https://www.invoiceninja.com/user-guide/)
+* [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
+* [API Documentation](https://www.invoiceninja.com/api-documentation/)
+* [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
+* [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
 If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
 
