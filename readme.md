@@ -17,16 +17,6 @@ If you'd like to use our code to sell your own invoicing app email us for detail
 * [Bitnami - Free](https://bitnami.com/stack/invoice-ninja)
 * [Softaculous - $30](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
 
-### Getting Started
-
-* [User Guide](https://www.invoiceninja.com/user-guide/)
-* [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
-* [API Documentation](https://www.invoiceninja.com/api-documentation/)
-* [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
-* [Feature Roadmap](https://trello.com/b/63BbiVVe/)
-
-If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
-
 ### Features
 
 * Built using Laravel 5
@@ -51,9 +41,11 @@ If you'd like to translate the site please use [caouecs/Laravel4-long](https://g
 ### Documentation
 * [Ubuntu and Apache](http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/)
 * [Debian and Nginx](https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/)
-* [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
 * [User Guide](https://www.invoiceninja.com/user-guide/)
 * [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
+* [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
+* [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
+* [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
 ### Frameworks/Libraries
 * [laravel/laravel](https://github.com/laravel/laravel) - A PHP Framework For Web Artisans
