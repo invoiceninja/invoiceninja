@@ -185,14 +185,7 @@
         },            
         "termsLabel": {
             "bold": true
-        },
-        "header": {
-            "fontSize": "$fontSizeLargest",
-            "bold": true
-        },
-        "subheader": {
-            "fontSize": "$fontSizeLarger"
-        }
+        }           
     },
     "pageMargins": [40, 40, 40, 60]
 }
