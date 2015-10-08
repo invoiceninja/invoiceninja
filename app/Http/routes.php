@@ -62,6 +62,8 @@ Route::get('claim_license', 'PaymentController@claim_license');
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
 
+Route::get('auth/{provider}', 'Auth\AuthController@authLogin');
+
 
 // Laravel auth routes
 /*
@@ -383,7 +385,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.4.0');
+    define('NINJA_VERSION', '2.4.2');
     define('NINJA_DATE', '2000-01-01');
 
     define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
@@ -431,6 +433,12 @@ if (!defined('CONTACT_EMAIL')) {
     define('REMINDER1', 'reminder1');
     define('REMINDER2', 'reminder2');
     define('REMINDER3', 'reminder3');
+
+    define('SOCIAL_GOOGLE', 'Google');
+    define('SOCIAL_FACEBOOK', 'Facebook');
+    define('SOCIAL_GITHUB', 'Github');
+    define('SOCIAL_LINKEDIN', 'LinkedIn');
+
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
@@ -495,4 +503,3 @@ if (Auth::check() && Auth::user()->id === 1)
   Auth::loginUsingId(1);
 }
 */
-
