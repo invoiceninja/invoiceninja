@@ -153,7 +153,7 @@
 
         @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))
             trackEvent('{{ session('trackEventCategory') }}', '{{ session('trackEventAction') }}');
-            @if (Session::get('trackEventAction') === '/buy_pro_plan'))
+            @if (Session::get('trackEventAction') === '/buy_pro_plan')
                 window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_BUY_PRO') }}', {'value':'{{ PRO_PLAN_PRICE }}.00','currency':'USD'}]);
             @endif
         @endif
