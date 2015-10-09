@@ -9,10 +9,15 @@ class Mailer
 {
     public function sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data = [])
     {
-        $views = [
-            'emails.'.$view.'_html',
-            'emails.'.$view.'_text',
-        ];
+        // https://github.com/wildbit/laravel-postmark-provider/issues/2
+        if (isset($data['invoice_id']) && isset($_ENV['POSTMARK_API_TOKEN'])) {
+            $views = 'emails.'.$view.'_html';
+        } else {
+            $views = [
+                'emails.'.$view.'_html',
+                'emails.'.$view.'_text',
+            ];
+        }
 
         try {
             Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $subject, $data) {
@@ -40,7 +45,7 @@ class Mailer
             return true;
         } catch (Exception $exception) {
             Utils::logError('Email Error: ' . $exception->getMessage());
-            if (isset($_ENV['POSTMARK_API_TOKEN'])) {
+            if (false && isset($_ENV['POSTMARK_API_TOKEN'])) {
                 $response = $exception->getResponse()->getBody()->getContents();
                 $response = json_decode($response);
                 return nl2br($response->Message);
