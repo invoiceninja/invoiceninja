@@ -46,7 +46,7 @@ return array(
   'line_total' => 'Total',
   'subtotal' => 'Total',
   'paid_to_date' => 'Versé à ce jour',
-  'balance_due' => 'Montant total',
+  'balance_due' => 'Montant dû',
   'invoice_design_id' => 'Design',
   'terms' => 'Conditions',
   'your_invoice' => 'Votre facture',
