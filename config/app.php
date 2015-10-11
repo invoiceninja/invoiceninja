@@ -149,6 +149,7 @@ return [
     	'Webpatser\Countries\CountriesServiceProvider',
     	'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
     	'Illuminate\Html\HtmlServiceProvider',
+        'Laravel\Socialite\SocialiteServiceProvider',
 
 		/*
 		 * Application Service Providers...
@@ -242,6 +243,7 @@ return [
 		'Countries'       => 'Webpatser\Countries\CountriesFacade',
 		'Carbon'          => 'Carbon\Carbon',
 		'Rocketeer'       => 'Rocketeer\Facades\Rocketeer',
+        'Socialite'       => 'Laravel\Socialite\Facades\Socialite',
 
 	],
 

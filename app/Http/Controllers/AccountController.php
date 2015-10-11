@@ -43,6 +43,7 @@ use App\Ninja\Mailers\ContactMailer;
 use App\Events\UserSignedUp;
 use App\Events\UserLoggedIn;
 use App\Events\UserSettingsChanged;
+use App\Services\AuthService;
 
 class AccountController extends BaseController
 {
@@ -110,7 +111,6 @@ class AccountController extends BaseController
         }
 
         Auth::login($user, true);
-        event(new UserSignedUp());
         event(new UserLoggedIn());
         
         $redirectTo = Input::get('redirect_to') ?: 'invoices/create';
@@ -120,13 +120,6 @@ class AccountController extends BaseController
     public function enableProPlan()
     {
         $invitation = $this->accountRepo->enableProPlan();
-
-        /*
-        if ($invoice)
-        {
-            $this->contactMailer->sendInvoice($invoice);
-        }
-        */
 
         return $invitation->invitation_key;
     }
@@ -153,7 +146,12 @@ class AccountController extends BaseController
     public function showSection($section = ACCOUNT_DETAILS, $subSection = false)
     {
         if ($section == ACCOUNT_DETAILS) {
-            $primaryUser = Auth::user()->account->users()->orderBy('id')->first();
+
+            $oauthLoginUrls = [];
+            foreach (AuthService::$providers as $provider) {
+                $oauthLoginUrls[] = ['label' => $provider, 'url' => '/auth/' . strtolower($provider)];
+            }
+
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
                 'countries' => Cache::get('countries'),
@@ -164,9 +162,10 @@ class AccountController extends BaseController
                 'datetimeFormats' => Cache::get('datetimeFormats'),
                 'currencies' => Cache::get('currencies'),
                 'languages' => Cache::get('languages'),
-                'showUser' => Auth::user()->id === $primaryUser->id,
                 'title' => trans('texts.company_details'),
-                'primaryUser' => $primaryUser,
+                'user' => Auth::user(),
+                'oauthProviderName' => AuthService::getProviderName(Auth::user()->oauth_provider_id),
+                'oauthLoginUrls' => $oauthLoginUrls,
             ];
 
             return View::make('accounts.details', $data);
@@ -402,6 +401,8 @@ class AccountController extends BaseController
                 $account->custom_invoice_label2 = trim(Input::get('custom_invoice_label2'));
                 $account->custom_invoice_taxes1 = Input::get('custom_invoice_taxes1') ? true : false;
                 $account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;
+                $account->custom_invoice_text_label1 = trim(Input::get('custom_invoice_text_label1'));
+                $account->custom_invoice_text_label2 = trim(Input::get('custom_invoice_text_label2'));
 
                 $account->invoice_number_prefix = Input::get('invoice_number_prefix');
                 $account->invoice_number_counter = Input::get('invoice_number_counter');
@@ -722,23 +723,21 @@ class AccountController extends BaseController
             $account->military_time = Input::get('military_time') ? true : false;
             $account->save();
 
-            if (Auth::user()->id === $user->id) {
-                $user = Auth::user();
-                $user->first_name = trim(Input::get('first_name'));
-                $user->last_name = trim(Input::get('last_name'));
-                $user->username = trim(Input::get('email'));
-                $user->email = trim(strtolower(Input::get('email')));
-                $user->phone = trim(Input::get('phone'));
-                if (Utils::isNinja()) {
-                    if (Input::get('referral_code')) {
-                        $user->referral_code = $this->accountRepo->getReferralCode();
-                    }
+            $user = Auth::user();
+            $user->first_name = trim(Input::get('first_name'));
+            $user->last_name = trim(Input::get('last_name'));
+            $user->username = trim(Input::get('email'));
+            $user->email = trim(strtolower(Input::get('email')));
+            $user->phone = trim(Input::get('phone'));
+            if (Utils::isNinja()) {
+                if (Input::get('referral_code') && !$user->referral_code) {
+                    $user->referral_code = $this->accountRepo->getReferralCode();
                 }
-                if (Utils::isNinjaDev()) {
-                    $user->dark_mode = Input::get('dark_mode') ? true : false;
-                }
-                $user->save();
             }
+            if (Utils::isNinjaDev()) {
+                $user->dark_mode = Input::get('dark_mode') ? true : false;
+            }
+            $user->save();
                 
             /* Logo image file */
             if ($file = Input::file('logo')) {
@@ -816,24 +815,14 @@ class AccountController extends BaseController
         $user->username = $user->email;
         $user->password = bcrypt(trim(Input::get('new_password')));
         $user->registered = true;
-        $user->save();        
-
-        if (Utils::isNinjaProd()) {
-            $this->userMailer->sendConfirmation($user);
-        }
-
-        $activities = Activity::scope()->get();
-        foreach ($activities as $activity) {
-            $activity->message = str_replace('Guest', $user->getFullName(), $activity->message);
-            $activity->save();
-        }
+        $user->save();
 
         if (Input::get('go_pro') == 'true') {
             Session::set(REQUESTED_PRO_PLAN, true);
         }
 
-        Session::set(SESSION_COUNTER, -1);
-
+        event(new UserSignedUp());
+        
         return "{$user->first_name} {$user->last_name}";
     }
 

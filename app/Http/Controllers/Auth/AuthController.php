@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use App\Ninja\Repositories\AccountRepository;
+use App\Services\AuthService;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\Registrar;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
@@ -30,6 +31,7 @@ class AuthController extends Controller {
 
     protected $loginPath = '/login';
     protected $redirectTo = '/dashboard';
+    protected $authService;
     protected $accountRepo;
 
 	/**
@@ -39,14 +41,28 @@ class AuthController extends Controller {
 	 * @param  \Illuminate\Contracts\Auth\Registrar  $registrar
 	 * @return void
 	 */
-	public function __construct(Guard $auth, Registrar $registrar, AccountRepository $repo)
+	public function __construct(Guard $auth, Registrar $registrar, AccountRepository $repo, AuthService $authService)
 	{
 		$this->auth = $auth;
 		$this->registrar = $registrar;
         $this->accountRepo = $repo;
+        $this->authService = $authService;
 
 		//$this->middleware('guest', ['except' => 'getLogout']);
 	}
+
+    public function authLogin($provider, Request $request)
+    {
+        return $this->authService->execute($provider, $request->has('code'));
+    }
+
+    public function authUnlink()
+    {
+        $this->accountRepo->unlinkUserFromOauth(Auth::user());
+
+        Session::flash('message', trans('texts.updated_settings'));
+        return redirect()->to('/company/details');
+    }
 
     public function getLoginWrapper()
     {
@@ -63,7 +79,7 @@ class AuthController extends Controller {
         $user = User::where('email', '=', $request->input('email'))->first();
 
         if ($user && $user->failed_logins >= 3) {
-            Session::flash('error', 'These credentials do not match our records.');
+            Session::flash('error', trans('texts.invalid_credentials'));
             return redirect()->to('login');
         }
 

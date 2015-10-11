@@ -30400,6 +30400,26 @@ if (window.ko) {
       ko.applyBindingsToNode(element, { attr: { placeholder: underlyingObservable } } );
     }
   };
+
+  ko.bindingHandlers.tooltip = {
+    init: function(element, valueAccessor) {
+        var local = ko.utils.unwrapObservable(valueAccessor()),
+        options = {};
+
+        ko.utils.extend(options, ko.bindingHandlers.tooltip.options);
+        ko.utils.extend(options, local);
+
+        $(element).tooltip(options);
+
+        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+            $(element).tooltip("destroy");
+        });
+    },
+    options: {
+        placement: "bottom",
+        trigger: "hover"
+    }
+  };
 }
 
 function getContactDisplayName(contact)
@@ -31995,6 +32015,18 @@ NINJA.invoiceDetails = function(invoice) {
     ]
     ];
 
+    if (invoice.custom_text_value1) {
+        data.push([
+            {text: invoice.account.custom_invoice_text_label1},
+            {text: invoice.custom_text_value1}
+        ])
+    }
+    if (invoice.custom_text_value2) {
+        data.push([
+            {text: invoice.account.custom_invoice_text_label2},
+            {text: invoice.custom_text_value2}
+        ])
+    }
 
     var isPartial = NINJA.parseFloat(invoice.partial);
     
@@ -32002,18 +32034,18 @@ NINJA.invoiceDetails = function(invoice) {
         data.push([
             {text: invoiceLabels.total},
             {text: formatMoney(invoice.amount, invoice.client.currency_id)}
-            ]);
+        ]);
     } else if (isPartial) {
         data.push([
             {text: invoiceLabels.total},
             {text: formatMoney(invoice.total_amount, invoice.client.currency_id)}
-            ]);
+        ]);
     }
 
     data.push([
         {text: isPartial ? invoiceLabels.amount_due : invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
         {text: formatMoney(invoice.balance_amount, invoice.client.currency_id), style: ['invoiceDetailBalanceDue']}
-        ])
+    ])
 
     return NINJA.prepareDataPairs(data, 'invoiceDetails');
 }

@@ -358,20 +358,26 @@ class InvoiceController extends BaseController
             $data['formIsChanged'] = true;
         }
 
-        // Set the invitation link on the client's contacts
+        // Set the invitation data on the client's contacts
         if (!$clone) {
             $clients = $data['clients'];
             foreach ($clients as $client) {
-                if ($client->id == $invoice->client->id) {
-                    foreach ($invoice->invitations as $invitation) {
-                        foreach ($client->contacts as $contact) {
-                            if ($invitation->contact_id == $contact->id) {
-                                $contact->invitation_link = $invitation->getLink();
-                            }
+                if ($client->id != $invoice->client->id) {
+                    continue;
+                }
+
+                foreach ($invoice->invitations as $invitation) {
+                    foreach ($client->contacts as $contact) {
+                        if ($invitation->contact_id == $contact->id) {
+                            $contact->email_error = $invitation->email_error;
+                            $contact->invitation_link = $invitation->getLink();
+                            $contact->invitation_viewed = $invitation->viewed_date;
+                            $contact->invitation_status = $contact->email_error ? false : $invitation->getStatus();
                         }
                     }
-                    break;
                 }
+
+                break;
             }
         }
 

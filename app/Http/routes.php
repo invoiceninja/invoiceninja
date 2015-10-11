@@ -63,6 +63,10 @@ Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
 
 Route::get('auth/{provider}', 'Auth\AuthController@authLogin');
+Route::get('auth_unlink', 'Auth\AuthController@authUnlink');
+
+Route::post('hook/email_bounced', 'AppController@emailBounced');
+Route::post('hook/email_opened', 'AppController@emailOpened');
 
 
 // Laravel auth routes
@@ -436,7 +440,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('SOCIAL_GOOGLE', 'Google');
     define('SOCIAL_FACEBOOK', 'Facebook');
-    define('SOCIAL_GITHUB', 'Github');
+    define('SOCIAL_GITHUB', 'GitHub');
     define('SOCIAL_LINKEDIN', 'LinkedIn');
 
 

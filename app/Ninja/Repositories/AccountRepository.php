@@ -6,6 +6,7 @@ use Session;
 use Utils;
 use DB;
 use stdClass;
+use Validator;
 use Schema;
 use App\Models\AccountGateway;
 use App\Models\Invitation;
@@ -49,6 +50,9 @@ class AccountRepository
             $user->first_name = $firstName;
             $user->last_name = $lastName;
             $user->email = $user->username = $email;
+            if (!$password) {
+                $password = str_random(RANDOM_KEY_LENGTH);
+            }
             $user->password = bcrypt($password);
         }
 
@@ -231,7 +235,37 @@ class AccountRepository
         return $client;
     }
 
-    public function registerUser($user)
+    public function unlinkUserFromOauth($user)
+    {
+        $user->oauth_provider_id = null;
+        $user->oauth_user_id = null;
+        $user->save();
+    }
+
+    public function updateUserFromOauth($user, $firstName, $lastName, $email, $providerId, $oauthUserId)
+    {
+        if (!$user->registered) {
+            $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
+            $validator = Validator::make(['email' => $email], $rules);
+            if ($validator->fails()) {
+                $messages = $validator->messages();
+                return $messages->first('email');
+            }
+
+            $user->email = $email;
+            $user->first_name = $firstName;
+            $user->last_name = $lastName;
+            $user->registered = true;
+        }
+
+        $user->oauth_provider_id = $providerId;
+        $user->oauth_user_id = $oauthUserId;
+        $user->save();
+
+        return true;
+    }
+
+    public function registerNinjaUser($user)
     {
         if ($user->email == TEST_USERNAME) {
             return false;
@@ -257,6 +291,13 @@ class AccountRepository
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
         curl_close($ch);
+    }
+
+    public function findUserByOauth($providerId, $oauthUserId)
+    {
+        return User::where('oauth_user_id', $oauthUserId)
+                    ->where('oauth_provider_id', $providerId)
+                    ->first();
     }
 
     public function findUserAccounts($userId1, $userId2 = false)

@@ -17,96 +17,115 @@
 	@parent
 	@include('accounts.nav_advanced')
 
-	{!! Former::open()->addClass('warn-on-exit') !!}
+	{!! Former::open()->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!}
 	{{ Former::populate($account) }}
 	{{ Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) }}
 	{{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}
     {{ Former::populateField('share_counter', intval($account->share_counter)) }}
     {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
 
-<div class="row">
-    <div class="col-md-6">
-
 
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.invoice_fields') !!}</h3>
-      </div>
-        <div class="panel-body">	
-        {!! Former::text('custom_invoice_label1')->label(trans('texts.field_label'))
-        		->append(Former::checkbox('custom_invoice_taxes1')->raw() . trans('texts.charge_taxes')) !!}
-        {!! Former::text('custom_invoice_label2')->label(trans('texts.field_label'))
-        		->append(Former::checkbox('custom_invoice_taxes2')->raw() . ' ' . trans('texts.charge_taxes')) !!}			
-	   </div>
-    </div>
-
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.client_fields') !!}</h3>
-      </div>
-        <div class="panel-body">    
-	   {!! Former::text('custom_client_label1')->label(trans('texts.field_label')) !!}
-	   {!! Former::text('custom_client_label2')->label(trans('texts.field_label')) !!}
-	   </div>
-    </div>
-
-
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.company_fields') !!}</h3>
-      </div>
-        <div class="panel-body">        
-    	{!! Former::text('custom_label1')->label(trans('texts.field_label')) !!}
-    	{!! Former::text('custom_value1')->label(trans('texts.field_value')) !!}
-    	<p>&nbsp;</p>
-    	{!! Former::text('custom_label2')->label(trans('texts.field_label')) !!}
-    	{!! Former::text('custom_value2')->label(trans('texts.field_value')) !!}
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.email_settings') !!}</h3>
         </div>
-    </div>
-
-    </div>
-    <div class="col-md-6">
-
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.email_settings') !!}</h3>
-      </div>
         <div class="panel-body">
             @if (Utils::isNinja())
-                {{ Former::setOption('capitalize_translations', false) }}
-                {!! Former::text('subdomain')->placeholder(trans('texts.www'))->onchange('onSubdomainChange()') !!}
-                {!! Former::text('iframe_url')->placeholder('http://invoices.example.com/')
-                        ->onchange('onDomainChange()')->appendIcon('question-sign')->addGroupClass('iframe_url') !!}
+            {{ Former::setOption('capitalize_translations', false) }}
+            {!! Former::text('subdomain')->placeholder(trans('texts.www'))->onchange('onSubdomainChange()') !!}
+            {!! Former::text('iframe_url')->placeholder('http://invoices.example.com/')
+            ->onchange('onDomainChange()')->appendIcon('question-sign')->addGroupClass('iframe_url') !!}
             @endif
             {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
         </div>
     </div>
 
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.invoice_number') !!}</h3>
-      </div>
-        <div class="panel-body">        
-    	{!! Former::text('invoice_number_prefix')->label(trans('texts.prefix')) !!}
-    	{!! Former::text('invoice_number_counter')->label(trans('texts.counter')) !!}
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.invoice_quote_number') !!}</h3>
+        </div>
+        <div class="panel-body">
+            <div role="tabpanel">
+                <ul class="nav nav-tabs" role="tablist" style="border: none">
+                    <li role="presentation" class="active"><a href="#invoiceNumber" aria-controls="invoiceNumber" role="tab" data-toggle="tab">{{ trans('texts.invoice_number') }}</a></li>
+                    <li role="presentation"><a href="#quoteNumber" aria-controls="quoteNumber" role="tab" data-toggle="tab">{{ trans('texts.quote_number') }}</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="invoiceNumber">
+                    <div class="panel-body">
+                        {!! Former::text('invoice_number_prefix')->label(trans('texts.prefix')) !!}
+                        {!! Former::text('invoice_number_counter')->label(trans('texts.counter')) !!}
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="quoteNumber">
+                    <div class="panel-body">
+                        {!! Former::text('quote_number_prefix')->label(trans('texts.prefix')) !!}
+                        {!! Former::text('quote_number_counter')->label(trans('texts.counter'))
+                        ->append(Former::checkbox('share_counter')->raw()->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter')) !!}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
 
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.quote_number') !!}</h3>
-      </div>
-        <div class="panel-body">        
-    	{!! Former::text('quote_number_prefix')->label(trans('texts.prefix')) !!}
-    	{!! Former::text('quote_number_counter')->label(trans('texts.counter'))
-	   		->append(Former::checkbox('share_counter')->raw()->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter')) !!}
-	   </div>
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.custom_fields') !!}</h3>
+        </div>
+        <div class="panel-body">	
+
+            <div role="tabpanel">
+                <ul class="nav nav-tabs" role="tablist" style="border: none">
+                    <li role="presentation" class="active"><a href="#clientFields" aria-controls="clientFields" role="tab" data-toggle="tab">{{ trans('texts.client_fields') }}</a></li>
+                    <li role="presentation"><a href="#companyFields" aria-controls="companyFields" role="tab" data-toggle="tab">{{ trans('texts.company_fields') }}</a></li>
+                    <li role="presentation"><a href="#invoiceFields" aria-controls="invoiceFields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a></li>
+                    <li role="presentation"><a href="#invoiceCharges" aria-controls="invoiceCharges" role="tab" data-toggle="tab">{{ trans('texts.invoice_charges') }}</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="clientFields">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_client_label1')->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_client_label2')->label(trans('texts.field_label')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="companyFields">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_label1')->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_value1')->label(trans('texts.field_value')) !!}
+                        <p>&nbsp;</p>
+                        {!! Former::text('custom_label2')->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_value2')->label(trans('texts.field_value')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="invoiceFields">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_invoice_text_label1')->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_invoice_text_label2')->label(trans('texts.field_label')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="invoiceCharges">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_invoice_label1')->label(trans('texts.field_label'))
+                        ->append(Former::checkbox('custom_invoice_taxes1')->raw() . trans('texts.charge_taxes')) !!}
+                        {!! Former::text('custom_invoice_label2')->label(trans('texts.field_label'))
+                        ->append(Former::checkbox('custom_invoice_taxes2')->raw() . trans('texts.charge_taxes')) !!}
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-
-    </div>
-    </div>
     
     @if (Auth::user()->isPro())
         <center>

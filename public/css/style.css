@@ -982,3 +982,7 @@ ul.user-accounts a:hover div.remove {
     visibility: visible;
 }
 
+.tooltip-inner {
+    text-align:left;
+    width: 350px; 
+}

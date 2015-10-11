@@ -70,9 +70,15 @@
 					<div class="col-lg-8 col-lg-offset-4">
 						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}" onclick="refreshPDF(true)">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check'}">
-								<span data-bind="html: email.display"/>
-						</label>
-					</div>				
+							<span data-bind="html: email.display"></span> 
+                        </label>
+                        <span data-bind="html: $data.view_as_recipient"></span>&nbsp;&nbsp;
+                        <span style="vertical-align:text-top;color:red" class="fa fa-exclamation-triangle" 
+                                data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
+                        <span style="vertical-align:text-top" class="glyphicon glyphicon-info-sign" 
+                                data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true}, 
+                                style: {color: $data.hasOwnProperty('invitation_viewed') &amp;&amp; $data.invitation_viewed() ? '#57D172':'#B1B5BA'}"></span>
+					</div>
 				</div>
 			</div>
 			
@@ -87,16 +93,23 @@
                 {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()')
                             ->rel('tooltip')->data_toggle('tooltip')->data_placement('bottom')->title(trans('texts.partial_value')) !!}
 			</div>
-			@if ($entityType == ENTITY_INVOICE)
-				<div data-bind="visible: is_recurring" style="display: none">
-					{!! Former::select('frequency_id')->options($frequencies)->data_bind("value: frequency_id")
-                            ->appendIcon('question-sign')->addGroupClass('frequency_id') !!}
-					{!! Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
-								->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('start_date') !!}
-					{!! Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
-								->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('end_date') !!}
-				</div>
-				@if ($invoice && $invoice->recurring_invoice)
+            @if ($entityType == ENTITY_INVOICE)
+			<div data-bind="visible: is_recurring" style="display: none">
+				{!! Former::select('frequency_id')->options($frequencies)->data_bind("value: frequency_id")
+                        ->appendIcon('question-sign')->addGroupClass('frequency_id') !!}
+				{!! Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('start_date') !!}
+				{!! Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
+							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('end_date') !!}
+			</div>
+            @endif
+
+            @if ($account->custom_invoice_text_label1 || $invoice && $account->custom_text_value1)
+                {!! Former::text('custom_text_value1')->label($account->custom_invoice_text_label1)->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
+            @endif
+
+            @if ($entityType == ENTITY_INVOICE)
+            	@if ($invoice && $invoice->recurring_invoice)
 					<div class="pull-right" style="padding-top: 6px">
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
 					</div>
@@ -127,6 +140,11 @@
 						Former::select('is_amount_discount')->addOption(trans('texts.discount_percent'), '0')
 						->addOption(trans('texts.discount_amount'), '1')->data_bind("value: is_amount_discount")->raw()
 			) !!}			
+
+            @if ($account->custom_invoice_text_label2 || $invoice && $account->custom_text_value2)
+                {!! Former::text('custom_text_value2')->label($account->custom_invoice_text_label2)->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
+            @endif
+
 			
 			<div class="form-group" style="margin-bottom: 8px">
 				<label for="taxes" class="control-label col-lg-4 col-sm-4">{{ trans('texts.taxes') }}</label>
@@ -614,7 +632,7 @@
 			});
 		}		
 
-		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial').change(function() {
+		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial, #custom_text_value1, #custom_text_value2').change(function() {
 			setTimeout(function() {                
 				refreshPDF(true);
 			}, 1);
@@ -1207,6 +1225,8 @@
 		self.custom_value2 = ko.observable(0);
 		self.custom_taxes1 = ko.observable(false);
 		self.custom_taxes2 = ko.observable(false);
+        self.custom_text_value1 = ko.observable();
+        self.custom_text_value2 = ko.observable();
 
 		self.mapping = {
 			'client': {
@@ -1573,11 +1593,14 @@
 		self.email = ko.observable('');
 		self.phone = ko.observable('');		
 		self.send_invoice = ko.observable(false);
-		self.invitation_link = ko.observable('');		
+		self.invitation_link = ko.observable('');
+        self.invitation_status = ko.observable('');
+        self.invitation_viewed = ko.observable(false);
+        self.email_error = ko.observable('');
 
         if (data) {
-            ko.mapping.fromJS(data, {}, this);      
-        }       
+            ko.mapping.fromJS(data, {}, this);
+        }
 
         self.displayName = ko.computed(function() {
             var str = '';
@@ -1598,8 +1621,12 @@
 			}			
             if (self.email()) {
                 str += self.email() + '<br/>';    
-            }			
+            }
+            return str;
+        });
 
+        self.view_as_recipient = ko.computed(function() {
+            var str = '';
 			@if (Utils::isConfirmed())
 			if (self.invitation_link()) {
 				str += '<a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_as_recipient') }}</a>';

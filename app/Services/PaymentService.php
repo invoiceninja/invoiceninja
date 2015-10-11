@@ -214,15 +214,16 @@ class PaymentService {
         $account = $invoice->account;
         $invitation = $invoice->invitations->first();
         $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
+        $token = $client->getGatewayToken();
 
-        if (!$invitation || !$accountGateway) {
+        if (!$invitation || !$accountGateway || !$token) {
             return false;
         }
 
         // setup the gateway/payment info
         $gateway = $this->createGateway($accountGateway);
         $details = $this->getPaymentDetails($invitation);
-        $details['cardReference'] = $client->getGatewayToken();
+        $details['cardReference'] = $token;
 
         // submit purchase/get response
         $response = $gateway->purchase($details)->send();

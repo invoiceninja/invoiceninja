@@ -1,37 +1,52 @@
-<?php namespace App\Listeners;
+<?php namespace app\Listeners;
 
 use Utils;
 use Auth;
 use App\Events\UserSignedUp;
+use App\Models\Activity;
 use App\Ninja\Repositories\AccountRepository;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
+use App\Ninja\Mailers\UserMailer;
 
-class HandleUserSignedUp {
-
+class HandleUserSignedUp
+{
     protected $accountRepo;
+    protected $userMailer;
 
-	/**
-	 * Create the event handler.
-	 *
-	 * @return void
-	 */
-    public function __construct(AccountRepository $accountRepo)
+    /**
+     * Create the event handler.
+     *
+     * @return void
+     */
+    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
     {
         $this->accountRepo = $accountRepo;
+        $this->userMailer = $userMailer;
     }
 
-	/**
-	 * Handle the event.
-	 *
-	 * @param  UserSignedUp  $event
-	 * @return void
-	 */
-	public function handle(UserSignedUp $event)
-	{
-        if (!Utils::isNinjaProd()) {
-            $this->accountRepo->registerUser(Auth::user());
-        }
-	}
+    /**
+     * Handle the event.
+     *
+     * @param  UserSignedUp $event
+     * @return void
+     */
+    public function handle(UserSignedUp $event)
+    {
+        $user = Auth::user();
 
+        if (Utils::isNinjaProd()) {
+            $this->userMailer->sendConfirmation($user);
+        } elseif (Utils::isNinjaDev()) {
+            // do nothing
+        } else {
+            $this->accountRepo->registerNinjaUser($user);
+        }
+
+        $activities = Activity::scope()->get();
+        foreach ($activities as $activity) {
+            $activity->message = str_replace('Guest', $user->getFullName(), $activity->message);
+            $activity->save();
+        }
+
+        session([SESSION_COUNTER => -1]);
+    }
 }

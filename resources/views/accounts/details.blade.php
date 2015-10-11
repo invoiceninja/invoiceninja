@@ -18,15 +18,13 @@
 
 	{{ Former::populate($account) }}
     {{ Former::populateField('military_time', intval($account->military_time)) }}
-	@if ($showUser)
-		{{ Former::populateField('first_name', $primaryUser->first_name) }}
-		{{ Former::populateField('last_name', $primaryUser->last_name) }}
-		{{ Former::populateField('email', $primaryUser->email) }}	
-		{{ Former::populateField('phone', $primaryUser->phone) }}
-        @if (Utils::isNinjaDev())
-            {{ Former::populateField('dark_mode', intval($primaryUser->dark_mode)) }}        
-        @endif
-	@endif
+	{{ Former::populateField('first_name', $user->first_name) }}
+	{{ Former::populateField('last_name', $user->last_name) }}
+	{{ Former::populateField('email', $user->email) }}	
+	{{ Former::populateField('phone', $user->phone) }}
+    @if (Utils::isNinjaDev())
+        {{ Former::populateField('dark_mode', intval($user->dark_mode)) }}        
+    @endif
 	
 	<div class="row">
 		<div class="col-md-6">
@@ -76,31 +74,41 @@
 	
 		<div class="col-md-6">		
 
-			@if ($showUser)
             <div class="panel panel-default">
               <div class="panel-heading">
-                <h3 class="panel-title">{!! trans('texts.primary_user') !!}</h3>
+                <h3 class="panel-title">{!! trans('texts.user_details') !!}</h3>
               </div>
                 <div class="panel-body">
 				{!! Former::text('first_name') !!}
 				{!! Former::text('last_name') !!}
                 {!! Former::text('email') !!}
 				{!! Former::text('phone') !!}
-                @if (Utils::isNinja() && $primaryUser->confirmed)
-                    @if ($primaryUser->referral_code)
+
+                @if (Utils::isNinja())
+                    {!! Former::plaintext('oneclick_login')->value(
+                            $user->oauth_provider_id ? 
+                                $oauthProviderName . ' - ' . link_to('#', trans('texts.disable'), ['onclick' => 'disableSocialLogin()']) : 
+                                DropdownButton::primary(trans('texts.enable'))->withContents($oauthLoginUrls)->small()
+                    ) !!}
+                @endif
+
+                @if (Utils::isNinja() && $user->confirmed)
+                    @if ($user->referral_code)
                         {!! Former::plaintext('referral_code')
-                                ->value($primaryUser->referral_code . ' <a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>') !!}
+                                ->value($user->referral_code . ' <a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>') !!}
                     @else
                         {!! Former::checkbox('referral_code')
                                 ->text(trans('texts.enable') . ' <a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>')  !!}
                     @endif                    
                 @endif
+
                 @if (false && Utils::isNinjaDev())
                     {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help')) !!}
                 @endif                
                 
                 @if (Utils::isNinja())
-                    @if (Auth::user()->confirmed)                
+                    <br/>
+                    @if (Auth::user()->confirmed)
                         {!! Former::actions( Button::primary(trans('texts.change_password'))->small()->withAttributes(['onclick'=>'showChangePassword()'])) !!}
                     @elseif (Auth::user()->registered)
                         {!! Former::actions( Button::primary(trans('texts.resend_confirmation'))->asLinkTo(URL::to('/resend_confirmation'))->small() ) !!}
@@ -108,7 +116,6 @@
                 @endif
                 </div>
             </div>
-			@endif
 
 
         <div class="panel panel-default">
@@ -214,8 +221,9 @@
 
             $('#passwordModal').on('shown.bs.modal', function () {                
                 $('#current_password').focus();
-            })
+           })
 
+            localStorage.setItem('auth_provider', '{{ strtolower($oauthProviderName) }}');
 		});
 		
 		function deleteLogo() {
@@ -293,6 +301,14 @@
                 $('#working').hide();
               }
             });     
+        }
+
+        function disableSocialLogin() {
+            if (!confirm("{!! trans('texts.are_you_sure') !!}")) {
+                return;
+            }
+
+            window.location = '{{ URL::to('/auth_unlink') }}';
         }
 	</script>
 

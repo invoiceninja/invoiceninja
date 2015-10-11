@@ -149,8 +149,13 @@ class Activity extends Eloquent
 
     public static function emailInvoice($invitation)
     {
-        $adjustment = 0;
-        $client = $invitation->invoice->client;
+        $invoice = $invitation->invoice;
+        $client = $invoice->client;
+
+        if (!$invoice->isSent()) {
+            $invoice->invoice_status_id = INVOICE_STATUS_SENT;
+            $invoice->save();
+        }
 
         $activity = Activity::getBlank($invitation);
         $activity->client_id = $invitation->invoice->client_id;

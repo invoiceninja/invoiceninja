@@ -159,8 +159,12 @@
     }
   }
 
-  function showSignUp() {    
-    $('#signUpModal').modal('show');    
+  function showSignUp() {
+    $('#signUpModal').modal('show');
+  }
+
+  function hideSignUp() {
+    $('#signUpModal').modal('hide');
   }
 
   NINJA.proPlanFeature = '';
@@ -239,6 +243,10 @@
     @endif
   }
 
+  function setSignupEnabled(enabled) {
+    $('.signup-form input[type=text], .signup-form button').prop('disabled', !enabled);
+  }
+
   $(function() {
     window.setTimeout(function() { 
         $(".alert-hide").fadeOut();
@@ -253,17 +261,18 @@
       $('#search').css('width', '{{ Utils::isEnglish() ? 256 : 216 }}px');
       $('ul.navbar-right').hide();
       if (!window.hasOwnProperty('searchData')) {
-        $.get('{{ URL::route('getSearchData') }}', function(data) {                         
-          window.searchData = true;                     
+        trackEvent('/activity', '/search');
+        $.get('{{ URL::route('getSearchData') }}', function(data) {
+          window.searchData = true;
           var datasets = [];
           for (var type in data)
-          {                             
-            if (!data.hasOwnProperty(type)) continue;                           
+          {
+            if (!data.hasOwnProperty(type)) continue;
             datasets.push({
               name: type,
-              header: '&nbsp;<b>' + type  + '</b>',                                 
+              header: '&nbsp;<b>' + type  + '</b>',
               local: data[type]
-            });                                                         
+            });
           }
           if (datasets.length == 0) {
             return;
@@ -306,9 +315,6 @@
     @endif
 
     $('ul.navbar-settings, ul.navbar-history').hover(function () {
-        //$('.user-accounts').find('li').hide();
-        //$('.user-accounts').css({display: 'none'});
-        //console.log($('.user-accounts').dropdown(''))
         if ($('.user-accounts').css('display') == 'block') {
             $('.user-accounts').dropdown('toggle');
         }
@@ -318,6 +324,14 @@
 
     @if (Input::has('focus'))
         $('#{{ Input::get('focus') }}').focus();
+    @endif
+
+    // Ensure terms is checked for sign up form
+    @if (Auth::check() && !Auth::user()->registered)
+        setSignupEnabled(false);
+        $("#terms_checkbox").change(function() {
+            setSignupEnabled(this.checked);
+        });
     @endif
 
   });
@@ -527,11 +541,37 @@
           {!! Former::text('go_pro') !!}
         </div>
 
-        {!! Former::text('new_first_name')->label(trans('texts.first_name')) !!}
-        {!! Former::text('new_last_name')->label(trans('texts.last_name')) !!}
-        {!! Former::text('new_email')->label(trans('texts.email')) !!}
-        {!! Former::password('new_password')->label(trans('texts.password')) !!}
-        {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.URL::to('terms').'" target="_blank">'.trans('texts.terms_of_service').'</a>'])) !!}
+        
+        <div class="row signup-form">
+            <div class="col-md-11 col-md-offset-1">
+                {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.URL::to('terms').'" target="_blank">'.trans('texts.terms_of_service').'</a>']))->raw() !!}
+                <br/>
+            </div>
+            @if (Utils::isNinja())
+                <div class="col-md-4 col-md-offset-1">
+                    <h4>{{ trans('texts.sign_up_using') }}</h4><br/>
+                    @include('partials.social_login_buttons', ['type' => 'sign_up'])
+                </div>
+                <div class="col-md-1">
+                    <div style="border-right:thin solid #CCCCCC;height:110px;width:8px;margin-bottom:10px;"></div>
+                    {{ trans('texts.or') }}
+                    <div style="border-right:thin solid #CCCCCC;height:110px;width:8px;margin-top:10px;"></div>
+                </div>
+                <div class="col-md-6">
+            @else 
+                <div class="col-md-12">
+            @endif
+                {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 1) }}
+                {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 1) }}
+                {!! Former::text('new_first_name')->placeholder(trans('texts.first_name'))->label(' ') !!}
+                {!! Former::text('new_last_name')->placeholder(trans('texts.last_name'))->label(' ') !!}
+                {!! Former::text('new_email')->placeholder(trans('texts.email'))->label(' ') !!}
+                {!! Former::password('new_password')->placeholder(trans('texts.password'))->label(' ') !!}
+                {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
+                {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
+            </div>
+        </div>
+
         {!! Former::close() !!}
 
         <center><div id="errorTaken" style="display:none">&nbsp;<br/>{{ trans('texts.email_taken') }}</div></center>

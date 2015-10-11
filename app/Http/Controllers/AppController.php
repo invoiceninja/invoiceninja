@@ -20,18 +20,21 @@ use App\Models\Industry;
 use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Events\UserSettingsChanged;
+use App\Services\EmailService;
 
 class AppController extends BaseController
 {
     protected $accountRepo;
     protected $mailer;
+    protected $emailService;
 
-    public function __construct(AccountRepository $accountRepo, Mailer $mailer)
+    public function __construct(AccountRepository $accountRepo, Mailer $mailer, EmailService $emailService)
     {
         parent::__construct();
 
         $this->accountRepo = $accountRepo;
         $this->mailer = $mailer;
+        $this->emailService = $emailService;
     }
 
     public function showSetup()
@@ -194,5 +197,20 @@ class AppController extends BaseController
         }
 
         return Redirect::to('/');
+    }
+
+    public function emailBounced()
+    {
+        $messageId = Input::get('MessageID');
+        $error = Input::get('Name') . ': ' . Input::get('Description');
+        return $this->emailService->markBounced($messageId, $error) ? RESULT_SUCCESS : RESULT_FAILURE;
+    }
+
+    public function emailOpened()
+    {
+        $messageId = Input::get('MessageID');
+        return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
+        
+        return RESULT_SUCCESS;
     }
 }

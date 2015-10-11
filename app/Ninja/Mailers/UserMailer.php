@@ -2,6 +2,7 @@
 
 use Utils;
 
+use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\User;
@@ -57,6 +58,29 @@ class UserMailer extends Mailer
         }
 
         $subject = trans("texts.notification_{$entityType}_{$notificationType}_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->getDisplayName()]);
+        
+        $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
+
+    public function sendEmailBounced(Invitation $invitation)
+    {
+        $user = $invitation->user;
+        $invoice = $invitation->invoice;
+        $entityType = $invoice->getEntityType();
+
+        if (!$user->email) {
+            return;
+        }
+
+        $subject = trans("texts.notification_{$entityType}_bounced_subject", ['invoice' => $invoice->invoice_number]);
+        $view = 'email_bounced';
+        $data = [
+            'userName' => $user->getDisplayName(),
+            'emailError' => $invitation->email_error,
+            'entityType' => $entityType,
+            'contactName' => $invitation->contact->getDisplayName(),
+            'invoiceNumber' => $invoice->invoice_number,
+        ];
         
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }

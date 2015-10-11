@@ -32,7 +32,7 @@
     }
 
     $(function() {
-        if ($('form.warn-on-exit').length > 0) {
+        if ($('form.warn-on-exit, form.form-signin').length > 0) {
             startWarnSessionTimeout();
         }
     });

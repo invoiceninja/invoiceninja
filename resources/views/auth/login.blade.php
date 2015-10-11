@@ -64,10 +64,9 @@
 
     @include('partials.warn_session', ['redirectTo' => '/login'])
 
-
     {!! Former::open('login')
             ->rules(['email' => 'required|email', 'password' => 'required'])
-            ->addClass('form-signin warn-on-exit') !!}
+            ->addClass('form-signin') !!}
     {{ Former::populateField('remember', 'true') }}
 
     <div class="modal-header">
@@ -83,13 +82,17 @@
                 {!! Former::hidden('remember')->raw() !!}
             </p>
 
-            <p>{!! Button::success(trans(Input::get('new_company') ? 'texts.login' : 'texts.lets_go'))->large()->submit()->block() !!}</p>
+            <p>{!! Button::success(trans('texts.login'))
+                    ->withAttributes(['id' => 'loginButton'])
+                    ->large()->submit()->block() !!}</p>
 
             @if (Input::get('new_company') && Utils::allowNewAccounts())
                 <center><p>- {{ trans('texts.or') }} -</p></center>
-                <p>{!! Button::primary(trans('texts.new_company'))->asLinkTo(URL::to('/invoice_now?new_company=true&sign_up=true'))->large()->submit()->block() !!}</p>
+                <p>{!! Button::primary(trans('texts.new_company'))->asLinkTo(URL::to('/invoice_now?new_company=true&sign_up=true'))->large()->submit()->block() !!}</p><br/>
+            @elseif (Utils::isNinja())
+                <center><p>- {{ trans('texts.or') }} -</p></center>
+                @include('partials.social_login_buttons', ['type' => 'login'])<br/>
             @endif
-
 
             <p class="link">
                 {!! link_to('/forgot', trans('texts.forgot_password')) !!}
@@ -103,7 +106,7 @@
                         <li>{{ $error }}</li>
                     @endforeach
                 </div>
-            @endif            
+            @endif
 
             @if (Session::has('warning'))
             <div class="alert alert-warning">{{ Session::get('warning') }}</div>
@@ -160,7 +163,15 @@
             } else {
                 $('#email').focus();
             }
+
+            // If they're using OAuth we'll show just their provider button
+            var authProvider = localStorage.getItem('auth_provider');
+            if (authProvider) {
+                //$('#loginButton').removeClass('btn-success').addClass('btn-primary');
+                $('#' + authProvider + 'LoginButton').removeClass('btn-primary').addClass('btn-success');
+            }
         })
+
     </script>
 
 @endsection

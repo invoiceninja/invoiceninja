@@ -374,6 +374,13 @@ class InvoiceRepository
         $invoice->custom_taxes1 = $data['custom_taxes1'] ? true : false;
         $invoice->custom_taxes2 = $data['custom_taxes2'] ? true : false;
 
+        if (isset($data['custom_text_value1'])) {
+            $invoice->custom_text_value1 = trim($data['custom_text_value1']);
+        }
+        if (isset($data['custom_text_value2'])) {
+            $invoice->custom_text_value2 = trim($data['custom_text_value2']);
+        }
+
         // custom fields charged taxes
         if ($invoice->custom_value1 && $invoice->custom_taxes1) {
             $total += $invoice->custom_value1;
@@ -497,7 +504,9 @@ class InvoiceRepository
           'custom_value2',
           'custom_taxes1',
           'custom_taxes2',
-          'partial'] as $field) {
+          'partial',
+          'custom_text_value1',
+          'custom_text_value2'] as $field) {
             $clone->$field = $invoice->$field;
         }
 
@@ -615,6 +624,8 @@ class InvoiceRepository
         $invoice->custom_value2 = $recurInvoice->custom_value2;
         $invoice->custom_taxes1 = $recurInvoice->custom_taxes1;
         $invoice->custom_taxes2 = $recurInvoice->custom_taxes2;
+        $invoice->custom_text_value1 = $recurInvoice->custom_text_value1;
+        $invoice->custom_text_value2 = $recurInvoice->custom_text_value2;
         $invoice->is_amount_discount = $recurInvoice->is_amount_discount;
 
         if ($invoice->client->payment_terms != 0) {

@@ -305,7 +305,7 @@ return array(
   'email_taken' => 'The email address is already registered',
   'working' => 'Working',
   'success' => 'Success',
-  'success_message' => 'You have successfully registered. Please visit the link in the account confirmation email to verify your email address.',
+  'success_message' => 'You have successfully registered! Please visit the link in the account confirmation email to verify your email address.',
   'erase_data' => 'This will permanently erase your data.',
   'password' => 'Password',
 
@@ -320,7 +320,7 @@ return array(
                           -- email us at contact@invoiceninja.com',
 
   'unsaved_changes' => 'You have unsaved changes',
-  'custom_fields' => 'Custom fields',
+  'custom_fields' => 'Custom Fields',
   'company_fields' => 'Company Fields',
   'client_fields' => 'Client Fields',
   'field_label' => 'Field Label',
@@ -769,7 +769,7 @@ return array(
 
   'iframe_url' => 'Website',
   'iframe_url_help1' => 'Copy the following code to a page on your site.',
-  'iframe_url_help2' => 'You can test the feature by clicking \'View as recipient\' for an invoice.',
+  'iframe_url_help2' => 'Currently only supported with on-site gateways (ie, Stripe and Authorize.net). You can test the feature by clicking \'View as recipient\' for an invoice.',
 
   'auto_bill' => 'Auto Bill',
   'military_time' => '24 Hour Time',
@@ -795,6 +795,24 @@ return array(
   'upcoming_quotes' => 'Upcoming Quotes',
   'expired_quotes' => 'Expired Quotes',
 
+  'sign_up_using' => 'Sign up using',
+  'invalid_credentials' => 'These credentials do not match our records',
+  'show_all_options' => 'Show all options',
+  'user_details' => 'User Details',
+  'oneclick_login' => 'One-Click Login',
+  'disable' => 'Disable',
+  'invoice_quote_number' => 'Invoice and Quote Numbers',
+  'invoice_charges' => 'Invoice Charges',
+
+  'invitation_status' => [
+    'sent' => 'Email Sent',
+    'opened' => 'Email Openend',
+    'viewed' => 'Invoice Viewed',
+  ],
+  'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact.',
+  'notification_invoice_bounced_subject' => 'Unable to deliver Invoice :invoice',
+  'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact.',
+  'notification_quote_bounced_subject' => 'Unable to deliver Quote :invoice',
 
 );
 

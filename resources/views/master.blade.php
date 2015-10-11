@@ -172,8 +172,6 @@
         trackEvent('/view_link', track ? track : url);
         window.open(url, '_blank');
     }
-
-//$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });
 </script> 
 
 </body>

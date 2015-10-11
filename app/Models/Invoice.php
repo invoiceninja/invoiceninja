@@ -140,6 +140,8 @@ class Invoice extends EntityModel
             'custom_taxes2',
             'partial',
             'has_tasks',
+            'custom_text_value1',
+            'custom_text_value2',
         ]);
 
         $this->client->setVisible([
@@ -187,6 +189,8 @@ class Invoice extends EntityModel
             'custom_invoice_label2',
             'pdf_email_attachment',
             'show_item_taxes',
+            'custom_invoice_text_label1',
+            'custom_invoice_text_label2',
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {
@@ -283,7 +287,7 @@ class Invoice extends EntityModel
 
     public function updateCachedPDF($encodedString = false)
     {
-        if (!$encodedString) {
+        if (!$encodedString && env('PHANTOMJS_CLOUD_KEY')) {
             $invitation = $this->invitations[0];
             $link = $invitation->getLink();
 

@@ -31,70 +31,71 @@ class ContactMailer extends Mailer
             $invoice->updateCachedPDF();
         }
 
-        $view = 'invoice';
-        $accountName = $invoice->account->getDisplayName();
-        $emailTemplate = $invoice->account->getEmailTemplate($reminder ?: $entityType);
-        $emailSubject = $invoice->account->getEmailSubject($reminder ?: $entityType);
+        $emailTemplate = $account->getEmailTemplate($reminder ?: $entityType);
+        $emailSubject = $account->getEmailSubject($reminder ?: $entityType);
 
-        $this->initClosure($invoice);
-        $response = false;
         $sent = false;
 
         foreach ($invoice->invitations as $invitation) {
-            if (Auth::check()) {
-                $user = Auth::user();
-            } else {
-                $user = $invitation->user;
-                if ($invitation->user->trashed()) {
-                    $user = $account->users()->orderBy('id')->first();
-                }
-            }
-        
-            if (!$user->email || !$user->confirmed) {
-                continue;
-            }
-
-            if (!$invitation->contact->email
-                || $invitation->contact->trashed()) {
-                continue;
-            }
-
-            $invitation->sent_date = \Carbon::now()->toDateTimeString();
-            $invitation->save();
-
-            $variables = [
-                'account' => $account,
-                'client' => $client,
-                'invitation' => $invitation,
-                'amount' => $invoice->getRequestedAmount()
-            ];
-
-            $data['body'] = $this->processVariables($emailTemplate, $variables);
-            $data['link'] = $invitation->getLink();
-            $data['entityType'] = $entityType;
-            $data['invoice_id'] = $invoice->id;
-
-            $subject = $this->processVariables($emailSubject, $variables);
-            $fromEmail = $user->email;
-            $response = $this->sendTo($invitation->contact->email, $fromEmail, $accountName, $subject, $view, $data);
-
-            if ($response === true) {
+            if ($this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject)) {
                 $sent = true;
-                Activity::emailInvoice($invitation);
             }
         }
         
+        $account->loadLocalizationSettings();
+
         if ($sent === true) {
-            if (!$invoice->isSent()) {
-                $invoice->invoice_status_id = INVOICE_STATUS_SENT;
-                $invoice->save();
-            }
-            
-            $account->loadLocalizationSettings();
             Event::fire(new InvoiceSent($invoice));
         }
 
-        return $response ?: trans('texts.email_error');
+        return $sent ?: trans('texts.email_error');
+    }
+
+    private function sendInvitation($invitation, $invoice, $body, $subject)
+    {
+        $client = $invoice->client;
+        $account = $invoice->account;
+        
+        if (Auth::check()) {
+            $user = Auth::user();
+        } else {
+            $user = $invitation->user;
+            if ($invitation->user->trashed()) {
+                $user = $account->users()->orderBy('id')->first();
+            }
+        }
+
+        if (!$user->email || !$user->confirmed) {
+            return false;
+        }
+
+        if (!$invitation->contact->email || $invitation->contact->trashed()) {
+            return false;
+        }
+
+        $variables = [
+            'account' => $account,
+            'client' => $client,
+            'invitation' => $invitation,
+            'amount' => $invoice->getRequestedAmount()
+        ];
+
+        $data['body'] = $this->processVariables($body, $variables);
+        $data['link'] = $invitation->getLink();
+        $data['entityType'] = $invoice->getEntityType();
+        $data['invoiceId'] = $invoice->id;
+        $data['invitation'] = $invitation;
+
+        $subject = $this->processVariables($subject, $variables);
+        $fromEmail = $user->email;
+        $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, ENTITY_INVOICE, $data);
+
+        if ($response === true) {
+            Activity::emailInvoice($invitation);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function sendPaymentConfirmation(Payment $payment)
@@ -110,8 +111,6 @@ class ContactMailer extends Mailer
         $emailTemplate = $account->getEmailTemplate(ENTITY_PAYMENT);
         $emailSubject = $invoice->account->getEmailSubject(ENTITY_PAYMENT);
 
-        $this->initClosure($invoice);
-        
         if ($payment->invitation) {
             $user = $payment->invitation->user;
             $contact = $payment->contact;
@@ -190,26 +189,7 @@ class ContactMailer extends Mailer
         }
 
         $str = str_replace(array_keys($variables), array_values($variables), $template);
-        $str = preg_replace_callback('/\{\{\$?(.*)\}\}/', $this->advancedTemplateHandler, $str);
 
         return $str;
-    }
-
-    private function initClosure($object)
-    {
-        $this->advancedTemplateHandler = function($match) use ($object) {
-            for ($i = 1; $i < count($match); $i++) {
-                $blobConversion = $match[$i];
-
-                if (isset($$blobConversion)) {
-                    return $$blobConversion;
-                } else if (preg_match('/trans\(([\w\.]+)\)/', $blobConversion, $regexTranslation)) {
-                    return trans($regexTranslation[1]);
-                } else if (strpos($blobConversion, '->') !== false) {
-                    return Utils::stringToObjectResolution($object, $blobConversion);
-                }
-
-            }
-        };
     }
 }

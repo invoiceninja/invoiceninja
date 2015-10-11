@@ -39,15 +39,35 @@ class Invitation extends EntityModel
                 
         if ($iframe_url) {
             return "{$iframe_url}/?{$this->invitation_key}";
-        } else if ($this->account->subdomain) {
+        } elseif ($this->account->subdomain) {
             $url = Utils::replaceSubdomain($url, $this->account->subdomain);
         }
 
         return "{$url}/view/{$this->invitation_key}";
     }
 
+    public function getStatus()
+    {
+        $hasValue = false;
+        $parts = [];
+        $statuses = $this->message_id ? ['sent', 'opened', 'viewed'] : ['sent', 'viewed'];
+
+        foreach ($statuses as $status) {
+            $field = "{$status}_date";
+            $date = '';
+            if ($this->$field) {
+                $date = Utils::dateToString($this->$field);
+                $hasValue = true;
+            }
+            $parts[] = trans('texts.invitation_status.' . $status) . ': ' . $date;
+        }
+
+        return $hasValue ? implode($parts, '<br/>') : false;
+    }
+
     public function getName()
     {
         return $this->invitation_key;
     }
+
 }
