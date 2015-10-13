@@ -130,27 +130,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     {
         return Session::get(SESSION_COUNTER, 0);
     }
-
-    /*
-    public function getPopOverText()
-    {
-        if (!Utils::isNinja() || !Auth::check() || Session::has('error')) {
-            return false;
-        }
-
-        $count = self::getRequestsCount();
-
-        if ($count == 1 || $count % 5 == 0) {
-            if (!Utils::isRegistered()) {
-                return trans('texts.sign_up_to_save');
-            } elseif (!Auth::user()->account->name) {
-                return trans('texts.set_name');
-            }
-        }
-
-        return false;
-    }
-    */
     
     public function afterSave($success = true, $forced = false)
     {
@@ -204,6 +183,12 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         if ($user->password != $user->getOriginal('password')) {
             $user->failed_logins = 0;
         }
+
+        // if the user changes their email then they need to reconfirm it
+        if ($user->isEmailBeingChanged()) {
+            $user->confirmed = 0;
+            $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
+        }
     }
 
     public static function onUpdatedUser($user)
@@ -214,7 +199,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             event(new UserSignedUp());
         }
 
-        event(new UserSettingsChanged());
+        event(new UserSettingsChanged($user));
+    }
+
+    public function isEmailBeingChanged()
+    {
+        return Utils::isNinjaProd()
+                && $this->email != $this->getOriginal('email')
+                && $this->getOriginal('confirmed');
     }
 
 }
