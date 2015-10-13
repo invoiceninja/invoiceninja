@@ -549,14 +549,16 @@ class PaymentController extends BaseController
 
         $invitation = Invitation::with('invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('transaction_reference', '=', $token)->firstOrFail();
         $invoice = $invitation->invoice;
+        $client = $invoice->client;
+        $account = $client->account;
 
-        $accountGateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'));
+        $accountGateway = $account->getGatewayByType(Session::get('payment_type'));
         $gateway = $this->paymentService->createGateway($accountGateway);
 
         // Check for Dwolla payment error
         if ($accountGateway->isGateway(GATEWAY_DWOLLA) && Input::get('error')) {
             $this->error('Dwolla', Input::get('error_description'), $accountGateway);
-            return Redirect::to('view/'.$invitation->invitation_key);
+            return Redirect::to($invitation->getLink());
         }
 
         try {
@@ -569,20 +571,20 @@ class PaymentController extends BaseController
                     $payment = $this->paymentService->createPayment($invitation, $ref, $payerId);
                     Session::flash('message', trans('texts.applied_payment'));
 
-                    return Redirect::to('view/'.$invitation->invitation_key);
+                    return Redirect::to($invitation->getLink());
                 } else {
                     $this->error('offsite', $response->getMessage(), $accountGateway);
-                    return Redirect::to('view/'.$invitation->invitation_key);
+                    return Redirect::to($invitation->getLink());
                 }
             } else {
                 $payment = $this->paymentService->createPayment($invitation, $token, $payerId);
                 Session::flash('message', trans('texts.applied_payment'));
 
-                return Redirect::to('view/'.$invitation->invitation_key);
+                return Redirect::to($invitation->getLink());
             }
         } catch (\Exception $e) {
             $this->error('Offsite-uncaught', false, $accountGateway, $e);
-            return Redirect::to('view/'.$invitation->invitation_key);
+            return Redirect::to($invitation->getLink());
         }
     }
 

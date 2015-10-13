@@ -31,14 +31,8 @@ class Mailer
                         ->subject($subject);
 
                 // Attach the PDF to the email
-                if (isset($data['invoiceId'])) {
-                    $invoice = Invoice::with('account')->where('id', '=', $data['invoiceId'])->first();
-                    if ($invoice->account->pdf_email_attachment && file_exists($invoice->getPDFPath())) {
-                        $message->attach(
-                            $invoice->getPDFPath(),
-                            array('as' => $invoice->getFileName(), 'mime' => 'application/pdf')
-                        );
-                    }
+                if (!empty($data['pdfString']) && !empty($data['pdfFileName'])) {
+                    $message->attachData($data['pdfString'], $data['pdfFileName']);
                 }
             });
 
@@ -54,7 +48,7 @@ class Mailer
             $invitation = $data['invitation'];
             
             // Track the Postmark message id
-            if (isset($_ENV['POSTMARK_API_TOKEN'])) {
+            if (isset($_ENV['POSTMARK_API_TOKEN']) && $response) {
                 $json = $response->json();
                 $invitation->message_id = $json['MessageID'];
             }

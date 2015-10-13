@@ -415,9 +415,13 @@ NINJA.accountAddress = function(invoice) {
         {text: account.address2},
         {text: cityStatePostal},
         {text: account.country ? account.country.name : ''},
-        {text: invoice.account.custom_value1 ? invoice.account.custom_label1 + ' ' + invoice.account.custom_value1 : false},
-        {text: invoice.account.custom_value2 ? invoice.account.custom_label2 + ' ' + invoice.account.custom_value2 : false}
     ];
+
+    if (invoice.is_pro) {
+        data.push({text: invoice.account.custom_value1 ? invoice.account.custom_label1 + ' ' + invoice.account.custom_value1 : false});
+        data.push({text: invoice.account.custom_value2 ? invoice.account.custom_label2 + ' ' + invoice.account.custom_value2 : false});
+    }
+
     return NINJA.prepareDataList(data, 'accountAddress');
 }
 

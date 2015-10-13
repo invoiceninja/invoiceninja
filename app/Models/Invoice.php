@@ -285,37 +285,36 @@ class Invoice extends EntityModel
         return false;
     }
 
-    public function updateCachedPDF($encodedString = false)
+    public function getPDFString()
     {
-        if (!$encodedString && env('PHANTOMJS_CLOUD_KEY')) {
-            $invitation = $this->invitations[0];
-            $link = $invitation->getLink();
-
-            $curl = curl_init();
-            $jsonEncodedData = json_encode([
-                'targetUrl' => "{$link}?phantomjs=true",
-                'requestType' => 'raw',
-                'delayTime' => 3000,
-            ]);
-
-            $opts = [
-                CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY'),
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POST => 1,
-                CURLOPT_POSTFIELDS => $jsonEncodedData,
-                CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
-            ];
-
-            curl_setopt_array($curl, $opts);
-            $encodedString = strip_tags(curl_exec($curl));
-            curl_close($curl);
+        if (!env('PHANTOMJS_CLOUD_KEY')) {
+            return false;
         }
-        
-        $encodedString = str_replace('data:application/pdf;base64,', '', $encodedString);
-        if ($encodedString = base64_decode($encodedString)) {
-            file_put_contents($this->getPDFPath(), $encodedString);
-        }
+
+        $invitation = $this->invitations[0];
+        $link = $invitation->getLink();
+
+        $curl = curl_init();
+        $jsonEncodedData = json_encode([
+            'targetUrl' => "{$link}?phantomjs=true",
+            'requestType' => 'raw',
+            'delayTime' => 1000,
+        ]);
+
+        $opts = [
+            CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => $jsonEncodedData,
+            CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
+        ];
+
+        curl_setopt_array($curl, $opts);
+        $encodedString = strip_tags(curl_exec($curl));
+        curl_close($curl);
+
+        return Utils::decodePDF($encodedString);
     }
 }
 

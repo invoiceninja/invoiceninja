@@ -52,4 +52,10 @@ $app->singleton(
 |
 */
 
+/*
+if (strstr($_SERVER['HTTP_USER_AGENT'], 'PhantomJS') && Utils::isNinjaDev()) {
+    $app->loadEnvironmentFrom('.env.testing');
+}
+*/
+
 return $app;

@@ -114,6 +114,11 @@ table.dataTable tbody th, table.dataTable tbody td {
 padding: 10px;
 }
 
+table.data-table tr {
+    border-bottom: 1px solid #d0d0d0;
+    border-top: 1px solid #d0d0d0;
+}
+
 .datepicker {
 padding: 4px !important;
 margin-top: 1px;

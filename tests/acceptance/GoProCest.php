@@ -24,11 +24,11 @@ class GoProCest
         $I->click('Sign Up');
         $I->wait(1);
 
+        $I->checkOption('#terms_checkbox');
         $I->fillField(['name' =>'new_first_name'], $this->faker->firstName);
         $I->fillField(['name' =>'new_last_name'], $this->faker->lastName);
         $I->fillField(['name' =>'new_email'], $userEmail);
         $I->fillField(['name' =>'new_password'], $userPassword);
-        $I->checkOption('#terms_checkbox');
         $I->click('Save');
         $I->wait(1);
 

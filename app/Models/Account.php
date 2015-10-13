@@ -426,11 +426,13 @@ class Account extends Eloquent
 
     public function getEmailSubject($entityType)
     {
-        $field = "email_subject_{$entityType}";
-        $value = $this->$field;
+        if ($this->isPro()) {
+            $field = "email_subject_{$entityType}";
+            $value = $this->$field;
 
-        if ($value) {
-            return $value;
+            if ($value) {
+                return $value;
+            }
         }
 
         return $this->getDefaultEmailSubject($entityType);
@@ -455,13 +457,15 @@ class Account extends Eloquent
 
     public function getEmailTemplate($entityType, $message = false)
     {
-        $field = "email_template_{$entityType}";
-        $template = $this->$field;
+        if ($this->isPro()) {
+            $field = "email_template_{$entityType}";
+            $template = $this->$field;
 
-        if ($template) {
-            return $template;
+            if ($template) {
+                return $template;
+            }
         }
-
+        
         return $this->getDefaultEmailTemplate($entityType, $message);
     }
 
@@ -502,6 +506,43 @@ class Account extends Eloquent
         }
 
         return $url;
+    }
+
+    public function checkSubdomain($host)
+    {
+        if (!$this->subdomain) {
+            return true;
+        }
+
+        $server = explode('.', $host);
+        $subdomain = $server[0];
+
+        if (!in_array($subdomain, ['app', 'www']) && $subdomain != $this->subdomain) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function showCustomField($field, $entity)
+    {
+        if ($this->isPro()) {
+            return $this->$field ? true : false;
+        }
+
+        if (!$entity) {
+            return false;
+        }
+        
+        // convert (for example) 'custom_invoice_label1' to 'invoice.custom_value1'
+        $field = str_replace(['invoice_', 'label'], ['', 'value'], $field);
+        
+        return Utils::isEmpty($entity->$field) ? false : true;
+    }
+
+    public function attatchPDF()
+    {
+        return $this->isPro() && $this->pdf_email_attachment;
     }
 }
 

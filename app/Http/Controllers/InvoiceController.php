@@ -172,33 +172,13 @@ class InvoiceController extends BaseController
 
     public function view($invitationKey)
     {
-        $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
-        
-        if (!$invitation) {
-            app()->abort(404, trans('texts.invoice_not_found'));
-        }
-
+        $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey);
         $invoice = $invitation->invoice;
-        
-        if (!$invoice || $invoice->is_deleted) {
-            app()->abort(404, trans('texts.invoice_not_found'));
-        }
-
-        $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
         $client = $invoice->client;
-        $account = $client->account;
+        $account = $invoice->account;
 
-        if (!$client || $client->is_deleted) {
+        if (!$account->checkSubdomain(Request::server('HTTP_HOST'))) {
             app()->abort(404, trans('texts.invoice_not_found'));
-        }
-
-        if ($account->subdomain) {
-            $server = explode('.', Request::server('HTTP_HOST'));
-            $subdomain = $server[0];
-
-            if (!in_array($subdomain, ['app', 'www']) && $subdomain != $account->subdomain) {
-                return View::make('invoices.deleted');
-            }
         }
 
         if (!Input::has('phantomjs') && !Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
@@ -206,8 +186,8 @@ class InvoiceController extends BaseController
             Event::fire(new InvoiceViewed($invoice));
         }
 
-        Session::set($invitationKey, true);
-        Session::set('invitation_key', $invitationKey);
+        Session::set($invitationKey, true); // track this invitation has been seen
+        Session::set('invitation_key', $invitationKey); // track current invitation
 
         $account->loadLocalizationSettings($client);
 
@@ -226,27 +206,16 @@ class InvoiceController extends BaseController
             'first_name',
             'last_name',
             'email',
-            'phone', ]);
+            'phone',
+        ]);
 
-        // Determine payment options
-        $paymentTypes = [];
-        if ($client->getGatewayToken()) {
-            $paymentTypes[] = [
-                'url' => URL::to("payment/{$invitation->invitation_key}/token"), 'label' => trans('texts.use_card_on_file')
-            ];
-        }
-        foreach(Gateway::$paymentTypes as $type) {
-            if ($account->getGatewayByType($type)) {
-                $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
-                $paymentTypes[] = [                
-                    'url' => URL::to("/payment/{$invitation->invitation_key}/{$typeLink}"), 'label' => trans('texts.'.strtolower($type))
-                ];
-            }
-        }
-
+        $paymentTypes = $this->getPaymentTypes($client, $invitation);
         $paymentURL = '';
         if (count($paymentTypes)) {
             $paymentURL = $paymentTypes[0]['url'];
+            if (!$account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
+                $paymentURL = URL::to($paymentURL);
+            }
         }
 
         $showApprove = $invoice->quote_invoice_id ? false : true;
@@ -269,6 +238,34 @@ class InvoiceController extends BaseController
         );
 
         return View::make('invoices.view', $data);
+    }
+
+    private function getPaymentTypes($client, $invitation)
+    {
+        $paymentTypes = [];
+        $account = $client->account;
+
+        if ($client->getGatewayToken()) {
+            $paymentTypes[] = [
+                'url' => URL::to("payment/{$invitation->invitation_key}/token"), 'label' => trans('texts.use_card_on_file')
+            ];
+        }
+        foreach(Gateway::$paymentTypes as $type) {
+            if ($account->getGatewayByType($type)) {
+                $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
+                $url = URL::to("/payment/{$invitation->invitation_key}/{$typeLink}");
+
+                // PayPal doesn't allow being run in an iframe so we need to open in new tab
+                if ($type === PAYMENT_TYPE_PAYPAL && $account->iframe_url) {
+                    $url = 'javascript:window.open("'.$url.'", "_blank")';
+                }
+                $paymentTypes[] = [
+                    'url' => $url, 'label' => trans('texts.'.strtolower($type))
+                ];
+            }
+        }
+
+        return $paymentTypes;
     }
 
     public function edit($publicId, $clone = false)
@@ -468,77 +465,27 @@ class InvoiceController extends BaseController
     {
         $action = Input::get('action');
         $entityType = Input::get('entityType');
+        $input = json_decode(Input::get('data'));
 
         if (in_array($action, ['archive', 'delete', 'mark', 'restore'])) {
             return InvoiceController::bulk($entityType);
         }
 
-        $input = json_decode(Input::get('data'));
-        $invoice = $input->invoice;
-
-        if ($errors = $this->invoiceRepo->getErrors($invoice)) {
+        if ($errors = $this->invoiceRepo->getErrors($input->invoice)) {
             Session::flash('error', trans('texts.invoice_error'));
 
             return Redirect::to("{$entityType}s/create")
                 ->withInput()->withErrors($errors);
         } else {
-            $this->taxRateRepo->save($input->tax_rates);
-
-            $clientData = (array) $invoice->client;
-            $client = $this->clientRepo->save($invoice->client->public_id, $clientData);
-
-            $invoiceData = (array) $invoice;
-            $invoiceData['client_id'] = $client->id;
-            $invoice = $this->invoiceRepo->save($publicId, $invoiceData, $entityType);
-
-            $account = Auth::user()->account;
-            if ($account->invoice_taxes != $input->invoice_taxes
-                        || $account->invoice_item_taxes != $input->invoice_item_taxes
-                        || $account->invoice_design_id != $input->invoice->invoice_design_id
-                        || $account->show_item_taxes != $input->show_item_taxes) {
-                $account->invoice_taxes = $input->invoice_taxes;
-                $account->invoice_item_taxes = $input->invoice_item_taxes;
-                $account->invoice_design_id = $input->invoice->invoice_design_id;
-                $account->show_item_taxes = $input->show_item_taxes;
-                $account->save();
-            }
-
-            $client->load('contacts');
-            $sendInvoiceIds = [];
-
-            foreach ($client->contacts as $contact) {
-                if ($contact->send_invoice || count($client->contacts) == 1) {
-                    $sendInvoiceIds[] = $contact->id;
-                }
-            }
-
-            foreach ($client->contacts as $contact) {
-                $invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
-
-                if (in_array($contact->id, $sendInvoiceIds) && !$invitation) {
-                    $invitation = Invitation::createNew();
-                    $invitation->invoice_id = $invoice->id;
-                    $invitation->contact_id = $contact->id;
-                    $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
-                    $invitation->save();
-                } elseif (!in_array($contact->id, $sendInvoiceIds) && $invitation) {
-                    $invitation->delete();
-                }
-            }
-
+            $invoice = $this->saveInvoice($publicId, $input, $entityType);
+            $url = "{$entityType}s/".$invoice->public_id.'/edit';
             $message = trans($publicId ? "texts.updated_{$entityType}" : "texts.created_{$entityType}");
+
+            // check if we created a new client with the invoice
             if ($input->invoice->client->public_id == '-1') {
                 $message = $message.' '.trans('texts.and_created_client');
-
                 $url = URL::to('clients/'.$client->public_id);
                 Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
-            }
-
-            if ($invoice->account->pdf_email_attachment && !$invoice->is_recurring) {
-                $pdfUpload = Input::get('pdfupload');
-                if (!empty($pdfUpload) && strpos($pdfUpload, 'data:application/pdf;base64,') === 0) {
-                    $invoice->updateCachedPDF($pdfUpload);
-                }
             }
 
             if ($action == 'clone') {
@@ -546,41 +493,108 @@ class InvoiceController extends BaseController
             } elseif ($action == 'convert') {
                 return $this->convertQuote($publicId);
             } elseif ($action == 'email') {
-                if (Auth::user()->confirmed && !Auth::user()->isDemo()) {
-                    if ($invoice->is_recurring) {
-                        if ($invoice->shouldSendToday()) {
-                            $invoice = $this->invoiceRepo->createRecurringInvoice($invoice);
-                            // in case auto-bill is enabled
-                            if ($invoice->isPaid()) {
-                                $response = true;
-                            } else {
-                                $response = $this->mailer->sendInvoice($invoice);
-                            }
-                        } else {
-                            $response = trans('texts.recurring_too_soon');
-                        }
-                    } else {
-                        $response = $this->mailer->sendInvoice($invoice);
-                    }
-                    if ($response === true) {
-                        $message = trans("texts.emailed_{$entityType}");
-                        Session::flash('message', $message);
-                    } else {
-                        Session::flash('error', $response);
-                    }
-                } else {
-                    $errorMessage = trans(Auth::user()->registered ? 'texts.confirmation_required' : 'texts.registration_required');
-                    Session::flash('error', $errorMessage);
-                    Session::flash('message', $message);
-                }
-            } else {
-                Session::flash('message', $message);
+                return $this->emailInvoice($invoice, Input::get('pdfupload'));
             }
-
-            $url = "{$entityType}s/".$invoice->public_id.'/edit';
-
+            
+            Session::flash('message', $message);
             return Redirect::to($url);
         }
+    }
+
+    private function emailInvoice($invoice, $pdfUpload)
+    {
+        $entityType = $invoice->getEntityType();
+        $pdfUpload = Utils::decodePDF($pdfUpload);
+
+        if (!Auth::user()->confirmed) {
+            $errorMessage = trans(Auth::user()->registered ? 'texts.confirmation_required' : 'texts.registration_required');
+            Session::flash('error', $errorMessage);
+            Session::flash('message', $message);
+            return Redirect::to($url);
+        }
+
+        if ($invoice->is_recurring) {
+            $response = $this->emailRecurringInvoice($invoice);
+        } else {
+            $response = $this->mailer->sendInvoice($invoice, false, $pdfUpload);
+        }
+
+        if ($response === true) {
+            $message = trans("texts.emailed_{$entityType}");
+            Session::flash('message', $message);
+        } else {
+            Session::flash('error', $response);
+        }
+
+        return Redirect::to("{$entityType}s/{$invoice->public_id}/edit");
+    }
+
+    private function emailRecurringInvoice(&$invoice)
+    {
+        if (!$invoice->shouldSendToday()) {
+            return trans('texts.recurring_too_soon');
+        }
+
+        // switch from the recurring invoice to the generated invoice
+        $invoice = $this->invoiceRepo->createRecurringInvoice($invoice);
+
+        // in case auto-bill is enabled then a receipt has been sent
+        if ($invoice->isPaid()) {
+            return true;
+        } else {
+            return $this->mailer->sendInvoice($invoice);
+        }
+    }
+
+    private function saveInvoice($publicId, $input, $entityType)
+    {
+        $invoice = $input->invoice;
+
+        $this->taxRateRepo->save($input->tax_rates);
+
+        $clientData = (array) $invoice->client;
+        $client = $this->clientRepo->save($invoice->client->public_id, $clientData);
+
+        $invoiceData = (array) $invoice;
+        $invoiceData['client_id'] = $client->id;
+        $invoice = $this->invoiceRepo->save($publicId, $invoiceData, $entityType);
+
+        $account = Auth::user()->account;
+        if ($account->invoice_taxes != $input->invoice_taxes
+                    || $account->invoice_item_taxes != $input->invoice_item_taxes
+                    || $account->invoice_design_id != $input->invoice->invoice_design_id
+                    || $account->show_item_taxes != $input->show_item_taxes) {
+            $account->invoice_taxes = $input->invoice_taxes;
+            $account->invoice_item_taxes = $input->invoice_item_taxes;
+            $account->invoice_design_id = $input->invoice->invoice_design_id;
+            $account->show_item_taxes = $input->show_item_taxes;
+            $account->save();
+        }
+
+        $client->load('contacts');
+        $sendInvoiceIds = [];
+
+        foreach ($client->contacts as $contact) {
+            if ($contact->send_invoice || count($client->contacts) == 1) {
+                $sendInvoiceIds[] = $contact->id;
+            }
+        }
+
+        foreach ($client->contacts as $contact) {
+            $invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
+
+            if (in_array($contact->id, $sendInvoiceIds) && !$invitation) {
+                $invitation = Invitation::createNew();
+                $invitation->invoice_id = $invoice->id;
+                $invitation->contact_id = $contact->id;
+                $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
+                $invitation->save();
+            } elseif (!in_array($contact->id, $sendInvoiceIds) && $invitation) {
+                $invitation->delete();
+            }
+        }
+
+        return $invoice;
     }
 
     /**

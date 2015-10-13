@@ -285,7 +285,7 @@ class InvoiceRepository
         
         if (!$publicId) {
             $invoice->client_id = $data['client_id'];
-            $invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
+            $invoice->is_recurring = $data['is_recurring'] ? true : false;
         }
         
         if ($invoice->is_recurring) {
@@ -576,6 +576,28 @@ class InvoiceRepository
         return count($invoices);
     }
 
+    public function findInvoiceByInvitation($invitationKey)
+    {
+        $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
+        if (!$invitation) {
+            app()->abort(404, trans('texts.invoice_not_found'));
+        }
+
+        $invoice = $invitation->invoice;
+        if (!$invoice || $invoice->is_deleted) {
+            app()->abort(404, trans('texts.invoice_not_found'));
+        }
+
+        $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
+        $client = $invoice->client;
+
+        if (!$client || $client->is_deleted) {
+            app()->abort(404, trans('texts.invoice_not_found'));
+        }
+
+        return $invitation;
+    }
+
     public function findOpenInvoices($clientId)
     {
         return Invoice::scope()
@@ -664,10 +686,6 @@ class InvoiceRepository
             if ($this->paymentService->autoBillInvoice($invoice)) {
                 $invoice->invoice_status_id = INVOICE_STATUS_PAID;
             }
-        }
-
-        if ($recurInvoice->account->pdf_email_attachment) {
-            $invoice->updateCachedPDF();
         }
 
         return $invoice;

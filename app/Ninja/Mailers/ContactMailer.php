@@ -13,7 +13,7 @@ use App\Events\InvoiceSent;
 
 class ContactMailer extends Mailer
 {
-    public function sendInvoice(Invoice $invoice, $reminder = false)
+    public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false)
     {
         $invoice->load('invitations', 'client.language', 'account');
         $entityType = $invoice->getEntityType();
@@ -26,18 +26,17 @@ class ContactMailer extends Mailer
         }
 
         $account->loadLocalizationSettings($client);
-
-        if ($account->pdf_email_attachment) {
-            $invoice->updateCachedPDF();
-        }
-
         $emailTemplate = $account->getEmailTemplate($reminder ?: $entityType);
         $emailSubject = $account->getEmailSubject($reminder ?: $entityType);
 
         $sent = false;
 
+        if ($account->attatchPDF() && !$pdfString) {
+            $pdfString = $invoice->getPDFString();
+        }
+
         foreach ($invoice->invitations as $invitation) {
-            if ($this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject)) {
+            if ($this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString)) {
                 $sent = true;
             }
         }
@@ -51,7 +50,7 @@ class ContactMailer extends Mailer
         return $sent ?: trans('texts.email_error');
     }
 
-    private function sendInvitation($invitation, $invoice, $body, $subject)
+    private function sendInvitation($invitation, $invoice, $body, $subject, $pdfString)
     {
         $client = $invoice->client;
         $account = $invoice->account;
@@ -80,11 +79,18 @@ class ContactMailer extends Mailer
             'amount' => $invoice->getRequestedAmount()
         ];
 
-        $data['body'] = $this->processVariables($body, $variables);
-        $data['link'] = $invitation->getLink();
-        $data['entityType'] = $invoice->getEntityType();
-        $data['invoiceId'] = $invoice->id;
-        $data['invitation'] = $invitation;
+        $data = [
+            'body' => $this->processVariables($body, $variables),
+            'link' => $invitation->getLink(),
+            'entityType' => $invoice->getEntityType(),
+            'invoiceId' => $invoice->id,
+            'invitation' => $invitation,
+        ];
+
+        if ($account->attatchPDF()) {
+            $data['pdfString'] = $pdfString;
+            $data['pdfFileName'] = $invoice->getFileName();
+        }
 
         $subject = $this->processVariables($subject, $variables);
         $fromEmail = $user->email;
@@ -131,12 +137,15 @@ class ContactMailer extends Mailer
         $data = [
             'body' => $this->processVariables($emailTemplate, $variables)
         ];
-        $subject = $this->processVariables($emailSubject, $variables);
 
-        $data['invoice_id'] = $payment->invoice->id;
-        if ($invoice->account->pdf_email_attachment) {
-            $invoice->updateCachedPDF();
+        if ($account->attatchPDF()) {
+            $data['pdfString'] = $invoice->getPDFString();
+            $data['pdfFileName'] = $invoice->getFileName();
         }
+
+        $subject = $this->processVariables($emailSubject, $variables);
+        $data['invoice_id'] = $payment->invoice->id;
+        $invoice->updateCachedPDF();
 
         if ($user->email && $contact->email) {
             $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);

@@ -36,6 +36,10 @@ class SendReminders extends Command
         $this->info(count($accounts).' accounts found');
 
         foreach ($accounts as $account) {
+            if (!$account->isPro()) {
+                continue;
+            }
+
             $invoices = $this->invoiceRepo->findNeedingReminding($account);
             $this->info($account->name . ': ' . count($invoices).' invoices found');
 

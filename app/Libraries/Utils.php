@@ -94,11 +94,6 @@ class Utils
         return isset($_ENV[DEMO_ACCOUNT_ID]) ? $_ENV[DEMO_ACCOUNT_ID] : false;
     }
 
-    public static function isDemo()
-    {
-        return Auth::check() && Auth::user()->isDemo();
-    }
-
     public static function getNewsFeedResponse($userType = false)
     {
         if (!$userType) {
@@ -634,6 +629,11 @@ class Utils
         ];
     }
 
+    public static function isEmpty($value)
+    {
+        return !$value || $value == '0.00' || $value == '0,00';
+    }
+
     public static function startsWith($haystack, $needle)
     {
         return $needle === "" || strpos($haystack, $needle) === 0;
@@ -672,7 +672,8 @@ class Utils
         fwrite($output, "\n");
     }
     
-    public static function getFirst($values) {
+    public static function getFirst($values)
+    {
         if (is_array($values)) {
             return count($values) ? $values[0] : false;
         } else {
@@ -681,7 +682,8 @@ class Utils
     }
 
     // nouns in German and French should be uppercase
-    public static function transFlowText($key) {
+    public static function transFlowText($key)
+    {
         $str = trans("texts.$key");
         if (!in_array(App::getLocale(), ['de', 'fr'])) {
             $str = strtolower($str);
@@ -689,7 +691,8 @@ class Utils
         return $str;
     }
 
-    public static function getSubdomainPlaceholder() {
+    public static function getSubdomainPlaceholder()
+    {
         $parts = parse_url(SITE_URL);
         $subdomain = '';
         if (isset($parts['host'])) {
@@ -701,7 +704,8 @@ class Utils
         return $subdomain;
     }
 
-    public static function getDomainPlaceholder() {
+    public static function getDomainPlaceholder()
+    {
         $parts = parse_url(SITE_URL);
         $domain = '';
         if (isset($parts['host'])) {
@@ -719,7 +723,8 @@ class Utils
         return $domain;
     }
 
-    public static function replaceSubdomain($domain, $subdomain) {
+    public static function replaceSubdomain($domain, $subdomain)
+    {
         $parsedUrl = parse_url($domain);
         $host = explode('.', $parsedUrl['host']);
         if (count($host) > 0) {
@@ -729,11 +734,17 @@ class Utils
         return $domain;
     }
 
-    public static function splitName($name) {
+    public static function splitName($name)
+    {
         $name = trim($name);
         $lastName = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
-        $firstName = trim( preg_replace('#'.$lastName.'#', '', $name ) );
+        $firstName = trim(preg_replace('#'.$lastName.'#', '', $name));
         return array($firstName, $lastName);
     }
 
+    public static function decodePDF($string)
+    {
+        $string = str_replace('data:application/pdf;base64,', '', $string);
+        return  base64_decode($string);
+    }
 }
