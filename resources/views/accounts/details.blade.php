@@ -42,7 +42,7 @@
 			{!! Former::text('work_phone') !!}
 			{!! Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp(trans('texts.logo_help')) !!}
 
-			@if (file_exists($account->getLogoPath()))
+			@if ($account->hasLogo())
 				<center>
 					{!! HTML::image($account->getLogoPath().'?no_cache='.time(), 'Logo', ['width' => 200]) !!} &nbsp;
 					<a href="#" onclick="deleteLogo()">{{ trans('texts.remove_logo') }}</a>

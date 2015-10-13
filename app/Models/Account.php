@@ -114,6 +114,12 @@ class Account extends Eloquent
         return $user->getDisplayName();
     }
 
+    public function getCityState()
+    {
+        $swap = $this->country && $this->country->swap_postal_code;
+        return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
+    }
+
     public function getMomentDateTimeFormat()
     {
         $format = $this->datetime_format ? $this->datetime_format->format_moment : DEFAULT_DATETIME_MOMENT_FORMAT;
@@ -158,12 +164,10 @@ class Account extends Eloquent
         return false;
     }
 
-    /*
     public function hasLogo()
     {
-        file_exists($this->getLogoPath());
+        return file_exists($this->getLogoPath());
     }
-    */
 
     public function getLogoPath()
     {

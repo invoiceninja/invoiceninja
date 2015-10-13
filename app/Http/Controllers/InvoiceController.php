@@ -76,53 +76,12 @@ class InvoiceController extends BaseController
         return View::make('list', $data);
     }
 
-    public function clientIndex()
-    {
-        $invitationKey = Session::get('invitation_key');
-        if (!$invitationKey) {
-            app()->abort(404);
-        }
-
-        $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
-        $account = $invitation->account;
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
-        
-        $data = [
-            'color' => $color,
-            'hideLogo' => $account->isWhiteLabel(),
-            'title' => trans('texts.invoices'),
-            'entityType' => ENTITY_INVOICE,
-            'columns' => Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date']),
-        ];
-
-        return View::make('public_list', $data);
-    }
-
     public function getDatatable($clientPublicId = null)
     {
         $accountId = Auth::user()->account_id;
         $search = Input::get('sSearch');
 
         return $this->invoiceRepo->getDatatable($accountId, $clientPublicId, ENTITY_INVOICE, $search);
-    }
-
-    public function getClientDatatable()
-    {
-        $search = Input::get('sSearch');
-        $invitationKey = Session::get('invitation_key');
-        $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
-
-        if (!$invitation || $invitation->is_deleted) {
-            return [];
-        }
-
-        $invoice = $invitation->invoice;
-
-        if (!$invoice || $invoice->is_deleted) {
-            return [];
-        }
-
-        return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_INVOICE, $search);
     }
 
     public function getRecurringDatatable($clientPublicId = null)

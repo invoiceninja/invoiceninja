@@ -747,4 +747,48 @@ class Utils
         $string = str_replace('data:application/pdf;base64,', '', $string);
         return  base64_decode($string);
     }
+
+    public static function cityStateZip($city, $state, $postalCode, $swap)
+    {
+        $str = $city;
+
+        if ($state) {
+            if ($str) {
+                $str .= ', ';
+            }
+            $str .= $state;
+        }
+
+        if ($swap) {
+            return $postalCode . ' ' . $str;
+        } else {
+            return $str . ' ' . $postalCode;
+        }
+    }
+
+    public static function formatWebsite($website)
+    {
+        if (!$website) {
+            return '';
+        }
+
+        $link = $website;
+        $title = $website;
+        $prefix = 'http://';
+
+        if (strlen($link) > 7 && substr($link, 0, 7) === $prefix) {
+            $title = substr($title, 7);
+        } else {
+            $link = $prefix.$link;
+        }
+
+        return link_to($link, $title, array('target' => '_blank'));
+    }
+
+    public static function wrapAdjustment($adjustment, $currencyId)
+    {
+        $class = $adjustment <= 0 ? 'success' : 'default';
+        $adjustment = Utils::formatMoney($adjustment, $currencyId);
+        return "<h4><div class=\"label label-{$class}\">$adjustment</div></h4>";
+    }
 }
