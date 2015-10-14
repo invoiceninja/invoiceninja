@@ -443,7 +443,7 @@ class InvoiceController extends BaseController
             // check if we created a new client with the invoice
             if ($input->invoice->client->public_id == '-1') {
                 $message = $message.' '.trans('texts.and_created_client');
-                $url = URL::to('clients/'.$client->public_id);
+                $url = URL::to('clients/'.$input->invoice->client->public_id);
                 Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT, $url);
             }
 
