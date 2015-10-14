@@ -27,7 +27,9 @@
     <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    
 
     <script type="text/javascript">
-        var NINJA = NINJA || {};      
+        var NINJA = NINJA || {};
+        NINJA.fontSize = 9;
+
         NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};    
 
         window.onerror = function(e) {

@@ -26,6 +26,7 @@ If you'd like to use our code to sell your own invoicing app email us for detail
 * Tax rates and payment terms
 * Reminder emails
 * Partial payments
+* Client portal
 * Custom email templates
 * [Zapier](https://zapier.com/) integration
 * [D3.js](http://d3js.org/) visualizations

@@ -82,7 +82,7 @@
                 {{ $client->getCityState() }}<br/>
             @endif
             @if ($client->country)
-                <br/>{{ $client->country->name }}
+                {{ $client->country->name }}<br/>
             @endif
 
             @if ($client->account->custom_client_label1 && $client->custom_value1)

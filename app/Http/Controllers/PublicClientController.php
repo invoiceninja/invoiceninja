@@ -32,6 +32,7 @@ class PublicClientController extends BaseController
             'color' => $color,
             'account' => $account,
             'client' => $client,
+            'hideLogo' => $account->isWhiteLabel(),
         ];
 
         return response()->view('invited.dashboard', $data);

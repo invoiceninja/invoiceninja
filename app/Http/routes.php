@@ -401,12 +401,11 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_DATE', '2000-01-01');
 
     define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
-    define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
+    define('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja');
     define('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja');
     define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
     define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
     define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/single/browser/v1/');
-    define('GITHUB_RELEASES', 'https://github.com/hillelcoren/invoice-ninja/releases');
     define('REFERRAL_PROGRAM_URL', false);
 
     define('COUNT_FREE_DESIGNS', 4);

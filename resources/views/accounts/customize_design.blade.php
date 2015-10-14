@@ -28,8 +28,6 @@
 
 @section('content')	
     @parent
-    @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_DESIGN, 'advanced' => true])
-
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
