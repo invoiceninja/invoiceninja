@@ -26,7 +26,7 @@
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.details') !!}</h3>
           </div>
-            <div class="panel-body">
+            <div class="panel-body form-padding-right">
 			
 			{!! Former::text('name') !!}
             {!! Former::text('id_number') !!}
@@ -51,7 +51,7 @@
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.address') !!}</h3>
           </div>
-            <div class="panel-body">
+            <div class="panel-body form-padding-right">
             
 			{!! Former::text('address1') !!}
 			{!! Former::text('address2') !!}

@@ -14,7 +14,7 @@
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.localization') !!}</h3>
           </div>
-            <div class="panel-body">
+            <div class="panel-body form-padding-right">
 
             {!! Former::select('currency_id')->addOption('','')
                 ->fromQuery($currencies, 'name', 'id') !!}          

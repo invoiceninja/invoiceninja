@@ -26,7 +26,7 @@
               <div class="panel-heading">
                 <h3 class="panel-title">{!! trans('texts.user_details') !!}</h3>
               </div>
-                <div class="panel-body">
+                <div class="panel-body form-padding-right">
                 {!! Former::text('first_name') !!}
                 {!! Former::text('last_name') !!}
                 {!! Former::text('email') !!}

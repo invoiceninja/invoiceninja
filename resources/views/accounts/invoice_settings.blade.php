@@ -32,7 +32,7 @@
         <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.email_settings') !!}</h3>
         </div>
-        <div class="panel-body">
+        <div class="panel-body form-padding-right">
             {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
             @if (Utils::isNinja())
                 {!! Former::inline_radios('custom_invoice_link')
@@ -60,7 +60,7 @@
         <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.invoice_quote_number') !!}</h3>
         </div>
-        <div class="panel-body">
+        <div class="panel-body form-padding-right">
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
                     <li role="presentation" class="active"><a href="#invoiceNumber" aria-controls="invoiceNumber" role="tab" data-toggle="tab">{{ trans('texts.invoice_number') }}</a></li>
@@ -90,7 +90,7 @@
         <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.custom_fields') !!}</h3>
         </div>
-        <div class="panel-body">	
+        <div class="panel-body form-padding-right">
 
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
