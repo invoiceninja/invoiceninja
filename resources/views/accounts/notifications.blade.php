@@ -1,9 +1,11 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content')	
 	@parent	
 
-	{!! Former::open()->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!}	
+    @include('accounts.nav', ['selected' => ACCOUNT_NOTIFICATIONS])
+
+	{!! Former::open()->addClass('warn-on-exit') !!}
 	{{ Former::populate($account) }}
 	{{ Former::populateField('notify_sent', intval(Auth::user()->notify_sent)) }}
 	{{ Former::populateField('notify_viewed', intval(Auth::user()->notify_viewed)) }}

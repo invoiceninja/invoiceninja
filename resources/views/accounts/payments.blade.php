@@ -1,7 +1,8 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content')	
 	@parent	
+    @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
 
   {!! Former::open('gateways/delete')->addClass('user-form') !!}
 

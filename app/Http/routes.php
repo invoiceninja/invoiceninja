@@ -121,14 +121,16 @@ Route::group(['middleware' => 'auth'], function() {
     Route::resource('products', 'ProductController');
     Route::get('products/{product_id}/archive', 'ProductController@archive');
 
-    Route::get('company/advanced_settings/data_visualizations', 'ReportController@d3');
-    Route::get('company/advanced_settings/charts_and_reports', 'ReportController@showReports');
-    Route::post('company/advanced_settings/charts_and_reports', 'ReportController@showReports');
+    Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
+    Route::get('settings/data_visualizations', 'ReportController@d3');
+    Route::get('settings/charts_and_reports', 'ReportController@showReports');
+    Route::post('settings/charts_and_reports', 'ReportController@showReports');
 
-    Route::post('company/cancel_account', 'AccountController@cancelAccount');
+    Route::post('settings/cancel_account', 'AccountController@cancelAccount');
+    Route::get('settings/{section?}', 'AccountController@showSection');
+    Route::post('settings/{section?}', 'AccountController@doSection');
+    
     Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
-    Route::get('company/{section?}/{sub_section?}', 'AccountController@showSection');
-    Route::post('company/{section?}/{sub_section?}', 'AccountController@doSection');
     Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
     Route::post('account/go_pro', 'AccountController@enableProPlan');
@@ -183,7 +185,6 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('credits/bulk', 'CreditController@bulk');
 
     get('/resend_confirmation', 'AccountController@resendConfirmation');
-    //Route::resource('timesheets', 'TimesheetController');
 });
 
 // Route group for API
@@ -253,21 +254,26 @@ if (!defined('CONTACT_EMAIL')) {
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
 
-    define('ACCOUNT_DETAILS', 'details');
+    define('BASIC_SETTINGS', 'basic_settings');
+    define('ADVANCED_SETTINGS', 'advanced_settings');
+
+    define('ACCOUNT_COMPANY_DETAILS', 'company_details');
+    define('ACCOUNT_USER_DETAILS', 'user_details');
+    define('ACCOUNT_LOCALIZATION', 'localization');
     define('ACCOUNT_NOTIFICATIONS', 'notifications');
     define('ACCOUNT_IMPORT_EXPORT', 'import_export');
-    define('ACCOUNT_PAYMENTS', 'payments');
+    define('ACCOUNT_PAYMENTS', 'online_payments');
     define('ACCOUNT_MAP', 'import_map');
     define('ACCOUNT_EXPORT', 'export');
     define('ACCOUNT_PRODUCTS', 'products');
     define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
     define('ACCOUNT_INVOICE_SETTINGS', 'invoice_settings');
     define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
-    define('ACCOUNT_CHART_BUILDER', 'chart_builder');
+    define('ACCOUNT_CHARTS_AND_REPORTS', 'charts_and_reports');
     define('ACCOUNT_USER_MANAGEMENT', 'user_management');
     define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
     define('ACCOUNT_TEMPLATES_AND_REMINDERS', 'templates_and_reminders');
-    define('ACCOUNT_TOKEN_MANAGEMENT', 'token_management');
+    define('ACCOUNT_API_TOKENS', 'api_tokens');
     define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
 
 

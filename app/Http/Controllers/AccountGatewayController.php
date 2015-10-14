@@ -159,7 +159,6 @@ class AccountGatewayController extends BaseController
             'gateways' => $gateways,
             'creditCardTypes' => $creditCards,
             'tokenBillingOptions' => $tokenBillingOptions,
-            'showBreadcrumbs' => false,
             'countGateways' => count($currentGateways)
         ];
     }
@@ -173,7 +172,7 @@ class AccountGatewayController extends BaseController
 
         Session::flash('message', trans('texts.deleted_gateway'));
 
-        return Redirect::to('company/payments');
+        return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
     }
 
     /**

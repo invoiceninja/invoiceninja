@@ -262,7 +262,7 @@ return array(
   'email_salutation' => 'Hej :name,',
   'email_signature' => 'Vänliga hälsningar,',
   'email_from' => 'Invoice Ninja teamet',
-  'user_email_footer' => 'För att anpassa dina e-post notifieringar gå till '.SITE_URL.'/company/notifications',
+  'user_email_footer' => 'För att anpassa dina e-post notifieringar gå till '.SITE_URL.'/settings/notifications',
   'invoice_link_message' => 'För att se din kundfaktura klicka på länken nedan:',
   'notification_invoice_paid_subject' => 'Faktura :invoice är betald av :client',
   'notification_invoice_sent_subject' => 'Faktura :invoice är skickad till :client',
@@ -815,5 +815,9 @@ return array(
   'custom_invoice_link' => 'Custom Invoice Link',
   'total_invoiced' => 'Total Invoiced',
   'open_balance' => 'Open Balance',
+  'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
+  'basic_settings' => 'Basic Settings',
+  'pro' => 'Pro',
+  'gateways' => 'Payment Gateways',
   
 );

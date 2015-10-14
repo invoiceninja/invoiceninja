@@ -15,6 +15,26 @@ class Account extends Eloquent
     protected $dates = ['deleted_at'];
     protected $hidden = ['ip'];
 
+    public static $basicSettings = [
+        ACCOUNT_COMPANY_DETAILS,
+        ACCOUNT_USER_DETAILS,
+        ACCOUNT_LOCALIZATION,
+        ACCOUNT_PAYMENTS,
+        ACCOUNT_PRODUCTS,
+        ACCOUNT_NOTIFICATIONS,
+        ACCOUNT_IMPORT_EXPORT,
+    ];
+
+    public static $advancedSettings = [
+        ACCOUNT_INVOICE_DESIGN,
+        ACCOUNT_INVOICE_SETTINGS,
+        ACCOUNT_TEMPLATES_AND_REMINDERS,
+        ACCOUNT_CHARTS_AND_REPORTS,
+        ACCOUNT_DATA_VISUALIZATIONS,
+        ACCOUNT_USER_MANAGEMENT,
+        ACCOUNT_API_TOKENS,
+    ];
+
     /*
     protected $casts = [
         'invoice_settings' => 'object',

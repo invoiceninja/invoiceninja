@@ -1,4 +1,4 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('head')
 	@parent
@@ -12,7 +12,7 @@
 
 @section('content')	
 	@parent
-	@include('accounts.nav_advanced')
+    @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_DESIGN, 'advanced' => true])
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
@@ -105,7 +105,7 @@
           {!! Former::text('secondary_color') !!}
 
           {!! Former::actions( 
-                Button::primary(trans('texts.customize_design'))->small()->asLinkTo(URL::to('/company/advanced_settings/customize_design'))
+                Button::primary(trans('texts.customize_design'))->small()->asLinkTo(URL::to('/settings/customize_design'))
             ) !!}
 
           </div>

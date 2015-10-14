@@ -262,7 +262,7 @@ return array(
   'email_salutation' => 'Sehr geehrte/r :name,',
   'email_signature' => 'Mit freundlichen Grüßen,',
   'email_from' => 'Das InvoiceNinja Team',
-  'user_email_footer' => 'Um deine E-Mail-Benachrichtigungen anzupassen besuche bitte '.SITE_URL.'/company/notifications',
+  'user_email_footer' => 'Um deine E-Mail-Benachrichtigungen anzupassen besuche bitte '.SITE_URL.'/settings/notifications',
   'invoice_link_message' => 'Um deine Kundenrechnung anzuschauen, klicke auf den folgenden Link:',
   'notification_invoice_paid_subject' => 'Die Rechnung :invoice wurde von :client bezahlt.',
   'notification_invoice_sent_subject' => 'Die Rechnung :invoice wurde an :client versendet.',
@@ -817,6 +817,10 @@ return array(
   'custom_invoice_link' => 'Custom Invoice Link',
   'total_invoiced' => 'Total Invoiced',
   'open_balance' => 'Open Balance',
+  'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
+  'basic_settings' => 'Basic Settings',
+  'pro' => 'Pro',
+  'gateways' => 'Payment Gateways',
 
 
 );

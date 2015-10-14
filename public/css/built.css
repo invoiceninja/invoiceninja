@@ -3341,3 +3341,13 @@ ul.user-accounts a:hover div.remove {
     text-align:left;
     width: 350px; 
 }
+
+.list-group-item.selected:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 2px;
+    content: "";
+    background-color: #e37329;
+}

@@ -1,4 +1,4 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('head')
   @parent
@@ -30,7 +30,7 @@
 
 @section('content')
   @parent
-  @include('accounts.nav_advanced')
+  @include('accounts.nav', ['selected' => ACCOUNT_DATA_VISUALIZATIONS, 'advanced' => true])
 
   <div id="tooltip" class="hidden">
     <p>
@@ -121,22 +121,10 @@
       product.displayAge = product.values.age;
     });
 
-    /*
-    _.each(clients, function(client) { 
-      _.each(client.invoices, function(invoice) { 
-        _.each(invoice.invoice_items, function(invoice_item) { 
-          delete invoice_item.invoice;          
-        });
-      });
-    });
-    */
-
     //console.log(JSON.stringify(clients));
     //console.log(JSON.stringify(invoices));
     //console.log(JSON.stringify(products));
     
-
-
     var arc = d3.svg.arc()
       .innerRadius(function(d) { return d.r - 2 })
       .outerRadius(function(d) { return d.r - 8 })
@@ -149,7 +137,7 @@
       .endAngle(2 * Math.PI);
 
 
-    var diameter = 1050,
+    var diameter = 900,
     format = d3.format(",d");
     //color = d3.scale.category10();
 
@@ -164,14 +152,14 @@
       .padding(12);
 
     var svg = d3.select(".svg-div").append("svg")
-      .attr("width", "1142px")
+      .attr("width", "100%")
       .attr("height", "1142px")
       .attr("class", "bubble");
 
     svg.append("rect")
       .attr("stroke-width", "1")
       .attr("stroke", "rgb(150,150,150)")
-      .attr("width", "100%")
+      .attr("width", "99%")
       .attr("height", "100%")
       .attr("fill", "white");
 
@@ -187,7 +175,6 @@
 
       var selection = svg.selectAll(".node")
         .data(data, function(d) { return d.displayName; });
-        //.data(data);
 
       var node = selection.enter().append("g")
         .attr("class", "node")
@@ -198,9 +185,10 @@
         if (!visibleTooltip || visibleTooltip != d.displayName) {
           d3.select("#tooltip")
             .classed("hidden", false)
-            .style("left", d3.event.pageX + "px")
-            .style("top", d3.event.pageY + "px");
+            .style("left", (d3.event.offsetX + 40) + "px")
+            .style("top", (d3.event.offsetY + 40) + "px");
           visibleTooltip = d.displayName;
+          //console.log(d3.event);
         }
 
         d3.select("#tooltipTitle").text(truncate(d.displayName, 18));
@@ -280,7 +268,7 @@
         return -1;
       }
       var jsDate = convertToJsDate(invoice.created_at) || new Date().getTime();
-      return parseInt((new Date().getTime() - convertToJsDate(invoice.created_at)) / (1000*60*60*24));       
+      return parseInt((new Date().getTime() - convertToJsDate(invoice.created_at)) / (1000*60*60*24));
     }
 
     function convertToJsDate(isoDate) {

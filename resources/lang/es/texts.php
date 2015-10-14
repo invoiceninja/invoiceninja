@@ -256,7 +256,7 @@ return array(
    'email_salutation' => 'Estimado :name,',
    'email_signature' => 'Un saludo cordial,',
    'email_from' => 'El equipo de Invoice Ninja ',
-   'user_email_footer' => 'Para ajustar la configuración de las notificaciones de tu correo, visita '.SITE_URL.'/company/notifications',
+   'user_email_footer' => 'Para ajustar la configuración de las notificaciones de tu correo, visita '.SITE_URL.'/settings/notifications',
    'invoice_link_message' => 'Para visualizar la factura de cliente, haz clic en el enlace abajo:',
    'notification_invoice_paid_subject' => 'La factura :invoice ha sido pagada por el cliente :client',
    'notification_invoice_sent_subject' => 'La factura :invoice ha sido enviada a el cliente :client',
@@ -795,6 +795,10 @@ return array(
   'custom_invoice_link' => 'Custom Invoice Link',
   'total_invoiced' => 'Total Invoiced',
   'open_balance' => 'Open Balance',
+  'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
+  'basic_settings' => 'Basic Settings',
+  'pro' => 'Pro',
+  'gateways' => 'Payment Gateways',
 
 
 );

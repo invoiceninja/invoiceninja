@@ -1,4 +1,4 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('head')
 	@parent
@@ -27,9 +27,8 @@
 @stop
 
 @section('content')	
-	@parent
-	@include('accounts.nav_advanced')
-
+    @parent
+    @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_DESIGN, 'advanced' => true])
 
 
   <script>
@@ -155,7 +154,7 @@
     {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->onchange('onSelectChange()')->raw() !!}
     <div class="pull-right">
         {!! Button::normal(trans('texts.help'))->withAttributes(['onclick' => 'showHelp()'])->appendIcon(Icon::create('question-sign')) !!}
-        {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/invoice_design'))->appendIcon(Icon::create('remove-circle')) !!}
+        {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/invoice_design'))->appendIcon(Icon::create('remove-circle')) !!}
         @if (Auth::user()->isPro())
             {!! Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->appendIcon(Icon::create('floppy-disk')) !!}
         @endif

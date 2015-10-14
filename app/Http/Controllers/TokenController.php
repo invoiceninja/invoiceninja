@@ -67,7 +67,6 @@ class TokenController extends BaseController
                         ->where('public_id', '=', $publicId)->firstOrFail();
 
         $data = [
-            'showBreadcrumbs' => false,
             'token' => $token,
             'method' => 'PUT',
             'url' => 'tokens/'.$publicId,
@@ -94,12 +93,10 @@ class TokenController extends BaseController
     public function create()
     {
         $data = [
-          'showBreadcrumbs' => false,
           'token' => null,
           'method' => 'POST',
           'url' => 'tokens',
           'title' => trans('texts.add_token'),
-          'feature' => 'tokens',
         ];
 
         return View::make('accounts.token', $data);
@@ -115,7 +112,7 @@ class TokenController extends BaseController
 
         Session::flash('message', trans('texts.deleted_token'));
 
-        return Redirect::to('company/advanced_settings/token_management');
+        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
     /**
@@ -163,7 +160,7 @@ class TokenController extends BaseController
             Session::flash('message', $message);
         }
 
-        return Redirect::to('company/advanced_settings/token_management');
+        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
 }

@@ -49,7 +49,7 @@ class AuthService
                     Session::flash('warning', trans('texts.success_message'));
                 } else {
                     Session::flash('message', trans('texts.updated_settings'));
-                    return redirect()->to('/company/details');
+                    return redirect()->to('/settings/' . ACCOUNT_COMPANY_DETAILS);
                 }
             } else {
                 Session::flash('error', $result);

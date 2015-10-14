@@ -262,7 +262,7 @@ return array(
   'email_salutation' => 'Dear :name,',
   'email_signature' => 'Regards,',
   'email_from' => 'The Invoice Ninja Team',
-  'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/company/notifications',
+  'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/settings/notifications',
   'invoice_link_message' => 'To view your client invoice click the link below:',
   'notification_invoice_paid_subject' => 'Invoice :invoice was paid by :client',
   'notification_invoice_sent_subject' => 'Invoice :invoice was sent to :client',
@@ -557,7 +557,7 @@ return array(
   'created_gateway' => 'Successfully created gateway',
   'deleted_gateway' => 'Successfully deleted gateway',
   'pay_with_paypal' => 'PayPal',
-  'pay_with_card' => 'Credit card',
+  'pay_with_card' => 'Credit Card',
 
   'change_password' => 'Change password',
   'current_password' => 'Current password',
@@ -587,7 +587,7 @@ return array(
   'confirmation_resent' => 'The confirmation email was resent',
   
   'gateway_help_42' => ':link to sign up for BitPay.<br/>Note: use a Legacy API Key, not an API token.',
-  'payment_type_credit_card' => 'Credit card',
+  'payment_type_credit_card' => 'Credit Card',
   'payment_type_paypal' => 'PayPal',
   'payment_type_bitcoin' => 'Bitcoin',
   'knowledge_base' => 'Knowledge Base',
@@ -818,6 +818,9 @@ return array(
   'total_invoiced' => 'Total Invoiced',
   'open_balance' => 'Open Balance',
   'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
+  'basic_settings' => 'Basic Settings',
+  'pro' => 'Pro',
+  'gateways' => 'Payment Gateways',
 
 );
 

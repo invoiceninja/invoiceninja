@@ -1,4 +1,4 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('head')
     @parent
@@ -13,9 +13,9 @@
 
 @section('content')
     @parent
-    @include('accounts.nav_advanced')
+    @include('accounts.nav', ['selected' => ACCOUNT_TEMPLATES_AND_REMINDERS, 'advanced' => true])
 
-    {!! Former::vertical_open()->addClass('col-md-10 col-md-offset-1 warn-on-exit') !!}
+    {!! Former::vertical_open()->addClass('warn-on-exit') !!}
     {!! Former::populate($account) !!}
 
     @foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type)

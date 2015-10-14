@@ -1,9 +1,11 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content') 
     @parent 
 
-    {!! Former::open($url)->method($method)->rule()->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!} 
+    @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
+
+    {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!} 
     {!! Former::populate($account) !!}
 
 
@@ -106,7 +108,7 @@
     <p/>&nbsp;<p/>
 
     {!! Former::actions( 
-        $countGateways > 0 ? Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/company/payments'))->appendIcon(Icon::create('remove-circle')) : false,
+        $countGateways > 0 ? Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/online_payments'))->appendIcon(Icon::create('remove-circle')) : false,
         Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}
     {!! Former::close() !!}
 

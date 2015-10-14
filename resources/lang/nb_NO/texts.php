@@ -262,7 +262,7 @@ return array(
   'email_salutation' => 'Kj&#230;re :name,',
   'email_signature' => 'Med vennlig hilsen,',
   'email_from' => 'The Invoice Ninja Team',
-  'user_email_footer' => 'For &#229; justere varslingsinnstillingene vennligst bes&#248;k '.SITE_URL.'/company/notifications',
+  'user_email_footer' => 'For &#229; justere varslingsinnstillingene vennligst bes&#248;k '.SITE_URL.'/settings/notifications',
   'invoice_link_message' => 'Hvis du vil se din klientfaktura klikk p&#229; linken under:',
   'notification_invoice_paid_subject' => 'Faktura :invoice betalt av :client',
   'notification_invoice_sent_subject' => 'Faktura :invoice sendt til :client',
@@ -817,5 +817,9 @@ return array(
   'custom_invoice_link' => 'Custom Invoice Link',
   'total_invoiced' => 'Total Invoiced',
   'open_balance' => 'Open Balance',
+  'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
+  'basic_settings' => 'Basic Settings',
+  'pro' => 'Pro',
+  'gateways' => 'Payment Gateways',
   
 );

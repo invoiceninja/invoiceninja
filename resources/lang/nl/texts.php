@@ -260,7 +260,7 @@ return array(
   'email_salutation' => 'Beste :name,',
   'email_signature' => 'Met vriendelijke groeten,',
   'email_from' => 'Het InvoiceNinja Team',
-  'user_email_footer' => 'Ga alstublieft naar '.SITE_URL.'/company/notifications om je e-mail notificatie instellingen aan te passen ',
+  'user_email_footer' => 'Ga alstublieft naar '.SITE_URL.'/settings/notifications om je e-mail notificatie instellingen aan te passen ',
   'invoice_link_message' => 'Klik op volgende link om de Factuur van je klant te bekijken:',
   'notification_invoice_paid_subject' => 'Factuur :invoice is betaald door :client',
   'notification_invoice_sent_subject' => 'Factuur :invoice is gezonden door :client',
@@ -812,5 +812,9 @@ return array(
   'custom_invoice_link' => 'Custom Invoice Link',
   'total_invoiced' => 'Total Invoiced',
   'open_balance' => 'Open Balance',
+  'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
+  'basic_settings' => 'Basic Settings',
+  'pro' => 'Pro',
+  'gateways' => 'Payment Gateways',
   
 );

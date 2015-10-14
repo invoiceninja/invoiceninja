@@ -866,11 +866,11 @@ body {
 }
 
 /* Hide bootstrap sort header icons */
-table.data-table thead .sorting:after { content: '' !important }
-table.data-table thead .sorting_asc:after { content: '' !important }
-table.data-table thead .sorting_desc:after { content: '' !important}
-table.data-table thead .sorting_asc_disabled:after { content: '' !important }
-table.data-table thead .sorting_desc_disabled:after { content: '' !important }
+table.table thead .sorting:after { content: '' !important }
+table.table thead .sorting_asc:after { content: '' !important }
+table.table thead .sorting_desc:after { content: '' !important }
+table.table thead .sorting_asc_disabled:after { content: '' !important }
+table.table thead .sorting_desc_disabled:after { content: '' !important }
 
 .dataTables_length {
     padding-left: 20px;

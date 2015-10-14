@@ -33,7 +33,6 @@ class ReportController extends BaseController
         }
 
         $data = [
-            'feature' => ACCOUNT_DATA_VISUALIZATIONS,
             'clients' => $clients,
             'message' => $message,
         ];
@@ -276,7 +275,6 @@ class ReportController extends BaseController
             'startDate' => $startDate->format(Session::get(SESSION_DATE_FORMAT)),
             'endDate' => $endDate->format(Session::get(SESSION_DATE_FORMAT)),
             'groupBy' => $groupBy,
-            'feature' => ACCOUNT_CHART_BUILDER,
             'displayData' => $displayData,
             'columns' => $columns,
             'reportTotals' => $reportTotals,

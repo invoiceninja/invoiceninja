@@ -24,7 +24,7 @@ class OnlinePaymentCest
 
         // set gateway info
         $I->wantTo('create a gateway');
-        $I->amOnPage('/company/payments');
+        $I->amOnPage('/settings/online_payments');
 
         if (strpos($I->grabFromCurrentUrl(), 'create') !== false) {
             $I->fillField(['name' =>'23_apiKey'], Fixtures::get('gateway_key'));

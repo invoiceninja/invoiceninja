@@ -1,9 +1,11 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content')
 @parent
 
-{!! Former::open_for_files('company/import_map')->addClass('col-md-8 col-md-offset-2') !!}            
+    @include('accounts.nav', ['selected' => ACCOUNT_IMPORT_EXPORT])
+
+{!! Former::open_for_files('settings/' . ACCOUNT_MAP) !!}
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">{!! trans('texts.import_clients') !!}</h3>
@@ -16,7 +18,7 @@
 {!! Former::close() !!}
 
 
-{!! Former::open('company/export')->addClass('col-md-8 col-md-offset-2') !!}        
+{!! Former::open('settings/' . ACCOUNT_EXPORT) !!}
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">{!! trans('texts.export_clients') !!}</h3>
@@ -28,7 +30,7 @@
 {!! Former::close() !!}
 
 
-{!! Former::open('company/cancel_account')->addClass('col-md-8 col-md-offset-2 cancel-account') !!}
+{!! Former::open('settings/cancel_account')->addClass('cancel-account') !!}
 <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">{!! trans('texts.cancel_account') !!}</h3>

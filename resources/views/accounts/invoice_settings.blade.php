@@ -1,4 +1,4 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('head')
     @parent
@@ -18,9 +18,9 @@
 
 @section('content')	
 	@parent
-	@include('accounts.nav_advanced')
+    @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_SETTINGS, 'advanced' => true])
 
-	{!! Former::open()->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!}
+	{!! Former::open()->addClass('warn-on-exit') !!}
 	{{ Former::populate($account) }}
 	{{ Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) }}
 	{{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}

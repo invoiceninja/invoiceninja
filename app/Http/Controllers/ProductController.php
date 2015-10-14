@@ -45,7 +45,6 @@ class ProductController extends BaseController
     public function edit($publicId)
     {
         $data = [
-      'showBreadcrumbs' => false,
       'product' => Product::scope($publicId)->firstOrFail(),
       'method' => 'PUT',
       'url' => 'products/'.$publicId,
@@ -58,12 +57,11 @@ class ProductController extends BaseController
     public function create()
     {
         $data = [
-      'showBreadcrumbs' => false,
-      'product' => null,
-      'method' => 'POST',
-      'url' => 'products',
-      'title' => trans('texts.create_product'),
-    ];
+          'product' => null,
+          'method' => 'POST',
+          'url' => 'products',
+          'title' => trans('texts.create_product'),
+        ];
 
         return View::make('accounts.product', $data);
     }
@@ -94,7 +92,7 @@ class ProductController extends BaseController
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
 
-        return Redirect::to('company/products');
+        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
     }
 
     public function archive($publicId)
@@ -104,6 +102,6 @@ class ProductController extends BaseController
 
         Session::flash('message', trans('texts.archived_product'));
 
-        return Redirect::to('company/products');
+        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
     }
 }

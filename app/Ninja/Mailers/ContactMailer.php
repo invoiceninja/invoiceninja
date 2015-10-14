@@ -145,7 +145,6 @@ class ContactMailer extends Mailer
 
         $subject = $this->processVariables($emailSubject, $variables);
         $data['invoice_id'] = $payment->invoice->id;
-        $invoice->updateCachedPDF();
 
         if ($user->email && $contact->email) {
             $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);

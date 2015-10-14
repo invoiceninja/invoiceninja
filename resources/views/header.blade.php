@@ -438,12 +438,10 @@
             <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
           </a>
           <ul class="dropdown-menu">
-            <li>{!! link_to('company/details', uctrans('texts.company_details')) !!}</li>
-            <li>{!! link_to('company/payments', uctrans('texts.online_payments')) !!}</li>
-            <li>{!! link_to('company/products', uctrans('texts.product_library')) !!}</li>
-            <li>{!! link_to('company/notifications', uctrans('texts.notifications')) !!}</li>
-            <li>{!! link_to('company/import_export', uctrans('texts.import_export')) !!}</li>
-            <li><a href="{{ url('company/advanced_settings/invoice_design') }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
+            @foreach (\App\Models\Account::$basicSettings as $setting)
+                <li>{!! link_to('settings/' . $setting, uctrans("texts.{$setting}")) !!}</li>
+            @endforeach
+            <li><a href="{{ url('settings/' . ACCOUNT_INVOICE_DESIGN) }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
           </ul>
         </li>
       </ul>
@@ -667,6 +665,7 @@
 
 {{-- Per our license, please do not remove or modify this section. --}}
 @if (!Utils::isNinjaProd())
+</div>
 <p>&nbsp;</p>
 <div class="container">
   {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> -

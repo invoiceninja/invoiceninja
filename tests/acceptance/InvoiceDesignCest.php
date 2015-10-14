@@ -24,7 +24,7 @@ class InvoiceDesignCest
     {
         $I->wantTo('Design my invoice');
 
-        $I->amOnPage('/company/advanced_settings/invoice_design');
+        $I->amOnPage('/settings/invoice_design');
 
         $I->click('select#invoice_design_id');
         $I->click('select#invoice_design_id option:nth-child(2)');

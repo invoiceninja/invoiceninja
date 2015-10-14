@@ -106,7 +106,6 @@ class UserController extends BaseController
                         ->where('public_id', '=', $publicId)->firstOrFail();
 
         $data = [
-            'showBreadcrumbs' => false,
             'user' => $user,
             'method' => 'PUT',
             'url' => 'users/'.$publicId,
@@ -134,24 +133,22 @@ class UserController extends BaseController
     {
         if (!Auth::user()->registered) {
             Session::flash('error', trans('texts.register_to_add_user'));
-            return Redirect::to('company/advanced_settings/user_management');
+            return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }        
         if (!Auth::user()->confirmed) {
             Session::flash('error', trans('texts.confirmation_required'));
-            return Redirect::to('company/advanced_settings/user_management');
+            return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
 
         if (Utils::isNinja()) {
             $count = User::where('account_id', '=', Auth::user()->account_id)->count();
             if ($count >= MAX_NUM_USERS) {
                 Session::flash('error', trans('texts.limit_users'));
-
-                return Redirect::to('company/advanced_settings/user_management');
+                return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
             }
         }
 
         $data = [
-          'showBreadcrumbs' => false,
           'user' => null,
           'method' => 'POST',
           'url' => 'users',
@@ -171,7 +168,7 @@ class UserController extends BaseController
 
         Session::flash('message', trans('texts.deleted_user'));
 
-        return Redirect::to('company/advanced_settings/user_management');
+        return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
 
     public function restoreUser($userPublicId)
@@ -184,7 +181,7 @@ class UserController extends BaseController
 
         Session::flash('message', trans('texts.restored_user'));
 
-        return Redirect::to('company/advanced_settings/user_management');
+        return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
 
     /**
@@ -247,7 +244,7 @@ class UserController extends BaseController
             Session::flash('message', $message);
         }
         
-        return Redirect::to('company/advanced_settings/user_management');
+        return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
 
     public function sendConfirmation($userPublicId)
@@ -258,7 +255,7 @@ class UserController extends BaseController
         $this->userMailer->sendConfirmation($user, Auth::user());
         Session::flash('message', trans('texts.sent_invite'));
 
-        return Redirect::to('company/advanced_settings/user_management');
+        return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
 
 
