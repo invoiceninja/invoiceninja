@@ -20,14 +20,7 @@ class ActivityController extends BaseController
             ->addColumn('activities.id', function ($model) { return Utils::timestampToDateTimeString(strtotime($model->created_at)); })
             ->addColumn('message', function ($model) { return Utils::decodeActivity($model->message); })
             ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id); })
-            ->addColumn('adjustment', function ($model) { return $model->adjustment != 0 ? self::wrapAdjustment($model->adjustment, $model->currency_id) : ''; })
+            ->addColumn('adjustment', function ($model) { return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id) : ''; })
             ->make();
-    }
-
-    private function wrapAdjustment($adjustment, $currencyId)
-    {
-        $class = $adjustment <= 0 ? 'success' : 'default';
-        $adjustment = Utils::formatMoney($adjustment, $currencyId);
-        return "<h4><div class=\"label label-{$class}\">$adjustment</div></h4>";
     }
 }

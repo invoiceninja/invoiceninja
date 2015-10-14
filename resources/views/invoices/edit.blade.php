@@ -104,7 +104,7 @@
 			</div>
             @endif
 
-            @if ($account->custom_invoice_text_label1 || $invoice && $account->custom_text_value1)
+            @if ($account->showCustomField('custom_invoice_text_label1', $invoice))
                 {!! Former::text('custom_text_value1')->label($account->custom_invoice_text_label1)->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
             @endif
 
@@ -115,7 +115,7 @@
 					</div>
 				@elseif ($invoice && isset($lastSent) && $lastSent)
                     <div class="pull-right" style="padding-top: 6px">
-                        {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, Utils::dateToString($invoice->last_sent_date))]) !!}
+                        {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, Utils::dateToString($invoice->last_sent_date), ['id' => 'lastSent'])]) !!}
                     </div>
                 @endif
 			@endif
@@ -141,7 +141,7 @@
 						->addOption(trans('texts.discount_amount'), '1')->data_bind("value: is_amount_discount")->raw()
 			) !!}			
 
-            @if ($account->custom_invoice_text_label2 || $invoice && $account->custom_text_value2)
+            @if ($account->showCustomField('custom_invoice_text_label2', $invoice))
                 {!! Former::text('custom_text_value2')->label($account->custom_invoice_text_label2)->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
             @endif
 
@@ -261,7 +261,7 @@
 				<td style="text-align: right"><span data-bind="text: totals.discounted"/></td>
 			</tr>
 
-			@if (($account->custom_invoice_label1 || ($invoice && floatval($invoice->custom_value1)) != 0) && $account->custom_invoice_taxes1)
+            @if ($account->showCustomField('custom_invoice_label1', $invoice) && $account->custom_invoice_taxes1)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
@@ -270,7 +270,7 @@
 				</tr>
 			@endif
 
-			@if (($account->custom_invoice_label2 || ($invoice && floatval($invoice->custom_value2)) != 0) && $account->custom_invoice_taxes2)
+            @if ($account->showCustomField('custom_invoice_label2', $invoice) && $account->custom_invoice_taxes2)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
@@ -298,7 +298,7 @@
 				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 			</tr>
 
-			@if (($account->custom_invoice_label1 || ($invoice && floatval($invoice->custom_value1)) != 0) && !$account->custom_invoice_taxes1)
+            @if ($account->showCustomField('custom_invoice_label1', $invoice) && !$account->custom_invoice_taxes1)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
@@ -307,7 +307,7 @@
 				</tr>
 			@endif
 
-			@if (($account->custom_invoice_label2 || ($invoice && floatval($invoice->custom_value2)) != 0) && !$account->custom_invoice_taxes2)
+            @if ($account->showCustomField('custom_invoice_label2', $invoice) && !$account->custom_invoice_taxes2)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>

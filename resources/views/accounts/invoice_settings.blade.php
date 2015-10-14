@@ -4,6 +4,9 @@
     @parent
 
         <style type="text/css">
+            .iframe_url {
+                display: none;
+            }
             .input-group-addon div.checkbox {
                 display: inline;
             }
@@ -30,13 +33,26 @@
             <h3 class="panel-title">{!! trans('texts.email_settings') !!}</h3>
         </div>
         <div class="panel-body">
-            @if (Utils::isNinja())
-            {{ Former::setOption('capitalize_translations', false) }}
-            {!! Former::text('subdomain')->placeholder(trans('texts.www'))->onchange('onSubdomainChange()') !!}
-            {!! Former::text('iframe_url')->placeholder('http://invoices.example.com/')
-            ->onchange('onDomainChange()')->appendIcon('question-sign')->addGroupClass('iframe_url') !!}
-            @endif
             {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
+            @if (Utils::isNinja())
+                {!! Former::inline_radios('custom_invoice_link')
+                        ->onchange('onCustomLinkChange()')
+                        ->radios([
+                            trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
+                            trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
+                        ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
+                {{ Former::setOption('capitalize_translations', false) }}
+                {!! Former::text('subdomain')
+                            ->placeholder(trans('texts.www'))
+                            ->onchange('onSubdomainChange()')
+                            ->addGroupClass('subdomain')
+                            ->label(' ') !!}
+                {!! Former::text('iframe_url')
+                            ->placeholder('http://www.example.com/invoice')
+                            ->appendIcon('question-sign')
+                            ->addGroupClass('iframe_url')
+                            ->label(' ') !!}
+            @endif
         </div>
     </div>
 
@@ -150,7 +166,9 @@
 
                 <div class="modal-body">
                     <p>{{ trans('texts.iframe_url_help1') }}</p>
-                    <pre>&lt;iframe id="invoiceIFrame" width="800" height="1000"&gt;&lt;/iframe&gt;
+                    <pre>&lt;center&gt;
+    &lt;iframe id="invoiceIFrame" width="1000" height="1200"&gt;&lt;/iframe&gt;
+&lt;center&gt;
 &lt;script language="javascript"&gt;
     var iframe = document.getElementById('invoiceIFrame');
     iframe.src = '{{ SITE_URL }}/view/' 
@@ -187,8 +205,15 @@
         input.val(val);
     }
 
-    function onDomainChange() {
-
+    function onCustomLinkChange() {
+        var val = $('input[name=custom_link]:checked').val()
+        if (val == 'subdomain') {
+            $('.subdomain').show();
+            $('.iframe_url').hide();
+        } else {
+            $('.subdomain').hide();
+            $('.iframe_url').show();
+        }
     }
 
     $('.iframe_url .input-group-addon').click(function() {
@@ -197,6 +222,14 @@
 
     $(function() {       	
     	setQuoteNumberEnabled();
+        onCustomLinkChange();
+
+        $('#subdomain').change(function() {
+            $('#iframe_url').val('');
+        });
+        $('#iframe_url').change(function() {
+            $('#subdomain').val('');
+        });
     });    
 
 	</script>

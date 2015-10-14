@@ -33,7 +33,7 @@
             @if (count($paymentTypes) > 1)
                 {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
             @else
-                {!! link_to(URL::to($paymentURL), trans('texts.pay_now'), ['class' => 'btn btn-success btn-lg']) !!}
+                <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }}</a>
             @endif            
 		@else 
 			{!! Button::normal('Download PDF')->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}

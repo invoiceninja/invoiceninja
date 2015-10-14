@@ -59,10 +59,10 @@ return [
 
 		'iron' => [
 			'driver'  => 'iron',
-			'host'    => 'mq-aws-us-east-1.iron.io',
-			'token'   => 'your-token',
-			'project' => 'your-project-id',
-			'queue'   => 'your-queue-name',
+			'host'    => env('QUEUE_HOST', 'mq-aws-us-east-1.iron.io'),
+			'token'   => env('QUEUE_TOKEN'),
+			'project' => env('QUEUE_PROJECT'),
+			'queue'   => env('QUEUE_NAME'),
 			'encrypt' => true,
 		],
 

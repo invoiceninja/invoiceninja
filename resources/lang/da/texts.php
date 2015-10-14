@@ -815,5 +815,9 @@
    'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact.',
    'notification_quote_bounced_subject' => 'Unable to deliver Quote :invoice',
 
+   'custom_invoice_link' => 'Custom Invoice Link',
+   'total_invoiced' => 'Total Invoiced',
+   'open_balance' => 'Open Balance',
+
 
  ); 

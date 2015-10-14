@@ -769,7 +769,7 @@ return array(
 
   'iframe_url' => 'Website',
   'iframe_url_help1' => 'Copy the following code to a page on your site.',
-  'iframe_url_help2' => 'Currently only supported with on-site gateways (ie, Stripe and Authorize.net). You can test the feature by clicking \'View as recipient\' for an invoice.',
+  'iframe_url_help2' => 'You can test the feature by clicking \'View as recipient\' for an invoice.',
 
   'auto_bill' => 'Auto Bill',
   'military_time' => '24 Hour Time',
@@ -813,6 +813,11 @@ return array(
   'notification_invoice_bounced_subject' => 'Unable to deliver Invoice :invoice',
   'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact.',
   'notification_quote_bounced_subject' => 'Unable to deliver Quote :invoice',
+
+  'custom_invoice_link' => 'Custom Invoice Link',
+  'total_invoiced' => 'Total Invoiced',
+  'open_balance' => 'Open Balance',
+  'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
 
 );
 
