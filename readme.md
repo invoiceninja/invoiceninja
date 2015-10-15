@@ -79,3 +79,4 @@ If you'd like to use our code to sell your own invoicing app email us for detail
 * [bgrins/spectrum](https://github.com/bgrins/spectrum) - The No Hassle JavaScript Colorpicker
 * [lokesh/lightbox2](https://github.com/lokesh/lightbox2/) - The original lightbox script
 * [josdejong/jsoneditor](https://github.com/josdejong/jsoneditor/) - A web-based tool to view, edit and format JSON
+* [simshaun/recurr](https://github.com/simshaun/recurr) - PHP library for working with recurrence rules

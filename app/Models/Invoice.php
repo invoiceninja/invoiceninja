@@ -2,6 +2,7 @@
 
 use Utils;
 use DateTime;
+use Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends EntityModel
@@ -218,6 +219,115 @@ class Invoice extends EntityModel
 
     public function shouldSendToday()
     {
+        if (!$nextSendDate = $this->getNextSendDate()) {
+            return false;
+        }
+
+        return $this->account->getDateTime() >= $nextSendDate;
+    }
+
+    public function getSchedule()
+    {
+        if (!$this->start_date || !$this->is_recurring || !$this->frequency_id) {
+            return false;
+        }
+
+        $timezone = $this->account->getTimezone();
+        $startDate = $this->last_sent_date ?: $this->start_date;
+        $startDate = new \DateTime($startDate . ' 12:00:00', new \DateTimeZone($timezone));
+        $endDate = $this->end_date ? new \DateTime($this->end_date, new \DateTimeZone($timezone)) : null;
+
+        $rule = $this->getRecurrenceRule();
+        $rule = new \Recurr\Rule("{$rule}", $startDate, $endDate, $timezone);
+
+        // Fix for months with less than 31 days
+        $transformerConfig = new \Recurr\Transformer\ArrayTransformerConfig();
+        $transformerConfig->enableLastDayOfMonthFix();
+        
+        $transformer = new \Recurr\Transformer\ArrayTransformer();
+        $transformer->setConfig($transformerConfig);
+        $dates = $transformer->transform($rule);
+
+        if (count($dates) < 2) {
+            return false;
+        }
+
+        return $dates;
+    }
+
+    public function getNextSendDate()
+    {
+        if ($this->start_date && !$this->last_sent_date) {
+            $timezone = $this->account->getTimezone();
+            return new \DateTime($this->start_date . ' 12:00:00', new \DateTimeZone($timezone));
+        }
+
+        if (!$schedule = $this->getSchedule()) {
+            return null;
+        }
+
+        if (count($schedule) < 2) {
+            return null;
+        }
+        
+        return $schedule[1]->getStart();
+    }
+
+    public function getPrettySchedule($min = 1, $max = 10)
+    {
+        if (!$schedule = $this->getSchedule($max)) {
+            return null;
+        }
+
+        $dates = [];
+
+        for ($i=$min; $i<min($max, count($schedule)); $i++) {
+            $date = $schedule[$i];
+            $date = $this->account->formatDate($date->getStart());
+            $dates[] = $date;
+        }
+
+        return implode('<br/>', $dates);
+    }
+
+    private function getRecurrenceRule()
+    {
+        $rule = '';
+
+        switch ($this->frequency_id) {
+            case FREQUENCY_WEEKLY:
+                $rule = 'FREQ=WEEKLY;';
+                break;
+            case FREQUENCY_TWO_WEEKS:
+                $rule = 'FREQ=WEEKLY;INTERVAL=2;';
+                break;
+            case FREQUENCY_FOUR_WEEKS:
+                $rule = 'FREQ=WEEKLY;INTERVAL=4;';
+                break;
+            case FREQUENCY_MONTHLY:
+                $rule = 'FREQ=MONTHLY;';
+                break;
+            case FREQUENCY_THREE_MONTHS:
+                $rule = 'FREQ=MONTHLY;INTERVAL=3;';
+                break;
+            case FREQUENCY_SIX_MONTHS:
+                $rule = 'FREQ=MONTHLY;INTERVAL=6;';
+                break;
+            case FREQUENCY_ANNUALLY:
+                $rule = 'FREQ=YEARLY;';
+                break;
+        }
+
+        if ($this->end_date) {
+            $rule .= 'UNTIL=' . $this->end_date;
+        }
+
+        return $rule;
+    }
+
+    /*
+    public function shouldSendToday()
+    {
         if (!$this->start_date || strtotime($this->start_date) > strtotime('now')) {
             return false;
         }
@@ -267,8 +377,10 @@ class Invoice extends EntityModel
 
         return false;
     }
+    */
 
-    public function getReminder() {
+    public function getReminder()
+    {
         for ($i=1; $i<=3; $i++) {
             $field = "enable_reminder{$i}";
             if (!$this->account->$field) {

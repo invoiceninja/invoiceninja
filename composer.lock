@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "48ed13e4113a177339d3a20f31dbc6bb",
+    "hash": "f76cd603e0ffaf0499cefa858ae14d07",
     "packages": [
         {
             "name": "alfaproject/omnipay-neteller",
@@ -501,16 +501,16 @@
         },
         {
             "name": "coatesap/omnipay-paymentsense",
-            "version": "v2.0.0",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/coatesap/omnipay-paymentsense.git",
-                "reference": "4a5a87ef140abf8e09ff27cd0e6502ac1e79e434"
+                "reference": "664e00a726b99b65b08381f8409263795f2986a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/coatesap/omnipay-paymentsense/zipball/4a5a87ef140abf8e09ff27cd0e6502ac1e79e434",
-                "reference": "4a5a87ef140abf8e09ff27cd0e6502ac1e79e434",
+                "url": "https://api.github.com/repos/coatesap/omnipay-paymentsense/zipball/664e00a726b99b65b08381f8409263795f2986a2",
+                "reference": "664e00a726b99b65b08381f8409263795f2986a2",
                 "shasum": ""
             },
             "require": {
@@ -530,8 +530,8 @@
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "Omnipay\\PaymentSense\\": "src/"
+                "psr-4": {
+                    "Coatesap\\PaymentSense\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -545,8 +545,9 @@
                 }
             ],
             "description": "PaymentSense driver for the Omnipay payment processing library",
-            "homepage": "https://github.com/coatesap/paymentsense",
+            "homepage": "https://github.com/coatesap/omnipay-paymentsense",
             "keywords": [
+                "driver",
                 "gateway",
                 "merchant",
                 "omnipay",
@@ -555,7 +556,7 @@
                 "payment sense",
                 "paymentsense"
             ],
-            "time": "2014-03-18 17:17:57"
+            "time": "2015-10-13 07:08:13"
         },
         {
             "name": "coatesap/omnipay-realex",
@@ -2468,16 +2469,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "1.17.1",
+            "version": "1.17.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "0524c87587ab85bc4c2d6f5b41253ccb930a5422"
+                "reference": "bee7f0dc9c3e0b69a6039697533dca1e845c8c24"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/0524c87587ab85bc4c2d6f5b41253ccb930a5422",
-                "reference": "0524c87587ab85bc4c2d6f5b41253ccb930a5422",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/bee7f0dc9c3e0b69a6039697533dca1e845c8c24",
+                "reference": "bee7f0dc9c3e0b69a6039697533dca1e845c8c24",
                 "shasum": ""
             },
             "require": {
@@ -2491,10 +2492,11 @@
                 "aws/aws-sdk-php": "^2.4.9",
                 "doctrine/couchdb": "~1.0@dev",
                 "graylog2/gelf-php": "~1.0",
+                "jakub-onderka/php-parallel-lint": "0.9",
                 "php-console/php-console": "^3.1.3",
                 "phpunit/phpunit": "~4.5",
                 "phpunit/phpunit-mock-objects": "2.3.0",
-                "raven/raven": "~0.11",
+                "raven/raven": "^0.13",
                 "ruflin/elastica": ">=0.90 <3.0",
                 "swiftmailer/swiftmailer": "~5.3",
                 "videlalvaro/php-amqplib": "~2.4"
@@ -2540,7 +2542,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2015-08-31 09:17:37"
+            "time": "2015-10-14 12:51:02"
         },
         {
             "name": "mtdowling/cron-expression",
@@ -4718,6 +4720,60 @@
             "time": "2015-07-03 13:48:55"
         },
         {
+            "name": "simshaun/recurr",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/simshaun/recurr.git",
+                "reference": "202c067b73c6630763dcb8e3d98576d7a5fb838c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/simshaun/recurr/zipball/202c067b73c6630763dcb8e3d98576d7a5fb838c",
+                "reference": "202c067b73c6630763dcb8e3d98576d7a5fb838c",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/collections": "~1.3",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Recurr": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Shaun Simmons",
+                    "email": "shaun@envysphere.com",
+                    "homepage": "http://envysphere.com"
+                }
+            ],
+            "description": "PHP library for working with recurrence rules",
+            "homepage": "https://github.com/simshaun/recurr",
+            "keywords": [
+                "dates",
+                "events",
+                "recurrence",
+                "recurring",
+                "rrule"
+            ],
+            "time": "2015-10-01 06:06:14"
+        },
+        {
             "name": "swiftmailer/swiftmailer",
             "version": "v5.4.1",
             "source": {
@@ -6439,16 +6495,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.8.12",
+            "version": "4.8.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "00194eb95989190a73198390ceca081ad3441a7f"
+                "reference": "be067d6105286b74272facefc2697038f8807b77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/00194eb95989190a73198390ceca081ad3441a7f",
-                "reference": "00194eb95989190a73198390ceca081ad3441a7f",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/be067d6105286b74272facefc2697038f8807b77",
+                "reference": "be067d6105286b74272facefc2697038f8807b77",
                 "shasum": ""
             },
             "require": {
@@ -6507,7 +6563,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-10-12 03:36:47"
+            "time": "2015-10-14 13:49:40"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -7159,7 +7215,8 @@
         "alfaproject/omnipay-skrill": 20,
         "omnipay/bitpay": 20,
         "wildbit/laravel-postmark-provider": 20,
-        "dwolla/omnipay-dwolla": 20
+        "dwolla/omnipay-dwolla": 20,
+        "simshaun/recurr": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

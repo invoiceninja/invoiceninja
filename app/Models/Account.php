@@ -160,6 +160,25 @@ class Account extends Eloquent
         }
     }
 
+    public function getDateTime()
+    {
+        return new \DateTime('now', new \DateTimeZone($this->getTimezone()));
+    }
+
+    public function getCustomDateFormat()
+    {
+        return $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT;
+    }
+
+    public function formatDate($date)
+    {
+        if (!$date) {
+            return null;
+        }
+
+        return $date->format($this->getCustomDateFormat());
+    }
+
     public function getGatewayByType($type = PAYMENT_TYPE_ANY)
     {
         foreach ($this->account_gateways as $gateway) {
@@ -268,7 +287,9 @@ class Account extends Eloquent
     {
         $this->load('timezone', 'date_format', 'datetime_format', 'language');
 
-        Session::put(SESSION_TIMEZONE, $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE);
+        $timezone = $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE;
+        Session::put(SESSION_TIMEZONE, $timezone);
+
         Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
         Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
 

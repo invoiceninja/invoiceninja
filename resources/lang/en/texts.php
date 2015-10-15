@@ -789,7 +789,7 @@ return array(
 
   'referral_program' => 'Referral Program',
   'referral_code' => 'Referral Code',
-  'last_sent_on' => 'Last sent on :date',
+  'last_sent_on' => 'Sent last: :date',
 
   'page_expire' => 'This page will expire soon, :click_here to keep working',
   'upcoming_quotes' => 'Upcoming Quotes',
@@ -821,6 +821,9 @@ return array(
   'basic_settings' => 'Basic Settings',
   'pro' => 'Pro',
   'gateways' => 'Payment Gateways',
+
+  'next_send_on' => 'Send next: :date',
+
 
 );
 

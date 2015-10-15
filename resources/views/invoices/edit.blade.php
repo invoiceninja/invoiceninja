@@ -65,7 +65,7 @@
 				</div>
 			@endif
 
-			<div data-bind="with: client">
+			<div data-bind="with: client" class="invoice-contact">
 				<div style="display:none" class="form-group" data-bind="visible: contacts().length > 0 &amp;&amp; (contacts()[0].email() || contacts()[0].first_name()), foreach: contacts">
 					<div class="col-lg-8 col-lg-offset-4">
 						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}" onclick="refreshPDF(true)">
@@ -113,9 +113,14 @@
 					<div class="pull-right" style="padding-top: 6px">
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
 					</div>
-				@elseif ($invoice && isset($lastSent) && $lastSent)
+				@elseif ($invoice)
                     <div class="pull-right" style="padding-top: 6px">
-                        {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!}
+                    @if (isset($lastSent) && $lastSent)
+                        {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!} &nbsp; 
+                    @endif
+                    @if ($invoice->is_recurring && $invoice->getNextSendDate())
+                        {!! trans('texts.next_send_on', ['date' => '<span data-bind="tooltip: {title: \''.$invoice->getPrettySchedule().'\', html: true}">'.$account->formatDate($invoice->getNextSendDate()).'</span>']) !!}
+                    @endif
                     </div>
                 @endif
 			@endif
@@ -827,7 +832,7 @@
 	}
 
 	function onSaveClick() {
-		if (model.invoice().is_recurring()) {
+		if (model.invoice().is_recurring() && {{ $invoice ? 'false' : 'true' }}) {
 			if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
 				submitAction('');
 			}
