@@ -745,7 +745,6 @@ return array(
   'current_user' => 'Aktueller Benutzer',
   'new_recurring_invoice' => 'Neue wiederkehrende Rechnung',
   'recurring_invoice' => 'Wiederkehrende Rechnung',
-  'recurring_too_soon' => 'Es ist zu früh, um die nächste wiederkehrende Rechnung zu erstellen',
   'created_by_invoice' => 'Erstellt durch :invoice',
   'primary_user' => 'Primärer Benutzer',
   'help' => 'Hilfe',
@@ -821,6 +820,7 @@ return array(
   'basic_settings' => 'Basic Settings',
   'pro' => 'Pro',
   'gateways' => 'Payment Gateways',
+  'recurring_too_soon' => 'Es ist zu früh, um die nächste wiederkehrende Rechnung zu erstellen, it\'s scheduled for :date',
 
 
 );

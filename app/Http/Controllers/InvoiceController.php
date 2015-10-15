@@ -491,7 +491,13 @@ class InvoiceController extends BaseController
     private function emailRecurringInvoice(&$invoice)
     {
         if (!$invoice->shouldSendToday()) {
-            return trans('texts.recurring_too_soon');
+            if ($date = $invoice->getNextSendDate()) {
+                $date = $invoice->account->formatDate($date);
+                $date .= ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00 am ' . $invoice->account->getTimezone();
+                return trans('texts.recurring_too_soon', ['date' => $date]);
+            } else {
+                return trans('texts.no_longer_running');
+            }
         }
 
         // switch from the recurring invoice to the generated invoice

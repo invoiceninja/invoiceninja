@@ -315,6 +315,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('MAX_SUBDOMAIN_LENGTH', 30);
     define('MAX_IFRAME_URL_LENGTH', 250);
     define('DEFAULT_FONT_SIZE', 9);
+    define('DEFAULT_SEND_RECURRING_HOUR', 8);
 
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);

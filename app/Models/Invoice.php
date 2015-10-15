@@ -1,8 +1,6 @@
 <?php namespace App\Models;
 
 use Utils;
-use DateTime;
-use Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends EntityModel
@@ -232,10 +230,11 @@ class Invoice extends EntityModel
             return false;
         }
 
-        $timezone = $this->account->getTimezone();
         $startDate = $this->last_sent_date ?: $this->start_date;
-        $startDate = new \DateTime($startDate . ' 12:00:00', new \DateTimeZone($timezone));
-        $endDate = $this->end_date ? new \DateTime($this->end_date, new \DateTimeZone($timezone)) : null;
+        $startDate .= ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00:00';
+        $startDate = $this->account->getDateTime($startDate);
+        $endDate = $this->end_date ? $this->account->getDateTime($this->end_date) : null;
+        $timezone = $this->account->getTimezone();
 
         $rule = $this->getRecurrenceRule();
         $rule = new \Recurr\Rule("{$rule}", $startDate, $endDate, $timezone);
@@ -258,8 +257,8 @@ class Invoice extends EntityModel
     public function getNextSendDate()
     {
         if ($this->start_date && !$this->last_sent_date) {
-            $timezone = $this->account->getTimezone();
-            return new \DateTime($this->start_date . ' 12:00:00', new \DateTimeZone($timezone));
+            $startDate = $this->start_date . ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00:00';
+            return $this->account->getDateTime($startDate);
         }
 
         if (!$schedule = $this->getSchedule()) {

@@ -745,7 +745,6 @@
   'current_user' => 'Nuværende bruger',
   'new_recurring_invoice' => 'Ny gentaget fakture',
   'recurring_invoice' => 'Gentaget faktura',
-  'recurring_too_soon' => 'Det er for tidligt at generere den næste faktura',
   'created_by_invoice' => 'Oprettet fra :invoice',
   'primary_user' => 'Primær bruger',
   'help' => 'Hjælp',
@@ -821,5 +820,6 @@
   'basic_settings' => 'Basic Settings',
   'pro' => 'Pro',
   'gateways' => 'Payment Gateways',
+  'recurring_too_soon' => 'Det er for tidligt at generere den næste faktura, it\'s scheduled for :date',
 
  );

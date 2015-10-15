@@ -29,7 +29,7 @@
         "coatesap/omnipay-datacash": "~2.0",
         "alfaproject/omnipay-neteller": "1.0.*@dev",
         "mfauveau/omnipay-pacnet": "~2.0",
-        "coatesap/omnipay-paymentsense": "~2.0",
+        "coatesap/omnipay-paymentsense": "2.0.0",
         "coatesap/omnipay-realex": "~2.0",
         "fruitcakestudio/omnipay-sisow": "~2.0",
         "alfaproject/omnipay-skrill": "dev-master",

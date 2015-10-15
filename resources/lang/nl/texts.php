@@ -740,7 +740,6 @@ return array(
   'current_user' => 'Huidige gebruiker',
   'new_recurring_invoice' => 'Nieuwe wederkerende factuur',
   'recurring_invoice' => 'Wederkerende factuur',
-  'recurring_too_soon' => 'Het is te vroeg om de volgende wederkerende factuur aan te maken',
   'created_by_invoice' => 'Aangemaakt door :invoice',
   'primary_user' => 'Primaire gebruiker',
   'help' => 'Help',
@@ -816,5 +815,6 @@ return array(
   'basic_settings' => 'Basic Settings',
   'pro' => 'Pro',
   'gateways' => 'Payment Gateways',
+  'recurring_too_soon' => 'Het is te vroeg om de volgende wederkerende factuur aan te maken, it\'s scheduled for :date',
   
 );

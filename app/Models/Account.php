@@ -160,9 +160,9 @@ class Account extends Eloquent
         }
     }
 
-    public function getDateTime()
+    public function getDateTime($date = 'now')
     {
-        return new \DateTime('now', new \DateTimeZone($this->getTimezone()));
+        return new \DateTime($date, new \DateTimeZone($this->getTimezone()));
     }
 
     public function getCustomDateFormat()
