@@ -72,13 +72,6 @@ Route::post('hook/email_opened', 'AppController@emailOpened');
 
 
 // Laravel auth routes
-/*
-Route::controllers([
-    'auth' => 'Auth\AuthController',
-    'password' => 'Auth\PasswordController',
-]);
-*/
-
 get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
 post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
 get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));

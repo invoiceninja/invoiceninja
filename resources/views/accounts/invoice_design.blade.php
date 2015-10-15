@@ -95,12 +95,12 @@
 
 
           @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
-            {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}
+            {!! Former::select('invoice_design_id')->style('display:inline')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}
           @else 
-            {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id') !!}
+            {!! Former::select('invoice_design_id')->style('display:inline')->fromQuery($invoiceDesigns, 'name', 'id') !!}
           @endif
 
-          {!! Former::text('font_size')->type('number')->min('0')->step('1')->style('width:120px') !!}
+          {!! Former::text('font_size')->type('number')->min('0')->step('1') !!}
           {!! Former::text('primary_color') !!}
           {!! Former::text('secondary_color') !!}
 

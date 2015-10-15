@@ -785,7 +785,9 @@ body {
     font-size: 14px;
     background-color: #f8f8f8;
 }
-
+html {
+  overflow-y: scroll;
+}
 
 @media screen and (min-width: 700px) { 
     .navbar-header {

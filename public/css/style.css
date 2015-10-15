@@ -2,6 +2,9 @@ body { background: #f8f8f8 !important;
     font-family: 'Roboto', sans-serif;
     font-size: 15px;
 }
+html {
+  overflow-y: scroll;
+}
 .bold { font-weight: 700; }
 a {color:#0b4d78;}
 /*a:hover { text-decoration: none; color: #0a3857;}*/

@@ -18,7 +18,7 @@
              <li>{!! link_to('invoices', trans('texts.recurring_invoice')) !!}</li>
             @else
 			 <li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
-			 <li class='active'>{{ $invoice->invoice_number }}</li>
+			 <li class="active">{{ $invoice->invoice_number }}</li>
             @endif
 		</ol>  
 	@endif
@@ -115,7 +115,7 @@
 					</div>
 				@elseif ($invoice && isset($lastSent) && $lastSent)
                     <div class="pull-right" style="padding-top: 6px">
-                        {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, Utils::dateToString($invoice->last_sent_date), ['id' => 'lastSent'])]) !!}
+                        {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!}
                     </div>
                 @endif
 			@endif

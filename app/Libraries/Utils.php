@@ -259,6 +259,10 @@ class Utils
 
     public static function dateToString($date)
     {
+        if (!$date) {
+            return false;
+        }
+        
         $dateTime = new DateTime($date);
         $timestamp = $dateTime->getTimestamp();
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
