@@ -137,7 +137,7 @@
       .endAngle(2 * Math.PI);
 
 
-    var diameter = 900,
+    var diameter = 800,
     format = d3.format(",d");
     //color = d3.scale.category10();
 
@@ -171,7 +171,7 @@
 
       data = bubble.nodes(data).filter(function(d) {
         return !d.children && d.displayTotal && d.displayName;
-      });    
+      });
 
       var selection = svg.selectAll(".node")
         .data(data, function(d) { return d.displayName; });

@@ -153,16 +153,14 @@
     <div class="pull-right">
         {!! Button::normal(trans('texts.help'))->withAttributes(['onclick' => 'showHelp()'])->appendIcon(Icon::create('question-sign')) !!}
         {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/invoice_design'))->appendIcon(Icon::create('remove-circle')) !!}
-        @if (Auth::user()->isPro())
-            {!! Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->appendIcon(Icon::create('floppy-disk')) !!}
-        @endif
+        {!! Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->appendIcon(Icon::create('floppy-disk'))->withAttributes(['class' => 'save-button']) !!}
     </div>
     </div>
 
       <script>
       @if (!Auth::user()->isPro())
         $(function() {   
-            $('form.warn-on-exit input').prop('disabled', true);
+            $('form.warn-on-exit input, .save-button').prop('disabled', true);
         });
       @endif
 

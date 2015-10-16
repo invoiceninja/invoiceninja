@@ -10,7 +10,7 @@
             .input-group-addon div.checkbox {
                 display: inline;
             }
-            span.input-group-addon {
+            .tab-content span.input-group-addon {
                 padding-right: 30px;
             }
         </style>
@@ -147,12 +147,6 @@
         <center>
             {!! Button::success(trans('texts.save'))->large()->submit()->appendIcon(Icon::create('floppy-disk')) !!}
         </center>
-    @else
-        <script>
-            $(function() {
-                $('form.warn-on-exit input').prop('disabled', true);
-            });
-        </script>
     @endif
 
 

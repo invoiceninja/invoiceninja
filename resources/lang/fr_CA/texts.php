@@ -815,5 +815,10 @@ return array(
   'pro' => 'Pro',
   'gateways' => 'Payment Gateways',
 
+  'next_send_on' => 'Send Next: :date',
+  'no_longer_running' => 'This invoice is not scheduled to run',
+  'general_settings' => 'General Settings',
+  'customize' => 'Customize',
+
 
 );

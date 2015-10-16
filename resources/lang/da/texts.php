@@ -822,4 +822,9 @@
   'gateways' => 'Payment Gateways',
   'recurring_too_soon' => 'Det er for tidligt at generere den næste faktura, it\'s scheduled for :date',
 
+  'next_send_on' => 'Send Next: :date',
+  'no_longer_running' => 'This invoice is not scheduled to run',
+  'general_settings' => 'General Settings',
+  'customize' => 'Customize',
+
  );

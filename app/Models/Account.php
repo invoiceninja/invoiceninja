@@ -26,8 +26,8 @@ class Account extends Eloquent
     ];
 
     public static $advancedSettings = [
-        ACCOUNT_INVOICE_DESIGN,
         ACCOUNT_INVOICE_SETTINGS,
+        ACCOUNT_INVOICE_DESIGN,
         ACCOUNT_TEMPLATES_AND_REMINDERS,
         ACCOUNT_CHARTS_AND_REPORTS,
         ACCOUNT_DATA_VISUALIZATIONS,

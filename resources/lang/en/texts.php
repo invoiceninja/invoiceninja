@@ -789,7 +789,7 @@ return array(
 
   'referral_program' => 'Referral Program',
   'referral_code' => 'Referral Code',
-  'last_sent_on' => 'Sent last: :date',
+  'last_sent_on' => 'Sent Last: :date',
 
   'page_expire' => 'This page will expire soon, :click_here to keep working',
   'upcoming_quotes' => 'Upcoming Quotes',
@@ -822,7 +822,7 @@ return array(
   'pro' => 'Pro',
   'gateways' => 'Payment Gateways',
 
-  'next_send_on' => 'Send next: :date',
+  'next_send_on' => 'Send Next: :date',
   'no_longer_running' => 'This invoice is not scheduled to run',
   'general_settings' => 'General Settings',
   'customize' => 'Customize',

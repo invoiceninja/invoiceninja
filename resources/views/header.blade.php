@@ -441,7 +441,7 @@
             @foreach (\App\Models\Account::$basicSettings as $setting)
                 <li>{!! link_to('settings/' . $setting, uctrans("texts.{$setting}")) !!}</li>
             @endforeach
-            <li><a href="{{ url('settings/' . ACCOUNT_INVOICE_DESIGN) }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
+            <li><a href="{{ url('settings/' . ACCOUNT_INVOICE_SETTINGS) }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
           </ul>
         </li>
       </ul>
