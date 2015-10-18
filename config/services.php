@@ -39,25 +39,25 @@ return [
     'github' => [
         'client_id' => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
-        'redirect' => SITE_URL . '/auth/github',
+        'redirect' => env('GITHUB_OAUTH_REDIRECT'),
     ],
 
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => SITE_URL . '/auth/google',
+        'redirect' => env('GOOGLE_OAUTH_REDIRECT'),
     ],
 
     'facebook' => [
         'client_id' => env('FACEBOOK_CLIENT_ID'),
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
-        'redirect' => SITE_URL . '/auth/facebook',
+        'redirect' => env('FACEBOOK_OAUTH_REDIRECT'),
     ],
 
     'linkedin' => [
         'client_id' => env('LINKEDIN_CLIENT_ID'),
         'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
-        'redirect' => SITE_URL . '/auth/linkedin',
+        'redirect' => env('LINKEDIN_OAUTH_REDIRECT'),
     ],
 
 ];
