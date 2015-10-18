@@ -94,6 +94,8 @@
             <div class="col-md-3 logo">
                 @if ($account->hasLogo())
                     {!! HTML::image($account->getLogoPath()) !!}
+                @else
+                    <h2>{{ $account->name}}</h2>
                 @endif
             </div>
             <div class="col-md-3 col-md-offset-3 address-details">

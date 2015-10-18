@@ -21,10 +21,10 @@
 //Log::error('test');
 
 // Application setup
-Route::get('setup', 'AppController@showSetup');
-Route::post('setup', 'AppController@doSetup');
-Route::get('install', 'AppController@install');
-Route::get('update', 'AppController@update');
+Route::get('/setup', 'AppController@showSetup');
+Route::post('/setup', 'AppController@doSetup');
+Route::get('/install', 'AppController@install');
+Route::get('/update', 'AppController@update');
 
 /*
 // Codeception code coverage
@@ -35,11 +35,11 @@ Route::get('/c3.php', function () {
 
 // Public pages
 Route::get('/', 'HomeController@showIndex');
-Route::get('terms', 'HomeController@showTerms');
-Route::get('log_error', 'HomeController@logError');
-Route::get('invoice_now', 'HomeController@invoiceNow');
-Route::get('keep_alive', 'HomeController@keepAlive');
-Route::post('get_started', 'AccountController@getStarted');
+Route::get('/terms', 'HomeController@showTerms');
+Route::get('/log_error', 'HomeController@logError');
+Route::get('/invoice_now', 'HomeController@invoiceNow');
+Route::get('/keep_alive', 'HomeController@keepAlive');
+Route::post('/get_started', 'AccountController@getStarted');
 
 // Client visible pages
 Route::get('view/{invitation_key}', 'InvoiceController@view');
@@ -64,11 +64,11 @@ Route::get('claim_license', 'PaymentController@claim_license');
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
 
-Route::get('auth/{provider}', 'Auth\AuthController@authLogin');
-Route::get('auth_unlink', 'Auth\AuthController@authUnlink');
+Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
+Route::get('/auth_unlink', 'Auth\AuthController@authUnlink');
 
-Route::post('hook/email_bounced', 'AppController@emailBounced');
-Route::post('hook/email_opened', 'AppController@emailOpened');
+Route::post('/hook/email_bounced', 'AppController@emailBounced');
+Route::post('/hook/email_opened', 'AppController@emailOpened');
 
 
 // Laravel auth routes
@@ -309,13 +309,16 @@ if (!defined('CONTACT_EMAIL')) {
     define('RECENTLY_VIEWED_LIMIT', 8);
     define('LOGGED_ERROR_LIMIT', 100);
     define('RANDOM_KEY_LENGTH', 32);
-    define('MAX_NUM_CLIENTS', 500);
-    define('MAX_NUM_CLIENTS_PRO', 20000);
     define('MAX_NUM_USERS', 20);
     define('MAX_SUBDOMAIN_LENGTH', 30);
     define('MAX_IFRAME_URL_LENGTH', 250);
     define('DEFAULT_FONT_SIZE', 9);
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
+
+    define('MAX_NUM_CLIENTS', 100);
+    define('MAX_NUM_CLIENTS_PRO', 20000);
+    define('MAX_NUM_CLIENTS_LEGACY', 500);
+    define('LEGACY_CUTOFF', 57800);
 
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);

@@ -11,7 +11,7 @@
     <meta property="og:site_name" content="Invoice Ninja" />
     <meta property="og:url" content="{{ SITE_URL }}" />
     <meta property="og:title" content="Invoice Ninja" />
-    <meta property="og:image" content="{{ SITE_URL }}/images/social.jpg" />
+    <meta property="og:image" content="{{ SITE_URL }}/images/round_logo.png" />
     <meta property="og:description" content="Simple, Intuitive Invoicing." />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

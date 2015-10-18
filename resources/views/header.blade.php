@@ -247,6 +247,10 @@
     $('.signup-form input[type=text], .signup-form button').prop('disabled', !enabled);
   }
 
+  function setSocialLoginProvider(provider) {
+    localStorage.setItem('auth_provider', provider);
+  }
+
   $(function() {
     window.setTimeout(function() { 
         $(".alert-hide").fadeOut();
@@ -548,7 +552,13 @@
             @if (Utils::isNinja())
                 <div class="col-md-4 col-md-offset-1">
                     <h4>{{ trans('texts.sign_up_using') }}</h4><br/>
-                    @include('partials.social_login_buttons', ['type' => 'sign_up'])
+                    @foreach (App\Services\AuthService::$providers as $provider)
+                    <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-block" 
+                        onclick="setSocialLoginProvider('{{ strtolower($provider) }}')" id="{{ strtolower($provider) }}LoginButton">
+                        <i class="fa fa-{{ strtolower($provider) }}"></i> &nbsp;
+                        {{ $provider }}
+                    </a>
+                    @endforeach
                 </div>
                 <div class="col-md-1">
                     <div style="border-right:thin solid #CCCCCC;height:110px;width:8px;margin-bottom:10px;"></div>

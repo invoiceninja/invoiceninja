@@ -108,10 +108,10 @@
 <footer id="footer" role="contentinfo">
     <div class="top">
         <div class="wrap">
-            @if (!isset($hideLogo) || !$hideLogo)                                    
+            @if (!isset($hideLogo) || !$hideLogo)
             <div id="footer-menu" class="menu-wrap">
                 <ul id="menu-footer-menu" class="menu">
-                    <li id="menu-item-31" class="menu-item-31">                    
+                    <li id="menu-item-31" class="menu-item-31">
                         {!! link_to('#', 'Facebook', ['target' => '_blank', 'onclick' => 'openUrl("https://www.facebook.com/invoiceninja", "/footer/social/facebook")']) !!}
                     </li>
                     <li id="menu-item-32" class="menu-item-32">

@@ -827,6 +827,9 @@ return array(
   'general_settings' => 'General Settings',
   'customize' => 'Customize',
 
+  'oneclick_login_help' => 'Connect an account to login without a password',
+  'referral_code_help' => 'Earn money by sharing our app online',
+
 );
 
 

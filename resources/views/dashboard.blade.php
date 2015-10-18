@@ -256,5 +256,13 @@
     </div>
 </div>
 
+<script type="text/javascript">
+    $(function() {
+        $('.normalDropDown:not(.dropdown-toggle)').click(function() {
+            window.location = '{{ URL::to('invoices/create') }}';
+        });
+    });
+</script>
+
 @stop
 

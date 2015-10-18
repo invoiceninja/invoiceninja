@@ -3,10 +3,7 @@
 @section('head')
 	@parent
 
-		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
-		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
-        <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
-        <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>    
+		<script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
 
 @stop
 
@@ -109,23 +106,22 @@
             @endif
 
             @if ($entityType == ENTITY_INVOICE)
-            	@if ($invoice && $invoice->recurring_invoice)
-					<div class="pull-right" style="padding-top: 6px">
+            <div class="form-group" style="margin-bottom: 8px">
+                <div class="col-lg-8 col-sm-8 col-sm-offset-4" style="padding-top: 10px">                    
+                	@if ($invoice && $invoice->recurring_invoice)
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
-					</div>
-				@elseif ($invoice)
-                    <div class="pull-right" style="padding-top: 6px">
-                    @if (isset($lastSent) && $lastSent)
-                        {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!} &nbsp; 
+    				@elseif ($invoice)
+                        @if (isset($lastSent) && $lastSent)
+                            {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!} <br/>
+                        @endif
+                        @if ($invoice->is_recurring && $invoice->getNextSendDate())
+                            {!! trans('texts.next_send_on', ['date' => '<span data-bind="tooltip: {title: \''.$invoice->getPrettySchedule().'\', html: true}">'.$account->formatDate($invoice->getNextSendDate()).
+                                    '<span class="glyphicon glyphicon-info-sign" style="padding-left:10px;color:#B1B5BA"></span></span>']) !!}
+                        @endif
                     @endif
-                    @if ($invoice->is_recurring && $invoice->getNextSendDate())
-                        {!! trans('texts.next_send_on', ['date' => '<span data-bind="tooltip: {title: \''.$invoice->getPrettySchedule().'\', html: true}">'.$account->formatDate($invoice->getNextSendDate()).
-                                '<span class="glyphicon glyphicon-info-sign" style="padding-left:10px;color:#B1B5BA"></span></span>']) !!}
-                    @endif
-                    </div>
-                @endif
-			@endif
-			
+    			@endif
+                </div>
+            </div>
 		</div>
 
 		<div class="col-md-4" id="col_2">
@@ -1923,7 +1919,7 @@
         @endif        
 	@endif
 
-	model.invoice().tax(model.getTaxRate(model.invoice().tax_name(), model.invoice().tax_rate()));			
+	model.invoice().tax(model.getTaxRate(model.invoice().tax_name(), model.invoice().tax_rate()));
 	for (var i=0; i<model.invoice().invoice_items().length; i++) {
 		var item = model.invoice().invoice_items()[i];
 		item.tax(model.getTaxRate(item.tax_name(), item.tax_rate()));
@@ -1937,7 +1933,7 @@
 	if (!model.invoice().custom_value1()) model.invoice().custom_value1('');
 	if (!model.invoice().custom_value2()) model.invoice().custom_value2('');
 
-	ko.applyBindings(model);	
+	ko.applyBindings(model);
 	onItemChange();
 
 	</script>

@@ -13,10 +13,15 @@
     {{ Former::populateField('last_name', $user->last_name) }}
     {{ Former::populateField('email', $user->email) }}  
     {{ Former::populateField('phone', $user->phone) }}
+
     @if (Utils::isNinjaDev())
         {{ Former::populateField('dark_mode', intval($user->dark_mode)) }}
     @endif
     
+    @if (Input::has('affiliate'))
+        {{ Former::populateField('referral_code', true) }}
+    @endif
+
     @include('accounts.nav', ['selected' => ACCOUNT_USER_DETAILS])
 
     <div class="row">
@@ -32,20 +37,25 @@
                 {!! Former::text('email') !!}
                 {!! Former::text('phone') !!}
 
+                <br/>
+
                 @if (Utils::isNinja())
                     {!! Former::plaintext('oneclick_login')->value(
                             $user->oauth_provider_id ? 
                                 $oauthProviderName . ' - ' . link_to('#', trans('texts.disable'), ['onclick' => 'disableSocialLogin()']) : 
                                 DropdownButton::primary(trans('texts.enable'))->withContents($oauthLoginUrls)->small()
-                    ) !!}
+                        )->help('oneclick_login_help')
+                     !!}
                 @endif
 
-                @if (Utils::isNinja() && $user->confirmed)
+                @if (Utils::isNinja())
                     @if ($user->referral_code)
                         {!! Former::plaintext('referral_code')
+                                ->help(trans('texts.referral_code_help'))
                                 ->value($user->referral_code . ' <a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>') !!}
-                    @else
+                    @elseif (Input::has('affiliate'))
                         {!! Former::checkbox('referral_code')
+                                ->help(trans('texts.referral_code_help'))
                                 ->text(trans('texts.enable') . ' <a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>')  !!}
                     @endif                    
                 @endif
@@ -54,19 +64,18 @@
                     {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help')) !!}
                 @endif                
                 
-                @if (Utils::isNinja())
-                    <br/>
-                    @if (Auth::user()->confirmed)
-                        {!! Former::actions( Button::primary(trans('texts.change_password'))->small()->withAttributes(['onclick'=>'showChangePassword()'])) !!}
-                    @elseif (Auth::user()->registered)
-                        {!! Former::actions( Button::primary(trans('texts.resend_confirmation'))->asLinkTo(URL::to('/resend_confirmation'))->small() ) !!}
-                    @endif
-                @endif
                 </div>
             </div>
 
         </div>
         <center>
+            @if (Utils::isNinja())
+                @if (Auth::user()->confirmed)
+                    {!! Button::primary(trans('texts.change_password'))->large()->withAttributes(['onclick'=>'showChangePassword()']) !!}
+                @elseif (Auth::user()->registered)
+                    {!! Button::primary(trans('texts.resend_confirmation'))->asLinkTo(URL::to('/resend_confirmation'))->large() !!}
+                @endif
+            @endif
             {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
         </center>
     </div>

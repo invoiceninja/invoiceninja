@@ -730,7 +730,7 @@ class AccountController extends BaseController
     {
         $rules = array(
             'name' => 'required',
-            'logo' => 'sometimes|max:1024|mimes:jpeg,gif,png',
+            'logo' => 'sometimes|max:512|mimes:jpeg,gif,png',
         );
 
         $validator = Validator::make(Input::all(), $rules);
@@ -930,7 +930,10 @@ class AccountController extends BaseController
             $this->userMailer->sendTo(CONTACT_EMAIL, $email, $name, 'Invoice Ninja Feedback [Canceled Account]', 'contact', $data);
         }
 
+        $user = Auth::user();
         $account = Auth::user()->account;
+        \Log::info("Canceled Account: {$account->name} - {$user->email}");
+
         $this->accountRepo->unlinkAccount($account);
         $account->forceDelete();
 

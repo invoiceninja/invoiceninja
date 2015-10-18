@@ -839,7 +839,7 @@ html {
     display: inline-block;
     width: 9px;
     height: 15px;
-    background: url({{ asset('images/social/facebook.svg') }}) no-repeat;
+    background: url('../images/social/facebook.svg') no-repeat;
     margin: 0 6px 0 0;
     position: relative;
     top: 3px;
@@ -850,7 +850,7 @@ html {
     display: inline-block;
     width: 19px;
     height: 16px;
-    background: url({{ asset('images/social/twitter.svg') }}) no-repeat;
+    background: url('../images/social/twitter.svg') no-repeat;
     margin: 0 6px 0 0;
     position: relative;
     top: 3px;
@@ -861,7 +861,7 @@ html {
     display: inline-block;
     width: 19px;
     height: 16px;
-    background: url({{ asset('images/social/github.png') }}) no-repeat;
+    background: url('../images/social/github.png') no-repeat;
     margin: 0 6px 0 0;
     position: relative;
     top: 3px;

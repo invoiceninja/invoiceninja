@@ -92,7 +92,7 @@ class AuthController extends Controller {
             // we're linking a new account
             if ($userId && Auth::user()->id != $userId) {
                 $users = $this->accountRepo->associateAccounts($userId, Auth::user()->id);
-                Session::flash('message', trans('texts.associated_accounts'));
+                Session::flash('warning', trans('texts.associated_accounts'));
             // check if other accounts are linked
             } else {
                 $users = $this->accountRepo->loadAccounts(Auth::user()->id);
