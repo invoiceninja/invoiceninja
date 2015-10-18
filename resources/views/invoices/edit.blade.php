@@ -119,9 +119,9 @@
                                     '<span class="glyphicon glyphicon-info-sign" style="padding-left:10px;color:#B1B5BA"></span></span>']) !!}
                         @endif
                     @endif
-    			@endif
                 </div>
             </div>
+            @endif
 		</div>
 
 		<div class="col-md-4" id="col_2">

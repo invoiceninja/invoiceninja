@@ -230,10 +230,10 @@ class Invoice extends EntityModel
             return false;
         }
 
-        $startDate = $this->last_sent_date ?: $this->start_date;
+        $startDate = $this->last_sent_date ?: $this->getOriginal('start_date');
         $startDate .= ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00:00';
         $startDate = $this->account->getDateTime($startDate);
-        $endDate = $this->end_date ? $this->account->getDateTime($this->end_date) : null;
+        $endDate = $this->end_date ? $this->account->getDateTime($this->getOriginal('end_date')) : null;
         $timezone = $this->account->getTimezone();
 
         $rule = $this->getRecurrenceRule();
@@ -257,7 +257,7 @@ class Invoice extends EntityModel
     public function getNextSendDate()
     {
         if ($this->start_date && !$this->last_sent_date) {
-            $startDate = $this->start_date . ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00:00';
+            $startDate = $this->getOriginal('start_date') . ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00:00';
             return $this->account->getDateTime($startDate);
         }
 
