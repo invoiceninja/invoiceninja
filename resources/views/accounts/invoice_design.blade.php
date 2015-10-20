@@ -141,8 +141,14 @@
 
     <br/>
     {!! Former::actions( 
-            Button::primary(trans('texts.customize'))->large()->asLinkTo(URL::to('/settings/customize_design')),
-            Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['class' => 'save-button'])
+            Button::primary(trans('texts.customize'))
+                ->appendIcon(Icon::create('edit'))
+                ->asLinkTo(URL::to('/settings/customize_design'))
+                ->large(),
+            Button::success(trans('texts.save'))
+                ->submit()->large()
+                ->appendIcon(Icon::create('floppy-disk'))
+                ->withAttributes(['class' => 'save-button'])
         ) !!}
     <br/>
 

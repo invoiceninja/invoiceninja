@@ -61,7 +61,7 @@ class AuthController extends Controller {
         $this->accountRepo->unlinkUserFromOauth(Auth::user());
 
         Session::flash('message', trans('texts.updated_settings'));
-        return redirect()->to('/settings/' . ACCOUNT_COMPANY_DETAILS);
+        return redirect()->to('/settings/' . ACCOUNT_USER_DETAILS);
     }
 
     public function getLoginWrapper()

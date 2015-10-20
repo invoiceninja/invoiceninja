@@ -71,12 +71,18 @@
         <center>
             @if (Utils::isNinja())
                 @if (Auth::user()->confirmed)
-                    {!! Button::primary(trans('texts.change_password'))->large()->withAttributes(['onclick'=>'showChangePassword()']) !!}
+                    {!! Button::primary(trans('texts.change_password'))
+                            ->appendIcon(Icon::create('lock'))
+                            ->large()->withAttributes(['onclick'=>'showChangePassword()']) !!}
                 @elseif (Auth::user()->registered)
-                    {!! Button::primary(trans('texts.resend_confirmation'))->asLinkTo(URL::to('/resend_confirmation'))->large() !!}
+                    {!! Button::primary(trans('texts.resend_confirmation'))
+                            ->appendIcon(Icon::create('send'))
+                            ->asLinkTo(URL::to('/resend_confirmation'))->large() !!}
                 @endif
             @endif
-            {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+            {!! Button::success(trans('texts.save'))
+                    ->submit()->large()
+                    ->appendIcon(Icon::create('floppy-disk')) !!}
         </center>
     </div>
 
@@ -120,7 +126,10 @@
                 </div>
 
                 <div class="modal-footer" style="margin-top: 0px" id="changePasswordFooter">
-                    <button type="button" class="btn btn-default" id="cancelChangePasswordButton" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-default" id="cancelChangePasswordButton" data-dismiss="modal">
+                        {{ trans('texts.cancel') }}
+                        <i class="glyphicon glyphicon-remove-circle"></i>
+                    </button>
                     <button type="button" class="btn btn-success" onclick="submitChangePassword()" id="changePasswordButton" disabled>
                         {{ trans('texts.save') }}
                         <i class="glyphicon glyphicon-floppy-disk"></i>

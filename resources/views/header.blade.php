@@ -136,6 +136,8 @@
     });     
   }      
 
+  @endif
+
   function checkForEnter(event)
   {
     if (event.keyCode === 13){
@@ -144,7 +146,6 @@
       return false;
     }
   }
-  @endif
 
   function logout(force)
   {

@@ -1,6 +1,7 @@
 <?php namespace App\Models;
 
 use Utils;
+use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends EntityModel
@@ -215,22 +216,13 @@ class Invoice extends EntityModel
         return $this;
     }
 
-    public function shouldSendToday()
-    {
-        if (!$nextSendDate = $this->getNextSendDate()) {
-            return false;
-        }
-
-        return $this->account->getDateTime() >= $nextSendDate;
-    }
-
     public function getSchedule()
     {
         if (!$this->start_date || !$this->is_recurring || !$this->frequency_id) {
             return false;
         }
 
-        $startDate = $this->last_sent_date ?: $this->getOriginal('start_date');
+        $startDate = $this->getOriginal('last_sent_date') ?: $this->getOriginal('start_date');
         $startDate .= ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00:00';
         $startDate = $this->account->getDateTime($startDate);
         $endDate = $this->end_date ? $this->account->getDateTime($this->getOriginal('end_date')) : null;
@@ -327,6 +319,16 @@ class Invoice extends EntityModel
     /*
     public function shouldSendToday()
     {
+        if (!$nextSendDate = $this->getNextSendDate()) {
+            return false;
+        }
+        
+        return $this->account->getDateTime() >= $nextSendDate;
+    }
+    */
+
+    public function shouldSendToday()
+    {
         if (!$this->start_date || strtotime($this->start_date) > strtotime('now')) {
             return false;
         }
@@ -376,7 +378,6 @@ class Invoice extends EntityModel
 
         return false;
     }
-    */
 
     public function getReminder()
     {

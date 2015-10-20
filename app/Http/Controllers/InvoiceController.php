@@ -468,8 +468,7 @@ class InvoiceController extends BaseController
         if (!Auth::user()->confirmed) {
             $errorMessage = trans(Auth::user()->registered ? 'texts.confirmation_required' : 'texts.registration_required');
             Session::flash('error', $errorMessage);
-            Session::flash('message', $message);
-            return Redirect::to($url);
+            return Redirect::to('invoices/'.$invoice->public_id.'/edit');
         }
 
         if ($invoice->is_recurring) {

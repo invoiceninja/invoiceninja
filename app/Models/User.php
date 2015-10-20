@@ -203,7 +203,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     {
         if (!$user->getOriginal('email')
             || $user->getOriginal('email') == TEST_USERNAME
-            || $user->getOriginal('username') == TEST_USERNAME) {
+            || $user->getOriginal('username') == TEST_USERNAME
+            || $user->getOriginal('email') == 'tests@bitrock.com') {
             event(new UserSignedUp());
         }
 

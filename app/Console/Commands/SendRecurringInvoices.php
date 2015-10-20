@@ -33,15 +33,24 @@ class SendRecurringInvoices extends Command
         $today = new DateTime();
 
         $invoices = Invoice::with('account.timezone', 'invoice_items', 'client', 'user')
-            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', array($today, $today))->get();
+            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', array($today, $today))
+            ->orderBy('id', 'asc')
+            ->get();
         $this->info(count($invoices).' recurring invoice(s) found');
 
         foreach ($invoices as $recurInvoice) {
+            if (!$recurInvoice->user->confirmed) {
+                continue;
+            }
+
             $recurInvoice->account->loadLocalizationSettings($recurInvoice->client);
+            //date_default_timezone_set(session(SESSION_TIMEZONE));
+
             $this->info('Processing Invoice '.$recurInvoice->id.' - Should send '.($recurInvoice->shouldSendToday() ? 'YES' : 'NO'));
             $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
 
             if ($invoice && !$invoice->isPaid()) {
+                $this->info('Sending Invoice');
                 $this->mailer->sendInvoice($invoice);
             }
         }
