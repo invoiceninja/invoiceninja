@@ -579,20 +579,21 @@ class InvoiceRepository
     public function findInvoiceByInvitation($invitationKey)
     {
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
+
         if (!$invitation) {
-            app()->abort(404, trans('texts.invoice_not_found'));
+            return false;
         }
 
         $invoice = $invitation->invoice;
         if (!$invoice || $invoice->is_deleted) {
-            app()->abort(404, trans('texts.invoice_not_found'));
+            return false;
         }
 
         $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
         $client = $invoice->client;
 
         if (!$client || $client->is_deleted) {
-            app()->abort(404, trans('texts.invoice_not_found'));
+            return false;
         }
 
         return $invitation;

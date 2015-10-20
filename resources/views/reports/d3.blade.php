@@ -267,8 +267,14 @@
       if (!invoice || invoice.invoice_status_id == 5) {
         return -1;
       }
-      var jsDate = convertToJsDate(invoice.created_at) || new Date().getTime();
-      return parseInt((new Date().getTime() - convertToJsDate(invoice.created_at)) / (1000*60*60*24));
+      var dayInSeconds = 1000*60*60*24;
+      @if (Auth::user()->account->isPro())
+        var date = convertToJsDate(invoice.created_at);
+      @else
+        var date = new Date().getTime() - (dayInSeconds * Math.random() * 100);
+      @endif
+      
+      return parseInt((new Date().getTime() - date) / dayInSeconds);
     }
 
     function convertToJsDate(isoDate) {

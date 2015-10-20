@@ -131,13 +131,22 @@ class InvoiceController extends BaseController
 
     public function view($invitationKey)
     {
-        $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey);
+        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return response()->view('error', [
+                'error' => trans('texts.invoice_not_found'),
+                'hideHeader' => true,
+            ]);
+        }
+
         $invoice = $invitation->invoice;
         $client = $invoice->client;
         $account = $invoice->account;
 
         if (!$account->checkSubdomain(Request::server('HTTP_HOST'))) {
-            app()->abort(404, trans('texts.invoice_not_found'));
+            return response()->view('error', [
+                'error' => trans('texts.invoice_not_found'),
+                'hideHeader' => true,
+            ]);
         }
 
         if (!Input::has('phantomjs') && !Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {

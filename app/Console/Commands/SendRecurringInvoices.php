@@ -42,10 +42,8 @@ class SendRecurringInvoices extends Command
             if (!$recurInvoice->user->confirmed) {
                 continue;
             }
-
+            
             $recurInvoice->account->loadLocalizationSettings($recurInvoice->client);
-            //date_default_timezone_set(session(SESSION_TIMEZONE));
-
             $this->info('Processing Invoice '.$recurInvoice->id.' - Should send '.($recurInvoice->shouldSendToday() ? 'YES' : 'NO'));
             $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
 

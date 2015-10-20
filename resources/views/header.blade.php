@@ -439,7 +439,7 @@
       
       <ul class="nav navbar-nav navbar-right navbar-settings"> 
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+          <a href="{{ URL::to('/settings') }}" class="dropdown-toggle">
             <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
           </a>
           <ul class="dropdown-menu">
@@ -454,7 +454,7 @@
 
       <ul class="nav navbar-nav navbar-right navbar-history"> 
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+          <a href="{{ count(Session::get(RECENTLY_VIEWED)) ? Session::get(RECENTLY_VIEWED)[0]->url : '#' }}" class="dropdown-toggle">
             <span class="glyphicon glyphicon-time" title="{{ trans('texts.history') }}"/>
           </a>
           <ul class="dropdown-menu">	        		        	

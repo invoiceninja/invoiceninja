@@ -9,6 +9,10 @@ class Mailer
 {
     public function sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data = [])
     {
+        if (stristr($toEmail, '@example.com')) {
+            return true;
+        }
+        
         if (isset($_ENV['POSTMARK_API_TOKEN'])) {
             $views = 'emails.'.$view.'_html';
         } else {

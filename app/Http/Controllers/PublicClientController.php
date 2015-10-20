@@ -22,7 +22,9 @@ class PublicClientController extends BaseController
 
     public function dashboard()
     {
-        $invitation = $this->getInvitation();
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
         $account = $invitation->account;
         $invoice = $invitation->invoice;
         $client = $invoice->client;
@@ -40,7 +42,9 @@ class PublicClientController extends BaseController
 
     public function activityDatatable()
     {
-        $invitation = $this->getInvitation();
+        if (!$invitation = $this->getInvitation()) {
+            return false;
+        }
         $invoice = $invitation->invoice;
 
         $query = DB::table('activities')
@@ -59,7 +63,9 @@ class PublicClientController extends BaseController
 
     public function invoiceIndex()
     {
-        $invitation = $this->getInvitation();
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
         $account = $invitation->account;
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         
@@ -76,7 +82,9 @@ class PublicClientController extends BaseController
 
     public function invoiceDatatable()
     {
-        $invitation = $this->getInvitation();
+        if (!$invitation = $this->getInvitation()) {
+            return false;
+        }
 
         return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_INVOICE, Input::get('sSearch'));
     }
@@ -84,7 +92,9 @@ class PublicClientController extends BaseController
 
     public function paymentIndex()
     {
-        $invitation = $this->getInvitation();
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
         $account = $invitation->account;
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         
@@ -101,7 +111,9 @@ class PublicClientController extends BaseController
 
     public function paymentDatatable()
     {
-        $invitation = $this->getInvitation();
+        if (!$invitation = $this->getInvitation()) {
+            return false;
+        }
         $payments = $this->paymentRepo->findForContact($invitation->contact->id, Input::get('sSearch'));
 
         return Datatable::query($payments)
@@ -115,7 +127,9 @@ class PublicClientController extends BaseController
 
     public function quoteIndex()
     {
-        $invitation = $this->getInvitation();
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
         $account = $invitation->account;
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         
@@ -133,9 +147,19 @@ class PublicClientController extends BaseController
 
     public function quoteDatatable()
     {
-        $invitation = $this->getInvitation();
+        if (!$invitation = $this->getInvitation()) {
+            return false;
+        }
 
         return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_QUOTE, Input::get('sSearch'));
+    }
+
+    private function returnError()
+    {
+        return response()->view('error', [
+            'error' => trans('texts.invoice_not_found'),
+            'hideHeader' => true,
+        ]);
     }
 
     private function getInvitation()
@@ -143,19 +167,19 @@ class PublicClientController extends BaseController
         $invitationKey = session('invitation_key');
 
         if (!$invitationKey) {
-            app()->abort(404);
+            return false;
         }
 
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
 
         if (!$invitation || $invitation->is_deleted) {
-            app()->abort(404);
+            return false;
         }
 
         $invoice = $invitation->invoice;
 
         if (!$invoice || $invoice->is_deleted) {
-            app()->abort(404);
+            return false;
         }
 
         return $invitation;
