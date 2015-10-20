@@ -133,7 +133,7 @@
             <span data-bind="visible: is_recurring()" style="display: none">
             {!! Former::checkbox('auto_bill')
                         ->label(trans('texts.auto_bill'))
-                        ->text(trans('texts.enable'))
+                        ->text(trans('texts.enable_with_stripe'))
                         ->data_bind("checked: auto_bill, valueUpdate: 'afterkeydown'") !!}
             </span>
 			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}

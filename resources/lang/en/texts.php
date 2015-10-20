@@ -829,6 +829,8 @@ return array(
 
   'oneclick_login_help' => 'Connect an account to login without a password',
   'referral_code_help' => 'Earn money by sharing our app online',
+  
+  'enable_with_stripe' => 'Enable | Requires Stripe',
 
 );
 

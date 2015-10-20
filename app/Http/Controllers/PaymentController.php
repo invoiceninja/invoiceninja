@@ -174,7 +174,8 @@ class PaymentController extends BaseController
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
         // Handle offsite payments
-        if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD || $gateway->id == GATEWAY_EWAY) {
+        if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD 
+            || $gateway->id == GATEWAY_EWAY || $gateway->id == GATEWAY_TWO_CHECKOUT) {
             if (Session::has('error')) {
                 Session::reflash();
                 return Redirect::to('view/'.$invitationKey);
@@ -436,14 +437,15 @@ class PaymentController extends BaseController
             }
 
             $response = $gateway->purchase($details)->send();
-
+            
             if ($accountGateway->gateway_id == GATEWAY_EWAY) {
                 $ref = $response->getData()['AccessCode'];
-                $token = $response->getCardReference();
+            } elseif ($accountGateway->gateway_id == GATEWAY_TWO_CHECKOUT) {
+                $ref = $response->getData()['cart_order_id'];
             } else {
                 $ref = $response->getTransactionReference();
             }
-
+            
             if (!$ref) {
                 $this->error('No-Ref', $response->getMessage(), $accountGateway);
 
@@ -467,7 +469,6 @@ class PaymentController extends BaseController
             } elseif ($response->isRedirect()) {
                 $invitation->transaction_reference = $ref;
                 $invitation->save();
-
                 Session::put('transaction_reference', $ref);
                 Session::save();
                 $response->redirect();
@@ -513,7 +514,7 @@ class PaymentController extends BaseController
         }
 
         try {
-            if (method_exists($gateway, 'completePurchase')) {
+            if (method_exists($gateway, 'completePurchase') && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)) {
                 $details = $this->paymentService->getPaymentDetails($invitation);
                 $response = $gateway->completePurchase($details)->send();
                 $ref = $response->getTransactionReference();
