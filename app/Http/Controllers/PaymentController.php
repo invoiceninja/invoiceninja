@@ -419,7 +419,7 @@ class PaymentController extends BaseController
             }
 
             $gateway = $this->paymentService->createGateway($accountGateway);
-            $details = $this->paymentService->getPaymentDetails($invitation, $data);
+            $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway, $data);
 
             // check if we're creating/using a billing token
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
@@ -437,7 +437,7 @@ class PaymentController extends BaseController
             }
 
             $response = $gateway->purchase($details)->send();
-            
+
             if ($accountGateway->gateway_id == GATEWAY_EWAY) {
                 $ref = $response->getData()['AccessCode'];
             } elseif ($accountGateway->gateway_id == GATEWAY_TWO_CHECKOUT) {
@@ -515,7 +515,7 @@ class PaymentController extends BaseController
 
         try {
             if (method_exists($gateway, 'completePurchase') && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)) {
-                $details = $this->paymentService->getPaymentDetails($invitation);
+                $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
                 $response = $gateway->completePurchase($details)->send();
                 $ref = $response->getTransactionReference();
 

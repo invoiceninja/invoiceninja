@@ -36,7 +36,7 @@ class PaymentService {
             $gateway->$function($val);
         }
 
-        if ($accountGateway->gateway->id == GATEWAY_DWOLLA) {
+        if ($accountGateway->isGateway(GATEWAY_DWOLLA)) {
             if ($gateway->getSandbox() && isset($_ENV['DWOLLA_SANDBOX_KEY']) && isset($_ENV['DWOLLA_SANSBOX_SECRET'])) {
                 $gateway->setKey($_ENV['DWOLLA_SANDBOX_KEY']);
                 $gateway->setSecret($_ENV['DWOLLA_SANSBOX_SECRET']);
@@ -49,7 +49,7 @@ class PaymentService {
         return $gateway;
     }
 
-    public function getPaymentDetails($invitation, $input = null)
+    public function getPaymentDetails($invitation, $accountGateway, $input = null)
     {
         $invoice = $invitation->invoice;
         $account = $invoice->account;
@@ -66,8 +66,7 @@ class PaymentService {
         }
 
         $card = new CreditCard($data);
-
-        return [
+        $data = [
             'amount' => $invoice->getRequestedAmount(),
             'card' => $card,
             'currency' => $currencyCode,
@@ -77,6 +76,12 @@ class PaymentService {
             'transactionId' => $invoice->invoice_number,
             'transactionType' => 'Purchase',
         ];
+
+        if ($accountGateway->isGateway(GATEWAY_PAYPAL_EXPRESS) || $accountGateway->isGateway(GATEWAY_PAYPAL_PRO)) {
+            $data['ButtonSource'] = 'InvoiceNinja_SP';
+        };
+
+        return $data;
     }
 
     public function convertInputForOmnipay($input)
