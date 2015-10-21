@@ -31,7 +31,6 @@ use App\Models\Gateway;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
-use App\Ninja\Repositories\TaxRateRepository;
 use App\Events\InvoiceViewed;
 
 class InvoiceController extends BaseController
@@ -39,16 +38,14 @@ class InvoiceController extends BaseController
     protected $mailer;
     protected $invoiceRepo;
     protected $clientRepo;
-    protected $taxRateRepo;
 
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, TaxRateRepository $taxRateRepo)
+    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo)
     {
         parent::__construct();
 
         $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
-        $this->taxRateRepo = $taxRateRepo;
     }
 
     public function index()
@@ -393,7 +390,7 @@ class InvoiceController extends BaseController
 
         return [
             'account' => Auth::user()->account->load('country'),
-            'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
+            'products' => Product::scope()->with('default_tax_rate')->orderBy('id')->get(),
             'countries' => Cache::get('countries'),
             'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->orderBy('name')->get(),
@@ -523,26 +520,12 @@ class InvoiceController extends BaseController
     {
         $invoice = $input->invoice;
 
-        $this->taxRateRepo->save($input->tax_rates);
-
         $clientData = (array) $invoice->client;
         $client = $this->clientRepo->save($invoice->client->public_id, $clientData);
 
         $invoiceData = (array) $invoice;
         $invoiceData['client_id'] = $client->id;
         $invoice = $this->invoiceRepo->save($publicId, $invoiceData, $entityType);
-
-        $account = Auth::user()->account;
-        if ($account->invoice_taxes != $input->invoice_taxes
-                    || $account->invoice_item_taxes != $input->invoice_item_taxes
-                    || $account->invoice_design_id != $input->invoice->invoice_design_id
-                    || $account->show_item_taxes != $input->show_item_taxes) {
-            $account->invoice_taxes = $input->invoice_taxes;
-            $account->invoice_item_taxes = $input->invoice_item_taxes;
-            $account->invoice_design_id = $input->invoice->invoice_design_id;
-            $account->show_item_taxes = $input->show_item_taxes;
-            $account->save();
-        }
 
         $client->load('contacts');
         $sendInvoiceIds = [];

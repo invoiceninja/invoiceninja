@@ -337,7 +337,7 @@ return array(
   'fill_products_help' => 'Selecting a product will automatically <b>fill in the description and cost</b>',
   'update_products' => 'Auto-update products',
   'update_products_help' => 'Updating an invoice will automatically <b>update the product library</b>',
-  'create_product' => 'Create Product',
+  'create_product' => 'Add Product',
   'edit_product' => 'Edit Product',
   'archive_product' => 'Archive Product',
   'updated_product' => 'Successfully updated product',
@@ -831,7 +831,17 @@ return array(
   'referral_code_help' => 'Earn money by sharing our app online',
   
   'enable_with_stripe' => 'Enable | Requires Stripe',
+  'tax_settings' => 'Tax Settings',
+  'create_tax_rate' => 'Add Tax Rate',
+  'updated_tax_rate' => 'Successfully updated tax rate',
+  'created_tax_rate' => 'Successfully created tax rate',
+  'edit_tax_rate' => 'Edit tax rate',
+  'archive_tax_rate' => 'Archive tax rate',
+  'archived_tax_rate' => 'Successfully archived the tax rate',
+  'default_tax_rate_id' => 'Default Tax Rate',
+  'tax_rate' => 'Tax Rate',
 
 );
+
 
 

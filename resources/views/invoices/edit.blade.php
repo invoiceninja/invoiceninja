@@ -147,18 +147,8 @@
                 {!! Former::text('custom_text_value2')->label($account->custom_invoice_text_label2)->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
             @endif
 
-			
-			<div class="form-group" style="margin-bottom: 8px">
-				<label for="taxes" class="control-label col-lg-4 col-sm-4">{{ trans('texts.taxes') }}</label>
-				<div class="col-lg-8 col-sm-8" style="padding-top: 10px">
-					<a href="#" data-bind="click: $root.showTaxesForm"><i class="glyphicon glyphicon-list-alt"></i> {{ trans('texts.manage_rates') }}</a>
-				</div>
-			</div>
-
 		</div>
 	</div>
-
-	<p>&nbsp;</p>
 
 	<div class="table-responsive">
 	<table class="table invoice-table">
@@ -251,7 +241,7 @@
                 </div>
 
 				</td>
-				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>	        	
+				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>
 				<td colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ trans('texts.subtotal') }}</td>
 				<td style="text-align: right"><span data-bind="text: totals.subtotal"/></td>
 			</tr>
@@ -501,61 +491,6 @@
       </div>
     </div>
 
-	<div class="modal fade" id="taxModal" tabindex="-1" role="dialog" aria-labelledby="taxModalLabel" aria-hidden="true">
-	  <div class="modal-dialog">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	        <h4 class="modal-title" id="taxModalLabel">{{ trans('texts.tax_rates') }}</h4>
-	      </div>
-
-	      <div style="background-color: #fff" onkeypress="taxModalEnterClick(event)">
-			<table class="table invoice-table sides-padded" style="margin-bottom: 0px !important">
-			    <thead>
-			        <tr>
-			        	<th class="hide-border"></th>
-			        	<th class="hide-border">{{ trans('texts.name') }}</th>
-			        	<th class="hide-border">{{ trans('texts.rate') }}</th>
-			        	<th class="hide-border"></th>
-			        </tr>
-			    </thead>
-			    <tbody data-bind="foreach: $root.tax_rates.filtered">
-			    	<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }">
-			    		<td style="width:30px" class="hide-border"></td>
-			            <td style="width:60px">
-			            	<input onkeyup="onTaxRateChange()" data-bind="value: name, valueUpdate: 'afterkeydown'" class="form-control" onchange="refreshPDF(true)"//>
-			            </td>
-			            <td style="width:60px">
-			            	<input onkeyup="onTaxRateChange()" data-bind="value: prettyRate, valueUpdate: 'afterkeydown'" style="text-align: right" class="form-control" onchange="refreshPDF(true)"//>
-			            </td>
-			        	<td style="width:30px; cursor:pointer" class="hide-border td-icon">
-			        		&nbsp;<i style="width:12px;" data-bind="click: $root.removeTaxRate, visible: actionsVisible() &amp;&amp; !isEmpty()" class="fa fa-minus-circle redlink" title="Remove item"/>
-			        	</td>
-			        </tr>
-				</tbody>
-			</table>
-			&nbsp;
-			
-			{!! Former::checkbox('invoice_taxes')->text(trans('texts.enable_invoice_tax'))
-				->label(trans('texts.settings'))->data_bind('checked: $root.invoice_taxes, enable: $root.tax_rates().length > 1') !!}
-			{!! Former::checkbox('invoice_item_taxes')->text(trans('texts.enable_line_item_tax'))
-				->label('&nbsp;')->data_bind('checked: $root.invoice_item_taxes, enable: $root.tax_rates().length > 1') !!}
-            {!! Former::checkbox('show_item_taxes')->text(trans('texts.show_line_item_tax'))
-                ->label('&nbsp;')->data_bind('checked: $root.show_item_taxes, enable: $root.tax_rates().length > 1') !!}
-
-			<br/>
-
-		</div>
-
-	     <div class="modal-footer" style="margin-top: 0px">
-	      	<!-- <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button> -->
-	        <button type="button" class="btn btn-primary" data-bind="click: $root.taxFormComplete">{{ trans('texts.done') }}</button>	      	
-	     </div>
-	  		
-	    </div>
-	  </div>
-	</div>
-
 	<div class="modal fade" id="recurringModal" tabindex="-1" role="dialog" aria-labelledby="recurringModalLabel" aria-hidden="true">
 	  <div class="modal-dialog" style="min-width:150px">
 	    <div class="modal-content">
@@ -606,12 +541,6 @@
 		@if ($client && !$invoice)
 			$('input[name=client]').val({{ $client->public_id }});
 		@endif
-
-		/*
-		if (clients.length == 0) {
-			$('.client_select input.form-control').prop('disabled', true);
-		}
-		*/
 		
 		var $input = $('select#client');
 		$input.combobox().on('change', function(e) {
@@ -669,14 +598,6 @@
 			}
 		})
 		
-		$('#taxModal').on('shown.bs.modal', function () {
-			$('#taxModal input:first').focus();			
-		}).on('hidden.bs.modal', function () {
-			// if the user changed the tax rates we need to trigger the
-			// change event on the selects for the model to get updated
-			$('table.invoice-table select').trigger('change');
-		})
-
 		$('#relatedActions > button:first').click(function() {
 			onPaymentClick();
 		});
@@ -725,6 +646,11 @@
                         if (!model.qty()) {
 						  model.qty(1);
                         }
+                        @if ($account->invoice_item_taxes)
+                            if (product.default_tax_rate) {
+                                model.tax(self.model.getTaxRateById(product.default_tax_rate.public_id));
+                            }
+                        @endif
 						break;
 					}
 				}
@@ -739,7 +665,6 @@
 		invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
 		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
-        invoice.account.show_item_taxes = $('#show_item_taxes').is(':checked');
 
         if (invoice.is_recurring) {
             invoice.invoice_number = '0000';
@@ -959,14 +884,6 @@
         }
 	}
 
-	function taxModalEnterClick(event) {		
-		if (event.keyCode === 13){
-			event.preventDefault();		     	
-            model.taxFormComplete();
-            return false;
-        }
-	}
-
 	function ViewModel(data) {
 		var self = this;
         self.showMore = ko.observable(false);
@@ -974,6 +891,8 @@
 		//self.invoice = data ? false : new InvoiceModel();
 		self.invoice = ko.observable(data ? false : new InvoiceModel());
 		self.tax_rates = ko.observableArray();
+        self.tax_rates.push(new TaxRateModel());  // add blank row
+
 
 		self.loadClient = function(client) {
 			ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
@@ -997,7 +916,7 @@
 				self.invoice().due_date(dueDate);	
 				// We're using the datepicker to handle the date formatting 
 				self.invoice().due_date($('#due_date').val());
-			}			
+			}
             @endif
 		}
 
@@ -1023,7 +942,7 @@
 		}
 
 		self.invoice_taxes.show = ko.computed(function() {
-			if (self.tax_rates().length > 2 && self.invoice_taxes()) {
+			if (self.invoice_taxes()) {
 				return true;
 			}
 			if (self.invoice().tax_rate() > 0) {
@@ -1033,7 +952,7 @@
 		});
 
 		self.invoice_item_taxes.show = ko.computed(function() {
-			if (self.tax_rates().length > 2 && self.invoice_item_taxes()) {
+			if (self.invoice_item_taxes()) {
 				return true;
 			}
 			for (var i=0; i<self.invoice().invoice_items().length; i++) {
@@ -1045,50 +964,29 @@
 			return false;
 		});
 
-		self.tax_rates.filtered = ko.computed(function() {
-			var i = 0;
-			for (i; i<self.tax_rates().length; i++) {
-				var taxRate = self.tax_rates()[i];
-				if (taxRate.isEmpty()) {
-					break;
-				}
-			}
-
-			var rates = self.tax_rates().concat();
-			rates.splice(i, 1);
-			return rates;
-		});
-		
-
-		self.removeTaxRate = function(taxRate) {
-			self.tax_rates.remove(taxRate);
-			//refreshPDF();
-		}
-
 		self.addTaxRate = function(data) {
 			var itemModel = new TaxRateModel(data);
 			self.tax_rates.push(itemModel);	
 			applyComboboxListeners();
-		}		
-
-		/*
-		self.getBlankTaxRate = function() {
-			for (var i=0; i<self.tax_rates().length; i++) {
-				var taxRate = self.tax_rates()[i];
-				if (!taxRate.name()) {
-					return taxRate;
-				}
-			}
 		}
-		*/
+
+        self.getTaxRateById = function(id) {
+            for (var i=0; i<self.tax_rates().length; i++) {
+                var taxRate = self.tax_rates()[i];
+                if (taxRate.public_id() == id) {
+                    return taxRate;
+                }
+            }
+            return false;
+        }
 
 		self.getTaxRate = function(name, rate) {
 			for (var i=0; i<self.tax_rates().length; i++) {
 				var taxRate = self.tax_rates()[i];
 				if (taxRate.name() == name && taxRate.rate() == parseFloat(rate)) {
 					return taxRate;
-				}			
-			}			
+				}
+			}
 
 			var taxRate = new TaxRateModel();
 			taxRate.name(name);
@@ -1097,19 +995,7 @@
                taxRate.is_deleted(true);
 			   self.tax_rates.push(taxRate);
             }
-			return taxRate;			
-		}		
-
-		self.showTaxesForm = function() {
-			self.taxBackup = ko.mapping.toJS(self.tax_rates);
-
-			$('#taxModal').modal('show');	
-		}	
-
-		self.taxFormComplete = function() {
-			model.taxBackup = false;
-			$('#taxModal').modal('hide');
-            refreshPDF();
+			return taxRate;
 		}
 
 		self.showClientForm = function() {
@@ -1649,8 +1535,8 @@
 		self.actionsVisible = ko.observable(false);
 
 		if (data) {
-			ko.mapping.fromJS(data, {}, this);		
-		}		
+			ko.mapping.fromJS(data, {}, this);
+		}
 
 		this.prettyRate = ko.computed({
 	        read: function () {
@@ -1803,22 +1689,6 @@
 		}
 	}
 
-	function onTaxRateChange()
-	{
-		var emptyCount = 0;
-
-		for(var i=0; i<model.tax_rates().length; i++) {
-			var taxRate = model.tax_rates()[i];
-			if (taxRate.isEmpty()) {
-				emptyCount++;
-			}
-		}
-
-		for(var i=0; i<2-emptyCount; i++) {
-			model.addTaxRate();
-		}
-	}
-
     function onPartialChange(silent)
     {
         var val = NINJA.parseFloat($('#partial').val());
@@ -1874,7 +1744,6 @@
 		window.model = new ViewModel({!! $data !!});
 	@else 
 		window.model = new ViewModel();
-		model.addTaxRate();
 		@foreach ($taxRates as $taxRate)
 			model.addTaxRate({!! $taxRate !!});
 		@endforeach
@@ -1890,15 +1759,13 @@
 				}			
 			}
 			model.invoice().addItem();
-			//model.addTaxRate();			
 		@else
-            // TODO: Add the first tax rate for new invoices by adding a new db field to the tax codes types to set the default
-            //if(model.invoice_taxes() && model.tax_rates().length > 2) {
-            //    var tax = model.tax_rates()[1];
-            //    model.invoice().tax(tax);
-            //}
 			model.invoice().custom_taxes1({{ $account->custom_invoice_taxes1 ? 'true' : 'false' }});
 			model.invoice().custom_taxes2({{ $account->custom_invoice_taxes2 ? 'true' : 'false' }});
+            // set the default account tax rate
+            @if ($account->invoice_taxes && $account->default_tax_rate_id)
+                model.invoice().tax(model.getTaxRateById({{ $account->default_tax_rate ?  $account->default_tax_rate->public_id : '' }}));
+            @endif
 		@endif
 
         @if (isset($tasks) && $tasks)
@@ -1925,7 +1792,6 @@
 		item.tax(model.getTaxRate(item.tax_name(), item.tax_rate()));
 		item.cost(NINJA.parseFloat(item.cost()) != 0 ? roundToTwo(item.cost(), true) : '');
 	}
-	onTaxRateChange();
 
 	// display blank instead of '0'
 	if (!NINJA.parseFloat(model.invoice().discount())) model.invoice().discount('');

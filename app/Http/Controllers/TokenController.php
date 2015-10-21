@@ -25,6 +25,11 @@ use App\Ninja\Repositories\AccountRepository;
 
 class TokenController extends BaseController
 {
+    public function index()
+    {
+        return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
+    }
+
     public function getDatatable()
     {
         $query = DB::table('account_tokens')

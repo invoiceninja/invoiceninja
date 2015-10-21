@@ -35,6 +35,11 @@ class UserController extends BaseController
         $this->userMailer = $userMailer;
     }
 
+    public function index()
+    {
+        return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
+    }
+
     public function getDatatable()
     {
         $query = DB::table('users')

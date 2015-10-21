@@ -20,6 +20,7 @@ class Account extends Eloquent
         ACCOUNT_USER_DETAILS,
         ACCOUNT_LOCALIZATION,
         ACCOUNT_PAYMENTS,
+        ACCOUNT_TAX_RATES,
         ACCOUNT_PRODUCTS,
         ACCOUNT_NOTIFICATIONS,
         ACCOUNT_IMPORT_EXPORT,
@@ -104,6 +105,11 @@ class Account extends Eloquent
     public function industry()
     {
         return $this->belongsTo('App\Models\Industry');
+    }
+
+    public function default_tax_rate()
+    {
+        return $this->belongsTo('App\Models\TaxRate');
     }
 
     public function isGatewayConfigured($gatewayId = 0)

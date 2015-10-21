@@ -36,6 +36,7 @@ use App\Models\Gateway;
 use App\Models\Timezone;
 use App\Models\Industry;
 use App\Models\InvoiceDesign;
+use App\Models\TaxRate;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
@@ -164,6 +165,8 @@ class AccountController extends BaseController
             return self::showTemplates();
         } elseif ($section === ACCOUNT_PRODUCTS) {
             return self::showProducts();
+        } elseif ($section === ACCOUNT_TAX_RATES) {
+            return self::showTaxRates();
         } else {
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
@@ -238,12 +241,30 @@ class AccountController extends BaseController
 
     private function showProducts()
     {
+        $columns = ['product', 'description', 'unit_cost'];
+        if (Auth::user()->account->invoice_item_taxes) {
+            $columns[] = 'tax_rate';
+        }
+        $columns[] = 'action';
+
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.product_library'),
+            'columns' => Utils::trans($columns),
         ];
 
         return View::make('accounts.products', $data);
+    }
+
+    private function showTaxRates()
+    {
+        $data = [
+            'account' => Auth::user()->account,
+            'title' => trans('texts.tax_rates'),
+            'taxRates' => TaxRate::scope()->get(['id', 'name', 'rate']),
+        ];
+
+        return View::make('accounts.tax_rates', $data);
     }
 
     private function showInvoiceDesign($section)
@@ -349,6 +370,8 @@ class AccountController extends BaseController
             return AccountController::saveEmailTemplates();
         } elseif ($section === ACCOUNT_PRODUCTS) {
             return AccountController::saveProducts();
+        } elseif ($section === ACCOUNT_TAX_RATES) {
+            return AccountController::saveTaxRates();
         }
     }
 
@@ -396,6 +419,20 @@ class AccountController extends BaseController
         }
         
         return Redirect::to('settings/' . ACCOUNT_TEMPLATES_AND_REMINDERS);
+    }
+
+    private function saveTaxRates()
+    {
+        $account = Auth::user()->account;
+
+        $account->invoice_taxes = Input::get('invoice_taxes') ? true : false;
+        $account->invoice_item_taxes = Input::get('invoice_item_taxes') ? true : false;
+        $account->show_item_taxes = Input::get('show_item_taxes') ? true : false;
+        $account->default_tax_rate_id = Input::get('default_tax_rate_id');
+        $account->save();
+
+        Session::flash('message', trans('texts.updated_settings'));
+        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
 
     private function saveProducts()

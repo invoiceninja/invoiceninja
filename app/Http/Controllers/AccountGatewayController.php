@@ -19,6 +19,11 @@ use App\Ninja\Repositories\AccountRepository;
 
 class AccountGatewayController extends BaseController
 {
+    public function index()
+    {
+        return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
+    }
+
     public function getDatatable()
     {
         $query = DB::table('account_gateways')

@@ -337,7 +337,7 @@ return array(
   'fill_products_help' => 'Selecting a product will automatically <b>fill in the description and cost</b>',
   'update_products' => 'Auto-update products',
   'update_products_help' => 'Updating an invoice will automatically <b>update the product library</b>',
-  'create_product' => 'Create Product',
+  'create_product' => 'Add Product',
   'edit_product' => 'Edit Product',
   'archive_product' => 'Archive Product',
   'updated_product' => 'Successfully updated product',

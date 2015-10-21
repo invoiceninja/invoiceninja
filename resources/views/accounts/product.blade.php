@@ -25,6 +25,13 @@
   {!! Former::textarea('notes') !!}
   {!! Former::text('cost') !!}
 
+  @if ($account->invoice_item_taxes)
+      {!! Former::select('default_tax_rate_id')
+            ->addOption('', '')
+            ->label(trans('texts.tax_rate'))
+            ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'id') !!}
+  @endif
+
   </div>
   </div>
 

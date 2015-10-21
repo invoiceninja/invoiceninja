@@ -114,6 +114,10 @@ Route::group(['middleware' => 'auth'], function() {
     Route::resource('products', 'ProductController');
     Route::get('products/{product_id}/archive', 'ProductController@archive');
 
+    Route::get('api/tax_rates', array('as'=>'api.tax_rates', 'uses'=>'TaxRateController@getDatatable'));
+    Route::resource('tax_rates', 'TaxRateController');
+    Route::get('tax_rates/{tax_rates_id}/archive', 'TaxRateController@archive');
+
     Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
     Route::get('settings/charts_and_reports', 'ReportController@showReports');
@@ -258,6 +262,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_PAYMENTS', 'online_payments');
     define('ACCOUNT_MAP', 'import_map');
     define('ACCOUNT_EXPORT', 'export');
+    define('ACCOUNT_TAX_RATES', 'tax_rates');
     define('ACCOUNT_PRODUCTS', 'products');
     define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
     define('ACCOUNT_INVOICE_SETTINGS', 'invoice_settings');
