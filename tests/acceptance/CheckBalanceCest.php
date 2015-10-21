@@ -4,7 +4,7 @@ use Codeception\Util\Fixtures;
 use \AcceptanceTester;
 use Faker\Factory;
 
-class OnlinePaymentCest
+class CheckBalanceCest
 {
     private $faker;
 

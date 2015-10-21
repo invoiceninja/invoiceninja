@@ -227,7 +227,7 @@ class PaymentService {
 
         // setup the gateway/payment info
         $gateway = $this->createGateway($accountGateway);
-        $details = $this->getPaymentDetails($invitation);
+        $details = $this->getPaymentDetails($invitation, $accountGateway);
         $details['cardReference'] = $token;
 
         // submit purchase/get response
