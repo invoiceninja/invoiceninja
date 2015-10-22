@@ -243,9 +243,88 @@ class Account extends Eloquent
         return $height;
     }
 
-    public function getNextInvoiceNumber($isQuote = false, $prefix = '')
+    public function hasNumberPattern($isQuote)
     {
-        $counter = $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
+        return $isQuote ? ($this->quote_number_pattern ? true : false) : ($this->invoice_number_pattern ? true : false);
+    }
+
+    public function getNumberPattern($isQuote, $client = null)
+    {
+        $pattern = $isQuote ? $this->quote_number_pattern : $this->invoice_number_pattern;
+
+        if (!$pattern) {
+            return false;
+        }
+
+        $search = ['{$year}'];
+        $replace = [date('Y')];
+
+        $search[] = '{$counter}';
+        $replace[] = str_pad($this->getCounter($isQuote), 4, '0', STR_PAD_LEFT);
+
+        $matches = false;
+        preg_match('/{\$date:(.*?)}/', $pattern, $matches);
+        if (count($matches) > 1) {
+            $format = $matches[1];
+            $search[] = $matches[0];
+            $replace[] = str_replace($format, date($format), $matches[1]);
+        }
+
+        $pattern = str_replace($search, $replace, $pattern);
+
+        if ($client) {
+            $pattern = $this->getClientInvoiceNumber($pattern, $isQuote, $client);
+        }
+
+        return $pattern;
+    }
+
+    private function getClientInvoiceNumber($pattern, $isQuote, $client)
+    {
+        if (!$client) {
+            return $pattern;
+        }
+
+        $search = [
+            //'{$clientId}',
+            '{$userId}',
+            '{$custom1}',
+            '{$custom2}',
+        ];
+
+        $replace = [
+            //str_pad($client->public_id, 3, '0', STR_PAD_LEFT),
+            str_pad($client->user->public_id, 2, '0', STR_PAD_LEFT),
+            $client->custom_value1,
+            $client->custom_value2,
+        ];
+
+        return str_replace($search, $replace, $pattern);
+    }
+
+    // if we're using a pattern we don't know the next number until a client
+    // is selected, to support this the default value is blank
+    public function getDefaultInvoiceNumber($isQuote = false, $prefix = '')
+    {
+        if ($this->getNumberPattern($isQuote)) {
+            return false;
+        }
+
+        return $this->getNextInvoiceNumber($isQuote = false, $prefix = '');
+    }
+
+    public function getCounter($isQuote)
+    {
+        return $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
+    }
+
+    public function getNextInvoiceNumber($isQuote = false, $prefix = '', $client = null)
+    {
+        if ($this->hasNumberPattern($isQuote)) {
+            return $this->getNumberPattern($isQuote, $client);
+        }
+
+        $counter = $this->getCounter($isQuote);
         $prefix .= $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
         $counterOffset = 0;
 
@@ -271,14 +350,14 @@ class Account extends Eloquent
         return $number;
     }
 
-    public function incrementCounter($isQuote = false)
+    public function incrementCounter($invoice)
     {
-        if ($isQuote && !$this->share_counter) {
+        if ($invoice->is_quote && !$this->share_counter) {
             $this->quote_number_counter += 1;
         } else {
             $this->invoice_number_counter += 1;
         }
-
+        
         $this->save();
     }
 

@@ -82,7 +82,7 @@ class QuoteController extends BaseController
         }
 
         $client = null;
-        $invoiceNumber = Auth::user()->account->getNextInvoiceNumber(true);
+        $invoiceNumber = Auth::user()->account->getDefaultInvoiceNumber(true);
         $account = Account::with('country')->findOrFail(Auth::user()->account_id);
 
         if ($clientPublicId) {

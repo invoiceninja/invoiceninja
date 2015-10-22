@@ -5,6 +5,7 @@
 
     {!! Former::open_for_files()->addClass('warn-on-exit') !!}
     {{ Former::populate($account) }}
+    {{ Former::populateField('military_time', intval($account->military_time)) }}
 
     @include('accounts.nav', ['selected' => ACCOUNT_LOCALIZATION])
 

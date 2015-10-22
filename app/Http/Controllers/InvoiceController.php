@@ -235,6 +235,7 @@ class InvoiceController extends BaseController
 
     public function edit($publicId, $clone = false)
     {
+        $account = Auth::user()->account;
         $invoice = Invoice::scope($publicId)->withTrashed()->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items')->firstOrFail();
         $entityType = $invoice->getEntityType();
         
@@ -247,7 +248,7 @@ class InvoiceController extends BaseController
 
         if ($clone) {
             $invoice->id = null;
-            $invoice->invoice_number = Auth::user()->account->getNextInvoiceNumber($invoice->is_quote);
+            $invoice->invoice_number = $account->getNextInvoiceNumber($invoice->is_quote, '', $invoice->client);
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
             $invoice->invoice_date = date_create()->format('Y-m-d');
@@ -349,7 +350,7 @@ class InvoiceController extends BaseController
     public function create($clientPublicId = 0, $isRecurring = false)
     {
         $client = null;
-        $invoiceNumber = $isRecurring ? microtime(true) : Auth::user()->account->getNextInvoiceNumber();
+        $invoiceNumber = $isRecurring ? microtime(true) : Auth::user()->account->getDefaultInvoiceNumber();
 
         if ($clientPublicId) {
             $client = Client::scope($clientPublicId)->firstOrFail();

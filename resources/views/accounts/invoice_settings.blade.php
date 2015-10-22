@@ -10,7 +10,7 @@
             .input-group-addon div.checkbox {
                 display: inline;
             }
-            .tab-content span.input-group-addon {
+            .tab-content .pad-checkbox span.input-group-addon {
                 padding-right: 30px;
             }
         </style>
@@ -20,7 +20,7 @@
 	@parent
     @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_SETTINGS, 'advanced' => true])
 
-	{!! Former::open()->addClass('warn-on-exit') !!}
+	{!! Former::open()->rules(['iframe_url' => 'url'])->addClass('warn-on-exit') !!}
 	{{ Former::populate($account) }}
 	{{ Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) }}
 	{{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}
@@ -34,25 +34,28 @@
         </div>
         <div class="panel-body form-padding-right">
             {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
-            @if (Utils::isNinja())
-                {!! Former::inline_radios('custom_invoice_link')
-                        ->onchange('onCustomLinkChange()')
-                        ->radios([
-                            trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
-                            trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
-                        ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
-                {{ Former::setOption('capitalize_translations', false) }}
-                {!! Former::text('subdomain')
-                            ->placeholder(trans('texts.www'))
-                            ->onchange('onSubdomainChange()')
-                            ->addGroupClass('subdomain')
-                            ->label(' ') !!}
-                {!! Former::text('iframe_url')
-                            ->placeholder('http://www.example.com/invoice')
-                            ->appendIcon('question-sign')
-                            ->addGroupClass('iframe_url')
-                            ->label(' ') !!}
-            @endif
+
+            {{-- Former::select('recurring_hour')->options($recurringHours) --}}
+
+            {!! Former::inline_radios('custom_invoice_link')
+                    ->onchange('onCustomLinkChange()')
+                    ->radios([
+                        trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
+                        trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
+                    ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
+            {{ Former::setOption('capitalize_translations', false) }}
+
+            {!! Former::text('subdomain')
+                        ->placeholder(trans('texts.www'))
+                        ->onchange('onSubdomainChange()')
+                        ->addGroupClass('subdomain')
+                        ->label(' ') !!}
+
+            {!! Former::text('iframe_url')
+                        ->placeholder('http://www.example.com/invoice')
+                        ->appendIcon('question-sign')
+                        ->addGroupClass('iframe_url')
+                        ->label(' ') !!}
         </div>
     </div>
 
@@ -61,6 +64,7 @@
             <h3 class="panel-title">{!! trans('texts.invoice_quote_number') !!}</h3>
         </div>
         <div class="panel-body form-padding-right">
+
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
                     <li role="presentation" class="active"><a href="#invoiceNumber" aria-controls="invoiceNumber" role="tab" data-toggle="tab">{{ trans('texts.invoice_number') }}</a></li>
@@ -70,18 +74,56 @@
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="invoiceNumber">
                     <div class="panel-body">
-                        {!! Former::text('invoice_number_prefix')->label(trans('texts.prefix')) !!}
-                        {!! Former::text('invoice_number_counter')->label(trans('texts.counter')) !!}
+                        {!! Former::inline_radios('invoice_number_type')
+                                ->onchange('onInvoiceNumberTypeChange()')
+                                ->label(trans('texts.type'))
+                                ->radios([
+                                    trans('texts.prefix') => ['value' => 'prefix', 'name' => 'invoice_number_type'],
+                                    trans('texts.pattern') => ['value' => 'pattern', 'name' => 'invoice_number_type'],
+                                ])->check($account->invoice_number_pattern ? 'pattern' : 'prefix') !!}
+
+                        {!! Former::text('invoice_number_prefix')
+                                ->addGroupClass('invoice-prefix')
+                                ->label(' ') !!}
+                        {!! Former::text('invoice_number_pattern')
+                                ->appendIcon('question-sign')
+                                ->addGroupClass('invoice-pattern')
+                                ->label(' ')
+                                ->addGroupClass('number-pattern') !!}
+                        {!! Former::text('invoice_number_counter')
+                                ->label(trans('texts.counter')) !!}
+
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="quoteNumber">
                     <div class="panel-body">
-                        {!! Former::text('quote_number_prefix')->label(trans('texts.prefix')) !!}
-                        {!! Former::text('quote_number_counter')->label(trans('texts.counter'))
-                        ->append(Former::checkbox('share_counter')->raw()->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter')) !!}
+                        {!! Former::inline_radios('quote_number_type')
+                                ->onchange('onQuoteNumberTypeChange()')
+                                ->label(trans('texts.type'))
+                                ->radios([
+                                    trans('texts.prefix') => ['value' => 'prefix', 'name' => 'quote_number_type'],
+                                    trans('texts.pattern') => ['value' => 'pattern', 'name' => 'quote_number_type'],
+                                ])->check($account->quote_number_pattern ? 'pattern' : 'prefix') !!}
+
+                        {!! Former::text('quote_number_prefix')
+                                ->addGroupClass('quote-prefix')
+                                ->label(' ') !!}
+                        {!! Former::text('quote_number_pattern')
+                                ->appendIcon('question-sign')
+                                ->addGroupClass('quote-pattern')
+                                ->addGroupClass('number-pattern')
+                                ->label(' ') !!}
+                        {!! Former::text('quote_number_counter')
+                                ->label(trans('texts.counter'))
+                                ->addGroupClass('pad-checkbox')
+                                ->append(Former::checkbox('share_counter')->raw()
+                                ->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter')) !!}
+
+
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -131,10 +173,16 @@
                 <div role="tabpanel" class="tab-pane" id="invoiceCharges">
                     <div class="panel-body">
 
-                        {!! Former::text('custom_invoice_label1')->label(trans('texts.field_label'))
-                        ->append(Former::checkbox('custom_invoice_taxes1')->raw() . trans('texts.charge_taxes')) !!}
-                        {!! Former::text('custom_invoice_label2')->label(trans('texts.field_label'))
-                        ->append(Former::checkbox('custom_invoice_taxes2')->raw() . trans('texts.charge_taxes')) !!}
+                        {!! Former::text('custom_invoice_label1')
+                                ->label(trans('texts.field_label'))
+                                ->addGroupClass('pad-checkbox')
+                                ->append(Former::checkbox('custom_invoice_taxes1')
+                                ->raw() . trans('texts.charge_taxes')) !!}
+                        {!! Former::text('custom_invoice_label2')
+                                ->label(trans('texts.field_label'))
+                                ->addGroupClass('pad-checkbox')
+                                ->append(Former::checkbox('custom_invoice_taxes2')
+                                ->raw() . trans('texts.charge_taxes')) !!}
 
                     </div>
                 </div>
@@ -179,6 +227,40 @@
         </div>
     </div>
 
+    <div class="modal fade" id="patternHelpModal" tabindex="-1" role="dialog" aria-labelledby="patternHelpModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="min-width:150px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="patternHelpModalLabel">{{ trans('texts.pattern_help_title') }}</h4>
+                </div>
+
+                <div class="modal-body">
+                    <p>{{ trans('texts.pattern_help_1') }}</p>
+                    <p>{{ trans('texts.pattern_help_2') }}</p>
+                    <ul>
+                        @foreach (\App\Models\Invoice::$patternFields as $field)
+                            @if ($field == 'date:')
+                                <li>$date:format ({!! link_to(PHP_DATE_FORMATS, trans('texts.see_options'), ['target' => '_blank']) !!})</li>
+                            @else
+                                <li>${{ $field }}</li>
+                            @endif
+                        @endforeach
+                    </ul>
+                    <p>{{ trans('texts.pattern_help_3', [
+                            'example' => '{$year}-{$counter}',
+                            'value' => date('Y') . '-0001'
+                        ]) }}</p>
+                </div>
+
+                <div class="modal-footer" style="margin-top: 0px">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 
 	{!! Former::close() !!}
 
@@ -210,13 +292,41 @@
         }
     }
 
+    function onInvoiceNumberTypeChange() {
+        var val = $('input[name=invoice_number_type]:checked').val()
+        if (val == 'prefix') {
+            $('.invoice-prefix').show();
+            $('.invoice-pattern').hide();
+        } else {
+            $('.invoice-prefix').hide();
+            $('.invoice-pattern').show();
+        }
+    }
+
+    function onQuoteNumberTypeChange() {
+        var val = $('input[name=quote_number_type]:checked').val()
+        if (val == 'prefix') {
+            $('.quote-prefix').show();
+            $('.quote-pattern').hide();
+        } else {
+            $('.quote-prefix').hide();
+            $('.quote-pattern').show();
+        }
+    }
+
     $('.iframe_url .input-group-addon').click(function() {
         $('#iframeHelpModal').modal('show');
+    });
+
+    $('.number-pattern .input-group-addon').click(function() {
+        $('#patternHelpModal').modal('show');
     });
 
     $(function() {       	
     	setQuoteNumberEnabled();
         onCustomLinkChange();
+        onInvoiceNumberTypeChange();
+        onQuoteNumberTypeChange();
 
         $('#subdomain').change(function() {
             $('#iframe_url').val('');
@@ -224,7 +334,7 @@
         $('#iframe_url').change(function() {
             $('#subdomain').val('');
         });
-    });    
+    });
 
 	</script>
 

@@ -157,6 +157,8 @@ class AccountController extends BaseController
             return self::showLocalization();
         } elseif ($section == ACCOUNT_PAYMENTS) {
             return self::showOnlinePayments();
+        } elseif ($section == ACCOUNT_INVOICE_SETTINGS) {
+            return self::showInvoiceSettings();
         } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
             return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
         } elseif ($section == ACCOUNT_INVOICE_DESIGN || $section == ACCOUNT_CUSTOMIZE_DESIGN) {
@@ -175,6 +177,29 @@ class AccountController extends BaseController
             ];
             return View::make("accounts.{$section}", $data);
         }
+    }
+
+    private function showInvoiceSettings()
+    {
+        $account = Auth::user()->account;
+        $recurringHours = [];
+
+        for ($i=0; $i<24; $i++) {
+            if ($account->military_time) {
+                $format = 'H:i';
+            } else {
+                $format = 'g:i a';
+            }
+            $recurringHours[$i] = date($format, strtotime("{$i}:00"));
+        }
+
+        $data = [
+            'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+            'title' => trans("texts.invoice_settings"),
+            'section' => ACCOUNT_INVOICE_SETTINGS,
+            'recurringHours' => $recurringHours
+        ];
+        return View::make("accounts.invoice_settings", $data);
     }
 
     private function showCompanyDetails()
@@ -487,18 +512,36 @@ class AccountController extends BaseController
                 $account->custom_invoice_text_label1 = trim(Input::get('custom_invoice_text_label1'));
                 $account->custom_invoice_text_label2 = trim(Input::get('custom_invoice_text_label2'));
 
-                $account->invoice_number_prefix = Input::get('invoice_number_prefix');
                 $account->invoice_number_counter = Input::get('invoice_number_counter');
                 $account->quote_number_prefix = Input::get('quote_number_prefix');
                 $account->share_counter = Input::get('share_counter') ? true : false;
 
                 $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
-                $account->auto_wrap = Input::get('auto_wrap') ? true : false;
+
+                if (Input::has('recurring_hour')) {
+                    $account->recurring_hour = Input::get('recurring_hour');
+                }
 
                 if (!$account->share_counter) {
                     $account->quote_number_counter = Input::get('quote_number_counter');
                 }
 
+                if (Input::get('invoice_number_type') == 'prefix') {
+                    $account->invoice_number_prefix = trim(Input::get('invoice_number_prefix'));
+                    $account->invoice_number_pattern = null;
+                } else {
+                    $account->invoice_number_pattern = trim(Input::get('invoice_number_pattern'));
+                    $account->invoice_number_prefix = null;
+                }
+                
+                if (Input::get('quote_number_type') == 'prefix') {
+                    $account->quote_number_prefix = trim(Input::get('quote_number_prefix'));
+                    $account->quote_number_pattern = null;
+                } else {
+                    $account->quote_number_pattern = trim(Input::get('quote_number_pattern'));
+                    $account->quote_number_prefix = null;
+                }
+                
                 if (!$account->share_counter && $account->invoice_number_prefix == $account->quote_number_prefix) {
                     Session::flash('error', trans('texts.invalid_counter'));
                     return Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS)->withInput();

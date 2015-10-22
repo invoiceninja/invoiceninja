@@ -258,6 +258,13 @@ class ClientController extends BaseController
             $client->payment_terms = Input::get('payment_terms') ?: 0;
             $client->website = trim(Input::get('website'));
 
+            if (Input::has('invoice_number_counter')) {
+                $client->invoice_number_counter = (int) Input::get('invoice_number_counter');
+            }
+            if (Input::has('quote_number_counter')) {
+                $client->invoice_number_counter = (int) Input::get('quote_number_counter');
+            }
+
             $client->save();
 
             $data = json_decode(Input::get('data'));

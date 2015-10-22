@@ -840,6 +840,16 @@ return array(
   'archived_tax_rate' => 'Successfully archived the tax rate',
   'default_tax_rate_id' => 'Default Tax Rate',
   'tax_rate' => 'Tax Rate',
+  'recurring_hour' => 'Recurring Hour',
+  'pattern' => 'Pattern',
+  'pattern_help_title' => 'Pattern Help',
+  'pattern_help_1' => 'Create custom invoice and quote numbers by specifying a pattern',
+  'pattern_help_2' => 'Available variables:',
+  'pattern_help_3' => 'For example, :example would be converted to :value',
+  'see_options' => 'See options',
+  'invoice_counter' => 'Invoice Counter',
+  'quote_counter' => 'Quote Counter',
+  'type' => 'Type',
 
 );
 

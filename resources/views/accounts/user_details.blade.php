@@ -8,7 +8,6 @@
     )) !!}
 
     {{ Former::populate($account) }}
-    {{ Former::populateField('military_time', intval($account->military_time)) }}
     {{ Former::populateField('first_name', $user->first_name) }}
     {{ Former::populateField('last_name', $user->last_name) }}
     {{ Former::populateField('email', $user->email) }}  

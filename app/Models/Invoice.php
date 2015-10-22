@@ -15,6 +15,16 @@ class Invoice extends EntityModel
         'auto_bill' => 'boolean',
     ];
 
+    public static $patternFields = [
+        'counter',
+        'custom1',
+        'custom2',
+        'userId',
+        //'clientId', // need to update after saving
+        'year',
+        'date:',
+    ];
+
     public function account()
     {
         return $this->belongsTo('App\Models\Account');
@@ -223,7 +233,7 @@ class Invoice extends EntityModel
         }
 
         $startDate = $this->getOriginal('last_sent_date') ?: $this->getOriginal('start_date');
-        $startDate .= ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00:00';
+        $startDate .= ' ' . $this->account->recurring_hour . ':00:00';
         $startDate = $this->account->getDateTime($startDate);
         $endDate = $this->end_date ? $this->account->getDateTime($this->getOriginal('end_date')) : null;
         $timezone = $this->account->getTimezone();
@@ -249,7 +259,7 @@ class Invoice extends EntityModel
     public function getNextSendDate()
     {
         if ($this->start_date && !$this->last_sent_date) {
-            $startDate = $this->getOriginal('start_date') . ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00:00';
+            $startDate = $this->getOriginal('start_date') . ' ' . $this->account->recurring_hour . ':00:00';
             return $this->account->getDateTime($startDate);
         }
 
@@ -432,7 +442,7 @@ class Invoice extends EntityModel
 
 Invoice::creating(function ($invoice) {
     if (!$invoice->is_recurring) {
-        $invoice->account->incrementCounter($invoice->is_quote);
+        $invoice->account->incrementCounter($invoice);
     }
 });
 
