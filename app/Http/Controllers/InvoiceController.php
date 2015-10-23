@@ -248,7 +248,7 @@ class InvoiceController extends BaseController
 
         if ($clone) {
             $invoice->id = null;
-            $invoice->invoice_number = $account->getNextInvoiceNumber($invoice->is_quote, '', $invoice->client, Auth::user());
+            $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
             $invoice->invoice_date = date_create()->format('Y-m-d');
@@ -350,26 +350,23 @@ class InvoiceController extends BaseController
     public function create($clientPublicId = 0, $isRecurring = false)
     {
         $client = null;
-        if ($isRecurring) {
-            $invoiceNumber = microtime(true);
-        } else {
-            $invoiceNumber = Auth::user()->account->getDefaultInvoiceNumber(false, false, false, Auth::user());
-        }
-
         if ($clientPublicId) {
             $client = Client::scope($clientPublicId)->firstOrFail();
         }
 
-        $data = array(
-                'entityType' => ENTITY_INVOICE,
-                'invoice' => null,
-                'data' => Input::old('data'),
-                'invoiceNumber' => $invoiceNumber,
-                'method' => 'POST',
-                'url' => 'invoices',
-                'title' => trans('texts.new_invoice'),
-                'isRecurring' => $isRecurring,
-                'client' => $client);
+        $invoice = Invoice::createNew();
+        $invoice->client = $client;
+        $invoice->is_recurring = $isRecurring;
+        $invoice->initialize();
+        
+        $data = [
+            'entityType' => $invoice->getEntityType(),
+            'invoice' => $invoice,
+            'data' => Input::old('data'),
+            'method' => 'POST',
+            'url' => 'invoices',
+            'title' => trans('texts.new_invoice'),
+        ];
         $data = array_merge($data, self::getViewModel());
         
         return View::make('invoices.edit', $data);

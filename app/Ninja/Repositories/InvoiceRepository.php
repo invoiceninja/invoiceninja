@@ -254,10 +254,12 @@ class InvoiceRepository
             $invoice = Invoice::scope($publicId)->firstOrFail();
         } else {
             $invoice = Invoice::createNew();
-
+            $invoice->client_id = $data['client_id'];
+            $invoice->is_recurring = $data['is_recurring'] ? true : false;
             if ($entityType == ENTITY_QUOTE) {
                 $invoice->is_quote = true;
             }
+            $invoice->initialize();
         }
 
         $account = \Auth::user()->account;
@@ -282,11 +284,6 @@ class InvoiceRepository
         $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
         $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
         $invoice->has_tasks = isset($data['has_tasks']) ? $data['has_tasks'] : false;
-        
-        if (!$publicId) {
-            $invoice->client_id = $data['client_id'];
-            $invoice->is_recurring = $data['is_recurring'] ? true : false;
-        }
         
         if ($invoice->is_recurring) {
             if ($invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
@@ -478,7 +475,7 @@ class InvoiceRepository
             }
             $clone->invoice_number = $account->invoice_number_prefix.$invoiceNumber;
         } else {
-            $clone->invoice_number = $account->getNextInvoiceNumber($invoice->is_quote, '', $invoice->client, Auth::user());
+            $clone->invoice_number = $account->getNextInvoiceNumber($invoice);
         }
 
         foreach ([
@@ -631,7 +628,7 @@ class InvoiceRepository
         $invoice = Invoice::createNew($recurInvoice);
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;
-        $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber(false, 'R', $recurInvoice->client, $recurInvoice->user);
+        $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber($recurInvoice, 'R');
         $invoice->amount = $recurInvoice->amount;
         $invoice->balance = $recurInvoice->amount;
         $invoice->invoice_date = date_create()->format('Y-m-d');

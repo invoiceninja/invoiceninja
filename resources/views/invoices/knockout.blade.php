@@ -194,8 +194,8 @@ function ViewModel(data) {
 }
 
 function InvoiceModel(data) {
-    var self = this;        
-    this.client = ko.observable(data ? false : new ClientModel());      
+    var self = this;
+    this.client = ko.observable(data ? false : new ClientModel());
     self.account = {!! $account !!};
     self.id = ko.observable('');
     self.discount = ko.observable('');
@@ -209,24 +209,24 @@ function InvoiceModel(data) {
     self.default_footer = ko.observable(account.invoice_footer);
     self.footer_placeholder = ko.observable({{ !$invoice && $account->invoice_footer ? 'account.invoice_footer' : false}});
     self.set_default_footer = ko.observable(false);
-    self.public_notes = ko.observable('');      
+    self.public_notes = ko.observable('');
     self.po_number = ko.observable('');
-    self.invoice_date = ko.observable('{{ Utils::today() }}');
-    self.invoice_number = ko.observable('{{ isset($invoiceNumber) ? $invoiceNumber : '' }}');
+    self.invoice_date = ko.observable('');
+    self.invoice_number = ko.observable('');
     self.due_date = ko.observable('');
-    self.start_date = ko.observable('{{ Utils::today() }}');
+    self.start_date = ko.observable('');
     self.end_date = ko.observable('');
     self.last_sent_date = ko.observable('');
     self.tax_name = ko.observable();
     self.tax_rate = ko.observable();
-    self.is_recurring = ko.observable({{ $isRecurring ? 'true' : 'false' }});
+    self.is_recurring = ko.observable(false);
     self.auto_bill = ko.observable();
     self.invoice_status_id = ko.observable(0);
     self.invoice_items = ko.observableArray();
     self.amount = ko.observable(0);
     self.balance = ko.observable(0);
-    self.invoice_design_id = ko.observable({{ $account->invoice_design_id }});
-    self.partial = ko.observable(0);            
+    self.invoice_design_id = ko.observable(1);
+    self.partial = ko.observable(0);
     self.has_tasks = ko.observable(false);
 
     self.custom_value1 = ko.observable(0);

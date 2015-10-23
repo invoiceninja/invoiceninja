@@ -82,24 +82,25 @@ class QuoteController extends BaseController
         }
 
         $client = null;
-        $invoiceNumber = Auth::user()->account->getDefaultInvoiceNumber(true);
-        $account = Account::with('country')->findOrFail(Auth::user()->account_id);
-
         if ($clientPublicId) {
             $client = Client::scope($clientPublicId)->firstOrFail();
         }
 
-        $data = array(
-        'account' => $account,
-        'invoice' => null,
-        'data' => Input::old('data'),
-        'invoiceNumber' => $invoiceNumber,
-        'method' => 'POST',
-        'url' => 'invoices',
-        'title' => trans('texts.new_quote'),
-        'client' => $client, );
+        $invoice = Invoice::createNew();
+        $invoice->client = $client;
+        $invoice->is_quote = true;
+        $invoice->initialize();
+        
+        $data = [
+            'entityType' => $invoice->getEntityType(),
+            'invoice' => $invoice,
+            'data' => Input::old('data'),
+            'method' => 'POST',
+            'url' => 'invoices',
+            'title' => trans('texts.new_quote'),
+        ];
         $data = array_merge($data, self::getViewModel());
-
+        
         return View::make('invoices.edit', $data);
     }
 

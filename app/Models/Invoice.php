@@ -20,10 +20,46 @@ class Invoice extends EntityModel
         'custom1',
         'custom2',
         'userId',
-        //'clientId', // need to update after saving
         'year',
         'date:',
     ];
+
+    public function initialize()
+    {
+        $account = $this->account;
+        
+        $this->invoice_date = Utils::today();
+        $this->start_date = Utils::today();
+        $this->invoice_design_id = $account->invoice_design_id;
+        $this->terms = $account->invoice_terms;
+        $this->invoice_footer = $account->invoice_footer;
+
+        if (!$this->invoice_number) {
+            if ($this->is_recurring) {
+                $this->invoice_number = microtime(true);
+            } else {
+                if ($account->hasClientNumberPattern($this) && !$this->client) {
+                    // do nothing, we don't yet know the value
+                } else {
+                    $this->invoice_number = $account->getNextInvoiceNumber($this);
+                }
+            }
+        }
+        
+        if (!$this->client) {
+            $this->client = Client::createNew($this);
+            $this->client->public_id = 0;
+        }
+    }
+
+    public function isTrashed()
+    {
+        if ($this->client && $this->client->isTrashed()) {
+            return true;
+        }
+
+        return parent::isTrashed();
+    }
 
     public function account()
     {

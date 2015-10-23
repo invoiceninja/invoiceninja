@@ -308,7 +308,7 @@ class AccountController extends BaseController
         $client->work_phone = '';
         $client->work_email = '';
 
-        $invoice->invoice_number = $account->getNextInvoiceNumber();
+        $invoice->invoice_number = '0000';
         $invoice->invoice_date = Utils::fromSqlDate(date('Y-m-d'));
         $invoice->account = json_decode($account->toJson());
         $invoice->amount = $invoice->balance = 100;

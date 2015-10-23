@@ -59,7 +59,7 @@ class CreateRandomData extends Command {
         }
 
         $invoice = Invoice::createNew($user);
-        $invoice->invoice_number = $user->account->getNextInvoiceNumber();
+        $invoice->invoice_number = $user->account->getNextInvoiceNumber($invoice);
         $invoice->amount = $invoice->balance = $price;
         $invoice->created_at = date('Y-m-d', strtotime(date("Y-m-d") . ' - ' . rand(1, 100) . ' days'));
         $client->invoices()->save($invoice);

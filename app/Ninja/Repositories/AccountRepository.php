@@ -139,7 +139,7 @@ class AccountRepository
         $invoice->user_id = $account->users()->first()->id;
         $invoice->public_id = $publicId;
         $invoice->client_id = $client->id;
-        $invoice->invoice_number = $account->getNextInvoiceNumber();
+        $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
         $invoice->invoice_date = date_create()->format('Y-m-d');
         $invoice->amount = PRO_PLAN_PRICE;
         $invoice->balance = PRO_PLAN_PRICE;

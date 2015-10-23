@@ -248,16 +248,16 @@ class Account extends Eloquent
         return $isQuote ? ($this->quote_number_pattern ? true : false) : ($this->invoice_number_pattern ? true : false);
     }
 
-    public function hasClientNumberPattern($isQuote)
+    public function hasClientNumberPattern($invoice)
     {
-        $pattern = $this->getNumberPattern($isQuote);
+        $pattern = $invoice->is_quote ? $this->quote_number_pattern : $this->invoice_number_pattern;
 
         return strstr($pattern, '$custom');
     }
 
-    public function getNumberPattern($isQuote, $client = null, $user = null)
+    public function getNumberPattern($invoice)
     {
-        $pattern = $isQuote ? $this->quote_number_pattern : $this->invoice_number_pattern;
+        $pattern = $invoice->is_quote ? $this->quote_number_pattern : $this->invoice_number_pattern;
 
         if (!$pattern) {
             return false;
@@ -267,11 +267,11 @@ class Account extends Eloquent
         $replace = [date('Y')];
 
         $search[] = '{$counter}';
-        $replace[] = str_pad($this->getCounter($isQuote), 4, '0', STR_PAD_LEFT);
+        $replace[] = str_pad($this->getCounter($invoice->is_quote), 4, '0', STR_PAD_LEFT);
 
-        if ($user) {
+        if (strstr($pattern, '{$userId}')) {
             $search[] = '{$userId}';
-            $replace[] = str_pad($user->public_id, 2, '0', STR_PAD_LEFT);
+            $replace[] = str_pad($invoice->user->public_id, 2, '0', STR_PAD_LEFT);
         }
 
         $matches = false;
@@ -284,16 +284,16 @@ class Account extends Eloquent
 
         $pattern = str_replace($search, $replace, $pattern);
 
-        if ($client) {
-            $pattern = $this->getClientInvoiceNumber($pattern, $isQuote, $client);
+        if ($invoice->client->id) {
+            $pattern = $this->getClientInvoiceNumber($pattern, $invoice);
         }
 
         return $pattern;
     }
 
-    private function getClientInvoiceNumber($pattern, $isQuote, $client)
+    private function getClientInvoiceNumber($pattern, $invoice)
     {
-        if (!$client) {
+        if (!$invoice->client) {
             return $pattern;
         }
 
@@ -305,8 +305,8 @@ class Account extends Eloquent
 
         $replace = [
             //str_pad($client->public_id, 3, '0', STR_PAD_LEFT),
-            $client->custom_value1,
-            $client->custom_value2,
+            $invoice->client->custom_value1,
+            $invoice->client->custom_value2,
         ];
 
         return str_replace($search, $replace, $pattern);
@@ -314,13 +314,13 @@ class Account extends Eloquent
 
     // if we're using a pattern we don't know the next number until a client
     // is selected, to support this the default value is blank
-    public function getDefaultInvoiceNumber($isQuote = false, $prefix = '', $client = null, $user = null)
+    public function getDefaultInvoiceNumber($invoice = false, $prefix = '')
     {
-        if ($this->hasClientNumberPattern($isQuote)) {
+        if ($this->hasClientNumberPattern($invoice)) {
             return false;
         }
 
-        return $this->getNextInvoiceNumber($isQuote = false, $prefix = '', $client, $user);
+        return $this->getNextInvoiceNumber($invoice, $prefix = '');
     }
 
     public function getCounter($isQuote)
@@ -328,14 +328,14 @@ class Account extends Eloquent
         return $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
     }
 
-    public function getNextInvoiceNumber($isQuote = false, $prefix = '', $client = null, $user = null)
+    public function getNextInvoiceNumber($invoice, $prefix = '')
     {
-        if ($this->hasNumberPattern($isQuote)) {
-            return $this->getNumberPattern($isQuote, $client, $user);
+        if ($this->hasNumberPattern($invoice->is_quote)) {
+            return $this->getNumberPattern($invoice);
         }
 
-        $counter = $this->getCounter($isQuote);
-        $prefix .= $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
+        $counter = $this->getCounter($invoice->is_quote);
+        $prefix .= $invoice->is_quote ? $this->quote_number_prefix : $this->invoice_number_prefix;
         $counterOffset = 0;
 
         // confirm the invoice number isn't already taken 
@@ -348,7 +348,7 @@ class Account extends Eloquent
 
         // update the invoice counter to be caught up
         if ($counterOffset > 1) {
-            if ($isQuote && !$this->share_counter) {
+            if ($invoice->is_quote && !$this->share_counter) {
                 $this->quote_number_counter += $counterOffset - 1;
             } else {
                 $this->invoice_number_counter += $counterOffset - 1;

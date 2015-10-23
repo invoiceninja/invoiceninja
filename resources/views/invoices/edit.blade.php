@@ -8,9 +8,9 @@
 
 @section('content')
 	
-	@if ($invoice && $invoice->id)
+	@if ($invoice->id)
 		<ol class="breadcrumb">
-            @if ($isRecurring)
+            @if ($invoice->is_recurring)
              <li>{!! link_to('invoices', trans('texts.recurring_invoice')) !!}</li>
             @else
 			 <li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
@@ -34,7 +34,7 @@
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-4" id="col_1">
 
-    		@if ($invoice && $invoice->id)
+    		@if ($invoice->id)
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
 					<div class="col-lg-8 col-sm-8">
@@ -356,7 +356,7 @@
 
 		{!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}	
         
-		@if (!$invoice || (!$invoice->trashed() && !$invoice->client->trashed()))
+		@if (!$invoice->trashed())
 
 			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
@@ -528,7 +528,6 @@
     var invoiceDesigns = {!! $invoiceDesigns !!};
 
 	$(function() {
-
         // create client dictionary
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];
@@ -559,9 +558,10 @@
                 model.addTaxRate({!! $taxRate !!});
             @endforeach
 
-            @if ($invoice)
-                var invoice = {!! $invoice !!};
-                ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);
+            var invoice = {!! $invoice !!};
+            ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);
+
+            @if ($invoice->id)
                 var invitationContactIds = {!! json_encode($invitationContactIds) !!};
                 var client = clientMap[invoice.client.public_id];
                 if (client) { // in case it's deleted
@@ -613,7 +613,7 @@
 
         ko.applyBindings(model);
         onItemChange();
-
+        
 
 		$('#country_id').combobox().on('change', function(e) {
 			var countryId = $('input[name=country_id]').val();
@@ -631,8 +631,8 @@
 
 		$('#invoice_date, #due_date, #start_date, #end_date, #last_sent_date').datepicker();
 
-		@if ($client && !$invoice)
-			$('input[name=client]').val({{ $client->public_id }});
+		@if ($invoice->client && !$invoice->id)
+			$('input[name=client]').val({{ $invoice->client->public_id }});
 		@endif
 		
 		var $input = $('select#client');
@@ -644,7 +644,7 @@
                 // we enable searching by contact but the selection must be the client 
                 $('.client-input').val(getClientDisplayName(selected));
                 // if there's an invoice number pattern we'll apply it now
-                @if ($account->hasClientNumberPattern($entityType == ENTITY_QUOTE))
+                @if ($account->hasClientNumberPattern($invoice))
                     setInvoiceNumber(selected);
                 @endif
 			} else {
@@ -681,14 +681,14 @@
             })(field);
         }
 
-		@if ($client || $invoice || count($clients) == 0)
+		@if ($invoice->id || count($clients) == 0)
 			$('#invoice_number').focus();
 		@else
-			$('.client_select input.form-control').focus();			
+			$('.client_select input.form-control').focus();
 		@endif
 		
 		$('#clientModal').on('shown.bs.modal', function () {
-			$('#name').focus();			
+			$('#name').focus();
 		}).on('hidden.bs.modal', function () {
 			if (model.clientBackup) {
 				model.loadClient(model.clientBackup);
@@ -704,7 +704,7 @@
 
 		applyComboboxListeners();
 		
-		@if ($client)
+		@if ($invoice->client->id)
 			$input.trigger('change');
 		@else 
 			refreshPDF(true);
@@ -831,7 +831,7 @@
 	function onDownloadClick() {
 		trackEvent('/activity', '/download_pdf');
 		var invoice = createInvoiceModel();
-		var design  = getDesignJavascript();
+        var design  = getDesignJavascript();
 		if (!design) return;
 		var doc = generatePDF(invoice, design, true);
         var type = invoice.is_quote ? '{{ trans('texts.'.ENTITY_QUOTE) }}' : '{{ trans('texts.'.ENTITY_INVOICE) }}';
@@ -945,16 +945,16 @@
 		submitAction('convert');		
 	}
 
-	@if ($client && $invoice)
-	function onPaymentClick() {
-		window.location = '{{ URL::to('payments/create/' . $client->public_id . '/' . $invoice->public_id ) }}';
-	}
+    @if ($invoice->id)
+    	function onPaymentClick() {
+    		window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
+    	}
 
-	function onCreditClick() {
-		window.location = '{{ URL::to('credits/create/' . $client->public_id . '/' . $invoice->public_id ) }}';
-	}
-	@endif
-
+    	function onCreditClick() {
+    		window.location = '{{ URL::to('credits/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
+    	}
+    @endif
+    
 	function onArchiveClick() {
 		submitAction('archive');			
 	}
@@ -1030,14 +1030,12 @@
     }
 
     function setInvoiceNumber(client) {
-        @if ($invoice)
+        @if ($invoice->id)
             return;
         @endif
-        var number = '{{ $account->getNumberPattern($entityType == ENTITY_QUOTE, false, Auth::user()) }}';
+        var number = '{{ $account->getNumberPattern($invoice) }}';
         number = number.replace('{$custom1}', client.custom_value1);
-        number = number.replace('{$custom2}', client.custom_value1);
-        //number = number.replace('{$clientId}', client.public_id < 0 ? '???' : padToThree(client.public_id));
-        //number = number.replace('{$counter}', padToFour(client.{{ $entityType }}_number_counter));
+        number = number.replace('{$custom2}', client.custom_value2);
         model.invoice().invoice_number(number);
     }
 
