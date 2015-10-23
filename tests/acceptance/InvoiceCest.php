@@ -16,7 +16,7 @@ class InvoiceCest
 
         $this->faker = Factory::create();
     }
-    /*
+
     public function createInvoice(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
@@ -75,7 +75,7 @@ class InvoiceCest
         $I->click('#lastSent');
         $I->see($invoiceNumber);
     }
-    */
+
     public function editInvoice(AcceptanceTester $I)
     {
         $I->wantTo('edit an invoice');

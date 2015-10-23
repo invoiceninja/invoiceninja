@@ -31,8 +31,6 @@ class Invoice extends EntityModel
         $this->invoice_date = Utils::today();
         $this->start_date = Utils::today();
         $this->invoice_design_id = $account->invoice_design_id;
-        $this->terms = $account->invoice_terms;
-        $this->invoice_footer = $account->invoice_footer;
 
         if (!$this->invoice_number) {
             if ($this->is_recurring) {

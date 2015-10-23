@@ -644,9 +644,7 @@
                 // we enable searching by contact but the selection must be the client 
                 $('.client-input').val(getClientDisplayName(selected));
                 // if there's an invoice number pattern we'll apply it now
-                @if ($account->hasClientNumberPattern($invoice))
-                    setInvoiceNumber(selected);
-                @endif
+                setInvoiceNumber(selected);
 			} else {
 				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));
 				model.invoice().client().country = false;
@@ -1030,7 +1028,7 @@
     }
 
     function setInvoiceNumber(client) {
-        @if ($invoice->id)
+        @if ($invoice->id || !$account->hasClientNumberPattern($invoice))
             return;
         @endif
         var number = '{{ $account->getNumberPattern($invoice) }}';

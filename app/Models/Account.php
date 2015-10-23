@@ -251,7 +251,7 @@ class Account extends Eloquent
     public function hasClientNumberPattern($invoice)
     {
         $pattern = $invoice->is_quote ? $this->quote_number_pattern : $this->invoice_number_pattern;
-
+        
         return strstr($pattern, '$custom');
     }
 
