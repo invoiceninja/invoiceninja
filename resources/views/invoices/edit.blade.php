@@ -644,7 +644,7 @@
                 // we enable searching by contact but the selection must be the client 
                 $('.client-input').val(getClientDisplayName(selected));
                 // if there's an invoice number pattern we'll apply it now
-                @if ($account->hasNumberPattern($entityType == ENTITY_QUOTE))
+                @if ($account->hasClientNumberPattern($entityType == ENTITY_QUOTE))
                     setInvoiceNumber(selected);
                 @endif
 			} else {
@@ -1033,11 +1033,11 @@
         @if ($invoice)
             return;
         @endif
-        var number = '{{ $account->getNumberPattern($entityType == ENTITY_QUOTE) }}';
-        number = number.replace('{$clientId}', client.public_id < 0 ? '???' : padToThree(client.public_id));
+        var number = '{{ $account->getNumberPattern($entityType == ENTITY_QUOTE, false, Auth::user()) }}';
         number = number.replace('{$custom1}', client.custom_value1);
         number = number.replace('{$custom2}', client.custom_value1);
-        number = number.replace('{$counter}', padToFour(client.{{ $entityType }}_number_counter));
+        //number = number.replace('{$clientId}', client.public_id < 0 ? '???' : padToThree(client.public_id));
+        //number = number.replace('{$counter}', padToFour(client.{{ $entityType }}_number_counter));
         model.invoice().invoice_number(number);
     }
 

@@ -87,7 +87,7 @@ class InvoiceApiController extends Controller
 
         // check if the invoice number is set and unique
         if (!isset($data['invoice_number']) && !isset($data['id'])) {
-            $data['invoice_number'] = Auth::user()->account->getNextInvoiceNumber(false, '', $client);
+            $data['invoice_number'] = Auth::user()->account->getNextInvoiceNumber(false, '', $client, Auth::user());
         } else if (isset($data['invoice_number'])) {
             $invoice = Invoice::scope()->where('invoice_number', '=', $data['invoice_number'])->first();
             if ($invoice) {

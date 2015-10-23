@@ -478,7 +478,7 @@ class InvoiceRepository
             }
             $clone->invoice_number = $account->invoice_number_prefix.$invoiceNumber;
         } else {
-            $clone->invoice_number = $account->getNextInvoiceNumber($invoice->is_quote, '', $invoice->client);
+            $clone->invoice_number = $account->getNextInvoiceNumber($invoice->is_quote, '', $invoice->client, Auth::user());
         }
 
         foreach ([
@@ -631,7 +631,7 @@ class InvoiceRepository
         $invoice = Invoice::createNew($recurInvoice);
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;
-        $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber(false, 'R', $recurInvoice->client);
+        $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber(false, 'R', $recurInvoice->client, $recurInvoice->user);
         $invoice->amount = $recurInvoice->amount;
         $invoice->balance = $recurInvoice->amount;
         $invoice->invoice_date = date_create()->format('Y-m-d');
