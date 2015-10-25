@@ -413,18 +413,20 @@
                     
                     {!! Former::text('website')->data_bind("value: website, valueUpdate: 'afterkeydown'") !!}
                     {!! Former::text('work_phone')->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") !!}
+                </span>
 
-                    @if (Auth::user()->isPro())             
-                        @if ($account->custom_client_label1)
-                            {!! Former::text('custom_value1')->label($account->custom_client_label1)
-                                ->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") !!}
-                        @endif
-                        @if ($account->custom_client_label2)
-                            {!! Former::text('custom_value2')->label($account->custom_client_label2)
-                                ->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") !!}
-                        @endif
-                    @endif              
+                @if (Auth::user()->isPro())             
+                    @if ($account->custom_client_label1)
+                        {!! Former::text('custom_value1')->label($account->custom_client_label1)
+                            ->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") !!}
+                    @endif
+                    @if ($account->custom_client_label2)
+                        {!! Former::text('custom_value2')->label($account->custom_client_label2)
+                            ->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") !!}
+                    @endif
+                @endif
 
+                <span data-bind="visible: $root.showMore">
                     &nbsp;
 
                     {!! Former::text('address1')->data_bind("value: address1, valueUpdate: 'afterkeydown'") !!}
@@ -459,7 +461,7 @@
                     </div>
                 </div>
 
-                <span data-bind="visible: $root.showMore">                
+                <span data-bind="visible: $root.showMore">
                     &nbsp;
                 </span>
 

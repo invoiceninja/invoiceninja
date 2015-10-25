@@ -251,7 +251,7 @@ class Account extends Eloquent
         $invoice->start_date = Utils::today();
         $invoice->invoice_design_id = $this->invoice_design_id;
         $invoice->client_id = $clientId;
-
+        
         if ($entityType === ENTITY_RECURRING_INVOICE) {
             $invoice->invoice_number = microtime(true);
             $invoice->is_recurring = true;
@@ -346,13 +346,13 @@ class Account extends Eloquent
 
     // if we're using a pattern we don't know the next number until a client
     // is selected, to support this the default value is blank
-    public function getDefaultInvoiceNumber($invoice = false, $prefix = '')
+    public function getDefaultInvoiceNumber($invoice = false)
     {
         if ($this->hasClientNumberPattern($invoice)) {
             return false;
         }
 
-        return $this->getNextInvoiceNumber($invoice, $prefix = '');
+        return $this->getNextInvoiceNumber($invoice);
     }
 
     public function getCounter($isQuote)
@@ -360,14 +360,14 @@ class Account extends Eloquent
         return $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
     }
 
-    public function getNextInvoiceNumber($invoice, $prefix = '')
+    public function getNextInvoiceNumber($invoice)
     {
         if ($this->hasNumberPattern($invoice->is_quote)) {
             return $this->getNumberPattern($invoice);
         }
 
         $counter = $this->getCounter($invoice->is_quote);
-        $prefix .= $invoice->is_quote ? $this->quote_number_prefix : $this->invoice_number_prefix;
+        $prefix = $invoice->is_quote ? $this->quote_number_prefix : $this->invoice_number_prefix;
         $counterOffset = 0;
 
         // confirm the invoice number isn't already taken 

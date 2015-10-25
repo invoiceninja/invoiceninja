@@ -272,7 +272,7 @@ class InvoiceRepository
             $account->save();
         }
 
-        if (isset($data['invoice_number'])) {
+        if (isset($data['invoice_number']) && !$invoice->is_recurring) {
             $invoice->invoice_number = trim($data['invoice_number']);
         }
 
@@ -625,7 +625,7 @@ class InvoiceRepository
         $invoice = Invoice::createNew($recurInvoice);
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;
-        $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber($recurInvoice, 'R');
+        $invoice->invoice_number = 'R' . $recurInvoice->account->getNextInvoiceNumber($recurInvoice);
         $invoice->amount = $recurInvoice->amount;
         $invoice->balance = $recurInvoice->amount;
         $invoice->invoice_date = date_create()->format('Y-m-d');
