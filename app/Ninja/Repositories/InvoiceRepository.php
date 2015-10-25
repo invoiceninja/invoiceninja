@@ -250,19 +250,16 @@ class InvoiceRepository
 
     public function save($publicId, $data, $entityType)
     {
+        $account = \Auth::user()->account;
+
         if ($publicId) {
             $invoice = Invoice::scope($publicId)->firstOrFail();
         } else {
-            $invoice = Invoice::createNew();
-            $invoice->client_id = $data['client_id'];
-            $invoice->is_recurring = $data['is_recurring'] ? true : false;
-            if ($entityType == ENTITY_QUOTE) {
-                $invoice->is_quote = true;
+            if ($data['is_recurring']) {
+                $entityType = ENTITY_RECURRING_INVOICE;
             }
-            $invoice->initialize();
+            $invoice = $account->createInvoice($entityType, $data['client_id']);
         }
-
-        $account = \Auth::user()->account;
 
         if ((isset($data['set_default_terms']) && $data['set_default_terms'])
             || (isset($data['set_default_footer']) && $data['set_default_footer'])) {

@@ -81,15 +81,12 @@ class QuoteController extends BaseController
             return Redirect::to('/invoices/create');
         }
 
-        $client = null;
+        $account = Auth::user()->account;
+        $clientId = null;
         if ($clientPublicId) {
-            $client = Client::scope($clientPublicId)->firstOrFail();
+            $clientId = Client::getPrivateId($clientPublicId);
         }
-
-        $invoice = Invoice::createNew();
-        $invoice->client = $client;
-        $invoice->is_quote = true;
-        $invoice->initialize();
+        $invoice = $account->createInvoice(ENTITY_QUOTE, $clientId);
         
         $data = [
             'entityType' => $invoice->getEntityType(),

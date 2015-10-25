@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends EntityModel
 {
-    use SoftDeletes;
+    use SoftDeletes {
+        SoftDeletes::trashed as parentTrashed;
+    }
+
     protected $dates = ['deleted_at'];
 
     protected $casts = [
@@ -23,40 +26,14 @@ class Invoice extends EntityModel
         'year',
         'date:',
     ];
-
-    public function initialize()
+    
+    public function trashed()
     {
-        $account = $this->account;
-        
-        $this->invoice_date = Utils::today();
-        $this->start_date = Utils::today();
-        $this->invoice_design_id = $account->invoice_design_id;
-
-        if (!$this->invoice_number) {
-            if ($this->is_recurring) {
-                $this->invoice_number = microtime(true);
-            } else {
-                if ($account->hasClientNumberPattern($this) && !$this->client) {
-                    // do nothing, we don't yet know the value
-                } else {
-                    $this->invoice_number = $account->getNextInvoiceNumber($this);
-                }
-            }
-        }
-        
-        if (!$this->client) {
-            $this->client = Client::createNew($this);
-            $this->client->public_id = 0;
-        }
-    }
-
-    public function isTrashed()
-    {
-        if ($this->client && $this->client->isTrashed()) {
+        if ($this->client && $this->client->trashed()) {
             return true;
         }
 
-        return parent::isTrashed();
+        return self::parentTrashed();
     }
 
     public function account()

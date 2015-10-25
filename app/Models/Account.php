@@ -243,6 +243,38 @@ class Account extends Eloquent
         return $height;
     }
 
+    public function createInvoice($entityType, $clientId = null)
+    {
+        $invoice = Invoice::createNew();
+
+        $invoice->invoice_date = Utils::today();
+        $invoice->start_date = Utils::today();
+        $invoice->invoice_design_id = $this->invoice_design_id;
+        $invoice->client_id = $clientId;
+
+        if ($entityType === ENTITY_RECURRING_INVOICE) {
+            $invoice->invoice_number = microtime(true);
+            $invoice->is_recurring = true;
+        } else {
+            if ($entityType == ENTITY_QUOTE) {
+                $invoice->is_quote = true;
+            }
+
+            if ($this->hasClientNumberPattern($invoice) && !$client) {
+                // do nothing, we don't yet know the value
+            } else {
+                $invoice->invoice_number = $this->getNextInvoiceNumber($invoice);
+            }
+        }
+        
+        if (!$clientId) {
+            $invoice->client = Client::createNew();
+            $invoice->client->public_id = 0;
+        }
+
+        return $invoice;
+    }
+
     public function hasNumberPattern($isQuote)
     {
         return $isQuote ? ($this->quote_number_pattern ? true : false) : ($this->invoice_number_pattern ? true : false);
@@ -369,13 +401,6 @@ class Account extends Eloquent
         }
         
         $this->save();
-    }
-
-    public function getLocale()
-    {
-        $language = Language::where('id', '=', $this->account->language_id)->first();
-
-        return $language->locale;
     }
 
     public function loadLocalizationSettings($client = false)

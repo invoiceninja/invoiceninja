@@ -165,9 +165,7 @@ class InvoiceController extends BaseController
         } else {
             $invoice->invoice_design->javascript = $invoice->invoice_design->pdfmake;
         }
-
-        $contact = $invitation->contact;
-        $contact->setVisible([
+        $contact = $invitation->contact; $contact->setVisible([
             'first_name',
             'last_name',
             'email',
@@ -306,7 +304,6 @@ class InvoiceController extends BaseController
                 'entityType' => $entityType,
                 'showBreadcrumbs' => $clone,
                 'invoice' => $invoice,
-                'data' => false,
                 'method' => $method,
                 'invitationContactIds' => $contactIds,
                 'url' => $url,
@@ -349,20 +346,17 @@ class InvoiceController extends BaseController
 
     public function create($clientPublicId = 0, $isRecurring = false)
     {
-        $client = null;
+        $account = Auth::user()->account;
+        $clientId = null;
         if ($clientPublicId) {
-            $client = Client::scope($clientPublicId)->firstOrFail();
+            $clientId = Client::getPrivateId($clientPublicId);
         }
+        $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
+        $invoice = $account->createInvoice($entityType, $clientId);
 
-        $invoice = Invoice::createNew();
-        $invoice->client = $client;
-        $invoice->is_recurring = $isRecurring;
-        $invoice->initialize();
-        
         $data = [
             'entityType' => $invoice->getEntityType(),
             'invoice' => $invoice,
-            'data' => Input::old('data'),
             'method' => 'POST',
             'url' => 'invoices',
             'title' => trans('texts.new_invoice'),
@@ -391,6 +385,7 @@ class InvoiceController extends BaseController
         }
 
         return [
+            'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->with('default_tax_rate')->orderBy('id')->get(),
             'countries' => Cache::get('countries'),
@@ -440,9 +435,8 @@ class InvoiceController extends BaseController
 
         if ($errors = $this->invoiceRepo->getErrors($input->invoice)) {
             Session::flash('error', trans('texts.invoice_error'));
-
-            return Redirect::to("{$entityType}s/create")
-                ->withInput()->withErrors($errors);
+            $url = "{$entityType}s/" . ($publicId ?: 'create');
+            return Redirect::to($url)->withInput()->withErrors($errors);
         } else {
             $invoice = $this->saveInvoice($publicId, $input, $entityType);
             $url = "{$entityType}s/".$invoice->public_id.'/edit';

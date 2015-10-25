@@ -4,6 +4,14 @@
 	@parent
 
 	<script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
+
+    <style type="text/css">
+
+    /* the value is auto set so we're removing the bold formatting */
+    label.control-label[for=invoice_number] {
+        font-weight: normal !important;
+    }
+    </style>
 @stop
 
 @section('content')
@@ -21,6 +29,7 @@
 
 	{!! Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
 		'client' => 'required',
+        'invoice_number' => 'required',
 		'product_key' => 'max:255'
 	)) !!}	
 
@@ -34,7 +43,7 @@
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-4" id="col_1">
 
-    		@if ($invoice->id)
+    		@if ($invoice->id || $data)
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
 					<div class="col-lg-8 col-sm-8">
@@ -57,7 +66,7 @@
 				</div>
 			</div>
 
-			@if ($invoice && $invoice->id)
+			@if ($invoice->id || $data)
 				</div>
 			@endif
 
@@ -107,9 +116,9 @@
             @if ($entityType == ENTITY_INVOICE)
             <div class="form-group" style="margin-bottom: 8px">
                 <div class="col-lg-8 col-sm-8 col-sm-offset-4" style="padding-top: 10px">                    
-                	@if ($invoice && $invoice->recurring_invoice)
+                	@if ($invoice->recurring_invoice)
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
-    				@elseif ($invoice)
+    				@elseif ($invoice->id)
                         @if (isset($lastSent) && $lastSent)
                             {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!} <br/>
                         @endif
@@ -149,7 +158,7 @@
 		</div>
 	</div>
 
-	<div class="table-responsive">
+	<div class="table-responsive" style="padding-top:4px">
 	<table class="table invoice-table">
 		<thead>
 			<tr>
@@ -341,7 +350,7 @@
             {!! Former::text('data')->data_bind("value: ko.mapping.toJSON(model)") !!}
             {!! Former::text('pdfupload') !!}    
 				
-			@if ($invoice && $invoice->id)
+			@if ($invoice->id)
 				{!! Former::populateField('id', $invoice->public_id) !!}
 				{!! Former::text('id') !!}
 			@endif
@@ -361,7 +370,7 @@
 			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
 
-            @if ($invoice && $invoice->id)                
+            @if ($invoice->id)                
                 {!! DropdownButton::normal(trans('texts.more_actions'))
                       ->withContents($actions)
                       ->dropup() !!}
@@ -968,9 +977,12 @@
 			if (event.target.type == 'textarea') {
 				return;
 			}
-			event.preventDefault();		     				
+			event.preventDefault();
 
-			submitAction('');		
+            @if($invoice->trashed())
+                return;
+            @endif
+			submitAction('');
 			return false;
 		}
 	}
@@ -1024,7 +1036,7 @@
     }
 
     function showLearnMore() {
-        $('#recurringModal').modal('show');         
+        $('#recurringModal').modal('show');
     }
 
     function setInvoiceNumber(client) {
@@ -1035,16 +1047,6 @@
         number = number.replace('{$custom1}', client.custom_value1);
         number = number.replace('{$custom2}', client.custom_value2);
         model.invoice().invoice_number(number);
-    }
-
-    function padToFour(number) {
-        if (number<=9999) { number = ("000"+number).slice(-4); }
-        return number;
-    }
-
-    function padToThree(number) {
-        if (number<=999) { number = ("00"+number).slice(-3); }
-        return number;
     }
 
 	</script>
