@@ -1,9 +1,11 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content')
 	@parent
 
-	{!! Former::open('company/import_export')->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!}
+    @include('accounts.nav', ['selected' => ACCOUNT_IMPORT_EXPORT])
+
+	{!! Former::open('settings/' . ACCOUNT_IMPORT_EXPORT)->addClass('warn-on-exit') !!}
 
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -46,7 +48,7 @@
 
 
 	{!! Former::actions( 
-            Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/company/import_export'))->appendIcon(Icon::create('remove-circle')),
+            Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/import_export'))->appendIcon(Icon::create('remove-circle')),
             Button::success(trans('texts.import'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}
 	{!! Former::close() !!}
 

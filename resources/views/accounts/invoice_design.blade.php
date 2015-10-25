@@ -1,18 +1,15 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('head')
 	@parent
 
-		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
-		<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
-        <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
-        <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
+		<script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
 
 @stop
 
 @section('content')	
 	@parent
-	@include('accounts.nav_advanced')
+    @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_DESIGN, 'advanced' => true])
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
@@ -40,8 +37,8 @@
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
 
-      var fields = ['item', 'description', 'unit_cost', 'quantity'];
-      invoiceLabels.old = {};        
+      var fields = ['item', 'description', 'unit_cost', 'quantity', 'line_total'];
+      invoiceLabels.old = {};
       for (var i=0; i<fields.length; i++) {
         var field = fields[i];
         var val = $('#labels_' + field).val();
@@ -51,9 +48,9 @@
         if (val) {
             invoiceLabels[field] = val;
         }
-      }      
+      }
 
-      generatePDF(invoice, getDesignJavascript(), true, cb);      
+      generatePDF(invoice, getDesignJavascript(), true, cb);
     }
 
     $(function() {   
@@ -76,7 +73,7 @@
 
 
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
 
       {!! Former::open()->addClass('warn-on-exit')->onchange('refreshPDF()') !!}
       {!! Former::populate($account) !!}
@@ -91,58 +88,74 @@
       <div class="panel-heading">
         <h3 class="panel-title">{!! trans('texts.invoice_design') !!}</h3>
       </div>
-        <div class="panel-body">    
+
+        <div class="panel-body form-padding-right">
+            <div role="tabpanel">
+                <ul class="nav nav-tabs" role="tablist" style="border: none">
+                    <li role="presentation" class="active"><a href="#generalSettings" aria-controls="generalSettings" role="tab" data-toggle="tab">{{ trans('texts.general_settings') }}</a></li>
+                    <li role="presentation"><a href="#invoiceLabels" aria-controls="invoiceLabels" role="tab" data-toggle="tab">{{ trans('texts.invoice_labels') }}</a></li>
+                    <li role="presentation"><a href="#invoiceOptions" aria-controls="invoiceOptions" role="tab" data-toggle="tab">{{ trans('texts.invoice_options') }}</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="generalSettings">
+                    <div class="panel-body">
+
+                      @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
+                        {!! Former::select('invoice_design_id')->style('display:inline')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}
+                      @else 
+                        {!! Former::select('invoice_design_id')->style('display:inline')->fromQuery($invoiceDesigns, 'name', 'id') !!}
+                      @endif
+
+                      {!! Former::text('font_size')->type('number')->min('0')->step('1') !!}
+                      {!! Former::text('primary_color') !!}
+                      {!! Former::text('secondary_color') !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="invoiceLabels">
+                    <div class="panel-body">
 
 
-          @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
-            {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}
-          @else 
-            {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id') !!}
-          @endif
+                      {!! Former::text('labels_item')->label(trans('texts.item')) !!}
+                      {!! Former::text('labels_description')->label(trans('texts.description')) !!}
+                      {!! Former::text('labels_unit_cost')->label(trans('texts.unit_cost')) !!}
+                      {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
+                      {!! Former::text('labels_line_total')->label(trans('texts.line_total')) !!}
 
-          {!! Former::text('font_size')->type('number')->min('0')->step('1')->style('width:120px') !!}
-          {!! Former::text('primary_color') !!}
-          {!! Former::text('secondary_color') !!}
 
-          {!! Former::actions( 
-                Button::primary(trans('texts.customize_design'))->small()->asLinkTo(URL::to('/company/advanced_settings/customize_design'))
-            ) !!}
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="invoiceOptions">
+                    <div class="panel-body">
 
-          </div>
-      </div>
+                      {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) !!}
+                      {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help')) !!}
 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.invoice_labels') !!}</h3>
-      </div>
-        <div class="panel-body">    
-    
-          {!! Former::text('labels_item')->label(trans('texts.item')) !!}
-          {!! Former::text('labels_description')->label(trans('texts.description')) !!}
-          {!! Former::text('labels_unit_cost')->label(trans('texts.unit_cost')) !!}
-          {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
-
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.invoice_options') !!}</h3>
-      </div>
-        <div class="panel-body">    
-    
-          {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) !!}
-          {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help')) !!}
-        </div>
-    </div>
 
+    <br/>
+    {!! Former::actions( 
+            Button::primary(trans('texts.customize'))
+                ->appendIcon(Icon::create('edit'))
+                ->asLinkTo(URL::to('/settings/customize_design'))
+                ->large(),
+            Button::success(trans('texts.save'))
+                ->submit()->large()
+                ->appendIcon(Icon::create('floppy-disk'))
+                ->withAttributes(['class' => 'save-button'])
+        ) !!}
+    <br/>
 
-    @if (Auth::user()->isPro())
-        {!! Former::actions( Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}
-    @else
+    @if (!Auth::user()->isPro())
         <script>
               $(function() {   
-                $('form.warn-on-exit input').prop('disabled', true);
+                $('form.warn-on-exit input, .save-button').prop('disabled', true);
               });
           </script> 
       @endif
@@ -150,11 +163,10 @@
       {!! Former::close() !!}
 
     </div>
-    <div class="col-md-6">
+  </div>
+
 
       @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
 
-    </div>
-  </div>
 
 @stop

@@ -285,20 +285,19 @@ class InvoiceRepository
         
         if (!$publicId) {
             $invoice->client_id = $data['client_id'];
-            $invoice->is_recurring = $data['is_recurring'] && !Utils::isDemo() ? true : false;
+            $invoice->is_recurring = $data['is_recurring'] ? true : false;
         }
         
         if ($invoice->is_recurring) {
+            if ($invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
+                $invoice->last_sent_date = null;
+            }
+
             $invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
             $invoice->start_date = Utils::toSqlDate($data['start_date']);
             $invoice->end_date = Utils::toSqlDate($data['end_date']);
             $invoice->due_date = null;
             $invoice->auto_bill = isset($data['auto_bill']) && $data['auto_bill'] ? true : false;
-
-            if (isset($data['show_last_sent_date']) && $data['show_last_sent_date']
-                    && isset($data['last_sent_date']) && $data['last_sent_date']) {
-                $invoice->last_sent_date = Utils::toSqlDate($data['last_sent_date']);
-            }
         } else {
             $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
             $invoice->frequency_id = 0;
@@ -374,6 +373,13 @@ class InvoiceRepository
         $invoice->custom_value2 = round($data['custom_value2'], 2);
         $invoice->custom_taxes1 = $data['custom_taxes1'] ? true : false;
         $invoice->custom_taxes2 = $data['custom_taxes2'] ? true : false;
+
+        if (isset($data['custom_text_value1'])) {
+            $invoice->custom_text_value1 = trim($data['custom_text_value1']);
+        }
+        if (isset($data['custom_text_value2'])) {
+            $invoice->custom_text_value2 = trim($data['custom_text_value2']);
+        }
 
         // custom fields charged taxes
         if ($invoice->custom_value1 && $invoice->custom_taxes1) {
@@ -498,7 +504,9 @@ class InvoiceRepository
           'custom_value2',
           'custom_taxes1',
           'custom_taxes2',
-          'partial'] as $field) {
+          'partial',
+          'custom_text_value1',
+          'custom_text_value2'] as $field) {
             $clone->$field = $invoice->$field;
         }
 
@@ -568,6 +576,29 @@ class InvoiceRepository
         return count($invoices);
     }
 
+    public function findInvoiceByInvitation($invitationKey)
+    {
+        $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
+
+        if (!$invitation) {
+            return false;
+        }
+
+        $invoice = $invitation->invoice;
+        if (!$invoice || $invoice->is_deleted) {
+            return false;
+        }
+
+        $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
+        $client = $invoice->client;
+
+        if (!$client || $client->is_deleted) {
+            return false;
+        }
+
+        return $invitation;
+    }
+
     public function findOpenInvoices($clientId)
     {
         return Invoice::scope()
@@ -616,6 +647,8 @@ class InvoiceRepository
         $invoice->custom_value2 = $recurInvoice->custom_value2;
         $invoice->custom_taxes1 = $recurInvoice->custom_taxes1;
         $invoice->custom_taxes2 = $recurInvoice->custom_taxes2;
+        $invoice->custom_text_value1 = $recurInvoice->custom_text_value1;
+        $invoice->custom_text_value2 = $recurInvoice->custom_text_value2;
         $invoice->is_amount_discount = $recurInvoice->is_amount_discount;
 
         if ($invoice->client->payment_terms != 0) {
@@ -657,5 +690,26 @@ class InvoiceRepository
         }
 
         return $invoice;
+    }
+
+    public function findNeedingReminding($account)
+    {
+        $dates = [];
+        for ($i=1; $i<=3; $i++) {
+            $field = "enable_reminder{$i}";
+            if (!$account->$field) {
+                continue;
+            }
+            $field = "num_days_reminder{$i}";
+            $dates[] = "due_date = '" . date('Y-m-d', strtotime("- {$account->$field} days")) . "'";
+        }
+        $sql = implode(' OR ', $dates);
+
+        $invoices = Invoice::whereAccountId($account->id)
+                    ->where('balance', '>', 0)
+                    ->whereRaw('(' . $sql . ')')
+                    ->get();
+
+        return $invoices;
     }
 }

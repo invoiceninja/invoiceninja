@@ -1,22 +1,20 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png" alt="Sublime's custom image"/>
+</p>
+
 # Invoice Ninja
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
+
+[![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 If you'd like to use our code to sell your own invoicing app email us for details about our affiliate program.
 
 ### Installation Options
-
 * [Zip - Free](https://www.invoiceninja.com/knowledgebase/self-host/)
 * [Bitnami - Free](https://bitnami.com/stack/invoice-ninja)
 * [Softaculous - $30](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
 
-### Getting Started
-
-If you have any questions or comments please use our [support forum](https://www.invoiceninja.com/forums/forum/support/). For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). 
-
-If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
-
 ### Features
-
 * Built using Laravel 5
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Integrates with 30+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
@@ -24,23 +22,30 @@ If you'd like to translate the site please use [caouecs/Laravel4-long](https://g
 * Tasks with time-tracking
 * Multi-user/multi-company support
 * Tax rates and payment terms
+* Reminder emails
 * Partial payments
+* Client portal
 * Custom email templates
 * [Zapier](https://zapier.com/) integration
 * [D3.js](http://d3js.org/) visualizations
 
-### Contributors
-
-* [Troels Liebe Bentsen](https://github.com/tlbdk)
-* [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
-* [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
-
 ### Documentation
 * [Ubuntu and Apache](http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/)
 * [Debian and Nginx](https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/)
-* [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
 * [User Guide](https://www.invoiceninja.com/user-guide/)
 * [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
+* [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
+* [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
+* [Feature Roadmap](https://trello.com/b/63BbiVVe/)
+
+### Recommended Providers
+* [Stripe](https://stripe.com/)
+* [Postmark](https://postmarkapp.com/)
+
+### Contributors
+* [Troels Liebe Bentsen](https://github.com/tlbdk)
+* [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
+* [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
 
 ### Frameworks/Libraries
 * [laravel/laravel](https://github.com/laravel/laravel) - A PHP Framework For Web Artisans
@@ -72,3 +77,4 @@ If you'd like to translate the site please use [caouecs/Laravel4-long](https://g
 * [bgrins/spectrum](https://github.com/bgrins/spectrum) - The No Hassle JavaScript Colorpicker
 * [lokesh/lightbox2](https://github.com/lokesh/lightbox2/) - The original lightbox script
 * [josdejong/jsoneditor](https://github.com/josdejong/jsoneditor/) - A web-based tool to view, edit and format JSON
+* [simshaun/recurr](https://github.com/simshaun/recurr) - PHP library for working with recurrence rules

@@ -1,7 +1,9 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content') 
   @parent
+
+  @include('accounts.nav', ['selected' => ACCOUNT_PRODUCTS])
 
   {!! Former::open()->addClass('warn-on-exit') !!}
   {{ Former::populateField('fill_products', intval($account->fill_products)) }}

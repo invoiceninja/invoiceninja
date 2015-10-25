@@ -12,6 +12,8 @@
     NINJA.primaryColor = "{{ Auth::user()->account->primary_color }}";
     NINJA.secondaryColor = "{{ Auth::user()->account->secondary_color }}";
     NINJA.fontSize = {{ Auth::user()->account->font_size ?: DEFAULT_FONT_SIZE }};
+  @else
+    NINJA.fontSize = {{ DEFAULT_FONT_SIZE }};
   @endif
 
   NINJA.parseFloat = function(str) {

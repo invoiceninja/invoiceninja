@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use Utils;
 use DB;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -37,11 +38,6 @@ class Client extends EntityModel
     public function contacts()
     {
         return $this->hasMany('App\Models\Contact');
-    }
-
-    public function projects()
-    {
-        return $this->hasMany('App\Models\Project');
     }
 
     public function country()
@@ -93,28 +89,35 @@ class Client extends EntityModel
         return $contact->getDisplayName();
     }
 
+    public function getCityState()
+    {
+        $swap = $this->country && $this->country->swap_postal_code;
+        return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
+    }
+
     public function getEntityType()
     {
         return ENTITY_CLIENT;
     }
 
-    public function getWebsite()
+    public function hasAddress()
     {
-        if (!$this->website) {
-            return '';
+        $fields = [
+            'address1',
+            'address2',
+            'city',
+            'state',
+            'postal_code',
+            'country_id',
+        ];
+
+        foreach ($fields as $field) {
+            if ($this->$field) {
+                return true;
+            }
         }
 
-        $link = $this->website;
-        $title = $this->website;
-        $prefix = 'http://';
-
-        if (strlen($link) > 7 && substr($link, 0, 7) === $prefix) {
-            $title = substr($title, 7);
-        } else {
-            $link = $prefix.$link;
-        }
-
-        return link_to($link, $title, array('target' => '_blank'));
+        return false;
     }
 
     public function getDateCreated()

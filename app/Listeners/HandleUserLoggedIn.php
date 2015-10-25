@@ -5,6 +5,7 @@ use Auth;
 use Carbon;
 use Session;
 use App\Events\UserLoggedIn;
+use App\Events\UserSignedUp;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
@@ -33,8 +34,8 @@ class HandleUserLoggedIn {
 	{
         $account = Auth::user()->account;
 
-        if (!Utils::isNinja() && Auth::user()->id == 1 && empty($account->last_login)) {
-            $this->accountRepo->registerUser(Auth::user());
+        if (empty($account->last_login)) {
+            event(new UserSignedUp());
         }
 
         $account->last_login = Carbon::now()->toDateTimeString();

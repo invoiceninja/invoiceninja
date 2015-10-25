@@ -22,7 +22,7 @@ return array(
   'additional_info' => 'Additional Info',
   'payment_terms' => 'Payment Terms',
   'currency_id' => 'Currency',
-  'size_id' => 'Size',
+  'size_id' => 'Company Size',
   'industry_id' => 'Industry',
   'private_notes' => 'Private Notes',
 
@@ -185,7 +185,7 @@ return array(
   'users' => 'Users',
   'localization' => 'Localization',
   'remove_logo' => 'Remove logo',
-  'logo_help' => 'Supported: JPEG, GIF and PNG. Recommended size: 200px width by 120px height',
+  'logo_help' => 'Supported: JPEG, GIF and PNG',
   'payment_gateway' => 'Payment Gateway',
   'gateway_id' => 'Gateway',
   'email_notifications' => 'Email Notifications',
@@ -262,7 +262,7 @@ return array(
   'email_salutation' => 'Dear :name,',
   'email_signature' => 'Regards,',
   'email_from' => 'The Invoice Ninja Team',
-  'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/company/notifications',
+  'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/settings/notifications',
   'invoice_link_message' => 'To view your client invoice click the link below:',
   'notification_invoice_paid_subject' => 'Invoice :invoice was paid by :client',
   'notification_invoice_sent_subject' => 'Invoice :invoice was sent to :client',
@@ -305,7 +305,7 @@ return array(
   'email_taken' => 'The email address is already registered',
   'working' => 'Working',
   'success' => 'Success',
-  'success_message' => 'You have successfully registered. Please visit the link in the account confirmation email to verify your email address.',
+  'success_message' => 'You have successfully registered! Please visit the link in the account confirmation email to verify your email address.',
   'erase_data' => 'This will permanently erase your data.',
   'password' => 'Password',
 
@@ -320,7 +320,7 @@ return array(
                           -- email us at contact@invoiceninja.com',
 
   'unsaved_changes' => 'You have unsaved changes',
-  'custom_fields' => 'Custom fields',
+  'custom_fields' => 'Custom Fields',
   'company_fields' => 'Company Fields',
   'client_fields' => 'Client Fields',
   'field_label' => 'Field Label',
@@ -389,7 +389,7 @@ return array(
   'deleted_quotes' => 'Successfully deleted :count quotes',
   'converted_to_invoice' => 'Successfully converted quote to invoice',
 
-  'quote_subject' => 'New quote from :account',
+  'quote_subject' => 'New quote $quote from :account',
   'quote_message' => 'To view your quote for :amount, click the link below.',
   'quote_link_message' => 'To view your client quote click the link below:',
   'notification_quote_sent_subject' => 'Quote :invoice was sent to :client',
@@ -424,7 +424,7 @@ return array(
 
   'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
   'confirm_email_quote' => 'Are you sure you want to email this quote?',
-  'confirm_recurring_email_invoice' => 'Recurring is enabled, are you sure you want this invoice emailed?',
+  'confirm_recurring_email_invoice' => 'Are you sure you want this invoice emailed?',
 
   'cancel_account' => 'Cancel Account',
   'cancel_account_message' => 'Warning: This will permanently erase all of your data, there is no undo.',
@@ -557,7 +557,7 @@ return array(
   'created_gateway' => 'Successfully created gateway',
   'deleted_gateway' => 'Successfully deleted gateway',
   'pay_with_paypal' => 'PayPal',
-  'pay_with_card' => 'Credit card',
+  'pay_with_card' => 'Credit Card',
 
   'change_password' => 'Change password',
   'current_password' => 'Current password',
@@ -587,7 +587,7 @@ return array(
   'confirmation_resent' => 'The confirmation email was resent',
   
   'gateway_help_42' => ':link to sign up for BitPay.<br/>Note: use a Legacy API Key, not an API token.',
-  'payment_type_credit_card' => 'Credit card',
+  'payment_type_credit_card' => 'Credit Card',
   'payment_type_paypal' => 'PayPal',
   'payment_type_bitcoin' => 'Bitcoin',
   'knowledge_base' => 'Knowledge Base',
@@ -621,7 +621,7 @@ return array(
   'run' => 'Run',
   'export' => 'Export',
   'documentation' => 'Documentation',
-  'zapier' => 'Zapier <sup>Beta</sup>',
+  'zapier' => 'Zapier',
   'recurring' => 'Recurring',
   'last_invoice_sent' => 'Last invoice sent :date',
 
@@ -672,7 +672,7 @@ return array(
   'counter' => 'Counter',
 
   'payment_type_dwolla' => 'Dwolla',
-  'gateway_help_43' => ':link to sign up for Dwolla.',
+  'gateway_help_43' => ':link to sign up for Dwolla.<br/>Note: remove dashes from the Destination/Dwolla Id',
   'partial_value' => 'Must be greater than zero and less than the total',
   'more_actions' => 'More Actions',
 
@@ -745,7 +745,7 @@ return array(
   'current_user' => 'Current User',
   'new_recurring_invoice' => 'New Recurring Invoice',
   'recurring_invoice' => 'Recurring Invoice',
-  'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice',
+  'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice, it\'s scheduled for :date',
   'created_by_invoice' => 'Created by :invoice',
   'primary_user' => 'Primary User',
   'help' => 'Help',
@@ -765,7 +765,7 @@ return array(
   'status_viewed' => 'Viewed',
   'status_partial' => 'Partial',
   'status_paid' => 'Paid',
-  'show_line_item_tax' => 'Display <b>line item taxes</b> inline',
+  'show_line_item_tax' => 'Display <b>line item taxes inline</b>',
 
   'iframe_url' => 'Website',
   'iframe_url_help1' => 'Copy the following code to a page on your site.',
@@ -775,6 +775,63 @@ return array(
   'military_time' => '24 Hour Time',
   'last_sent' => 'Last Sent',
 
+  'reminder_emails' => 'Reminder Emails',
+  'templates_and_reminders' => 'Templates & Reminders',
+  'subject' => 'Subject',
+  'body' => 'Body',
+  'first_reminder' => 'First Reminder',
+  'second_reminder' => 'Second Reminder',
+  'third_reminder' => 'Third Reminder',
+  'num_days_reminder' => 'Days after due date',
+  'reminder_subject' => 'Reminder: Invoice :invoice from :account',
+  'reset' => 'Reset',
+  'invoice_not_found' => 'The requested invoice is not available',
+
+  'referral_program' => 'Referral Program',
+  'referral_code' => 'Referral Code',
+  'last_sent_on' => 'Sent Last: :date',
+
+  'page_expire' => 'This page will expire soon, :click_here to keep working',
+  'upcoming_quotes' => 'Upcoming Quotes',
+  'expired_quotes' => 'Expired Quotes',
+
+  'sign_up_using' => 'Sign up using',
+  'invalid_credentials' => 'These credentials do not match our records',
+  'show_all_options' => 'Show all options',
+  'user_details' => 'User Details',
+  'oneclick_login' => 'One-Click Login',
+  'disable' => 'Disable',
+  'invoice_quote_number' => 'Invoice and Quote Numbers',
+  'invoice_charges' => 'Invoice Charges',
+
+  'invitation_status' => [
+    'sent' => 'Email Sent',
+    'opened' => 'Email Openend',
+    'viewed' => 'Invoice Viewed',
+  ],
+  'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact.',
+  'notification_invoice_bounced_subject' => 'Unable to deliver Invoice :invoice',
+  'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact.',
+  'notification_quote_bounced_subject' => 'Unable to deliver Quote :invoice',
+
+  'custom_invoice_link' => 'Custom Invoice Link',
+  'total_invoiced' => 'Total Invoiced',
+  'open_balance' => 'Open Balance',
+  'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
+  'basic_settings' => 'Basic Settings',
+  'pro' => 'Pro',
+  'gateways' => 'Payment Gateways',
+
+  'next_send_on' => 'Send Next: :date',
+  'no_longer_running' => 'This invoice is not scheduled to run',
+  'general_settings' => 'General Settings',
+  'customize' => 'Customize',
+
+  'oneclick_login_help' => 'Connect an account to login without a password',
+  'referral_code_help' => 'Earn money by sharing our app online',
   
+  'enable_with_stripe' => 'Enable | Requires Stripe',
+
 );
+
 

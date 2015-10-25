@@ -178,7 +178,7 @@ class InvoiceApiController extends Controller
                 $data[$key] = $val;
             }
         }
-        
+
         // hardcode some fields
         $fields = [
             'is_recurring' => false
@@ -191,6 +191,10 @@ class InvoiceApiController extends Controller
         // initialize the line items
         if (isset($data['product_key']) || isset($data['cost']) || isset($data['notes']) || isset($data['qty'])) {
             $data['invoice_items'] = [self::prepareItem($data)];
+
+            // make sure the tax isn't applied twice (for the invoice and the line item)
+            unset($data['invoice_items'][0]['tax_name']);
+            unset($data['invoice_items'][0]['tax_rate']);
         } else {
             foreach ($data['invoice_items'] as $index => $item) {
                 $data['invoice_items'][$index] = self::prepareItem($item);

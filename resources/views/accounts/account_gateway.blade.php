@@ -1,9 +1,11 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content') 
     @parent 
 
-    {!! Former::open($url)->method($method)->rule()->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!} 
+    @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
+
+    {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!} 
     {!! Former::populate($account) !!}
 
 
@@ -11,7 +13,7 @@
     <div class="panel-heading">
         <h3 class="panel-title">{!! trans($title) !!}</h3>
     </div>
-    <div class="panel-body">
+    <div class="panel-body form-padding-right">
         
     @if ($accountGateway)
         {!! Former::populateField('gateway_id', $accountGateway->gateway_id) !!}
@@ -76,7 +78,9 @@
             @endif
 
             @if ($gateway->id == GATEWAY_STRIPE)
-                {!! Former::select('token_billing_type_id')->options($tokenBillingOptions)->help(trans('texts.token_billing_help')) !!}
+                {!! Former::select('token_billing_type_id')
+                        ->options($tokenBillingOptions)
+                        ->help(trans('texts.token_billing_help')) !!}
             @endif
         </div>
         
@@ -104,7 +108,7 @@
     <p/>&nbsp;<p/>
 
     {!! Former::actions( 
-        $countGateways > 0 ? Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/company/payments'))->appendIcon(Icon::create('remove-circle')) : false,
+        $countGateways > 0 ? Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/online_payments'))->appendIcon(Icon::create('remove-circle')) : false,
         Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}
     {!! Former::close() !!}
 

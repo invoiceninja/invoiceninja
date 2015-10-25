@@ -25,11 +25,16 @@ class StartupCheck
      */
     public function handle($request, Closure $next)
     {
+        // Set up trusted X-Forwarded-Proto proxies
+        // TRUSTED_PROXIES accepts a comma delimited list of subnets
+        // ie, TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
+        if (isset($_ENV['TRUSTED_PROXIES'])) {
+            Request::setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))));
+        }
+
         // Ensure all request are over HTTPS in production
-        if (App::environment() == ENV_PRODUCTION) {
-            if (!Request::secure()) {
-                return Redirect::secure(Request::getRequestUri());
-            }
+        if (App::environment() == ENV_PRODUCTION && !Request::secure()) {
+            return Redirect::secure(Request::getRequestUri());
         }
 
         // If the database doens't yet exist we'll skip the rest
@@ -37,40 +42,19 @@ class StartupCheck
             return $next($request);
         }
 
-        // Check data has been cached
-        $cachedTables = [
-            'currencies' => 'App\Models\Currency',
-            'sizes' => 'App\Models\Size',
-            'industries' => 'App\Models\Industry',
-            'timezones' => 'App\Models\Timezone',
-            'dateFormats' => 'App\Models\DateFormat',
-            'datetimeFormats' => 'App\Models\DatetimeFormat',
-            'languages' => 'App\Models\Language',
-            'paymentTerms' => 'App\Models\PaymentTerm',
-            'paymentTypes' => 'App\Models\PaymentType',
-            'countries' => 'App\Models\Country',
-            'invoiceDesigns' => 'App\Models\InvoiceDesign',
-        ];
-        if (Input::has('clear_cache')) {
-            Session::flash('message', 'Cache cleared');
-        }
-        foreach ($cachedTables as $name => $class) {
-            if (Input::has('clear_cache') || !Cache::has($name)) {
-                if ($name == 'paymentTerms') {
-                    $orderBy = 'num_days';
-                } elseif (in_array($name, ['currencies', 'sizes', 'industries', 'languages', 'countries'])) {
-                    $orderBy = 'name';
-                } else {
-                    $orderBy = 'id';
-                }
-                $tableData = $class::orderBy($orderBy)->get();
-                if (count($tableData)) {
-                    Cache::forever($name, $tableData);
-                }
+        // Check if a new version was installed
+        if (!Utils::isNinja()) {
+            $file = storage_path() . '/version.txt';
+            $version = @file_get_contents($file);
+            if ($version != NINJA_VERSION) {
+                $handle = fopen($file, 'w');
+                fwrite($handle, NINJA_VERSION);
+                fclose($handle);
+                return Redirect::to('/update');
             }
         }
 
-        // check the application is up to date and for any news feed messages
+        // Check the application is up to date and for any news feed messages
         if (Auth::check()) {
             $count = Session::get(SESSION_COUNTER, 0);
             Session::put(SESSION_COUNTER, ++$count);
@@ -122,11 +106,6 @@ class StartupCheck
             App::setLocale($locale);
         }
 
-        // Track the referral code
-        if (Input::has('rc')) {
-            Session::set(SESSION_REFERRAL_CODE, Input::get('rc'));
-        }
-
         // Make sure the account/user localization settings are in the session
         if (Auth::check() && !Session::has(SESSION_TIMEZONE)) {
             Event::fire(new UserSettingsChanged());
@@ -147,10 +126,11 @@ class StartupCheck
                             $design = new InvoiceDesign();
                             $design->id = $item->id;
                             $design->name = $item->name;
-                            $design->javascript = $item->javascript;
+                            $design->pdfmake = $item->pdfmake;
                             $design->save();
                         }
 
+                        Cache::forget('invoiceDesigns');
                         Session::flash('message', trans('texts.bought_designs'));
                     }
                 } elseif ($productId == PRODUCT_WHITE_LABEL) {
@@ -164,7 +144,41 @@ class StartupCheck
                 }
             }
         }
+
+        // Check data has been cached
+        $cachedTables = [
+            'currencies' => 'App\Models\Currency',
+            'sizes' => 'App\Models\Size',
+            'industries' => 'App\Models\Industry',
+            'timezones' => 'App\Models\Timezone',
+            'dateFormats' => 'App\Models\DateFormat',
+            'datetimeFormats' => 'App\Models\DatetimeFormat',
+            'languages' => 'App\Models\Language',
+            'paymentTerms' => 'App\Models\PaymentTerm',
+            'paymentTypes' => 'App\Models\PaymentType',
+            'countries' => 'App\Models\Country',
+            'invoiceDesigns' => 'App\Models\InvoiceDesign',
+        ];
+        if (Input::has('clear_cache')) {
+            Session::flash('message', 'Cache cleared');
+        }
+        foreach ($cachedTables as $name => $class) {
+            if (Input::has('clear_cache') || !Cache::has($name)) {
+                if ($name == 'paymentTerms') {
+                    $orderBy = 'num_days';
+                } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries'])) {
+                    $orderBy = 'name';
+                } else {
+                    $orderBy = 'id';
+                }
+                $tableData = $class::orderBy($orderBy)->get();
+                if (count($tableData)) {
+                    Cache::forever($name, $tableData);
+                }
+            }
+        }
         
+        // Show message to IE 8 and before users
         if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
             Session::flash('error', trans('texts.old_browser'));
         }

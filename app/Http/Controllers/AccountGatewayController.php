@@ -97,7 +97,11 @@ class AccountGatewayController extends BaseController
         $data['url'] = 'gateways';
         $data['method'] = 'POST';
         $data['title'] = trans('texts.add_gateway');
-        $data['selectGateways'] = Gateway::where('payment_library_id', '=', 1)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->orderBy('name')->get();
+        $data['selectGateways'] = Gateway::where('payment_library_id', '=', 1)
+                                    ->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)
+                                    ->where('id', '!=', GATEWAY_BITPAY)
+                                    ->where('id', '!=', GATEWAY_DWOLLA)
+                                    ->orderBy('name')->get();
         $data['hiddenFields'] = Gateway::$hiddenFields;
 
         return View::make('accounts.account_gateway', $data);
@@ -155,7 +159,6 @@ class AccountGatewayController extends BaseController
             'gateways' => $gateways,
             'creditCardTypes' => $creditCards,
             'tokenBillingOptions' => $tokenBillingOptions,
-            'showBreadcrumbs' => false,
             'countGateways' => count($currentGateways)
         ];
     }
@@ -169,7 +172,7 @@ class AccountGatewayController extends BaseController
 
         Session::flash('message', trans('texts.deleted_gateway'));
 
-        return Redirect::to('company/payments');
+        return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
     }
 
     /**
@@ -239,7 +242,7 @@ class AccountGatewayController extends BaseController
             foreach ($fields as $field => $details) {
                 $value = trim(Input::get($gateway->id.'_'.$field));
                 // if the new value is masked use the original value
-                if ($value && $value === str_repeat('*', strlen($value))) {
+                if ($oldConfig && $value && $value === str_repeat('*', strlen($value))) {
                     $value = $oldConfig->$field;
                 }
                 if (!$value && ($field == 'testMode' || $field == 'developerMode')) {

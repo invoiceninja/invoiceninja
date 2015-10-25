@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Response;
-use Request;
 use Redirect;
 use Auth;
 use View;
@@ -52,6 +51,13 @@ class HomeController extends BaseController
             Session::put(PREV_USER_ID, Auth::user()->id);
             Auth::user()->clearSession();
             Auth::logout();
+        }
+
+        // Track the referral/campaign code
+        foreach (['rc', 'utm_campaign'] as $code) {
+            if (Input::has($code)) {
+                Session::set(SESSION_REFERRAL_CODE, Input::get($code));
+            }
         }
 
         if (Auth::check()) {

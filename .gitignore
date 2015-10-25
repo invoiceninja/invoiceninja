@@ -14,7 +14,7 @@
 /vendor
 /node_modules
 /.DS_Store
-/Thumbs.db
+Thumbs.db
 /.env
 /.env.development.php
 /.env.php

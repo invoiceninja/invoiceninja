@@ -111,7 +111,7 @@ class CheckData extends Command {
                                 ->first(['invoices.amount', 'invoices.is_recurring', 'invoices.is_quote', 'invoices.deleted_at', 'invoices.id', 'invoices.is_deleted']);
 
                     // Check if this invoice was once set as recurring invoice
-                    if (!$invoice->is_recurring && DB::table('invoices')
+                    if ($invoice && !$invoice->is_recurring && DB::table('invoices')
                             ->where('recurring_invoice_id', '=', $activity->invoice_id)
                             ->first(['invoices.id'])) {
                         $invoice->is_recurring = 1;
@@ -197,7 +197,7 @@ class CheckData extends Command {
                         $activityFix = 0;
                     }
                 } else if ($activity->activity_type_id == ACTIVITY_TYPE_DELETE_PAYMENT) {
-                    // **Fix for delting payment after deleting invoice**
+                    // **Fix for deleting payment after deleting invoice**
                     if ($activity->adjustment != 0 && $invoice->is_deleted && $activity->created_at > $invoice->deleted_at) {
                         $this->info("Incorrect adjustment for deleted payment adjustment:{$activity->adjustment}");
                         $foundProblem = true;
@@ -235,7 +235,7 @@ class CheckData extends Command {
                             'updated_at' => new Carbon,
                             'account_id' => $client->account_id,
                             'client_id' => $client->id,
-                            'message' => 'Recovered update to invoice [<a href="https://github.com/hillelcoren/invoice-ninja/releases/tag/v1.7.1" target="_blank">details</a>]',
+                            'message' => 'Corrected client balance',
                             'adjustment' => $client->actual_balance - $activity->balance,
                             'balance' => $client->actual_balance,
                     ]);

@@ -72,10 +72,10 @@ class InvoiceCest
         $I->click('Recurring Invoice');
         $I->see($clientEmail);
 
-        $I->click('#lastInvoiceSent');
+        $I->click('#lastSent');
         $I->see($invoiceNumber);
     }
-    
+
     public function editInvoice(AcceptanceTester $I)
     {
         $I->wantTo('edit an invoice');
@@ -106,7 +106,6 @@ class InvoiceCest
 
         $I->see($invoiceNumber);
     }
-
     
     /*
     public function deleteInvoice(AcceptanceTester $I)

@@ -112,6 +112,7 @@ header h3 em {
 <script type="text/javascript">
 
 $(function() {
+    fbq('track', 'Purchase', {value: '{{ $price }}', currency: 'USD'});
     trackEvent('/license', '/product_{{ $productId }}');
 
     @if (isset($redirectTo))

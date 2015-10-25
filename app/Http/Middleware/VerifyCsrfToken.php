@@ -14,6 +14,8 @@ class VerifyCsrfToken extends BaseVerifier {
         'api/v1/tasks',
         'api/v1/email_invoice',
         'api/v1/hooks',
+        'hook/email_opened',
+        'hook/email_bounced',
     ];
 
 	/**

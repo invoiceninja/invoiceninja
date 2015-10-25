@@ -1,18 +1,20 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content') 
   @parent
 
+  @include('accounts.nav', ['selected' => ACCOUNT_PRODUCTS])
+
   {!! Former::open($url)->method($method)
       ->rules(['product_key' => 'required|max:255'])
-      ->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!}
+      ->addClass('warn-on-exit') !!}
 
 
   <div class="panel panel-default">
   <div class="panel-heading">
     <h3 class="panel-title">{!! $title !!}</h3>
   </div>
-  <div class="panel-body">
+  <div class="panel-body form-padding-right">
 
   @if ($product)
     {{ Former::populate($product) }}
@@ -27,7 +29,7 @@
   </div>
 
   {!! Former::actions( 
-      Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/company/products'))->appendIcon(Icon::create('remove-circle')),
+      Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/products'))->appendIcon(Icon::create('remove-circle')),
       Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
   ) !!}
 

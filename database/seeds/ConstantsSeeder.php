@@ -103,7 +103,7 @@ class ConstantsSeeder extends Seeder
 		Size::create(array('name' => '101 - 500'));
 		Size::create(array('name' => '500+'));		
 
-        PaymentTerm::create(array('num_days' => 7, 'name' => 'Net 7'));
+        	PaymentTerm::create(array('num_days' => 7, 'name' => 'Net 7'));
 		PaymentTerm::create(array('num_days' => 10, 'name' => 'Net 10'));
 		PaymentTerm::create(array('num_days' => 14, 'name' => 'Net 14'));
 		PaymentTerm::create(array('num_days' => 15, 'name' => 'Net 15'));
@@ -112,7 +112,7 @@ class ConstantsSeeder extends Seeder
 		PaymentTerm::create(array('num_days' => 90, 'name' => 'Net 90'));
         
 		PaymentLibrary::create(['name' => 'Omnipay']);
-        PaymentLibrary::create(['name' => 'PHP-Payments [Deprecated]']);
+        	PaymentLibrary::create(['name' => 'PHP-Payments [Deprecated]']);
 
 		/*	
 		d, dd: Numeric date, no leading zero and leading zero, respectively. Eg, 5, 05.
@@ -244,7 +244,7 @@ class ConstantsSeeder extends Seeder
 		    'Asia/Dhaka'           => "(GMT+06:00) Dhaka",
 		    'Asia/Novosibirsk'     => "(GMT+07:00) Novosibirsk",
 		    'Asia/Bangkok'         => "(GMT+07:00) Bangkok",
-            'Asia/Ho_Chi_Minh'     => "(GMT+07.00) Ho Chi Minh",
+		    'Asia/Ho_Chi_Minh'     => "(GMT+07.00) Ho Chi Minh",
 		    'Asia/Jakarta'         => "(GMT+07:00) Jakarta",
 		    'Asia/Krasnoyarsk'     => "(GMT+08:00) Krasnoyarsk",
 		    'Asia/Chongqing'       => "(GMT+08:00) Chongqing",

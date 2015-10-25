@@ -120,19 +120,26 @@ module.exports = function(grunt) {
         src: [
           'public/vendor/bootstrap/dist/css/bootstrap.min.css',
           'public/vendor/font-awesome/css/font-awesome.min.css',
-          /*
-          'public/css/bootstrap.splash.css',
-          'public/css/splash.css',
-          */
           'public/css/bootstrap-combobox.css',
           'public/vendor/datatables/media/css/jquery.dataTables.css',
           'public/vendor/datatables-bootstrap3/BS3/assets/css/datatables.css',
+          'public/css/public.style.css',
         ],
         dest: 'public/css/built.public.css',
         nonull: true,
         options: {
             process: false
         }
+      },
+      js_pdf: {
+        src: [
+          'public/js/pdf_viewer.js',
+          'public/js/compatibility.js',
+          'public/js/pdfmake.min.js',
+          'public/js/vfs_fonts.js',
+        ],
+        dest: 'public/js/pdf.built.js',
+        nonull: true
       }
     }
   });

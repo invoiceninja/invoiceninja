@@ -20,18 +20,21 @@ use App\Models\Industry;
 use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Events\UserSettingsChanged;
+use App\Services\EmailService;
 
 class AppController extends BaseController
 {
     protected $accountRepo;
     protected $mailer;
+    protected $emailService;
 
-    public function __construct(AccountRepository $accountRepo, Mailer $mailer)
+    public function __construct(AccountRepository $accountRepo, Mailer $mailer, EmailService $emailService)
     {
         parent::__construct();
 
         $this->accountRepo = $accountRepo;
         $this->mailer = $mailer;
+        $this->emailService = $emailService;
     }
 
     public function showSetup()
@@ -53,7 +56,7 @@ class AppController extends BaseController
         $test = Input::get('test');
 
         $app = Input::get('app');
-        $app['key'] = str_random(RANDOM_KEY_LENGTH);
+        $app['key'] = env('APP_KEY') ?: str_random(RANDOM_KEY_LENGTH);
 
         $database = Input::get('database');
         $dbType = $database['default'];
@@ -90,7 +93,8 @@ class AppController extends BaseController
                     "MAIL_HOST={$mail['host']}\n".
                     "MAIL_USERNAME={$mail['username']}\n".
                     "MAIL_FROM_NAME={$mail['from']['name']}\n".
-                    "MAIL_PASSWORD={$mail['password']}";
+                    "MAIL_PASSWORD={$mail['password']}\n\n".
+                    "#PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'";
 
         // Write Config Settings
         $fp = fopen(base_path()."/.env", 'w');
@@ -193,5 +197,20 @@ class AppController extends BaseController
         }
 
         return Redirect::to('/');
+    }
+
+    public function emailBounced()
+    {
+        $messageId = Input::get('MessageID');
+        $error = Input::get('Name') . ': ' . Input::get('Description');
+        return $this->emailService->markBounced($messageId, $error) ? RESULT_SUCCESS : RESULT_FAILURE;
+    }
+
+    public function emailOpened()
+    {
+        $messageId = Input::get('MessageID');
+        return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
+        
+        return RESULT_SUCCESS;
     }
 }

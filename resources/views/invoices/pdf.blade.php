@@ -72,10 +72,11 @@
   @endif
 
   var NINJA = NINJA || {};
-  NINJA.primaryColor = "{{ $account->primary_color }}";
-  NINJA.secondaryColor = "{{ $account->secondary_color }}";
-  NINJA.fontSize = {{ $account->font_size }};
-
+  @if (Utils::isPro())
+      NINJA.primaryColor = "{{ $account->primary_color }}";
+      NINJA.secondaryColor = "{{ $account->secondary_color }}";
+      NINJA.fontSize = {{ $account->font_size }};
+  @endif
   var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
 
   if (window.invoice) {
@@ -88,7 +89,7 @@
   var needsRefresh = false;
 
   function refreshPDF(force) {
-    getPDFString(refreshPDFCB, force);
+    return getPDFString(refreshPDFCB, force);
   }
   
   function refreshPDFCB(string) {

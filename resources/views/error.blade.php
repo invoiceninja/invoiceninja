@@ -8,7 +8,7 @@
 <div class="well">
   <div class="container" style="min-height:400px">
   <h3>Something went wrong...</h3>
-  {{ $error }}
+  <h4>{{ $error }}</h4>
   <h4>If you'd like help please email us at contact@invoiceninja.com.</h4>
 </div>
 </div>

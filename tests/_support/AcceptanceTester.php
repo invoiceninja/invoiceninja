@@ -31,7 +31,7 @@ class AcceptanceTester extends \Codeception\Actor
         $I->amOnPage('/login');
         $I->fillField(['name' => 'email'], Fixtures::get('username'));
         $I->fillField(['name' => 'password'], Fixtures::get('password'));
-        $I->click('Let\'s go');
+        $I->click('Login');
 
         //$I->saveSessionSnapshot('login');
     }   

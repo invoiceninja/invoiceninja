@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use Utils;
 use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -21,7 +22,7 @@ class Invoice extends EntityModel
 
     public function user()
     {
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function client()
@@ -139,6 +140,8 @@ class Invoice extends EntityModel
             'custom_taxes2',
             'partial',
             'has_tasks',
+            'custom_text_value1',
+            'custom_text_value2',
         ]);
 
         $this->client->setVisible([
@@ -186,6 +189,8 @@ class Invoice extends EntityModel
             'custom_invoice_label2',
             'pdf_email_attachment',
             'show_item_taxes',
+            'custom_invoice_text_label1',
+            'custom_invoice_text_label2',
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {
@@ -210,6 +215,117 @@ class Invoice extends EntityModel
 
         return $this;
     }
+
+    public function getSchedule()
+    {
+        if (!$this->start_date || !$this->is_recurring || !$this->frequency_id) {
+            return false;
+        }
+
+        $startDate = $this->getOriginal('last_sent_date') ?: $this->getOriginal('start_date');
+        $startDate .= ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00:00';
+        $startDate = $this->account->getDateTime($startDate);
+        $endDate = $this->end_date ? $this->account->getDateTime($this->getOriginal('end_date')) : null;
+        $timezone = $this->account->getTimezone();
+
+        $rule = $this->getRecurrenceRule();
+        $rule = new \Recurr\Rule("{$rule}", $startDate, $endDate, $timezone);
+
+        // Fix for months with less than 31 days
+        $transformerConfig = new \Recurr\Transformer\ArrayTransformerConfig();
+        $transformerConfig->enableLastDayOfMonthFix();
+        
+        $transformer = new \Recurr\Transformer\ArrayTransformer();
+        $transformer->setConfig($transformerConfig);
+        $dates = $transformer->transform($rule);
+
+        if (count($dates) < 2) {
+            return false;
+        }
+
+        return $dates;
+    }
+
+    public function getNextSendDate()
+    {
+        if ($this->start_date && !$this->last_sent_date) {
+            $startDate = $this->getOriginal('start_date') . ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00:00';
+            return $this->account->getDateTime($startDate);
+        }
+
+        if (!$schedule = $this->getSchedule()) {
+            return null;
+        }
+
+        if (count($schedule) < 2) {
+            return null;
+        }
+        
+        return $schedule[1]->getStart();
+    }
+
+    public function getPrettySchedule($min = 1, $max = 10)
+    {
+        if (!$schedule = $this->getSchedule($max)) {
+            return null;
+        }
+
+        $dates = [];
+
+        for ($i=$min; $i<min($max, count($schedule)); $i++) {
+            $date = $schedule[$i];
+            $date = $this->account->formatDate($date->getStart());
+            $dates[] = $date;
+        }
+
+        return implode('<br/>', $dates);
+    }
+
+    private function getRecurrenceRule()
+    {
+        $rule = '';
+
+        switch ($this->frequency_id) {
+            case FREQUENCY_WEEKLY:
+                $rule = 'FREQ=WEEKLY;';
+                break;
+            case FREQUENCY_TWO_WEEKS:
+                $rule = 'FREQ=WEEKLY;INTERVAL=2;';
+                break;
+            case FREQUENCY_FOUR_WEEKS:
+                $rule = 'FREQ=WEEKLY;INTERVAL=4;';
+                break;
+            case FREQUENCY_MONTHLY:
+                $rule = 'FREQ=MONTHLY;';
+                break;
+            case FREQUENCY_THREE_MONTHS:
+                $rule = 'FREQ=MONTHLY;INTERVAL=3;';
+                break;
+            case FREQUENCY_SIX_MONTHS:
+                $rule = 'FREQ=MONTHLY;INTERVAL=6;';
+                break;
+            case FREQUENCY_ANNUALLY:
+                $rule = 'FREQ=YEARLY;';
+                break;
+        }
+
+        if ($this->end_date) {
+            $rule .= 'UNTIL=' . $this->end_date;
+        }
+
+        return $rule;
+    }
+
+    /*
+    public function shouldSendToday()
+    {
+        if (!$nextSendDate = $this->getNextSendDate()) {
+            return false;
+        }
+        
+        return $this->account->getDateTime() >= $nextSendDate;
+    }
+    */
 
     public function shouldSendToday()
     {
@@ -261,6 +377,56 @@ class Invoice extends EntityModel
         }
 
         return false;
+    }
+
+    public function getReminder()
+    {
+        for ($i=1; $i<=3; $i++) {
+            $field = "enable_reminder{$i}";
+            if (!$this->account->$field) {
+                continue;
+            }
+            $field = "num_days_reminder{$i}";
+            $date = date('Y-m-d', strtotime("- {$this->account->$field} days"));
+
+            if ($this->due_date == $date) {
+                return "reminder{$i}";
+            }
+        }
+
+        return false;
+    }
+
+    public function getPDFString()
+    {
+        if (!env('PHANTOMJS_CLOUD_KEY')) {
+            return false;
+        }
+
+        $invitation = $this->invitations[0];
+        $link = $invitation->getLink();
+
+        $curl = curl_init();
+        $jsonEncodedData = json_encode([
+            'targetUrl' => "{$link}?phantomjs=true",
+            'requestType' => 'raw',
+            'delayTime' => 1000,
+        ]);
+
+        $opts = [
+            CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY'),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => $jsonEncodedData,
+            CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
+        ];
+
+        curl_setopt_array($curl, $opts);
+        $encodedString = strip_tags(curl_exec($curl));
+        curl_close($curl);
+
+        return Utils::decodePDF($encodedString);
     }
 }
 

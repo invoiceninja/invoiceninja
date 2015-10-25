@@ -56,7 +56,7 @@ class TaskController extends BaseController
         }
 
         return $table->addColumn('created_at', function($model) { return link_to("tasks/{$model->public_id}/edit", Task::calcStartTime($model)); })
-                ->addColumn('time_log', function($model) { return gmdate('H:i:s', Task::calcDuration($model)); })
+                ->addColumn('time_log', function($model) { return Utils::formatTime(Task::calcDuration($model)); })
                 ->addColumn('description', function($model) { return $model->description; })
                 ->addColumn('invoice_number', function($model) { return self::getStatusLabel($model); })
                 ->addColumn('dropdown', function ($model) {
@@ -117,6 +117,13 @@ class TaskController extends BaseController
     public function store()
     {
         return $this->save();
+    }
+
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return Redirect::to("tasks/{$publicId}/edit");
     }
 
     /**
@@ -214,6 +221,14 @@ class TaskController extends BaseController
 
         if (in_array($action, ['archive', 'delete', 'invoice', 'restore', 'add_to_invoice'])) {
             return self::bulk();
+        }
+
+        if ($validator = $this->taskRepo->getErrors(Input::all())) {
+            $url = $publicId ? 'tasks/'.$publicId.'/edit' : 'tasks/create';
+            Session::flash('error', trans('texts.task_errors'));
+            return Redirect::to($url)
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $task = $this->taskRepo->save($publicId, Input::all());

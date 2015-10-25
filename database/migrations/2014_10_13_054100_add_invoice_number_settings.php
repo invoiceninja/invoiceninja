@@ -14,10 +14,10 @@ class AddInvoiceNumberSettings extends Migration {
 	{
 		Schema::table('accounts', function($table)
 		{
-			$table->text('invoice_number_prefix')->nullable();
+			$table->string('invoice_number_prefix')->nullable();
 			$table->integer('invoice_number_counter')->default(1)->nullable();
 
-			$table->text('quote_number_prefix')->nullable();
+			$table->string('quote_number_prefix')->nullable();
 			$table->integer('quote_number_counter')->default(1)->nullable();
 
 			$table->boolean('share_counter')->default(true);

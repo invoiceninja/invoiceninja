@@ -116,6 +116,26 @@ class AppServiceProvider extends ServiceProvider {
             return $credit >= $amount;
         });
 
+        // check that the time log elements don't overlap
+        Validator::extend('time_log', function($attribute, $value, $parameters) {
+            $lastTime = 0;
+            $value = json_decode($value);
+            array_multisort($value);
+            foreach ($value as $timeLog) {
+                list($startTime, $endTime) = $timeLog;
+                if (!$endTime) {
+                    continue;
+                }
+                if ($startTime < $lastTime || $startTime > $endTime) {
+                    return false;
+                }
+                if ($endTime < min($startTime, $lastTime)) {
+                    return false;
+                }
+                $lastTime = max($lastTime, $endTime);
+            }
+            return true;
+        });
 
         Validator::extend('less_than', function($attribute, $value, $parameters) {
             return floatval($value) <= floatval($parameters[0]);

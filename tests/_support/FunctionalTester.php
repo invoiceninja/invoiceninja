@@ -27,11 +27,10 @@ class FunctionalTester extends \Codeception\Actor
     function checkIfLogin(\FunctionalTester $I)
     {
         //if ($I->loadSessionSnapshot('login')) return;
-
         $I->amOnPage('/login');
         $I->fillField(['name' => 'email'], Fixtures::get('username'));
         $I->fillField(['name' => 'password'], Fixtures::get('password'));
-        $I->click('Let\'s go');
+        $I->click('#loginButton');
 
         //$I->saveSessionSnapshot('login');
     }   

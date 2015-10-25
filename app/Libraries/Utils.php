@@ -40,6 +40,11 @@ class Utils
         }
     }
 
+    public static function isDownForMaintenance()
+    {
+        return file_exists(storage_path() . '/framework/down');
+    }
+
     public static function isProd()
     {
         return App::environment() == ENV_PRODUCTION;
@@ -87,11 +92,6 @@ class Utils
     public static function getDemoAccountId()
     {
         return isset($_ENV[DEMO_ACCOUNT_ID]) ? $_ENV[DEMO_ACCOUNT_ID] : false;
-    }
-
-    public static function isDemo()
-    {
-        return Auth::check() && Auth::user()->isDemo();
     }
 
     public static function getNewsFeedResponse($userType = false)
@@ -198,49 +198,6 @@ class Utils
         return floatval($value);
     }
 
-    public static function formatPhoneNumber($phoneNumber)
-    {
-        $phoneNumber = preg_replace('/[^0-9a-zA-Z]/', '', $phoneNumber);
-
-        if (!$phoneNumber) {
-            return '';
-        }
-
-        if (strlen($phoneNumber) > 10) {
-            $countryCode = substr($phoneNumber, 0, strlen($phoneNumber)-10);
-            $areaCode = substr($phoneNumber, -10, 3);
-            $nextThree = substr($phoneNumber, -7, 3);
-            $lastFour = substr($phoneNumber, -4, 4);
-
-            $phoneNumber = '+'.$countryCode.' ('.$areaCode.') '.$nextThree.'-'.$lastFour;
-        } elseif (strlen($phoneNumber) == 10 && in_array(substr($phoneNumber, 0, 3), array(653, 656, 658, 659))) {
-            /**
-             * SG country code are 653, 656, 658, 659
-             * US area code consist of 650, 651 and 657
-             * @see http://en.wikipedia.org/wiki/Telephone_numbers_in_Singapore#Numbering_plan
-             * @see http://www.bennetyee.org/ucsd-pages/area.html
-             */
-            $countryCode = substr($phoneNumber, 0, 2);
-            $nextFour = substr($phoneNumber, 2, 4);
-            $lastFour = substr($phoneNumber, 6, 4);
-
-            $phoneNumber = '+'.$countryCode.' '.$nextFour.' '.$lastFour;
-        } elseif (strlen($phoneNumber) == 10) {
-            $areaCode = substr($phoneNumber, 0, 3);
-            $nextThree = substr($phoneNumber, 3, 3);
-            $lastFour = substr($phoneNumber, 6, 4);
-
-            $phoneNumber = '('.$areaCode.') '.$nextThree.'-'.$lastFour;
-        } elseif (strlen($phoneNumber) == 7) {
-            $nextThree = substr($phoneNumber, 0, 3);
-            $lastFour = substr($phoneNumber, 3, 4);
-
-            $phoneNumber = $nextThree.'-'.$lastFour;
-        }
-
-        return $phoneNumber;
-    }
-
     public static function formatMoney($value, $currencyId = false)
     {
         if (!$currencyId) {
@@ -302,6 +259,10 @@ class Utils
 
     public static function dateToString($date)
     {
+        if (!$date) {
+            return false;
+        }
+        
         $dateTime = new DateTime($date);
         $timestamp = $dateTime->getTimestamp();
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
@@ -323,16 +284,6 @@ class Utils
         }
 
         return $date->format($format);
-    }
-
-    public static function getTiemstampOffset()
-    {
-        $timezone = new DateTimeZone(Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE));
-        $datetime = new DateTime('now', $timezone);
-        $offset = $timezone->getOffset($datetime);
-        $minutes = $offset / 60;
-
-        return $minutes;
     }
 
     public static function toSqlDate($date, $formatResult = true)
@@ -372,6 +323,13 @@ class Utils
         $dateTime->setTimeZone(new DateTimeZone($timezone));
 
         return $formatResult ? $dateTime->format($format) : $dateTime;
+    }
+
+    public static function formatTime($t)
+    {
+        // http://stackoverflow.com/a/3172665
+        $f = ':';
+        return sprintf("%02d%s%02d%s%02d", floor($t/3600), $f, ($t/60)%60, $f, $t%60);
     }
 
     public static function today($formatResult = true)
@@ -594,9 +552,8 @@ class Utils
     public static function notifyZapier($subscription, $data)
     {
         $curl = curl_init();
-
         $jsonEncodedData = json_encode($data->toPublicArray());
-        
+
         $opts = [
             CURLOPT_URL => $subscription->target_url,
             CURLOPT_RETURNTRANSFER => true,
@@ -630,14 +587,23 @@ class Utils
         return $return;
     }
 
-    public static function hideIds($data)
+    public static function hideIds($data, $mapped = false)
     {
         $publicId = null;
 
+        if (!$mapped) {
+            $mapped = [];
+        }
+
         foreach ($data as $key => $val) {
             if (is_array($val)) {
-                $data[$key] = Utils::hideIds($val);
-            } else if ($key == 'id' || strpos($key, '_id')) {
+                if ($key == 'account' || isset($mapped[$key])) {
+                    unset($data[$key]);
+                } else {
+                    $mapped[$key] = true;
+                    $data[$key] = Utils::hideIds($val, $mapped);
+                }
+            } elseif ($key == 'id' || strpos($key, '_id')) {
                 if ($key == 'public_id') {
                     $publicId = $val;
                 }
@@ -665,6 +631,11 @@ class Utils
           //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
           //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
         ];
+    }
+
+    public static function isEmpty($value)
+    {
+        return !$value || $value == '0.00' || $value == '0,00';
     }
 
     public static function startsWith($haystack, $needle)
@@ -705,32 +676,8 @@ class Utils
         fwrite($output, "\n");
     }
     
-    public static function stringToObjectResolution($baseObject, $rawPath)
+    public static function getFirst($values)
     {
-        $val = '';
-        
-        if (!is_object($baseObject)) {
-          return $val;
-        }
-        
-        $path = preg_split('/->/', $rawPath);
-        $node = $baseObject;
-        
-        while (($prop = array_shift($path)) !== null) {
-            if (property_exists($node, $prop)) {
-                $val = $node->$prop;
-                $node = $node->$prop;
-            } else if (is_object($node) && isset($node->$prop)) {
-                $node = $node->{$prop};
-            } else if ( method_exists($node, $prop)) {
-                $val = call_user_func(array($node, $prop));
-            }
-        }
-        
-        return $val;
-    }
-
-    public static function getFirst($values) {
         if (is_array($values)) {
             return count($values) ? $values[0] : false;
         } else {
@@ -739,7 +686,8 @@ class Utils
     }
 
     // nouns in German and French should be uppercase
-    public static function transFlowText($key) {
+    public static function transFlowText($key)
+    {
         $str = trans("texts.$key");
         if (!in_array(App::getLocale(), ['de', 'fr'])) {
             $str = strtolower($str);
@@ -747,7 +695,8 @@ class Utils
         return $str;
     }
 
-    public static function getSubdomainPlaceholder() {
+    public static function getSubdomainPlaceholder()
+    {
         $parts = parse_url(SITE_URL);
         $subdomain = '';
         if (isset($parts['host'])) {
@@ -759,7 +708,8 @@ class Utils
         return $subdomain;
     }
 
-    public static function getDomainPlaceholder() {
+    public static function getDomainPlaceholder()
+    {
         $parts = parse_url(SITE_URL);
         $domain = '';
         if (isset($parts['host'])) {
@@ -775,5 +725,74 @@ class Utils
             $domain .= $parts['path'];
         }
         return $domain;
+    }
+
+    public static function replaceSubdomain($domain, $subdomain)
+    {
+        $parsedUrl = parse_url($domain);
+        $host = explode('.', $parsedUrl['host']);
+        if (count($host) > 0) {
+            $oldSubdomain = $host[0];
+            $domain = str_replace("://{$oldSubdomain}.", "://{$subdomain}.", $domain);
+        }
+        return $domain;
+    }
+
+    public static function splitName($name)
+    {
+        $name = trim($name);
+        $lastName = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
+        $firstName = trim(preg_replace('#'.$lastName.'#', '', $name));
+        return array($firstName, $lastName);
+    }
+
+    public static function decodePDF($string)
+    {
+        $string = str_replace('data:application/pdf;base64,', '', $string);
+        return  base64_decode($string);
+    }
+
+    public static function cityStateZip($city, $state, $postalCode, $swap)
+    {
+        $str = $city;
+
+        if ($state) {
+            if ($str) {
+                $str .= ', ';
+            }
+            $str .= $state;
+        }
+
+        if ($swap) {
+            return $postalCode . ' ' . $str;
+        } else {
+            return $str . ' ' . $postalCode;
+        }
+    }
+
+    public static function formatWebsite($website)
+    {
+        if (!$website) {
+            return '';
+        }
+
+        $link = $website;
+        $title = $website;
+        $prefix = 'http://';
+
+        if (strlen($link) > 7 && substr($link, 0, 7) === $prefix) {
+            $title = substr($title, 7);
+        } else {
+            $link = $prefix.$link;
+        }
+
+        return link_to($link, $title, array('target' => '_blank'));
+    }
+
+    public static function wrapAdjustment($adjustment, $currencyId)
+    {
+        $class = $adjustment <= 0 ? 'success' : 'default';
+        $adjustment = Utils::formatMoney($adjustment, $currencyId);
+        return "<h4><div class=\"label label-{$class}\">$adjustment</div></h4>";
     }
 }

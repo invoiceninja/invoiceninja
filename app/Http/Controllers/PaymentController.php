@@ -47,28 +47,6 @@ class PaymentController extends BaseController
         ));
     }
 
-    public function clientIndex()
-    {
-        $invitationKey = Session::get('invitation_key');
-        if (!$invitationKey) {
-            return Redirect::to('/setup');
-        }
-
-        $invitation = Invitation::with('account')->where('invitation_key', '=', $invitationKey)->first();
-        $account = $invitation->account;
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
-        
-        $data = [
-            'color' => $color,
-            'hideLogo' => $account->isWhiteLabel(),
-            'entityType' => ENTITY_PAYMENT,
-            'title' => trans('texts.payments'),
-            'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date'])
-        ];
-
-        return View::make('public_list', $data);
-    }
-
     public function getDatatable($clientPublicId = null)
     {
         $payments = $this->paymentRepo->find($clientPublicId, Input::get('sSearch'));
@@ -112,33 +90,6 @@ class PaymentController extends BaseController
                         </div>';
             })
             ->make();
-    }
-
-    public function getClientDatatable()
-    {
-        $search = Input::get('sSearch');
-        $invitationKey = Session::get('invitation_key');
-        $invitation = Invitation::where('invitation_key', '=', $invitationKey)->with('contact.client')->first();
-
-        if (!$invitation) {
-            return [];
-        }
-
-        $invoice = $invitation->invoice;
-
-        if (!$invoice || $invoice->is_deleted) {
-            return [];
-        }
-
-        $payments = $this->paymentRepo->findForContact($invitation->contact->id, Input::get('sSearch'));
-
-        return Datatable::query($payments)
-                ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number) : $model->invoice_number; })
-                ->addColumn('transaction_reference', function ($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
-                ->addColumn('payment_type', function ($model) { return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
-                ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
-                ->addColumn('payment_date', function ($model) { return Utils::dateToString($model->payment_date); })
-                ->make();
     }
 
     public function create($clientPublicId = 0, $invoicePublicId = 0)
@@ -218,8 +169,13 @@ class PaymentController extends BaseController
         }
         Session::put('payment_type', $paymentType);
 
+        $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
+        $gateway = $accountGateway->gateway;
+        $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
+
         // Handle offsite payments
-        if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD) {
+        if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD 
+            || $gateway->id == GATEWAY_EWAY || $gateway->id == GATEWAY_TWO_CHECKOUT) {
             if (Session::has('error')) {
                 Session::reflash();
                 return Redirect::to('view/'.$invitationKey);
@@ -227,10 +183,6 @@ class PaymentController extends BaseController
                 return self::do_payment($invitationKey, false, $useToken);
             }
         }
-
-        $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
-        $gateway = $accountGateway->gateway;
-        $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
         $data = [
             'showBreadcrumbs' => false,
@@ -246,6 +198,7 @@ class PaymentController extends BaseController
             'currencyCode' => $client->currency ? $client->currency->code : ($account->currency ? $account->currency->code : 'USD'),
             'account' => $client->account,
             'hideLogo' => $account->isWhiteLabel(),
+            'hideHeader' => $account->isNinjaAccount(),
             'showAddress' => $accountGateway->show_address,
         ];
 
@@ -327,7 +280,8 @@ class PaymentController extends BaseController
 
         if ($validator->fails()) {
             return Redirect::to('license')
-                ->withErrors($validator);
+                ->withErrors($validator)
+                ->withInput();
         }
 
         $account = $this->accountRepo->getNinjaAccount();
@@ -367,7 +321,8 @@ class PaymentController extends BaseController
                 'message' => $affiliate->payment_subtitle,
                 'license' => $licenseKey,
                 'hideHeader' => true,
-                'productId' => $license->product_id
+                'productId' => $license->product_id,
+                'price' => $affiliate->price,
             ];
 
             $name = "{$license->first_name} {$license->last_name}";
@@ -438,7 +393,6 @@ class PaymentController extends BaseController
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
-                //Utils::logError('Payment Error [invalid]');
                 return Redirect::to('payment/'.$invitationKey)
                     ->withErrors($validator)
                     ->withInput();
@@ -456,8 +410,16 @@ class PaymentController extends BaseController
         }
 
         try {
+            // For offsite payments send the client's details on file
+            // If we're using a token then we don't need to send any other data
+            if (!$onSite || $useToken) {
+                $data = false;
+            } else {
+                $data = Input::all();
+            }
+
             $gateway = $this->paymentService->createGateway($accountGateway);
-            $details = $this->paymentService->getPaymentDetails($invitation, ($useToken || !$onSite) ? false : Input::all());
+            $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway, $data);
 
             // check if we're creating/using a billing token
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
@@ -475,8 +437,15 @@ class PaymentController extends BaseController
             }
 
             $response = $gateway->purchase($details)->send();
-            $ref = $response->getTransactionReference();
 
+            if ($accountGateway->gateway_id == GATEWAY_EWAY) {
+                $ref = $response->getData()['AccessCode'];
+            } elseif ($accountGateway->gateway_id == GATEWAY_TWO_CHECKOUT) {
+                $ref = $response->getData()['cart_order_id'];
+            } else {
+                $ref = $response->getTransactionReference();
+            }
+            
             if (!$ref) {
                 $this->error('No-Ref', $response->getMessage(), $accountGateway);
 
@@ -500,7 +469,6 @@ class PaymentController extends BaseController
             } elseif ($response->isRedirect()) {
                 $invitation->transaction_reference = $ref;
                 $invitation->save();
-
                 Session::put('transaction_reference', $ref);
                 Session::save();
                 $response->redirect();
@@ -533,19 +501,21 @@ class PaymentController extends BaseController
 
         $invitation = Invitation::with('invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('transaction_reference', '=', $token)->firstOrFail();
         $invoice = $invitation->invoice;
+        $client = $invoice->client;
+        $account = $client->account;
 
-        $accountGateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'));
+        $accountGateway = $account->getGatewayByType(Session::get('payment_type'));
         $gateway = $this->paymentService->createGateway($accountGateway);
 
         // Check for Dwolla payment error
         if ($accountGateway->isGateway(GATEWAY_DWOLLA) && Input::get('error')) {
             $this->error('Dwolla', Input::get('error_description'), $accountGateway);
-            return Redirect::to('view/'.$invitation->invitation_key);
+            return Redirect::to($invitation->getLink());
         }
 
         try {
-            if (method_exists($gateway, 'completePurchase')) {
-                $details = $this->paymentService->getPaymentDetails($invitation);
+            if (method_exists($gateway, 'completePurchase') && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)) {
+                $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
                 $response = $gateway->completePurchase($details)->send();
                 $ref = $response->getTransactionReference();
 
@@ -553,20 +523,20 @@ class PaymentController extends BaseController
                     $payment = $this->paymentService->createPayment($invitation, $ref, $payerId);
                     Session::flash('message', trans('texts.applied_payment'));
 
-                    return Redirect::to('view/'.$invitation->invitation_key);
+                    return Redirect::to($invitation->getLink());
                 } else {
                     $this->error('offsite', $response->getMessage(), $accountGateway);
-                    return Redirect::to('view/'.$invitation->invitation_key);
+                    return Redirect::to($invitation->getLink());
                 }
             } else {
                 $payment = $this->paymentService->createPayment($invitation, $token, $payerId);
                 Session::flash('message', trans('texts.applied_payment'));
 
-                return Redirect::to('view/'.$invitation->invitation_key);
+                return Redirect::to($invitation->getLink());
             }
         } catch (\Exception $e) {
             $this->error('Offsite-uncaught', false, $accountGateway, $e);
-            return Redirect::to('view/'.$invitation->invitation_key);
+            return Redirect::to($invitation->getLink());
         }
     }
 

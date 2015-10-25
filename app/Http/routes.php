@@ -21,10 +21,10 @@
 //Log::error('test');
 
 // Application setup
-Route::get('setup', 'AppController@showSetup');
-Route::post('setup', 'AppController@doSetup');
-Route::get('install', 'AppController@install');
-Route::get('update', 'AppController@update');
+Route::get('/setup', 'AppController@showSetup');
+Route::post('/setup', 'AppController@doSetup');
+Route::get('/install', 'AppController@install');
+Route::get('/update', 'AppController@update');
 
 /*
 // Codeception code coverage
@@ -35,12 +35,11 @@ Route::get('/c3.php', function () {
 
 // Public pages
 Route::get('/', 'HomeController@showIndex');
-Route::get('terms', 'HomeController@showTerms');
-Route::get('log_error', 'HomeController@logError');
-Route::get('invoice_now', 'HomeController@invoiceNow');
-Route::get('keep_alive', 'HomeController@keepAlive');
-Route::get('referral_code/{email}', 'UserController@claimReferralCode');
-Route::post('get_started', 'AccountController@getStarted');
+Route::get('/terms', 'HomeController@showTerms');
+Route::get('/log_error', 'HomeController@logError');
+Route::get('/invoice_now', 'HomeController@invoiceNow');
+Route::get('/keep_alive', 'HomeController@keepAlive');
+Route::post('/get_started', 'AccountController@getStarted');
 
 // Client visible pages
 Route::get('view/{invitation_key}', 'InvoiceController@view');
@@ -49,12 +48,14 @@ Route::get('approve/{invitation_key}', 'QuoteController@approve');
 Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
 Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
 Route::get('complete', 'PaymentController@offsite_payment');
-Route::get('client/quotes', 'QuoteController@clientIndex');
-Route::get('client/invoices', 'InvoiceController@clientIndex');
-Route::get('client/payments', 'PaymentController@clientIndex');
-Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'QuoteController@getClientDatatable'));
-Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'InvoiceController@getClientDatatable'));
-Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PaymentController@getClientDatatable'));
+Route::get('client/quotes', 'PublicClientController@quoteIndex');
+Route::get('client/invoices', 'PublicClientController@invoiceIndex');
+Route::get('client/payments', 'PublicClientController@paymentIndex');
+Route::get('client/dashboard', 'PublicClientController@dashboard');
+Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
+Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
+Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PublicClientController@paymentDatatable'));
+Route::get('api/client.activity', array('as'=>'api.client.activity', 'uses'=>'PublicClientController@activityDatatable'));
 
 Route::get('license', 'PaymentController@show_license_payment');
 Route::post('license', 'PaymentController@do_license_payment');
@@ -63,15 +64,14 @@ Route::get('claim_license', 'PaymentController@claim_license');
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
 
+Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
+Route::get('/auth_unlink', 'Auth\AuthController@authUnlink');
+
+Route::post('/hook/email_bounced', 'AppController@emailBounced');
+Route::post('/hook/email_opened', 'AppController@emailOpened');
+
 
 // Laravel auth routes
-/*
-Route::controllers([
-    'auth' => 'Auth\AuthController',
-    'password' => 'Auth\PasswordController',
-]);
-*/
-
 get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
 post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
 get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));
@@ -114,14 +114,16 @@ Route::group(['middleware' => 'auth'], function() {
     Route::resource('products', 'ProductController');
     Route::get('products/{product_id}/archive', 'ProductController@archive');
 
-    Route::get('company/advanced_settings/data_visualizations', 'ReportController@d3');
-    Route::get('company/advanced_settings/charts_and_reports', 'ReportController@showReports');
-    Route::post('company/advanced_settings/charts_and_reports', 'ReportController@showReports');
+    Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
+    Route::get('settings/data_visualizations', 'ReportController@d3');
+    Route::get('settings/charts_and_reports', 'ReportController@showReports');
+    Route::post('settings/charts_and_reports', 'ReportController@showReports');
 
-    Route::post('company/cancel_account', 'AccountController@cancelAccount');
+    Route::post('settings/cancel_account', 'AccountController@cancelAccount');
+    Route::get('settings/{section?}', 'AccountController@showSection');
+    Route::post('settings/{section?}', 'AccountController@doSection');
+    
     Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
-    Route::get('company/{section?}/{sub_section?}', 'AccountController@showSection');
-    Route::post('company/{section?}/{sub_section?}', 'AccountController@doSection');
     Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
     Route::post('account/go_pro', 'AccountController@enableProPlan');
@@ -176,7 +178,6 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('credits/bulk', 'CreditController@bulk');
 
     get('/resend_confirmation', 'AccountController@resendConfirmation');
-    //Route::resource('timesheets', 'TimesheetController');
 });
 
 // Route group for API
@@ -225,7 +226,6 @@ Route::get('/forgot_password', function() {
     return Redirect::to(NINJA_APP_URL.'/forgot', 301);
 });
 
-
 if (!defined('CONTACT_EMAIL')) {
     define('CONTACT_EMAIL', Config::get('mail.from.address'));
     define('CONTACT_NAME', Config::get('mail.from.name'));
@@ -247,21 +247,26 @@ if (!defined('CONTACT_EMAIL')) {
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
 
-    define('ACCOUNT_DETAILS', 'details');
+    define('BASIC_SETTINGS', 'basic_settings');
+    define('ADVANCED_SETTINGS', 'advanced_settings');
+
+    define('ACCOUNT_COMPANY_DETAILS', 'company_details');
+    define('ACCOUNT_USER_DETAILS', 'user_details');
+    define('ACCOUNT_LOCALIZATION', 'localization');
     define('ACCOUNT_NOTIFICATIONS', 'notifications');
     define('ACCOUNT_IMPORT_EXPORT', 'import_export');
-    define('ACCOUNT_PAYMENTS', 'payments');
+    define('ACCOUNT_PAYMENTS', 'online_payments');
     define('ACCOUNT_MAP', 'import_map');
     define('ACCOUNT_EXPORT', 'export');
     define('ACCOUNT_PRODUCTS', 'products');
     define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
     define('ACCOUNT_INVOICE_SETTINGS', 'invoice_settings');
     define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
-    define('ACCOUNT_CHART_BUILDER', 'chart_builder');
+    define('ACCOUNT_CHARTS_AND_REPORTS', 'charts_and_reports');
     define('ACCOUNT_USER_MANAGEMENT', 'user_management');
     define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
-    define('ACCOUNT_EMAIL_TEMPLATES', 'email_templates');
-    define('ACCOUNT_TOKEN_MANAGEMENT', 'token_management');
+    define('ACCOUNT_TEMPLATES_AND_REMINDERS', 'templates_and_reminders');
+    define('ACCOUNT_API_TOKENS', 'api_tokens');
     define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
 
 
@@ -304,12 +309,16 @@ if (!defined('CONTACT_EMAIL')) {
     define('RECENTLY_VIEWED_LIMIT', 8);
     define('LOGGED_ERROR_LIMIT', 100);
     define('RANDOM_KEY_LENGTH', 32);
-    define('MAX_NUM_CLIENTS', 500);
-    define('MAX_NUM_CLIENTS_PRO', 20000);
     define('MAX_NUM_USERS', 20);
     define('MAX_SUBDOMAIN_LENGTH', 30);
     define('MAX_IFRAME_URL_LENGTH', 250);
     define('DEFAULT_FONT_SIZE', 9);
+    define('DEFAULT_SEND_RECURRING_HOUR', 8);
+
+    define('MAX_NUM_CLIENTS', 100);
+    define('MAX_NUM_CLIENTS_PRO', 20000);
+    define('MAX_NUM_CLIENTS_LEGACY', 500);
+    define('LEGACY_CUTOFF', 57800);
 
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);
@@ -350,6 +359,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('DEFAULT_DATETIME_MOMENT_FORMAT', 'MMM D, YYYY h:mm:ss a');
     define('DEFAULT_QUERY_CACHE', 120); // minutes
     define('DEFAULT_LOCALE', 'en');
+    define('DEFAULT_MAP_ZOOM', 10);
 
     define('RESULT_SUCCESS', 'success');
     define('RESULT_FAILURE', 'failure');
@@ -359,6 +369,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
 
     define('GATEWAY_AUTHORIZE_NET', 1);
+    define('GATEWAY_EWAY', 4);
     define('GATEWAY_AUTHORIZE_NET_SIM', 2);
     define('GATEWAY_PAYPAL_EXPRESS', 17);
     define('GATEWAY_PAYPAL_PRO', 18);
@@ -383,14 +394,16 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.3.4');
+    define('NINJA_VERSION', '2.4.3');
     define('NINJA_DATE', '2000-01-01');
 
     define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
-    define('RELEASES_URL', 'https://github.com/hillelcoren/invoice-ninja/releases/');
-    define('ZAPIER_URL', 'https://zapier.com/developer/invite/11276/85cf0ee4beae8e802c6c579eb4e351f1/');
+    define('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja');
+    define('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja');
     define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
     define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
+    define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/single/browser/v1/');
+    define('REFERRAL_PROGRAM_URL', false);
 
     define('COUNT_FREE_DESIGNS', 4);
     define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design
@@ -424,6 +437,16 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_TYPE_DWOLLA', 'PAYMENT_TYPE_DWOLLA');
     define('PAYMENT_TYPE_TOKEN', 'PAYMENT_TYPE_TOKEN');
     define('PAYMENT_TYPE_ANY', 'PAYMENT_TYPE_ANY');
+
+    define('REMINDER1', 'reminder1');
+    define('REMINDER2', 'reminder2');
+    define('REMINDER3', 'reminder3');
+
+    define('SOCIAL_GOOGLE', 'Google');
+    define('SOCIAL_FACEBOOK', 'Facebook');
+    define('SOCIAL_GITHUB', 'GitHub');
+    define('SOCIAL_LINKEDIN', 'LinkedIn');
+
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],

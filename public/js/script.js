@@ -522,18 +522,35 @@ if (window.ko) {
       ko.applyBindingsToNode(element, { attr: { placeholder: underlyingObservable } } );
     }
   };
+
+  ko.bindingHandlers.tooltip = {
+    init: function(element, valueAccessor) {
+        var local = ko.utils.unwrapObservable(valueAccessor()),
+        options = {};
+
+        ko.utils.extend(options, ko.bindingHandlers.tooltip.options);
+        ko.utils.extend(options, local);
+
+        $(element).tooltip(options);
+
+        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+            $(element).tooltip("destroy");
+        });
+    },
+    options: {
+        placement: "bottom",
+        trigger: "hover"
+    }
+  };
 }
 
 function getContactDisplayName(contact)
 {
-    var str = '';
     if (contact.first_name || contact.last_name) {
-        str += contact.first_name + ' ' + contact.last_name;
+        return contact.first_name + ' ' + contact.last_name;
+    } else {
+        return contact.email;
     }
-    if (str && contact.email) {
-        str += ' - ';
-    }
-    return str + contact.email;
 }
 
 function getClientDisplayName(client)
@@ -1668,3 +1685,11 @@ function doubleDollarSign(str) {
     if (!str) return '';
     return str.replace(/\$/g, '\$\$\$');
 }
+
+function truncate(string, length){
+   if (string.length > length) {
+      return string.substring(0, length) + '...';
+   } else {
+      return string;
+   }
+};

@@ -13,6 +13,27 @@ class Account extends Eloquent
 {
     use SoftDeletes;
     protected $dates = ['deleted_at'];
+    protected $hidden = ['ip'];
+
+    public static $basicSettings = [
+        ACCOUNT_COMPANY_DETAILS,
+        ACCOUNT_USER_DETAILS,
+        ACCOUNT_LOCALIZATION,
+        ACCOUNT_PAYMENTS,
+        ACCOUNT_PRODUCTS,
+        ACCOUNT_NOTIFICATIONS,
+        ACCOUNT_IMPORT_EXPORT,
+    ];
+
+    public static $advancedSettings = [
+        ACCOUNT_INVOICE_SETTINGS,
+        ACCOUNT_INVOICE_DESIGN,
+        ACCOUNT_TEMPLATES_AND_REMINDERS,
+        ACCOUNT_CHARTS_AND_REPORTS,
+        ACCOUNT_DATA_VISUALIZATIONS,
+        ACCOUNT_USER_MANAGEMENT,
+        ACCOUNT_API_TOKENS,
+    ];
 
     /*
     protected $casts = [
@@ -113,6 +134,12 @@ class Account extends Eloquent
         return $user->getDisplayName();
     }
 
+    public function getCityState()
+    {
+        $swap = $this->country && $this->country->swap_postal_code;
+        return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
+    }
+
     public function getMomentDateTimeFormat()
     {
         $format = $this->datetime_format ? $this->datetime_format->format_moment : DEFAULT_DATETIME_MOMENT_FORMAT;
@@ -131,6 +158,25 @@ class Account extends Eloquent
         } else {
             return 'US/Eastern';
         }
+    }
+
+    public function getDateTime($date = 'now')
+    {
+        return new \DateTime($date, new \DateTimeZone($this->getTimezone()));
+    }
+
+    public function getCustomDateFormat()
+    {
+        return $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT;
+    }
+
+    public function formatDate($date)
+    {
+        if (!$date) {
+            return null;
+        }
+
+        return $date->format($this->getCustomDateFormat());
     }
 
     public function getGatewayByType($type = PAYMENT_TYPE_ANY)
@@ -157,12 +203,10 @@ class Account extends Eloquent
         return false;
     }
 
-    /*
     public function hasLogo()
     {
-        file_exists($this->getLogoPath());
+        return file_exists($this->getLogoPath());
     }
-    */
 
     public function getLogoPath()
     {
@@ -243,7 +287,9 @@ class Account extends Eloquent
     {
         $this->load('timezone', 'date_format', 'datetime_format', 'language');
 
-        Session::put(SESSION_TIMEZONE, $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE);
+        $timezone = $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE;
+        Session::put(SESSION_TIMEZONE, $timezone);
+
         Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
         Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
 
@@ -320,13 +366,18 @@ class Account extends Eloquent
         return $data;
     }
 
+    public function isNinjaAccount()
+    {
+        return $this->account_key === NINJA_ACCOUNT_KEY;
+    }
+
     public function isPro()
     {
         if (!Utils::isNinjaProd()) {
             return true;
         }
 
-        if ($this->account_key == NINJA_ACCOUNT_KEY) {
+        if ($this->isNinjaAccount()) {
             return true;
         }
 
@@ -347,6 +398,10 @@ class Account extends Eloquent
 
     public function isWhiteLabel()
     {
+        if ($this->isNinjaAccount()) {
+            return false;
+        }
+
         if (Utils::isNinjaProd()) {
             return self::isPro() && $this->pro_plan_paid != NINJA_DATE;
         } else {
@@ -405,13 +460,33 @@ class Account extends Eloquent
         return $this;
     }
 
-    public function getEmailTemplate($entityType, $message = false)
+    public function getDefaultEmailSubject($entityType)
     {
-        $field = "email_template_$entityType";
-        $template = $this->$field;
+        if (strpos($entityType, 'reminder') !== false) {
+            $entityType = 'reminder';
+        }
 
-        if ($template) {
-            return $template;
+        return trans("texts.{$entityType}_subject", ['invoice' => '$invoice', 'account' => '$account']);
+    }
+
+    public function getEmailSubject($entityType)
+    {
+        if ($this->isPro()) {
+            $field = "email_subject_{$entityType}";
+            $value = $this->$field;
+
+            if ($value) {
+                return $value;
+            }
+        }
+
+        return $this->getDefaultEmailSubject($entityType);
+    }
+
+    public function getDefaultEmailTemplate($entityType, $message = false)
+    {
+        if (strpos($entityType, 'reminder') >= 0) {
+            $entityType = ENTITY_INVOICE;
         }
 
         $template = "\$client,<p/>\r\n\r\n" .
@@ -425,13 +500,27 @@ class Account extends Eloquent
         return $template . "\$footer";
     }
 
+    public function getEmailTemplate($entityType, $message = false)
+    {
+        if ($this->isPro()) {
+            $field = "email_template_{$entityType}";
+            $template = $this->$field;
+
+            if ($template) {
+                return $template;
+            }
+        }
+        
+        return $this->getDefaultEmailTemplate($entityType, $message);
+    }
+
     public function getEmailFooter()
     {
         if ($this->email_footer) {
             // Add line breaks if HTML isn't already being used
             return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;
         } else {
-            return "<p>" . trans('texts.email_signature') . "<br>\$account</p>";
+            return "<p>" . trans('texts.email_signature') . "\n<br>\$account</p>";
         }
     }
 
@@ -448,6 +537,57 @@ class Account extends Eloquent
     public function selectTokenCheckbox()
     {
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
+    }
+
+    public function getSiteUrl()
+    {
+        $url = SITE_URL;
+        $iframe_url = $this->iframe_url;
+                
+        if ($iframe_url) {
+            return "{$iframe_url}/?";
+        } else if ($this->subdomain) {
+            $url = Utils::replaceSubdomain($url, $this->subdomain);
+        }
+
+        return $url;
+    }
+
+    public function checkSubdomain($host)
+    {
+        if (!$this->subdomain) {
+            return true;
+        }
+
+        $server = explode('.', $host);
+        $subdomain = $server[0];
+
+        if (!in_array($subdomain, ['app', 'www']) && $subdomain != $this->subdomain) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function showCustomField($field, $entity)
+    {
+        if ($this->isPro()) {
+            return $this->$field ? true : false;
+        }
+
+        if (!$entity) {
+            return false;
+        }
+        
+        // convert (for example) 'custom_invoice_label1' to 'invoice.custom_value1'
+        $field = str_replace(['invoice_', 'label'], ['', 'value'], $field);
+        
+        return Utils::isEmpty($entity->$field) ? false : true;
+    }
+
+    public function attatchPDF()
+    {
+        return $this->isPro() && $this->pdf_email_attachment;
     }
 }
 

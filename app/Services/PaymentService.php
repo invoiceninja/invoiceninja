@@ -36,7 +36,7 @@ class PaymentService {
             $gateway->$function($val);
         }
 
-        if ($accountGateway->gateway->id == GATEWAY_DWOLLA) {
+        if ($accountGateway->isGateway(GATEWAY_DWOLLA)) {
             if ($gateway->getSandbox() && isset($_ENV['DWOLLA_SANDBOX_KEY']) && isset($_ENV['DWOLLA_SANSBOX_SECRET'])) {
                 $gateway->setKey($_ENV['DWOLLA_SANDBOX_KEY']);
                 $gateway->setSecret($_ENV['DWOLLA_SANSBOX_SECRET']);
@@ -49,7 +49,7 @@ class PaymentService {
         return $gateway;
     }
 
-    public function getPaymentDetails($invitation, $input = null)
+    public function getPaymentDetails($invitation, $accountGateway, $input = null)
     {
         $invoice = $invitation->invoice;
         $account = $invoice->account;
@@ -62,22 +62,29 @@ class PaymentService {
         } elseif (Session::get($key)) {
             $data = Session::get($key);
         } else {
-            $data = [];
+            $data = $this->createDataForClient($invitation);
         }
 
         $card = new CreditCard($data);
-
-        return [
+        $data = [
             'amount' => $invoice->getRequestedAmount(),
             'card' => $card,
             'currency' => $currencyCode,
             'returnUrl' => URL::to('complete'),
             'cancelUrl' => $invitation->getLink(),
             'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
+            'transactionId' => $invoice->invoice_number,
+            'transactionType' => 'Purchase',
         ];
+
+        if ($accountGateway->isGateway(GATEWAY_PAYPAL_EXPRESS) || $accountGateway->isGateway(GATEWAY_PAYPAL_PRO)) {
+            $data['ButtonSource'] = 'InvoiceNinja_SP';
+        };
+
+        return $data;
     }
 
-    private function convertInputForOmnipay($input)
+    public function convertInputForOmnipay($input)
     {
         $data = [
             'firstName' => $input['first_name'],
@@ -108,6 +115,34 @@ class PaymentService {
         }
 
         return $data;
+    }
+
+    public function createDataForClient($invitation)
+    {
+        $invoice = $invitation->invoice;
+        $client = $invoice->client;
+        $contact = $invitation->contact ?: $client->contacts()->first();
+
+        return [
+            'email' => $contact->email,
+            'company' => $client->getDisplayName(),
+            'firstName' => $contact->first_name,
+            'lastName' => $contact->last_name,
+            'billingAddress1' => $client->address1,
+            'billingAddress2' => $client->address2,
+            'billingCity' => $client->city,
+            'billingPostcode' => $client->postal_code,
+            'billingState' => $client->state,
+            'billingCountry' => $client->country ? $client->country->iso_3166_2 : '',
+            'billingPhone' => $contact->phone,
+            'shippingAddress1' => $client->address1,
+            'shippingAddress2' => $client->address2,
+            'shippingCity' => $client->city,
+            'shippingPostcode' => $client->postal_code,
+            'shippingState' => $client->state,
+            'shippingCountry' => $client->country ? $client->country->iso_3166_2 : '',
+            'shippingPhone' => $contact->phone,
+        ];
     }
 
     public function createToken($gateway, $details, $accountGateway, $client, $contactId)
@@ -184,15 +219,16 @@ class PaymentService {
         $account = $invoice->account;
         $invitation = $invoice->invitations->first();
         $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
+        $token = $client->getGatewayToken();
 
-        if (!$invitation || !$accountGateway) {
+        if (!$invitation || !$accountGateway || !$token) {
             return false;
         }
 
         // setup the gateway/payment info
         $gateway = $this->createGateway($accountGateway);
         $details = $this->getPaymentDetails($invitation);
-        $details['cardReference'] = $client->getGatewayToken();
+        $details['cardReference'] = $token;
 
         // submit purchase/get response
         $response = $gateway->purchase($details)->send();

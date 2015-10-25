@@ -185,7 +185,7 @@ return array(
   'users' => 'Utenti',
   'localization' => 'Localizzazione',
   'remove_logo' => 'Rimuovi logo',
-  'logo_help' => 'Supportati: JPEG, GIF e PNG. Altezza raccomandata: 120px',
+  'logo_help' => 'Supportati: JPEG, GIF e PNG',
   'payment_gateway' => 'Servizi di Pagamento',
   'gateway_id' => 'Piattaforma',
   'email_notifications' => 'Notifiche Email',
@@ -262,7 +262,7 @@ return array(
   'email_salutation' => 'Caro :name,',
   'email_signature' => 'Distinti saluti,',
   'email_from' => 'Il Team di InvoiceNinja',
-  'user_email_footer' => 'Per modificare le impostazioni di notifiche via email per favore accedi a: '.SITE_URL.'/company/notifications',
+  'user_email_footer' => 'Per modificare le impostazioni di notifiche via email per favore accedi a: '.SITE_URL.'/settings/notifications',
   'invoice_link_message' => 'Per visualizzare la tua fattura del cliente clicca sul link qui sotto:',
   'notification_invoice_paid_subject' => 'La fattura :invoice è stata pagata da :client',
   'notification_invoice_sent_subject' => 'La fattura :invoice è stata inviata a :client',
@@ -416,7 +416,7 @@ return array(
 
   'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
   'confirm_email_quote' => 'Are you sure you want to email this quote?',
-  'confirm_recurring_email_invoice' => 'Recurring is enabled, are you sure you want this invoice emailed?',
+  'confirm_recurring_email_invoice' => 'Are you sure you want this invoice emailed?',
 
   'cancel_account' => 'Cancel Account',
   'cancel_account_message' => 'Warning: This will permanently erase all of your data, there is no undo.',
@@ -615,7 +615,7 @@ return array(
   'run' => 'Run',
   'export' => 'Export',
   'documentation' => 'Documentation',
-  'zapier' => 'Zapier <sup>Beta</sup>',
+  'zapier' => 'Zapier',
   'recurring' => 'Recurring',
   'last_invoice_sent' => 'Last invoice sent :date',
 
@@ -740,7 +740,7 @@ return array(
   'current_user' => 'Current User',
   'new_recurring_invoice' => 'New Recurring Invoice',
   'recurring_invoice' => 'Recurring Invoice',
-  'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice',
+  'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice, it\'s scheduled for :date',
   'created_by_invoice' => 'Created by :invoice',
   'primary_user' => 'Primary User',
   'help' => 'Help',
@@ -770,6 +770,56 @@ return array(
   'military_time' => '24 Hour Time',
   'last_sent' => 'Last Sent',
 
+  'reminder_emails' => 'Reminder Emails',
+  'templates_and_reminders' => 'Templates & Reminders',
+  'subject' => 'Subject',
+  'body' => 'Body',
+  'first_reminder' => 'First Reminder',
+  'second_reminder' => 'Second Reminder',
+  'third_reminder' => 'Third Reminder',
+  'num_days_reminder' => 'Days after due date',
+  'reminder_subject' => 'Reminder: Invoice :invoice from :account',
+  'reset' => 'Reset',
+  'invoice_not_found' => 'The requested invoice is not available',
 
-    
+  'referral_program' => 'Referral Program',
+  'referral_code' => 'Referral Code',
+  'last_sent_on' => 'Last sent on :date',
+
+  'page_expire' => 'This page will expire soon, :click_here to keep working',
+  'upcoming_quotes' => 'Upcoming Quotes',
+  'expired_quotes' => 'Expired Quotes',
+
+  'sign_up_using' => 'Sign up using',
+  'invalid_credentials' => 'These credentials do not match our records',
+  'show_all_options' => 'Show all options',
+  'user_details' => 'User Details',
+  'oneclick_login' => 'One-Click Login',
+  'disable' => 'Disable',
+  'invoice_quote_number' => 'Invoice and Quote Numbers',
+  'invoice_charges' => 'Invoice Charges',
+
+  'invitation_status' => [
+    'sent' => 'Email Sent',
+    'opened' => 'Email Openend',
+    'viewed' => 'Invoice Viewed',
+  ],
+  'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact.',
+  'notification_invoice_bounced_subject' => 'Unable to deliver Invoice :invoice',
+  'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact.',
+  'notification_quote_bounced_subject' => 'Unable to deliver Quote :invoice',
+
+  'custom_invoice_link' => 'Custom Invoice Link',
+  'total_invoiced' => 'Total Invoiced',
+  'open_balance' => 'Open Balance',
+  'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
+  'basic_settings' => 'Basic Settings',
+  'pro' => 'Pro',
+  'gateways' => 'Payment Gateways',
+
+  'next_send_on' => 'Send Next: :date',
+  'no_longer_running' => 'This invoice is not scheduled to run',
+  'general_settings' => 'General Settings',
+  'customize' => 'Customize',
+  
 );
