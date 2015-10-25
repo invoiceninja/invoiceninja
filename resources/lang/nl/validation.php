@@ -75,6 +75,7 @@ return array(
     "has_credit" => "De klant heeft niet voldoende krediet.",
     "notmasked" => "De waarden zijn verborgen",
     "less_than" => 'Het :attribute moet minder zijn dan :value',
+    "has_counter" => 'The value must contain {$counter}',
     
     /*
     |--------------------------------------------------------------------------

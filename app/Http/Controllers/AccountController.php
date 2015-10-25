@@ -476,7 +476,11 @@ class AccountController extends BaseController
     {
         if (Auth::user()->account->isPro()) {
             
-            $rules = [];
+            $rules = [
+                'invoice_number_pattern' => 'has_counter',
+                'quote_number_pattern' => 'has_counter',
+            ];
+            
             $user = Auth::user();
             $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
             $iframeURL = rtrim($iframeURL, "/");

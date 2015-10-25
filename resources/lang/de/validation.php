@@ -75,7 +75,8 @@ return array(
     "has_credit" => "Der Kunde hat nicht genug Guthaben.",
     "notmasked" => "The values are masked",
     "less_than" => 'The :attribute must be less than :value',
-
+    "has_counter" => 'The value must contain {$counter}',
+    
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

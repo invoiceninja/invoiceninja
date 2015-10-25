@@ -241,9 +241,9 @@
                     <ul>
                         @foreach (\App\Models\Invoice::$patternFields as $field)
                             @if ($field == 'date:')
-                                <li>$date:format ({!! link_to(PHP_DATE_FORMATS, trans('texts.see_options'), ['target' => '_blank']) !!})</li>
+                                <li>{$date:format} - {!! link_to(PHP_DATE_FORMATS, trans('texts.see_options'), ['target' => '_blank']) !!}</li>
                             @else
-                                <li>${{ $field }}</li>
+                                <li>{${{ $field }}}</li>
                             @endif
                         @endforeach
                     </ul>
