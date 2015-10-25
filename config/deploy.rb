@@ -2,7 +2,7 @@
 lock '3.4.0'
 
 #set :application, 'billing'
-#set :repo_url, 'git@bitbucket.org:stev_ro/billing.git'
+#set :repo_url, 'repo_url'
 
 # Default branch is :master
 ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
@@ -35,7 +35,7 @@ ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
 # set :keep_releases, 5
 
 set :application, "billing"  # EDIT your app name
-set :repo_url,  "git@bitbucket.org:stev_ro/billing.git" # EDIT your git repository
+set :repo_url,  "git@bitbucket.org:stev_ro/billing-laravel.git" # EDIT your git repository
 set :deploy_to, "/home/ubuntu/billing.nimasoftware.com" # EDIT folder where files should be deployed to
  
 
@@ -47,6 +47,7 @@ set :deploy_to, "/home/ubuntu/billing.nimasoftware.com" # EDIT folder where file
 #  tag
 #end
 
+#SSHKit.config.command_map[:composer] = "/usr/local/bin/composer"
 
 namespace :deploy do
      
@@ -54,8 +55,8 @@ namespace :deploy do
     after :updated, :build do
         on roles(:app) do
             within release_path  do
-                execute :composer, "install --no-dev --quiet" # install dependencies
-                execute :chmod, "u+x artisan" # make artisan executable
+                #execute :composer, "install --no-dev --quiet" # install dependencies
+                #execute :chmod, "u+x artisan" # make artisan executable
             end
         end
     end
