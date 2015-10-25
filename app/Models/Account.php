@@ -260,7 +260,7 @@ class Account extends Eloquent
                 $invoice->is_quote = true;
             }
 
-            if ($this->hasClientNumberPattern($invoice) && !$client) {
+            if ($this->hasClientNumberPattern($invoice) && !$clientId) {
                 // do nothing, we don't yet know the value
             } else {
                 $invoice->invoice_number = $this->getNextInvoiceNumber($invoice);
