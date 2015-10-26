@@ -730,7 +730,7 @@ return array(
   'invoice_to' => 'Facture pour',
   'invoice_no' => 'Facture n°',
   'recent_payments' => 'Paiements récents',
-  'outstanding' => 'Extraordinaire',
+  'outstanding' => 'Impayé',
   'manage_companies' => 'Gérer les sociétés',
   'total_revenue' => 'Revenu total',  
 
