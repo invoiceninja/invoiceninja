@@ -45,7 +45,7 @@
                         @if (Auth::user()->account->timezone_id)
                             {{ $timezone }}
                         @else
-                            {!! link_to('/company/details?focus=timezone_id', $timezone, ['target' => '_blank']) !!}
+                            {!! link_to('/settings/company_details?focus=timezone_id', $timezone, ['target' => '_blank']) !!}
                         @endif
                         <p/>
 

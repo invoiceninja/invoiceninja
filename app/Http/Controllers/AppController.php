@@ -56,7 +56,7 @@ class AppController extends BaseController
         $test = Input::get('test');
 
         $app = Input::get('app');
-        $app['key'] = str_random(RANDOM_KEY_LENGTH);
+        $app['key'] = env('APP_KEY') ?: str_random(RANDOM_KEY_LENGTH);
 
         $database = Input::get('database');
         $dbType = $database['default'];
@@ -94,7 +94,7 @@ class AppController extends BaseController
                     "MAIL_USERNAME={$mail['username']}\n".
                     "MAIL_FROM_NAME={$mail['from']['name']}\n".
                     "MAIL_PASSWORD={$mail['password']}\n\n".
-                    "#PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'";
+                    "PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'";
 
         // Write Config Settings
         $fp = fopen(base_path()."/.env", 'w');

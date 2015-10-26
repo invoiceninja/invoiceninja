@@ -9,14 +9,14 @@ class EntityModel extends Eloquent
     public $timestamps = true;
     protected $hidden = ['id'];
 
-    public static function createNew($parent = false)
+    public static function createNew($context = null)
     {
         $className = get_called_class();
         $entity = new $className();
 
-        if ($parent) {
-            $entity->user_id = $parent instanceof User ? $parent->id : $parent->user_id;
-            $entity->account_id = $parent->account_id;
+        if ($context) {
+            $entity->user_id = $context instanceof User ? $context->id : $context->user_id;
+            $entity->account_id = $context->account_id;
         } elseif (Auth::check()) {
             $entity->user_id = Auth::user()->id;
             $entity->account_id = Auth::user()->account_id;

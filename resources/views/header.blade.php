@@ -136,6 +136,8 @@
     });     
   }      
 
+  @endif
+
   function checkForEnter(event)
   {
     if (event.keyCode === 13){
@@ -144,7 +146,6 @@
       return false;
     }
   }
-  @endif
 
   function logout(force)
   {
@@ -245,6 +246,10 @@
 
   function setSignupEnabled(enabled) {
     $('.signup-form input[type=text], .signup-form button').prop('disabled', !enabled);
+  }
+
+  function setSocialLoginProvider(provider) {
+    localStorage.setItem('auth_provider', provider);
   }
 
   $(function() {
@@ -434,16 +439,14 @@
       
       <ul class="nav navbar-nav navbar-right navbar-settings"> 
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+          <a href="{{ URL::to('/settings') }}" class="dropdown-toggle">
             <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
           </a>
           <ul class="dropdown-menu">
-            <li>{!! link_to('company/details', uctrans('texts.company_details')) !!}</li>
-            <li>{!! link_to('company/payments', uctrans('texts.online_payments')) !!}</li>
-            <li>{!! link_to('company/products', uctrans('texts.product_library')) !!}</li>
-            <li>{!! link_to('company/notifications', uctrans('texts.notifications')) !!}</li>
-            <li>{!! link_to('company/import_export', uctrans('texts.import_export')) !!}</li>
-            <li><a href="{{ url('company/advanced_settings/invoice_design') }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
+            @foreach (\App\Models\Account::$basicSettings as $setting)
+                <li>{!! link_to('settings/' . $setting, uctrans("texts.{$setting}")) !!}</li>
+            @endforeach
+            <li><a href="{{ url('settings/' . ACCOUNT_INVOICE_SETTINGS) }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
           </ul>
         </li>
       </ul>
@@ -451,7 +454,7 @@
 
       <ul class="nav navbar-nav navbar-right navbar-history"> 
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+          <a href="{{ count(Session::get(RECENTLY_VIEWED)) ? Session::get(RECENTLY_VIEWED)[0]->url : '#' }}" class="dropdown-toggle">
             <span class="glyphicon glyphicon-time" title="{{ trans('texts.history') }}"/>
           </a>
           <ul class="dropdown-menu">	        		        	
@@ -550,7 +553,13 @@
             @if (Utils::isNinja())
                 <div class="col-md-4 col-md-offset-1">
                     <h4>{{ trans('texts.sign_up_using') }}</h4><br/>
-                    @include('partials.social_login_buttons', ['type' => 'sign_up'])
+                    @foreach (App\Services\AuthService::$providers as $provider)
+                    <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-block" 
+                        onclick="setSocialLoginProvider('{{ strtolower($provider) }}')" id="{{ strtolower($provider) }}LoginButton">
+                        <i class="fa fa-{{ strtolower($provider) }}"></i> &nbsp;
+                        {{ $provider }}
+                    </a>
+                    @endforeach
                 </div>
                 <div class="col-md-1">
                     <div style="border-right:thin solid #CCCCCC;height:110px;width:8px;margin-bottom:10px;"></div>
@@ -667,10 +676,11 @@
 
 {{-- Per our license, please do not remove or modify this section. --}}
 @if (!Utils::isNinjaProd())
+</div>
 <p>&nbsp;</p>
 <div class="container">
   {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> -
-  {!! link_to(GITHUB_RELEASES, 'v' . NINJA_VERSION, ['target' => '_blank']) !!} | 
+  {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank']) !!} | 
   @if (Auth::user()->account->isWhiteLabel())  
     {{ trans('texts.white_labeled') }}
   @else

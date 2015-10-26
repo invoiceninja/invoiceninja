@@ -19,6 +19,11 @@ use App\Ninja\Repositories\AccountRepository;
 
 class AccountGatewayController extends BaseController
 {
+    public function index()
+    {
+        return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
+    }
+
     public function getDatatable()
     {
         $query = DB::table('account_gateways')
@@ -159,7 +164,6 @@ class AccountGatewayController extends BaseController
             'gateways' => $gateways,
             'creditCardTypes' => $creditCards,
             'tokenBillingOptions' => $tokenBillingOptions,
-            'showBreadcrumbs' => false,
             'countGateways' => count($currentGateways)
         ];
     }
@@ -173,7 +177,7 @@ class AccountGatewayController extends BaseController
 
         Session::flash('message', trans('texts.deleted_gateway'));
 
-        return Redirect::to('company/payments');
+        return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
     }
 
     /**

@@ -1,10 +1,10 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content') 
   @parent
-  @include('accounts.nav_advanced')
+  @include('accounts.nav', ['selected' => ACCOUNT_API_TOKENS])
 
-  {!! Former::open($url)->method($method)->addClass('col-md-8 col-md-offset-2 warn-on-exit')->rules(array(
+  {!! Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
       'name' => 'required',
   )); !!}
 
@@ -12,7 +12,7 @@
 <div class="panel-heading">
     <h3 class="panel-title">{!! trans($title) !!}</h3>
 </div>
-<div class="panel-body">
+<div class="panel-body form-padding-right">
 
   @if ($token)
     {!! Former::populate($token) !!}    
@@ -25,7 +25,7 @@
 
     @if (Auth::user()->isPro())
       {!! Former::actions( 
-          Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/token_management'))->appendIcon(Icon::create('remove-circle'))->large(),
+          Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/token_management'))->appendIcon(Icon::create('remove-circle'))->large(),
           Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
       ) !!}
     @else

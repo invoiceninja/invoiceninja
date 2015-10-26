@@ -1,3 +1,4 @@
+
 @extends('header')
 
 
@@ -34,7 +35,7 @@
                         {!! Former::text('website') !!}
 			{!! Former::text('work_phone') !!}
 			
-			@if (Auth::user()->isPro())				
+			@if (Auth::user()->isPro())
 				@if ($customLabel1)
 					{!! Former::text('custom_value1')->label($customLabel1) !!}
 				@endif
@@ -115,6 +116,7 @@
 			{!! Former::select('industry_id')->addOption('','')
 				->fromQuery($industries, 'name', 'id') !!}
 			{!! Former::textarea('private_notes') !!}
+
             </div>
             </div>
 

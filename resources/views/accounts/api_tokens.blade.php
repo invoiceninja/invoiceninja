@@ -1,8 +1,8 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content')
 	@parent
-	@include('accounts.nav_advanced')
+	@include('accounts.nav', ['selected' => ACCOUNT_API_TOKENS, 'advanced' => true])
 
   {!! Former::open('tokens/delete')->addClass('user-form') !!}
 

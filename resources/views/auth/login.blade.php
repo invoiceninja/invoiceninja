@@ -91,7 +91,16 @@
                 <p>{!! Button::primary(trans('texts.new_company'))->asLinkTo(URL::to('/invoice_now?new_company=true&sign_up=true'))->large()->submit()->block() !!}</p><br/>
             @elseif (Utils::isNinja())
                 <center><p>- {{ trans('texts.or') }} -</p></center>
-                @include('partials.social_login_buttons', ['type' => 'login'])<br/>
+                <div class="row">
+                @foreach (App\Services\AuthService::$providers as $provider)
+                    <div class="col-md-6">
+                    <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-block social-login-button" id="{{ strtolower($provider) }}LoginButton">
+                        <i class="fa fa-{{ strtolower($provider) }}"></i> &nbsp;
+                        {{ $provider }}
+                    </a><br/>
+                </div>
+                @endforeach
+                </div>
             @endif
 
             <p class="link">
@@ -164,12 +173,12 @@
                 $('#email').focus();
             }
 
-            // If they're using OAuth we'll show just their provider button
+            /*
             var authProvider = localStorage.getItem('auth_provider');
             if (authProvider) {
-                //$('#loginButton').removeClass('btn-success').addClass('btn-primary');
                 $('#' + authProvider + 'LoginButton').removeClass('btn-primary').addClass('btn-success');
             }
+            */
         })
 
     </script>

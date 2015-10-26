@@ -785,7 +785,9 @@ body {
     font-size: 14px;
     background-color: #f8f8f8;
 }
-
+html {
+  overflow-y: scroll;
+}
 
 @media screen and (min-width: 700px) { 
     .navbar-header {
@@ -837,7 +839,7 @@ body {
     display: inline-block;
     width: 9px;
     height: 15px;
-    background: url({{ asset('images/social/facebook.svg') }}) no-repeat;
+    background: url('../images/social/facebook.svg') no-repeat;
     margin: 0 6px 0 0;
     position: relative;
     top: 3px;
@@ -848,7 +850,7 @@ body {
     display: inline-block;
     width: 19px;
     height: 16px;
-    background: url({{ asset('images/social/twitter.svg') }}) no-repeat;
+    background: url('../images/social/twitter.svg') no-repeat;
     margin: 0 6px 0 0;
     position: relative;
     top: 3px;
@@ -859,18 +861,18 @@ body {
     display: inline-block;
     width: 19px;
     height: 16px;
-    background: url({{ asset('images/social/github.png') }}) no-repeat;
+    background: url('../images/social/github.png') no-repeat;
     margin: 0 6px 0 0;
     position: relative;
     top: 3px;
 }
 
 /* Hide bootstrap sort header icons */
-table.data-table thead .sorting:after { content: '' !important }
-table.data-table thead .sorting_asc:after { content: '' !important }
-table.data-table thead .sorting_desc:after { content: '' !important}
-table.data-table thead .sorting_asc_disabled:after { content: '' !important }
-table.data-table thead .sorting_desc_disabled:after { content: '' !important }
+table.table thead .sorting:after { content: '' !important }
+table.table thead .sorting_asc:after { content: '' !important }
+table.table thead .sorting_desc:after { content: '' !important }
+table.table thead .sorting_asc_disabled:after { content: '' !important }
+table.table thead .sorting_desc_disabled:after { content: '' !important }
 
 .dataTables_length {
     padding-left: 20px;

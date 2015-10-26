@@ -167,10 +167,13 @@
         });
 
         function setBulkActionsEnabled() {
-            var checked = $('tbody :checkbox:checked').length > 0;
-            $('button.archive, button.invoice').prop('disabled', !checked); 
-
-
+            var buttonLabel = "{{ trans('texts.archive') }}";
+            var count = $('tbody :checkbox:checked').length;
+            $('button.archive, button.invoice').prop('disabled', !count); 
+            if (count) {
+                buttonLabel += ' (' + count + ')';
+            }
+            $('button.archive').not('.dropdown-toggle').text(buttonLabel);
         }
 
     });

@@ -130,6 +130,16 @@ module.exports = function(grunt) {
         options: {
             process: false
         }
+      },
+      js_pdf: {
+        src: [
+          'public/js/pdf_viewer.js',
+          'public/js/compatibility.js',
+          'public/js/pdfmake.min.js',
+          'public/js/vfs_fonts.js',
+        ],
+        dest: 'public/js/pdf.built.js',
+        nonull: true
       }
     }
   });

@@ -46,10 +46,10 @@ class AuthService
             if ($result === true) {
                 if (!$isRegistered) {
                     event(new UserSignedUp());
-                    Session::flash('warning', trans('texts.success_message'));
+                    Session::flash('message', trans('texts.success_message'));
                 } else {
                     Session::flash('message', trans('texts.updated_settings'));
-                    return redirect()->to('/company/details');
+                    return redirect()->to('/settings/' . ACCOUNT_USER_DETAILS);
                 }
             } else {
                 Session::flash('error', $result);

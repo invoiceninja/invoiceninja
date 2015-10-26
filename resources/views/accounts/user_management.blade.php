@@ -1,8 +1,8 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content')
 	@parent
-	@include('accounts.nav_advanced')
+    @include('accounts.nav', ['selected' => ACCOUNT_USER_MANAGEMENT, 'advanced' => true])
 
   {!! Former::open('users/delete')->addClass('user-form') !!}
 
@@ -13,7 +13,6 @@
 
 
   <div class="pull-right">  
-    {!! Button::normal(trans('texts.api_tokens'))->asLinkTo(URL::to('/company/advanced_settings/token_management'))->appendIcon(Icon::create('cloud')) !!}
     @if (Utils::isPro())    
         {!! Button::primary(trans('texts.add_user'))->asLinkTo(URL::to('/users/create'))->appendIcon(Icon::create('plus-sign')) !!}
     @endif

@@ -17,17 +17,17 @@ return array(
 "active_url" => ":attribute não é uma URL válida.",
 "after" => ":attribute deve ser uma data maior que :date.",
 "alpha" => ":attribute deve conter apenas letras.",
-"alpha_dash" => ":attribute pode conter apenas letras, número e traços",
+"alpha_dash" => ":attribute pode conter apenas letras, número e hífens",
 "alpha_num" => ":attribute pode conter apenas letras e números.",
-"array" => ":attribute deve ser um array.",
+"array" => ":attribute deve ser uma lista.",
 "before" => ":attribute deve ser uma data anterior a :date.",
 "between" => array(
-    "numeric" => ":attribute deve ser entre :min - :max.",
-    "file" => ":attribute deve ser entre :min - :max kilobytes.",
-    "string" => ":attribute deve ser entre :min - :max caracteres.",
+    "numeric" => ":attribute deve estar entre :min - :max.",
+    "file" => ":attribute deve estar entre :min - :max kilobytes.",
+    "string" => ":attribute deve estar entre :min - :max caracteres.",
     "array" => ":attribute deve conter entre :min - :max itens.",
     ),
-"confirmed" => ":attribute confirmação não correponde.",
+"confirmed" => ":attribute confirmação não corresponde.",
 "date" => ":attribute não é uma data válida.",
 "date_format" => ":attribute não satisfaz o formato :format.",
 "different" => ":attribute e :other devem ser diferentes.",
@@ -71,8 +71,9 @@ return array(
 
 "positive" => ":attribute deve ser maior que zero.",
 "has_credit" => "O cliente não possui crédito suficiente.",
-"notmasked" => "The values are masked",
-"less_than" => 'The :attribute must be less than :value',
+"notmasked" => "Os valores são mascarados",
+"less_than" => ':attribute deve ser menor que :value',
+"has_counter" => 'O valor deve conter {$counter}',
 
 /*
 |--------------------------------------------------------------------------

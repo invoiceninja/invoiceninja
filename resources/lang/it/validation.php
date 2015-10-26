@@ -74,6 +74,7 @@ return array(
     "has_credit" => "The client does not have enough credit.",
     "notmasked" => "The values are masked",
     "less_than" => 'The :attribute must be less than :value',
+    "has_counter" => 'The value must contain {$counter}',
     
     /*
     |--------------------------------------------------------------------------

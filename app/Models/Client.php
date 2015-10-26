@@ -25,6 +25,11 @@ class Client extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
+
     public function invoices()
     {
         return $this->hasMany('App\Models\Invoice');
@@ -167,6 +172,11 @@ class Client extends EntityModel
         }
 
         return $this->account->currency_id ?: DEFAULT_CURRENCY;
+    }
+
+    public function getCounter($isQuote)
+    {
+        return $isQuote ? $this->quote_number_counter : $this->invoice_number_counter;
     }
 }
 

@@ -27,11 +27,11 @@ class StartupCheck
     {
         // Set up trusted X-Forwarded-Proto proxies
         // TRUSTED_PROXIES accepts a comma delimited list of subnets
-        //
-        // TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
+        // ie, TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
         if (isset($_ENV['TRUSTED_PROXIES'])) {
-            Request::setTrustedProxies(array_map('trim',explode(",",env('TRUSTED_PROXIES'))));
+            Request::setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))));
         }
+
         // Ensure all request are over HTTPS in production
         if (App::environment() == ENV_PRODUCTION && !Request::secure()) {
             return Redirect::secure(Request::getRequestUri());

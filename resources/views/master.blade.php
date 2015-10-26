@@ -11,7 +11,7 @@
     <meta property="og:site_name" content="Invoice Ninja" />
     <meta property="og:url" content="{{ SITE_URL }}" />
     <meta property="og:title" content="Invoice Ninja" />
-    <meta property="og:image" content="{{ SITE_URL }}/images/social.jpg" />
+    <meta property="og:image" content="{{ SITE_URL }}/images/round_logo.png" />
     <meta property="og:description" content="Simple, Intuitive Invoicing." />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +27,9 @@
     <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    
 
     <script type="text/javascript">
-        var NINJA = NINJA || {};      
+        var NINJA = NINJA || {};
+        NINJA.fontSize = 9;
+
         NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};    
 
         window.onerror = function(e) {

@@ -14,10 +14,11 @@ class SettingsCest
         $this->faker = Factory::create();
     }
 
+    /*
     public function companyDetails(FunctionalTester $I)
     {
         $I->wantTo('update the company details');
-        $I->amOnPage('/company/details');
+        $I->amOnPage('/settings/company_details');
 
         $name = $this->faker->company;
 
@@ -29,20 +30,50 @@ class SettingsCest
         $I->fillField(['name' => 'city'], $this->faker->city);
         $I->fillField(['name' => 'state'], $this->faker->state);
         $I->fillField(['name' => 'postal_code'], $this->faker->postcode);
-
-        $I->fillField(['name' => 'first_name'], $this->faker->firstName);
-        $I->fillField(['name' => 'last_name'], $this->faker->lastName);
-        $I->fillField(['name' => 'phone'], $this->faker->phoneNumber);
         $I->click('Save');
 
         $I->seeResponseCodeIs(200);
         $I->seeRecord('accounts', array('name' => $name));
     }
+    */
+    
+    public function userDetails(FunctionalTester $I)
+    {
+        $I->wantTo('update the user details');
+        $I->amOnPage('/settings/user_details');
+
+        $firstName = $this->faker->firstName;
+
+        $I->fillField(['name' => 'first_name'], $firstName);
+        $I->fillField(['name' => 'last_name'], $this->faker->lastName);
+        $I->fillField(['name' => 'phone'], $this->faker->phoneNumber);
+        $I->click('Save');
+
+        $I->seeResponseCodeIs(200);
+        $I->seeRecord('users', array('first_name' => $firstName));
+    }
+
+    /*
+    public function localization(FunctionalTester $I)
+    {
+        $I->wantTo('update the localization');
+        $I->amOnPage('/settings/localization');
+
+        $name = $this->faker->company;
+
+        $I->fillField(['name' => 'name'], $name);
+        $I->click('Save');
+
+        $I->seeResponseCodeIs(200);
+        $I->seeRecord('accounts', array('name' => $name));
+    }
+    */
+
 
     public function productSettings(FunctionalTester $I)
     {
         $I->wantTo('update the product settings');
-        $I->amOnPage('/company/products');
+        $I->amOnPage('/settings/products');
 
         $I->click('Save');
 
@@ -84,7 +115,7 @@ class SettingsCest
     public function updateNotifications(FunctionalTester $I)
     {
         $I->wantTo('update notification settings');
-        $I->amOnPage('/company/notifications');
+        $I->amOnPage('/settings/notifications');
 
         $terms = $this->faker->text(80);
 
@@ -99,7 +130,7 @@ class SettingsCest
     public function updateInvoiceDesign(FunctionalTester $I)
     {
         $I->wantTo('update invoice design');
-        $I->amOnPage('/company/advanced_settings/invoice_design');
+        $I->amOnPage('/settings/invoice_design');
 
         $color = $this->faker->hexcolor;
 
@@ -114,7 +145,7 @@ class SettingsCest
     public function updateInvoiceSettings(FunctionalTester $I)
     {
         $I->wantTo('update invoice settings');
-        $I->amOnPage('/company/advanced_settings/invoice_settings');
+        $I->amOnPage('/settings/invoice_settings');
 
         $label = $this->faker->text(10);
 
@@ -131,7 +162,7 @@ class SettingsCest
     public function updateEmailTemplates(FunctionalTester $I)
     {
         $I->wantTo('update email templates');
-        $I->amOnPage('/company/advanced_settings/templates_and_reminders');
+        $I->amOnPage('/settings/templates_and_reminders');
 
         $string = $this->faker->text(100);
 
@@ -145,7 +176,7 @@ class SettingsCest
     public function runReport(FunctionalTester $I)
     {
         $I->wantTo('run the report');
-        $I->amOnPage('/company/advanced_settings/charts_and_reports');
+        $I->amOnPage('/settings/charts_and_reports');
 
         $I->click('Run');
         $I->seeResponseCodeIs(200);

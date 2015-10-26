@@ -142,7 +142,15 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getMaxNumClients()
     {
-        return $this->isPro() ? MAX_NUM_CLIENTS_PRO : MAX_NUM_CLIENTS;
+        if ($this->isPro()) {
+            return MAX_NUM_CLIENTS_PRO;
+        }
+
+        if ($this->id < LEGACY_CUTOFF) {
+            return MAX_NUM_CLIENTS_LEGACY;
+        }
+
+        return MAX_NUM_CLIENTS;
     }
 
     public function getRememberToken()
@@ -195,7 +203,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     {
         if (!$user->getOriginal('email')
             || $user->getOriginal('email') == TEST_USERNAME
-            || $user->getOriginal('username') == TEST_USERNAME) {
+            || $user->getOriginal('username') == TEST_USERNAME
+            || $user->getOriginal('email') == 'tests@bitrock.com') {
             event(new UserSignedUp());
         }
 

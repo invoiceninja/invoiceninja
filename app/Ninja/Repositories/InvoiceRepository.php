@@ -250,17 +250,16 @@ class InvoiceRepository
 
     public function save($publicId, $data, $entityType)
     {
+        $account = \Auth::user()->account;
+
         if ($publicId) {
             $invoice = Invoice::scope($publicId)->firstOrFail();
         } else {
-            $invoice = Invoice::createNew();
-
-            if ($entityType == ENTITY_QUOTE) {
-                $invoice->is_quote = true;
+            if ($data['is_recurring']) {
+                $entityType = ENTITY_RECURRING_INVOICE;
             }
+            $invoice = $account->createInvoice($entityType, $data['client_id']);
         }
-
-        $account = \Auth::user()->account;
 
         if ((isset($data['set_default_terms']) && $data['set_default_terms'])
             || (isset($data['set_default_footer']) && $data['set_default_footer'])) {
@@ -273,7 +272,7 @@ class InvoiceRepository
             $account->save();
         }
 
-        if (isset($data['invoice_number'])) {
+        if (isset($data['invoice_number']) && !$invoice->is_recurring) {
             $invoice->invoice_number = trim($data['invoice_number']);
         }
 
@@ -282,11 +281,6 @@ class InvoiceRepository
         $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
         $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
         $invoice->has_tasks = isset($data['has_tasks']) ? $data['has_tasks'] : false;
-        
-        if (!$publicId) {
-            $invoice->client_id = $data['client_id'];
-            $invoice->is_recurring = $data['is_recurring'] ? true : false;
-        }
         
         if ($invoice->is_recurring) {
             if ($invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
@@ -478,7 +472,7 @@ class InvoiceRepository
             }
             $clone->invoice_number = $account->invoice_number_prefix.$invoiceNumber;
         } else {
-            $clone->invoice_number = $account->getNextInvoiceNumber();
+            $clone->invoice_number = $account->getNextInvoiceNumber($invoice);
         }
 
         foreach ([
@@ -579,20 +573,21 @@ class InvoiceRepository
     public function findInvoiceByInvitation($invitationKey)
     {
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
+
         if (!$invitation) {
-            app()->abort(404, trans('texts.invoice_not_found'));
+            return false;
         }
 
         $invoice = $invitation->invoice;
         if (!$invoice || $invoice->is_deleted) {
-            app()->abort(404, trans('texts.invoice_not_found'));
+            return false;
         }
 
         $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
         $client = $invoice->client;
 
         if (!$client || $client->is_deleted) {
-            app()->abort(404, trans('texts.invoice_not_found'));
+            return false;
         }
 
         return $invitation;
@@ -630,7 +625,7 @@ class InvoiceRepository
         $invoice = Invoice::createNew($recurInvoice);
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;
-        $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber(false, 'R');
+        $invoice->invoice_number = 'R' . $recurInvoice->account->getNextInvoiceNumber($recurInvoice);
         $invoice->amount = $recurInvoice->amount;
         $invoice->balance = $recurInvoice->amount;
         $invoice->invoice_date = date_create()->format('Y-m-d');

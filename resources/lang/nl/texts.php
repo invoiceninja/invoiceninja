@@ -260,7 +260,7 @@ return array(
   'email_salutation' => 'Beste :name,',
   'email_signature' => 'Met vriendelijke groeten,',
   'email_from' => 'Het InvoiceNinja Team',
-  'user_email_footer' => 'Ga alstublieft naar '.SITE_URL.'/company/notifications om je e-mail notificatie instellingen aan te passen ',
+  'user_email_footer' => 'Ga alstublieft naar '.SITE_URL.'/settings/notifications om je e-mail notificatie instellingen aan te passen ',
   'invoice_link_message' => 'Klik op volgende link om de Factuur van je klant te bekijken:',
   'notification_invoice_paid_subject' => 'Factuur :invoice is betaald door :client',
   'notification_invoice_sent_subject' => 'Factuur :invoice is gezonden door :client',
@@ -740,7 +740,6 @@ return array(
   'current_user' => 'Huidige gebruiker',
   'new_recurring_invoice' => 'Nieuwe wederkerende factuur',
   'recurring_invoice' => 'Wederkerende factuur',
-  'recurring_too_soon' => 'Het is te vroeg om de volgende wederkerende factuur aan te maken',
   'created_by_invoice' => 'Aangemaakt door :invoice',
   'primary_user' => 'Primaire gebruiker',
   'help' => 'Help',
@@ -812,5 +811,15 @@ return array(
   'custom_invoice_link' => 'Custom Invoice Link',
   'total_invoiced' => 'Total Invoiced',
   'open_balance' => 'Open Balance',
+  'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
+  'basic_settings' => 'Basic Settings',
+  'pro' => 'Pro',
+  'gateways' => 'Payment Gateways',
+  'recurring_too_soon' => 'Het is te vroeg om de volgende wederkerende factuur aan te maken, it\'s scheduled for :date',
+
+  'next_send_on' => 'Send Next: :date',
+  'no_longer_running' => 'This invoice is not scheduled to run',
+  'general_settings' => 'General Settings',
+  'customize' => 'Customize',
   
 );

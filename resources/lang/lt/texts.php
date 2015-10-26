@@ -262,7 +262,7 @@ return array(
   'email_salutation' => 'Dear :name,',
   'email_signature' => 'Regards,',
   'email_from' => 'The Invoice Ninja Team',
-  'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/company/notifications',
+  'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/settings/notifications',
   'invoice_link_message' => 'To view your client invoice click the link below:',
   'notification_invoice_paid_subject' => 'Invoice :invoice was paid by :client',
   'notification_invoice_sent_subject' => 'Invoice :invoice was sent to :client',
@@ -337,7 +337,7 @@ return array(
   'fill_products_help' => 'Selecting a product will automatically <b>fill in the description and cost</b>',
   'update_products' => 'Auto-update products',
   'update_products_help' => 'Updating an invoice will automatically <b>update the product library</b>',
-  'create_product' => 'Create Product',
+  'create_product' => 'Add Product',
   'edit_product' => 'Edit Product',
   'archive_product' => 'Archive Product',
   'updated_product' => 'Successfully updated product',
@@ -747,7 +747,7 @@ return array(
   'current_user' => 'Current User',
   'new_recurring_invoice' => 'New Recurring Invoice',
   'recurring_invoice' => 'Recurring Invoice',
-  'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice',
+  'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice, it\'s scheduled for :date',
   'created_by_invoice' => 'Created by :invoice',
   'primary_user' => 'Primary User',
   'help' => 'Help',
@@ -819,6 +819,15 @@ return array(
   'custom_invoice_link' => 'Custom Invoice Link',
   'total_invoiced' => 'Total Invoiced',
   'open_balance' => 'Open Balance',
+  'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
+  'basic_settings' => 'Basic Settings',
+  'pro' => 'Pro',
+  'gateways' => 'Payment Gateways',
+
+  'next_send_on' => 'Send Next: :date',
+  'no_longer_running' => 'This invoice is not scheduled to run',
+  'general_settings' => 'General Settings',
+  'customize' => 'Customize',
   
 );
 

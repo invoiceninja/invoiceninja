@@ -47,7 +47,7 @@ class Handler extends ExceptionHandler {
         if ($e instanceof ModelNotFoundException) {
             return Redirect::to('/');
         }
-        
+
         // In production, except for maintenance mode, we'll show a custom error screen
         if (Utils::isNinjaProd() && !Utils::isDownForMaintenance()) {
             $data = [

@@ -59,16 +59,6 @@ class InvoiceApiController extends Controller
         $data = Input::all();
         $error = null;
                 
-        // check if the invoice number is set and unique
-        if (!isset($data['invoice_number']) && !isset($data['id'])) {
-            $data['invoice_number'] = Auth::user()->account->getNextInvoiceNumber();
-        } else if (isset($data['invoice_number'])) {
-            $invoice = Invoice::scope()->where('invoice_number', '=', $data['invoice_number'])->first();
-            if ($invoice) {
-                $error = trans('validation.unique', ['attribute' => 'texts.invoice_number']);
-            }
-        }
-
         if (isset($data['email'])) {
             $client = Client::scope()->whereHas('contacts', function($query) use ($data) {
                 $query->where('email', '=', $data['email']);
@@ -93,6 +83,16 @@ class InvoiceApiController extends Controller
             }
         } else if (isset($data['client_id'])) {
             $client = Client::scope($data['client_id'])->first();
+        }
+
+        // check if the invoice number is set and unique
+        if (!isset($data['invoice_number']) && !isset($data['id'])) {
+            // do nothing... invoice number will be set automatically
+        } else if (isset($data['invoice_number'])) {
+            $invoice = Invoice::scope()->where('invoice_number', '=', $data['invoice_number'])->first();
+            if ($invoice) {
+                $error = trans('validation.unique', ['attribute' => 'texts.invoice_number']);
+            }
         }
 
         if (!$error) {

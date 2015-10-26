@@ -144,6 +144,10 @@ class AppServiceProvider extends ServiceProvider {
         Validator::replacer('less_than', function($message, $attribute, $rule, $parameters) {
             return str_replace(':value', $parameters[0], $message);
         });
+
+        Validator::extend('has_counter', function($attribute, $value, $parameters) {
+            return !$value || strstr($value, '{$counter}');
+        });
 	}
 
 	/**

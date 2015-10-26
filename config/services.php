@@ -39,25 +39,25 @@ return [
     'github' => [
         'client_id' => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
-        'redirect' => 'http://ninja.dev/auth/github'
+        'redirect' => env('GITHUB_OAUTH_REDIRECT'),
     ],
 
     'google' => [
-        'client_id' => '640903115046-dd09j2q24lcc3ilrrv5f2ft2i3n0sreg.apps.googleusercontent.com',
-        'client_secret' => 'Vsfhldq7mRxsCXQTQI8U_4Ua',
-        'redirect' => 'http://ninja.dev/auth/google',
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_OAUTH_REDIRECT'),
     ],
 
     'facebook' => [
-        'client_id' => '635126583203143',
-        'client_secret' => '7aa7c391019f2ece3c6aa90f4c9b1485',
-        'redirect' => 'http://ninja.dev/auth/facebook',
+        'client_id' => env('FACEBOOK_CLIENT_ID'),
+        'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
+        'redirect' => env('FACEBOOK_OAUTH_REDIRECT'),
     ],
 
     'linkedin' => [
-        'client_id' => '778is2j21w25xj',
-        'client_secret' => 'DvDExxfBLXUtxc81',
-        'redirect' => 'http://ninja.dev/auth/linkedin',
+        'client_id' => env('LINKEDIN_CLIENT_ID'),
+        'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
+        'redirect' => env('LINKEDIN_OAUTH_REDIRECT'),
     ],
 
 ];

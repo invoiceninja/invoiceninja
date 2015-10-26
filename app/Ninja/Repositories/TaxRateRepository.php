@@ -5,6 +5,7 @@ use Utils;
 
 class TaxRateRepository
 {
+    /*
     public function save($taxRates)
     {
         $taxRateIds = [];
@@ -39,4 +40,5 @@ class TaxRateRepository
             }
         }
     }
+    */
 }

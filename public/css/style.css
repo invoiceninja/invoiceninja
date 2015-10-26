@@ -2,6 +2,9 @@ body { background: #f8f8f8 !important;
     font-family: 'Roboto', sans-serif;
     font-size: 15px;
 }
+html {
+  overflow-y: scroll;
+}
 .bold { font-weight: 700; }
 a {color:#0b4d78;}
 /*a:hover { text-decoration: none; color: #0a3857;}*/
@@ -755,23 +758,45 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
     text-decoration: line-through;
 }
 
-@media screen and (min-width: 992px) {
-   .hide-desktop {display: none;}
+
+/* Custom, iPhone Retina */ 
+@media only screen and (min-width : 320px) {
+    
+}
+
+/* Extra Small Devices, Phones */ 
+@media only screen and (min-width : 480px) {
+
+}
+
+/* Small Devices, Tablets */
+@media only screen and (min-width : 768px) {
+   .form-padding-right {
+        padding-right: 40px;
+   }
+}
+
+/* Medium Devices, Desktops */
+@media only screen and (min-width : 992px) {
+   .form-padding-right {
+        padding-right: 100px;
+   }
+   .medium-dialog {
+        width: 760px;
+   }
+   .large-dialog {
+        width: 960px;
+   }
+   .hide-desktop 
+   {
+        display: none;
+   }
 }
 
 @media (max-width: 992px) {
     .hide-phone {
         display: none !important;
     }    
-}
-
-@media screen and (min-width: 992px) {
-   .medium-dialog {
-        width: 760px;
-   }
-   .large-dialog {
-        width: 960px;
-   }   
 }
 
 @media (max-width: 767px) {
@@ -987,7 +1012,18 @@ ul.user-accounts a:hover div.remove {
     visibility: visible;
 }
 
-.tooltip-inner {
+.invoice-contact .tooltip-inner {
     text-align:left;
     width: 350px; 
+}
+
+/* Show selected section in settings nav */
+.list-group-item.selected:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 2px;
+    content: "";
+    background-color: #e37329;
 }

@@ -11,4 +11,9 @@ class Product extends EntityModel
     {
         return Product::scope()->where('product_key', '=', $key)->first();
     }
+
+    public function default_tax_rate()
+    {
+        return $this->belongsTo('App\Models\TaxRate');
+    }
 }

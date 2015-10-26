@@ -12,11 +12,11 @@
                 </div>
                 <div class="in-bold">
                     @if (count($paidToDate))
-                    @foreach ($paidToDate as $item)
-                    {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
-                    @endforeach
+                        @foreach ($paidToDate as $item)
+                            {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
+                        @endforeach
                     @else
-                    {{ Utils::formatMoney(0) }}
+                        {{ Utils::formatMoney(0) }}
                     @endif
                 </div>
             </div>
@@ -31,11 +31,11 @@
                 </div>
                 <div class="in-bold">
                     @if (count($averageInvoice))
-                    @foreach ($averageInvoice as $item)
-                    {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
-                    @endforeach
+                        @foreach ($averageInvoice as $item)
+                            {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
+                        @endforeach
                     @else
-                    {{ Utils::formatMoney(0) }}
+                        {{ Utils::formatMoney(0) }}
                     @endif
                 </div>
             </div>
@@ -50,11 +50,11 @@
                 </div>
                 <div class="in-bold">
                     @if (count($balances))
-                    @foreach ($balances as $item)
-                    {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
-                    @endforeach
+                        @foreach ($balances as $item)
+                            {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
+                        @endforeach
                     @else
-                    {{ Utils::formatMoney(0) }}
+                        {{ Utils::formatMoney(0) }}
                     @endif
                 </div>
             </div>
@@ -255,6 +255,14 @@
     <div class="col-md-6">  
     </div>
 </div>
+
+<script type="text/javascript">
+    $(function() {
+        $('.normalDropDown:not(.dropdown-toggle)').click(function() {
+            window.location = '{{ URL::to('invoices/create') }}';
+        });
+    });
+</script>
 
 @stop
 

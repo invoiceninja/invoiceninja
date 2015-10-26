@@ -262,7 +262,7 @@ return array(
   'email_salutation' => 'Cher :name,',
   'email_signature' => 'Cordialement,',
   'email_from' => 'L\'équipe InvoiceNinja',
-  'user_email_footer' => 'Pour modifier vos paramètres de notification par courriel, veuillez visiter '.SITE_URL.'/company/notifications',
+  'user_email_footer' => 'Pour modifier vos paramètres de notification par courriel, veuillez visiter '.SITE_URL.'/settings/notifications',
   'invoice_link_message' => 'Pour voir la facture de votre client cliquez sur le lien ci-après :',
   'notification_invoice_paid_subject' => 'La facture :invoice a été payée par le client :client',
   'notification_invoice_sent_subject' => 'La facture :invoice a été envoyée au client :client',
@@ -738,7 +738,7 @@ return array(
   'current_user' => 'Current User',
   'new_recurring_invoice' => 'New Recurring Invoice',
   'recurring_invoice' => 'Recurring Invoice',
-  'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice',
+  'recurring_too_soon' => 'It\'s too soon to create the next recurring invoice, it\'s scheduled for :date',
   'created_by_invoice' => 'Created by :invoice',
   'primary_user' => 'Primary User',
   'help' => 'Help',
@@ -810,6 +810,15 @@ return array(
   'custom_invoice_link' => 'Custom Invoice Link',
   'total_invoiced' => 'Total Invoiced',
   'open_balance' => 'Open Balance',
+  'verify_email' => 'Please visit the link in the account confirmation email to verify your email address.',
+  'basic_settings' => 'Basic Settings',
+  'pro' => 'Pro',
+  'gateways' => 'Payment Gateways',
+
+  'next_send_on' => 'Send Next: :date',
+  'no_longer_running' => 'This invoice is not scheduled to run',
+  'general_settings' => 'General Settings',
+  'customize' => 'Customize',
 
 
 );

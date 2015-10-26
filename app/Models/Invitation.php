@@ -57,7 +57,7 @@ class Invitation extends EntityModel
         foreach ($statuses as $status) {
             $field = "{$status}_date";
             $date = '';
-            if ($this->$field) {
+            if ($this->$field && $this->field != '0000-00-00 00:00:00') {
                 $date = Utils::dateToString($this->$field);
                 $hasValue = true;
             }
