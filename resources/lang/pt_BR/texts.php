@@ -811,7 +811,7 @@ return array(
   'custom_invoice_link' => 'Link de Fauturas Personalizado',
   'total_invoiced' => 'Faturas',
   'open_balance' => 'Em Aberto',
-  'verify_email' => 'Confirme seu endereço de email através do email de confirmação enviado.',
+  'verify_email' => 'Um email de verificação foi enviado para sua caixa de entrada..',
   'basic_settings' => 'Configurações Básicas',
   'pro' => 'Pro',
   'gateways' => 'Provedores de Pagamento',
