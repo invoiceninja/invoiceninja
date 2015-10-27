@@ -794,7 +794,7 @@ return array(
   'show_all_options' => 'Mostrar todas as opções',
   'user_details' => 'Detalhes do Usuário',
   'oneclick_login' => 'Login Fácil',
-  'disable' => 'Disabilitar',
+  'disable' => 'Desabilitar',
   'invoice_quote_number' => 'Numero de Faturas e Orçamentos',
   'invoice_charges' => 'Encargos da Fatura',
 
@@ -811,7 +811,7 @@ return array(
   'custom_invoice_link' => 'Link de Fauturas Personalizado',
   'total_invoiced' => 'Faturas',
   'open_balance' => 'Em Aberto',
-  'verify_email' => 'Confirme seu endereço de email atravez do email de confirmação enviado.',
+  'verify_email' => 'Confirme seu endereço de email através do email de confirmação enviado.',
   'basic_settings' => 'Configurações Básicas',
   'pro' => 'Pro',
   'gateways' => 'Provedores de Pagamento',
