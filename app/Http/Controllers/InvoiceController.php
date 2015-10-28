@@ -14,7 +14,6 @@ use Datatable;
 use Request;
 use DropdownButton;
 use App\Models\Invoice;
-use App\Models\Invitation;
 use App\Models\Client;
 use App\Models\Account;
 use App\Models\Product;
@@ -31,21 +30,27 @@ use App\Models\Gateway;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
-use App\Events\InvoiceViewed;
+use App\Events\InvoiceInvitationWasViewed;
+use App\Events\QuoteInvitationWasViewed;
+
+use App\Services\InvoiceService;
+use App\Http\Requests\SaveInvoiceRequest;
 
 class InvoiceController extends BaseController
 {
     protected $mailer;
     protected $invoiceRepo;
     protected $clientRepo;
+    protected $invoiceService;
 
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo)
+    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
     {
         parent::__construct();
 
         $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
+        $this->invoiceService = $invoiceService;
     }
 
     public function index()
@@ -147,12 +152,15 @@ class InvoiceController extends BaseController
         }
 
         if (!Input::has('phantomjs') && !Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
-            Activity::viewInvoice($invitation);
-            Event::fire(new InvoiceViewed($invoice));
+            if ($invoice->is_quote) {
+                event(new QuoteInvitationWasViewed($invoice, $invitation));
+            } else {
+                event(new InvoiceInvitationWasViewed($invoice, $invitation));
+            }
         }
 
-        Session::set($invitationKey, true); // track this invitation has been seen
-        Session::set('invitation_key', $invitationKey); // track current invitation
+        Session::put($invitationKey, true); // track this invitation has been seen
+        Session::put('invitation_key', $invitationKey); // track current invitation
 
         $account->loadLocalizationSettings($client);
 
@@ -245,7 +253,7 @@ class InvoiceController extends BaseController
             ->select('contacts.public_id')->lists('public_id');
 
         if ($clone) {
-            $invoice->id = null;
+            $invoice->id = $invoice->public_id = null;
             $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
@@ -347,13 +355,16 @@ class InvoiceController extends BaseController
     public function create($clientPublicId = 0, $isRecurring = false)
     {
         $account = Auth::user()->account;
+        $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
         $clientId = null;
+        
         if ($clientPublicId) {
             $clientId = Client::getPrivateId($clientPublicId);
         }
-        $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
-        $invoice = $account->createInvoice($entityType, $clientId);
 
+        $invoice = $account->createInvoice($entityType, $clientId);
+        $invoice->public_id = 0;
+        
         $data = [
             'entityType' => $invoice->getEntityType(),
             'invoice' => $invoice,
@@ -418,49 +429,61 @@ class InvoiceController extends BaseController
      *
      * @return Response
      */
-    public function store()
-    {
-        return InvoiceController::save();
-    }
-
-    private function save($publicId = null)
+    public function store(SaveInvoiceRequest $request)
     {
         $action = Input::get('action');
         $entityType = Input::get('entityType');
-        $input = json_decode(Input::get('data'));
 
-        if (in_array($action, ['archive', 'delete', 'mark', 'restore'])) {
-            return InvoiceController::bulk($entityType);
+        $invoice = $this->invoiceService->save($request->input());
+        $entityType = $invoice->getEntityType();
+        $message = trans("texts.created_{$entityType}");
+
+        // check if we created a new client with the invoice
+        // TODO: replace with HistoryListener
+        $input = $request->input();
+        $clientPublicId = isset($input['client']['public_id']) ? $input['client']['public_id'] : false;
+        if ($clientPublicId == '-1') {
+            $message = $message.' '.trans('texts.and_created_client');
+            $trackUrl = URL::to('clients/' . $invoice->client->public_id);
+            Utils::trackViewed($invoice->client->getDisplayName(), ENTITY_CLIENT, $trackUrl);
         }
 
-        if ($errors = $this->invoiceRepo->getErrors($input->invoice)) {
-            Session::flash('error', trans('texts.invoice_error'));
-            $url = "{$entityType}s/" . ($publicId ?: 'create');
-            return Redirect::to($url)->withInput()->withErrors($errors);
-        } else {
-            $invoice = $this->saveInvoice($publicId, $input, $entityType);
-            $url = "{$entityType}s/".$invoice->public_id.'/edit';
-            $message = trans($publicId ? "texts.updated_{$entityType}" : "texts.created_{$entityType}");
+        Session::flash('message', $message);
 
-            // check if we created a new client with the invoice
-            if ($input->invoice->client->public_id == '-1') {
-                $message = $message.' '.trans('texts.and_created_client');
-                $trackUrl = URL::to('clients/'.$invoice->client->public_id);
-                Utils::trackViewed($invoice->client->getDisplayName(), ENTITY_CLIENT, $trackUrl);
-            }
-
-            if ($action == 'clone') {
-                return $this->cloneInvoice($publicId);
-            } elseif ($action == 'convert') {
-                return $this->convertQuote($publicId);
-            } elseif ($action == 'email') {
-                return $this->emailInvoice($invoice, Input::get('pdfupload'));
-            }
-            
-            Session::flash('message', $message);
-            return Redirect::to($url);
+        if ($action == 'email') {
+            return $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
+        
+        return redirect()->to($invoice->getRoute());
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int      $id
+     * @return Response
+     */
+    public function update(SaveInvoiceRequest $request)
+    {
+        $action = Input::get('action');
+        $entityType = Input::get('entityType');
+
+        $invoice = $this->invoiceService->save($request->input());
+        $entityType = $invoice->getEntityType();
+        $message = trans("texts.updated_{$entityType}");
+        Session::flash('message', $message);
+
+        if ($action == 'clone') {
+            return $this->cloneInvoice($invoice->public_id);
+        } elseif ($action == 'convert') {
+            return $this->convertQuote($invoice->public_id);
+        } elseif ($action == 'email') {
+            return $this->emailInvoice($invoice, Input::get('pdfupload'));
+        }
+        
+        return redirect()->to($invoice->getRoute());
+    }
+
 
     private function emailInvoice($invoice, $pdfUpload)
     {
@@ -512,43 +535,6 @@ class InvoiceController extends BaseController
         }
     }
 
-    private function saveInvoice($publicId, $input, $entityType)
-    {
-        $invoice = $input->invoice;
-
-        $clientData = (array) $invoice->client;
-        $client = $this->clientRepo->save($invoice->client->public_id, $clientData);
-
-        $invoiceData = (array) $invoice;
-        $invoiceData['client_id'] = $client->id;
-        $invoice = $this->invoiceRepo->save($publicId, $invoiceData, $entityType);
-
-        $client->load('contacts');
-        $sendInvoiceIds = [];
-
-        foreach ($client->contacts as $contact) {
-            if ($contact->send_invoice || count($client->contacts) == 1) {
-                $sendInvoiceIds[] = $contact->id;
-            }
-        }
-
-        foreach ($client->contacts as $contact) {
-            $invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
-
-            if (in_array($contact->id, $sendInvoiceIds) && !$invitation) {
-                $invitation = Invitation::createNew();
-                $invitation->invoice_id = $invoice->id;
-                $invitation->contact_id = $contact->id;
-                $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
-                $invitation->save();
-            } elseif (!in_array($contact->id, $sendInvoiceIds) && $invitation) {
-                $invitation->delete();
-            }
-        }
-
-        return $invoice;
-    }
-
     /**
      * Display the specified resource.
      *
@@ -563,17 +549,6 @@ class InvoiceController extends BaseController
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  int      $id
-     * @return Response
-     */
-    public function update($publicId)
-    {
-        return InvoiceController::save($publicId);
-    }
-
-    /**
      * Remove the specified resource from storage.
      *
      * @param  int      $id
@@ -581,10 +556,10 @@ class InvoiceController extends BaseController
      */
     public function bulk($entityType = ENTITY_INVOICE)
     {
-        $action = Input::get('action');
+        $action = Input::get('bulk_action') ?: Input::get('action');;
+        $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
         $statusId = Input::get('statusId', INVOICE_STATUS_SENT);
-        $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
-        $count = $this->invoiceRepo->bulk($ids, $action, $statusId);
+        $count = $this->invoiceService->bulk($ids, $action, $statusId);
 
         if ($count > 0) {
             $key = $action == 'mark' ? "updated_{$entityType}" : "{$action}d_{$entityType}";
@@ -602,7 +577,7 @@ class InvoiceController extends BaseController
     public function convertQuote($publicId)
     {
         $invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();
-        $clone = $this->invoiceRepo->cloneInvoice($invoice, $invoice->id);
+        $clone = $this->invoiceService->approveQuote($invoice);
 
         Session::flash('message', trans('texts.converted_to_invoice'));
         return Redirect::to('invoices/'.$clone->public_id);
@@ -610,15 +585,6 @@ class InvoiceController extends BaseController
 
     public function cloneInvoice($publicId)
     {
-        /*
-        $invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();
-        $clone = $this->invoiceRepo->cloneInvoice($invoice);
-        $entityType = $invoice->getEntityType();
-
-        Session::flash('message', trans('texts.cloned_invoice'));
-        return Redirect::to("{$entityType}s/" . $clone->public_id);
-        */
-
         return self::edit($publicId, true);
     }
 
@@ -636,7 +602,7 @@ class InvoiceController extends BaseController
                         ->where('activity_type_id', '=', $activityTypeId)
                         ->where('invoice_id', '=', $invoice->id)
                         ->orderBy('id', 'desc')
-                        ->get(['id', 'created_at', 'user_id', 'json_backup', 'message']);
+                        ->get(['id', 'created_at', 'user_id', 'json_backup']);
 
         $versionsJson = [];
         $versionsSelect = [];
@@ -651,7 +617,7 @@ class InvoiceController extends BaseController
             $backup->account = $invoice->account->toArray();
 
             $versionsJson[$activity->id] = $backup;
-            $key = Utils::timestampToDateTimeString(strtotime($activity->created_at)) . ' - ' . Utils::decodeActivity($activity->message);
+            $key = Utils::timestampToDateTimeString(strtotime($activity->created_at)) . ' - ' . $activity->user->getDisplayName();
             $versionsSelect[$lastId ? $lastId : 0] = $key;
             $lastId = $activity->id;
         }

@@ -1,4 +1,4 @@
-<?php
+/<?php
 
 use Codeception\Util\Fixtures;
 use \AcceptanceTester;
@@ -35,7 +35,7 @@ class OnlinePaymentCest
 
         // create client
         $I->amOnPage('/clients/create');
-        $I->fillField(['name' => 'email'], $clientEmail);
+        $I->fillField(['name' => 'contacts[0][email]'], $clientEmail);
         $I->click('Save');
         $I->see($clientEmail);
 
@@ -45,6 +45,7 @@ class OnlinePaymentCest
         $I->fillField(['name' => 'notes'], $this->faker->text(80));
         $I->fillField(['name' => 'cost'], $this->faker->numberBetween(1, 20));
         $I->click('Save');
+        $I->wait(1);
         $I->see($productKey);
 
         // create invoice

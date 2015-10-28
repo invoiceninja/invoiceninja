@@ -39,7 +39,7 @@ class EntityModel extends Eloquent
     {
         $className = get_called_class();
 
-        return $className::scope($publicId)->pluck('id');
+        return $className::scope($publicId)->withTrashed()->pluck('id');
     }
 
     public function getActivityKey()
@@ -112,8 +112,21 @@ class EntityModel extends Eloquent
         return $data;
     }
 
-    public function isBeingDeleted()
+    public function setNullValues()
     {
-        return $this->is_deleted && !$this->getOriginal('is_deleted');
+        foreach ($this->fillable as $field) {
+            if (strstr($field, '_id') && !$this->$field) {
+                $this->$field = null;
+            }
+        }
+    }
+
+    // converts "App\Models\Client" to "client_id"
+    public function getKeyField()
+    {
+        $class = get_class($this);
+        $parts = explode('\\', $class);
+        $name = $parts[count($parts)-1];
+        return strtolower($name) . '_id';
     }
 }

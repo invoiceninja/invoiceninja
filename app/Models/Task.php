@@ -83,19 +83,3 @@ class Task extends EntityModel
         return round($this->getDuration() / (60 * 60), 2);
     }
 }
-
-Task::created(function ($task) {
-    //Activity::createTask($task);
-});
-
-Task::updating(function ($task) {
-    //Activity::updateTask($task);
-});
-
-Task::deleting(function ($task) {
-    //Activity::archiveTask($task);
-});
-
-Task::restoring(function ($task) {
-    //Activity::restoreTask($task);
-});

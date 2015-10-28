@@ -60,7 +60,7 @@ class PaymentApiController extends Controller
         }
 
         if (!$error) {
-            $payment = $this->paymentRepo->save(false, $data);
+            $payment = $this->paymentRepo->save($data);
             $payment = Payment::scope($payment->public_id)->with('client', 'contact', 'user', 'invoice')->first();
 
             $payment = Utils::remapPublicIds([$payment]);

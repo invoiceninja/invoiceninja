@@ -2,9 +2,15 @@
 
 use Utils;
 use DateTime;
+use App\Models\BalanceAffecting;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Invoice extends EntityModel
+use App\Events\QuoteWasCreated;
+use App\Events\QuoteWasUpdated;
+use App\Events\InvoiceWasCreated;
+use App\Events\InvoiceWasUpdated;
+
+class Invoice extends EntityModel implements BalanceAffecting
 {
     use SoftDeletes {
         SoftDeletes::trashed as parentTrashed;
@@ -26,6 +32,64 @@ class Invoice extends EntityModel
         'year',
         'date:',
     ];
+
+    public function getRoute()
+    {
+        $entityType = $this->getEntityType();
+        return "/{$entityType}s/{$this->public_id}/edit";
+    }
+
+    public function getDisplayName()
+    {
+        return $this->is_recurring ? trans('texts.recurring') : $this->invoice_number; 
+    }
+
+    public function getAdjustment()
+    {
+        if ($this->is_quote || $this->is_recurring) {
+            return 0;
+        }
+
+        return $this->getRawAdjustment();
+    }
+
+    private function getRawAdjustment()
+    {
+        return floatval($this->amount) - floatval($this->getOriginal('amount'));
+    }
+
+    public function isChanged()
+    {
+        if ($this->getRawAdjustment() != 0) {
+            return true;
+        }
+
+        foreach ([
+            'invoice_number', 
+            'po_number', 
+            'invoice_date', 
+            'due_date', 
+            'terms', 
+            'public_notes', 
+            'invoice_footer', 
+            'partial'
+        ] as $field) {
+            if ($this->$field != $this->getOriginal($field)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getAmountPaid()
+    {
+        if ($this->is_quote || $this->is_recurring) {
+            return 0;
+        }
+
+        return ($this->amount - $this->balance);
+    }
     
     public function trashed()
     {
@@ -79,6 +143,44 @@ class Invoice extends EntityModel
     public function invitations()
     {
         return $this->hasMany('App\Models\Invitation')->orderBy('invitations.contact_id');
+    }
+
+    public function markSent()
+    {
+        if (!$this->isSent()) {
+            $this->invoice_status_id = INVOICE_STATUS_SENT;
+            $this->save();
+        }
+    }
+
+    public function markViewed()
+    {
+        if (!$this->isViewed()) {
+            $this->invoice_status_id = INVOICE_STATUS_VIEWED;
+            $this->save();
+        }
+    }
+
+    public function updatePaidStatus()
+    {
+        if ($this->isPaid() && $this->balance > 0) {
+            $this->invoice_status_id = ($this->balance == $this->amount ? INVOICE_STATUS_SENT : INVOICE_STATUS_PARTIAL);
+            $this->save();
+        } elseif ($this->invoice_status_id && $this->amount && $this->balance == 0 && $this->invoice_status_id != INVOICE_STATUS_PAID) {
+            $this->invoice_status_id = INVOICE_STATUS_PAID;
+            $this->save();
+        }
+    }
+
+    public function updateBalances($balanceAdjustment, $partial = 0)
+    {
+        $this->balance = $this->balance + $balanceAdjustment;
+
+        if ($this->partial > 0) {
+            $this->partial = $partial;
+        }
+
+        $this->save();
     }
 
     public function getName()
@@ -458,17 +560,17 @@ Invoice::creating(function ($invoice) {
 });
 
 Invoice::created(function ($invoice) {
-    Activity::createInvoice($invoice);
+    if ($invoice->is_quote) {
+        event(new QuoteWasCreated($invoice));
+    } else {
+        event(new InvoiceWasCreated($invoice));
+    }
 });
 
 Invoice::updating(function ($invoice) {
-    Activity::updateInvoice($invoice);
-});
-
-Invoice::deleting(function ($invoice) {
-    Activity::archiveInvoice($invoice);
-});
-
-Invoice::restoring(function ($invoice) {
-    Activity::restoreInvoice($invoice);
+    if ($invoice->is_quote) {
+        event(new QuoteWasUpdated($invoice));
+    } else {
+        event(new InvoiceWasUpdated($invoice));
+    }
 });

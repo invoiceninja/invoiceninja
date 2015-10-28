@@ -105,12 +105,12 @@ return array(
   'recurring_invoices' => 'Återkommande fakturor',
   'recurring_help' => '<p>Skicka automatiskt fakturor till kund varje vecka, månad, kvartal eller årsvis.</p>
 		<p>Använd :MONTH, :QUARTER eller :YEAR för dynamiskt datum. Enkla formler fungerar också, t.ex. :MONTH-1</p>
-        <p>Exempel på dynamiska fakturavariabler::</p>
-        <ul>
-          <li>"Medlemskap för månaden :MONTH" => "Medlemskap för månaden juli"</li>
-          <li>":YEAR+1 årlig prenumeration" => "2015 årlig prenumeration"</li>
-          <li>"Underhåll för :QUARTER+1" => "Underhåll för Q2"</li>
-        </ul>',
+    <p>Exempel på dynamiska fakturavariabler::</p>
+    <ul>
+      <li>"Medlemskap för månaden :MONTH" => "Medlemskap för månaden juli"</li>
+      <li>":YEAR+1 årlig prenumeration" => "2015 årlig prenumeration"</li>
+      <li>"Underhåll för :QUARTER+1" => "Underhåll för Q2"</li>
+    </ul>',
 
   // dashboard
   'in_total_revenue' => 'i totala intäkter',
@@ -283,19 +283,19 @@ return array(
 
   // Security alerts
   'confide' => [
-    'too_many_attempts' => 'För många felaktiga försök. Pröva igen om ett par minuter.',
-    'wrong_credentials' => 'Felaktig e-postadress eller lösenord.',
-    'confirmation' => 'Ditt konto har bekräftats!',
-    'wrong_confirmation' => 'Felaktig bekräftelsekod.',
-    'password_forgot' => 'Information angående återställning av ditt lösenord har skickats till dig via e-post.',
-    'password_reset' => 'Ditt lösenord har uppdaterats.',
-    'wrong_password_reset' => 'Felaktigt lösenord. Försök igen',
+  'too_many_attempts' => 'För många felaktiga försök. Pröva igen om ett par minuter.',
+  'wrong_credentials' => 'Felaktig e-postadress eller lösenord.',
+  'confirmation' => 'Ditt konto har bekräftats!',
+  'wrong_confirmation' => 'Felaktig bekräftelsekod.',
+  'password_forgot' => 'Information angående återställning av ditt lösenord har skickats till dig via e-post.',
+  'password_reset' => 'Ditt lösenord har uppdaterats.',
+  'wrong_password_reset' => 'Felaktigt lösenord. Försök igen',
   ],
 
   // Pro Plan
   'pro_plan' => [
-    'remove_logo' => ':link för att ta bort Invoice Ninja loggan genom att uppgradera till Pro Plan',
-    'remove_logo_link' => 'Klicka här',
+  'remove_logo' => ':link för att ta bort Invoice Ninja loggan genom att uppgradera till Pro Plan',
+  'remove_logo_link' => 'Klicka här',
   ],
 
   'logout' => 'Logga ut',
@@ -312,11 +312,11 @@ return array(
   'pro_plan_product' => 'Pro Plan',
   'pro_plan_description' => 'Ett års prenumeration på Invoice Ninja Pro.',
   'pro_plan_success' => 'Tack för att du väljer Invoice Ninja\'s Pro!<p/>&nbsp;<br/>
-                          <b>Nästa steg</b><p/>En faktura har skickats till din angivna e-postadress.
-                          Var vänlig och följ instruktionerna på fakturan för att betala för ett års
-                          Pro fakturering och få tillgång till alla fantastiska Pro-funktioner.<p/>
-                          Hittar du inte fakturan? Behöver du support? Vi hjälper dig!
-                          -- maila oss på contact@invoiceninja.com',
+              <b>Nästa steg</b><p/>En faktura har skickats till din angivna e-postadress.
+              Var vänlig och följ instruktionerna på fakturan för att betala för ett års
+              Pro fakturering och få tillgång till alla fantastiska Pro-funktioner.<p/>
+              Hittar du inte fakturan? Behöver du support? Vi hjälper dig!
+              -- maila oss på contact@invoiceninja.com',
 
   'unsaved_changes' => 'Du har osparade ändringar',
   'custom_fields' => 'Anpassade fält',
@@ -748,9 +748,9 @@ return array(
   'primary_user' => 'Primary User',
   'help' => 'Help',
   'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provide\'s a great way to see the library in action.</p>
-                        <p>You can access any invoice field by adding <code>Value</code> to the end. For example <code>$invoiceNumberValue</code> displays the invoice number.</p>
-                        <p>To access a child property using dot notation. For example to show the client name you could use <code>$client.nameValue</code>.</p>
-                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
+            <p>You can access any invoice field by adding <code>Value</code> to the end. For example <code>$invoiceNumberValue</code> displays the invoice number.</p>
+            <p>To access a child property using dot notation. For example to show the client name you could use <code>$client.nameValue</code>.</p>
+            <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
 
   'invoice_due_date' => 'Due Date',
   'quote_due_date' => 'Valid Until',
@@ -803,9 +803,9 @@ return array(
   'invoice_charges' => 'Invoice Charges',
 
   'invitation_status' => [
-    'sent' => 'Email Sent',
-    'opened' => 'Email Openend',
-    'viewed' => 'Invoice Viewed',
+  'sent' => 'Email Sent',
+  'opened' => 'Email Openend',
+  'viewed' => 'Invoice Viewed',
   ],
   'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact.',
   'notification_invoice_bounced_subject' => 'Unable to deliver Invoice :invoice',
@@ -824,5 +824,61 @@ return array(
   'no_longer_running' => 'This invoice is not scheduled to run',
   'general_settings' => 'General Settings',
   'customize' => 'Customize',
+  'oneclick_login_help' => 'Connect an account to login without a password',
+  'referral_code_help' => 'Earn money by sharing our app online',
+
+  'enable_with_stripe' => 'Enable | Requires Stripe',
+  'tax_settings' => 'Tax Settings',
+  'create_tax_rate' => 'Add Tax Rate',
+  'updated_tax_rate' => 'Successfully updated tax rate',
+  'created_tax_rate' => 'Successfully created tax rate',
+  'edit_tax_rate' => 'Edit tax rate',
+  'archive_tax_rate' => 'Archive tax rate',
+  'archived_tax_rate' => 'Successfully archived the tax rate',
+  'default_tax_rate_id' => 'Default Tax Rate',
+  'tax_rate' => 'Tax Rate',
+  'recurring_hour' => 'Recurring Hour',
+  'pattern' => 'Pattern',
+  'pattern_help_title' => 'Pattern Help',
+  'pattern_help_1' => 'Create custom invoice and quote numbers by specifying a pattern',
+  'pattern_help_2' => 'Available variables:',
+  'pattern_help_3' => 'For example, :example would be converted to :value',
+  'see_options' => 'See options',
+  'invoice_counter' => 'Invoice Counter',
+  'quote_counter' => 'Quote Counter',
+  'type' => 'Type',
+
+  'activity_1' => ':user created client :client',
+  'activity_2' => ':user archived client :client',
+  'activity_3' => ':user deleted client :client',
+  'activity_4' => ':user created invoice :invoice',
+  'activity_5' => ':user updated invoice :invoice',
+  'activity_6' => ':user emailed invoice :invoice to :contact',
+  'activity_7' => ':contact viewed invoice :invoice',
+  'activity_8' => ':user archived invoice :invoice',
+  'activity_9' => ':user deleted invoice :invoice',
+  'activity_10' => ':contact entered payment :payment for :invoice',
+  'activity_11' => ':user updated payment :payment',
+  'activity_12' => ':user archived payment :payment',
+  'activity_13' => ':user deleted payment :payment',
+  'activity_14' => ':user entered :credit credit',
+  'activity_15' => ':user updated :credit credit',
+  'activity_16' => ':user archived :credit credit',
+  'activity_17' => ':user deleted :credit credit',
+  'activity_18' => ':user created quote :quote',
+  'activity_19' => ':user updated quote :quote',
+  'activity_20' => ':user emailed quote :quote to :contact',
+  'activity_21' => ':contact viewed quote :quote',
+  'activity_22' => ':user archived quote :quote',
+  'activity_23' => ':user deleted quote :quote',
+  'activity_24' => ':user restored quote :quote',
+  'activity_25' => ':user restored invoice :invoice',
+  'activity_26' => ':user restored client :client',
+  'activity_27' => ':user restored payment :payment',
+  'activity_28' => ':user restored :credit credit',
+  'activity_29' => ':contact approved quote :quote',
+
+  'payment' => 'Payment',
+  'system' => 'System',
   
 );

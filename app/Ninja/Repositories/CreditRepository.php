@@ -1,11 +1,17 @@
 <?php namespace App\Ninja\Repositories;
 
+use Utils;
 use App\Models\Credit;
 use App\Models\Client;
-use Utils;
+use App\Ninja\Repositories\BaseRepository;
 
-class CreditRepository
+class CreditRepository extends BaseRepository
 {
+    public function getClassName()
+    {
+        return 'App\Models\Credit';
+    }
+
     public function find($clientPublicId = null, $filter = null)
     {
         $query = \DB::table('credits')
@@ -33,8 +39,10 @@ class CreditRepository
         return $query;
     }
 
-    public function save($publicId = null, $input)
+    public function save($input)
     {
+        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+
         if ($publicId) {
             $credit = Credit::scope($publicId)->firstOrFail();
         } else {
@@ -49,29 +57,5 @@ class CreditRepository
         $credit->save();
 
         return $credit;
-    }
-
-    public function bulk($ids, $action)
-    {
-        if (!$ids) {
-            return 0;
-        }
-
-        $credits = Credit::withTrashed()->scope($ids)->get();
-
-        foreach ($credits as $credit) {
-            if ($action == 'restore') {
-                $credit->restore();
-            } else {
-                if ($action == 'delete') {
-                    $credit->is_deleted = true;
-                    $credit->save();
-                }
-
-                $credit->delete();
-            }
-        }
-
-        return count($credits);
     }
 }

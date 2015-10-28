@@ -1,6 +1,7 @@
 <?php namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\PaymentWasCreated;
 
 class Payment extends EntityModel
 {
@@ -37,6 +38,11 @@ class Payment extends EntityModel
         return $this->belongsTo('App\Models\Contact');
     }
 
+    public function getRoute()
+    {
+        return "/payments/{$this->public_id}/edit";
+    }
+
     public function getAmount()
     {
         return Utils::formatMoney($this->amount, $this->client->getCurrencyId());
@@ -53,18 +59,10 @@ class Payment extends EntityModel
     }
 }
 
+Payment::creating(function ($payment) {
+    
+});
+
 Payment::created(function ($payment) {
-    Activity::createPayment($payment);
-});
-
-Payment::updating(function ($payment) {
-    Activity::updatePayment($payment);
-});
-
-Payment::deleting(function ($payment) {
-    Activity::archivePayment($payment);
-});
-
-Payment::restoring(function ($payment) {
-    Activity::restorePayment($payment);
+    event(new PaymentWasCreated($payment));
 });

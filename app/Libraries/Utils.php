@@ -496,32 +496,15 @@ class Utils
         }
     }
 
-    public static function encodeActivity($person = null, $action, $entity = null, $otherPerson = null)
+    public static function getPersonDisplayName($firstName, $lastName, $email)
     {
-        $person = $person ? $person->getDisplayName() : '<i>System</i>';
-        $entity = $entity ? $entity->getActivityKey() : '';
-        $otherPerson = $otherPerson ? 'to '.$otherPerson->getDisplayName() : '';
-        $token = Session::get('token_id') ? ' ('.trans('texts.token').')' : '';
-
-        return trim("$person $token $action $entity $otherPerson");
-    }
-
-    public static function decodeActivity($message)
-    {
-        $pattern = '/\[([\w]*):([\d]*):(.*)\]/i';
-        preg_match($pattern, $message, $matches);
-
-        if (count($matches) > 0) {
-            $match = $matches[0];
-            $type = $matches[1];
-            $publicId = $matches[2];
-            $name = $matches[3];
-
-            $link = link_to($type.'s/'.$publicId, $name);
-            $message = str_replace($match, "$type $link", $message);
+        if ($firstName || $lastName) {
+            return $firstName.' '.$lastName;
+        } elseif ($email) {
+            return $email;
+        } else {
+            return trans('texts.guest');
         }
-
-        return $message;
     }
 
     public static function generateLicense()
@@ -598,7 +581,7 @@ class Utils
         foreach ($data as $key => $val) {
             if (is_array($val)) {
                 if ($key == 'account' || isset($mapped[$key])) {
-                    unset($data[$key]);
+                    // do nothing
                 } else {
                     $mapped[$key] = true;
                     $data[$key] = Utils::hideIds($val, $mapped);
@@ -794,5 +777,31 @@ class Utils
         $class = $adjustment <= 0 ? 'success' : 'default';
         $adjustment = Utils::formatMoney($adjustment, $currencyId);
         return "<h4><div class=\"label label-{$class}\">$adjustment</div></h4>";
+    }
+
+    public static function copyContext($entity1, $entity2)
+    {
+        if (!$entity2) {
+            return $entity1;
+        }
+
+        $fields = [
+            'contact_id',
+            'payment_id',
+            'invoice_id',
+            'credit_id',
+            'invitation_id'
+        ];
+
+        $fields1 = $entity1->getAttributes();
+        $fields2 = $entity2->getAttributes();
+
+        foreach ($fields as $field) {
+            if (isset($fields2[$field]) && $fields2[$field]) {
+                $entity1->$field = $entity2->$field;
+            }
+        }
+
+        return $entity1;
     }
 }

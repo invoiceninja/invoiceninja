@@ -2,13 +2,37 @@
 
 use Utils;
 use DB;
-
+use Carbon;
+use App\Events\ClientWasCreated;
+use App\Events\ClientWasUpdated;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends EntityModel
 {
     use SoftDeletes;
     protected $dates = ['deleted_at'];
+
+    protected $fillable = [
+        'name',
+        'id_number',
+        'vat_number',
+        'work_phone',
+        'custom_value1',
+        'custom_value2',
+        'address1',
+        'address2',
+        'city',
+        'state',
+        'postal_code',
+        'country_id',
+        'private_notes',
+        'size_id',
+        'industry_id',
+        'currency_id',
+        'language_id',
+        'payment_terms',
+        'website',
+    ];
 
     public static $fieldName = 'Client - Name';
     public static $fieldPhone = 'Client - Phone';
@@ -70,6 +94,40 @@ class Client extends EntityModel
         return $this->belongsTo('App\Models\Industry');
     }
 
+    public function addContact($data, $isPrimary = false)
+    {
+        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+
+        if ($publicId && $publicId != '-1') {
+            $contact = Contact::scope($publicId)->firstOrFail();
+        } else {
+            $contact = Contact::createNew();
+            $contact->send_invoice = true;
+        }
+
+        $contact->fill($data);
+        $contact->is_primary = $isPrimary;
+
+        return $this->contacts()->save($contact);
+    }
+
+    public function updateBalances($balanceAdjustment, $paidToDateAdjustment)
+    {
+        if ($balanceAdjustment === 0 && $paidToDateAdjustment === 0) {
+            return;
+        }
+
+        $this->balance = $this->balance + $balanceAdjustment;
+        $this->paid_to_date = $this->paid_to_date + $paidToDateAdjustment;
+        
+        $this->save();
+    }
+
+    public function getRoute()
+    {
+        return "/clients/{$this->public_id}";
+    }
+
     public function getTotalCredit()
     {
         return DB::table('credits')
@@ -89,8 +147,11 @@ class Client extends EntityModel
             return $this->name;
         }
         
-        $contact = $this->contacts()->first();
+        if ( ! count($this->contacts)) {
+            return '';
+        }
 
+        $contact = $this->contacts[0];
         return $contact->getDisplayName();
     }
 
@@ -178,24 +239,26 @@ class Client extends EntityModel
     {
         return $isQuote ? $this->quote_number_counter : $this->invoice_number_counter;
     }
+
+    public function markLoggedIn()
+    {
+        $this->last_login = Carbon::now()->toDateTimeString();
+        $this->save();
+    }
 }
 
-/*
-Client::created(function($client)
-{
-    Activity::createClient($client);
+Client::creating(function ($client) {
+    $client->setNullValues();
 });
-*/
+
+Client::created(function ($client) {
+    event(new ClientWasCreated($client));
+});
 
 Client::updating(function ($client) {
-    Activity::updateClient($client);
+    $client->setNullValues();
 });
 
-Client::deleting(function ($client) {
-    Activity::archiveClient($client);
+Client::updated(function ($client) {
+    event(new ClientWasUpdated($client));
 });
-
-/*Client::restoring(function ($client) {
-    Activity::restoreClient($client);
-});
-*/

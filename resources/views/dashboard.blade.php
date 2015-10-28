@@ -80,7 +80,7 @@
                 @foreach ($activities as $activity)
                 <li class="list-group-item">
                     <span style="color:#888;font-style:italic">{{ Utils::timestampToDateString(strtotime($activity->created_at)) }}:</span>
-                    {!! Utils::decodeActivity($activity->message) !!}
+                    {!! $activity->getMessage() !!}
                 </li>
                 @endforeach
             </ul>

@@ -251,7 +251,7 @@ class Account extends Eloquent
         $invoice->start_date = Utils::today();
         $invoice->invoice_design_id = $this->invoice_design_id;
         $invoice->client_id = $clientId;
-        
+           
         if ($entityType === ENTITY_RECURRING_INVOICE) {
             $invoice->invoice_number = microtime(true);
             $invoice->is_recurring = true;
@@ -316,7 +316,7 @@ class Account extends Eloquent
 
         $pattern = str_replace($search, $replace, $pattern);
 
-        if ($invoice->client->id) {
+        if ($invoice->client_id) {
             $pattern = $this->getClientInvoiceNumber($pattern, $invoice);
         }
 
@@ -330,29 +330,16 @@ class Account extends Eloquent
         }
 
         $search = [
-            //'{$clientId}',
             '{$custom1}',
             '{$custom2}',
         ];
 
         $replace = [
-            //str_pad($client->public_id, 3, '0', STR_PAD_LEFT),
             $invoice->client->custom_value1,
             $invoice->client->custom_value2,
         ];
 
         return str_replace($search, $replace, $pattern);
-    }
-
-    // if we're using a pattern we don't know the next number until a client
-    // is selected, to support this the default value is blank
-    public function getDefaultInvoiceNumber($invoice = false)
-    {
-        if ($this->hasClientNumberPattern($invoice)) {
-            return false;
-        }
-
-        return $this->getNextInvoiceNumber($invoice);
     }
 
     public function getCounter($isQuote)
@@ -372,7 +359,7 @@ class Account extends Eloquent
 
         // confirm the invoice number isn't already taken 
         do {
-            $number = $prefix.str_pad($counter, 4, "0", STR_PAD_LEFT);
+            $number = $prefix.str_pad($counter, 4, '0', STR_PAD_LEFT);
             $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
             $counter++;
             $counterOffset++;

@@ -1,13 +1,19 @@
 <?php namespace App\Ninja\Repositories;
 
+use Utils;
 use App\Models\Payment;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Client;
-use Utils;
+use App\Ninja\Repositories\BaseRepository;
 
-class PaymentRepository
+class PaymentRepository extends BaseRepository
 {
+    public function getClassName()
+    {
+        return 'App\Models\Payment';
+    }
+
     public function find($clientPublicId = null, $filter = null)
     {
         $query = \DB::table('payments')
@@ -68,34 +74,10 @@ class PaymentRepository
         return $query;
     }
 
-    public function getErrors($input)
+    public function save($input)
     {
-        $rules = array(
-            'client' => 'required',
-            'invoice' => 'required',
-            'amount' => 'required',
-        );
-
-        if ($input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
-            $rules['payment_type_id'] = 'has_credit:'.$input['client'].','.$input['amount'];
-        }
-
-        if (isset($input['invoice']) && $input['invoice']) {
-            $invoice = Invoice::scope($input['invoice'])->firstOrFail();
-            $rules['amount'] .= "|less_than:{$invoice->balance}";
-        }
-
-        $validator = \Validator::make($input, $rules);
-
-        if ($validator->fails()) {
-            return $validator;
-        }
-
-        return false;
-    }
-
-    public function save($publicId = null, $input)
-    {
+        $publicId = isset($input['public_id']) ? $input['public_id'] : false;
+        
         if ($publicId) {
             $payment = Payment::scope($publicId)->firstOrFail();
         } else {
@@ -144,29 +126,5 @@ class PaymentRepository
         $payment->save();
 
         return $payment;
-    }
-
-    public function bulk($ids, $action)
-    {
-        if (!$ids) {
-            return 0;
-        }
-
-        $payments = Payment::withTrashed()->scope($ids)->get();
-
-        foreach ($payments as $payment) {
-            if ($action == 'restore') {
-                $payment->restore();
-            } else {
-                if ($action == 'delete') {
-                    $payment->is_deleted = true;
-                    $payment->save();
-                }
-
-                $payment->delete();
-            }
-        }
-
-        return count($payments);
     }
 }

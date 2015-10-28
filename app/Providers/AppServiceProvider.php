@@ -148,6 +148,19 @@ class AppServiceProvider extends ServiceProvider {
         Validator::extend('has_counter', function($attribute, $value, $parameters) {
             return !$value || strstr($value, '{$counter}');
         });
+
+        Validator::extend('valid_contacts', function($attribute, $value, $parameters) {
+            foreach ($value as $contact) {
+                $validator = Validator::make($contact, [
+                        'email' => 'email|required_without:first_name',
+                        'first_name' => 'required_without:email',
+                    ]);
+                if ($validator->fails()) {
+                    return false;
+                }
+            }
+            return true;
+        });
 	}
 
 	/**

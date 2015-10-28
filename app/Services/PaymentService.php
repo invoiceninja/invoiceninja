@@ -10,16 +10,24 @@ use App\Models\Payment;
 use App\Models\Account;
 use App\Models\Country;
 use App\Models\AccountGatewayToken;
+use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\AccountRepository;
-use App\Events\InvoicePaid;
+use App\Services\BaseService;
+use App\Events\PaymentWasCreated;
 
-class PaymentService {
-
+class PaymentService extends BaseService
+{
     public $lastError;
 
-    public function __construct(AccountRepository $accountRepo)
+    public function __construct(PaymentRepository $paymentRepo, AccountRepository $accountRepo)
     {
+        $this->paymentRepo = $paymentRepo;
         $this->accountRepo = $accountRepo;
+    }
+
+    protected function getRepo()
+    {
+        return $this->paymentRepo;
     }
 
     public function createGateway($accountGateway)
@@ -207,8 +215,6 @@ class PaymentService {
         }
 
         $payment->save();
-
-        Event::fire(new InvoicePaid($payment));
 
         return $payment;
     }

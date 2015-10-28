@@ -274,6 +274,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_API_TOKENS', 'api_tokens');
     define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
 
+    define('ACTION_RESTORE', 'restore');
+    define('ACTION_ARCHIVE', 'archive');
+    define('ACTION_DELETE', 'delete');
 
     define('ACTIVITY_TYPE_CREATE_CLIENT', 1);
     define('ACTIVITY_TYPE_ARCHIVE_CLIENT', 2);
@@ -287,12 +290,12 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACTIVITY_TYPE_DELETE_INVOICE', 9);
 
     define('ACTIVITY_TYPE_CREATE_PAYMENT', 10);
-    define('ACTIVITY_TYPE_UPDATE_PAYMENT', 11);
+    //define('ACTIVITY_TYPE_UPDATE_PAYMENT', 11);
     define('ACTIVITY_TYPE_ARCHIVE_PAYMENT', 12);
     define('ACTIVITY_TYPE_DELETE_PAYMENT', 13);
 
     define('ACTIVITY_TYPE_CREATE_CREDIT', 14);
-    define('ACTIVITY_TYPE_UPDATE_CREDIT', 15);
+    //define('ACTIVITY_TYPE_UPDATE_CREDIT', 15);
     define('ACTIVITY_TYPE_ARCHIVE_CREDIT', 16);
     define('ACTIVITY_TYPE_DELETE_CREDIT', 17);
 

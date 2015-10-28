@@ -219,7 +219,8 @@ function InvoiceModel(data) {
     self.last_sent_date = ko.observable('');
     self.tax_name = ko.observable();
     self.tax_rate = ko.observable();
-    self.is_recurring = ko.observable(false);
+    self.is_recurring = ko.observable(0);
+    self.is_quote = ko.observable({{ $entityType == ENTITY_QUOTE ? '1' : '0' }});
     self.auto_bill = ko.observable();
     self.invoice_status_id = ko.observable(0);
     self.invoice_items = ko.observableArray();

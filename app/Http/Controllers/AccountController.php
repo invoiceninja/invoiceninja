@@ -45,6 +45,8 @@ use App\Events\UserLoggedIn;
 use App\Events\UserSettingsChanged;
 use App\Services\AuthService;
 
+use App\Commands\CreateClient;
+
 class AccountController extends BaseController
 {
     protected $accountRepo;
@@ -637,49 +639,56 @@ class AccountController extends BaseController
                 continue;
             }
 
-            $client = Client::createNew();
-            $contact = Contact::createNew();
-            $contact->is_primary = true;
-            $contact->send_invoice = true;
-            $count++;
+            $data = [
+                'contacts' => [[]]
+            ];
 
             foreach ($row as $index => $value) {
                 $field = $map[$index];
-                $value = trim($value);
+                if ( ! $value = trim($value)) {
+                    continue;
+                }
 
-                if ($field == Client::$fieldName && !$client->name) {
-                    $client->name = $value;
-                } elseif ($field == Client::$fieldPhone && !$client->work_phone) {
-                    $client->work_phone = $value;
-                } elseif ($field == Client::$fieldAddress1 && !$client->address1) {
-                    $client->address1 = $value;
-                } elseif ($field == Client::$fieldAddress2 && !$client->address2) {
-                    $client->address2 = $value;
-                } elseif ($field == Client::$fieldCity && !$client->city) {
-                    $client->city = $value;
-                } elseif ($field == Client::$fieldState && !$client->state) {
-                    $client->state = $value;
-                } elseif ($field == Client::$fieldPostalCode && !$client->postal_code) {
-                    $client->postal_code = $value;
-                } elseif ($field == Client::$fieldCountry && !$client->country_id) {
+                if ($field == Client::$fieldName) {
+                    $data['name'] = $value;
+                } elseif ($field == Client::$fieldPhone) {
+                    $data['work_phone'] = $value;
+                } elseif ($field == Client::$fieldAddress1) {
+                    $data['address1'] = $value;
+                } elseif ($field == Client::$fieldAddress2) {
+                    $data['address2'] = $value;
+                } elseif ($field == Client::$fieldCity) {
+                    $data['city'] = $value;
+                } elseif ($field == Client::$fieldState) {
+                    $data['state'] = $value;
+                } elseif ($field == Client::$fieldPostalCode) {
+                    $data['postal_code'] = $value;
+                } elseif ($field == Client::$fieldCountry) {
                     $value = strtolower($value);
-                    $client->country_id = isset($countryMap[$value]) ? $countryMap[$value] : null;
-                } elseif ($field == Client::$fieldNotes && !$client->private_notes) {
-                    $client->private_notes = $value;
-                } elseif ($field == Contact::$fieldFirstName && !$contact->first_name) {
-                    $contact->first_name = $value;
-                } elseif ($field == Contact::$fieldLastName && !$contact->last_name) {
-                    $contact->last_name = $value;
-                } elseif ($field == Contact::$fieldPhone && !$contact->phone) {
-                    $contact->phone = $value;
-                } elseif ($field == Contact::$fieldEmail && !$contact->email) {
-                    $contact->email = strtolower($value);
+                    $data['country_id'] = isset($countryMap[$value]) ? $countryMap[$value] : null;
+                } elseif ($field == Client::$fieldNotes) {
+                    $data['private_notes'] = $value;
+                } elseif ($field == Contact::$fieldFirstName) {
+                    $data['contacts'][0]['first_name'] = $value;
+                } elseif ($field == Contact::$fieldLastName) {
+                    $data['contacts'][0]['last_name'] = $value;
+                } elseif ($field == Contact::$fieldPhone) {
+                    $data['contacts'][0]['phone'] = $value;
+                } elseif ($field == Contact::$fieldEmail) {
+                    $data['contacts'][0]['email'] = strtolower($value);
                 }
             }
 
-            $client->save();
-            $client->contacts()->save($contact);
-            Activity::createClient($client, false);
+            $rules = [
+                'contacts' => 'valid_contacts',
+            ];
+            $validator = Validator::make($data, $rules);
+            if ($validator->fails()) {
+                continue;
+            }
+
+            $this->dispatch(new CreateClient($data));
+            $count++;
         }
 
         $message = Utils::pluralize('created_client', $count);

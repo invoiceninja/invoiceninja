@@ -6,7 +6,7 @@
 	<div style="display:none">
 		{!! Former::text('action') !!}
 		{!! Former::text('statusId') !!}
-		{!! Former::text('id') !!}
+		{!! Former::text('public_id') !!}
 	</div>
 
     @if ($entityType == ENTITY_TASK)
@@ -66,37 +66,37 @@
 	}
 
 	function deleteEntity(id) {
-		$('#id').val(id);
+		$('#public_id').val(id);
 		submitForm('delete');
 	}
 
 	function archiveEntity(id) {
-		$('#id').val(id);
+		$('#public_id').val(id);
 		submitForm('archive');
 	}
 
     function restoreEntity(id) {
-        $('#id').val(id);
+        $('#public_id').val(id);
         submitForm('restore');
     }
     function convertEntity(id) {
-        $('#id').val(id);
+        $('#public_id').val(id);
         submitForm('convert');
     }
 
 	function markEntity(id, statusId) {
-		$('#id').val(id);
+		$('#public_id').val(id);
 		$('#statusId').val(statusId);
 		submitForm('mark');
 	}
 
     function stopTask(id) {
-        $('#id').val(id);
+        $('#public_id').val(id);
         submitForm('stop');
     }
 
     function invoiceTask(id) {
-        $('#id').val(id);
+        $('#public_id').val(id);
         submitForm('invoice');
     }
 

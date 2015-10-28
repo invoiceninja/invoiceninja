@@ -12,6 +12,9 @@
         {!! Former::populate($payment) !!}
     @endif
 
+    <span style="display:none">
+        {!! Former::text('public_id') !!}
+    </span>
 	
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">

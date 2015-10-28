@@ -156,7 +156,7 @@ class TaskController extends BaseController
      */
     public function edit($publicId)
     {
-        $task = Task::scope($publicId)->with('client', 'invoice')->firstOrFail();
+        $task = Task::scope($publicId)->with('client', 'invoice')->withTrashed()->firstOrFail();
 
         $actions = [];
         if ($task->invoice) {
@@ -240,7 +240,7 @@ class TaskController extends BaseController
     public function bulk()
     {
         $action = Input::get('action');
-        $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
+        $ids = Input::get('public_id') ?: (Input::get('id') ?: Input::get('ids'));
 
         if ($action == 'stop') {
             $this->taskRepo->save($ids, ['action' => $action]);

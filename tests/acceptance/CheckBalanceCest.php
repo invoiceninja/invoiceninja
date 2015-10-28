@@ -25,7 +25,7 @@ class CheckBalanceCest
 
         // create client
         $I->amOnPage('/clients/create');
-        $I->fillField(['name' => 'email'], $clientEmail);
+        $I->fillField(['name' => 'contacts[0][email]'], $clientEmail);
         $I->click('Save');
         $I->wait(1);
         $I->see($clientEmail);
@@ -54,7 +54,7 @@ class CheckBalanceCest
         
         // update the invoice
         $I->amOnPage('/invoices/' . $invoiceId);
-        $I->fillField(['name' => 'quantity'], 2);
+        $I->fillField(['name' => 'invoice_items[0][qty]'], 2);
         $I->click('Save');
         $I->wait(1);
         $I->amOnPage("/clients/{$clientId}");
@@ -69,7 +69,7 @@ class CheckBalanceCest
 
         // archive the invoice
         $I->amOnPage('/invoices/' . $invoiceId);
-        $I->executeJS('submitAction("archive")');
+        $I->executeJS('submitBulkAction("archive")');
         $I->wait(1);
         $I->amOnPage("/clients/{$clientId}");
         $I->see('Balance $0.00');
@@ -77,7 +77,7 @@ class CheckBalanceCest
 
         // delete the invoice
         $I->amOnPage('/invoices/' . $invoiceId);
-        $I->executeJS('submitAction("delete")');
+        $I->executeJS('submitBulkAction("delete")');
         $I->wait(1);
         $I->amOnPage("/clients/{$clientId}");
         $I->see('Balance $0.00');
