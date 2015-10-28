@@ -45,7 +45,7 @@ return array(
   'line_total' => 'Total',
   'subtotal' => 'Subtotal',
   'paid_to_date' => 'Pagamento até a data',
-  'balance_due' => 'Saldo Devedor',
+  'balance_due' => 'Valor',
   'invoice_design_id' => 'Modelo',
   'terms' => 'Condições',
   'your_invoice' => 'Sua Fatura',
@@ -192,7 +192,7 @@ return array(
   'email_paid' => 'Me avise por email quando a fatura for <b>paga</b>',
   'site_updates' => 'Atualizações',
   'custom_messages' => 'Mensagens Customizadas',
-  'default_invoice_terms' => 'Definir condiçoes padrões da fatura',
+  'default_invoice_terms' => 'Definir condições padrões da fatura',
   'default_email_footer' => 'Definir assinatura de email padrão',
   'import_clients' => 'Importar Dados do Cliente',
   'csv_file' => 'Selecionar arquivo CSV',
@@ -616,7 +616,7 @@ return array(
   'export' => 'Exportar',
   'documentation' => 'Documentação',
   'zapier' => 'Zapier',
-  'recurring' => 'Recurrente',
+  'recurring' => 'Recorrente',
   'last_invoice_sent' => 'Última cobrança enviada em :date',
 
   'processed_updates' => 'Atualização completa',
@@ -661,7 +661,7 @@ return array(
   'create_task' => 'Criar Tarefa',
   'stopped_task' => 'Tarefa interrompida',
   'invoice_task' => 'Faturar Tarefa',
-  'invoice_labels' => 'Etiquedas das Faturas',
+  'invoice_labels' => 'Etiquetas das Faturas',
   'prefix' => 'Prefixo',
   'counter' => 'Contador',
 
@@ -722,7 +722,7 @@ return array(
   'secondary_color' => 'Cor Secundaria',
   'customize_design' => 'Personalizar Modelo',
 
-  'content' => 'Contaúdo',
+  'content' => 'Conteúdo',
   'styles' => 'Estilos',
   'defaults' => 'Padrões',
   'margins' => 'Margens',
@@ -741,7 +741,7 @@ return array(
   'recurring_invoice' => 'Fatura Recorrente',
   'recurring_too_soon' => 'Fora do prazo para nova fatura recorrente, agendamento para :date',
   'created_by_invoice' => 'Criada a partir da Fatura :invoice',
-  'primary_user' => 'Usuário',
+  'primary_user' => 'Usuário Principal',
   'help' => 'Ajuda',
   'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provide\'s a great way to see the library in action.</p>
                         <p>You can access any invoice field by adding <code>Value</code> to the end. For example <code>$invoiceNumberValue</code> displays the invoice number.</p>
@@ -801,7 +801,7 @@ return array(
   'invitation_status' => [
     'sent' => 'Email Enviado',
     'opened' => 'Email Aberto',
-    'viewed' => 'Invoice Visualizado',
+    'viewed' => 'Email Visualizado',
   ],
   'notification_invoice_bounced' => 'Não foi possível entregar a Fatura :invoice para :contact.',
   'notification_invoice_bounced_subject' => 'Fatura :invoice não foi entregue',
