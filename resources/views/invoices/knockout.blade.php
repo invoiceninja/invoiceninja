@@ -12,7 +12,7 @@ function ViewModel(data) {
 
     self.loadClient = function(client) {
         ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
-        @if (!$invoice)
+        @if (!$invoice->id)
             self.setDueDate();
         @endif
     }
