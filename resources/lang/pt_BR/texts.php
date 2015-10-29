@@ -367,7 +367,7 @@ return array(
   'save_quote' => 'Salvar Oçamento',
   'email_quote' => 'Envair Orçamento',
   'clone_quote' => 'Clonar Orçamento',
-  'convert_to_invoice' => 'Faturado',
+  'convert_to_invoice' => 'Faturar',
   'view_invoice' => 'Visualizar Fatura',
   'view_quote' => 'Visualizar Orçamento',
   'view_client' => 'Visualizar Cliente',
@@ -574,7 +574,7 @@ return array(
   'set_password' => 'Definir Password',
   'converted' => 'Faturado',
 
-  'email_approved' => 'Notificar-me por email quando um orçamento for <b>approvedo</b>',
+  'email_approved' => 'Notificar-me por email quando um orçamento for <b>aprovado</b>',
   'notification_quote_approved_subject' => 'Orçamento :invoice foi aprovado por :client',
   'notification_quote_approved' => 'O cliente :client aprovou Orçamento :invoice de :amount.',
   'resend_confirmation' => 'Reenviar email de confirmação',
