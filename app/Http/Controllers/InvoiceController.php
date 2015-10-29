@@ -558,11 +558,10 @@ class InvoiceController extends BaseController
     {
         $action = Input::get('bulk_action') ?: Input::get('action');;
         $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
-        $statusId = Input::get('statusId', INVOICE_STATUS_SENT);
-        $count = $this->invoiceService->bulk($ids, $action, $statusId);
+        $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {
-            $key = $action == 'mark' ? "updated_{$entityType}" : "{$action}d_{$entityType}";
+            $key = $action == 'markSent' ? "updated_{$entityType}" : "{$action}d_{$entityType}";
             $message = Utils::pluralize($key, $count);
             Session::flash('message', $message);
         }

@@ -134,12 +134,11 @@ class QuoteController extends BaseController
             return Redirect::to('invoices/'.$clone->public_id);
         }
         
-        $statusId = Input::get('statusId');
         $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
-        $count = $this->invoiceService->bulk($ids, $action, $statusId);
+        $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {
-            $key = $action == 'mark' ? "updated_quote" : "{$action}d_quote";
+            $key = $action == 'markSent' ? "updated_quote" : "{$action}d_quote";
             $message = Utils::pluralize($key, $count);
             Session::flash('message', $message);
         }

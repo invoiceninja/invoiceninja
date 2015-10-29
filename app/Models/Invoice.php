@@ -9,6 +9,8 @@ use App\Events\QuoteWasCreated;
 use App\Events\QuoteWasUpdated;
 use App\Events\InvoiceWasCreated;
 use App\Events\InvoiceWasUpdated;
+use App\Events\InvoiceInvitationWasEmailed;
+use App\Events\QuoteInvitationWasEmailed;
 
 class Invoice extends EntityModel implements BalanceAffecting
 {
@@ -145,11 +147,32 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->hasMany('App\Models\Invitation')->orderBy('invitations.contact_id');
     }
 
-    public function markSent()
+    public function markInvitationsSent($notify = false)
+    {
+        foreach ($this->invitations as $invitation) {
+            $this->markInvitationSent($invitation, false, $notify);
+        }
+    }
+
+    public function markInvitationSent($invitation, $messageId = false, $notify = true)
     {
         if (!$this->isSent()) {
             $this->invoice_status_id = INVOICE_STATUS_SENT;
             $this->save();
+        }
+
+        $invitation->markSent($messageId);
+
+        // if the user marks it as sent rather than acually sending it 
+        // then we won't track it in the activity log
+        if (!$notify) {
+            return;
+        }
+
+        if ($this->is_quote) {
+            event(new QuoteInvitationWasEmailed($invitation));
+        } else {
+            event(new InvoiceInvitationWasEmailed($invitation));
         }
     }
 
@@ -166,7 +189,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         if ($this->isPaid() && $this->balance > 0) {
             $this->invoice_status_id = ($this->balance == $this->amount ? INVOICE_STATUS_SENT : INVOICE_STATUS_PARTIAL);
             $this->save();
-        } elseif ($this->invoice_status_id && $this->amount && $this->balance == 0 && $this->invoice_status_id != INVOICE_STATUS_PAID) {
+        } elseif ($this->invoice_status_id && $this->amount > 0 && $this->balance == 0 && $this->invoice_status_id != INVOICE_STATUS_PAID) {
             $this->invoice_status_id = INVOICE_STATUS_PAID;
             $this->save();
         }

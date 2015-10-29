@@ -11,7 +11,7 @@ class BaseService
         return null;
     }
 
-    public function bulk($ids, $action, $param = null)
+    public function bulk($ids, $action)
     {
         if ( ! $ids) {
             return 0;
@@ -20,7 +20,7 @@ class BaseService
         $entities = $this->getRepo()->findByPublicIdsWithTrashed($ids);
 
         foreach ($entities as $entity) {
-            $this->getRepo()->$action($entity, $param);
+            $this->getRepo()->$action($entity);
         }
 
         return count($entities);

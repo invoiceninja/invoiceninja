@@ -146,7 +146,7 @@ class ActivityListener
     public function emailedInvoice(InvoiceInvitationWasEmailed $event)
     {
         $this->activityRepo->create(
-            $event->invoice, 
+            $event->invitation->invoice, 
             ACTIVITY_TYPE_EMAIL_INVOICE,
             false,
             false,
@@ -224,7 +224,7 @@ class ActivityListener
     public function emailedQuote(QuoteInvitationWasEmailed $event)
     {
         $this->activityRepo->create(
-            $event->quote, 
+            $event->invitation->invoice, 
             ACTIVITY_TYPE_EMAIL_QUOTE,
             false,
             false,

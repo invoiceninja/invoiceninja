@@ -25,12 +25,6 @@ class InvoiceListener
         $invoice->updatePaidStatus();
     }
 
-    public function emailedInvoice(InvoiceWasEmailed $event)
-    {
-        $invoice = $event->invoice;
-        $invoice->markSent();
-    }
-
     public function viewedInvoice(InvoiceInvitationWasViewed $event)
     {
         $invitation = $event->invitation;

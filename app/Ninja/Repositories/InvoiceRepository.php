@@ -243,7 +243,7 @@ class InvoiceRepository extends BaseRepository
         if ((isset($data['set_default_terms']) && $data['set_default_terms'])
             || (isset($data['set_default_footer']) && $data['set_default_footer'])) {
             if (isset($data['set_default_terms']) && $data['set_default_terms']) {
-                $account->invoice_terms = trim($data['terms']);
+                $account->{"{$entityType}_terms"} = trim($data['terms']);
             }
             if (isset($data['set_default_footer']) && $data['set_default_footer']) {
                 $account->invoice_footer = trim($data['invoice_footer']);
@@ -530,10 +530,9 @@ class InvoiceRepository extends BaseRepository
         return $clone;
     }
 
-    public function mark($invoice, $statusId)
+    public function markSent($invoice)
     {
-        $invoice->invoice_status_id = $statusId;
-        $invoice->save();
+        $invoice->markInvitationsSent();
     }
 
     public function findInvoiceByInvitation($invitationKey)

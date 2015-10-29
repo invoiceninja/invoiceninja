@@ -1,16 +1,12 @@
 <?php namespace app\Listeners;
 
+use Carbon;
 use App\Events\QuoteWasEmailed;
 use App\Events\QuoteInvitationWasViewed;
+use App\Events\QuoteInvitationWasEmailed;
 
 class QuoteListener
 {
-    public function emailedQuote(QuoteWasEmailed $event)
-    {
-        $quote = $event->quote;
-        $quote->markSent();
-    }
-
     public function viewedQuote(QuoteInvitationWasViewed $event)
     {
         $invitation = $event->invitation;

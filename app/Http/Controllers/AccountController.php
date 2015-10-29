@@ -521,8 +521,10 @@ class AccountController extends BaseController
                 $account->invoice_number_counter = Input::get('invoice_number_counter');
                 $account->quote_number_prefix = Input::get('quote_number_prefix');
                 $account->share_counter = Input::get('share_counter') ? true : false;
-
                 $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
+                $account->invoice_terms = Input::get('invoice_terms');
+                $account->invoice_footer = Input::get('invoice_footer');
+                $account->quote_terms = Input::get('quote_terms');
 
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');
@@ -801,12 +803,6 @@ class AccountController extends BaseController
 
     private function saveNotifications()
     {
-        $account = Auth::user()->account;
-        $account->invoice_terms = Input::get('invoice_terms');
-        $account->invoice_footer = Input::get('invoice_footer');
-        $account->email_footer = Input::get('email_footer');
-        $account->save();
-
         $user = Auth::user();
         $user->notify_sent = Input::get('notify_sent');
         $user->notify_viewed = Input::get('notify_viewed');
@@ -847,6 +843,7 @@ class AccountController extends BaseController
             $account->country_id = Input::get('country_id') ? Input::get('country_id') : null;
             $account->size_id = Input::get('size_id') ? Input::get('size_id') : null;
             $account->industry_id = Input::get('industry_id') ? Input::get('industry_id') : null;
+            $account->email_footer = Input::get('email_footer');
             $account->save();
                 
             /* Logo image file */

@@ -11,10 +11,7 @@ use App\Models\Activity;
 use App\Models\Gateway;
 
 use App\Events\InvoiceWasEmailed;
-use App\Events\InvoiceInvitationWasEmailed;
-
 use App\Events\QuoteWasEmailed;
-use App\Events\QuoteInvitationWasEmailed;
 
 class ContactMailer extends Mailer
 {
@@ -103,15 +100,10 @@ class ContactMailer extends Mailer
 
         $subject = $this->processVariables($subject, $variables);
         $fromEmail = $user->email;
+        
         $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, ENTITY_INVOICE, $data);
 
         if ($response === true) {
-            if ($invoice->is_quote) {
-                event(new QuoteInvitationWasEmailed($invoice, $invitation));
-            } else {
-                event(new InvoiceInvitationWasEmailed($invoice, $invitation));
-            }
-            
             return true;
         } else {
             return false;

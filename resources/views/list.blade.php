@@ -5,7 +5,6 @@
 	{!! Former::open($entityType . 's/bulk')->addClass('listForm') !!}
 	<div style="display:none">
 		{!! Former::text('action') !!}
-		{!! Former::text('statusId') !!}
 		{!! Former::text('public_id') !!}
 	</div>
 
@@ -84,10 +83,9 @@
         submitForm('convert');
     }
 
-	function markEntity(id, statusId) {
+	function markEntity(id) {
 		$('#public_id').val(id);
-		$('#statusId').val(statusId);
-		submitForm('mark');
+		submitForm('markSent');
 	}
 
     function stopTask(id) {

@@ -8,7 +8,6 @@ class QuoteInvitationWasEmailed extends Event {
 
 	use SerializesModels;
 
-    public $quote;
     public $invitation;
     
 	/**
@@ -16,9 +15,8 @@ class QuoteInvitationWasEmailed extends Event {
 	 *
 	 * @return void
 	 */
-    public function __construct($quote, $invitation)
+    public function __construct($invitation)
     {
-        $this->quote = $quote;
         $this->invitation = $invitation;
     }
 
