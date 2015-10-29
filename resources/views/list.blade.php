@@ -26,6 +26,7 @@
 		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" class="form-control pull-left" placeholder="{{ trans('texts.filter') }}"/>
         @if (Auth::user()->isPro() && $entityType == ENTITY_INVOICE)        
             {!! Button::normal(trans('texts.quotes'))->asLinkTo(URL::to('/quotes'))->appendIcon(Icon::create('list')) !!}
+            {!! Button::normal(trans('texts.recurring'))->asLinkTo(URL::to('/recurring_invoices'))->appendIcon(Icon::create('list')) !!}
         @elseif ($entityType == ENTITY_CLIENT)        
             {!! Button::normal(trans('texts.credits'))->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('list')) !!}
         @endif
@@ -33,14 +34,6 @@
         {!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->appendIcon(Icon::create('plus-sign')) !!}
         
 	</div>
-
-    @if (isset($secEntityType))
-		{!! Datatable::table()		
-	    	->addColumn($secColumns)
-	    	->setUrl(route('api.' . $secEntityType . 's'))    	
-	    	->setOptions('sPaginationType', 'bootstrap')
-	    	->render('datatable') !!}    
-	@endif	
 
 	{!! Datatable::table()		
     	->addColumn($columns)
@@ -115,9 +108,6 @@
             }
             tableFilter = val;
             oTable0.fnFilter(val);
-            @if (isset($secEntityType))
-                oTable1.fnFilter(val);
-            @endif
         }
 
         $('#tableFilter').on('keyup', function(){

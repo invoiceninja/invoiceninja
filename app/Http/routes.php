@@ -155,6 +155,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));
     Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
     Route::get('recurring_invoices/create/{client_id?}', 'InvoiceController@createRecurring');
+    Route::get('recurring_invoices', 'RecurringInvoiceController@index');
     Route::get('invoices/{public_id}/clone', 'InvoiceController@cloneInvoice');
     Route::post('invoices/bulk', 'InvoiceController@bulk');
 

@@ -53,18 +53,19 @@ class QuoteController extends BaseController
         $data = [
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
-          'columns' => Utils::trans(['checkbox', 'quote_number', 'client', 'quote_date', 'quote_total', 'valid_until', 'status', 'action']),
+          'columns' => Utils::trans([
+            'checkbox',
+            'quote_number',
+            'client',
+            'quote_date',
+            'quote_total',
+            'valid_until',
+            'status',
+            'action'
+          ]),
         ];
 
-    /*
-    if (Invoice::scope()->where('is_recurring', '=', true)->count() > 0)
-    {
-      $data['secEntityType'] = ENTITY_RECURRING_INVOICE;
-      $data['secColumns'] = Utils::trans(['checkbox', 'frequency', 'client', 'start_date', 'end_date', 'quote_total', 'action']);
-    }
-    */
-
-    return View::make('list', $data);
+        return response()->view('list', $data);
     }
 
     public function getDatatable($clientPublicId = null)

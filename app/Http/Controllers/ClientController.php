@@ -68,9 +68,6 @@ class ClientController extends BaseController
             ->addColumn('last_login', function ($model) { return Utils::timestampToDateString(strtotime($model->last_login)); })
             ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id); })
             ->addColumn('dropdown', function ($model) {
-            if ($model->is_deleted) {
-                return '<div style="height:38px"/>';
-            }
 
                 $str = '<div class="btn-group tr-action" style="visibility:hidden;">
   							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
@@ -97,7 +94,11 @@ class ClientController extends BaseController
                         $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans('texts.restore_client').'</a></li>';
                     }
 
-                        return $str.'<li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans('texts.delete_client').'</a></li></ul>
+                    if ($model->is_deleted) {
+                        return $str. '</ul></div>';
+                    }
+
+                    return $str.'<li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans('texts.delete_client').'</a></li></ul>
 							</div>';
             })
             ->make();

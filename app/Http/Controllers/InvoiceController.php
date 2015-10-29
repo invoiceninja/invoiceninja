@@ -58,24 +58,20 @@ class InvoiceController extends BaseController
         $data = [
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
-            'columns' => Utils::trans(['checkbox', 'invoice_number', 'client', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status', 'action']),
+            'columns' => Utils::trans([
+                'checkbox',
+                'invoice_number',
+                'client',
+                'invoice_date',
+                'invoice_total',
+                'balance_due',
+                'due_date',
+                'status',
+                'action'
+            ]),
         ];
 
-        $recurringInvoices = Invoice::scope()->where('is_recurring', '=', true);
-
-        if (Session::get('show_trash:invoice')) {
-            $recurringInvoices->withTrashed();
-        } else {
-            $recurringInvoices->join('clients', 'clients.id', '=', 'invoices.client_id')
-                                ->where('clients.deleted_at', '=', null);
-        }
-
-        if ($recurringInvoices->count() > 0) {
-            $data['secEntityType'] = ENTITY_RECURRING_INVOICE;
-            $data['secColumns'] = Utils::trans(['checkbox', 'frequency', 'client', 'start_date', 'end_date', 'invoice_total', 'action']);
-        }
-
-        return View::make('list', $data);
+        return response()->view('list', $data);
     }
 
     public function getDatatable($clientPublicId = null)

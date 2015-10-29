@@ -41,11 +41,13 @@ class AppServiceProvider extends ServiceProvider {
                    <li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
             
             if ($type == ENTITY_INVOICE) {
-                $str .= '<li><a href="'.URL::to('recurring_invoices/create').'">'.trans("texts.new_recurring_invoice").'</a></li>';
+                $str .= '<li class="divider"></li>
+                         <li><a href="'.URL::to('recurring_invoices').'">'.trans("texts.recurring_invoices").'</a></li>
+                         <li><a href="'.URL::to('recurring_invoices/create').'">'.trans("texts.new_recurring_invoice").'</a></li>';
                 if (Auth::user()->isPro()) {
                     $str .= '<li class="divider"></li>
-                        <li><a href="'.URL::to('quotes').'">'.trans("texts.quotes").'</a></li>
-                        <li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';
+                            <li><a href="'.URL::to('quotes').'">'.trans("texts.quotes").'</a></li>
+                            <li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';
                 }
             } else if ($type == ENTITY_CLIENT) {
                 $str .= '<li class="divider"></li>
