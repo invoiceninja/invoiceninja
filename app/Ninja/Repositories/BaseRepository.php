@@ -13,27 +13,32 @@ class BaseRepository
         return new $className();
     }
 
-    private function dispatchEvent($entity, $type)
+    private function getEventClass($entity, $type)
     {
-        $className = 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
-        event(new $className($entity));
+        return 'App\Events\\' . ucfirst($entity->getEntityType()) . 'Was' . $type;
     }
 
     public function archive($entity)
     {
         $entity->delete();
 
-        $this->dispatchEvent($entity, 'Archived');
+        $className = $this->getEventClass($entity, 'Archived');
+        event(new $className($entity));
     }
 
     public function restore($entity)
     {
+        $fromDeleted = false;
         $entity->restore();
 
-        $entity->is_deleted = false;
-        $entity->save();
+        if ($entity->is_deleted) {
+            $fromDeleted = true;
+            $entity->is_deleted = false;
+            $entity->save();
+        }
 
-        $this->dispatchEvent($entity, 'Restored');
+        $className = $this->getEventClass($entity, 'Restored');
+        event(new $className($entity, $fromDeleted));
     }
 
     public function delete($entity)
@@ -43,7 +48,8 @@ class BaseRepository
 
         $entity->delete();
 
-        $this->dispatchEvent($entity, 'Deleted');
+        $className = $this->getEventClass($entity, 'Deleted');
+        event(new $className($entity));
     }
 
     public function findByPublicIds($ids)
