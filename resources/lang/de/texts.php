@@ -798,7 +798,7 @@ return array(
     'sign_up_using' => 'Anmelden mit',
     'invalid_credentials' => 'Diese Zugangsdaten können wir nicht finden.',
     'show_all_options' => 'Zeige alle Optionen',
-    'user_details' => 'Nutzer Details',
+    'user_details' => 'Nutzer-Details',
     'oneclick_login' => 'One-Click Login',
     'disable' => 'Deaktivieren',
     'invoice_quote_number' => 'Rechnungs- und Angebotsnummern',
