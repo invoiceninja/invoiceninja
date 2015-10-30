@@ -295,11 +295,13 @@ class ActivityListener
 
     public function deletedPayment(PaymentWasDeleted $event)
     {
+        $payment = $event->payment;
+
         $this->activityRepo->create(
-            $event->payment,
+            $payment,
             ACTIVITY_TYPE_DELETE_PAYMENT,
-            $event->payment->amount,
-            $event->payment->amount * -1
+            $payment->amount,
+            $payment->amount * -1
         );
     }
 
@@ -317,9 +319,13 @@ class ActivityListener
 
     public function restoredPayment(PaymentWasRestored $event)
     {
+        $payment = $event->payment;
+
         $this->activityRepo->create(
-            $event->payment,
-            ACTIVITY_TYPE_RESTORE_PAYMENT
+            $payment,
+            ACTIVITY_TYPE_RESTORE_PAYMENT,
+            $event->fromDeleted ? $payment->amount * -1 : 0,
+            $event->fromDeleted ? $payment->amount : 0
         );
     }
 }

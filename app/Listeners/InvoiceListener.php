@@ -4,6 +4,7 @@ use App\Events\InvoiceWasEmailed;
 use App\Events\InvoiceWasUpdated;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
+use App\Events\PaymentWasRestored;
 use App\Events\InvoiceInvitationWasViewed;
 
 class InvoiceListener
@@ -36,6 +37,20 @@ class InvoiceListener
         $payment = $event->payment;
         $invoice = $payment->invoice;
         $adjustment = $payment->amount;
+
+        $invoice->updateBalances($adjustment);
+        $invoice->updatePaidStatus();
+    }
+
+    public function restoredPayment(PaymentWasRestored $event)
+    {
+        if ( ! $event->fromDeleted) {
+            return;
+        }
+
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
+        $adjustment = $payment->amount * -1;
 
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();

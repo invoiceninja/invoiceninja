@@ -101,9 +101,6 @@ class InvoiceController extends BaseController
             ->addColumn('end_date', function ($model) { return Utils::fromSqlDate($model->end_date); })
             ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
             ->addColumn('dropdown', function ($model) {
-            if ($model->is_deleted) {
-                return '<div style="height:38px"/>';
-            }
 
             $str = '<div class="btn-group tr-action" style="visibility:hidden;">
                         <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">

@@ -151,10 +151,6 @@ class InvoiceRepository extends BaseRepository
         ->addColumn('invoice_status_name', function ($model) { return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : self::getStatusLabel($model->invoice_status_id, $model->invoice_status_name); })
         ->addColumn('dropdown', function ($model) use ($entityType) {
 
-            if ($model->is_deleted) {
-                return '<div style="height:38px"/>';
-            }
-
               $str = '<div class="btn-group tr-action" style="visibility:hidden;">
                   <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
                     '.trans('texts.select').' <span class="caret"></span>
@@ -188,11 +184,14 @@ class InvoiceRepository extends BaseRepository
                 }
 
                 $str .= '<li class="divider"></li>
-                      <li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans("texts.archive_{$entityType}").'</a></li>
-                    <li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans("texts.delete_{$entityType}").'</a></li>';
+                      <li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans("texts.archive_{$entityType}").'</a></li>';
+
             } else {
-                $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans("texts.restore_{$entityType}").'</a></li>
-                        <li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans("texts.delete_{$entityType}").'</a></li>';
+                $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans("texts.restore_{$entityType}").'</a></li>';
+            }
+
+            if (!$model->is_deleted) {
+                $str .= '<li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans("texts.delete_{$entityType}").'</a></li>';
             }
 
             return $str.'</ul>

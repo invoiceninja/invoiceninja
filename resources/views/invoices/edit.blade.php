@@ -383,13 +383,13 @@
 			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
 
-            @if ($invoice->id)                
+            @if ($invoice->id)
                 {!! DropdownButton::normal(trans('texts.more_actions'))
                       ->withContents($actions)
                       ->dropup() !!}
-            @endif            
+            @endif
 
-		@elseif ($invoice && $invoice->trashed() && !$invoice->is_deleted == '1')
+		@elseif ($invoice->trashed())
 			{!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
 		@endif
 

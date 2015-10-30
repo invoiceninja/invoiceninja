@@ -197,6 +197,10 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function updateBalances($balanceAdjustment, $partial = 0)
     {
+        if ($this->is_deleted) {
+            return;
+        }
+
         $this->balance = $this->balance + $balanceAdjustment;
 
         if ($this->partial > 0) {

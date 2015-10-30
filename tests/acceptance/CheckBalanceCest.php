@@ -82,5 +82,13 @@ class CheckBalanceCest
         $I->amOnPage("/clients/{$clientId}");
         $I->see('Balance $0.00');
         $I->see('Paid to Date $0.00');
+
+        // restore the invoice
+        $I->amOnPage('/invoices/' . $invoiceId);
+        $I->executeJS('submitBulkAction("restore")');
+        $I->wait(1);
+        $I->amOnPage("/clients/{$clientId}");
+        $I->see('Balance $0.00');
+        $I->see('Paid to Date $' . ($productPrice * 2));
     }
 }
