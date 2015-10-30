@@ -805,7 +805,7 @@ return array(
     'invoice_charges' => 'Rechnungs-Gebühren',
 
     'invitation_status' => [
-    'sent' => 'E-Mail versandt',
+    'sent' => 'E-Mail versendet',
     'opened' => 'E-Mail geöffnet',
     'viewed' => 'Rechnung angesehen',
     ],
