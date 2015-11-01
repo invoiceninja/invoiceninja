@@ -190,6 +190,7 @@ Route::group(['middleware' => 'auth'], function() {
 Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
     Route::resource('ping', 'ClientApiController@ping');
+    Route::get('accounts', 'AccountApiController@index');
     Route::resource('clients', 'ClientApiController');
     Route::get('quotes/{client_id?}', 'QuoteApiController@index');
     Route::resource('quotes', 'QuoteApiController');
@@ -437,6 +438,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('TEST_USERNAME', 'user@example.com');
     define('TEST_PASSWORD', 'password');
+    define('API_SECRET', 'API_SECRET');
 
     define('TOKEN_BILLING_DISABLED', 1);
     define('TOKEN_BILLING_OPT_IN', 2);

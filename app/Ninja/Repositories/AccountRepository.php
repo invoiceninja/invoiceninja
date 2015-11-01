@@ -18,6 +18,7 @@ use App\Models\Contact;
 use App\Models\Account;
 use App\Models\User;
 use App\Models\UserAccount;
+use App\Models\AccountToken;
 
 class AccountRepository
 {
@@ -454,5 +455,15 @@ class AccountRepository
         } while ($match);
         
         return $code;
+    }
+
+    public function createToken($name)
+    {
+        $token = AccountToken::createNew();
+        $token->name = trim($name) ?: 'TOKEN';
+        $token->token = str_random(RANDOM_KEY_LENGTH);
+        $token->save();
+
+        return $token->token;
     }
 }

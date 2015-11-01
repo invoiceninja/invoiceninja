@@ -24,7 +24,10 @@ class EntityModel extends Eloquent
             Utils::fatalError();
         }
 
-        $lastEntity = $className::withTrashed()->scope(false, $entity->account_id)->orderBy('public_id', 'DESC')->first();
+        $lastEntity = $className::withTrashed()
+                        ->scope(false, $entity->account_id)
+                        ->orderBy('public_id', 'DESC')
+                        ->first();
 
         if ($lastEntity) {
             $entity->public_id = $lastEntity->public_id + 1;

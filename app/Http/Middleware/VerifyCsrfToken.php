@@ -34,6 +34,12 @@ class VerifyCsrfToken extends BaseVerifier {
           }
         }
 
+        if ($request->is('login')) {
+            if (env(API_SECRET) && $request->api_secret === env(API_SECRET)) {
+                return $next($request);
+            }
+        }
+
 		return parent::handle($request, $next);
 	}
 
