@@ -889,4 +889,6 @@ return array(
     'default_invoice_terms' => 'Default Invoice Terms',
     'default_invoice_footer' => 'Default Invoice Footer',
     'quote_footer' => 'Quote Footer',
+    'free' => 'Free',
+    
 );

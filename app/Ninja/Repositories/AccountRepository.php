@@ -198,7 +198,7 @@ class AccountRepository
             $accountGateway->user_id = $user->id;
             $accountGateway->gateway_id = NINJA_GATEWAY_ID;
             $accountGateway->public_id = 1;
-            $accountGateway->config = env(NINJA_GATEWAY_CONFIG);
+            $accountGateway->setConfig(json_decode(env(NINJA_GATEWAY_CONFIG)));
             $account->account_gateways()->save($accountGateway);
         }
 

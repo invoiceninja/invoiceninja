@@ -404,7 +404,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.4.3');
+    define('NINJA_VERSION', '2.4.4');
     define('NINJA_DATE', '2000-01-01');
 
     define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
@@ -415,7 +415,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/single/browser/v1/');
     define('PHP_DATE_FORMATS', 'http://php.net/manual/en/function.date.php');
     define('GITTER_ROOM', 'hillelcoren/invoice-ninja');
-    define('REFERRAL_PROGRAM_URL', false);
+    define('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/affiliates/');
 
     define('COUNT_FREE_DESIGNS', 4);
     define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design

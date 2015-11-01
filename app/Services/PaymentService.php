@@ -33,7 +33,7 @@ class PaymentService extends BaseService
     public function createGateway($accountGateway)
     {
         $gateway = Omnipay::create($accountGateway->gateway->provider);
-        $config = json_decode($accountGateway->config);
+        $config = $accountGateway->getConfig();
 
         foreach ($config as $key => $val) {
             if (!$val) {

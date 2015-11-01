@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use Crypt;
 use App\Models\Gateway;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -27,16 +28,29 @@ class AccountGateway extends EntityModel
         return $arrayOfImages;
     }
 
-    public function getPaymentType() {
+    public function getPaymentType()
+    {
         return Gateway::getPaymentType($this->gateway_id);
     }
     
-    public function isPaymentType($type) {
+    public function isPaymentType($type)
+    {
         return $this->getPaymentType() == $type;
     }
 
-    public function isGateway($gatewayId) {
+    public function isGateway($gatewayId)
+    {
         return $this->gateway_id == $gatewayId;
+    }
+
+    public function setConfig($config)
+    {
+        $this->config = Crypt::encrypt(json_encode($config));
+    }
+
+    public function getConfig()
+    {
+        return json_decode(Crypt::decrypt($this->config));
     }
 }
 

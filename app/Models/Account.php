@@ -490,17 +490,11 @@ class Account extends Eloquent
 
         $datePaid = $this->pro_plan_paid;
 
-        if (!$datePaid || $datePaid == '0000-00-00') {
-            return false;
-        } elseif ($datePaid == NINJA_DATE) {
+        if ($datePaid == NINJA_DATE) {
             return true;
         }
 
-        $today = new DateTime('now');
-        $datePaid = DateTime::createFromFormat('Y-m-d', $datePaid);
-        $interval = $today->diff($datePaid);
-
-        return $interval->y == 0;
+        return Utils::withinPastYear($datePaid);
     }
 
     public function isWhiteLabel()

@@ -342,6 +342,7 @@ header h3 em {
         });
 
         $('#country_id').combobox();
+        $('#first_name').focus();
     });
 
 </script>

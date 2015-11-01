@@ -38,6 +38,7 @@ use App\Models\Industry;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
 use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Repositories\ReferralRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
 use App\Events\UserSignedUp;
@@ -52,14 +53,16 @@ class AccountController extends BaseController
     protected $accountRepo;
     protected $userMailer;
     protected $contactMailer;
+    protected $referralRepository;
 
-    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer)
+    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository)
     {
         parent::__construct();
 
         $this->accountRepo = $accountRepo;
         $this->userMailer = $userMailer;
         $this->contactMailer = $contactMailer;
+        $this->referralRepository = $referralRepository;
     }
 
     public function demo()
@@ -223,13 +226,14 @@ class AccountController extends BaseController
         foreach (AuthService::$providers as $provider) {
             $oauthLoginUrls[] = ['label' => $provider, 'url' => '/auth/' . strtolower($provider)];
         }
-
+        
         $data = [
             'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
             'title' => trans('texts.user_details'),
             'user' => Auth::user(),
             'oauthProviderName' => AuthService::getProviderName(Auth::user()->oauth_provider_id),
             'oauthLoginUrls' => $oauthLoginUrls,
+            'referralCounts' => $this->referralRepository->getCounts(Auth::user()->id),
         ];
 
         return View::make('accounts.user_details', $data);

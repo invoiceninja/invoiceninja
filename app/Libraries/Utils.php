@@ -65,6 +65,25 @@ class Utils
         return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'] == 'true';
     }
 
+    public static function isOAuthEnabled()
+    {
+        $providers = [
+            SOCIAL_GOOGLE,
+            SOCIAL_FACEBOOK,
+            SOCIAL_GITHUB,
+            SOCIAL_LINKEDIN
+        ];
+
+        foreach ($providers as $provider) {
+            $key = strtoupper($provider) . '_CLIENT_ID';
+            if (isset($_ENV[$key]) && $_ENV[$key]) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function allowNewAccounts()
     {
         return Utils::isNinja() || Auth::check();
@@ -803,5 +822,18 @@ class Utils
         }
 
         return $entity1;
+    }
+
+    public static function withinPastYear($date)
+    {
+        if (!$date || $date == '0000-00-00') {
+            return false;
+        }
+
+        $today = new DateTime('now');
+        $datePaid = DateTime::createFromFormat('Y-m-d', $date);
+        $interval = $today->diff($date);
+
+        return $interval->y == 0;
     }
 }
