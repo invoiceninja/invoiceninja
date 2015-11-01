@@ -48,20 +48,7 @@
         </div>
     </div>
     -->
-
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.custom_messages') !!}</h3>
-      </div>
-        <div class="panel-body">
-        {!! Former::textarea('invoice_terms')->label(trans('texts.default_invoice_terms'))->rows(4)
-                ->onchange("$('#invoice_terms').val(wordWrapText($('#invoice_terms').val(), 300))") !!}
-        {!! Former::textarea('invoice_footer')->label(trans('texts.default_invoice_footer'))->rows(4)
-                ->onchange("$('#invoice_footer').val(wordWrapText($('#invoice_footer').val(), 600))") !!}
-        {!! Former::textarea('email_footer')->label(trans('texts.default_email_footer'))->rows(4) !!} 
-        </div>
-    </div>
-
+    
 	{!! Former::actions( 
             Button::success(trans('texts.save'))
                 ->submit()->large()

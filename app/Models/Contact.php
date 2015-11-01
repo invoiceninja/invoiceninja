@@ -9,6 +9,14 @@ class Contact extends EntityModel
     use SoftDeletes;
     protected $dates = ['deleted_at'];
 
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
+        'send_invoice',
+    ];
+
     public static $fieldFirstName = 'Contact - First Name';
     public static $fieldLastName = 'Contact - Last Name';
     public static $fieldEmail = 'Contact - Email';

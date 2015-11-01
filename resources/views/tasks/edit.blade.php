@@ -45,7 +45,7 @@
                         @if (Auth::user()->account->timezone_id)
                             {{ $timezone }}
                         @else
-                            {!! link_to('/settings/company_details?focus=timezone_id', $timezone, ['target' => '_blank']) !!}
+                            {!! link_to('/settings/localization?focus=timezone_id', $timezone, ['target' => '_blank']) !!}
                         @endif
                         <p/>
 
@@ -117,6 +117,9 @@
         @if ($task && $task->is_running)
             {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}            
             {!! Button::primary(trans('texts.stop'))->large()->appendIcon(Icon::create('stop'))->withAttributes(['id' => 'stop-button']) !!}            
+        @elseif ($task && $task->trashed())
+            {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
+            {!! Button::success(trans('texts.restore'))->large()->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
         @else
             {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
             @if ($task)

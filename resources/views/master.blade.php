@@ -159,6 +159,10 @@
                 window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_BUY_PRO') }}', {'value':'{{ PRO_PLAN_PRICE }}.00','currency':'USD'}]);
             @endif
         @endif
+
+        @if (Session::has('onReady'))
+            {{ Session::get('onReady') }}
+        @endif
     });
     $('form').submit(function() {
         NINJA.formIsChanged = false;

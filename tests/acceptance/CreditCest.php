@@ -24,7 +24,7 @@ class CreditCest
         $I->wantTo('Create a credit');
 
         $I->amOnPage('/clients/create');
-        $I->fillField(['name' => 'email'], $clientEmail);
+        $I->fillField(['name' => 'contacts[0][email]'], $clientEmail);
         $I->click('Save');
         $I->see($clientEmail);
 

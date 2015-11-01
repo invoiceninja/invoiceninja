@@ -1,4 +1,3 @@
-
 @extends('header')
 
 
@@ -7,6 +6,11 @@
 @stop
 
 @section('content')
+
+@if ($errors->first('contacts'))
+    <div class="alert alert-danger">{{ trans($errors->first('contacts')) }}</div>
+@endif
+
 <div class="row">
 
 	{!! Former::open($url)
@@ -17,6 +21,7 @@
 
 	@if ($client)
 		{!! Former::populate($client) !!}
+        {!! Former::hidden('public_id') !!}
 	@endif
 
 	<div class="row">
@@ -75,11 +80,16 @@
 			<div data-bind='template: { foreach: contacts,
 		                            beforeRemove: hideContact,
 		                            afterAdd: showContact }'>
-				{!! Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('email')->data_bind('value: email, valueUpdate: \'afterkeydown\', attr: {id:\'email\'+$index()}') !!}
-				{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") !!}
+				{!! Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown',
+                        attr: {name: 'contacts[' + \$index() + '][public_id]'}") !!}
+				{!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown', 
+                        attr: {name: 'contacts[' + \$index() + '][first_name]'}") !!}
+				{!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown',
+                        attr: {name: 'contacts[' + \$index() + '][last_name]'}") !!}
+				{!! Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown', 
+                        attr: {name: 'contacts[' + \$index() + '][email]', id:'email'+\$index()}") !!}
+				{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown',
+                        attr: {name: 'contacts[' + \$index() + '][phone]'}") !!}
 
 				<div class="form-group">
 					<div class="col-lg-8 col-lg-offset-4 bold">
@@ -141,13 +151,14 @@
 		self.phone = ko.observable('');
 
 		if (data) {
-			ko.mapping.fromJS(data, {}, this);			
-		}		
+			ko.mapping.fromJS(data, {}, this);
+		}
 	}
 
-	function ContactsModel(data) {
+	function ClientModel(data) {
 		var self = this;
-		self.contacts = ko.observableArray();
+
+        self.contacts = ko.observableArray();
 
 		self.mapping = {
 		    'contacts': {
@@ -155,10 +166,10 @@
 		    		return new ContactModel(options.data);
 		    	}
 		    }
-		}		
+		}
 
 		if (data) {
-			ko.mapping.fromJS(data, self.mapping, this);			
+			ko.mapping.fromJS(data, self.mapping, this);
 		} else {
 			self.contacts.push(new ContactModel());
 		}
@@ -174,7 +185,11 @@
 		});	
 	}
 
-	window.model = new ContactsModel({!! $client !!});
+    @if ($data)
+        window.model = new ClientModel({!! $data !!});
+    @else
+	    window.model = new ClientModel({!! $client !!});
+    @endif
 
 	model.showContact = function(elem) { if (elem.nodeType === 1) $(elem).hide().slideDown() }
 	model.hideContact = function(elem) { if (elem.nodeType === 1) $(elem).slideUp(function() { $(elem).remove(); }) }

@@ -1,7 +1,11 @@
 <?php namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Bus\DispatchesCommands;
+
 class BaseController extends Controller
 {
+    use DispatchesCommands;
+
     /**
      * Setup the layout used by the controller.
      *

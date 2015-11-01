@@ -32,10 +32,10 @@ class ClientCest
         $I->fillField(['name' => 'work_phone'], $this->faker->phoneNumber);
 
         //Contacts
-        $I->fillField(['name' => 'first_name'], $this->faker->firstName);
-        $I->fillField(['name' => 'last_name'], $this->faker->lastName);
-        $I->fillField(['name' => 'email'], $this->faker->companyEmail);
-        $I->fillField(['name' => 'phone'], $this->faker->phoneNumber);
+        $I->fillField(['name' => 'contacts[0][first_name]'], $this->faker->firstName);
+        $I->fillField(['name' => 'contacts[0][last_name]'], $this->faker->lastName);
+        $I->fillField(['name' => 'contacts[0][email]'], $this->faker->companyEmail);
+        $I->fillField(['name' => 'contacts[0][phone]'], $this->faker->phoneNumber);
 
         //Additional Contact
         //$I->click('Add contact +');

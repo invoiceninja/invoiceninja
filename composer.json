@@ -39,7 +39,8 @@
         "wildbit/laravel-postmark-provider": "dev-master",
         "Dwolla/omnipay-dwolla": "dev-master",
         "laravel/socialite": "~2.0",
-        "simshaun/recurr": "dev-master"
+        "simshaun/recurr": "dev-master",
+		"league/fractal": "0.13.*"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

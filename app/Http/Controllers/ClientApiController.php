@@ -5,6 +5,7 @@ use Response;
 use Input;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
+use App\Http\Requests\CreateClientRequest;
 
 class ClientApiController extends Controller
 {
@@ -36,23 +37,15 @@ class ClientApiController extends Controller
         return Response::make($response, 200, $headers);
     }
 
-    public function store()
+    public function store(CreateClientRequest $request)
     {
-        $data = Input::all();
-        $error = $this->clientRepo->getErrors($data);
+        $client = $this->clientRepo->save($request->input());
 
-        if ($error) {
-            $headers = Utils::getApiHeaders();
+        $client = Client::scope($client->public_id)->with('country', 'contacts', 'industry', 'size', 'currency')->first();
+        $client = Utils::remapPublicIds([$client]);
+        $response = json_encode($client, JSON_PRETTY_PRINT);
+        $headers = Utils::getApiHeaders();
 
-            return Response::make($error, 500, $headers);
-        } else {
-            $client = $this->clientRepo->save(isset($data['id']) ? $data['id'] : false, $data, false);
-            $client = Client::scope($client->public_id)->with('country', 'contacts', 'industry', 'size', 'currency')->first();
-            $client = Utils::remapPublicIds([$client]);
-            $response = json_encode($client, JSON_PRETTY_PRINT);
-            $headers = Utils::getApiHeaders();
-
-            return Response::make($response, 200, $headers);
-        }
+        return Response::make($response, 200, $headers);
     }
 }

@@ -1,5 +1,6 @@
 @extends('header')
 
+
 @section('content')
 
 <div class="row">
@@ -80,7 +81,7 @@
                 @foreach ($activities as $activity)
                 <li class="list-group-item">
                     <span style="color:#888;font-style:italic">{{ Utils::timestampToDateString(strtotime($activity->created_at)) }}:</span>
-                    {!! Utils::decodeActivity($activity->message) !!}
+                    {!! $activity->getMessage() !!}
                 </li>
                 @endforeach
             </ul>
@@ -250,11 +251,7 @@
     </div>
 @endif
 
-
-<div class="row">
-    <div class="col-md-6">  
-    </div>
-</div>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
 
 <script type="text/javascript">
     $(function() {
@@ -262,7 +259,9 @@
             window.location = '{{ URL::to('invoices/create') }}';
         });
     });
+    ((window.gitter = {}).chat = {}).options = {
+        room: '{{ GITTER_ROOM }}',
+    };
 </script>
 
 @stop
-

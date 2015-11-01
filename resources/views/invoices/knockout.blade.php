@@ -12,7 +12,7 @@ function ViewModel(data) {
 
     self.loadClient = function(client) {
         ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
-        @if (!$invoice)
+        @if (!$invoice->id)
             self.setDueDate();
         @endif
     }
@@ -202,8 +202,8 @@ function InvoiceModel(data) {
     self.is_amount_discount = ko.observable(0);
     self.frequency_id = ko.observable(4); // default to monthly 
     self.terms = ko.observable('');
-    self.default_terms = ko.observable(account.invoice_terms);
-    self.terms_placeholder = ko.observable({{ !$invoice->id && $account->invoice_terms ? 'account.invoice_terms' : false}});
+    self.default_terms = ko.observable(account.{{ $entityType }}_terms);
+    self.terms_placeholder = ko.observable({{ !$invoice->id && $account->{"{$entityType}_terms"} ? "account.{$entityType}_terms" : false}});
     self.set_default_terms = ko.observable(false);
     self.invoice_footer = ko.observable('');
     self.default_footer = ko.observable(account.invoice_footer);
@@ -219,7 +219,8 @@ function InvoiceModel(data) {
     self.last_sent_date = ko.observable('');
     self.tax_name = ko.observable();
     self.tax_rate = ko.observable();
-    self.is_recurring = ko.observable(false);
+    self.is_recurring = ko.observable(0);
+    self.is_quote = ko.observable({{ $entityType == ENTITY_QUOTE ? '1' : '0' }});
     self.auto_bill = ko.observable();
     self.invoice_status_id = ko.observable(0);
     self.invoice_items = ko.observableArray();

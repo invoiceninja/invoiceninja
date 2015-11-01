@@ -98,7 +98,7 @@ class CheckData extends Command {
             $activities = DB::table('activities')
                         ->where('client_id', '=', $client->id)
                         ->orderBy('activities.id')
-                        ->get(['activities.id', 'activities.created_at', 'activities.activity_type_id', 'activities.message', 'activities.adjustment', 'activities.balance', 'activities.invoice_id']);
+                        ->get(['activities.id', 'activities.created_at', 'activities.activity_type_id', 'activities.adjustment', 'activities.balance', 'activities.invoice_id']);
             //$this->info(var_dump($activities));
 
             foreach ($activities as $activity) {
@@ -235,7 +235,6 @@ class CheckData extends Command {
                             'updated_at' => new Carbon,
                             'account_id' => $client->account_id,
                             'client_id' => $client->id,
-                            'message' => 'Corrected client balance',
                             'adjustment' => $client->actual_balance - $activity->balance,
                             'balance' => $client->actual_balance,
                     ]);

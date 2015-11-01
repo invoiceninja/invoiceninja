@@ -33,7 +33,9 @@
             {!! Former::text('vat_number') !!}
 			{!! Former::text('work_email') !!}
 			{!! Former::text('work_phone') !!}
-			{!! Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp(trans('texts.logo_help')) !!}
+            {!! Former::textarea('email_footer')->label(trans('texts.signature'))->rows(4) !!} 
+            {!! Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp(trans('texts.logo_help')) !!}
+
 
 			@if ($account->hasLogo())
 				<center>

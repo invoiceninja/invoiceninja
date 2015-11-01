@@ -127,7 +127,6 @@
         </div>
     </div>
 
-
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.custom_fields') !!}</h3>
@@ -189,6 +188,46 @@
             </div>
         </div>
     </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.default_messages') !!}</h3>
+      </div>
+        <div class="panel-body form-padding-right">
+
+            <div role="tabpanel">
+                <ul class="nav nav-tabs" role="tablist" style="border: none">
+                    <li role="presentation" class="active"><a href="#invoiceTerms" aria-controls="invoiceTerms" role="tab" data-toggle="tab">{{ trans('texts.invoice_terms') }}</a></li>
+                    <li role="presentation"><a href="#invoiceFooter" aria-controls="invoiceFooter" role="tab" data-toggle="tab">{{ trans('texts.invoice_footer') }}</a></li>
+                    <li role="presentation"><a href="#quoteTerms" aria-controls="quoteTerms" role="tab" data-toggle="tab">{{ trans('texts.quote_terms') }}</a></li>
+                </ul>
+            </div>
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="invoiceTerms">
+                    <div class="panel-body">
+                        {!! Former::textarea('invoice_terms')
+                                ->label(trans('texts.default_invoice_terms'))
+                                ->rows(4) !!}
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="invoiceFooter">
+                    <div class="panel-body">
+                        {!! Former::textarea('invoice_footer')
+                                ->label(trans('texts.default_invoice_footer'))
+                                ->rows(4) !!}
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="quoteTerms">
+                    <div class="panel-body">
+                        {!! Former::textarea('quote_terms')
+                                ->label(trans('texts.default_quote_terms'))
+                                ->rows(4) !!}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     
     @if (Auth::user()->isPro())

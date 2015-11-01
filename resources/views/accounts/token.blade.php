@@ -25,7 +25,7 @@
 
     @if (Auth::user()->isPro())
       {!! Former::actions( 
-          Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/token_management'))->appendIcon(Icon::create('remove-circle'))->large(),
+          Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/api_tokens'))->appendIcon(Icon::create('remove-circle'))->large(),
           Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
       ) !!}
     @else

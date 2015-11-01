@@ -4,20 +4,19 @@ use App\Events\Event;
 
 use Illuminate\Queue\SerializesModels;
 
-class QuoteApproved extends Event {
+class QuoteWasRestored extends Event {
 
 	use SerializesModels;
-
-    public $invoice;
-
+    public $quote;
+    
 	/**
 	 * Create a new event instance.
 	 *
 	 * @return void
 	 */
-	public function __construct($invoice)
-	{
-		$this->invoice = $invoice;
-	}
+    public function __construct($quote)
+    {
+        $this->quote = $quote;
+    }
 
 }
