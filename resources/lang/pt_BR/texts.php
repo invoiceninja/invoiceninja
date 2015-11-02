@@ -365,9 +365,9 @@ return array(
   'archive_quote' => 'Arquivar Orçamento',
   'delete_quote' => 'Deletar Orçamento',
   'save_quote' => 'Salvar Oçamento',
-  'email_quote' => 'Envair Orçamento',
+  'email_quote' => 'Enviar Orçamento',
   'clone_quote' => 'Clonar Orçamento',
-  'convert_to_invoice' => 'Faturado',
+  'convert_to_invoice' => 'Faturar Orçamento',
   'view_invoice' => 'Visualizar Fatura',
   'view_quote' => 'Visualizar Orçamento',
   'view_client' => 'Visualizar Cliente',
@@ -885,5 +885,7 @@ return array(
   'default_invoice_footer' => 'Rodapé Padrão das Faturas',
   'quote_footer' => 'Rodapé do Orçamento',
   'free' => 'Grátis',
+	
+  'quote_is_approved' => 'Orçamento aprovado.',
   
 );
