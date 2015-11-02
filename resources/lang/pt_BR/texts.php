@@ -102,13 +102,13 @@ return array(
   // recurring invoices
   'recurring_invoices' => 'Faturas Recorrentes',
   'recurring_help' => '<p>Enviar automaticamente aos clientes as mesmas faturas semanalmente, mensalmente, bimenstralmente, trimestralmente ou anualmente. </p>
-        <p>Use :MONTH, :QUARTER ou :YEAR para datas dinâmicas. Operadores matemáticos também funcionam, por exemplo :MONTH-1.</p>
-        <p>Exemplo de variáveis de uma fatura dinâmica:</p>
-        <ul>
-          <li>"Mensalidade da academia para o mês de :MONTH" => "Mensalidade da academia para o mês de Julho"</li>
-          <li>"Plano anual de :YEAR+1" => "Plano anual de 2015"</li>
-          <li>"Pagamento retido para :QUARTER+1" => "Pagamento retido para Q2"</li>
-        </ul>',
+  <p>Use :MONTH, :QUARTER ou :YEAR para datas dinâmicas. Operadores matemáticos também funcionam, por exemplo :MONTH-1.</p>
+  <p>Exemplo de variáveis de uma fatura dinâmica:</p>
+  <ul>
+    <li>"Mensalidade da academia para o mês de :MONTH" => "Mensalidade da academia para o mês de Julho"</li>
+    <li>"Plano anual de :YEAR+1" => "Plano anual de 2015"</li>
+    <li>"Pagamento retido para :QUARTER+1" => "Pagamento retido para Q2"</li>
+  </ul>',
 
   // dashboard
   'in_total_revenue' => 'no total de faturamento',
@@ -279,19 +279,19 @@ return array(
   // This File was missing the security alerts. I'm not familiar with this language, Can someone translate?
   // Security alerts
   'security' => [
-    'too_many_attempts' => 'Muitas tentativas. Tente novamente em alguns minutos.',
-    'wrong_credentials' => 'Email ou senha incorretos.',
-    'confirmation' => 'Sua conta foi confirmada!',
-    'wrong_confirmation' => 'Código de confirmação incorreto.',
-    'password_forgot' => 'As informações para redefinição de senha foi enviada para seu e-mail.',
-    'password_reset' => 'Senha atualizada com sucesso.',
-    'wrong_password_reset' => 'Senha inválida. Tente novamente',
+  'too_many_attempts' => 'Muitas tentativas. Tente novamente em alguns minutos.',
+  'wrong_credentials' => 'Email ou senha incorretos.',
+  'confirmation' => 'Sua conta foi confirmada!',
+  'wrong_confirmation' => 'Código de confirmação incorreto.',
+  'password_forgot' => 'As informações para redefinição de senha foi enviada para seu e-mail.',
+  'password_reset' => 'Senha atualizada com sucesso.',
+  'wrong_password_reset' => 'Senha inválida. Tente novamente',
   ],
 
   // Pro Plan
   'pro_plan' => [
-    'remove_logo' => ':link para remover a logo do Invoice Ninja contratando o plano profissional',
-    'remove_logo_link' => 'Clique aqui',
+  'remove_logo' => ':link para remover a logo do Invoice Ninja contratando o plano profissional',
+  'remove_logo_link' => 'Clique aqui',
   ],
 
   'logout' => 'Sair',
@@ -367,7 +367,7 @@ return array(
   'save_quote' => 'Salvar Oçamento',
   'email_quote' => 'Envair Orçamento',
   'clone_quote' => 'Clonar Orçamento',
-  'convert_to_invoice' => 'Faturar',
+  'convert_to_invoice' => 'Faturado',
   'view_invoice' => 'Visualizar Fatura',
   'view_quote' => 'Visualizar Orçamento',
   'view_client' => 'Visualizar Cliente',
@@ -380,7 +380,7 @@ return array(
   'archived_quotes' => ':count Orçamento(s) arquivado(s)',
   'deleted_quote' => 'Orçamento deletado',
   'deleted_quotes' => ':count Orçamento(s) deletado(s)',
-  'converted_to_invoice' => 'Orçamento Faturado',
+  'converted_to_invoice' => 'Orçamento faturado',
 
   'quote_subject' => 'Novo Orçamento de :account',
   'quote_message' => 'Para visualizar o oçamento de :amount, clique no link abaixo.',
@@ -436,7 +436,7 @@ return array(
   'share_invoice_counter' => 'Usar numeração das faturas',
   'invoice_issued_to' => 'Fatura emitida para',
   'invalid_counter' => 'Para evitar conflitos defina prefíxos de numeração para Faturas e Orçamentos',
-  'mark_sent' => 'Marcar como Enviada',    
+  'mark_sent' => 'Marcar como Enviada',  
 
   'gateway_help_1' => ':link para acessar Authorize.net.',
   'gateway_help_2' => ':link para acessar Authorize.net.',
@@ -452,7 +452,7 @@ return array(
   'more_designs_self_host_text' => '',
   'buy' => 'Comprar',
   'bought_designs' => 'Novos Modelos Adicionados',
-    
+  
 
   
   'sent' => 'enviado',
@@ -519,7 +519,7 @@ return array(
   'edit_payment_details' => 'Editar detalhes do pagamento',
   'token_billing' => 'Salvar detalhes do cartão',
   'token_billing_secure' => 'Dados armazenados com seguração por :stripe_link',
-    
+  
   'support' => 'Suporte',
   'contact_information' => 'Informações de Contato',
   '256_encryption' => 'Criptografia de 256-Bit',
@@ -574,7 +574,7 @@ return array(
   'set_password' => 'Definir Password',
   'converted' => 'Faturado',
 
-  'email_approved' => 'Notificar-me por email quando um orçamento for <b>aprovado</b>',
+  'email_approved' => 'Notificar-me por email quando um orçamento for <b>approvedo</b>',
   'notification_quote_approved_subject' => 'Orçamento :invoice foi aprovado por :client',
   'notification_quote_approved' => 'O cliente :client aprovou Orçamento :invoice de :amount.',
   'resend_confirmation' => 'Reenviar email de confirmação',
@@ -668,7 +668,7 @@ return array(
   'payment_type_dwolla' => 'Dwolla',
   'gateway_help_43' => ':link acessar Dwolla.',
   'partial_value' => 'Deve ser maior que zero e menor que o total',
-  'more_actions' => 'Mais ações',    
+  'more_actions' => 'Mais ações',  
 
   'pro_plan_title' => 'NINJA PRO',
   'pro_plan_call_to_action' => 'Adquira Agora!',
@@ -734,7 +734,7 @@ return array(
   'recent_payments' => 'Pagamentos Recentes',
   'outstanding' => 'Em Aberto',
   'manage_companies' => 'Gerenciar Empresas',
-  'total_revenue' => 'Faturamento',    
+  'total_revenue' => 'Faturamento',  
 
   'current_user' => 'Usuário',
   'new_recurring_invoice' => 'Nova Fatura Recorrente',
@@ -744,9 +744,9 @@ return array(
   'primary_user' => 'Usuário Principal',
   'help' => 'Ajuda',
   'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provide\'s a great way to see the library in action.</p>
-                        <p>You can access any invoice field by adding <code>Value</code> to the end. For example <code>$invoiceNumberValue</code> displays the invoice number.</p>
-                        <p>To access a child property using dot notation. For example to show the client name you could use <code>$client.nameValue</code>.</p>
-                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
+      <p>You can access any invoice field by adding <code>Value</code> to the end. For example <code>$invoiceNumberValue</code> displays the invoice number.</p>
+      <p>To access a child property using dot notation. For example to show the client name you could use <code>$client.nameValue</code>.</p>
+      <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
   
   'invoice_due_date' => 'Data de vencimento',
   'quote_due_date' => 'Valido até',
@@ -799,9 +799,9 @@ return array(
   'invoice_charges' => 'Encargos da Fatura',
 
   'invitation_status' => [
-    'sent' => 'Email Enviado',
-    'opened' => 'Email Aberto',
-    'viewed' => 'Email Visualizado',
+  'sent' => 'Email Enviado',
+  'opened' => 'Email Aberto',
+  'viewed' => 'Email Visualizado',
   ],
   'notification_invoice_bounced' => 'Não foi possível entregar a Fatura :invoice para :contact.',
   'notification_invoice_bounced_subject' => 'Fatura :invoice não foi entregue',
@@ -820,66 +820,70 @@ return array(
   'no_longer_running' => 'Esta fatura não está agendada',
   'general_settings' => 'Configurações Gerais',
   'customize' => 'Personalizar',
-<<<<<<< HEAD
 	
-  'quote_approved' => 'Orçamento Aprovado',
-=======
-  'oneclick_login_help' => 'Connect an account to login without a password',
-  'referral_code_help' => 'Earn money by sharing our app online',
+  'oneclick_login_help' => 'Vincule uma conta para acesar sem senha.',
+  'referral_code_help' => 'Recomende nosso sistema.',
 
-  'enable_with_stripe' => 'Enable | Requires Stripe',
-  'tax_settings' => 'Tax Settings',
-  'create_tax_rate' => 'Add Tax Rate',
-  'updated_tax_rate' => 'Successfully updated tax rate',
-  'created_tax_rate' => 'Successfully created tax rate',
-  'edit_tax_rate' => 'Edit tax rate',
-  'archive_tax_rate' => 'Archive tax rate',
-  'archived_tax_rate' => 'Successfully archived the tax rate',
-  'default_tax_rate_id' => 'Default Tax Rate',
-  'tax_rate' => 'Tax Rate',
-  'recurring_hour' => 'Recurring Hour',
-  'pattern' => 'Pattern',
-  'pattern_help_title' => 'Pattern Help',
-  'pattern_help_1' => 'Create custom invoice and quote numbers by specifying a pattern',
-  'pattern_help_2' => 'Available variables:',
-  'pattern_help_3' => 'For example, :example would be converted to :value',
-  'see_options' => 'See options',
-  'invoice_counter' => 'Invoice Counter',
-  'quote_counter' => 'Quote Counter',
-  'type' => 'Type',
+  'enable_with_stripe' => 'Habilite | Requer Stripe',
+  'tax_settings' => 'Configurações de Taxas',
+  'create_tax_rate' => 'Adicionar Taxa',
+  'updated_tax_rate' => 'Taxa Atualizada',
+  'created_tax_rate' => 'Taxa Adicionada',
+  'edit_tax_rate' => 'Editar Taxa',
+  'archive_tax_rate' => 'Arquivar Taxa',
+  'archived_tax_rate' => 'Taxa Arquivada',
+  'default_tax_rate_id' => 'Taxa Padrao',
+  'tax_rate' => 'Taxa',
+  'recurring_hour' => 'Hora Recorrente',
+  'pattern' => 'Padrão',
+  'pattern_help_title' => 'Ajuda para Padrões',
+  'pattern_help_1' => 'Crie numeração personalizada para faturas e orçamentos utilzando padrões.',
+  'pattern_help_2' => 'Variáveis disponíveis:',
+  'pattern_help_3' => 'Exemplo, :example seria convertido para :value',
+  'see_options' => 'Veja as Opções',
+  'invoice_counter' => 'Contador de Faturas',
+  'quote_counter' => 'Contador de Orçamentos',
+  'type' => 'Tipo',
 
-  'activity_1' => ':user created client :client',
-  'activity_2' => ':user archived client :client',
-  'activity_3' => ':user deleted client :client',
-  'activity_4' => ':user created invoice :invoice',
-  'activity_5' => ':user updated invoice :invoice',
-  'activity_6' => ':user emailed invoice :invoice to :contact',
-  'activity_7' => ':contact viewed invoice :invoice',
-  'activity_8' => ':user archived invoice :invoice',
-  'activity_9' => ':user deleted invoice :invoice',
-  'activity_10' => ':contact entered payment :payment for :invoice',
-  'activity_11' => ':user updated payment :payment',
-  'activity_12' => ':user archived payment :payment',
-  'activity_13' => ':user deleted payment :payment',
-  'activity_14' => ':user entered :credit credit',
-  'activity_15' => ':user updated :credit credit',
-  'activity_16' => ':user archived :credit credit',
-  'activity_17' => ':user deleted :credit credit',
-  'activity_18' => ':user created quote :quote',
-  'activity_19' => ':user updated quote :quote',
-  'activity_20' => ':user emailed quote :quote to :contact',
-  'activity_21' => ':contact viewed quote :quote',
-  'activity_22' => ':user archived quote :quote',
-  'activity_23' => ':user deleted quote :quote',
-  'activity_24' => ':user restored quote :quote',
-  'activity_25' => ':user restored invoice :invoice',
-  'activity_26' => ':user restored client :client',
-  'activity_27' => ':user restored payment :payment',
-  'activity_28' => ':user restored :credit credit',
-  'activity_29' => ':contact approved quote :quote',
+  'activity_1' => ':user cadastrou o cliente :client',
+  'activity_2' => ':user arquivo o cliente :client',
+  'activity_3' => ':user removeu o cliente :client',
+  'activity_4' => ':user criou a fatura :invoice',
+  'activity_5' => ':user atualizou a fatura :invoice',
+  'activity_6' => ':user enviou a fatura :invoice para :contact',
+  'activity_7' => ':contact visualizou a fatura :invoice',
+  'activity_8' => ':user arquivou a fatura :invoice',
+  'activity_9' => ':user removeu a fatura :invoice',
+  'activity_10' => ':contact efetuou o pagamento de :payment para a fatura :invoice',
+  'activity_11' => ':user atualizou o pagamento :payment',
+  'activity_12' => ':user arquivou o pagamento :payment',
+  'activity_13' => ':user removeu o pagamento :payment',
+  'activity_14' => ':user adicionou crédito :credit',
+  'activity_15' => ':user atualizou crédito :credit',
+  'activity_16' => ':user arquivou crédito :credit',
+  'activity_17' => ':user removeu crédito :credit',
+  'activity_18' => ':user adicionou o orçamento :quote',
+  'activity_19' => ':user atualizou  o orçamento :quote',
+  'activity_20' => ':user enviou o orçamento :quote para :contact',
+  'activity_21' => ':contact visualizou o orçamento :quote',
+  'activity_22' => ':user arquvou o orçamento :quote',
+  'activity_23' => ':user removeu o orçamento :quote',
+  'activity_24' => ':user restaurou o orçamento :quote',
+  'activity_25' => ':user restaurou a fatura :invoice',
+  'activity_26' => ':user restaurou o cliente :client',
+  'activity_27' => ':user restaurou o pagamento :payment',
+  'activity_28' => ':user restaurou o crédito :credit',
+  'activity_29' => ':contact aprovou o orçamento :quote',
 
-  'payment' => 'Payment',
-  'system' => 'System',
->>>>>>> upstream/master
+  'payment' => 'Pagamento',
+  'system' => 'Sistema',
+  'signature' => 'Assinatura do Email',
+  'default_messages' => 'Mensagens Padrões',
+  'quote_terms' => 'Condições do Orçamento',
+  'default_quote_terms' => 'Condições Padrões dos Orçamentos',
+  'default_invoice_terms' => 'Condições Padrões das Faturas',
+  'default_invoice_footer' => 'Rodapé Padrão das Faturas',
+  'quote_footer' => 'Rodapé do Orçamento',
+  'free' => 'Grátis',
   
 );
