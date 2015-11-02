@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "70ef9e09bca60a19c396c138d8a01d50",
+    "hash": "d0f3825f6d361f655c7393dd024b676e",
     "packages": [
         {
             "name": "alfaproject/omnipay-neteller",

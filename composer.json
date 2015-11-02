@@ -19,7 +19,7 @@
 		"anahkiasen/former": "4.0.*@dev",
 		"barryvdh/laravel-debugbar": "~2.0.2",
 		"chumper/datatable": "dev-develop#7fa47cb",
-		"omnipay/omnipay": "2.3.x",
+		"omnipay/omnipay": "~2.3.0",
 		"intervention/image": "dev-master",
 		"webpatser/laravel-countries": "dev-master",
 		"barryvdh/laravel-ide-helper": "2.0.x",

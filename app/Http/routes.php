@@ -382,6 +382,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_AUTHORIZE_NET', 1);
     define('GATEWAY_EWAY', 4);
     define('GATEWAY_AUTHORIZE_NET_SIM', 2);
+    define('GATEWAY_PAYFAST', 13);
     define('GATEWAY_PAYPAL_EXPRESS', 17);
     define('GATEWAY_PAYPAL_PRO', 18);
     define('GATEWAY_STRIPE', 23);
