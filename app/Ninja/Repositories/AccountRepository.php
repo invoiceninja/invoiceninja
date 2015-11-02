@@ -470,6 +470,6 @@ class AccountRepository
         $token->token = str_random(RANDOM_KEY_LENGTH);
         $token->save();
 
-        return $token->token;
+        return $token;
     }
 }

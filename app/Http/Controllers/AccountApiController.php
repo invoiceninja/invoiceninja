@@ -30,7 +30,8 @@ class AccountApiController extends Controller
         }
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            return $this->accountRepo->createToken($request->token_name);
+            return $this->processLogin($request);
+            //return $this->accountRepo->createToken($request->token_name);
         } else {
             return 'Invalid credentials';
         }
@@ -50,4 +51,11 @@ class AccountApiController extends Controller
 
         return Response::make($response, 200, $headers);
     }
+
+    private function processLogin(Request $request)
+    {
+
+    }
+
+
 }
