@@ -380,7 +380,7 @@ return array(
   'archived_quotes' => ':count Orçamento(s) arquivado(s)',
   'deleted_quote' => 'Orçamento deletado',
   'deleted_quotes' => ':count Orçamento(s) deletado(s)',
-  'converted_to_invoice' => 'Orçamento faturado',
+  'converted_to_invoice' => 'Orçamento Faturado',
 
   'quote_subject' => 'Novo Orçamento de :account',
   'quote_message' => 'Para visualizar o oçamento de :amount, clique no link abaixo.',
@@ -820,5 +820,7 @@ return array(
   'no_longer_running' => 'Esta fatura não está agendada',
   'general_settings' => 'Configurações Gerais',
   'customize' => 'Personalizar',
+	
+  'quote_approved' => 'Orçamento Aprovado',
   
 );
