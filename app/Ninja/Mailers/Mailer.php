@@ -50,16 +50,16 @@ class Mailer
     {
         if (isset($data['invitation'])) {
             $invitation = $data['invitation'];
-            
+            $invoice = $invitation->invoice;
+            $messageId = false;
+
             // Track the Postmark message id
             if (isset($_ENV['POSTMARK_API_TOKEN']) && $response) {
                 $json = $response->json();
-                $invitation->message_id = $json['MessageID'];
+                $messageId = $json['MessageID'];
             }
-            
-            $invitation->email_error = null;
-            $invitation->sent_date = \Carbon::now()->toDateTimeString();
-            $invitation->save();
+
+            $invoice->markInvitationSent($invitation, $messageId);
         }
         
         return true;

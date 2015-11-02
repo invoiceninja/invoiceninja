@@ -60,20 +60,17 @@ class AccountGatewayController extends BaseController
     public function edit($publicId)
     {
         $accountGateway = AccountGateway::scope($publicId)->firstOrFail();
-        $config = $accountGateway->config;
-        $selectedCards = $accountGateway->accepted_credit_cards;
-
-        $configFields = json_decode($config);
-
-        foreach ($configFields as $configField => $value) {
-            $configFields->$configField = str_repeat('*', strlen($value));
+        $config = $accountGateway->getConfig();
+        
+        foreach ($config as $field => $value) {
+            $config->$field = str_repeat('*', strlen($value));
         }
 
         $data = self::getViewModel($accountGateway);
         $data['url'] = 'gateways/'.$publicId;
         $data['method'] = 'PUT';
         $data['title'] = trans('texts.edit_gateway') . ' - ' . $accountGateway->gateway->name;
-        $data['config'] = $configFields;
+        $data['config'] = $config;
         $data['hiddenFields'] = Gateway::$hiddenFields;
         $data['paymentTypeId'] = $accountGateway->getPaymentType();
         $data['selectGateways'] = Gateway::where('id', '=', $accountGateway->gateway_id)->get();
@@ -237,7 +234,7 @@ class AccountGatewayController extends BaseController
 
             if ($accountGatewayPublicId) {
                 $accountGateway = AccountGateway::scope($accountGatewayPublicId)->firstOrFail();
-                $oldConfig = json_decode($accountGateway->config);
+                $oldConfig = $accountGateway->getConfig();
             } else {
                 $accountGateway = AccountGateway::createNew();
                 $accountGateway->gateway_id = $gatewayId;
@@ -267,7 +264,7 @@ class AccountGatewayController extends BaseController
             $accountGateway->accepted_credit_cards = $cardCount;
             $accountGateway->show_address = Input::get('show_address') ? true : false;
             $accountGateway->update_address = Input::get('update_address') ? true : false;
-            $accountGateway->config = json_encode($config);
+            $accountGateway->setConfig($config);
 
             if ($accountGatewayPublicId) {
                 $accountGateway->save();

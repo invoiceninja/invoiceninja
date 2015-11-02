@@ -38,6 +38,7 @@ use App\Models\Industry;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
 use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Repositories\ReferralRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
 use App\Events\UserSignedUp;
@@ -45,19 +46,23 @@ use App\Events\UserLoggedIn;
 use App\Events\UserSettingsChanged;
 use App\Services\AuthService;
 
+use App\Commands\CreateClient;
+
 class AccountController extends BaseController
 {
     protected $accountRepo;
     protected $userMailer;
     protected $contactMailer;
+    protected $referralRepository;
 
-    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer)
+    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository)
     {
         parent::__construct();
 
         $this->accountRepo = $accountRepo;
         $this->userMailer = $userMailer;
         $this->contactMailer = $contactMailer;
+        $this->referralRepository = $referralRepository;
     }
 
     public function demo()
@@ -221,13 +226,14 @@ class AccountController extends BaseController
         foreach (AuthService::$providers as $provider) {
             $oauthLoginUrls[] = ['label' => $provider, 'url' => '/auth/' . strtolower($provider)];
         }
-
+        
         $data = [
             'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
             'title' => trans('texts.user_details'),
             'user' => Auth::user(),
             'oauthProviderName' => AuthService::getProviderName(Auth::user()->oauth_provider_id),
             'oauthLoginUrls' => $oauthLoginUrls,
+            'referralCounts' => $this->referralRepository->getCounts(Auth::user()->id),
         ];
 
         return View::make('accounts.user_details', $data);
@@ -519,8 +525,10 @@ class AccountController extends BaseController
                 $account->invoice_number_counter = Input::get('invoice_number_counter');
                 $account->quote_number_prefix = Input::get('quote_number_prefix');
                 $account->share_counter = Input::get('share_counter') ? true : false;
-
                 $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
+                $account->invoice_terms = Input::get('invoice_terms');
+                $account->invoice_footer = Input::get('invoice_footer');
+                $account->quote_terms = Input::get('quote_terms');
 
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');
@@ -637,49 +645,56 @@ class AccountController extends BaseController
                 continue;
             }
 
-            $client = Client::createNew();
-            $contact = Contact::createNew();
-            $contact->is_primary = true;
-            $contact->send_invoice = true;
-            $count++;
+            $data = [
+                'contacts' => [[]]
+            ];
 
             foreach ($row as $index => $value) {
                 $field = $map[$index];
-                $value = trim($value);
+                if ( ! $value = trim($value)) {
+                    continue;
+                }
 
-                if ($field == Client::$fieldName && !$client->name) {
-                    $client->name = $value;
-                } elseif ($field == Client::$fieldPhone && !$client->work_phone) {
-                    $client->work_phone = $value;
-                } elseif ($field == Client::$fieldAddress1 && !$client->address1) {
-                    $client->address1 = $value;
-                } elseif ($field == Client::$fieldAddress2 && !$client->address2) {
-                    $client->address2 = $value;
-                } elseif ($field == Client::$fieldCity && !$client->city) {
-                    $client->city = $value;
-                } elseif ($field == Client::$fieldState && !$client->state) {
-                    $client->state = $value;
-                } elseif ($field == Client::$fieldPostalCode && !$client->postal_code) {
-                    $client->postal_code = $value;
-                } elseif ($field == Client::$fieldCountry && !$client->country_id) {
+                if ($field == Client::$fieldName) {
+                    $data['name'] = $value;
+                } elseif ($field == Client::$fieldPhone) {
+                    $data['work_phone'] = $value;
+                } elseif ($field == Client::$fieldAddress1) {
+                    $data['address1'] = $value;
+                } elseif ($field == Client::$fieldAddress2) {
+                    $data['address2'] = $value;
+                } elseif ($field == Client::$fieldCity) {
+                    $data['city'] = $value;
+                } elseif ($field == Client::$fieldState) {
+                    $data['state'] = $value;
+                } elseif ($field == Client::$fieldPostalCode) {
+                    $data['postal_code'] = $value;
+                } elseif ($field == Client::$fieldCountry) {
                     $value = strtolower($value);
-                    $client->country_id = isset($countryMap[$value]) ? $countryMap[$value] : null;
-                } elseif ($field == Client::$fieldNotes && !$client->private_notes) {
-                    $client->private_notes = $value;
-                } elseif ($field == Contact::$fieldFirstName && !$contact->first_name) {
-                    $contact->first_name = $value;
-                } elseif ($field == Contact::$fieldLastName && !$contact->last_name) {
-                    $contact->last_name = $value;
-                } elseif ($field == Contact::$fieldPhone && !$contact->phone) {
-                    $contact->phone = $value;
-                } elseif ($field == Contact::$fieldEmail && !$contact->email) {
-                    $contact->email = strtolower($value);
+                    $data['country_id'] = isset($countryMap[$value]) ? $countryMap[$value] : null;
+                } elseif ($field == Client::$fieldNotes) {
+                    $data['private_notes'] = $value;
+                } elseif ($field == Contact::$fieldFirstName) {
+                    $data['contacts'][0]['first_name'] = $value;
+                } elseif ($field == Contact::$fieldLastName) {
+                    $data['contacts'][0]['last_name'] = $value;
+                } elseif ($field == Contact::$fieldPhone) {
+                    $data['contacts'][0]['phone'] = $value;
+                } elseif ($field == Contact::$fieldEmail) {
+                    $data['contacts'][0]['email'] = strtolower($value);
                 }
             }
 
-            $client->save();
-            $client->contacts()->save($contact);
-            Activity::createClient($client, false);
+            $rules = [
+                'contacts' => 'valid_contacts',
+            ];
+            $validator = Validator::make($data, $rules);
+            if ($validator->fails()) {
+                continue;
+            }
+
+            $this->dispatch(new CreateClient($data));
+            $count++;
         }
 
         $message = Utils::pluralize('created_client', $count);
@@ -792,12 +807,6 @@ class AccountController extends BaseController
 
     private function saveNotifications()
     {
-        $account = Auth::user()->account;
-        $account->invoice_terms = Input::get('invoice_terms');
-        $account->invoice_footer = Input::get('invoice_footer');
-        $account->email_footer = Input::get('email_footer');
-        $account->save();
-
         $user = Auth::user();
         $user->notify_sent = Input::get('notify_sent');
         $user->notify_viewed = Input::get('notify_viewed');
@@ -838,6 +847,7 @@ class AccountController extends BaseController
             $account->country_id = Input::get('country_id') ? Input::get('country_id') : null;
             $account->size_id = Input::get('size_id') ? Input::get('size_id') : null;
             $account->industry_id = Input::get('industry_id') ? Input::get('industry_id') : null;
+            $account->email_footer = Input::get('email_footer');
             $account->save();
                 
             /* Logo image file */

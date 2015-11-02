@@ -41,12 +41,6 @@ class HandleUserSignedUp
             $this->accountRepo->registerNinjaUser($user);
         }
 
-        $activities = Activity::scope()->get();
-        foreach ($activities as $activity) {
-            $activity->message = str_replace('Guest', $user->getFullName(), $activity->message);
-            $activity->save();
-        }
-
         session([SESSION_COUNTER => -1]);
     }
 }

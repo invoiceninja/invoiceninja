@@ -1,11 +1,18 @@
 <?php namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\CreditWasCreated;
+
 
 class Credit extends EntityModel
 {
     use SoftDeletes;
     protected $dates = ['deleted_at'];
+
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account');
+    }
 
     public function invoice()
     {
@@ -43,18 +50,10 @@ class Credit extends EntityModel
     }
 }
 
+Credit::creating(function ($credit) {
+    
+});
+
 Credit::created(function ($credit) {
-    Activity::createCredit($credit);
-});
-
-Credit::updating(function ($credit) {
-    Activity::updateCredit($credit);
-});
-
-Credit::deleting(function ($credit) {
-    Activity::archiveCredit($credit);
-});
-
-Credit::restoring(function ($credit) {
-    Activity::restoreCredit($credit);
+    event(new CreditWasCreated($credit));
 });

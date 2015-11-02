@@ -8,18 +8,21 @@ use Utils;
 use View;
 use Validator;
 use App\Models\Client;
-
+use App\Services\CreditService;
 use App\Ninja\Repositories\CreditRepository;
+use App\Http\Requests\CreateCreditRequest;
 
 class CreditController extends BaseController
 {
     protected $creditRepo;
+    protected $CreditService;
 
-    public function __construct(CreditRepository $creditRepo)
+    public function __construct(CreditRepository $creditRepo, CreditService $creditService)
     {
         parent::__construct();
 
         $this->creditRepo = $creditRepo;
+        $this->creditService = $creditService;
     }
 
     /**
@@ -106,46 +109,20 @@ class CreditController extends BaseController
         return View::make('credit.edit', $data);
     }
 
-    public function store()
+    public function store(CreateCreditRequest $request)
     {
-        return $this->save();
-    }
-
-    public function update($publicId)
-    {
-        return $this->save($publicId);
-    }
-
-    private function save($publicId = null)
-    {
-        $rules = array(
-            'client' => 'required',
-            'amount' => 'required|positive',
-        );
-
-        $validator = Validator::make(Input::all(), $rules);
-
-        if ($validator->fails()) {
-            $url = $publicId ? 'credits/'.$publicId.'/edit' : 'credits/create';
-
-            return Redirect::to($url)
-                ->withErrors($validator)
-                ->withInput();
-        } else {
-            $this->creditRepo->save($publicId, Input::all());
-
-            $message = trans('texts.created_credit');
-            Session::flash('message', $message);
-
-            return Redirect::to('clients/'.Input::get('client'));
-        }
+        $credit = $this->creditRepo->save($request->input());
+        
+        Session::flash('message', trans('texts.created_credit'));
+        
+        return redirect()->to($credit->client->getRoute());
     }
 
     public function bulk()
     {
         $action = Input::get('action');
-        $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
-        $count = $this->creditRepo->bulk($ids, $action);
+        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $count = $this->creditService->bulk($ids, $action);
 
         if ($count > 0) {
             $message = Utils::pluralize($action.'d_credit', $count);

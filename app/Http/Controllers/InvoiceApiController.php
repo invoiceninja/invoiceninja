@@ -58,7 +58,11 @@ class InvoiceApiController extends Controller
     {
         $data = Input::all();
         $error = null;
-                
+
+        if (isset($data['id']) || isset($data['public_id'])) {
+            die("We don't yet support updating invoices");
+        }
+
         if (isset($data['email'])) {
             $client = Client::scope()->whereHas('contacts', function($query) use ($data) {
                 $query->where('email', '=', $data['email']);
@@ -78,7 +82,7 @@ class InvoiceApiController extends Controller
                 }
                 $error = $this->clientRepo->getErrors($clientData);
                 if (!$error) {
-                    $client = $this->clientRepo->save(false, $clientData, false);
+                    $client = $this->clientRepo->save($clientData);
                 }
             }
         } else if (isset($data['client_id'])) {
@@ -108,7 +112,7 @@ class InvoiceApiController extends Controller
         } else {
             $data = self::prepareData($data, $client);
             $data['client_id'] = $client->id;
-            $invoice = $this->invoiceRepo->save(false, $data, false);
+            $invoice = $this->invoiceRepo->save($data);
 
             if (!isset($data['id'])) {
                 $invitation = Invitation::createNew();

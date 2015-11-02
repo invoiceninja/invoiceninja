@@ -21,18 +21,23 @@ use App\Models\Industry;
 use App\Models\Currency;
 use App\Models\Country;
 use App\Models\Task;
-
 use App\Ninja\Repositories\ClientRepository;
+use App\Services\ClientService;
+
+use App\Http\Requests\CreateClientRequest;
+use App\Http\Requests\UpdateClientRequest;
 
 class ClientController extends BaseController
 {
+    protected $clientService;
     protected $clientRepo;
 
-    public function __construct(ClientRepository $clientRepo)
+    public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
         parent::__construct();
 
         $this->clientRepo = $clientRepo;
+        $this->clientService = $clientService;
     }
 
     /**
@@ -63,9 +68,6 @@ class ClientController extends BaseController
             ->addColumn('last_login', function ($model) { return Utils::timestampToDateString(strtotime($model->last_login)); })
             ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id); })
             ->addColumn('dropdown', function ($model) {
-            if ($model->is_deleted) {
-                return '<div style="height:38px"/>';
-            }
 
                 $str = '<div class="btn-group tr-action" style="visibility:hidden;">
   							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
@@ -92,7 +94,11 @@ class ClientController extends BaseController
                         $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans('texts.restore_client').'</a></li>';
                     }
 
-                        return $str.'<li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans('texts.delete_client').'</a></li></ul>
+                    if ($model->is_deleted) {
+                        return $str. '</ul></div>';
+                    }
+
+                    return $str.'<li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans('texts.delete_client').'</a></li></ul>
 							</div>';
             })
             ->make();
@@ -103,9 +109,13 @@ class ClientController extends BaseController
      *
      * @return Response
      */
-    public function store()
+    public function store(CreateClientRequest $request)
     {
-        return $this->save();
+        $client = $this->clientService->save($request->input());
+        
+        Session::flash('message', trans('texts.created_client'));
+        
+        return redirect()->to($client->getRoute());
     }
 
     /**
@@ -194,6 +204,7 @@ class ClientController extends BaseController
     private static function getViewModel()
     {
         return [
+            'data' => Input::old('data'),
             'account' => Auth::user()->account,
             'sizes' => Cache::get('sizes'),
             'paymentTerms' => Cache::get('paymentTerms'),
@@ -212,105 +223,20 @@ class ClientController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function update($publicId)
+    public function update(UpdateClientRequest $request)
     {
-        return $this->save($publicId);
-    }
-
-    private function save($publicId = null)
-    {
-        $rules = array(
-            'email' => 'email|required_without:first_name',
-            'first_name' => 'required_without:email',
-        );
-        $validator = Validator::make(Input::all(), $rules);
-
-        if ($validator->fails()) {
-            $url = $publicId ? 'clients/'.$publicId.'/edit' : 'clients/create';
-
-            return Redirect::to($url)
-                ->withErrors($validator)
-                ->withInput(Input::except('password'));
-        } else {
-            if ($publicId) {
-                $client = Client::scope($publicId)->firstOrFail();
-            } else {
-                $client = Client::createNew();
-            }
-
-            $client->name = trim(Input::get('name'));
-            $client->id_number = trim(Input::get('id_number'));
-            $client->vat_number = trim(Input::get('vat_number'));
-            $client->work_phone = trim(Input::get('work_phone'));
-            $client->custom_value1 = trim(Input::get('custom_value1'));
-            $client->custom_value2 = trim(Input::get('custom_value2'));
-            $client->address1 = trim(Input::get('address1'));
-            $client->address2 = trim(Input::get('address2'));
-            $client->city = trim(Input::get('city'));
-            $client->state = trim(Input::get('state'));
-            $client->postal_code = trim(Input::get('postal_code'));
-            $client->country_id = Input::get('country_id') ?: null;
-            $client->private_notes = trim(Input::get('private_notes'));
-            $client->size_id = Input::get('size_id') ?: null;
-            $client->industry_id = Input::get('industry_id') ?: null;
-            $client->currency_id = Input::get('currency_id') ?: null;
-            $client->language_id = Input::get('language_id') ?: null;
-            $client->payment_terms = Input::get('payment_terms') ?: 0;
-            $client->website = trim(Input::get('website'));
-
-            if (Input::has('invoice_number_counter')) {
-                $client->invoice_number_counter = (int) Input::get('invoice_number_counter');
-            }
-            if (Input::has('quote_number_counter')) {
-                $client->invoice_number_counter = (int) Input::get('quote_number_counter');
-            }
-
-            $client->save();
-
-            $data = json_decode(Input::get('data'));
-            $contactIds = [];
-            $isPrimary = true;
-
-            foreach ($data->contacts as $contact) {
-                if (isset($contact->public_id) && $contact->public_id) {
-                    $record = Contact::scope($contact->public_id)->firstOrFail();
-                } else {
-                    $record = Contact::createNew();
-                }
-
-                $record->email = trim($contact->email);
-                $record->first_name = trim($contact->first_name);
-                $record->last_name = trim($contact->last_name);
-                $record->phone = trim($contact->phone);
-                $record->is_primary = $isPrimary;
-                $isPrimary = false;
-
-                $client->contacts()->save($record);
-                $contactIds[] = $record->public_id;
-            }
-
-            foreach ($client->contacts as $contact) {
-                if (!in_array($contact->public_id, $contactIds)) {
-                    $contact->delete();
-                }
-            }
-
-            if ($publicId) {
-                Session::flash('message', trans('texts.updated_client'));
-            } else {
-                Activity::createClient($client);
-                Session::flash('message', trans('texts.created_client'));
-            }
-
-            return Redirect::to('clients/'.$client->public_id);
-        }
+        $client = $this->clientService->save($request->input());
+        
+        Session::flash('message', trans('texts.updated_client'));
+        
+        return redirect()->to($client->getRoute());
     }
 
     public function bulk()
     {
         $action = Input::get('action');
-        $ids = Input::get('id') ? Input::get('id') : Input::get('ids');
-        $count = $this->clientRepo->bulk($ids, $action);
+        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $count = $this->clientService->bulk($ids, $action);
 
         $message = Utils::pluralize($action.'d_client', $count);
         Session::flash('message', $message);

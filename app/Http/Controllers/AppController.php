@@ -189,6 +189,7 @@ class AppController extends BaseController
                 Artisan::call('db:seed', array('--force' => true, '--class' => 'PaymentLibrariesSeeder'));
                 Artisan::call('optimize', array('--force' => true));
                 Cache::flush();
+                Session::flush();
                 Event::fire(new UserSettingsChanged());
                 Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {

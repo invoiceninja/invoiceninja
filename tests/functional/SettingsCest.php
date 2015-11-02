@@ -112,6 +112,7 @@ class SettingsCest
         $I->seeRecord('products', array('product_key' => $productKey));
     }
 
+    /*
     public function updateNotifications(FunctionalTester $I)
     {
         $I->wantTo('update notification settings');
@@ -126,7 +127,8 @@ class SettingsCest
         $I->seeResponseCodeIs(200);
         $I->seeRecord('accounts', array('invoice_terms' => $terms));
     }
-
+    */
+    
     public function updateInvoiceDesign(FunctionalTester $I)
     {
         $I->wantTo('update invoice design');
@@ -231,7 +233,7 @@ class SettingsCest
             $I->see('Successfully created gateway');
             $I->seeRecord('account_gateways', array('gateway_id' => 23));
         } else {
-            $config = json_decode($gateway->config);
+            $config = $gateway->getConfig();
             $apiKey = $config->apiKey;
         }
 

@@ -5,8 +5,7 @@
 	{!! Former::open($entityType . 's/bulk')->addClass('listForm') !!}
 	<div style="display:none">
 		{!! Former::text('action') !!}
-		{!! Former::text('statusId') !!}
-		{!! Former::text('id') !!}
+		{!! Former::text('public_id') !!}
 	</div>
 
     @if ($entityType == ENTITY_TASK)
@@ -27,6 +26,7 @@
 		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" class="form-control pull-left" placeholder="{{ trans('texts.filter') }}"/>
         @if (Auth::user()->isPro() && $entityType == ENTITY_INVOICE)        
             {!! Button::normal(trans('texts.quotes'))->asLinkTo(URL::to('/quotes'))->appendIcon(Icon::create('list')) !!}
+            {!! Button::normal(trans('texts.recurring'))->asLinkTo(URL::to('/recurring_invoices'))->appendIcon(Icon::create('list')) !!}
         @elseif ($entityType == ENTITY_CLIENT)        
             {!! Button::normal(trans('texts.credits'))->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('list')) !!}
         @endif
@@ -34,14 +34,6 @@
         {!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->appendIcon(Icon::create('plus-sign')) !!}
         
 	</div>
-
-    @if (isset($secEntityType))
-		{!! Datatable::table()		
-	    	->addColumn($secColumns)
-	    	->setUrl(route('api.' . $secEntityType . 's'))    	
-	    	->setOptions('sPaginationType', 'bootstrap')
-	    	->render('datatable') !!}    
-	@endif	
 
 	{!! Datatable::table()		
     	->addColumn($columns)
@@ -66,37 +58,36 @@
 	}
 
 	function deleteEntity(id) {
-		$('#id').val(id);
+		$('#public_id').val(id);
 		submitForm('delete');
 	}
 
 	function archiveEntity(id) {
-		$('#id').val(id);
+		$('#public_id').val(id);
 		submitForm('archive');
 	}
 
     function restoreEntity(id) {
-        $('#id').val(id);
+        $('#public_id').val(id);
         submitForm('restore');
     }
     function convertEntity(id) {
-        $('#id').val(id);
+        $('#public_id').val(id);
         submitForm('convert');
     }
 
-	function markEntity(id, statusId) {
-		$('#id').val(id);
-		$('#statusId').val(statusId);
-		submitForm('mark');
+	function markEntity(id) {
+		$('#public_id').val(id);
+		submitForm('markSent');
 	}
 
     function stopTask(id) {
-        $('#id').val(id);
+        $('#public_id').val(id);
         submitForm('stop');
     }
 
     function invoiceTask(id) {
-        $('#id').val(id);
+        $('#public_id').val(id);
         submitForm('invoice');
     }
 
@@ -117,9 +108,6 @@
             }
             tableFilter = val;
             oTable0.fnFilter(val);
-            @if (isset($secEntityType))
-                oTable1.fnFilter(val);
-            @endif
         }
 
         $('#tableFilter').on('keyup', function(){

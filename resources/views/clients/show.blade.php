@@ -25,7 +25,7 @@
 		{!! Former::open('clients/bulk')->addClass('mainForm') !!}
 		<div style="display:none">
 			{!! Former::text('action') !!}
-			{!! Former::text('id')->value($client->public_id) !!}
+			{!! Former::text('public_id')->value($client->public_id) !!}
 		</div>
 
         @if ($gatewayLink)

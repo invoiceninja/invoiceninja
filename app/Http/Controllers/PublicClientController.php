@@ -8,16 +8,18 @@ use Datatable;
 use App\Models\Invitation;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
+use App\Ninja\Repositories\ActivityRepository;
 
 class PublicClientController extends BaseController
 {
     private $invoiceRepo;
     private $paymentRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo)
+    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo)
     {
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
+        $this->activityRepo = $activityRepo;
     }
 
     public function dashboard()
@@ -47,15 +49,22 @@ class PublicClientController extends BaseController
         }
         $invoice = $invitation->invoice;
 
-        $query = DB::table('activities')
-                    ->join('clients', 'clients.id', '=', 'activities.client_id')
-                    ->where('activities.client_id', '=', $invoice->client_id)
-                    ->where('activities.adjustment', '!=', 0)
-                    ->select('activities.id', 'activities.message', 'activities.created_at', 'clients.currency_id', 'activities.balance', 'activities.adjustment');
+        $query = $this->activityRepo->findByClientId($invoice->client_id);
+        $query->where('activities.adjustment', '!=', 0);
 
         return Datatable::query($query)
             ->addColumn('activities.id', function ($model) { return Utils::timestampToDateTimeString(strtotime($model->created_at)); })
-            ->addColumn('message', function ($model) { return strip_tags(Utils::decodeActivity($model->message)); })
+            ->addColumn('message', function ($model) {
+                $data = [
+                    'client' => Utils::getClientDisplayName($model),
+                    'user' => $model->is_system ? ('<i>' . trans('texts.system') . '</i>') : ($model->user_first_name . ' ' . $model->user_last_name), 
+                    'invoice' => trans('texts.invoice') . ' ' . $model->invoice,
+                    'contact' => Utils::getClientDisplayName($model),
+                    'payment' => trans('texts.payment') . ($model->payment ? ' ' . $model->payment : ''),
+                ];
+
+                return trans("texts.activity_{$model->activity_type_id}", $data);
+             })
             ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id); })
             ->addColumn('adjustment', function ($model) { return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id) : ''; })
             ->make();

@@ -89,16 +89,16 @@
             @if (Input::get('new_company') && Utils::allowNewAccounts())
                 <center><p>- {{ trans('texts.or') }} -</p></center>
                 <p>{!! Button::primary(trans('texts.new_company'))->asLinkTo(URL::to('/invoice_now?new_company=true&sign_up=true'))->large()->submit()->block() !!}</p><br/>
-            @elseif (Utils::isNinja())
+            @elseif (Utils::isOAuthEnabled())
                 <center><p>- {{ trans('texts.or') }} -</p></center>
                 <div class="row">
                 @foreach (App\Services\AuthService::$providers as $provider)
                     <div class="col-md-6">
-                    <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-block social-login-button" id="{{ strtolower($provider) }}LoginButton">
-                        <i class="fa fa-{{ strtolower($provider) }}"></i> &nbsp;
-                        {{ $provider }}
-                    </a><br/>
-                </div>
+                        <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-block social-login-button" id="{{ strtolower($provider) }}LoginButton">
+                            <i class="fa fa-{{ strtolower($provider) }}"></i> &nbsp;
+                            {{ $provider }}
+                        </a><br/>
+                    </div>
                 @endforeach
                 </div>
             @endif

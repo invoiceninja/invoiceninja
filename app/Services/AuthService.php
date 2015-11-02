@@ -25,6 +25,13 @@ class AuthService
         $this->accountRepo = $repo;
     }
 
+    public static function getProviders()
+    {
+        $providers = [];
+
+        
+    }
+
     public function execute($provider, $hasCode)
     {
         if (!$hasCode) {
@@ -46,7 +53,8 @@ class AuthService
             if ($result === true) {
                 if (!$isRegistered) {
                     event(new UserSignedUp());
-                    Session::flash('message', trans('texts.success_message'));
+                    Session::flash('warning', trans('texts.success_message'));
+                    Session::flash('onReady', 'handleSignedUp();');
                 } else {
                     Session::flash('message', trans('texts.updated_settings'));
                     return redirect()->to('/settings/' . ACCOUNT_USER_DETAILS);

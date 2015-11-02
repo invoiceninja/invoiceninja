@@ -19,7 +19,7 @@
 		"anahkiasen/former": "4.0.*@dev",
 		"barryvdh/laravel-debugbar": "~2.0.2",
 		"chumper/datatable": "dev-develop#7fa47cb",
-		"omnipay/omnipay": "2.3.x",
+		"omnipay/omnipay": "~2.3.0",
 		"intervention/image": "dev-master",
 		"webpatser/laravel-countries": "dev-master",
 		"barryvdh/laravel-ide-helper": "2.0.x",
@@ -39,7 +39,8 @@
         "wildbit/laravel-postmark-provider": "dev-master",
         "Dwolla/omnipay-dwolla": "dev-master",
         "laravel/socialite": "~2.0",
-        "simshaun/recurr": "dev-master"
+        "simshaun/recurr": "dev-master",
+		"league/fractal": "0.13.*"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

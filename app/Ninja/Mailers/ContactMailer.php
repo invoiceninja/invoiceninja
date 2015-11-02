@@ -9,7 +9,9 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Activity;
 use App\Models\Gateway;
-use App\Events\InvoiceSent;
+
+use App\Events\InvoiceWasEmailed;
+use App\Events\QuoteWasEmailed;
 
 class ContactMailer extends Mailer
 {
@@ -44,7 +46,11 @@ class ContactMailer extends Mailer
         $account->loadLocalizationSettings();
 
         if ($sent === true) {
-            Event::fire(new InvoiceSent($invoice));
+            if ($invoice->is_quote) {
+                event(new QuoteWasEmailed($invoice));
+            } else {
+                event(new InvoiceWasEmailed($invoice));
+            }
         }
 
         return $sent ?: trans('texts.email_error');
@@ -94,10 +100,10 @@ class ContactMailer extends Mailer
 
         $subject = $this->processVariables($subject, $variables);
         $fromEmail = $user->email;
+        
         $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, ENTITY_INVOICE, $data);
 
         if ($response === true) {
-            Activity::emailInvoice($invitation);
             return true;
         } else {
             return false;
