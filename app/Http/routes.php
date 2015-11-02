@@ -186,10 +186,11 @@ Route::group(['middleware' => 'auth'], function() {
     get('/resend_confirmation', 'AccountController@resendConfirmation');
 });
 
-// Route group for API
+// Route groups for API
 Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
     Route::resource('ping', 'ClientApiController@ping');
+    Route::post('login', 'AccountApiController@login');
     Route::get('accounts', 'AccountApiController@index');
     Route::resource('clients', 'ClientApiController');
     Route::get('quotes/{client_id?}', 'QuoteApiController@index');

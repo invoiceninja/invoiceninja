@@ -7,7 +7,7 @@ use Input;
 use App\Models\Client;
 use App\Models\Account;
 use App\Ninja\Repositories\AccountRepository;
-
+use Illuminate\Http\Request;
 use League\Fractal;
 use League\Fractal\Resource\Item;
 use League\Fractal\Manager;
@@ -21,6 +21,19 @@ class AccountApiController extends Controller
     public function __construct(AccountRepository $accountRepo)
     {
         $this->accountRepo = $accountRepo;
+    }
+
+    public function login(Request $request)
+    {
+        if ( ! env(API_SECRET) || $request->api_secret !== env(API_SECRET)) {
+            return 'Invalid secret';
+        }
+
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            return $this->accountRepo->createToken($request->token_name);
+        } else {
+            return 'Invalid credentials';
+        }
     }
 
     public function index()

@@ -98,13 +98,6 @@ class AuthController extends Controller {
                 $users = $this->accountRepo->loadAccounts(Auth::user()->id);
             }
             Session::put(SESSION_USER_ACCOUNTS, $users);
-
-            if ($request->create_token) {
-                if ( ! env(API_SECRET) || $request->api_secret !== env(API_SECRET)) {
-                    return 'Invalid secret';
-                }
-                return $this->accountRepo->createToken($request->token_name);
-            }
         } elseif ($user) {
             $user->failed_logins = $user->failed_logins + 1;
             $user->save();

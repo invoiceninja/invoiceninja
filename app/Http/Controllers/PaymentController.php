@@ -528,7 +528,7 @@ class PaymentController extends BaseController
             if (method_exists($gateway, 'completePurchase') && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)) {
                 $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
                 $response = $gateway->completePurchase($details)->send();
-                $ref = $response->getTransactionReference();
+                $ref = $response->getTransactionReference() ?: $token;
 
                 if ($response->isSuccessful()) {
                     $payment = $this->paymentService->createPayment($invitation, $ref, $payerId);
