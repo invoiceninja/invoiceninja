@@ -7,6 +7,7 @@ class VerifyCsrfToken extends BaseVerifier {
 
     private $openRoutes = [
         'signup/register',
+        'api/v1/login',
         'api/v1/clients',
         'api/v1/invoices',
         'api/v1/quotes',
@@ -32,12 +33,6 @@ class VerifyCsrfToken extends BaseVerifier {
           if ($request->is($route)) {
             return $next($request);
           }
-        }
-
-        if ($request->is('login')) {
-            if (env(API_SECRET) && $request->api_secret === env(API_SECRET)) {
-                return $next($request);
-            }
         }
 
 		return parent::handle($request, $next);
