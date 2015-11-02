@@ -75,11 +75,6 @@ class AuthController extends Controller {
 
     public function postLoginWrapper(Request $request)
     {
-        /** If request is from API*/
-        if($request->api_secret)
-        {
-            return $this->postLoginWrapperAPI($request);
-        }
 
         $userId = Auth::check() ? Auth::user()->id : null;
         $user = User::where('email', '=', $request->input('email'))->first();
@@ -105,32 +100,12 @@ class AuthController extends Controller {
             }
             Session::put(SESSION_USER_ACCOUNTS, $users);
 
-
         } elseif ($user) {
             $user->failed_logins = $user->failed_logins + 1;
             $user->save();
         }
 
         return $response;
-    }
-
-    private function postLoginWrapperAPI(Request $request)
-    {
-        /**Auth check*/
-
-        /**Success*/
-            /* send back user object along with account token if it exists,
-            create token only if it does not exist*/
-
-        /**Failure*/
-            /* return json with failure message */
-
-        if ($request->create_token) {
-            if ( ! env(API_SECRET) || $request->api_secret !== env(API_SECRET)) {
-                return 'Invalid secret';
-            }
-            return $this->accountRepo->createToken($request->token_name);
-        }
     }
 
 

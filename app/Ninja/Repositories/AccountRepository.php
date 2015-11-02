@@ -459,8 +459,14 @@ class AccountRepository
 
     public function createToken($name)
     {
+        $name = trim($name) ?: 'TOKEN';
+
+        if ($token = AccountToken::scope()->whereName($name)->first()) {
+            return $token->token;
+        }
+
         $token = AccountToken::createNew();
-        $token->name = trim($name) ?: 'TOKEN';
+        $token->name = $name;
         $token->token = str_random(RANDOM_KEY_LENGTH);
         $token->save();
 

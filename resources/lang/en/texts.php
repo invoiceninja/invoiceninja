@@ -891,4 +891,5 @@ return array(
     'quote_footer' => 'Quote Footer',
     'free' => 'Free',
     
+	'quote_is_approved' => 'This quote is approved',
 );

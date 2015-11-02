@@ -157,7 +157,7 @@ class QuoteController extends BaseController
         $invoice = $invitation->invoice;
 
         $invitationKey = $this->invoiceService->approveQuote($invoice, $invitation);
-        Session::flash('message', trans('texts.converted_to_invoice'));
+        Session::flash('message', trans('texts.quote_is_approved'));
 
         return Redirect::to("view/{$invitationKey}");
     }

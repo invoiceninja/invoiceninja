@@ -182,7 +182,9 @@ class PaymentController extends BaseController
 
         // Handle offsite payments
         if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD 
-            || $gateway->id == GATEWAY_EWAY || $gateway->id == GATEWAY_TWO_CHECKOUT) {
+            || $gateway->id == GATEWAY_EWAY 
+            || $gateway->id == GATEWAY_TWO_CHECKOUT
+            || $gateway->id == GATEWAY_PAYFAST) {
             if (Session::has('error')) {
                 Session::reflash();
                 return Redirect::to('view/'.$invitationKey);
@@ -449,6 +451,8 @@ class PaymentController extends BaseController
                 $ref = $response->getData()['AccessCode'];
             } elseif ($accountGateway->gateway_id == GATEWAY_TWO_CHECKOUT) {
                 $ref = $response->getData()['cart_order_id'];
+            } elseif ($accountGateway->gateway_id == GATEWAY_PAYFAST) {
+                $ref = $response->getData()['m_payment_id'];
             } else {
                 $ref = $response->getTransactionReference();
             }
@@ -524,7 +528,7 @@ class PaymentController extends BaseController
             if (method_exists($gateway, 'completePurchase') && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)) {
                 $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
                 $response = $gateway->completePurchase($details)->send();
-                $ref = $response->getTransactionReference();
+                $ref = $response->getTransactionReference() ?: $token;
 
                 if ($response->isSuccessful()) {
                     $payment = $this->paymentService->createPayment($invitation, $ref, $payerId);

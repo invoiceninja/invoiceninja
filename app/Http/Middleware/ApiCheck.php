@@ -21,33 +21,38 @@ class ApiCheck {
     */
     public function handle($request, Closure $next)
     {
+        $loggingIn = $request->is('api/v1/login');
         $headers = Utils::getApiHeaders();
 
-        // check for a valid token
-        $token = AccountToken::where('token', '=', Request::header('X-Ninja-Token'))->first(['id', 'user_id']);
-
-        if ($token) {
-            Auth::loginUsingId($token->user_id);
-            Session::set('token_id', $token->id);
+        if ($loggingIn) {
+            // do nothing
         } else {
-            sleep(3);
-            return Response::make('Invalid token', 403, $headers);
+            // check for a valid token
+            $token = AccountToken::where('token', '=', Request::header('X-Ninja-Token'))->first(['id', 'user_id']);
+
+            if ($token) {
+                Auth::loginUsingId($token->user_id);
+                Session::set('token_id', $token->id);
+            } else {
+                sleep(3);
+                return Response::make('Invalid token', 403, $headers);
+            }
         }
 
-        if (!Utils::isNinja()) {
+        if (!Utils::isNinja() && !$loggingIn) {
             return $next($request);
         }
 
-        if (!Utils::isPro()) {
+        if (!Utils::isPro() && !$loggingIn) {
             return Response::make('API requires pro plan', 403, $headers);
         } else {
-            $accountId = Auth::user()->account->id;
+            $key = Auth::check() ? Auth::user()->account->id : $request->getClientIp();
 
             // http://stackoverflow.com/questions/1375501/how-do-i-throttle-my-sites-api-users
             $hour = 60 * 60;
             $hour_limit = 100; # users are limited to 100 requests/hour
-            $hour_throttle = Cache::get("hour_throttle:{$accountId}", null);
-            $last_api_request = Cache::get("last_api_request:{$accountId}", 0);
+            $hour_throttle = Cache::get("hour_throttle:{$key}", null);
+            $last_api_request = Cache::get("last_api_request:{$key}", 0);
             $last_api_diff = time() - $last_api_request;
             
             if (is_null($hour_throttle)) {
@@ -66,10 +71,9 @@ class ApiCheck {
                 return Response::make("Please wait {$wait} second(s)", 403, $headers);
             }
 
-            Cache::put("hour_throttle:{$accountId}", $new_hour_throttle, 10);
-            Cache::put("last_api_request:{$accountId}", time(), 10);
+            Cache::put("hour_throttle:{$key}", $new_hour_throttle, 10);
+            Cache::put("last_api_request:{$key}", time(), 10);
         }
-
 
         return $next($request);
     }

@@ -46,9 +46,14 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->is_recurring ? trans('texts.recurring') : $this->invoice_number; 
     }
 
+    public function affectsBalance()
+    {
+        return !$this->is_quote && !$this->is_recurring;
+    }
+
     public function getAdjustment()
     {
-        if ($this->is_quote || $this->is_recurring) {
+        if (!$this->affectsBalance()) {
             return 0;
         }
 

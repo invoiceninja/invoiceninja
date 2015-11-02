@@ -186,10 +186,11 @@ Route::group(['middleware' => 'auth'], function() {
     get('/resend_confirmation', 'AccountController@resendConfirmation');
 });
 
-// Route group for API
+// Route groups for API
 Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
     Route::resource('ping', 'ClientApiController@ping');
+    Route::post('login', 'AccountApiController@login');
     Route::get('accounts', 'AccountApiController@index');
     Route::resource('clients', 'ClientApiController');
     Route::get('quotes/{client_id?}', 'QuoteApiController@index');
@@ -382,6 +383,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_AUTHORIZE_NET', 1);
     define('GATEWAY_EWAY', 4);
     define('GATEWAY_AUTHORIZE_NET_SIM', 2);
+    define('GATEWAY_PAYFAST', 13);
     define('GATEWAY_PAYPAL_EXPRESS', 17);
     define('GATEWAY_PAYPAL_PRO', 18);
     define('GATEWAY_STRIPE', 23);
@@ -405,7 +407,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.4.4');
+    define('NINJA_VERSION', '2.4.5');
     define('NINJA_DATE', '2000-01-01');
 
     define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');

@@ -106,11 +106,13 @@ class ActivityListener
 
     public function deletedInvoice(InvoiceWasDeleted $event)
     {
+        $invoice = $event->invoice;
+
         $this->activityRepo->create(
-            $event->invoice,
+            $invoice,
             ACTIVITY_TYPE_DELETE_INVOICE,
-            $event->invoice->balance * -1,
-            $event->invoice->getAmountPaid() * -1
+            $invoice->affectsBalance() ? $invoice->balance * -1 : 0,
+            $invoice->affectsBalance() ? $invoice->getAmountPaid() * -1 : 0
         );
     }
 
@@ -128,11 +130,13 @@ class ActivityListener
 
     public function restoredInvoice(InvoiceWasRestored $event)
     {
+        $invoice = $event->invoice;
+
         $this->activityRepo->create(
-            $event->invoice,
+            $invoice,
             ACTIVITY_TYPE_RESTORE_INVOICE,
-            $event->fromDeleted ? $event->invoice->balance : 0,
-            $event->fromDeleted ? $event->invoice->getAmountPaid() : 0
+            $invoice->affectsBalance() && $event->fromDeleted ? $invoice->balance : 0,
+            $invoice->affectsBalance() && $event->fromDeleted ? $invoice->getAmountPaid() : 0
         );
     }
 
