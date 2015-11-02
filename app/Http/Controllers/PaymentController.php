@@ -524,6 +524,11 @@ class PaymentController extends BaseController
             return Redirect::to($invitation->getLink());
         }
 
+        // PayFast transaction referencce
+        if ($accountGateway->isGateway(GATEWAY_PAYFAST) && Request::has('pt')) {
+            $token = Request::query('pt');
+        }
+
         try {
             if (method_exists($gateway, 'completePurchase') && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)) {
                 $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
@@ -592,19 +597,11 @@ class PaymentController extends BaseController
 
     private function error($type, $error, $accountGateway, $exception = false)
     {
-        if (!$error) {
-            if ($exception) {
-                $error = $exception->getMessage();
-            } else {
-                $error = trans('texts.payment_error');
-            }
-        }
-
         $message = '';
         if ($accountGateway && $accountGateway->gateway) {
             $message = $accountGateway->gateway->name . ': ';
         }
-        $message .= $error;
+        $message .= $error ?: trans('texts.payment_error');
 
         Session::flash('error', $message);
         Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message));

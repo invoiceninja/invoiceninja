@@ -235,6 +235,9 @@ class InvoiceRepository extends BaseRepository
                 $entityType = ENTITY_QUOTE;
             }
             $invoice = $account->createInvoice($entityType, $data['client_id']);
+            if (isset($data['has_tasks']) && $data['has_tasks']) {
+                $invoice->has_tasks = true;
+            }
         } else {
             $invoice = Invoice::scope($publicId)->firstOrFail();
         }
@@ -258,8 +261,7 @@ class InvoiceRepository extends BaseRepository
         $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
         $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
         $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
-        $invoice->has_tasks = isset($data['has_tasks']) ? ($data['has_tasks'] ? true : false) : false;
-        
+
         if ($invoice->is_recurring) {
             if ($invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
                 $invoice->last_sent_date = null;

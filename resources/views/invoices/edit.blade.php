@@ -760,7 +760,7 @@
 		@endif
 		
 		$('#clientModal').on('shown.bs.modal', function () {
-			$('#name').focus();
+            $('#client\\[name\\]').focus();
 		}).on('hidden.bs.modal', function () {
 			if (model.clientBackup) {
 				model.loadClient(model.clientBackup);
