@@ -32,7 +32,6 @@ class AccountApiController extends Controller
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             return $this->processLogin($request);
-            //return $this->accountRepo->createToken($request->token_name);
         } else {
             return 'Invalid credentials';
         }
@@ -55,13 +54,9 @@ class AccountApiController extends Controller
 
     private function processLogin(Request $request)
     {
-        \Log::info('authed user = '.Auth::user()->email);
 
         //Create a new token only if one does not already exist
-        if(!AccountToken::where('user_id', '=', Auth::user()->id)->firstOrFail())
-        {
-            $account_token = $this->accountRepo->createToken($request->token_name);
-        }
+        $this->accountRepo->createToken('ios_api_token');
 
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());

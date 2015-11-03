@@ -462,7 +462,7 @@ class AccountRepository
         $name = trim($name) ?: 'TOKEN';
 
         if ($token = AccountToken::scope()->whereName($name)->first()) {
-            return $token->token;
+            return $token;
         }
 
         $token = AccountToken::createNew();
