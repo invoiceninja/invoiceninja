@@ -6,6 +6,7 @@ use Response;
 use Input;
 use App\Models\Client;
 use App\Models\Account;
+use App\Models\AccountToken;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Http\Request;
 use League\Fractal;
@@ -54,7 +55,25 @@ class AccountApiController extends Controller
 
     private function processLogin(Request $request)
     {
+        \Log::info('authed user = '.Auth::user()->email);
 
+        //Create a new token only if one does not already exist
+        if(!AccountToken::where('user_id', '=', Auth::user()->id)->firstOrFail())
+        {
+            $account_token = $this->accountRepo->createToken($request->token_name);
+        }
+
+        $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
+
+        $account = Auth::user()->account->load('users','tokens');
+        $resource = new Item($account, new AccountTransformer, 'account');
+
+        $response = $manager->createData($resource)->toArray();
+        $response = json_encode($response, JSON_PRETTY_PRINT);
+        $headers = Utils::getApiHeaders();
+
+        return Response::make($response, 200, $headers);
     }
 
 
