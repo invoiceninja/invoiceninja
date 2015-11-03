@@ -16,7 +16,7 @@ class AccountTransformer extends TransformerAbstract
     {
         $account_token = AccountToken::whereAccountId($account->id)->whereName('ios_api_token')->first();
 
-        return $this->collection($account_token, new AccountTokenTransformer);
+        return $this->Item($account_token, new AccountTokenTransformer);
 
     }
     public function includeUsers($account)
