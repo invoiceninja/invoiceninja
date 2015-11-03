@@ -6,6 +6,7 @@ use Response;
 use Input;
 use App\Models\Client;
 use App\Models\Account;
+use App\Models\AccountToken;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Http\Request;
 use League\Fractal;
@@ -30,7 +31,7 @@ class AccountApiController extends Controller
         }
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            return $this->accountRepo->createToken($request->token_name);
+            return $this->processLogin($request);
         } else {
             return 'Invalid credentials';
         }
@@ -50,4 +51,25 @@ class AccountApiController extends Controller
 
         return Response::make($response, 200, $headers);
     }
+
+    private function processLogin(Request $request)
+    {
+
+        //Create a new token only if one does not already exist
+        $this->accountRepo->createToken('ios_api_token');
+
+        $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
+
+        $account = Auth::user()->account->load('users','tokens');
+        $resource = new Item($account, new AccountTransformer, 'account');
+
+        $response = $manager->createData($resource)->toArray();
+        $response = json_encode($response, JSON_PRETTY_PRINT);
+        $headers = Utils::getApiHeaders();
+
+        return Response::make($response, 200, $headers);
+    }
+
+
 }
