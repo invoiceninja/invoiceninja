@@ -9,21 +9,17 @@ class AccountTransformer extends TransformerAbstract
 {
     protected $defaultIncludes = [
         'users',
-        'account_tokens'
+        'clients',
     ];
 
-    public function includeAccountTokens($account)
-    {
-        $account_token = AccountToken::whereAccountId($account->id)->whereName('ios_api_token')->first();
-
-        return $this->Item($account_token, new AccountTokenTransformer);
-
-    }
     public function includeUsers($account)
     {
-        $users = $account->users;
+        return $this->collection($account->users, new UserTransformer);
+    }
 
-        return $this->collection($users, new UserTransformer);
+    public function includeClients($account)
+    {
+        return $this->collection($account->clients, new ClientTransformer);
     }
 
     public function transform(Account $account)
