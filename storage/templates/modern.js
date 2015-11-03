@@ -230,8 +230,14 @@
             },
             "invoiceNumber": {
                 "bold": true
+            },
+            "header": {
+                "fontSize": "$fontSizeLargest",
+                "bold": true
+            },
+            "subheader": {
+                "fontSize": "$fontSizeLarger"
             }
-
         },
         "pageMargins": [40, 80, 40, 50]
     }

@@ -239,6 +239,13 @@
             "termsLabel": {
                 "bold": true,
                 "margin": [0, 0, 0, 4]
+            },
+            "header": {
+                "fontSize": "$fontSizeLargest",
+                "bold": true
+            },
+            "subheader": {
+                "fontSize": "$fontSizeLarger"
             }
         },
         "pageMargins": [0, 80, 0, 40]

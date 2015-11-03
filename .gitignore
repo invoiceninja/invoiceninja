@@ -18,7 +18,6 @@ Thumbs.db
 /.env
 /.env.development.php
 /.env.php
-/composer.lock
 
 /error_log
 /auth.json
