@@ -192,6 +192,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('ping', 'ClientApiController@ping');
     Route::post('login', 'AccountApiController@login');
     Route::get('accounts', 'AccountApiController@index');
+    Route::get('accounts/{account_key}', 'AccountApiController@show');
     Route::resource('clients', 'ClientApiController');
     Route::get('quotes/{client_id?}', 'QuoteApiController@index');
     Route::resource('quotes', 'QuoteApiController');
@@ -331,6 +332,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('MAX_NUM_CLIENTS_PRO', 20000);
     define('MAX_NUM_CLIENTS_LEGACY', 500);
     define('LEGACY_CUTOFF', 57800);
+    define('ERROR_DELAY', 3);
 
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);

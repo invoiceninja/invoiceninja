@@ -41,7 +41,7 @@ class Account extends Eloquent
         'invoice_settings' => 'object',
     ];
     */
-    public function tokens()
+    public function account_tokens()
     {
         return $this->hasMany('App\Models\AccountToken');
     }
