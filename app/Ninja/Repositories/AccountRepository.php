@@ -462,7 +462,7 @@ class AccountRepository
         $name = trim($name) ?: 'TOKEN';
 
         if ($token = AccountToken::scope()->whereName($name)->first()) {
-            return $token->token;
+            return $token;
         }
 
         $token = AccountToken::createNew();
@@ -470,6 +470,6 @@ class AccountRepository
         $token->token = str_random(RANDOM_KEY_LENGTH);
         $token->save();
 
-        return $token->token;
+        return $token;
     }
 }
