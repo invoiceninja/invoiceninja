@@ -104,6 +104,7 @@ function GetPdfMake(invoice, javascript, callback) {
     doc.save = function(fileName) {
         this.download(fileName);
     };
+    
     return doc;
 }
 

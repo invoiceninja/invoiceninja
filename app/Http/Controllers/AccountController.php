@@ -859,8 +859,10 @@ class AccountController extends BaseController
                 $mimeType = $file->getMimeType();
 
                 if ($mimeType == 'image/jpeg') {
+                    $path = 'logo/' . $account->account_key . '.jpg';
                     $file->move('logo/', $account->account_key . '.jpg');
                 } else if ($mimeType == 'image/png') {
+                    $path = 'logo/' . $account->account_key . '.png';
                     $file->move('logo/', $account->account_key . '.png');
                 } else {
                     if (extension_loaded('fileinfo')) {
@@ -868,11 +870,19 @@ class AccountController extends BaseController
                         $image->resize(200, 120, function ($constraint) {
                             $constraint->aspectRatio();
                         });
+                        $path = 'logo/'.$account->account_key.'.jpg';
                         Image::canvas($image->width(), $image->height(), '#FFFFFF')
-                            ->insert($image)->save('logo/'.$account->account_key.'.jpg');
+                            ->insert($image)->save($path);
                     } else {
                         Session::flash('warning', 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.');
                     }
+                }
+
+                // make sure image isn't interlaced
+                if (extension_loaded('fileinfo')) {
+                    $img = Image::make($path);
+                    $img->interlace(false);
+                    $img->save();
                 }
             }
 
