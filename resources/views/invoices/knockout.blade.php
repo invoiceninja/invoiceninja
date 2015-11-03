@@ -118,8 +118,8 @@ function ViewModel(data) {
         trackEvent('/activity', '/view_client_form');
         self.clientBackup = ko.mapping.toJS(self.invoice().client);
 
-        $('#emailError').css( "display", "none" );          
-        $('#clientModal').modal('show');            
+        $('#emailError').css( "display", "none" );
+        $('#clientModal').modal('show');
     }
 
     self.clientFormComplete = function() {
@@ -228,7 +228,7 @@ function InvoiceModel(data) {
     self.balance = ko.observable(0);
     self.invoice_design_id = ko.observable(1);
     self.partial = ko.observable(0);
-    self.has_tasks = ko.observable(false);
+    self.has_tasks = ko.observable();
 
     self.custom_value1 = ko.observable(0);
     self.custom_value2 = ko.observable(0);
