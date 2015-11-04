@@ -3,6 +3,9 @@
 @section('head')
     @parent
 
+    <link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
+
     <style type="text/css">
         textarea {
             min-height: 150px !important;
@@ -14,6 +17,7 @@
 @section('content')
     @parent
     @include('accounts.nav', ['selected' => ACCOUNT_TEMPLATES_AND_REMINDERS, 'advanced' => true])
+
 
     {!! Former::vertical_open()->addClass('warn-on-exit') !!}
     {!! Former::populate($account) !!}

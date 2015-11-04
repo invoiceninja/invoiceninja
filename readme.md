@@ -11,7 +11,7 @@ If you'd like to use our code to sell your own invoicing app email us for detail
 
 ### Installation Options
 * [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
-* [Docker File](https://github.com/rollbrettler/Dockerfiles/blob/master/invoice-ninja/Dockerfile) - Free
+* [Docker File](https://github.com/lalop/invoice-ninja-docker/blob/master/Dockerfile) - Free
 * [Bitnami](https://bitnami.com/stack/invoice-ninja) - Free
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja) - $30
 
@@ -79,3 +79,4 @@ If you'd like to use our code to sell your own invoicing app email us for detail
 * [lokesh/lightbox2](https://github.com/lokesh/lightbox2/) - The original lightbox script
 * [josdejong/jsoneditor](https://github.com/josdejong/jsoneditor/) - A web-based tool to view, edit and format JSON
 * [simshaun/recurr](https://github.com/simshaun/recurr) - PHP library for working with recurrence rules
+* [quilljs/quill](https://github.com/quilljs/quill/) - A cross browser rich text editor with an API

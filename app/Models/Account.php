@@ -601,13 +601,13 @@ class Account extends Eloquent
 
     public function getDefaultEmailTemplate($entityType, $message = false)
     {
-        if (strpos($entityType, 'reminder') >= 0) {
+        if (strpos($entityType, 'reminder') !== false) {
             $entityType = ENTITY_INVOICE;
         }
 
-        $template = "\$client,<p/>\r\n\r\n" .
-                    trans("texts.{$entityType}_message", ['amount' => '$amount']) . "<p/>\r\n\r\n" .
-                    "<a href=\"\$link\">\$link</a><p/>\r\n\r\n";
+        $template = "<div>\$client,</div><br/>" .
+                    "<div>" . trans("texts.{$entityType}_message", ['amount' => '$amount']) . "</div><br/>" .
+                    "<div><a href=\"\$link\">\$link</a></div><br/>";
 
         if ($message) {
             $template .= "$message<p/>\r\n\r\n";

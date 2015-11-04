@@ -13,10 +13,10 @@
         @endif
         <div class="row">
             <div class="col-md-6">
+                <div class="pull-right"><a href="#" onclick="return resetText('{{ 'subject' }}', '{{ $field }}')">{{ trans("texts.reset") }}</a></div>
                 {!! Former::text('email_subject_' . $field)
                         ->label(trans('texts.subject'))
                         ->addClass('enable-' . $field) !!}
-                <div class="pull-right"><a href="#" onclick="return resetText('{{ 'subject' }}', '{{ $field }}')">{{ trans("texts.reset") }}</a></div>
             </div>
         <div class="col-md-6">
             <p>&nbsp;<p/>
@@ -24,16 +24,47 @@
             </div>
         </div>
         <div class="row">
+            <br/>
             <div class="col-md-6">
+                <div class="pull-right"><a href="#" onclick="return resetText('{{ 'template' }}', '{{ $field }}')">{{ trans("texts.reset") }}</a></div>
                 {!! Former::textarea('email_template_' . $field)
                         ->label(trans('texts.body'))
-                        ->addClass('enable-' . $field) !!}
-                <div class="pull-right"><a href="#" onclick="return resetText('{{ 'template' }}', '{{ $field }}')">{{ trans("texts.reset") }}</a></div>
+                        ->addClass('enable-' . $field)
+                        ->style('display:none') !!}
+                <div id="{{ $field }}Editor" class="form-control enable-{{ $field }}" style="min-height:160px">
+                </div>
             </div>
             <div class="col-md-6">
                 <p>&nbsp;<p/>
                 <div id="{{ $field }}_template_preview"></div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <p>&nbsp;<p/>
+                @include('partials/quill_toolbar', ['name' => $field])
+            </div>
+        </div>
     </div>
 </div>
+
+    <script type="text/javascript">
+        $(function() {
+            var {{ $field }}Editor = new Quill('#{{ $field }}Editor', {
+              modules: {
+                'toolbar': { container: '#{{ $field }}Toolbar' },
+                'link-tooltip': true
+              },
+              theme: 'snow'
+            });
+            {{ $field }}Editor.setHTML($('#email_template_{{ $field }}').val());
+            {{ $field }}Editor.on('text-change', function(delta, source) {
+                  if (source == 'api') {
+                    return;
+                  }
+                  var html = {{ $field }}Editor.getHTML();
+                  $('#email_template_{{ $field }}').val(html);
+                  refreshPreview();
+                });
+        });
+    </script>
