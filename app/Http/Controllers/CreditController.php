@@ -4,6 +4,7 @@ use Datatable;
 use Input;
 use Redirect;
 use Session;
+use URL;
 use Utils;
 use View;
 use Validator;
@@ -67,7 +68,9 @@ class CreditController extends BaseController
                             <ul class="dropdown-menu" role="menu">';
 
                 if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
-                    $str .= '<li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans('texts.archive_credit').'</a></li>';
+                    $str .= '<li><a href="'.URL::to('payments/create/'.$model->client_public_id).'?paymentTypeId=1">'.trans('texts.apply_credit').'</a></li>
+                             <li class="divider"></li>
+                             <li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans('texts.archive_credit').'</a></li>';
                 } else {
                     $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans('texts.restore_credit').'</a></li>';
                 }

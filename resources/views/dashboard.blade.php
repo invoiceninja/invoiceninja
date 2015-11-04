@@ -198,8 +198,8 @@
                         <thead>
                             <th>{{ trans('texts.quote_number_short') }}</th>
                             <th>{{ trans('texts.client') }}</th>
-                            <th>{{ trans('texts.due_date') }}</th>
-                            <th>{{ trans('texts.balance_due') }}</th>
+                            <th>{{ trans('texts.valid_until') }}</th>
+                            <th>{{ trans('texts.amount') }}</th>
                         </thead>
                         <tbody>
                             @foreach ($upcoming as $invoice)
@@ -229,8 +229,8 @@
                         <thead>
                             <th>{{ trans('texts.quote_number_short') }}</th>
                             <th>{{ trans('texts.client') }}</th>
-                            <th>{{ trans('texts.due_date') }}</th>
-                            <th>{{ trans('texts.balance_due') }}</th>
+                            <th>{{ trans('texts.valid_until') }}</th>
+                            <th>{{ trans('texts.amount') }}</th>
                         </thead>
                         <tbody>
                             @foreach ($pastDue as $invoice)

@@ -76,6 +76,8 @@ return array(
     "notmasked" => "De waarden zijn verborgen",
     "less_than" => 'Het :attribute moet minder zijn dan :value',
     "has_counter" => 'The value must contain {$counter}',
+    "valid_contacts" => "All of the contacts must have either an email or name",
+    "valid_invoice_items" => "The invoice exceeds the maximum amount",
     
     /*
     |--------------------------------------------------------------------------

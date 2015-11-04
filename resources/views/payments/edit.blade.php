@@ -26,6 +26,10 @@
 			 {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
 			 {!! Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') !!}
 			 {!! Former::text('amount') !!}
+
+             @if (isset($paymentTypeId) && $paymentTypeId)
+               {!! Former::populateField('payment_type_id', $paymentTypeId) !!}
+             @endif
             @endif
 
             @if (!$payment || !$payment->account_gateway_id)

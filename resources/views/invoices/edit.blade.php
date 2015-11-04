@@ -15,6 +15,10 @@
 @stop
 
 @section('content')
+    @if ($errors->first('invoice_items'))
+        <div class="alert alert-danger">{{ trans($errors->first('invoice_items')) }}</div>
+    @endif
+
     @if ($invoice->id)
 		<ol class="breadcrumb">
             @if ($invoice->is_recurring)
@@ -204,7 +208,7 @@
                     <input type="text" data-bind="value: tax().name, attr: {name: 'invoice_items[' + $index() + '][tax_name]'}" style="display:none">
                     <input type="text" data-bind="value: tax().rate, attr: {name: 'invoice_items[' + $index() + '][tax_rate]'}" style="display:none">
 				</td>
-				<td style="text-align:right;padding-top:9px !important">
+				<td style="text-align:right;padding-top:9px !important" nowrap>
 					<div class="line-total" data-bind="text: totals.total"></div>
 				</td>
 				<td style="cursor:pointer" class="hide-border td-icon">

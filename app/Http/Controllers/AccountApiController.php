@@ -48,15 +48,9 @@ class AccountApiController extends BaseAPIController
     {
         // Create a new token only if one does not already exist
         $this->accountRepo->createTokens(Auth::user(), $request->token_name);
-
-        return $this->index();
-    }
-
-    public function index()
-    {
+        
         $users = $this->accountRepo->findUsers(Auth::user(), 'account.account_tokens');
-
-        $resource = new Collection($users, new UserAccountTransformer);
+        $resource = new Collection($users, new UserAccountTransformer($request->token_name));
 
         return $this->returnData($resource);
     }
