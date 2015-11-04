@@ -370,6 +370,10 @@ class AccountRepository
 
     public function prepareUsersData($record)
     {
+        if (!$record) {
+            return false;
+        }
+
         $users = $this->getUserAccounts($record);
 
         $data = [];
