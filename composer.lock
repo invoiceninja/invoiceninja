@@ -4,8 +4,64 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d0f3825f6d361f655c7393dd024b676e",
+    "hash": "9b0cd6db7a2a2e16ffb1711043005f2b",
     "packages": [
+        {
+            "name": "agmscode/omnipay-agms",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/agmscode/omnipay-agms.git",
+                "reference": "d6b1346013e7f34253c77289281a107bb98d2232"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/agmscode/omnipay-agms/zipball/d6b1346013e7f34253c77289281a107bb98d2232",
+                "reference": "d6b1346013e7f34253c77289281a107bb98d2232",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Agms\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maanas Royy",
+                    "email": "maanas@agms.com"
+                }
+            ],
+            "description": "Agms driver for the Omnipay PHP payment processing library",
+            "homepage": "http://onlinepaymentprocessing.com/",
+            "keywords": [
+                "AGMS",
+                "avant-garde marketing solutions inc",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "onlinepaymentprocessing",
+                "pay",
+                "payment",
+                "purchase"
+            ],
+            "time": "2015-03-21 20:06:25"
+        },
         {
             "name": "alfaproject/omnipay-neteller",
             "version": "dev-master",
@@ -213,6 +269,60 @@
             "time": "2015-03-04 17:12:08"
         },
         {
+            "name": "andreas22/omnipay-fasapay",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/andreas22/omnipay-fasapay.git",
+                "reference": "127c8d6cb73e88a5a03bf60c52af4d8d19363225"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/andreas22/omnipay-fasapay/zipball/127c8d6cb73e88a5a03bf60c52af4d8d19363225",
+                "reference": "127c8d6cb73e88a5a03bf60c52af4d8d19363225",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Fasapay\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andreas Christodoulou",
+                    "email": "ac@digitzone.net"
+                }
+            ],
+            "description": "Fasapay driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/andreas22/omnipay-fasapay",
+            "keywords": [
+                "fasapay",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "transfer"
+            ],
+            "time": "2015-03-19 21:32:19"
+        },
+        {
             "name": "barryvdh/laravel-debugbar",
             "version": "v2.0.6",
             "source": {
@@ -328,6 +438,62 @@
                 "sublime"
             ],
             "time": "2015-06-25 08:58:59"
+        },
+        {
+            "name": "cardgate/omnipay-cardgate",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cardgate/omnipay-cardgate.git",
+                "reference": "21b8ff0c3e65006eb2d9e0f9374955492b5a029a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cardgate/omnipay-cardgate/zipball/21b8ff0c3e65006eb2d9e0f9374955492b5a029a",
+                "reference": "21b8ff0c3e65006eb2d9e0f9374955492b5a029a",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.3"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Cardgate\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cardgate",
+                    "email": "tech@cardgate.com"
+                },
+                {
+                    "name": "Cardgate",
+                    "homepage": "https://cardgate.com"
+                }
+            ],
+            "description": "Cardgate gateway for the Omnipay payment processing library",
+            "keywords": [
+                "cardgate",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2015-06-05 14:50:44"
         },
         {
             "name": "chumper/datatable",
@@ -612,6 +778,49 @@
             "time": "2015-01-08 10:05:58"
         },
         {
+            "name": "collizo4sky/omnipay-wepay",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Collizo4sky/omnipay-wepay.git",
+                "reference": "360abf8c4bb4a926c39846abde970ab7dad93cb2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Collizo4sky/omnipay-wepay/zipball/360abf8c4bb4a926c39846abde970ab7dad93cb2",
+                "reference": "360abf8c4bb4a926c39846abde970ab7dad93cb2",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.3"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0",
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Omnipay\\WePay\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "WePay driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/Collizo4sky/omnipay-wepay",
+            "keywords": [
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "wepay"
+            ],
+            "time": "2015-10-08 14:12:18"
+        },
+        {
             "name": "danielstjules/stringy",
             "version": "1.10.0",
             "source": {
@@ -666,6 +875,264 @@
                 "utils"
             ],
             "time": "2015-07-23 00:54:12"
+        },
+        {
+            "name": "delatbabel/omnipay-fatzebra",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/delatbabel/omnipay-fatzebra.git",
+                "reference": "7b3cb869abe8327d4cf6ccc6591a89a95c02bfbc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/delatbabel/omnipay-fatzebra/zipball/7b3cb869abe8327d4cf6ccc6591a89a95c02bfbc",
+                "reference": "7b3cb869abe8327d4cf6ccc6591a89a95c02bfbc",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "omnipay/dummy": "dev-master",
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Fatzebra\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Del",
+                    "email": "del@babel.com.au"
+                }
+            ],
+            "description": "Fatzebra / Paystream (Australia) driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/delatbabel/omnipay-fatzebra",
+            "keywords": [
+                "australia",
+                "fatzebra",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "paystream"
+            ],
+            "time": "2015-02-15 11:27:23"
+        },
+        {
+            "name": "dercoder/omnipay-ecopayz",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dercoder/omnipay-ecopayz.git",
+                "reference": "583cfee3db1e1e04c74f2d3a56559d0f2af761d4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dercoder/omnipay-ecopayz/zipball/583cfee3db1e1e04c74f2d3a56559d0f2af761d4",
+                "reference": "583cfee3db1e1e04c74f2d3a56559d0f2af761d4",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.3"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Omnipay\\Ecopayz\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Ecopayz driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/dercoder/omnipay-ecopayz",
+            "keywords": [
+                "ecopayz",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2015-04-07 13:50:36"
+        },
+        {
+            "name": "dercoder/omnipay-paysafecard",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dercoder/omnipay-paysafecard.git",
+                "reference": "2f538e119ae6244176a3603b0d00ac29484ee142"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dercoder/omnipay-paysafecard/zipball/2f538e119ae6244176a3603b0d00ac29484ee142",
+                "reference": "2f538e119ae6244176a3603b0d00ac29484ee142",
+                "shasum": ""
+            },
+            "require": {
+                "league/url": "~3.0",
+                "omnipay/common": "~2.3"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0",
+                "satooshi/php-coveralls": "dev-master"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Paysafecard\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alexander Fedra",
+                    "email": "alexander.fedra@gmail.com"
+                }
+            ],
+            "description": "Paysafecard driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/dercoder/omnipay-paysafecard",
+            "keywords": [
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "paysafecard"
+            ],
+            "time": "2015-10-09 09:33:10"
+        },
+        {
+            "name": "descubraomundo/omnipay-pagarme",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/descubraomundo/omnipay-pagarme.git",
+                "reference": "528953568929b57189de16fa7431eaab75d61840"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/descubraomundo/omnipay-pagarme/zipball/528953568929b57189de16fa7431eaab75d61840",
+                "reference": "528953568929b57189de16fa7431eaab75d61840",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "codeclimate/php-test-reporter": "^0.1.0@dev",
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Pagarme\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Descubra o Mundo",
+                    "email": "geeks@descubraomundo.com"
+                }
+            ],
+            "description": "Pagarme driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/descubraomundo/omnipay-pagarme",
+            "keywords": [
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pagarme",
+                "pay",
+                "payment"
+            ],
+            "time": "2015-10-27 19:17:20"
+        },
+        {
+            "name": "dioscouri/omnipay-cybersource",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dioscouri/omnipay-cybersource.git",
+                "reference": "b95830232cb7c53b4208f799b7098a1521404a41"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dioscouri/omnipay-cybersource/zipball/b95830232cb7c53b4208f799b7098a1521404a41",
+                "reference": "b95830232cb7c53b4208f799b7098a1521404a41",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Cybersource\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rafael Diaz-Tushman",
+                    "email": "rdiaztushman@dioscouri.com"
+                }
+            ],
+            "description": "Cybersource support for Omnipay payment processing library",
+            "homepage": "https://github.com/dioscouri/omnipay-cybersource",
+            "keywords": [
+                "cybersource",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "purchase"
+            ],
+            "time": "2015-06-03 18:31:31"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1227,6 +1694,59 @@
             "time": "2015-06-05 13:57:26"
         },
         {
+            "name": "fotografde/omnipay-checkoutcom",
+            "version": "2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fotografde/omnipay-checkoutcom.git",
+                "reference": "b17eae9cd2e9786345c03ed48abec30befbf4edd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fotografde/omnipay-checkoutcom/zipball/b17eae9cd2e9786345c03ed48abec30befbf4edd",
+                "reference": "b17eae9cd2e9786345c03ed48abec30befbf4edd",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\CheckoutCom\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marco Beinbrech",
+                    "email": "marco.beinbrech@fotograf.de"
+                }
+            ],
+            "description": "Checkout.com driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/fotografde/omnipay-checkoutcom",
+            "keywords": [
+                "checkoutcom",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2015-08-06 09:26:34"
+        },
+        {
             "name": "fruitcakestudio/omnipay-sisow",
             "version": "v2.0.1",
             "source": {
@@ -1641,17 +2161,72 @@
             "time": "2015-01-01 16:31:18"
         },
         {
+            "name": "incube8/omnipay-multicards",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/incube8/omnipay-multicards.git",
+                "reference": "ac71ec3e96e6966400c8943c4024986da3337710"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/incube8/omnipay-multicards/zipball/ac71ec3e96e6966400c8943c4024986da3337710",
+                "reference": "ac71ec3e96e6966400c8943c4024986da3337710",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "omnipay/dummy": "dev-master",
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Multicards\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Del",
+                    "email": "del@incube8.sg"
+                }
+            ],
+            "description": "MultiCards driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/incube8/omnipay-multicards",
+            "keywords": [
+                "MultiCards",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2015-11-04 03:03:11"
+        },
+        {
             "name": "intervention/image",
             "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/image.git",
-                "reference": "e6c9cd03d6b2a870e74da03332feeb97d477fc87"
+                "reference": "33f848674c96b82b050fde2806ba4e55ee88078f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/e6c9cd03d6b2a870e74da03332feeb97d477fc87",
-                "reference": "e6c9cd03d6b2a870e74da03332feeb97d477fc87",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/33f848674c96b82b050fde2806ba4e55ee88078f",
+                "reference": "33f848674c96b82b050fde2806ba4e55ee88078f",
                 "shasum": ""
             },
             "require": {
@@ -1700,7 +2275,7 @@
                 "thumbnail",
                 "watermark"
             ],
-            "time": "2015-10-12 08:42:50"
+            "time": "2015-11-04 14:06:13"
         },
         {
             "name": "ircmaxell/password-compat",
@@ -1928,6 +2503,110 @@
                 "timer"
             ],
             "time": "2015-07-06 16:36:27"
+        },
+        {
+            "name": "justinbusschau/omnipay-secpay",
+            "version": "2.0.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JustinBusschau/omnipay-secpay.git",
+                "reference": "7bc8c25bb5247ab83f66df31857820eb51f22c7f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JustinBusschau/omnipay-secpay/zipball/7bc8c25bb5247ab83f66df31857820eb51f22c7f",
+                "reference": "7bc8c25bb5247ab83f66df31857820eb51f22c7f",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\SecPay\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Justin Busschau",
+                    "email": "justin.busschau@gmail.com"
+                }
+            ],
+            "description": "SecPay gateway for the Omnipay payment processing library",
+            "homepage": "https://github.com/justinbusschau/omnipay-secpay",
+            "keywords": [
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "paypoint",
+                "paypoint.net",
+                "secpay"
+            ],
+            "time": "2015-06-05 12:03:08"
+        },
+        {
+            "name": "labs7in0/omnipay-wechat",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/labs7in0/omnipay-wechat.git",
+                "reference": "d4c46d37f438c48510840aa3e5b806d4280c6b40"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/labs7in0/omnipay-wechat/zipball/d4c46d37f438c48510840aa3e5b806d4280c6b40",
+                "reference": "d4c46d37f438c48510840aa3e5b806d4280c6b40",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Omnipay\\WeChat\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "7IN0SAN9",
+                    "email": "me@7in0.me"
+                }
+            ],
+            "description": "WeChat driver for the Omnipay PHP payment processing library",
+            "homepage": "https://github.com/labs7in0/omnipay-wechat",
+            "keywords": [
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "purchase",
+                "wechat"
+            ],
+            "time": "2015-10-27 05:12:08"
         },
         {
             "name": "laravel/framework",
@@ -2370,6 +3049,60 @@
             "time": "2015-10-23 04:02:07"
         },
         {
+            "name": "league/url",
+            "version": "3.3.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/url.git",
+                "reference": "1ae2c3ce29a7c5438339ff6388225844e6479da8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/url/zipball/1ae2c3ce29a7c5438339ff6388225844e6479da8",
+                "reference": "1ae2c3ce29a7c5438339ff6388225844e6479da8",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=5.3.0",
+                "true/punycode": "^2.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "League\\Url\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ignace Nyamagana Butera",
+                    "email": "nyamsprod@gmail.com",
+                    "homepage": "https://github.com/nyamsprod/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "League/url is a lightweight PHP Url manipulating library",
+            "homepage": "http://url.thephpleague.com",
+            "keywords": [
+                "parse_url",
+                "php",
+                "url"
+            ],
+            "time": "2015-07-15 08:24:12"
+        },
+        {
             "name": "lokielse/omnipay-alipay",
             "version": "dev-master",
             "source": {
@@ -2473,6 +3206,122 @@
                 "debug"
             ],
             "time": "2015-10-19 20:35:12"
+        },
+        {
+            "name": "meebio/omnipay-creditcall",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/meebio/omnipay-creditcall.git",
+                "reference": "b133a758f850b01f754166d32cd3cf371fb2b843"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/meebio/omnipay-creditcall/zipball/b133a758f850b01f754166d32cd3cf371fb2b843",
+                "reference": "b133a758f850b01f754166d32cd3cf371fb2b843",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Creditcall\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "John Jablonski",
+                    "email": "jablonski.kce@gmail.com",
+                    "homepage": "http://jablonski.me",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Creditcall driver for the Omnipay PHP payment processing library",
+            "homepage": "https://github.com/meebio/omnipay-creditcall",
+            "keywords": [
+                "cardeasexml",
+                "creditcall",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "purchase"
+            ],
+            "time": "2015-09-19 11:29:31"
+        },
+        {
+            "name": "meebio/omnipay-secure-trading",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/meebio/omnipay-secure-trading.git",
+                "reference": "ad17832c12001ae018e8f397f5e28ebd60b84492"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/meebio/omnipay-secure-trading/zipball/ad17832c12001ae018e8f397f5e28ebd60b84492",
+                "reference": "ad17832c12001ae018e8f397f5e28ebd60b84492",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\SecureTrading\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "John Jablonski",
+                    "email": "jablonski.kce@gmail.com",
+                    "homepage": "http://jablonski.me",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Secure Trading driver for the Omnipay PHP payment processing library",
+            "homepage": "https://github.com/meebio/omnipay-secure-trading",
+            "keywords": [
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "purchase",
+                "secure trading",
+                "securetrading"
+            ],
+            "time": "2015-09-25 13:46:39"
         },
         {
             "name": "mfauveau/omnipay-pacnet",
@@ -3951,16 +4800,16 @@
         },
         {
             "name": "omnipay/payflow",
-            "version": "v2.1.1",
+            "version": "2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-payflow.git",
-                "reference": "9d86e3478dd42cbe40ab9466a7505c4f99c70ee7"
+                "reference": "1d5963fd57bf16cfb8134900d3c34d9e30ca59a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-payflow/zipball/9d86e3478dd42cbe40ab9466a7505c4f99c70ee7",
-                "reference": "9d86e3478dd42cbe40ab9466a7505c4f99c70ee7",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-payflow/zipball/1d5963fd57bf16cfb8134900d3c34d9e30ca59a9",
+                "reference": "1d5963fd57bf16cfb8134900d3c34d9e30ca59a9",
                 "shasum": ""
             },
             "require": {
@@ -4004,7 +4853,7 @@
                 "payflow",
                 "payment"
             ],
-            "time": "2014-09-17 00:38:58"
+            "time": "2015-11-03 20:55:42"
         },
         {
             "name": "omnipay/paymentexpress",
@@ -4782,17 +5631,79 @@
             "time": "2015-07-03 13:48:55"
         },
         {
+            "name": "samvaughton/omnipay-barclays-epdq",
+            "version": "2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/samvaughton/omnipay-barclays-epdq.git",
+                "reference": "f971de37aa40c72cc58f02d05f540a93b2c5958e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/samvaughton/omnipay-barclays-epdq/zipball/f971de37aa40c72cc58f02d05f540a93b2c5958e",
+                "reference": "f971de37aa40c72cc58f02d05f540a93b2c5958e",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Omnipay\\BarclaysEpdq\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrian Macneil",
+                    "email": "adrian@adrianmacneil.com"
+                },
+                {
+                    "name": "Omnipay Contributors",
+                    "homepage": "https://github.com/barclays-epdq/contributors"
+                },
+                {
+                    "name": "Sam Vaughton",
+                    "email": "samvaughton@gmail.com"
+                }
+            ],
+            "description": "Barclays ePDQ driver for the Omnipay payment processing library.",
+            "homepage": "https://github.com/samvaughton/omnipay-barclays-epdq",
+            "keywords": [
+                "barclays",
+                "epdq",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2015-05-07 14:45:43"
+        },
+        {
             "name": "simshaun/recurr",
             "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/simshaun/recurr.git",
-                "reference": "202c067b73c6630763dcb8e3d98576d7a5fb838c"
+                "reference": "9bfc90a941e072560d660d68571c3ed202fa7cd7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/simshaun/recurr/zipball/202c067b73c6630763dcb8e3d98576d7a5fb838c",
-                "reference": "202c067b73c6630763dcb8e3d98576d7a5fb838c",
+                "url": "https://api.github.com/repos/simshaun/recurr/zipball/9bfc90a941e072560d660d68571c3ed202fa7cd7",
+                "reference": "9bfc90a941e072560d660d68571c3ed202fa7cd7",
                 "shasum": ""
             },
             "require": {
@@ -4833,7 +5744,59 @@
                 "recurring",
                 "rrule"
             ],
-            "time": "2015-10-01 06:06:14"
+            "time": "2015-11-04 07:50:41"
+        },
+        {
+            "name": "softcommerce/omnipay-paytrace",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/iddqdidkfa/omnipay-paytrace.git",
+                "reference": "30266af5bdb0e1d224d920599e7ce0dcb88fb3be"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/iddqdidkfa/omnipay-paytrace/zipball/30266af5bdb0e1d224d920599e7ce0dcb88fb3be",
+                "reference": "30266af5bdb0e1d224d920599e7ce0dcb88fb3be",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Paytrace\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Oleg Ilyushyn",
+                    "email": "iloa.exec@gmail.com"
+                }
+            ],
+            "description": "PayTrace gateway for the Omnipay payment processing library",
+            "homepage": "https://github.com/iddqdidkfa/omnipay-paytrace",
+            "keywords": [
+                "gateway",
+                "merchant",
+                "omnipay",
+                "payment",
+                "paytrace"
+            ],
+            "time": "2015-08-12 08:09:37"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -5644,6 +6607,52 @@
             "time": "2015-07-01 10:03:42"
         },
         {
+            "name": "true/punycode",
+            "version": "v2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/true/php-punycode.git",
+                "reference": "b672918d992b84f8016bbe353a42516928393c63"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/true/php-punycode/zipball/b672918d992b84f8016bbe353a42516928393c63",
+                "reference": "b672918d992b84f8016bbe353a42516928393c63",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.7",
+                "squizlabs/php_codesniffer": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "TrueBV\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Renan Gonçalves",
+                    "email": "renan.saddam@gmail.com"
+                }
+            ],
+            "description": "A Bootstring encoding of Unicode for Internationalized Domain Names in Applications (IDNA)",
+            "homepage": "https://github.com/true/php-punycode",
+            "keywords": [
+                "idna",
+                "punycode"
+            ],
+            "time": "2015-09-01 14:53:31"
+        },
+        {
             "name": "twbs/bootstrap",
             "version": "v3.3.5",
             "source": {
@@ -5693,6 +6702,54 @@
                 "web"
             ],
             "time": "2015-06-16 16:13:22"
+        },
+        {
+            "name": "vink/omnipay-komoju",
+            "version": "v1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dannyvink/omnipay-komoju.git",
+                "reference": "15eb62abb6b043c93528ea363f0e643e477fb0c7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dannyvink/omnipay-komoju/zipball/15eb62abb6b043c93528ea363f0e643e477fb0c7",
+                "reference": "15eb62abb6b043c93528ea363f0e643e477fb0c7",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Komoju\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Danny Vink",
+                    "email": "danny@dannyvink.com"
+                }
+            ],
+            "description": "Komoju driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/dannyvink/omnipay-komoju",
+            "keywords": [
+                "gateway",
+                "komoju",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2015-09-11 09:40:10"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -7265,7 +8322,15 @@
         "omnipay/bitpay": 20,
         "wildbit/laravel-postmark-provider": 20,
         "dwolla/omnipay-dwolla": 20,
-        "simshaun/recurr": 20
+        "simshaun/recurr": 20,
+        "meebio/omnipay-creditcall": 20,
+        "dioscouri/omnipay-cybersource": 20,
+        "delatbabel/omnipay-fatzebra": 20,
+        "incube8/omnipay-multicards": 20,
+        "descubraomundo/omnipay-pagarme": 20,
+        "dercoder/omnipay-paysafecard": 20,
+        "meebio/omnipay-secure-trading": 20,
+        "labs7in0/omnipay-wechat": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
