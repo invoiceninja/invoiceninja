@@ -48,7 +48,7 @@ class AppController extends BaseController
 
     public function doSetup()
     {
-        if (Utils::isNinjaProd() || (Utils::isDatabaseSetup() && Account::count() > 0)) {
+        if (Utils::isNinjaProd()) {
             return Redirect::to('/');
         }
 
@@ -57,9 +57,10 @@ class AppController extends BaseController
 
         $app = Input::get('app');
         $app['key'] = env('APP_KEY') ?: str_random(RANDOM_KEY_LENGTH);
+        $app['debug'] = Input::get('debug') ? 'true' : 'false';
 
         $database = Input::get('database');
-        $dbType = $database['default'];
+        $dbType = 'mysql'; // $database['default'];
         $database['connections'] = [$dbType => $database['type']];
 
         $mail = Input::get('mail');
@@ -78,8 +79,12 @@ class AppController extends BaseController
             return Redirect::to('/setup')->withInput();
         }
         
+        if (Utils::isDatabaseSetup() && Account::count() > 0) {
+            return Redirect::to('/');
+        }
+
         $config = "APP_ENV=production\n".
-                    "APP_DEBUG=false\n".
+                    "APP_DEBUG={$app['debug']}\n".
                     "APP_URL={$app['url']}\n".
                     "APP_KEY={$app['key']}\n\n".
                     "DB_TYPE={$dbType}\n".
@@ -120,17 +125,68 @@ class AppController extends BaseController
         return Redirect::to('/login');
     }
 
+    public function updateSetup()
+    {
+        if (Utils::isNinjaProd()) {
+            return Redirect::to('/');
+        }
+
+        if (!Auth::check() && Utils::isDatabaseSetup() && Account::count() > 0) {
+            return Redirect::to('/');
+        }
+
+        if ( ! $canUpdateEnv = @fopen(base_path()."/.env", 'w')) {
+            Session::flash('error', 'Warning: Permission denied to write to .env config file, try running <code>sudo chown www-data:www-data /path/to/ninja/.env</code>');
+            return Redirect::to('/settings/system_settings');
+        }
+
+        $app = Input::get('app');
+        $db = Input::get('database');
+        $mail = Input::get('mail');
+
+        $_ENV['APP_URL'] = $app['url'];
+        $_ENV['APP_DEBUG'] = Input::get('debug') ? 'true' : 'false';
+
+        $_ENV['DB_TYPE'] = 'mysql'; // $db['default'];
+        $_ENV['DB_HOST'] = $db['type']['host'];
+        $_ENV['DB_DATABASE'] = $db['type']['database'];
+        $_ENV['DB_USERNAME'] = $db['type']['username'];
+        $_ENV['DB_PASSWORD'] = $db['type']['password'];
+        
+        if ($mail) {
+            $_ENV['MAIL_DRIVER'] = $mail['driver'];
+            $_ENV['MAIL_PORT'] = $mail['port'];
+            $_ENV['MAIL_ENCRYPTION'] = $mail['encryption'];
+            $_ENV['MAIL_HOST'] = $mail['host'];
+            $_ENV['MAIL_USERNAME'] = $mail['username'];
+            $_ENV['MAIL_FROM_NAME'] = $mail['from']['name'];
+            $_ENV['MAIL_PASSWORD'] = $mail['password'];
+            $_ENV['MAIL_FROM_ADDRESS'] = $mail['username'];
+        }
+
+        $config = '';
+        foreach ($_ENV as $key => $val) {
+            $config .= "{$key}={$val}\n";
+        }
+
+        $fp = fopen(base_path()."/.env", 'w');
+        fwrite($fp, $config);
+        fclose($fp);
+
+        Session::flash('message', trans('texts.updated_settings'));
+        return Redirect::to('/settings/system_settings');
+    }
+
     private function testDatabase($database)
     {
-        $dbType = $database['default'];
-
+        $dbType = 'mysql'; // $database['default'];
         Config::set('database.default', $dbType);
-        
         foreach ($database['connections'][$dbType] as $key => $val) {
             Config::set("database.connections.{$dbType}.{$key}", $val);
         }
-
+        
         try {
+            DB::reconnect();
             $valid = DB::connection()->getDatabaseName() ? true : false;
         } catch (Exception $e) {
             return $e->getMessage();

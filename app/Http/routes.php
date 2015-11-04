@@ -184,6 +184,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('credits/bulk', 'CreditController@bulk');
 
     get('/resend_confirmation', 'AccountController@resendConfirmation');
+    post('/update_setup', 'AppController@updateSetup');
 });
 
 // Route groups for API
@@ -278,6 +279,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_TEMPLATES_AND_REMINDERS', 'templates_and_reminders');
     define('ACCOUNT_API_TOKENS', 'api_tokens');
     define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
+    define('ACCOUNT_SYSTEM_SETTINGS', 'system_settings');
 
     define('ACTION_RESTORE', 'restore');
     define('ACTION_ARCHIVE', 'archive');

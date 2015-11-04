@@ -174,6 +174,8 @@ class AccountController extends BaseController
             return self::showProducts();
         } elseif ($section === ACCOUNT_TAX_RATES) {
             return self::showTaxRates();
+        } elseif ($section === ACCOUNT_SYSTEM_SETTINGS) {
+            return self::showSystemSettings();
         } else {
             $data = [
                 'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
@@ -182,6 +184,21 @@ class AccountController extends BaseController
             ];
             return View::make("accounts.{$section}", $data);
         }
+    }
+
+    private function showSystemSettings()
+    {
+        if (Utils::isNinjaProd()) {
+            return Redirect::to('/');
+        }
+
+        $data = [
+            'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+            'title' => trans("texts.system_settings"),
+            'section' => ACCOUNT_SYSTEM_SETTINGS,
+        ];
+
+        return View::make("accounts.system_settings", $data);
     }
 
     private function showInvoiceSettings()

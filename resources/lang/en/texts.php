@@ -893,5 +893,7 @@ return array(
     
     'quote_is_approved' => 'This quote is approved',
     'apply_credit' => 'Apply Credit',
+    'system_settings' => 'System Settings',
+    
 
 );

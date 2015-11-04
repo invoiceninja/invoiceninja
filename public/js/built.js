@@ -32231,7 +32231,7 @@ NINJA.parseRegExpLine = function(line, regExp, formatter, groupText)
     var parts = [];
     var lastIndex = 0;
     
-    while (match = regExp.exec(line)) {
+    while (match = regExp.exec(line + '\n')) {
         if (match.index > lastIndex) {
             parts.push(line.substring(lastIndex, match.index));
         }
