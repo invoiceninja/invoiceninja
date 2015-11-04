@@ -225,6 +225,17 @@ class Account extends Eloquent
         return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
     }
 
+    public function getToken($name)
+    {
+        foreach ($this->account_tokens as $token) {
+            if ($token->name === $name) {
+                return $token->token;
+            }
+        }
+
+        return null;
+    }
+
     public function getLogoWidth()
     {
         $path = $this->getLogoPath();

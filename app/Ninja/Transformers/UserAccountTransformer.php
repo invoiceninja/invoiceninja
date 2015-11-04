@@ -6,17 +6,11 @@ use League\Fractal\TransformerAbstract;
 
 class UserAccountTransformer extends TransformerAbstract
 {
-    protected $defaultIncludes = [
-        'account_tokens'
-    ];
+    protected $tokenName;
 
-    public function includeAccountTokens($user)
+    public function __construct($tokenName)
     {
-        $tokens = $user->account->account_tokens->filter(function($token) use ($user) {
-            return $token->user_id === $user->id;
-        });
-
-        return $this->collection($tokens, new AccountTokenTransformer);
+        $this->tokenName = $tokenName;
     }
 
     public function transform(User $user)
@@ -24,6 +18,7 @@ class UserAccountTransformer extends TransformerAbstract
         return [
             'account_key' => $user->account->account_key,
             'name' => $user->account->name,
+            'token' => $user->account->getToken($this->tokenName),
             'user' => [
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
