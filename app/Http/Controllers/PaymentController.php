@@ -118,6 +118,7 @@ class PaymentController extends BaseController
             'url' => "payments",
             'title' => trans('texts.new_payment'),
             'paymentTypes' => Cache::get('paymentTypes'),
+            'paymentTypeId' => Input::get('paymentTypeId'),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
 
         return View::make('payments.edit', $data);

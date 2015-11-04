@@ -163,6 +163,15 @@ class AppServiceProvider extends ServiceProvider {
             }
             return true;
         });
+
+        Validator::extend('valid_invoice_items', function($attribute, $value, $parameters) {
+            $total = 0;
+            foreach ($value as $item) {
+                $total += $item['qty'] * $item['cost'];
+            }
+            return $total <= MAX_INVOICE_AMOUNT;
+        });
+
 	}
 
 	/**

@@ -31627,6 +31627,7 @@ function GetPdfMake(invoice, javascript, callback) {
             }
         }
 
+        // only show the footer on the last page
         if (key === 'footer') {
             return function(page, pages) {
                 return page === pages ? val : '';
@@ -31676,6 +31677,7 @@ function GetPdfMake(invoice, javascript, callback) {
     doc.save = function(fileName) {
         this.download(fileName);
     };
+    
     return doc;
 }
 
