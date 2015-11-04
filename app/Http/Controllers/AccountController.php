@@ -38,6 +38,7 @@ use App\Models\Industry;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
 use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\ReferralRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
@@ -710,7 +711,8 @@ class AccountController extends BaseController
                 continue;
             }
 
-            $this->dispatch(new CreateClient($data));
+            $clientRepository = new ClientRepository();
+            $clientRepository->save($data);
             $count++;
         }
 
