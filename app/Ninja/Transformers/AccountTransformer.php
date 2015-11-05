@@ -25,7 +25,7 @@ class AccountTransformer extends TransformerAbstract
     public function transform(Account $account)
     {
         return [
-            'id' => (int) $account->id,
+            'account_key' => $account->account_key,
             'name' => $account->name,
         ];
     }
