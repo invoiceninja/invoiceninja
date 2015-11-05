@@ -16,9 +16,14 @@ class BaseAPIController extends Controller
         $this->manager->setSerializer(new ArraySerializer());
     }
 
-    protected function returnData($resource)
+    protected function returnData($resource, $class = false)
     {
         $response = $this->manager->createData($resource)->toArray();
+
+        if ($class) {
+            $response = [$class => $response];
+        }
+        
         $response = json_encode($response, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders();
 

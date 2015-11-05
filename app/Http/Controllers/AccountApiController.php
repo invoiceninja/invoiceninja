@@ -52,7 +52,7 @@ class AccountApiController extends BaseAPIController
         $users = $this->accountRepo->findUsers(Auth::user(), 'account.account_tokens');
         $resource = new Collection($users, new UserAccountTransformer($request->token_name));
 
-        return $this->returnData($resource);
+        return $this->returnData($resource, 'user_accounts');
     }
 
     public function show($accountKey)
