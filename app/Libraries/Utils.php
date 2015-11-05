@@ -150,8 +150,10 @@ class Utils
         foreach ($input as $field) {
             if ($field == "checkbox") {
                 $data[] = $field;
-            } else {
+            } elseif ($field) {
                 $data[] = trans("texts.$field");
+            } else {
+                $data[] = '';
             }
         }
 

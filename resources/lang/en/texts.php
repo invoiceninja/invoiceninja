@@ -906,4 +906,6 @@ return array(
     'deleted_recurring_invoice' => 'Successfully deleted recurring invoice',
     'restore_recurring_invoice' => 'Restore Recurring Invoice',
     'restored_recurring_invoice' => 'Successfully restored recurring invoice',
+    'archived' => 'Archived',
+    
 );

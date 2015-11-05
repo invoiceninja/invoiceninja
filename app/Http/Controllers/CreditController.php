@@ -37,7 +37,7 @@ class CreditController extends BaseController
             'entityType' => ENTITY_CREDIT,
             'title' => trans('texts.credits'),
             'sortCol' => '4',
-            'columns' => Utils::trans(['checkbox', 'client', 'credit_amount', 'credit_balance', 'credit_date', 'private_notes', 'action']),
+            'columns' => Utils::trans(['checkbox', 'client', 'credit_amount', 'credit_balance', 'credit_date', 'private_notes', '']),
         ));
     }
 
