@@ -24,4 +24,7 @@
     function restoreEntity(id) {
         submitBulkForm('restore', id);
     }
+    function deleteEntity(id) {
+        submitBulkForm('delete', id);
+    }
 </script>
