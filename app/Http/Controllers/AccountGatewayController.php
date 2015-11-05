@@ -16,9 +16,19 @@ use App\Models\Account;
 use App\Models\AccountGateway;
 
 use App\Ninja\Repositories\AccountRepository;
+use App\Services\AccountGatewayService;
 
 class AccountGatewayController extends BaseController
 {
+    protected $accountGatewayService;
+
+    public function __construct(AccountGatewayService $accountGatewayService)
+    {
+        parent::__construct();
+
+        $this->accountGatewayService = $accountGatewayService;
+    }
+
     public function index()
     {
         return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
@@ -26,35 +36,7 @@ class AccountGatewayController extends BaseController
 
     public function getDatatable()
     {
-        $query = DB::table('account_gateways')
-                    ->join('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
-                    ->where('account_gateways.deleted_at', '=', null)
-                    ->where('account_gateways.account_id', '=', Auth::user()->account_id)
-                    ->select('account_gateways.public_id', 'gateways.name', 'account_gateways.deleted_at', 'account_gateways.gateway_id');
-
-        return Datatable::query($query)
-            ->addColumn('name', function ($model) { return link_to('gateways/'.$model->public_id.'/edit', $model->name); })
-            ->addColumn('payment_type', function ($model) { return Gateway::getPrettyPaymentType($model->gateway_id); })
-            ->addColumn('dropdown', function ($model) {
-              $actions = '<div class="btn-group tr-action" style="visibility:hidden;">
-                  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                    '.trans('texts.select').' <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu" role="menu">';
-
-              if (!$model->deleted_at) {
-                  $actions .= '<li><a href="'.URL::to('gateways/'.$model->public_id).'/edit">'.uctrans('texts.edit_gateway').'</a></li>
-                               <li class="divider"></li>
-                               <li><a href="javascript:deleteAccountGateway('.$model->public_id.')">'.uctrans('texts.delete_gateway').'</a></li>';
-              }
-
-               $actions .= '</ul>
-              </div>';
-
-              return $actions;
-            })
-            ->orderColumns(['name'])
-            ->make();
+        return $this->accountGatewayService->getDatatable(Auth::user()->account_id);
     }
 
     public function edit($publicId)
@@ -165,14 +147,14 @@ class AccountGatewayController extends BaseController
         ];
     }
 
-    public function delete()
+
+    public function bulk()
     {
-        $accountGatewayPublicId = Input::get('accountGatewayPublicId');
-        $gateway = AccountGateway::scope($accountGatewayPublicId)->firstOrFail();
+        $action = Input::get('bulk_action');
+        $ids = Input::get('bulk_public_id');
+        $count = $this->accountGatewayService->bulk($ids, $action);
 
-        $gateway->delete();
-
-        Session::flash('message', trans('texts.deleted_gateway'));
+        Session::flash('message', trans('texts.archived_account_gateway'));
 
         return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
     }

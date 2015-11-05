@@ -98,7 +98,7 @@ Route::group(['middleware' => 'auth'], function() {
     
     Route::get('api/users', array('as'=>'api.users', 'uses'=>'UserController@getDatatable'));
     Route::resource('users', 'UserController');
-    Route::post('users/delete', 'UserController@delete');
+    Route::post('users/bulk', 'UserController@bulk');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
     Route::post('users/change_password', 'UserController@changePassword');
@@ -108,15 +108,15 @@ Route::group(['middleware' => 'auth'], function() {
 
     Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
     Route::resource('tokens', 'TokenController');
-    Route::post('tokens/delete', 'TokenController@delete');
+    Route::post('tokens/bulk', 'TokenController@bulk');
 
     Route::get('api/products', array('as'=>'api.products', 'uses'=>'ProductController@getDatatable'));
     Route::resource('products', 'ProductController');
-    Route::get('products/{product_id}/archive', 'ProductController@archive');
+    Route::post('products/bulk', 'ProductController@bulk');
 
     Route::get('api/tax_rates', array('as'=>'api.tax_rates', 'uses'=>'TaxRateController@getDatatable'));
     Route::resource('tax_rates', 'TaxRateController');
-    Route::get('tax_rates/{tax_rates_id}/archive', 'TaxRateController@archive');
+    Route::post('tax_rates/bulk', 'TaxRateController@bulk');
 
     Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
@@ -134,7 +134,7 @@ Route::group(['middleware' => 'auth'], function() {
 
     Route::resource('gateways', 'AccountGatewayController');
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
-    Route::post('gateways/delete', 'AccountGatewayController@delete');
+    Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
@@ -253,6 +253,12 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_CREDIT', 'credit');
     define('ENTITY_QUOTE', 'quote');
     define('ENTITY_TASK', 'task');
+    define('ENTITY_ACCOUNT_GATEWAY', 'account_gateway');
+    define('ENTITY_USER', 'user');
+    define('ENTITY_TOKEN', 'token');
+    define('ENTITY_TAX_RATE', 'tax_rate');
+    define('ENTITY_PRODUCT', 'product');
+    define('ENTITY_ACTIVITY', 'activity');
 
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');

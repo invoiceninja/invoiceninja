@@ -652,12 +652,16 @@ class Utils
 
     public static function getEntityRowClass($model)
     {
-        $str = $model->is_deleted || ($model->deleted_at && $model->deleted_at != '0000-00-00') ? 'DISABLED ' : '';
+        $str = '';
 
-        if ($model->is_deleted) {
-            $str .= 'ENTITY_DELETED ';
+        if (property_exists($model, 'is_deleted')) {
+            $str = $model->is_deleted || ($model->deleted_at && $model->deleted_at != '0000-00-00') ? 'DISABLED ' : '';
+
+            if ($model->is_deleted) {
+                $str .= 'ENTITY_DELETED ';
+            }
         }
-
+        
         if ($model->deleted_at && $model->deleted_at != '0000-00-00') {
             $str .= 'ENTITY_ARCHIVED ';
         }

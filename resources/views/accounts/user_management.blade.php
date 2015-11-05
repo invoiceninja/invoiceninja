@@ -4,13 +4,6 @@
 	@parent
     @include('accounts.nav', ['selected' => ACCOUNT_USER_MANAGEMENT, 'advanced' => true])
 
-  {!! Former::open('users/delete')->addClass('user-form') !!}
-
-  <div style="display:none">
-    {!! Former::text('userPublicId') !!}
-  </div>
-  {!! Former::close() !!}
-
 
   <div class="pull-right">  
     @if (Utils::isPro())    
@@ -24,6 +17,7 @@
             {!! Session::get('show_trash:user') ? 'checked' : ''!!}/> {!! trans('texts.show_deleted_users')!!}
     </label>
 
+  @include('partials.bulk_form', ['entityType' => ENTITY_USER])
 
   {!! Datatable::table()
       ->addColumn(
@@ -56,14 +50,6 @@
         window.location = '{!! URL::to('view_archive/user') !!}' + (checked ? '/true' : '/false');
     }
 
-  function deleteUser(id) {
-    if (!confirm("{!! trans('texts.are_you_sure') !!}")) {    
-      return;
-    }
-
-    $('#userPublicId').val(id);
-    $('form.user-form').submit();
-  }
   </script>
 
 @stop

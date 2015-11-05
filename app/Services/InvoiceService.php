@@ -1,5 +1,7 @@
 <?php namespace App\Services;
 
+use Utils;
+use URL;
 use App\Services\BaseService;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
@@ -10,11 +12,13 @@ class InvoiceService extends BaseService
 {
     protected $clientRepo;
     protected $invoiceRepo;
+    protected $datatableService;
 
-    public function __construct(ClientRepository $clientRepo, InvoiceRepository $invoiceRepo)
+    public function __construct(ClientRepository $clientRepo, InvoiceRepository $invoiceRepo, DatatableService $datatableService)
     {
         $this->clientRepo = $clientRepo;
         $this->invoiceRepo = $invoiceRepo;
+        $this->datatableService = $datatableService;
     }
 
     protected function getRepo()
@@ -77,5 +81,160 @@ class InvoiceService extends BaseService
                 return $invoiceInvitation->invitation_key;
             }
         }
-    } 
+    }
+
+    public function getDatatable($accountId, $clientPublicId = null, $entityType, $search)
+    {
+        $query = $this->invoiceRepo->getInvoices($accountId, $clientPublicId, $entityType, $search)
+                    ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE ? true : false);
+
+        return $this->createDatatable($entityType, $query, !$clientPublicId);
+    }
+
+    protected function getDatatableColumns($entityType, $hideClient)
+    {
+        return [
+            [
+                'invoice_number',
+                function ($model) use ($entityType) {
+                    return link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)]); 
+                }
+            ],
+            [
+                'client_name',
+                function ($model) {
+                    return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model));
+                },
+                ! $hideClient
+            ],
+            [
+                'invoice_date',
+                function ($model) {
+                    return Utils::fromSqlDate($model->invoice_date);
+                }
+            ],
+            [
+                'amount',
+                function ($model) {
+                    return Utils::formatMoney($model->amount, $model->currency_id);
+                }
+            ],
+            [
+                'balance',
+                function ($model) {
+                    return $model->partial > 0 ?
+                        trans('texts.partial_remaining', [
+                            'partial' => Utils::formatMoney($model->partial, $model->currency_id),
+                            'balance' => Utils::formatMoney($model->balance, $model->currency_id)]
+                        ) :
+                        Utils::formatMoney($model->balance, $model->currency_id);
+                },
+                $entityType == ENTITY_INVOICE
+            ],
+            [
+                'due_date',
+                function ($model) {
+                    return Utils::fromSqlDate($model->due_date);
+                },
+            ],
+            [
+                'invoice_status_name',
+                function ($model) {
+                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : self::getStatusLabel($model->invoice_status_id, $model->invoice_status_name);
+                }
+            ]
+        ];
+    }
+
+    protected function getDatatableActions($entityType)
+    {
+        return [
+            [
+                trans("texts.edit_{$entityType}"),
+                function ($model) use ($entityType) {
+                    return URL::to("{$entityType}s/{$model->public_id}/edit");
+                }
+            ],
+            [
+                trans("texts.clone_{$entityType}"),
+                function ($model) use ($entityType) {
+                    return URL::to("{$entityType}s/{$model->public_id}/clone");
+                }
+            ],
+            [
+                trans("texts.view_history"),
+                function ($model) use ($entityType) {
+                    return URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}");
+                }
+            ],
+            [],
+            [
+                trans("texts.mark_sent"),
+                function ($model) {
+                    return "javascript:markEntity({$model->public_id})";
+                },
+                function ($model) {
+                    return $model->invoice_status_id < INVOICE_STATUS_SENT;
+                }
+            ],
+            [
+                trans('texts.enter_payment'),
+                function ($model) {
+                    return URL::to("payments/create/{$model->client_public_id}/{$model->public_id}");
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_INVOICE && $model->balance > 0;
+                }
+            ],
+            [
+                trans("texts.view_quote"),
+                function ($model) {
+                    return URL::to("quotes/{$model->quote_id}/edit");
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_INVOICE && $model->quote_id;
+                }
+            ],
+            [
+                trans("texts.view_invoice"),
+                function ($model) {
+                    return URL::to("invoices/{$model->quote_invoice_id}/edit");
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id;
+                }
+            ],
+            [
+                trans("texts.convert_to_invoice"),
+                function ($model) {
+                    return "javascript:convertEntity({$model->public_id})";
+                },
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id;
+                }
+            ]
+        ];
+    }
+
+    private function getStatusLabel($statusId, $statusName)
+    {
+        $label = trans("texts.status_" . strtolower($statusName));
+        $class = 'default';
+        switch ($statusId) {
+            case INVOICE_STATUS_SENT:
+                $class = 'info';
+                break;
+            case INVOICE_STATUS_VIEWED:
+                $class = 'warning';
+                break;
+            case INVOICE_STATUS_PARTIAL:
+                $class = 'primary';
+                break;
+            case INVOICE_STATUS_PAID:
+                $class = 'success';
+                break;
+        }
+        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
+    }
+    
 }

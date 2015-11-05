@@ -57,51 +57,7 @@ class ClientController extends BaseController
 
     public function getDatatable()
     {
-        $clients = $this->clientRepo->find(Input::get('sSearch'));
-
-        return Datatable::query($clients)
-            ->addColumn('checkbox', function ($model) { return '<input type="checkbox" name="ids[]" value="'.$model->public_id.'" '.Utils::getEntityRowClass($model).'>'; })
-            ->addColumn('name', function ($model) { return link_to('clients/'.$model->public_id, $model->name); })
-            ->addColumn('first_name', function ($model) { return link_to('clients/'.$model->public_id, $model->first_name.' '.$model->last_name); })
-            ->addColumn('email', function ($model) { return link_to('clients/'.$model->public_id, $model->email); })
-            ->addColumn('clients.created_at', function ($model) { return Utils::timestampToDateString(strtotime($model->created_at)); })
-            ->addColumn('last_login', function ($model) { return Utils::timestampToDateString(strtotime($model->last_login)); })
-            ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id); })
-            ->addColumn('dropdown', function ($model) {
-
-                $str = '<div class="btn-group tr-action" style="visibility:hidden;">
-  							<button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-    							'.trans('texts.select').' <span class="caret"></span>
-  							</button>
-  							<ul class="dropdown-menu" role="menu">';
-
-                    if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
-                        $str .= '<li><a href="'.URL::to('clients/'.$model->public_id.'/edit').'">'.trans('texts.edit_client').'</a></li>
-						    <li class="divider"></li>
-						    <li><a href="'.URL::to('tasks/create/'.$model->public_id).'">'.trans('texts.new_task').'</a></li>
-                            <li><a href="'.URL::to('invoices/create/'.$model->public_id).'">'.trans('texts.new_invoice').'</a></li>';
-
-                        if (Auth::user()->isPro()) {
-                            $str .= '<li><a href="'.URL::to('quotes/create/'.$model->public_id).'">'.trans('texts.new_quote').'</a></li>';
-                        }
-
-                        $str .= '<li class="divider"></li>
-                            <li><a href="'.URL::to('payments/create/'.$model->public_id).'">'.trans('texts.enter_payment').'</a></li>
-						    <li><a href="'.URL::to('credits/create/'.$model->public_id).'">'.trans('texts.enter_credit').'</a></li>
-						    <li class="divider"></li>
-						    <li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans('texts.archive_client').'</a></li>';
-                    } else {
-                        $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans('texts.restore_client').'</a></li>';
-                    }
-
-                    if ($model->is_deleted) {
-                        return $str. '</ul></div>';
-                    }
-
-                    return $str.'<li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans('texts.delete_client').'</a></li></ul>
-							</div>';
-            })
-            ->make();
+        return $this->clientService->getDatatable(Input::get('sSearch'));
     }
 
     /**

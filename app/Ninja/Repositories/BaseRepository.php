@@ -23,7 +23,10 @@ class BaseRepository
         $entity->delete();
 
         $className = $this->getEventClass($entity, 'Archived');
-        event(new $className($entity));
+
+        if (class_exists($className)) {
+            event(new $className($entity));
+        }
     }
 
     public function restore($entity)
@@ -38,7 +41,10 @@ class BaseRepository
         }
 
         $className = $this->getEventClass($entity, 'Restored');
-        event(new $className($entity, $fromDeleted));
+
+        if (class_exists($className)) {
+            event(new $className($entity, $fromDeleted));
+        }
     }
 
     public function delete($entity)
@@ -49,7 +55,10 @@ class BaseRepository
         $entity->delete();
 
         $className = $this->getEventClass($entity, 'Deleted');
-        event(new $className($entity));
+
+        if (class_exists($className)) {
+            event(new $className($entity));
+        }
     }
 
     public function findByPublicIds($ids)

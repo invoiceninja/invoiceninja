@@ -13,9 +13,19 @@ use Redirect;
 
 use App\Models\Product;
 use App\Models\TaxRate;
+use App\Services\ProductService;
 
 class ProductController extends BaseController
 {
+    protected $productService;
+
+    public function __construct(ProductService $productService)
+    {
+        parent::__construct();
+
+        $this->productService = $productService;
+    }
+
     public function index()
     {
         return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
@@ -23,40 +33,7 @@ class ProductController extends BaseController
 
     public function getDatatable()
     {
-        $account = Auth::user()->account;
-
-        $query = DB::table('products')
-                ->leftJoin('tax_rates', function($join){
-                    $join->on('tax_rates.id', '=', 'products.default_tax_rate_id')
-                         ->whereNull('tax_rates.deleted_at');
-                })
-                ->where('products.account_id', '=', Auth::user()->account_id)
-                ->where('products.deleted_at', '=', null)
-                ->select('products.public_id', 'products.product_key', 'products.notes', 'products.cost', 'tax_rates.name as tax_name', 'tax_rates.rate as tax_rate');
-
-        $datatable = Datatable::query($query)
-                  ->addColumn('product_key', function ($model) { return link_to('products/'.$model->public_id.'/edit', $model->product_key); })
-                  ->addColumn('notes', function ($model) { return nl2br(Str::limit($model->notes, 100)); })
-                  ->addColumn('cost', function ($model) { return Utils::formatMoney($model->cost); });
-
-        if ($account->invoice_item_taxes) {
-            $datatable->addColumn('tax_rate', function ($model) { return $model->tax_rate ? ($model->tax_name . ' ' . $model->tax_rate . '%') : ''; });
-        }
-
-        return $datatable->addColumn('dropdown', function ($model) {
-                    return '<div class="btn-group tr-action" style="visibility:hidden;">
-                        <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                          '.trans('texts.select').' <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                        <li><a href="'.URL::to('products/'.$model->public_id).'/edit">'.uctrans('texts.edit_product').'</a></li>
-                        <li class="divider"></li>
-                        <li><a href="'.URL::to('products/'.$model->public_id).'/archive">'.uctrans('texts.archive_product').'</a></li>
-                      </ul>
-                    </div>';
-                  })
-                  ->orderColumns(['cost', 'product_key', 'cost'])
-                  ->make();
+        return $this->productService->getDatatable(Auth::user()->account_id);
     }
 
     public function edit($publicId)
@@ -122,10 +99,11 @@ class ProductController extends BaseController
         return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
     }
 
-    public function archive($publicId)
+    public function bulk()
     {
-        $product = Product::scope($publicId)->firstOrFail();
-        $product->delete();
+        $action = Input::get('bulk_action');
+        $ids = Input::get('bulk_public_id');
+        $count = $this->productService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_product'));
 

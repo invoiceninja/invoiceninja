@@ -49,6 +49,8 @@
         ->withAttributes(['class' => 'pull-right'])
         ->appendIcon(Icon::create('plus-sign')) !!}
 
+  @include('partials.bulk_form', ['entityType' => ENTITY_TAX_RATE])
+
   {!! Datatable::table()   
       ->addColumn(
         trans('texts.name'),

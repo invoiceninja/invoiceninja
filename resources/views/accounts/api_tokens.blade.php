@@ -4,14 +4,6 @@
 	@parent
 	@include('accounts.nav', ['selected' => ACCOUNT_API_TOKENS, 'advanced' => true])
 
-  {!! Former::open('tokens/delete')->addClass('user-form') !!}
-
-  <div style="display:none">
-    {!! Former::text('tokenPublicId') !!}
-  </div>
-  {!! Former::close() !!}
-
-
   <div class="pull-right">
   {!! Button::normal(trans('texts.documentation'))->asLinkTo(NINJA_WEB_URL.'/knowledgebase/api-documentation/')->withAttributes(['target' => '_blank'])->appendIcon(Icon::create('info-sign')) !!}
   @if (Utils::isNinja())  
@@ -28,6 +20,8 @@
             {!! Session::get('show_trash:token') ? 'checked' : ''!!}/> {!! trans('texts.show_deleted_tokens')!!}
     </label>
   -->
+
+  @include('partials.bulk_form', ['entityType' => ENTITY_TOKEN])
 
   {!! Datatable::table()
       ->addColumn(
@@ -58,15 +52,6 @@
         var checked = $('#trashed').is(':checked');
         window.location = '{!! URL::to('view_archive/token') !!}' + (checked ? '/true' : '/false');
     }
-
-  function deleteToken(id) {
-    if (!confirm("{!! trans('texts.are_you_sure') !!}")) {
-      return;
-    }
-
-    $('#tokenPublicId').val(id);
-    $('form.user-form').submit();
-  }
   </script>
 
 @stop

@@ -9,6 +9,11 @@ class AccountGateway extends EntityModel
     use SoftDeletes;
     protected $dates = ['deleted_at'];
 
+    public function getEntityType()
+    {
+        return ENTITY_ACCOUNT_GATEWAY;
+    }
+
     public function gateway()
     {
         return $this->belongsTo('App\Models\Gateway');
