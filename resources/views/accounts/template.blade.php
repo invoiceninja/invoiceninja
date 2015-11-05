@@ -1,5 +1,5 @@
 <div role="tabpanel" class="tab-pane {{ isset($active) && $active ? 'active' : '' }}" id="{{ $field }}">
-    <div class="panel-body">
+    <div class="panel-body" style="padding-bottom: 0px">
         @if (isset($isReminder) && $isReminder)
             <div class="row">
                 <div class="col-md-6">
@@ -65,6 +65,7 @@
                   var html = editors['{{ $field }}'].getHTML();
                   $('#email_template_{{ $field }}').val(html);
                   refreshPreview();
+                  NINJA.formIsChanged = true;
                 });
             editors['{{ $field }}'] = editor;
         });
