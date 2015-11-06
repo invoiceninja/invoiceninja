@@ -1,7 +1,9 @@
 <?php namespace App\Http\Controllers;
 
+
 use Auth;
 use Event;
+use Exception;
 use File;
 use Image;
 use Input;
@@ -37,6 +39,7 @@ use App\Models\Timezone;
 use App\Models\Industry;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
+use app\Ninja\Import\FreshBooks;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\ReferralRepository;
@@ -55,8 +58,9 @@ class AccountController extends BaseController
     protected $userMailer;
     protected $contactMailer;
     protected $referralRepository;
+    protected $freshbooks;
 
-    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository)
+    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository, FreshBooks $freshBooks)
     {
         parent::__construct();
 
@@ -64,6 +68,7 @@ class AccountController extends BaseController
         $this->userMailer = $userMailer;
         $this->contactMailer = $contactMailer;
         $this->referralRepository = $referralRepository;
+        $this->freshbooks = $freshBooks;
     }
 
     public function demo()
@@ -403,6 +408,8 @@ class AccountController extends BaseController
             return AccountController::saveLocalization();
         } elseif ($section === ACCOUNT_IMPORT_EXPORT) {
             return AccountController::importFile();
+        } elseif ($section === IMPORT_FROM_FRESHBOOKS) {
+            return AccountController::importFromFreshbooks();
         } elseif ($section === ACCOUNT_MAP) {
             return AccountController::mapFile();
         } elseif ($section === ACCOUNT_NOTIFICATIONS) {
@@ -720,6 +727,24 @@ class AccountController extends BaseController
         Session::flash('message', $message);
 
         return Redirect::to('clients');
+    }
+
+    //Remember to user the Command Pattern in order to keep the same interface for future sources
+    private function importFromFreshBooks()
+    {
+        try
+        {
+            $data = $this->freshbooks->importCSV(Input::file('file'));
+        }
+        catch(Exception $e)
+        {
+            Session::flash('error', $e->getMessage());
+            return Redirect::to('settings/' . ACCOUNT_IMPORT_EXPORT);
+        }
+
+        $data = $this->freshbooks->transformClient($data);
+
+        dd($data);
     }
 
     private function mapFile()

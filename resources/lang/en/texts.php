@@ -195,9 +195,6 @@ return array(
     'site_updates' => 'Site Updates',
     'custom_messages' => 'Custom Messages',
     'default_email_footer' => 'Set default <b>email signature</b>',
-    'import_clients' => 'Import Client Data',
-    'csv_file' => 'Select CSV file',
-    'export_clients' => 'Export Client Data',
     'select_file' => 'Please select a file',
     'first_row_headers' => 'Use first row as headers',
     'column' => 'Column',
@@ -207,6 +204,14 @@ return array(
     'clients_will_create' => 'clients will be created',
     'email_settings' => 'Email Settings',
     'pdf_email_attachment' => 'Attach PDFs',
+
+    //import CSV data pages
+    'import_clients' => 'Import Client Data',
+    'import_from_freshbooks' => 'Import From FreshBooks',
+    'csv_file' => 'Select CSV file',
+    'csv_client_file' => 'Select CSV Client file',
+    'export_clients' => 'Export Client Data',
+
 
     // application messages
     'created_client' => 'Successfully created client',
