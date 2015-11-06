@@ -214,13 +214,13 @@ class InvoiceApiController extends Controller
         }
 
         // if only the product key is set we'll load the cost and notes
-        if ($item['product_key'] && (!$item['cost'] || !$item['notes'])) {
+        if ($item['product_key'] && (is_null($item['cost']) || is_null($item['notes']))) {
             $product = Product::findProductByKey($item['product_key']);
             if ($product) {
-                if (!$item['cost']) {
+                if (is_null($item['cost'])) {
                     $item['cost'] = $product->cost;
                 }
-                if (!$item['notes']) {
+                if (is_null($item['notes'])) {
                     $item['notes'] = $product->notes;
                 }
             }
