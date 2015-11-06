@@ -907,5 +907,6 @@ return array(
     'restore_recurring_invoice' => 'Restore Recurring Invoice',
     'restored_recurring_invoice' => 'Successfully restored recurring invoice',
     'archived' => 'Archived',
+    'untitled_account' => 'Untitled Company',
     
 );

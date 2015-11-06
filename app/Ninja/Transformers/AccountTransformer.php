@@ -26,7 +26,7 @@ class AccountTransformer extends TransformerAbstract
     {
         return [
             'account_key' => $account->account_key,
-            'name' => $account->name,
+            'name' => $account->present()->name,
         ];
     }
 }

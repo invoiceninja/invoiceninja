@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9b0cd6db7a2a2e16ffb1711043005f2b",
+    "hash": "4c2d5d48a648e380f3acf2943b91e6bc",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -176,12 +176,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/formers/former.git",
-                "reference": "9e75217536bf6c377318e5a6f68d4c1f96a8ae3b"
+                "reference": "795f7b9b200a4ff4a33b37a96eaaab0229e36325"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/formers/former/zipball/9e75217536bf6c377318e5a6f68d4c1f96a8ae3b",
-                "reference": "9e75217536bf6c377318e5a6f68d4c1f96a8ae3b",
+                "url": "https://api.github.com/repos/formers/former/zipball/795f7b9b200a4ff4a33b37a96eaaab0229e36325",
+                "reference": "795f7b9b200a4ff4a33b37a96eaaab0229e36325",
                 "shasum": ""
             },
             "require": {
@@ -227,7 +227,7 @@
                 "foundation",
                 "laravel"
             ],
-            "time": "2015-09-24 15:56:30"
+            "time": "2015-11-05 15:53:52"
         },
         {
             "name": "anahkiasen/html-object",
@@ -2221,12 +2221,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/image.git",
-                "reference": "33f848674c96b82b050fde2806ba4e55ee88078f"
+                "reference": "2d8de6577b86c8b3bf49b6578d659ba9ee21fcc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/33f848674c96b82b050fde2806ba4e55ee88078f",
-                "reference": "33f848674c96b82b050fde2806ba4e55ee88078f",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/2d8de6577b86c8b3bf49b6578d659ba9ee21fcc1",
+                "reference": "2d8de6577b86c8b3bf49b6578d659ba9ee21fcc1",
                 "shasum": ""
             },
             "require": {
@@ -2275,7 +2275,7 @@
                 "thumbnail",
                 "watermark"
             ],
-            "time": "2015-11-04 14:06:13"
+            "time": "2015-11-05 18:30:26"
         },
         {
             "name": "ircmaxell/password-compat",
@@ -2607,6 +2607,52 @@
                 "wechat"
             ],
             "time": "2015-10-27 05:12:08"
+        },
+        {
+            "name": "laracasts/presenter",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laracasts/Presenter.git",
+                "reference": "b284f3137f990efd6e95df49d254f1ccc4541e92"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laracasts/Presenter/zipball/b284f3137f990efd6e95df49d254f1ccc4541e92",
+                "reference": "b284f3137f990efd6e95df49d254f1ccc4541e92",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "~5.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "~0.9",
+                "phpspec/phpspec": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Laracasts\\Presenter": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jeffrey Way",
+                    "email": "jeffrey@laracasts.com"
+                }
+            ],
+            "description": "Simple view presenters",
+            "keywords": [
+                "laravel",
+                "presenter",
+                "view"
+            ],
+            "time": "2014-09-13 13:18:07"
         },
         {
             "name": "laravel/framework",
@@ -3501,16 +3547,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "1.20.0",
+            "version": "1.21.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "bfd3eaba109c9a2405c92174c8e17f20c2b9caf3"
+                "reference": "7b08ec6f75791e130012f206e3f7b0e76e18e3d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/bfd3eaba109c9a2405c92174c8e17f20c2b9caf3",
-                "reference": "bfd3eaba109c9a2405c92174c8e17f20c2b9caf3",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/7b08ec6f75791e130012f206e3f7b0e76e18e3d7",
+                "reference": "7b08ec6f75791e130012f206e3f7b0e76e18e3d7",
                 "shasum": ""
             },
             "require": {
@@ -3518,12 +3564,12 @@
                 "symfony/translation": "~2.6|~3.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0"
+                "phpunit/phpunit": "~4.0|~5.0"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Carbon": "src"
+                "psr-4": {
+                    "Carbon\\": "src/Carbon/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -3544,7 +3590,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2015-06-25 04:19:39"
+            "time": "2015-11-04 20:07:17"
         },
         {
             "name": "nikic/php-parser",
@@ -8330,7 +8376,8 @@
         "descubraomundo/omnipay-pagarme": 20,
         "dercoder/omnipay-paysafecard": 20,
         "meebio/omnipay-secure-trading": 20,
-        "labs7in0/omnipay-wechat": 20
+        "labs7in0/omnipay-wechat": 20,
+        "laracasts/presenter": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

@@ -91,6 +91,7 @@ class ContactMailer extends Mailer
             'entityType' => $invoice->getEntityType(),
             'invoiceId' => $invoice->id,
             'invitation' => $invitation,
+            'account' => $account,
         ];
 
         if ($account->attatchPDF()) {
@@ -137,11 +138,12 @@ class ContactMailer extends Mailer
             'account' => $account,
             'client' => $client,
             'invitation' => $invitation,
-            'amount' => $payment->amount
+            'amount' => $payment->amount,
         ];
 
         $data = [
-            'body' => $this->processVariables($emailTemplate, $variables)
+            'body' => $this->processVariables($emailTemplate, $variables),
+            'account' => $account,
         ];
 
         if ($account->attatchPDF()) {

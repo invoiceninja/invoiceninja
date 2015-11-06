@@ -58,7 +58,8 @@
         "meebio/omnipay-secure-trading": "dev-master",
         "justinbusschau/omnipay-secpay": "~2.0",
         "labs7in0/omnipay-wechat": "dev-master",
-        "collizo4sky/omnipay-wepay": "~1.0"
+        "collizo4sky/omnipay-wepay": "~1.0",
+        "laracasts/presenter": "dev-master"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

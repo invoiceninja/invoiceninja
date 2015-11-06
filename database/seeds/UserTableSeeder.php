@@ -14,7 +14,7 @@ class UserTableSeeder extends Seeder
         Eloquent::unguard();
 
         $account = Account::create([
-            'name' => 'Test Account',
+            //'name' => 'Test Account',
             'account_key' => str_random(RANDOM_KEY_LENGTH),
             'timezone_id' => 1,
         ]);
