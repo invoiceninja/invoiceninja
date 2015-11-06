@@ -132,6 +132,15 @@ class Account extends Eloquent
         return !$this->language_id || $this->language_id == DEFAULT_LANGUAGE;
     }
 
+    public function hasInvoicePrefix()
+    {
+        if ( ! $this->invoice_number_prefix && ! $this->quote_number_prefix) {
+            return false;
+        }
+
+        return $this->invoice_number_prefix != $this->quote_number_prefix;
+    }
+
     public function getDisplayName()
     {
         if ($this->name) {
