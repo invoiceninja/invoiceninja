@@ -19,20 +19,23 @@ use App\Http\Requests;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
+use App\Services\UserService;
 
 class UserController extends BaseController
 {
     protected $accountRepo;
     protected $contactMailer;
     protected $userMailer;
+    protected $userService;
 
-    public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer, UserMailer $userMailer)
+    public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer, UserMailer $userMailer, UserService $userService)
     {
         parent::__construct();
 
         $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
         $this->userMailer = $userMailer;
+        $this->userService = $userService;
     }
 
     public function index()
@@ -42,47 +45,7 @@ class UserController extends BaseController
 
     public function getDatatable()
     {
-        $query = DB::table('users')
-                  ->where('users.account_id', '=', Auth::user()->account_id);
-
-        if (!Session::get('show_trash:user')) {
-            $query->where('users.deleted_at', '=', null);
-        }
-
-        $query->where('users.public_id', '>', 0)
-              ->select('users.public_id', 'users.first_name', 'users.last_name', 'users.email', 'users.confirmed', 'users.public_id', 'users.deleted_at');
-
-        return Datatable::query($query)
-        ->addColumn('first_name', function ($model) { return link_to('users/'.$model->public_id.'/edit', $model->first_name.' '.$model->last_name); })
-        ->addColumn('email', function ($model) { return $model->email; })
-        ->addColumn('confirmed', function ($model) { return $model->deleted_at ? trans('texts.deleted') : ($model->confirmed ? trans('texts.active') : trans('texts.pending')); })
-        ->addColumn('dropdown', function ($model) {
-          $actions = '<div class="btn-group tr-action" style="visibility:hidden;">
-              <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                '.trans('texts.select').' <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu" role="menu">';
-
-          if ($model->deleted_at) {
-              $actions .= '<li><a href="'.URL::to('restore_user/'.$model->public_id).'">'.uctrans('texts.restore_user').'</a></li>';
-          } else {
-              $actions .= '<li><a href="'.URL::to('users/'.$model->public_id).'/edit">'.uctrans('texts.edit_user').'</a></li>';
-
-              if (!$model->confirmed) {
-                  $actions .= '<li><a href="'.URL::to('send_confirmation/'.$model->public_id).'">'.uctrans('texts.send_invite').'</a></li>';
-              }
-
-              $actions .= '<li class="divider"></li>
-                <li><a href="javascript:deleteUser('.$model->public_id.')">'.uctrans('texts.delete_user').'</a></li>';
-          }
-
-           $actions .= '</ul>
-          </div>';
-
-          return $actions;
-        })
-        ->orderColumns(['first_name', 'email', 'confirmed'])
-        ->make();
+        return $this->userService->getDatatable(Auth::user()->account_id);
     }
 
     public function setTheme()
@@ -139,7 +102,7 @@ class UserController extends BaseController
         if (!Auth::user()->registered) {
             Session::flash('error', trans('texts.register_to_add_user'));
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
-        }        
+        }
         if (!Auth::user()->confirmed) {
             Session::flash('error', trans('texts.confirmation_required'));
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
@@ -163,15 +126,23 @@ class UserController extends BaseController
         return View::make('users.edit', $data);
     }
 
-    public function delete()
+    public function bulk()
     {
-        $userPublicId = Input::get('userPublicId');
+        $action = Input::get('bulk_action');
+        $id = Input::get('bulk_public_id');
+        
         $user = User::where('account_id', '=', Auth::user()->account_id)
-                    ->where('public_id', '=', $userPublicId)->firstOrFail();
+                    ->where('public_id', '=', $id)
+                    ->withTrashed()
+                    ->firstOrFail();
 
-        $user->delete();
+        if ($action === 'archive') {
+            $user->delete();
+        } else {
+            $user->restore();
+        }
 
-        Session::flash('message', trans('texts.deleted_user'));
+        Session::flash('message', trans("texts.{$action}d_user"));
 
         return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }

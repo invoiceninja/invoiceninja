@@ -73,7 +73,7 @@ class QuoteController extends BaseController
         $accountId = Auth::user()->account_id;
         $search = Input::get('sSearch');
 
-        return $this->invoiceRepo->getDatatable($accountId, $clientPublicId, ENTITY_QUOTE, $search);
+        return $this->invoiceService->getDatatable($accountId, $clientPublicId, ENTITY_QUOTE, $search);
     }
 
     public function create($clientPublicId = 0)
@@ -126,16 +126,16 @@ class QuoteController extends BaseController
     public function bulk()
     {
         $action = Input::get('bulk_action') ?: Input::get('action');;
+        $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
 
         if ($action == 'convert') {
-            $invoice = Invoice::with('invoice_items')->scope(Input::get('id'))->firstOrFail();
+            $invoice = Invoice::with('invoice_items')->scope($ids)->firstOrFail();
             $clone = $this->invoiceService->approveQuote($invoice);
 
             Session::flash('message', trans('texts.converted_to_invoice'));
             return Redirect::to('invoices/'.$clone->public_id);
         }
         
-        $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
         $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {

@@ -1,6 +1,7 @@
 <?php namespace App\Services;
 
 use Illuminate\Foundation\Bus\DispatchesCommands;
+use App\Services\DatatableService;
 
 class BaseService
 {
@@ -24,5 +25,23 @@ class BaseService
         }
 
         return count($entities);
+    }
+
+    public function createDatatable($entityType, $query, $showCheckbox = true, $hideClient = false)
+    {
+        $columns = $this->getDatatableColumns($entityType, $hideClient);
+        $actions = $this->getDatatableActions($entityType);
+
+        return $this->datatableService->createDatatable($entityType, $query, $columns, $actions, $showCheckbox);
+    }
+
+    protected function getDatatableColumns($entityType, $hideClient)
+    {
+        return [];
+    }
+
+    protected function getDatatableActions($entityType)
+    {
+        return [];
     }
 }

@@ -29,6 +29,8 @@
         ->withAttributes(['class' => 'pull-right'])
         ->appendIcon(Icon::create('plus-sign')) !!}
 
+  @include('partials.bulk_form', ['entityType' => ENTITY_PRODUCT])
+
   {!! Datatable::table()   
       ->addColumn($columns)
       ->setUrl(url('api/products/'))      
@@ -49,7 +51,7 @@
         $dropdown.css('visibility','hidden');
       }     
     });
-  } 
+  }
   </script>  
 
 

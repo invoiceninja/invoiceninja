@@ -32,8 +32,8 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\QuoteInvitationWasViewed;
-
 use App\Services\InvoiceService;
+use App\Services\RecurringInvoiceService;
 use App\Http\Requests\SaveInvoiceRequest;
 
 class InvoiceController extends BaseController
@@ -42,8 +42,9 @@ class InvoiceController extends BaseController
     protected $invoiceRepo;
     protected $clientRepo;
     protected $invoiceService;
+    protected $recurringInvoiceService;
 
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
+    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, RecurringInvoiceService $recurringInvoiceService)
     {
         parent::__construct();
 
@@ -51,6 +52,7 @@ class InvoiceController extends BaseController
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
         $this->invoiceService = $invoiceService;
+        $this->recurringInvoiceService = $recurringInvoiceService;
     }
 
     public function index()
@@ -67,7 +69,7 @@ class InvoiceController extends BaseController
                 'balance_due',
                 'due_date',
                 'status',
-                'action'
+                ''
             ]),
         ];
 
@@ -79,49 +81,15 @@ class InvoiceController extends BaseController
         $accountId = Auth::user()->account_id;
         $search = Input::get('sSearch');
 
-        return $this->invoiceRepo->getDatatable($accountId, $clientPublicId, ENTITY_INVOICE, $search);
+        return $this->invoiceService->getDatatable($accountId, $clientPublicId, ENTITY_INVOICE, $search);
     }
 
     public function getRecurringDatatable($clientPublicId = null)
     {
-        $query = $this->invoiceRepo->getRecurringInvoices(Auth::user()->account_id, $clientPublicId, Input::get('sSearch'));
-        $table = Datatable::query($query);
+        $accountId = Auth::user()->account_id;
+        $search = Input::get('sSearch');
 
-        if (!$clientPublicId) {
-            $table->addColumn('checkbox', function ($model) { return '<input type="checkbox" name="ids[]" value="'.$model->public_id.'" '.Utils::getEntityRowClass($model).'>'; });
-        }
-
-        $table->addColumn('frequency', function ($model) { return link_to('invoices/'.$model->public_id, $model->frequency); });
-
-        if (!$clientPublicId) {
-            $table->addColumn('client_name', function ($model) { return link_to('clients/'.$model->client_public_id, Utils::getClientDisplayName($model)); });
-        }
-
-        return $table->addColumn('start_date', function ($model) { return Utils::fromSqlDate($model->start_date); })
-            ->addColumn('end_date', function ($model) { return Utils::fromSqlDate($model->end_date); })
-            ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
-            ->addColumn('dropdown', function ($model) {
-
-            $str = '<div class="btn-group tr-action" style="visibility:hidden;">
-                        <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                            '.trans('texts.select').' <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">';
-
-            if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
-                $str .= '<li><a href="'.URL::to('invoices/'.$model->public_id.'/edit').'">'.trans('texts.edit_invoice').'</a></li>
-										    <li class="divider"></li>
-										    <li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans('texts.archive_invoice').'</a></li>
-										    <li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans('texts.delete_invoice').'</a></li>';
-            } else {
-                $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans('texts.restore_invoice').'</a></li>';
-            }
-
-            return $str.'</ul>
-                    </div>';
-
-            })
-            ->make();
+        return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_INVOICE, $search);
     }
 
     public function view($invitationKey)

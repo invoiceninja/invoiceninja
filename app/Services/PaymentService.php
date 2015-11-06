@@ -1,5 +1,6 @@
 <?php namespace App\Services;
 
+use Utils;
 use URL;
 use DateTime;
 use Event;
@@ -18,9 +19,11 @@ use App\Events\PaymentWasCreated;
 class PaymentService extends BaseService
 {
     public $lastError;
+    protected $datatableService;
 
-    public function __construct(PaymentRepository $paymentRepo, AccountRepository $accountRepo)
+    public function __construct(PaymentRepository $paymentRepo, AccountRepository $accountRepo, DatatableService $datatableService)
     {
+        $this->datatableService = $datatableService;
         $this->paymentRepo = $paymentRepo;
         $this->accountRepo = $accountRepo;
     }
@@ -243,4 +246,68 @@ class PaymentService extends BaseService
         // create payment record
         return $this->createPayment($invitation, $ref);
     }
+
+    public function getDatatable($clientPublicId, $search)
+    {
+        $query = $this->paymentRepo->find($clientPublicId, $search);
+
+        return $this->createDatatable(ENTITY_PAYMENT, $query, !$clientPublicId);
+    }
+
+    protected function getDatatableColumns($entityType, $hideClient)
+    {
+        return [
+            [
+                'invoice_number',
+                function ($model) {
+                    return link_to("invoices/{$model->invoice_public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)]);
+                }
+            ],
+            [
+                'client_name',
+                function ($model) {
+                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model)) : '';
+                },
+                ! $hideClient
+            ],
+            [
+                'transaction_reference',
+                function ($model) {
+                    return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>';
+                }
+            ],
+            [
+                'payment_type',
+                function ($model) {
+                    return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? $model->gateway_name : '');
+                }
+            ],
+            [
+                'amount',
+                function ($model) {
+                    return Utils::formatMoney($model->amount, $model->currency_id);
+                }
+            ],
+            [
+                'payment_date',
+                function ($model) {
+                    return Utils::dateToString($model->payment_date);
+                }
+            ]
+        ];
+    }
+
+    protected function getDatatableActions($entityType)
+    {
+        return [
+            [
+                trans('texts.edit_payment'),
+                function ($model) {
+                    return URL::to("payments/{$model->public_id}/edit");
+                }
+            ]
+        ];
+    }
+
+
 }

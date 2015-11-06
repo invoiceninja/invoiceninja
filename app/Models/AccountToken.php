@@ -7,6 +7,11 @@ class AccountToken extends EntityModel
     use SoftDeletes;
     protected $dates = ['deleted_at'];
 
+    public function getEntityType()
+    {
+        return ENTITY_TOKEN;
+    }
+
     public function account()
     {
         return $this->belongsTo('App\Models\Account');

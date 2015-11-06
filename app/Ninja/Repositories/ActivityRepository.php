@@ -61,7 +61,7 @@ class ActivityRepository
         return $activity;
     }
 
-    public function findByClientId($clientId)
+    public function findByClientPublicId($clientPublicId)
     {
         return DB::table('activities')
                     ->join('users', 'users.id', '=', 'activities.user_id')
@@ -70,33 +70,34 @@ class ActivityRepository
                     ->leftJoin('invoices', 'invoices.id', '=', 'activities.invoice_id')
                     ->leftJoin('payments', 'payments.id', '=', 'activities.payment_id')
                     ->leftJoin('credits', 'credits.id', '=', 'activities.credit_id')
-                    ->where('activities.client_id', '=', $clientId)
+                    ->where('clients.public_id', '=', $clientPublicId)
                     ->where('contacts.is_primary', '=', 1)
                     ->whereNull('contacts.deleted_at')
                     ->select(
-                        'activities.id', 
-                        'activities.created_at', 
-                        'activities.contact_id', 
-                        'activities.activity_type_id', 
-                        'activities.is_system', 
-                        'clients.currency_id', 
+                        'activities.id',
+                        'activities.created_at',
+                        'activities.contact_id',
+                        'activities.activity_type_id',
+                        'activities.is_system',
+                        'clients.currency_id',
                         'activities.balance',
-                        'activities.adjustment', 
-                        'users.first_name as user_first_name', 
-                        'users.last_name as user_last_name', 
-                        'users.email as user_email', 
-                        'invoices.invoice_number as invoice', 
-                        'invoices.public_id as invoice_public_id', 
-                        'invoices.is_recurring', 
+                        'activities.adjustment',
+                        'users.first_name as user_first_name',
+                        'users.last_name as user_last_name',
+                        'users.email as user_email',
+                        'invoices.invoice_number as invoice',
+                        'invoices.public_id as invoice_public_id',
+                        'invoices.is_recurring',
                         'clients.currency_id',
                         'clients.name as client_name',
                         'clients.public_id as client_public_id',
-                        'contacts.id as contact', 
-                        'contacts.first_name as first_name', 
+                        'contacts.id as contact',
+                        'contacts.first_name as first_name',
                         'contacts.last_name as last_name',
                         'contacts.email as email',
                         'payments.transaction_reference as payment',
-                        'credits.amount as credit');
+                        'credits.amount as credit'
+                    );
     }
 
 }

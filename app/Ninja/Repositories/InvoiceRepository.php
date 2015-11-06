@@ -75,7 +75,7 @@ class InvoiceRepository extends BaseRepository
             $query->where('clients.public_id', '=', $clientPublicId);
         }
 
-        if (!\Session::get('show_trash:invoice')) {
+        if (!\Session::get('show_trash:recurring_invoice')) {
             $query->where('invoices.deleted_at', '=', null);
         }
 
@@ -119,107 +119,6 @@ class InvoiceRepository extends BaseRepository
             ->make();
     }
 
-    public function getDatatable($accountId, $clientPublicId = null, $entityType, $search)
-    {
-        $query = $this->getInvoices($accountId, $clientPublicId, $entityType, $search)
-              ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE ? true : false);
-
-        $table = \Datatable::query($query);
-
-        if (!$clientPublicId) {
-            $table->addColumn('checkbox', function ($model) { return '<input type="checkbox" name="ids[]" value="'.$model->public_id.'" '.Utils::getEntityRowClass($model).'>'; });
-        }
-
-        $table->addColumn("invoice_number", function ($model) use ($entityType) { return link_to("{$entityType}s/".$model->public_id.'/edit', $model->invoice_number, ['class' => Utils::getEntityRowClass($model)]); });
-
-        if (!$clientPublicId) {
-            $table->addColumn('client_name', function ($model) { return link_to('clients/'.$model->client_public_id, Utils::getClientDisplayName($model)); });
-        }
-
-        $table->addColumn("invoice_date", function ($model) { return Utils::fromSqlDate($model->invoice_date); })
-              ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); });
-
-        if ($entityType == ENTITY_INVOICE) {
-            $table->addColumn('balance', function ($model) {
-                return $model->partial > 0 ?
-                    trans('texts.partial_remaining', ['partial' => Utils::formatMoney($model->partial, $model->currency_id), 'balance' => Utils::formatMoney($model->balance, $model->currency_id)]) :
-                    Utils::formatMoney($model->balance, $model->currency_id);
-            });
-        }
-
-        return $table->addColumn('due_date', function ($model) { return Utils::fromSqlDate($model->due_date); })
-        ->addColumn('invoice_status_name', function ($model) { return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : self::getStatusLabel($model->invoice_status_id, $model->invoice_status_name); })
-        ->addColumn('dropdown', function ($model) use ($entityType) {
-
-              $str = '<div class="btn-group tr-action" style="visibility:hidden;">
-                  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                    '.trans('texts.select').' <span class="caret"></span>
-                  </button>
-                <ul class="dropdown-menu" role="menu">';
-
-            if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
-                $str .= '<li><a href="'.\URL::to("{$entityType}s/".$model->public_id.'/edit').'">'.trans("texts.edit_{$entityType}").'</a></li>
-                <li><a href="'.\URL::to("{$entityType}s/".$model->public_id.'/clone').'">'.trans("texts.clone_{$entityType}").'</a></li>
-                <li><a href="' . \URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}") . '">' . trans("texts.view_history") . '</a></li>
-                <li class="divider"></li>';
-
-                if ($model->invoice_status_id < INVOICE_STATUS_SENT) {
-                    $str .= '<li><a href="javascript:markEntity('.$model->public_id.', '.INVOICE_STATUS_SENT.')">'.trans("texts.mark_sent").'</a></li>';
-                }
-
-                if ($entityType == ENTITY_INVOICE) {
-                    if ($model->balance > 0) {
-                        $str .= '<li><a href="'.\URL::to('payments/create/'.$model->client_public_id.'/'.$model->public_id).'">'.trans('texts.enter_payment').'</a></li>';
-                    }
-
-                    if ($model->quote_id) {
-                        $str .= '<li><a href="'.\URL::to("quotes/{$model->quote_id}/edit").'">'.trans("texts.view_quote").'</a></li>';
-                    }
-                } elseif ($entityType == ENTITY_QUOTE) {
-                    if ($model->quote_invoice_id) {
-                        $str .= '<li><a href="'.\URL::to("invoices/{$model->quote_invoice_id}/edit").'">'.trans("texts.view_invoice").'</a></li>';
-                    } else {
-                        $str .= '<li><a href="javascript:convertEntity('.$model->public_id.')">'.trans("texts.convert_to_invoice").'</a></li>';
-                    }
-                }
-
-                $str .= '<li class="divider"></li>
-                      <li><a href="javascript:archiveEntity('.$model->public_id.')">'.trans("texts.archive_{$entityType}").'</a></li>';
-
-            } else {
-                $str .= '<li><a href="javascript:restoreEntity('.$model->public_id.')">'.trans("texts.restore_{$entityType}").'</a></li>';
-            }
-
-            if (!$model->is_deleted) {
-                $str .= '<li><a href="javascript:deleteEntity('.$model->public_id.')">'.trans("texts.delete_{$entityType}").'</a></li>';
-            }
-
-            return $str.'</ul>
-                </div>';
-        })
-        ->make();
-    }
-
-    private function getStatusLabel($statusId, $statusName) {
-        $label = trans("texts.status_" . strtolower($statusName));
-        $class = 'default';
-        switch ($statusId) {
-            case INVOICE_STATUS_SENT:
-                $class = 'info';
-                break;
-            case INVOICE_STATUS_VIEWED:
-                $class = 'warning';
-                break;
-            case INVOICE_STATUS_PARTIAL:
-                $class = 'primary';
-                break;
-            case INVOICE_STATUS_PAID:
-                $class = 'success';
-                break;
-        }
-        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
-    }
-    
     public function save($data)
     {
         $account = \Auth::user()->account;
