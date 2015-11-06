@@ -734,7 +734,8 @@ class AccountController extends BaseController
     {
         try
         {
-            $data = $this->freshbooks->importCSV(Input::file('file'));
+            $ignore_header = true;
+            $data = $this->freshbooks->importCSV(Input::file('file'), $ignore_header);
         }
         catch(Exception $e)
         {

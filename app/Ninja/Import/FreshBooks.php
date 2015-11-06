@@ -46,9 +46,11 @@ class FreshBooks
         return $csv->data;
     }
 
-    public function transformClient($data)
+    public function transformClient($data, $ignore_header)
     {
-        $header = array_shift($data);
+        if($ignore_header)
+            $header = array_shift($data);
+
         $resource = new Collection($data, function(array $data) {
             return [
                 'name'          => $data[0]                 !== array() ? $data[0] : '',
@@ -74,7 +76,5 @@ class FreshBooks
 
         dd($data);
         return $data;
-
     }
-
 }
