@@ -348,19 +348,19 @@ class InvoiceRepository extends BaseRepository
         $clone = Invoice::createNew($invoice);
         $clone->balance = $invoice->amount;
 
-        // if the invoice prefix is diff than quote prefix, use the same number for the invoice
-        if (($account->invoice_number_prefix || $account->quote_number_prefix) 
-            && $account->invoice_number_prefix != $account->quote_number_prefix
-            && $account->share_counter) {
-
+        // if the invoice prefix is diff than quote prefix, use the same number for the invoice (if it's available)
+        $invoiceNumber = false;
+        if ($account->hasInvoicePrefix() && $account->share_counter) {
             $invoiceNumber = $invoice->invoice_number;
             if ($account->quote_number_prefix && strpos($invoiceNumber, $account->quote_number_prefix) === 0) {
                 $invoiceNumber = substr($invoiceNumber, strlen($account->quote_number_prefix));
             }
-            $clone->invoice_number = $account->invoice_number_prefix.$invoiceNumber;
-        } else {
-            $clone->invoice_number = $account->getNextInvoiceNumber($invoice);
+            $invoiceNumber = $account->invoice_number_prefix . $invoiceNumber;
+            if (Invoice::scope()->withTrashed()->whereInvoiceNumber($invoiceNumber)->first()) {
+                $invoiceNumber = false;
+            }
         }
+        $clone->invoice_number = $invoiceNumber ?: $account->getNextInvoiceNumber($clone);
 
         foreach ([
           'client_id',

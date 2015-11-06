@@ -8,10 +8,14 @@ use Event;
 use App;
 use App\Events\UserSettingsChanged;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 
 class Account extends Eloquent
 {
+    use PresentableTrait;
     use SoftDeletes;
+
+    protected $presenter = 'App\Ninja\Presenters\AccountPresenter';
     protected $dates = ['deleted_at'];
     protected $hidden = ['ip'];
 
@@ -130,6 +134,15 @@ class Account extends Eloquent
     public function isEnglish()
     {
         return !$this->language_id || $this->language_id == DEFAULT_LANGUAGE;
+    }
+
+    public function hasInvoicePrefix()
+    {
+        if ( ! $this->invoice_number_prefix && ! $this->quote_number_prefix) {
+            return false;
+        }
+
+        return $this->invoice_number_prefix != $this->quote_number_prefix;
     }
 
     public function getDisplayName()
