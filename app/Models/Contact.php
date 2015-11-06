@@ -32,20 +32,6 @@ class Contact extends EntityModel
         return PERSON_CONTACT;
     }
 
-    /*
-    public function getLastLogin()
-    {
-        if ($this->last_login == '0000-00-00 00:00:00')
-        {
-            return '---';
-        }
-        else
-        {
-            return $this->last_login->format('m/d/y h:i a');
-        }
-    }
-    */
-
     public function getName()
     {
         return $this->getDisplayName();
