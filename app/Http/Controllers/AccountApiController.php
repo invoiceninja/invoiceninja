@@ -55,6 +55,7 @@ class AccountApiController extends BaseAPIController
         return $this->returnData($resource, 'user_accounts');
     }
 
+    /*
     public function show($accountKey)
     {
         $account = $this->accountRepo->findByKey($accountKey);
@@ -63,5 +64,6 @@ class AccountApiController extends BaseAPIController
 
         return $this->returnData($resource);
     }
+    */
 
 }
