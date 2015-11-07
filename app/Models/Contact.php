@@ -22,6 +22,11 @@ class Contact extends EntityModel
     public static $fieldEmail = 'Contact - Email';
     public static $fieldPhone = 'Contact - Phone';
 
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account');
+    }
+
     public function client()
     {
         return $this->belongsTo('App\Models\Client');
