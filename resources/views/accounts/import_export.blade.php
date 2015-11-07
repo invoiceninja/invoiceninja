@@ -17,6 +17,18 @@
 </div>
 {!! Former::close() !!}
 
+{!! Former::open_for_files('settings/' . IMPORT_FROM_FRESHBOOKS) !!}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">{!! trans('texts.import_from_freshbooks') !!}</h3>
+  </div>
+  <div class="panel-body">
+    {!! Former::file('file')->label(trans('texts.csv_client_file')) !!}
+    {!! Former::actions( Button::info(trans('texts.upload'))->submit()->large()->appendIcon(Icon::create('open'))) !!}
+  </div>
+</div>
+{!! Former::close() !!}
+
 
 {!! Former::open('settings/' . ACCOUNT_EXPORT) !!}
 <div class="panel panel-default">
