@@ -254,6 +254,7 @@ return array(
     'archived_credits' => 'Successfully archived :count credits',
     'deleted_credit' => 'Successfully deleted credit',
     'deleted_credits' => 'Successfully deleted :count credits',
+    'imported_file' => 'Successfully imported file',
 
     // Emails
     'confirmation_subject' => 'Invoice Ninja Account Confirmation',

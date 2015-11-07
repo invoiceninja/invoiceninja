@@ -39,7 +39,7 @@ use App\Models\Timezone;
 use App\Models\Industry;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
-use app\Ninja\Import\FreshBooks;
+use App\Ninja\Interfaces\ImporterInterface;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\ReferralRepository;
@@ -60,7 +60,7 @@ class AccountController extends BaseController
     protected $referralRepository;
     protected $freshbooks;
 
-    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository, FreshBooks $freshBooks)
+    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository, ClientRepository $clientRepository, ImporterInterface $freshBooksImporter)
     {
         parent::__construct();
 
@@ -68,7 +68,8 @@ class AccountController extends BaseController
         $this->userMailer = $userMailer;
         $this->contactMailer = $contactMailer;
         $this->referralRepository = $referralRepository;
-        $this->freshbooks = $freshBooks;
+        $this->clientRepository = $clientRepository;
+        $this->freshbooksImporter = $freshBooksImporter;
     }
 
     public function demo()
@@ -718,8 +719,7 @@ class AccountController extends BaseController
                 continue;
             }
 
-            $clientRepository = new ClientRepository();
-            $clientRepository->save($data);
+            $this->clientRepository->save($data);
             $count++;
         }
 
@@ -734,8 +734,9 @@ class AccountController extends BaseController
     {
         try
         {
-            $ignore_header = true;
-            $data = $this->freshbooks->importCSV(Input::file('file'), $ignore_header);
+            $data = $this->freshbooksImporter->import(Input::file('file'));
+            foreach($data as $client)
+                $this->clientRepository->save($client);
         }
         catch(Exception $e)
         {
@@ -743,9 +744,9 @@ class AccountController extends BaseController
             return Redirect::to('settings/' . ACCOUNT_IMPORT_EXPORT);
         }
 
-        $data = $this->freshbooks->transformClient($data);
+        Session::flash('message', trans('texts.imported_file'));
 
-        dd($data);
+        return Redirect::to('settings/' . ACCOUNT_IMPORT_EXPORT);
     }
 
     private function mapFile()
