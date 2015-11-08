@@ -15,6 +15,7 @@ use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\AccountTransformer;
 use App\Ninja\Transformers\UserAccountTransformer;
 use App\Http\Controllers\BaseAPIController;
+use Swagger\Annotations as SWG;
 
 class AccountApiController extends BaseAPIController
 {

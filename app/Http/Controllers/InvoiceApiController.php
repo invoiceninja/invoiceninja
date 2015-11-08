@@ -24,6 +24,21 @@ class InvoiceApiController extends Controller
         $this->mailer = $mailer;
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/invoices",
+     *   summary="List of invoices",
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A list with invoices",
+     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Invoice"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function index($clientPublicId = false)
     {
         $invoices = Invoice::scope()

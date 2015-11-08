@@ -838,7 +838,7 @@
 	function createInvoiceModel() {
 		var invoice = ko.toJS(window.model).invoice;
 		invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
-		//invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
+		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
 
         if (invoice.is_recurring) {

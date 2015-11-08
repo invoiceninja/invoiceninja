@@ -4,8 +4,21 @@ use App\Models\Invoice;
 use League\Fractal;
 use League\Fractal\TransformerAbstract;
 
+/**
+ * @SWG\Definition(definition="Invoice",required={"invoice_number"}, @SWG\Xml(name="Invoice"))
+ */
+
 class InvoiceTransformer extends TransformerAbstract
 {
+    /**
+    * @SWG\Property(property="id", type="integer", example=1)
+    * @SWG\Property(property="invoice_number", type="string", example="0001")
+    * @SWG\Property(property="amount", type="float", example=10)
+    * @SWG\Property(property="balance", type="float", example=10)
+    * @SWG\Property(property="client_id", type="integer", example=1)
+    * @SWG\Property(property="invoice_status_id", type="integer", example=1)
+    */
+
     protected $defaultIncludes = [
         'invoice_items',
     ];
@@ -18,11 +31,11 @@ class InvoiceTransformer extends TransformerAbstract
     public function transform(Invoice $invoice)
     {
         return [
-            'public_id' => (int) $invoice->public_id,
+            'id' => (int) $invoice->public_id,
             'invoice_number' => $invoice->invoice_number,
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
-            'client_id' => (int) $invoice->client_id,
+            'client_id' => (int) $invoice->client->public_id,
             'invoice_status_id' => (int) $invoice->invoice_status_id,
             'updated_at' => $invoice->updated_at,
             'deleted_at' => $invoice->deleted_at,
