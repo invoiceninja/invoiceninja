@@ -1,10 +1,10 @@
 <?php namespace App\Ninja\Transformers;
 
+use App\Models\Account;
 use App\Models\Contact;
 use League\Fractal;
-use League\Fractal\TransformerAbstract;
 
-class ContactTransformer extends TransformerAbstract
+class ContactTransformer extends EntityTransformer
 {
     public function transform(Contact $contact)
     {
@@ -19,7 +19,7 @@ class ContactTransformer extends TransformerAbstract
             'is_primary' => (bool) $contact->is_primary,
             'phone' => $contact->phone,
             'last_login' => $contact->last_login,
-            'account_key' => $contact->account->account_key
+            'account_key' => $this->account->account_key
         ];
     }
 }

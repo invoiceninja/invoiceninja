@@ -1,39 +1,31 @@
 <?php namespace App\Ninja\Transformers;
 
+use App\Models\Account;
 use App\Models\Client;
 use App\Models\Contact;
 use League\Fractal;
-use League\Fractal\TransformerAbstract;
 
-class ClientTransformer extends TransformerAbstract
+class ClientTransformer extends EntityTransformer
 {
     protected $defaultIncludes = [
         'contacts',
         'invoices',
         'quotes',
     ];
-
-    public function includeContacts($client)
+    
+    public function includeContacts(Client $client)
     {
-        return $this->collection($client->contacts, new ContactTransformer);
+        return $this->collection($client->contacts, new ContactTransformer($this->account));
     }
 
-    public function includeInvoices($client)
+    public function includeInvoices(Client $client)
     {
-        $invoices = $client->invoices->filter(function($invoice) {
-            return !$invoice->is_quote && !$invoice->is_recurring;
-        });
-        
-        return $this->collection($invoices, new InvoiceTransformer);
+        return $this->collection($client->getInvoices, new InvoiceTransformer($this->account, $client));
     }
 
-    public function includeQuotes($client)
+    public function includeQuotes(Client $client)
     {
-        $invoices = $client->invoices->filter(function($invoice) {
-            return $invoice->is_quote && !$invoice->is_recurring;
-        });
-        
-        return $this->collection($invoices, new QuoteTransformer);
+        return $this->collection($client->getQuotes, new QuoteTransformer($this->account, $client));
     }
 
     public function transform(Client $client)
@@ -44,7 +36,7 @@ class ClientTransformer extends TransformerAbstract
             'balance' => (float) $client->balance,
             'paid_to_date' => (float) $client->paid_to_date,
             'user_id' => (int) $client->user_id,
-            'account_key' => $client->account->account_key,
+            'account_key' => $this->account->account_key,
             'updated_at' => $client->updated_at,
             'deleted_at' => $client->deleted_at,
             'address1' => $client->address1,

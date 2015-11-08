@@ -2,9 +2,8 @@
 
 use App\Models\Invoice;
 use League\Fractal;
-use League\Fractal\TransformerAbstract;
 
-class QuoteTransformer extends TransformerAbstract
+class QuoteTransformer extends EntityTransformer
 {
     protected $defaultIncludes = [
         'invoice_items',

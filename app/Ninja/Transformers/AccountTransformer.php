@@ -12,14 +12,14 @@ class AccountTransformer extends TransformerAbstract
         'clients',
     ];
 
-    public function includeUsers($account)
+    public function includeUsers(Account $account)
     {
-        return $this->collection($account->users, new UserTransformer);
+        return $this->collection($account->users, new UserTransformer($account));
     }
 
-    public function includeClients($account)
+    public function includeClients(Account $account)
     {
-        return $this->collection($account->clients, new ClientTransformer);
+        return $this->collection($account->clients, new ClientTransformer($account));
     }
 
     public function transform(Account $account)

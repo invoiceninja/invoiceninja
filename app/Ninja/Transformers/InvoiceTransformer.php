@@ -1,14 +1,15 @@
 <?php namespace App\Ninja\Transformers;
 
+use App\Models\Account;
+use App\Models\Client;
 use App\Models\Invoice;
 use League\Fractal;
-use League\Fractal\TransformerAbstract;
 
 /**
  * @SWG\Definition(definition="Invoice",required={"invoice_number"}, @SWG\Xml(name="Invoice"))
  */
 
-class InvoiceTransformer extends TransformerAbstract
+class InvoiceTransformer extends EntityTransformer
 {
     /**
     * @SWG\Property(property="id", type="integer", example=1)
@@ -19,13 +20,22 @@ class InvoiceTransformer extends TransformerAbstract
     * @SWG\Property(property="invoice_status_id", type="integer", example=1)
     */
 
+    protected $client;
+
+    public function __construct(Account $account, Client $client)
+    {
+        parent::__construct($account);
+
+        $this->client = $client;
+    }
+
     protected $defaultIncludes = [
         'invoice_items',
     ];
 
-    public function includeInvoiceItems($invoice)
+    public function includeInvoiceItems(Invoice $invoice)
     {
-        return $this->collection($invoice->invoice_items, new InvoiceItemTransformer);
+        return $this->collection($invoice->invoice_items, new InvoiceItemTransformer($this->account));
     }
 
     public function transform(Invoice $invoice)
@@ -35,7 +45,7 @@ class InvoiceTransformer extends TransformerAbstract
             'invoice_number' => $invoice->invoice_number,
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
-            'client_id' => (int) $invoice->client->public_id,
+            'client_id' => (int) $this->client->public_id,
             'invoice_status_id' => (int) $invoice->invoice_status_id,
             'updated_at' => $invoice->updated_at,
             'deleted_at' => $invoice->deleted_at,

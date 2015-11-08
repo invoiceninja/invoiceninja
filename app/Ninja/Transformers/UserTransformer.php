@@ -1,10 +1,10 @@
 <?php namespace App\Ninja\Transformers;
 
+use App\Models\Account;
 use App\Models\User;
 use League\Fractal;
-use League\Fractal\TransformerAbstract;
 
-class UserTransformer extends TransformerAbstract
+class UserTransformer extends EntityTransformer
 {
     public function transform(User $user)
     {
