@@ -28,6 +28,7 @@ class InvoiceApiController extends Controller
      * @SWG\Get(
      *   path="/invoices",
      *   summary="List of invoices",
+     *   tags={"invoice"},
      *   @SWG\Response(
      *     response=200,
      *     description="A list with invoices",
@@ -69,6 +70,28 @@ class InvoiceApiController extends Controller
         return Response::make($response, 200, $headers);
     }
 
+
+    /**
+     * @SWG\Post(
+     *   path="/invoices",
+     *   tags={"invoice"},
+     *   summary="Create an invoice",
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Invoice")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Newly created invoice",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function store()
     {
         $data = Input::all();

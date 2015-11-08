@@ -16,6 +16,22 @@ class PaymentApiController extends Controller
         $this->paymentRepo = $paymentRepo;
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/payments",
+     *   tags={"payment"},
+     *   summary="List of payments",
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A list with payments",
+     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Payment"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function index($clientPublicId = false)
     {
         $payments = Payment::scope()
@@ -37,6 +53,27 @@ class PaymentApiController extends Controller
     }
 
 
+    /**
+     * @SWG\Post(
+     *   path="/payments",
+     *   summary="Create a payment",
+     *   tags={"payment"},
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Payment")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="New payment",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function store()
     {
         $data = Input::all();
