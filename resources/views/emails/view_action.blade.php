@@ -4,10 +4,6 @@
 {
   "@context": "http://schema.org",
   "@type": "Invoice",
-  "minimumPaymentDue": {
-    "@type": "PriceSpecification",
-    "price": "{{ $invoice->present()->minimumAmountDue }}"
-  },
   "paymentStatus": "PaymentDue",
   @if ($invoice->due_date)
   "paymentDue": "{{ $invoice->due_date }}T00:00:00+00:00",
@@ -23,8 +19,8 @@
   },
   "totalPaymentDue": {
     "@type": "PriceSpecification",
-    "price": "{{ $invoice->present()->totalAmountDue }}"
-   }
+    "price": "{{ $invoice->present()->balance_due }}"
+  }
 },
 @endif
 {
@@ -33,7 +29,7 @@
   "action": {
     "@type": "ViewAction",
     "url": "{!! $link !!}",
-    "name": "View {{ $entityType }}"
+    "name": "{{ trans("view_{$entityType}") }}"
   }
 }
 ]
