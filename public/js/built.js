@@ -29880,10 +29880,10 @@ links:["Africa/Abidjan|Africa/Bamako","Africa/Abidjan|Africa/Banjul","Africa/Abi
 var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
 var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
-var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
+var isEdge = navigator.userAgent.indexOf('Edge/') >= 0;
+var isChrome = !!window.chrome && !isOpera && !isEdge; // Chrome 1+
 var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
-
 
 var invoiceOld;
 var refreshTimer;
@@ -32231,7 +32231,7 @@ NINJA.parseRegExpLine = function(line, regExp, formatter, groupText)
     var parts = [];
     var lastIndex = 0;
     
-    while (match = regExp.exec(line + '\n')) {
+    while (match = regExp.exec(line)) {
         if (match.index > lastIndex) {
             parts.push(line.substring(lastIndex, match.index));
         }
