@@ -5,7 +5,7 @@
  * Date: 11/7/15
  * Time: 08:31
  */
-namespace App\Ninja\Interfaces;
+namespace App\Ninja\Import\FreshBooks;
 
 /**
  * Interface ImporterInterface
@@ -13,5 +13,5 @@ namespace App\Ninja\Interfaces;
  */
 interface ImporterInterface
 {
-    public function import($stream);
+    public function execute($stream);
 }

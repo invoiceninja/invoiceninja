@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 
+use App\Ninja\Import\FreshBooks\ImporterInterface;
 use Auth;
 use Event;
 use Exception;
@@ -39,7 +40,8 @@ use App\Models\Timezone;
 use App\Models\Industry;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
-use App\Ninja\Interfaces\ImporterInterface;
+use app\Ninja\Import\FreshBooks\Importer;
+
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\ReferralRepository;
@@ -729,14 +731,15 @@ class AccountController extends BaseController
         return Redirect::to('clients');
     }
 
-    //Remember to user the Command Pattern in order to keep the same interface for future sources
     private function importFromFreshBooks()
     {
         try
         {
-            $data = $this->freshbooksImporter->import(Input::file('file'));
-            foreach($data as $client)
-                $this->clientRepository->save($client);
+            $files['client_csv']     = Input::file('client_file');
+            $files['invoice_csv']    = Input::file('invoice_file');
+            $files['staff_csv']      = Input::file('staff_file');
+            $files['timesheet_csv']  = Input::file('timesheet_file');
+            $imported_files = $this->freshbooksImporter->execute($files);
         }
         catch(Exception $e)
         {
@@ -744,7 +747,7 @@ class AccountController extends BaseController
             return Redirect::to('settings/' . ACCOUNT_IMPORT_EXPORT);
         }
 
-        Session::flash('message', trans('texts.imported_file'));
+        Session::flash('message', trans('texts.imported_file').' - '.$imported_files);
 
         return Redirect::to('settings/' . ACCOUNT_IMPORT_EXPORT);
     }

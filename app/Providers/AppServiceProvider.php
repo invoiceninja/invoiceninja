@@ -191,8 +191,8 @@ class AppServiceProvider extends ServiceProvider {
 		);
 
         $this->app->bind(
-            'App\Ninja\Interfaces\ImporterInterface',
-            'App\Ninja\Import\FreshBooksImporter'
+            'App\Ninja\Import\FreshBooks\ImporterInterface',
+            'App\Ninja\Import\FreshBooks\FreshBooksImporter'
         );
 	}
 
