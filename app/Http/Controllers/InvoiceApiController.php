@@ -83,7 +83,7 @@ class InvoiceApiController extends Controller
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Newly created invoice",
+     *     description="New invoice",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
      *   ),
      *   @SWG\Response(

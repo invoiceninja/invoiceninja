@@ -5,8 +5,18 @@ use App\Models\Client;
 use App\Models\Contact;
 use League\Fractal;
 
+/**
+ * @SWG\Definition(definition="Client", @SWG\Xml(name="Client"))
+ */
+
 class ClientTransformer extends EntityTransformer
 {
+    /**
+    * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
+    * @SWG\Property(property="balance", type="float", example=10, readOnly=true)
+    * @SWG\Property(property="paid_to_date", type="float", example=10, readOnly=true)
+    */
+
     protected $defaultIncludes = [
         'contacts',
         'invoices',

@@ -6,7 +6,7 @@ use App\Models\Invoice;
 use League\Fractal;
 
 /**
- * @SWG\Definition(definition="Invoice",required={"invoice_number"}, @SWG\Xml(name="Invoice"))
+ * @SWG\Definition(definition="Invoice", required={"invoice_number"}, @SWG\Xml(name="Invoice"))
  */
 
 class InvoiceTransformer extends EntityTransformer
