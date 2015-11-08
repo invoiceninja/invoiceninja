@@ -192,8 +192,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
     Route::resource('ping', 'ClientApiController@ping');
     Route::post('login', 'AccountApiController@login');
-    Route::get('accounts', 'AccountApiController@index');
-    Route::get('accounts/{account_key}', 'AccountApiController@show');
+    Route::get('accounts', 'AccountApiController@show');
     Route::resource('clients', 'ClientApiController');
     Route::get('quotes/{client_id?}', 'QuoteApiController@index');
     Route::resource('quotes', 'QuoteApiController');
