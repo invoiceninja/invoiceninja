@@ -715,8 +715,18 @@
             <h4 class="modal-title" id="myModalLabel">{{ trans('texts.white_label_header') }}</h4>
           </div>
 
-          <div style="background-color: #fff; padding:20px">
+          <div class="panel-body">
             <p>{{ trans('texts.white_label_text')}}</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>{{ trans('texts.before') }}</h4>
+                    {!! HTML::image('images/pro_plan/white_label_before.png', 'before', ['width' => '100%']) !!}
+                </div>
+                <div class="col-md-6">
+                    <h4>{{ trans('texts.after') }}</h4>
+                    {!! HTML::image('images/pro_plan/white_label_after.png', 'after', ['width' => '100%']) !!}
+                </div>
+            </div>
           </div>
 
           <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">          
