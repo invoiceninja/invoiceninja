@@ -860,6 +860,32 @@ return array(
 
   'payment' => 'pago',
   'system' => 'Sistema',
+  'signature' => 'Email Signature',
+  'default_messages' => 'Default Messages',
+  'quote_terms' => 'Quote Terms',
+  'default_quote_terms' => 'Default Quote Terms',
+  'default_invoice_terms' => 'Default Invoice Terms',
+  'default_invoice_footer' => 'Default Invoice Footer',
+  'quote_footer' => 'Quote Footer',
+  'free' => 'Free',
+  
+  'quote_is_approved' => 'This quote is approved',
+  'apply_credit' => 'Apply Credit',
+  'system_settings' => 'System Settings',
+  'archive_token' => 'Archive Token',
+  'archived_token' => 'Successfully archived token',
+  'archive_user' => 'Archive User',
+  'archived_user' => 'Successfully archived user',
+  'archive_account_gateway' => 'Archive Gateway',
+  'archived_account_gateway' => 'Successfully archived gateway',
+  'archive_recurring_invoice' => 'Archive Recurring Invoice',
+  'archived_recurring_invoice' => 'Successfully archived recurring invoice',
+  'delete_recurring_invoice' => 'Delete Recurring Invoice',
+  'deleted_recurring_invoice' => 'Successfully deleted recurring invoice',
+  'restore_recurring_invoice' => 'Restore Recurring Invoice',
+  'restored_recurring_invoice' => 'Successfully restored recurring invoice',
+  'archived' => 'Archived',
+  'untitled_account' => 'Untitled Company',
 
 
 );
