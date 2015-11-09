@@ -46,10 +46,11 @@ class AccountApiController extends BaseAPIController
     private function processLogin(Request $request)
     {
         // Create a new token only if one does not already exist
-        $this->accountRepo->createTokens(Auth::user(), $request->token_name);
+        $user = Auth::user();
+        $this->accountRepo->createTokens($user, $request->token_name);
         
-        $users = $this->accountRepo->findUsers(Auth::user(), 'account.account_tokens');
-        $data = $this->createCollection($users, new UserAccountTransformer($request->token_name));
+        $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
+        $data = $this->createCollection($users, new UserAccountTransformer($user->account, $request->token_name));
 
         $response = [
             'user_accounts' => $data,
