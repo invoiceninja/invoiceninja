@@ -150,7 +150,7 @@ return [
     	'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
     	'Illuminate\Html\HtmlServiceProvider',
         'Laravel\Socialite\SocialiteServiceProvider',
-        
+        'Jlapp\Swaggervel\SwaggervelServiceProvider',
 
 		/*
 		 * Application Service Providers...

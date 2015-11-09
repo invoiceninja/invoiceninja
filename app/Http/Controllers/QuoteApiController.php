@@ -14,6 +14,22 @@ class QuoteApiController extends Controller
         $this->invoiceRepo = $invoiceRepo;
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/quotes",
+     *   tags={"quote"},
+     *   summary="List of quotes",
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A list with quotes",
+     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Invoice"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function index($clientPublicId = false)
     {
         $invoices = Invoice::scope()

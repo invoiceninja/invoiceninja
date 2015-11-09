@@ -125,9 +125,9 @@ function ViewModel(data) {
     self.clientFormComplete = function() {
         trackEvent('/activity', '/save_client_form');
 
-        var email = $('#email0').val();
-        var firstName = $('#first_name').val();
-        var lastName = $('#last_name').val();
+        var email = $("[name='client[contacts][0][email]']").val();
+        var firstName = $("[name='client[contacts][0][first_name]']").val();
+        var lastName = $("[name='client[contacts][0][last_name]']").val();
         var name = $('#name').val();
 
         if (name) {
@@ -139,10 +139,10 @@ function ViewModel(data) {
         }
 
         var isValid = true;
-        $("input[name='email']").each(function(item, value) {
+        $('input.client-email').each(function(item, value) {
             var email = $(value).val();
             if (!name && (!email || !isValidEmailAddress(email))) {
-                isValid = false;                    
+                isValid = false;
             }
         });
 

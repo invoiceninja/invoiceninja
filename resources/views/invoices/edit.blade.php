@@ -48,7 +48,7 @@
 
     		@if ($invoice->id || $data)
 				<div class="form-group">
-					<label for="client" class="control-label col-lg-4 col-sm-4">Client</label>
+					<label for="client" class="control-label col-lg-4 col-sm-4">{{ trans('texts.client') }}</label>
 					<div class="col-lg-8 col-sm-8">
                         <h4><div data-bind="text: getClientDisplayName(ko.toJS(client()))"></div></h4>
 						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
@@ -497,7 +497,8 @@
                     {!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown',
                             attr: {name: 'client[contacts][' + \$index() + '][last_name]'}") !!}
                     {!! Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown', 
-                            attr: {name: 'client[contacts][' + \$index() + '][email]', id:'email'+\$index()}") !!}
+                            attr: {name: 'client[contacts][' + \$index() + '][email]', id:'email'+\$index()}")
+                            ->addClass('client-email') !!}
                     {!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown',
                             attr: {name: 'client[contacts][' + \$index() + '][phone]'}") !!}
 
@@ -838,7 +839,7 @@
 	function createInvoiceModel() {
 		var invoice = ko.toJS(window.model).invoice;
 		invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
-		//invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
+		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
 
         if (invoice.is_recurring) {

@@ -2,9 +2,8 @@
 
 use App\Models\Invoice;
 use League\Fractal;
-use League\Fractal\TransformerAbstract;
 
-class QuoteTransformer extends TransformerAbstract
+class QuoteTransformer extends EntityTransformer
 {
     protected $defaultIncludes = [
         'invoice_items',
@@ -18,7 +17,7 @@ class QuoteTransformer extends TransformerAbstract
     public function transform(Invoice $invoice)
     {
         return [
-            'id' => (int) $invoice->public_id,
+            'public_id' => (int) $invoice->public_id,
             'quote_number' => $invoice->invoice_number,
             'amount' => (float) $invoice->amount,
         ];

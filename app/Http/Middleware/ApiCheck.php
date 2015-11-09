@@ -35,7 +35,7 @@ class ApiCheck {
                 Session::set('token_id', $token->id);
             } else {
                 sleep(3);
-                return Response::make('Invalid token', 403, $headers);
+                return Response::json('Invalid token', 403, $headers);
             }
         }
 
@@ -44,7 +44,7 @@ class ApiCheck {
         }
 
         if (!Utils::isPro() && !$loggingIn) {
-            return Response::make('API requires pro plan', 403, $headers);
+            return Response::json('API requires pro plan', 403, $headers);
         } else {
             $key = Auth::check() ? Auth::user()->account->id : $request->getClientIp();
 
@@ -68,7 +68,7 @@ class ApiCheck {
             if ($new_hour_throttle > $hour) {
                 $wait = ceil($new_hour_throttle - $hour);
                 sleep(1);
-                return Response::make("Please wait {$wait} second(s)", 403, $headers);
+                return Response::json("Please wait {$wait} second(s)", 403, $headers);
             }
 
             Cache::put("hour_throttle:{$key}", $new_hour_throttle, 10);

@@ -10,13 +10,12 @@ use App\Models\AccountToken;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Http\Request;
 use League\Fractal;
-use League\Fractal\Resource\Item;
-use League\Fractal\Resource\Collection;
 use League\Fractal\Manager;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\AccountTransformer;
 use App\Ninja\Transformers\UserAccountTransformer;
 use App\Http\Controllers\BaseAPIController;
+use Swagger\Annotations as SWG;
 
 class AccountApiController extends BaseAPIController
 {
@@ -47,21 +46,28 @@ class AccountApiController extends BaseAPIController
     private function processLogin(Request $request)
     {
         // Create a new token only if one does not already exist
-        $this->accountRepo->createTokens(Auth::user(), $request->token_name);
+        $user = Auth::user();
+        $this->accountRepo->createTokens($user, $request->token_name);
         
-        $users = $this->accountRepo->findUsers(Auth::user(), 'account.account_tokens');
-        $resource = new Collection($users, new UserAccountTransformer($request->token_name));
+        $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
+        $data = $this->createCollection($users, new UserAccountTransformer($user->account, $request->token_name));
 
-        return $this->returnData($resource, 'user_accounts');
+        $response = [
+            'user_accounts' => $data,
+            'default_url' => SITE_URL
+        ];
+
+        return $this->response($response);
     }
 
-    public function show($accountKey)
+    public function show()
     {
-        $account = $this->accountRepo->findByKey($accountKey);
+        $account = Auth::user()->account;
+        $account->load('clients.getInvoices.invoice_items', 'users');
 
-        $resource = new Item($account, new AccountTransformer);
+        $response = $this->createItem($account, new AccountTransformer);
 
-        return $this->returnData($resource);
+        return $this->response($response);
     }
 
 }
