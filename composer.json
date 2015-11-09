@@ -59,15 +59,15 @@
         "justinbusschau/omnipay-secpay": "~2.0",
         "labs7in0/omnipay-wechat": "dev-master",
         "collizo4sky/omnipay-wepay": "~1.0",
-        "laracasts/presenter": "dev-master"
+        "laracasts/presenter": "dev-master",
+        "jlapp/swaggervel": "master-dev"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",
 		"phpspec/phpspec": "~2.1",
         "codeception/codeception": "~2.0",
         "codeception/c3": "~2.0",
-        "fzaninotto/faker": "^1.5",
-        "jlapp/swaggervel": "master-dev"
+        "fzaninotto/faker": "^1.5"
 	},
 	"autoload": {
 		"classmap": [
