@@ -211,6 +211,7 @@ return array(
     'csv_file' => 'Select CSV file',
     'csv_client_file' => 'Select CSV Client file',
     'export_clients' => 'Export Client Data',
+    'no_mapper' => 'No valid mapping for file',
 
 
     // application messages

@@ -13,6 +13,7 @@ use App\Ninja\Repositories\ClientRepository;
 use League\Fractal\Resource\Collection;
 use Exception;
 use App\Models\Country;
+use stdClass;
 
 class ClientMapper implements MapperInterface
 {
@@ -52,25 +53,27 @@ class ClientMapper implements MapperInterface
     public function getResourceMapper($data)
     {
         return new Collection($data, function(array $data) {
+
+            $data = $this->arrayToObject($data);
             return [
-                'name'          => $data[0]                !== array() ? $data[0] : '',
-                'work_phone'    => $data[10]               !== array() ? $data[10] : '',
-                'address1'      => $data[4]                !== array() ? $data[4] : '',
-                'address2'      => $data[5]                !== array() ? $data[5] : '',
-                'city'          => $data[6]                !== array() ? $data[6] : '',
-                'state'         => $data[7]                !== array() ? $data[7] : '',
-                'postal_code'   => $data[9]                !== array() ? $data[9] : '',
-                'country_id'    => !Country::where('name',$data[8])->get()->isEmpty()?Country::where('name',$data[8])->first()->id:null,
-                'private_notes'    => $data[20]                !== array() ? $data[20] : '',
+                'name'          => $data->organization          !== array() ? $data->organization   : '',
+                'work_phone'    => $data->busPhone              !== array() ? $data->busPhone       : '',
+                'address1'      => $data->street                !== array() ? $data->street         : '',
+                'address2'      => $data->street2               !== array() ? $data->street2        : '',
+                'city'          => $data->city                  !== array() ? $data->city           : '',
+                'state'         => $data->province              !== array() ? $data->province       : '',
+                'postal_code'   => $data->postalCode            !== array() ? $data->postalCode     : '',
+                'private_notes'    => $data->notes              !== array() ? $data->notes          : '',
                 'contacts'  => [
                     [
                         'public_id'     => '',
-                        'first_name'    => $data[1]        !== array() ? $data[1] : '',
-                        'last_name'     => $data[2]        !== array() ? $data[2] : '',
-                        'email'         => $data[3]        !== array() ? $data[3] : '',
-                        'phone'         => $data[12]       !== array() ? $data[12] : $data[11],
+                        'first_name'    => $data->firstName     !== array() ? $data->firstName      : '',
+                        'last_name'     => $data->lastName      !== array() ? $data->lastName       : '',
+                        'email'         => $data->email         !== array() ? $data->email          : '',
+                        'phone'         => $data->mobPhone      !== array() ? $data->mobPhone : $data->homePhone,
                     ]
-                ]
+                ],
+                'country_id'    => !Country::where('name',$data->country)->get()->isEmpty()?Country::where('name',$data->country)->first()->id:null,
             ];
         });
     }
@@ -78,6 +81,33 @@ class ClientMapper implements MapperInterface
     public function save($row)
     {
         $this->clientRepository->save($row);
+    }
+
+    private function arrayToObject($array)
+    {
+        $object                 = new stdClass();
+        $object->organization   = $array[0];
+        $object->firstName      = $array[1];
+        $object->lastName       = $array[2];
+        $object->email          = $array[3];
+        $object->street         = $array[4];
+        $object->street2        = $array[5];
+        $object->city           = $array[6];
+        $object->province       = $array[7];
+        $object->country        = $array[8];
+        $object->postalCode     = $array[9];
+        $object->busPhone       = $array[10];
+        $object->homePhone      = $array[11];
+        $object->mobPhone       = $array[12];
+        $object->fax            = $array[13];
+        $object->secStreet      = $array[14];
+        $object->secStreet2     = $array[15];
+        $object->secCity        = $array[16];
+        $object->secProvince    = $array[17];
+        $object->secCountry     = $array[18];
+        $object->secPostalCode  = $array[19];
+        $object->notes          = $array[20];
+        return $object;
     }
 
 }

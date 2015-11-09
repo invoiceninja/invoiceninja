@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 
-use App\Ninja\Import\FreshBooks\ImporterInterface;
+
 use Auth;
 use Event;
 use Exception;
@@ -40,8 +40,7 @@ use App\Models\Timezone;
 use App\Models\Industry;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
-use app\Ninja\Import\FreshBooks\Importer;
-
+use App\Ninja\Import\DataImporterServiceInterface;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\ReferralRepository;
@@ -60,9 +59,8 @@ class AccountController extends BaseController
     protected $userMailer;
     protected $contactMailer;
     protected $referralRepository;
-    protected $freshbooks;
 
-    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository, ClientRepository $clientRepository, ImporterInterface $freshBooksImporter)
+    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository, ClientRepository $clientRepository, DataImporterServiceInterface $dataImporterService)
     {
         parent::__construct();
 
@@ -71,7 +69,7 @@ class AccountController extends BaseController
         $this->contactMailer = $contactMailer;
         $this->referralRepository = $referralRepository;
         $this->clientRepository = $clientRepository;
-        $this->freshbooksImporter = $freshBooksImporter;
+        $this->dataImporterService = $dataImporterService;
     }
 
     public function demo()
@@ -412,7 +410,7 @@ class AccountController extends BaseController
         } elseif ($section === ACCOUNT_IMPORT_EXPORT) {
             return AccountController::importFile();
         } elseif ($section === IMPORT_FROM_FRESHBOOKS) {
-            return AccountController::importFromFreshbooks();
+            return AccountController::importData();
         } elseif ($section === ACCOUNT_MAP) {
             return AccountController::mapFile();
         } elseif ($section === ACCOUNT_NOTIFICATIONS) {
@@ -731,7 +729,7 @@ class AccountController extends BaseController
         return Redirect::to('clients');
     }
 
-    private function importFromFreshBooks()
+    private function importData()
     {
         try
         {
@@ -739,7 +737,7 @@ class AccountController extends BaseController
             $files['invoice_csv']    = Input::file('invoice_file');
             $files['staff_csv']      = Input::file('staff_file');
             $files['timesheet_csv']  = Input::file('timesheet_file');
-            $imported_files = $this->freshbooksImporter->execute($files);
+            $imported_files = $this->dataImporterService->import($files);
         }
         catch(Exception $e)
         {
