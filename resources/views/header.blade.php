@@ -539,7 +539,7 @@
       <div style="background-color: #fff; padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onclick="validateSignUp()" onkeydown="checkForEnter(event)">
         <br/>
 
-        {!! Former::open('signup/submit')->addClass('signUpForm') !!}
+        {!! Former::open('signup/submit')->addClass('signUpForm')->autocomplete('on') !!}
 
         @if (Auth::check())
         {!! Former::populateField('new_first_name', Auth::user()->first_name) !!}
@@ -580,10 +580,23 @@
             @endif
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 1) }}
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 1) }}
-                {!! Former::text('new_first_name')->placeholder(trans('texts.first_name'))->label(' ') !!}
-                {!! Former::text('new_last_name')->placeholder(trans('texts.last_name'))->label(' ') !!}
-                {!! Former::text('new_email')->placeholder(trans('texts.email'))->label(' ') !!}
-                {!! Former::password('new_password')->placeholder(trans('texts.password'))->label(' ') !!}
+                
+                {!! Former::text('new_first_name')
+                        ->placeholder(trans('texts.first_name'))
+                        ->autocomplete('given-name')
+                        ->label(' ') !!}
+                {!! Former::text('new_last_name')
+                        ->placeholder(trans('texts.last_name'))
+                        ->autocomplete('family-name')
+                        ->label(' ') !!}
+                {!! Former::text('new_email')
+                        ->placeholder(trans('texts.email'))
+                        ->autocomplete('email')
+                        ->label(' ') !!}
+                {!! Former::password('new_password')
+                        ->placeholder(trans('texts.password'))
+                        ->label(' ') !!}
+                
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
             </div>

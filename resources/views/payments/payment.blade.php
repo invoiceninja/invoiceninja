@@ -133,21 +133,23 @@ header h3 em {
 
 </style>
 
-{!! Former::vertical_open($url)->rules(array(
-'first_name' => 'required',
-'last_name' => 'required',   
-'card_number' => 'required',
-'expiration_month' => 'required',
-'expiration_year' => 'required',
-'cvv' => 'required',
-'address1' => 'required',
-'city' => 'required',
-'state' => 'required',
-'postal_code' => 'required',
-'country_id' => 'required',
-'phone' => 'required',
-'email' => 'required|email'
-)) !!}
+{!! Former::vertical_open($url)
+        ->autocomplete('on')
+        ->rules(array(
+            'first_name' => 'required',
+            'last_name' => 'required',   
+            'card_number' => 'required',
+            'expiration_month' => 'required',
+            'expiration_year' => 'required',
+            'cvv' => 'required',
+            'address1' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'postal_code' => 'required',
+            'country_id' => 'required',
+            'phone' => 'required',
+            'email' => 'required|email'
+        )) !!}
 
 @if ($client)
   {{ Former::populate($client) }}
@@ -191,16 +193,25 @@ header h3 em {
         <h3>{{ trans('texts.contact_information') }}</h3>
         <div class="row">
             <div class="col-md-6">
-                {!! Former::text('first_name')->placeholder(trans('texts.first_name'))->label('') !!}
+                {!! Former::text('first_name')
+                        ->placeholder(trans('texts.first_name'))
+                        ->autocomplete('given-name')
+                        ->label('') !!}
             </div>
             <div class="col-md-6">
-                {!! Former::text('last_name')->placeholder(trans('texts.last_name'))->label('') !!}
+                {!! Former::text('last_name')
+                        ->placeholder(trans('texts.last_name'))
+                        ->autocomplete('family-name')
+                        ->label('') !!}
             </div>
         </div>
         @if (isset($paymentTitle))
         <div class="row">
             <div class="col-md-12">
-                {!! Former::text('email')->placeholder(trans('texts.email'))->label('') !!}
+                {!! Former::text('email')
+                        ->placeholder(trans('texts.email'))
+                        ->autocomplete('email')
+                        ->label('') !!}
             </div>
         </div>
         @endif
@@ -211,26 +222,45 @@ header h3 em {
         <h3>{{ trans('texts.billing_address') }} &nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
         <div class="row">
             <div class="col-md-6">
-                {!! Former::text('address1')->placeholder(trans('texts.address1'))->label('') !!}
+                {!! Former::text('address1')
+                        ->autocomplete('address-line1')
+                        ->placeholder(trans('texts.address1'))
+                        ->label('') !!}
             </div>
             <div class="col-md-6">
-                {!! Former::text('address2')->placeholder(trans('texts.address2'))->label('') !!}
-            </div>            
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                {!! Former::text('city')->placeholder(trans('texts.city'))->label('') !!}
-            </div>
-            <div class="col-md-6">
-                {!! Former::text('state')->placeholder(trans('texts.state'))->label('') !!}
+                {!! Former::text('address2')
+                        ->autocomplete('address-line2')
+                        ->placeholder(trans('texts.address2'))
+                        ->label('') !!}
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
-                {!! Former::text('postal_code')->placeholder(trans('texts.postal_code'))->label('') !!}
+                {!! Former::text('city')
+                        ->autocomplete('address-level2')
+                        ->placeholder(trans('texts.city'))
+                        ->label('') !!}
             </div>
             <div class="col-md-6">
-                {!! Former::select('country_id')->placeholder(trans('texts.country_id'))->fromQuery($countries, 'name', 'id')->label('')->addGroupClass('country-select') !!}
+                {!! Former::text('state')
+                        ->autocomplete('address-level1')
+                        ->placeholder(trans('texts.state'))
+                        ->label('') !!}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                {!! Former::text('postal_code')
+                        ->autocomplete('postal-code')
+                        ->placeholder(trans('texts.postal_code'))
+                        ->label('') !!}
+            </div>
+            <div class="col-md-6">
+                {!! Former::select('country_id')
+                        ->placeholder(trans('texts.country_id'))
+                        ->fromQuery($countries, 'name', 'id')
+                        ->addGroupClass('country-select')
+                        ->label('') !!}
             </div>
         </div>
 
@@ -240,43 +270,53 @@ header h3 em {
         <h3>{{ trans('texts.billing_method') }}</h3>
         <div class="row">
             <div class="col-md-9">
-                {!! Former::text('card_number')->placeholder(trans('texts.card_number'))->label('') !!}
+                {!! Former::text('card_number')
+                        ->placeholder(trans('texts.card_number'))
+                        ->autocomplete('cc-number')
+                        ->label('') !!}
             </div>
             <div class="col-md-3">
-                {!! Former::text('cvv')->placeholder(trans('texts.cvv'))->label('') !!}
+                {!! Former::text('cvv')
+                        ->placeholder(trans('texts.cvv'))
+                        ->autocomplete('off')
+                        ->label('') !!}
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
-                {!! Former::select('expiration_month')->placeholder(trans('texts.expiration_month'))
-                      ->addOption('01 - January', '1')
-                      ->addOption('02 - February', '2')
-                      ->addOption('03 - March', '3')
-                      ->addOption('04 - April', '4')
-                      ->addOption('05 - May', '5')
-                      ->addOption('06 - June', '6')
-                      ->addOption('07 - July', '7')
-                      ->addOption('08 - August', '8')
-                      ->addOption('09 - September', '9')
-                      ->addOption('10 - October', '10')
-                      ->addOption('11 - November', '11')
-                      ->addOption('12 - December', '12')->label('')
-                    !!}
+                {!! Former::select('expiration_month')
+                        ->autocomplete('cc-exp-month')
+                        ->placeholder(trans('texts.expiration_month'))
+                          ->addOption('01 - January', '1')
+                          ->addOption('02 - February', '2')
+                          ->addOption('03 - March', '3')
+                          ->addOption('04 - April', '4')
+                          ->addOption('05 - May', '5')
+                          ->addOption('06 - June', '6')
+                          ->addOption('07 - July', '7')
+                          ->addOption('08 - August', '8')
+                          ->addOption('09 - September', '9')
+                          ->addOption('10 - October', '10')
+                          ->addOption('11 - November', '11')
+                          ->addOption('12 - December', '12')->label('')
+                        !!}
             </div>
             <div class="col-md-6">
-                {!! Former::select('expiration_year')->placeholder(trans('texts.expiration_year'))
-                    ->addOption('2015', '2015')
-                    ->addOption('2016', '2016')
-                    ->addOption('2017', '2017')
-                    ->addOption('2018', '2018')
-                    ->addOption('2019', '2019')
-                    ->addOption('2020', '2020')
-                    ->addOption('2021', '2021')
-                    ->addOption('2022', '2022')
-                    ->addOption('2023', '2023')
-                    ->addOption('2024', '2024')
-                    ->addOption('2025', '2025')->label('')
-                  !!}
+                {!! Former::select('expiration_year')
+                        ->autocomplete('cc-exp-year')
+                        ->placeholder(trans('texts.expiration_year'))
+                            ->addOption('2015', '2015')
+                            ->addOption('2016', '2016')
+                            ->addOption('2017', '2017')
+                            ->addOption('2018', '2018')
+                            ->addOption('2019', '2019')
+                            ->addOption('2020', '2020')
+                            ->addOption('2021', '2021')
+                            ->addOption('2022', '2022')
+                            ->addOption('2023', '2023')
+                            ->addOption('2024', '2024')
+                            ->addOption('2025', '2025')->label('')
+                          !!}
             </div>
         </div>
 
@@ -321,16 +361,6 @@ header h3 em {
 <p>&nbsp;</p>
 
 </div>
-
-<!--
-    @if (isset($paymentTitle))
-      <h2>{{ $paymentTitle }}<br/>
-      @if (isset($paymentSubtitle))
-        <small>{{ $paymentSubtitle }}</small>
-      @endif    
-      </h2>&nbsp;<p/>
-    @endif
--->
 
 {!! Former::close() !!}
 
