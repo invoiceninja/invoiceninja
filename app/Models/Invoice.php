@@ -2,9 +2,9 @@
 
 use Utils;
 use DateTime;
-use App\Models\BalanceAffecting;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Laracasts\Presenter\PresentableTrait;
+use App\Models\BalanceAffecting;
 use App\Events\QuoteWasCreated;
 use App\Events\QuoteWasUpdated;
 use App\Events\InvoiceWasCreated;
@@ -14,10 +14,12 @@ use App\Events\QuoteInvitationWasEmailed;
 
 class Invoice extends EntityModel implements BalanceAffecting
 {
+    use PresentableTrait;
     use SoftDeletes {
         SoftDeletes::trashed as parentTrashed;
     }
 
+    protected $presenter = 'App\Ninja\Presenters\InvoicePresenter';
     protected $dates = ['deleted_at'];
 
     protected $casts = [

@@ -5,16 +5,17 @@ use URL;
 use Auth;
 use App\Services\BaseService;
 use App\Ninja\Repositories\ClientRepository;
-
+use App\Ninja\Repositories\NinjaRepository;
 
 class ClientService extends BaseService
 {
     protected $clientRepo;
     protected $datatableService;
 
-    public function __construct(ClientRepository $clientRepo, DatatableService $datatableService)
+    public function __construct(ClientRepository $clientRepo, DatatableService $datatableService, NinjaRepository $ninjaRepo)
     {
         $this->clientRepo = $clientRepo;
+        $this->ninjaRepo = $ninjaRepo;
         $this->datatableService = $datatableService;
     }
 
@@ -25,6 +26,10 @@ class ClientService extends BaseService
 
     public function save($data)
     {
+        if (Auth::user()->account->isNinjaAccount() && isset($data['pro_plan_paid'])) {
+            $this->ninjaRepo->updateProPlanPaid($data['public_id'], $data['pro_plan_paid']);
+        }
+
         return $this->clientRepo->save($data);
     }
 
@@ -41,7 +46,7 @@ class ClientService extends BaseService
             [
                 'name',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->name);
+                    return link_to("clients/{$model->public_id}", $model->name ?: '');
                 }
             ],
             [
@@ -53,7 +58,7 @@ class ClientService extends BaseService
             [
                 'email',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->email);
+                    return link_to("clients/{$model->public_id}", $model->email ?: '');
                 }
             ],
             [

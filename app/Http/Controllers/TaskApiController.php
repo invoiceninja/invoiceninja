@@ -15,6 +15,22 @@ class TaskApiController extends Controller
         $this->taskRepo = $taskRepo;
     }
 
+    /**
+     * @SWG\Get(
+     *   path="/tasks",
+     *   tags={"task"},
+     *   summary="List of tasks",
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A list with tasks",
+     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Task"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function index($clientPublicId = false)
     {
         $tasks = Task::scope()->with('client');
@@ -34,6 +50,27 @@ class TaskApiController extends Controller
         return Response::make($response, 200, $headers);
     }
 
+    /**
+     * @SWG\Post(
+     *   path="/tasks",
+     *   tags={"task"},
+     *   summary="Create a task",
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Task")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="New task",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Task"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function store()
     {
         $data = Input::all();

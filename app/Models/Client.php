@@ -59,6 +59,27 @@ class Client extends EntityModel
         return $this->hasMany('App\Models\Invoice');
     }
 
+    public function getInvoices()
+    {
+        return $this->hasMany('App\Models\Invoice')
+                ->where('is_quote', '=', false)
+                ->where('is_recurring', '=', false);
+    }
+
+    public function getRecurringInvoices()
+    {
+        return $this->hasMany('App\Models\Invoice')
+                ->where('is_quote', '=', false)
+                ->where('is_recurring', '=', true);
+    }
+
+    public function getQuotes()
+    {
+        return $this->hasMany('App\Models\Invoice')
+                ->where('is_quote', '=', true)
+                ->where('is_recurring', '=', false);
+    }
+
     public function payments()
     {
         return $this->hasMany('App\Models\Payment');

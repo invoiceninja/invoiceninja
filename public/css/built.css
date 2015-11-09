@@ -2354,7 +2354,7 @@ body { background: #f8f8f8 !important;
     font-size: 15px;
 }
 html {
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
 }
 .bold { font-weight: 700; }
 a {color:#0b4d78;}
@@ -3377,8 +3377,4 @@ ul.user-accounts a:hover div.remove {
     width: 2px;
     content: "";
     background-color: #e37329;
-}
-
-.gitter-open-chat-button {
-    background-color: #0b4d78 !important;
 }

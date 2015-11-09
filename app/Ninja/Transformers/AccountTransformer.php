@@ -12,14 +12,14 @@ class AccountTransformer extends TransformerAbstract
         'clients',
     ];
 
-    public function includeUsers($account)
+    public function includeUsers(Account $account)
     {
-        return $this->collection($account->users, new UserTransformer);
+        return $this->collection($account->users, new UserTransformer($account));
     }
 
-    public function includeClients($account)
+    public function includeClients(Account $account)
     {
-        return $this->collection($account->clients, new ClientTransformer);
+        return $this->collection($account->clients, new ClientTransformer($account));
     }
 
     public function transform(Account $account)
@@ -27,6 +27,31 @@ class AccountTransformer extends TransformerAbstract
         return [
             'account_key' => $account->account_key,
             'name' => $account->present()->name,
+            'currency_id' => (int) $account->currency_id,
+            'timezone_id' => (int) $account->timezone_id,
+            'date_format_id' => (int) $account->date_format_id,
+            'datetime_format_id' => (int) $account->datetime_format_id,
+            'updated_at' => $account->updated_at,
+            'deleted_at' => $account->deleted_at,
+            'address1' => $account->address1,
+            'address2' => $account->address2,
+            'city' => $account->city,
+            'state' => $account->state,
+            'postal_code' => $account->postal_code,
+            'country_id' => (int) $account->country_id,
+            'invoice_terms' => $account->invoice_terms,
+            'email_footer' => $account->email_footer,
+            'industry_id' => (int) $account->industry_id,
+            'size_id' => (int) $account->size_id,
+            'invoice_taxes' => (bool) $account->invoice_taxes,
+            'invoice_item_taxes' => (bool) $account->invoice_item_taxes,
+            'invoice_design_id' => (int) $account->invoice_design_id,
+            'work_phone' => $account->work_phone,
+            'work_email' => $account->work_email,
+            'language_id' => (int) $account->language_id,
+            'fill_products' => (bool) $account->fill_products,
+            'update_products' => (bool) $account->update_products,
+            'vat_number' => $account->vat_number
         ];
     }
 }

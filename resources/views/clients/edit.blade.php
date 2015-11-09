@@ -14,10 +14,13 @@
 <div class="row">
 
 	{!! Former::open($url)
+            ->autocomplete('off')
             ->rules(
                 ['email' => 'email']
             )->addClass('col-md-12 warn-on-exit')
             ->method($method) !!}
+            
+    @include('partials.autocomplete_fix')
 
 	@if ($client)
 		{!! Former::populate($client) !!}
@@ -126,6 +129,20 @@
 			{!! Former::select('industry_id')->addOption('','')
 				->fromQuery($industries, 'name', 'id') !!}
 			{!! Former::textarea('private_notes') !!}
+
+
+            @if (isset($proPlanPaid))
+                {!! Former::populateField('pro_plan_paid', $proPlanPaid) !!}
+                {!! Former::text('pro_plan_paid')
+                            ->data_date_format('yyyy-mm-dd')
+                            ->addGroupClass('pro_plan_paid_date')
+                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+                <script type="text/javascript">
+                    $(function() {
+                        $('#pro_plan_paid').datepicker();
+                    });
+                </script>
+            @endif
 
             </div>
             </div>

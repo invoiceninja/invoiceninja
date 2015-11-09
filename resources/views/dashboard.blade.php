@@ -251,17 +251,12 @@
     </div>
 @endif
 
-<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
-
 <script type="text/javascript">
     $(function() {
         $('.normalDropDown:not(.dropdown-toggle)').click(function() {
             window.location = '{{ URL::to('invoices/create') }}';
         });
     });
-    ((window.gitter = {}).chat = {}).options = {
-        room: '{{ GITTER_ROOM }}',
-    };
 </script>
 
 @stop

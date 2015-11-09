@@ -92,6 +92,7 @@ class ContactMailer extends Mailer
             'invoiceId' => $invoice->id,
             'invitation' => $invitation,
             'account' => $account,
+            'invoice' => $invoice,
         ];
 
         if ($account->attatchPDF()) {

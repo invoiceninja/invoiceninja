@@ -887,5 +887,21 @@ return array(
   'free' => 'Grátis',
 	
   'quote_is_approved' => 'Orçamento aprovado.',
+  'apply_credit' => 'Apply Credit',
+  'system_settings' => 'System Settings',
+  'archive_token' => 'Archive Token',
+  'archived_token' => 'Successfully archived token',
+  'archive_user' => 'Archive User',
+  'archived_user' => 'Successfully archived user',
+  'archive_account_gateway' => 'Archive Gateway',
+  'archived_account_gateway' => 'Successfully archived gateway',
+  'archive_recurring_invoice' => 'Archive Recurring Invoice',
+  'archived_recurring_invoice' => 'Successfully archived recurring invoice',
+  'delete_recurring_invoice' => 'Delete Recurring Invoice',
+  'deleted_recurring_invoice' => 'Successfully deleted recurring invoice',
+  'restore_recurring_invoice' => 'Restore Recurring Invoice',
+  'restored_recurring_invoice' => 'Successfully restored recurring invoice',
+  'archived' => 'Archived',
+  'untitled_account' => 'Untitled Company',
   
 );

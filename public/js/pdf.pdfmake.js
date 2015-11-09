@@ -55,7 +55,7 @@ function GetPdfMake(invoice, javascript, callback) {
         }
 
         // only show the footer on the last page
-        if (key === 'footer') {
+        if (invoice.is_pro && key === 'footer') {
             return function(page, pages) {
                 return page === pages ? val : '';
             }
@@ -65,6 +65,7 @@ function GetPdfMake(invoice, javascript, callback) {
         if (key === 'text') {
             val = NINJA.parseMarkdownText(val, true);
         }
+
         /*
         if (key === 'stack') {
             val = NINJA.parseMarkdownStack(val);
