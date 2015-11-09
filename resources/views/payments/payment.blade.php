@@ -1,5 +1,14 @@
 @extends('public.header')
 
+@section('head')
+    @parent
+
+    <!--
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    -->
+    
+@stop
+
 @section('content')
 
 <style type="text/css">
@@ -270,22 +279,25 @@ header h3 em {
         <h3>{{ trans('texts.billing_method') }}</h3>
         <div class="row">
             <div class="col-md-9">
-                {!! Former::text('card_number')
+                {!! Former::text($gateway->isGateway(GATEWAY_STRIPE) ? 'card_number' : 'card_number')
                         ->placeholder(trans('texts.card_number'))
                         ->autocomplete('cc-number')
+                        ->data_stripe('number')
                         ->label('') !!}
             </div>
             <div class="col-md-3">
-                {!! Former::text('cvv')
+                {!! Former::text($gateway->isGateway(GATEWAY_STRIPE) ? 'cvv' : 'cvv')
                         ->placeholder(trans('texts.cvv'))
                         ->autocomplete('off')
+                        ->data_stripe('cvc')
                         ->label('') !!}
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
-                {!! Former::select('expiration_month')
+                {!! Former::select($gateway->isGateway(GATEWAY_STRIPE) ? 'expiration_month' : 'expiration_month')
                         ->autocomplete('cc-exp-month')
+                        ->data_stripe('exp-month')
                         ->placeholder(trans('texts.expiration_month'))
                           ->addOption('01 - January', '1')
                           ->addOption('02 - February', '2')
@@ -302,8 +314,9 @@ header h3 em {
                         !!}
             </div>
             <div class="col-md-6">
-                {!! Former::select('expiration_year')
+                {!! Former::select($gateway->isGateway(GATEWAY_STRIPE) ? 'expiration_year' : 'expiration_year')
                         ->autocomplete('cc-exp-year')
+                        ->data_stripe('exp-year')
                         ->placeholder(trans('texts.expiration_year'))
                             ->addOption('2015', '2015')
                             ->addOption('2016', '2016')

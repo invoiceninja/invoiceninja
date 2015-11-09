@@ -130,6 +130,20 @@
 				->fromQuery($industries, 'name', 'id') !!}
 			{!! Former::textarea('private_notes') !!}
 
+
+            @if (isset($proPlanPaid))
+                {!! Former::populateField('pro_plan_paid', $proPlanPaid) !!}
+                {!! Former::text('pro_plan_paid')
+                            ->data_date_format('yyyy-mm-dd')
+                            ->addGroupClass('pro_plan_paid_date')
+                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+                <script type="text/javascript">
+                    $(function() {
+                        $('#pro_plan_paid').datepicker();
+                    });
+                </script>
+            @endif
+
             </div>
             </div>
 

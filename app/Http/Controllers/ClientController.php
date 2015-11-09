@@ -13,6 +13,7 @@ use Cache;
 
 use App\Models\Activity;
 use App\Models\Client;
+use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Invoice;
 use App\Models\Size;
@@ -153,6 +154,12 @@ class ClientController extends BaseController
         ];
 
         $data = array_merge($data, self::getViewModel());
+
+        if (Auth::user()->account->isNinjaAccount()) {
+            if ($account = Account::whereId($client->public_id)->first()) {
+                $data['proPlanPaid'] = $account['pro_plan_paid'];
+            }
+        }
 
         return View::make('clients.edit', $data);
     }
