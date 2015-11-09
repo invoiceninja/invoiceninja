@@ -497,7 +497,8 @@
                     {!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown',
                             attr: {name: 'client[contacts][' + \$index() + '][last_name]'}") !!}
                     {!! Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown', 
-                            attr: {name: 'client[contacts][' + \$index() + '][email]', id:'email'+\$index()}") !!}
+                            attr: {name: 'client[contacts][' + \$index() + '][email]', id:'email'+\$index()}")
+                            ->addClass('client-email') !!}
                     {!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown',
                             attr: {name: 'client[contacts][' + \$index() + '][phone]'}") !!}
 

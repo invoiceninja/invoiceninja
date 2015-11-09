@@ -91,6 +91,8 @@ header("Access-Control-Allow-Headers: X-Requested-With");
                     if (key && key.trim() != "") {
                         var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("X-Ninja-Token", key, "header");
                         window.swaggerUi.api.clientAuthorizations.add("api_key", apiKeyAuth);
+                        var ajaxRequest = new SwaggerClient.ApiKeyAuthorization("X-Requested-With", "XMLHttpRequest", "header");
+                        window.swaggerUi.api.clientAuthorizations.add("ajax", ajaxRequest);
                         log("added key " + key);
                     }
                 }

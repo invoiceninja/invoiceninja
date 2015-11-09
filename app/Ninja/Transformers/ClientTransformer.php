@@ -15,6 +15,29 @@ class ClientTransformer extends EntityTransformer
     * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
     * @SWG\Property(property="balance", type="float", example=10, readOnly=true)
     * @SWG\Property(property="paid_to_date", type="float", example=10, readOnly=true)
+    * @SWG\Property(property="user_id", type="integer", example=1)
+    * @SWG\Property(property="account_key", type="string", example="123456")
+    * @SWG\Property(property="updated_at", type="date-time", example="2016-01-01 12:10:00")
+    * @SWG\Property(property="deleted_at", type="date-time", example="2016-01-01 12:10:00")
+    * @SWG\Property(property="address1", type="string", example="10 Main St.")
+    * @SWG\Property(property="address2", type="string", example="1st Floor")
+    * @SWG\Property(property="city", type="string", example="New York")
+    * @SWG\Property(property="state", type="string", example="NY")
+    * @SWG\Property(property="postal_code", type="string", example=10010)
+    * @SWG\Property(property="country_id", type="integer", example=840)
+    * @SWG\Property(property="work_phone", type="string", example="(212) 555-1212")
+    * @SWG\Property(property="private_notes", type="string", example="Notes...")
+    * @SWG\Property(property="last_login", type="date-time", example="2016-01-01 12:10:00")
+    * @SWG\Property(property="website", type="string", example="http://www.example.com")
+    * @SWG\Property(property="industry_id", type="integer", example=1)
+    * @SWG\Property(property="size_id", type="integer", example=1)
+    * @SWG\Property(property="is_deleted", type="boolean", example=false)
+    * @SWG\Property(property="payment_terms", type="", example=30)
+    * @SWG\Property(property="custom_value1", type="string", example="Value")
+    * @SWG\Property(property="custom_value2", type="string", example="Value")
+    * @SWG\Property(property="vat_number", type="string", example="123456")
+    * @SWG\Property(property="id_number", type="string", example="123456")
+    * @SWG\Property(property="language_id", type="integer", example=1)
     */
 
     protected $defaultIncludes = [
@@ -57,8 +80,6 @@ class ClientTransformer extends EntityTransformer
             'country_id' => (int) $client->country_id,
             'work_phone' => $client->work_phone,
             'private_notes' => $client->private_notes,
-            'balance' => (float) $client->balance,
-            'paid_to_date' => $client->paid_to_date,
             'last_login' => $client->last_login,
             'website' => $client->website,
             'industry_id' => (int) $client->industry_id,
