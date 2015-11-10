@@ -20,6 +20,10 @@
   "totalPaymentDue": {
     "@type": "PriceSpecification",
     "price": "{{ $invoice->present()->balance_due }}"
+  },
+  "action": {
+    "@type": "ViewAction",
+    "url": "{!! $link !!}"
   }
 },
 @endif
@@ -29,7 +33,7 @@
   "action": {
     "@type": "ViewAction",
     "url": "{!! $link !!}",
-    "name": "{{ trans("view_{$entityType}") }}"
+    "name": "{{ trans("texts.view_{$entityType}") }}"
   }
 }
 ]

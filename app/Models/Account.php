@@ -238,6 +238,11 @@ class Account extends Eloquent
         return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
     }
 
+    public function getLogoURL()
+    {
+        return SITE_URL . '/' . $this->getLogoPath();
+    }
+
     public function getToken($name)
     {
         foreach ($this->account_tokens as $token) {

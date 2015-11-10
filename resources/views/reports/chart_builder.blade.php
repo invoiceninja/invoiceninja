@@ -97,7 +97,7 @@
         <tfoot>
             <tr>
                 <td><b>{{ trans('texts.totals') }}</b></td>
-                @if (!$reportType)
+                @if ($reportType != ENTITY_CLIENT)
                     <td></td>
                     <td></td>
                 @endif
@@ -106,17 +106,22 @@
                         <b>{{ Utils::formatMoney($total, $currencyId) }}</b><br/>
                     @endforeach
                 </td>
+                @if ($reportType == ENTITY_PAYMENT)
+                    <td></td>
+                @endif
                 <td>
                     @foreach ($reportTotals['paid'] as $currencyId => $total)
                         <b>{{ Utils::formatMoney($total, $currencyId) }}</b><br/>
                     @endforeach
                 </td>
+                @if ($reportType != ENTITY_PAYMENT)
                 <td>
                     @foreach ($reportTotals['balance'] as $currencyId => $total)
                         <b>{{ Utils::formatMoney($total, $currencyId) }}</b><br/>
                     @endforeach
                 </td>
-            </tr>                
+                @endif
+            </tr>
         </tfoot>
         </table>
 
