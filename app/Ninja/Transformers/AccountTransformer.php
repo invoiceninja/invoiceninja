@@ -51,7 +51,8 @@ class AccountTransformer extends TransformerAbstract
             'language_id' => (int) $account->language_id,
             'fill_products' => (bool) $account->fill_products,
             'update_products' => (bool) $account->update_products,
-            'vat_number' => $account->vat_number
+            'vat_number' => $account->vat_number,
+            'user_id' => $account->user_id
         ];
     }
 }
