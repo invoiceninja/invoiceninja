@@ -733,10 +733,10 @@ class AccountController extends BaseController
     {
         try
         {
-            $files['client_csv']     = Input::file('client_file');
-            $files['invoice_csv']    = Input::file('invoice_file');
-            $files['staff_csv']      = Input::file('staff_file');
-            $files['timesheet_csv']  = Input::file('timesheet_file');
+            $files['client']     = Input::file('client_file');
+            $files['invoice']    = Input::file('invoice_file');
+            $files['staff']      = Input::file('staff_file');
+            $files['timesheet']  = Input::file('timesheet_file');
             $imported_files = $this->dataImporterService->import($files);
         }
         catch(Exception $e)

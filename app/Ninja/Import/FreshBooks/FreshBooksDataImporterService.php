@@ -16,13 +16,22 @@ use parseCSV;
 class FreshBooksDataImporterService implements DataImporterServiceInterface
 {
 
+    protected $transformer;
+    protected $repository;
+
     /**
      * FreshBooksDataImporterService constructor.
      */
-    public function __construct(Manager $manager, ClientMapper $clientMapper)
+    public function __construct(Manager $manager)
     {
         $this->fractal = $manager;
-        $this->clientMapper = $clientMapper;
+        $this->transformerList = array(
+            'client' => __NAMESPACE__ . '\ClientTransformer',
+        );
+        $this->repositoryList = array(
+            'client' =>  'App\Ninja\Repositories\ClientRepository',
+        );
+
     }
 
     public function import($files)
@@ -34,43 +43,22 @@ class FreshBooksDataImporterService implements DataImporterServiceInterface
             $imported_files = $imported_files . $this->execute($entity, $file);
         }
         return $imported_files;
-
     }
 
     private function execute($entity, $file)
     {
-        $this->entity = $entity;
-        $this->file = $file;
-        $this->mapper = $this->getEntityMapper();
+
+        $this->transformer = $this->createTransformer($entity);
+        $this->repository = $this->createRepository($entity);
+
         $data = $this->parseCSV($file);
         $ignore_header = true;
         $rows = $this->mapCsvToModel($data, $ignore_header);
+
         foreach($rows as $row)
-            $this->mapper->save($row);
+            $this->repository->save($row);
 
-        return $this->file->getClientOriginalName();
-    }
-
-    private function getEntityMapper()
-    {
-        switch($this->entity)
-        {
-            case 'client_csv':
-                return $this->clientMapper;
-                break;
-
-            case 'invoice_csv':
-                throw new Exception(trans('texts.no_mapper'). ' '. $this->file->getClientOriginalName());
-
-            case 'staff_csv':
-                throw new Exception(trans('texts.no_mapper'). ' '. $this->file->getClientOriginalName());
-
-            case 'timesheet_csv':
-                throw new Exception(trans('texts.no_mapper'). ' '. $this->file->getClientOriginalName());
-
-            default :
-                throw new Exception(trans('texts.no_mapper'). ' '. $this->file->getClientOriginalName());
-        }
+        return $file->getClientOriginalName();
     }
 
     private function parseCSV($file)
@@ -107,12 +95,31 @@ class FreshBooksDataImporterService implements DataImporterServiceInterface
         if($ignore_header)
         {
             $header = array_shift($data);
-            $this->mapper->validateHeader($header);
+            $this->transformer->validateHeader($header);
         }
 
-        $resource = $this->mapper->getResourceMapper($data);
+        $resource = $this->transformer->transform($data);
         $data = $this->fractal->createData($resource)->toArray();
 
         return $data['data'];
     }
+
+    public function createTransformer($type)
+    {
+        if (!array_key_exists($type, $this->transformerList)) {
+            throw new \InvalidArgumentException("$type is not a valid Transformer");
+        }
+        $className = $this->transformerList[$type];
+        return new $className();
+    }
+
+    public function createRepository($type)
+    {
+        if (!array_key_exists($type, $this->repositoryList)) {
+            throw new \InvalidArgumentException("$type is not a valid Repository");
+        }
+        $className = $this->repositoryList[$type];
+        return new $className();
+    }
+
 }
