@@ -509,7 +509,7 @@ return array(
 
   'token_billing_type_id' => 'Token de Cobrança',
   'token_billing_help' => 'Habilita o armazenamento das informações junto ao provedor, para cobrança posterior.',
-  'token_billing_1' => 'Desabilitar',
+  'token_billing_1' => 'Desabilitado',
   'token_billing_2' => 'Opt-in - não selecionado',
   'token_billing_3' => 'Opt-out - selecionado',
   'token_billing_4' => 'Sempre',
