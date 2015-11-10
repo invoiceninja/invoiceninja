@@ -18,9 +18,12 @@
 
 	</style>
 
-	{!! Former::open_for_files()->addClass('warn-on-exit')->rules(array(
-  		'name' => 'required',
-	)) !!}
+	{!! Former::open_for_files()
+            ->addClass('warn-on-exit')
+            ->autocomplete('on')
+            ->rules([
+  		        'name' => 'required'
+            ]) !!}
 
 	{{ Former::populate($account) }}
     
@@ -62,13 +65,14 @@
           </div>
             <div class="panel-body form-padding-right">
             
-            {!! Former::text('address1') !!}
-            {!! Former::text('address2') !!}
-            {!! Former::text('city') !!}
-            {!! Former::text('state') !!}
-            {!! Former::text('postal_code') !!}
-            {!! Former::select('country_id')->addOption('','')
-                ->fromQuery($countries, 'name', 'id') !!}
+            {!! Former::text('address1')->autocomplete('address-line1') !!}
+            {!! Former::text('address2')->autocomplete('address-line2') !!}
+            {!! Former::text('city')->autocomplete('address-level2') !!}
+            {!! Former::text('state')->autocomplete('address-level1') !!}
+            {!! Former::text('postal_code')->autocomplete('postal-code') !!}
+            {!! Former::select('country_id')
+                    ->addOption('','')
+                    ->fromQuery($countries, 'name', 'id') !!}
 
             </div>
         </div>

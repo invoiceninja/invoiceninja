@@ -472,7 +472,7 @@ return array(
   'id_number' => 'ID Number',
 
   'white_label_link' => 'White label',
-  'white_label_text' => 'Purchase a white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the top of the client pages.',
+  'white_label_text' => 'Purchase a white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
   'white_label_header' => 'White Label',
   'bought_white_label' => 'Successfully enabled white label license',
   'white_labeled' => 'White labeled',

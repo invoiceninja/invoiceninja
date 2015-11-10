@@ -539,7 +539,7 @@
       <div style="background-color: #fff; padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onclick="validateSignUp()" onkeydown="checkForEnter(event)">
         <br/>
 
-        {!! Former::open('signup/submit')->addClass('signUpForm') !!}
+        {!! Former::open('signup/submit')->addClass('signUpForm')->autocomplete('on') !!}
 
         @if (Auth::check())
         {!! Former::populateField('new_first_name', Auth::user()->first_name) !!}
@@ -580,10 +580,23 @@
             @endif
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 1) }}
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 1) }}
-                {!! Former::text('new_first_name')->placeholder(trans('texts.first_name'))->label(' ') !!}
-                {!! Former::text('new_last_name')->placeholder(trans('texts.last_name'))->label(' ') !!}
-                {!! Former::text('new_email')->placeholder(trans('texts.email'))->label(' ') !!}
-                {!! Former::password('new_password')->placeholder(trans('texts.password'))->label(' ') !!}
+                
+                {!! Former::text('new_first_name')
+                        ->placeholder(trans('texts.first_name'))
+                        ->autocomplete('given-name')
+                        ->label(' ') !!}
+                {!! Former::text('new_last_name')
+                        ->placeholder(trans('texts.last_name'))
+                        ->autocomplete('family-name')
+                        ->label(' ') !!}
+                {!! Former::text('new_email')
+                        ->placeholder(trans('texts.email'))
+                        ->autocomplete('email')
+                        ->label(' ') !!}
+                {!! Former::password('new_password')
+                        ->placeholder(trans('texts.password'))
+                        ->label(' ') !!}
+                
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
             </div>
@@ -702,8 +715,18 @@
             <h4 class="modal-title" id="myModalLabel">{{ trans('texts.white_label_header') }}</h4>
           </div>
 
-          <div style="background-color: #fff; padding:20px">
+          <div class="panel-body">
             <p>{{ trans('texts.white_label_text')}}</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>{{ trans('texts.before') }}</h4>
+                    {!! HTML::image('images/pro_plan/white_label_before.png', 'before', ['width' => '100%']) !!}
+                </div>
+                <div class="col-md-6">
+                    <h4>{{ trans('texts.after') }}</h4>
+                    {!! HTML::image('images/pro_plan/white_label_after.png', 'after', ['width' => '100%']) !!}
+                </div>
+            </div>
           </div>
 
           <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">          

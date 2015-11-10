@@ -30,12 +30,17 @@
 		</ol>  
 	@endif
 
-	{!! Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
-		'client' => 'required',
-        'invoice_number' => 'required',
-		'product_key' => 'max:255'
-	)) !!}	
+	{!! Former::open($url)
+            ->method($method)
+            ->addClass('warn-on-exit')
+            ->autocomplete('off')
+            ->rules(array(
+        		'client' => 'required',
+                'invoice_number' => 'required',
+        		'product_key' => 'max:255'
+        	)) !!}	
 
+    @include('partials.autocomplete_fix')
 
 	<input type="submit" style="display:none" name="submitButton" id="submitButton">
 

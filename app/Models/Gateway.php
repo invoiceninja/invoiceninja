@@ -39,6 +39,11 @@ class Gateway extends Eloquent
         return '/images/gateways/logo_'.$this->provider.'.png';
     }
 
+    public function isGateway($gatewayId)
+    {
+        return $this->id == $gatewayId;
+    }
+
     public static function getPaymentTypeLinks() {
         $data = [];
         foreach (self::$paymentTypes as $type) {
