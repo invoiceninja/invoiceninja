@@ -53,8 +53,7 @@ class AccountApiController extends BaseAPIController
         $data = $this->createCollection($users, new UserAccountTransformer($user->account, $request->token_name));
 
         $response = [
-            'user_accounts' => $data,
-            'default_url' => SITE_URL
+            'user_accounts' => $data
         ];
 
         return $this->response($response);
