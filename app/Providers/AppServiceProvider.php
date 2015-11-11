@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider {
             $types = $type.'s';
             $Type = ucfirst($type);
             $Types = ucfirst($types);
-            $class = ( Request::is($types) || Request::is('*'.$type.'*')) && !Request::is('*advanced_settings*') ? ' active' : '';
+            $class = ( Request::is($types) || Request::is('*'.$type.'*')) && !Request::is('*settings*') ? ' active' : '';
 
             $str = '<li class="dropdown '.$class.'">
                    <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>

@@ -462,7 +462,7 @@
 
       <ul class="nav navbar-nav navbar-right navbar-history"> 
         <li class="dropdown">
-          <a href="{{ count(Session::get(RECENTLY_VIEWED)) ? Session::get(RECENTLY_VIEWED)[0]->url : '#' }}" class="dropdown-toggle">
+          <a href="{{ Utils::getLastURL() }}" class="dropdown-toggle">
             <span class="glyphicon glyphicon-time" title="{{ trans('texts.history') }}"/>
           </a>
           <ul class="dropdown-menu">	        		        	

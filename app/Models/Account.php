@@ -336,7 +336,7 @@ class Account extends Eloquent
 
         if (strstr($pattern, '{$userId}')) {
             $search[] = '{$userId}';
-            $replace[] = str_pad($invoice->user->public_id, 2, '0', STR_PAD_LEFT);
+            $replace[] = str_pad(($invoice->user->public_id + 1), 2, '0', STR_PAD_LEFT);
         }
 
         $matches = false;

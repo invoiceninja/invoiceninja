@@ -127,6 +127,19 @@ class Utils
         return $response;
     }
 
+    public static function getLastURL()
+    {
+        if (!count(Session::get(RECENTLY_VIEWED))) {
+            return '#';
+        }
+
+        $history = Session::get(RECENTLY_VIEWED);
+        $last = $history[0];
+        $penultimate = count($history) > 1 ? $history[1] : $last;
+        
+        return Request::url() == $last->url ? $penultimate->url : $last->url;
+    }
+
     public static function getProLabel($feature)
     {
         if (Auth::check()
@@ -394,12 +407,8 @@ class Utils
                 continue;
             }
 
-            // temporary fix to check for new property in session
-            if (!property_exists($item, 'accountId')) {
-                continue;
-            }
+            array_push($data, $item);
 
-            array_unshift($data, $item);
             if (isset($counts[$item->accountId])) {
                 $counts[$item->accountId]++;
             } else {

@@ -1694,6 +1694,7 @@ function truncate(string, length){
    }
 };
 
+// Show/hide the 'Select' option in the datalists 
 function actionListHandler() {
     $('tbody tr').mouseover(function() {
         $(this).closest('tr').find('.tr-action').css('display', 'inline-block');

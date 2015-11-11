@@ -304,6 +304,15 @@
 		$('.primaryDropDown:not(.dropdown-toggle)').click(function() {
 			window.location = '{{ URL::to('invoices/create/' . $client->public_id ) }}';
 		});
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          var target = $(e.target).attr("href") // activated tab
+          localStorage.setItem('client_tab', target);
+        });
+        var tab = localStorage.getItem('client_tab');
+        if (tab) {
+            $('.nav-tabs a[href="' + tab + '"]').tab('show');
+        }
 	});
 
 	function onArchiveClick() {
