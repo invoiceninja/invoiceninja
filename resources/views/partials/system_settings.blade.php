@@ -1,4 +1,4 @@
-    <div class="panel panel-default">
+<div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">Application Settings</h3>
       </div>
@@ -20,14 +20,10 @@
         {{--- Former::select('database[default]')->label('Driver')->options(['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'])
                 ->value(isset($_ENV['DB_TYPE']) ? $_ENV['DB_TYPE'] : 'mysql') ---}}
         {!! Former::plaintext('Driver')->value('MySQL') !!}
-        {!! Former::text('database[type][host]')->label('Host')->value('localhost') 
-                ->value(isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : '') !!}
-        {!! Former::text('database[type][database]')->label('Database')->value('ninja') 
-                ->value(isset($_ENV['DB_DATABASE']) ? $_ENV['DB_DATABASE'] : '') !!}
-        {!! Former::text('database[type][username]')->label('Username')->value('ninja') 
-                ->value(isset($_ENV['DB_USERNAME']) ? $_ENV['DB_USERNAME'] : '') !!}
-        {!! Former::password('database[type][password]')->label('Password')->value('ninja') 
-                ->value(isset($_ENV['DB_PASSWORD']) ? $_ENV['DB_PASSWORD'] : '') !!}
+        {!! Former::text('database[type][host]')->label('Host')->value(isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost') !!}
+        {!! Former::text('database[type][database]')->label('Database')->value(isset($_ENV['DB_DATABASE']) ? $_ENV['DB_DATABASE'] : 'ninja') !!}
+        {!! Former::text('database[type][username]')->label('Username')->value(isset($_ENV['DB_USERNAME']) ? $_ENV['DB_USERNAME'] : 'ninja') !!}
+        {!! Former::password('database[type][password]')->label('Password')->value(isset($_ENV['DB_PASSWORD']) ? $_ENV['DB_PASSWORD'] : 'ninja') !!}
         {!! Former::actions( Button::primary('Test connection')->small()->withAttributes(['onclick' => 'testDatabase()']), '&nbsp;&nbsp;<span id="dbTestResult"/>' ) !!}      
       </div>
     </div>
