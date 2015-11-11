@@ -28,6 +28,6 @@
 
   <script>
     window.onDatatableReady = actionListHandler;
-  </script>  
+  </script>
 
 @stop
