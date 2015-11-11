@@ -64,7 +64,14 @@ class FreshBooksDataImporterService implements DataImporterServiceInterface
 
         $data = $this->parseCSV($file);
         $ignore_header = true;
-        $rows = $this->mapCsvToModel($data, $ignore_header);
+        try
+        {
+            $rows = $this->mapCsvToModel($data, $ignore_header);
+        } catch(Exception $e)
+        {
+            throw new Exception($e->getMessage() . ' - ' . $file->getClientOriginalName() );
+        }
+
 
         foreach($rows as $row)
             $this->repository->save($row);
