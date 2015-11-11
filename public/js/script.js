@@ -1693,3 +1693,13 @@ function truncate(string, length){
       return string;
    }
 };
+
+function actionListHandler() {
+    $('tbody tr').mouseover(function() {
+        $(this).closest('tr').find('.tr-action').css('display', 'inline-block');
+        $(this).closest('tr').find('.tr-status').css('display', 'none');
+    }).mouseout(function() {
+        $(this).closest('tr').find('.tr-action').css('display', 'none');
+        $(this).closest('tr').find('.tr-status').css('display', 'inline-block');
+    });
+}

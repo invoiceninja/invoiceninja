@@ -911,6 +911,7 @@ return array(
 
     'before' => 'Before',
     'after' => 'After',
+    'reset_terms_help' => 'Reset to the default account terms',
+    'reset_footer_help' => 'Reset to the default account footer',
 
-    
 );

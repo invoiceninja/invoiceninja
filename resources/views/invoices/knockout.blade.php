@@ -514,6 +514,14 @@ function InvoiceModel(data) {
     self.onDragged = function(item) {
         refreshPDF(true);
     }
+
+    self.showResetTerms = function() {
+        return self.default_terms() && self.terms() != self.default_terms();
+    }
+
+    self.showResetFooter = function() {
+        return self.default_footer() && self.invoice_footer() != self.default_footer();
+    }
 }
 
 function ClientModel(data) {

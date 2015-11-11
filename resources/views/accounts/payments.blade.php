@@ -27,16 +27,7 @@
       ->render('datatable') !!}
 
   <script>
-  window.onDatatableReady = function() {
-    $('tbody tr').mouseover(function() {
-      $(this).closest('tr').find('.tr-action').css('visibility','visible');
-    }).mouseout(function() {
-      $dropdown = $(this).closest('tr').find('.tr-action');
-      if (!$dropdown.hasClass('open')) {
-        $dropdown.css('visibility','hidden');
-      }
-    });
-  }
-  </script>
+    window.onDatatableReady = actionListHandler;
+  </script>  
 
 @stop
