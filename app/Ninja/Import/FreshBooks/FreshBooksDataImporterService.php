@@ -35,14 +35,15 @@ class FreshBooksDataImporterService implements DataImporterServiceInterface
 
         $this->fractal = $manager;
         $this->transformerList = array(
-            'client' => __NAMESPACE__ . '\ClientTransformer',
-            'invoice' => __NAMESPACE__ . '\InvoiceTransformer',
+            'client'    => __NAMESPACE__ . '\ClientTransformer',
+            'invoice'   => __NAMESPACE__ . '\InvoiceTransformer',
+            'timesheet'     => __NAMESPACE__ . '\TimesheetTransformer',
         );
 
         $this->repositoryList = array(
-            'client' =>  '\App\Ninja\Repositories\ClientRepository',
-            'invoice' =>  '\App\Ninja\Repositories\InvoiceRepository',
-
+            'client'    =>  '\App\Ninja\Repositories\ClientRepository',
+            'invoice'   =>  '\App\Ninja\Repositories\InvoiceRepository',
+            'timesheet' =>  '\App\Ninja\Repositories\TaskRepository',
         );
     }
 
@@ -72,11 +73,21 @@ class FreshBooksDataImporterService implements DataImporterServiceInterface
             throw new Exception($e->getMessage() . ' - ' . $file->getClientOriginalName() );
         }
 
+        $errorMessages = null;
 
         foreach($rows as $row)
-            $this->repository->save($row);
+        {
+            if($entity=='timesheet')
+            {
+                $publicId = false;
+                $this->repository->save($publicId, $row);
+            } else {
+                $this->repository->save($row);
+            }
+        }
 
-        return $file->getClientOriginalName();
+
+        return $file->getClientOriginalName().' '.$errorMessages;
     }
 
     private function parseCSV($file)

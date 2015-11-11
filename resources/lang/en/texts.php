@@ -211,7 +211,7 @@ return array(
     'csv_file' => 'Select CSV file',
     'csv_client_file' => 'Select CSV Client file',
     'csv_invoice_file' => 'Select CSV Invoice file',
-    'csv_staff_file' => 'Select CSV Staff file',
+    'csv_timesheet_file' => 'Select CSV Timesheet file',
     'export_clients' => 'Export Client Data',
     'no_mapper' => 'No valid mapping for file',
     'invalid_csv_header' => 'Invalid CSV Header',

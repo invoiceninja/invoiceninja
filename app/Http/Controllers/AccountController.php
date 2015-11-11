@@ -735,7 +735,6 @@ class AccountController extends BaseController
         {
             $files['client']     = Input::file('client_file');
             $files['invoice']    = Input::file('invoice_file');
-            $files['staff']      = Input::file('staff_file');
             $files['timesheet']  = Input::file('timesheet_file');
             $imported_files = $this->dataImporterService->import($files);
         }

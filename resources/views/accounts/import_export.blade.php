@@ -25,6 +25,7 @@
   <div class="panel-body">
     {!! Former::file('client_file')->label(trans('texts.csv_client_file')) !!}
     {!! Former::file('invoice_file')->label(trans('texts.csv_invoice_file')) !!}
+    {!! Former::file('timesheet_file')->label(trans('texts.csv_timesheet_file')) !!}
     {!! Former::actions( Button::info(trans('texts.upload'))->submit()->large()->appendIcon(Icon::create('open'))) !!}
   </div>
 </div>
