@@ -12,26 +12,38 @@ use Exception;
 use App\Ninja\Import\DataImporterServiceInterface;
 use League\Fractal\Manager;
 use parseCSV;
+use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\InvoiceRepository;
+use Illuminate\Contracts\Container\Container;
 
 class FreshBooksDataImporterService implements DataImporterServiceInterface
 {
 
     protected $transformer;
-    protected $repository;
+    //protected $repository;
+    protected $invoiceRepo;
+
 
     /**
      * FreshBooksDataImporterService constructor.
      */
-    public function __construct(Manager $manager)
+    public function __construct(Manager $manager, ClientRepository $clientRepo, InvoiceRepository $invoiceRepo, Container $container)
     {
+        $this->clientRepo = $clientRepo;
+        $this->invoiceRepo = $invoiceRepo;
+        $this->container = $container;
+
         $this->fractal = $manager;
         $this->transformerList = array(
             'client' => __NAMESPACE__ . '\ClientTransformer',
-        );
-        $this->repositoryList = array(
-            'client' =>  'App\Ninja\Repositories\ClientRepository',
+            'invoice' => __NAMESPACE__ . '\InvoiceTransformer',
         );
 
+        $this->repositoryList = array(
+            'client' =>  '\App\Ninja\Repositories\ClientRepository',
+            'invoice' =>  '\App\Ninja\Repositories\InvoiceRepository',
+
+        );
     }
 
     public function import($files)
@@ -47,7 +59,6 @@ class FreshBooksDataImporterService implements DataImporterServiceInterface
 
     private function execute($entity, $file)
     {
-
         $this->transformer = $this->createTransformer($entity);
         $this->repository = $this->createRepository($entity);
 
@@ -119,7 +130,7 @@ class FreshBooksDataImporterService implements DataImporterServiceInterface
             throw new \InvalidArgumentException("$type is not a valid Repository");
         }
         $className = $this->repositoryList[$type];
-        return new $className();
+        return $this->container->make($className);
+        //return new $className();
     }
-
 }
