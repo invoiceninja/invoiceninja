@@ -3,10 +3,14 @@
 use DB;
 use Utils;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 
 class Task extends EntityModel
 {
     use SoftDeletes;
+    use PresentableTrait;
+
+    protected $presenter = 'App\Ninja\Presenters\TaskPresenter';
 
     public function account()
     {
@@ -16,6 +20,11 @@ class Task extends EntityModel
     public function invoice()
     {
         return $this->belongsTo('App\Models\Invoice');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
     }
 
     public function client()

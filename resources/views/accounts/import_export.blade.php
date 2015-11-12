@@ -18,12 +18,29 @@
 {!! Former::close() !!}
 
 
-{!! Former::open('settings/' . ACCOUNT_EXPORT) !!}
+{!! Former::open('/export') !!}
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">{!! trans('texts.export_clients') !!}</h3>
+    <h3 class="panel-title">{!! trans('texts.export_data') !!}</h3>
   </div>
     <div class="panel-body">
+        {!! Former::select('format')
+                ->onchange('setEntityTypesVisible()')
+                ->addOption('CSV', 'CSV')
+                ->addOption('XLS', 'XLS')
+                ->addOption('JSON', 'JSON')
+                ->style('max-width: 200px') !!}
+
+        {!! Former::checkbox('entity_types')
+                ->label('include')
+                ->addGroupClass('entity-types')
+                ->checkboxes([
+                    trans('texts.clients') => array('name' => ENTITY_CLIENT, 'value' => 1),
+                    trans('texts.tasks') => array('name' => ENTITY_TASK, 'value' => 1),
+                    trans('texts.invoices') => array('name' => ENTITY_INVOICE, 'value' => 1),
+                    trans('texts.payments') => array('name' => ENTITY_PAYMENT, 'value' => 1),
+                ])->check(ENTITY_CLIENT)->check(ENTITY_TASK)->check(ENTITY_INVOICE)->check(ENTITY_PAYMENT) !!}
+
         {!! Former::actions( Button::primary(trans('texts.download'))->submit()->large()->appendIcon(Icon::create('download-alt'))) !!}            
     </div>
 </div>
@@ -73,6 +90,15 @@
 
   function confirmCancel() {
     $('form.cancel-account').submit();
+  }
+
+  function setEntityTypesVisible() {
+    var selector = '.entity-types input[type=checkbox]';
+    if ($('#format').val() === 'JSON') {
+        $(selector).attr('disabled', true);
+    } else {
+        $(selector).removeAttr('disabled');
+    }
   }
 
 </script>

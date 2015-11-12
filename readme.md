@@ -80,3 +80,4 @@ If you'd like to use our code to sell your own invoicing app email us for detail
 * [josdejong/jsoneditor](https://github.com/josdejong/jsoneditor/) - A web-based tool to view, edit and format JSON
 * [simshaun/recurr](https://github.com/simshaun/recurr) - PHP library for working with recurrence rules
 * [quilljs/quill](https://github.com/quilljs/quill/) - A cross browser rich text editor with an API
+* [Maatwebsite/Laravel-Excel](https://github.com/Maatwebsite/Laravel-Excel) - An eloquent way of importing and exporting Excel and CSV files for Laravel

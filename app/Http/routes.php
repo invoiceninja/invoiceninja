@@ -131,6 +131,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
     Route::post('account/go_pro', 'AccountController@enableProPlan');
+    Route::post('/export', 'ImportExportController@doExport');
 
     Route::resource('gateways', 'AccountGatewayController');
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
@@ -505,29 +506,26 @@ if (!defined('CONTACT_EMAIL')) {
 
 /*
 // Log all SQL queries to laravel.log
-Event::listen('illuminate.query', function($query, $bindings, $time, $name)
-{
-    $data = compact('bindings', 'time', 'name');
+if (Utils::isNinjaDev()) {
+    Event::listen('illuminate.query', function($query, $bindings, $time, $name) {
+        $data = compact('bindings', 'time', 'name');
 
-    // Format binding data for sql insertion
-    foreach ($bindings as $i => $binding)
-    {   
-        if ($binding instanceof \DateTime)
-        {   
-            $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
+        // Format binding data for sql insertion
+        foreach ($bindings as $i => $binding) {
+            if ($binding instanceof \DateTime) {
+                $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
+            } elseif (is_string($binding)) {
+                $bindings[$i] = "'$binding'";
+            }
         }
-        else if (is_string($binding))
-        {   
-            $bindings[$i] = "'$binding'";
-        }   
-    }       
 
-    // Insert bindings into query
-    $query = str_replace(array('%', '?'), array('%%', '%s'), $query);
-    $query = vsprintf($query, $bindings); 
+        // Insert bindings into query
+        $query = str_replace(array('%', '?'), array('%%', '%s'), $query);
+        $query = vsprintf($query, $bindings);
 
-    Log::info($query, $data);
-});
+        Log::info($query, $data);
+    });
+}
 */
 
 /*

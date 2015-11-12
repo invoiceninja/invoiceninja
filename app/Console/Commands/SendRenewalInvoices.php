@@ -28,12 +28,24 @@ class SendRenewalInvoices extends Command
     {
         $this->info(date('Y-m-d').' Running SendRenewalInvoices...');
         $today = new DateTime();
+        $sentTo = [];
 
         // get all accounts with pro plans expiring in 10 days
-        $accounts = Account::whereRaw('datediff(curdate(), pro_plan_paid) = 355')->get();
+        $accounts = Account::whereRaw('datediff(curdate(), pro_plan_paid) = 355')
+                        ->orderBy('id')
+                        ->get();
         $this->info(count($accounts).' accounts found');
 
         foreach ($accounts as $account) {
+            // don't send multiple invoices to multi-company users
+            if ($userAccountId = $this->accountRepo->getUserAccountId($account)) {
+                if (isset($sentTo[$userAccountId])) {
+                    continue;
+                } else {
+                    $sentTo[$userAccountId] = true;
+                }
+            }
+
             $client = $this->accountRepo->getNinjaClient($account);
             $invitation = $this->accountRepo->createNinjaInvoice($client);
 
@@ -43,6 +55,7 @@ class SendRenewalInvoices extends Command
             $invoice->save();
 
             $this->mailer->sendInvoice($invoice);
+            $this->info("Sent invoice to {$client->getDisplayName()}");
         }
 
         $this->info('Done');

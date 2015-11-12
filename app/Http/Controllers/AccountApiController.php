@@ -62,7 +62,7 @@ class AccountApiController extends BaseAPIController
     public function show()
     {
         $account = Auth::user()->account;
-        $account->load('clients.getInvoices.invoice_items', 'users');
+        $account->loadAllData();
         
         $account = $this->createItem($account, new AccountTransformer);
         $response = [

@@ -5,11 +5,16 @@ use DB;
 use Carbon;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasUpdated;
+use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends EntityModel
 {
+    use PresentableTrait;
     use SoftDeletes;
+
+    protected $presenter = 'App\Ninja\Presenters\ClientPresenter';
+
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
