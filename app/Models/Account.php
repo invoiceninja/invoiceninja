@@ -202,6 +202,20 @@ class Account extends Eloquent
         return $date->format($this->getCustomDateFormat());
     }
 
+    public function formatDateTime($date)
+    {
+        if (!$date) {
+            return null;
+        }
+
+        return $date->format($this->getCustomDateTimeFormat());
+    }
+
+    public function getCustomDateTimeFormat()
+    {
+        return $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
+    }
+
     public function getGatewayByType($type = PAYMENT_TYPE_ANY)
     {
         foreach ($this->account_gateways as $gateway) {
@@ -421,6 +435,11 @@ class Account extends Eloquent
         }
         
         $this->save();
+    }
+
+    public function loadAllData()
+    {
+        $this->load('clients.getInvoices.invoice_items', 'clients.getQuotes.invoice_items', 'users', 'clients.contacts');
     }
 
     public function loadLocalizationSettings($client = false)

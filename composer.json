@@ -36,7 +36,7 @@
         "omnipay/bitpay": "dev-master",
 		"guzzlehttp/guzzle": "~5.0",
         "laravelcollective/html": "~5.0",
-        "wildbit/laravel-postmark-provider": "dev-master",
+        "wildbit/laravel-postmark-provider": "1.0",
         "Dwolla/omnipay-dwolla": "dev-master",
         "laravel/socialite": "~2.0",
         "simshaun/recurr": "dev-master",
@@ -60,7 +60,8 @@
         "labs7in0/omnipay-wechat": "dev-master",
         "collizo4sky/omnipay-wepay": "~1.0",
         "laracasts/presenter": "dev-master",
-        "jlapp/swaggervel": "master-dev"
+        "jlapp/swaggervel": "master-dev",
+        "maatwebsite/excel": "~2.0"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

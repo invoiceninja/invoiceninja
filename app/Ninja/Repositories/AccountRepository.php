@@ -508,4 +508,12 @@ class AccountRepository
             $token->save();
         }
     }
+
+    public function getUserAccountId($account)
+    {
+        $user = $account->users()->first();
+        $userAccount = $this->findUserAccounts($user->id);
+
+        return $userAccount ? $userAccount->id : false;
+    }
 }

@@ -11,7 +11,7 @@ class QuoteTransformer extends EntityTransformer
 
     public function includeInvoiceItems($invoice)
     {
-        return $this->collection($invoice->invoice_items, new InvoiceItemTransformer);
+        return $this->collection($invoice->invoice_items, new InvoiceItemTransformer($this->account));
     }
 
     public function transform(Invoice $invoice)
