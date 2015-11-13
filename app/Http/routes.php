@@ -392,8 +392,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
 
     define('GATEWAY_AUTHORIZE_NET', 1);
-    define('GATEWAY_EWAY', 4);
     define('GATEWAY_AUTHORIZE_NET_SIM', 2);
+    define('GATEWAY_EWAY', 4);
+    define('GATEWAY_MOLLIE', 9);
     define('GATEWAY_PAYFAST', 13);
     define('GATEWAY_PAYPAL_EXPRESS', 17);
     define('GATEWAY_PAYPAL_PRO', 18);
