@@ -141,7 +141,8 @@ class PaymentController extends BaseController
         if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD 
             || $gateway->id == GATEWAY_EWAY 
             || $gateway->id == GATEWAY_TWO_CHECKOUT
-            || $gateway->id == GATEWAY_PAYFAST) {
+            || $gateway->id == GATEWAY_PAYFAST
+            || $gateway->id == GATEWAY_MOLLIE) {
             if (Session::has('error')) {
                 Session::reflash();
                 return Redirect::to('view/'.$invitationKey);
@@ -487,7 +488,9 @@ class PaymentController extends BaseController
         }
 
         try {
-            if (method_exists($gateway, 'completePurchase') && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)) {
+            if (method_exists($gateway, 'completePurchase') 
+                && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)
+                && !$accountGateway->isGateway(GATEWAY_MOLLIE)) { // TODO: implement webhook
                 $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
                 $response = $gateway->completePurchase($details)->send();
                 $ref = $response->getTransactionReference() ?: $token;
