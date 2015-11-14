@@ -71,7 +71,8 @@ class InvoiceTransformer extends EntityTransformer
             'invoice_footer' => $invoice->invoice_footer,
             'partial' => (float) $invoice->partial,
             'has_tasks' => (bool) $invoice->has_tasks,
-            'auto_bill' => (bool) $invoice->auto_bill
+            'auto_bill' => (bool) $invoice->auto_bill,
+            'account_key' => $this->account->account_key
         ];
     }
 }
