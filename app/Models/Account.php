@@ -60,6 +60,11 @@ class Account extends Eloquent
         return $this->hasMany('App\Models\Client');
     }
 
+    public function contacts()
+    {
+        return $this->hasMany('App\Models\Contact');
+    }
+
     public function invoices()
     {
         return $this->hasMany('App\Models\Invoice');
