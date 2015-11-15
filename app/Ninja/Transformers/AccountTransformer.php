@@ -10,6 +10,7 @@ class AccountTransformer extends TransformerAbstract
     protected $defaultIncludes = [
         'users',
         'clients',
+        'invoices'
     ];
 
     public function includeUsers(Account $account)
@@ -20,6 +21,11 @@ class AccountTransformer extends TransformerAbstract
     public function includeClients(Account $account)
     {
         return $this->collection($account->clients, new ClientTransformer($account));
+    }
+
+    public function includeInvoices(Account $account)
+    {
+        return $this->collection($account->invoices, new InvoiceTransformer($account));
     }
 
     public function transform(Account $account)

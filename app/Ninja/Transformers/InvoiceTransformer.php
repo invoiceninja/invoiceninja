@@ -20,13 +20,11 @@ class InvoiceTransformer extends EntityTransformer
     * @SWG\Property(property="invoice_status_id", type="integer", example=1)
     */
 
-    protected $client;
 
-    public function __construct(Account $account, Client $client)
+    public function __construct(Account $account)
     {
         parent::__construct($account);
 
-        $this->client = $client;
     }
 
     protected $defaultIncludes = [
@@ -42,10 +40,9 @@ class InvoiceTransformer extends EntityTransformer
     {
         return [
             'id' => (int) $invoice->public_id,
-            'invoice_number' => $invoice->invoice_number,
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
-            'client_id' => (int) $this->client->public_id,
+            'client_id' => (int) $invoice->client->public_id,
             'invoice_status_id' => (int) $invoice->invoice_status_id,
             'updated_at' => $invoice->updated_at,
             'deleted_at' => $invoice->deleted_at,
