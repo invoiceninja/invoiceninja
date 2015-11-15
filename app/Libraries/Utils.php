@@ -847,7 +847,7 @@ class Utils
 
         $today = new DateTime('now');
         $datePaid = DateTime::createFromFormat('Y-m-d', $date);
-        $interval = $today->diff($date);
+        $interval = $today->diff($datePaid);
 
         return $interval->y == 0;
     }

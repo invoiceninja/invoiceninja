@@ -103,6 +103,17 @@ class ReportController extends BaseController
             if ($enableChart) {
                 $params = array_merge($params, self::generateChart($groupBy, $startDate, $endDate));
             }
+        } else {
+            $params['columns'] = [];
+            $params['displayData'] = [];
+            $params['reportTotals'] = [
+                'amount' => [],
+                'balance' => [],
+                'paid' => [],
+            ];
+            $params['labels'] = [];
+            $params['datasets'] = [];
+            $params['scaleStepWidth'] = 100;
         }
 
         return View::make('reports.chart_builder', $params);

@@ -70,6 +70,7 @@ class ActivityRepository
                     ->leftJoin('invoices', 'invoices.id', '=', 'activities.invoice_id')
                     ->leftJoin('payments', 'payments.id', '=', 'activities.payment_id')
                     ->leftJoin('credits', 'credits.id', '=', 'activities.credit_id')
+                    ->where('clients.account_id', '=', Auth::user()->account_id)
                     ->where('clients.public_id', '=', $clientPublicId)
                     ->where('contacts.is_primary', '=', 1)
                     ->whereNull('contacts.deleted_at')
