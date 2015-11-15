@@ -49,7 +49,7 @@ class PublicClientController extends BaseController
         }
         $invoice = $invitation->invoice;
 
-        $query = $this->activityRepo->findByClientId($invoice->client_id);
+        $query = $this->activityRepo->findByClientPublicId($invoice->client->public_id);
         $query->where('activities.adjustment', '!=', 0);
 
         return Datatable::query($query)

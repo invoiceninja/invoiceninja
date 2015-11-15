@@ -10,16 +10,18 @@
 </tr>
 
 @foreach ($contacts as $contact)
-    <tr>
-        <td>{{ $contact->client->getDisplayName() }}</td>
-        @if ($multiUser)
-            <td>{{ $contact->user->getDisplayName() }}</td>
-        @endif
-        <td>{{ $contact->first_name }}</td>
-        <td>{{ $contact->last_name }}</td>
-        <td>{{ $contact->email }}</td>
-        <td>{{ $contact->phone }}</td>
-    </tr>
+    @if (!$contact->client->is_deleted)
+        <tr>
+            <td>{{ $contact->client->getDisplayName() }}</td>
+            @if ($multiUser)
+                <td>{{ $contact->user->getDisplayName() }}</td>
+            @endif
+            <td>{{ $contact->first_name }}</td>
+            <td>{{ $contact->last_name }}</td>
+            <td>{{ $contact->email }}</td>
+            <td>{{ $contact->phone }}</td>
+        </tr>
+    @endif
 @endforeach
 
 <tr><td></td></tr>
