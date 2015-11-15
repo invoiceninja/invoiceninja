@@ -9,7 +9,7 @@ class UserTransformer extends EntityTransformer
     public function transform(User $user)
     {
         return [
-            'public_id' => (int) ($user->public_id + 1),
+            'id' => (int) ($user->public_id + 1),
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'email' => $user->email,

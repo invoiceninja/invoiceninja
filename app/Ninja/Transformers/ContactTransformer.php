@@ -9,7 +9,7 @@ class ContactTransformer extends EntityTransformer
     public function transform(Contact $contact)
     {
         return [
-            'public_id' => (int) $contact->public_id,
+            'id' => (int) $contact->public_id,
             'first_name' => $contact->first_name,
             'last_name' => $contact->last_name,
             'email' => $contact->email,
@@ -19,7 +19,8 @@ class ContactTransformer extends EntityTransformer
             'is_primary' => (bool) $contact->is_primary,
             'phone' => $contact->phone,
             'last_login' => $contact->last_login,
-            'account_key' => $this->account->account_key
+            'account_key' => $this->account->account_key,
+            'client_id' => $contact->client_id
         ];
     }
 }
