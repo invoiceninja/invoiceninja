@@ -904,6 +904,14 @@ return array(
   'archived' => 'Arquivado',
   'untitled_account' => 'Empresa Sem Nome',
 
-	'before' => 'Antes',
+  'before' => 'Antes',
   'after' => 'Depois',
+  'reset_terms_help' => 'Reset to the default account terms',
+  'reset_footer_help' => 'Reset to the default account footer',
+  'export_data' => 'Export Data',
+  'user' => 'User',
+  'country' => 'Country',
+  'include' => 'Include',
+
+
 );

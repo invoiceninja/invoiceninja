@@ -61,14 +61,6 @@ class ReportController extends BaseController
             $enableChart = true;
         }
 
-        $displayData = [];
-        $exportData = [];
-        $reportTotals = [
-                    'amount' => [],
-                    'balance' => [],
-                    'paid' => [],
-                ];
-
         $dateTypes = [
             'DAYOFYEAR' => 'Daily',
             'WEEK' => 'Weekly',
@@ -183,7 +175,7 @@ class ReportController extends BaseController
 
                 if ($entityType == ENTITY_INVOICE) {
                     $labelFormat = $groupBy == 'DAYOFYEAR' ? 'j' : ($groupBy == 'WEEK' ? 'W' : 'F');
-                    $label       = $d->format($labelFormat);
+                    $label = $d->format($labelFormat);
                     $labels[] = $label;
                 }
             }
@@ -256,6 +248,14 @@ class ReportController extends BaseController
 
         $lastInvoiceId = null;
         $sameAsLast = false;
+        $displayData = [];
+
+        $exportData = [];
+        $reportTotals = [
+                    'amount' => [],
+                    'balance' => [],
+                    'paid' => [],
+                ];
 
         foreach ($data as $record) {
             $sameAsLast = ($lastInvoiceId == $record->invoice_public_id);
