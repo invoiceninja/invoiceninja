@@ -41,9 +41,9 @@ class ClientTransformer extends EntityTransformer
     */
 
     protected $defaultIncludes = [
-        'contacts',
-        'invoices',
-        'quotes',
+    //    'contacts',
+    //    'invoices',
+    //    'quotes',
     ];
     
     public function includeContacts(Client $client)
@@ -64,7 +64,7 @@ class ClientTransformer extends EntityTransformer
     public function transform(Client $client)
     {
         return [
-            'public_id' => (int) $client->public_id,
+            'id' => (int) $client->public_id,
             'name' => $client->name,
             'balance' => (float) $client->balance,
             'paid_to_date' => (float) $client->paid_to_date,
