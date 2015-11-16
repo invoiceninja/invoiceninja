@@ -155,17 +155,19 @@
             </div>
         </div>
 
-        {!! Datatable::table()
-            ->addColumn(
-                trans('texts.date'),
-                trans('texts.message'),
-                trans('texts.balance'),
-                trans('texts.adjustment'))
-            ->setUrl(route('api.client.activity'))
-            ->setOptions('bFilter', false)
-            ->setOptions('aaSorting', [['0', 'desc']])
-            ->setOptions('sPaginationType', 'bootstrap')
-            ->render('datatable') !!}
+        <div style="min-height: 550px">
+            {!! Datatable::table()
+                ->addColumn(
+                    trans('texts.date'),
+                    trans('texts.message'),
+                    trans('texts.balance'),
+                    trans('texts.adjustment'))
+                ->setUrl(route('api.client.activity'))
+                ->setOptions('bFilter', false)
+                ->setOptions('aaSorting', [['0', 'desc']])
+                ->setOptions('sPaginationType', 'bootstrap')
+                ->render('datatable') !!}
+        </div>
 
     </div>
 
