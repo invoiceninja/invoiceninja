@@ -203,7 +203,10 @@ class InvoiceController extends BaseController
     public function edit($publicId, $clone = false)
     {
         $account = Auth::user()->account;
-        $invoice = Invoice::scope($publicId)->withTrashed()->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items')->firstOrFail();
+        $invoice = Invoice::scope($publicId)
+                        ->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items')
+                        ->withTrashed()
+                        ->firstOrFail();
         $entityType = $invoice->getEntityType();
         
         $contactIds = DB::table('invitations')
@@ -270,6 +273,7 @@ class InvoiceController extends BaseController
         $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
 
         $data = array(
+                'clients' => Client::scope()->withTrashed()->with('contacts', 'country')->whereId($invoice->id)->get(),
                 'entityType' => $entityType,
                 'showBreadcrumbs' => $clone,
                 'invoice' => $invoice,
@@ -282,7 +286,7 @@ class InvoiceController extends BaseController
                 'actions' => $actions,
                 'lastSent' => $lastSent);
         $data = array_merge($data, self::getViewModel());
-
+        
         if ($clone) {
             $data['formIsChanged'] = true;
         }
@@ -327,6 +331,7 @@ class InvoiceController extends BaseController
         $invoice->public_id = 0;
         
         $data = [
+            'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
             'entityType' => $invoice->getEntityType(),
             'invoice' => $invoice,
             'method' => 'POST',
@@ -361,7 +366,6 @@ class InvoiceController extends BaseController
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->with('default_tax_rate')->orderBy('id')->get(),
             'countries' => Cache::get('countries'),
-            'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->orderBy('name')->get(),
             'currencies' => Cache::get('currencies'),
             'languages' => Cache::get('languages'),
