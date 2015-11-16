@@ -919,7 +919,13 @@ return array(
     'include' => 'Include',
 
     'logo_too_large' => 'Your logo is :size, for better performance we suggest uploading an image file less than 200KB',
-    'can_not_email_inactive_client' => 'Emails can not be sent to inactive clients',
-    'can_not_email_inactive_invoice' => 'Emails can not be sent to inactive invoices',
-    
+    'email_errors' => [
+        'inactive_client' => 'Emails can not be sent to inactive clients',
+        'inactive_contact' => 'Emails can not be sent to inactive contacts',
+        'inactive_invoice' => 'Emails can not be sent to inactive invoices',
+        'user_unregistered' => 'Please register your account to send emails',
+        'user_unconfirmed' => 'Please confirm your account to send emails',
+        'invalid_contact_email' => 'Invalid contact email',
+    ]
+
 );

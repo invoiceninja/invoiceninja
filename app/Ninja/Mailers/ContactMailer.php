@@ -24,9 +24,9 @@ class ContactMailer extends Mailer
         $account = $invoice->account;
 
         if ($client->trashed()) {
-            return trans('texts.can_not_email_inactive_client');
+            return trans('texts.email_errors.inactive_client');
         } elseif ($invoice->trashed()) {
-            return trans('texts.can_not_email_inactive_invoice');
+            return trans('texts.email_errors.inactive_invoice');
         }
 
         $account->loadLocalizationSettings($client);
@@ -40,7 +40,8 @@ class ContactMailer extends Mailer
         }
 
         foreach ($invoice->invitations as $invitation) {
-            if ($this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString)) {
+            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString);
+            if ($response === true) {
                 $sent = true;
             }
         }
@@ -55,7 +56,7 @@ class ContactMailer extends Mailer
             }
         }
 
-        return $sent ?: trans('texts.email_error');
+        return $response;
     }
 
     private function sendInvitation($invitation, $invoice, $body, $subject, $pdfString)
@@ -72,12 +73,14 @@ class ContactMailer extends Mailer
             }
         }
 
-        if (!$user->email || !$user->confirmed) {
-            return false;
-        }
-
-        if (!$invitation->contact->email || $invitation->contact->trashed()) {
-            return false;
+        if (!$user->email || !$user->registered) {
+            return trans('texts.email_errors.user_unregistered');
+        } elseif (!$user->confirmed) {
+            return trans('texts.email_errors.user_unconfirmed');
+        } elseif (!$invitation->contact->email) {
+            return trans('texts.email_errors.invalid_contact_email');
+        } elseif ($invitation->contact->trashed()) {
+            return trans('texts.email_errors.inactive_contact');
         }
 
         $variables = [
@@ -110,7 +113,7 @@ class ContactMailer extends Mailer
         if ($response === true) {
             return true;
         } else {
-            return false;
+            return $response;
         }
     }
 
