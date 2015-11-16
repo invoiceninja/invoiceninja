@@ -9,15 +9,17 @@
 </tr>
 
 @foreach ($tasks as $task)
-    <tr>
-        <td>{{ $task->present()->client }}</td>
-        @if ($multiUser)
-            <td>{{ $task->present()->user }}</td>
-        @endif
-        <td>{{ $task->getStartTime() }}</td>
-        <td>{{ $task->getDuration() }}</td>
-        <td>{{ $task->description }}</td>
-    </tr>
+    @if (!$task->client || !$task->client->is_deleted)
+        <tr>
+            <td>{{ $task->present()->client }}</td>
+            @if ($multiUser)
+                <td>{{ $task->present()->user }}</td>
+            @endif
+            <td>{{ $task->getStartTime() }}</td>
+            <td>{{ $task->getDuration() }}</td>
+            <td>{{ $task->description }}</td>
+        </tr>
+    @endif
 @endforeach
 
 <tr><td></td></tr>
