@@ -905,4 +905,10 @@ return array(
   'after' => 'Depois',
   'reset_terms_help' => 'Resetar para as condições padrões',
   'reset_footer_help' => 'Resetar para o rodapé padrão',
+  'reset_terms_help' => 'Reset to the default account terms',
+  'reset_footer_help' => 'Reset to the default account footer',
+  'export_data' => 'Exportar Dados',
+  'user' => 'Usuário',
+  'country' => 'País',
+  'include' => 'Incluir',
 );

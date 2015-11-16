@@ -29,7 +29,7 @@ class BaseService
 
     public function createDatatable($entityType, $query, $showCheckbox = true, $hideClient = false)
     {
-        $columns = $this->getDatatableColumns($entityType, $hideClient);
+        $columns = $this->getDatatableColumns($entityType, !$showCheckbox);
         $actions = $this->getDatatableActions($entityType);
 
         return $this->datatableService->createDatatable($entityType, $query, $columns, $actions, $showCheckbox);

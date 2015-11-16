@@ -903,5 +903,14 @@ return array(
   'restored_recurring_invoice' => 'Successfully restored recurring invoice',
   'archived' => 'Archived',
   'untitled_account' => 'Untitled Company',
+
+  'before' => 'Before',
+  'after' => 'After',
+  'reset_terms_help' => 'Reset to the default account terms',
+  'reset_footer_help' => 'Reset to the default account footer',
+  'export_data' => 'Export Data',
+  'user' => 'User',
+  'country' => 'Country',
+  'include' => 'Include',
   
 );

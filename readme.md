@@ -18,7 +18,7 @@ If you'd like to use our code to sell your own invoicing app email us for detail
 ### Features
 * Built using Laravel 5
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
-* Integrates with 30+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
+* Integrates with 50+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
 * Tasks with time-tracking
 * Multi-user/multi-company support

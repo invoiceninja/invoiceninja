@@ -61,14 +61,6 @@ class ReportController extends BaseController
             $enableChart = true;
         }
 
-        $displayData = [];
-        $exportData = [];
-        $reportTotals = [
-                    'amount' => [],
-                    'balance' => [],
-                    'paid' => [],
-                ];
-
         $dateTypes = [
             'DAYOFYEAR' => 'Daily',
             'WEEK' => 'Weekly',
@@ -111,6 +103,17 @@ class ReportController extends BaseController
             if ($enableChart) {
                 $params = array_merge($params, self::generateChart($groupBy, $startDate, $endDate));
             }
+        } else {
+            $params['columns'] = [];
+            $params['displayData'] = [];
+            $params['reportTotals'] = [
+                'amount' => [],
+                'balance' => [],
+                'paid' => [],
+            ];
+            $params['labels'] = [];
+            $params['datasets'] = [];
+            $params['scaleStepWidth'] = 100;
         }
 
         return View::make('reports.chart_builder', $params);
@@ -183,7 +186,7 @@ class ReportController extends BaseController
 
                 if ($entityType == ENTITY_INVOICE) {
                     $labelFormat = $groupBy == 'DAYOFYEAR' ? 'j' : ($groupBy == 'WEEK' ? 'W' : 'F');
-                    $label       = $d->format($labelFormat);
+                    $label = $d->format($labelFormat);
                     $labels[] = $label;
                 }
             }
@@ -256,6 +259,14 @@ class ReportController extends BaseController
 
         $lastInvoiceId = null;
         $sameAsLast = false;
+        $displayData = [];
+
+        $exportData = [];
+        $reportTotals = [
+                    'amount' => [],
+                    'balance' => [],
+                    'paid' => [],
+                ];
 
         foreach ($data as $record) {
             $sameAsLast = ($lastInvoiceId == $record->invoice_public_id);

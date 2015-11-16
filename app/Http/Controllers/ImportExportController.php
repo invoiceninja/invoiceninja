@@ -107,10 +107,13 @@ class ImportExportController extends BaseController
         if ($request->input(ENTITY_CLIENT)) {
             $data['clients'] = Client::scope()
                 ->with('user', 'contacts', 'country')
+                ->withTrashed()
+                ->where('is_deleted', '=', false)
                 ->get();
 
             $data['contacts'] = Contact::scope()
                 ->with('user', 'client.contacts')
+                ->withTrashed()
                 ->get();
 
             $data['credits'] = Credit::scope()
@@ -121,18 +124,24 @@ class ImportExportController extends BaseController
         if ($request->input(ENTITY_TASK)) {
             $data['tasks'] = Task::scope()
                 ->with('user', 'client.contacts')
+                ->withTrashed()
+                ->where('is_deleted', '=', false)
                 ->get();
         }
         
         if ($request->input(ENTITY_INVOICE)) {
             $data['invoices'] = Invoice::scope()
                 ->with('user', 'client.contacts', 'invoice_status')
+                ->withTrashed()
+                ->where('is_deleted', '=', false)
                 ->where('is_quote', '=', false)
                 ->where('is_recurring', '=', false)
                 ->get();
         
             $data['quotes'] = Invoice::scope()
                 ->with('user', 'client.contacts', 'invoice_status')
+                ->withTrashed()
+                ->where('is_deleted', '=', false)
                 ->where('is_quote', '=', true)
                 ->where('is_recurring', '=', false)
                 ->get();
@@ -140,6 +149,8 @@ class ImportExportController extends BaseController
         
         if ($request->input(ENTITY_PAYMENT)) {
             $data['payments'] = Payment::scope()
+                ->withTrashed()
+                ->where('is_deleted', '=', false)
                 ->with('user', 'client.contacts', 'payment_type', 'invoice', 'account_gateway.gateway')
                 ->get();
         }

@@ -161,27 +161,31 @@
         $('#action').val('');    
     }
 
-	var ctx = document.getElementById('monthly-reports').getContext('2d');
-	var chart = {
-		labels: {!! json_encode($labels) !!},
-		datasets: [
-		@foreach ($datasets as $dataset)
-			{
-				data: {!! json_encode($dataset['totals']) !!},
-				fillColor : "rgba({!! $dataset['colors'] !!},0.5)",
-				strokeColor : "rgba({!! $dataset['colors'] !!},1)",
-			},
-		@endforeach
-		]
-	}
+    @if ($enableChart)
+    	var ctx = document.getElementById('monthly-reports').getContext('2d');
+    	var chart = {
+    		labels: {!! json_encode($labels) !!},
+    		datasets: [
+    		@foreach ($datasets as $dataset)
+    			{
+    				data: {!! json_encode($dataset['totals']) !!},
+    				fillColor : "rgba({!! $dataset['colors'] !!},0.5)",
+    				strokeColor : "rgba({!! $dataset['colors'] !!},1)",
+    			},
+    		@endforeach
+    		]
+    	}
 
-	var options = {		
-		scaleOverride: true,
-		scaleSteps: 10,
-		scaleStepWidth: {!! $scaleStepWidth !!},
-		scaleStartValue: 0,
-		scaleLabel : "<%=value%>",
-	};
+    	var options = {		
+    		scaleOverride: true,
+    		scaleSteps: 10,
+    		scaleStepWidth: {!! $scaleStepWidth !!},
+    		scaleStartValue: 0,
+    		scaleLabel : "<%=value%>",
+    	};
+
+        new Chart(ctx).{!! $chartType !!}(chart, options);
+    @endif
 
     $(function() {
         $('.start_date .input-group-addon').click(function() {
@@ -192,7 +196,6 @@
         });
     })
 
-	new Chart(ctx).{!! $chartType !!}(chart, options);
 
 	</script>
 

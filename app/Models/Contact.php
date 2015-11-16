@@ -34,7 +34,7 @@ class Contact extends EntityModel
 
     public function client()
     {
-        return $this->belongsTo('App\Models\Client');
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     public function getPersonType()
