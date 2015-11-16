@@ -18,7 +18,9 @@ class ActivityService extends BaseService
 
     public function getDatatable($clientPublicId = null)
     {
-        $query = $this->activityRepo->findByClientPublicId($clientPublicId);
+        $clientId = Client::getPrivateId($clientPublicId);
+
+        $query = $this->activityRepo->findByClientId($clientId);
 
         return $this->createDatatable(ENTITY_ACTIVITY, $query);
     }

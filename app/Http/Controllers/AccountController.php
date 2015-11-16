@@ -842,7 +842,7 @@ class AccountController extends BaseController
     {
         $rules = array(
             'name' => 'required',
-            'logo' => 'sometimes|max:512|mimes:jpeg,gif,png',
+            'logo' => 'sometimes|max:200|mimes:jpeg,gif,png',
         );
 
         $validator = Validator::make(Input::all(), $rules);
