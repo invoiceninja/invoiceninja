@@ -918,4 +918,5 @@ return array(
     'country' => 'Country',
     'include' => 'Include',
 
+    'logo_too_large' => 'Your logo is :size, for better performance we suggest uploading an image file less than 200KB',
 );

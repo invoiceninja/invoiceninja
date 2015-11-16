@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Event;
 use File;
 use Image;
 use Input;
@@ -227,6 +226,17 @@ class AccountController extends BaseController
 
     private function showCompanyDetails()
     {
+        // check that logo is less than the max file size
+        $account = Auth::user()->account;
+        if ($account->hasLogo()) {
+            $filename = $account->getLogoPath();
+            $bytes = File::size($filename);
+            if ($bytes > MAX_LOGO_FILE_SIZE * 1000) {
+                $bytes /= 1000;
+                Session::flash('warning', trans('texts.logo_too_large', ['size' => round($bytes) . 'KB']));
+            }
+        }
+
         $data = [
             'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
             'countries' => Cache::get('countries'),
@@ -842,7 +852,7 @@ class AccountController extends BaseController
     {
         $rules = array(
             'name' => 'required',
-            'logo' => 'sometimes|max:200|mimes:jpeg,gif,png',
+            'logo' => 'sometimes|max:' . MAX_LOGO_FILE_SIZE . '|mimes:jpeg,gif,png',
         );
 
         $validator = Validator::make(Input::all(), $rules);
@@ -905,7 +915,7 @@ class AccountController extends BaseController
                 }
             }
 
-            Event::fire(new UserSettingsChanged());
+            event(new UserSettingsChanged());
 
             Session::flash('message', trans('texts.updated_settings'));
             return Redirect::to('settings/' . ACCOUNT_COMPANY_DETAILS);
@@ -940,7 +950,7 @@ class AccountController extends BaseController
 
             $user->save();
 
-            Event::fire(new UserSettingsChanged());
+            event(new UserSettingsChanged());
             Session::flash('message', trans('texts.updated_settings'));
             return Redirect::to('settings/' . ACCOUNT_USER_DETAILS);
         }
@@ -957,7 +967,7 @@ class AccountController extends BaseController
         $account->military_time = Input::get('military_time') ? true : false;
         $account->save();
 
-        Event::fire(new UserSettingsChanged());
+        event(new UserSettingsChanged());
 
         Session::flash('message', trans('texts.updated_settings'));
         return Redirect::to('settings/' . ACCOUNT_LOCALIZATION);
