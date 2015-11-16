@@ -11,7 +11,7 @@ If you'd like to use our code to sell your own invoicing app email us for detail
 
 ### Installation Options
 * [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
-* [Docker File](https://github.com/lalop/invoice-ninja-docker/blob/master/Dockerfile) - Free
+* [Docker File](https://github.com/invoiceninja/dockerfiles) - Free
 * [Bitnami](https://bitnami.com/stack/invoice-ninja) - Free
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja) - $30
 

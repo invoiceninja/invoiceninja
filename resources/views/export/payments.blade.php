@@ -11,17 +11,19 @@
 </tr>
 
 @foreach ($payments as $payment)
-    <tr>
-        <td>{{ $payment->present()->client }}</td>
-        @if ($multiUser)
-            <td>{{ $payment->user->getDisplayName() }}</td>
-        @endif
-        <td>{{ $payment->invoice->invoice_number }}</td>
-        <td>{{ $payment->present()->amount }}</td>
-        <td>{{ $payment->present()->payment_date }}</td>
-        <td>{{ $payment->present()->method }}</td>
-        <td>{{ $payment->transaction_reference }}</td>
-    </tr>
+    @if (!$payment->client->is_deleted)
+        <tr>
+            <td>{{ $payment->present()->client }}</td>
+            @if ($multiUser)
+                <td>{{ $payment->user->getDisplayName() }}</td>
+            @endif
+            <td>{{ $payment->invoice->invoice_number }}</td>
+            <td>{{ $payment->present()->amount }}</td>
+            <td>{{ $payment->present()->payment_date }}</td>
+            <td>{{ $payment->present()->method }}</td>
+            <td>{{ $payment->transaction_reference }}</td>
+        </tr>
+    @endif
 @endforeach
 
 <tr><td></td></tr>
