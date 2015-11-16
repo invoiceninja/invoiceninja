@@ -23,8 +23,10 @@ class ContactMailer extends Mailer
         $client = $invoice->client;
         $account = $invoice->account;
 
-        if ($invoice->trashed() || $client->trashed()) {
-            return false;
+        if ($client->trashed()) {
+            return trans('texts.can_not_email_inactive_client');
+        } elseif ($invoice->trashed()) {
+            return trans('texts.can_not_email_inactive_invoice');
         }
 
         $account->loadLocalizationSettings($client);

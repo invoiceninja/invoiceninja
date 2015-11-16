@@ -273,7 +273,7 @@ class InvoiceController extends BaseController
         $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
 
         $data = array(
-                'clients' => Client::scope()->withTrashed()->with('contacts', 'country')->whereId($invoice->id)->get(),
+                'clients' => Client::scope()->withTrashed()->with('contacts', 'country')->whereId($invoice->client_id)->get(),
                 'entityType' => $entityType,
                 'showBreadcrumbs' => $clone,
                 'invoice' => $invoice,
