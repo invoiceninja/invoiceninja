@@ -4,6 +4,7 @@ use Auth;
 use Utils;
 use Response;
 use Input;
+use Validator;
 use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Contact;
@@ -102,12 +103,18 @@ class InvoiceApiController extends Controller
         }
 
         if (isset($data['email'])) {
-            $client = Client::scope()->whereHas('contacts', function($query) use ($data) {
-                $query->where('email', '=', $data['email']);
+            $email = $data['email'];
+            $client = Client::scope()->whereHas('contacts', function($query) use ($email) {
+                $query->where('email', '=', $email);
             })->first();
             
             if (!$client) {
-                $clientData = ['contact' => ['email' => $data['email']]];
+                $validator = Validator::make(['email'=>$email], ['email' => 'email']);
+                if ($validator->fails()) {
+                    return $validator->message();
+                }
+
+                $clientData = ['contact' => ['email' => $email]];
                 foreach (['name', 'private_notes'] as $field) {
                     if (isset($data[$field])) {
                         $clientData[$field] = $data[$field];
@@ -118,10 +125,8 @@ class InvoiceApiController extends Controller
                         $clientData[$field] = $data[$field];
                     }
                 }
-                $error = $this->clientRepo->getErrors($clientData);
-                if (!$error) {
-                    $client = $this->clientRepo->save($clientData);
-                }
+
+                $client = $this->clientRepo->save($clientData);
             }
         } else if (isset($data['client_id'])) {
             $client = Client::scope($data['client_id'])->first();
