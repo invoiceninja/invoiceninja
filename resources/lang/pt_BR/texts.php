@@ -319,8 +319,8 @@ return array(
   'field_label' => 'Nome do Campo',
   'field_value' => 'Valor do Campo',
   'edit' => 'Editar',
-  'view_invoice' => 'Vizualizar fatura',
-  'view_as_recipient' => 'Vizualizar como destinatário',
+  'view_invoice' => 'Visualizar fatura',
+  'view_as_recipient' => 'Visualizar como destinatário',
 
   // product management
   'product_library' => 'Lista de Produtos',
@@ -905,10 +905,19 @@ return array(
   'after' => 'Depois',
   'reset_terms_help' => 'Resetar para as condições padrões',
   'reset_footer_help' => 'Resetar para o rodapé padrão',
-  'reset_terms_help' => 'Reset to the default account terms',
-  'reset_footer_help' => 'Reset to the default account footer',
   'export_data' => 'Exportar Dados',
   'user' => 'Usuário',
   'country' => 'País',
   'include' => 'Incluir',
+  
+  'logo_too_large' => 'Sua logo tem :size, para uma melhor performance sugerimos que este tamanho não ultrapasse 200KB',
+  'email_errors' => [
+    'inactive_client' => 'Não é possível enviar e-mails para clientes intativos',
+    'inactive_contact' => 'Não é possível enviar e-mails para contatos intativos',
+    'inactive_invoice' => 'Não é possível enviar e-mails em faturas intativas',
+    'user_unregistered' => 'Registre sua conta para enviar e-mails',
+    'user_unconfirmed' => 'Confirme sua conta para enviar e-mails',
+    'invalid_contact_email' => 'E-mail do contato inválido',
+  ]
+    
 );
