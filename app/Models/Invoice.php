@@ -15,6 +15,7 @@ use App\Events\QuoteInvitationWasEmailed;
 class Invoice extends EntityModel implements BalanceAffecting
 {
     use PresentableTrait;
+    use OwnedByClientTrait;
     use SoftDeletes {
         SoftDeletes::trashed as parentTrashed;
     }

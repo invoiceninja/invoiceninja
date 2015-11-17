@@ -22,7 +22,7 @@
             ->addClass('warn-on-exit')
             ->autocomplete('on')
             ->rules([
-  		        'name' => 'required'
+                'name' => 'required'
             ]) !!}
 
 	{{ Former::populate($account) }}
@@ -37,24 +37,29 @@
             <h3 class="panel-title">{!! trans('texts.details') !!}</h3>
           </div>
             <div class="panel-body form-padding-right">
-			
-    			{!! Former::text('name') !!}
+
+                {!! Former::text('name') !!}
                 {!! Former::text('id_number') !!}
                 {!! Former::text('vat_number') !!}
-    			{!! Former::text('work_email') !!}
-    			{!! Former::text('work_phone') !!}
+                {!! Former::text('work_email') !!}
+                {!! Former::text('work_phone') !!}
                 {!! Former::file('logo')->max(2, 'MB')->accept('image')->inlineHelp(trans('texts.logo_help')) !!}
 
 
-    			@if ($account->hasLogo())
-    				<center>
-    					{!! HTML::image($account->getLogoPath().'?no_cache='.time(), 'Logo', ['width' => 200]) !!} &nbsp;
-    					<a href="#" onclick="deleteLogo()">{{ trans('texts.remove_logo') }}</a>
-    				</center><br/>
-    			@endif
+                @if ($account->hasLogo())
+                <div class="form-group">
+                    <div class="col-lg-4 col-sm-4"></div>
+                    <div class="col-lg-8 col-sm-8">
+                        <a href="/{{ $account->getLogoPath().'?no_cache='.time() }}" target="_blank">
+                            {!! HTML::image($account->getLogoPath().'?no_cache='.time(), 'Logo', ['width' => 200]) !!}
+                        </a> &nbsp;
+                        <a href="#" onclick="deleteLogo()">{{ trans('texts.remove_logo') }}</a>
+                    </div>
+                </div>
+                @endif
 
-    			{!! Former::select('size_id')->addOption('','')->fromQuery($sizes, 'name', 'id') !!}
-    			{!! Former::select('industry_id')->addOption('','')->fromQuery($industries, 'name', 'id') !!}
+                {!! Former::select('size_id')->addOption('','')->fromQuery($sizes, 'name', 'id') !!}
+                {!! Former::select('industry_id')->addOption('','')->fromQuery($industries, 'name', 'id') !!}
 
             </div>
         </div>

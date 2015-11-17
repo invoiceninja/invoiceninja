@@ -392,19 +392,18 @@
 
 		{!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}	
         
-		@if (!$invoice->trashed())
-
+        @if ($invoice->isClientTrashed())
+            <!-- do nothing -->
+        @elseif ($invoice->trashed())
+            {!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
+		@elseif (!$invoice->trashed())
 			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
-
             @if ($invoice->id)
                 {!! DropdownButton::normal(trans('texts.more_actions'))
                       ->withContents($actions)
                       ->dropup() !!}
             @endif
-
-		@elseif ($invoice->trashed())
-			{!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
 		@endif
 
 	</div>
@@ -1007,16 +1006,17 @@
 	}
 	
 	function isEmailValid() {
-		var isValid = false;
+		var isValid = true;
 		var sendTo = false;
 		var client = model.invoice().client();
 		for (var i=0; i<client.contacts().length; i++) {
-			var contact = client.contacts()[i];        		
+			var contact = client.contacts()[i];
+            if ( ! contact.send_invoice()) {
+                continue;
+            }
 			if (isValidEmailAddress(contact.email())) {
 				isValid = true;
-				if (contact.send_invoice() || client.contacts().length == 1) {
-					sendTo = true;
-				}
+				sendTo = true;
 			} else {
 				isValid = false;
 				break;
