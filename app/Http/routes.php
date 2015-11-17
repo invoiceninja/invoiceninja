@@ -337,6 +337,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('DEFAULT_FONT_SIZE', 9);
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
 
+    define('IMPORT_FROM_FRESHBOOKS', 'import_from_freshbook');
+
     define('MAX_NUM_CLIENTS', 100);
     define('MAX_NUM_CLIENTS_PRO', 20000);
     define('MAX_NUM_CLIENTS_LEGACY', 500);
