@@ -110,6 +110,7 @@ class DashboardController extends BaseController
                     ->leftJoin('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->where('payments.account_id', '=', Auth::user()->account_id)
                     ->where('payments.deleted_at', '=', null)
+                    ->where('invoices.deleted_at', '=', null)
                     ->where('clients.deleted_at', '=', null)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
