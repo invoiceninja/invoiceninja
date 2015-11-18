@@ -939,6 +939,8 @@ return array(
         'user_unregistered' => 'Please register your account to send emails',
         'user_unconfirmed' => 'Please confirm your account to send emails',
         'invalid_contact_email' => 'Invalid contact email',
-    ]
+    ],
+
+    'client_portal' => 'Client Portal',
 
 );

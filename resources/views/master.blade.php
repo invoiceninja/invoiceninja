@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="{{App::getLocale()}}">
 <head>
-    <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }}</title> 
-    <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}" />
+    @if (isset($hideLogo) && $hideLogo)
+        <title>{{ trans('texts.client_portal') }}</title>
+    @else
+        <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }}</title> 
+        <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}" />
+        <link href="{{ asset('favicon.png') }}" rel="shortcut icon">
+    @endif
 
     <!-- Source: https://github.com/hillelcoren/invoice-ninja -->
     <!-- Version: {{ NINJA_VERSION }} -->
@@ -21,7 +26,6 @@
 
     <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100&subset=latin,latin-ext" rel="stylesheet" type="text/css">
     <link href="//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-    <link href="{{ asset('favicon.png?test') }}" rel="shortcut icon">
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}" />
 
     <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    

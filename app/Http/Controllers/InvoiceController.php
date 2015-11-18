@@ -124,7 +124,7 @@ class InvoiceController extends BaseController
         Session::put('invitation_key', $invitationKey); // track current invitation
 
         $account->loadLocalizationSettings($client);
-
+        
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->is_pro = $account->isPro();

@@ -232,7 +232,7 @@ class Utils
         return floatval($value);
     }
 
-    public static function formatMoney($value, $currencyId = false)
+    public static function formatMoney($value, $currencyId = false, $showSymbol = true)
     {
         if (!$currencyId) {
             $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
@@ -252,9 +252,11 @@ class Utils
             $value = 0;
         }
 
-        Cache::add('currency', $currency, DEFAULT_QUERY_CACHE);
-
-        return $currency->symbol.number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
+        $str = '';
+        if ($showSymbol) {
+            $str .= $currency->symbol;
+        }
+        return $str . number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
     }
 
     public static function pluralize($string, $count)

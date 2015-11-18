@@ -180,7 +180,7 @@ header h3 em {
             <header>
                 @if ($client)
                     <h2>{{ $client->getDisplayName() }}</h2>
-                    <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ Utils::formatMoney($amount, $currencyId) }} {{ $currencyCode }}</em></span></h3>
+                    <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ Utils::formatMoney($amount, $currencyId, false) }} {{ $currencyCode }}</em></span></h3>
                 @elseif ($paymentTitle)
                     <h2>{{ $paymentTitle }}<br/><small>{{ $paymentSubtitle }}</small></h2>                    
                 @endif
@@ -359,7 +359,7 @@ header h3 em {
 
         <div class="row">
             <div class="col-md-4 col-md-offset-4">
-                {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . Utils::formatMoney($amount, $currencyId) ))->submit()->block()->large() !!}
+                {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . Utils::formatMoney($amount, $currencyId, false) . ' ' . $currencyCode  ))->submit()->block()->large() !!}
             </div>
         </div>
 
