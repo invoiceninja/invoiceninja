@@ -1,5 +1,7 @@
 <?php namespace app\Http\Controllers;
 
+use Utils;
+use View;
 use Exception;
 use Input;
 use Session;
@@ -18,19 +20,46 @@ class ImportController extends BaseController
 
     public function doImport()
     {
-        try {
+        $source = Input::get('source');
+
+        if ($source === IMPORT_CSV) {
+            $filename = Input::file('client_file')->getRealPath();
+            $data = $this->importService->mapFile($filename);
+
+            return View::make('accounts.import_map', $data);
+        } else {
             $files = [];
             foreach (ImportService::$entityTypes as $entityType) {
                 if (Input::file("{$entityType}_file")) {
                     $files[$entityType] = Input::file("{$entityType}_file")->getRealPath();
                 }
             }
-            $imported_files = $this->importService->import(Input::get('source'), $files);
-            Session::flash('message', trans('texts.imported_file').' - '.$imported_files);
+
+            try {
+                $result = $this->importService->import($source, $files);
+                Session::flash('message', trans('texts.imported_file') . ' - ' . $result);
+            } catch (Exception $exception) {
+                Session::flash('error', $exception->getMessage());
+            }
+
+            return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
+        }
+    }
+
+    public function doImportCSV()
+    {
+        $map = Input::get('map');
+        $hasHeaders = Input::get('header_checkbox');
+
+        try {
+            $count = $this->importService->importCSV($map, $hasHeaders);
+            $message = Utils::pluralize('created_client', $count);
+
+            Session::flash('message', $message);
         } catch (Exception $exception) {
             Session::flash('error', $exception->getMessage());
         }
 
-        return Redirect::to('/settings/'.ACCOUNT_IMPORT_EXPORT);
+        return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
     }
 }

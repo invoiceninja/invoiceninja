@@ -134,6 +134,7 @@ Route::group(['middleware' => 'auth'], function() {
     
     Route::post('/export', 'ExportController@doExport');
     Route::post('/import', 'ImportController@doImport');
+    Route::post('/import_csv', 'ImportController@doImportCSV');
 
     Route::resource('gateways', 'AccountGatewayController');
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));

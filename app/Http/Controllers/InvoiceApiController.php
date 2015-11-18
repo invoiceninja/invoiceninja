@@ -111,7 +111,8 @@ class InvoiceApiController extends Controller
             if (!$client) {
                 $validator = Validator::make(['email'=>$email], ['email' => 'email']);
                 if ($validator->fails()) {
-                    return $validator->message();
+                    $messages = $validator->messages();
+                    return $messages->first();
                 }
 
                 $clientData = ['contact' => ['email' => $email]];

@@ -13,12 +13,10 @@ use View;
 use stdClass;
 use Cache;
 use Response;
-use parseCSV;
 use Request;
 use App\Models\Affiliate;
 use App\Models\License;
 use App\Models\User;
-use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -38,7 +36,6 @@ use App\Models\Industry;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
 use App\Ninja\Repositories\AccountRepository;
-use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\ReferralRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
@@ -56,7 +53,7 @@ class AccountController extends BaseController
     protected $contactMailer;
     protected $referralRepository;
 
-    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository, ClientRepository $clientRepository)
+    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository)
     {
         parent::__construct();
 
@@ -64,7 +61,6 @@ class AccountController extends BaseController
         $this->userMailer = $userMailer;
         $this->contactMailer = $contactMailer;
         $this->referralRepository = $referralRepository;
-        $this->clientRepository = $clientRepository;
     }
 
     public function demo()
@@ -413,10 +409,6 @@ class AccountController extends BaseController
             return AccountController::saveUserDetails();
         } elseif ($section === ACCOUNT_LOCALIZATION) {
             return AccountController::saveLocalization();
-        } elseif ($section === ACCOUNT_IMPORT_EXPORT) {
-            return AccountController::importFile();
-        } elseif ($section === ACCOUNT_MAP) {
-            return AccountController::mapFile();
         } elseif ($section === ACCOUNT_NOTIFICATIONS) {
             return AccountController::saveNotifications();
         } elseif ($section === ACCOUNT_EXPORT) {
@@ -623,216 +615,6 @@ class AccountController extends BaseController
         }
 
         return Redirect::to('settings/' . ACCOUNT_INVOICE_DESIGN);
-    }
-
-    private function export()
-    {
-        $output = fopen('php://output', 'w') or Utils::fatalError();
-        header('Content-Type:application/csv');
-        header('Content-Disposition:attachment;filename=export.csv');
-
-        $clients = Client::scope()->get();
-        Utils::exportData($output, $clients->toArray());
-
-        $contacts = Contact::scope()->get();
-        Utils::exportData($output, $contacts->toArray());
-
-        $invoices = Invoice::scope()->get();
-        Utils::exportData($output, $invoices->toArray());
-
-        $invoiceItems = InvoiceItem::scope()->get();
-        Utils::exportData($output, $invoiceItems->toArray());
-
-        $payments = Payment::scope()->get();
-        Utils::exportData($output, $payments->toArray());
-
-        $credits = Credit::scope()->get();
-        Utils::exportData($output, $credits->toArray());
-
-        fclose($output);
-        exit;
-    }
-
-    private function importFile()
-    {
-        $data = Session::get('data');
-        Session::forget('data');
-
-        $map = Input::get('map');
-        $count = 0;
-        $hasHeaders = Input::get('header_checkbox');
-
-        $countries = Cache::get('countries');
-        $countryMap = [];
-
-        foreach ($countries as $country) {
-            $countryMap[strtolower($country->name)] = $country->id;
-        }
-
-        foreach ($data as $row) {
-            if ($hasHeaders) {
-                $hasHeaders = false;
-                continue;
-            }
-
-            $data = [
-                'contacts' => [[]]
-            ];
-
-            foreach ($row as $index => $value) {
-                $field = $map[$index];
-                if ( ! $value = trim($value)) {
-                    continue;
-                }
-
-                if ($field == Client::$fieldName) {
-                    $data['name'] = $value;
-                } elseif ($field == Client::$fieldPhone) {
-                    $data['work_phone'] = $value;
-                } elseif ($field == Client::$fieldAddress1) {
-                    $data['address1'] = $value;
-                } elseif ($field == Client::$fieldAddress2) {
-                    $data['address2'] = $value;
-                } elseif ($field == Client::$fieldCity) {
-                    $data['city'] = $value;
-                } elseif ($field == Client::$fieldState) {
-                    $data['state'] = $value;
-                } elseif ($field == Client::$fieldPostalCode) {
-                    $data['postal_code'] = $value;
-                } elseif ($field == Client::$fieldCountry) {
-                    $value = strtolower($value);
-                    $data['country_id'] = isset($countryMap[$value]) ? $countryMap[$value] : null;
-                } elseif ($field == Client::$fieldNotes) {
-                    $data['private_notes'] = $value;
-                } elseif ($field == Contact::$fieldFirstName) {
-                    $data['contacts'][0]['first_name'] = $value;
-                } elseif ($field == Contact::$fieldLastName) {
-                    $data['contacts'][0]['last_name'] = $value;
-                } elseif ($field == Contact::$fieldPhone) {
-                    $data['contacts'][0]['phone'] = $value;
-                } elseif ($field == Contact::$fieldEmail) {
-                    $data['contacts'][0]['email'] = strtolower($value);
-                }
-            }
-
-            $rules = [
-                'contacts' => 'valid_contacts',
-            ];
-            $validator = Validator::make($data, $rules);
-            if ($validator->fails()) {
-                continue;
-            }
-
-            $this->clientRepository->save($data);
-            $count++;
-        }
-
-        $message = Utils::pluralize('created_client', $count);
-        Session::flash('message', $message);
-
-        return Redirect::to('clients');
-    }
-
-    private function mapFile()
-    {
-        $file = Input::file('file');
-
-        if ($file == null) {
-            Session::flash('error', trans('texts.select_file'));
-
-            return Redirect::to('settings/' . ACCOUNT_IMPORT_EXPORT);
-        }
-
-        $name = $file->getRealPath();
-
-        require_once app_path().'/Includes/parsecsv.lib.php';
-        $csv = new parseCSV();
-        $csv->heading = false;
-        $csv->auto($name);
-
-        if (count($csv->data) + Client::scope()->count() > Auth::user()->getMaxNumClients()) {
-            $message = trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]);
-            Session::flash('error', $message);
-
-            return Redirect::to('settings/' . ACCOUNT_IMPORT_EXPORT);
-        }
-
-        Session::put('data', $csv->data);
-
-        $headers = false;
-        $hasHeaders = false;
-        $mapped = array();
-        $columns = array('',
-            Client::$fieldName,
-            Client::$fieldPhone,
-            Client::$fieldAddress1,
-            Client::$fieldAddress2,
-            Client::$fieldCity,
-            Client::$fieldState,
-            Client::$fieldPostalCode,
-            Client::$fieldCountry,
-            Client::$fieldNotes,
-            Contact::$fieldFirstName,
-            Contact::$fieldLastName,
-            Contact::$fieldPhone,
-            Contact::$fieldEmail,
-        );
-
-        if (count($csv->data) > 0) {
-            $headers = $csv->data[0];
-            foreach ($headers as $title) {
-                if (strpos(strtolower($title), 'name') > 0) {
-                    $hasHeaders = true;
-                    break;
-                }
-            }
-
-            for ($i = 0; $i<count($headers); $i++) {
-                $title = strtolower($headers[$i]);
-                $mapped[$i] = '';
-
-                if ($hasHeaders) {
-                    $map = array(
-                        'first' => Contact::$fieldFirstName,
-                        'last' => Contact::$fieldLastName,
-                        'email' => Contact::$fieldEmail,
-                        'mobile' => Contact::$fieldPhone,
-                        'phone' => Client::$fieldPhone,
-                        'name|organization' => Client::$fieldName,
-                        'street|address|address1' => Client::$fieldAddress1,
-                        'street2|address2' => Client::$fieldAddress2,
-                        'city' => Client::$fieldCity,
-                        'state|province' => Client::$fieldState,
-                        'zip|postal|code' => Client::$fieldPostalCode,
-                        'country' => Client::$fieldCountry,
-                        'note' => Client::$fieldNotes,
-                    );
-
-                    foreach ($map as $search => $column) {
-                        foreach (explode("|", $search) as $string) {
-                            if (strpos($title, 'sec') === 0) {
-                                continue;
-                            }
-
-                            if (strpos($title, $string) !== false) {
-                                $mapped[$i] = $column;
-                                break(2);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        $data = array(
-            'data' => $csv->data,
-            'headers' => $headers,
-            'hasHeaders' => $hasHeaders,
-            'columns' => $columns,
-            'mapped' => $mapped,
-        );
-
-        return View::make('accounts.import_map', $data);
     }
 
     private function saveNotifications()

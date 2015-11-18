@@ -4,7 +4,7 @@
     @parent
 
     <style type="text/css">
-        .client-file,
+        .invoice-file,
         .task-file {
             display: none;
         }

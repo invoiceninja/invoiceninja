@@ -5,7 +5,7 @@
 
     @include('accounts.nav', ['selected' => ACCOUNT_IMPORT_EXPORT])
 
-	{!! Former::open('settings/' . ACCOUNT_IMPORT_EXPORT)->addClass('warn-on-exit') !!}
+	{!! Former::open('/import_csv')->addClass('warn-on-exit') !!}
 
     <div class="panel panel-default">
       <div class="panel-heading">
