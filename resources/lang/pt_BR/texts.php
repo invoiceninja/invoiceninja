@@ -57,7 +57,7 @@ return array(
   'enable' => 'Habilitar',
   'learn_more' => 'Aprender mais',
   'manage_rates' => 'Gerenciar taxas',
-  'note_to_client' => 'Notas do cliente',
+  'note_to_client' => 'Observações',
   'invoice_terms' => 'Condições da Fatura',
   'save_as_default_terms' => 'Salvar como condição padrão',
   'download_pdf' => 'Baixar PDF',
@@ -115,11 +115,11 @@ return array(
   'billed_client' => 'Cliente faturado',
   'billed_clients' => 'Clientes faturados',
   'active_client' => 'Cliente ativo',
-  'active_clients' => 'Clientes ativos',  
+  'active_clients' => 'Clientes ativos',
   'invoices_past_due' => 'Faturas Vencidas',
   'upcoming_invoices' => 'Próximas Faturas',
   'average_invoice' => 'Média por Fatura',
-  
+
   // list pages
   'archive' => 'Arquivos',
   'delete' => 'Apagar',
@@ -187,9 +187,9 @@ return array(
   'payment_gateway' => 'Provedor de Pagamento',
   'gateway_id' => 'Provedor',
   'email_notifications' => 'Notificações por E-mail',
-  'email_sent' => 'Me avise por e-mail quando a fatura for <b>enviada</b>',
-  'email_viewed' => 'Me avise por e-mail quando a fatura for <b>visualizada</b>',
-  'email_paid' => 'Me avise por e-mail quando a fatura for <b>paga</b>',
+  'email_sent' => 'Notificar-me por e-mail quando a fatura for <b>enviada</b>',
+  'email_viewed' => 'Notificar-me por e-mail quando a fatura for <b>visualizada</b>',
+  'email_paid' => 'Notificar-me por e-mail quando a fatura for <b>paga</b>',
   'site_updates' => 'Atualizações',
   'custom_messages' => 'Mensagens Customizadas',
   'default_invoice_terms' => 'Definir condições padrões da fatura',
@@ -267,12 +267,12 @@ return array(
   'notification_invoice_sent' => 'O cliente :client foi notificado por e-mail referente à fatura :invoice de :amount.',
   'notification_invoice_viewed' => 'O cliente :client visualizou a fatura :invoice de :amount.',
   'reset_password' => 'Você pode redefinir a sua senha clicando no seguinte link:',
-  'reset_password_footer' => 'Se você não solicitou a redefinição de sua senha por favor envie um e-mail para o nosso suporte: ' . CONTACT_EMAIL,
+  'reset_password_footer' => 'Se você não solicitou a redefinição de sua senha por favor envie um e-mail para o nosso suporte: '.CONTACT_EMAIL,
 
   // Payment page
   'secure_payment' => 'Pagamento Seguro',
   'card_number' => 'Número do cartão',
-  'expiration_month' => 'Mês de expiração',  
+  'expiration_month' => 'Mês de expiração',
   'expiration_year' => 'Ano de expiração',
   'cvv' => 'CVV',
 
@@ -295,8 +295,8 @@ return array(
   ],
 
   'logout' => 'Sair',
-  'sign_up_to_save' => 'Faça login para salvar o seu trabalho',  
-  'agree_to_terms' =>'Eu concordo com os :terms do Invoice Ninja',
+  'sign_up_to_save' => 'Faça login para salvar o seu trabalho',
+  'agree_to_terms' => 'Eu concordo com os :terms do Invoice Ninja',
   'terms_of_service' => 'Condições do Serviço',
   'email_taken' => 'O endereço de e-mail já está registrado',
   'working' => 'Processando',
@@ -315,15 +315,15 @@ return array(
   'unsaved_changes' => 'Existem alterações não salvas',
   'custom_fields' => 'Campos Personalizados',
   'company_fields' => 'Campos para Empresa',
-  'client_fields' => 'Campos para CLientes',
+  'client_fields' => 'Campos para Cientes',
   'field_label' => 'Nome do Campo',
   'field_value' => 'Valor do Campo',
   'edit' => 'Editar',
-  'view_invoice' => 'Vizualizar fatura',
-  'view_as_recipient' => 'Vizualizar como destinatário',
+  'view_invoice' => 'Visualizar fatura',
+  'view_as_recipient' => 'Visualizar como destinatário',
 
   // product management
-  'product_library' => 'Lista de Produtos',  
+  'product_library' => 'Lista de Produtos',
   'product' => 'Produto',
   'products' => 'Produtos',
   'fill_products' => 'Sugerir produtos',
@@ -388,7 +388,7 @@ return array(
   'notification_quote_sent_subject' => 'Orçamento :invoice enviado para :client',
   'notification_quote_viewed_subject' => 'Orçamento :invoice visualizado por :client',
   'notification_quote_sent' => 'O cliente :client recebeu o Orçamento :invoice de:amount.',
-  'notification_quote_viewed' => 'O clinete :client visualizou o Orçamento :invoice de :amount.',  
+  'notification_quote_viewed' => 'O clinete :client visualizou o Orçamento :invoice de :amount.',
 
   'session_expired' => 'Sessão expirada.',
 
@@ -413,7 +413,7 @@ return array(
   'active' => 'Ativo',
   'pending' => 'Pendente',
   'deleted_user' => 'Usuário deletado',
-  'limit_users' => 'Desculpe, isto irá exceder o limite de ' . MAX_NUM_USERS . ' usuários',
+  'limit_users' => 'Desculpe, isto irá exceder o limite de '.MAX_NUM_USERS.' usuários',
 
   'confirm_email_invoice' => 'Deseja enviar esta fatura?',
   'confirm_email_quote' => 'Deseja enviar este orçamento?',
@@ -436,7 +436,7 @@ return array(
   'share_invoice_counter' => 'Usar numeração das faturas',
   'invoice_issued_to' => 'Fatura emitida para',
   'invalid_counter' => 'Para evitar conflitos defina prefíxos de numeração para Faturas e Orçamentos',
-  'mark_sent' => 'Marcar como Enviada',  
+  'mark_sent' => 'Marcar como Enviada',
 
   'gateway_help_1' => ':link para acessar Authorize.net.',
   'gateway_help_2' => ':link para acessar Authorize.net.',
@@ -452,9 +452,7 @@ return array(
   'more_designs_self_host_text' => '',
   'buy' => 'Comprar',
   'bought_designs' => 'Novos Modelos Adicionados',
-  
 
-  
   'sent' => 'enviado',
   'timesheets' => 'Planilha de Tempos',
 
@@ -483,11 +481,11 @@ return array(
   'restored_client' => 'Cliente restaurado',
   'restored_payment' => 'Pagamento restaurado',
   'restored_credit' => 'Crédito restaurado',
-  
+
   'reason_for_canceling' => 'Ajude-nos a melhorar, envie suas sugestões.',
   'discount_percent' => '%',
   'discount_amount' => 'Valor',
-  
+
   'invoice_history' => 'Histórico de Faturas',
   'quote_history' => 'Histórico de Orçamentos',
   'current_version' => 'Versão Atual',
@@ -519,7 +517,7 @@ return array(
   'edit_payment_details' => 'Editar detalhes do pagamento',
   'token_billing' => 'Salvar detalhes do cartão',
   'token_billing_secure' => 'Dados armazenados com seguração por :stripe_link',
-  
+
   'support' => 'Suporte',
   'contact_information' => 'Informações de Contato',
   '256_encryption' => 'Criptografia de 256-Bit',
@@ -552,7 +550,6 @@ return array(
   'deleted_gateway' => 'Provedor Deletado',
   'pay_with_paypal' => 'PayPal',
   'pay_with_card' => 'Cartão de Crédito',
-
 
   'change_password' => 'Altera senha',
   'current_password' => 'Senha atual',
@@ -598,7 +595,7 @@ return array(
   'view_documentation' => 'Ver Documentação',
   'app_title' => 'Free Open-Source Online Invoicing',
   'app_description' => 'Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
-  
+
   'rows' => 'linhas',
   'www' => 'www',
   'logo' => 'Logo',
@@ -668,7 +665,7 @@ return array(
   'payment_type_dwolla' => 'Dwolla',
   'gateway_help_43' => ':link acessar Dwolla.',
   'partial_value' => 'Deve ser maior que zero e menor que o total',
-  'more_actions' => 'Mais ações',  
+  'more_actions' => 'Mais ações',
 
   'pro_plan_title' => 'NINJA PRO',
   'pro_plan_call_to_action' => 'Adquira Agora!',
@@ -734,7 +731,7 @@ return array(
   'recent_payments' => 'Pagamentos Recentes',
   'outstanding' => 'Em Aberto',
   'manage_companies' => 'Gerenciar Empresas',
-  'total_revenue' => 'Faturamento',  
+  'total_revenue' => 'Faturamento',
 
   'current_user' => 'Usuário',
   'new_recurring_invoice' => 'Nova Fatura Recorrente',
@@ -747,7 +744,7 @@ return array(
       <p>You can access any invoice field by adding <code>Value</code> to the end. For example <code>$invoiceNumberValue</code> displays the invoice number.</p>
       <p>To access a child property using dot notation. For example to show the client name you could use <code>$client.nameValue</code>.</p>
       <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
-  
+
   'invoice_due_date' => 'Data de vencimento',
   'quote_due_date' => 'Valido até',
   'valid_until' => 'Válido até',
@@ -784,7 +781,7 @@ return array(
   'referral_program' => 'Programa de Indicação',
   'referral_code' => 'Código de Indicação',
   'last_sent_on' => 'Último envio em :date',
-  
+
   'page_expire' => 'Esta página está expirando, :click_here para continuar trabalhando',
   'upcoming_quotes' => 'Próximos Orçamentos',
   'expired_quotes' => 'Orçamentos Expirados',
@@ -820,7 +817,7 @@ return array(
   'no_longer_running' => 'Esta fatura não está agendada',
   'general_settings' => 'Configurações Gerais',
   'customize' => 'Personalizar',
-	
+
   'oneclick_login_help' => 'Vincule uma conta para acesar sem senha.',
   'referral_code_help' => 'Recomende nosso sistema.',
 
@@ -885,7 +882,7 @@ return array(
   'default_invoice_footer' => 'Rodapé Padrão das Faturas',
   'quote_footer' => 'Rodapé do Orçamento',
   'free' => 'Grátis',
-	
+
   'quote_is_approved' => 'Orçamento aprovado.',
   'apply_credit' => 'Aplicar Crédito',
   'system_settings' => 'Configurações do Sistema',
@@ -906,12 +903,21 @@ return array(
 
   'before' => 'Antes',
   'after' => 'Depois',
-  'reset_terms_help' => 'Reset to the default account terms',
-  'reset_footer_help' => 'Reset to the default account footer',
-  'export_data' => 'Export Data',
-  'user' => 'User',
-  'country' => 'Country',
-  'include' => 'Include',
-
-
+  'reset_terms_help' => 'Resetar para as condições padrões',
+  'reset_footer_help' => 'Resetar para o rodapé padrão',
+  'export_data' => 'Exportar Dados',
+  'user' => 'Usuário',
+  'country' => 'País',
+  'include' => 'Incluir',
+  
+  'logo_too_large' => 'Sua logo tem :size, para uma melhor performance sugerimos que este tamanho não ultrapasse 200KB',
+  'email_errors' => [
+    'inactive_client' => 'Não é possível enviar e-mails para clientes intativos',
+    'inactive_contact' => 'Não é possível enviar e-mails para contatos intativos',
+    'inactive_invoice' => 'Não é possível enviar e-mails em faturas intativas',
+    'user_unregistered' => 'Registre sua conta para enviar e-mails',
+    'user_unconfirmed' => 'Confirme sua conta para enviar e-mails',
+    'invalid_contact_email' => 'E-mail do contato inválido',
+  ]
+    
 );
