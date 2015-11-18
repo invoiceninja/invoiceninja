@@ -1,5 +1,6 @@
 <?php namespace app\Http\Controllers;
 
+use Exception;
 use Input;
 use Session;
 use Redirect;
@@ -25,13 +26,10 @@ class ImportController extends BaseController
                 }
             }
             $imported_files = $this->importService->import(Input::get('source'), $files);
-        } catch (Exception $e) {
-            Session::flash('error', $e->getMessage());
-
-            return Redirect::to('/settings/'.ACCOUNT_IMPORT_EXPORT);
+            Session::flash('message', trans('texts.imported_file').' - '.$imported_files);
+        } catch (Exception $exception) {
+            Session::flash('error', $exception->getMessage());
         }
-
-        Session::flash('message', trans('texts.imported_file').' - '.$imported_files);
 
         return Redirect::to('/settings/'.ACCOUNT_IMPORT_EXPORT);
     }

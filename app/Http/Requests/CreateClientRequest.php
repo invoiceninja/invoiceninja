@@ -29,7 +29,7 @@ class CreateClientRequest extends Request
 
     public function validator($factory)
     {
-        // support submiting the form with a single client record
+        // support submiting the form with a single contact record
         $input = $this->input();
         if (isset($input['contact'])) {
             $input['contacts'] = [$input['contact']];

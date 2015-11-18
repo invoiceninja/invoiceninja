@@ -3,11 +3,13 @@
 use Excel;
 use Cache;
 use Exception;
+use Auth;
 use League\Fractal\Manager;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Serializers\ArraySerializer;
+use App\Models\Client;
 
 class ImportService
 {
@@ -33,9 +35,6 @@ class ImportService
         //IMPORT_ZOHO,
     ];
 
-    /**
-     * FreshBooksDataImporterService constructor.
-     */
     public function __construct(Manager $manager, ClientRepository $clientRepo, InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo)
     {
         $this->fractal = $manager;
@@ -61,7 +60,14 @@ class ImportService
         $transformer = new $transformerClassName;
 
         Excel::load($file, function($reader) use ($source, $entityType, $transformer) {
-            
+
+            if ($entityType === ENTITY_CLIENT) {
+                $totalClients = count($reader->all()) + Client::scope()->withTrashed()->count();
+                if ($totalClients > Auth::user()->getMaxNumClients()) {
+                    throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
+                }
+            }
+
             $maps = $this->createMaps();
             
             $reader->each(function($row) use ($source, $entityType, $transformer, $maps) {
@@ -71,7 +77,7 @@ class ImportService
 
                     // if the invoice is paid we'll also create a payment record
                     if ($entityType === ENTITY_INVOICE && isset($data['paid']) && $data['paid']) {
-                        $class = self::getTransformerClassName($source, 'payment');
+                        $class = self::getTransformerClassName($source, ENTITY_PAYMENT);
                         $paymentTransformer = new $class;
                         $row->client_id = $data['client_id'];
                         $row->invoice_id = $entity->public_id;

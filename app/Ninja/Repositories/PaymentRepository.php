@@ -27,7 +27,7 @@ class PaymentRepository extends BaseRepository
                     ->where('clients.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
                     ->where('contacts.deleted_at', '=', null)
-                    ->where('invoices.deleted_at', '=', null)
+                    ->where('invoices.is_deleted', '=', false)
                     ->select('payments.public_id',
                         'payments.transaction_reference',
                         'clients.name as client_name',
