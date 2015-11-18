@@ -14,7 +14,7 @@ use App\Models\Task;
 use App\Models\Invoice;
 use App\Models\Payment;
 
-class ImportExportController extends BaseController
+class ExportController extends BaseController
 {
     public function doExport(Request $request)
     {

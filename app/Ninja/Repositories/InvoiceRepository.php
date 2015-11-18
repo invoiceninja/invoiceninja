@@ -22,6 +22,16 @@ class InvoiceRepository extends BaseRepository
         $this->paymentService = $paymentService;
     }
 
+    public function all()
+    {
+        return Invoice::scope()
+                ->with('user', 'client.contacts', 'invoice_status')
+                ->withTrashed()
+                ->where('is_quote', '=', false)
+                ->where('is_recurring', '=', false)
+                ->get();
+    }
+
     public function getInvoices($accountId, $clientPublicId = false, $entityType = ENTITY_INVOICE, $filter = false)
     {
         $query = \DB::table('invoices')
@@ -156,9 +166,15 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_number = trim($data['invoice_number']);
         }
 
-        $invoice->discount = round(Utils::parseFloat($data['discount']), 2);
-        $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
-        $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
+        if (isset($data['discount'])) {
+            $invoice->discount = round(Utils::parseFloat($data['discount']), 2);
+        }
+        if (isset($data['is_amount_discount'])) {
+            $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
+        }
+        if (isset($data['partial'])) {
+            $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
+        }
         $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
 
         if ($invoice->is_recurring) {
@@ -172,14 +188,16 @@ class InvoiceRepository extends BaseRepository
             $invoice->due_date = null;
             $invoice->auto_bill = isset($data['auto_bill']) && $data['auto_bill'] ? true : false;
         } else {
-            $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
+            if (isset($data['due_date']) || isset($data['due_date_sql'])) {
+                $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
+            }
             $invoice->frequency_id = 0;
             $invoice->start_date = null;
             $invoice->end_date = null;
         }
 
         $invoice->terms = trim($data['terms']) ? trim($data['terms']) : (!$publicId && $account->invoice_terms ? $account->invoice_terms : '');
-        $invoice->invoice_footer = trim($data['invoice_footer']) ? trim($data['invoice_footer']) : (!$publicId && $account->invoice_footer ? $account->invoice_footer : '');
+        $invoice->invoice_footer = (isset($data['invoice_footer']) && trim($data['invoice_footer'])) ? trim($data['invoice_footer']) : (!$publicId && $account->invoice_footer ? $account->invoice_footer : '');
         $invoice->public_notes = trim($data['public_notes']);
 
         // process date variables
@@ -188,7 +206,7 @@ class InvoiceRepository extends BaseRepository
         $invoice->public_notes = Utils::processVariables($invoice->public_notes);
 
         $invoice->po_number = trim($data['po_number']);
-        $invoice->invoice_design_id = $data['invoice_design_id'];
+        $invoice->invoice_design_id = isset($data['invoice_design_id']) ? $data['invoice_design_id'] : $account->invoice_design_id;
 
         if (isset($data['tax_name']) && isset($data['tax_rate']) && $data['tax_name']) {
             $invoice->tax_rate = Utils::parseFloat($data['tax_rate']);
@@ -306,7 +324,7 @@ class InvoiceRepository extends BaseRepository
                 $task->invoice_id = $invoice->id;
                 $task->client_id = $invoice->client_id;
                 $task->save();
-            } else if ($item['product_key'] && !$invoice->has_tasks) {
+            } else if (isset($item['product_key']) && $item['product_key'] && !$invoice->has_tasks) {
                 $product = Product::findProductByKey(trim($item['product_key']));
 
                 if (\Auth::user()->account->update_products) {
@@ -323,7 +341,7 @@ class InvoiceRepository extends BaseRepository
 
             $invoiceItem = InvoiceItem::createNew();
             $invoiceItem->product_id = isset($product) ? $product->id : null;
-            $invoiceItem->product_key = trim($invoice->is_recurring ? $item['product_key'] : Utils::processVariables($item['product_key']));
+            $invoiceItem->product_key = isset($item['product_key']) ? (trim($invoice->is_recurring ? $item['product_key'] : Utils::processVariables($item['product_key']))) : '';
             $invoiceItem->notes = trim($invoice->is_recurring ? $item['notes'] : Utils::processVariables($item['notes']));
             $invoiceItem->cost = Utils::parseFloat($item['cost']);
             $invoiceItem->qty = Utils::parseFloat($item['qty']);

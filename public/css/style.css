@@ -1027,3 +1027,7 @@ ul.user-accounts a:hover div.remove {
     content: "";
     background-color: #e37329;
 }
+
+div.panel-body div.panel-body {
+    padding-bottom: 0px;
+}

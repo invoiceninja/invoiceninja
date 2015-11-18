@@ -418,7 +418,7 @@ class ConfideSetupUsersTable extends Migration {
             $t->string('product_key');
             $t->text('notes');
             $t->decimal('cost', 13, 2);
-            $t->decimal('qty', 13, 2)->nullable();            
+            $t->decimal('qty', 13, 2)->nullable();
 
             $t->string('tax_name')->nullable();
             $t->decimal('tax_rate', 13, 2)->nullable();
@@ -434,7 +434,7 @@ class ConfideSetupUsersTable extends Migration {
         Schema::create('payments', function($t)
         {
             $t->increments('id');
-            $t->unsignedInteger('invoice_id')->nullable();
+            $t->unsignedInteger('invoice_id')->index();
             $t->unsignedInteger('account_id')->index();
             $t->unsignedInteger('client_id')->index();
             $t->unsignedInteger('contact_id')->nullable();

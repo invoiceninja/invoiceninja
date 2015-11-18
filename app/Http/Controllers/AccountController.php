@@ -37,7 +37,6 @@ use App\Models\Timezone;
 use App\Models\Industry;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
-use App\Ninja\Import\DataImporterServiceInterface;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\ReferralRepository;
@@ -57,7 +56,7 @@ class AccountController extends BaseController
     protected $contactMailer;
     protected $referralRepository;
 
-    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository, ClientRepository $clientRepository, DataImporterServiceInterface $dataImporterService)
+    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository, ClientRepository $clientRepository)
     {
         parent::__construct();
 
@@ -66,7 +65,6 @@ class AccountController extends BaseController
         $this->contactMailer = $contactMailer;
         $this->referralRepository = $referralRepository;
         $this->clientRepository = $clientRepository;
-        $this->dataImporterService = $dataImporterService;
     }
 
     public function demo()
@@ -417,8 +415,6 @@ class AccountController extends BaseController
             return AccountController::saveLocalization();
         } elseif ($section === ACCOUNT_IMPORT_EXPORT) {
             return AccountController::importFile();
-        } elseif ($section === IMPORT_FROM_FRESHBOOKS) {
-            return AccountController::importData();
         } elseif ($section === ACCOUNT_MAP) {
             return AccountController::mapFile();
         } elseif ($section === ACCOUNT_NOTIFICATIONS) {
@@ -735,26 +731,6 @@ class AccountController extends BaseController
         Session::flash('message', $message);
 
         return Redirect::to('clients');
-    }
-
-    private function importData()
-    {
-        try
-        {
-            $files['client']     = Input::file('client_file');
-            $files['invoice']    = Input::file('invoice_file');
-            $files['timesheet']  = Input::file('timesheet_file');
-            $imported_files = $this->dataImporterService->import($files);
-        }
-        catch(Exception $e)
-        {
-            Session::flash('error', $e->getMessage());
-            return Redirect::to('settings/' . ACCOUNT_IMPORT_EXPORT);
-        }
-
-        Session::flash('message', trans('texts.imported_file').' - '.$imported_files);
-
-        return Redirect::to('settings/' . ACCOUNT_IMPORT_EXPORT);
     }
 
     private function mapFile()

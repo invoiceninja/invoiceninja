@@ -131,7 +131,9 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
     Route::post('account/go_pro', 'AccountController@enableProPlan');
-    Route::post('/export', 'ImportExportController@doExport');
+    
+    Route::post('/export', 'ExportController@doExport');
+    Route::post('/import', 'ImportController@doImport');
 
     Route::resource('gateways', 'AccountGatewayController');
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
@@ -337,7 +339,15 @@ if (!defined('CONTACT_EMAIL')) {
     define('DEFAULT_FONT_SIZE', 9);
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
 
-    define('IMPORT_FROM_FRESHBOOKS', 'import_from_freshbook');
+    define('IMPORT_CSV', 'CSV');
+    define('IMPORT_FRESHBOOKS', 'FreshBooks');
+    define('IMPORT_WAVE', 'Wave');
+    define('IMPORT_RONIN', 'Ronin');
+    define('IMPORT_HIVEAGE', 'Hiveage');
+    define('IMPORT_ZOHO', 'Zoho');
+    define('IMPORT_NUTCACHE', 'Nutcache');
+    define('IMPORT_INVOICEABLE', 'Invoiceable');
+    define('IMPORT_HARVEST', 'Harvest');
 
     define('MAX_NUM_CLIENTS', 100);
     define('MAX_NUM_CLIENTS_PRO', 20000);
@@ -432,7 +442,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
     define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/single/browser/v1/');
     define('PHP_DATE_FORMATS', 'http://php.net/manual/en/function.date.php');
-    define('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/affiliates/');
+    define('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/referral-program/');
 
     define('COUNT_FREE_DESIGNS', 4);
     define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design

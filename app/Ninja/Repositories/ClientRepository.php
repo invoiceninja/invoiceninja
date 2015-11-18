@@ -12,6 +12,15 @@ class ClientRepository extends BaseRepository
         return 'App\Models\Client';
     }
 
+    public function all()
+    {
+        return Client::scope()
+                ->with('user', 'contacts', 'country')
+                ->withTrashed()
+                ->where('is_deleted', '=', false)
+                ->get();
+    }
+
     public function find($filter = null)
     {
         $query = \DB::table('clients')

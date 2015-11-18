@@ -23,7 +23,7 @@ class InvoiceListener
     public function updatedInvoice(InvoiceWasUpdated $event)
     {
         $invoice = $event->invoice;
-        $invoice->updatePaidStatus();
+        $invoice->updatePaidStatus(false);
     }
 
     public function viewedInvoice(InvoiceInvitationWasViewed $event)

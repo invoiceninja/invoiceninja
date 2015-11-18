@@ -116,10 +116,12 @@ class PaymentRepository extends BaseRepository
             $payment->payment_date = date('Y-m-d');
         }
          
-        $payment->transaction_reference = trim($input['transaction_reference']);
+        if (isset($input['transaction_reference'])) {
+            $payment->transaction_reference = trim($input['transaction_reference']);
+        }
 
         if (!$publicId) {
-            $clientId = Client::getPrivateId($input['client']);
+            $clientId = Client::getPrivateId(isset($input['client_id']) ? $input['client_id'] : $input['client']);
             $amount = Utils::parseFloat($input['amount']);
 
             if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
@@ -137,8 +139,10 @@ class PaymentRepository extends BaseRepository
             }
 
             $payment->client_id = $clientId;
-            $payment->invoice_id = isset($input['invoice']) && $input['invoice'] != "-1" ? Invoice::getPrivateId($input['invoice']) : null;
             $payment->amount = $amount;
+
+            $invoicePublicId = isset($input['invoice_id']) ? $input['invoice_id'] : $input['invoice'];
+            $payment->invoice_id = Invoice::getPrivateId($invoicePublicId);
         }
 
         $payment->save();

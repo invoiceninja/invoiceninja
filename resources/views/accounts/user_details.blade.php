@@ -51,16 +51,15 @@
                     @if ($user->referral_code)
                         {{ Former::setOption('capitalize_translations', false) }}
                         {!! Former::plaintext('referral_code')
-                                ->help(NINJA_APP_URL . '/invoice_now?rc=' . $user->referral_code)
-                                ->value($user->referral_code . ' - '. 
-                                    $referralCounts['free'] . ' ' . trans('texts.free') . ' | ' . 
-                                    $referralCounts['pro'] . ' ' . trans('texts.pro') . ' ' .
-                                    '<a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>') !!}
+                                ->help($referralCounts['free'] . ' ' . trans('texts.free') . ' | ' . 
+                                    $referralCounts['pro'] . ' ' . trans('texts.pro') . 
+                                    '<a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a> ')
+                                ->value(NINJA_APP_URL . '/invoice_now?rc=' . $user->referral_code) !!}
                     @else
                         {!! Former::checkbox('referral_code')
                                 ->help(trans('texts.referral_code_help'))
                                 ->text(trans('texts.enable') . ' <a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>')  !!}
-                    @endif                    
+                    @endif
                 @endif
 
                 @if (false && Utils::isNinjaDev())

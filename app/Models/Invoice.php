@@ -192,14 +192,18 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
     }
 
-    public function updatePaidStatus()
+    public function updatePaidStatus($save = true)
     {
         if ($this->isPaid() && $this->balance > 0) {
             $this->invoice_status_id = ($this->balance == $this->amount ? INVOICE_STATUS_SENT : INVOICE_STATUS_PARTIAL);
-            $this->save();
+            if ($save) {
+                $this->save();
+            }
         } elseif ($this->invoice_status_id && $this->amount > 0 && $this->balance == 0 && $this->invoice_status_id != INVOICE_STATUS_PAID) {
             $this->invoice_status_id = INVOICE_STATUS_PAID;
-            $this->save();
+            if ($save) {
+                $this->save();
+            }
         }
     }
 

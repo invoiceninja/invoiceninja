@@ -207,15 +207,8 @@ return array(
 
     //import CSV data pages
     'import_clients' => 'Import Client Data',
-    'import_from_freshbooks' => 'Import From FreshBooks',
-    'csv_file' => 'Select CSV file',
-    'csv_client_file' => 'Select CSV Client file',
-    'csv_invoice_file' => 'Select CSV Invoice file',
-    'csv_timesheet_file' => 'Select CSV Timesheet file',
+    'csv_file' => 'CSV file',
     'export_clients' => 'Export Client Data',
-    'no_mapper' => 'No valid mapping for file',
-    'invalid_csv_header' => 'Invalid CSV Header',
-
 
     // application messages
     'created_client' => 'Successfully created client',
@@ -796,7 +789,7 @@ return array(
     'invoice_not_found' => 'The requested invoice is not available',
 
     'referral_program' => 'Referral Program',
-    'referral_code' => 'Referral Code',
+    'referral_code' => 'Referral URL',
     'last_sent_on' => 'Sent Last: :date',
 
     'page_expire' => 'This page will expire soon, :click_here to keep working',
@@ -929,6 +922,16 @@ return array(
     'include' => 'Include',
 
     'logo_too_large' => 'Your logo is :size, for better performance we suggest uploading an image file less than 200KB',
+    'import_freshbooks' => 'Import From FreshBooks',
+    'import_data' => 'Import Data',
+    'source' => 'Source',
+    'csv' => 'CSV',
+    'client_file' => 'Client File',
+    'invoice_file' => 'Invoice File',
+    'task_file' => 'Task File',
+    'no_mapper' => 'No valid mapping for file',
+    'invalid_csv_header' => 'Invalid CSV Header',
+
     'email_errors' => [
         'inactive_client' => 'Emails can not be sent to inactive clients',
         'inactive_contact' => 'Emails can not be sent to inactive contacts',

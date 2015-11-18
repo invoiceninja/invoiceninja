@@ -1,35 +1,44 @@
 @extends('header')
 
+@section('head')
+    @parent
+
+    <style type="text/css">
+        .client-file,
+        .task-file {
+            display: none;
+        }
+    </style>
+@stop
+
+
 @section('content')
 @parent
 
     @include('accounts.nav', ['selected' => ACCOUNT_IMPORT_EXPORT])
 
-{!! Former::open_for_files('settings/' . ACCOUNT_MAP) !!}
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h3 class="panel-title">{!! trans('texts.import_clients') !!}</h3>
+    <h3 class="panel-title">{!! trans('texts.import_data') !!}</h3>
   </div>
     <div class="panel-body">
-        {!! Former::file('file')->label(trans('texts.csv_file')) !!}
-        {!! Former::actions( Button::info(trans('texts.upload'))->submit()->large()->appendIcon(Icon::create('open'))) !!}            
+
+        {!! Former::open_for_files('/import') !!}
+        {!! Former::select('source')
+                ->onchange('setFileTypesVisible()')
+                ->options(array_combine(\App\Services\ImportService::$sources, \App\Services\ImportService::$sources))
+                ->style('width: 200px') !!}
+
+        @foreach (\App\Services\ImportService::$entityTypes as $entityType)
+            {!! Former::file("{$entityType}_file")
+                    ->addGroupClass("{$entityType}-file") !!}
+        @endforeach
+
+        {!! Former::actions( Button::info(trans('texts.upload'))->submit()->large()->appendIcon(Icon::create('open'))) !!}
+        {!! Former::close() !!}
+
     </div>
 </div>
-{!! Former::close() !!}
-
-{!! Former::open_for_files('settings/' . IMPORT_FROM_FRESHBOOKS) !!}
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">{!! trans('texts.import_from_freshbooks') !!}</h3>
-  </div>
-  <div class="panel-body">
-    {!! Former::file('client_file')->label(trans('texts.csv_client_file')) !!}
-    {!! Former::file('invoice_file')->label(trans('texts.csv_invoice_file')) !!}
-    {!! Former::file('timesheet_file')->label(trans('texts.csv_timesheet_file')) !!}
-    {!! Former::actions( Button::info(trans('texts.upload'))->submit()->large()->appendIcon(Icon::create('open'))) !!}
-  </div>
-</div>
-{!! Former::close() !!}
 
 
 {!! Former::open('/export') !!}
@@ -113,6 +122,26 @@
     } else {
         $(selector).removeAttr('disabled');
     }
+  }
+
+  function setFileTypesVisible() {
+    var val = $('#source').val();
+    @foreach (\App\Services\ImportService::$entityTypes as $entityType)
+        $('.{{ $entityType }}-file').hide();
+    @endforeach
+    @foreach (\App\Services\ImportService::$sources as $source)
+        if (val === '{{ $source }}') {
+            @if ($source == IMPORT_CSV)
+                $('.client-file').show();
+            @else
+                @foreach (\App\Services\ImportService::$entityTypes as $entityType)
+                    @if (class_exists(\App\Services\ImportService::getTransformerClassName($source, $entityType)))
+                        $('.{{ $entityType }}-file').show();
+                    @endif
+                @endforeach
+            @endif
+        }
+    @endforeach
   }
 
 </script>
