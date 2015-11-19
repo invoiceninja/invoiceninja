@@ -58,7 +58,7 @@ return array(
     "required"         => ":attribute muss ausgefüllt sein.",
     "required_if"      => ":attribute muss ausgefüllt sein wenn :other :value ist.",
     "required_with"    => ":attribute muss angegeben werden wenn :values ausgefüllt wurde.",
-    "required_with_all" => "The :attribute field is required when :values is present.",
+    "required_with_all" => ":attribute muss ausgefüllt werden, wenn :values vorhanden ist.",
     "required_without" => ":attribute muss angegeben werden wenn :values nicht ausgefüllt wurde.",
     "required_without_all" => ":attribute muss angegeben werden wenn keines der Felder :values ausgefüllt wurde.",
     "same"             => ":attribute und :other müssen übereinstimmen.",
@@ -73,11 +73,11 @@ return array(
 
     "positive" => ":attribute muss größer als null sein.",
     "has_credit" => "Der Kunde hat nicht genug Guthaben.",
-    "notmasked" => "The values are masked",
-    "less_than" => 'The :attribute must be less than :value',
-    "has_counter" => 'The value must contain {$counter}',
-    "valid_contacts" => "All of the contacts must have either an email or name",
-    "valid_invoice_items" => "The invoice exceeds the maximum amount",
+    "notmasked" => "Die Werte sind maskiert",
+    "less_than" => ':attribute muss weniger als :value sein',
+    "has_counter" => 'Der Wert muss {$counter} beinhalten',
+    "valid_contacts" => "Alle Kontake müssen entweder einen Namen oder eine E-Mail Adresse haben",
+    "valid_invoice_items" => "Die Rechnung übersteigt den maximalen Betrag",
     
     /*
     |--------------------------------------------------------------------------
