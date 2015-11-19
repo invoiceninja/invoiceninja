@@ -68,7 +68,7 @@ class ClientTransformer extends EntityTransformer
             'name' => $client->name,
             'balance' => (float) $client->balance,
             'paid_to_date' => (float) $client->paid_to_date,
-            'user_id' => (int) $client->user_id,
+            'user_id' => (int) $client->user->public_id,
             'account_key' => $this->account->account_key,
             'updated_at' => $client->updated_at,
             'deleted_at' => $client->deleted_at,
