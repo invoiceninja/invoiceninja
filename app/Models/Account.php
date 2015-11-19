@@ -80,6 +80,11 @@ class Account extends Eloquent
         return $this->hasMany('App\Models\TaxRate');
     }
 
+    public function products()
+    {
+        return $this->hasMany('App\Models\Product');
+    }
+
     public function country()
     {
         return $this->belongsTo('App\Models\Country');
