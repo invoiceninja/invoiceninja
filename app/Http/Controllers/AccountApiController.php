@@ -4,6 +4,7 @@ use Auth;
 use Utils;
 use Response;
 use Input;
+use Cache;
 use App\Models\Client;
 use App\Models\Account;
 use App\Models\AccountToken;
@@ -72,4 +73,15 @@ class AccountApiController extends BaseAPIController
         return $this->response($response);
     }
 
+    public function getStaticData()
+    {
+        $data = [];
+
+        $cachedTables = unserialize(CACHED_TABLES);
+        foreach ($cachedTables as $name => $class) {
+            $data[$name] = Cache::get($name);
+        }
+
+        return $this->response($data);
+    }
 }

@@ -196,6 +196,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
     Route::resource('ping', 'ClientApiController@ping');
     Route::post('login', 'AccountApiController@login');
+    Route::get('static', 'AccountApiController@getStaticData');
     Route::get('accounts', 'AccountApiController@show');
     Route::resource('clients', 'ClientApiController');
     Route::get('quotes/{client_id?}', 'QuoteApiController@index');
@@ -487,7 +488,6 @@ if (!defined('CONTACT_EMAIL')) {
     define('SOCIAL_GITHUB', 'GitHub');
     define('SOCIAL_LINKEDIN', 'LinkedIn');
 
-
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
@@ -495,8 +495,22 @@ if (!defined('CONTACT_EMAIL')) {
                 8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
                 16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover']
             ];
-
     define('CREDIT_CARDS', serialize($creditCards));
+
+    $cachedTables = [
+        'currencies' => 'App\Models\Currency',
+        'sizes' => 'App\Models\Size',
+        'industries' => 'App\Models\Industry',
+        'timezones' => 'App\Models\Timezone',
+        'dateFormats' => 'App\Models\DateFormat',
+        'datetimeFormats' => 'App\Models\DatetimeFormat',
+        'languages' => 'App\Models\Language',
+        'paymentTerms' => 'App\Models\PaymentTerm',
+        'paymentTypes' => 'App\Models\PaymentType',
+        'countries' => 'App\Models\Country',
+        'invoiceDesigns' => 'App\Models\InvoiceDesign',
+    ];
+    define('CACHED_TABLES', serialize($cachedTables));
 
     function uctrans($text)
     {

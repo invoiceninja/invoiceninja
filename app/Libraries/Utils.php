@@ -642,6 +642,7 @@ class Utils
           //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',
           //'Access-Control-Allow-Credentials' => 'true',
           'X-Total-Count' => $count,
+          'X-Ninja-Version' => NINJA_VERSION,
           //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
           //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
           //'X-Rate-Limit-Reset' - The number of seconds left in the current period,

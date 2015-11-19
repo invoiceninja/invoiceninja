@@ -148,19 +148,7 @@ class StartupCheck
         }
 
         // Check data has been cached
-        $cachedTables = [
-            'currencies' => 'App\Models\Currency',
-            'sizes' => 'App\Models\Size',
-            'industries' => 'App\Models\Industry',
-            'timezones' => 'App\Models\Timezone',
-            'dateFormats' => 'App\Models\DateFormat',
-            'datetimeFormats' => 'App\Models\DatetimeFormat',
-            'languages' => 'App\Models\Language',
-            'paymentTerms' => 'App\Models\PaymentTerm',
-            'paymentTypes' => 'App\Models\PaymentType',
-            'countries' => 'App\Models\Country',
-            'invoiceDesigns' => 'App\Models\InvoiceDesign',
-        ];
+        $cachedTables = unserialize(CACHED_TABLES);
         if (Input::has('clear_cache')) {
             Session::flash('message', 'Cache cleared');
         }
