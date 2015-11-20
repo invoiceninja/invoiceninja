@@ -919,5 +919,6 @@ return array(
     'user_unconfirmed' => 'Confirme sua conta para enviar e-mails',
     'invalid_contact_email' => 'E-mail do contato inválido',
   ]
-    
+  
+  'client_portal' => 'Portal do Cliente',    
 );
