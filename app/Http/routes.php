@@ -517,6 +517,9 @@ if (!defined('CONTACT_EMAIL')) {
         'countries' => 'App\Models\Country',
         'invoiceDesigns' => 'App\Models\InvoiceDesign',
         'invoiceStatus' => 'App\Models\InvoiceStatus',
+        'frequencies' => 'App\Models\Frequency',
+        'gateways' => 'App\Models\Gateway',
+        'themes' => 'App\Models\Theme',
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 
