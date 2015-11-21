@@ -79,7 +79,7 @@ class AuthController extends Controller {
         $userId = Auth::check() ? Auth::user()->id : null;
         $user = User::where('email', '=', $request->input('email'))->first();
 
-        if ($user && $user->failed_logins >= 3) {
+        if ($user && $user->failed_logins >= MAX_FAILED_LOGINS) {
             Session::flash('error', trans('texts.invalid_credentials'));
             return redirect()->to('login');
         }

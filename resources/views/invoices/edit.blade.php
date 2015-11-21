@@ -68,7 +68,7 @@
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
 					<a id="createClientLink" class="pointer" data-bind="click: $root.showClientForm, html: $root.clientLinkText"></a>
-                    <span data-bind="visible: $root.invoice().client().public_id() > 0">| 
+                    <span data-bind="visible: $root.invoice().client().public_id() > 0" style="display:none">| 
                         <a data-bind="attr: {href: '{{ url('/clients') }}/' + $root.invoice().client().public_id()}" target="_blank">{{ trans('texts.view_client') }}</a>
                     </span>
 				</div>

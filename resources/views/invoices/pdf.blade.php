@@ -72,7 +72,7 @@
   @endif
 
   var NINJA = NINJA || {};
-  @if (Utils::isPro())
+  @if ($account->isPro())
       NINJA.primaryColor = "{{ $account->primary_color }}";
       NINJA.secondaryColor = "{{ $account->secondary_color }}";
       NINJA.fontSize = {{ $account->font_size }};

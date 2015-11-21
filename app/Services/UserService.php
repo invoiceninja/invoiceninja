@@ -52,7 +52,15 @@ class UserService extends BaseService
             [
                 'confirmed',
                 function ($model) {
-                    return $model->deleted_at ? trans('texts.deleted') : ($model->confirmed ? trans('texts.active') : trans('texts.pending'));
+                    if (!$model->public_id) {
+                        return self::getStatusLabel(USER_STATE_ADMIN);
+                    } elseif ($model->deleted_at) {
+                        return self::getStatusLabel(USER_STATE_DISABLED);
+                    } elseif ($model->confirmed) {
+                        return self::getStatusLabel(USER_STATE_ACTIVE);
+                    } else {
+                        return self::getStatusLabel(USER_STATE_PENDING);
+                    }
                 }
             ],
         ];
@@ -65,6 +73,9 @@ class UserService extends BaseService
                 uctrans('texts.edit_user'),
                 function ($model) {
                     return URL::to("users/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return $model->public_id;
                 }
             ],
             [
@@ -73,10 +84,31 @@ class UserService extends BaseService
                     return URL::to("send_confirmation/{$model->public_id}");
                 },
                 function ($model) {
-                    return !$model->confirmed;
+                    return $model->public_id && ! $model->confirmed;
                 }
             ]
         ];
+    }
+
+    private function getStatusLabel($state)
+    {
+        $label = trans("texts.{$state}");
+        $class = 'default';
+        switch ($state) {
+            case USER_STATE_PENDING:
+                $class = 'info';
+                break;
+            case USER_STATE_ACTIVE:
+                $class = 'primary';
+                break;
+            case USER_STATE_DISABLED:
+                $class = 'warning';
+                break;
+            case USER_STATE_ADMIN:
+                $class = 'success';
+                break;
+        }
+        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 
 }

@@ -37,7 +37,7 @@
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
 
-      var fields = ['item', 'description', 'unit_cost', 'quantity', 'line_total'];
+      var fields = ['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms'];
       invoiceLabels.old = {};
       for (var i=0; i<fields.length; i++) {
         var field = fields[i];
@@ -102,12 +102,22 @@
                     <div class="panel-body">
 
                       @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
-                        {!! Former::select('invoice_design_id')->style('display:inline')->fromQuery($invoiceDesigns, 'name', 'id')->addOption(trans('texts.more_designs') . '...', '-1') !!}
+                        {!! Former::select('invoice_design_id')
+                                ->style('display:inline; width:300px')
+                                ->fromQuery($invoiceDesigns, 'name', 'id')
+                                ->addOption(trans('texts.more_designs') . '...', '-1') !!}
                       @else 
-                        {!! Former::select('invoice_design_id')->style('display:inline')->fromQuery($invoiceDesigns, 'name', 'id') !!}
+                        {!! Former::select('invoice_design_id')
+                                ->style('display:inline; width:300px')
+                                ->fromQuery($invoiceDesigns, 'name', 'id') !!}
                       @endif
 
-                      {!! Former::text('font_size')->type('number')->min('0')->step('1') !!}
+                      {!! Former::text('font_size')
+                            ->style('width:300px')
+                            ->type('number')
+                            ->min('0')
+                            ->step('1') !!}
+
                       {!! Former::text('primary_color') !!}
                       {!! Former::text('secondary_color') !!}
 
@@ -116,13 +126,18 @@
                 <div role="tabpanel" class="tab-pane" id="invoiceLabels">
                     <div class="panel-body">
 
-
-                      {!! Former::text('labels_item')->label(trans('texts.item')) !!}
-                      {!! Former::text('labels_description')->label(trans('texts.description')) !!}
-                      {!! Former::text('labels_unit_cost')->label(trans('texts.unit_cost')) !!}
-                      {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
-                      {!! Former::text('labels_line_total')->label(trans('texts.line_total')) !!}
-
+                      <div class="row">
+                        <div class="col-md-6">
+                              {!! Former::text('labels_item')->label(trans('texts.item')) !!}
+                              {!! Former::text('labels_description')->label(trans('texts.description')) !!}
+                              {!! Former::text('labels_unit_cost')->label(trans('texts.unit_cost')) !!}
+                        </div>
+                        <div class="col-md-6">
+                              {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
+                              {!! Former::text('labels_line_total')->label(trans('texts.line_total')) !!}
+                              {!! Former::text('labels_terms')->label(trans('texts.terms')) !!}
+                        </div>
+                      </div>
 
                     </div>
                 </div>
