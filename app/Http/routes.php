@@ -516,6 +516,7 @@ if (!defined('CONTACT_EMAIL')) {
         'paymentTypes' => 'App\Models\PaymentType',
         'countries' => 'App\Models\Country',
         'invoiceDesigns' => 'App\Models\InvoiceDesign',
+        'invoiceStatus' => 'App\Models\InvoiceStatus',
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 
