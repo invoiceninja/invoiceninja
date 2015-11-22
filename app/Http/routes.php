@@ -247,7 +247,6 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('ENV_DEVELOPMENT', 'local');
     define('ENV_STAGING', 'staging');
-    define('ENV_PRODUCTION', 'fortrabbit');
 
     define('RECENTLY_VIEWED', 'RECENTLY_VIEWED');
     define('ENTITY_CLIENT', 'client');
