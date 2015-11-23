@@ -45,11 +45,6 @@ class Utils
         return file_exists(storage_path() . '/framework/down');
     }
 
-    public static function isProd()
-    {
-        return App::environment() == ENV_PRODUCTION;
-    }
-
     public static function isNinja()
     {
         return self::isNinjaProd() || self::isNinjaDev();

@@ -50,12 +50,20 @@
     	  	    return generatePDF(invoice, invoice.invoice_design.javascript, true, cb);
 			}
 
+            if (window.hasOwnProperty('pjsc_meta')) {
+                window['pjsc_meta'].remainingTasks++;
+            }
+
 			$(function() {
                 @if (Input::has('phantomjs'))
                     doc = getPDFString();
                     doc.getDataUrl(function(pdfString) {
                         document.write(pdfString);
                         document.close();
+                        
+                        if (window.hasOwnProperty('pjsc_meta')) {
+                            window['pjsc_meta'].remainingTasks--;
+                        }
                     });
                 @else 
                     refreshPDF();

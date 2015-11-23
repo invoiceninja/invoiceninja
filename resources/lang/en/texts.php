@@ -942,5 +942,7 @@ return array(
     ],
 
     'client_portal' => 'Client Portal',
-
+    'admin' => 'Admin',
+    'disabled' => 'Disabled',
+    'show_archived_users' => 'Show archived users',
 );

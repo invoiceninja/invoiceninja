@@ -80,7 +80,9 @@ class DatatableService
                     $str .= "<li class=\"divider\"></li>";
                 }
 
-                $str .= "<li><a href=\"javascript:archiveEntity({$model->public_id})\">" . trans("texts.archive_{$entityType}") . "</a></li>";
+                if ($entityType != ENTITY_USER || $model->public_id) {
+                    $str .= "<li><a href=\"javascript:archiveEntity({$model->public_id})\">" . trans("texts.archive_{$entityType}") . "</a></li>";
+                }
             } else {
                 $str .= "<li><a href=\"javascript:restoreEntity({$model->public_id})\">" . trans("texts.restore_{$entityType}") . "</a></li>";
             }

@@ -247,7 +247,6 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('ENV_DEVELOPMENT', 'local');
     define('ENV_STAGING', 'staging');
-    define('ENV_PRODUCTION', 'fortrabbit');
 
     define('RECENTLY_VIEWED', 'RECENTLY_VIEWED');
     define('ENTITY_CLIENT', 'client');
@@ -338,6 +337,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('MAX_SUBDOMAIN_LENGTH', 30);
     define('MAX_IFRAME_URL_LENGTH', 250);
     define('MAX_LOGO_FILE_SIZE', 200); // KB
+    define('MAX_FAILED_LOGINS', 5);
     define('DEFAULT_FONT_SIZE', 9);
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
 
@@ -488,6 +488,12 @@ if (!defined('CONTACT_EMAIL')) {
     define('SOCIAL_GITHUB', 'GitHub');
     define('SOCIAL_LINKEDIN', 'LinkedIn');
 
+    define('USER_STATE_ACTIVE', 'active');
+    define('USER_STATE_PENDING', 'pending');
+    define('USER_STATE_DISABLED', 'disabled');
+    define('USER_STATE_ADMIN', 'admin');
+    
+
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
@@ -510,6 +516,9 @@ if (!defined('CONTACT_EMAIL')) {
         'countries' => 'App\Models\Country',
         'invoiceDesigns' => 'App\Models\InvoiceDesign',
         'invoiceStatus' => 'App\Models\InvoiceStatus',
+        'frequencies' => 'App\Models\Frequency',
+        'gateways' => 'App\Models\Gateway',
+        'themes' => 'App\Models\Theme',
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 
