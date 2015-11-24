@@ -21,6 +21,11 @@ We offer two options:
 * [Bitnami](https://bitnami.com/stack/invoice-ninja) - Free
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja) - $30
 
+### Requirements
+* PHP >= 5.4.0
+* MCrypt Extension
+* MySQL
+
 ### Features
 * Built using Laravel 5
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
