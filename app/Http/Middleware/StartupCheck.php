@@ -33,7 +33,7 @@ class StartupCheck
         }
 
         // Ensure all request are over HTTPS in production
-        if (Utils::isNinjaProd() && !Request::secure()) {
+        if (Utils::requireHTTPS() && !Request::secure()) {
             return Redirect::secure(Request::getRequestUri());
         }
 

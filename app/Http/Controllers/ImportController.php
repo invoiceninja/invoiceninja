@@ -21,44 +21,42 @@ class ImportController extends BaseController
     public function doImport()
     {
         $source = Input::get('source');
+        $files = [];
 
-        if ($source === IMPORT_CSV) {
-            $filename = Input::file('client_file')->getRealPath();
-            $data = $this->importService->mapFile($filename);
-
-            return View::make('accounts.import_map', $data);
-        } else {
-            $files = [];
-            foreach (ImportService::$entityTypes as $entityType) {
-                if (Input::file("{$entityType}_file")) {
-                    $files[$entityType] = Input::file("{$entityType}_file")->getRealPath();
-                }
+        foreach (ImportService::$entityTypes as $entityType) {
+            if (Input::file("{$entityType}_file")) {
+                $files[$entityType] = Input::file("{$entityType}_file")->getRealPath();
             }
+        }
 
-            try {
+        try {
+            if ($source === IMPORT_CSV) {
+                $data = $this->importService->mapCSV($files);
+                return View::make('accounts.import_map', ['data' => $data]);
+            } else {
                 $result = $this->importService->import($source, $files);
                 Session::flash('message', trans('texts.imported_file') . ' - ' . $result);
-            } catch (Exception $exception) {
-                Session::flash('error', $exception->getMessage());
             }
-
-            return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
+        } catch (Exception $exception) {
+            Session::flash('error', $exception->getMessage());
         }
+
+        return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
     }
 
     public function doImportCSV()
     {
         $map = Input::get('map');
-        $hasHeaders = Input::get('header_checkbox');
+        $headers = Input::get('headers');
 
-        try {
-            $count = $this->importService->importCSV($map, $hasHeaders);
+        //try {
+            $count = $this->importService->importCSV($map, $headers);
             $message = Utils::pluralize('created_client', $count);
 
             Session::flash('message', $message);
-        } catch (Exception $exception) {
-            Session::flash('error', $exception->getMessage());
-        }
+        //} catch (Exception $exception) {
+        //    Session::flash('error', $exception->getMessage());
+        //}
 
         return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
     }

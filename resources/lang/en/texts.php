@@ -87,7 +87,7 @@ return array(
     'guest' => 'Guest',
     'company_details' => 'Company Details',
     'online_payments' => 'Online Payments',
-    'notifications' => 'Notifications',
+    'notifications' => 'Email Notifications',
     'import_export' => 'Import/Export',
     'done' => 'Done',
     'save' => 'Save',
@@ -334,7 +334,7 @@ return array(
     // product management
     'product_library' => 'Product Library',
     'product' => 'Product',
-    'products' => 'Products',
+    'products' => 'Product Library',
     'fill_products' => 'Auto-fill products',
     'fill_products_help' => 'Selecting a product will automatically <b>fill in the description and cost</b>',
     'update_products' => 'Auto-update products',
@@ -945,4 +945,8 @@ return array(
     'admin' => 'Admin',
     'disabled' => 'Disabled',
     'show_archived_users' => 'Show archived users',
+    'notes' => 'Notes',
+    'invoice_will_create' => 'client will be created',
+    'invoices_will_create' => 'invoices will be created',
+
 );

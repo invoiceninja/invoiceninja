@@ -5,6 +5,7 @@ use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use App\Models\BalanceAffecting;
+use App\Models\Client;
 use App\Events\QuoteWasCreated;
 use App\Events\QuoteWasUpdated;
 use App\Events\InvoiceWasCreated;
@@ -29,6 +30,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         'auto_bill' => 'boolean',
     ];
 
+    // used for custom invoice numbers
     public static $patternFields = [
         'counter',
         'custom1',
@@ -38,6 +40,40 @@ class Invoice extends EntityModel implements BalanceAffecting
         'date:',
     ];
 
+    public static $fieldInvoiceNumber = 'invoice_number';
+    public static $fieldInvoiceDate = 'invoice_date';
+    public static $fieldDueDate = 'due_date';
+    public static $fieldAmount = 'amount';
+    public static $fieldPaid = 'paid';
+    public static $fieldNotes = 'notes';
+    public static $fieldTerms = 'terms';
+
+    public static function getImportColumns()
+    {
+        return [
+            Client::$fieldName,
+            Invoice::$fieldInvoiceNumber,
+            Invoice::$fieldInvoiceDate,
+            Invoice::$fieldDueDate,
+            Invoice::$fieldAmount,
+            Invoice::$fieldPaid,
+            Invoice::$fieldNotes,
+            Invoice::$fieldTerms,
+        ];
+    }
+
+    public static function getImportMap()
+    {
+        return [
+            'number' => Invoice::$fieldInvoiceNumber,
+            'amount' => Invoice::$fieldAmount,
+            'organization' => 'name',
+            'paid' => 'paid',
+            'create_date' => Invoice::$fieldInvoiceDate,
+            'terms' => 'terms',
+            'notes' => 'notes',
+        ];
+    }
     public function getRoute()
     {
         $entityType = $this->getEntityType();

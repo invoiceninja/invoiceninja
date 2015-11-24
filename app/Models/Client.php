@@ -39,15 +39,53 @@ class Client extends EntityModel
         'website',
     ];
 
-    public static $fieldName = 'Client - Name';
-    public static $fieldPhone = 'Client - Phone';
-    public static $fieldAddress1 = 'Client - Street';
-    public static $fieldAddress2 = 'Client - Apt/Floor';
-    public static $fieldCity = 'Client - City';
-    public static $fieldState = 'Client - State';
-    public static $fieldPostalCode = 'Client - Postal Code';
-    public static $fieldNotes = 'Client - Notes';
-    public static $fieldCountry = 'Client - Country';
+    public static $fieldName = 'name';
+    public static $fieldPhone = 'work_phone';
+    public static $fieldAddress1 = 'address1';
+    public static $fieldAddress2 = 'address2';
+    public static $fieldCity = 'city';
+    public static $fieldState = 'state';
+    public static $fieldPostalCode = 'postal_code';
+    public static $fieldNotes = 'notes';
+    public static $fieldCountry = 'country';
+
+    public static function getImportColumns()
+    {
+        return [
+            Client::$fieldName,
+            Client::$fieldPhone,
+            Client::$fieldAddress1,
+            Client::$fieldAddress2,
+            Client::$fieldCity,
+            Client::$fieldState,
+            Client::$fieldPostalCode,
+            Client::$fieldCountry,
+            Client::$fieldNotes,
+            Contact::$fieldFirstName,
+            Contact::$fieldLastName,
+            Contact::$fieldPhone,
+            Contact::$fieldEmail,
+        ];
+    }
+
+    public static function getImportMap()
+    {
+        return [
+            'first' => Contact::$fieldFirstName,
+            'last' => Contact::$fieldLastName,
+            'email' => Contact::$fieldEmail,
+            'mobile' => Contact::$fieldPhone,
+            'phone' => Client::$fieldPhone,
+            'name|organization' => Client::$fieldName,
+            'street|address|address1' => Client::$fieldAddress1,
+            'street2|address2' => Client::$fieldAddress2,
+            'city' => Client::$fieldCity,
+            'state|province' => Client::$fieldState,
+            'zip|postal|code' => Client::$fieldPostalCode,
+            'country' => Client::$fieldCountry,
+            'note' => Client::$fieldNotes,
+        ];
+    }
 
     public function account()
     {

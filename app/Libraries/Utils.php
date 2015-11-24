@@ -60,6 +60,11 @@ class Utils
         return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'] == 'true';
     }
 
+    public static function requireHTTPS()
+    {
+        return Utils::isNinjaProd() || (isset($_ENV['REQUIRE_HTTPS']) && $_ENV['REQUIRE_HTTPS'] == 'true');
+    }
+
     public static function isOAuthEnabled()
     {
         $providers = [

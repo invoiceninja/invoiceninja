@@ -12,8 +12,6 @@ We offer two options:
 * 10% of revenue
 * $1,000 for a site limited to 1,000 accounts
 
-If you'd like to use our code to sell your own invoicing app email us for details about our affiliate program.
-
 ### Installation Options
 * [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
 * [Docker File](https://github.com/invoiceninja/dockerfiles) - Free
