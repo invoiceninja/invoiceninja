@@ -47,7 +47,6 @@ There are two options:
 * [User Guide](https://www.invoiceninja.com/user-guide/)
 * [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
 * [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
-* [Swagger](https://app.invoiceninja.com/api-docs#/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
