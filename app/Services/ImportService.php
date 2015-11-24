@@ -69,12 +69,12 @@ class ImportService
 
     private function execute($source, $entityType, $file)
     {
-        Excel::load($file, function ($reader) use ($source, $entityType, $transformer) {
+        Excel::load($file, function ($reader) use ($source, $entityType) {
 
             $this->checkData($entityType, count($reader->all()));
             $maps = $this->createMaps();
 
-            $reader->each(function ($row) use ($source, $entityType, $transformer, $maps) {
+            $reader->each(function ($row) use ($source, $entityType, $maps) {
                 $this->saveData($source, $entityType, $row, $maps);
             });
         });
@@ -112,7 +112,7 @@ class ImportService
 
         $data = $this->fractal->createData($resource)->toArray();
 
-        if (!$data['invoice_number']) {
+        if ($entityType == ENTITY_INVOICE && !$data['invoice_number']) {
             $account = Auth::user()->account;
             $invoice = Invoice::createNew();
             $data['invoice_number'] = $account->getNextInvoiceNumber($invoice);
