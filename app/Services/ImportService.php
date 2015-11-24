@@ -123,9 +123,9 @@ class ImportService
         }
 
         $entity = $this->{"{$entityType}Repo"}->save($data);
-
+        
         // if the invoice is paid we'll also create a payment record
-        if ($entityType === ENTITY_INVOICE && isset($data['paid']) && $data['paid']) {
+        if ($entityType === ENTITY_INVOICE && isset($row->paid) && $row->paid) {
             $this->createPayment($source, $row, $maps, $data['client_id'], $entity->public_id);
         }
     }
@@ -153,8 +153,8 @@ class ImportService
     {
         $paymentTransformer = $this->getTransformer($source, ENTITY_PAYMENT);
 
-        $row->client_id = $clientId;
-        $row->invoice_id = $invoiceId;
+        $data->client_id = $clientId;
+        $data->invoice_id = $invoiceId;
 
         if ($resource = $paymentTransformer->transform($data, $maps)) {
             $data = $this->fractal->createData($resource)->toArray();
@@ -170,14 +170,15 @@ class ImportService
             $rules = [
                 'contacts' => 'valid_contacts',
             ];
-        }
-        if ($entityType === ENTITY_INVOICE) {
+        } if ($entityType === ENTITY_INVOICE) {
             $rules = [
                 'client.contacts' => 'valid_contacts',
                 'invoice_items' => 'valid_invoice_items',
                 'invoice_number' => 'required|unique:invoices,invoice_number,,id,account_id,'.Auth::user()->account_id,
                 'discount' => 'positive',
             ];
+        } else {
+            return true;
         }
 
         $validator = Validator::make($data, $rules);
