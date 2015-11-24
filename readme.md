@@ -11,6 +11,7 @@
 * $100 per signup over 3 years [Learn more](https://www.invoiceninja.com/referral-program/)
 
 ### Reseller Program
+We offer two options:
 * 10% of revenue
 * $1,000 for a site limited to 1,000 accounts
 
