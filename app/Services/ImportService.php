@@ -112,6 +112,12 @@ class ImportService
 
         $data = $this->fractal->createData($resource)->toArray();
 
+        if (!$data['invoice_number']) {
+            $account = Auth::user()->account;
+            $invoice = Invoice::createNew();
+            $data['invoice_number'] = $account->getNextInvoiceNumber($invoice);
+        }
+
         if ($this->validate($data, $entityType) !== true) {
             return;
         }

@@ -69,7 +69,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'amount' => Invoice::$fieldAmount,
             'organization' => 'name',
             'paid' => 'paid',
-            'create_date' => Invoice::$fieldInvoiceDate,
+            'invoice_date' => Invoice::$fieldInvoiceDate,
             'terms' => 'terms',
             'notes' => 'notes',
         ];

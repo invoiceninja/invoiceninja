@@ -10,7 +10,7 @@ class PaymentTransformer extends TransformerAbstract
         return new Item($data, function ($data) use ($maps) {
             return [
                 'amount' => $data->paid,
-                'payment_date_sql' => $data->create_date,
+                'payment_date_sql' => isset($data->invoice_date) ? $data->invoice_date : null,
                 'client_id' => $data->client_id,
                 'invoice_id' => $data->invoice_id,
             ];

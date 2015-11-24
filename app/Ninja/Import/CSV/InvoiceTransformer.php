@@ -11,13 +11,13 @@ class InvoiceTransformer extends TransformerAbstract
         if (isset($maps[ENTITY_INVOICE][$data->invoice_number])) {
             return false;
         }
-        
+
         if (isset($maps[ENTITY_CLIENT][$data->name])) {
             $data->client_id = $maps[ENTITY_CLIENT][$data->name];
         } else {
             return false;
         }
-
+        
         return new Item($data, function ($data) use ($maps) {
             return [
                 'invoice_number' => isset($data->invoice_number) ? $data->invoice_number : null,
@@ -26,7 +26,7 @@ class InvoiceTransformer extends TransformerAbstract
                 'po_number' => isset($data->po_number) ? $data->po_number : null,
                 'terms' => isset($data->terms) ? $data->terms : null,
                 'public_notes' => isset($data->notes) ? $data->notes : null,
-                'invoice_date_sql' => isset($data->create_date) ? $data->create_date : null,
+                'invoice_date_sql' => isset($data->invoice_date) ? $data->invoice_date : null,
                 'invoice_items' => [
                     [
                         'notes' => isset($data->notes) ? $data->notes : null,
