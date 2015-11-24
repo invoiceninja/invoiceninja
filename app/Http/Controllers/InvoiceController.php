@@ -69,7 +69,7 @@ class InvoiceController extends BaseController
                 'balance_due',
                 'due_date',
                 'status',
-                ''
+                'action'
             ]),
         ];
 

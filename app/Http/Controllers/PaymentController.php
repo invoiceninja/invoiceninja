@@ -46,7 +46,16 @@ class PaymentController extends BaseController
         return View::make('list', array(
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
-            'columns' => Utils::trans(['checkbox', 'invoice', 'client', 'transaction_reference', 'method', 'payment_amount', 'payment_date', '']),
+            'columns' => Utils::trans([
+              'checkbox',
+              'invoice',
+              'client',
+              'transaction_reference',
+              'method',
+              'payment_amount',
+              'payment_date',
+              'action'
+            ]),
         ));
     }
 

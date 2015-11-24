@@ -52,7 +52,16 @@ class ClientController extends BaseController
             'entityType' => ENTITY_CLIENT,
             'title' => trans('texts.clients'),
             'sortCol' => '4',
-            'columns' => Utils::trans(['checkbox', 'client', 'contact', 'email', 'date_created', 'last_login', 'balance', '']),
+            'columns' => Utils::trans([
+              'checkbox',
+              'client',
+              'contact',
+              'email',
+              'date_created',
+              'last_login',
+              'balance',
+              'action'
+            ]),
         ));
     }
 
