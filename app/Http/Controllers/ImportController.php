@@ -22,6 +22,7 @@ class ImportController extends BaseController
     {
         $source = Input::get('source');
         $files = [];
+        $skipped = [];
 
         foreach (ImportService::$entityTypes as $entityType) {
             if (Input::file("{$entityType}_file")) {
@@ -34,8 +35,16 @@ class ImportController extends BaseController
                 $data = $this->importService->mapCSV($files);
                 return View::make('accounts.import_map', ['data' => $data]);
             } else {
-                $result = $this->importService->import($source, $files);
-                Session::flash('message', trans('texts.imported_file') . ' - ' . $result);
+                $skipped = $this->importService->import($source, $files);
+                if (count($skipped)) {
+                    $message = trans('texts.failed_to_import');
+                    foreach ($skipped as $skip) {
+                        $message .= '<br/>' . json_encode($skip);
+                    }
+                    Session::flash('warning', $message);
+                } else {
+                    Session::flash('message', trans('texts.imported_file'));
+                }
             }
         } catch (Exception $exception) {
             Session::flash('error', $exception->getMessage());
@@ -48,15 +57,23 @@ class ImportController extends BaseController
     {
         $map = Input::get('map');
         $headers = Input::get('headers');
+        $skipped = [];
 
-        //try {
-            $count = $this->importService->importCSV($map, $headers);
-            $message = Utils::pluralize('created_client', $count);
+        try {
+            $skipped = $this->importService->importCSV($map, $headers);
 
-            Session::flash('message', $message);
-        //} catch (Exception $exception) {
-        //    Session::flash('error', $exception->getMessage());
-        //}
+            if (count($skipped)) {
+                $message = trans('texts.failed_to_import');
+                foreach ($skipped as $skip) {
+                    $message .= '<br/>' . json_encode($skip);
+                }
+                Session::flash('warning', $message);
+            } else {
+                Session::flash('message', trans('texts.imported_file'));
+            }
+        } catch (Exception $exception) {
+            Session::flash('error', $exception->getMessage());
+        }
 
         return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
     }

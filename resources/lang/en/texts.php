@@ -948,5 +948,6 @@ return array(
     'notes' => 'Notes',
     'invoice_will_create' => 'client will be created',
     'invoices_will_create' => 'invoices will be created',
+    'failed_to_import' => 'The following records failed to import',
 
 );

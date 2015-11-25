@@ -59,46 +59,24 @@ class ImportService
         }
     }
 
-    private function checkClientCount($count)
-    {
-        $totalClients = $count + Client::scope()->withTrashed()->count();
-        if ($totalClients > Auth::user()->getMaxNumClients()) {
-            throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
-        }
-    }
-
     private function execute($source, $entityType, $file)
     {
-        Excel::load($file, function ($reader) use ($source, $entityType) {
+        $skipped = [];
 
+        Excel::load($file, function ($reader) use ($source, $entityType, $skipped) {
             $this->checkData($entityType, count($reader->all()));
             $maps = $this->createMaps();
 
             $reader->each(function ($row) use ($source, $entityType, $maps) {
-                $this->saveData($source, $entityType, $row, $maps);
+                $result = $this->saveData($source, $entityType, $row, $maps);
+
+                if ( ! $result) {
+                    $skipped[] = $row;
+                }
             });
         });
-    }
 
-    private function executeCSV($entityType, $map, $hasHeaders)
-    {
-        $source = IMPORT_CSV;
-
-        $data = Session::get("{$entityType}-data");
-        $this->checkData($entityType, count($data));
-        $maps = $this->createMaps();
-
-        foreach ($data as $row) {
-            if ($hasHeaders) {
-                $hasHeaders = false;
-                continue;
-            }
-
-            $row = $this->convertToObject($entityType, $row, $map);
-            $this->saveData($source, $entityType, $row, $maps);
-        }
-
-        Session::forget("{$entityType}-data");
+        return $skipped;
     }
 
     private function saveData($source, $entityType, $row, $maps)
@@ -112,6 +90,7 @@ class ImportService
 
         $data = $this->fractal->createData($resource)->toArray();
 
+        // if the invoice number is blank we'll assign it
         if ($entityType == ENTITY_INVOICE && !$data['invoice_number']) {
             $account = Auth::user()->account;
             $invoice = Invoice::createNew();
@@ -123,7 +102,7 @@ class ImportService
         }
 
         $entity = $this->{"{$entityType}Repo"}->save($data);
-        
+
         // if the invoice is paid we'll also create a payment record
         if ($entityType === ENTITY_INVOICE && isset($row->paid) && $row->paid) {
             $this->createPayment($source, $row, $maps, $data['client_id'], $entity->public_id);
@@ -134,6 +113,14 @@ class ImportService
     {
         if ($entityType === ENTITY_CLIENT) {
             $this->checkClientCount($count);
+        }
+    }
+
+    private function checkClientCount($count)
+    {
+        $totalClients = $count + Client::scope()->withTrashed()->count();
+        if ($totalClients > Auth::user()->getMaxNumClients()) {
+            throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
         }
     }
 
@@ -162,15 +149,14 @@ class ImportService
         }
     }
 
-    // looking for a better solution...
-    // http://stackoverflow.com/questions/33781567/how-can-i-re-use-the-validation-code-in-my-laravel-formrequest-classes
     private function validate($data, $entityType)
     {
         if ($entityType === ENTITY_CLIENT) {
             $rules = [
                 'contacts' => 'valid_contacts',
             ];
-        } if ($entityType === ENTITY_INVOICE) {
+        }
+        if ($entityType === ENTITY_INVOICE) {
             $rules = [
                 'client.contacts' => 'valid_contacts',
                 'invoice_items' => 'valid_invoice_items',
@@ -279,13 +265,9 @@ class ImportService
 
                 if ($hasHeaders) {
                     foreach ($map as $search => $column) {
-                        foreach (explode("|", $search) as $string) {
-                            if (strpos($title, 'sec') === 0) {
-                                continue;
-                            } elseif (strpos($title, $string) !== false) {
-                                $mapped[$i] = $column;
-                                break(2);
-                            }
+                        if ($this->checkForMatch($title, $search)) {
+                            $mapped[$i] = $column;
+                            break;
                         }
                     }
                 }
@@ -304,11 +286,77 @@ class ImportService
         return $data;
     }
 
+    private function checkForMatch($column, $pattern)
+    {
+        if (strpos($column, 'sec') === 0) {
+            return false;
+        }
+
+        if (strpos($pattern, '^')) {
+            list($include, $exclude) = explode('^', $pattern);
+            $includes = explode('|', $include);
+            $excludes = explode('|', $exclude);
+        } else {
+            $includes = explode('|', $pattern);
+            $excludes = [];
+        }
+
+        foreach ($includes as $string) {
+            if (strpos($column, $string) !== false) {
+                $excluded = false;
+                foreach ($excludes as $exclude) {
+                    if (strpos($column, $exclude) !== false) {
+                        $excluded = true;
+                        break;
+                    }
+                }
+                if (!$excluded) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public function importCSV($maps, $headers)
     {
+        $skipped = [];
+
         foreach ($maps as $entityType => $map) {
-            $this->executeCSV($entityType, $map, $headers[$entityType]);
+            $result = $this->executeCSV($entityType, $map, $headers[$entityType]);
+            $skipped = array_merge($skipped, $result);
         }
+
+        return $skipped;
+    }
+
+    private function executeCSV($entityType, $map, $hasHeaders)
+    {
+        $skipped = [];
+        $source = IMPORT_CSV;
+
+        $data = Session::get("{$entityType}-data");
+        $this->checkData($entityType, count($data));
+        $maps = $this->createMaps();
+
+        foreach ($data as $row) {
+            if ($hasHeaders) {
+                $hasHeaders = false;
+                continue;
+            }
+
+            $row = $this->convertToObject($entityType, $row, $map);
+            $result = $this->saveData($source, $entityType, $row, $maps);
+
+            if ( ! $result) {
+                $skipped[] = $row;
+            }
+        }
+
+        Session::forget("{$entityType}-data");
+
+        return $skipped;
     }
 
     private function convertToObject($entityType, $data, $map)
@@ -327,6 +375,10 @@ class ImportService
 
         foreach ($map as $index => $field) {
             if (! $field) {
+                continue;
+            }
+
+            if (isset($obj->$field) && $obj->$field) {
                 continue;
             }
 

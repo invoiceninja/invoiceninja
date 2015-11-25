@@ -65,11 +65,11 @@ class Invoice extends EntityModel implements BalanceAffecting
     public static function getImportMap()
     {
         return [
-            'number' => Invoice::$fieldInvoiceNumber,
-            'amount' => Invoice::$fieldAmount,
+            'number^po' => 'invoice_number',
+            'amount' => 'amount',
             'organization' => 'name',
-            'paid' => 'paid',
-            'invoice_date' => Invoice::$fieldInvoiceDate,
+            'paid^date' => 'paid',
+            'invoice_date|create_date' => 'invoice_date',
             'terms' => 'terms',
             'notes' => 'notes',
         ];

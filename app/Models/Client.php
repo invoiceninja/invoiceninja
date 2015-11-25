@@ -71,19 +71,18 @@ class Client extends EntityModel
     public static function getImportMap()
     {
         return [
-            'first' => Contact::$fieldFirstName,
-            'last' => Contact::$fieldLastName,
-            'email' => Contact::$fieldEmail,
-            'mobile' => Contact::$fieldPhone,
-            'phone' => Client::$fieldPhone,
-            'name|organization' => Client::$fieldName,
-            'street|address|address1' => Client::$fieldAddress1,
-            'street2|address2' => Client::$fieldAddress2,
-            'city' => Client::$fieldCity,
-            'state|province' => Client::$fieldState,
-            'zip|postal|code' => Client::$fieldPostalCode,
-            'country' => Client::$fieldCountry,
-            'note' => Client::$fieldNotes,
+            'first' => 'first_name',
+            'last' => 'last_name',
+            'email' => 'email',
+            'mobile|phone' => 'phone',
+            'name|organization' => 'name',
+            'street2|address2' => 'address2',
+            'street|address|address1' => 'address1',
+            'city' => 'city',
+            'state|province' => 'state',
+            'zip|postal|code' => 'postal_code',
+            'country' => 'country',
+            'note' => 'notes',
         ];
     }
 
