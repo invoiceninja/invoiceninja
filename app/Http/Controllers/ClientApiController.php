@@ -4,15 +4,19 @@ use Utils;
 use Response;
 use Input;
 use App\Models\Client;
+use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Repositories\ClientRepository;
 use App\Http\Requests\CreateClientRequest;
+use App\Ninja\Transformers\ClientTransformer;
 
-class ClientApiController extends Controller
+class ClientApiController extends BaseAPIController
 {
     protected $clientRepo;
 
     public function __construct(ClientRepository $clientRepo)
     {
+        parent::__construct();
+
         $this->clientRepo = $clientRepo;
     }
 
@@ -45,12 +49,14 @@ class ClientApiController extends Controller
                     ->with('country', 'contacts', 'industry', 'size', 'currency')
                     ->orderBy('created_at', 'desc')
                     ->get();
-        $clients = Utils::remapPublicIds($clients);
 
-        $response = json_encode($clients, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders(count($clients));
+        $data = $this->createCollection($clients, new ClientTransformer(\Auth::user()->account));
 
-        return Response::make($response, 200, $headers);
+        $response = [
+            'clients' => $data
+        ];
+
+        return $this->response($response);
     }
 
     /**
@@ -79,10 +85,13 @@ class ClientApiController extends Controller
         $client = $this->clientRepo->save($request->input());
 
         $client = Client::scope($client->public_id)->with('country', 'contacts', 'industry', 'size', 'currency')->first();
-        $client = Utils::remapPublicIds([$client]);
-        $response = json_encode($client, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders();
 
-        return Response::make($response, 200, $headers);
+        $data = $this->createItem($client, new ClientTransformer(\Auth::user()->account));
+
+        $response = [
+            'client' => $data
+        ];
+
+        return $this->response($response);
     }
 }
