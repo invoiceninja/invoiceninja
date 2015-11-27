@@ -33,7 +33,14 @@ if (!array_key_exists('HTTP_X_CODECEPTION_CODECOVERAGE', $_SERVER)) {
 if (!function_exists('__c3_error')) {
     function __c3_error($message)
     {
-        file_put_contents(C3_CODECOVERAGE_MEDIATE_STORAGE . DIRECTORY_SEPARATOR . 'error.txt', $message);
+        $errorLogFile = defined('C3_CODECOVERAGE_ERROR_LOG_FILE') ?
+            C3_CODECOVERAGE_ERROR_LOG_FILE :
+            C3_CODECOVERAGE_MEDIATE_STORAGE . DIRECTORY_SEPARATOR . 'error.txt';
+        if (is_writable($errorLogFile)) {
+            file_put_contents($errorLogFile, $message);
+        }else{
+            $message = "Could not write error to log file ($errorLogFile), original message: $message";
+        }
         if (!headers_sent()) {
             header('X-Codeception-CodeCoverage-Error: ' . str_replace("\n", ' ', $message), true, 500);
         }
@@ -43,10 +50,14 @@ if (!function_exists('__c3_error')) {
 
 // Autoload Codeception classes
 if (!class_exists('\\Codeception\\Codecept')) {
-    if (stream_resolve_include_path(__DIR__ . '/vendor/autoload.php')) {
-        require_once __DIR__ . '/vendor/autoload.php';
-    } elseif (file_exists(__DIR__ . '/codecept.phar')) {
+    if (file_exists(__DIR__ . '/codecept.phar')) {
         require_once 'phar://'.__DIR__ . '/codecept.phar/autoload.php';
+    } elseif (stream_resolve_include_path(__DIR__ . '/vendor/autoload.php')) {
+        require_once __DIR__ . '/vendor/autoload.php';
+        // Required to load some methods only available at codeception/autoload.php
+        if (stream_resolve_include_path(__DIR__ . '/vendor/codeception/codeception/autoload.php')) {
+            require_once __DIR__ . '/vendor/codeception/codeception/autoload.php';
+        }
     } elseif (stream_resolve_include_path('Codeception/autoload.php')) {
         require_once 'Codeception/autoload.php';
     } else {
@@ -55,11 +66,18 @@ if (!class_exists('\\Codeception\\Codecept')) {
 }
 
 // Load Codeception Config
+$config_dist_file = realpath(__DIR__) . DIRECTORY_SEPARATOR . 'codeception.dist.yml';
 $config_file = realpath(__DIR__) . DIRECTORY_SEPARATOR . 'codeception.yml';
+
 if (isset($_SERVER['HTTP_X_CODECEPTION_CODECOVERAGE_CONFIG'])) {
     $config_file = realpath(__DIR__) . DIRECTORY_SEPARATOR . $_SERVER['HTTP_X_CODECEPTION_CODECOVERAGE_CONFIG'];
 }
-if (!file_exists($config_file)) {
+if (file_exists($config_file)) {
+    // Use codeception.yml for configuration.
+} elseif (file_exists($config_dist_file)) {
+    // Use codeception.dist.yml for configuration.
+    $config_file = $config_dist_file;
+} else {
     __c3_error(sprintf("Codeception config file '%s' not found", $config_file));
 }
 try {

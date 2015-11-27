@@ -66,7 +66,7 @@
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",
 		"phpspec/phpspec": "~2.1",
-        "codeception/codeception": "~2.0",
+        "codeception/codeception": "2.1.2",
         "codeception/c3": "~2.0",
         "fzaninotto/faker": "^1.5"
 	},

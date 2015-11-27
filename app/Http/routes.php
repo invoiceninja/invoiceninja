@@ -199,13 +199,13 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::get('static', 'AccountApiController@getStaticData');
     Route::get('accounts', 'AccountApiController@show');
     Route::resource('clients', 'ClientApiController');
-    Route::get('quotes/{client_id?}', 'QuoteApiController@index');
+    Route::get('quotes', 'QuoteApiController@index');
     Route::resource('quotes', 'QuoteApiController');
-    Route::get('invoices/{client_id?}', 'InvoiceApiController@index');
+    Route::get('invoices', 'InvoiceApiController@index');
     Route::resource('invoices', 'InvoiceApiController');
-    Route::get('payments/{client_id?}', 'PaymentApiController@index');
+    Route::get('payments', 'PaymentApiController@index');
     Route::resource('payments', 'PaymentApiController');
-    Route::get('tasks/{client_id?}', 'TaskApiController@index');
+    Route::get('tasks', 'TaskApiController@index');
     Route::resource('tasks', 'TaskApiController');
     Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
@@ -250,7 +250,9 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('RECENTLY_VIEWED', 'RECENTLY_VIEWED');
     define('ENTITY_CLIENT', 'client');
+    define('ENTITY_CONTACT', 'contact');
     define('ENTITY_INVOICE', 'invoice');
+    define('ENTITY_INVOICE_ITEMS', 'invoice_items');
     define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
     define('ENTITY_PAYMENT', 'payment');
     define('ENTITY_CREDIT', 'credit');
@@ -442,6 +444,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
     define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
     define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/single/browser/v1/');
+    //define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/api/browser/v2/');
     define('PHP_DATE_FORMATS', 'http://php.net/manual/en/function.date.php');
     define('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/referral-program/');
 
@@ -492,7 +495,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('USER_STATE_PENDING', 'pending');
     define('USER_STATE_DISABLED', 'disabled');
     define('USER_STATE_ADMIN', 'admin');
-    
+
+    define('API_SERIALIZER_ARRAY', 'array');
+    define('API_SERIALIZER_JSON', 'json');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
@@ -542,7 +547,6 @@ if (!defined('CONTACT_EMAIL')) {
     }
 }
 
-/*
 // Log all SQL queries to laravel.log
 if (Utils::isNinjaDev()) {
     Event::listen('illuminate.query', function($query, $bindings, $time, $name) {
@@ -564,7 +568,6 @@ if (Utils::isNinjaDev()) {
         Log::info($query, $data);
     });
 }
-*/
 
 /*
 if (Auth::check() && Auth::user()->id === 1)

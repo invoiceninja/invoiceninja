@@ -612,7 +612,6 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         $invitation = $this->invitations[0];
         $link = $invitation->getLink();
-
         $curl = curl_init();
         $jsonEncodedData = json_encode([
             'targetUrl' => "{$link}?phantomjs=true",

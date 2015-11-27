@@ -590,18 +590,6 @@ class Utils
         }
     }
 
-
-    public static function remapPublicIds($items)
-    {
-        $return = [];
-        
-        foreach ($items as $item) {
-            $return[] = $item->toPublicArray();
-        }
-
-        return $return;
-    }
-
     public static function hideIds($data, $mapped = false)
     {
         $publicId = null;

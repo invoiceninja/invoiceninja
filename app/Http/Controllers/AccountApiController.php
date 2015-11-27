@@ -51,26 +51,21 @@ class AccountApiController extends BaseAPIController
         $this->accountRepo->createTokens($user, $request->token_name);
         
         $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
-        $data = $this->createCollection($users, new UserAccountTransformer($user->account, $request->token_name));
+        $transformer = new UserAccountTransformer($user->account, $request->serializer, $request->token_name);
+        $data = $this->createCollection($users, $transformer, 'user_account');
 
-        $response = [
-            'user_accounts' => $data
-        ];
-
-        return $this->response($response);
+        return $this->response($data);
     }
 
-    public function show()
+    public function show(Request $request)
     {
         $account = Auth::user()->account;
         $account->loadAllData();
         
-        $account = $this->createItem($account, new AccountTransformer);
-        $response = [
-            'account' => $account
-        ];
+        $transformer = new AccountTransformer(null, $request->serializer);
+        $account = $this->createItem($account, $transformer, 'account');
 
-        return $this->response($response);
+        return $this->response($account);
     }
 
     public function getStaticData()

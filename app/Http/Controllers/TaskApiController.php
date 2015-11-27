@@ -1,17 +1,22 @@
 <?php namespace App\Http\Controllers;
 
+use Auth;
 use Utils;
 use Response;
 use Input;
 use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
+use App\Http\Controllers\BaseAPIController;
+use App\Ninja\Transformers\TaskTransformer;
 
-class TaskApiController extends Controller
+class TaskApiController extends BaseAPIController
 {
     protected $taskRepo;
 
     public function __construct(TaskRepository $taskRepo)
     {
+        parent::__construct();
+
         $this->taskRepo = $taskRepo;
     }
 
@@ -31,23 +36,27 @@ class TaskApiController extends Controller
      *   )
      * )
      */
-    public function index($clientPublicId = false)
+    public function index()
     {
-        $tasks = Task::scope()->with('client');
+        $paginator = Task::scope();
+        $tasks = Task::scope()
+                    ->with($this->getIncluded());
 
-        if ($clientPublicId) {
-            $tasks->whereHas('client', function($query) use ($clientPublicId) {
+        if ($clientPublicId = Input::get('client_id')) {
+            $filter = function($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
-            });
+            };
+            $tasks->whereHas('client', $filter);
+            $paginator->whereHas('client', $filter);
         }
         
-        $tasks = $tasks->orderBy('created_at', 'desc')->get();
-        $tasks = Utils::remapPublicIds($tasks);
+        $tasks = $tasks->orderBy('created_at', 'desc')->paginate();
+        $paginator = $paginator->paginate();
+        $transformer = new TaskTransformer(\Auth::user()->account, Input::get('serializer'));
 
-        $response = json_encode($tasks, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders(count($tasks));
+        $data = $this->createCollection($tasks, $transformer, 'tasks', $paginator);
 
-        return Response::make($response, 200, $headers);
+        return $this->response($data);
     }
 
     /**
@@ -82,12 +91,11 @@ class TaskApiController extends Controller
         
         $task = $this->taskRepo->save($taskId, $data);
         $task = Task::scope($task->public_id)->with('client')->first();
-        $task = Utils::remapPublicIds([$task]);
 
-        $response = json_encode($task, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders();
+        $transformer = new TaskTransformer(Auth::user()->account, Input::get('serializer'));
+        $data = $this->createItem($task, $transformer, 'task');
 
-        return Response::make($response, 200, $headers);
+        return $this->response($data);
     }
 
 }

@@ -391,11 +391,11 @@ class PaymentController extends BaseController
             // check if we're creating/using a billing token
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
                 if ($useToken) {
-                    $details['cardReference'] = $client->getGatewayToken();
+                    $details['customerReference'] = $client->getGatewayToken();
                 } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing')) {
                     $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id);
                     if ($token) {
-                        $details['cardReference'] = $token;
+                        $details['customerReference'] = $token;
                     } else {
                         $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
                         return Redirect::to('payment/'.$invitationKey)->withInput();

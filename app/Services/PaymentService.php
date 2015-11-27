@@ -159,7 +159,7 @@ class PaymentService extends BaseService
     public function createToken($gateway, $details, $accountGateway, $client, $contactId)
     {
         $tokenResponse = $gateway->createCard($details)->send();
-        $cardReference = $tokenResponse->getCardReference();
+        $cardReference = $tokenResponse->getCustomerReference();
 
         if ($cardReference) {
             $token = AccountGatewayToken::where('client_id', '=', $client->id)
@@ -237,7 +237,7 @@ class PaymentService extends BaseService
         // setup the gateway/payment info
         $gateway = $this->createGateway($accountGateway);
         $details = $this->getPaymentDetails($invitation, $accountGateway);
-        $details['cardReference'] = $token;
+        $details['customerReference'] = $token;
 
         // submit purchase/get response
         $response = $gateway->purchase($details)->send();

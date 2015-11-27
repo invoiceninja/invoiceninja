@@ -3,10 +3,11 @@
 use Utils;
 use Response;
 use Input;
+use Auth;
 use App\Models\Client;
-use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Repositories\ClientRepository;
 use App\Http\Requests\CreateClientRequest;
+use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Transformers\ClientTransformer;
 
 class ClientApiController extends BaseAPIController
@@ -46,17 +47,16 @@ class ClientApiController extends BaseAPIController
     public function index()
     {
         $clients = Client::scope()
-                    ->with('country', 'contacts', 'industry', 'size', 'currency')
+                    ->with($this->getIncluded())
                     ->orderBy('created_at', 'desc')
-                    ->get();
+                    ->paginate();
 
-        $data = $this->createCollection($clients, new ClientTransformer(\Auth::user()->account));
+        $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
+        $paginator = Client::scope()->paginate();
 
-        $response = [
-            'clients' => $data
-        ];
+        $data = $this->createCollection($clients, $transformer, ENTITY_CLIENT, $paginator);
 
-        return $this->response($response);
+        return $this->response($data);
     }
 
     /**
@@ -83,15 +83,14 @@ class ClientApiController extends BaseAPIController
     public function store(CreateClientRequest $request)
     {
         $client = $this->clientRepo->save($request->input());
+        
+        $client = Client::scope($client->public_id)
+                    ->with('country', 'contacts', 'industry', 'size', 'currency')
+                    ->first();
 
-        $client = Client::scope($client->public_id)->with('country', 'contacts', 'industry', 'size', 'currency')->first();
+        $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
+        $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
 
-        $data = $this->createItem($client, new ClientTransformer(\Auth::user()->account));
-
-        $response = [
-            'client' => $data
-        ];
-
-        return $this->response($response);
+        return $this->response($data);
     }
 }
