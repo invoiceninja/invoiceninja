@@ -27,6 +27,8 @@ class OnlinePaymentCest
 
         $userAccount = $userAccounts[0];
         $this->token = $userAccount->token;
+
+        Debug::debug("Token: {$this->token}");
     }
 
     public function testAPI(AcceptanceTester $I)

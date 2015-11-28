@@ -304,11 +304,13 @@ class Account extends Eloquent
     {
         $invoice = Invoice::createNew();
 
+        $invoice->is_recurring = false;
+        $invoice->is_quote = false;
         $invoice->invoice_date = Utils::today();
         $invoice->start_date = Utils::today();
         $invoice->invoice_design_id = $this->invoice_design_id;
         $invoice->client_id = $clientId;
-           
+        
         if ($entityType === ENTITY_RECURRING_INVOICE) {
             $invoice->invoice_number = microtime(true);
             $invoice->is_recurring = true;
