@@ -613,19 +613,27 @@ class Invoice extends EntityModel implements BalanceAffecting
         $invitation = $this->invitations[0];
         $link = $invitation->getLink();
         $curl = curl_init();
+
         $jsonEncodedData = json_encode([
-            'targetUrl' => "{$link}?phantomjs=true",
-            'requestType' => 'raw',
+            'url' => "{$link}?phantomjs=true",
+            'renderType' => 'html',
+            'outputAsJson' => false,
+            'renderSettings' => [
+                'passThroughHeaders' => true,
+            ],
             'delayTime' => 1000,
         ]);
 
         $opts = [
-            CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY'),
+            CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY') . '/',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => $jsonEncodedData,
-            CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
+            CURLOPT_HTTPHEADER  => [
+                'Content-Type: application/json',
+                'Content-Length: '.strlen($jsonEncodedData)
+            ],
         ];
 
         curl_setopt_array($curl, $opts);

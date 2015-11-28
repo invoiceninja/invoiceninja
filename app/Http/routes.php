@@ -443,8 +443,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja');
     define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
     define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
-    define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/single/browser/v1/');
-    //define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/api/browser/v2/');
+    define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/api/browser/v2/');
     define('PHP_DATE_FORMATS', 'http://php.net/manual/en/function.date.php');
     define('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/referral-program/');
 
@@ -548,6 +547,7 @@ if (!defined('CONTACT_EMAIL')) {
 }
 
 // Log all SQL queries to laravel.log
+/*
 if (Utils::isNinjaDev()) {
     Event::listen('illuminate.query', function($query, $bindings, $time, $name) {
         $data = compact('bindings', 'time', 'name');
@@ -568,6 +568,7 @@ if (Utils::isNinjaDev()) {
         Log::info($query, $data);
     });
 }
+*/
 
 /*
 if (Auth::check() && Auth::user()->id === 1)
@@ -575,3 +576,6 @@ if (Auth::check() && Auth::user()->id === 1)
   Auth::loginUsingId(1);
 }
 */
+
+
+
