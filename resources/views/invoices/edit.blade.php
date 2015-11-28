@@ -218,7 +218,7 @@
 					<div class="line-total" data-bind="text: totals.total"></div>
 				</td>
 				<td style="cursor:pointer" class="hide-border td-icon">
-                    <i style="display:none;padding-left:4px" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; 
+                    <i style="padding-left:2px" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; 
                     $index() < ($parent.invoice_items().length - 1) &amp;&amp;
                     $parent.invoice_items().length > 1" class="fa fa-minus-circle redlink" title="Remove item"/>
 				</td>
