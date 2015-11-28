@@ -168,8 +168,10 @@ NINJA.decodeJavascript = function(invoice, javascript)
             if (match.indexOf('?') < 0 || value) {
                 if (invoice.partial && field == 'balance_due') {
                     field = 'amount_due';
+                } else if (invoice.is_quote && field == 'your_invoice') {
+                    field = 'your_quote';
                 }
-                var label = invoiceLabels[field];            
+                var label = invoiceLabels[field];
                 if (match.indexOf('UC') >= 0) {
                     label = label.toUpperCase();
                 }
