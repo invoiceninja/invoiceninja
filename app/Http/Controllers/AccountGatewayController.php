@@ -236,6 +236,13 @@ class AccountGatewayController extends BaseController
                 }
             }
 
+            $publishableKey = Input::get('publishable_key');
+            if ($publishableKey = str_replace('*', '', $publishableKey)) {
+                $config->publishableKey = $publishableKey;
+            } elseif ($oldConfig && property_exists($oldConfig, 'publishableKey')) {
+                $config->publishableKey = $oldConfig->publishableKey;
+            }
+
             $cardCount = 0;
             if ($creditcards) {
                 foreach ($creditcards as $card => $value) {

@@ -447,7 +447,6 @@ return array(
   'gateway_help_1' => ':link för att registrera dig på Authorize.net.',
   'gateway_help_2' => ':link för att registrera dig på Authorize.net.',
   'gateway_help_17' => ':link för att hämta din PayPal API-nyckel.',
-  'gateway_help_23' => 'Observera: använd din hemliga API-nyckel, inte den publika.',
   'gateway_help_27' => ':link för att registrera dig för TwoCheckout.',
 
   'more_designs' => 'Fler fakturalayouter',

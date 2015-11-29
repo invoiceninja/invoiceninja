@@ -443,7 +443,6 @@ return array(
   'gateway_help_1' => ':link om in te schrijven voor Authorize.net.',
   'gateway_help_2' => ':link om in te schrijven voor Authorize.net.',
   'gateway_help_17' => ':link om uw PayPal API signature te krijgen.',
-  'gateway_help_23' => 'Opmerking: gebruik uw gehieme API key, niet uw publiceerbare API key.',
   'gateway_help_27' => ':link om in te schrijven voor TwoCheckout.',
 
   'more_designs' => 'Meer ontwerpen',

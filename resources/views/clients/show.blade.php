@@ -322,7 +322,7 @@
           if (!loadedTabs.hasOwnProperty(target)) {
             loadedTabs[target] = true;
             window['load_' + target]();
-            if (target == 'invoices') {
+            if (target == 'invoices' && window.hasOwnProperty('load_recurring_invoices')) {
                 window['load_recurring_invoices']();
             }
           }

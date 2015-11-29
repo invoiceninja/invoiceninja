@@ -45,6 +45,14 @@ class HandleUserLoggedIn {
         Session::put(SESSION_USER_ACCOUNTS, $users);
 
         $account->loadLocalizationSettings();
+
+        // if they're using Stripe make sure they're using Stripe.js 
+        $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
+        if ($accountGateway && ! $accountGateway->getPublishableStripeKey()) {
+            Session::flash('warning', trans('texts.missing_publishable_key'));
+        } elseif ($account->isLogoTooLarge()) {
+            Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
+        }
 	}
 
 }

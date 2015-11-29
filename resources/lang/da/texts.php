@@ -447,7 +447,6 @@
   'gateway_help_1' => ':link til at registrere dig hos Authorize.net.',
   'gateway_help_2' => ':link til at registrere dig hos Authorize.net.',
   'gateway_help_17' => ':link til at hente din PayPal API signatur.',
-  'gateway_help_23' => 'Note: brug din hemmelige API nøgle, IKKE din publicerede API nøgle.',
   'gateway_help_27' => ':link til at registrere dig hos TwoCheckout.',
 
   'more_designs' => 'Flere designs',

@@ -447,7 +447,6 @@ return array(
     'gateway_help_1' => ':link for å lage en konto for Authorize.net.',
     'gateway_help_2' => ':link for å lage en konto for Authorize.net.',
     'gateway_help_17' => ':link for å få din PayPal API signatur.',
-    'gateway_help_23' => 'Info: bruk din hemmelige API nøkkel, ikke din offentlige API nøkkel.',
     'gateway_help_27' => ':link for å lage en konto for TwoCheckout.',
 
     'more_designs' => 'Flere design',

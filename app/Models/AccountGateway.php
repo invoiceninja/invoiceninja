@@ -57,5 +57,25 @@ class AccountGateway extends EntityModel
     {
         return json_decode(Crypt::decrypt($this->config));
     }
+
+    public function getConfigField($field)
+    {
+        $config = $this->getConfig();
+
+        if (!$field || !property_exists($config, $field)) {
+            return false;
+        }
+
+        return $config->$field;
+    }
+
+    public function getPublishableStripeKey()
+    {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
+            return false;
+        }
+
+        return $this->getConfigField('publishableKey');
+    }
 }
 

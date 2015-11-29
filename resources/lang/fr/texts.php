@@ -441,7 +441,6 @@ return array(
   'gateway_help_1' => ':link to sign up for Authorize.net.',
   'gateway_help_2' => ':link to sign up for Authorize.net.',
   'gateway_help_17' => ':link pour obtenir votre signature PayPal API.',
-  'gateway_help_23' => 'Note: uutilisez votre Secret API et non votre clé publiable.',
   'gateway_help_27' => ':link pour vous enregistrer sur TwoCheckout.',
 
   'more_designs' => 'Plus de modèles',

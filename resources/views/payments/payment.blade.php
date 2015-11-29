@@ -3,147 +3,66 @@
 @section('head')
     @parent
 
-    <!--
-    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-    -->
+    @if ($accountGateway->getPublishableStripeKey())
+        <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+        <script type="text/javascript">
+            Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
+            $(function() {
+              $('.payment-form').submit(function(event) {
+                var $form = $(this);
+
+                // Disable the submit button to prevent repeated clicks
+                $form.find('button').prop('disabled', true);
+
+                Stripe.card.createToken($form, stripeResponseHandler);
+
+                // Prevent the form from submitting with the default action
+                return false;
+              });
+            });
+
+            function stripeResponseHandler(status, response) {
+                var $form = $('.payment-form');
+
+                if (response.error) {
+                    // Show the errors on the form
+                    var error = response.error.message;
+                    $form.find('button').prop('disabled', false);
+                    $('#js-error-message').html(error).fadeIn();
+                } else {
+                    // response contains id and card, which contains additional card details
+                    var token = response.id;
+                    // Insert the token into the form so it gets submitted to the server
+                    $form.append($('<input type="hidden" name="stripeToken"/>').val(token));
+                    // and submit
+                    $form.get(0).submit();
+                }
+            };
+        </script>
+    @else
+        <script type="text/javascript">
+            $(function() {
+              $('.payment-form').submit(function(event) {
+                var $form = $(this);
+
+                // Disable the submit button to prevent repeated clicks
+                $form.find('button').prop('disabled', true);
+
+                return true;
+              });
+            });
+        </script>
+    @endif
     
 @stop
 
 @section('content')
 
-<style type="text/css">
-
-body {
-    background-color: #f8f8f8;
-    color: #1b1a1a;
-}
-
-.panel-body {
-    padding-bottom: 50px;
-}
-
-
-.container input[type=text],
-.container input[type=email],
-.container select {
-    font-weight: 300;
-    font-family: 'Roboto', sans-serif;
-    width: 100%;
-    padding: 11px;
-    color: #8c8c8c;
-    background: #f9f9f9;
-    border: 1px solid #ebe7e7;
-    border-radius: 3px;
-    font-size: 16px;
-    min-height: 42px !important;
-    font-weight: 400;
-}
-
-div.col-md-3,
-div.col-md-5,
-div.col-md-6,
-div.col-md-7,
-div.col-md-9,
-div.col-md-12 {
-    margin: 6px 0 6px 0;
-}
-
-span.dropdown-toggle {
-    border-color: #ebe7e7;
-}
-
-.dropdown-toggle {
-    margin: 0px !important;
-}
-
-.container input[placeholder],
-.container select[placeholder] {
-   color: #444444;
-}
-
-div.row {
-    padding-top: 8px;
-}
-
-header {
-    margin: 0px !important
-}
-    
-@media screen and (min-width: 700px) {
-    header {
-        margin: 20px 0 75px;
-        float: left;
-    }
-
-    .panel-body {
-        padding-left: 150px;
-        padding-right: 150px;
-    }
-
-}
-
-h2 {
-    font-weight: 300;
-    font-size: 30px;
-    color: #2e2b2b;
-    line-height: 1;
-}
-
-h3 {
-    font-weight: 900;
-    margin-top: 10px;
-    font-size: 15px;
-}
-
-h3 .help {
-    font-style: italic;
-    font-weight: normal;
-    color: #888888;
-}
-
-header h3 {
-    text-transform: uppercase;    
-}
-    
-header h3 span {
-    display: inline-block;
-    margin-left: 8px;
-}
-    
-header h3 em {
-    font-style: normal;
-    color: #eb8039;
-}
-
-
-
-.secure {
-    text-align: right;
-    float: right;
-    background: url({{ asset('/images/icon-shield.png') }}) right 22px no-repeat;
-    padding: 17px 55px 10px 0;
-    }
-    
-.secure h3 {
-    color: #36b855;
-    font-size: 30px;
-    margin-bottom: 8px;
-    margin-top: 0px;
-    }
-    
-.secure div {
-    color: #acacac;
-    font-size: 15px;
-    font-weight: 900;
-    text-transform: uppercase;
-}
-
-
-
-</style>
+@include('payments.payment_css')
 
 {!! Former::vertical_open($url)
         ->autocomplete('on')
+        ->addClass('payment-form')
         ->rules(array(
             'first_name' => 'required',
             'last_name' => 'required',   
@@ -171,6 +90,8 @@ header h3 em {
 
 <div class="container">
 <p>&nbsp;</p>
+
+<div id="js-error-message" style="display:none" class="alert alert-danger"></div>
 
 <div class="panel panel-default">
   <div class="panel-body">
@@ -279,14 +200,14 @@ header h3 em {
         <h3>{{ trans('texts.billing_method') }}</h3>
         <div class="row">
             <div class="col-md-9">
-                {!! Former::text($gateway->isGateway(GATEWAY_STRIPE) ? 'card_number' : 'card_number')
+                {!! Former::text($accountGateway->getPublishableStripeKey() ? '' : 'card_number')
                         ->placeholder(trans('texts.card_number'))
                         ->autocomplete('cc-number')
                         ->data_stripe('number')
                         ->label('') !!}
             </div>
             <div class="col-md-3">
-                {!! Former::text($gateway->isGateway(GATEWAY_STRIPE) ? 'cvv' : 'cvv')
+                {!! Former::text($accountGateway->getPublishableStripeKey() ? '' : 'cvv')
                         ->placeholder(trans('texts.cvv'))
                         ->autocomplete('off')
                         ->data_stripe('cvc')
@@ -295,7 +216,7 @@ header h3 em {
         </div>
         <div class="row">
             <div class="col-md-6">
-                {!! Former::select($gateway->isGateway(GATEWAY_STRIPE) ? 'expiration_month' : 'expiration_month')
+                {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_month')
                         ->autocomplete('cc-exp-month')
                         ->data_stripe('exp-month')
                         ->placeholder(trans('texts.expiration_month'))
@@ -314,7 +235,7 @@ header h3 em {
                         !!}
             </div>
             <div class="col-md-6">
-                {!! Former::select($gateway->isGateway(GATEWAY_STRIPE) ? 'expiration_year' : 'expiration_year')
+                {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_year')
                         ->autocomplete('cc-exp-year')
                         ->data_stripe('exp-year')
                         ->placeholder(trans('texts.expiration_year'))
@@ -336,15 +257,15 @@ header h3 em {
 
         <div class="row" style="padding-top:18px">
             <div class="col-md-5">
-                @if ($client && $account->showTokenCheckbox())        
+                @if ($client && $account->showTokenCheckbox())
                     <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
                     <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
                     <span class="help-block" style="font-size:15px">{!! trans('texts.token_billing_secure', ['stripe_link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}</span>
-                @endif                    
+                @endif
             </div>  
 
-            <div class="col-md-7">            
-            @if (isset($acceptedCreditCardTypes))                
+            <div class="col-md-7">
+            @if (isset($acceptedCreditCardTypes))
                 <div class="pull-right">
                     @foreach ($acceptedCreditCardTypes as $card)
                     <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}" style="width: 70px; display: inline; margin-right: 6px;"/>

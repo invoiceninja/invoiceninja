@@ -6,6 +6,7 @@ use Session;
 use DateTime;
 use Event;
 use App;
+use File;
 use App\Events\UserSettingsChanged;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -579,6 +580,21 @@ class Account extends Eloquent
         } else {
             return $this->pro_plan_paid == NINJA_DATE;
         }
+    }
+
+    public function getLogoSize()
+    {
+        if (!$this->hasLogo()) {
+            return 0;
+        }
+
+        $filename = $this->getLogoPath();
+        return round(File::size($filename) / 1000);
+    }
+
+    public function isLogoTooLarge()
+    {
+        return $this->getLogoSize() > MAX_LOGO_FILE_SIZE;
     }
 
     public function getSubscription($eventId)

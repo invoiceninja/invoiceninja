@@ -441,7 +441,6 @@ return array(
   'gateway_help_1' => ':link para acessar Authorize.net.',
   'gateway_help_2' => ':link para acessar Authorize.net.',
   'gateway_help_17' => ':link para adquirir sua "PayPal API signature".',
-  'gateway_help_23' => 'Aviso: use sua "Secret API Key", não a "Publishable API Key".',
   'gateway_help_27' => ':link para acessar TwoCheckout.',
 
   'more_designs' => 'Mais Modelos',

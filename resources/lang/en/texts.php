@@ -450,7 +450,6 @@ return array(
     'gateway_help_1' => ':link to sign up for Authorize.net.',
     'gateway_help_2' => ':link to sign up for Authorize.net.',
     'gateway_help_17' => ':link to get your PayPal API signature.',
-    'gateway_help_23' => 'Note: use your secret API key, not your publishable API key.',
     'gateway_help_27' => ':link to sign up for TwoCheckout.',
 
     'more_designs' => 'More designs',
@@ -921,7 +920,7 @@ return array(
     'country' => 'Country',
     'include' => 'Include',
 
-    'logo_too_large' => 'Your logo is :size, for better performance we suggest uploading an image file less than 200KB',
+    'logo_too_large' => 'Your logo is :size, for better PDF performance we suggest uploading an image file less than 200KB',
     'import_freshbooks' => 'Import From FreshBooks',
     'import_data' => 'Import Data',
     'source' => 'Source',
@@ -949,5 +948,10 @@ return array(
     'invoice_will_create' => 'client will be created',
     'invoices_will_create' => 'invoices will be created',
     'failed_to_import' => 'The following records failed to import',
+
+    'publishable_key' => 'Publishable Key',
+    'secret_key' => 'Secret Key',
+    'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
+
 
 );

@@ -438,7 +438,6 @@ return array(
   'gateway_help_1' => ':link para registrarse en Authorize.net.',
   'gateway_help_2' => ':link para registrarse en Authorize.net.',
   'gateway_help_17' => ':link para obtener su firma API de PayPal.',
-  'gateway_help_23' => 'Nota: utilizar su clave de API secreta, no es su clave de API publica.',
   'gateway_help_27' => ':link para registrarse en TwoCheckout.',
 
   'more_designs' => 'Más diseños',

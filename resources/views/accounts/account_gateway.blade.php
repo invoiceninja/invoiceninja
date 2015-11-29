@@ -19,8 +19,9 @@
         {!! Former::populateField('gateway_id', $accountGateway->gateway_id) !!}
         {!! Former::populateField('payment_type_id', $paymentTypeId) !!}
         {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}
-        {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}        
+        {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
+        {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
 
         @if ($config)
             @foreach ($accountGateway->fields as $field => $junk)
@@ -63,7 +64,7 @@
                 @elseif ($field == 'username' || $field == 'password') 
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
                 @else
-                    {!! Former::text($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field)) !!} 
+                    {!! Former::text($gateway->id.'_'.$field)->label($gateway->id == GATEWAY_STRIPE ? trans('texts.secret_key') : Utils::toSpaceCase($field)) !!} 
                 @endif
 
             @endforeach
@@ -78,6 +79,8 @@
             @endif
 
             @if ($gateway->id == GATEWAY_STRIPE)
+                {!! Former::text('publishable_key') !!}
+
                 {!! Former::select('token_billing_type_id')
                         ->options($tokenBillingOptions)
                         ->help(trans('texts.token_billing_help')) !!}

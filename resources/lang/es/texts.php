@@ -420,7 +420,6 @@ return array(
    'gateway_help_1' => ':link para registrarse con Authorize.net.',
    'gateway_help_2' => ':link para registrarse con Authorize.net.',
    'gateway_help_17' => ':link para obtener su firma del API de PayPal.',
-   'gateway_help_23' => 'Nota: use use llave secreta del API, no la llave pública.',
    'gateway_help_27' => ':link para registrarse con TwoCheckout.',
 
    'more_designs' => 'Más diseños',
