@@ -354,7 +354,7 @@ function InvoiceModel(data) {
 
     self.totals.subtotal = ko.computed(function() {
         var total = self.totals.rawSubtotal();
-        return total > 0 ? formatMoney(total, self.client().currency_id()) : '';
+        return formatMoney(total, self.client().currency_id());
     });
 
     self.totals.rawDiscounted = ko.computed(function() {

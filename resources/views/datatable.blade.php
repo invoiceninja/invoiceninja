@@ -32,8 +32,17 @@
     </tbody>
 </table>
 <script type="text/javascript">
-    jQuery(document).ready(function(){
-        // dynamic table
+    @if (isset($values['entityType']))
+            window.load_{{ $values['entityType'] }} = function load_{{ $values['entityType'] }}() {
+                load_{{ $class }}();
+            }
+    @else
+        jQuery(document).ready(function(){
+            load_{{ $class }}();
+        });
+    @endif
+
+    function load_{{ $class }}() {
         jQuery('.{{ $class }}').dataTable({
             "fnRowCallback": function(row, data) { 
                 if (data[0].indexOf('ENTITY_DELETED') > 0) {
@@ -49,7 +58,7 @@
             // Disable sorting on the first column
             "aoColumnDefs": [ {
                 'bSortable': false,
-                'aTargets': [ 0, {{ count($columns) - 1 }} ]                
+                'aTargets': [ 0, {{ count($columns) - 1 }} ]
             } ],
             @endif
             @foreach ($options as $k => $o)
@@ -64,5 +73,5 @@
                 }
             }
         });
-    });
+    }
 </script>

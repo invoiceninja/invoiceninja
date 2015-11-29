@@ -12,7 +12,8 @@ class DatatableService
 
         if ($actions && $showCheckbox) {
             $table->addColumn('checkbox', function ($model) {
-                return '<input type="checkbox" name="ids[]" value="' . $model->public_id . '" ' . Utils::getEntityRowClass($model) . '>';
+                return '<input type="checkbox" name="ids[]" value="' . $model->public_id
+                        . '" ' . Utils::getEntityRowClass($model) . '>';
             });
         }
 
@@ -81,14 +82,17 @@ class DatatableService
                 }
 
                 if ($entityType != ENTITY_USER || $model->public_id) {
-                    $str .= "<li><a href=\"javascript:archiveEntity({$model->public_id})\">" . trans("texts.archive_{$entityType}") . "</a></li>";
+                    $str .= "<li><a href=\"javascript:archiveEntity({$model->public_id})\">"
+                            . trans("texts.archive_{$entityType}") . "</a></li>";
                 }
             } else {
-                $str .= "<li><a href=\"javascript:restoreEntity({$model->public_id})\">" . trans("texts.restore_{$entityType}") . "</a></li>";
+                $str .= "<li><a href=\"javascript:restoreEntity({$model->public_id})\">"
+                        . trans("texts.restore_{$entityType}") . "</a></li>";
             }
 
             if (property_exists($model, 'is_deleted') && !$model->is_deleted) {
-                $str .= "<li><a href=\"javascript:deleteEntity({$model->public_id})\">" . trans("texts.delete_{$entityType}") . "</a></li>";
+                $str .= "<li><a href=\"javascript:deleteEntity({$model->public_id})\">"
+                        . trans("texts.delete_{$entityType}") . "</a></li>";
             }
 
             return $str.'</ul></div>';
