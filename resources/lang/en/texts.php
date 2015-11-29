@@ -673,7 +673,7 @@ return array(
     'counter' => 'Counter',
 
     'payment_type_dwolla' => 'Dwolla',
-    'gateway_help_43' => ':link to sign up for Dwolla.<br/>Note: remove dashes from the Destination/Dwolla Id',
+    'gateway_help_43' => ':link to sign up for Dwolla',
     'partial_value' => 'Must be greater than zero and less than the total',
     'more_actions' => 'More Actions',
 

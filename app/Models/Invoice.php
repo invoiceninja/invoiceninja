@@ -621,7 +621,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'renderSettings' => [
                 'passThroughHeaders' => true,
             ],
-            'delayTime' => 1000,
+            // 'delayTime' => 1000,
         ]);
 
         $opts = [
