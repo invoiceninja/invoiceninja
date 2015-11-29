@@ -138,13 +138,13 @@ class InvoiceRepository extends BaseRepository
 
         if ($isNew) {
             $entityType = ENTITY_INVOICE;
-            if (isset($data['is_recurring']) && $data['is_recurring']) {
+            if (isset($data['is_recurring']) && filter_var($data['is_recurring'], FILTER_VALIDATE_BOOLEAN)) {
                 $entityType = ENTITY_RECURRING_INVOICE;
-            } elseif (isset($data['is_quote']) && $data['is_quote']) {
+            } elseif (isset($data['is_quote']) && filter_var($data['is_quote'], FILTER_VALIDATE_BOOLEAN)) {
                 $entityType = ENTITY_QUOTE;
             }
             $invoice = $account->createInvoice($entityType, $data['client_id']);
-            if (isset($data['has_tasks']) && $data['has_tasks']) {
+            if (isset($data['has_tasks']) && filter_var($data['has_tasks'], FILTER_VALIDATE_BOOLEAN)) {
                 $invoice->has_tasks = true;
             }
         } else {

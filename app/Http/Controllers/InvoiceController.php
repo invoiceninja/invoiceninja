@@ -326,7 +326,7 @@ class InvoiceController extends BaseController
         if ($clientPublicId) {
             $clientId = Client::getPrivateId($clientPublicId);
         }
-
+        
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
         
