@@ -232,6 +232,13 @@ class Utils
         return floatval($value);
     }
 
+    public static function parseInt($value)
+    {
+        $value = preg_replace('/[^0-9]/', '', $value);
+
+        return intval($value);
+    }
+
     public static function formatMoney($value, $currencyId = false, $showSymbol = true)
     {
         if (!$currencyId) {

@@ -443,7 +443,14 @@ class Account extends Eloquent
         if ($invoice->is_quote && !$this->share_counter) {
             $this->quote_number_counter += 1;
         } else {
-            $this->invoice_number_counter += 1;
+            $default = $this->invoice_number_counter;
+            $actual = Utils::parseInt($invoice->invoice_number);
+
+            if ( ! $this->isPro() && $default != $actual) {
+                $this->invoice_number_counter = $actual + 1;
+            } else {
+                $this->invoice_number_counter += 1;
+            }
         }
         
         $this->save();
