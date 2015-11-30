@@ -43,7 +43,15 @@ class TaskController extends BaseController
             'entityType' => ENTITY_TASK,
             'title' => trans('texts.tasks'),
             'sortCol' => '2',
-            'columns' => Utils::trans(['checkbox', 'client', 'date', 'duration', 'description', 'status', '']),
+            'columns' => Utils::trans([
+              'checkbox',
+              'client',
+              'date',
+              'duration',
+              'description',
+              'status',
+              ''
+            ]),
         ));
     }
 
