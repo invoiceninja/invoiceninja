@@ -917,6 +917,29 @@ return array(
     'user_unregistered' => 'Registre sua conta para enviar e-mails',
     'user_unconfirmed' => 'Confirme sua conta para enviar e-mails',
     'invalid_contact_email' => 'E-mail do contato inválido',
-  ]
+  ],
+
+  'import_freshbooks' => 'Import From FreshBooks',
+  'import_data' => 'Import Data',
+  'source' => 'Source',
+  'csv' => 'CSV',
+  'client_file' => 'Client File',
+  'invoice_file' => 'Invoice File',
+  'task_file' => 'Task File',
+  'no_mapper' => 'No valid mapping for file',
+  'invalid_csv_header' => 'Invalid CSV Header',
+
+  'client_portal' => 'Client Portal',
+  'admin' => 'Admin',
+  'disabled' => 'Disabled',
+  'show_archived_users' => 'Show archived users',
+  'notes' => 'Notes',
+  'invoice_will_create' => 'client will be created',
+  'invoices_will_create' => 'invoices will be created',
+  'failed_to_import' => 'The following records failed to import',
+
+  'publishable_key' => 'Publishable Key',
+  'secret_key' => 'Secret Key',
+  'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
     
 );

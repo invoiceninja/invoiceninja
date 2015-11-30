@@ -4,7 +4,7 @@ use Codeception\Util\Fixtures;
 use Faker\Factory;
 use Codeception\Util\Debug;
 
-class OnlinePaymentCest
+class APICest
 {
     private $faker;
     private $token;

@@ -327,9 +327,9 @@
             }
           }
         });
-        var tab = localStorage.getItem('client_tab').replace('#', '');
+        var tab = localStorage.getItem('client_tab');
         if (tab) {
-            $('.nav-tabs a[href="#' + tab + '"]').tab('show');
+            $('.nav-tabs a[href="#' + tab.replace('#', '') + '"]').tab('show');
         } else {
             window['load_activity']();
         }
