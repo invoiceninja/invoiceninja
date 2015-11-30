@@ -21,41 +21,56 @@ class ImportController extends BaseController
     public function doImport()
     {
         $source = Input::get('source');
+        $files = [];
+        $skipped = [];
 
-        if ($source === IMPORT_CSV) {
-            $filename = Input::file('client_file')->getRealPath();
-            $data = $this->importService->mapFile($filename);
+        foreach (ImportService::$entityTypes as $entityType) {
+            if (Input::file("{$entityType}_file")) {
+                $files[$entityType] = Input::file("{$entityType}_file")->getRealPath();
+            }
+        }
 
-            return View::make('accounts.import_map', $data);
-        } else {
-            $files = [];
-            foreach (ImportService::$entityTypes as $entityType) {
-                if (Input::file("{$entityType}_file")) {
-                    $files[$entityType] = Input::file("{$entityType}_file")->getRealPath();
+        try {
+            if ($source === IMPORT_CSV) {
+                $data = $this->importService->mapCSV($files);
+                return View::make('accounts.import_map', ['data' => $data]);
+            } else {
+                $skipped = $this->importService->import($source, $files);
+                if (count($skipped)) {
+                    $message = trans('texts.failed_to_import');
+                    foreach ($skipped as $skip) {
+                        $message .= '<br/>' . json_encode($skip);
+                    }
+                    Session::flash('warning', $message);
+                } else {
+                    Session::flash('message', trans('texts.imported_file'));
                 }
             }
-
-            try {
-                $result = $this->importService->import($source, $files);
-                Session::flash('message', trans('texts.imported_file') . ' - ' . $result);
-            } catch (Exception $exception) {
-                Session::flash('error', $exception->getMessage());
-            }
-
-            return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
+        } catch (Exception $exception) {
+            Session::flash('error', $exception->getMessage());
         }
+
+        return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
     }
 
     public function doImportCSV()
     {
         $map = Input::get('map');
-        $hasHeaders = Input::get('header_checkbox');
+        $headers = Input::get('headers');
+        $skipped = [];
 
         try {
-            $count = $this->importService->importCSV($map, $hasHeaders);
-            $message = Utils::pluralize('created_client', $count);
+            $skipped = $this->importService->importCSV($map, $headers);
 
-            Session::flash('message', $message);
+            if (count($skipped)) {
+                $message = trans('texts.failed_to_import');
+                foreach ($skipped as $skip) {
+                    $message .= '<br/>' . json_encode($skip);
+                }
+                Session::flash('warning', $message);
+            } else {
+                Session::flash('message', trans('texts.imported_file'));
+            }
         } catch (Exception $exception) {
             Session::flash('error', $exception->getMessage());
         }

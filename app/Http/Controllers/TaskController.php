@@ -50,7 +50,7 @@ class TaskController extends BaseController
               'duration',
               'description',
               'status',
-              'action'
+              ''
             ]),
         ));
     }

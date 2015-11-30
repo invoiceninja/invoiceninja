@@ -44,7 +44,9 @@ class PaymentService extends BaseService
             }
 
             $function = "set".ucfirst($key);
-            $gateway->$function($val);
+            if (method_exists($gateway, $function)) {
+                $gateway->$function($val);
+            }
         }
 
         if ($accountGateway->isGateway(GATEWAY_DWOLLA)) {
@@ -100,10 +102,10 @@ class PaymentService extends BaseService
         $data = [
             'firstName' => $input['first_name'],
             'lastName' => $input['last_name'],
-            'number' => $input['card_number'],
-            'expiryMonth' => $input['expiration_month'],
-            'expiryYear' => $input['expiration_year'],
-            'cvv' => $input['cvv'],
+            'number' => isset($input['card_number']) ? $input['card_number'] : null,
+            'expiryMonth' => isset($input['expiration_month']) ? $input['expiration_month'] : null,
+            'expiryYear' => isset($input['expiration_year']) ? $input['expiration_year'] : null,
+            'cvv' => isset($input['cvv']) ? $input['cvv'] : '',
         ];
 
         if (isset($input['country_id'])) {
@@ -159,7 +161,7 @@ class PaymentService extends BaseService
     public function createToken($gateway, $details, $accountGateway, $client, $contactId)
     {
         $tokenResponse = $gateway->createCard($details)->send();
-        $cardReference = $tokenResponse->getCardReference();
+        $cardReference = $tokenResponse->getCustomerReference();
 
         if ($cardReference) {
             $token = AccountGatewayToken::where('client_id', '=', $client->id)
@@ -237,7 +239,7 @@ class PaymentService extends BaseService
         // setup the gateway/payment info
         $gateway = $this->createGateway($accountGateway);
         $details = $this->getPaymentDetails($invitation, $accountGateway);
-        $details['cardReference'] = $token;
+        $details['customerReference'] = $token;
 
         // submit purchase/get response
         $response = $gateway->purchase($details)->send();

@@ -1,18 +1,23 @@
 <?php namespace App\Http\Controllers;
 
+use Auth;
 use Input;
 use Utils;
 use Response;
 use App\Models\Payment;
 use App\Models\Invoice;
 use App\Ninja\Repositories\PaymentRepository;
+use App\Http\Controllers\BaseAPIController;
+use App\Ninja\Transformers\PaymentTransformer;
 
-class PaymentApiController extends Controller
+class PaymentApiController extends BaseAPIController
 {
     protected $paymentRepo;
 
     public function __construct(PaymentRepository $paymentRepo)
     {
+        parent::__construct();
+
         $this->paymentRepo = $paymentRepo;
     }
 
@@ -32,26 +37,28 @@ class PaymentApiController extends Controller
      *   )
      * )
      */
-    public function index($clientPublicId = false)
+    public function index()
     {
+        $paginator = Payment::scope();
         $payments = Payment::scope()
-                        ->with('client', 'contact', 'invitation', 'user', 'invoice');
+                        ->with('client.contacts', 'invitation', 'user', 'invoice');
 
-        if ($clientPublicId) {
-            $payments->whereHas('client', function($query) use ($clientPublicId) {
+        if ($clientPublicId = Input::get('client_id')) {
+            $filter = function($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
-            });
+            };
+            $payments->whereHas('client', $filter);
+            $paginator->whereHas('client', $filter);
         }
 
-        $payments = $payments->orderBy('created_at', 'desc')->get();
-        $payments = Utils::remapPublicIds($payments);
+        $payments = $payments->orderBy('created_at', 'desc')->paginate();
+        $paginator = $paginator->paginate();
+        $transformer = new PaymentTransformer(Auth::user()->account, Input::get('serializer'));
         
-        $response = json_encode($payments, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders(count($payments));
+        $data = $this->createCollection($payments, $transformer, 'payments', $paginator);
 
-        return Response::make($response, 200, $headers);
+        return $this->response($data);
     }
-
 
     /**
      * @SWG\Post(
@@ -96,15 +103,17 @@ class PaymentApiController extends Controller
             $data['transaction_reference'] = '';
         }
 
-        if (!$error) {
-            $payment = $this->paymentRepo->save($data);
-            $payment = Payment::scope($payment->public_id)->with('client', 'contact', 'user', 'invoice')->first();
-
-            $payment = Utils::remapPublicIds([$payment]);
+        if ($error) {
+            return $error;
         }
 
-        $response = json_encode($error ?: $payment, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders();
-        return Response::make($response, 200, $headers);
+
+        $payment = $this->paymentRepo->save($data);
+        $payment = Payment::scope($payment->public_id)->with('client', 'contact', 'user', 'invoice')->first();
+
+        $transformer = new PaymentTransformer(Auth::user()->account, Input::get('serializer'));
+        $data = $this->createItem($payment, $transformer, 'payment');
+
+        return $this->response($data);
     }
 }

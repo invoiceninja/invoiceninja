@@ -6,6 +6,7 @@ use Session;
 use DateTime;
 use Event;
 use App;
+use File;
 use App\Events\UserSettingsChanged;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -304,11 +305,13 @@ class Account extends Eloquent
     {
         $invoice = Invoice::createNew();
 
+        $invoice->is_recurring = false;
+        $invoice->is_quote = false;
         $invoice->invoice_date = Utils::today();
         $invoice->start_date = Utils::today();
         $invoice->invoice_design_id = $this->invoice_design_id;
         $invoice->client_id = $clientId;
-           
+        
         if ($entityType === ENTITY_RECURRING_INVOICE) {
             $invoice->invoice_number = microtime(true);
             $invoice->is_recurring = true;
@@ -441,7 +444,14 @@ class Account extends Eloquent
         if ($invoice->is_quote && !$this->share_counter) {
             $this->quote_number_counter += 1;
         } else {
-            $this->invoice_number_counter += 1;
+            $default = $this->invoice_number_counter;
+            $actual = Utils::parseInt($invoice->invoice_number);
+
+            if ( ! $this->isPro() && $default != $actual) {
+                $this->invoice_number_counter = $actual + 1;
+            } else {
+                $this->invoice_number_counter += 1;
+            }
         }
         
         $this->save();
@@ -570,6 +580,21 @@ class Account extends Eloquent
         } else {
             return $this->pro_plan_paid == NINJA_DATE;
         }
+    }
+
+    public function getLogoSize()
+    {
+        if (!$this->hasLogo()) {
+            return 0;
+        }
+
+        $filename = $this->getLogoPath();
+        return round(File::size($filename) / 1000);
+    }
+
+    public function isLogoTooLarge()
+    {
+        return $this->getLogoSize() > MAX_LOGO_FILE_SIZE;
     }
 
     public function getSubscription($eventId)

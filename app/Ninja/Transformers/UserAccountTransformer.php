@@ -14,16 +14,17 @@ class UserAccountTransformer extends EntityTransformer
 
     protected $tokenName;
     
-    public function __construct(Account $account, $tokenName)
+    public function __construct(Account $account, $serializer, $tokenName)
     {
-        parent::__construct($account);
+        parent::__construct($account, $serializer);
 
         $this->tokenName = $tokenName;
     }
 
     public function includeUser(User $user)
     {
-        return $this->item($user, new UserTransformer($this->account));
+        $transformer = new UserTransformer($this->account, $this->serializer);
+        return $this->includeItem($user, $transformer, 'user');
     }
 
     public function transform(User $user)

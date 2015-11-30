@@ -39,15 +39,52 @@ class Client extends EntityModel
         'website',
     ];
 
-    public static $fieldName = 'Client - Name';
-    public static $fieldPhone = 'Client - Phone';
-    public static $fieldAddress1 = 'Client - Street';
-    public static $fieldAddress2 = 'Client - Apt/Floor';
-    public static $fieldCity = 'Client - City';
-    public static $fieldState = 'Client - State';
-    public static $fieldPostalCode = 'Client - Postal Code';
-    public static $fieldNotes = 'Client - Notes';
-    public static $fieldCountry = 'Client - Country';
+    public static $fieldName = 'name';
+    public static $fieldPhone = 'work_phone';
+    public static $fieldAddress1 = 'address1';
+    public static $fieldAddress2 = 'address2';
+    public static $fieldCity = 'city';
+    public static $fieldState = 'state';
+    public static $fieldPostalCode = 'postal_code';
+    public static $fieldNotes = 'notes';
+    public static $fieldCountry = 'country';
+
+    public static function getImportColumns()
+    {
+        return [
+            Client::$fieldName,
+            Client::$fieldPhone,
+            Client::$fieldAddress1,
+            Client::$fieldAddress2,
+            Client::$fieldCity,
+            Client::$fieldState,
+            Client::$fieldPostalCode,
+            Client::$fieldCountry,
+            Client::$fieldNotes,
+            Contact::$fieldFirstName,
+            Contact::$fieldLastName,
+            Contact::$fieldPhone,
+            Contact::$fieldEmail,
+        ];
+    }
+
+    public static function getImportMap()
+    {
+        return [
+            'first' => 'first_name',
+            'last' => 'last_name',
+            'email' => 'email',
+            'mobile|phone' => 'phone',
+            'name|organization' => 'name',
+            'street2|address2' => 'address2',
+            'street|address|address1' => 'address1',
+            'city' => 'city',
+            'state|province' => 'state',
+            'zip|postal|code' => 'postal_code',
+            'country' => 'country',
+            'note' => 'notes',
+        ];
+    }
 
     public function account()
     {

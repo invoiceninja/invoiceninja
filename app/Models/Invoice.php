@@ -5,6 +5,7 @@ use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use App\Models\BalanceAffecting;
+use App\Models\Client;
 use App\Events\QuoteWasCreated;
 use App\Events\QuoteWasUpdated;
 use App\Events\InvoiceWasCreated;
@@ -29,6 +30,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         'auto_bill' => 'boolean',
     ];
 
+    // used for custom invoice numbers
     public static $patternFields = [
         'counter',
         'custom1',
@@ -38,6 +40,40 @@ class Invoice extends EntityModel implements BalanceAffecting
         'date:',
     ];
 
+    public static $fieldInvoiceNumber = 'invoice_number';
+    public static $fieldInvoiceDate = 'invoice_date';
+    public static $fieldDueDate = 'due_date';
+    public static $fieldAmount = 'amount';
+    public static $fieldPaid = 'paid';
+    public static $fieldNotes = 'notes';
+    public static $fieldTerms = 'terms';
+
+    public static function getImportColumns()
+    {
+        return [
+            Client::$fieldName,
+            Invoice::$fieldInvoiceNumber,
+            Invoice::$fieldInvoiceDate,
+            Invoice::$fieldDueDate,
+            Invoice::$fieldAmount,
+            Invoice::$fieldPaid,
+            Invoice::$fieldNotes,
+            Invoice::$fieldTerms,
+        ];
+    }
+
+    public static function getImportMap()
+    {
+        return [
+            'number^po' => 'invoice_number',
+            'amount' => 'amount',
+            'organization' => 'name',
+            'paid^date' => 'paid',
+            'invoice_date|create_date' => 'invoice_date',
+            'terms' => 'terms',
+            'notes' => 'notes',
+        ];
+    }
     public function getRoute()
     {
         $entityType = $this->getEntityType();
@@ -576,21 +612,28 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         $invitation = $this->invitations[0];
         $link = $invitation->getLink();
-
         $curl = curl_init();
+
         $jsonEncodedData = json_encode([
-            'targetUrl' => "{$link}?phantomjs=true",
-            'requestType' => 'raw',
-            'delayTime' => 1000,
+            'url' => "{$link}?phantomjs=true",
+            'renderType' => 'html',
+            'outputAsJson' => false,
+            'renderSettings' => [
+                'passThroughHeaders' => true,
+            ],
+            // 'delayTime' => 1000,
         ]);
 
         $opts = [
-            CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY'),
+            CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY') . '/',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => $jsonEncodedData,
-            CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
+            CURLOPT_HTTPHEADER  => [
+                'Content-Type: application/json',
+                'Content-Length: '.strlen($jsonEncodedData)
+            ],
         ];
 
         curl_setopt_array($curl, $opts);

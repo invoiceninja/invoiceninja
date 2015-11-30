@@ -7,7 +7,7 @@ use App\Models\Product;
 use League\Fractal;
 use League\Fractal\TransformerAbstract;
 
-class AccountTransformer extends TransformerAbstract
+class AccountTransformer extends EntityTransformer
 {
     protected $defaultIncludes = [
         'users',
@@ -19,27 +19,32 @@ class AccountTransformer extends TransformerAbstract
 
     public function includeUsers(Account $account)
     {
-        return $this->collection($account->users, new UserTransformer($account));
+        $transformer = new UserTransformer($account, $this->serializer);
+        return $this->includeCollection($account->users, $transformer, 'users');
     }
 
     public function includeClients(Account $account)
     {
-        return $this->collection($account->clients, new ClientTransformer($account));
+        $transformer = new ClientTransformer($account, $this->serializer);
+        return $this->includeCollection($account->clients, $transformer, 'clients');
     }
 
     public function includeInvoices(Account $account)
     {
-        return $this->collection($account->invoices, new InvoiceTransformer($account));
+        $transformer = new InvoiceTransformer($account, $this->serializer);
+        return $this->includeCollection($account->invoices, $transformer, 'invoices');
     }
 
     public function includeContacts(Account $account)
     {
-        return $this->collection($account->contacts, new ContactTransformer($account));
+        $transformer = new ContactTransformer($account, $this->serializer);
+        return $this->includeCollection($account->contacts, $transformer, 'contacts');
     }
 
     public function includeProducts(Account $account)
     {
-        return $this->collection($account->products, new ProductTransformer($account));
+        $transformer = new ProductTransformer($account, $this->serializer);
+        return $this->includeCollection($account->products, $transformer, 'products');
     }
 
     public function transform(Account $account)

@@ -212,13 +212,8 @@ class AccountController extends BaseController
     {
         // check that logo is less than the max file size
         $account = Auth::user()->account;
-        if ($account->hasLogo()) {
-            $filename = $account->getLogoPath();
-            $bytes = File::size($filename);
-            if ($bytes > MAX_LOGO_FILE_SIZE * 1000) {
-                $bytes /= 1000;
-                Session::flash('warning', trans('texts.logo_too_large', ['size' => round($bytes) . 'KB']));
-            }
+        if ($account->isLogoTooLarge()) {
+            Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
         }
 
         $data = [
@@ -272,6 +267,12 @@ class AccountController extends BaseController
         $account->load('account_gateways');
         $count = count($account->account_gateways);
         
+        if ($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
+            if ( ! $accountGateway->getPublishableStripeKey()) {
+                Session::flash('warning', trans('texts.missing_publishable_key'));
+            }
+        }
+
         if ($count == 0) {
             return Redirect::to('gateways/create');
         } else {

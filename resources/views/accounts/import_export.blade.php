@@ -4,7 +4,6 @@
     @parent
 
     <style type="text/css">
-        .invoice-file,
         .task-file {
             display: none;
         }
@@ -131,15 +130,11 @@
     @endforeach
     @foreach (\App\Services\ImportService::$sources as $source)
         if (val === '{{ $source }}') {
-            @if ($source == IMPORT_CSV)
-                $('.client-file').show();
-            @else
-                @foreach (\App\Services\ImportService::$entityTypes as $entityType)
-                    @if (class_exists(\App\Services\ImportService::getTransformerClassName($source, $entityType)))
-                        $('.{{ $entityType }}-file').show();
-                    @endif
-                @endforeach
-            @endif
+            @foreach (\App\Services\ImportService::$entityTypes as $entityType)
+                @if (class_exists(\App\Services\ImportService::getTransformerClassName($source, $entityType)))
+                    $('.{{ $entityType }}-file').show();
+                @endif
+            @endforeach
         }
     @endforeach
   }

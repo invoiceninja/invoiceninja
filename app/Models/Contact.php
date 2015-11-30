@@ -17,10 +17,10 @@ class Contact extends EntityModel
         'send_invoice',
     ];
 
-    public static $fieldFirstName = 'Contact - First Name';
-    public static $fieldLastName = 'Contact - Last Name';
-    public static $fieldEmail = 'Contact - Email';
-    public static $fieldPhone = 'Contact - Phone';
+    public static $fieldFirstName = 'first_name';
+    public static $fieldLastName = 'last_name';
+    public static $fieldEmail = 'email';
+    public static $fieldPhone = 'phone';
 
     public function account()
     {

@@ -186,6 +186,7 @@
 		    		trans('texts.balance'),
 		    		trans('texts.adjustment'))
 		    	->setUrl(url('api/activities/'. $client->public_id))
+                ->setCustomValues('entityType', 'activity')
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
@@ -203,6 +204,7 @@
                     trans('texts.description'),
                     trans('texts.status'))
                 ->setUrl(url('api/tasks/'. $client->public_id))
+                ->setCustomValues('entityType', 'tasks')
                 ->setOptions('sPaginationType', 'bootstrap')
                 ->setOptions('bFilter', false)
                 ->setOptions('aaSorting', [['0', 'desc']])
@@ -223,6 +225,7 @@
 	    			trans('texts.valid_until'),
 	    			trans('texts.status'))
 		    	->setUrl(url('api/quotes/'. $client->public_id))
+                ->setCustomValues('entityType', 'quotes')
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
@@ -241,6 +244,7 @@
 			    		trans('texts.end_date'),
 			    		trans('texts.invoice_total'))
 			    	->setUrl(url('api/recurring_invoices/' . $client->public_id))
+                    ->setCustomValues('entityType', 'recurring_invoices')
 			    	->setOptions('sPaginationType', 'bootstrap')
 			    	->setOptions('bFilter', false)
 			    	->setOptions('aaSorting', [['0', 'asc']])
@@ -256,6 +260,7 @@
 		    			trans('texts.due_date'),
 		    			trans('texts.status'))
 		    	->setUrl(url('api/invoices/' . $client->public_id))
+                ->setCustomValues('entityType', 'invoices')
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
@@ -272,6 +277,7 @@
 			    			trans('texts.payment_amount'),
 			    			trans('texts.payment_date'))
 				->setUrl(url('api/payments/' . $client->public_id))
+                ->setCustomValues('entityType', 'payments')
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->setOptions('aaSorting', [['0', 'desc']])
@@ -287,6 +293,7 @@
 								trans('texts.credit_date'),
 								trans('texts.private_notes'))
 				->setUrl(url('api/credits/' . $client->public_id))
+                ->setCustomValues('entityType', 'credits')
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->setOptions('aaSorting', [['0', 'asc']])
@@ -297,6 +304,8 @@
 
 	<script type="text/javascript">
 
+    var loadedTabs = {};
+
 	$(function() {
 		$('.normalDropDown:not(.dropdown-toggle)').click(function() {
 			window.location = '{{ URL::to('clients/' . $client->public_id . '/edit') }}';
@@ -305,13 +314,24 @@
 			window.location = '{{ URL::to('invoices/create/' . $client->public_id ) }}';
 		});
 
+        // load datatable data when tab is shown and remember last tab selected
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
           var target = $(e.target).attr("href") // activated tab
+          target = target.substring(1);
           localStorage.setItem('client_tab', target);
+          if (!loadedTabs.hasOwnProperty(target)) {
+            loadedTabs[target] = true;
+            window['load_' + target]();
+            if (target == 'invoices' && window.hasOwnProperty('load_recurring_invoices')) {
+                window['load_recurring_invoices']();
+            }
+          }
         });
         var tab = localStorage.getItem('client_tab');
         if (tab) {
-            $('.nav-tabs a[href="' + tab + '"]').tab('show');
+            $('.nav-tabs a[href="#' + tab.replace('#', '') + '"]').tab('show');
+        } else {
+            window['load_activity']();
         }
 	});
 

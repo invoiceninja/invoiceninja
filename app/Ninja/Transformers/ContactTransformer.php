@@ -20,7 +20,6 @@ class ContactTransformer extends EntityTransformer
             'phone' => $contact->phone,
             'last_login' => $contact->last_login,
             'account_key' => $this->account->account_key,
-            'client_id' => $contact->client->public_id
         ];
     }
 }

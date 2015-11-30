@@ -60,7 +60,7 @@ class ClientController extends BaseController
               'date_created',
               'last_login',
               'balance',
-              'action'
+              ''
             ]),
         ));
     }

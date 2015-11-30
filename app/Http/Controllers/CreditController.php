@@ -44,7 +44,7 @@ class CreditController extends BaseController
               'credit_balance',
               'credit_date',
               'private_notes',
-              'action'
+              ''
             ]),
         ));
     }

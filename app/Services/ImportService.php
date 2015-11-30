@@ -1,10 +1,10 @@
-<?php namespace App\Services;
+<?php namespace app\Services;
 
+use stdClass;
 use Excel;
 use Cache;
 use Exception;
 use Auth;
-use Utils;
 use parsecsv;
 use Session;
 use Validator;
@@ -14,7 +14,7 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Models\Client;
-use App\Models\Contact;
+use App\Models\Invoice;
 
 class ImportService
 {
@@ -53,7 +53,7 @@ class ImportService
     public function import($source, $files)
     {
         $imported_files = null;
-        
+
         foreach ($files as $entityType => $file) {
             $this->execute($source, $entityType, $file);
         }
@@ -61,67 +61,117 @@ class ImportService
 
     private function execute($source, $entityType, $file)
     {
-        $transformerClassName = $this->getTransformerClassName($source, $entityType);
-        $transformer = new $transformerClassName;
+        $skipped = [];
 
-        Excel::load($file, function($reader) use ($source, $entityType, $transformer) {
-
-            if ($entityType === ENTITY_CLIENT) {
-                $totalClients = count($reader->all()) + Client::scope()->withTrashed()->count();
-                if ($totalClients > Auth::user()->getMaxNumClients()) {
-                    throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
-                }
-            }
-
+        Excel::load($file, function ($reader) use ($source, $entityType, $skipped) {
+            $this->checkData($entityType, count($reader->all()));
             $maps = $this->createMaps();
-            
-            $reader->each(function($row) use ($source, $entityType, $transformer, $maps) {
-                if ($resource = $transformer->transform($row, $maps)) {
-                    $data = $this->fractal->createData($resource)->toArray();
 
-                    if ($this->validate($data, $entityType) !== true) {
-                        return;
-                    }
+            $reader->each(function ($row) use ($source, $entityType, $maps) {
+                $result = $this->saveData($source, $entityType, $row, $maps);
 
-                    $entity = $this->{"{$entityType}Repo"}->save($data);
-
-                    // if the invoice is paid we'll also create a payment record
-                    if ($entityType === ENTITY_INVOICE && isset($data['paid']) && $data['paid']) {
-                        $class = self::getTransformerClassName($source, ENTITY_PAYMENT);
-                        $paymentTransformer = new $class;
-                        $row->client_id = $data['client_id'];
-                        $row->invoice_id = $entity->public_id;
-                        if ($resource = $paymentTransformer->transform($row, $maps)) {
-                            $data = $this->fractal->createData($resource)->toArray();
-                            $this->paymentRepo->save($data);
-                        }
-                    }
+                if ( ! $result) {
+                    $skipped[] = $row;
                 }
             });
         });
+
+        return $skipped;
     }
 
-    // looking for a better solution...
-    // http://stackoverflow.com/questions/33781567/how-can-i-re-use-the-validation-code-in-my-laravel-formrequest-classes
+    private function saveData($source, $entityType, $row, $maps)
+    {
+        $transformer = $this->getTransformer($source, $entityType);
+        $resource = $transformer->transform($row, $maps);
+
+        if (!$resource) {
+            return;
+        }
+
+        $data = $this->fractal->createData($resource)->toArray();
+
+        // if the invoice number is blank we'll assign it
+        if ($entityType == ENTITY_INVOICE && !$data['invoice_number']) {
+            $account = Auth::user()->account;
+            $invoice = Invoice::createNew();
+            $data['invoice_number'] = $account->getNextInvoiceNumber($invoice);
+        }
+
+        if ($this->validate($data, $entityType) !== true) {
+            return;
+        }
+
+        $entity = $this->{"{$entityType}Repo"}->save($data);
+
+        // if the invoice is paid we'll also create a payment record
+        if ($entityType === ENTITY_INVOICE && isset($row->paid) && $row->paid) {
+            $this->createPayment($source, $row, $maps, $data['client_id'], $entity->public_id);
+        }
+    }
+
+    private function checkData($entityType, $count)
+    {
+        if ($entityType === ENTITY_CLIENT) {
+            $this->checkClientCount($count);
+        }
+    }
+
+    private function checkClientCount($count)
+    {
+        $totalClients = $count + Client::scope()->withTrashed()->count();
+        if ($totalClients > Auth::user()->getMaxNumClients()) {
+            throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
+        }
+    }
+
+    public static function getTransformerClassName($source, $entityType)
+    {
+        return 'App\\Ninja\\Import\\'.$source.'\\'.ucwords($entityType).'Transformer';
+    }
+
+    public static function getTransformer($source, $entityType)
+    {
+        $className = self::getTransformerClassName($source, $entityType);
+
+        return new $className();
+    }
+
+    private function createPayment($source, $data, $maps, $clientId, $invoiceId)
+    {
+        $paymentTransformer = $this->getTransformer($source, ENTITY_PAYMENT);
+
+        $data->client_id = $clientId;
+        $data->invoice_id = $invoiceId;
+
+        if ($resource = $paymentTransformer->transform($data, $maps)) {
+            $data = $this->fractal->createData($resource)->toArray();
+            $this->paymentRepo->save($data);
+        }
+    }
+
     private function validate($data, $entityType)
     {
         if ($entityType === ENTITY_CLIENT) {
             $rules = [
                 'contacts' => 'valid_contacts',
             ];
-        } if ($entityType === ENTITY_INVOICE) {
+        }
+        if ($entityType === ENTITY_INVOICE) {
             $rules = [
                 'client.contacts' => 'valid_contacts',
                 'invoice_items' => 'valid_invoice_items',
                 'invoice_number' => 'required|unique:invoices,invoice_number,,id,account_id,'.Auth::user()->account_id,
                 'discount' => 'positive',
             ];
+        } else {
+            return true;
         }
 
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
             $messages = $validator->messages();
+
             return $messages->first();
         } else {
             return true;
@@ -155,42 +205,50 @@ class ImportService
         ];
     }
 
-    public static function getTransformerClassName($source, $entityType)
+    public function mapCSV($files)
     {
-        return 'App\\Ninja\\Import\\' . $source . '\\' . ucwords($entityType) . 'Transformer';
+        $data = [];
+
+        foreach ($files as $entityType => $filename) {
+            if ($entityType === ENTITY_CLIENT) {
+                $columns = Client::getImportColumns();
+                $map = Client::getImportMap();
+            } else {
+                $columns = Invoice::getImportColumns();
+                $map = Invoice::getImportMap();
+            }
+
+            // Lookup field translations
+            foreach ($columns as $key => $value) {
+                unset($columns[$key]);
+                $columns[$value] = trans("texts.{$value}");
+            }
+            array_unshift($columns, ' ');
+
+            $data[$entityType] = $this->mapFile($entityType, $filename, $columns, $map);
+
+            if ($entityType === ENTITY_CLIENT) {
+                if (count($data[$entityType]['data']) + Client::scope()->count() > Auth::user()->getMaxNumClients()) {
+                    throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
+                }
+            }
+        }
+
+        return $data;
     }
 
-    public function mapFile($filename)
+    public function mapFile($entityType, $filename, $columns, $map)
     {
         require_once app_path().'/Includes/parsecsv.lib.php';
         $csv = new parseCSV();
         $csv->heading = false;
         $csv->auto($filename);
 
-        if (count($csv->data) + Client::scope()->count() > Auth::user()->getMaxNumClients()) {
-            throw new Exception(trans('texts.limit_clients', ['count' => Auth::user()->getMaxNumClients()]));
-        }
-
-        Session::put('data', $csv->data);
+        Session::put("{$entityType}-data", $csv->data);
 
         $headers = false;
         $hasHeaders = false;
         $mapped = array();
-        $columns = array('',
-            Client::$fieldName,
-            Client::$fieldPhone,
-            Client::$fieldAddress1,
-            Client::$fieldAddress2,
-            Client::$fieldCity,
-            Client::$fieldState,
-            Client::$fieldPostalCode,
-            Client::$fieldCountry,
-            Client::$fieldNotes,
-            Contact::$fieldFirstName,
-            Contact::$fieldLastName,
-            Contact::$fieldPhone,
-            Contact::$fieldEmail,
-        );
 
         if (count($csv->data) > 0) {
             $headers = $csv->data[0];
@@ -206,32 +264,10 @@ class ImportService
                 $mapped[$i] = '';
 
                 if ($hasHeaders) {
-                    $map = array(
-                        'first' => Contact::$fieldFirstName,
-                        'last' => Contact::$fieldLastName,
-                        'email' => Contact::$fieldEmail,
-                        'mobile' => Contact::$fieldPhone,
-                        'phone' => Client::$fieldPhone,
-                        'name|organization' => Client::$fieldName,
-                        'street|address|address1' => Client::$fieldAddress1,
-                        'street2|address2' => Client::$fieldAddress2,
-                        'city' => Client::$fieldCity,
-                        'state|province' => Client::$fieldState,
-                        'zip|postal|code' => Client::$fieldPostalCode,
-                        'country' => Client::$fieldCountry,
-                        'note' => Client::$fieldNotes,
-                    );
-
                     foreach ($map as $search => $column) {
-                        foreach (explode("|", $search) as $string) {
-                            if (strpos($title, 'sec') === 0) {
-                                continue;
-                            }
-
-                            if (strpos($title, $string) !== false) {
-                                $mapped[$i] = $column;
-                                break(2);
-                            }
+                        if ($this->checkForMatch($title, $search)) {
+                            $mapped[$i] = $column;
+                            break;
                         }
                     }
                 }
@@ -239,6 +275,7 @@ class ImportService
         }
 
         $data = array(
+            'entityType' => $entityType,
             'data' => $csv->data,
             'headers' => $headers,
             'hasHeaders' => $hasHeaders,
@@ -249,16 +286,59 @@ class ImportService
         return $data;
     }
 
-    public function importCSV($map, $hasHeaders)
+    private function checkForMatch($column, $pattern)
     {
-        $count = 0;
-        $data = Session::get('data');
-        $countries = Cache::get('countries');
-        $countryMap = [];
-
-        foreach ($countries as $country) {
-            $countryMap[strtolower($country->name)] = $country->id;
+        if (strpos($column, 'sec') === 0) {
+            return false;
         }
+
+        if (strpos($pattern, '^')) {
+            list($include, $exclude) = explode('^', $pattern);
+            $includes = explode('|', $include);
+            $excludes = explode('|', $exclude);
+        } else {
+            $includes = explode('|', $pattern);
+            $excludes = [];
+        }
+
+        foreach ($includes as $string) {
+            if (strpos($column, $string) !== false) {
+                $excluded = false;
+                foreach ($excludes as $exclude) {
+                    if (strpos($column, $exclude) !== false) {
+                        $excluded = true;
+                        break;
+                    }
+                }
+                if (!$excluded) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function importCSV($maps, $headers)
+    {
+        $skipped = [];
+
+        foreach ($maps as $entityType => $map) {
+            $result = $this->executeCSV($entityType, $map, $headers[$entityType]);
+            $skipped = array_merge($skipped, $result);
+        }
+
+        return $skipped;
+    }
+
+    private function executeCSV($entityType, $map, $hasHeaders)
+    {
+        $skipped = [];
+        $source = IMPORT_CSV;
+
+        $data = Session::get("{$entityType}-data");
+        $this->checkData($entityType, count($data));
+        $maps = $this->createMaps();
 
         foreach ($data as $row) {
             if ($hasHeaders) {
@@ -266,61 +346,45 @@ class ImportService
                 continue;
             }
 
-            $data = [
-                'contacts' => [[]]
-            ];
+            $row = $this->convertToObject($entityType, $row, $map);
+            $result = $this->saveData($source, $entityType, $row, $maps);
 
-            foreach ($row as $index => $value) {
-                $field = $map[$index];
-                if ( ! $value = trim($value)) {
-                    continue;
-                }
-
-                if ($field == Client::$fieldName) {
-                    $data['name'] = $value;
-                } elseif ($field == Client::$fieldPhone) {
-                    $data['work_phone'] = $value;
-                } elseif ($field == Client::$fieldAddress1) {
-                    $data['address1'] = $value;
-                } elseif ($field == Client::$fieldAddress2) {
-                    $data['address2'] = $value;
-                } elseif ($field == Client::$fieldCity) {
-                    $data['city'] = $value;
-                } elseif ($field == Client::$fieldState) {
-                    $data['state'] = $value;
-                } elseif ($field == Client::$fieldPostalCode) {
-                    $data['postal_code'] = $value;
-                } elseif ($field == Client::$fieldCountry) {
-                    $value = strtolower($value);
-                    $data['country_id'] = isset($countryMap[$value]) ? $countryMap[$value] : null;
-                } elseif ($field == Client::$fieldNotes) {
-                    $data['private_notes'] = $value;
-                } elseif ($field == Contact::$fieldFirstName) {
-                    $data['contacts'][0]['first_name'] = $value;
-                } elseif ($field == Contact::$fieldLastName) {
-                    $data['contacts'][0]['last_name'] = $value;
-                } elseif ($field == Contact::$fieldPhone) {
-                    $data['contacts'][0]['phone'] = $value;
-                } elseif ($field == Contact::$fieldEmail) {
-                    $data['contacts'][0]['email'] = strtolower($value);
-                }
+            if ( ! $result) {
+                $skipped[] = $row;
             }
+        }
 
-            $rules = [
-                'contacts' => 'valid_contacts',
-            ];
-            $validator = Validator::make($data, $rules);
-            if ($validator->fails()) {
+        Session::forget("{$entityType}-data");
+
+        return $skipped;
+    }
+
+    private function convertToObject($entityType, $data, $map)
+    {
+        $obj = new stdClass();
+
+        if ($entityType === ENTITY_CLIENT) {
+            $columns = Client::getImportColumns();
+        } else {
+            $columns = Invoice::getImportColumns();
+        }
+
+        foreach ($columns as $column) {
+            $obj->$column = false;
+        }
+
+        foreach ($map as $index => $field) {
+            if (! $field) {
                 continue;
             }
 
-            $this->clientRepo->save($data);
-            $count++;
+            if (isset($obj->$field) && $obj->$field) {
+                continue;
+            }
+
+            $obj->$field = $data[$index];
         }
 
-        Session::forget('data');
-
-        return $count;
+        return $obj;
     }
-
 }

@@ -3,16 +3,21 @@
 use Utils;
 use Response;
 use Input;
+use Auth;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
 use App\Http\Requests\CreateClientRequest;
+use App\Http\Controllers\BaseAPIController;
+use App\Ninja\Transformers\ClientTransformer;
 
-class ClientApiController extends Controller
+class ClientApiController extends BaseAPIController
 {
     protected $clientRepo;
 
     public function __construct(ClientRepository $clientRepo)
     {
+        parent::__construct();
+
         $this->clientRepo = $clientRepo;
     }
 
@@ -42,15 +47,16 @@ class ClientApiController extends Controller
     public function index()
     {
         $clients = Client::scope()
-                    ->with('country', 'contacts', 'industry', 'size', 'currency')
+                    ->with($this->getIncluded())
                     ->orderBy('created_at', 'desc')
-                    ->get();
-        $clients = Utils::remapPublicIds($clients);
+                    ->paginate();
 
-        $response = json_encode($clients, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders(count($clients));
+        $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
+        $paginator = Client::scope()->paginate();
 
-        return Response::make($response, 200, $headers);
+        $data = $this->createCollection($clients, $transformer, ENTITY_CLIENT, $paginator);
+
+        return $this->response($data);
     }
 
     /**
@@ -77,12 +83,14 @@ class ClientApiController extends Controller
     public function store(CreateClientRequest $request)
     {
         $client = $this->clientRepo->save($request->input());
+        
+        $client = Client::scope($client->public_id)
+                    ->with('country', 'contacts', 'industry', 'size', 'currency')
+                    ->first();
 
-        $client = Client::scope($client->public_id)->with('country', 'contacts', 'industry', 'size', 'currency')->first();
-        $client = Utils::remapPublicIds([$client]);
-        $response = json_encode($client, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders();
+        $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
+        $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
 
-        return Response::make($response, 200, $headers);
+        return $this->response($data);
     }
 }

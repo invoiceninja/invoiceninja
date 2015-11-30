@@ -438,7 +438,6 @@ return array(
   'gateway_help_1' => ':link para registrarse en Authorize.net.',
   'gateway_help_2' => ':link para registrarse en Authorize.net.',
   'gateway_help_17' => ':link para obtener su firma API de PayPal.',
-  'gateway_help_23' => 'Nota: utilizar su clave de API secreta, no es su clave de API publica.',
   'gateway_help_27' => ':link para registrarse en TwoCheckout.',
 
   'more_designs' => 'Más diseños',
@@ -916,5 +915,38 @@ return array(
   'user' => 'User',
   'country' => 'Country',
   'include' => 'Include',
+
+  'logo_too_large' => 'Your logo is :size, for better PDF performance we suggest uploading an image file less than 200KB',
+  'import_freshbooks' => 'Import From FreshBooks',
+  'import_data' => 'Import Data',
+  'source' => 'Source',
+  'csv' => 'CSV',
+  'client_file' => 'Client File',
+  'invoice_file' => 'Invoice File',
+  'task_file' => 'Task File',
+  'no_mapper' => 'No valid mapping for file',
+  'invalid_csv_header' => 'Invalid CSV Header',
+
+  'email_errors' => [
+    'inactive_client' => 'Emails can not be sent to inactive clients',
+    'inactive_contact' => 'Emails can not be sent to inactive contacts',
+    'inactive_invoice' => 'Emails can not be sent to inactive invoices',
+    'user_unregistered' => 'Please register your account to send emails',
+    'user_unconfirmed' => 'Please confirm your account to send emails',
+    'invalid_contact_email' => 'Invalid contact email',
+  ],
+
+  'client_portal' => 'Client Portal',
+  'admin' => 'Admin',
+  'disabled' => 'Disabled',
+  'show_archived_users' => 'Show archived users',
+  'notes' => 'Notes',
+  'invoice_will_create' => 'client will be created',
+  'invoices_will_create' => 'invoices will be created',
+  'failed_to_import' => 'The following records failed to import',
+
+  'publishable_key' => 'Publishable Key',
+  'secret_key' => 'Secret Key',
+  'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
 
 );

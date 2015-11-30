@@ -69,7 +69,7 @@ class InvoiceController extends BaseController
                 'balance_due',
                 'due_date',
                 'status',
-                'action'
+                ''
             ]),
         ];
 
@@ -326,7 +326,7 @@ class InvoiceController extends BaseController
         if ($clientPublicId) {
             $clientId = Client::getPrivateId($clientPublicId);
         }
-
+        
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
         

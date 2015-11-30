@@ -54,7 +54,7 @@ class PaymentController extends BaseController
               'method',
               'payment_amount',
               'payment_date',
-              'action'
+              ''
             ]),
         ));
     }
@@ -168,6 +168,7 @@ class PaymentController extends BaseController
             'client' => $client,
             'contact' => $invitation->contact,
             'gateway' => $gateway,
+            'accountGateway' => $accountGateway,
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
             'countries' => Cache::get('countries'),
             'currencyId' => $client->getCurrencyId(),
@@ -349,11 +350,19 @@ class PaymentController extends BaseController
         $rules = [
             'first_name' => 'required',
             'last_name' => 'required',
-            'card_number' => 'required',
-            'expiration_month' => 'required',
-            'expiration_year' => 'required',
-            'cvv' => 'required',
         ];
+
+        if ( ! Input::get('stripeToken')) {
+            $rules = array_merge(
+                $rules,
+                [
+                    'card_number' => 'required',
+                    'expiration_month' => 'required',
+                    'expiration_year' => 'required',
+                    'cvv' => 'required',
+                ]
+            );
+        }
 
         if ($accountGateway->show_address) {
             $rules = array_merge($rules, [
@@ -399,12 +408,17 @@ class PaymentController extends BaseController
 
             // check if we're creating/using a billing token
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+                if ($token = Input::get('stripeToken')) {
+                    $details['token'] = $token;
+                    unset($details['card']);
+                }
+
                 if ($useToken) {
-                    $details['cardReference'] = $client->getGatewayToken();
+                    $details['customerReference'] = $client->getGatewayToken();
                 } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing')) {
                     $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id);
                     if ($token) {
-                        $details['cardReference'] = $token;
+                        $details['customerReference'] = $token;
                     } else {
                         $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
                         return Redirect::to('payment/'.$invitationKey)->withInput();

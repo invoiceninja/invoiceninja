@@ -13,13 +13,17 @@ use App\Models\Invitation;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Mailers\ContactMailer as Mailer;
+use App\Http\Controllers\BaseAPIController;
+use App\Ninja\Transformers\InvoiceTransformer;
 
-class InvoiceApiController extends Controller
+class InvoiceApiController extends BaseAPIController
 {
     protected $invoiceRepo;
 
     public function __construct(InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, Mailer $mailer)
     {
+        parent::__construct();
+
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
         $this->mailer = $mailer;
@@ -41,20 +45,24 @@ class InvoiceApiController extends Controller
      *   )
      * )
      */
-    public function index($clientPublicId = false)
+    public function index()
     {
+        $paginator = Invoice::scope();
         $invoices = Invoice::scope()
-                        ->with('client', 'invitations.account')
+                        ->with(array_merge(['invoice_items'], $this->getIncluded()))
                         ->where('invoices.is_quote', '=', false);
 
-        if ($clientPublicId) {
-            $invoices->whereHas('client', function($query) use ($clientPublicId) {
+        if ($clientPublicId = Input::get('client_id')) {
+            $filter = function($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
-            });
+            };
+            $invoices->whereHas('client', $filter);
+            $paginator->whereHas('client', $filter);
         }
 
-        $invoices = $invoices->orderBy('created_at', 'desc')->get();
+        $invoices = $invoices->orderBy('created_at', 'desc')->paginate();
 
+        /*
         // Add the first invitation link to the data
         foreach ($invoices as $key => $invoice) {
             foreach ($invoice->invitations as $subKey => $invitation) {
@@ -62,13 +70,14 @@ class InvoiceApiController extends Controller
             }
             unset($invoice['invitations']);
         }
+        */
 
-        $invoices = Utils::remapPublicIds($invoices);
-                
-        $response = json_encode($invoices, JSON_PRETTY_PRINT);
-        $headers = Utils::getApiHeaders(count($invoices));
+        $transformer = new InvoiceTransformer(Auth::user()->account, Input::get('serializer'));
+        $paginator = $paginator->paginate();
 
-        return Response::make($response, 200, $headers);
+        $data = $this->createCollection($invoices, $transformer, 'invoices', $paginator);
+
+        return $this->response($data);
     }
 
 
@@ -145,14 +154,14 @@ class InvoiceApiController extends Controller
 
         if (!$error) {
             if (!isset($data['client_id']) && !isset($data['email'])) {
-                $error = trans('validation.', ['attribute' => 'client_id or email']);
+                $error = trans('validation.required_without', ['attribute' => 'client_id', 'values' => 'email']);
             } else if (!$client) {
                 $error = trans('validation.not_in', ['attribute' => 'client_id']);
             }
         }
 
         if ($error) {
-            $response = json_encode($error, JSON_PRETTY_PRINT);
+            return $error;
         } else {
             $data = self::prepareData($data, $client);
             $data['client_id'] = $client->id;
@@ -170,16 +179,12 @@ class InvoiceApiController extends Controller
                 $this->mailer->sendInvoice($invoice);
             }
 
-            // prepare the return data
             $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->first();
-            $invoice = Utils::remapPublicIds([$invoice]);
+            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($invoice, $transformer, 'invoice');
 
-            $response = json_encode($invoice, JSON_PRETTY_PRINT);
+            return $this->response($data);
         }
-
-        $headers = Utils::getApiHeaders();
-        
-        return Response::make($response, $error ? 400 : 200, $headers);
     }
 
     private function prepareData($data, $client)

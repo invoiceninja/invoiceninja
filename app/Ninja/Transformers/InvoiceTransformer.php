@@ -20,20 +20,14 @@ class InvoiceTransformer extends EntityTransformer
     * @SWG\Property(property="invoice_status_id", type="integer", example=1)
     */
 
-
-    public function __construct(Account $account)
-    {
-        parent::__construct($account);
-
-    }
-
     protected $defaultIncludes = [
         'invoice_items',
     ];
-
+    
     public function includeInvoiceItems(Invoice $invoice)
     {
-        return $this->collection($invoice->invoice_items, new InvoiceItemTransformer($this->account));
+        $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
+        return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEMS);
     }
 
     public function transform(Invoice $invoice)
@@ -70,7 +64,7 @@ class InvoiceTransformer extends EntityTransformer
             'has_tasks' => (bool) $invoice->has_tasks,
             'auto_bill' => (bool) $invoice->auto_bill,
             'account_key' => $this->account->account_key,
-            'user_id' => (int) $invoice->user->public_id+1
+            'user_id' => (int) $invoice->user->public_id + 1
         ];
     }
 }

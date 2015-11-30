@@ -441,7 +441,6 @@ return array(
   'gateway_help_1' => ':link para acessar Authorize.net.',
   'gateway_help_2' => ':link para acessar Authorize.net.',
   'gateway_help_17' => ':link para adquirir sua "PayPal API signature".',
-  'gateway_help_23' => 'Aviso: use sua "Secret API Key", não a "Publishable API Key".',
   'gateway_help_27' => ':link para acessar TwoCheckout.',
 
   'more_designs' => 'Mais Modelos',
@@ -918,7 +917,28 @@ return array(
     'user_unregistered' => 'Registre sua conta para enviar e-mails',
     'user_unconfirmed' => 'Confirme sua conta para enviar e-mails',
     'invalid_contact_email' => 'E-mail do contato inválido',
-  ]
+  ],
   
-  'client_portal' => 'Portal do Cliente',    
+  'import_freshbooks' => 'Importar de FreshBooks',
+  'import_data' => 'Importar Dados',
+  'source' => 'Fonte',
+  'csv' => 'CSV',
+  'client_file' => 'Arquivo de Clientes',
+  'invoice_file' => 'Arquivo de Faturas',
+  'task_file' => 'Arquivo de Tarefas',
+  'no_mapper' => 'Mapeamento inválido',
+  'invalid_csv_header' => 'CSV com cabeçalho inválido',
+
+  'client_portal' => 'Portal do Cliente',
+  'admin' => 'Admin',
+  'disabled' => 'Disabilitado',
+  'show_archived_users' => 'Mostrar usuários arquivados',
+  'notes' => 'Observações',
+  'invoice_will_create' => 'cliente será criado',
+  'invoices_will_create' => 'faturas serão criadas',
+  'failed_to_import' => 'A importação dos seguintes registros falhou',
+
+  'publishable_key' => 'Publishable Key',
+  'secret_key' => 'Secret Key',
+  'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
 );

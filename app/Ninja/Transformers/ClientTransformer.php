@@ -40,25 +40,28 @@ class ClientTransformer extends EntityTransformer
     * @SWG\Property(property="language_id", type="integer", example=1)
     */
 
-    protected $defaultIncludes = [
-    //    'contacts',
-    //    'invoices',
-    //    'quotes',
+    protected $availableIncludes = [
+        'contacts',
+        'invoices',
+        'quotes',
     ];
     
     public function includeContacts(Client $client)
     {
-        return $this->collection($client->contacts, new ContactTransformer($this->account));
+        $transformer = new ContactTransformer($this->account, $this->serializer);
+        return $this->includeCollection($client->contacts, $transformer, ENTITY_CONTACT);
     }
 
     public function includeInvoices(Client $client)
     {
-        return $this->collection($client->getInvoices, new InvoiceTransformer($this->account, $client));
+        $transformer = new InvoiceTransformer($this->account, $this->serializer);
+        return $this->includeCollection($client->getInvoices, $transformer, ENTITY_INVOICE);
     }
 
     public function includeQuotes(Client $client)
     {
-        return $this->collection($client->getQuotes, new QuoteTransformer($this->account, $client));
+        $transformer = new QuoteTransformer($this->account, $this->serializer);
+        return $this->includeCollection($client->getQuotes, $transformer, ENTITY_QUOTE);
     }
 
     public function transform(Client $client)
@@ -68,7 +71,7 @@ class ClientTransformer extends EntityTransformer
             'name' => $client->name,
             'balance' => (float) $client->balance,
             'paid_to_date' => (float) $client->paid_to_date,
-            'user_id' => (int) $client->user->public_id+1,
+            'user_id' => (int) $client->user->public_id + 1,
             'account_key' => $this->account->account_key,
             'updated_at' => $client->updated_at,
             'deleted_at' => $client->deleted_at,

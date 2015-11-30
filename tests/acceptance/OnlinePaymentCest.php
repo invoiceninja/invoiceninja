@@ -81,6 +81,8 @@ class OnlinePaymentCest
             $I->see('Successfully applied payment');
         });
 
+        $I->wait(1);
+
         // create recurring invoice and auto-bill
         $I->amOnPage('/recurring_invoices/create');
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');

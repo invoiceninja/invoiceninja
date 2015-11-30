@@ -87,7 +87,7 @@ return array(
     'guest' => 'Guest',
     'company_details' => 'Company Details',
     'online_payments' => 'Online Payments',
-    'notifications' => 'Notifications',
+    'notifications' => 'Email Notifications',
     'import_export' => 'Import/Export',
     'done' => 'Done',
     'save' => 'Save',
@@ -334,7 +334,7 @@ return array(
     // product management
     'product_library' => 'Product Library',
     'product' => 'Product',
-    'products' => 'Products',
+    'products' => 'Product Library',
     'fill_products' => 'Auto-fill products',
     'fill_products_help' => 'Selecting a product will automatically <b>fill in the description and cost</b>',
     'update_products' => 'Auto-update products',
@@ -450,7 +450,6 @@ return array(
     'gateway_help_1' => ':link to sign up for Authorize.net.',
     'gateway_help_2' => ':link to sign up for Authorize.net.',
     'gateway_help_17' => ':link to get your PayPal API signature.',
-    'gateway_help_23' => 'Note: use your secret API key, not your publishable API key.',
     'gateway_help_27' => ':link to sign up for TwoCheckout.',
 
     'more_designs' => 'More designs',
@@ -673,7 +672,7 @@ return array(
     'counter' => 'Counter',
 
     'payment_type_dwolla' => 'Dwolla',
-    'gateway_help_43' => ':link to sign up for Dwolla.<br/>Note: remove dashes from the Destination/Dwolla Id',
+    'gateway_help_43' => ':link to sign up for Dwolla',
     'partial_value' => 'Must be greater than zero and less than the total',
     'more_actions' => 'More Actions',
 
@@ -921,7 +920,7 @@ return array(
     'country' => 'Country',
     'include' => 'Include',
 
-    'logo_too_large' => 'Your logo is :size, for better performance we suggest uploading an image file less than 200KB',
+    'logo_too_large' => 'Your logo is :size, for better PDF performance we suggest uploading an image file less than 200KB',
     'import_freshbooks' => 'Import From FreshBooks',
     'import_data' => 'Import Data',
     'source' => 'Source',
@@ -945,4 +944,14 @@ return array(
     'admin' => 'Admin',
     'disabled' => 'Disabled',
     'show_archived_users' => 'Show archived users',
+    'notes' => 'Notes',
+    'invoice_will_create' => 'client will be created',
+    'invoices_will_create' => 'invoices will be created',
+    'failed_to_import' => 'The following records failed to import',
+
+    'publishable_key' => 'Publishable Key',
+    'secret_key' => 'Secret Key',
+    'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
+
+
 );
