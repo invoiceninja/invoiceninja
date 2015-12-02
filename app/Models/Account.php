@@ -5,6 +5,7 @@ use Utils;
 use Session;
 use DateTime;
 use Event;
+use Cache;
 use App;
 use File;
 use App\Events\UserSettingsChanged;
@@ -204,10 +205,26 @@ class Account extends Eloquent
         return $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT;
     }
 
+    public function formatMoney($amount, $client = null)
+    {
+        $currency = ($client && $client->currency) ? $client->currency : $this->currency;
+
+        if ( ! $currency) {
+            $currencies = Cache::get('currencies')->filter(function($item) {
+                return $item->id == DEFAULT_CURRENCY;
+            });
+            $currency = $currencies->first();
+        }
+
+        return $currency->symbol . number_format($amount, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
+    }
+
     public function formatDate($date)
     {
-        if (!$date) {
+        if ( ! $date) {
             return null;
+        } elseif ( ! $date instanceof \DateTime) {
+            $date = new \DateTime($date);
         }
 
         return $date->format($this->getCustomDateFormat());
@@ -677,9 +694,9 @@ class Account extends Eloquent
             $entityType = ENTITY_INVOICE;
         }
 
-        $template = "<div>\$client,</div><br/>" .
-                    "<div>" . trans("texts.{$entityType}_message", ['amount' => '$amount']) . "</div><br/>" .
-                    "<div><a href=\"\$link\">\$link</a></div><br/>";
+        $template = "<div>\$client,</div><br>" .
+                    "<div>" . trans("texts.{$entityType}_message", ['amount' => '$amount']) . "</div><br>" .
+                    "<div><a href=\"\$viewLink\">\$viewLink</a></div><br>";
 
         if ($message) {
             $template .= "$message<p/>\r\n\r\n";
@@ -693,13 +710,14 @@ class Account extends Eloquent
         if ($this->isPro()) {
             $field = "email_template_{$entityType}";
             $template = $this->$field;
-
-            if ($template) {
-                return $template;
-            }
         }
         
-        return $this->getDefaultEmailTemplate($entityType, $message);
+        if (!$template) {
+            $template = $this->getDefaultEmailTemplate($entityType, $message);
+        }
+
+        // <br/> is causing page breaks with the email designs
+        return str_replace('/>', ' />', $template);
     }
 
     public function getEmailFooter()
@@ -708,7 +726,7 @@ class Account extends Eloquent
             // Add line breaks if HTML isn't already being used
             return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;
         } else {
-            return "<p>" . trans('texts.email_signature') . "\n<br>\$account</p>";
+            return "<p>" . trans('texts.email_signature') . "\n<br>\$account</ p>";
         }
     }
 

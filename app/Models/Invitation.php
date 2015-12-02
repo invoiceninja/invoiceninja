@@ -29,7 +29,7 @@ class Invitation extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    public function getLink()
+    public function getLink($type = 'view')
     {
         if (!$this->account) {
             $this->load('account');
@@ -46,7 +46,7 @@ class Invitation extends EntityModel
             }
         }
         
-        return "{$url}/view/{$this->invitation_key}";
+        return "{$url}/{$type}/{$this->invitation_key}";
     }
 
     public function getStatus()

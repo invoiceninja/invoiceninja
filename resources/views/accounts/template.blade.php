@@ -16,6 +16,8 @@
                 <div class="pull-right"><a href="#" onclick="return resetText('{{ 'subject' }}', '{{ $field }}')">{{ trans("texts.reset") }}</a></div>
                 {!! Former::text('email_subject_' . $field)
                         ->label(trans('texts.subject'))
+                        ->appendIcon('question-sign')
+                        ->addGroupClass('email-subject')
                         ->addClass('enable-' . $field) !!}
             </div>
         <div class="col-md-6">
@@ -48,25 +50,30 @@
     </div>
 </div>
 
-    <script type="text/javascript">
-        $(function() {
-            var editor = new Quill('#{{ $field }}Editor', {
-              modules: {
-                'toolbar': { container: '#{{ $field }}Toolbar' },
-                'link-tooltip': true
-              },
-              theme: 'snow'
-            });
-            editor.setHTML($('#email_template_{{ $field }}').val());
-            editor.on('text-change', function(delta, source) {
-                  if (source == 'api') {
-                    return;
-                  }
-                  var html = editors['{{ $field }}'].getHTML();
-                  $('#email_template_{{ $field }}').val(html);
-                  refreshPreview();
-                  NINJA.formIsChanged = true;
-                });
-            editors['{{ $field }}'] = editor;
+<script type="text/javascript">
+    $(function() {
+        var editor = new Quill('#{{ $field }}Editor', {
+          modules: {
+            'toolbar': { container: '#{{ $field }}Toolbar' },
+            'link-tooltip': true
+          },
+          theme: 'snow'
         });
-    </script>
+        editor.setHTML($('#email_template_{{ $field }}').val());
+        editor.on('text-change', function(delta, source) {
+              if (source == 'api') {
+                return;
+              }
+              var html = editors['{{ $field }}'].getHTML();
+              $('#email_template_{{ $field }}').val(html);
+              refreshPreview();
+              NINJA.formIsChanged = true;
+            });
+        editors['{{ $field }}'] = editor;
+    });
+
+    $('.email-subject .input-group-addon').click(function() {
+        $('#templateHelpModal').modal('show');
+    });
+
+</script>

@@ -253,6 +253,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_CONTACT', 'contact');
     define('ENTITY_INVOICE', 'invoice');
     define('ENTITY_INVOICE_ITEMS', 'invoice_items');
+    define('ENTITY_INVITATION', 'invitation');
     define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
     define('ENTITY_PAYMENT', 'payment');
     define('ENTITY_CREDIT', 'credit');
@@ -446,6 +447,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/api/browser/v2/');
     define('PHP_DATE_FORMATS', 'http://php.net/manual/en/function.date.php');
     define('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/referral-program/');
+    define('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup/overview');
 
     define('COUNT_FREE_DESIGNS', 4);
     define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design
@@ -498,6 +500,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('API_SERIALIZER_ARRAY', 'array');
     define('API_SERIALIZER_JSON', 'json');
 
+    define('EMAIL_DESIGN_PLAIN', 1);
+    define('FLAT_BUTTON_CSS', 'border:0 none;border-radius:6px;padding:12px 40px;margin:0 6px;cursor:hand;display:inline-block;font-size:14px;color:#fff;text-transform:none');
+
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
@@ -522,7 +527,6 @@ if (!defined('CONTACT_EMAIL')) {
         'invoiceStatus' => 'App\Models\InvoiceStatus',
         'frequencies' => 'App\Models\Frequency',
         'gateways' => 'App\Models\Gateway',
-        'themes' => 'App\Models\Theme',
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 

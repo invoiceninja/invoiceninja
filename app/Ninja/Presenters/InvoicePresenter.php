@@ -15,6 +15,17 @@ class InvoicePresenter extends Presenter {
         return $this->entity->user->getDisplayName();
     }
 
+    public function balanceDueLabel()
+    {
+        if ($this->entity->partial) {
+            return 'amount_due';
+        } elseif ($this->entity->is_quote) {
+            return 'total';
+        } else {
+            return 'balance_due';
+        }
+    }
+
     public function balance_due()
     {
         $amount = $this->entity->getRequestedAmount();

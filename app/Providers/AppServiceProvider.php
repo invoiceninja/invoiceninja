@@ -65,6 +65,29 @@ class AppServiceProvider extends ServiceProvider {
             return 'data:image/jpeg;base64,' . base64_encode(file_get_contents(public_path().'/'.$imagePath));
         });
 
+        HTML::macro('flatButton', function($label, $color) {
+            return '<input type="button" value="' . trans("texts.{$label}") . '" style="background-color:' . $color . ';border:0 none;border-radius:5px;padding:12px 40px;margin:0 6px;cursor:hand;display:inline-block;font-size:14px;color:#fff;text-transform:none;font-weight:bold;"/>';
+        });
+
+        HTML::macro('emailViewButton', function($link = '#', $entityType = ENTITY_INVOICE) {
+            return view('partials.email_button')
+                        ->with([
+                            'link' => $link,
+                            'field' => "view_{$entityType}",
+                            'color' => '#0b4d78',
+                        ])
+                        ->render();
+        });
+
+        HTML::macro('emailPaymentButton', function($link = '#') {
+            return view('partials.email_button')
+                        ->with([
+                            'link' => $link,
+                            'field' => 'pay_now',
+                            'color' => '#36c157',
+                        ])
+                        ->render();
+        });
 
         HTML::macro('breadcrumbs', function() {
             $str = '<ol class="breadcrumb">';

@@ -2,6 +2,7 @@
 
 use Eloquent;
 use Omnipay;
+use Utils;
 
 class Gateway extends Eloquent
 {
@@ -44,13 +45,20 @@ class Gateway extends Eloquent
         return $this->id == $gatewayId;
     }
 
+    public static function getPaymentTypeName($type)
+    {
+        return Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
+    }
+
+    /*
     public static function getPaymentTypeLinks() {
         $data = [];
         foreach (self::$paymentTypes as $type) {
-            $data[] = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
+            $data[] = Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
         }
         return $data;
     }
+    */
 
     public function getHelp()
     {

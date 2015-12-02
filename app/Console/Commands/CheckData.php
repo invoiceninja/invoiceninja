@@ -46,29 +46,78 @@ class CheckData extends Command {
     public function fire()
     {
         $this->info(date('Y-m-d') . ' Running CheckData...');
-        $today = new DateTime();
 
         if (!$this->option('client_id')) {
-            // update client paid_to_date value
-            $clients = DB::table('clients')
-                        ->join('payments', 'payments.client_id', '=', 'clients.id')
-                        ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
-                        ->where('payments.is_deleted', '=', 0)
-                        ->where('invoices.is_deleted', '=', 0)
-                        ->groupBy('clients.id')
-                        ->havingRaw('clients.paid_to_date != sum(payments.amount) and clients.paid_to_date != 999999999.9999')
-                        ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(payments.amount) as amount')]);
-            $this->info(count($clients) . ' clients with incorrect paid to date');
+            $this->checkPaidToDate();
+        }
+
+        $this->checkBalances();
+
+        $this->checkActivityAccount();
+
+        $this->info('Done');
+    }
+
+    private function checkActivityAccount()
+    {
+        $entityTypes = [
+            ENTITY_INVOICE,
+            ENTITY_CLIENT,
+            ENTITY_CONTACT,
+            ENTITY_PAYMENT,
+            ENTITY_INVITATION,
+        ];
+
+        foreach ($entityTypes as $entityType) {
+            $activities = DB::table('activities')
+                            ->join("{$entityType}s", "{$entityType}s.id", '=', "activities.{$entityType}_id");
+
+            if ($entityType != ENTITY_CLIENT) {
+                $activities = $activities->join('clients', 'clients.id', '=', 'activities.client_id');
+            }
             
+            $activities = $activities->where('activities.account_id', '!=', DB::raw("{$entityType}s.account_id"))
+                        ->get(['activities.id', "clients.account_id", "clients.user_id"]);
+
+            $this->info(count($activities) . " {$entityType} activity with incorrect account id");
+
             if ($this->option('fix') == 'true') {
-                foreach ($clients as $client) {
-                    DB::table('clients')
-                        ->where('id', $client->id)
-                        ->update(['paid_to_date' => $client->amount]);
+                foreach ($activities as $activity) {
+                    DB::table('activities')
+                        ->where('id', $activity->id)
+                        ->update([
+                            'account_id' => $activity->account_id,
+                            'user_id' => $activity->user_id,
+                        ]);
                 }
             }
         }
+    }
 
+    private function checkPaidToDate()
+    {
+        // update client paid_to_date value
+        $clients = DB::table('clients')
+                    ->join('payments', 'payments.client_id', '=', 'clients.id')
+                    ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
+                    ->where('payments.is_deleted', '=', 0)
+                    ->where('invoices.is_deleted', '=', 0)
+                    ->groupBy('clients.id')
+                    ->havingRaw('clients.paid_to_date != sum(payments.amount) and clients.paid_to_date != 999999999.9999')
+                    ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(payments.amount) as amount')]);
+        $this->info(count($clients) . ' clients with incorrect paid to date');
+        
+        if ($this->option('fix') == 'true') {
+            foreach ($clients as $client) {
+                DB::table('clients')
+                    ->where('id', $client->id)
+                    ->update(['paid_to_date' => $client->amount]);
+            }
+        }
+    }
+
+    private function checkBalances()
+    {
         // find all clients where the balance doesn't equal the sum of the outstanding invoices
         $clients = DB::table('clients')
                     ->join('invoices', 'invoices.client_id', '=', 'clients.id')
@@ -249,8 +298,6 @@ class CheckData extends Command {
                     ->update($data);
             }
         }
-
-        $this->info('Done');
     }
 
     protected function getArguments()

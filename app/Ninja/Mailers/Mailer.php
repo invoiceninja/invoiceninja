@@ -67,7 +67,7 @@ class Mailer
 
     private function handleFailure($exception)
     {
-        if (isset($_ENV['POSTMARK_API_TOKEN']) && $exception->getResponse()) {
+        if (isset($_ENV['POSTMARK_API_TOKEN']) && method_exists($exception, 'getResponse')) {
             $response = $exception->getResponse()->getBody()->getContents();
             $response = json_decode($response);
             $emailError = nl2br($response->Message);

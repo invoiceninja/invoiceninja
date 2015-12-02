@@ -953,5 +953,16 @@ return array(
     'secret_key' => 'Secret Key',
     'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
 
+    'email_design' => 'Email Design',
+    'due_by' => 'Due by :date',
+    'enable_email_markup' => 'Enable Email Markup',
+    'enable_email_markup_help' => 'Make it easier for your clients to pay you by adding schema.org markup to your emails.',
+    'template_help_title' => 'Templates Help',
+    'template_help_1' => 'Available variables:',
+    'email_design_id' => 'Email Design',
+    'email_design_help' => 'Make your emails look more professional with HTML layouts',
+    'plain' => 'Plain',
+    'light' => 'Light',
+    'dark' => 'Dark',
 
 );

@@ -40,7 +40,7 @@ class UserService extends BaseService
             [
                 'first_name',
                 function ($model) {
-                    return link_to('users/'.$model->public_id.'/edit', $model->first_name.' '.$model->last_name);
+                    return $model->public_id ? link_to('users/'.$model->public_id.'/edit', $model->first_name.' '.$model->last_name) : ($model->first_name.' '.$model->last_name);
                 }
             ],
             [

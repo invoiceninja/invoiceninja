@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Mailers;
 
+use HTML;
 use Utils;
 use Event;
 use URL;
@@ -15,6 +16,21 @@ use App\Events\QuoteWasEmailed;
 
 class ContactMailer extends Mailer
 {
+    public static $variableFields = [
+        'footer',
+        'account',
+        'client',
+        'amount',
+        'contact',
+        'firstName',
+        'invoice',
+        'quote',
+        'viewLink',
+        'viewButton',
+        'paymentLink',
+        'paymentButton',
+    ];
+
     public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false)
     {
         $invoice->load('invitations', 'client.language', 'account');
@@ -97,6 +113,7 @@ class ContactMailer extends Mailer
             'invoiceId' => $invoice->id,
             'invitation' => $invitation,
             'account' => $account,
+            'client' => $client,
             'invoice' => $invoice,
         ];
 
@@ -107,8 +124,14 @@ class ContactMailer extends Mailer
 
         $subject = $this->processVariables($subject, $variables);
         $fromEmail = $user->email;
+
+        if ($account->email_design_id == EMAIL_DESIGN_PLAIN) {
+            $view = ENTITY_INVOICE;
+        } else {
+            $view = 'design' . ($account->email_design_id - 1);
+        }
         
-        $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, ENTITY_INVOICE, $data);
+        $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
 
         if ($response === true) {
             return true;
@@ -192,22 +215,33 @@ class ContactMailer extends Mailer
 
     private function processVariables($template, $data)
     {
+        $account = $data['account'];
+        $client = $data['client'];
+        $invitation = $data['invitation'];
+        $invoice = $invitation->invoice;
+
         $variables = [
-            '$footer' => $data['account']->getEmailFooter(),
-            '$link' => $data['invitation']->getLink(),
-            '$client' => $data['client']->getDisplayName(),
-            '$account' => $data['account']->getDisplayName(),
-            '$contact' => $data['invitation']->contact->getDisplayName(),
-            '$firstName' => $data['invitation']->contact->first_name,
-            '$amount' => Utils::formatMoney($data['amount'], $data['client']->getCurrencyId()),
-            '$invoice' => $data['invitation']->invoice->invoice_number,
-            '$quote' => $data['invitation']->invoice->invoice_number,
-            '$advancedRawInvoice->' => '$'
+            '$footer' => $account->getEmailFooter(),
+            '$client' => $client->getDisplayName(),
+            '$account' => $account->getDisplayName(),
+            '$contact' => $invitation->contact->getDisplayName(),
+            '$firstName' => $invitation->contact->first_name,
+            '$amount' => Utils::formatMoney($data['amount'], $client->getCurrencyId()),
+            '$invoice' => $invoice->invoice_number,
+            '$quote' => $invoice->invoice_number,
+            '$link' => $invitation->getLink(),
+            '$viewLink' => $invitation->getLink(),
+            '$viewButton' => HTML::emailViewButton($invitation->getLink(), $invoice->getEntityType()),
+            '$paymentLink' => $invitation->getLink('payment'),
+            '$paymentButton' => HTML::emailPaymentButton($invitation->getLink('payment')),
         ];
 
         // Add variables for available payment types
-        foreach (Gateway::getPaymentTypeLinks() as $type) {
-            $variables["\${$type}_link"] = URL::to("/payment/{$data['invitation']->invitation_key}/{$type}");
+        foreach (Gateway::$paymentTypes as $type) {
+            $camelType = Gateway::getPaymentTypeName($type);
+            $type = Utils::toSnakeCase($camelType);
+            $variables["\${$camelType}Link"] = $invitation->getLink() . "/{$type}";
+            $variables["\${$camelType}Button"] = HTML::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
         }
 
         $str = str_replace(array_keys($variables), array_values($variables), $template);

@@ -279,9 +279,19 @@ class Utils
         return json_decode(json_encode((array) $data), true);
     }
 
-    public static function toSpaceCase($camelStr)
+    public static function toSpaceCase($string)
     {
-        return preg_replace('/([a-z])([A-Z])/s', '$1 $2', $camelStr);
+        return preg_replace('/([a-z])([A-Z])/s', '$1 $2', $string);
+    }
+
+    public static function toSnakeCase($string)
+    {
+        return preg_replace('/([a-z])([A-Z])/s', '$1_$2', $string);
+    }
+
+    public static function toCamelCase($string)
+    {
+        return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $string))));
     }
 
     public static function timestampToDateTimeString($timestamp)

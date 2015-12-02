@@ -432,6 +432,11 @@ class AccountController extends BaseController
     {
         if (Auth::user()->account->isPro()) {
             $account = Auth::user()->account;
+            $account->email_design_id = Input::get('email_design_id');
+
+            if (Utils::isNinja()) {
+                $account->enable_email_markup = Input::get('enable_email_markup') ? true : false;
+            }
 
             foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type) {
                 $subjectField = "email_subject_{$type}";

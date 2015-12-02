@@ -44,7 +44,7 @@ class ActivityRepository
     {
         $activity = new Activity();
 
-        if (Auth::check()) {
+        if (Auth::check() && Auth::user()->account_id == $entity->account_id) {
             $activity->user_id = Auth::user()->id;
             $activity->account_id = Auth::user()->account_id;
         } else {

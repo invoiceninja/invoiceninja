@@ -4,7 +4,7 @@
   <meta charset="utf-8">
 </head>
 <body>
-    @if (Utils::isNinjaDev())
+    @if ($account->enable_email_markup)
         @include('emails.view_action', ['link' => $link, 'entityType' => $entityType])
     @endif
     {!! $body !!}

@@ -317,12 +317,12 @@ class ConfideSetupUsersTable extends Migration {
             $t->date('due_date')->nullable();
             $t->text('terms');
             $t->text('public_notes');
-            $t->boolean('is_deleted')->default(false);            
-            $t->boolean('is_recurring');
+            $t->boolean('is_deleted')->default(false);
+            $t->boolean('is_recurring')->default(false);
             $t->unsignedInteger('frequency_id');
             $t->date('start_date')->nullable();
             $t->date('end_date')->nullable();
-            $t->timestamp('last_sent_date')->nullable();  
+            $t->timestamp('last_sent_date')->nullable();
             $t->unsignedInteger('recurring_invoice_id')->index()->nullable();
 
             $t->string('tax_name');
