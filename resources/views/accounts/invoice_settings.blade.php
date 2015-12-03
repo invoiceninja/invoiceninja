@@ -49,13 +49,15 @@
                         ->placeholder(trans('texts.www'))
                         ->onchange('onSubdomainChange()')
                         ->addGroupClass('subdomain')
-                        ->label(' ') !!}
+                        ->label(' ')
+                        ->help(trans('texts.subdomain_help')) !!}
 
             {!! Former::text('iframe_url')
                         ->placeholder('http://www.example.com/invoice')
                         ->appendIcon('question-sign')
                         ->addGroupClass('iframe_url')
-                        ->label(' ') !!}
+                        ->label(' ')
+                        ->help(trans('texts.subdomain_help')) !!}
         </div>
     </div>
 
@@ -91,7 +93,8 @@
                                 ->label(' ')
                                 ->addGroupClass('number-pattern') !!}
                         {!! Former::text('invoice_number_counter')
-                                ->label(trans('texts.counter')) !!}
+                                ->label(trans('texts.counter'))
+                                ->help(trans('texts.invoice_number_help')) !!}
 
                     </div>
                 </div>
@@ -117,7 +120,8 @@
                                 ->label(trans('texts.counter'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('share_counter')->raw()
-                                ->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter')) !!}
+                                ->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter'))
+                                ->help(trans('texts.quote_number_help')) !!}
 
 
                     </div>
@@ -145,27 +149,38 @@
                 <div role="tabpanel" class="tab-pane active" id="clientFields">
                     <div class="panel-body">
 
-                        {!! Former::text('custom_client_label1')->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_client_label2')->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_client_label1')
+                                ->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_client_label2')
+                                ->label(trans('texts.field_label'))
+                                ->help(trans('texts.custom_client_fields_helps')) !!}
 
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="companyFields">
                     <div class="panel-body">
 
-                        {!! Former::text('custom_label1')->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_value1')->label(trans('texts.field_value')) !!}
+                        {!! Former::text('custom_label1')
+                                ->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_value1')
+                                ->label(trans('texts.field_value')) !!}
                         <p>&nbsp;</p>
-                        {!! Former::text('custom_label2')->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_value2')->label(trans('texts.field_value')) !!}
+                        {!! Former::text('custom_label2')
+                                ->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_value2')
+                                ->label(trans('texts.field_value'))
+                                ->help(trans('texts.custom_account_fields_helps')) !!}
 
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="invoiceFields">
                     <div class="panel-body">
 
-                        {!! Former::text('custom_invoice_text_label1')->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_invoice_text_label2')->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_invoice_text_label1')
+                                ->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_invoice_text_label2')
+                                ->label(trans('texts.field_label'))
+                                ->help(trans('texts.custom_invoice_fields_helps')) !!}
 
                     </div>
                 </div>
@@ -181,7 +196,8 @@
                                 ->label(trans('texts.field_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes2')
-                                ->raw() . trans('texts.charge_taxes')) !!}
+                                ->raw() . trans('texts.charge_taxes'))
+                                ->help(trans('texts.custom_invoice_charges_helps')) !!}
 
                     </div>
                 </div>

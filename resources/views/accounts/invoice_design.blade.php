@@ -119,7 +119,8 @@
                             ->step('1') !!}
 
                       {!! Former::text('primary_color') !!}
-                      {!! Former::text('secondary_color') !!}
+                      {!! Former::text('secondary_color')
+                                ->help('<br/>'.trans('texts.color_help')) !!}
 
                     </div>
                 </div>

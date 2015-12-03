@@ -58,8 +58,14 @@
                 </div>
                 @endif
 
-                {!! Former::select('size_id')->addOption('','')->fromQuery($sizes, 'name', 'id') !!}
-                {!! Former::select('industry_id')->addOption('','')->fromQuery($industries, 'name', 'id') !!}
+                {!! Former::select('size_id')
+                        ->addOption('','')
+                        ->fromQuery($sizes, 'name', 'id') !!}
+
+                {!! Former::select('industry_id')
+                        ->addOption('','')
+                        ->fromQuery($industries, 'name', 'id')
+                        ->help('texts.industry_help') !!}
 
             </div>
         </div>
