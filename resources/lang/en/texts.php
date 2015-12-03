@@ -969,10 +969,10 @@ return array(
     'subdomain_help' => 'Customize the invoice link subdomain or display the invoice on your own website.',
     'invoice_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the invoice number.',
     'quote_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the quote number.',
-    'custom_client_fields_helps' => 'Adds a text input to the client create/edit page and displays the label and value on the PDF.',
-    'custom_account_fields_helps' => 'Adds the label and value to the company details section of the PDF.',
-    'custom_invoice_fields_helps' => 'Adds a text input to the invoice create/edit page and displays the label and value on the PDF.',
-    'custom_invoice_charges_helps' => 'Adds a text input to the invoice create/edit page and includes the charge in the invoice subtotals.',
+    'custom_client_fields_helps' => 'Add a text input to the client create/edit page and display the label and value on the PDF.',
+    'custom_account_fields_helps' => 'Add the label and value to the company details section of the PDF.',
+    'custom_invoice_fields_helps' => 'Add a text input to the invoice create/edit page and display the label and value on the PDF.',
+    'custom_invoice_charges_helps' => 'Add a text input to the invoice create/edit page and include the charge in the invoice subtotals.',
     'color_help' => 'Note: the primary color is also used in the client portal and custom email designs.',
 
 
