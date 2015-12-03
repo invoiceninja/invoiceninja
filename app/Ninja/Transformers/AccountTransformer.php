@@ -76,7 +76,15 @@ class AccountTransformer extends EntityTransformer
             'language_id' => (int) $account->language_id,
             'fill_products' => (bool) $account->fill_products,
             'update_products' => (bool) $account->update_products,
-            'vat_number' => $account->vat_number
+            'vat_number' => $account->vat_number,
+            'custom_invoice_label1' => $account->custom_invoice_label1,
+            'custom_invoice_label2' => $account->custom_invoice_label2,
+            'custom_invoice_taxes1' => $account->custom_invoice_taxes1,
+            'custom_invoice_taxes2' => $account->custom_invoice_taxes1,
+            'custom_label1' => $account->custom_label1,
+            'custom_label2' => $account->custom_label2,
+            'custom_value1' => $account->custom_value1,
+            'custom_value2' => $account->custom_value2
         ];
     }
 }
