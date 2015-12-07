@@ -64,7 +64,9 @@ class InvoiceTransformer extends EntityTransformer
             'has_tasks' => (bool) $invoice->has_tasks,
             'auto_bill' => (bool) $invoice->auto_bill,
             'account_key' => $this->account->account_key,
-            'user_id' => (int) $invoice->user->public_id + 1
+            'user_id' => (int) $invoice->user->public_id + 1,
+            'custom_value1' => $invoice->custom_value1,
+            'custom_value2' => $invoice->custom_value2
         ];
     }
 }
