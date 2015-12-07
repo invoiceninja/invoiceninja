@@ -542,6 +542,8 @@ class PaymentController extends BaseController
     public function store(CreatePaymentRequest $request)
     {
         $input = $request->input();
+        $input['invoice_id'] = Invoice::getPrivateId($input['invoice']);
+        $input['client_id'] = Client::getPrivateId($input['client']);
         $payment = $this->paymentRepo->save($input);
 
         if (Input::get('email_receipt')) {

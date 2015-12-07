@@ -75,11 +75,11 @@ class StartupCheck
                             'releases_link' => link_to(RELEASES_URL, 'Invoice Ninja', ['target' => '_blank']),
                         ];
                         Session::put('news_feed_id', NEW_VERSION_AVAILABLE);
-                        Session::put('news_feed_message', trans('texts.new_version_available', $params));
+                        Session::flash('news_feed_message', trans('texts.new_version_available', $params));
                     } else {
                         Session::put('news_feed_id', $data->id);
                         if ($data->message && $data->id > Auth::user()->news_feed_id) {
-                            Session::put('news_feed_message', $data->message);
+                            Session::flash('news_feed_message', $data->message);
                         }
                     }
                 } else {

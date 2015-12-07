@@ -9,6 +9,7 @@ use parsecsv;
 use Session;
 use Validator;
 use League\Fractal\Manager;
+use App\Ninja\Repositories\ContactRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
@@ -21,9 +22,11 @@ class ImportService
     protected $transformer;
     protected $invoiceRepo;
     protected $clientRepo;
+    protected $contactRepo;
 
     public static $entityTypes = [
         ENTITY_CLIENT,
+        ENTITY_CONTACT,
         ENTITY_INVOICE,
         ENTITY_TASK,
     ];
@@ -31,7 +34,7 @@ class ImportService
     public static $sources = [
         IMPORT_CSV,
         IMPORT_FRESHBOOKS,
-        //IMPORT_HARVEST,
+        IMPORT_HARVEST,
         //IMPORT_HIVEAGE,
         //IMPORT_INVOICEABLE,
         //IMPORT_NUTCACHE,
@@ -40,7 +43,7 @@ class ImportService
         //IMPORT_ZOHO,
     ];
 
-    public function __construct(Manager $manager, ClientRepository $clientRepo, InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo)
+    public function __construct(Manager $manager, ClientRepository $clientRepo, InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ContactRepository $contactRepo)
     {
         $this->fractal = $manager;
         $this->fractal->setSerializer(new ArraySerializer());
@@ -48,6 +51,7 @@ class ImportService
         $this->clientRepo = $clientRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
+        $this->contactRepo = $contactRepo;
     }
 
     public function import($source, $files)
@@ -97,16 +101,18 @@ class ImportService
             $data['invoice_number'] = $account->getNextInvoiceNumber($invoice);
         }
 
-        if ($this->validate($data, $entityType) !== true) {
+        if ($this->validate($source, $data, $entityType) !== true) {
             return;
         }
 
         $entity = $this->{"{$entityType}Repo"}->save($data);
 
         // if the invoice is paid we'll also create a payment record
-        if ($entityType === ENTITY_INVOICE && isset($row->paid) && $row->paid) {
-            $this->createPayment($source, $row, $maps, $data['client_id'], $entity->public_id);
+        if ($entityType === ENTITY_INVOICE && isset($data['paid']) && $data['paid']) {
+            $this->createPayment($source, $row, $maps, $data['client_id'], $entity->id);
         }
+
+        return $entity;
     }
 
     private function checkData($entityType, $count)
@@ -149,9 +155,10 @@ class ImportService
         }
     }
 
-    private function validate($data, $entityType)
+    private function validate($source, $data, $entityType)
     {
-        if ($entityType === ENTITY_CLIENT) {
+        // Harvest's contacts are listed separately
+        if ($entityType === ENTITY_CLIENT && $source != IMPORT_HARVEST) {
             $rules = [
                 'contacts' => 'valid_contacts',
             ];
@@ -183,13 +190,13 @@ class ImportService
         $clientMap = [];
         $clients = $this->clientRepo->all();
         foreach ($clients as $client) {
-            $clientMap[$client->name] = $client->public_id;
+            $clientMap[$client->name] = $client->id;
         }
 
         $invoiceMap = [];
         $invoices = $this->invoiceRepo->all();
         foreach ($invoices as $invoice) {
-            $invoiceMap[$invoice->invoice_number] = $invoice->public_id;
+            $invoiceMap[$invoice->invoice_number] = $invoice->id;
         }
 
         $countryMap = [];

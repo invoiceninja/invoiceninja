@@ -90,8 +90,8 @@ class PaymentApiController extends BaseAPIController
             $invoice = Invoice::scope($data['invoice_id'])->with('client')->first();
 
             if ($invoice) {
-                $data['invoice'] = $invoice->public_id;
-                $data['client'] = $invoice->client->public_id;
+                $data['invoice_id'] = $invoice->id;
+                $data['client_id'] = $invoice->client->id;
             } else {
                 $error = trans('validation.not_in', ['attribute' => 'invoice_id']);
             }

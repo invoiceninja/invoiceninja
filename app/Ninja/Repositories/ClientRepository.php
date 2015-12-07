@@ -75,6 +75,10 @@ class ClientRepository extends BaseRepository
         $client->fill($data);
         $client->save();
 
+        if ( ! isset($data['contact']) && ! isset($data['contacts'])) {
+            return $client;
+        }
+
         $first = true;
         $contacts = isset($data['contact']) ? [$data['contact']] : $data['contacts'];
         $contactIds = [];
