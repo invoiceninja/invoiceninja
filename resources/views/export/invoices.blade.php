@@ -32,8 +32,8 @@
                 <td>{{ $invoice->present()->user }}</td>
             @endif
             <td>{{ $invoice->invoice_number }}</td>
-            <td>{{ $invoice->present()->balance }}</td>
-            <td>{{ $invoice->present()->amount }}</td>
+            <td>{{ $account->formatMoney($invoice->balance, $invoice->client) }}</td>
+            <td>{{ $account->formatMoney($invoice->amount, $invoice->client) }}</td>
             <td>{{ $invoice->po_number }}</td>
             <td>{{ $invoice->present()->status }}</td>
             <td>{{ $invoice->present()->invoice_date }}</td>

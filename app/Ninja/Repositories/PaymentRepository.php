@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
+use DB;
 use Utils;
 use App\Models\Payment;
 use App\Models\Credit;
@@ -16,7 +17,8 @@ class PaymentRepository extends BaseRepository
 
     public function find($clientPublicId = null, $filter = null)
     {
-        $query = \DB::table('payments')
+        $query = DB::table('payments')
+                    ->join('accounts', 'accounts.id', '=', 'payments.account_id')
                     ->join('clients', 'clients.id', '=', 'payments.client_id')
                     ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -29,6 +31,8 @@ class PaymentRepository extends BaseRepository
                     ->where('contacts.deleted_at', '=', null)
                     ->where('invoices.is_deleted', '=', false)
                     ->select('payments.public_id',
+                        DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                        DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                         'payments.transaction_reference',
                         'clients.name as client_name',
                         'clients.public_id as client_public_id',
@@ -36,7 +40,6 @@ class PaymentRepository extends BaseRepository
                         'payments.payment_date',
                         'invoices.public_id as invoice_public_id',
                         'invoices.invoice_number',
-                        'clients.currency_id',
                         'contacts.first_name',
                         'contacts.last_name',
                         'contacts.email',
@@ -67,7 +70,8 @@ class PaymentRepository extends BaseRepository
 
     public function findForContact($contactId = null, $filter = null)
     {
-        $query = \DB::table('payments')
+        $query = DB::table('payments')
+                    ->join('accounts', 'accounts.id', '=', 'payments.account_id')
                     ->join('clients', 'clients.id', '=', 'payments.client_id')
                     ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -81,7 +85,24 @@ class PaymentRepository extends BaseRepository
                     ->where('invitations.deleted_at', '=', null)
                     ->where('invoices.deleted_at', '=', null)
                     ->where('invitations.contact_id', '=', $contactId)
-                    ->select('invitations.invitation_key', 'payments.public_id', 'payments.transaction_reference', 'clients.name as client_name', 'clients.public_id as client_public_id', 'payments.amount', 'payments.payment_date', 'invoices.public_id as invoice_public_id', 'invoices.invoice_number', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'payment_types.name as payment_type', 'payments.account_gateway_id');
+                    ->select(
+                        DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                        DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                        'invitations.invitation_key',
+                        'payments.public_id',
+                        'payments.transaction_reference',
+                        'clients.name as client_name',
+                        'clients.public_id as client_public_id',
+                        'payments.amount',
+                        'payments.payment_date',
+                        'invoices.public_id as invoice_public_id',
+                        'invoices.invoice_number',
+                        'contacts.first_name',
+                        'contacts.last_name',
+                        'contacts.email',
+                        'payment_types.name as payment_type',
+                        'payments.account_gateway_id'
+                    );
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {

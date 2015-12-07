@@ -206,7 +206,7 @@ class ContactMailer extends Mailer
         $data = [
             'account' => trans('texts.email_from'),
             'client' => $name,
-            'amount' => Utils::formatMoney($amount, 1),
+            'amount' => Utils::formatMoney($amount, DEFAULT_CURRENCY, DEFAULT_COUNTRY),
             'license' => $license
         ];
         
@@ -226,7 +226,7 @@ class ContactMailer extends Mailer
             '$account' => $account->getDisplayName(),
             '$contact' => $invitation->contact->getDisplayName(),
             '$firstName' => $invitation->contact->first_name,
-            '$amount' => Utils::formatMoney($data['amount'], $client->getCurrencyId()),
+            '$amount' => $account->formatMoney($data['amount'], $client),
             '$invoice' => $invoice->invoice_number,
             '$quote' => $invoice->invoice_number,
             '$link' => $invitation->getLink(),

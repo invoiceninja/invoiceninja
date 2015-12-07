@@ -116,7 +116,7 @@ class InvoiceService extends BaseService
             [
                 'amount',
                 function ($model) {
-                    return Utils::formatMoney($model->amount, $model->currency_id);
+                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
                 }
             ],
             [
@@ -124,10 +124,10 @@ class InvoiceService extends BaseService
                 function ($model) {
                     return $model->partial > 0 ?
                         trans('texts.partial_remaining', [
-                            'partial' => Utils::formatMoney($model->partial, $model->currency_id),
-                            'balance' => Utils::formatMoney($model->balance, $model->currency_id)]
+                            'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
+                            'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id)]
                         ) :
-                        Utils::formatMoney($model->balance, $model->currency_id);
+                        Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
                 },
                 $entityType == ENTITY_INVOICE
             ],

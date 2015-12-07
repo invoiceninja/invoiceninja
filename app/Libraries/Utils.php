@@ -239,31 +239,54 @@ class Utils
         return intval($value);
     }
 
-    public static function formatMoney($value, $currencyId = false, $showSymbol = true)
+    public static function getFromCache($id, $type) {
+        $data = Cache::get($type)->filter(function($item) use ($id) {
+            return $item->id == $id;
+        });
+        
+        return $data->first();
+    }
+
+    public static function formatMoney($value, $currencyId = false, $countryId = false, $hideSymbol = false)
     {
-        if (!$currencyId) {
-            $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
-        }
-
-        foreach (Cache::get('currencies') as $currency) {
-            if ($currency->id == $currencyId) {
-                break;
-            }
-        }
-
-        if (!$currency) {
-            $currency = Currency::find(1);
-        }
-
         if (!$value) {
             $value = 0;
         }
 
-        $str = '';
-        if ($showSymbol) {
-            $str .= $currency->symbol;
+        if (!$currencyId) {
+            $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
         }
-        return $str . number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
+
+        if (!$countryId && Auth::check()) {
+            $countryId = Auth::user()->account->country_id;
+        }
+
+        $currency = self::getFromCache($currencyId, 'currencies');
+        $thousand = $currency->thousand_separator;
+        $decimal = $currency->decimal_separator;
+        $swapSymbol = false;
+
+        if ($countryId && $currencyId == CURRENCY_EURO) {
+            $country = self::getFromCache($countryId, 'countries');
+            $swapSymbol = $country->swap_currency_symbol;
+            if ($country->thousand_separator) {
+                $thousand = $country->thousand_separator;
+            }
+            if ($country->decimal_separator) {
+                $decimal = $country->decimal_separator;
+            }
+        }
+
+        $value = number_format($value, $currency->precision, $decimal, $thousand);
+        $symbol = $currency->symbol;
+
+        if ($hideSymbol) {
+            return $value;
+        } elseif ($swapSymbol) {
+            return "{$value} " . trim($symbol);
+        } else {
+            return "{$symbol}{$value}";
+        }
     }
 
     public static function pluralize($string, $count)
@@ -814,10 +837,10 @@ class Utils
         return link_to($link, $title, array('target' => '_blank'));
     }
 
-    public static function wrapAdjustment($adjustment, $currencyId)
+    public static function wrapAdjustment($adjustment, $currencyId, $countryId)
     {
         $class = $adjustment <= 0 ? 'success' : 'default';
-        $adjustment = Utils::formatMoney($adjustment, $currencyId);
+        $adjustment = Utils::formatMoney($adjustment, $currencyId, $countryId);
         return "<h4><div class=\"label label-{$class}\">$adjustment</div></h4>";
     }
 

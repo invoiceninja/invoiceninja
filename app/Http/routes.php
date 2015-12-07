@@ -391,8 +391,12 @@ if (!defined('CONTACT_EMAIL')) {
     define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
     define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
 
+    define('CURRENCY_DOLLAR', 1);
+    define('CURRENCY_EURO', 3);
+
     define('DEFAULT_TIMEZONE', 'US/Eastern');
-    define('DEFAULT_CURRENCY', 1); // US Dollar
+    define('DEFAULT_COUNTRY', 840); // United Stated
+    define('DEFAULT_CURRENCY', CURRENCY_DOLLAR);
     define('DEFAULT_LANGUAGE', 1); // English
     define('DEFAULT_DATE_FORMAT', 'M j, Y');
     define('DEFAULT_DATE_PICKER_FORMAT', 'M d, yyyy');

@@ -267,8 +267,9 @@ class PaymentLibrariesSeeder extends Seeder
             'AR' => [
                 'swap_postal_code' => true,
             ],
-            'AT' => [
+            'AT' => [ // Austria
                 'swap_postal_code' => true,
+                'swap_currency_symbol' => true,
             ],
             'BE' => [
                 'swap_postal_code' => true,

@@ -340,6 +340,10 @@ function InvoiceModel(data) {
         refreshPDF(true);
     }
 
+    self.formatMoney = function(amount) {
+        var client = $.parseJSON(ko.toJSON(self.client()));
+        return formatMoneyAccount(amount, self.account, client);
+    }
 
     self.totals = ko.observable();
 
@@ -354,7 +358,7 @@ function InvoiceModel(data) {
 
     self.totals.subtotal = ko.computed(function() {
         var total = self.totals.rawSubtotal();
-        return formatMoney(total, self.client().currency_id());
+        return self.formatMoney(total);
     });
 
     self.totals.rawDiscounted = ko.computed(function() {
@@ -366,7 +370,7 @@ function InvoiceModel(data) {
     });
 
     self.totals.discounted = ko.computed(function() {
-        return formatMoney(self.totals.rawDiscounted(), self.client().currency_id());
+        return self.formatMoney(self.totals.rawDiscounted());
     });
 
     self.totals.taxAmount = ko.computed(function() {
@@ -388,10 +392,10 @@ function InvoiceModel(data) {
 
         var taxRate = parseFloat(self.tax_rate());
         if (taxRate > 0) {
-            var tax = roundToTwo(total * (taxRate/100));            
-            return formatMoney(tax, self.client().currency_id());
+            var tax = roundToTwo(total * (taxRate/100));
+            return self.formatMoney(tax);
         } else {
-            return formatMoney(0, self.client().currency_id());
+            return self.formatMoney(0);
         }
     });
 
@@ -448,7 +452,7 @@ function InvoiceModel(data) {
         var parts = [];            
         for (var key in taxes) {
             if (taxes.hasOwnProperty(key)) {
-                parts.push(formatMoney(taxes[key].amount, self.client().currency_id()));
+                parts.push(self.formatMoney(taxes[key].amount));
             }                
         }
         return parts.join('<br/>');
@@ -460,7 +464,7 @@ function InvoiceModel(data) {
 
     self.totals.paidToDate = ko.computed(function() {
         var total = self.totals.rawPaidToDate();
-        return formatMoney(total, self.client().currency_id());
+        return self.formatMoney(total);
     });
 
     self.totals.rawTotal = ko.computed(function() {
@@ -508,7 +512,7 @@ function InvoiceModel(data) {
     });
 
     self.totals.total = ko.computed(function() {
-        return formatMoney(self.partial() ? self.partial() : self.totals.rawTotal(), self.client().currency_id());
+        return self.formatMoney(self.partial() ? self.partial() : self.totals.rawTotal());
     });        
 
     self.onDragged = function(item) {
@@ -781,11 +785,14 @@ function ItemModel(data) {
 
     this.totals.total = ko.computed(function() {
         var total = self.totals.rawTotal();
+        return total ? model.invoice().formatMoney(total) : '';
+        /*
         if (window.hasOwnProperty('model') && model.invoice && model.invoice() && model.invoice().client()) {
-            return total ? formatMoney(total, model.invoice().client().currency_id()) : '';
+            return total ? model.invoice().formatMoney(total) : '';
         } else {
-            return total ? formatMoney(total, 1) : '';
+            return total ? model.invoice().formatMoney(total, 1) : '';
         }
+        */
     });
 
     this.hideActions = function() {

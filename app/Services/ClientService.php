@@ -76,7 +76,7 @@ class ClientService extends BaseService
             [
                 'balance',
                 function ($model) {
-                    return Utils::formatMoney($model->balance, $model->currency_id);
+                    return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
                 }
             ]
         ];

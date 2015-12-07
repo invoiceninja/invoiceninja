@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
+use DB;
 use Utils;
 use App\Models\Credit;
 use App\Models\Client;
@@ -14,14 +15,30 @@ class CreditRepository extends BaseRepository
 
     public function find($clientPublicId = null, $filter = null)
     {
-        $query = \DB::table('credits')
+        $query = DB::table('credits')
+                    ->join('accounts', 'accounts.id', '=', 'credits.account_id')
                     ->join('clients', 'clients.id', '=', 'credits.client_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('clients.account_id', '=', \Auth::user()->account_id)
                     ->where('clients.deleted_at', '=', null)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
-                    ->select('credits.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'credits.amount', 'credits.balance', 'credits.credit_date', 'clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'credits.private_notes', 'credits.deleted_at', 'credits.is_deleted');
+                    ->select(
+                        DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                        DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                        'credits.public_id',
+                        'clients.name as client_name',
+                        'clients.public_id as client_public_id',
+                        'credits.amount',
+                        'credits.balance',
+                        'credits.credit_date',
+                        'contacts.first_name',
+                        'contacts.last_name',
+                        'contacts.email',
+                        'credits.private_notes',
+                        'credits.deleted_at',
+                        'credits.is_deleted'
+                    );
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);

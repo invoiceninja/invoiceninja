@@ -47,13 +47,13 @@ class CreditService extends BaseService
             [
                 'amount',
                 function ($model) {
-                    return Utils::formatMoney($model->amount, $model->currency_id) . '<span '.Utils::getEntityRowClass($model).'/>';
+                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id) . '<span '.Utils::getEntityRowClass($model).'/>';
                 }
             ],
             [
                 'balance',
                 function ($model) {
-                    return Utils::formatMoney($model->balance, $model->currency_id);
+                    return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
                 }
             ],
             [

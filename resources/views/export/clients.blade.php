@@ -25,8 +25,8 @@
         @if ($multiUser)
             <td>{{ $client->user->getDisplayName() }}</td>
         @endif
-        <td>{{ $client->present()->balance }}</td>
-        <td>{{ $client->present()->paid_to_date }}</td>
+        <td>{{ $account->formatMoney($client->balance, $client) }}</td>
+        <td>{{ $account->formatMoney($client->paid_to_date, $client) }}</td>
         <td>{{ $client->address1 }}</td>
         <td>{{ $client->address2 }}</td>
         <td>{{ $client->city }}</td>

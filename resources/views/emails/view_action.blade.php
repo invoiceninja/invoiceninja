@@ -19,7 +19,7 @@
   },
   "totalPaymentDue": {
     "@type": "PriceSpecification",
-    "price": "{{ $invoice->present()->balance_due }}"
+    "price": "{{ $account->formatMoney($invoice->getRequestedAmount(), $client) }}"
   },
   "action": {
     "@type": "ViewAction",

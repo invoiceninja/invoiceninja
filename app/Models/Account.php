@@ -205,18 +205,25 @@ class Account extends Eloquent
         return $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT;
     }
 
-    public function formatMoney($amount, $client = null)
+    public function formatMoney($amount, $client = null, $hideSymbol = false)
     {
-        $currency = ($client && $client->currency) ? $client->currency : $this->currency;
-
-        if ( ! $currency) {
-            $currencies = Cache::get('currencies')->filter(function($item) {
-                return $item->id == DEFAULT_CURRENCY;
-            });
-            $currency = $currencies->first();
+        if ($client && $client->currency_id) {
+            $currencyId = $client->currency_id;
+        } elseif ($this->currency_id) {
+            $currencyId = $this->currency_id;
+        } else {
+            $currencyId = DEFAULT_CURRENCY;
         }
 
-        return $currency->symbol . number_format($amount, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
+        if ($client && $client->country_id) {
+            $countryId = $client->country_id;
+        } elseif ($this->country_id) {
+            $countryId = $this->country_id;
+        } else {
+            $countryId = false;
+        }
+
+        return Utils::formatMoney($amount, $currencyId, $countryId, $hideSymbol);
     }
 
     public function formatDate($date)

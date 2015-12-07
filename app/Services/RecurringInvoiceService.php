@@ -53,7 +53,7 @@ class RecurringInvoiceService extends BaseService
             [
                 'amount',
                 function ($model) {
-                    return Utils::formatMoney($model->amount, $model->currency_id);
+                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
                 }
             ]
         ];

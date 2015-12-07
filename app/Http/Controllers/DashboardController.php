@@ -62,7 +62,7 @@ class DashboardController extends BaseController
             ->get();
 
         $activities = Activity::where('activities.account_id', '=', Auth::user()->account_id)
-                ->with('client.contacts', 'user', 'invoice', 'payment', 'credit')
+                ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'account')
                 ->where('activity_type_id', '>', 0)
                 ->orderBy('created_at', 'desc')
                 ->take(50)

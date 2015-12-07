@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
+use DB;
 use App\Ninja\Repositories\BaseRepository;
 use App\Models\Client;
 use App\Models\Contact;
@@ -23,12 +24,27 @@ class ClientRepository extends BaseRepository
 
     public function find($filter = null)
     {
-        $query = \DB::table('clients')
+        $query = DB::table('clients')
+                    ->join('accounts', 'accounts.id', '=', 'clients.account_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('clients.account_id', '=', \Auth::user()->account_id)
                     ->where('contacts.is_primary', '=', true)
                     ->where('contacts.deleted_at', '=', null)
-                    ->select('clients.public_id', 'clients.name', 'contacts.first_name', 'contacts.last_name', 'clients.balance', 'clients.last_login', 'clients.created_at', 'clients.work_phone', 'contacts.email', 'clients.currency_id', 'clients.deleted_at', 'clients.is_deleted');
+                    ->select(
+                        DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                        DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                        'clients.public_id',
+                        'clients.name',
+                        'contacts.first_name',
+                        'contacts.last_name',
+                        'clients.balance',
+                        'clients.last_login',
+                        'clients.created_at',
+                        'clients.work_phone',
+                        'contacts.email',
+                        'clients.deleted_at',
+                        'clients.is_deleted'
+                    );
 
         if (!\Session::get('show_trash:client')) {
             $query->where('clients.deleted_at', '=', null);

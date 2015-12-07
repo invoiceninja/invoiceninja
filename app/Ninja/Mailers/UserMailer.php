@@ -42,22 +42,27 @@ class UserMailer extends Mailer
         
         $entityType = $notificationType == 'approved' ? ENTITY_QUOTE : ENTITY_INVOICE;
         $view = "{$entityType}_{$notificationType}";
+        $account = $user->account;
+        $client = $invoice->client;
 
         $data = [
             'entityType' => $entityType,
-            'clientName' => $invoice->client->getDisplayName(),
-            'accountName' => $invoice->account->getDisplayName(),
+            'clientName' => $client->getDisplayName(),
+            'accountName' => $account->getDisplayName(),
             'userName' => $user->getDisplayName(),
-            'invoiceAmount' => Utils::formatMoney($invoice->getRequestedAmount(), $invoice->client->getCurrencyId()),
+            'invoiceAmount' => $account->formatMoney($invoice->getRequestedAmount(), $client),
             'invoiceNumber' => $invoice->invoice_number,
             'invoiceLink' => SITE_URL."/{$entityType}s/{$invoice->public_id}",
         ];
 
         if ($payment) {
-            $data['paymentAmount'] = Utils::formatMoney($payment->amount, $invoice->client->getCurrencyId());
+            $data['paymentAmount'] = $account->formatMoney($payment->amount, $client);
         }
 
-        $subject = trans("texts.notification_{$entityType}_{$notificationType}_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->getDisplayName()]);
+        $subject = trans("texts.notification_{$entityType}_{$notificationType}_subject", [
+            'invoice' => $invoice->invoice_number,
+            'client' => $client->getDisplayName()
+        ]);
         
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }

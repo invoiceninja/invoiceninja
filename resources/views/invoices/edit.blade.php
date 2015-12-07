@@ -3,6 +3,7 @@
 @section('head')
 	@parent
 
+    @include('money_script')
 	<script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
 
     <style type="text/css">
@@ -488,7 +489,7 @@
                     {!! Former::select('client[country_id]')
                             ->label(trans('texts.country_id'))
                             ->addOption('','')->addGroupClass('country_select')
-                            ->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") !!}
+                            ->fromQuery(Cache::get('countries'), 'name', 'id')->data_bind("dropdown: country_id") !!}
                 </span>
 
             </div>
@@ -607,7 +608,6 @@
 	
     var products = {!! $products !!};
     var clients = {!! $clients !!}; 
-    var countries = {!! $countries !!};
     var account = {!! Auth::user()->account !!};
 
     var clientMap = {};

@@ -14,22 +14,4 @@ class CreditPresenter extends Presenter {
     {
         return Utils::fromSqlDate($this->entity->credit_date);
     }
-
-    public function amount()
-    {
-        $amount = $this->entity->amount;
-        $currencyId = $this->entity->client->currency_id;
-
-        return Utils::formatMoney($amount, $currencyId);
-    }
-
-    public function balance()
-    {
-        $amount = $this->entity->balance;
-        $currencyId = $this->entity->client->currency_id;
-
-        return Utils::formatMoney($amount, $currencyId);
-    }
-
-
 }

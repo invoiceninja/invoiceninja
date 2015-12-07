@@ -65,7 +65,7 @@ class PublicClientController extends BaseController
 
                 return trans("texts.activity_{$model->activity_type_id}", $data);
              })
-            ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id); })
+            ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id); })
             ->addColumn('adjustment', function ($model) { return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id) : ''; })
             ->make();
     }
@@ -129,7 +129,7 @@ class PublicClientController extends BaseController
                 ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number) : $model->invoice_number; })
                 ->addColumn('transaction_reference', function ($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
                 ->addColumn('payment_type', function ($model) { return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
-                ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id); })
+                ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
                 ->addColumn('payment_date', function ($model) { return Utils::dateToString($model->payment_date); })
                 ->make();
     }

@@ -15,8 +15,8 @@
             @if ($multiUser)
                 <td>{{ $credit->user->getDisplayName() }}</td>
             @endif
-            <td>{{ $credit->present()->amount }}</td>
-            <td>{{ $credit->present()->balance }}</td>
+            <td>{{ $account->formatMoney($credit->amount, $credit->client) }}</td>
+            <td>{{ $account->formatMoney($credit->balance, $credit->client) }}</td>
             <td>{{ $credit->present()->credit_date }}</td>
         </tr>
     @endif

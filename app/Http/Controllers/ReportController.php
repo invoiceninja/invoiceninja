@@ -223,6 +223,7 @@ class ReportController extends BaseController
         }
 
         $query = DB::table('invoices')
+                        ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                         ->join('clients', 'clients.id', '=', 'invoices.client_id')
                         ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                         ->where('invoices.account_id', '=', Auth::user()->account_id)
@@ -235,7 +236,16 @@ class ReportController extends BaseController
                         ->where('invoices.is_recurring', '=', false)
                         ->where('contacts.is_primary', '=', true);
 
-        $select = ['clients.currency_id', 'contacts.first_name', 'contacts.last_name', 'contacts.email', 'clients.name as client_name', 'clients.public_id as client_public_id', 'invoices.public_id as invoice_public_id'];
+        $select = [
+            DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+            'accounts.country_id',
+            'contacts.first_name',
+            'contacts.last_name',
+            'contacts.email',
+            'clients.name as client_name',
+            'clients.public_id as client_public_id',
+            'invoices.public_id as invoice_public_id'
+        ];
 
         if ($reportType == ENTITY_CLIENT) {
             $query->groupBy('clients.id');
@@ -283,19 +293,19 @@ class ReportController extends BaseController
                         Utils::fromSqlDate($record->invoice_date, true)
                     );
                 }
-                array_push($displayRow, Utils::formatMoney($record->amount, $record->currency_id));
+                array_push($displayRow, Utils::formatMoney($record->amount, $record->currency_id, $record->country_id));
             }
             if ($reportType != ENTITY_PAYMENT) {
-                array_push($displayRow, Utils::formatMoney($record->paid, $record->currency_id));
+                array_push($displayRow, Utils::formatMoney($record->paid, $record->currency_id, $record->country_id));
             }
             if ($reportType == ENTITY_PAYMENT) {
                 array_push($displayRow,
                     Utils::fromSqlDate($record->payment_date, true),
-                    Utils::formatMoney($record->paid, $record->currency_id),
+                    Utils::formatMoney($record->paid, $record->currency_id, $record->country_id),
                     $record->gateway ?: $record->payment_type
                 );
             } else {
-                array_push($displayRow, Utils::formatMoney($record->balance, $record->currency_id));
+                array_push($displayRow, Utils::formatMoney($record->balance, $record->currency_id, $record->country_id));
             }
 
             // export data
@@ -311,17 +321,17 @@ class ReportController extends BaseController
                     $exportRow[trans('texts.invoice_number')] = $record->invoice_number;
                     $exportRow[trans('texts.invoice_date')] = Utils::fromSqlDate($record->invoice_date, true);
                 }
-                $exportRow[trans('texts.amount')] = Utils::formatMoney($record->amount, $record->currency_id);
+                $exportRow[trans('texts.amount')] = Utils::formatMoney($record->amount, $record->currency_id, $record->country_id);
             }
             if ($reportType != ENTITY_PAYMENT) {
-                $exportRow[trans('texts.paid')] = Utils::formatMoney($record->paid, $record->currency_id);
+                $exportRow[trans('texts.paid')] = Utils::formatMoney($record->paid, $record->currency_id, $record->country_id);
             }
             if ($reportType == ENTITY_PAYMENT) {
                 $exportRow[trans('texts.payment_date')] = Utils::fromSqlDate($record->payment_date, true);
-                $exportRow[trans('texts.payment_amount')] = Utils::formatMoney($record->paid, $record->currency_id);
+                $exportRow[trans('texts.payment_amount')] = Utils::formatMoney($record->paid, $record->currency_id, $record->country_id);
                 $exportRow[trans('texts.method')] = $record->gateway ?: $record->payment_type;
             } else {
-                $exportRow[trans('texts.balance')] = Utils::formatMoney($record->balance, $record->currency_id);
+                $exportRow[trans('texts.balance')] = Utils::formatMoney($record->balance, $record->currency_id, $record->country_id);
             }
 
             $displayData[] = $displayRow;

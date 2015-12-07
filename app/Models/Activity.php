@@ -51,8 +51,18 @@ class Activity extends Eloquent
         return $this->belongsTo('App\Models\Payment')->withTrashed();
     }
 
-    public static function calcMessage($activityTypeId, $client, $user, $invoice, $contactId, $payment, $credit, $isSystem)
+    public function getMessage()
     {
+        $activityTypeId = $this->activity_type_id;
+        $account = $this->account;
+        $client = $this->client;
+        $user = $this->user;
+        $invoice = $this->invoice;
+        $contactId = $this->contact_id;
+        $payment = $this->payment;
+        $credit = $this->credit;
+        $isSystem = $this->is_system;
+
         $data = [
             'client' => link_to($client->getRoute(), $client->getDisplayName()),
             'user' => $isSystem ? '<i>' . trans('texts.system') . '</i>' : $user->getDisplayName(),
@@ -60,23 +70,9 @@ class Activity extends Eloquent
             'quote' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
             'contact' => $contactId ? $client->getDisplayName() : $user->getDisplayName(),
             'payment' => $payment ? $payment->transaction_reference : null,
-            'credit' => $credit ? Utils::formatMoney($credit->amount, $client->currency_id) : null,
+            'credit' => $credit ? $account->formatMoney($credit->amount, $client) : null,
         ];
 
         return trans("texts.activity_{$activityTypeId}", $data);
-    }
-
-    public function getMessage()
-    {
-        return static::calcMessage(
-            $this->activity_type_id,
-            $this->client,
-            $this->user,
-            $this->invoice,
-            $this->contact_id,
-            $this->payment,
-            $this->credit,
-            $this->is_system
-        );
     }
 }

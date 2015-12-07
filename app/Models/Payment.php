@@ -57,10 +57,12 @@ class Payment extends EntityModel
         return "/payments/{$this->public_id}/edit";
     }
 
+    /*
     public function getAmount()
     {
         return Utils::formatMoney($this->amount, $this->client->getCurrencyId());
     }
+    */
 
     public function getName()
     {

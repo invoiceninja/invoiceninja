@@ -41,10 +41,7 @@
         }
     @endif
 
-
   </style>
-
-  @include('script')
 
 <script type="text/javascript">
 

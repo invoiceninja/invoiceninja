@@ -64,6 +64,7 @@ class ActivityRepository
     public function findByClientId($clientId)
     {
         return DB::table('activities')
+                    ->join('accounts', 'accounts.id', '=', 'activities.account_id')
                     ->join('users', 'users.id', '=', 'activities.user_id')
                     ->join('clients', 'clients.id', '=', 'activities.client_id')
                     ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -74,12 +75,13 @@ class ActivityRepository
                     ->where('contacts.is_primary', '=', 1)
                     ->whereNull('contacts.deleted_at')
                     ->select(
+                        DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                        DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                         'activities.id',
                         'activities.created_at',
                         'activities.contact_id',
                         'activities.activity_type_id',
                         'activities.is_system',
-                        'clients.currency_id',
                         'activities.balance',
                         'activities.adjustment',
                         'users.first_name as user_first_name',
@@ -88,7 +90,6 @@ class ActivityRepository
                         'invoices.invoice_number as invoice',
                         'invoices.public_id as invoice_public_id',
                         'invoices.is_recurring',
-                        'clients.currency_id',
                         'clients.name as client_name',
                         'clients.public_id as client_public_id',
                         'contacts.id as contact',
