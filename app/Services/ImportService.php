@@ -35,7 +35,7 @@ class ImportService
         IMPORT_CSV,
         IMPORT_FRESHBOOKS,
         IMPORT_HARVEST,
-        //IMPORT_HIVEAGE,
+        IMPORT_HIVEAGE,
         //IMPORT_INVOICEABLE,
         //IMPORT_NUTCACHE,
         //IMPORT_RONIN,
@@ -85,7 +85,7 @@ class ImportService
 
     private function saveData($source, $entityType, $row, $maps)
     {
-        $transformer = $this->getTransformer($source, $entityType);
+        $transformer = $this->getTransformer($source, $entityType, $maps);
         $resource = $transformer->transform($row, $maps);
 
         if (!$resource) {
@@ -135,16 +135,16 @@ class ImportService
         return 'App\\Ninja\\Import\\'.$source.'\\'.ucwords($entityType).'Transformer';
     }
 
-    public static function getTransformer($source, $entityType)
+    public static function getTransformer($source, $entityType, $maps)
     {
         $className = self::getTransformerClassName($source, $entityType);
 
-        return new $className();
+        return new $className($maps);
     }
 
     private function createPayment($source, $data, $maps, $clientId, $invoiceId)
     {
-        $paymentTransformer = $this->getTransformer($source, ENTITY_PAYMENT);
+        $paymentTransformer = $this->getTransformer($source, ENTITY_PAYMENT, $maps);
 
         $data->client_id = $clientId;
         $data->invoice_id = $invoiceId;
@@ -190,25 +190,32 @@ class ImportService
         $clientMap = [];
         $clients = $this->clientRepo->all();
         foreach ($clients as $client) {
-            $clientMap[$client->name] = $client->id;
+            $clientMap[strtolower($client->name)] = $client->id;
         }
 
         $invoiceMap = [];
         $invoices = $this->invoiceRepo->all();
         foreach ($invoices as $invoice) {
-            $invoiceMap[$invoice->invoice_number] = $invoice->id;
+            $invoiceMap[strtolower($invoice->invoice_number)] = $invoice->id;
         }
 
         $countryMap = [];
         $countries = Cache::get('countries');
         foreach ($countries as $country) {
-            $countryMap[$country->name] = $country->id;
+            $countryMap[strtolower($country->name)] = $country->id;
+        }
+
+        $currencyMap = [];
+        $currencies = Cache::get('currencies');
+        foreach ($currencies as $currency) {
+            $currencyMap[strtolower($currency->code)] = $currency->id;
         }
 
         return [
             ENTITY_CLIENT => $clientMap,
             ENTITY_INVOICE => $invoiceMap,
             'countries' => $countryMap,
+            'currencies' => $currencyMap,
         ];
     }
 

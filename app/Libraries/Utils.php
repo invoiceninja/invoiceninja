@@ -7,6 +7,7 @@ use App;
 use Schema;
 use Session;
 use Request;
+use Exception;
 use View;
 use DateTimeZone;
 use Input;
@@ -35,7 +36,7 @@ class Utils
             if (Schema::hasTable('accounts')) {
                 return true;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -198,6 +199,10 @@ class Utils
 
     public static function logError($error, $context = 'PHP')
     {
+        if ($error instanceof Exception) {
+            $error = self::getErrorString($error);
+        }
+
         $count = Session::get('error_count', 0);
         Session::put('error_count', ++$count);
         if ($count > 100) {

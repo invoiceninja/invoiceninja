@@ -1,13 +1,13 @@
 <?php namespace App\Ninja\Import\CSV;
 
-use League\Fractal\TransformerAbstract;
+use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
-class PaymentTransformer extends TransformerAbstract
+class PaymentTransformer extends BaseTransformer
 {
-    public function transform($data, $maps)
+    public function transform($data)
     {
-        return new Item($data, function ($data) use ($maps) {
+        return new Item($data, function ($data) {
             return [
                 'amount' => $data->paid,
                 'payment_date_sql' => isset($data->invoice_date) ? $data->invoice_date : null,

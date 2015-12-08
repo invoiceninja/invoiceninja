@@ -1,28 +1,25 @@
 <?php namespace App\Ninja\Import\CSV;
 
-use League\Fractal\TransformerAbstract;
+use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
-use App\Models\Client;
 
-class InvoiceTransformer extends TransformerAbstract
+class InvoiceTransformer extends BaseTransformer
 {
-    public function transform($data, $maps)
+    public function transform($data)
     {
-        if (isset($maps[ENTITY_INVOICE][$data->invoice_number])) {
+        if ( ! $this->getClientId($data->name)) {
             return false;
         }
 
-        if (isset($maps[ENTITY_CLIENT][$data->name])) {
-            $data->client_id = $maps[ENTITY_CLIENT][$data->name];
-        } else {
+        if (isset($data->invoice_number) && $this->hasInvoice($data->invoice_number)) {
             return false;
         }
-        
-        return new Item($data, function ($data) use ($maps) {
+
+        return new Item($data, function ($data) {
             return [
                 'invoice_number' => isset($data->invoice_number) ? $data->invoice_number : null,
                 'paid' => isset($data->paid) ? (float) $data->paid : null,
-                'client_id' => (int) $data->client_id,
+                'client_id' => $this->getClientId($data->name),
                 'po_number' => isset($data->po_number) ? $data->po_number : null,
                 'terms' => isset($data->terms) ? $data->terms : null,
                 'public_notes' => isset($data->notes) ? $data->notes : null,

@@ -1,22 +1,17 @@
 <?php namespace App\Ninja\Import\FreshBooks;
 
-use League\Fractal\TransformerAbstract;
-use App\Models\Country;
+use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
-class ClientTransformer extends TransformerAbstract
+class ClientTransformer extends BaseTransformer
 {
-    public function transform($data, $maps)
+    public function transform($data)
     {
-        if (isset($maps[ENTITY_CLIENT][$data->organization])) {
+        if ($this->hasClient($data->organization)) {
             return false;
         }
 
-        if (isset($maps['countries'][$data->country])) {
-            $data->country_id = $maps['countries'][$data->country];
-        }
-
-        return new Item($data, function ($data) use ($maps) {
+        return new Item($data, function ($data) {
             return [
                 'name' => $data->organization,
                 'work_phone' => $data->busphone,
@@ -34,7 +29,7 @@ class ClientTransformer extends TransformerAbstract
                         'phone' => $data->mobphone ?: $data->homephone,
                     ],
                 ],
-                'country_id' => $data->country_id,
+                'country_id' => $this->getCountryId($data->country),
             ];
         });
     }

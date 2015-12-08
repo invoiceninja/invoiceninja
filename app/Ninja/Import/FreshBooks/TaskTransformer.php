@@ -1,10 +1,10 @@
 <?php namespace App\Ninja\Import\FreshBooks;
 
-use League\Fractal\TransformerAbstract;
-use Illuminate\Support\Facades\Auth;
+use App\Ninja\Import\BaseTransformer;
+use League\Fractal\Resource\Item;
 
 /*
-class TaskTransformer extends TransformerAbstract
+class TaskTransformer extends BaseTransformer
 {
 
     public function transform($data)

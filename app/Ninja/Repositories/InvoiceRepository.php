@@ -262,7 +262,10 @@ class InvoiceRepository extends BaseRepository
         $invoice->invoice_footer = Utils::processVariables($invoice->invoice_footer);
         $invoice->public_notes = Utils::processVariables($invoice->public_notes);
 
-        $invoice->po_number = trim($data['po_number']);
+        if (isset($data['po_number'])) {
+            $invoice->po_number = trim($data['po_number']);
+        }
+        
         $invoice->invoice_design_id = isset($data['invoice_design_id']) ? $data['invoice_design_id'] : $account->invoice_design_id;
 
         if (isset($data['tax_name']) && isset($data['tax_rate']) && $data['tax_name']) {

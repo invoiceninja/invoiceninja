@@ -1,22 +1,19 @@
 <?php namespace App\Ninja\Import\Harvest;
 
-use League\Fractal\TransformerAbstract;
-use App\Models\Country;
+use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
-class ContactTransformer extends TransformerAbstract
+class ContactTransformer extends BaseTransformer
 {
-    public function transform($data, $maps)
+    public function transform($data)
     {
-        if (isset($maps[ENTITY_CLIENT][$data->client])) {
-            $data->client_id = $maps[ENTITY_CLIENT][$data->client];
-        } else {
+        if ( ! $this->hasClient($data->client)) {
             return false;
         }
 
-        return new Item($data, function ($data) use ($maps) {
+        return new Item($data, function ($data) {
             return [
-                'client_id' => $data->client_id,
+                'client_id' => $this->getClientId($data->client),
                 'first_name' => $data->first_name,
                 'last_name' => $data->last_name,
                 'email' => $data->email,

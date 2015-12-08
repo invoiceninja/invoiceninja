@@ -23,7 +23,7 @@ There are two options:
 
 ### Requirements
 * PHP >= 5.4.0
-* MCrypt Extension
+* MCrypt PHP Extension
 * MySQL
 
 ### Features

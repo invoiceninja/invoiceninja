@@ -1,28 +1,25 @@
 <?php namespace App\Ninja\Import\FreshBooks;
 
-use League\Fractal\TransformerAbstract;
+use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
-use App\Models\Client;
 
-class InvoiceTransformer extends TransformerAbstract
+class InvoiceTransformer extends BaseTransformer
 {
-    public function transform($data, $maps)
+    public function transform($data)
     {
-        if (isset($maps[ENTITY_INVOICE][$data->invoice_number])) {
+        if ( ! $this->getClientId($data->organization)) {
             return false;
         }
 
-        if (isset($maps[ENTITY_CLIENT][$data->organization])) {
-            $data->client_id = $maps[ENTITY_CLIENT][$data->organization];
-        } else {
+        if ($this->hasInvoice($data->invoice_number)) {
             return false;
         }
 
-        return new Item($data, function ($data) use ($maps) {
+        return new Item($data, function ($data) {
             return [
                 'invoice_number' => $data->invoice_number,
                 'paid' => (float) $data->paid,
-                'client_id' => (int) $data->client_id,
+                'client_id' => $this->getClientId($data->organization),
                 'po_number' => $data->po_number,
                 'terms' => $data->terms,
                 'public_notes' => $data->notes,

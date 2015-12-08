@@ -47,6 +47,7 @@ class ImportController extends BaseController
                 }
             }
         } catch (Exception $exception) {
+            Utils::logError($exception);
             Session::flash('error', $exception->getMessage());
         }
 
@@ -72,6 +73,7 @@ class ImportController extends BaseController
                 Session::flash('message', trans('texts.imported_file'));
             }
         } catch (Exception $exception) {
+            Utils::logError($exception);
             Session::flash('error', $exception->getMessage());
         }
 

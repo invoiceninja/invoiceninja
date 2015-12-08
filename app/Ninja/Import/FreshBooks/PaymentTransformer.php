@@ -1,9 +1,9 @@
 <?php namespace App\Ninja\Import\FreshBooks;
 
-use League\Fractal\TransformerAbstract;
+use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
-class PaymentTransformer extends TransformerAbstract
+class PaymentTransformer extends BaseTransformer
 {
     public function transform($data, $maps)
     {

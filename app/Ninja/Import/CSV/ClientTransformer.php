@@ -1,22 +1,17 @@
 <?php namespace App\Ninja\Import\CSV;
 
-use League\Fractal\TransformerAbstract;
-use App\Models\Country;
+use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
-class ClientTransformer extends TransformerAbstract
+class ClientTransformer extends BaseTransformer
 {
-    public function transform($data, $maps)
+    public function transform($data)
     {
-        if (isset($maps[ENTITY_CLIENT][$data->name])) {
+        if (isset($data->name) && $this->hasClient($data->name)) {
             return false;
         }
 
-        if (isset($maps['countries'][$data->country])) {
-            $data->country_id = $maps['countries'][$data->country];
-        }
-
-        return new Item($data, function ($data) use ($maps) {
+        return new Item($data, function ($data) {
             return [
                 'name' => isset($data->name) ? $data->name : null,
                 'work_phone' => isset($data->work_phone) ? $data->work_phone : null,
@@ -33,7 +28,7 @@ class ClientTransformer extends TransformerAbstract
                         'phone' => isset($data->phone) ? $data->phone : null,
                     ],
                 ],
-                'country_id' => isset($data->country_id) ? $data->country_id : null,
+                'country_id' => isset($data->country) ? $this->getCountryId($data->country) : null,
             ];
         });
     }
