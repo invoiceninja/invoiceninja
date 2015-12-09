@@ -410,7 +410,7 @@ return array(
     'user_management' => 'Benutzerverwaltung',
     'add_user' => 'Benutzer hinzufügen',
     'send_invite' => 'Einladung senden',
-    'sent_invite' => 'Einladung erfolgreich gesendet',
+    'sent_invite' => 'Einladung erfolgreich versendet',
     'updated_user' => 'Benutzer erfolgreich aktualisiert',
     'invitation_message' => 'Du wurdest von :invitor eingeladen.',
     'register_to_add_user' => 'Bitte registrieren, um einen Benutzer hinzuzufügen',
@@ -443,7 +443,7 @@ return array(
     'share_invoice_counter' => 'Zähler der Rechnung teilen',
     'invoice_issued_to' => 'Rechnung ausgestellt für',
     'invalid_counter' => 'Bitte setze, um Probleme zu vermeiden, entweder ein Rechnungs- oder Angebotspräfix.',
-    'mark_sent' => 'Als gesendet markieren',
+    'mark_sent' => 'Als versendet markieren',
 
     'gateway_help_1' => ':link um sich bei Authorize.net anzumelden.',
     'gateway_help_2' => ':link um sich bei Authorize.net anzumelden.',
@@ -458,7 +458,7 @@ return array(
     'more_designs_self_host_text' => '',
     'buy' => 'Kaufen',
     'bought_designs' => 'Die zusätzliche Rechnungsdesigns wurden erfolgreich hinzugefügt',
-    'sent' => 'gesendet',
+    'sent' => 'versendet',
 
     'vat_number' => 'USt-IdNr.',
     'timesheets' => 'Zeittabellen',
@@ -583,7 +583,7 @@ return array(
     'notification_quote_approved_subject' => 'Angebot :invoice wurde von :client angenommen.',
     'notification_quote_approved' => 'Der folgende Kunde :client nahm das Angebot :invoice über :amount an.',
     'resend_confirmation' => 'Bestätigungsmail erneut senden',
-    'confirmation_resent' => 'Bestätigungsemail wurde erneut gesendet',
+    'confirmation_resent' => 'Bestätigungsemail wurde erneut versendet',
 
     'gateway_help_42' => ':link zum Registrieren auf BitPay.<br/>Hinweis: benutze einen Legacy API Key, keinen API token.',
     'payment_type_credit_card' => 'Kreditkarte',
@@ -704,7 +704,7 @@ return array(
     'or' => 'oder',
 
     'email_error' => 'Es gab ein Problem beim Senden dieses E-Mails.',
-    'confirm_recurring_timing' => 'Beachten Sie: E-Mails werden zu Beginn der Stunde gesendet.',
+    'confirm_recurring_timing' => 'Beachten Sie: E-Mails werden zu Beginn der Stunde versendet.',
     'old_browser' => 'Bitte verwenden Sie einen <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">neueren Browser</a>',
     'payment_terms_help' => 'Setzt das Standardfälligkeitsdatum',
     'unlink_account' => 'Konten trennen',
@@ -772,7 +772,7 @@ return array(
 
     'auto_bill' => 'Auto-Rechnung',
     'military_time' => '24-Stunden-Zeit',
-    'last_sent' => 'Zuletzt gesendet',
+    'last_sent' => 'Zuletzt versendet',
 
     'reminder_emails' => 'Erinnerungs-Emails',
     'templates_and_reminders' => 'Vorlagen & Erinnerungen',
