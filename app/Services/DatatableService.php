@@ -41,18 +41,18 @@ class DatatableService
     private function createDropdown($entityType, $table, $actions)
     {
         $table->addColumn('dropdown', function ($model) use ($entityType, $actions) {
-            $str = '';
+            $str = '<center>';
 
             if (property_exists($model, 'is_deleted') && $model->is_deleted) {
-                $str .= '<button type="button" class="btn btn-sm btn-danger tr-status" style="display:inline-block; width:80px">'.trans('texts.deleted').'</button>';
+                $str .= '<button type="button" class="btn btn-sm btn-danger tr-status" style="display:inline-block; width:100px">'.trans('texts.deleted').'</button>';
             } elseif ($model->deleted_at && $model->deleted_at !== '0000-00-00') {
-                $str .= '<button type="button" class="btn btn-sm btn-warning tr-status" style="display:inline-block; width:80px">'.trans('texts.archived').'</button>';
+                $str .= '<button type="button" class="btn btn-sm btn-warning tr-status" style="display:inline-block; width:100px">'.trans('texts.archived').'</button>';
             } else {
-                $str .= '<div class="tr-status" style="display:inline-block; width:80px"></div>';
+                $str .= '<div class="tr-status" style="display:inline-block; width:100px"></div>';
             }
 
             $str .= '<div class="btn-group tr-action" style="display:none;">
-                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" style="width:80px">
+                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" style="width:100px">
                         '.trans('texts.select').' <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">';
@@ -95,7 +95,7 @@ class DatatableService
                         . trans("texts.delete_{$entityType}") . "</a></li>";
             }
 
-            return $str.'</ul></div>';
+            return $str.'</ul></div></center>';
         });
     }
 
