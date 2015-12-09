@@ -53,42 +53,69 @@ class CheckData extends Command {
 
         $this->checkBalances();
 
-        $this->checkActivityAccount();
+        $this->checkAccountData();
 
         $this->info('Done');
     }
 
-    private function checkActivityAccount()
+    private function checkAccountData()
     {
-        $entityTypes = [
-            ENTITY_INVOICE,
-            ENTITY_CLIENT,
-            ENTITY_CONTACT,
-            ENTITY_PAYMENT,
-            ENTITY_INVITATION,
+        $tables = [
+            'activities' => [
+                ENTITY_INVOICE,
+                ENTITY_CLIENT,
+                ENTITY_CONTACT,
+                ENTITY_PAYMENT,
+                ENTITY_INVITATION,
+                ENTITY_USER
+            ],
+            'invoices' => [
+                ENTITY_CLIENT,
+                ENTITY_USER
+            ],
+            'payments' => [
+                ENTITY_INVOICE,
+                ENTITY_CLIENT,
+                ENTITY_USER,
+                ENTITY_INVITATION,
+                ENTITY_CONTACT
+            ],
+            'tasks' => [
+                ENTITY_INVOICE,
+                ENTITY_CLIENT,
+                ENTITY_USER
+            ],
+            'credits' => [
+                ENTITY_CLIENT,
+                ENTITY_USER
+            ],
         ];
 
-        foreach ($entityTypes as $entityType) {
-            $activities = DB::table('activities')
-                            ->join("{$entityType}s", "{$entityType}s.id", '=', "activities.{$entityType}_id");
+        foreach ($tables as $table => $entityTypes) {
+            foreach ($entityTypes as $entityType) {
+                $records = DB::table($table)
+                                ->join("{$entityType}s", "{$entityType}s.id", '=', "{$table}.{$entityType}_id");
 
-            if ($entityType != ENTITY_CLIENT) {
-                $activities = $activities->join('clients', 'clients.id', '=', 'activities.client_id');
-            }
-            
-            $activities = $activities->where('activities.account_id', '!=', DB::raw("{$entityType}s.account_id"))
-                        ->get(['activities.id', "clients.account_id", "clients.user_id"]);
+                if ($entityType != ENTITY_CLIENT) {
+                    $records = $records->join('clients', 'clients.id', '=', "{$table}.client_id");
+                }
+                
+                $records = $records->where("{$table}.account_id", '!=', DB::raw("{$entityType}s.account_id"))
+                                ->get(["{$table}.id", "clients.account_id", "clients.user_id"]);
 
-            $this->info(count($activities) . " {$entityType} activity with incorrect account id");
+                if (count($records)) {
+                    $this->info(count($records) . " {$table} records with incorrect {$entityType} account id");
 
-            if ($this->option('fix') == 'true') {
-                foreach ($activities as $activity) {
-                    DB::table('activities')
-                        ->where('id', $activity->id)
-                        ->update([
-                            'account_id' => $activity->account_id,
-                            'user_id' => $activity->user_id,
-                        ]);
+                    if ($this->option('fix') == 'true') {
+                        foreach ($records as $record) {
+                            DB::table($table)
+                                ->where('id', $record->id)
+                                ->update([
+                                    'account_id' => $record->account_id,
+                                    'user_id' => $record->user_id,
+                                ]);
+                        }
+                    }
                 }
             }
         }
