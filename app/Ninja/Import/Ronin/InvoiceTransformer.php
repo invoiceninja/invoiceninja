@@ -1,4 +1,4 @@
-<?php namespace App\Ninja\Import\Hiveage;
+<?php namespace App\Ninja\Import\Ronin;
 
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
@@ -11,21 +11,22 @@ class InvoiceTransformer extends BaseTransformer
             return false;
         }
 
-        if ($this->hasInvoice($data->statement_no)) {
+        if ($this->hasInvoice($data->number)) {
             return false;
         }
 
         return new Item($data, function ($data) {
             return [
                 'client_id' => $this->getClientId($data->client),
-                'invoice_number' => $this->getInvoiceNumber($data->statement_no),
-                'paid' => (float) $data->paid_total,
-                'invoice_date_sql' => $this->getDate($data->date),
-                'due_date_sql' => $this->getDate($data->due_date),
+                'invoice_number' => $this->getInvoiceNumber($data->number),
+                'paid' => (float) $data->total - (float) $data->balance,
+                'public_notes' => $data->subject,
+                'invoice_date_sql' => $data->date_sent,
+                'due_date_sql' => $data->date_due,
                 'invoice_items' => [
                     [
-                        'notes' => $data->summary,
-                        'cost' => (float) $data->billed_total,
+                        'notes' => $data->line_item,
+                        'cost' => (float) $data->total,
                         'qty' => 1,
                     ]
                 ],

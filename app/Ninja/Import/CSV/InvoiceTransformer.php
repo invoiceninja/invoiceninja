@@ -17,9 +17,9 @@ class InvoiceTransformer extends BaseTransformer
 
         return new Item($data, function ($data) {
             return [
-                'invoice_number' => isset($data->invoice_number) ? $data->invoice_number : null,
-                'paid' => isset($data->paid) ? (float) $data->paid : null,
                 'client_id' => $this->getClientId($data->name),
+                'invoice_number' => isset($data->invoice_number) ? $this->getInvoiceNumber($data->invoice_number) : null,
+                'paid' => isset($data->paid) ? (float) $data->paid : null,
                 'po_number' => isset($data->po_number) ? $data->po_number : null,
                 'terms' => isset($data->terms) ? $data->terms : null,
                 'public_notes' => isset($data->notes) ? $data->notes : null,

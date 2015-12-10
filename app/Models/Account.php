@@ -443,7 +443,7 @@ class Account extends Eloquent
 
         // confirm the invoice number isn't already taken 
         do {
-            $number = $prefix.str_pad($counter, 4, '0', STR_PAD_LEFT);
+            $number = $prefix . str_pad($counter, 4, '0', STR_PAD_LEFT);
             $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
             $counter++;
             $counterOffset++;

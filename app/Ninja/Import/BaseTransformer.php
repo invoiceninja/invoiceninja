@@ -55,9 +55,15 @@ class BaseTransformer extends TransformerAbstract
         return $name[1];
     }
 
+    protected function getInvoiceNumber($number)
+    {
+        $number = strtolower($number);
+        return str_pad($number, 4, '0', STR_PAD_LEFT);
+    }
+
     protected function hasInvoice($invoiceNumber)
     {
-        $invoiceNumber = strtolower($invoiceNumber);
+        $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
         return isset($this->maps[ENTITY_INVOICE][$invoiceNumber]);
     }
 

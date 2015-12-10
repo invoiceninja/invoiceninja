@@ -18,7 +18,7 @@ class InvoiceTransformer extends BaseTransformer
         return new Item($data, function ($data) {
             return [
                 'client_id' => $this->getClientId($data->client_name),
-                'invoice_number' => $data->ref,
+                'invoice_number' => $this->getInvoiceNumber($data->ref),
                 'po_number' => $data->po_number,
                 'invoice_date_sql' => $data->date,
                 'due_date_sql' => $data->due_date,

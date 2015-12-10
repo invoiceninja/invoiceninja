@@ -38,7 +38,7 @@ class ImportService
         IMPORT_HIVEAGE,
         IMPORT_INVOICEABLE,
         //IMPORT_NUTCACHE,
-        //IMPORT_RONIN,
+        IMPORT_RONIN,
         //IMPORT_WAVE,
         //IMPORT_ZOHO,
     ];
@@ -108,7 +108,7 @@ class ImportService
         $entity = $this->{"{$entityType}Repo"}->save($data);
 
         // if the invoice is paid we'll also create a payment record
-        if ($entityType === ENTITY_INVOICE && isset($data['paid']) && $data['paid']) {
+        if ($entityType === ENTITY_INVOICE && isset($data['paid']) && $data['paid'] > 0) {
             $this->createPayment($source, $row, $maps, $data['client_id'], $entity->id);
         }
 
