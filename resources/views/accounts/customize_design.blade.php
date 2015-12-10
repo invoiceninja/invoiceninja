@@ -3,6 +3,7 @@
 @section('head')
 	@parent
 
+    @include('money_script')
         <link href="{{ asset('css/jsoneditor.min.css') }}" rel="stylesheet" type="text/css">
         <script src="{{ asset('js/jsoneditor.min.js') }}" type="text/javascript"></script>
 
