@@ -62,14 +62,13 @@ There are two options:
 ### Frameworks/Libraries
 * [laravel/laravel](https://github.com/laravel/laravel) - A PHP Framework For Web Artisans
 * [twbs/bootstrap](https://github.com/twbs/bootstrap) - Sleek, intuitive, and powerful front-end framework for faster and easier web development.
+* [jquery/jquery](https://github.com/jquery/jquery) - jQuery JavaScript Library
+* [jquery/jquery-ui](https://github.com/jquery/jquery-ui) - The official jQuery user interface library
 * [patricktalmadge/bootstrapper](https://github.com/patricktalmadge/bootstrapper) - Laravel Twitter Bootstrap Bundle
 * [danielfarrell/bootstrap-combobox](https://github.com/danielfarrell/bootstrap-combobox) - A combobox plugin 
-* [jquery/jquery](https://github.com/jquery/jquery) - jQuery JavaScript Library
 * [eternicode/bootstrap-datepicker](https://github.com/eternicode/bootstrap-datepicker) - A datepicker for @twitter bootstrap
-* [jquery/jquery-ui](https://github.com/jquery/jquery-ui) - The official jQuery user interface library
 * [knockout/knockout](https://github.com/knockout/knockout) - Knockout makes it easier to create rich, responsive UIs with JavaScript
 * [rniemeyer/knockout-sortable](https://github.com/rniemeyer/knockout-sortable) - A Knockout.js binding to connect observableArrays with jQuery UI sortable functionality
-* [MrRio/jsPDF](https://github.com/MrRio/jsPDF) - Generate PDF files in JavaScript. HTML5 FTW.
 * [bpampuch/pdfmake](https://github.com/bpampuch/pdfmake) - Client/server side PDF printing in pure JavaScript
 * [FortAwesome/Font-Awesome](https://github.com/FortAwesome/Font-Awesome) - The iconic font designed for Bootstrap that works with twitter bootstrap
 * [Anahkiasen/former](https://github.com/Anahkiasen/former) - A powerful form builder, for Laravel and other frameworks (stand-alone too)
@@ -92,3 +91,4 @@ There are two options:
 * [simshaun/recurr](https://github.com/simshaun/recurr) - PHP library for working with recurrence rules
 * [quilljs/quill](https://github.com/quilljs/quill/) - A cross browser rich text editor with an API
 * [Maatwebsite/Laravel-Excel](https://github.com/Maatwebsite/Laravel-Excel) - An eloquent way of importing and exporting Excel and CSV files for Laravel
+* [thephpleague/fractal](https://github.com/thephpleague/fractal) - Output complex, flexible, AJAX/RESTful data structures

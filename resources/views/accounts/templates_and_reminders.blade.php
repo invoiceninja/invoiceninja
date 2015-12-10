@@ -3,6 +3,7 @@
 @section('head')
     @parent
 
+    @include('money_script')
     <link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
     <script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
 

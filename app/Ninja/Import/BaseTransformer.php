@@ -31,6 +31,12 @@ class BaseTransformer extends TransformerAbstract
         return isset($this->maps['countries'][$name]) ? $this->maps['countries'][$name] : null;
     }
 
+    protected function getCountryIdBy2($name)
+    {
+        $name = strtolower($name);
+        return isset($this->maps['countries2'][$name]) ? $this->maps['countries2'][$name] : null;
+    }
+
     protected function getFirstName($name)
     {
         $name = Utils::splitName($name);

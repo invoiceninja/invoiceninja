@@ -88,11 +88,13 @@
 							<span data-bind="html: email.display"></span> 
                         </label>
                         <span data-bind="html: $data.view_as_recipient"></span>&nbsp;&nbsp;
+                        @if (Utils::isConfirmed())
                         <span style="vertical-align:text-top;color:red" class="fa fa-exclamation-triangle" 
                                 data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
                         <span style="vertical-align:text-top" class="glyphicon glyphicon-info-sign" 
                                 data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true}, 
                                 style: {color: $data.hasOwnProperty('invitation_viewed') &amp;&amp; $data.invitation_viewed() ? '#57D172':'#B1B5BA'}"></span>
+                        @endif
 					</div>
 				</div>
 			</div>
@@ -173,10 +175,10 @@
 		<thead>
 			<tr>
 				<th style="min-width:32px;" class="hide-border"></th>
-				<th style="min-width:160px" data-bind="text: productLabel"></th>
+				<th style="min-width:160px" data-bind="text: productLabel">{{ $invoiceLabels['item'] }}</th>
 				<th style="width:100%">{{ $invoiceLabels['description'] }}</th>
-				<th style="min-width:120px" data-bind="text: costLabel"></th>
-				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel"></th>
+				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
+				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel">{{ $invoiceLabels['quantity'] }}</th>
 				<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
 				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
 				<th style="min-width:32px;" class="hide-border"></th>

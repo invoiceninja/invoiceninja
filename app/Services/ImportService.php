@@ -36,7 +36,7 @@ class ImportService
         IMPORT_FRESHBOOKS,
         IMPORT_HARVEST,
         IMPORT_HIVEAGE,
-        //IMPORT_INVOICEABLE,
+        IMPORT_INVOICEABLE,
         //IMPORT_NUTCACHE,
         //IMPORT_RONIN,
         //IMPORT_WAVE,
@@ -190,19 +190,25 @@ class ImportService
         $clientMap = [];
         $clients = $this->clientRepo->all();
         foreach ($clients as $client) {
-            $clientMap[strtolower($client->name)] = $client->id;
+            if ($name = strtolower(trim($client->name))) {
+                $clientMap[$name] = $client->id;
+            }
         }
 
         $invoiceMap = [];
         $invoices = $this->invoiceRepo->all();
         foreach ($invoices as $invoice) {
-            $invoiceMap[strtolower($invoice->invoice_number)] = $invoice->id;
+            if ($number = strtolower(trim($invoice->invoice_number))) {
+                $invoiceMap[$number] = $invoice->id;
+            }
         }
 
         $countryMap = [];
+        $countryMap2 = [];
         $countries = Cache::get('countries');
         foreach ($countries as $country) {
             $countryMap[strtolower($country->name)] = $country->id;
+            $countryMap2[strtolower($country->iso_3166_2)] = $country->id;
         }
 
         $currencyMap = [];
@@ -215,6 +221,7 @@ class ImportService
             ENTITY_CLIENT => $clientMap,
             ENTITY_INVOICE => $invoiceMap,
             'countries' => $countryMap,
+            'countries2' => $countryMap2,
             'currencies' => $currencyMap,
         ];
     }
