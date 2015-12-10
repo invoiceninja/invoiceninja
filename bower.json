@@ -23,7 +23,8 @@
     "moment": "*",
     "jsoneditor": "*",
     "moment-timezone": "~0.4.0",
-    "quill": "~0.20.0"
+    "quill": "~0.20.0",
+    "datetimepicker": "~2.4.5"
   },
   "resolutions": {
     "jquery": "~1.11"

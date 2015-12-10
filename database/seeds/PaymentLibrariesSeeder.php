@@ -209,8 +209,8 @@ class PaymentLibrariesSeeder extends Seeder
                 'label' => '20-03-2013 6:15 pm'
             ],
             [
-                'format' => 'm/d/Y g:i',
-                'format_moment' => 'MM/DD/YYYY h:mm:ss',
+                'format' => 'm/d/Y g:i a',
+                'format_moment' => 'MM/DD/YYYY h:mm:ss a',
                 'label' => '03/20/2013 6:15 pm'
             ]
         ];

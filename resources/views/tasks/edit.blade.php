@@ -1,5 +1,12 @@
 @extends('header')
 
+@section('head')
+    @parent
+
+    <script src="{{ asset('js/jquery.datetimepicker.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/jquery.datetimepicker.css') }}" rel="stylesheet" type="text/css"/>
+@stop
+
 @section('content')
 
     <style type="text/css">
@@ -8,6 +15,7 @@
         width: 110px;
         font-size: 14px !important;
     }
+
     </style>
 
 
@@ -83,13 +91,13 @@
                         <tr data-bind="event: { mouseover: showActions, mouseout: hideActions }">
                             <td style="padding: 0px 12px 12px 0 !important">
                                 <div data-bind="css: { 'has-error': !isStartValid() }">
-                                    <input type="text" data-bind="value: startTime.pretty, event:{ change: $root.refresh }" 
+                                    <input type="text" data-bind="dateTimePicker: startTime.pretty, event:{ change: $root.refresh }" 
                                         class="form-control time-input" placeholder="{{ trans('texts.start_time') }}"/>
                                 </div>
                             </td>
                             <td style="padding: 0px 12px 12px 0 !important">
                                 <div data-bind="css: { 'has-error': !isEndValid() }">
-                                    <input type="text" data-bind="value: endTime.pretty, event:{ change: $root.refresh }" 
+                                    <input type="text" data-bind="dateTimePicker: endTime.pretty, event:{ change: $root.refresh }" 
                                         class="form-control time-input" placeholder="{{ trans('texts.end_time') }}"/>
                                 </div>
                             </td>
@@ -139,6 +147,39 @@
     {!! Former::close() !!}
 
     <script type="text/javascript">
+
+    // Add moment support to the datetimepicker
+    Date.parseDate = function( input, format ){
+      return moment(input, format).toDate();
+    };
+    Date.prototype.dateFormat = function( format ){
+      return moment(this).format(format);
+    };
+
+    
+    ko.bindingHandlers.dateTimePicker = {
+      init: function (element, valueAccessor, allBindingsAccessor) {
+         var value = ko.utils.unwrapObservable(valueAccessor());
+         $(element).datetimepicker({
+            lang: '{{ App::getLocale() }}',
+            lazyInit: true,
+            step: 30,
+            format: '{{ $datetimeFormat }}',
+            formatDate: '{{ Auth::user()->account->getMomentDateFormat() }}',
+            formatTime: '{{ Auth::user()->account->military_time ? 'H:mm' : 'h:mm A' }}',
+         });
+
+         $(element).change(function() {
+            var value = valueAccessor();
+            value($(element).val());
+         })
+      },
+      update: function (element, valueAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        if (value) $(element).val(value);
+      }
+    }
+
 
     var clients = {!! $clients !!};
     var timeLabels = {};

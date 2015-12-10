@@ -186,6 +186,15 @@ class Account extends Eloquent
         return $format;
     }
 
+    public function getMomentDateFormat()
+    {
+        $format = $this->getMomentDateTimeFormat();
+        $format = str_replace('h:mm:ss a', '', $format);
+        $format = str_replace('H:mm:ss', '', $format);
+
+        return trim($format);
+    }
+
     public function getTimezone()
     {
         if ($this->timezone) {
