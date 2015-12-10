@@ -829,7 +829,7 @@ return array(
   'edit_tax_rate' => 'Editer le taux de taxe',
   'archive_tax_rate' => 'Archiver le taux de taxe',
   'archived_tax_rate' => 'Taux de taxe archivé avec succès',
-  'default_tax_rate_id' => 'Taux de taxe par défayt',
+  'default_tax_rate_id' => 'Taux de taxe par défaut',
   'tax_rate' => 'Taux de taxe',
   'recurring_hour' => 'Recurring Hour',
   'pattern' => 'Pattern',
