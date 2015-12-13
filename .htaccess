@@ -2,4 +2,7 @@
   RewriteEngine On
   RewriteRule "^.env" - [F,L]
   RewriteRule "^storage" - [F,L]
+  
+  # https://coderwall.com/p/erbaig/laravel-s-htaccess-to-remove-public-from-url
+  # RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>

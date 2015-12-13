@@ -248,11 +248,29 @@ class Account extends Eloquent
 
     public function formatDateTime($date)
     {
-        if (!$date) {
+        if ( ! $date) {
             return null;
+        } elseif ( ! $date instanceof \DateTime) {
+            $date = new \DateTime($date);
         }
 
         return $date->format($this->getCustomDateTimeFormat());
+    }
+
+    public function formatTime($date)
+    {
+        if ( ! $date) {
+            return null;
+        } elseif ( ! $date instanceof \DateTime) {
+            $date = new \DateTime($date);
+        }
+
+        return $date->format($this->getCustomTimeFormat());
+    }
+
+    public function getCustomTimeFormat()
+    {
+        return $this->military_time ? 'H:i' : 'g:i a';
     }
 
     public function getCustomDateTimeFormat()
@@ -551,7 +569,7 @@ class Account extends Eloquent
             'quote_number',
             'total',
             'invoice_issued_to',
-            'date',
+            //'date',
             'rate',
             'hours',
             'balance',

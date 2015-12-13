@@ -271,10 +271,6 @@ function InvoiceModel(data) {
         self.addItem();
     }
 
-    self.productLabel = ko.computed(function() {
-        return self.has_tasks() ? invoiceLabels['date'] : invoiceLabels['item'];
-    }, this);
-
     self.qtyLabel = ko.computed(function() {
         return self.has_tasks() ? invoiceLabels['hours'] : invoiceLabels['quantity'];
     }, this);

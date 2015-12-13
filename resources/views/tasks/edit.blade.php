@@ -160,13 +160,21 @@
     ko.bindingHandlers.dateTimePicker = {
       init: function (element, valueAccessor, allBindingsAccessor) {
          var value = ko.utils.unwrapObservable(valueAccessor());
+         // http://xdsoft.net/jqplugins/datetimepicker/
          $(element).datetimepicker({
             lang: '{{ App::getLocale() }}',
             lazyInit: true,
+            validateOnBlur: false,
             step: 30,
             format: '{{ $datetimeFormat }}',
-            formatDate: '{{ Auth::user()->account->getMomentDateFormat() }}',
-            formatTime: '{{ Auth::user()->account->military_time ? 'H:mm' : 'h:mm A' }}',
+            formatDate: '{{ $account->getMomentDateFormat() }}',
+            formatTime: '{{ $account->military_time ? 'H:mm' : 'h:mm A' }}',
+            onSelectTime: function(current_time, $input){
+                current_time.setSeconds(0);
+                $(element).datetimepicker({
+                    value: current_time
+                });
+            }
          });
 
          $(element).change(function() {
@@ -179,7 +187,6 @@
         if (value) $(element).val(value);
       }
     }
-
 
     var clients = {!! $clients !!};
     var timeLabels = {};

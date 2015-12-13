@@ -802,7 +802,7 @@ class Utils
     public static function decodePDF($string)
     {
         $string = str_replace('data:application/pdf;base64,', '', $string);
-        return  base64_decode($string);
+        return base64_decode($string);
     }
 
     public static function cityStateZip($city, $state, $postalCode, $swap)

@@ -175,7 +175,7 @@
 		<thead>
 			<tr>
 				<th style="min-width:32px;" class="hide-border"></th>
-				<th style="min-width:160px" data-bind="text: productLabel">{{ $invoiceLabels['item'] }}</th>
+				<th style="min-width:160px">{{ $invoiceLabels['item'] }}</th>
 				<th style="width:100%">{{ $invoiceLabels['description'] }}</th>
 				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
 				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel">{{ $invoiceLabels['quantity'] }}</th>
@@ -676,16 +676,15 @@
                 var tasks = {!! $tasks !!};
                 
                 for (var i=0; i<tasks.length; i++) {
-                    var task = tasks[i];                    
+                    var task = tasks[i];
                     var item = model.invoice().addItem();
                     item.notes(task.description);
-                    item.product_key(task.startTime);
                     item.qty(task.duration);
                     item.task_public_id(task.publicId);
-                }        
+                }
                 model.invoice().invoice_items.push(blank);
                 model.invoice().has_tasks(true);
-            @endif        
+            @endif
         @endif
 
         model.invoice().tax(model.getTaxRate(model.invoice().tax_name(), model.invoice().tax_rate()));
@@ -827,7 +826,9 @@
 					var product = products[i];
 					if (product.product_key == key) {
 						var model = ko.dataFor(this);
-                        model.notes(product.notes);
+                        if (product.notes) {
+                            model.notes(product.notes);
+                        }
                         model.cost(accounting.toFixed(product.cost,2));
                         if (!model.qty()) {
 						  model.qty(1);
@@ -874,9 +875,9 @@
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
 
-        invoiceLabels.item = invoice.has_tasks ? invoiceLabels.date : invoiceLabels.item_orig;
+        //invoiceLabels.item = invoice.has_tasks ? invoiceLabels.date : invoiceLabels.item_orig;
         invoiceLabels.quantity = invoice.has_tasks ? invoiceLabels.hours : invoiceLabels.quantity_orig;
-        invoiceLabels.unit_cost = invoice.has_tasks ? invoiceLabels.rate : invoiceLabels.unit_cost_orig;        
+        invoiceLabels.unit_cost = invoice.has_tasks ? invoiceLabels.rate : invoiceLabels.unit_cost_orig;
 
         return invoice;
 	}

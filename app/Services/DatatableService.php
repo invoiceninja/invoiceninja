@@ -41,7 +41,7 @@ class DatatableService
     private function createDropdown($entityType, $table, $actions)
     {
         $table->addColumn('dropdown', function ($model) use ($entityType, $actions) {
-            $str = '<center>';
+            $str = '<center style="min-width:100px">';
 
             if (property_exists($model, 'is_deleted') && $model->is_deleted) {
                 $str .= '<button type="button" class="btn btn-sm btn-danger tr-status">'.trans('texts.deleted').'</button>';
@@ -51,7 +51,7 @@ class DatatableService
                 $str .= '<div class="tr-status"></div>';
             }
 
-            $str .= '<div class="btn-group tr-action" style="height:auto;visibility:hidden">
+            $str .= '<div class="btn-group tr-action" style="height:auto;display:none">
                     <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" style="width:100px">
                         '.trans('texts.select').' <span class="caret"></span>
                     </button>

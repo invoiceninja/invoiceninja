@@ -989,13 +989,13 @@ function truncate(string, length){
 // Show/hide the 'Select' option in the datalists 
 function actionListHandler() {
     $('tbody tr').mouseover(function() {
-        $(this).closest('tr').find('.tr-action').css('visibility', 'visible');
-        $(this).closest('tr').find('.tr-status').css('visibility', 'hidden');
+        $(this).closest('tr').find('.tr-action').show();
+        $(this).closest('tr').find('.tr-status').hide();
     }).mouseout(function() {
         $dropdown = $(this).closest('tr').find('.tr-action');
         if (!$dropdown.hasClass('open')) {
-          $dropdown.css('visibility', 'hidden');
-          $(this).closest('tr').find('.tr-status').css('visibility', 'visible');
+          $dropdown.hide();
+          $(this).closest('tr').find('.tr-status').show();
         }
     });
 }

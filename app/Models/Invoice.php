@@ -111,14 +111,14 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         foreach ([
-            'invoice_number', 
-            'po_number', 
-            'invoice_date', 
-            'due_date', 
-            'terms', 
-            'public_notes', 
-            'invoice_footer', 
-            'partial'
+            'invoice_number',
+            'po_number',
+            'invoice_date',
+            'due_date',
+            'terms',
+            'public_notes',
+            'invoice_footer',
+            'partial',
         ] as $field) {
             if ($this->$field != $this->getOriginal($field)) {
                 return true;

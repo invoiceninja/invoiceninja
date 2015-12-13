@@ -30867,13 +30867,13 @@ function truncate(string, length){
 // Show/hide the 'Select' option in the datalists 
 function actionListHandler() {
     $('tbody tr').mouseover(function() {
-        $(this).closest('tr').find('.tr-action').css('visibility', 'visible');
-        $(this).closest('tr').find('.tr-status').css('visibility', 'hidden');
+        $(this).closest('tr').find('.tr-action').show();
+        $(this).closest('tr').find('.tr-status').hide();
     }).mouseout(function() {
         $dropdown = $(this).closest('tr').find('.tr-action');
         if (!$dropdown.hasClass('open')) {
-          $dropdown.css('visibility', 'hidden');
-          $(this).closest('tr').find('.tr-status').css('visibility', 'visible');
+          $dropdown.hide();
+          $(this).closest('tr').find('.tr-status').show();
         }
     });
 }
@@ -31019,6 +31019,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'fontSize': NINJA.fontSize,
         'fontSizeLarger': NINJA.fontSize + 1,
         'fontSizeLargest': NINJA.fontSize + 2,
+        'fontSizeSmaller': NINJA.fontSize - 1,
     }
 
     for (var key in json) {
@@ -31482,6 +31483,7 @@ NINJA.parseMarkdownText = function(val, groupText)
     var rules = [
         ['\\\*\\\*(\\\w.+?)\\\*\\\*', {'bold': true}], // **value**
         ['\\\*(\\\w.+?)\\\*', {'italics': true}], // *value*
+        ['^###(.*)', {'style': 'help'}], // ### Small/gray help
         ['^##(.*)', {'style': 'subheader'}], // ## Header
         ['^#(.*)', {'style': 'header'}] // # Subheader
     ];

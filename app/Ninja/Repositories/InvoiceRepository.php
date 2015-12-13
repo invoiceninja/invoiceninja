@@ -384,19 +384,24 @@ class InvoiceRepository extends BaseRepository
                 $task->invoice_id = $invoice->id;
                 $task->client_id = $invoice->client_id;
                 $task->save();
-            } elseif (isset($item['product_key']) && $item['product_key'] && !$invoice->has_tasks) {
-                $product = Product::findProductByKey(trim($item['product_key']));
+            }
 
-                if (\Auth::user()->account->update_products) {
-                    if (!$product) {
-                        $product = Product::createNew();
-                        $product->product_key = trim($item['product_key']);
-                    }
-
-                    $product->notes = $item['notes'];
-                    $product->cost = $item['cost'];
-                    $product->save();
+            if (isset($item['product_key']) && $item['product_key']) {
+                if (!\Auth::user()->account->update_products) {
+                    continue;
                 }
+                $productKey = trim($item['product_key']);
+                if (strtotime($productKey)) {
+                    continue;
+                }
+                $product = Product::findProductByKey($productKey);
+                if (!$product) {
+                    $product = Product::createNew();
+                    $product->product_key = trim($item['product_key']);
+                }
+                $product->notes = $invoice->has_tasks ? '' : $item['notes'];
+                $product->cost = $item['cost'];
+                $product->save();
             }
 
             $invoiceItem = InvoiceItem::createNew();

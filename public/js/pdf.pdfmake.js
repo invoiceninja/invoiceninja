@@ -140,6 +140,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'fontSize': NINJA.fontSize,
         'fontSizeLarger': NINJA.fontSize + 1,
         'fontSizeLargest': NINJA.fontSize + 2,
+        'fontSizeSmaller': NINJA.fontSize - 1,
     }
 
     for (var key in json) {
@@ -603,6 +604,7 @@ NINJA.parseMarkdownText = function(val, groupText)
     var rules = [
         ['\\\*\\\*(\\\w.+?)\\\*\\\*', {'bold': true}], // **value**
         ['\\\*(\\\w.+?)\\\*', {'italics': true}], // *value*
+        ['^###(.*)', {'style': 'help'}], // ### Small/gray help
         ['^##(.*)', {'style': 'subheader'}], // ## Header
         ['^#(.*)', {'style': 'header'}] // # Subheader
     ];

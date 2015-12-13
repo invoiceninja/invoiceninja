@@ -246,6 +246,10 @@
             },
             "subheader": {
                 "fontSize": "$fontSizeLarger"
+            },
+            "help": {
+                "fontSize": "$fontSizeSmaller",
+                "color": "#737373"
             }
         },
         "pageMargins": [0, 80, 0, 40]

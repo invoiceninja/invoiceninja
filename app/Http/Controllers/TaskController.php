@@ -84,6 +84,8 @@ class TaskController extends BaseController
      */
     public function create($clientPublicId = 0)
     {
+        $this->checkTimezone();
+
         $data = [
             'task' => null,
             'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
@@ -107,6 +109,8 @@ class TaskController extends BaseController
      */
     public function edit($publicId)
     {
+        $this->checkTimezone();
+
         $task = Task::scope($publicId)->with('client', 'invoice')->withTrashed()->firstOrFail();
 
         $actions = [];
@@ -162,7 +166,8 @@ class TaskController extends BaseController
     private static function getViewModel()
     {
         return [
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get()
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'account' => Auth::user()->account,
         ];
     }
 
@@ -220,10 +225,10 @@ class TaskController extends BaseController
                     return Redirect::to('tasks');
                 }
                 
+                $account = Auth::user()->account;
                 $data[] = [
                     'publicId' => $task->public_id,
-                    'description' => $task->description,
-                    'startTime' => $task->getStartTime(),
+                    'description' => $task->description . "\n\n" . $task->present()->times($account),
                     'duration' => $task->getHours(),
                 ];
             }
@@ -245,6 +250,14 @@ class TaskController extends BaseController
             } else {
                 return Redirect::to('tasks');
             }
+        }
+    }
+
+    private function checkTimezone()
+    {
+        if (!Auth::user()->account->timezone) {
+            $link = link_to('/settings/localization?focus=timezone_id', trans('texts.click_here'), ['target' => '_blank']);
+            Session::flash('warning', trans('texts.timezone_unset', ['link' => $link]));
         }
     }
 }

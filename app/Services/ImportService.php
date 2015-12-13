@@ -39,8 +39,8 @@ class ImportService
         IMPORT_INVOICEABLE,
         //IMPORT_NUTCACHE,
         IMPORT_RONIN,
-        //IMPORT_WAVE,
-        //IMPORT_ZOHO,
+        IMPORT_WAVE,
+        IMPORT_ZOHO,
     ];
 
     public function __construct(Manager $manager, ClientRepository $clientRepo, InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ContactRepository $contactRepo)
