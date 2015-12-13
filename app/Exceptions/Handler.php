@@ -46,6 +46,14 @@ class Handler extends ExceptionHandler {
 	{
         if ($e instanceof ModelNotFoundException) {
             return Redirect::to('/');
+        } elseif ($e instanceof \Illuminate\Session\TokenMismatchException) {
+            // https://gist.github.com/jrmadsen67/bd0f9ad0ef1ed6bb594e
+            return redirect()
+                    ->back()
+                    ->withInput($request->except('password', '_token'))
+                    ->with([
+                        'warning' => trans('texts.token_expired')
+                    ]);
         }
 
         // In production, except for maintenance mode, we'll show a custom error screen

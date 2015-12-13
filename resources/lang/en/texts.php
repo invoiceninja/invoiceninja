@@ -975,6 +975,6 @@ return array(
     'custom_invoice_charges_helps' => 'Add a text input to the invoice create/edit page and include the charge in the invoice subtotals.',
     'color_help' => 'Note: the primary color is also used in the client portal and custom email designs.',
 
-
+    'token_expired' => 'Validation token was expired. Please try again.',
 
 );
