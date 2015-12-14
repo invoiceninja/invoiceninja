@@ -66,7 +66,7 @@ class PublicClientController extends BaseController
                 return trans("texts.activity_{$model->activity_type_id}", $data);
              })
             ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id); })
-            ->addColumn('adjustment', function ($model) { return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id) : ''; })
+            ->addColumn('adjustment', function ($model) { return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : ''; })
             ->make();
     }
 

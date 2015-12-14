@@ -71,7 +71,7 @@
                         @endif
 
                         @if ($account->website)
-                            <strong><a href="{{ $account->website }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;">{{ $account->website }}</a></strong>
+                            <strong><a href="{{ $account->present()->website }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;">{{ $account->website }}</a></strong>
                         @endif
                     </p>
                 </td>

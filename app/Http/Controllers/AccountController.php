@@ -642,6 +642,7 @@ class AccountController extends BaseController
             $account->id_number = trim(Input::get('id_number'));
             $account->vat_number = trim(Input::get('vat_number'));
             $account->work_email = trim(Input::get('work_email'));
+            $account->website = trim(Input::get('website'));
             $account->work_phone = trim(Input::get('work_phone'));
             $account->address1 = trim(Input::get('address1'));
             $account->address2 = trim(Input::get('address2'));

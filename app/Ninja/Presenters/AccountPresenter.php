@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Presenters;
 
+use Utils;
 use Laracasts\Presenter\Presenter;
 
 class AccountPresenter extends Presenter {
@@ -9,4 +10,8 @@ class AccountPresenter extends Presenter {
         return $this->entity->name ?: trans('texts.untitled_account');
     }
 
+    public function website()
+    {
+        return Utils::addHttp($this->entity->website);
+    }
 }

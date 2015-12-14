@@ -31287,6 +31287,7 @@ NINJA.accountDetails = function(invoice) {
         {text:account.name, style: ['accountName']},
         {text:account.id_number},
         {text:account.vat_number},
+        {text:account.website},
         {text:account.work_email},
         {text:account.work_phone}
     ];
