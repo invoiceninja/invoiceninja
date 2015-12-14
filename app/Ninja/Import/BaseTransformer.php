@@ -45,7 +45,10 @@ class BaseTransformer extends TransformerAbstract
 
     protected function getDate($date, $format = 'Y-m-d')
     {
-        $date = DateTime::createFromFormat($format, $date);
+        if ( ! $date instanceof DateTime) {
+            $date = DateTime::createFromFormat($format, $date);
+        }
+        
         return $date ? $date->format('Y-m-d') : null;
     }
 

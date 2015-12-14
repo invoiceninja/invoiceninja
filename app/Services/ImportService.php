@@ -37,7 +37,7 @@ class ImportService
         IMPORT_HARVEST,
         IMPORT_HIVEAGE,
         IMPORT_INVOICEABLE,
-        //IMPORT_NUTCACHE,
+        IMPORT_NUTCACHE,
         IMPORT_RONIN,
         IMPORT_WAVE,
         IMPORT_ZOHO,
