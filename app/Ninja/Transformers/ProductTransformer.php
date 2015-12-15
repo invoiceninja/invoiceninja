@@ -13,6 +13,9 @@ class ProductTransformer extends EntityTransformer
             'notes' => $product->notes,
             'cost' => $product->cost,
             'qty' => $product->qty,
+            'account_key' =>$this->account->account_key,
+            'default_tax_rate_id' =>$product->default_tax_rate_id,
+            'updated_at' =>$product->updated_at,
         ];
     }
 }
