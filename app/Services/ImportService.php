@@ -56,22 +56,26 @@ class ImportService
 
     public function import($source, $files)
     {
+        $skipped = [];
         $imported_files = null;
 
         foreach ($files as $entityType => $file) {
-            $this->execute($source, $entityType, $file);
+            $result = $this->execute($source, $entityType, $file);
+            $skipped = array_merge($skipped, $result);
         }
+        
+        return $skipped;
     }
 
     private function execute($source, $entityType, $file)
     {
         $skipped = [];
 
-        Excel::load($file, function ($reader) use ($source, $entityType, $skipped) {
+        Excel::load($file, function ($reader) use ($source, $entityType, &$skipped) {
             $this->checkData($entityType, count($reader->all()));
             $maps = $this->createMaps();
 
-            $reader->each(function ($row) use ($source, $entityType, $maps) {
+            $reader->each(function ($row) use ($source, $entityType, $maps, &$skipped) {
                 $result = $this->saveData($source, $entityType, $row, $maps);
 
                 if ( ! $result) {

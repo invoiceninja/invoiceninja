@@ -402,6 +402,8 @@ class AccountController extends BaseController
             return AccountController::export();
         } elseif ($section === ACCOUNT_INVOICE_SETTINGS) {
             return AccountController::saveInvoiceSettings();
+        } elseif ($section === ACCOUNT_EMAIL_SETTINGS) {
+            return AccountController::saveEmailSettings();
         } elseif ($section === ACCOUNT_INVOICE_DESIGN) {
             return AccountController::saveInvoiceDesign();
         } elseif ($section === ACCOUNT_CUSTOMIZE_DESIGN) {
@@ -432,11 +434,6 @@ class AccountController extends BaseController
     {
         if (Auth::user()->account->isPro()) {
             $account = Auth::user()->account;
-            $account->email_design_id = Input::get('email_design_id');
-
-            if (Utils::isNinja()) {
-                $account->enable_email_markup = Input::get('enable_email_markup') ? true : false;
-            }
 
             foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type) {
                 $subjectField = "email_subject_{$type}";
@@ -492,15 +489,10 @@ class AccountController extends BaseController
         return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
     }
 
-    private function saveInvoiceSettings()
+    private function saveEmailSettings()
     {
         if (Auth::user()->account->isPro()) {
-            
-            $rules = [
-                'invoice_number_pattern' => 'has_counter',
-                'quote_number_pattern' => 'has_counter',
-            ];
-            
+            $rules = [];
             $user = Auth::user();
             $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
             $iframeURL = rtrim($iframeURL, "/");
@@ -516,13 +508,45 @@ class AccountController extends BaseController
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
-                return Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS)
+                return Redirect::to('settings/' . ACCOUNT_EMAIL_SETTINGS)
                     ->withErrors($validator)
                     ->withInput();
             } else {
                 $account = Auth::user()->account;
                 $account->subdomain = $subdomain;
                 $account->iframe_url = $iframeURL;
+                $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
+                $account->email_design_id = Input::get('email_design_id');
+
+                if (Utils::isNinja()) {
+                    $account->enable_email_markup = Input::get('enable_email_markup') ? true : false;
+                }
+                
+                $account->save();
+                Session::flash('message', trans('texts.updated_settings'));
+            }
+        }
+
+        return Redirect::to('settings/' . ACCOUNT_EMAIL_SETTINGS);
+    }
+
+    private function saveInvoiceSettings()
+    {
+        if (Auth::user()->account->isPro()) {
+            
+            $rules = [
+                'invoice_number_pattern' => 'has_counter',
+                'quote_number_pattern' => 'has_counter',
+            ];
+            
+            $validator = Validator::make(Input::all(), $rules);
+
+            if ($validator->fails()) {
+                return Redirect::to('settings/' . ACCOUNT_INVOICE_SETTINGS)
+                    ->withErrors($validator)
+                    ->withInput();
+            } else {
+                $account = Auth::user()->account;
                 $account->custom_label1 = trim(Input::get('custom_label1'));
                 $account->custom_value1 = trim(Input::get('custom_value1'));
                 $account->custom_label2 = trim(Input::get('custom_label2'));
@@ -539,7 +563,6 @@ class AccountController extends BaseController
                 $account->invoice_number_counter = Input::get('invoice_number_counter');
                 $account->quote_number_prefix = Input::get('quote_number_prefix');
                 $account->share_counter = Input::get('share_counter') ? true : false;
-                $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
                 $account->invoice_terms = Input::get('invoice_terms');
                 $account->invoice_footer = Input::get('invoice_footer');
                 $account->quote_terms = Input::get('quote_terms');

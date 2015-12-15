@@ -26,13 +26,6 @@ Route::post('/setup', 'AppController@doSetup');
 Route::get('/install', 'AppController@install');
 Route::get('/update', 'AppController@update');
 
-/*
-// Codeception code coverage
-Route::get('/c3.php', function () {
-    include '../c3.php';
-});
-*/
-
 // Public pages
 Route::get('/', 'HomeController@showIndex');
 Route::get('/terms', 'HomeController@showTerms');
@@ -285,6 +278,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
     define('ACCOUNT_INVOICE_SETTINGS', 'invoice_settings');
     define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
+    define('ACCOUNT_EMAIL_SETTINGS', 'email_settings');
     define('ACCOUNT_CHARTS_AND_REPORTS', 'charts_and_reports');
     define('ACCOUNT_USER_MANAGEMENT', 'user_management');
     define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');

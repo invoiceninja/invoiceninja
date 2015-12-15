@@ -976,5 +976,5 @@ return array(
     'color_help' => 'Note: the primary color is also used in the client portal and custom email designs.',
 
     'token_expired' => 'Validation token was expired. Please try again.',
-
+    'invoice_link' => 'Invoice Link',
 );

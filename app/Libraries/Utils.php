@@ -896,5 +896,4 @@ class Utils
         
         return $url;
     }
-
 }
