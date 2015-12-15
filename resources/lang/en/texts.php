@@ -977,4 +977,5 @@ return array(
 
     'token_expired' => 'Validation token was expired. Please try again.',
     'invoice_link' => 'Invoice Link',
+
 );

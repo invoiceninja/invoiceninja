@@ -731,7 +731,7 @@ class Account extends Eloquent
 
         $template = "<div>\$client,</div><br>" .
                     "<div>" . trans("texts.{$entityType}_message", ['amount' => '$amount']) . "</div><br>" .
-                    "<div><a href=\"\$viewLink\">\$viewLink</a></div><br>";
+                    "<div>\$viewLink</div><br>";
 
         if ($message) {
             $template .= "$message<p/>\r\n\r\n";
@@ -742,6 +742,8 @@ class Account extends Eloquent
 
     public function getEmailTemplate($entityType, $message = false)
     {
+        $template = false;
+
         if ($this->isPro()) {
             $field = "email_template_{$entityType}";
             $template = $this->$field;

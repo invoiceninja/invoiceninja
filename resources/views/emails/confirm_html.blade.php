@@ -4,7 +4,7 @@
   <meta charset="utf-8">
 </head>
 <body>
-@if (false && !$invitationMessage)
+@if (!$invitationMessage)
     @include('emails.confirm_action', ['user' => $user])
 @endif
 
