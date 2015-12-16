@@ -34,7 +34,6 @@ class StartupCheck
 
         // Ensure all request are over HTTPS in production
         if (Utils::requireHTTPS() && !Request::secure()) {
-            //return Redirect::secure(Request::getRequestUri());
             return Redirect::secure(Request::path());
         }
 

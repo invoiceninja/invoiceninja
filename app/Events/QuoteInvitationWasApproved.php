@@ -9,6 +9,7 @@ class QuoteInvitationWasApproved extends Event {
 	use SerializesModels;
 
     public $quote;
+    public $invoice;
     public $invitation;
     
 	/**
@@ -16,9 +17,10 @@ class QuoteInvitationWasApproved extends Event {
 	 *
 	 * @return void
 	 */
-    public function __construct($quote, $invitation)
+    public function __construct($quote, $invoice, $invitation)
     {
         $this->quote = $quote;
+        $this->invoice = $invoice;
         $this->invitation = $invitation;
     }
 

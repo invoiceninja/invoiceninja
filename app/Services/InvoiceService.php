@@ -74,7 +74,7 @@ class InvoiceService extends BaseService
             return $invoice;
         }
 
-        event(new QuoteInvitationWasApproved($invoice, $invitation));
+        event(new QuoteInvitationWasApproved($quote, $invoice, $invitation));
 
         foreach ($invoice->invitations as $invoiceInvitation) {
             if ($invitation->contact_id == $invoiceInvitation->contact_id) {

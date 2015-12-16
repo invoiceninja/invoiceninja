@@ -4,7 +4,7 @@
 {
   "@context": "http://schema.org",
   "@type": "Invoice",
-  "paymentStatus": "PaymentDue",
+  "paymentStatus": "{{ $invoice->present()->paymentStatus }}",
   @if ($invoice->due_date)
   "paymentDue": "{{ $invoice->due_date }}T00:00:00+00:00",
   @endif
@@ -19,7 +19,7 @@
   },
   "totalPaymentDue": {
     "@type": "PriceSpecification",
-    "price": "{{ $account->formatMoney($invoice->getRequestedAmount(), $client) }}"
+    "price": "{{ $account->formatMoney(isset($payment) ? $payment->amount : $invoice->getRequestedAmount(), $client) }}"
   },
   "action": {
     "@type": "ViewAction",

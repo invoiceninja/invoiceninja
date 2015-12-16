@@ -15,9 +15,20 @@
         </div>
         <div class="panel-body form-padding-right">
             {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
+            
             &nbsp;
+            
             {{-- Former::select('recurring_hour')->options($recurringHours) --}}
+            
+            {!! Former::select('email_design_id')
+                        ->style('width: 200px')
+                        ->addOption(trans('texts.plain'), 1)
+                        ->addOption(trans('texts.light'), 2)
+                        ->addOption(trans('texts.dark'), 3)
+                        ->help(trans('texts.email_design_help')) !!}
 
+            &nbsp;
+            
             {!! Former::inline_radios('custom_invoice_link')
                     ->onchange('onCustomLinkChange()')
                     ->label(trans('texts.invoice_link'))
@@ -26,7 +37,7 @@
                         trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
                     ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
             {{ Former::setOption('capitalize_translations', false) }}
-
+            
             {!! Former::text('subdomain')
                         ->placeholder(trans('texts.www'))
                         ->onchange('onSubdomainChange()')
@@ -40,13 +51,6 @@
                         ->addGroupClass('iframe_url')
                         ->label(' ')
                         ->help(trans('texts.subdomain_help')) !!}
-            &nbsp;
-            {!! Former::select('email_design_id')
-                        ->style('width: 200px')
-                        ->addOption(trans('texts.plain'), 1)
-                        ->addOption(trans('texts.light'), 2)
-                        ->addOption(trans('texts.dark'), 3)
-                        ->help(trans('texts.email_design_help')) !!}
             &nbsp;
             @if (Utils::isNinja())
                 {!! Former::checkbox('enable_email_markup')

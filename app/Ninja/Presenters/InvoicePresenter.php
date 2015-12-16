@@ -26,6 +26,18 @@ class InvoicePresenter extends Presenter {
         }
     }
 
+    // https://schema.org/PaymentStatusType
+    public function paymentStatus()
+    {
+        if ( ! $this->entity->balance) {
+            return 'PaymentComplete';
+        } elseif ($this->entity->isOverdue()) {
+            return 'PaymentPastDue';
+        } else {
+            return 'PaymentDue';
+        }
+    }
+
     public function status()
     {
         $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';

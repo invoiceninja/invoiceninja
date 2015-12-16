@@ -313,6 +313,15 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->invoice_status_id >= INVOICE_STATUS_PAID;
     }
 
+    public function isOverdue()
+    {
+        if ( ! $this->due_date) {
+            return false;
+        }
+
+        return time() > strtotime($this->due_date);
+    }
+
     public function getRequestedAmount()
     {
         return $this->partial > 0 ? $this->partial : $this->balance;

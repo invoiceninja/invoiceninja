@@ -5,7 +5,7 @@
 </head>
 <body>
     @if ($account->enable_email_markup)
-        @include('emails.view_action', ['link' => $link, 'entityType' => $entityType])
+        @include('emails.partials.client_view_action')
     @endif
     {!! $body !!}
 </body>

@@ -627,6 +627,8 @@ class InvoiceRepository extends BaseRepository
 
         if ($recurInvoice->auto_bill) {
             if ($this->paymentService->autoBillInvoice($invoice)) {
+                // update the invoice reference to match its actual state
+                // this is to ensure a 'payment received' email is sent
                 $invoice->invoice_status_id = INVOICE_STATUS_PAID;
             }
         }

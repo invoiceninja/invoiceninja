@@ -7,7 +7,7 @@
 <body style="min-height: 700px; color: #000000; font-family: Arial, Helvetica, sans-serif; font-size: 12px; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; background: #F4F5F5; margin: 0; padding: 0;" 
     alink="#FF0000" link="#FF0000" bgcolor="#F4F5F5" text="#000000" yahoo="fix">
     @if ($account->enable_email_markup)
-        @include('emails.view_action', ['link' => $link, 'entityType' => $entityType])
+        @include('emails.partials.client_view_action')
     @endif
 
     <style type="text/css">

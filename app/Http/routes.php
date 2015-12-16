@@ -445,7 +445,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/api/browser/v2/');
     define('PHP_DATE_FORMATS', 'http://php.net/manual/en/function.date.php');
     define('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/referral-program/');
-    define('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup/overview');
+    define('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup');
 
     define('COUNT_FREE_DESIGNS', 4);
     define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design

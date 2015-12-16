@@ -53,6 +53,7 @@ class UserMailer extends Mailer
             'invoiceAmount' => $account->formatMoney($invoice->getRequestedAmount(), $client),
             'invoiceNumber' => $invoice->invoice_number,
             'invoiceLink' => SITE_URL."/{$entityType}s/{$invoice->public_id}",
+            'account' => $account,
         ];
 
         if ($payment) {
@@ -70,6 +71,7 @@ class UserMailer extends Mailer
     public function sendEmailBounced(Invitation $invitation)
     {
         $user = $invitation->user;
+        $account = $user->account;
         $invoice = $invitation->invoice;
         $entityType = $invoice->getEntityType();
 

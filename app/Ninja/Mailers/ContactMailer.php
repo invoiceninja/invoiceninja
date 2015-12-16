@@ -172,7 +172,12 @@ class ContactMailer extends Mailer
 
         $data = [
             'body' => $this->processVariables($emailTemplate, $variables),
+            'link' => $invitation->getLink(),
+            'invoice' => $invoice,
+            'client' => $client,
             'account' => $account,
+            'payment' => $payment,
+            'entityType' => ENTITY_INVOICE,
         ];
 
         if ($account->attatchPDF()) {

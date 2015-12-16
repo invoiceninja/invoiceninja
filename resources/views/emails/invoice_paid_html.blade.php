@@ -4,8 +4,8 @@
   <meta charset="utf-8">
 </head>
 <body>
-  @if (false)
-    @include('emails.view_action', ['link' => $invoiceLink, 'entityType' => $entityType])
+  @if ($account->enable_email_markup)
+    @include('emails.partials.user_view_action')
   @endif
   {{ trans('texts.email_salutation', ['name' => $userName]) }} <p/>
 

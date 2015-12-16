@@ -4,9 +4,6 @@
   <meta charset="utf-8">
 </head>
 <body>
-  @if (false)
-    @include('emails.view_action', ['link' => $invoiceLink, 'entityType' => $entityType])
-  @endif
   {{ trans('texts.email_salutation', ['name' => $userName]) }} <p/>
 
   {{ trans("texts.notification_{$entityType}_bounced", ['contact' => $contactName, 'invoice' => $invoiceNumber]) }} <p/>  
