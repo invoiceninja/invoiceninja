@@ -950,4 +950,32 @@ return array(
     'secret_key' => 'Secret Key',
     'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
     
+    'email_design' => 'Email Design',
+    'due_by' => 'Due by :date',
+    'enable_email_markup' => 'Enable Markup',
+    'enable_email_markup_help' => 'Make it easier for your clients to pay you by adding schema.org markup to your emails.',
+    'template_help_title' => 'Templates Help',
+    'template_help_1' => 'Available variables:',
+    'email_design_id' => 'Email Style',
+    'email_design_help' => 'Make your emails look more professional with HTML layouts',
+    'plain' => 'Plain',
+    'light' => 'Light',
+    'dark' => 'Dark',
+
+    'industry_help' => 'Used to provide comparisons against the averages of companies of similar size and industry.',
+    'subdomain_help' => 'Customize the invoice link subdomain or display the invoice on your own website.',
+    'invoice_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the invoice number.',
+    'quote_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the quote number.',
+    'custom_client_fields_helps' => 'Add a text input to the client create/edit page and display the label and value on the PDF.',
+    'custom_account_fields_helps' => 'Add the label and value to the company details section of the PDF.',
+    'custom_invoice_fields_helps' => 'Add a text input to the invoice create/edit page and display the label and value on the PDF.',
+    'custom_invoice_charges_helps' => 'Add a text input to the invoice create/edit page and include the charge in the invoice subtotals.',
+    'color_help' => 'Note: the primary color is also used in the client portal and custom email designs.',
+
+    'token_expired' => 'Validation token was expired. Please try again.',
+    'invoice_link' => 'Invoice Link',
+    'button_confirmation_message' => 'Click to confirm your email address.',
+    'confirm' => 'Confirm',
+    'email_preferences' => 'Email Preferences',
+
 );

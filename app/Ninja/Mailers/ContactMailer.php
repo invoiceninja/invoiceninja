@@ -209,7 +209,6 @@ class ContactMailer extends Mailer
         }
         
         $data = [
-            'account' => trans('texts.email_from'),
             'client' => $name,
             'amount' => Utils::formatMoney($amount, DEFAULT_CURRENCY, DEFAULT_COUNTRY),
             'license' => $license

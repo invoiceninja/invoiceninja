@@ -265,7 +265,7 @@ return array(
     'email_signature' => 'Regards,',
     'email_from' => 'The Invoice Ninja Team',
     'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/settings/notifications',
-    'invoice_link_message' => 'To view your client invoice click the link below:',
+    'invoice_link_message' => 'To view the invoice click the link below:',
     'notification_invoice_paid_subject' => 'Invoice :invoice was paid by :client',
     'notification_invoice_sent_subject' => 'Invoice :invoice was sent to :client',
     'notification_invoice_viewed_subject' => 'Invoice :invoice was viewed by :client',
@@ -977,5 +977,8 @@ return array(
 
     'token_expired' => 'Validation token was expired. Please try again.',
     'invoice_link' => 'Invoice Link',
-
+    'button_confirmation_message' => 'Click to confirm your email address.',
+    'confirm' => 'Confirm',
+    'email_preferences' => 'Email Preferences',
+    
 );

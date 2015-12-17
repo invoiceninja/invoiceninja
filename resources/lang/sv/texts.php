@@ -271,8 +271,7 @@ return array(
   'notification_invoice_sent' => 'Följande kund :client har mailats fakturan :invoice på :amount.',
   'notification_invoice_viewed' => 'Följande kund :client har sett fakturan :invoice på :amount.',
   'reset_password' => 'Du kan återställa ditt lösenord genom att klicka på länken nedan:',
-  'reset_password_footer' => 'Om du inte begärt en återställning av ditt lösenord så var snäll och maila vår support: ' . CONTACT_EMAIL,
-
+  'reset_password_footer' => 'Om du inte begärt en återställning av ditt lösenord så var snäll och maila vår support: '.CONTACT_EMAIL,
 
   // Payment page
   'secure_payment' => 'Säker betalning',
@@ -300,7 +299,7 @@ return array(
 
   'logout' => 'Logga ut',
   'sign_up_to_save' => 'Registrera dig för att spara ditt arbete',
-  'agree_to_terms' =>'Jag godkänner Invoice Ninja :terms',
+  'agree_to_terms' => 'Jag godkänner Invoice Ninja :terms',
   'terms_of_service' => 'Villkor för tjänsten',
   'email_taken' => 'E-postadressen är redan registrerad',
   'working' => 'Jobbar',
@@ -419,7 +418,7 @@ return array(
   'active' => 'Aktiv',
   'pending' => 'Avvaktar',
   'deleted_user' => 'Användare borttagen',
-  'limit_users' => 'Ledsen, men du får skapa max ' . MAX_NUM_USERS . ' användare',
+  'limit_users' => 'Ledsen, men du får skapa max '.MAX_NUM_USERS.' användare',
 
   'confirm_email_invoice' => 'Är du säker på att du vill maila denna fakturan?',
   'confirm_email_quote' => 'Är du säker på att du vill maila denna offerten?',
@@ -486,7 +485,7 @@ return array(
   'restored_client' => 'Kund återställd',
   'restored_payment' => 'betalning återställd',
   'restored_credit' => 'Kreditfaktura återställd',
-  
+
   'reason_for_canceling' => 'Hjälp oss bli bättre genom att berätta varför du lämnar oss.',
   'discount_percent' => 'Procent',
   'discount_amount' => 'Summa',
@@ -601,7 +600,7 @@ return array(
   'view_documentation' => 'View Documentation',
   'app_title' => 'Free Open-Source Online Invoicing',
   'app_description' => 'Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
-  
+
   'rows' => 'rows',
   'www' => 'www',
   'logo' => 'Logo',
@@ -671,7 +670,7 @@ return array(
   'payment_type_dwolla' => 'Dwolla',
   'gateway_help_43' => ':link to sign up for Dwolla.',
   'partial_value' => 'Must be greater than zero and less than the total',
-  'more_actions' => 'More Actions',  
+  'more_actions' => 'More Actions',
 
   'pro_plan_title' => 'NINJA PRO',
   'pro_plan_call_to_action' => 'Upgrade Now!',
@@ -737,7 +736,7 @@ return array(
   'recent_payments' => 'Recent Payments',
   'outstanding' => 'Outstanding',
   'manage_companies' => 'Manage Companies',
-  'total_revenue' => 'Total Revenue',  
+  'total_revenue' => 'Total Revenue',
 
   'current_user' => 'Current User',
   'new_recurring_invoice' => 'New Recurring Invoice',
@@ -763,7 +762,7 @@ return array(
   'status_partial' => 'Partial',
   'status_paid' => 'Paid',
   'show_line_item_tax' => 'Display <b>line item taxes</b> inline',
-  
+
   'iframe_url' => 'Website',
   'iframe_url_help1' => 'Copy the following code to a page on your site.',
   'iframe_url_help2' => 'You can test the feature by clicking \'View as recipient\' for an invoice.',
@@ -887,7 +886,7 @@ return array(
   'default_invoice_footer' => 'Default Invoice Footer',
   'quote_footer' => 'Quote Footer',
   'free' => 'Free',
-  
+
   'quote_is_approved' => 'This quote is approved',
   'apply_credit' => 'Apply Credit',
   'system_settings' => 'System Settings',
@@ -948,5 +947,32 @@ return array(
   'secret_key' => 'Secret Key',
   'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
 
-  
+  'email_design' => 'Email Design',
+  'due_by' => 'Due by :date',
+  'enable_email_markup' => 'Enable Markup',
+  'enable_email_markup_help' => 'Make it easier for your clients to pay you by adding schema.org markup to your emails.',
+  'template_help_title' => 'Templates Help',
+  'template_help_1' => 'Available variables:',
+  'email_design_id' => 'Email Style',
+  'email_design_help' => 'Make your emails look more professional with HTML layouts',
+  'plain' => 'Plain',
+  'light' => 'Light',
+  'dark' => 'Dark',
+
+  'industry_help' => 'Used to provide comparisons against the averages of companies of similar size and industry.',
+  'subdomain_help' => 'Customize the invoice link subdomain or display the invoice on your own website.',
+  'invoice_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the invoice number.',
+  'quote_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the quote number.',
+  'custom_client_fields_helps' => 'Add a text input to the client create/edit page and display the label and value on the PDF.',
+  'custom_account_fields_helps' => 'Add the label and value to the company details section of the PDF.',
+  'custom_invoice_fields_helps' => 'Add a text input to the invoice create/edit page and display the label and value on the PDF.',
+  'custom_invoice_charges_helps' => 'Add a text input to the invoice create/edit page and include the charge in the invoice subtotals.',
+  'color_help' => 'Note: the primary color is also used in the client portal and custom email designs.',
+
+  'token_expired' => 'Validation token was expired. Please try again.',
+  'invoice_link' => 'Invoice Link',
+  'button_confirmation_message' => 'Click to confirm your email address.',
+  'confirm' => 'Confirm',
+  'email_preferences' => 'Email Preferences',
+
 );

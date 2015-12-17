@@ -1,18 +1,20 @@
-<!DOCTYPE html>
-<html lang="{{ App::getLocale() }}">
-<head>
-  <meta charset="utf-8">
-</head>
-<body>
+@extends('emails.master_user')
 
-  {{ $client }},<p/>
-
-  {{ trans('texts.payment_message', ['amount' => $amount]) }}<p/>      
-
-  {{ $license }}<p/>
-
-  {{ trans('texts.email_signature') }}<br/>      
-  {{ $account }}
-  
-</body>
-</html>
+@section('body')
+    <div>
+        {{ $client }},
+    </div>
+    &nbsp;
+    <div>
+        {{ trans('texts.payment_message', ['amount' => $amount]) }}
+    </div>
+    &nbsp;
+    <div>
+        {{ $license }}
+    </div>
+    &nbsp;
+    <div>
+        {{ trans('texts.email_signature') }}<br/>
+        {{ trans('texts.email_from') }}
+    </div>
+@stop

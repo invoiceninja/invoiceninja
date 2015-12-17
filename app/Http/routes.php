@@ -437,6 +437,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_VERSION', '2.4.7');
     define('NINJA_DATE', '2000-01-01');
 
+    define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');
+    define('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja');
+    define('SOCIAL_LINK_GITHUB', 'https://github.com/invoiceninja/invoiceninja/');
+
     define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
     define('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja');
     define('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja');

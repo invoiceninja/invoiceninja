@@ -1,17 +1,20 @@
-<!DOCTYPE html>
-<html lang="{{ App::getLocale() }}">
-<head>
-  <meta charset="utf-8">
-</head>
-<body>
-  {{ trans('texts.email_salutation', ['name' => $userName]) }} <p/>
+@extends('emails.master_user')
 
-  {{ trans("texts.notification_{$entityType}_bounced", ['contact' => $contactName, 'invoice' => $invoiceNumber]) }} <p/>  
-
-  {{ $emailError }}<p/>
-
-  {{ trans('texts.email_signature') }} <br/>
-  {{ trans('texts.email_from') }} <p/>
-
-</body>
-</html>
+@section('body')
+    <div>
+        {{ trans('texts.email_salutation', ['name' => $userName]) }}
+    </div>
+    &nbsp;
+    <div>
+        {{ trans("texts.notification_{$entityType}_bounced", ['contact' => $contactName, 'invoice' => $invoiceNumber]) }}
+    </div>
+    &nbsp;
+    <div>
+        {{ $emailError }}
+    </div>
+    &nbsp;
+    <div>
+        {{ trans('texts.email_signature') }} <br/>
+        {{ trans('texts.email_from') }}
+    </div>
+@stop

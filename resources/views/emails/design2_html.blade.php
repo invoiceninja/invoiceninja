@@ -1,5 +1,11 @@
 @extends('emails.master')
 
+@section('markup')
+    @if ($account->enable_email_markup)
+        @include('emails.partials.client_view_action')
+    @endif
+@stop
+
 @section('content')
     <tr>
         <td bgcolor="#F4F5F5" style="border-collapse: collapse;">&nbsp;</td>
@@ -43,4 +49,21 @@
             <div style="font-size: 18px; margin: 42px 40px 42px; padding: 0;">{!! $body !!}</div>
         </td>
     </tr>
+@stop
+
+@section('footer')
+    <p style="color: #A7A6A6; font-size: 13px; line-height: 18px; margin: 0 0 7px; padding: 0;">
+        {{ $account->address1 }}
+        @if ($account->address1 && $account->getCityState())
+            -
+        @endif
+        {{ $account->getCityState() }}
+        @if ($account->address1 || $account->getCityState())
+            <br />
+        @endif
+
+        @if ($account->website)
+            <strong><a href="{{ $account->present()->website }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;">{{ $account->website }}</a></strong>
+        @endif
+    </p>
 @stop

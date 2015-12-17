@@ -6,9 +6,7 @@
 
 <body style="min-height: 700px; color: #000000; font-family: Arial, Helvetica, sans-serif; font-size: 12px; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; background: #F4F5F5; margin: 0; padding: 0;" 
     alink="#FF0000" link="#FF0000" bgcolor="#F4F5F5" text="#000000" yahoo="fix">
-    @if ($account->enable_email_markup)
-        @include('emails.partials.client_view_action')
-    @endif
+    @yield('markup')
 
     <style type="text/css">
         .footer a:visited {
@@ -60,20 +58,7 @@
             <tr class="footer" style="text-align: center; color: #a7a6a6;" align="center">
                 <td bgcolor="#F4F5F5" 
                     style="border-collapse: collapse; padding-top: 32px;">
-                    <p style="color: #A7A6A6; font-size: 13px; line-height: 18px; margin: 0 0 7px; padding: 0;">
-                        {{ $account->address1 }}
-                        @if ($account->address1 && $account->getCityState())
-                            -
-                        @endif
-                        {{ $account->getCityState() }}
-                        @if ($account->address1 || $account->getCityState())
-                            <br />
-                        @endif
-
-                        @if ($account->website)
-                            <strong><a href="{{ $account->present()->website }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;">{{ $account->website }}</a></strong>
-                        @endif
-                    </p>
+                    @yield('footer')
                 </td>
             </tr>
 

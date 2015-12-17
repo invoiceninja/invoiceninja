@@ -880,7 +880,7 @@ class AccountController extends BaseController
         $user = Auth::user();
         $this->userMailer->sendConfirmation($user);
 
-        return Redirect::to('/settings/' . ACCOUNT_COMPANY_DETAILS)->with('message', trans('texts.confirmation_resent'));
+        return Redirect::to('/settings/' . ACCOUNT_USER_DETAILS)->with('message', trans('texts.confirmation_resent'));
     }
 
     public function redirectLegacy($section, $subSection = false)
