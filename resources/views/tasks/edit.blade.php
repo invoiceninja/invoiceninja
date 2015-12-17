@@ -138,7 +138,7 @@
                       ->large()
                       ->dropup() !!}
             @else
-                {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button', 'style' => 'display:none']) !!}
+                {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
                 {!! Button::success(trans('texts.start'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'start-button']) !!}
             @endif
         @endif
@@ -348,6 +348,11 @@
             self.refresh();
         }
 
+        self.removeItems = function() {
+            self.time_log.removeAll();
+            self.refresh();
+        }
+
         self.refresh = function() {
             var hasEmpty = false;
             var lastTime = 0;
@@ -416,9 +421,21 @@
             } else {
                 $('#datetime-details').fadeIn();
             }
-            $('#start-button').toggle();
-            $('#save-button').toggle();
+            setButtonsVisible();
         })
+
+        function setButtonsVisible() {
+            //model.removeItems();
+            var val = $('input[name=task_type]:checked').val();
+            if (val == 'timer') {
+                $('#start-button').show();
+                $('#save-button').hide();
+            } else {
+                $('#start-button').hide();
+                $('#save-button').show();
+            }
+        }
+        setButtonsVisible();
 
         $('#start-button').click(function() {
             submitAction('start');

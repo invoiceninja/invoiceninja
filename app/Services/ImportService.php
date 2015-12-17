@@ -34,7 +34,7 @@ class ImportService
     public static $sources = [
         IMPORT_CSV,
         IMPORT_FRESHBOOKS,
-        IMPORT_HARVEST,
+        //IMPORT_HARVEST,
         IMPORT_HIVEAGE,
         IMPORT_INVOICEABLE,
         IMPORT_NUTCACHE,

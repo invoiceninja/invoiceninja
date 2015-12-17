@@ -45,7 +45,7 @@ class InvoiceTransformer extends EntityTransformer
             'po_number' => $invoice->po_number,
             'invoice_date' => $invoice->invoice_date,
             'due_date' => $invoice->due_date,
-            'terms' => $invoice->terms,
+            'invoice_terms' => $invoice->terms,
             'public_notes' => $invoice->public_notes,
             'is_deleted' => (bool) $invoice->is_deleted,
             'is_recurring' => (bool) $invoice->is_recurring,

@@ -684,7 +684,7 @@ class Utils
 
     public static function isEmpty($value)
     {
-        return !$value || $value == '0.00' || $value == '0,00';
+        return !$value || $value == '0' || $value == '0.00' || $value == '0,00';
     }
 
     public static function startsWith($haystack, $needle)

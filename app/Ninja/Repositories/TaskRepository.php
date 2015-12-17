@@ -81,7 +81,7 @@ class TaskRepository
         } else {
             $timeLog = [];
         }
-
+        
         array_multisort($timeLog);
 
         if (isset($data['action'])) {

@@ -862,10 +862,10 @@
 
         @if (!$invoice->id)
             if (!invoice.terms) {
-                invoice.terms = wordWrapText('{!! str_replace(["\r\n","\r","\n"], '\n', addslashes($account->{"{$entityType}_terms"})) !!}', 300);
+                invoice.terms = account['{{ $entityType }}_terms'];
             }
             if (!invoice.invoice_footer) {
-                invoice.invoice_footer = wordWrapText('{!! str_replace(["\r\n","\r","\n"], '\n', addslashes($account->invoice_footer)) !!}', 600);
+                invoice.invoice_footer = account['invoice_footer'];
             }
         @endif
 

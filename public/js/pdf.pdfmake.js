@@ -89,7 +89,7 @@ function GetPdfMake(invoice, javascript, callback) {
             dd.footer[1].columns[0].stack.push({image: logoImages.imageLogo3, alignment: 'left', width: 130, margin: [40, 6, 0, 0]});
         }
     }
-
+    
     /*
     var fonts = {
         Roboto: {
@@ -300,7 +300,7 @@ NINJA.invoiceLines = function(invoice) {
         }
 
         // show at most one blank line
-        if (shownItem && (!cost || cost == '0.00' || cost == '0,00') && !notes && !productKey) {
+        if (shownItem && !notes && !productKey && (!cost || cost == '0' || cost == '0.00' || cost == '0,00')) {
             continue;
         }
 
