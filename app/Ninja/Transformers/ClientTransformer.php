@@ -91,7 +91,8 @@ class ClientTransformer extends EntityTransformer
             'payment_terms' => (int) $client->payment_terms,
             'vat_number' => $client->vat_number,
             'id_number' => $client->id_number,
-            'language_id' => (int) $client->language_id
+            'language_id' => (int) $client->language_id,
+            'currency_id' => (int) $client->currency_id
         ];
     }
 }
