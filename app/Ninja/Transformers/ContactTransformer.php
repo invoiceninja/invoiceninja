@@ -13,7 +13,6 @@ class ContactTransformer extends EntityTransformer
             'first_name' => $contact->first_name,
             'last_name' => $contact->last_name,
             'email' => $contact->email,
-            'user_id' => (int) $contact->user_id,
             'updated_at' => $contact->updated_at,
             'deleted_at' => $contact->deleted_at,
             'is_primary' => (bool) $contact->is_primary,

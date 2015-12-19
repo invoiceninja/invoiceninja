@@ -11,7 +11,7 @@ class AccountTransformer extends EntityTransformer
 {
     protected $defaultIncludes = [
         'users',
-        'clients',
+    //    'clients',
         'invoices',
         'contacts',
         'products',
