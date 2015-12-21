@@ -56,35 +56,39 @@ class ImportService
 
     public function import($source, $files)
     {
-        $skipped = [];
+        $results = [];
         $imported_files = null;
 
         foreach ($files as $entityType => $file) {
-            $result = $this->execute($source, $entityType, $file);
-            $skipped = array_merge($skipped, $result);
+            $results[$entityType] = $this->execute($source, $entityType, $file);
         }
         
-        return $skipped;
+        return $results;
     }
 
     private function execute($source, $entityType, $file)
     {
-        $skipped = [];
+        $results = [
+            RESULT_SUCCESS => [],
+            RESULT_FAILURE => [],
+        ];
 
-        Excel::load($file, function ($reader) use ($source, $entityType, &$skipped) {
+        Excel::load($file, function ($reader) use ($source, $entityType, &$results) {
             $this->checkData($entityType, count($reader->all()));
             $maps = $this->createMaps();
 
-            $reader->each(function ($row) use ($source, $entityType, $maps, &$skipped) {
+            $reader->each(function ($row) use ($source, $entityType, $maps, &$results) {
                 $result = $this->saveData($source, $entityType, $row, $maps);
 
-                if ( ! $result) {
-                    $skipped[] = $row;
+                if ($result) {
+                    $results[RESULT_SUCCESS][] = $result;
+                } else {
+                    $results[RESULT_FAILURE][] = $row;
                 }
             });
         });
 
-        return $skipped;
+        return $results;
     }
 
     private function saveData($source, $entityType, $row, $maps)
@@ -346,19 +350,21 @@ class ImportService
 
     public function importCSV($maps, $headers)
     {
-        $skipped = [];
+        $results = [];
 
         foreach ($maps as $entityType => $map) {
-            $result = $this->executeCSV($entityType, $map, $headers[$entityType]);
-            $skipped = array_merge($skipped, $result);
+            $result[$entityType] = $this->executeCSV($entityType, $map, $headers[$entityType]);
         }
 
-        return $skipped;
+        return $results;
     }
 
     private function executeCSV($entityType, $map, $hasHeaders)
     {
-        $skipped = [];
+        $results = [
+            RESULT_SUCCESS => [],
+            RESULT_FAILURE => [],
+        ];
         $source = IMPORT_CSV;
 
         $data = Session::get("{$entityType}-data");
@@ -374,14 +380,16 @@ class ImportService
             $row = $this->convertToObject($entityType, $row, $map);
             $result = $this->saveData($source, $entityType, $row, $maps);
 
-            if ( ! $result) {
-                $skipped[] = $row;
+            if ($result) {
+                $results[RESULT_SUCCESS][] = $result;
+            } else {
+                $results[RESULT_FAILURE][] = $row;
             }
         }
 
         Session::forget("{$entityType}-data");
 
-        return $skipped;
+        return $results;
     }
 
     private function convertToObject($entityType, $data, $map)

@@ -6,7 +6,7 @@
     @else
         <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }}</title> 
         <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}" />
-        <link href="{{ asset('favicon-v2.png') }}" rel="shortcut icon">
+        <link href="{{ asset('favicon-v2.png') }}" rel="shortcut icon" type="image/png">
     @endif
 
     <!-- Source: https://github.com/hillelcoren/invoice-ninja -->

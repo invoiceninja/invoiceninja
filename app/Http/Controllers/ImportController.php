@@ -22,7 +22,6 @@ class ImportController extends BaseController
     {
         $source = Input::get('source');
         $files = [];
-        $skipped = [];
 
         foreach (ImportService::$entityTypes as $entityType) {
             if (Input::file("{$entityType}_file")) {
@@ -38,8 +37,8 @@ class ImportController extends BaseController
                 $data = $this->importService->mapCSV($files);
                 return View::make('accounts.import_map', ['data' => $data]);
             } else {
-                $skipped = $this->importService->import($source, $files);
-                return $this->showResult($skipped);
+                $results = $this->importService->import($source, $files);
+                return $this->showResult($results);
             }
         } catch (Exception $exception) {
             Utils::logError($exception);
@@ -52,11 +51,10 @@ class ImportController extends BaseController
     {
         $map = Input::get('map');
         $headers = Input::get('headers');
-        $skipped = [];
 
         try {
-            $skipped = $this->importService->importCSV($map, $headers);
-            return $this->showResult($skipped);
+            $results = $this->importService->importCSV($map, $headers);
+            return $this->showResult($results);
         } catch (Exception $exception) {
             Utils::logError($exception);
             Session::flash('error', $exception->getMessage());
@@ -64,16 +62,29 @@ class ImportController extends BaseController
         }
     }
 
-    private function showResult($skipped)
+    private function showResult($results)
     {
-        if (count($skipped)) {
-            $message = trans('texts.failed_to_import');
-            foreach ($skipped as $skip) {
-                $message .= '<br/>' . json_encode($skip);
+        $message = '';
+        $skipped = [];
+
+        foreach ($results as $entityType => $entityResults) {
+            if ($count = count($entityResults[RESULT_SUCCESS])) {
+                $message .= trans("texts.created_{$entityType}s", ['count' => $count]) . '<br/>';
             }
+            if (count($entityResults[RESULT_FAILURE])) {
+                $skipped = array_merge($skipped, $entityResults[RESULT_FAILURE]);
+            }
+        }
+
+        if (count($skipped)) {
+            $message .= '<p/>' . trans('texts.failed_to_import') . '<br/>';
+            foreach ($skipped as $skip) {
+                $message .= json_encode($skip) . '<br/>';
+            }
+        }
+
+        if ($message) {
             Session::flash('warning', $message);
-        } else {
-            Session::flash('message', trans('texts.imported_file'));
         }
 
         return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);

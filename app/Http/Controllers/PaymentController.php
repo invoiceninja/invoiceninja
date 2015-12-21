@@ -512,21 +512,20 @@ class PaymentController extends BaseController
 
         try {
             if (method_exists($gateway, 'completePurchase') 
-                && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)
-                && !$accountGateway->isGateway(GATEWAY_MOLLIE)) { // TODO: implement webhook
+                && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)) {
                 $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
-                $response = $gateway->completePurchase($details)->send();
+                $response = $this->paymentService->completePurchase($gateway, $accountGateway, $details, $token);
                 $ref = $response->getTransactionReference() ?: $token;
 
-                if ($response->isSuccessful()) {
+                if ($response->isCancelled()) {
+                    // do nothing
+                } elseif ($response->isSuccessful()) {
                     $payment = $this->paymentService->createPayment($invitation, $ref, $payerId);
                     Session::flash('message', trans('texts.applied_payment'));
-
-                    return Redirect::to($invitation->getLink());
                 } else {
                     $this->error('offsite', $response->getMessage(), $accountGateway);
-                    return Redirect::to($invitation->getLink());
                 }
+                return Redirect::to($invitation->getLink());
             } else {
                 $payment = $this->paymentService->createPayment($invitation, $token, $payerId);
                 Session::flash('message', trans('texts.applied_payment'));

@@ -66,7 +66,7 @@
       $('#dbTestResult').html('Working...').css('color', 'black');
 
       // Send / Test Information
-      $.post( "/setup", data, function( data ) {
+      $.post( "{{ URL::to('/setup') }}", data, function( data ) {
         var color = 'red';
         if(data == 'Success'){
           color = 'green';
@@ -86,7 +86,7 @@
       $('#mailTestResult').html('Working...').css('color', 'black');
 
       // Send / Test Information
-      $.post( "/setup", data, function( data ) {
+      $.post( "{{ URL::to('/setup') }}", data, function( data ) {
         var color = 'red';
         if(data == 'Sent'){
           color = 'green';

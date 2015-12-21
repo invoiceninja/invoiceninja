@@ -97,7 +97,7 @@
 
       <div class="modal-footer" style="margin-top: 0px">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
-        <button type="button" class="btn btn-primary" onclick="confirmCancel()">{{ trans('texts.cancel_account') }}</button>         
+        <button type="button" class="btn btn-danger" onclick="confirmCancel()">{{ trans('texts.cancel_account') }}</button>         
       </div>
 
     </div>
