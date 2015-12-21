@@ -4,6 +4,7 @@ use App\Models\Account;
 use App\Models\AccountToken;
 use App\Models\Contact;
 use App\Models\Product;
+use App\Models\TaxRate;
 use League\Fractal;
 use League\Fractal\TransformerAbstract;
 
@@ -11,10 +12,11 @@ class AccountTransformer extends EntityTransformer
 {
     protected $defaultIncludes = [
         'users',
-        'clients',
+    //    'clients',
         'invoices',
         'contacts',
         'products',
+        'taxRates'
     ];
 
     public function includeUsers(Account $account)
@@ -46,6 +48,13 @@ class AccountTransformer extends EntityTransformer
         $transformer = new ProductTransformer($account, $this->serializer);
         return $this->includeCollection($account->products, $transformer, 'products');
     }
+
+    public function includeTaxRates(Account $account)
+    {
+        $transformer = new TaxRateTransformer($account, $this->serializer);
+        return $this->includeCollection($account->tax_rates, $transformer, 'taxRates');
+    }
+
 
     public function transform(Account $account)
     {
