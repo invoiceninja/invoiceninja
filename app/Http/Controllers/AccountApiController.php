@@ -79,4 +79,9 @@ class AccountApiController extends BaseAPIController
 
         return $this->response($data);
     }
+
+    public function getUserAccounts(Request $request)
+    {
+        return $this->processLogin($request);
+    }
 }
