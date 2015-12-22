@@ -52,7 +52,6 @@ class AuthService
 
             if ($result === true) {
                 if (!$isRegistered) {
-                    event(new UserSignedUp());
                     Session::flash('warning', trans('texts.success_message'));
                     Session::flash('onReady', 'handleSignedUp();');
                 } else {

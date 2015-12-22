@@ -24,6 +24,7 @@ class InvoiceTransformer extends BaseTransformer
                 'due_date_sql' => $this->getDate($data->due_date),
                 'invoice_items' => [
                     [
+                        'product_key' => '',
                         'notes' => $data->summary,
                         'cost' => (float) $data->billed_total,
                         'qty' => 1,

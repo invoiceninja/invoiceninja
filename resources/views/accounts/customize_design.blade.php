@@ -73,9 +73,10 @@
     function saveEditor(data)
     {        
         setTimeout(function() {
-            customDesign[editorSection] = editor.get();           
-            refreshPDF();        
-        }, 100)                
+            customDesign[editorSection] = editor.get();
+            clearError();
+            refreshPDF();
+        }, 100)
     }
 
     function onSelectChange()
@@ -89,16 +90,34 @@
         }
 
         loadEditor(editorSection);
-        refreshPDF(true);          
+        clearError();
+        refreshPDF(true);
     }
 
     function submitForm()
     {
+        if (!NINJA.isPDFValid) {
+            return;
+        }
+
         $('#custom_design').val(JSON.stringify(customDesign));
         $('form.warn-on-exit').submit();
     }
 
-    $(function() {                       
+    window.onerror = function(e) {
+        $('#pdf-error').html(e.message ? e.message : e).show();
+        $('button.save-button').prop('disabled', true);
+        NINJA.isPDFValid = false;
+    }
+
+    function clearError() {
+        NINJA.isPDFValid = true;
+        $('#pdf-error').hide();
+        $('button.save-button').prop('disabled', false);
+    }
+
+    $(function() {
+       clearError();
        refreshPDF(true);
       
         var container = document.getElementById("jsoneditor");
@@ -109,14 +128,14 @@
               saveEditor();
             }
           };
-        window.editor = new JSONEditor(container, options);      
+        window.editor = new JSONEditor(container, options);
         loadEditor('content');
 
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
           var target = $(e.target).attr("href") // activated tab
           target = target.substring(1); // strip leading #
           loadEditor(target);
-        });        
+        });
     });
 
   </script> 
@@ -195,6 +214,7 @@
 
     </div>
     <div class="col-md-6">
+      <div id="pdf-error" class="alert alert-danger" style="display:none"></div>
 
       @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
 

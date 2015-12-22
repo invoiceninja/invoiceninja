@@ -115,7 +115,7 @@ class DashboardController extends BaseController
                     ->where('contacts.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
                     ->select(['payments.payment_date', 'payments.amount', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id'])
-                    ->orderBy('payments.id', 'desc')
+                    ->orderBy('payments.payment_date', 'desc')
                     ->take(50)
                     ->get();
 

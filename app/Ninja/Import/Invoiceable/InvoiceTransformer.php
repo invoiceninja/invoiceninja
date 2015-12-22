@@ -26,6 +26,7 @@ class InvoiceTransformer extends BaseTransformer
                 'paid' => (float) $data->paid,
                 'invoice_items' => [
                     [
+                        'product_key' => '',
                         'notes' => $data->description,
                         'cost' => (float) $data->total,
                         'qty' => 1,

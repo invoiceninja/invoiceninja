@@ -355,7 +355,7 @@
 				</tr>
 			@endif
 
-			<tr>
+			<tr style="font-size:1.05em">
 				<td class="hide-border" colspan="3"/>
 				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>
 				<td class="hide-border" colspan="{{ $account->hide_quantity ? 1 : 2 }}"><b>{{ trans($entityType == ENTITY_INVOICE ? 'texts.balance_due' : 'texts.total') }}</b></td>

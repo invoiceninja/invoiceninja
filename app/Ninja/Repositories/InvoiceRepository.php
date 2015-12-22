@@ -387,7 +387,7 @@ class InvoiceRepository extends BaseRepository
                 $task->save();
             }
 
-            if (isset($item['product_key']) && $item['product_key']) {
+            if ($item['product_key']) {
                 if (!\Auth::user()->account->update_products) {
                     continue;
                 }
