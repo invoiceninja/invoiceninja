@@ -88,7 +88,7 @@ return array(
     'company_details' => 'Company Details',
     'online_payments' => 'Online Payments',
     'notifications' => 'Email Notifications',
-    'import_export' => 'Import/Export',
+    'import_export' => 'Import/Export/Cancel',
     'done' => 'Done',
     'save' => 'Save',
     'create' => 'Create',
@@ -212,7 +212,7 @@ return array(
 
     // application messages
     'created_client' => 'Successfully created client',
-    'created_clients' => 'Successfully created :count clients',
+    'created_clients' => 'Successfully created :count client(s)',
     'updated_settings' => 'Successfully updated settings',
     'removed_logo' => 'Successfully removed logo',
     'sent_message' => 'Successfully sent message',
@@ -980,5 +980,7 @@ return array(
     'button_confirmation_message' => 'Click to confirm your email address.',
     'confirm' => 'Confirm',
     'email_preferences' => 'Email Preferences',
-    
+
+    'created_invoices' => 'Successfully created :count invoice(s)',
+
 );

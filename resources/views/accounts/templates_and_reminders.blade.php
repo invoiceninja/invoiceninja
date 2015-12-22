@@ -184,13 +184,14 @@
             var keys = {!! json_encode(\App\Ninja\Mailers\ContactMailer::$variableFields) !!};
             var vals = [
                 {!! json_encode($emailFooter) !!}, 
-                "{{ Auth::user()->account->getDisplayName() }}", 
+                "{{ $account->getDisplayName() }}", 
                 "Client Name", 
                 formatMoney(100), 
                 "Contact Name", 
                 "First Name",
                 "0001", 
                 "0001",
+                "{{ $account->formatDate($account->getDateTime()) }}",
                 "{{ URL::to('/view/...') }}", 
                 '{!! HTML::flatButton('view_invoice', '#0b4d78') !!}',
                 "{{ URL::to('/payment/...') }}", 

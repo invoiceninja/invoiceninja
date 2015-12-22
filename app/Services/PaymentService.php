@@ -224,6 +224,17 @@ class PaymentService extends BaseService
         return $payment;
     }
 
+    public function completePurchase($gateway, $accountGateway, $details, $token)
+    {
+        if ($accountGateway->isGateway(GATEWAY_MOLLIE)) {
+            $details['transactionReference'] = $token;
+            $response = $gateway->fetchTransaction($details)->send();
+            return $gateway->fetchTransaction($details)->send();
+        } else {
+            return $gateway->completePurchase($details)->send();
+        }
+    }
+
     public function autoBillInvoice($invoice)
     {
         $client = $invoice->client;

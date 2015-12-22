@@ -63,7 +63,6 @@ Route::get('/auth_unlink', 'Auth\AuthController@authUnlink');
 Route::post('/hook/email_bounced', 'AppController@emailBounced');
 Route::post('/hook/email_opened', 'AppController@emailOpened');
 
-
 // Laravel auth routes
 get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
 post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
