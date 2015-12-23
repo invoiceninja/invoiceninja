@@ -99,6 +99,18 @@
                         @foreach (\App\Ninja\Mailers\ContactMailer::$variableFields as $field)
                             <li>${{ $field }}</li>
                         @endforeach
+                        @if ($account->custom_client_label1)
+                            <li>$customClient1</li>
+                        @endif
+                        @if ($account->custom_client_label2)
+                            <li>$customClient2</li>
+                        @endif
+                        @if ($account->custom_invoice_text_label1)
+                            <li>$customInvoice1</li>
+                        @endif
+                        @if ($account->custom_invoice_text_label2)
+                            <li>$customInvoice1</li>
+                        @endif
                         @if (count($account->account_gateways) > 1)
                             @foreach (\App\Models\Gateway::$paymentTypes as $type)
                                 @if ($account->getGatewayByType($type))
@@ -197,6 +209,10 @@
                 "{{ URL::to('/payment/...') }}", 
                 '{!! HTML::flatButton('pay_now', '#36c157') !!}',
             ];
+
+            // Add blanks for custom values
+            keys.push('customClient1', 'customClient2', 'customInvoice1', 'customInvoice2');
+            vals.push('custom value', 'custom value', 'custom value', 'custom value');
 
             // Add any available payment method links
             @foreach (\App\Models\Gateway::$paymentTypes as $type)

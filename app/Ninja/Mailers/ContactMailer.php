@@ -240,6 +240,10 @@ class ContactMailer extends Mailer
             '$viewButton' => HTML::emailViewButton($invitation->getLink(), $invoice->getEntityType()),
             '$paymentLink' => $invitation->getLink('payment'),
             '$paymentButton' => HTML::emailPaymentButton($invitation->getLink('payment')),
+            '$customClient1' => $account->custom_client_label1,
+            '$customClient2' => $account->custom_client_label2,
+            '$customInvoice1' => $account->custom_invoice_text_label1,
+            '$customInvoice2' => $account->custom_invoice_text_label2,
         ];
 
         // Add variables for available payment types

@@ -381,7 +381,7 @@ class PaymentController extends BaseController
             if ($validator->fails()) {
                 return Redirect::to('payment/'.$invitationKey)
                     ->withErrors($validator)
-                    ->withInput();
+                    ->withInput(Request::except('cvv'));
             }
 
             if ($accountGateway->update_address) {
@@ -422,7 +422,8 @@ class PaymentController extends BaseController
                         $details['customerReference'] = $token;
                     } else {
                         $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
-                        return Redirect::to('payment/'.$invitationKey)->withInput();
+                        return Redirect::to('payment/'.$invitationKey)
+                                ->withInput(Request::except('cvv'));
                     }
                 }
             }
@@ -443,7 +444,8 @@ class PaymentController extends BaseController
                 $this->error('No-Ref', $response->getMessage(), $accountGateway);
 
                 if ($onSite) {
-                    return Redirect::to('payment/'.$invitationKey)->withInput();
+                    return Redirect::to('payment/'.$invitationKey)
+                            ->withInput(Request::except('cvv'));
                 } else {
                     return Redirect::to('view/'.$invitationKey);
                 }
@@ -472,7 +474,7 @@ class PaymentController extends BaseController
         } catch (\Exception $e) {
             $this->error('Uncaught', false, $accountGateway, $e);
             if ($onSite) {
-                return Redirect::to('payment/'.$invitationKey)->withInput();
+                return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
             } else {
                 return Redirect::to('view/'.$invitationKey);
             }

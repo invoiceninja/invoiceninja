@@ -188,7 +188,6 @@
 			<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
 				<td class="hide-border td-icon">
 					<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp;
-                        $index() < ($parent.invoice_items().length - 1) &amp;&amp;
                         $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 				</td>
 				<td>
