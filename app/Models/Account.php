@@ -459,6 +459,12 @@ class Account extends Eloquent
         return $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
     }
 
+    public function previewNextInvoiceNumber($entityType = ENTITY_INVOICE)
+    {
+        $invoice = $this->createInvoice($entityType);
+        return $this->getNextInvoiceNumber($invoice);
+    }
+
     public function getNextInvoiceNumber($invoice)
     {
         if ($this->hasNumberPattern($invoice->is_quote)) {

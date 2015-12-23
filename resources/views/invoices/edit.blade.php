@@ -1132,8 +1132,8 @@
             return;
         @endif
         var number = '{{ $account->getNumberPattern($invoice) }}';
-        number = number.replace('{$custom1}', client.custom_value1);
-        number = number.replace('{$custom2}', client.custom_value2);
+        number = number.replace('{$custom1}', client.custom_value1 ? client.custom_value1 : '');
+        number = number.replace('{$custom2}', client.custom_value2 ? client.custom_value1 : '');
         model.invoice().invoice_number(number);
     }
 

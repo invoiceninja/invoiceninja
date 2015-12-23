@@ -134,13 +134,14 @@ class PaymentController extends BaseController
         if ($paymentType) {
             $paymentType = 'PAYMENT_TYPE_' . strtoupper($paymentType);
         } else {
-            $paymentType = Session::get('payment_type', $account->account_gateways[0]->getPaymentType());
+            $paymentType = Session::get($invitation->id . 'payment_type') ?:
+                                $account->account_gateways[0]->getPaymentType();
         }
         if ($paymentType == PAYMENT_TYPE_TOKEN) {
             $useToken = true;
             $paymentType = PAYMENT_TYPE_CREDIT_CARD;
         }
-        Session::put('payment_type', $paymentType);
+        Session::put($invitation->id . 'payment_type', $paymentType);
 
         $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
         $gateway = $accountGateway->gateway;
@@ -210,7 +211,7 @@ class PaymentController extends BaseController
 
         $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
-        $accountGateway = $account->getGatewayByType(Session::get('payment_type'));
+        $accountGateway = $account->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD);
         $gateway = $accountGateway->gateway;
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
@@ -345,7 +346,7 @@ class PaymentController extends BaseController
         $invoice = $invitation->invoice;
         $client = $invoice->client;
         $account = $client->account;
-        $accountGateway = $account->getGatewayByType(Session::get('payment_type'));
+        $accountGateway = $account->getGatewayByType(Session::get($invitation->id . 'payment_type'));
 
         $rules = [
             'first_name' => 'required',
@@ -449,7 +450,7 @@ class PaymentController extends BaseController
             }
 
             if ($response->isSuccessful()) {
-                $payment = $this->paymentService->createPayment($invitation, $ref);
+                $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref);
                 Session::flash('message', trans('texts.applied_payment'));
 
                 if ($account->account_key == NINJA_ACCOUNT_KEY) {
@@ -496,7 +497,7 @@ class PaymentController extends BaseController
         $client = $invoice->client;
         $account = $client->account;
 
-        $accountGateway = $account->getGatewayByType(Session::get('payment_type'));
+        $accountGateway = $account->getGatewayByType(Session::get($invitation->id . 'payment_type'));
         $gateway = $this->paymentService->createGateway($accountGateway);
 
         // Check for Dwolla payment error
@@ -520,14 +521,14 @@ class PaymentController extends BaseController
                 if ($response->isCancelled()) {
                     // do nothing
                 } elseif ($response->isSuccessful()) {
-                    $payment = $this->paymentService->createPayment($invitation, $ref, $payerId);
+                    $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, $payerId);
                     Session::flash('message', trans('texts.applied_payment'));
                 } else {
                     $this->error('offsite', $response->getMessage(), $accountGateway);
                 }
                 return Redirect::to($invitation->getLink());
             } else {
-                $payment = $this->paymentService->createPayment($invitation, $token, $payerId);
+                $payment = $this->paymentService->createPayment($invitation, $accountGateway, $token, $payerId);
                 Session::flash('message', trans('texts.applied_payment'));
 
                 return Redirect::to($invitation->getLink());

@@ -119,12 +119,14 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Chinese Renminbi', 'code' => 'CNY', 'symbol' => 'RMB ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Rwandan Franc', 'code' => 'RWF', 'symbol' => 'RF ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Tanzanian Shilling', 'code' => 'TZS', 'symbol' => 'TSh ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['name' => 'Netherlands Antillean Guilder', 'code' => 'ANG', 'symbol' => 'ANG ', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
         ];
 
         foreach ($currencies as $currency) {
             $record = Currency::whereCode($currency['code'])->first();
             if ($record) {
                 $record->name = $currency['name'];
+                $record->symbol = $currency['symbol'];
                 $record->thousand_separator = $currency['thousand_separator'];
                 $record->decimal_separator = $currency['decimal_separator'];
                 $record->save();

@@ -440,7 +440,10 @@ class InvoiceRepository extends BaseRepository
                 $invoiceNumber = substr($invoiceNumber, strlen($account->quote_number_prefix));
             }
             $invoiceNumber = $account->invoice_number_prefix.$invoiceNumber;
-            if (Invoice::scope()->withTrashed()->whereInvoiceNumber($invoiceNumber)->first()) {
+            if (Invoice::scope(false, $account->id)
+                    ->withTrashed()
+                    ->whereInvoiceNumber($invoiceNumber)
+                    ->first()) {
                 $invoiceNumber = false;
             }
         }

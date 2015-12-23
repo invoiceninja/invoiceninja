@@ -19,16 +19,7 @@
             &nbsp;
             
             {{-- Former::select('recurring_hour')->options($recurringHours) --}}
-            
-            {!! Former::select('email_design_id')
-                        ->style('width: 200px')
-                        ->addOption(trans('texts.plain'), 1)
-                        ->addOption(trans('texts.light'), 2)
-                        ->addOption(trans('texts.dark'), 3)
-                        ->help(trans('texts.email_design_help')) !!}
 
-            &nbsp;
-            
             {!! Former::inline_radios('custom_invoice_link')
                     ->onchange('onCustomLinkChange()')
                     ->label(trans('texts.invoice_link'))
@@ -51,7 +42,25 @@
                         ->addGroupClass('iframe_url')
                         ->label(' ')
                         ->help(trans('texts.subdomain_help')) !!}
+            
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.email_design') !!}</h3>
+        </div>
+        <div class="panel-body form-padding-right">
+            
+            {!! Former::select('email_design_id')
+                        ->style('width: 200px')
+                        ->addOption(trans('texts.plain'), 1)
+                        ->addOption(trans('texts.light'), 2)
+                        ->addOption(trans('texts.dark'), 3)
+                        ->help(trans('texts.email_design_help')) !!}
+
             &nbsp;
+
             @if (Utils::isNinja())
                 {!! Former::checkbox('enable_email_markup')
                         ->text(trans('texts.enable') . 

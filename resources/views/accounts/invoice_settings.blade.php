@@ -59,7 +59,8 @@
                                 ->addGroupClass('number-pattern') !!}
                         {!! Former::text('invoice_number_counter')
                                 ->label(trans('texts.counter'))
-                                ->help(trans('texts.invoice_number_help')) !!}
+                                ->help(trans('texts.invoice_number_help') . ' ' . 
+                                    trans('texts.next_invoice_number', ['number' => $account->previewNextInvoiceNumber()])) !!}
 
                     </div>
                 </div>
@@ -86,7 +87,8 @@
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('share_counter')->raw()
                                 ->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter'))
-                                ->help(trans('texts.quote_number_help')) !!}
+                                ->help(trans('texts.quote_number_help') . ' ' . 
+                                    trans('texts.next_quote_number', ['number' => $account->previewNextInvoiceNumber(ENTITY_QUOTE)])) !!}
 
 
                     </div>

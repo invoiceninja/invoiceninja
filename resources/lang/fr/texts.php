@@ -960,7 +960,7 @@ return array(
   'invoice_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the invoice number.',
   'quote_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the quote number.',
   'custom_client_fields_helps' => 'Add a text input to the client create/edit page and display the label and value on the PDF.',
-  'custom_account_fields_helps' => 'Add the label and value to the company details section of the PDF.',
+  'custom_account_fields_helps' => 'Add a label and value to the company details section of the PDF.',
   'custom_invoice_fields_helps' => 'Add a text input to the invoice create/edit page and display the label and value on the PDF.',
   'custom_invoice_charges_helps' => 'Add a text input to the invoice create/edit page and include the charge in the invoice subtotals.',
   'color_help' => 'Note: the primary color is also used in the client portal and custom email designs.',
@@ -970,6 +970,8 @@ return array(
   'button_confirmation_message' => 'Click to confirm your email address.',
   'confirm' => 'Confirm',
   'email_preferences' => 'Email Preferences',
-
+  'created_invoices' => 'Successfully created :count invoice(s)',
+  'next_invoice_number' => 'The next invoice number is :number.',
+  'next_quote_number' => 'The next quote number is :number.',
   
 );

@@ -184,10 +184,9 @@ class PaymentService extends BaseService
         return $cardReference;
     }
 
-    public function createPayment($invitation, $ref, $payerId = null)
+    public function createPayment($invitation, $accountGateway, $ref, $payerId = null)
     {
         $invoice = $invitation->invoice;
-        $accountGateway = $invoice->client->account->getGatewayByType(Session::get('payment_type'));
 
         // sync pro accounts
         if ($invoice->account->account_key == NINJA_ACCOUNT_KEY 
@@ -257,7 +256,7 @@ class PaymentService extends BaseService
         $ref = $response->getTransactionReference();
 
         // create payment record
-        return $this->createPayment($invitation, $ref);
+        return $this->createPayment($invitation, $accountGateway, $ref);
     }
 
     public function getDatatable($clientPublicId, $search)

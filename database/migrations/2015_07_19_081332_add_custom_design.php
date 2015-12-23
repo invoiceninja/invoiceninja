@@ -14,7 +14,7 @@ class AddCustomDesign extends Migration {
 	{
         Schema::table('accounts', function($table)
         {
-            $table->text('custom_design')->nullable();
+            $table->mediumText('custom_design')->nullable();
         });
 
         DB::table('invoice_designs')->insert(['id' => CUSTOM_DESIGN, 'name' => 'Custom']);
