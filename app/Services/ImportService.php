@@ -353,7 +353,7 @@ class ImportService
         $results = [];
 
         foreach ($maps as $entityType => $map) {
-            $result[$entityType] = $this->executeCSV($entityType, $map, $headers[$entityType]);
+            $results[$entityType] = $this->executeCSV($entityType, $map, $headers[$entityType]);
         }
 
         return $results;

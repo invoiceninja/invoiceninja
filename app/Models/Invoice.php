@@ -526,7 +526,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         if ($this->end_date) {
-            $rule .= 'UNTIL=' . $this->end_date;
+            $rule .= 'UNTIL=' . $this->getOriginal('end_date');
         }
 
         return $rule;

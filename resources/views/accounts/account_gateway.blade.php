@@ -54,6 +54,10 @@
         <div id="gateway_{{ $gateway->id }}_div" class='gateway-fields' style="display: none">
             @foreach ($gateway->fields as $field => $details)
 
+                @if ($details && !$accountGateway)
+                    {!! Former::populateField($gateway->id.'_'.$field, $details) !!}
+                @endif
+
                 @if (in_array($field, $hiddenFields))
                     {{-- do nothing --}}
                 @elseif ($gateway->id == GATEWAY_DWOLLA && ($field == 'key' || $field == 'secret') 
