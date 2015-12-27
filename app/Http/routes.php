@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -551,8 +552,8 @@ if (!defined('CONTACT_EMAIL')) {
     }
 }
 
-// Log all SQL queries to laravel.log
 /*
+// Log all SQL queries to laravel.log
 if (Utils::isNinjaDev()) {
     Event::listen('illuminate.query', function($query, $bindings, $time, $name) {
         $data = compact('bindings', 'time', 'name');
