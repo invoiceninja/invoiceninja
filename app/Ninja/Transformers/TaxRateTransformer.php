@@ -25,8 +25,8 @@ class TaxRateTransformer extends EntityTransformer
             'id' => (int) $taxRate->public_id,
             'name' => $taxRate->name,
             'rate' => (float) $taxRate->rate,
-            'updated_at' => $taxRate->updated_at,
-            'archived_at' => $taxRate->deleted_at,
+            'updated_at' => $this->getTimestamp($taxRate->updated_at),
+            'archived_at' => $this->getTimestamp($taxRate->deleted_at),
             'account_key' => $this->account->account_key,
             ];
     }

@@ -32,4 +32,9 @@ class EntityTransformer extends TransformerAbstract
 
         return $this->item($data, $transformer, $entityType);
     }
+
+    protected function getTimestamp($date)
+    {
+        return $date ? $date->getTimestamp() : null;
+    }
 }

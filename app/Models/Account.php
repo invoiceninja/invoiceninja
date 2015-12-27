@@ -515,11 +515,6 @@ class Account extends Eloquent
         $this->save();
     }
 
-    public function loadAllData()
-    {
-        $this->load('clients.getInvoices.invoice_items', 'clients.getQuotes.invoice_items', 'users', 'clients.contacts');
-    }
-
     public function loadLocalizationSettings($client = false)
     {
         $this->load('timezone', 'date_format', 'datetime_format', 'language');

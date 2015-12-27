@@ -17,8 +17,8 @@ class ClientTransformer extends EntityTransformer
     * @SWG\Property(property="paid_to_date", type="float", example=10, readOnly=true)
     * @SWG\Property(property="user_id", type="integer", example=1)
     * @SWG\Property(property="account_key", type="string", example="123456")
-    * @SWG\Property(property="updated_at", type="date-time", example="2016-01-01 12:10:00")
-    * @SWG\Property(property="deleted_at", type="date-time", example="2016-01-01 12:10:00")
+    * @SWG\Property(property="updated_at", type="timestamp", example="")
+    * @SWG\Property(property="archived_at", type="timestamp", example="1451160233")
     * @SWG\Property(property="address1", type="string", example="10 Main St.")
     * @SWG\Property(property="address2", type="string", example="1st Floor")
     * @SWG\Property(property="city", type="string", example="New York")
@@ -43,7 +43,6 @@ class ClientTransformer extends EntityTransformer
     protected $availableIncludes = [
         'contacts',
         'invoices',
-        'quotes',
     ];
     
     public function includeContacts(Client $client)
@@ -55,13 +54,7 @@ class ClientTransformer extends EntityTransformer
     public function includeInvoices(Client $client)
     {
         $transformer = new InvoiceTransformer($this->account, $this->serializer);
-        return $this->includeCollection($client->getInvoices, $transformer, ENTITY_INVOICE);
-    }
-
-    public function includeQuotes(Client $client)
-    {
-        $transformer = new QuoteTransformer($this->account, $this->serializer);
-        return $this->includeCollection($client->getQuotes, $transformer, ENTITY_QUOTE);
+        return $this->includeCollection($client->invoices, $transformer, ENTITY_INVOICE);
     }
 
     public function transform(Client $client)
@@ -73,8 +66,8 @@ class ClientTransformer extends EntityTransformer
             'paid_to_date' => (float) $client->paid_to_date,
             'user_id' => (int) $client->user->public_id + 1,
             'account_key' => $this->account->account_key,
-            'updated_at' => $client->updated_at,
-            'deleted_at' => $client->deleted_at,
+            'updated_at' => $this->getTimestamp($client->updated_at),
+            'archived_at' => $this->getTimestamp($client->deleted_at),
             'address1' => $client->address1,
             'address2' => $client->address2,
             'city' => $client->city,
