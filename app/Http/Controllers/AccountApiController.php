@@ -60,8 +60,36 @@ class AccountApiController extends BaseAPIController
     public function show(Request $request)
     {
         $account = Auth::user()->account;
-        $account->loadAllData();
-        
+        $updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
+
+        if ($updatedAt) {
+            $account->load(['users' => function($query) use ($updatedAt) {
+                $query->where('updated_at', '>=', $updatedAt);
+            }])
+            ->load(['clients' => function($query) use ($updatedAt) {
+                $query->where('updated_at', '>=', $updatedAt)->with('contacts');
+            }])
+            ->load(['invoices' => function($query) use ($updatedAt) {
+                $query->where('updated_at', '>=', $updatedAt)->with('invoice_items', 'user', 'client');
+            }])
+            ->load(['products' => function($query) use ($updatedAt) {
+                $query->where('updated_at', '>=', $updatedAt);
+            }])
+            ->load(['tax_rates' => function($query) use ($updatedAt) {
+                $query->where('updated_at', '>=', $updatedAt);
+            }]);
+        } else {
+            $account->load(
+                'users',
+                'clients.contacts',
+                'invoices.invoice_items',
+                'invoices.user',
+                'invoices.client',
+                'products',
+                'tax_rates'
+            );
+        }
+
         $transformer = new AccountTransformer(null, $request->serializer);
         $account = $this->createItem($account, $transformer, 'account');
 

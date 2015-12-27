@@ -50,7 +50,8 @@ class InvoiceApiController extends BaseAPIController
         $paginator = Invoice::scope();
         $invoices = Invoice::scope()
                         ->with(array_merge(['invoice_items'], $this->getIncluded()))
-                        ->where('invoices.is_quote', '=', false);
+                        ->where('invoices.is_quote', '=', false)
+                        ->where('invoices.is_recurring', '=', false);
 
         if ($clientPublicId = Input::get('client_id')) {
             $filter = function($query) use ($clientPublicId) {

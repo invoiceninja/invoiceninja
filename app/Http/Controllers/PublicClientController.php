@@ -92,7 +92,7 @@ class PublicClientController extends BaseController
     public function invoiceDatatable()
     {
         if (!$invitation = $this->getInvitation()) {
-            return false;
+            return '';
         }
 
         return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_INVOICE, Input::get('sSearch'));
