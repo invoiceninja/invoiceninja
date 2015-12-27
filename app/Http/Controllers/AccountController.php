@@ -820,8 +820,6 @@ class AccountController extends BaseController
         if (Input::get('go_pro') == 'true') {
             Session::set(REQUESTED_PRO_PLAN, true);
         }
-
-        event(new UserSignedUp());
         
         return "{$user->first_name} {$user->last_name}";
     }
