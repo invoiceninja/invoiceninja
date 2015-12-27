@@ -202,6 +202,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('tasks', 'TaskApiController');
     Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
+    Route::get('user_accounts','AccountApiController@getUserAccounts');
 });
 
 // Redirects for legacy links
