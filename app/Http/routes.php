@@ -144,7 +144,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('tasks/bulk', 'TaskController@bulk');
 
     Route::get('api/recurring_invoices/{client_id?}', array('as'=>'api.recurring_invoices', 'uses'=>'InvoiceController@getRecurringDatatable'));
-
+    
     Route::get('invoices/invoice_history/{invoice_id}', 'InvoiceController@invoiceHistory');
     Route::get('quotes/quote_history/{invoice_id}', 'InvoiceController@invoiceHistory');
     
@@ -489,6 +489,12 @@ if (!defined('CONTACT_EMAIL')) {
     define('REMINDER1', 'reminder1');
     define('REMINDER2', 'reminder2');
     define('REMINDER3', 'reminder3');
+
+    define('REMINDER_DIRECTION_AFTER', 1);
+    define('REMINDER_DIRECTION_BEFORE', 2);
+
+    define('REMINDER_FIELD_DUE_DATE', 1);
+    define('REMINDER_FIELD_INVOICE_DATE', 2);
 
     define('SOCIAL_GOOGLE', 'Google');
     define('SOCIAL_FACEBOOK', 'Facebook');

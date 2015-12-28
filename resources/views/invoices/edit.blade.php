@@ -131,6 +131,7 @@
                 	@if ($invoice->recurring_invoice)
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
     				@elseif ($invoice->id)
+                        <span class="smaller">
                         @if (isset($lastSent) && $lastSent)
                             {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!} <br/>
                         @endif
@@ -138,6 +139,7 @@
                             {!! trans('texts.next_send_on', ['date' => '<span data-bind="tooltip: {title: \''.$invoice->getPrettySchedule().'\', html: true}">'.$account->formatDate($invoice->getNextSendDate()).
                                     '<span class="glyphicon glyphicon-info-sign" style="padding-left:10px;color:#B1B5BA"></span></span>']) !!}
                         @endif
+                        </span>
                     @endif
                 </div>
             </div>

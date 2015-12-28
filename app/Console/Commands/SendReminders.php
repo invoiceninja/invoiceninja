@@ -44,7 +44,7 @@ class SendReminders extends Command
             $this->info($account->name . ': ' . count($invoices).' invoices found');
 
             foreach ($invoices as $invoice) {
-                if ($reminder = $invoice->getReminder()) {
+                if ($reminder = $account->getInvoiceReminder($invoice)) {
                     $this->info('Send to ' . $invoice->id);
                     $this->mailer->sendInvoice($invoice, $reminder);
                 }

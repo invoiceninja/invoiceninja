@@ -1,13 +1,34 @@
 <div role="tabpanel" class="tab-pane {{ isset($active) && $active ? 'active' : '' }}" id="{{ $field }}">
     <div class="panel-body" style="padding-bottom: 0px">
         @if (isset($isReminder) && $isReminder)
-            <div class="row">
+
+            {!! Former::populateField('enable_' . $field, intval($account->{'enable_' . $field})) !!}
+
+            <div class="row" style="padding-bottom:20px">
                 <div class="col-md-6">
                     {!! Former::checkbox('enable_' . $field)
                             ->text(trans('texts.enable'))->label('') !!}
-                    {!! Former::input('num_days_' . $field)
-                            ->label(trans('texts.num_days_reminder'))
-                            ->addClass('enable-' . $field) !!}
+
+                    {!! Former::plaintext('schedule')
+                            ->value(
+                                Former::input('num_days_' . $field)
+                                    ->addClass('enable-' . $field)
+                                    ->style('float:left;width:20%')
+                                    ->raw() . 
+                                Former::select('direction_' . $field)
+                                    ->addOption(trans('texts.days_before'), REMINDER_DIRECTION_BEFORE)
+                                    ->addOption(trans('texts.days_after'), REMINDER_DIRECTION_AFTER)
+                                    ->addClass('enable-' . $field)
+                                    ->style('float:left;width:40%')
+                                    ->raw() .
+                                '<div id="days_after_'. $field .'" style="float:left;width:40%;display:none;padding-top:8px;padding-left:16px;font-size:16px;">' . trans('texts.days_after') . '</div>' .
+                                Former::select('field_' . $field)
+                                    ->addOption(trans('texts.field_due_date'), REMINDER_FIELD_DUE_DATE)
+                                    ->addOption(trans('texts.field_invoice_date'), REMINDER_FIELD_INVOICE_DATE)
+                                    ->addClass('enable-' . $field)
+                                    ->style('float:left;width:40%')
+                                    ->raw()
+                            ) !!}
                 </div>
             </div>
         @endif
@@ -70,10 +91,17 @@
               NINJA.formIsChanged = true;
             });
         editors['{{ $field }}'] = editor;
+
+        $('#field_{{ $field }}').change(function() {
+            setDirectionShown('{{ $field }}');
+        })
+        setDirectionShown('{{ $field }}');
+
+        $('.email-subject .input-group-addon').click(function() {
+            $('#templateHelpModal').modal('show');
+        });
     });
 
-    $('.email-subject .input-group-addon').click(function() {
-        $('#templateHelpModal').modal('show');
-    });
+
 
 </script>

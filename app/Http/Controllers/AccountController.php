@@ -450,8 +450,9 @@ class AccountController extends BaseController
                 $account->$enableField = Input::get($enableField) ? true : false;
 
                 if ($account->$enableField) {
-                    $numDaysField = "num_days_{$type}";
-                    $account->$numDaysField = Input::get($numDaysField);
+                    $account->{"num_days_{$type}"} = Input::get("num_days_{$type}");
+                    $account->{"field_{$type}"} = Input::get("field_{$type}");
+                    $account->{"direction_{$type}"} = Input::get("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Input::get("direction_{$type}");
                 }
             }
 

@@ -595,24 +595,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return false;
     }
 
-    public function getReminder()
-    {
-        for ($i=1; $i<=3; $i++) {
-            $field = "enable_reminder{$i}";
-            if (!$this->account->$field) {
-                continue;
-            }
-            $field = "num_days_reminder{$i}";
-            $date = date('Y-m-d', strtotime("- {$this->account->$field} days"));
-
-            if ($this->due_date == $date) {
-                return "reminder{$i}";
-            }
-        }
-
-        return false;
-    }
-
     public function getPDFString()
     {
         if (!env('PHANTOMJS_CLOUD_KEY')) {

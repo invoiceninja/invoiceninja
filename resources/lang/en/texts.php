@@ -984,4 +984,10 @@ return array(
     'next_invoice_number' => 'The next invoice number is :number.',
     'next_quote_number' => 'The next quote number is :number.',
 
+    'days_before' => 'days before',
+    'days_after' => 'days after',
+    'field_due_date' => 'due date',
+    'field_invoice_date' => 'invoice date',
+    'schedule' => 'Schedule',
+
 );
