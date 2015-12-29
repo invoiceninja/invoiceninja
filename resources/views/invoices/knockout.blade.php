@@ -141,7 +141,7 @@ function ViewModel(data) {
         var isValid = true;
         $('input.client-email').each(function(item, value) {
             var email = $(value).val();
-            if (!first_name && (!email || !isValidEmailAddress(email))) {
+            if (!firstName && (!email || !isValidEmailAddress(email))) {
                 isValid = false;
             }
         });
