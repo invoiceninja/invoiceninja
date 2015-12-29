@@ -31,3 +31,6 @@ Thumbs.db
 /.project
 tests/_output/
 tests/_bootstrap.php
+
+# composer stuff
+/c3.php
