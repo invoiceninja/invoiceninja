@@ -810,13 +810,19 @@
 	});	
 
 	function applyComboboxListeners() {
-        var selectorStr = '.invoice-table input, .invoice-table select, .invoice-table textarea';
+        var selectorStr = '.invoice-table input, .invoice-table textarea';
 		$(selectorStr).off('change').on('change', function(event) {
             onItemChange();
             refreshPDF(true);
 		});
 
-        $('textarea').on('keyup focus', function(e) {            
+        var selectorStr = '.invoice-table select';
+        $(selectorStr).off('blur').on('blur', function(event) {
+            onItemChange();
+            refreshPDF(true);
+        });
+
+        $('textarea').on('keyup focus', function(e) {
             while($(this).outerHeight() < this.scrollHeight + parseFloat($(this).css("borderTopWidth")) + parseFloat($(this).css("borderBottomWidth"))) {
                 $(this).height($(this).height()+1);
             };
