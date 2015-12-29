@@ -29885,34 +29885,26 @@ var isChrome = !!window.chrome && !isOpera && !isEdge; // Chrome 1+
 var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
-var pdfDoc;
-var invoiceOld;
 var refreshTimer;
 function generatePDF(invoice, javascript, force, cb) {
   if (!invoice || !javascript) {
     return;
   }
   //console.log('== generatePDF - force: %s', force);
-  if (force || !invoiceOld) {
+  if (force) {
     refreshTimer = null;
   } else {
       if (refreshTimer) {
-        clearTimeout(refreshTimer);    
+        clearTimeout(refreshTimer);
       }
       refreshTimer = setTimeout(function() {
         generatePDF(invoice, javascript, true, cb);
       }, 500);
-      return pdfDoc;
+      return;
   }
 
   invoice = calculateAmounts(invoice);
-  var a = copyObject(invoice);
-  var b = copyObject(invoiceOld);
-  if (_.isEqual(a, b)) {
-    return pdfDoc;
-  }
-  invoiceOld = invoice;
-  pdfDoc = GetPdfMake(invoice, javascript, cb);
+  var pdfDoc = GetPdfMake(invoice, javascript, cb);
 
   if (cb) {
      pdfDoc.getDataUrl(cb);

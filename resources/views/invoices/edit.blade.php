@@ -735,11 +735,12 @@
                 $('.client-input').val(getClientDisplayName(selected));
                 // if there's an invoice number pattern we'll apply it now
                 setInvoiceNumber(selected);
+                refreshPDF(true);
 			} else if (oldId) {
 				model.loadClient($.parseJSON(ko.toJSON(new ClientModel())));
 				model.invoice().client().country = false;
+                refreshPDF(true);
 			}
-            refreshPDF(true);
 		});
 
 		// If no clients exists show the client form when clicking on the client select input
@@ -841,6 +842,7 @@
                             }
                         @endif
                         model.product_key(key);
+                        onItemChange();
                         break;
 					}
 				}

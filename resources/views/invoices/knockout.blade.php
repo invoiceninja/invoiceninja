@@ -128,7 +128,7 @@ function ViewModel(data) {
         var email = $("[name='client[contacts][0][email]']").val();
         var firstName = $("[name='client[contacts][0][first_name]']").val();
         var lastName = $("[name='client[contacts][0][last_name]']").val();
-        var name = $('#name').val();
+        var name = $("[name='client[name]']").val();
 
         if (name) {
             //
@@ -141,7 +141,7 @@ function ViewModel(data) {
         var isValid = true;
         $('input.client-email').each(function(item, value) {
             var email = $(value).val();
-            if (!name && (!email || !isValidEmailAddress(email))) {
+            if (!first_name && (!email || !isValidEmailAddress(email))) {
                 isValid = false;
             }
         });
