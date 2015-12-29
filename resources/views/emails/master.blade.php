@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 
-<body style="min-height: 600px; color: #000000; font-family: Arial, Helvetica, sans-serif; font-size: 12px; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; background: #F4F5F5; margin: 0; padding: 0;" 
+<body style="min-height: 700px; color: #000000; font-family: Arial, Helvetica, sans-serif; font-size: 12px; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; background: #F4F5F5; margin: 0; padding: 0;" 
     alink="#FF0000" link="#FF0000" bgcolor="#F4F5F5" text="#000000" yahoo="fix">
     @yield('markup')
 
@@ -48,7 +48,7 @@
         }
     </style> 
 
-    <div id="body_style" style="min-height: 600px; color: #2E2B2B; font-family: Helvetica, sans-serif; font-size: 16px; 
+    <div id="body_style" style="min-height: 700px; color: #2E2B2B; font-family: Helvetica, sans-serif; font-size: 16px; 
         background: #F4F5F5; padding: 0px 15px;"> 
 
         <table cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" width="600" align="center">

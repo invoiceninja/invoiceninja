@@ -20,11 +20,11 @@
                     </td>
                     <td width="183" style="border-collapse: collapse; vertical-align: middle;" valign="middle">
                         <p class="left" style="line-height: 22px; margin: 0; padding: 2px 0 0;">
-                            <span style="font-size: 11px; color: #8f8d8e;">
                             @if ($invoice->due_date)
-                                {{ strtoupper(trans('texts.due_by', ['date' => $account->formatDate($invoice->due_date)])) }}
+                                <span style="font-size: 11px; color: #8f8d8e;">
+                                    {{ strtoupper(trans('texts.due_by', ['date' => $account->formatDate($invoice->due_date)])) }}
+                                </span><br />
                             @endif
-                            </span><br />
                             <span style="font-size: 18px;">
                                 {{ trans("texts.{$entityType}") }} {{ $invoice->invoice_number }}
                             </span>

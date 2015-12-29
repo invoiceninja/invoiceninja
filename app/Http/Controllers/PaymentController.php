@@ -425,8 +425,7 @@ class PaymentController extends BaseController
                         $details['customerReference'] = $token;
                     } else {
                         $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
-                        return Redirect::to('payment/'.$invitationKey)
-                                ->withInput(Request::except('cvv'));
+                        return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
                     }
                 }
             }
@@ -471,8 +470,12 @@ class PaymentController extends BaseController
                 Session::save();
                 $response->redirect();
             } else {
-                $this->error('Fatal', $response->getMessage(), $accountGateway);
-                return Utils::fatalError('Sorry, there was an error processing your payment. Please try again later.<p>', $response->getMessage());
+                $this->error('Unknown', $response->getMessage(), $accountGateway);
+                if ($onSite) {
+                    return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
+                } else {
+                    return Redirect::to('view/'.$invitationKey);
+                }
             }
         } catch (\Exception $e) {
             $this->error('Uncaught', false, $accountGateway, $e);

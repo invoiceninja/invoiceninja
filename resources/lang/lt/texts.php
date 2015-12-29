@@ -270,7 +270,7 @@ return array(
   'notification_invoice_paid' => 'A payment of :amount was made by client :client towards Invoice :invoice.',
   'notification_invoice_sent' => 'The following client :client was emailed Invoice :invoice for :amount.',
   'notification_invoice_viewed' => 'The following client :client viewed Invoice :invoice for :amount.',  
-  'reset_password' => 'You can reset your account password by clicking the following link:',
+  'reset_password' => 'You can reset your account password by clicking the following button:',
   'reset_password_footer' => 'If you did not request this password reset please email our support: ' . CONTACT_EMAIL,
 
 
@@ -982,6 +982,14 @@ return array(
   'created_invoices' => 'Successfully created :count invoice(s)',
   'next_invoice_number' => 'The next invoice number is :number.',
   'next_quote_number' => 'The next quote number is :number.',
+
+  'days_before' => 'days before',
+  'days_after' => 'days after',
+  'field_due_date' => 'due date',
+  'field_invoice_date' => 'invoice date',
+  'schedule' => 'Schedule',
+  'email_designs' => 'Email Designs',
+  'assigned_when_sent' => 'Assigned when sent',
   
 );
 

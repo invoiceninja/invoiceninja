@@ -53,10 +53,11 @@
         <div class="panel-body form-padding-right">
             
             {!! Former::select('email_design_id')
-                        ->style('width: 200px')
-                        ->addOption(trans('texts.plain'), 1)
-                        ->addOption(trans('texts.light'), 2)
-                        ->addOption(trans('texts.dark'), 3)
+                        ->appendIcon('question-sign')
+                        ->addGroupClass('email_design_id')
+                        ->addOption(trans('texts.plain'), EMAIL_DESIGN_PLAIN)
+                        ->addOption(trans('texts.light'), EMAIL_DESIGN_LIGHT)
+                        ->addOption(trans('texts.dark'), EMAIL_DESIGN_DARK)
                         ->help(trans('texts.email_design_help')) !!}
 
             &nbsp;
@@ -105,6 +106,39 @@
         </div>
     </div>
 
+    <div class="modal fade" id="designHelpModal" tabindex="-1" role="dialog" aria-labelledby="designHelpModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="min-width:150px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="designHelpModalLabel">{{ trans('texts.email_designs') }}</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row" style="text-align:center">
+                        <div class="col-md-4">
+                            <h4>{{ trans('texts.plain') }}</h4><br/>
+                            <img src="{{ asset('images/emails/plain.png') }}" class="img-responsive"/>
+                        </div>
+                        <div class="col-md-4">
+                            <h4>{{ trans('texts.light') }}</h4><br/>
+                            <img src="{{ asset('images/emails/light.png') }}" class="img-responsive"/>
+                        </div>
+                        <div class="col-md-4">
+                            <h4>{{ trans('texts.dark') }}</h4><br/>
+                            <img src="{{ asset('images/emails/dark.png') }}" class="img-responsive"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="margin-top: 0px">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     {!! Former::close() !!}
 
     <script type="text/javascript">
@@ -132,6 +166,9 @@
         $('#iframeHelpModal').modal('show');
     });
 
+    $('.email_design_id .input-group-addon').click(function() {
+        $('#designHelpModal').modal('show');
+    });
 
     $(function() {          
         onCustomLinkChange();

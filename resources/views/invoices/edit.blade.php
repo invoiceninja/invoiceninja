@@ -857,7 +857,7 @@
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
 
         if (invoice.is_recurring) {
-            invoice.invoice_number = '0000';
+            invoice.invoice_number = "{{ trans('texts.assigned_when_sent') }}";
             if (invoice.start_date) {
                 invoice.invoice_date = invoice.start_date;
             }

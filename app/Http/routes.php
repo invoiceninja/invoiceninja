@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -435,7 +434,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.4.8');
+    define('NINJA_VERSION', '2.4.8.1');
     define('NINJA_DATE', '2000-01-01');
 
     define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');
@@ -510,7 +509,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('API_SERIALIZER_JSON', 'json');
 
     define('EMAIL_DESIGN_PLAIN', 1);
-    define('FLAT_BUTTON_CSS', 'border:0 none;border-radius:6px;padding:12px 40px;margin:0 6px;cursor:hand;display:inline-block;font-size:14px;color:#fff;text-transform:none');
+    define('EMAIL_DESIGN_LIGHT', 2);
+    define('EMAIL_DESIGN_DARK', 3);
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
