@@ -89,14 +89,15 @@
   var needsRefresh = false;
 
   function refreshPDF(force) {
+    //console.log('refresh PDF - force: ' + force + ' ' + (new Date()).getTime())
     return getPDFString(refreshPDFCB, force);
   }
   
   function refreshPDFCB(string) {
     if (!string) return;
     PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
-    if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChromium))) { 
-      $('#theFrame').attr('src', string).show();    
+    if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || isChrome)) { 
+      $('#theFrame').attr('src', string).show();
     } else {      
       if (isRefreshing) {
         //needsRefresh = true;

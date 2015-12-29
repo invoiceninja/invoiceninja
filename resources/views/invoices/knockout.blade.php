@@ -258,15 +258,15 @@ function InvoiceModel(data) {
     self.addItem = function() {
         var itemModel = new ItemModel();
         @if ($account->hide_quantity)
-        itemModel.qty(1);
+            itemModel.qty(1);
         @endif
         self.invoice_items.push(itemModel); 
-        applyComboboxListeners();           
+        applyComboboxListeners();
         return itemModel;
     }
 
     if (data) {
-        ko.mapping.fromJS(data, self.mapping, self);            
+        ko.mapping.fromJS(data, self.mapping, self);
     } else {
         self.addItem();
     }

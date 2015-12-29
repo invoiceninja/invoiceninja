@@ -7,6 +7,7 @@ var isChrome = !!window.chrome && !isOpera && !isEdge; // Chrome 1+
 var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
+var pdfDoc;
 var invoiceOld;
 var refreshTimer;
 function generatePDF(invoice, javascript, force, cb) {
@@ -23,23 +24,23 @@ function generatePDF(invoice, javascript, force, cb) {
       refreshTimer = setTimeout(function() {
         generatePDF(invoice, javascript, true, cb);
       }, 500);
-      return;
+      return pdfDoc;
   }
 
   invoice = calculateAmounts(invoice);
   var a = copyObject(invoice);
   var b = copyObject(invoiceOld);
-  if (!force && _.isEqual(a, b)) {
-    return;
+  if (_.isEqual(a, b)) {
+    return pdfDoc;
   }
   invoiceOld = invoice;
-  doc = GetPdfMake(invoice, javascript, cb);
+  pdfDoc = GetPdfMake(invoice, javascript, cb);
 
   if (cb) {
-     doc.getDataUrl(cb);
+     pdfDoc.getDataUrl(cb);
   }
 
-  return doc;
+  return pdfDoc;
 }
 
 function copyObject(orig) {
