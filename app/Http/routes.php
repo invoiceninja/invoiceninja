@@ -278,6 +278,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_ADVANCED_SETTINGS', 'advanced_settings');
     define('ACCOUNT_INVOICE_SETTINGS', 'invoice_settings');
     define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
+    define('ACCOUNT_CLIENT_VIEW_STYLING', 'client_view_styling');
     define('ACCOUNT_EMAIL_SETTINGS', 'email_settings');
     define('ACCOUNT_CHARTS_AND_REPORTS', 'charts_and_reports');
     define('ACCOUNT_USER_MANAGEMENT', 'user_management');

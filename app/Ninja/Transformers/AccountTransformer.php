@@ -72,6 +72,7 @@ class AccountTransformer extends EntityTransformer
             'invoice_taxes' => (bool) $account->invoice_taxes,
             'invoice_item_taxes' => (bool) $account->invoice_item_taxes,
             'invoice_design_id' => (int) $account->invoice_design_id,
+            'client_view_css' => (string) $account->client_view_css,
             'work_phone' => $account->work_phone,
             'work_email' => $account->work_email,
             'language_id' => (int) $account->language_id,

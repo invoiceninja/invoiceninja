@@ -111,7 +111,7 @@
 
 </head>
 
-<body>
+<body class="body">
 
     @if (isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])  
     <!-- Google Tag Manager -->

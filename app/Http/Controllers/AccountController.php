@@ -152,6 +152,8 @@ class AccountController extends BaseController
             return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
         } elseif ($section == ACCOUNT_INVOICE_DESIGN || $section == ACCOUNT_CUSTOMIZE_DESIGN) {
             return self::showInvoiceDesign($section);
+        } elseif ($section == ACCOUNT_CLIENT_VIEW_STYLING) {
+            return self::showClientViewStyling();
         } elseif ($section === ACCOUNT_TEMPLATES_AND_REMINDERS) {
             return self::showTemplates();
         } elseif ($section === ACCOUNT_PRODUCTS) {
@@ -367,6 +369,29 @@ class AccountController extends BaseController
         return View::make("accounts.{$section}", $data);
     }
 
+    private function showClientViewStyling()
+    {
+        $account = Auth::user()->account->load('country');
+        $css = $account->client_view_css ? $account->client_view_css : '';
+        
+        if(Utils::isNinja() && $css){
+            // Unescape the CSS for display purposes
+            $css = str_replace(
+                array('\3C ', '\3E ', '\26 '),
+                array('<', '>', '&'),
+                $css
+            );
+        }
+        
+        $data = [
+            'client_view_css' => $css,
+            'title' => trans("texts.client_view_styling"),
+            'section' => ACCOUNT_CLIENT_VIEW_STYLING
+        ];
+        
+        return View::make("accounts.client_view_styling", $data);
+    }
+
     private function showTemplates()
     {
         $account = Auth::user()->account->load('country');
@@ -408,6 +433,8 @@ class AccountController extends BaseController
             return AccountController::saveInvoiceDesign();
         } elseif ($section === ACCOUNT_CUSTOMIZE_DESIGN) {
             return AccountController::saveCustomizeDesign();
+        } elseif ($section === ACCOUNT_CLIENT_VIEW_STYLING) {
+            return AccountController::saveClientViewStyling();
         } elseif ($section === ACCOUNT_TEMPLATES_AND_REMINDERS) {
             return AccountController::saveEmailTemplates();
         } elseif ($section === ACCOUNT_PRODUCTS) {
@@ -428,6 +455,53 @@ class AccountController extends BaseController
         }
 
         return Redirect::to('settings/' . ACCOUNT_CUSTOMIZE_DESIGN);
+    }
+
+    private function saveClientViewStyling() {
+        // Only allowed for pro Invoice Ninja users or white labeled self-hosted users
+        if ((Utils::isNinja() && Auth::user()->account->isPro()) || Auth::user()->account->isWhiteLabel()) {
+            
+            $input_css = Input::get('client_view_css');
+            if(Utils::isNinja()){
+                // Allow referencing the body element
+                $input_css = preg_replace('/(?<![a-z0-9\-\_\#\.])body(?![a-z0-9\-\_])/i', '.body', $input_css);
+
+                //
+                // Inspired by http://stackoverflow.com/a/5209050/1721527, dleavitt <https://stackoverflow.com/users/362110/dleavitt>
+                //
+
+                // Create a new configuration object
+                $config = \HTMLPurifier_Config::createDefault();
+                $config->set('Filter.ExtractStyleBlocks', true);
+                $config->set('CSS.AllowImportant', true);
+                $config->set('CSS.AllowTricky', true);
+                $config->set('CSS.Trusted', true);
+
+                // Create a new purifier instance
+                $purifier = new \HTMLPurifier($config);
+
+                // Wrap our CSS in style tags and pass to purifier. 
+                // we're not actually interested in the html response though
+                $html = $purifier->purify('<style>'.$input_css.'</style>');
+
+                // The "style" blocks are stored seperately
+                $output_css = $purifier->context->get('StyleBlocks');
+
+                // Get the first style block
+                $sanitized_css = $output_css[0];
+            }
+            else{
+                $sanitized_css = $input_css;
+            }
+            
+            $account = Auth::user()->account;
+            $account->client_view_css = $sanitized_css;
+            $account->save();
+            
+            Session::flash('message', trans('texts.updated_settings'));
+        }
+
+        return Redirect::to('settings/' . ACCOUNT_CLIENT_VIEW_STYLING);
     }
 
     private function saveEmailTemplates()

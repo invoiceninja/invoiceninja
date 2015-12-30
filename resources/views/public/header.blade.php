@@ -2,6 +2,9 @@
 
 @section('head')
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+    @if (!empty($clientViewCSS))
+        <style>{!! $clientViewCSS !!}</style>
+    @endif
 @stop
 
 @section('body')

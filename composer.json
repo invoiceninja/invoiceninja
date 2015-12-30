@@ -63,7 +63,9 @@
 		"collizo4sky/omnipay-wepay": "~1.0",
 		"laracasts/presenter": "dev-master",
 		"jlapp/swaggervel": "master-dev",
-		"maatwebsite/excel": "~2.0"
+		"maatwebsite/excel": "~2.0",
+		"ezyang/htmlpurifier": "~v4.7",
+		"cerdic/css-tidy": "~v1.5"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",
