@@ -207,12 +207,26 @@ class Account extends Eloquent
 
     public function getDateTime($date = 'now')
     {
-        return new \DateTime($date, new \DateTimeZone($this->getTimezone()));
+        if ( ! $date) {
+            return null;
+        } elseif ( ! $date instanceof \DateTime) {
+            $date = new \DateTime($date);
+        }
+
+        $date->setTimeZone(new \DateTimeZone($this->getTimezone()));
+
+        return $date;
     }
 
     public function getCustomDateFormat()
     {
-        return $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT;
+        $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
+
+        if ($this->military_time) {
+            $format = str_replace('g:i a', 'H:i', $format);
+        }
+
+        return $format;
     }
 
     public function formatMoney($amount, $client = null, $hideSymbol = false)
@@ -238,10 +252,10 @@ class Account extends Eloquent
 
     public function formatDate($date)
     {
+        $date = $this->getDateTime($date);
+
         if ( ! $date) {
             return null;
-        } elseif ( ! $date instanceof \DateTime) {
-            $date = new \DateTime($date);
         }
 
         return $date->format($this->getCustomDateFormat());
@@ -249,10 +263,10 @@ class Account extends Eloquent
 
     public function formatDateTime($date)
     {
+        $date = $this->getDateTime($date);
+
         if ( ! $date) {
             return null;
-        } elseif ( ! $date instanceof \DateTime) {
-            $date = new \DateTime($date);
         }
 
         return $date->format($this->getCustomDateTimeFormat());
@@ -260,10 +274,10 @@ class Account extends Eloquent
 
     public function formatTime($date)
     {
+        $date = $this->getDateTime($date);
+
         if ( ! $date) {
             return null;
-        } elseif ( ! $date instanceof \DateTime) {
-            $date = new \DateTime($date);
         }
 
         return $date->format($this->getCustomTimeFormat());
@@ -276,7 +290,7 @@ class Account extends Eloquent
 
     public function getCustomDateTimeFormat()
     {
-        return $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
+        return $this->getCustomDateFormat() . ' ' . $this->getCustomTimeFormat();
     }
 
     public function getGatewayByType($type = PAYMENT_TYPE_ANY)
