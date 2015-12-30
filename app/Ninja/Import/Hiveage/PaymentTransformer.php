@@ -12,7 +12,7 @@ class PaymentTransformer extends BaseTransformer
                 'amount' => $data->paid_total,
                 'payment_date_sql' => $this->getDate($data->last_paid_on),
                 'client_id' => $data->client_id,
-                'invoice_id' => $data->invoice_id,
+                'invoice_id' => $this->getInvoiceId($data->invoice_id),
             ];
         });
     }

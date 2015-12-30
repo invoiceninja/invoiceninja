@@ -73,15 +73,10 @@ class ImportService
             RESULT_FAILURE => [],
         ];
 
-        Excel::load($file, function ($reader) use ($source, $entityType, &$results) {
             $this->checkData($entityType, count($reader->all()));
             $maps = $this->createMaps();
 
-            $reader->each(function ($row) use ($source, $entityType, $maps, &$results) {
-                $result = $this->saveData($source, $entityType, $row, $maps);
 
-                if ($result) {
-                    $results[RESULT_SUCCESS][] = $result;
                 } else {
                     $results[RESULT_FAILURE][] = $row;
                 }
@@ -108,7 +103,6 @@ class ImportService
             $invoice = Invoice::createNew();
             $data['invoice_number'] = $account->getNextInvoiceNumber($invoice);
         }
-
         if ($this->validate($source, $data, $entityType) !== true) {
             return;
         }
