@@ -64,7 +64,7 @@ class ImportService
         foreach ($files as $entityType => $file) {
             $results[$entityType] = $this->execute($source, $entityType, $file);
         }
-        
+
         return $results;
     }
 
@@ -76,26 +76,27 @@ class ImportService
         ];
 
         // Convert the data
-        $row_list = array();        
+        $row_list = array();
         $maps = $this->createMaps();
         Excel::load($file, function ($reader) use ($source, $entityType, $maps, &$row_list, &$results) {
             $this->checkData($entityType, count($reader->all()));
 
             $reader->each(function ($row) use ($source, $entityType, $maps, &$row_list, &$results) {
                 $data_index = $this->transformRow($source, $entityType, $row, $maps);
-                
-                if ($data_index !== false){
-                    if($data_index !== true){// Wasn't merged with another row
-                        $row_list[] = array('row'=>$row, 'data_index'=>$data_index);
+
+                if ($data_index !== false) {
+                    if ($data_index !== true) {
+                        // Wasn't merged with another row
+                        $row_list[] = array('row' => $row, 'data_index' => $data_index);
                     }
                 } else {
                     $results[RESULT_FAILURE][] = $row;
                 }
             });
         });
-        
+
         // Save the data
-        foreach($row_list as $row_data){
+        foreach ($row_list as $row_data) {
             $result = $this->saveData($source, $entityType, $row_data['row'], $row_data['data_index'], $maps);
             if ($result) {
                 $results[RESULT_SUCCESS][] = $result;
@@ -124,29 +125,29 @@ class ImportService
             $invoice = Invoice::createNew();
             $data['invoice_number'] = $account->getNextInvoiceNumber($invoice);
         }
-        
+
         if ($this->validate($source, $data, $entityType) !== true) {
             return false;
         }
-        
-        if($entityType == ENTITY_INVOICE){
-            if(empty($this->processedRows[$data['invoice_number']])){
+
+        if ($entityType == ENTITY_INVOICE) {
+            if (empty($this->processedRows[$data['invoice_number']])) {
                 $this->processedRows[$data['invoice_number']] = $data;
-            }
-            else{
+            } else {
                 // Merge invoice items
                 $this->processedRows[$data['invoice_number']]['invoice_items'] = array_merge($this->processedRows[$data['invoice_number']]['invoice_items'], $data['invoice_items']);
+
                 return true;
             }
+        } else {
+            $this->processedRows[] = $data;
         }
-        else{
-           $this->processedRows[] = $data;
-        }
-        
+
         end($this->processedRows);
+
         return key($this->processedRows);
     }
-        
+
     private function saveData($source, $entityType, $row, $data_index, $maps)
     {
         $data = $this->processedRows[$data_index];
@@ -421,20 +422,21 @@ class ImportService
 
             $row = $this->convertToObject($entityType, $row, $map);
             $data_index = $this->transformRow($source, $entityType, $row, $maps);
-        
+
             if ($data_index !== false) {
-                if($data_index !== true){// Wasn't merged with another row
-                    $row_list[] = array('row'=>$row, 'data_index'=>$data_index);
+                if ($data_index !== true) {
+                    // Wasn't merged with another row
+                    $row_list[] = array('row' => $row, 'data_index' => $data_index);
                 }
             } else {
                 $results[RESULT_FAILURE][] = $row;
             }
         }
-        
+
         // Save the data
-        foreach($row_list as $row_data){
+        foreach ($row_list as $row_data) {
             $result = $this->saveData($source, $entityType, $row_data['row'], $row_data['data_index'], $maps);
-        
+
             if ($result) {
                 $results[RESULT_SUCCESS][] = $result;
             } else {

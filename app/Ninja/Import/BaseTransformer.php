@@ -19,6 +19,11 @@ class BaseTransformer extends TransformerAbstract
         return isset($this->maps[ENTITY_CLIENT][$name]);
     }
 
+    protected function getString($data, $field)
+    {
+        return (isset($data->$field) && $data->$field) ? $data->$field : null;
+    }
+
     protected function getClientId($name)
     {
         $name = strtolower($name);
