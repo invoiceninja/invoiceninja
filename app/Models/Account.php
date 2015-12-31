@@ -220,13 +220,7 @@ class Account extends Eloquent
 
     public function getCustomDateFormat()
     {
-        $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
-
-        if ($this->military_time) {
-            $format = str_replace('g:i a', 'H:i', $format);
-        }
-
-        return $format;
+        return $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT;
     }
 
     public function formatMoney($amount, $client = null, $hideSymbol = false)
