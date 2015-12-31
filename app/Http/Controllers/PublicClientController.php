@@ -54,7 +54,7 @@ class PublicClientController extends BaseController
 
         return Datatable::query($query)
             ->addColumn('activities.id', function ($model) { return Utils::timestampToDateTimeString(strtotime($model->created_at)); })
-            ->addColumn('message', function ($model) {
+            ->addColumn('activity_type_id', function ($model) {
                 $data = [
                     'client' => Utils::getClientDisplayName($model),
                     'user' => $model->is_system ? ('<i>' . trans('texts.system') . '</i>') : ($model->user_first_name . ' ' . $model->user_last_name), 
