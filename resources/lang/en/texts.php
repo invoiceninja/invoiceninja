@@ -240,7 +240,6 @@ return array(
     'deleted_invoices' => 'Successfully deleted :count invoices',
 
     'created_payment' => 'Successfully created payment',
-    'created_payments' => 'Successfully created :count payment(s)',
     'archived_payment' => 'Successfully archived payment',
     'archived_payments' => 'Successfully archived :count payments',
     'deleted_payment' => 'Successfully deleted payment',
