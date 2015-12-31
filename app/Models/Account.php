@@ -290,7 +290,13 @@ class Account extends Eloquent
 
     public function getCustomDateTimeFormat()
     {
-        return $this->getCustomDateFormat() . ' ' . $this->getCustomTimeFormat();
+        $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
+
+        if ($this->military_time) {
+            $format = str_replace('g:i a', 'H:i', $format);
+        }
+
+        return $format;
     }
 
     public function getGatewayByType($type = PAYMENT_TYPE_ANY)

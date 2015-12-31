@@ -31,7 +31,7 @@ class TaskPresenter extends Presenter {
             $start = $account->formatDateTime("@{$start}");
             $end = $account->formatTime("@{$end}");
 
-            $times[] = "###{$start} - {$end}";
+            $times[] = "### {$start} - {$end}";
         }
 
         return implode("\n", $times);
