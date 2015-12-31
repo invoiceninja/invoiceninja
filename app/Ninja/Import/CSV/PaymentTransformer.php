@@ -12,7 +12,7 @@ class PaymentTransformer extends BaseTransformer
                 'amount' => $data->paid,
                 'payment_date_sql' => isset($data->invoice_date) ? $data->invoice_date : null,
                 'client_id' => $data->client_id,
-                'invoice_id' => $data->invoice_id,
+                'invoice_id' => $this->getInvoiceId($data->invoice_id),
             ];
         });
     }
