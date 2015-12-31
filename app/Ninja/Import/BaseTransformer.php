@@ -64,10 +64,22 @@ class BaseTransformer extends TransformerAbstract
         return str_pad($number, 4, '0', STR_PAD_LEFT);
     }
 
+    protected function getInvoiceId($invoiceNumber)
+    {
+        $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
+        return isset($this->maps[ENTITY_INVOICE][$invoiceNumber]) ? $this->maps[ENTITY_INVOICE][$invoiceNumber] : null;
+    }
+
     protected function hasInvoice($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
         return isset($this->maps[ENTITY_INVOICE][$invoiceNumber]);
+    }
+
+    protected function getInvoiceClientId($invoiceNumber)
+    {
+        $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
+        return isset($this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber])? $this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber] : null;
     }
 
 }
