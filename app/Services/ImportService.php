@@ -23,11 +23,13 @@ class ImportService
     protected $invoiceRepo;
     protected $clientRepo;
     protected $contactRepo;
+    protected $processedRows = array();
 
     public static $entityTypes = [
         ENTITY_CLIENT,
         ENTITY_CONTACT,
         ENTITY_INVOICE,
+        ENTITY_PAYMENT,
         ENTITY_TASK,
     ];
 
@@ -73,31 +75,45 @@ class ImportService
             RESULT_FAILURE => [],
         ];
 
-        Excel::load($file, function ($reader) use ($source, $entityType, &$results) {
+        // Convert the data
+        $row_list = array();        
+        $maps = $this->createMaps();
+        Excel::load($file, function ($reader) use ($source, $entityType, $maps, &$row_list, &$results) {
             $this->checkData($entityType, count($reader->all()));
-            $maps = $this->createMaps();
 
-            $reader->each(function ($row) use ($source, $entityType, $maps, &$results) {
-                $result = $this->saveData($source, $entityType, $row, $maps);
-
-                if ($result) {
-                    $results[RESULT_SUCCESS][] = $result;
+            $reader->each(function ($row) use ($source, $entityType, $maps, &$row_list, &$results) {
+                $data_index = $this->transformRow($source, $entityType, $row, $maps);
+                
+                if ($data_index !== false){
+                    if($data_index !== true){// Wasn't merged with another row
+                        $row_list[] = array('row'=>$row, 'data_index'=>$data_index);
+                    }
                 } else {
                     $results[RESULT_FAILURE][] = $row;
                 }
             });
         });
+        
+        // Save the data
+        foreach($row_list as $row_data){
+            $result = $this->saveData($source, $entityType, $row_data['row'], $row_data['data_index'], $maps);
+            if ($result) {
+                $results[RESULT_SUCCESS][] = $result;
+            } else {
+                $results[RESULT_FAILURE][] = $row_data['row'];
+            }
+        }
 
         return $results;
     }
 
-    private function saveData($source, $entityType, $row, $maps)
+    private function transformRow($source, $entityType, $row, $maps)
     {
         $transformer = $this->getTransformer($source, $entityType, $maps);
         $resource = $transformer->transform($row, $maps);
 
         if (!$resource) {
-            return;
+            return false;
         }
 
         $data = $this->fractal->createData($resource)->toArray();
@@ -108,11 +124,32 @@ class ImportService
             $invoice = Invoice::createNew();
             $data['invoice_number'] = $account->getNextInvoiceNumber($invoice);
         }
-
+        
         if ($this->validate($source, $data, $entityType) !== true) {
-            return;
+            return false;
         }
-
+        
+        if($entityType == ENTITY_INVOICE){
+            if(empty($this->processedRows[$data['invoice_number']])){
+                $this->processedRows[$data['invoice_number']] = $data;
+            }
+            else{
+                // Merge invoice items
+                $this->processedRows[$data['invoice_number']]['invoice_items'] = array_merge($this->processedRows[$data['invoice_number']]['invoice_items'], $data['invoice_items']);
+                return true;
+            }
+        }
+        else{
+           $this->processedRows[] = $data;
+        }
+        
+        end($this->processedRows);
+        return key($this->processedRows);
+    }
+        
+    private function saveData($source, $entityType, $row, $data_index, $maps)
+    {
+        $data = $this->processedRows[$data_index];
         $entity = $this->{"{$entityType}Repo"}->save($data);
 
         // if the invoice is paid we'll also create a payment record
@@ -204,10 +241,12 @@ class ImportService
         }
 
         $invoiceMap = [];
+        $invoiceClientMap = [];
         $invoices = $this->invoiceRepo->all();
         foreach ($invoices as $invoice) {
             if ($number = strtolower(trim($invoice->invoice_number))) {
                 $invoiceMap[$number] = $invoice->id;
+                $invoiceClientMap[$number] = $invoice->client_id;
             }
         }
 
@@ -228,6 +267,7 @@ class ImportService
         return [
             ENTITY_CLIENT => $clientMap,
             ENTITY_INVOICE => $invoiceMap,
+            ENTITY_INVOICE.'_'.ENTITY_CLIENT => $invoiceClientMap,
             'countries' => $countryMap,
             'countries2' => $countryMap2,
             'currencies' => $currencyMap,
@@ -371,6 +411,8 @@ class ImportService
         $this->checkData($entityType, count($data));
         $maps = $this->createMaps();
 
+        // Convert the data
+        $row_list = array();
         foreach ($data as $row) {
             if ($hasHeaders) {
                 $hasHeaders = false;
@@ -378,8 +420,21 @@ class ImportService
             }
 
             $row = $this->convertToObject($entityType, $row, $map);
-            $result = $this->saveData($source, $entityType, $row, $maps);
-
+            $data_index = $this->transformRow($source, $entityType, $row, $maps);
+        
+            if ($data_index !== false) {
+                if($data_index !== true){// Wasn't merged with another row
+                    $row_list[] = array('row'=>$row, 'data_index'=>$data_index);
+                }
+            } else {
+                $results[RESULT_FAILURE][] = $row;
+            }
+        }
+        
+        // Save the data
+        foreach($row_list as $row_data){
+            $result = $this->saveData($source, $entityType, $row_data['row'], $row_data['data_index'], $maps);
+        
             if ($result) {
                 $results[RESULT_SUCCESS][] = $result;
             } else {
