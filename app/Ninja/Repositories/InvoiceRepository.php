@@ -217,7 +217,7 @@ class InvoiceRepository extends BaseRepository
                 $account->invoice_footer = trim($data['invoice_footer']);
             }
             $account->save();
-        }
+        }        
 
         if (isset($data['invoice_number']) && !$invoice->is_recurring) {
             $invoice->invoice_number = trim($data['invoice_number']);
@@ -244,6 +244,9 @@ class InvoiceRepository extends BaseRepository
             $invoice->end_date = Utils::toSqlDate($data['end_date']);
             $invoice->due_date = null;
             $invoice->auto_bill = isset($data['auto_bill']) && $data['auto_bill'] ? true : false;
+            if(isset($data['recurring_due_date'])){
+                $invoice->due_date = $data['recurring_due_date'];
+            }
         } else {
             if (isset($data['due_date']) || isset($data['due_date_sql'])) {
                 $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
@@ -592,14 +595,7 @@ class InvoiceRepository extends BaseRepository
         $invoice->custom_text_value1 = $recurInvoice->custom_text_value1;
         $invoice->custom_text_value2 = $recurInvoice->custom_text_value2;
         $invoice->is_amount_discount = $recurInvoice->is_amount_discount;
-
-        if ($invoice->client->payment_terms != 0) {
-            $days = $invoice->client->payment_terms;
-            if ($days == -1) {
-                $days = 0;
-            }
-            $invoice->due_date = date_create()->modify($days.' day')->format('Y-m-d');
-        }
+        $invoice->due_date = $recurInvoice->getDueDate();
 
         $invoice->save();
 

@@ -113,11 +113,12 @@
             @if ($entityType == ENTITY_INVOICE)
 			<div data-bind="visible: is_recurring" style="display: none">
 				{!! Former::select('frequency_id')->options($frequencies)->data_bind("value: frequency_id")
-                        ->appendIcon('question-sign')->addGroupClass('frequency_id') !!}
+                        ->appendIcon('question-sign')->addGroupClass('frequency_id')->onchange('onFrequencyChange()') !!}
 				{!! Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('start_date') !!}
 				{!! Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('end_date') !!}
+                {!! Former::select('recurring_due_date')->label(trans('texts.due_date'))->options($recurringDueDates)->data_bind("value: recurring_due_date")->appendIcon('question-sign')->addGroupClass('recurring_due_date') !!}
 			</div>
             @endif
 
@@ -136,8 +137,12 @@
                             {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!} <br/>
                         @endif
                         @if ($invoice->is_recurring && $invoice->getNextSendDate())
-                            {!! trans('texts.next_send_on', ['date' => '<span data-bind="tooltip: {title: \''.$invoice->getPrettySchedule().'\', html: true}">'.$account->formatDate($invoice->getNextSendDate()).
-                                    '<span class="glyphicon glyphicon-info-sign" style="padding-left:10px;color:#B1B5BA"></span></span>']) !!}
+                           {!! trans('texts.next_send_on', ['date' => '<span data-bind="tooltip: {title: \''.$invoice->getPrettySchedule().'\', html: true}">'.$account->formatDate($invoice->getNextSendDate()).
+                                '<span class="glyphicon glyphicon-info-sign" style="padding-left:10px;color:#B1B5BA"></span></span>']) !!}
+                            @if ($invoice->getDueDate())
+                                <br>
+                                {!! trans('texts.next_due_on', ['date' => '<span>'.$account->formatDate($invoice->getDueDate($invoice->getNextSendDate())).'</span>']) !!}
+                            @endif
                         @endif
                         </span>
                     @endif
@@ -591,6 +596,26 @@
 	    </div>
 	  </div>
 	</div>
+        
+    <div class="modal fade" id="recurringDueDateModal" tabindex="-1" role="dialog" aria-labelledby="recurringDueDateModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" style="min-width:150px">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	        <h4 class="modal-title" id="recurringDueDateModalLabel">{{ trans('texts.recurring_due_dates') }}</h4>
+	      </div>
+
+	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
+	    	&nbsp; {!! isset($recurringDueDateHelp) ? $recurringDueDateHelp : '' !!} &nbsp;
+		</div>
+
+	     <div class="modal-footer" style="margin-top: 0px">
+	      	<button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+	     </div>
+	  		
+	    </div>
+	  </div>
+	</div>
 
 	{!! Former::close() !!}
 
@@ -760,6 +785,10 @@
             showLearnMore();
         });
 
+        $('.recurring_due_date .input-group-addon').click(function() {
+            showRecurringDueDateLearnMore();
+        });
+
         var fields = ['invoice_date', 'due_date', 'start_date', 'end_date', 'last_sent_date'];
         for (var i=0; i<fields.length; i++) {
             var field = fields[i];
@@ -808,6 +837,24 @@
 
         applyComboboxListeners();
 	});	
+        
+    function onFrequencyChange(){
+        var currentName = $('#frequency_id').find('option:selected').text()
+        var currentDueDateNumber = $('#recurring_due_date').find('option:selected').attr('data-num');
+        var optionClass = currentName && currentName.toLowerCase().indexOf('week') > -1 ? 'weekly' :  'monthly';
+        var replacementOption = $('#recurring_due_date option[data-num=' + currentDueDateNumber + '].' + optionClass);
+        
+        $('#recurring_due_date option').hide();
+        $('#recurring_due_date option.' + optionClass).show();
+        
+        // Switch to an equivalent option
+        if(replacementOption.length){
+            replacementOption.attr('selected','selected');
+        }
+        else{
+            $('#recurring_due_date').val('');
+        }
+    }
 
 	function applyComboboxListeners() {
         var selectorStr = '.invoice-table input, .invoice-table textarea';
@@ -1134,6 +1181,10 @@
 
     function showLearnMore() {
         $('#recurringModal').modal('show');
+    }
+
+    function showRecurringDueDateLearnMore() {
+        $('#recurringDueDateModal').modal('show');
     }
 
     function setInvoiceNumber(client) {
