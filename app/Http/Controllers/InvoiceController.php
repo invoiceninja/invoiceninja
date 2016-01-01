@@ -367,6 +367,43 @@ class InvoiceController extends BaseController
             }
         }
 
+        // Create due date options
+        $recurringDueDates = array(
+            trans('texts.use_client_terms') => array('value' => '', 'class' => 'monthly weekly'),
+        );
+        
+        $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+        for($i = 1; $i < 31; $i++){
+            if ($i >= 11 && $i <= 13) $ordinal = $i. 'th';
+            else $ordinal = $i . $ends[$i % 10];
+            
+            $dayStr = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $str = trans('texts.day_of_month', array('ordinal'=>$ordinal));
+            
+            $recurringDueDates[$str] = array('value' => "1998-01-$dayStr", 'data-num' => $i, 'class' => 'monthly');
+        }
+        $recurringDueDates[trans('texts.last_day_of_month')] = array('value' => "1998-01-31", 'data-num' => 31, 'class' => 'monthly');
+        
+        
+        $daysOfWeek = array(
+            trans('texts.sunday'),
+            trans('texts.monday'),
+            trans('texts.tuesday'),
+            trans('texts.wednesday'),
+            trans('texts.thursday'),
+            trans('texts.friday'),
+            trans('texts.saturday'),
+        );
+        foreach(array('1st','2nd','3rd','4th') as $i=>$ordinal){
+            foreach($daysOfWeek as $j=>$dayOfWeek){
+                $str = trans('texts.day_of_week_after', array('ordinal' => $ordinal, 'day' => $dayOfWeek));
+                
+                $day = $i * 7 + $j  + 1;
+                $dayStr = str_pad($day, 2, '0', STR_PAD_LEFT);
+                $recurringDueDates[$str] = array('value' => "1998-02-$dayStr", 'data-num' => $day, 'class' => 'weekly');
+            }
+        }
+        
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
@@ -387,68 +424,7 @@ class InvoiceController extends BaseController
                 6 => 'Six months',
                 7 => 'Annually',
             ),
-            'recurringDueDates' => array(
-                'Use client terms' => array('value' => '', 'class' => 'monthly weekly'),
-                '1st day of month' => array('value' => '1998-01-01', 'data-num' => 1, 'class' => 'monthly'),
-                '2nd day of month' => array('value' => '1998-01-02', 'data-num' => 2, 'class' => 'monthly'),
-                '3rd day of month' => array('value' => '1998-01-03', 'data-num' => 3, 'class' => 'monthly'),
-                '4th day of month' => array('value' => '1998-01-04', 'data-num' => 4, 'class' => 'monthly'),
-                '5th day of month' => array('value' => '1998-01-05', 'data-num' => 5, 'class' => 'monthly'),
-                '6th day of month' => array('value' => '1998-01-06', 'data-num' => 6, 'class' => 'monthly'),
-                '7th day of month' => array('value' => '1998-01-07', 'data-num' => 7, 'class' => 'monthly'),
-                '8th day of month' => array('value' => '1998-01-08', 'data-num' => 8, 'class' => 'monthly'),
-                '9th day of month' => array('value' => '1998-01-09', 'data-num' => 9, 'class' => 'monthly'),
-                '10th day of month' => array('value' => '1998-01-10', 'data-num' => 10, 'class' => 'monthly'),
-                '11th day of month' => array('value' => '1998-01-11', 'data-num' => 11, 'class' => 'monthly'),
-                '12th day of month' => array('value' => '1998-01-12', 'data-num' => 12, 'class' => 'monthly'),
-                '14th day of month' => array('value' => '1998-01-13', 'data-num' => 13, 'class' => 'monthly'),
-                '14th day of month' => array('value' => '1998-01-14', 'data-num' => 14, 'class' => 'monthly'),
-                '15th day of month' => array('value' => '1998-01-15', 'data-num' => 15, 'class' => 'monthly'),
-                '16th day of month' => array('value' => '1998-01-16', 'data-num' => 16, 'class' => 'monthly'),
-                '17th day of month' => array('value' => '1998-01-17', 'data-num' => 17, 'class' => 'monthly'),
-                '18th day of month' => array('value' => '1998-01-18', 'data-num' => 18, 'class' => 'monthly'),
-                '19th day of month' => array('value' => '1998-01-19', 'data-num' => 19, 'class' => 'monthly'),
-                '20th day of month' => array('value' => '1998-01-20', 'data-num' => 20, 'class' => 'monthly'),
-                '21st day of month' => array('value' => '1998-01-21', 'data-num' => 21, 'class' => 'monthly'),
-                '22nd day of month' => array('value' => '1998-01-22', 'data-num' => 22, 'class' => 'monthly'),
-                '23rd day of month' => array('value' => '1998-01-23', 'data-num' => 23, 'class' => 'monthly'),
-                '24th day of month' => array('value' => '1998-01-24', 'data-num' => 24, 'class' => 'monthly'),
-                '25th day of month' => array('value' => '1998-01-25', 'data-num' => 25, 'class' => 'monthly'),
-                '26th day of month' => array('value' => '1998-01-26', 'data-num' => 26, 'class' => 'monthly'),
-                '27th day of month' => array('value' => '1998-01-27', 'data-num' => 27, 'class' => 'monthly'),
-                '28th day of month' => array('value' => '1998-01-28', 'data-num' => 28, 'class' => 'monthly'),
-                '29th day of month' => array('value' => '1998-01-29', 'data-num' => 29, 'class' => 'monthly'),
-                '30th day of month' => array('value' => '1998-01-30', 'data-num' => 30, 'class' => 'monthly'),
-                'Last day of month' => array('value' => '1998-01-31', 'data-num' => 31, 'class' => 'monthly'),
-                '1st Sunday after' => array('value' => '1998-02-01', 'data-num' => 1, 'class' => 'weekly'),
-                '1st Monday after' => array('value' => '1998-02-02', 'data-num' => 2, 'class' => 'weekly'),
-                '1st Tuesday after' => array('value' => '1998-02-03', 'data-num' => 3, 'class' => 'weekly'),
-                '1st Wednesday after' => array('value' => '1998-02-04', 'data-num' => 4, 'class' => 'weekly'),
-                '1st Thursday after' => array('value' => '1998-02-05', 'data-num' => 5, 'class' => 'weekly'),
-                '1st Friday after' => array('value' => '1998-02-06', 'data-num' => 6, 'class' => 'weekly'),
-                '1st Saturday after' => array('value' => '1998-02-07', 'data-num' => 7, 'class' => 'weekly'),
-                '2nd Sunday after' => array('value' => '1998-02-08', 'data-num' => 8, 'class' => 'weekly'),
-                '2nd Monday after' => array('value' => '1998-02-09', 'data-num' => 9, 'class' => 'weekly'),
-                '2nd Tuesday after' => array('value' => '1998-02-10', 'data-num' => 10, 'class' => 'weekly'),
-                '2nd Wednesday after' => array('value' => '1998-02-11', 'data-num' => 11, 'class' => 'weekly'),
-                '2nd Thursday after' => array('value' => '1998-02-12', 'data-num' => 12, 'class' => 'weekly'),
-                '2nd Friday after' => array('value' => '1998-02-13', 'data-num' => 13, 'class' => 'weekly'),
-                '2nd Saturday after' => array('value' => '1998-02-14', 'data-num' => 14, 'class' => 'weekly'),
-                '3rd Sunday after' => array('value' => '1998-02-15', 'data-num' => 15, 'class' => 'weekly'),
-                '3rd Monday after' => array('value' => '1998-02-16', 'data-num' => 16, 'class' => 'weekly'),
-                '3rd Tuesday after' => array('value' => '1998-02-17', 'data-num' => 17, 'class' => 'weekly'),
-                '3rd Wednesday after' => array('value' => '1998-02-18', 'data-num' => 18, 'class' => 'weekly'),
-                '3rd Thursday after' => array('value' => '1998-02-19', 'data-num' => 19, 'class' => 'weekly'),
-                '3rd Friday after' => array('value' => '1998-02-20', 'data-num' => 20, 'class' => 'weekly'),
-                '3rd Saturday after' => array('value' => '1998-02-21', 'data-num' => 21, 'class' => 'weekly'),
-                '4th Sunday after' => array('value' => '1998-02-22', 'data-num' => 22, 'class' => 'weekly'),
-                '4th Monday after' => array('value' => '1998-02-23', 'data-num' => 23, 'class' => 'weekly'),
-                '4th Tuesday after' => array('value' => '1998-02-24', 'data-num' => 24, 'class' => 'weekly'),
-                '4th Wednesday after' => array('value' => '1998-02-25', 'data-num' => 25, 'class' => 'weekly'),
-                '4th Thursday after' => array('value' => '1998-02-26', 'data-num' => 26, 'class' => 'weekly'),
-                '4th Friday after' => array('value' => '1998-02-27', 'data-num' => 27, 'class' => 'weekly'),
-                '4th Saturday after' => array('value' => '1998-02-28', 'data-num' => 28, 'class' => 'weekly'),
-            ),
+            'recurringDueDates' => $recurringDueDates,
             'recurringHelp' => $recurringHelp,
             'recurringDueDateHelp' => $recurringDueDateHelp,
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
