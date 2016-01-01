@@ -21,7 +21,7 @@ class BaseTransformer extends TransformerAbstract
 
     protected function getString($data, $field)
     {
-        return (isset($data->$field) && $data->$field) ? $data->$field : null;
+        return (isset($data->$field) && $data->$field) ? $data->$field : '';
     }
 
     protected function getClientId($name)
