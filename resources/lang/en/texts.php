@@ -111,22 +111,6 @@ return array(
           <li>":YEAR+1 yearly subscription" => "2015 Yearly Subscription"</li>
           <li>"Retainer payment for :QUARTER+1" => "Retainer payment for Q2"</li>
         </ul>',
-    
-    // recurring due dates
-    'recurring_due_dates' => 'Recurring Invoice Due Dates',
-    'recurring_due_date_help' => '<p>Automatically sets a due date for the invoice.</p>
-        <p>Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.</p>
-        <p>Invoices on a weekly cycle set to be due on the day of the week they are created will be due the next week.</p>
-        <p>For example:</p>
-        <ul>
-          <li>Today is the 15th, due date is 1st of the month. The due date should likely be the 1st of the next month.</li>
-          <li>Today is the 15th, due date is the last day of the month. The due date will be the last day of the this month.
-</li>
-          <li>Today is the 15th, due date is the 15th day of the month. The due date will be the 15th day of <strong>next</strong> month.
-</li>
-          <li>Today is the Friday, due date is the 1st Friday after. The due date will be next Friday, not today.
-</li>
-        </ul>',
 
     // dashboard
     'in_total_revenue' => 'in total revenue',
@@ -771,7 +755,6 @@ return array(
                         <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
 
     'invoice_due_date' => 'Due Date',
-    'due' => 'Due',
     'quote_due_date' => 'Valid Until',
     'valid_until' => 'Valid Until',
     'reset_terms' => 'Reset terms',
@@ -841,7 +824,6 @@ return array(
     'gateways' => 'Payment Gateways',
 
     'next_send_on' => 'Send Next: :date',
-    'next_due_on' => 'Due Next: :date',
     'no_longer_running' => 'This invoice is not scheduled to run',
     'general_settings' => 'General Settings',
     'customize' => 'Customize',
@@ -1010,4 +992,21 @@ return array(
     'email_designs' => 'Email Designs',
     'assigned_when_sent' => 'Assigned when sent',
     
+    // recurring due dates
+    'recurring_due_dates' => 'Recurring Invoice Due Dates',
+    'recurring_due_date_help' => '<p>Automatically sets a due date for the invoice.</p>
+        <p>Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.</p>
+        <p>Invoices on a weekly cycle set to be due on the day of the week they are created will be due the next week.</p>
+        <p>For example:</p>
+        <ul>
+          <li>Today is the 15th, due date is 1st of the month. The due date should likely be the 1st of the next month.</li>
+          <li>Today is the 15th, due date is the last day of the month. The due date will be the last day of the this month.
+</li>
+          <li>Today is the 15th, due date is the 15th day of the month. The due date will be the 15th day of <strong>next</strong> month.
+</li>
+          <li>Today is the Friday, due date is the 1st Friday after. The due date will be next Friday, not today.
+</li>
+        </ul>',
+    'due' => 'Due',
+    'next_due_on' => 'Due Next: :date',
 );
