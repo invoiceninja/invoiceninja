@@ -29,7 +29,7 @@ class CreatePaymentRequest extends Request
         $rules = array(
             'client' => 'required',
             'invoice' => 'required',
-            'amount' => 'required|less_than:{$invoice->balance}|positive',
+            'amount' => "required|less_than:{$invoice->balance}|positive",
         );
 
         if ($input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
