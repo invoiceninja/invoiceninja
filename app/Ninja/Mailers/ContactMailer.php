@@ -149,7 +149,6 @@ class ContactMailer extends Mailer
         $account->loadLocalizationSettings($client);
 
         $invoice = $payment->invoice;
-        $view = 'payment_confirmation';
         $accountName = $account->getDisplayName();
         $emailTemplate = $account->getEmailTemplate(ENTITY_PAYMENT);
         $emailSubject = $invoice->account->getEmailSubject(ENTITY_PAYMENT);
@@ -188,6 +187,12 @@ class ContactMailer extends Mailer
 
         $subject = $this->processVariables($emailSubject, $variables);
         $data['invoice_id'] = $payment->invoice->id;
+
+        if ($account->email_design_id == EMAIL_DESIGN_PLAIN) {
+            $view = 'payment_confirmation';
+        } else {
+            $view = 'design' . ($account->email_design_id - 1);
+        }
 
         if ($user->email && $contact->email) {
             $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);
