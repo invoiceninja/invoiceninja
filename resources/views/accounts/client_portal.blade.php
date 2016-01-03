@@ -22,7 +22,7 @@
     </div>
     @endif
 
-    @include('accounts.nav', ['selected' => ACCOUNT_CLIENT_VIEW_STYLING])
+    @include('accounts.nav', ['selected' => ACCOUNT_CLIENT_PORTAL])
 
 	<div class="row">
 		<div class="col-md-12">

@@ -35,7 +35,7 @@ class Account extends Eloquent
     public static $advancedSettings = [
         ACCOUNT_INVOICE_SETTINGS,
         ACCOUNT_INVOICE_DESIGN,
-        ACCOUNT_CLIENT_VIEW_STYLING,
+        ACCOUNT_CLIENT_PORTAL,
         ACCOUNT_EMAIL_SETTINGS,
         ACCOUNT_TEMPLATES_AND_REMINDERS,
         ACCOUNT_CHARTS_AND_REPORTS,
