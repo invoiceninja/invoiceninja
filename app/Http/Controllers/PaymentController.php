@@ -177,6 +177,7 @@ class PaymentController extends BaseController
             'account' => $client->account,
             'hideLogo' => $account->isWhiteLabel(),
             'hideHeader' => $account->isNinjaAccount(),
+            'clientViewCSS' => $account->clientViewCSS(),
             'showAddress' => $accountGateway->show_address,
         ];
 

@@ -37,6 +37,7 @@ class PublicClientController extends BaseController
             'account' => $account,
             'client' => $client,
             'hideLogo' => $account->isWhiteLabel(),
+            'clientViewCSS' => $account->clientViewCSS(),
         ];
 
         return response()->view('invited.dashboard', $data);
@@ -81,6 +82,7 @@ class PublicClientController extends BaseController
         $data = [
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
+            'clientViewCSS' => $account->clientViewCSS(),
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
             'columns' => Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date']),
@@ -110,6 +112,7 @@ class PublicClientController extends BaseController
         $data = [
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
+            'clientViewCSS' => $account->clientViewCSS(),
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
             'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date'])
@@ -145,6 +148,7 @@ class PublicClientController extends BaseController
         $data = [
           'color' => $color,
           'hideLogo' => $account->isWhiteLabel(),
+          'clientViewCSS' => $account->clientViewCSS(),
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
           'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
@@ -168,6 +172,7 @@ class PublicClientController extends BaseController
         return response()->view('error', [
             'error' => trans('texts.invoice_not_found'),
             'hideHeader' => true,
+            'clientViewCSS' => $account->clientViewCSS(),
         ]);
     }
 

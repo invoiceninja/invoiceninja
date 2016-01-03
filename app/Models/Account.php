@@ -35,6 +35,7 @@ class Account extends Eloquent
     public static $advancedSettings = [
         ACCOUNT_INVOICE_SETTINGS,
         ACCOUNT_INVOICE_DESIGN,
+        ACCOUNT_CLIENT_VIEW_STYLING,
         ACCOUNT_EMAIL_SETTINGS,
         ACCOUNT_TEMPLATES_AND_REMINDERS,
         ACCOUNT_CHARTS_AND_REPORTS,
@@ -872,6 +873,14 @@ class Account extends Eloquent
     public function attatchPDF()
     {
         return $this->isPro() && $this->pdf_email_attachment;
+    }
+    
+    public function clientViewCSS(){
+        if (($this->isNinjaAccount() && $this->isPro()) || $this->isWhiteLabel()) {
+            return $this->client_view_css;
+        }
+        
+        return null;
     }
 }
 
