@@ -374,6 +374,7 @@
         {!! HTML::menu_link('task') !!}
         {!! HTML::menu_link('invoice') !!}
         {!! HTML::menu_link('payment') !!}
+		{!! HTML::menu_link('expense') !!}
       </ul>
 
       <div class="navbar-form navbar-right">
