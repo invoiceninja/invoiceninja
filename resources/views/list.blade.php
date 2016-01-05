@@ -3,9 +3,10 @@
 @section('content')
 
 	{!! Former::open($entityType . 's/bulk')->addClass('listForm') !!}
+
 	<div style="display:none">
 		{!! Former::text('action') !!}
-		{!! Former::text('public_id') !!}
+        {!! Former::text('public_id') !!}
 	</div>
 
     @if ($entityType == ENTITY_TASK)
@@ -23,7 +24,8 @@
 	</label>
 
 	<div id="top_right_buttons" class="pull-right">
-		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" class="form-control pull-left" placeholder="{{ trans('texts.filter') }}"/>
+		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" 
+            class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
         @if (Auth::user()->isPro() && $entityType == ENTITY_INVOICE)        
             {!! Button::normal(trans('texts.quotes'))->asLinkTo(URL::to('/quotes'))->appendIcon(Icon::create('list')) !!}
             {!! Button::normal(trans('texts.recurring'))->asLinkTo(URL::to('/recurring_invoices'))->appendIcon(Icon::create('list')) !!}
@@ -117,8 +119,12 @@
 
             searchTimeout = setTimeout(function() {
                 filterTable($('#tableFilter').val());
-            }, 500);                   
+            }, 500);
         })
+
+        if ($('#tableFilter').val()) {
+            filterTable($('#tableFilter').val());
+        }
 
         window.onDatatableReady = function() {      
             $(':checkbox').click(function() {
