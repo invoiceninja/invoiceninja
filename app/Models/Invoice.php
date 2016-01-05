@@ -176,6 +176,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->belongsTo('App\Models\InvoiceDesign');
     }
 
+    public  function payments()
+    {
+        return $this->hasMany('App\Models\Payment', 'invoice_id', 'id');
+    }
+
     public function recurring_invoice()
     {
         return $this->belongsTo('App\Models\Invoice');
