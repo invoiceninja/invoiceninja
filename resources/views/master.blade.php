@@ -24,8 +24,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="msapplication-config" content="none"/> 
 
-    <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-    <link href="//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700&subset=latin,latin-ext" rel="stylesheet" type="text/css">
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}" />
 
     <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    

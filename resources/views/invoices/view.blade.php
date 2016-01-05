@@ -5,6 +5,9 @@
 
 		@include('money_script')
 		
+		@foreach (array_unique($invoice->client->account->getFonts()) as $font)
+        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+    	@endforeach
         <script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
         
 		<style type="text/css">

@@ -104,6 +104,7 @@ class InvoiceController extends BaseController
                 'error' => trans('texts.invoice_not_found'),
                 'hideHeader' => true,
                 'clientViewCSS' => $account->clientViewCSS(),
+                'clientFontUrl' => $account->getFontsUrl(),
             ]);
         }
 
@@ -156,6 +157,7 @@ class InvoiceController extends BaseController
             'hideLogo' => $account->isWhiteLabel(),
             'hideHeader' => $account->isNinjaAccount(),
             'clientViewCSS' => $account->clientViewCSS(),
+            'clientFontUrl' => $account->getFontsUrl(),
             'invoice' => $invoice->hidePrivateFields(),
             'invitation' => $invitation,
             'invoiceLabels' => $account->getInvoiceLabels(),

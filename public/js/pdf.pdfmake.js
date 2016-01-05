@@ -90,16 +90,177 @@ function GetPdfMake(invoice, javascript, callback) {
         }
     }
     
-    /*
+    
+    
+    pdfMake.fonts = {}
     var fonts = {
-        Roboto: {
-            normal: 'Roboto-Regular.ttf',
-            bold: 'Roboto-Medium.ttf',
-            italics: 'Roboto-Italic.ttf',
-            bolditalics: 'Roboto-Italic.ttf'
+        "Roboto": {
+            id: 'roboto',
+            ttfs: {
+                normal: 'roboto/Roboto-Regular.ttf',
+                bold: 'roboto/Roboto-Medium.ttf',
+                italics: 'roboto/Roboto-Italic.ttf',
+                bolditalics: 'roboto/Roboto-Italic.ttf'
+            }
+        },
+        "Raleway": {
+            id: 'raleway',
+            ttfs: {
+                normal: 'raleway/Raleway-Regular.ttf',
+                bold: 'raleway/Raleway-Medium.ttf',
+                italics: 'raleway/Raleway-Italic.ttf',
+                bolditalics: 'raleway/Raleway-Italic.ttf'
+            }
+        },
+        "Raleway Light": {
+            id: 'raleway_light',
+            ttfs: {
+                normal: 'raleway_light/Raleway-Light.ttf',
+                bold: 'raleway_light/Raleway-Medium.ttf',
+                italics: 'raleway_light/Raleway-LightItalic.ttf',
+                bolditalics: 'raleway_light/Raleway-LightItalic.ttf'
+            }
+        },
+        "Open Sans": {
+            id: 'open_sans',
+            ttfs: {
+                normal: 'open_sans/OpenSans-Regular.ttf',
+                bold: 'open_sans/OpenSans-Semibold.ttf',
+                italics: 'open_sans/OpenSans-Italic.ttf',
+                bolditalics: 'open_sans/OpenSans-Italic.ttf'
+            }
+        },
+        "Open Sans Light": {
+            id: 'open_sans_light',
+            ttfs: {
+                normal: 'open_sans_light/OpenSans-Light.ttf',
+                bold: 'open_sans_light/OpenSans-Regular.ttf',
+                italics: 'open_sans_light/OpenSans-LightItalic.ttf',
+                bolditalics: 'open_sans_light/OpenSans-LightItalic.ttf'
+            }
+        },
+        "PT Sans": {
+            id: 'pt_sans',
+            ttfs: {
+                normal: 'pt_sans/PTSans-Regular.ttf',
+                bold: 'pt_sans/PTSans-Bold.ttf',
+                italics: 'pt_sans/PTSans-Italic.ttf',
+                bolditalics: 'pt_sans/PTSans-Italic.ttf'
+            }
+        },
+        "PT Serif": {
+            id: 'pt_serif',
+            ttfs: {
+                normal: 'pt_serif/PTSerif-Regular.ttf',
+                bold: 'pt_serif/PTSerif-Bold.ttf',
+                italics: 'pt_serif/PTSerif-Italic.ttf',
+                bolditalics: 'pt_serif/PTSerif-Italic.ttf'
+            }
+        },
+        "Abril Fatface": {
+            id: 'abril_fatface',
+            ttfs: {
+                normal: 'abril_fatface/AbrilFatface-Regular.ttf',
+                bold: 'abril_fatface/AbrilFatface-Regular.ttf',
+                italics: 'abril_fatface/AbrilFatface-Regular.ttf',
+                bolditalics: 'abril_fatface/AbrilFatface-Regular.ttf',
+            }
+        },
+        "Arvo": {
+            id: 'arvo',
+            ttfs: {
+                normal: 'arvo/Arvo-Regular.ttf',
+                bold: 'arvo/Arvo-Bold.ttf',
+                italics: 'arvo/Arvo-Italic.ttf',
+                bolditalics: 'arvo/Arvo-Italic.ttf',
+            }
+        },
+        "Josefin Sans": {
+            id: 'josefin_sans',
+            ttfs: {
+                normal: 'josefin_sans/JosefinSans-Regular.ttf',
+                bold: 'josefin_sans/JosefinSans-Bold.ttf',
+                italics: 'josefin_sans/JosefinSans-Italic.ttf',
+                bolditalics: 'josefin_sans/JosefinSans-Italic.ttf',
+            }
+        },
+        "Josefin Sans Light": {
+            id: 'josefin_sans_light',
+            ttfs: {
+                normal: 'josefin_sans_light/JosefinSans-Light.ttf',
+                bold: 'josefin_sans_light/JosefinSans-SemiBold.ttf',
+                italics: 'josefin_sans_light/JosefinSans-LightItalic.ttf',
+                bolditalics: 'josefin_sans_light/JosefinSans-LightItalic.ttf',
+            }
+        },
+        "Josefin Slab": {
+            id: 'josefin_slab',
+            ttfs: {
+                normal: 'josefin_slab/JosefinSlab-Regular.ttf',
+                bold: 'josefin_slab/JosefinSlab-Bold.ttf',
+                italics: 'josefin_slab/JosefinSlab-Italic.ttf',
+                bolditalics: 'josefin_slab/JosefinSlab-Italic.ttf',
+            }
+        },
+        "Josefin Slab Light": {
+            id: 'josefin_slab_light',
+            ttfs: {
+                normal: 'josefin_slab_light/JosefinSlab-Light.ttf',
+                bold: 'josefin_slab_light/JosefinSlab-SemiBold.ttf',
+                italics: 'josefin_slab_light/JosefinSlab-LightItalic.ttf',
+                bolditalics: 'josefin_slab_light/JosefinSlab-LightItalic.ttf',
+            }
+        },
+        "Titillium": {
+            id: 'titillium',
+            ttfs: {
+                normal: 'titillium/TitilliumWeb-Regular.ttf',
+                bold: 'titillium/TitilliumWeb-Bold.ttf',
+                italics: 'titillium/TitilliumWeb-Italic.ttf',
+                bolditalics: 'titillium/TitilliumWeb-Italic.ttf',
+            }
+        },
+        "Titillium Light": {
+            id: 'titillium_light',
+            ttfs: {
+                normal: 'titillium_light/TitilliumWeb-Light.ttf',
+                bold: 'titillium_light/TitilliumWeb-SemiBold.ttf',
+                italics: 'titillium_light/TitilliumWeb-LightItalic.ttf',
+                bolditalics: 'titillium_light/TitilliumWeb-LightItalic.ttf',
+            }
+        },
+        "Ubuntu": {
+            id: 'ubuntu',
+            ttfs: {
+                normal: 'ubuntu/Ubuntu-Regular.ttf',
+                bold: 'ubuntu/Ubuntu-Bold.ttf',
+                italics: 'ubuntu/Ubuntu-Italic.ttf',
+                bolditalics: 'ubuntu/Ubuntu-Italic.ttf',
+            }
+        },
+        "Ubuntu Light": {
+            id: 'ubuntu_light',
+            ttfs: {
+                normal: 'ubuntu_light/Ubuntu-Light.ttf',
+                bold: 'ubuntu_light/Ubuntu-Medium.ttf',
+                italics: 'ubuntu_light/Ubuntu-LightItalic.ttf',
+                bolditalics: 'ubuntu_light/Ubuntu-LightItalic.ttf',
+            }
         },
     };
-    */
+
+    // Add only the loaded fonts
+    $.each(fonts, function(font){
+        addFont(font);
+    });
+
+
+    function addFont(font){
+        if(window.ninjaFontVfs[fonts[font].id])pdfMake.fonts[font] = fonts[font].ttfs;
+    }
+        
+    if(!dd.defaultStyle)dd.defaultStyle = {font:NINJA.bodyFont};
+    else if(!dd.defaultStyle.font)dd.defaultStyle.font = NINJA.bodyFont;
     
     doc = pdfMake.createPdf(dd);
     doc.save = function(fileName) {
@@ -141,6 +302,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'fontSizeLarger': NINJA.fontSize + 1,
         'fontSizeLargest': NINJA.fontSize + 2,
         'fontSizeSmaller': NINJA.fontSize - 1,
+        'bodyFont': NINJA.bodyFont,
+        'headerFont': NINJA.headerFont,
     }
 
     for (var key in json) {

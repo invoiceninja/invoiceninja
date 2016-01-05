@@ -76,6 +76,8 @@
       NINJA.primaryColor = "{{ $account->primary_color }}";
       NINJA.secondaryColor = "{{ $account->secondary_color }}";
       NINJA.fontSize = {{ $account->font_size }};
+      NINJA.headerFont = {!! json_encode(Auth::user()->account->getHeaderFontName()) !!};
+      NINJA.bodyFont = {!! json_encode(Auth::user()->account->getBodyFontName()) !!};
   @endif
   var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
 
