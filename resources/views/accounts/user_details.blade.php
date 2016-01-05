@@ -71,16 +71,14 @@
 
         </div>
         <center>
-            @if (Utils::isNinja())
-                @if (Auth::user()->confirmed)
-                    {!! Button::primary(trans('texts.change_password'))
-                            ->appendIcon(Icon::create('lock'))
-                            ->large()->withAttributes(['onclick'=>'showChangePassword()']) !!}
-                @elseif (Auth::user()->registered)
-                    {!! Button::primary(trans('texts.resend_confirmation'))
-                            ->appendIcon(Icon::create('send'))
-                            ->asLinkTo(URL::to('/resend_confirmation'))->large() !!}
-                @endif
+            @if (Auth::user()->confirmed)
+                {!! Button::primary(trans('texts.change_password'))
+                        ->appendIcon(Icon::create('lock'))
+                        ->large()->withAttributes(['onclick'=>'showChangePassword()']) !!}
+            @elseif (Auth::user()->registered && Utils::isNinja())
+                {!! Button::primary(trans('texts.resend_confirmation'))
+                        ->appendIcon(Icon::create('send'))
+                        ->asLinkTo(URL::to('/resend_confirmation'))->large() !!}
             @endif
             {!! Button::success(trans('texts.save'))
                     ->submit()->large()
