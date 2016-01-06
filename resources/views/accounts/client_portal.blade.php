@@ -32,12 +32,15 @@
             <h3 class="panel-title">{!! trans('texts.custom_css') !!}</h3>
           </div>
             <div class="panel-body">
-              {!! Former::textarea('client_view_css')
+                <div class="col-md-10 col-md-offset-1">
+                  {!! Former::textarea('client_view_css')
                         ->label(trans('texts.custom_css'))
-                        ->rows(15)
+                        ->rows(10)
+                        ->raw()
                         ->autofocus()
                         ->maxlength(60000)
                         ->style("min-width:100%;max-width:100%;font-family:'Roboto Mono', 'Lucida Console', Monaco, monospace;font-size:14px;'") !!}
+                </div>
             </div>
         </div>
         </div>
