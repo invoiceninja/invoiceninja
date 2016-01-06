@@ -9,6 +9,8 @@ use App\Events\InvoiceWasCreated;
 use App\Events\CreditWasCreated;
 use App\Events\PaymentWasCreated;
 
+use App\Events\VendorWasCreated;
+
 class SubscriptionListener
 {
     public function createdClient(ClientWasCreated $event)
@@ -43,5 +45,10 @@ class SubscriptionListener
         if ($subscription) {
             Utils::notifyZapier($subscription, $entity);
         }
+    }
+
+    public function createdVendor(VendorWasCreated $event)
+    {
+        $this->checkSubscriptions(ACTIVITY_TYPE_CREATE_VENDOR, $event->vendor);
     }
 }

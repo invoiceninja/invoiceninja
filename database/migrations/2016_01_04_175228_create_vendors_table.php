@@ -27,7 +27,7 @@ class CreateVendorsTable extends Migration {
 			$table->string('city');
 			$table->string('state');
 			$table->string('postal_code');
-			$table->integer('country_id',false, true);
+			$table->integer('country_id')->default(0);
 			$table->string('work_phone');
 			$table->text('private_notes');
 			$table->decimal('balance',13,2);
@@ -36,11 +36,11 @@ class CreateVendorsTable extends Migration {
 			//$table->dateTime('last_login');
 			
 			$table->string('website');
-			$table->integer('industry_id',false, true);
-			$table->integer('size_id');
+			$table->integer('industry_id')->nullable();
+			$table->integer('size_id')->nullable();
 			$table->tinyInteger('is_deleted')->default(0);
 			$table->integer('payment_terms')->nullable();
-			$table->integer('public_id',false, true);
+			$table->integer('public_id')->default(0);
 			$table->string('custom_value1')->nullable();
 			$table->string('custom_value2')->nullable();
 			$table->string('vat_number')->nullable();

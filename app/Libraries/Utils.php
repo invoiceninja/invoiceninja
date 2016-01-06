@@ -574,6 +574,11 @@ class Utils
         }
     }
 
+    public static function getVendorDisplayName($model)
+    {
+        return $model->getDisplayName();
+    }
+    
     public static function getPersonDisplayName($firstName, $lastName, $email)
     {
         if ($firstName || $lastName) {
@@ -605,7 +610,9 @@ class Utils
             return EVENT_CREATE_QUOTE;
         } elseif ($eventName == 'create_payment') {
             return EVENT_CREATE_PAYMENT;
-        } else {
+        } elseif ($eventName == 'create_vendor') {
+            return EVENT_CREATE_VENDOR;
+        }else {
             return false;
         }
     }

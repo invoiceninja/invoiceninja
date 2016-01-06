@@ -137,6 +137,21 @@ class EventServiceProvider extends ServiceProvider {
             'App\Listeners\HandleUserSettingsChanged',
         ],
 
+        // vendor events
+        'App\Events\VendorWasCreated' => [
+            'App\Listeners\VendorActivityListener@createdVendor',
+            'App\Listeners\SubscriptionListener@createdVendor',
+        ],
+        'App\Events\VendorWasArchived' => [
+            'App\Listeners\VendorActivityListener@archivedVendor',
+        ],
+        'App\Events\VendorWasDeleted' => [
+            'App\Listeners\VendorActivityListener@deletedVendor',
+        ],
+        'App\Events\VendorWasRestored' => [
+            'App\Listeners\VendorActivityListener@restoredVendor',
+        ],
+        
 	];
 
 	/**

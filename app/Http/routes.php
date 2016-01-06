@@ -181,6 +181,14 @@ Route::group(['middleware' => 'auth'], function() {
 
     get('/resend_confirmation', 'AccountController@resendConfirmation');
     post('/update_setup', 'AppController@updateSetup');
+
+    
+    // vendor
+    Route::resource('vendors', 'VendorController');
+    Route::get('api/vendor', array('as'=>'api.vendors', 'uses'=>'VendorController@getDatatable'));
+    Route::get('api/vendoractivities/{vendor_id?}', array('as'=>'api.vendoractivities', 'uses'=>'VendorActivityController@getDatatable'));
+    Route::post('vendors/bulk', 'VendorController@bulk');
+        
 });
 
 // Route groups for API
@@ -202,6 +210,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
     Route::get('user_accounts','AccountApiController@getUserAccounts');
+    // Vendor
+    Route::resource('vendors', 'VendorApiController');
 });
 
 // Redirects for legacy links
@@ -258,10 +268,13 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_TAX_RATE', 'tax_rate');
     define('ENTITY_PRODUCT', 'product');
     define('ENTITY_ACTIVITY', 'activity');
-
+    define('ENTITY_VENDOR','vendor');
+    define('ENTITY_EXPENSE', 'expense');
+    
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
-
+    define('PERSON_VENDOR_CONTACT','vendorcontact');
+    
     define('BASIC_SETTINGS', 'basic_settings');
     define('ADVANCED_SETTINGS', 'advanced_settings');
 
@@ -327,6 +340,12 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACTIVITY_TYPE_RESTORE_CREDIT', 28);
     define('ACTIVITY_TYPE_APPROVE_QUOTE', 29);
 
+    // Vendors
+    define('ACTIVITY_TYPE_CREATE_VENDOR', 30);
+    define('ACTIVITY_TYPE_ARCHIVE_VENDOR', 31);
+    define('ACTIVITY_TYPE_DELETE_VENDOR', 32);
+    define('ACTIVITY_TYPE_RESTORE_VENDOR', 33);
+
     define('DEFAULT_INVOICE_NUMBER', '0001');
     define('RECENTLY_VIEWED_LIMIT', 8);
     define('LOGGED_ERROR_LIMIT', 100);
@@ -356,6 +375,11 @@ if (!defined('CONTACT_EMAIL')) {
     define('LEGACY_CUTOFF', 57800);
     define('ERROR_DELAY', 3);
 
+    define('MAX_NUM_VENDORS', 100);
+    define('MAX_NUM_VENDORS_PRO', 20000);
+    define('MAX_NUM_VENDORS_LEGACY', 500);
+    
+    
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);
     define('INVOICE_STATUS_VIEWED', 3);
@@ -426,6 +450,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('EVENT_CREATE_INVOICE', 2);
     define('EVENT_CREATE_QUOTE', 3);
     define('EVENT_CREATE_PAYMENT', 4);
+    define('EVENT_CREATE_VENDOR',5);
 
     define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
     define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');

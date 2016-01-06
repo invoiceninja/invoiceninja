@@ -256,6 +256,14 @@ return array(
     'deleted_credits' => 'Successfully deleted :count credits',
     'imported_file' => 'Successfully imported file',
 
+    'updated_vendor' => 'Successfully updated vendor',
+    'created_vendor' => 'Successfully created vendor',
+    'archived_vendor' => 'Successfully archived vendor',
+    'archived_vendors' => 'Successfully archived :count vendors',
+    'deleted_vendor' => 'Successfully deleted vendor',
+    'deleted_vendors' => 'Successfully deleted :count vendors',
+
+    
     // Emails
     'confirmation_subject' => 'Invoice Ninja Account Confirmation',
     'confirmation_header' => 'Account Confirmation',
@@ -997,5 +1005,16 @@ return array(
 
     'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
     'white_label_purchase_link' => 'Purchase a white label license',
-    
+
+    // Expense / vendor
+    'expenses' => 'Expenses',
+    'new_expense' => 'Create expense',
+    'vendors' => 'Vendors',
+    'new_vendor' => 'Create vendor',
+    'payment_terms_net' => 'Net',
+    'vendor' => 'Vendor',
+    'edit_vendor' => 'Edit vendor',
+    'archive_vendor' => 'Archive vendor',
+    'delete_vendor' => 'Delete vendor',
+    'view_vendor' => 'View vendor',
 );

@@ -153,6 +153,20 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return MAX_NUM_CLIENTS;
     }
 
+    public function getMaxNumVendors()
+    {
+        if ($this->isPro()) {
+            return MAX_NUM_VENDORS_PRO;
+        }
+
+        if ($this->id < LEGACY_CUTOFF) {
+            return MAX_NUM_VENDORS_LEGACY;
+        }
+
+        return MAX_NUM_VENDORS;
+    }
+    
+    
     public function getRememberToken()
     {
         return $this->remember_token;
