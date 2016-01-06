@@ -4,7 +4,7 @@
 	@parent
 
     @include('money_script')
-    @foreach (array_unique($account->getFonts()) as $font)
+    @foreach ($account->getFontFolders() as $font)
         <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
         <script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
@@ -17,6 +17,7 @@
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
+    var invoiceFonts = {!! $invoiceFonts !!};
     var invoice = {!! json_encode($invoice) !!};      
       
     function getDesignJavascript() {
@@ -31,10 +32,15 @@
       }
     }
 
-    function loadFont(font){
-      if(!window.ninjaFontVfs[font]){
+    function loadFont(fontId){
+      var fontFolder = '';
+      $.each(window.invoiceFonts, function(i, font){
+        if(font.id==fontId)fontFolder=font.folder;
+      });
+      
+      if(!window.ninjaFontVfs[fontFolder]){
         window.loadingFonts = true;
-        jQuery.getScript({!! json_encode(asset('js/vfs_fonts/%s.js')) !!}.replace('%s', font), function(){window.loadingFonts=false;ninjaLoadFontVfs();refreshPDF()})
+        jQuery.getScript({!! json_encode(asset('js/vfs_fonts/%s.js')) !!}.replace('%s', fontFolder), function(){window.loadingFonts=false;ninjaLoadFontVfs();refreshPDF()})
       }
     }
     
@@ -128,9 +134,11 @@
                                 ->fromQuery($invoiceDesigns, 'name', 'id') !!}
                       @endif
                       {!! Former::select('header_font')
-                              ->options($availableFonts, $account->getHeaderFont()) !!}
+                              ->style('display:inline; width:300px')
+                              ->fromQuery($invoiceFonts, 'name', 'id') !!}
                       {!! Former::select('body_font')
-                              ->options($availableFonts, $account->getBodyFont()) !!}
+                              ->style('display:inline; width:300px')
+                              ->fromQuery($invoiceFonts, 'name', 'id') !!}
 
                       {!! Former::text('font_size')
                             ->style('width:300px')

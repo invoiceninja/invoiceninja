@@ -4,7 +4,7 @@
 	@parent
 
     @include('money_script')
-    @foreach (array_unique($account->getFonts()) as $font)
+    @foreach ($account->getFontFolders() as $font)
     <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
 	<script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
@@ -618,6 +618,8 @@
     var clientMap = {};
     var $clientSelect = $('select#client');
     var invoiceDesigns = {!! $invoiceDesigns !!};
+    var invoiceFonts = {!! $invoiceFonts !!};
+        
 
 	$(function() {
         // create client dictionary

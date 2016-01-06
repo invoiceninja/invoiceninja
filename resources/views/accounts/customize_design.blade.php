@@ -7,7 +7,7 @@
         <link href="{{ asset('css/jsoneditor.min.css') }}" rel="stylesheet" type="text/css">
         <script src="{{ asset('js/jsoneditor.min.js') }}" type="text/javascript"></script>
 
-    @foreach (array_unique($account->getFonts()) as $font)
+    @foreach ($account->getFontFolders() as $font)
         <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
         <script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
@@ -31,6 +31,7 @@
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
+    var invoiceFonts = {!! $invoiceFonts !!};
     var invoice = {!! json_encode($invoice) !!};      
     var sections = ['content', 'styles', 'defaultStyle', 'pageMargins', 'header', 'footer'];
     var customDesign = origCustomDesign = {!! $customDesign ?: 'JSON.parse(invoiceDesigns[0].javascript);' !!};
