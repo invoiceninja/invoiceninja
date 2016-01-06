@@ -134,6 +134,7 @@
           }
         ],
     "defaultStyle": {
+            "font": "$bodyFont",
             "fontSize": "$fontSize",
             "margin": [8, 4, 8, 4]
         },
@@ -208,6 +209,7 @@
                 "bold": true
             },
             "yourInvoice": {
+                "font": "$headerFont",
                 "bold": true, 
                 "fontSize": 14, 
                 "color": "$primaryColor:#36a498",
@@ -241,10 +243,12 @@
                 "margin": [0, 0, 0, 4]
             },
             "header": {
+                "font": "$headerFont",
                 "fontSize": "$fontSizeLargest",
                 "bold": true
             },
             "subheader": {
+                "font": "$headerFont",
                 "fontSize": "$fontSizeLarger"
             },
             "help": {

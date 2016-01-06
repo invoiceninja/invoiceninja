@@ -337,6 +337,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('MAX_LOGO_FILE_SIZE', 200); // KB
     define('MAX_FAILED_LOGINS', 10);
     define('DEFAULT_FONT_SIZE', 9);
+    define('DEFAULT_HEADER_FONT', 'roboto');
+    define('DEFAULT_BODY_FONT', 'roboto');
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
 
     define('IMPORT_CSV', 'CSV');

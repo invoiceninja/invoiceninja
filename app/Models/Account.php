@@ -20,6 +20,7 @@ class Account extends Eloquent
     protected $presenter = 'App\Ninja\Presenters\AccountPresenter';
     protected $dates = ['deleted_at'];
     protected $hidden = ['ip'];
+    public $fonts_obj = null;
 
     public static $basicSettings = [
         ACCOUNT_COMPANY_DETAILS,
@@ -42,6 +43,100 @@ class Account extends Eloquent
         ACCOUNT_DATA_VISUALIZATIONS,
         ACCOUNT_USER_MANAGEMENT,
         ACCOUNT_API_TOKENS,
+    ];
+    
+    public static $availableFonts = [
+        'roboto' => [
+            'name' => 'Roboto',
+            'css_name' => "'Roboto', Arial, Helvetica, sans-serif",
+            'google_id' => 'Roboto:400,700,900,100',
+        ],
+        'abril_fatface' => [
+            'name' => 'Abril Fatface',
+            'css_name' => "'Abril Fatface', Georgia, serif",
+            'google_id' => 'Abril+Fatface',
+        ],
+        'arvo' => [
+            'name' => 'Arvo',
+            'css_name' => "'Arvo', Georgia, serif",
+            'google_id' => 'Arvo:400,700',
+        ],
+        'josefin_sans' => [
+            'name' => 'Josefin Sans',
+            'css_name' => "'Josefin Sans', Arial, Helvetica, sans-serif",
+            'google_id' => 'Josefin Sans:400,700,900,100',
+        ],
+        'josefin_sans_light' => [
+            'css_name' => "'Josefin Sans', Arial, Helvetica, sans-serif",
+            'name' => 'Josefin Sans Light',
+            'css_weight' => 300,
+            'google_id' => 'Josefin+Sans:300,700,900,100',
+        ],
+        'josefin_slab' => [
+            'name' => 'Josefin Slab',
+            'css_name' => "'Josefin Slab', Arial, Helvetica, sans-serif",
+            'google_id' => 'Josefin Sans:400,700,900,100',
+        ],
+        'josefin_slab_light' => [
+            'name' => 'Josefin Slab Light',
+            'css_name' => "'Josefin Slab', Georgia, serif",
+            'css_weight' => 300,
+            'google_id' => 'Josefin+Sans:400,700,900,100',
+        ],
+        'open_sans' => [
+            'name' => 'Open Sans',
+            'css_name' => "'Open Sans', Arial, Helvetica, sans-serif",
+            'google_id' => 'Open+Sans:400,700,900,100',
+        ],
+        'open_sans_light' => [
+            'name' => 'Open Sans Light',
+            'css_name' => "'Open Sans', Arial, Helvetica, sans-serif",
+            'css_weight' => 300,
+            'google_id' => 'Open+Sans:300,700,900,100',
+        ],
+        'pt_sans' => [
+            'name' => 'PT Sans',
+            'css_name' => "'PT Sans', Arial, Helvetica, sans-serif",
+            'google_id' => 'PT+Sans:400,700,900,100',
+        ],
+        'pt_serif' => [
+            'name' => 'PT Serif',
+            'css_name' => "'PT Serif', Georgia, serif",
+            'google_id' => 'PT+Serif:400,700,900,100',
+        ],
+        'raleway' => [
+            'name' => 'Raleway',
+            'css_name' => "'Raleway', Arial, Helvetica, sans-serif",
+            'google_id' => 'Raleway:400,700,900,100',
+        ],
+        'raleway_light' => [
+            'name' => 'Raleway Light',
+            'css_name' => "'Raleway', Arial, Helvetica, sans-serif",
+            'css_weight' => 300,
+            'google_id' => 'Raleway:300,700,900,100',
+        ],
+        'titillium' => [
+            'name' => 'Titillium',
+            'css_name' => "'Titillium Web', Arial, Helvetica, sans-serif",
+            'google_id' => 'Titillium+Web:400,700,900,100',
+        ],
+        'titillium_light' => [
+            'name' => 'Titillium Light',
+            'css_name' => "'Titillium Web', Arial, Helvetica, sans-serif",
+            'css_weight' => 300,
+            'google_id' => 'Titillium+Web:300,700,900,100',
+        ],
+        'ubuntu' => [
+            'name' => 'Ubuntu',
+            'css_name' => "'Ubuntu', Arial, Helvetica, sans-serif",
+            'google_id' => 'Ubuntu:400,700,900,100',
+        ],
+        'ubuntu_light' => [
+            'name' => 'Ubuntu Light',
+            'css_name' => "'Ubuntu', Arial, Helvetica, sans-serif",
+            'css_weight' => 300,
+            'google_id' => 'Ubuntu:200,700,900,100',
+        ],
     ];
 
     /*
@@ -876,11 +971,101 @@ class Account extends Eloquent
     }
     
     public function clientViewCSS(){
-        if (($this->isNinjaAccount() && $this->isPro()) || $this->isWhiteLabel()) {
-            return $this->client_view_css;
+        $css = null;
+        
+        if($this->isPro()){
+            $bodyFont = $this->getBodyFontCss();
+            $headerFont = $this->getHeaderFontCss();
+                        
+            $css = 'body{'.$bodyFont.'}';
+            
+            if($headerFont != $bodyFont)$css .= 'h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6{'.$headerFont.'}';
+            
+            if ($this->isNinjaAccount() || $this->isWhiteLabel()) {
+                // For self-hosted users, a white-label license is required for custom CSS
+                $css .= $this->client_view_css;
+            }
         }
         
-        return null;
+        return $css;
+    }
+    
+    public function getFonts(){
+        $fonts_obj = array();
+        
+        if ($this->isPro() && !empty($this->fonts)) {
+            if(!$this->fonts_obj && is_string($this->fonts)){
+                $this->fonts_obj = json_decode($this->fonts, true);
+            }
+            if(is_array($this->fonts_obj) && $this->fonts_obj){
+                $fonts_obj = $this->fonts_obj;
+            }
+        }
+        
+        if(empty($fonts_obj['header']))$fonts_obj['header'] = DEFAULT_HEADER_FONT;
+        if(empty($fonts_obj['body']))$fonts_obj['body'] = DEFAULT_BODY_FONT;
+        
+        return $fonts_obj;
+    }
+    
+    public function getFontsUrl($protocol = ''){
+        if ($this->isPro()){
+            $bodyFont = $this->getBodyFont();
+            $headerFont = $this->getHeaderFont();
+        }
+        else{
+            $bodyFont = DEFAULT_BODY_FONT;
+            $headerFont = DEFAULT_HEADER_FONT;
+        }
+        
+
+        $bodyFontSettings = Account::$availableFonts[$bodyFont];
+        $google_fonts = array($bodyFontSettings['google_id']);
+        
+        if($headerFont != $bodyFont){
+            $headerFontSettings = Account::$availableFonts[$headerFont];
+            $google_fonts[] = $headerFontSettings['google_id'];
+        }
+
+        return ($protocol?$protocol.':':'').'//fonts.googleapis.com/css?family='.implode('|',$google_fonts);
+    }
+    
+    public function getHeaderFont(){
+        return $this->getFonts()['header'];
+    }
+    
+    public function getBodyFont(){
+        return $this->getFonts()['body'];
+    }
+    
+    public function getHeaderFontName(){
+        return static::$availableFonts[$this->getFonts()['header']]['name'];
+    }
+    
+    public function getBodyFontName(){
+        return static::$availableFonts[$this->getFonts()['body']]['name'];
+    }
+    
+    public function getHeaderFontCss($include_weight = true){
+        $font_data = static::$availableFonts[$this->getFonts()['header']];
+        $css = 'font-family:'.$font_data['css_name'].';';
+            
+        if($include_weight && !empty($font_data['css_weight'])){
+            $css .= 'font-weight:'.$font_data['css_weight'].';';
+        }
+            
+        return $css;
+    }
+    
+    public function getBodyFontCss($include_weight = true){
+        $font_data = static::$availableFonts[$this->getFonts()['body']];
+        $css = 'font-family:'.$font_data['css_name'].';';
+            
+        if($include_weight && !empty($font_data['css_weight'])){
+            $css .= 'font-weight:'.$font_data['css_weight'].';';
+        }
+            
+        return $css;
     }
 }
 
