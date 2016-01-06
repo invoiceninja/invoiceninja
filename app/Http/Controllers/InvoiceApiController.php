@@ -304,4 +304,10 @@ class InvoiceApiController extends BaseAPIController
         $headers = Utils::getApiHeaders();
         return Response::make($response, $error ? 400 : 200, $headers);
     }
+
+
+    public function update($invoiceId = null)
+    {
+        //PUT Stub
+    }
 }
