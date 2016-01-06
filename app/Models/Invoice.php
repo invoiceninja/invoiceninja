@@ -485,6 +485,93 @@ class Invoice extends EntityModel implements BalanceAffecting
         
         return $schedule[1]->getStart();
     }
+    
+    public function getDueDate($invoice_date = null){
+        if(!$this->is_recurring) {
+            return $this->due_date ? $this->due_date : null;
+        }
+        else{ 
+            $now = time();
+            if($invoice_date) {
+                // If $invoice_date is specified, all calculations are based on that date
+                if(is_numeric($invoice_date)) {
+                    $now = $invoice_date;
+                }
+                else if(is_string($invoice_date)) {
+                    $now = strtotime($invoice_date);
+                }
+                elseif ($invoice_date instanceof \DateTime) {
+                    $now = $invoice_date->getTimestamp();
+                }
+            }
+            
+            if($this->due_date){
+                // This is a recurring invoice; we're using a custom format here.
+                // The year is always 1998; January is 1st, 2nd, last day of the month.
+                // February is 1st Sunday after, 1st Monday after, ..., through 4th Saturday after.
+                $dueDateVal = strtotime($this->due_date);
+                $monthVal = (int)date('n', $dueDateVal);
+                $dayVal = (int)date('j', $dueDateVal);
+
+                if($monthVal == 1) {// January; day of month
+                    $currentDay = (int)date('j', $now);
+                    $lastDayOfMonth = (int)date('t', $now);
+
+                    $dueYear = (int)date('Y', $now);// This year
+                    $dueMonth = (int)date('n', $now);// This month
+                    $dueDay = $dayVal;// The day specified for the invoice
+
+                    if($dueDay > $lastDayOfMonth) {
+                        // No later than the end of the month
+                        $dueDay = $lastDayOfMonth;
+                    }
+
+                    if($currentDay >= $dueDay) {
+                        // Wait until next month
+                        // We don't need to handle the December->January wraparaound, since PHP handles month 13 as January of next year
+                        $dueMonth++;
+
+                        // Reset the due day
+                        $dueDay = $dayVal;
+                        $lastDayOfMonth = (int)date('t', mktime(0, 0, 0, $dueMonth, 1, $dueYear));// The number of days in next month
+
+                        // Check against the last day again
+                        if($dueDay > $lastDayOfMonth){
+                            // No later than the end of the month
+                            $dueDay = $lastDayOfMonth;
+                        }                    
+                    }
+
+                    $dueDate = mktime(0, 0, 0, $dueMonth, $dueDay, $dueYear);
+                }
+                else if($monthVal == 2) {// February; day of week
+                    $ordinals = array('first', 'second', 'third', 'fourth');
+                    $daysOfWeek = array('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday');
+
+                    $ordinalIndex = ceil($dayVal / 7) - 1;// 1-7 are "first"; 8-14 are "second", etc.
+                    $dayOfWeekIndex = ($dayVal - 1) % 7;// 1,8,15,22 are Sunday, 2,9,16,23 are Monday, etc.
+                    $dayStr = $ordinals[$ordinalIndex] . ' ' . $daysOfWeek[$dayOfWeekIndex];// "first sunday", "first monday", etc.
+
+                    $dueDate = strtotime($dayStr, $now);
+                }
+
+                if($dueDate) {
+                    return date('Y-m-d', $dueDate);// SQL format
+                }
+            }
+            else if ($this->client->payment_terms != 0) {
+                // No custom due date set for this invoice; use the client's payment terms
+                $days = $this->client->payment_terms;
+                if ($days == -1) {
+                    $days = 0;
+                }
+                return date('Y-m-d', strtotime('+'.$days.' day', $now));
+            }
+        }
+        
+        // Couldn't calculate one
+        return null;
+    }
 
     public function getPrettySchedule($min = 1, $max = 10)
     {
@@ -496,7 +583,14 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         for ($i=$min; $i<min($max, count($schedule)); $i++) {
             $date = $schedule[$i];
-            $date = $this->account->formatDate($date->getStart());
+            $dateStart = $date->getStart();
+            $date = $this->account->formatDate($dateStart);
+            $dueDate = $this->getDueDate($dateStart);
+            
+            if($dueDate) {
+                $date .= ' <small>(' . trans('texts.due') . ' ' . $this->account->formatDate($dueDate) . ')</small>';
+            }
+            
             $dates[] = $date;
         }
 
