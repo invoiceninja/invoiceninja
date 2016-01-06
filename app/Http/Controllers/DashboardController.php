@@ -6,6 +6,7 @@ use View;
 use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\VendorActivity;
 
 class DashboardController extends BaseController
 {
@@ -68,6 +69,13 @@ class DashboardController extends BaseController
                 ->take(50)
                 ->get();
 
+        $vendoractivities = VendorActivity::where('vendor_activities.account_id', '=', Auth::user()->account_id)
+                ->with('vendor.vendorcontacts', 'user', 'account')
+                ->where('activity_type_id', '>', 0)
+                ->orderBy('created_at', 'desc')
+                ->take(50)
+                ->get();
+                
         $pastDue = DB::table('invoices')
                     ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
                     ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -141,6 +149,7 @@ class DashboardController extends BaseController
             'payments' => $payments,
             'title' => trans('texts.dashboard'),
             'hasQuotes' => $hasQuotes,
+            'vendoractivities' => $vendoractivities,
         ];
 
         return View::make('dashboard', $data);

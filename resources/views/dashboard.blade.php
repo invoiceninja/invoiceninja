@@ -84,6 +84,13 @@
                     {!! $activity->getMessage() !!}
                 </li>
                 @endforeach
+                @foreach ($vendoractivities as $activity)
+                <li class="list-group-item">
+                    <span style="color:#888;font-style:italic">{{ Utils::timestampToDateString(strtotime($activity->created_at)) }}:</span>
+                    {!! $activity->getMessage() !!}
+                </li>
+                @endforeach
+                
             </ul>
         </div>  
     </div>

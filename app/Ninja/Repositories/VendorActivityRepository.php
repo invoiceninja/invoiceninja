@@ -68,9 +68,9 @@ class VendorActivityRepository
     public function findByVendorId($vendorId)
     {
         return DB::table('vendor_activities')
-                    ->join('accounts', 'accounts.id', '=', 'activities.account_id')
-                    ->join('users', 'users.id', '=', 'activities.user_id')
-                    ->join('vendors', 'vendors.id', '=', 'activities.vendor_id')
+                    ->join('accounts', 'accounts.id', '=', 'vendor_activities.account_id')
+                    ->join('users', 'users.id', '=', 'vendor_activities.user_id')
+                    ->join('vendors', 'vendors.id', '=', 'vendor_activities.vendor_id')
                     ->leftJoin('vendor_contacts', 'vendor_contacts.vendor_id', '=', 'vendors.id')
                     ->where('vendors.id', '=', $vendorId)
                     ->where('vendor_contacts.is_primary', '=', 1)

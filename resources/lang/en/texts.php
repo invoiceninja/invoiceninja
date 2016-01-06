@@ -892,6 +892,7 @@ return array(
     'activity_27' => ':user restored payment :payment',
     'activity_28' => ':user restored :credit credit',
     'activity_29' => ':contact approved quote :quote',
+    'activity_30' => ':user created :vendor',
 
     'payment' => 'Payment',
     'system' => 'System',
