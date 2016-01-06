@@ -28,7 +28,7 @@ use App\Events\InvoiceInvitationWasViewed;
 use App\Events\QuoteInvitationWasViewed;
 use App\Services\InvoiceService;
 use App\Services\RecurringInvoiceService;
-use App\Http\Requests\SaveInvoiceRequest;
+use App\Http\Requests\SaveInvoiceWithClientRequest;
 
 class InvoiceController extends BaseController
 {
@@ -440,7 +440,7 @@ class InvoiceController extends BaseController
      *
      * @return Response
      */
-    public function store(SaveInvoiceRequest $request)
+    public function store(SaveInvoiceWithClientRequest $request)
     {
         $action = Input::get('action');
         $entityType = Input::get('entityType');
@@ -474,7 +474,7 @@ class InvoiceController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function update(SaveInvoiceRequest $request)
+    public function update(SaveInvoiceWithClientRequest $request)
     {
         $action = Input::get('action');
         $entityType = Input::get('entityType');

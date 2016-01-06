@@ -876,7 +876,7 @@ class Account extends Eloquent
     }
     
     public function clientViewCSS(){
-        if (($this->isNinjaAccount() && $this->isPro()) || $this->isWhiteLabel()) {
+        if ((Utils::isNinja() && $this->isPro()) || $this->isWhiteLabel()) {
             return $this->client_view_css;
         }
         

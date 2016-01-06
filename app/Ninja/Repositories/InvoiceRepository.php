@@ -233,7 +233,11 @@ class InvoiceRepository extends BaseRepository
         if (isset($data['partial'])) {
             $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
         }
-        $invoice->invoice_date = isset($data['invoice_date_sql']) ? $data['invoice_date_sql'] : Utils::toSqlDate($data['invoice_date']);
+        if (isset($data['invoice_date_sql'])) {
+            $invoice->invoice_date = $data['invoice_date_sql'];
+        } elseif (isset($data['invoice_date'])) {
+            $invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
+        }
 
         if ($invoice->is_recurring) {
             if ($invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
