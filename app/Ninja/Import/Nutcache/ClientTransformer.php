@@ -13,19 +13,19 @@ class ClientTransformer extends BaseTransformer
 
         return new Item($data, function ($data) {
             return [
-                'name' => $data->name,
-                'city' => isset($data->city) ? $data->city : '',
-                'state' => isset($data->city) ? $data->stateprovince : '',
-                'id_number' => isset($data->registration_number) ? $data->registration_number : '',
-                'postal_code' => isset($data->postalzip_code) ? $data->postalzip_code : '',
-                'private_notes' => isset($data->notes) ? $data->notes : '',
-                'work_phone' => isset($data->phone) ? $data->phone : '',
+                'name' => $this->getString($data, 'name'),
+                'city' => $this->getString($data, 'city'),
+                'state' => $this->getString($data, 'stateprovince'),
+                'id_number' => $this->getString($data, 'registration_number'),
+                'postal_code' => $this->getString($data, 'postalzip_code'),
+                'private_notes' => $this->getString($data, 'notes'),
+                'work_phone' => $this->getString($data, 'phone'),
                 'contacts' => [
                     [
                         'first_name' => isset($data->contact_name) ? $this->getFirstName($data->contact_name) : '',
                         'last_name' => isset($data->contact_name) ? $this->getLastName($data->contact_name) : '',
-                        'email' => $data->email,
-                        'phone' => isset($data->mobile) ? $data->mobile : '',
+                        'email' => $this->getString($data, 'email'),
+                        'phone' => $this->getString($data, 'mobile'),
                     ],
                 ],
                 'country_id' => isset($data->country) ? $this->getCountryId($data->country) : null,

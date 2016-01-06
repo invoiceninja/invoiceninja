@@ -20,12 +20,12 @@ class InvoiceTransformer extends BaseTransformer
                 'client_id' => $this->getClientId($data->client),
                 'invoice_number' => $this->getInvoiceNumber($data->id),
                 'paid' => (float) $data->paid_amount,
-                'po_number' => $data->po_number,
+                'po_number' => $this->getString($data, 'po_number'),
                 'invoice_date_sql' => $this->getDate($data->issue_date, 'm/d/Y'),
                 'invoice_items' => [
                     [
                         'product_key' => '',
-                        'notes' => $data->subject,
+                        'notes' => $this->getString($data, 'subject'),
                         'cost' => (float) $data->invoice_amount,
                         'qty' => 1,
                     ]
