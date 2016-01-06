@@ -9,6 +9,7 @@ class VerifyCsrfToken extends BaseVerifier {
         'signup/register',
         'api/v1/login',
         'api/v1/clients',
+		'api/v1/invoices/*',
         'api/v1/invoices',
         'api/v1/quotes',
         'api/v1/payments',
