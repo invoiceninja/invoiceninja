@@ -2,8 +2,9 @@
 
 use App\Http\Requests\Request;
 use Illuminate\Validation\Factory;
+use App\Models\Invoice;
 
-class UpdateExpenseRequest extends Request
+class UpdatePaymentRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,9 +23,6 @@ class UpdateExpenseRequest extends Request
      */
     public function rules()
     {
-        return [
-            'amount' => 'required|positive',
-        ];
-
+        return [];
     }
 }

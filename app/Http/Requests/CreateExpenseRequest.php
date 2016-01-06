@@ -3,7 +3,7 @@
 use App\Http\Requests\Request;
 use Illuminate\Validation\Factory;
 
-class UpdateExpenseRequest extends Request
+class CreateExpenseRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,6 +25,5 @@ class UpdateExpenseRequest extends Request
         return [
             'amount' => 'required|positive',
         ];
-
     }
 }

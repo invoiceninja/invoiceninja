@@ -188,6 +188,21 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('api/vendor', array('as'=>'api.vendors', 'uses'=>'VendorController@getDatatable'));
     Route::get('api/vendoractivities/{vendor_id?}', array('as'=>'api.vendoractivities', 'uses'=>'VendorActivityController@getDatatable'));
     Route::post('vendors/bulk', 'VendorController@bulk');
+
+    // Expense
+    Route::get('expenses/{id}/edit', function() {
+        return View::make('header');
+    });
+
+    Route::resource('expenses', 'ExpenseController');
+    Route::get('expenses/create/{vendor_id?}', 'ExpenseController@create');
+    Route::get('api/expenses/{vendor_id?}', array('as'=>'api.expenses', 'uses'=>'ExpenseController@getDatatable'));
+
+    //Route::get('api/expenseactivities/{vendor_id?}', array('as'=>'api.expenseactivities', 'uses'=>'ExpenseActivityController@getDatatable'));
+    //Route::post('vendors/bulk', 'VendorController@bulk');
+    
+    
+    Route::post('expenses/bulk', 'ExpenseController@bulk');
         
 });
 
@@ -252,6 +267,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENV_STAGING', 'staging');
 
     define('RECENTLY_VIEWED', 'RECENTLY_VIEWED');
+
     define('ENTITY_CLIENT', 'client');
     define('ENTITY_CONTACT', 'contact');
     define('ENTITY_INVOICE', 'invoice');
@@ -346,6 +362,12 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACTIVITY_TYPE_DELETE_VENDOR', 32);
     define('ACTIVITY_TYPE_RESTORE_VENDOR', 33);
 
+    // expenses
+    define('ACTIVITY_TYPE_CREATE_EXPENSE', 34);
+    define('ACTIVITY_TYPE_ARCHIVE_EXPENSE', 35);
+    define('ACTIVITY_TYPE_DELETE_EXPENSE', 36);
+    define('ACTIVITY_TYPE_RESTORE_EXPENSE', 37);
+    
     define('DEFAULT_INVOICE_NUMBER', '0001');
     define('RECENTLY_VIEWED_LIMIT', 8);
     define('LOGGED_ERROR_LIMIT', 100);
@@ -378,7 +400,6 @@ if (!defined('CONTACT_EMAIL')) {
     define('MAX_NUM_VENDORS', 100);
     define('MAX_NUM_VENDORS_PRO', 20000);
     define('MAX_NUM_VENDORS_LEGACY', 500);
-    
     
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);

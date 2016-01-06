@@ -893,6 +893,13 @@ return array(
     'activity_28' => ':user restored :credit credit',
     'activity_29' => ':contact approved quote :quote',
     'activity_30' => ':user created :vendor',
+    'activity_31' => ':user created :vendor',
+    'activity_32' => ':user created :vendor',
+    'activity_33' => ':user created :vendor',
+    'activity_34' => ':user created :vendor',
+    'activity_35' => ':user created :vendor',
+    'activity_36' => ':user created :vendor',
+    'activity_37' => ':user created :vendor',
 
     'payment' => 'Payment',
     'system' => 'System',
@@ -1018,4 +1025,9 @@ return array(
     'archive_vendor' => 'Archive vendor',
     'delete_vendor' => 'Delete vendor',
     'view_vendor' => 'View vendor',
+    
+    // Expenses
+    'expense_amount' => 'Expense amount',
+    'expense_balance' => 'Expense balance',
+    'expense_date' => 'Expense date',
 );
