@@ -32,6 +32,7 @@ class CreateExpensesTable extends Migration
             $table->date('expense_date')->nullable();
             $table->string('expense_number')->nullable();
             $table->text('private_notes');
+			$table->text('public_notes');
             $table->integer('currency_id',false, true)->nullable();
 			$table->boolean('is_invoiced')->default(false);
 			$table->boolean('should_be_invoiced')->default(true);

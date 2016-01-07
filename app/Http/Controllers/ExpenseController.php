@@ -46,6 +46,7 @@ class ExpenseController extends BaseController
               'expense_balance',
               'expense_date',
               'private_notes',
+              'public_notes',
               ''
             ]),
         ));
@@ -92,7 +93,7 @@ class ExpenseController extends BaseController
     public function store(CreateExpenseRequest $request)
     {
         $expense = $this->expenseRepo->save($request->input());
-        
+
         Session::flash('message', trans('texts.created_expense'));
         
         return redirect()->to('expenses');

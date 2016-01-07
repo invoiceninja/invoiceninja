@@ -13,8 +13,18 @@ class ExpenseRepository extends BaseRepository
         return 'App\Models\Expense';
     }
 
-    public function find($vendorPublicId = null, $filter = null)
+    public function all()
     {
+        return Expense::scope()
+                ->with('user')
+                ->withTrashed()
+                ->where('is_deleted', '=', false)
+                ->get();
+    }
+    
+    public function find($filter = null)
+    {
+        /*
         $query = DB::table('expenses')
                     ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
                     ->join('vendors', 'vendors.id', '=', 'expenses.vendor_id')
@@ -39,21 +49,37 @@ class ExpenseRepository extends BaseRepository
                         'expenses.deleted_at',
                         'expenses.is_deleted'
                     );
-
-        if ($vendorPublicId) {
-            $query->where('vendors.public_id', '=', $vendorPublicId);
-        }
-
+        */
+        $accountid = \Auth::user()->account_id;
+        $query = DB::table('expenses')
+                    ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
+                    //->join('vendors', 'vendors.id', '=', 'expenses.vendor_id')
+                    ->where('expenses.account_id', '=', $accountid)
+                    ->where('expenses.deleted_at', '=', null)
+                    ->select(
+                        //DB::raw('COALESCE(vendors.currency_id, accounts.currency_id) currency_id'),
+                        //DB::raw('COALESCE(vendors.country_id, accounts.country_id) country_id'),
+                        'expenses.public_id',
+                        //'vendors.name as vendor_name',
+                        //'vendors.public_id as vendor_public_id',
+                        'expenses.amount',
+                        'expenses.balance',
+                        'expenses.expense_date',
+                        'expenses.public_notes',
+                        'expenses.deleted_at',
+                        'expenses.is_deleted'
+                    );
+        
         if (!\Session::get('show_trash:expense')) {
             $query->where('expenses.deleted_at', '=', null);
         }
-
+/*
         if ($filter) {
             $query->where(function ($query) use ($filter) {
                 $query->where('vendors.name', 'like', '%'.$filter.'%');
             });
         }
-
+*/
         return $query;
     }
 

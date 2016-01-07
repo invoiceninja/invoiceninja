@@ -190,20 +190,12 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('vendors/bulk', 'VendorController@bulk');
 
     // Expense
-    Route::get('expenses/{id}/edit', function() {
-        return View::make('header');
-    });
-
     Route::resource('expenses', 'ExpenseController');
     Route::get('expenses/create/{vendor_id?}', 'ExpenseController@create');
-    Route::get('api/expenses/{vendor_id?}', array('as'=>'api.expenses', 'uses'=>'ExpenseController@getDatatable'));
-
-    //Route::get('api/expenseactivities/{vendor_id?}', array('as'=>'api.expenseactivities', 'uses'=>'ExpenseActivityController@getDatatable'));
-    //Route::post('vendors/bulk', 'VendorController@bulk');
-    
-    
     Route::post('expenses/bulk', 'ExpenseController@bulk');
-        
+    Route::get('api/expense/', array('as'=>'api.expenses', 'uses'=>'ExpenseController@getDatatable'));
+    Route::get('api/expenseactivities/{vendor_id?}', array('as'=>'api.expenseactivities', 'uses'=>'ExpenseActivityController@getDatatable'));
+       
 });
 
 // Route groups for API

@@ -1,8 +1,5 @@
 <?php namespace App\Models;
 
-use Utils;
-use DB;
-use Carbon;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\ExpenseWasCreated;
@@ -15,9 +12,6 @@ class Expense extends EntityModel
     protected $dates = ['deleted_at'];
     protected $presenter = 'App\Ninja\Presenters\ExpensePresenter';
 
-  protected $fillable = [
-        'vendor_id',
-    ];    
     public function account()
     {
         return $this->belongsTo('App\Models\Account');

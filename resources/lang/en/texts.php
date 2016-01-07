@@ -896,7 +896,7 @@ return array(
     'activity_31' => ':user created :vendor',
     'activity_32' => ':user created :vendor',
     'activity_33' => ':user created :vendor',
-    'activity_34' => ':user created :vendor',
+    'activity_34' => ':user created :expense',
     'activity_35' => ':user created :vendor',
     'activity_36' => ':user created :vendor',
     'activity_37' => ':user created :vendor',
@@ -1030,4 +1030,6 @@ return array(
     'expense_amount' => 'Expense amount',
     'expense_balance' => 'Expense balance',
     'expense_date' => 'Expense date',
+    'expense_exchange_rate_100' => 'The amount for 100 in company currency',
+    'expense_should_be_invoiced' => 'Should this expense be invoiced?',
 );

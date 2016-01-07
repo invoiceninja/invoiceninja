@@ -5,6 +5,7 @@ use URL;
 use App\Services\BaseService;
 use App\Ninja\Repositories\ExpenseRepository;
 
+
 class ExpenseService extends BaseService
 {
     protected $expenseRepo;
@@ -26,33 +27,33 @@ class ExpenseService extends BaseService
         return $this->expenseRepo->save($data);
     }
 
-    public function getDatatable($vendorPublicId, $search)
+    public function getDatatable($search)
     {
-        $query = $this->expenseRepo->find($vendorPublicId, $search);
+        $query = $this->expenseRepo->find($search);
 
-        return $this->createDatatable(ENTITY_CREDIT, $query, !$vendorPublicId);
+        return $this->createDatatable(ENTITY_EXPENSE, $query);
     }
 
     protected function getDatatableColumns($entityType, $hideClient)
     {
         return [
-            [
+            /*[
                 'vendor_name',
                 function ($model) {
                     return $model->vendor_public_id ? link_to("vendors/{$model->vendor_public_id}", Utils::getVendorDisplayName($model)) : '';
                 },
                 ! $hideClient
-            ],
+            ],*/
             [
                 'amount',
                 function ($model) {
-                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id) . '<span '.Utils::getEntityRowClass($model).'/>';
+                    return Utils::formatMoney($model->amount, false, false) . '<span '.Utils::getEntityRowClass($model).'/>';
                 }
             ],
             [
                 'balance',
                 function ($model) {
-                    return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+                    return Utils::formatMoney($model->balance, false, false);
                 }
             ],
             [
@@ -62,14 +63,14 @@ class ExpenseService extends BaseService
                 }
             ],
             [
-                'private_notes',
+                'private_public',
                 function ($model) {
-                    return $model->private_notes;
+                    return $model->public_notes;
                 }
             ]
         ];
     }
-
+/*
     protected function getDatatableActions($entityType)
     {
         return [
@@ -81,4 +82,5 @@ class ExpenseService extends BaseService
             ]
         ];
     }
+    */
 }
