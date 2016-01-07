@@ -53,14 +53,14 @@ class AddInvoiceFontSupport extends Migration
     {
         if (Schema::hasColumn('accounts', 'header_font_id')) {
             Schema::table('accounts', function ($table) {
-                $table->dropForeign('accounts_header_font_foreign');
+                $table->dropForeign('accounts_header_font_id_foreign');
                 $table->dropColumn('header_font_id');
             });
         }
 
         if (Schema::hasColumn('accounts', 'body_font_id')) {
             Schema::table('accounts', function ($table) {
-                $table->dropForeign('accounts_body_font_foreign');
+                $table->dropForeign('accounts_body_font_id_foreign');
                 $table->dropColumn('body_font_id');
             });
         }
