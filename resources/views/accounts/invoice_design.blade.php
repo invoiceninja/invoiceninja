@@ -37,7 +37,6 @@
       $.each(window.invoiceFonts, function(i, font){
         if(font.id==fontId)fontFolder=font.folder;
       });
-      
       if(!window.ninjaFontVfs[fontFolder]){
         window.loadingFonts = true;
         jQuery.getScript({!! json_encode(asset('js/vfs_fonts/%s.js')) !!}.replace('%s', fontFolder), function(){window.loadingFonts=false;ninjaLoadFontVfs();refreshPDF()})
@@ -84,8 +83,8 @@
 
       $('#primary_color').spectrum(options);
       $('#secondary_color').spectrum(options);
-      $('#header_font_id').change(function(){loadFont($('#header_font').val())});
-      $('#body_font_id').change(function(){loadFont($('#body_font').val())});
+      $('#header_font_id').change(function(){loadFont($('#header_font_id').val())});
+      $('#body_font_id').change(function(){loadFont($('#body_font_id').val())});
       
       
       refreshPDF();
