@@ -36,14 +36,14 @@ class AddInvoiceFontSupport extends Migration {
 
 		Schema::table('accounts', function($table)
 		{
-			$table->unsignedInteger('header_font')->default(1);
-			$table->unsignedInteger('body_font')->default(1);
+			$table->unsignedInteger('header_font_id')->default(1);
+			$table->unsignedInteger('body_font_id')->default(1);
 		});
 
 		Schema::table('accounts', function($table)
 		{
-      		$table->foreign('header_font')->references('id')->on('fonts');
-			$table->foreign('body_font')->references('id')->on('fonts');
+      		$table->foreign('header_font_id')->references('id')->on('fonts');
+			$table->foreign('body_font_id')->references('id')->on('fonts');
 		});
 	}
 
@@ -54,21 +54,21 @@ class AddInvoiceFontSupport extends Migration {
 	 */
 	public function down()
 	{
-		if (Schema::hasColumn('accounts', 'header_font'))
+		if (Schema::hasColumn('accounts', 'header_font_id'))
 		{
 			Schema::table('accounts', function($table)
 			{
 				$table->dropForeign('accounts_header_font_foreign');
-				$table->dropColumn('header_font');
+				$table->dropColumn('header_font_id');
 			});
 		}
 		
-		if (Schema::hasColumn('accounts', 'body_font'))
+		if (Schema::hasColumn('accounts', 'body_font_id'))
 		{
 			Schema::table('accounts', function($table)
 			{
 				$table->dropForeign('accounts_body_font_foreign');
-				$table->dropColumn('body_font');
+				$table->dropColumn('body_font_id');
 			});
 		}
 

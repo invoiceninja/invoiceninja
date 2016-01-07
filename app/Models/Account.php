@@ -899,8 +899,8 @@ class Account extends Eloquent
     
     public function getFontsUrl($protocol = ''){
         if ($this->isPro()){
-            $bodyFont = $this->body_font;
-            $headerFont = $this->header_font;
+            $bodyFont = $this->body_font_id;
+            $headerFont = $this->header_font_id;
         }
         else{
             $bodyFont = DEFAULT_BODY_FONT;
@@ -920,15 +920,15 @@ class Account extends Eloquent
     }
     
     public function getHeaderFontName(){
-        return Utils::getFromCache($this->header_font, 'fonts')['name'];
+        return Utils::getFromCache($this->header_font_id, 'fonts')['name'];
     }
     
     public function getBodyFontName(){
-        return Utils::getFromCache($this->body_font, 'fonts')['name'];
+        return Utils::getFromCache($this->body_font_id, 'fonts')['name'];
     }
     
     public function getHeaderFontCss($include_weight = true){
-        $font_data = Utils::getFromCache($this->header_font, 'fonts');
+        $font_data = Utils::getFromCache($this->header_font_id, 'fonts');
         $css = 'font-family:'.$font_data['css_stack'].';';
             
         if($include_weight){
@@ -939,7 +939,7 @@ class Account extends Eloquent
     }
     
     public function getBodyFontCss($include_weight = true){
-        $font_data = Utils::getFromCache($this->body_font, 'fonts');
+        $font_data = Utils::getFromCache($this->body_font_id, 'fonts');
         $css = 'font-family:'.$font_data['css_stack'].';';
             
         if($include_weight){
@@ -950,7 +950,7 @@ class Account extends Eloquent
     }
     
     public function getFonts(){
-        return array_unique(array($this->header_font, $this->body_font));
+        return array_unique(array($this->header_font_id, $this->body_font_id));
     }
     
     public function getFontsData(){

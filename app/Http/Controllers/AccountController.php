@@ -690,8 +690,8 @@ class AccountController extends BaseController
             $account = Auth::user()->account;
             $account->hide_quantity = Input::get('hide_quantity') ? true : false;
             $account->hide_paid_to_date = Input::get('hide_paid_to_date') ? true : false;
-            $account->header_font = Input::get('header_font');
-            $account->body_font = Input::get('body_font');
+            $account->header_font_id = Input::get('header_font_id');
+            $account->body_font_id = Input::get('body_font_id');
             $account->primary_color = Input::get('primary_color');
             $account->secondary_color = Input::get('secondary_color');
             $account->invoice_design_id = Input::get('invoice_design_id');

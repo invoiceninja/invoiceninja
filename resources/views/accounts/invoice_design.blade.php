@@ -53,8 +53,8 @@
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
-      NINJA.headerFont = $('#header_font option:selected').text();
-      NINJA.bodyFont = $('#body_font option:selected').text();
+      NINJA.headerFont = $('#header_font_id option:selected').text();
+      NINJA.bodyFont = $('#body_font_id option:selected').text();
 
       var fields = ['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms'];
       invoiceLabels.old = {};
@@ -84,8 +84,8 @@
 
       $('#primary_color').spectrum(options);
       $('#secondary_color').spectrum(options);
-      $('#header_font').change(function(){loadFont($('#header_font').val())});
-      $('#body_font').change(function(){loadFont($('#body_font').val())});
+      $('#header_font_id').change(function(){loadFont($('#header_font').val())});
+      $('#body_font_id').change(function(){loadFont($('#body_font').val())});
       
       
       refreshPDF();
@@ -133,10 +133,10 @@
                                 ->style('display:inline; width:300px')
                                 ->fromQuery($invoiceDesigns, 'name', 'id') !!}
                       @endif
-                      {!! Former::select('header_font')
+                      {!! Former::select('header_font_id')
                               ->style('display:inline; width:300px')
                               ->fromQuery($invoiceFonts, 'name', 'id') !!}
-                      {!! Former::select('body_font')
+                      {!! Former::select('body_font_id')
                               ->style('display:inline; width:300px')
                               ->fromQuery($invoiceFonts, 'name', 'id') !!}
 
