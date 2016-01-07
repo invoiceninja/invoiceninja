@@ -377,7 +377,10 @@ class Utils
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat($format, $date);
 
-        return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
+        if(!$dateTime)
+            return $date;
+        else
+            return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
     }
 
     public static function fromSqlDate($date, $formatResult = true)
