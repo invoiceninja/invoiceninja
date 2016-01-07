@@ -1,5 +1,5 @@
 <?php namespace App\Models;
-
+// vendor
 use Auth;
 use Eloquent;
 use Utils;

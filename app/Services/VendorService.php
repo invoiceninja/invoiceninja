@@ -6,7 +6,7 @@ use Auth;
 use App\Services\BaseService;
 use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Repositories\NinjaRepository;
-
+// vendor
 class VendorService extends BaseService
 {
     protected $vendorRepo;

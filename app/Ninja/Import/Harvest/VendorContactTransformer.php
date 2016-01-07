@@ -2,7 +2,7 @@
 
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
-
+// vendor
 class VendorContactTransformer extends BaseTransformer
 {
     public function transform($data)

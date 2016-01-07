@@ -1,5 +1,5 @@
 <?php namespace App\Http\Controllers;
-
+// vendor
 use Auth;
 use DB;
 use Input;

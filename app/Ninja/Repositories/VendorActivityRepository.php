@@ -1,5 +1,5 @@
 <?php namespace App\Ninja\Repositories;
-
+// vendor
 use DB;
 use Auth;
 use Utils;

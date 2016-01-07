@@ -5,6 +5,7 @@ use Illuminate\Queue\SerializesModels;
 
 class VendorWasArchived extends Event
 {
+    // vendor
     use SerializesModels;
 
     public $vendor;

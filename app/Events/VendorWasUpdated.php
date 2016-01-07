@@ -1,5 +1,5 @@
 <?php namespace App\Events;
-
+// vendor
 use App\Events\Event;
 use Illuminate\Queue\SerializesModels;
 

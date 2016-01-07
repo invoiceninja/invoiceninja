@@ -25,7 +25,7 @@ use App\Services\VendorService;
 
 use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
-
+// vendor
 class VendorController extends BaseController
 {
     protected $vendorService;

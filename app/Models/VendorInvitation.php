@@ -3,7 +3,7 @@
 use Utils;
 use Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+// vendor
 class VendorInvitation extends EntityModel
 {
     use SoftDeletes;

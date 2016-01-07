@@ -2,7 +2,7 @@
 
 use Utils;
 use Laracasts\Presenter\Presenter;
-
+// vendor
 class VendorPresenter extends Presenter {
 
     public function country()

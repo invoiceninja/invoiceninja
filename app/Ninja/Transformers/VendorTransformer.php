@@ -5,6 +5,7 @@ use App\Models\Vendor;
 use App\Models\Contact;
 use League\Fractal;
 
+// vendor
 /**
  * @SWG\Definition(definition="Vendor", @SWG\Xml(name="Vendor"))
  */

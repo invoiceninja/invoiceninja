@@ -1,5 +1,5 @@
 <?php namespace app\Listeners;
-
+// vendor
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasDeleted;
 use App\Events\VendorWasArchived;

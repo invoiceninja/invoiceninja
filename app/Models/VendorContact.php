@@ -1,5 +1,5 @@
 <?php namespace App\Models;
-
+// vendor
 use HTML;
 
 use Illuminate\Database\Eloquent\SoftDeletes;

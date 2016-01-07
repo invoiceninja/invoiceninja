@@ -1,5 +1,5 @@
 <?php namespace app\Http\Requests;
-
+// vendor
 use App\Http\Requests\Request;
 use Illuminate\Validation\Factory;
 

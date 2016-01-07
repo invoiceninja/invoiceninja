@@ -5,6 +5,7 @@ use Illuminate\Queue\SerializesModels;
 
 class VendorWasRestored extends Event
 {
+    // vendor
     use SerializesModels;
 
     public $vendor;
