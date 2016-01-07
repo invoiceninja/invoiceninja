@@ -8,7 +8,7 @@ use Request;
 use Carbon;
 
 class ExpenseActivity extends Eloquent {
-
+    // Expenses
     public $timestamps = true;
 
     public function scopeScope($query)

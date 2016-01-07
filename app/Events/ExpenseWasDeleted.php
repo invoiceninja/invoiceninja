@@ -5,7 +5,7 @@ use App\Events\Event;
 use Illuminate\Queue\SerializesModels;
 
 class ExpenseWasDeleted extends Event {
-
+    // Expenses
 	use SerializesModels;
 
     public $expense;

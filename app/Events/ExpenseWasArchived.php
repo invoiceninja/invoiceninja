@@ -6,6 +6,7 @@ use Illuminate\Queue\SerializesModels;
 
 class ExpenseWasArchived extends Event {
 
+    // Expenses
 	use SerializesModels;
 
     public $expense;

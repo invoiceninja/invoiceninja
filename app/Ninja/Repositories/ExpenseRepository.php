@@ -8,6 +8,7 @@ use App\Ninja\Repositories\BaseRepository;
 
 class ExpenseRepository extends BaseRepository
 {
+    // Expenses
     public function getClassName()
     {
         return 'App\Models\Expense';

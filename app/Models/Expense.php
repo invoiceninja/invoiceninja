@@ -6,6 +6,7 @@ use App\Events\ExpenseWasCreated;
 
 class Expense extends EntityModel
 {
+    // Expenses
     use SoftDeletes;
     use PresentableTrait;
     

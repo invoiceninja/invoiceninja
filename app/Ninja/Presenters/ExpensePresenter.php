@@ -5,6 +5,7 @@ use Laracasts\Presenter\Presenter;
 
 class ExpensePresenter extends Presenter {
 
+    // Expenses
     public function vendor()
     {
         return $this->entity->vendor ? $this->entity->vendor->getDisplayName() : '';

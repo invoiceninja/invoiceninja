@@ -5,6 +5,7 @@ use Illuminate\Validation\Factory;
 
 class CreateExpenseRequest extends Request
 {
+    // Expenses 
     /**
      * Determine if the user is authorized to make this request.
      *

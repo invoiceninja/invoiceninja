@@ -8,6 +8,7 @@ use App\Ninja\Repositories\ExpenseRepository;
 
 class ExpenseService extends BaseService
 {
+       // Expenses
     protected $expenseRepo;
     protected $datatableService;
 

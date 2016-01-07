@@ -5,6 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateExpenseActivitiesTable extends Migration {
 
+    // Expenses model
 	/**
 	 * Run the migrations.
 	 *

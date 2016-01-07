@@ -10,6 +10,7 @@ use App\Models\Expense;
 
 class ExpenseActivityRepository
 {
+    // Expenses
     public function create(Expense $entity, $activityTypeId)
     {
         // init activity and copy over context

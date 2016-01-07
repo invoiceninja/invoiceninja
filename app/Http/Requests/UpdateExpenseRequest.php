@@ -2,9 +2,9 @@
 
 use App\Http\Requests\Request;
 use Illuminate\Validation\Factory;
-use App\Models\Invoice;
 
-class UpdatePaymentRequest extends Request
+
+class UpdateExpenseRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.

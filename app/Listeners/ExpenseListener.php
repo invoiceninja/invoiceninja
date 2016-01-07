@@ -7,6 +7,7 @@ use App\Ninja\Repositories\ExpenseRepository;
 
 class ExpenseListener
 {
+    // Expenses
     protected $expenseRepo;
 
     public function __construct(ExpenseRepository $expenseRepo)

@@ -17,6 +17,7 @@ use App\Http\Requests\CreateExpenseRequest;
 
 class ExpenseController extends BaseController
 {
+    // Expenses
     protected $expenseRepo;
     protected $expenseService;
 
