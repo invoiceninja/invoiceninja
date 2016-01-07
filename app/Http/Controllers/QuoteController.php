@@ -118,6 +118,7 @@ class QuoteController extends BaseController
           'languages' => Cache::get('languages'),
           'industries' => Cache::get('industries'),
           'invoiceDesigns' => InvoiceDesign::getDesigns(),
+          'invoiceFonts' => Cache::get('fonts'),
           'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
           'isRecurring' => false,
         ];

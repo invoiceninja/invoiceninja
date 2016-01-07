@@ -4,7 +4,10 @@
 	@parent
 
     @include('money_script')
-		<script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
+    @foreach ($account->getFontFolders() as $font)
+        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+    @endforeach
+        <script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
 
 @stop
 
@@ -14,6 +17,7 @@
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
+    var invoiceFonts = {!! $invoiceFonts !!};
     var invoice = {!! json_encode($invoice) !!};      
       
     function getDesignJavascript() {
@@ -21,13 +25,25 @@
       if (id == '-1') {
         showMoreDesigns(); 
         $('#invoice_design_id').val(1);
-        return invoiceDesigns[0].javascript;        
+        return invoiceDesigns[0].javascript;
       } else {        
         var design = _.find(invoiceDesigns, function(design){ return design.id == id});
         return design ? design.javascript : '';
       }
     }
 
+    function loadFont(fontId){
+      var fontFolder = '';
+      $.each(window.invoiceFonts, function(i, font){
+        if(font.id==fontId)fontFolder=font.folder;
+      });
+      
+      if(!window.ninjaFontVfs[fontFolder]){
+        window.loadingFonts = true;
+        jQuery.getScript({!! json_encode(asset('js/vfs_fonts/%s.js')) !!}.replace('%s', fontFolder), function(){window.loadingFonts=false;ninjaLoadFontVfs();refreshPDF()})
+      }
+    }
+    
     function getPDFString(cb) {
       invoice.is_pro = {!! Auth::user()->isPro() ? 'true' : 'false' !!};
       invoice.account.hide_quantity = $('#hide_quantity').is(":checked");
@@ -37,6 +53,8 @@
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
+      NINJA.headerFont = $('#header_font option:selected').text();
+      NINJA.bodyFont = $('#body_font option:selected').text();
 
       var fields = ['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms'];
       invoiceLabels.old = {};
@@ -66,7 +84,10 @@
 
       $('#primary_color').spectrum(options);
       $('#secondary_color').spectrum(options);
-
+      $('#header_font').change(function(){loadFont($('#header_font').val())});
+      $('#body_font').change(function(){loadFont($('#body_font').val())});
+      
+      
       refreshPDF();
     });
 
@@ -76,7 +97,7 @@
   <div class="row">
     <div class="col-md-12">
 
-      {!! Former::open()->addClass('warn-on-exit')->onchange('refreshPDF()') !!}
+      {!! Former::open()->addClass('warn-on-exit')->onchange('if(!window.loadingFonts)refreshPDF()') !!}
       {!! Former::populate($account) !!}
       {!! Former::populateField('hide_quantity', intval($account->hide_quantity)) !!}
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
@@ -112,6 +133,12 @@
                                 ->style('display:inline; width:300px')
                                 ->fromQuery($invoiceDesigns, 'name', 'id') !!}
                       @endif
+                      {!! Former::select('header_font')
+                              ->style('display:inline; width:300px')
+                              ->fromQuery($invoiceFonts, 'name', 'id') !!}
+                      {!! Former::select('body_font')
+                              ->style('display:inline; width:300px')
+                              ->fromQuery($invoiceFonts, 'name', 'id') !!}
 
                       {!! Former::text('font_size')
                             ->style('width:300px')
@@ -121,7 +148,7 @@
 
                       {!! Former::text('primary_color') !!}
                       {!! Former::text('secondary_color')
-                                ->help('<br/>'.trans('texts.color_help')) !!}
+                                ->help('<br/>'.trans('texts.color_font_help')) !!}
 
                     </div>
                 </div>

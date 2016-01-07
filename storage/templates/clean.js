@@ -90,6 +90,7 @@
     }
     ],
     "defaultStyle": {
+        "font": "$bodyFont",
         "fontSize": "$fontSize",
         "margin": [8, 4, 8, 4]
     },
@@ -104,6 +105,7 @@
     },
     "styles": {
         "entityTypeLabel": {
+            "font": "$headerFont",
             "fontSize": "$fontSizeLargest",
             "color": "$primaryColor:#37a3c6"
         },
@@ -187,10 +189,12 @@
             "bold": true
         },
         "header": {
+            "font": "$headerFont",
             "fontSize": "$fontSizeLargest",
             "bold": true
         },
         "subheader": {
+            "font": "$headerFont",
             "fontSize": "$fontSizeLarger"
         },
         "help": {
