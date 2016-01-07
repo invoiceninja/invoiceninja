@@ -25,7 +25,7 @@ class AddInvoiceFontSupport extends Migration
             $t->string('bold');
             $t->string('italics');
             $t->string('bolditalics');
-            $t->boolean('early_access');
+            $t->boolean('is_early_access');
             $t->unsignedInteger('sort_order')->default(10000);
         });
 
