@@ -7,7 +7,7 @@ use Session;
 use Request;
 use Carbon;
 
-class ExpenseAcitvity extends Eloquent {
+class ExpenseActivity extends Eloquent {
 
     public $timestamps = true;
 
