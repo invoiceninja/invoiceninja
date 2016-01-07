@@ -119,6 +119,12 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('settings/{section?}', 'AccountController@showSection');
     Route::post('settings/{section?}', 'AccountController@doSection');
     
+    // Payment term
+    Route::get('api/payment_terms', array('as'=>'api.payment_terms', 'uses'=>'PaymentTermController@getDatatable'));
+    Route::resource('payment_terms', 'PaymentTermController');
+    Route::post('payment_terms/bulk', 'PaymentTermController@bulk');
+
+    
     Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
     Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
@@ -278,6 +284,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_ACTIVITY', 'activity');
     define('ENTITY_VENDOR','vendor');
     define('ENTITY_EXPENSE', 'expense');
+    define('ENTITY_PAYMENT_TERM','payment_term');
     
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
@@ -308,6 +315,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_API_TOKENS', 'api_tokens');
     define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
     define('ACCOUNT_SYSTEM_SETTINGS', 'system_settings');
+    define('ACCOUNT_PAYMENT_TERMS','payment_terms');
 
     define('ACTION_RESTORE', 'restore');
     define('ACTION_ARCHIVE', 'archive');
@@ -568,7 +576,7 @@ if (!defined('CONTACT_EMAIL')) {
         'dateFormats' => 'App\Models\DateFormat',
         'datetimeFormats' => 'App\Models\DatetimeFormat',
         'languages' => 'App\Models\Language',
-        'paymentTerms' => 'App\Models\PaymentTerm',
+        //'paymentTerms' => 'App\Models\PaymentTerm',
         'paymentTypes' => 'App\Models\PaymentType',
         'countries' => 'App\Models\Country',
         'invoiceDesigns' => 'App\Models\InvoiceDesign',

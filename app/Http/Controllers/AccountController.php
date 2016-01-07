@@ -20,6 +20,7 @@ use App\Models\Account;
 use App\Models\Gateway;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
+use App\Models\PaymentTerm;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ReferralRepository;
 use App\Ninja\Mailers\UserMailer;
@@ -158,6 +159,8 @@ class AccountController extends BaseController
             return self::showProducts();
         } elseif ($section === ACCOUNT_TAX_RATES) {
             return self::showTaxRates();
+        } elseif ($section === ACCOUNT_PAYMENT_TERMS) {
+            return self::showPaymentTerms();
         } elseif ($section === ACCOUNT_SYSTEM_SETTINGS) {
             return self::showSystemSettings();
         } else {
@@ -313,6 +316,17 @@ class AccountController extends BaseController
         return View::make('accounts.tax_rates', $data);
     }
 
+    private function showPaymentTerms()
+    {
+        $data = [
+            'account' => Auth::user()->account,
+            'title' => trans('texts.payment_terms'),
+            'taxRates' => PaymentTerm::scope()->get(['id', 'name', 'num_days']),
+        ];
+
+        return View::make('accounts.payment_terms', $data);
+    }
+    
     private function showInvoiceDesign($section)
     {
         $account = Auth::user()->account->load('country');
@@ -443,6 +457,8 @@ class AccountController extends BaseController
             return AccountController::saveProducts();
         } elseif ($section === ACCOUNT_TAX_RATES) {
             return AccountController::saveTaxRates();
+        } elseif ($section === ACCOUNT_PAYMENT_TERMS) {
+            return AccountController::savePaymetTerms();
         }
     }
 

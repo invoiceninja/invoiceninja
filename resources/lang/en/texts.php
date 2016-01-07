@@ -1032,4 +1032,11 @@ return array(
     'expense_date' => 'Expense date',
     'expense_exchange_rate_100' => 'The amount for 100 in company currency',
     'expense_should_be_invoiced' => 'Should this expense be invoiced?',
+    
+    // Payment terms
+    'num_days' => 'Number of days',
+    'create_payment_term' => 'Create payment term',
+    'edit_payment_terms' => 'Edit payment term',
+    'edit_payment_term' => 'Edit payment term',
+    'archive_payment_term' => 'Archive payment term',
 );

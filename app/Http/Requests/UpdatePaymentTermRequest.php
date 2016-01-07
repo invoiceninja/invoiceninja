@@ -3,7 +3,6 @@
 use App\Http\Requests\Request;
 use Illuminate\Validation\Factory;
 
-
 class UpdateExpenseRequest extends Request
 {
     /**
@@ -23,8 +22,9 @@ class UpdateExpenseRequest extends Request
      */
     public function rules()
     {
-          return [
+        return [
             'amount' => 'required|positive',
         ];
+
     }
 }
