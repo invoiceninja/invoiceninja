@@ -1027,8 +1027,8 @@ return array(
     'saturday' => 'Saturday',
 
     // Fonts
-    'header_font' => 'Header Font',
-    'body_font' => 'Body Font',
+    'header_font_id' => 'Header Font',
+    'body_font_id' => 'Body Font',
     'color_font_help' => 'Note: the primary color and fonts are also used in the client portal and custom email designs.',
 
 );
