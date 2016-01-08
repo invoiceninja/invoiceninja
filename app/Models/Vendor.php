@@ -8,16 +8,14 @@ use App\Events\VendorWasUpdated;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Vendor extends EntityModel {
-
+class Vendor extends EntityModel
+{
     use PresentableTrait;
     use SoftDeletes;
 
-    protected $presenter = 'App\Ninja\Presenters\VendorPresenter';
-
-    protected $dates = ['deleted_at'];
-
-    protected $fillable = [
+    protected $presenter    = 'App\Ninja\Presenters\VendorPresenter';
+    protected $dates        = ['deleted_at'];
+    protected $fillable     = [
         'name',
         'id_number',
         'vat_number',
@@ -39,15 +37,15 @@ class Vendor extends EntityModel {
         'website',
     ];
 
-    public static $fieldName = 'name';
-    public static $fieldPhone = 'work_phone';
-    public static $fieldAddress1 = 'address1';
-    public static $fieldAddress2 = 'address2';
-    public static $fieldCity = 'city';
-    public static $fieldState = 'state';
-    public static $fieldPostalCode = 'postal_code';
-    public static $fieldNotes = 'notes';
-    public static $fieldCountry = 'country';
+    public static $fieldName        = 'name';
+    public static $fieldPhone       = 'work_phone';
+    public static $fieldAddress1    = 'address1';
+    public static $fieldAddress2    = 'address2';
+    public static $fieldCity        = 'city';
+    public static $fieldState       = 'state';
+    public static $fieldPostalCode  = 'postal_code';
+    public static $fieldNotes       = 'notes';
+    public static $fieldCountry     = 'country';
 
     public static function getImportColumns()
     {
@@ -165,12 +163,10 @@ class Vendor extends EntityModel {
         return "/vendors/{$this->public_id}";
     }
 
-	
     public function getTotalCredit()
     {
         return 0;
     }
-	
 	
     public function getName()
     {
@@ -231,7 +227,6 @@ class Vendor extends EntityModel {
         }
     }
 
-
     public function getGatewayToken()
     {
         $this->account->load('account_gateways');
@@ -269,19 +264,6 @@ class Vendor extends EntityModel {
 
         return $this->account->currency_id ?: DEFAULT_CURRENCY;
     }
-
-	/*
-    public function getCounter($isQuote)
-    {
-        return $isQuote ? $this->quote_number_counter : $this->invoice_number_counter;
-    }
-	*/
-	
-    public function markLoggedIn()
-    {
-        //$this->last_login = Carbon::now()->toDateTimeString();
-        $this->save();
-    }	
 }
 
 Vendor::creating(function ($vendor) {

@@ -46,36 +46,19 @@ class ExpenseActivityRepository
     }
     
     
-    public function findByVendorId($vendorId)
+    public function findByExpenseId($expenseId)
     {
         return DB::table('expense_activities')
-                    ->join('accounts', 'accounts.id', '=', 'vendor_activities.account_id')
-                    ->join('users', 'users.id', '=', 'vendor_activities.user_id')
-                    ->join('vendors', 'vendors.id', '=', 'vendor_activities.vendor_id')
-                    ->leftJoin('vendor_contacts', 'vendor_contacts.vendor_id', '=', 'vendors.id')
-                    ->where('vendors.id', '=', $vendorId)
-                    ->where('vendor_contacts.is_primary', '=', 1)
-                    ->whereNull('vendor_contacts.deleted_at')
-                    ->select(
-                        DB::raw('COALESCE(vendors.currency_id, accounts.currency_id) currency_id'),
-                        DB::raw('COALESCE(vendors.country_id, accounts.country_id) country_id'),
-                        'vendor_activities.id',
-                        'vendor_activities.created_at',
-                        'vendor_activities.contact_id',
-                        'vendor_activities.activity_type_id',
-                        'vendor_activities.is_system',
-                        'vendor_activities.balance',
-                        'vendor_activities.adjustment',
+                    ->join('accounts', 'accounts.id', '=', 'expense_activities.account_id')
+                    ->join('users', 'users.id', '=', 'expense_activities.user_id')
+                    ->join('expenses','expenses.public_id', '=', 'expense_activities.expense_id')
+                    ->where('expense_activities.expense_id', '=', $expenseId)
+                    ->select('*',
                         'users.first_name as user_first_name',
                         'users.last_name as user_last_name',
                         'users.email as user_email',
-                        'vendors.name as vendor_name',
-                        'vendors.public_id as vendor_public_id',
-                        'vendor_contacts.id as contact',
-                        'vendor_contacts.first_name as first_name',
-                        'vendor_contacts.last_name as last_name',
-                        'vendor_contacts.email as email'
-                        
-                    );
+                        'expenses.amount'
+                             );
+
     }
 }

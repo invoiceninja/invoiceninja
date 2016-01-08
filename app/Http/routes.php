@@ -283,8 +283,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_PRODUCT', 'product');
     define('ENTITY_ACTIVITY', 'activity');
     define('ENTITY_VENDOR','vendor');
+    define('ENTITY_VENDOR_ACTIVITY','vendor_activity');
     define('ENTITY_EXPENSE', 'expense');
     define('ENTITY_PAYMENT_TERM','payment_term');
+    define('ENTITY_EXPENSE_ACTIVITY','expense_activity');
     
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');

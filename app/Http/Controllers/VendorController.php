@@ -56,7 +56,6 @@ class VendorController extends BaseController
               'contact',
               'email',
               'date_created',
-              //'last_login',
               'balance',
               ''
             ]),
@@ -94,7 +93,7 @@ class VendorController extends BaseController
         Utils::trackViewed($vendor->getDisplayName(), 'vendor');
 
         $actionLinks = [
-            ['label' => trans('texts.new_expense'), 'url' => '/expenses/create/'.$vendor->public_id]
+            ['label' => trans('texts.new_vendor'), 'url' => '/vendors/create/'.$vendor->public_id]
         ];
 
         $data = array(

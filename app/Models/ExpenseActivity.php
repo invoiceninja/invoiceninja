@@ -46,13 +46,12 @@ class ExpenseActivity extends Eloquent {
         $isSystem       = $this->is_system;
         $expense        = $this->expense;
 
-        if($expense) {
-            $route = link_to($expense->getRoute(), $vendor->getDisplayName());
+        if($expense)
+        {
+            $route = link_to($expense->getRoute(), $expense->getDisplayName());
         } else {
             $route ='no expense id';
         }
-        
-        
 
         $data = [
                 'expense' => $route,

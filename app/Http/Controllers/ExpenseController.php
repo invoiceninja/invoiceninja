@@ -1,5 +1,7 @@
 <?php namespace App\Http\Controllers;
 
+use Debugbar;
+use DB;
 use Auth;
 use Datatable;
 use Utils;
@@ -11,9 +13,11 @@ use Session;
 use Redirect;
 use Cache;
 use App\Models\Vendor;
+use App\Models\Expense;
 use App\Services\ExpenseService;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Http\Requests\CreateExpenseRequest;
+use App\Http\Requests\UpdateExpenseRequest;
 
 class ExpenseController extends BaseController
 {
@@ -39,35 +43,39 @@ class ExpenseController extends BaseController
         return View::make('list', array(
             'entityType' => ENTITY_EXPENSE,
             'title' => trans('texts.expenses'),
-            'sortCol' => '4',
+            'sortCol' => '1',
             'columns' => Utils::trans([
-              'checkbox',
               'vendor',
               'expense_amount',
-              'expense_balance',
               'expense_date',
-              'private_notes',
               'public_notes',
-              ''
+              'is_invoiced',
+              'should_be_invoiced',
+              'expense'
             ]),
         ));
     }
 
-    public function getDatatable($vendorPublicId = null)
+    public function getDatatable($expensePublicId = null)
     {
-        return $this->expenseService->getDatatable($vendorPublicId, Input::get('sSearch'));
+        return $this->expenseService->getDatatable($expensePublicId, Input::get('sSearch'));
     }
 
     public function create($vendorPublicId = 0)
     {
-        $vendor = Vendor::scope($vendorPublicId)->with('vendorcontacts')->firstOrFail();
+        if($vendorPublicId != 0) {
+            $vendor = Vendor::scope($vendorPublicId)->with('vendorcontacts')->firstOrFail();
+        } else {
+            $vendor = null;
+        }
         $data = array(
             'vendorPublicId' => Input::old('vendor') ? Input::old('vendor') : $vendorPublicId,
             'expense' => null,
             'method' => 'POST',
             'url' => 'expenses',
             'title' => trans('texts.new_expense'),
-            'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(), 
+            'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(),
+            'vendor' => $vendor,
             );
 
         $data = array_merge($data, self::getViewModel());
@@ -86,11 +94,35 @@ class ExpenseController extends BaseController
             'method' => 'PUT',
             'url' => 'expenses/'.$publicId,
             'title' => 'Edit Expense',
-            'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(), );
+            'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(),
+            'vendorPublicId' => $expense->vendor_id);
 
-        return View::make('expense.edit', $data);
+        $data = array_merge($data, self::getViewModel());
+
+        if (Auth::user()->account->isNinjaAccount()) {
+            if ($account = Account::whereId($client->public_id)->first()) {
+                $data['proPlanPaid'] = $account['pro_plan_paid'];
+            }
+        }
+            
+        return View::make('expenses.edit', $data);
     }
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int      $id
+     * @return Response
+     */
+    public function update(UpdateExpenseRequest $request)
+    {
+        $client = $this->expenseRepo->save($request->input());
+        
+        Session::flash('message', trans('texts.updated_expense'));
+        
+        return redirect()->to('expenses');
+    }
+    
     public function store(CreateExpenseRequest $request)
     {
         $expense = $this->expenseRepo->save($request->input());
@@ -129,5 +161,28 @@ class ExpenseController extends BaseController
             'customLabel2' => Auth::user()->account->custom_vendor_label2,
         ];
     }
-    
+
+    public function show($publicId)
+    {
+        $expense = Expense::withTrashed()->scope($publicId)->firstOrFail();
+        
+        if($expense) {
+            Utils::trackViewed($expense->getDisplayName(), 'expense');
+        }
+
+        $actionLinks = [
+            ['label' => trans('texts.new_expense'), 'url' => '/expenses/create/']
+        ];
+
+        $data = array(
+            'actionLinks' => $actionLinks,
+            'showBreadcrumbs' => false,
+            'expense' => $expense,
+            'credit' =>0,
+            'vendor' => $expense->vendor,
+            'title' => trans('texts.view_expense',['expense' => $expense->public_id]),
+        );
+
+        return View::make('expenses.show', $data);
+    }    
 }

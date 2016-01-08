@@ -1,5 +1,6 @@
 <?php namespace App\Services;
 
+use DB;
 use Utils;
 use URL;
 use App\Services\BaseService;
@@ -38,23 +39,29 @@ class ExpenseService extends BaseService
     protected function getDatatableColumns($entityType, $hideClient)
     {
         return [
-            /*[
-                'vendor_name',
-                function ($model) {
-                    return $model->vendor_public_id ? link_to("vendors/{$model->vendor_public_id}", Utils::getVendorDisplayName($model)) : '';
+            [
+                'vendor_id',
+                function ($model)
+                {
+                    if($model->vendor_id) {
+                     
+                        $vendors = DB::table('vendors')->where('public_id', '=',$model->vendor_id)->select('id', 'public_id','name')->get();
+                        // should only be one!
+                        $vendor = $vendors[0];
+
+                        if($vendor) {
+                            return link_to("vendors/{$vendor->public_id}", $vendor->name);
+                        }
+                        return 'no vendor: ' . $model->vendor_id;
+                    } else {
+                        return 'No vendor:' ;
+                    }
                 },
-                ! $hideClient
-            ],*/
+            ],
             [
                 'amount',
                 function ($model) {
-                    return Utils::formatMoney($model->amount, false, false) . '<span '.Utils::getEntityRowClass($model).'/>';
-                }
-            ],
-            [
-                'balance',
-                function ($model) {
-                    return Utils::formatMoney($model->balance, false, false);
+                    return Utils::formatMoney($model->amount, false, false);
                 }
             ],
             [
@@ -64,11 +71,29 @@ class ExpenseService extends BaseService
                 }
             ],
             [
-                'private_public',
+                'public_notes',
                 function ($model) {
-                    return $model->public_notes;
+                    return $model->public_notes != null ? $model->public_notes : '';
                 }
-            ]
+            ],
+            [
+                'is_invoiced',
+                function ($model) {
+                    return $model->is_invoiced ? trans('texts.expense_is_invoiced') : trans('texts.expense_is_not_invoiced');
+                }
+            ],
+            [
+                'should_be_invoiced',
+                function ($model) {
+                    return $model->should_be_invoiced ? trans('texts.yes') : trans('texts.no');
+                }
+            ],
+            [
+                'public_id',
+                function($model) {
+                   return link_to("expenses/{$model->public_id}", trans('texts.view_expense', ['expense' => $model->public_id]));
+                }
+             ]
         ];
     }
 /*

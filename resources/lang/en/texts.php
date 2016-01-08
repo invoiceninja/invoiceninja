@@ -1015,6 +1015,7 @@ return array(
     'white_label_purchase_link' => 'Purchase a white label license',
 
     // Expense / vendor
+    'expense' => 'Expense',
     'expenses' => 'Expenses',
     'new_expense' => 'Create expense',
     'vendors' => 'Vendors',
@@ -1032,6 +1033,20 @@ return array(
     'expense_date' => 'Expense date',
     'expense_exchange_rate_100' => 'The amount for 100 in company currency',
     'expense_should_be_invoiced' => 'Should this expense be invoiced?',
+    'public_notes' => 'Public notes',
+    'expense_amount_in_cur' => 'Expense amount in curency',
+    'is_invoiced' => 'Is invoiced',
+    'expense_is_not_invoiced' => 'Expense not invoiced',
+    'expense_is_invoiced' => 'Expense invoiced',
+    'yes' => 'Yes',
+    'no' => 'No',
+    'should_be_invoiced' => 'Should be invoiced',
+    'view_expense' => 'View expense # :expense',
+    'edit_expense' => 'Edit expense',
+    'archive_expense' => 'Archive expense',
+    'delete_expense' => 'Delete expense',
+    'view_expense_num' => 'Expense # :expense',
+    'updated_expense' => 'Expense updated',
     
     // Payment terms
     'num_days' => 'Number of days',

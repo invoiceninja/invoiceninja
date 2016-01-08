@@ -25,6 +25,8 @@ class UpdateExpenseRequest extends Request
     {
           return [
             'amount' => 'required|positive',
+       		'public_notes' => 'required',
+    		'expense_date' => 'required',
         ];
     }
 }

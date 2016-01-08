@@ -27,11 +27,9 @@ class CreateExpensesTable extends Migration
             
             $table->boolean('is_deleted')->default(false);
             $table->decimal('amount', 13, 2);
-			$table->decimal('amountcur', 13, 2);
+			$table->decimal('amount_cur', 13, 2);
 			$table->decimal('exchange_rate', 13, 2);
-            $table->decimal('balance', 13, 2);
             $table->date('expense_date')->nullable();
-            $table->string('expense_number')->nullable();
             $table->text('private_notes');
 			$table->text('public_notes');
             $table->integer('currency_id',false, true)->nullable();

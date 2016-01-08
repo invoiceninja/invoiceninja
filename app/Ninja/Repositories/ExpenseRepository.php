@@ -5,6 +5,7 @@ use Utils;
 use App\Models\Expense;
 use App\Models\Vendor;
 use App\Ninja\Repositories\BaseRepository;
+use Session;
 
 class ExpenseRepository extends BaseRepository
 {
@@ -25,62 +26,37 @@ class ExpenseRepository extends BaseRepository
     
     public function find($filter = null)
     {
-        /*
-        $query = DB::table('expenses')
-                    ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
-                    ->join('vendors', 'vendors.id', '=', 'expenses.vendor_id')
-                    ->join('vendor_contacts', 'vendor_contacts.vendor_id', '=', 'vendors.id')
-                    ->where('vendors.account_id', '=', \Auth::user()->account_id)
-                    ->where('vendors.deleted_at', '=', null)
-                    ->where('vendor_contacts.deleted_at', '=', null)
-                    ->where('vendor_contacts.is_primary', '=', true)
-                    ->select(
-                        DB::raw('COALESCE(vendors.currency_id, accounts.currency_id) currency_id'),
-                        DB::raw('COALESCE(vendors.country_id, accounts.country_id) country_id'),
-                        'expenses.public_id',
-                        'vendors.name as vendor_name',
-                        'vendors.public_id as vendor_public_id',
-                        'expenses.amount',
-                        'expenses.balance',
-                        'expenses.expense_date',
-                        'vendor_contacts.first_name',
-                        'vendor_contacts.last_name',
-                        'vendor_contacts.email',
-                        'expenses.private_notes',
-                        'expenses.deleted_at',
-                        'expenses.is_deleted'
-                    );
-        */
         $accountid = \Auth::user()->account_id;
         $query = DB::table('expenses')
                     ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
-                    //->join('vendors', 'vendors.id', '=', 'expenses.vendor_id')
                     ->where('expenses.account_id', '=', $accountid)
                     ->where('expenses.deleted_at', '=', null)
-                    ->select(
-                        //DB::raw('COALESCE(vendors.currency_id, accounts.currency_id) currency_id'),
-                        //DB::raw('COALESCE(vendors.country_id, accounts.country_id) country_id'),
-                        'expenses.public_id',
-                        //'vendors.name as vendor_name',
-                        //'vendors.public_id as vendor_public_id',
+                    ->select('expenses.account_id',
                         'expenses.amount',
-                        'expenses.balance',
-                        'expenses.expense_date',
-                        'expenses.public_notes',
+                        'expenses.amount_cur',
+                        'expenses.currency_id',
                         'expenses.deleted_at',
-                        'expenses.is_deleted'
-                    );
-        
+                        'expenses.exchange_rate',
+                        'expenses.expense_date',
+                        'expenses.id',
+                        'expenses.is_deleted',
+                        'expenses.is_invoiced',
+                        'expenses.private_notes',
+                        'expenses.public_id',
+                        'expenses.public_notes',
+                        'expenses.should_be_invoiced',
+                        'expenses.vendor_id');
+
         if (!\Session::get('show_trash:expense')) {
             $query->where('expenses.deleted_at', '=', null);
         }
-/*
+
         if ($filter) {
             $query->where(function ($query) use ($filter) {
-                $query->where('vendors.name', 'like', '%'.$filter.'%');
+                $query->where('expenses.public_notes', 'like', '%'.$filter.'%');
             });
         }
-*/
+
         return $query;
     }
 
@@ -94,26 +70,43 @@ class ExpenseRepository extends BaseRepository
             $expense = Expense::createNew();
         }
 
-        // First auto fille
+        // First auto fill
         $expense->fill($input);
         
         // We can have an expense without a vendor
         if(isset($input['vendor'])) {
-            $expense->vendor_id = Vendor::getPrivateId($input['vendor']);    
+            $expense->vendor_id = $input['vendor'];    
         }
         
         $expense->expense_date = Utils::toSqlDate($input['expense_date']);
         $expense->amount = Utils::parseFloat($input['amount']);
         
-        if(isset($input['amountcur']))
-            $expense->amountcur = Utils::parseFloat($input['amountcur']);
+        if(isset($input['amount_cur']))
+            $expense->amount_cur = Utils::parseFloat($input['amount_cur']);
         
-        $expense->balance = Utils::parseFloat($input['amount']);
         $expense->private_notes = trim($input['private_notes']);
+        $expense->public_notes = trim($input['public_notes']);
         
         if(isset($input['exchange_rate']))
             $expense->exchange_rate = Utils::parseFloat($input['exchange_rate']);
+        else
+            $expense->exchange_rate = 100;
+        
+        if($expense->exchange_rate == 0)
+            $expense->exchange_rate = 100;
+            
+        // set the currency
+        if(isset($input['currency_id']))
+            $expense->currency_id = $input['currency_id'];
+        
+        if($expense->currency_id == 0)
+            $expense->currency_id = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
+        
+        // Calculate the amount cur
+        $expense->amount_cur = ($expense->amount / 100) * $expense->exchange_rate;
 
+
+        $expense->should_be_invoiced = isset($input['should_be_invoiced']) ? true : false;
         $expense->save();
 
         return $expense;

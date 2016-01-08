@@ -3,17 +3,17 @@
 use App\Events\Event;
 use Illuminate\Queue\SerializesModels;
 
-class ExpenseWasCreated extends Event
+class ExpenseWasUpdated extends Event
 {
-	use SerializesModels;
-    
+    use SerializesModels;
+
     public $expense;
 
-	/**
-	 * Create a new event instance.
-	 *
-	 * @return void
-	 */
+    /**
+     * Create a new event instance.
+     *
+     * @return void
+     */
     public function __construct($expense)
     {
         $this->expense = $expense;

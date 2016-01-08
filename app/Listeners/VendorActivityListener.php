@@ -29,19 +29,19 @@ class VendorActivityListener
     {
         $this->activityRepo->create(
             $event->vendor,
-            ACTIVITY_TYPE_DELETE_CLIENT
+            ACTIVITY_TYPE_DELETE_VENDOR
         );
     }
 
     public function archivedVendor(VendorWasArchived $event)
     {
-        if ($event->client->is_deleted) {
+        if ($event->vendor->is_deleted) {
             return;
         }
 
         $this->activityRepo->create(
             $event->vendor,
-            ACTIVITY_TYPE_ARCHIVE_CLIENT
+            ACTIVITY_TYPE_ARCHIVE_VENDOR
         );
     }
 
@@ -49,7 +49,7 @@ class VendorActivityListener
     {
         $this->activityRepo->create(
             $event->vendor,
-            ACTIVITY_TYPE_RESTORE_CLIENT
+            ACTIVITY_TYPE_RESTORE_VENDOR
         );
     }
 }

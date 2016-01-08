@@ -7,6 +7,7 @@ use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\VendorActivity;
+use App\Models\ExpenseActivity;
 
 class DashboardController extends BaseController
 {
@@ -71,6 +72,12 @@ class DashboardController extends BaseController
 
         $vendoractivities = VendorActivity::where('vendor_activities.account_id', '=', Auth::user()->account_id)
                 ->with('vendor.vendorcontacts', 'user', 'account')
+                ->where('activity_type_id', '>', 0)
+                ->orderBy('created_at', 'desc')
+                ->take(50)
+                ->get();
+                
+        $expenseactivities = ExpenseActivity::where('expense_activities.account_id', '=', Auth::user()->account_id)
                 ->where('activity_type_id', '>', 0)
                 ->orderBy('created_at', 'desc')
                 ->take(50)
@@ -150,6 +157,7 @@ class DashboardController extends BaseController
             'title' => trans('texts.dashboard'),
             'hasQuotes' => $hasQuotes,
             'vendoractivities' => $vendoractivities,
+            'expenseactivities' => $expenseactivities,
         ];
 
         return View::make('dashboard', $data);
