@@ -104,6 +104,12 @@ class ExpenseService extends BaseService
                     return URL::to("expenses/{$model->public_id}") ;
                 }
             ],
+            [
+                trans('texts.edit'),
+                function ($model) {
+                    return URL::to("expenses/{$model->public_id}/edit") ;
+                }
+            ],
             
         ];
     }

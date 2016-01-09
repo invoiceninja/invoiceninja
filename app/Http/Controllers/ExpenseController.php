@@ -100,7 +100,8 @@ class ExpenseController extends BaseController
             'title' => 'Edit Expense',
             'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(),
             'vendorPublicId' => $expense->vendor_id,
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get()
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'clientPublicId' => $expense->invoice_client_id,
             );
 
         $data = array_merge($data, self::getViewModel());

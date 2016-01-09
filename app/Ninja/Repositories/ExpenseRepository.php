@@ -125,4 +125,28 @@ class ExpenseRepository extends BaseRepository
 
         return $expense;
     }
+    
+    public function bulk($ids, $action)
+    {
+        $expenses = Expense::withTrashed()->scope($ids)->get();
+
+        foreach ($expenses as $expense) {
+            if ($action == 'restore') {
+                $expense->restore();
+
+                $expense->is_deleted = false;
+                $expense->save();
+            } else {
+                if ($action == 'delete') {
+                    $expense->is_deleted = true;
+                    $expense->save();
+                }
+
+                $expense->delete();
+            }
+        }
+
+        return count($tasks);
+    }
+    
 }
