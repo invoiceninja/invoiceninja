@@ -20,6 +20,7 @@ class Account extends Eloquent
     protected $presenter = 'App\Ninja\Presenters\AccountPresenter';
     protected $dates = ['deleted_at'];
     protected $hidden = ['ip'];
+    public $fonts_obj = null;
 
     public static $basicSettings = [
         ACCOUNT_COMPANY_DETAILS,
@@ -876,11 +877,94 @@ class Account extends Eloquent
     }
     
     public function clientViewCSS(){
-        if ((Utils::isNinja() && $this->isPro()) || $this->isWhiteLabel()) {
-            return $this->client_view_css;
+        $css = null;
+        
+        if ($this->isPro()) {
+            $bodyFont = $this->getBodyFontCss();
+            $headerFont = $this->getHeaderFontCss();
+            
+            $css = 'body{'.$bodyFont.'}';
+            if ($headerFont != $bodyFont) {
+                $css .= 'h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6{'.$headerFont.'}';
+            }
+            
+            if ((Utils::isNinja() && $this->isPro()) || $this->isWhiteLabel()) {
+                // For self-hosted users, a white-label license is required for custom CSS
+                $css .= $this->client_view_css;
+            }
         }
         
-        return null;
+        return $css;
+    }
+    
+    public function getFontsUrl($protocol = ''){
+        if ($this->isPro()){
+            $bodyFont = $this->body_font_id;
+            $headerFont = $this->header_font_id;
+        }
+        else{
+            $bodyFont = DEFAULT_BODY_FONT;
+            $headerFont = DEFAULT_HEADER_FONT;
+        }
+        
+
+        $bodyFontSettings = Utils::getFromCache($bodyFont, 'fonts');
+        $google_fonts = array($bodyFontSettings['google_font']);
+        
+        if($headerFont != $bodyFont){
+            $headerFontSettings = Utils::getFromCache($headerFont, 'fonts');
+            $google_fonts[] = $headerFontSettings['google_font'];
+        }
+
+        return ($protocol?$protocol.':':'').'//fonts.googleapis.com/css?family='.implode('|',$google_fonts);
+    }
+    
+    public function getHeaderFontName(){
+        return Utils::getFromCache($this->header_font_id, 'fonts')['name'];
+    }
+    
+    public function getBodyFontName(){
+        return Utils::getFromCache($this->body_font_id, 'fonts')['name'];
+    }
+    
+    public function getHeaderFontCss($include_weight = true){
+        $font_data = Utils::getFromCache($this->header_font_id, 'fonts');
+        $css = 'font-family:'.$font_data['css_stack'].';';
+            
+        if($include_weight){
+            $css .= 'font-weight:'.$font_data['css_weight'].';';
+        }
+            
+        return $css;
+    }
+    
+    public function getBodyFontCss($include_weight = true){
+        $font_data = Utils::getFromCache($this->body_font_id, 'fonts');
+        $css = 'font-family:'.$font_data['css_stack'].';';
+            
+        if($include_weight){
+            $css .= 'font-weight:'.$font_data['css_weight'].';';
+        }
+            
+        return $css;
+    }
+    
+    public function getFonts(){
+        return array_unique(array($this->header_font_id, $this->body_font_id));
+    }
+    
+    public function getFontsData(){
+        $data = array();
+        
+        foreach($this->getFonts() as $font){
+            $data[] = Utils::getFromCache($font, 'fonts');
+        }
+        
+        return $data;
+    }
+    
+    public function getFontFolders(){
+        return array_map(function($item){return $item['folder'];}, $this->getFontsData());
     }
 }
 

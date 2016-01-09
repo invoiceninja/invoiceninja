@@ -19,6 +19,8 @@
     NINJA.primaryColor = "{{ Auth::user()->account->primary_color }}";
     NINJA.secondaryColor = "{{ Auth::user()->account->secondary_color }}";
     NINJA.fontSize = {{ Auth::user()->account->font_size ?: DEFAULT_FONT_SIZE }};
+    NINJA.headerFont = {!! json_encode(Auth::user()->account->getHeaderFontName()) !!};
+    NINJA.bodyFont = {!! json_encode(Auth::user()->account->getBodyFontName()) !!};
     @else
     NINJA.fontSize = {{ DEFAULT_FONT_SIZE }};
     @endif

@@ -104,6 +104,7 @@ class InvoiceController extends BaseController
                 'error' => trans('texts.invoice_not_found'),
                 'hideHeader' => true,
                 'clientViewCSS' => $account->clientViewCSS(),
+                'clientFontUrl' => $account->getFontsUrl(),
             ]);
         }
 
@@ -123,6 +124,7 @@ class InvoiceController extends BaseController
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->is_pro = $account->isPro();
+        $invoice->invoice_fonts = $account->getFontsData();
         
         if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
             $invoice->invoice_design->javascript = $account->custom_design;
@@ -156,6 +158,7 @@ class InvoiceController extends BaseController
             'hideLogo' => $account->isWhiteLabel(),
             'hideHeader' => $account->isNinjaAccount(),
             'clientViewCSS' => $account->clientViewCSS(),
+            'clientFontUrl' => $account->getFontsUrl(),
             'invoice' => $invoice->hidePrivateFields(),
             'invitation' => $invitation,
             'invoiceLabels' => $account->getInvoiceLabels(),
@@ -417,6 +420,7 @@ class InvoiceController extends BaseController
             'paymentTerms' => Cache::get('paymentTerms'),
             'industries' => Cache::get('industries'),
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
+            'invoiceFonts' => Cache::get('fonts'),
             'frequencies' => array(
                 1 => 'Weekly',
                 2 => 'Two weeks',
@@ -639,6 +643,7 @@ class InvoiceController extends BaseController
             'versionsJson' => json_encode($versionsJson),
             'versionsSelect' => $versionsSelect,
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
+            'invoiceFonts' => Cache::get('fonts'),
         ];
 
         return View::make('invoices.history', $data);

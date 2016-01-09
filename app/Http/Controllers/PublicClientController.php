@@ -38,6 +38,7 @@ class PublicClientController extends BaseController
             'client' => $client,
             'hideLogo' => $account->isWhiteLabel(),
             'clientViewCSS' => $account->clientViewCSS(),
+            'clientFontUrl' => $account->getFontsUrl(),
         ];
         
         return response()->view('invited.dashboard', $data);
@@ -83,6 +84,7 @@ class PublicClientController extends BaseController
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
             'clientViewCSS' => $account->clientViewCSS(),
+            'clientFontUrl' => $account->getFontsUrl(),
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
             'columns' => Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date']),
@@ -113,6 +115,7 @@ class PublicClientController extends BaseController
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
             'clientViewCSS' => $account->clientViewCSS(),
+            'clientFontUrl' => $account->getFontsUrl(),
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
             'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date'])
@@ -149,6 +152,7 @@ class PublicClientController extends BaseController
           'color' => $color,
           'hideLogo' => $account->isWhiteLabel(),
           'clientViewCSS' => $account->clientViewCSS(),
+          'clientFontUrl' => $account->getFontsUrl(),
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
           'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
@@ -173,6 +177,7 @@ class PublicClientController extends BaseController
             'error' => trans('texts.invoice_not_found'),
             'hideHeader' => true,
             'clientViewCSS' => $account->clientViewCSS(),
+            'clientFontUrl' => $account->getFontsUrl(),
         ]);
     }
 

@@ -347,14 +347,15 @@ class AccountController extends BaseController
 
         $invoice->client = $client;
         $invoice->invoice_items = [$invoiceItem];
-
+        
         $data['account'] = $account;
         $data['invoice'] = $invoice;
         $data['invoiceLabels'] = json_decode($account->invoice_labels) ?: [];
         $data['title'] = trans('texts.invoice_design');
         $data['invoiceDesigns'] = InvoiceDesign::getDesigns();
+        $data['invoiceFonts'] = Cache::get('fonts');
         $data['section'] = $section;
-
+        
         $design = false;
         foreach ($data['invoiceDesigns'] as $item) {
             if ($item->id == $account->invoice_design_id) {
@@ -689,10 +690,12 @@ class AccountController extends BaseController
             $account = Auth::user()->account;
             $account->hide_quantity = Input::get('hide_quantity') ? true : false;
             $account->hide_paid_to_date = Input::get('hide_paid_to_date') ? true : false;
+            $account->header_font_id = Input::get('header_font_id');
+            $account->body_font_id = Input::get('body_font_id');
             $account->primary_color = Input::get('primary_color');
             $account->secondary_color = Input::get('secondary_color');
             $account->invoice_design_id = Input::get('invoice_design_id');
-
+            
             if (Input::has('font_size')) {
                 $account->font_size =  intval(Input::get('font_size'));
             }

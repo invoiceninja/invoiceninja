@@ -7,7 +7,7 @@
 @stop
 
 @section('body')
-    <h2>{{ trans('texts.confirmation_header') }}</h2>
+    <h2 style="{!! $account->getheaderFontCss() !!}">{{ trans('texts.confirmation_header') }}</h2>
     <div>
         {{ $invitationMessage . trans('texts.button_confirmation_message') }}
     </div>
