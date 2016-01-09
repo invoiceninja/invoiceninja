@@ -14,7 +14,7 @@ class ExpenseWasArchived extends Event
 	 *
 	 * @return void
 	 */
-	public function __construct($espense)
+	public function __construct($expense)
 	{
 		$this->expense = $expense;
 	}

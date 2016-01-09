@@ -14,6 +14,7 @@ use Redirect;
 use Cache;
 use App\Models\Vendor;
 use App\Models\Expense;
+use App\Models\Client;
 use App\Services\ExpenseService;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Http\Requests\CreateExpenseRequest;
@@ -45,13 +46,14 @@ class ExpenseController extends BaseController
             'title' => trans('texts.expenses'),
             'sortCol' => '1',
             'columns' => Utils::trans([
+              'checkbox',
               'vendor',
               'expense_amount',
               'expense_date',
               'public_notes',
               'is_invoiced',
               'should_be_invoiced',
-              'expense'
+              ''
             ]),
         ));
     }
@@ -76,6 +78,8 @@ class ExpenseController extends BaseController
             'title' => trans('texts.new_expense'),
             'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(),
             'vendor' => $vendor,
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'clientPublicId' => null,
             );
 
         $data = array_merge($data, self::getViewModel());
@@ -95,7 +99,9 @@ class ExpenseController extends BaseController
             'url' => 'expenses/'.$publicId,
             'title' => 'Edit Expense',
             'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(),
-            'vendorPublicId' => $expense->vendor_id);
+            'vendorPublicId' => $expense->vendor_id,
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get()
+            );
 
         $data = array_merge($data, self::getViewModel());
 

@@ -33,13 +33,14 @@
 				{!! Former::textarea('private_notes') !!}
 				{!! Former::textarea('public_notes') !!}
 				{!! Former::checkbox('should_be_invoiced') !!}
+				{!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
 	            </div>
             </div>
         </div>
     </div>
 
 	<center class="buttons">
-        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('remove-circle')) !!}
+        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/dashboard'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
 
@@ -49,6 +50,7 @@
 
 	
 	var vendors = {!! $vendors !!};
+	var clients = {!! $clients !!};
 
 	$(function() {
 
@@ -76,7 +78,20 @@
         $('.expense_date .input-group-addon').click(function() {
             toggleDatePicker('expense_date');
         });
-	});
+
+
+        var $clientSelect = $('select#client');     
+        for (var i=0; i<clients.length; i++) {
+            var client = clients[i];
+            $clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
+        }   
+
+        if ({{ $clientPublicId ? 'true' : 'false' }}) {
+            $clientSelect.val({{ $clientPublicId }});
+        }
+
+        $clientSelect.combobox();
+     });
 
 	</script>
 @stop

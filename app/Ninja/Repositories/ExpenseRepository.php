@@ -29,8 +29,8 @@ class ExpenseRepository extends BaseRepository
         $accountid = \Auth::user()->account_id;
         $query = DB::table('expenses')
                     ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
+                    ->leftjoin('vendors','vendors.public_id','=', 'expenses.vendor_id')
                     ->where('expenses.account_id', '=', $accountid)
-                    ->where('expenses.deleted_at', '=', null)
                     ->select('expenses.account_id',
                         'expenses.amount',
                         'expenses.amount_cur',
@@ -45,12 +45,24 @@ class ExpenseRepository extends BaseRepository
                         'expenses.public_id',
                         'expenses.public_notes',
                         'expenses.should_be_invoiced',
-                        'expenses.vendor_id');
+                        'expenses.vendor_id',
+                        'vendors.name as vendor_name',
+                        'vendors.public_id as vendor_public_id');
 
+        $showTrashed = \Session::get('show_trash:expense');
+        
+        //var_dump($showTrashed);
+        
+        if (!$showTrashed) {
+            $query->where('expenses.deleted_at', '=', null);
+        }
+        
+        /*
         if (!\Session::get('show_trash:expense')) {
             $query->where('expenses.deleted_at', '=', null);
         }
-
+        */
+        
         if ($filter) {
             $query->where(function ($query) use ($filter) {
                 $query->where('expenses.public_notes', 'like', '%'.$filter.'%');
@@ -105,8 +117,10 @@ class ExpenseRepository extends BaseRepository
         // Calculate the amount cur
         $expense->amount_cur = ($expense->amount / 100) * $expense->exchange_rate;
 
-
         $expense->should_be_invoiced = isset($input['should_be_invoiced']) ? true : false;
+        if(isset($input['client'])) {
+            $expense->invoice_client_id = $input['client'];
+        }
         $expense->save();
 
         return $expense;

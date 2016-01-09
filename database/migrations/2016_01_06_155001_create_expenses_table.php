@@ -18,13 +18,12 @@ class CreateExpensesTable extends Migration
 		{
 			$table->increments('id');
 			$table->timestamps();
+            $table->softDeletes();
 
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('vendor_id')->nullable();
             $table->unsignedInteger('user_id');
-            
-            $table->softDeletes();
-            
+			$table->unsignedInteger('invoice_client_id')->nullable();
             $table->boolean('is_deleted')->default(false);
             $table->decimal('amount', 13, 2);
 			$table->decimal('amount_cur', 13, 2);
@@ -36,9 +35,11 @@ class CreateExpensesTable extends Migration
 			$table->boolean('is_invoiced')->default(false);
 			$table->boolean('should_be_invoiced')->default(true);
 
+			// Relations
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             
+			// Indexes
             $table->unsignedInteger('public_id')->index();
             $table->unique( array('account_id','public_id') );
 		});

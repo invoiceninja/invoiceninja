@@ -1047,11 +1047,15 @@ return array(
     'delete_expense' => 'Delete expense',
     'view_expense_num' => 'Expense # :expense',
     'updated_expense' => 'Expense updated',
-    
+    'enter_expense' => 'Enter expense',
+    'view' => 'View',
+    'restore_expense' => 'Restore expense',
+    'invoice_expense' => 'Invoice',
     // Payment terms
     'num_days' => 'Number of days',
     'create_payment_term' => 'Create payment term',
     'edit_payment_terms' => 'Edit payment term',
     'edit_payment_term' => 'Edit payment term',
     'archive_payment_term' => 'Archive payment term',
+    
 );

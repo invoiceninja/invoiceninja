@@ -40,23 +40,15 @@ class ExpenseService extends BaseService
     {
         return [
             [
-                'vendor_id',
+                'vendor_name',
                 function ($model)
                 {
-                    if($model->vendor_id) {
-                     
-                        $vendors = DB::table('vendors')->where('public_id', '=',$model->vendor_id)->select('id', 'public_id','name')->get();
-                        // should only be one!
-                        $vendor = $vendors[0];
-
-                        if($vendor) {
-                            return link_to("vendors/{$vendor->public_id}", $vendor->name);
-                        }
-                        return 'no vendor: ' . $model->vendor_id;
+                    if($model->vendor_public_id) {
+                        return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name);
                     } else {
-                        return 'No vendor:' ;
+                        return 'No vendor' ;
                     }
-                },
+                }
             ],
             [
                 'amount',
@@ -79,7 +71,7 @@ class ExpenseService extends BaseService
             [
                 'is_invoiced',
                 function ($model) {
-                    return $model->is_invoiced ? trans('texts.expense_is_invoiced') : trans('texts.expense_is_not_invoiced');
+                    return $model->is_invoiced ? trans('texts.yes') : trans('texts.no');
                 }
             ],
             [
@@ -88,25 +80,31 @@ class ExpenseService extends BaseService
                     return $model->should_be_invoiced ? trans('texts.yes') : trans('texts.no');
                 }
             ],
-            [
+            /*[
                 'public_id',
                 function($model) {
-                   return link_to("expenses/{$model->public_id}", trans('texts.view_expense', ['expense' => $model->public_id]));
+                   return link_to("expenses/{$model->public_id}", trans('texts.view', ['expense' => $model->public_id]));
                 }
-             ]
+             ]*/
         ];
     }
-/*
+
     protected function getDatatableActions($entityType)
     {
-        return [
+            return [
             [
-                trans('texts.apply_expense'),
+                trans('texts.invoice_expense'),
                 function ($model) {
-                    return URL::to("espense/create/{$model->vendor_public_id}") . '?paymentTypeId=1';
+                    return URL::to("expense/invoice/{$model->public_id}") . '?client=1';
                 }
-            ]
+            ],
+            [
+                trans('texts.view'),
+                function ($model) {
+                    return URL::to("expenses/{$model->public_id}") ;
+                }
+            ],
+            
         ];
     }
-    */
 }
