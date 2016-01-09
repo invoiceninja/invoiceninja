@@ -11,9 +11,10 @@ class FontsSeeder extends Seeder
         $this->createFonts();
     }
 
-    private function createFonts() {
-       $fonts = [
-            [   
+    private function createFonts()
+    {
+        $fonts = [
+            [
                 'folder' => 'roboto',
                 'name' => 'Roboto',
                 'css_stack' => "'Roboto', Arial, Helvetica, sans-serif",
@@ -22,9 +23,9 @@ class FontsSeeder extends Seeder
                 'bold' => 'Roboto-Medium.ttf',
                 'italics' => 'Roboto-Italic.ttf',
                 'bolditalics' => 'Roboto-Italic.ttf',
-                'sort_order' => 100
+                'sort_order' => 100,
             ],
-            [   
+            [
                 'folder' => 'abril_fatface',
                 'name' => 'Abril Fatface',
                 'css_stack' => "'Abril Fatface', Georgia, serif",
@@ -35,7 +36,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'AbrilFatface-Regular.ttf',
                 'sort_order' => 200
             ],
-            [   
+            [
                 'folder' => 'arvo',
                 'name' => 'Arvo',
                 'css_stack' => "'Arvo', Georgia, serif",
@@ -46,7 +47,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'Arvo-Italic.ttf',
                 'sort_order' => 300
             ],
-            [   
+            [
                 'folder' => 'josefin_sans',
                 'name' => 'Josefin Sans',
                 'css_stack' => "'Josefin Sans', Arial, Helvetica, sans-serif",
@@ -58,7 +59,7 @@ class FontsSeeder extends Seeder
                 'sort_order' => 400
 
             ],
-            [   
+            [
                 'folder' => 'josefin_sans_light',
                 'css_stack' => "'Josefin Sans', Arial, Helvetica, sans-serif",
                 'name' => 'Josefin Sans Light',
@@ -70,7 +71,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'JosefinSans-LightItalic.ttf',
                 'sort_order' => 600
             ],
-            [   
+            [
                 'folder' => 'josefin_slab',
                 'name' => 'Josefin Slab',
                 'css_stack' => "'Josefin Slab', Arial, Helvetica, sans-serif",
@@ -81,7 +82,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'JosefinSlab-Italic.ttf',
                 'sort_order' => 700
             ],
-            [   
+            [
                 'folder' => 'josefin_slab_light',
                 'name' => 'Josefin Slab Light',
                 'css_stack' => "'Josefin Slab', Georgia, serif",
@@ -93,7 +94,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'JosefinSlab-LightItalic.ttf',
                 'sort_order' => 800
             ],
-            [   
+            [
                 'folder' => 'open_sans',
                 'name' => 'Open Sans',
                 'css_stack' => "'Open Sans', Arial, Helvetica, sans-serif",
@@ -105,7 +106,7 @@ class FontsSeeder extends Seeder
                 'sort_order' => 900
 
             ],
-            [   
+            [
                 'folder' => 'open_sans_light',
                 'name' => 'Open Sans Light',
                 'css_stack' => "'Open Sans', Arial, Helvetica, sans-serif",
@@ -117,7 +118,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'OpenSans-LightItalic.ttf',
                 'sort_order' => 1000,
             ],
-            [   
+            [
                 'folder' => 'pt_sans',
                 'name' => 'PT Sans',
                 'css_stack' => "'PT Sans', Arial, Helvetica, sans-serif",
@@ -128,7 +129,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'PTSans-Italic.ttf',
                 'sort_order' => 1100,
             ],
-            [   
+            [
                 'folder' => 'pt_serif',
                 'name' => 'PT Serif',
                 'css_stack' => "'PT Serif', Georgia, serif",
@@ -139,7 +140,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'PTSerif-Italic.ttf',
                 'sort_order' => 1200
             ],
-            [   
+            [
                 'folder' => 'raleway',
                 'name' => 'Raleway',
                 'css_stack' => "'Raleway', Arial, Helvetica, sans-serif",
@@ -150,7 +151,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'Raleway-Italic.ttf',
                 'sort_order' => 1300
             ],
-            [   
+            [
                 'folder' => 'raleway_light',
                 'name' => 'Raleway Light',
                 'css_stack' => "'Raleway', Arial, Helvetica, sans-serif",
@@ -162,7 +163,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'Raleway-LightItalic.ttf',
                 'sort_order' => 1400
             ],
-            [   
+            [
                 'folder' => 'titillium',
                 'name' => 'Titillium',
                 'css_stack' => "'Titillium Web', Arial, Helvetica, sans-serif",
@@ -173,7 +174,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'TitilliumWeb-Italic.ttf',
                 'sort_order' => 1500
             ],
-            [   
+            [
                 'folder' => 'titillium_light',
                 'name' => 'Titillium Light',
                 'css_stack' => "'Titillium Web', Arial, Helvetica, sans-serif",
@@ -185,7 +186,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'TitilliumWeb-LightItalic.ttf',
                 'sort_order' => 1600,
             ],
-            [   
+            [
                 'folder' => 'ubuntu',
                 'name' => 'Ubuntu',
                 'css_stack' => "'Ubuntu', Arial, Helvetica, sans-serif",
@@ -196,7 +197,7 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'Ubuntu-Italic.ttf',
                 'sort_order' => 1700,
             ],
-            [   
+            [
                 'folder' => 'ubuntu_light',
                 'name' => 'Ubuntu Light',
                 'css_stack' => "'Ubuntu', Arial, Helvetica, sans-serif",
@@ -206,6 +207,17 @@ class FontsSeeder extends Seeder
                 'bold' => 'Ubuntu-Medium.ttf',
                 'italics' => 'Ubuntu-LightItalic.ttf',
                 'bolditalics' => 'Ubuntu-LightItalic.ttf',
+                'sort_order' => 1800,
+            ],
+            [
+                'folder' => 'ukai',
+                'name' => 'UKai - Chinese',
+                'css_stack' => '',
+                'google_font' => '',
+                'normal' => 'UKai.ttf',
+                'bold' => 'UKai.ttf',
+                'italics' => 'UKai.ttf',
+                'bolditalics' => 'UKai.ttf',
                 'sort_order' => 1800,
             ],
         ];
