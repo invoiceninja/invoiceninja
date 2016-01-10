@@ -122,32 +122,46 @@
                 <div role="tabpanel" class="tab-pane active" id="generalSettings">
                     <div class="panel-body">
 
-                      @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
-                        {!! Former::select('invoice_design_id')
-                                ->style('display:inline; width:300px')
-                                ->fromQuery($invoiceDesigns, 'name', 'id')
-                                ->addOption(trans('texts.more_designs') . '...', '-1') !!}
-                      @else 
-                        {!! Former::select('invoice_design_id')
-                                ->style('display:inline; width:300px')
-                                ->fromQuery($invoiceDesigns, 'name', 'id') !!}
-                      @endif
-                      {!! Former::select('header_font_id')
-                              ->style('display:inline; width:300px')
-                              ->fromQuery($invoiceFonts, 'name', 'id') !!}
-                      {!! Former::select('body_font_id')
-                              ->style('display:inline; width:300px')
-                              ->fromQuery($invoiceFonts, 'name', 'id') !!}
+                      <div class="row">
+                        <div class="col-md-6">
 
-                      {!! Former::text('font_size')
-                            ->style('width:300px')
-                            ->type('number')
-                            ->min('0')
-                            ->step('1') !!}
+                          @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
+                            {!! Former::select('invoice_design_id')
+                                    ->fromQuery($invoiceDesigns, 'name', 'id')
+                                    ->addOption(trans('texts.more_designs') . '...', '-1') !!}
+                          @else 
+                            {!! Former::select('invoice_design_id')
+                                    ->fromQuery($invoiceDesigns, 'name', 'id') !!}
+                          @endif
+                          {!! Former::select('body_font_id')
+                                  ->fromQuery($invoiceFonts, 'name', 'id') !!}
+                          {!! Former::select('header_font_id')
+                                  ->fromQuery($invoiceFonts, 'name', 'id') !!}
 
-                      {!! Former::text('primary_color') !!}
-                      {!! Former::text('secondary_color')
-                                ->help('<br/>'.trans('texts.color_font_help')) !!}
+                        </div>
+                        <div class="col-md-6">
+
+
+                        {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 6) }}
+                        {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 6) }}
+                        
+                          {!! Former::text('font_size')
+                                ->type('number')
+                                ->min('0')
+                                ->step('1') !!}
+
+                          {!! Former::text('primary_color') !!}
+                          {!! Former::text('secondary_color') !!}
+
+                        {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
+                        {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
+
+                        </div>
+                      </div>
+
+                      <div class="help-block">
+                        {{ trans('texts.color_font_help') }}
+                      </div>
 
                     </div>
                 </div>
