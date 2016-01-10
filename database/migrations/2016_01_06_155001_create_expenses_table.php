@@ -23,6 +23,7 @@ class CreateExpensesTable extends Migration
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('vendor_id')->nullable();
             $table->unsignedInteger('user_id');
+			$table->unsignedInteger('invoice_id')->nullable();
 			$table->unsignedInteger('invoice_client_id')->nullable();
             $table->boolean('is_deleted')->default(false);
             $table->decimal('amount', 13, 2);
@@ -38,7 +39,7 @@ class CreateExpensesTable extends Migration
 			// Relations
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            
+
 			// Indexes
             $table->unsignedInteger('public_id')->index();
             $table->unique( array('account_id','public_id') );

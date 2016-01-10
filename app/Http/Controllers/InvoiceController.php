@@ -119,11 +119,11 @@ class InvoiceController extends BaseController
         Session::put('invitation_key', $invitationKey); // track current invitation
 
         $account->loadLocalizationSettings($client);
-        
+
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->is_pro = $account->isPro();
-        
+
         if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
             $invoice->invoice_design->javascript = $account->custom_design;
         } else {
@@ -204,7 +204,7 @@ class InvoiceController extends BaseController
                         ->withTrashed()
                         ->firstOrFail();
         $entityType = $invoice->getEntityType();
-        
+
         $contactIds = DB::table('invitations')
             ->join('contacts', 'contacts.id', '=', 'invitations.contact_id')
             ->where('invitations.invoice_id', '=', $invoice->id)
@@ -282,7 +282,7 @@ class InvoiceController extends BaseController
                 'actions' => $actions,
                 'lastSent' => $lastSent);
         $data = array_merge($data, self::getViewModel());
-        
+
         if ($clone) {
             $data['formIsChanged'] = true;
         }
@@ -318,14 +318,14 @@ class InvoiceController extends BaseController
         $account = Auth::user()->account;
         $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
         $clientId = null;
-        
+
         if ($clientPublicId) {
             $clientId = Client::getPrivateId($clientPublicId);
         }
-        
+
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
-        
+
         $data = [
             'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
             'entityType' => $invoice->getEntityType(),
@@ -335,7 +335,7 @@ class InvoiceController extends BaseController
             'title' => trans('texts.new_invoice'),
         ];
         $data = array_merge($data, self::getViewModel());
-        
+
         return View::make('invoices.edit', $data);
     }
 
@@ -380,6 +380,7 @@ class InvoiceController extends BaseController
             'recurringHelp' => $recurringHelp,
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
             'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
+            'expenses' => Session::get('expenses') ? json_encode(Session::get('expenses')) : null,
         ];
 
     }
@@ -413,7 +414,7 @@ class InvoiceController extends BaseController
         if ($action == 'email') {
             return $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
-        
+
         return redirect()->to($invoice->getRoute());
     }
 
@@ -440,7 +441,7 @@ class InvoiceController extends BaseController
         } elseif ($action == 'email') {
             return $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
-        
+
         return redirect()->to($invoice->getRoute());
     }
 

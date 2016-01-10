@@ -263,7 +263,7 @@ return array(
     'deleted_vendor' => 'Successfully deleted vendor',
     'deleted_vendors' => 'Successfully deleted :count vendors',
 
-    
+
     // Emails
     'confirmation_subject' => 'Invoice Ninja Account Confirmation',
     'confirmation_header' => 'Account Confirmation',
@@ -911,7 +911,7 @@ return array(
     'default_invoice_footer' => 'Default Invoice Footer',
     'quote_footer' => 'Quote Footer',
     'free' => 'Free',
-    
+
     'quote_is_approved' => 'This quote is approved',
     'apply_credit' => 'Apply Credit',
     'system_settings' => 'System Settings',
@@ -1026,7 +1026,7 @@ return array(
     'archive_vendor' => 'Archive vendor',
     'delete_vendor' => 'Delete vendor',
     'view_vendor' => 'View vendor',
-    
+
     // Expenses
     'expense_amount' => 'Expense amount',
     'expense_balance' => 'Expense balance',
@@ -1051,11 +1051,14 @@ return array(
     'view' => 'View',
     'restore_expense' => 'Restore expense',
     'invoice_expense' => 'Invoice',
+    'expense_error_multiple_clients' =>'The expenses can\'t belong to different clients',
+    'expense_error_invoiced' => 'Expense have already been invoiced',
+    'expense_error_should_not_be_invoiced' => 'Expense maked not to be invoiced',
+
     // Payment terms
     'num_days' => 'Number of days',
     'create_payment_term' => 'Create payment term',
     'edit_payment_terms' => 'Edit payment term',
     'edit_payment_term' => 'Edit payment term',
     'archive_payment_term' => 'Archive payment term',
-    
 );

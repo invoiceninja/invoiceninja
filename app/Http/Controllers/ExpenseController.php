@@ -111,7 +111,7 @@ class ExpenseController extends BaseController
                 $data['proPlanPaid'] = $account['pro_plan_paid'];
             }
         }
-            
+
         return View::make('expenses.edit', $data);
     }
 
@@ -124,26 +124,70 @@ class ExpenseController extends BaseController
     public function update(UpdateExpenseRequest $request)
     {
         $client = $this->expenseRepo->save($request->input());
-        
+
         Session::flash('message', trans('texts.updated_expense'));
-        
+
         return redirect()->to('expenses');
     }
-    
+
     public function store(CreateExpenseRequest $request)
     {
         $expense = $this->expenseRepo->save($request->input());
 
         Session::flash('message', trans('texts.created_expense'));
-        
+
         return redirect()->to('expenses');
     }
 
     public function bulk()
     {
         $action = Input::get('action');
-        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
-        $count = $this->expenseService->bulk($ids, $action);
+        $ids    = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+
+        switch($action)
+        {
+            case 'invoice':
+                $expenses       = Expense::scope($ids)->get();
+                $clientPublicId = null;
+                $data           = [];
+
+                // Validate that either all expenses do not have a client or if there is a client, it is the same client
+                foreach ($expenses as $expense)
+                {
+                    if ($expense->client_id) {
+                        if (!$clientPublicId) {
+                            $clientPublicId = $expense->client_id;
+                    } else if ($clientPublicId != $expense->client_id) {
+                        Session::flash('error', trans('texts.expense_error_multiple_clients'));
+                        return Redirect::to('expenses');
+                    }
+                    }
+
+                    if ($expense->invoice_id) {
+                        Session::flash('error', trans('texts.expense_error_invoiced'));
+                        return Redirect::to('expenses');
+                    }
+
+                    if ($expense->should_be_invoiced == 0) {
+                        Session::flash('error', trans('texts.expense_error_should_not_be_invoiced'));
+                        return Redirect::to('expenses');
+                    }
+
+                    $account = Auth::user()->account;
+                    $data[] = [
+                        'publicId' => $expense->public_id,
+                        'description' => $expense->public_notes,
+                        'qty' => 1,
+                        'cost' => $expense->amount,
+                    ];
+                }
+
+                return Redirect::to("invoices/create/{$clientPublicId}")->with('expenses', $data);
+                break;
+
+            default:
+                $count  = $this->expenseService->bulk($ids, $action);
+        }
 
         if ($count > 0) {
             $message = Utils::pluralize($action.'d_expense', $count);
@@ -152,7 +196,7 @@ class ExpenseController extends BaseController
 
         return Redirect::to('expenses');
     }
-    
+
     private static function getViewModel()
     {
         return [
@@ -172,7 +216,7 @@ class ExpenseController extends BaseController
     public function show($publicId)
     {
         $expense = Expense::withTrashed()->scope($publicId)->firstOrFail();
-        
+
         if($expense) {
             Utils::trackViewed($expense->getDisplayName(), 'expense');
         }
@@ -191,5 +235,5 @@ class ExpenseController extends BaseController
         );
 
         return View::make('expenses.show', $data);
-    }    
+    }
 }
