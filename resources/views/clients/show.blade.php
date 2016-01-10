@@ -327,9 +327,10 @@
             }
           }
         });
-        var tab = localStorage.getItem('client_tab');
-        if (tab && tab != 'activity') {
-            $('.nav-tabs a[href="#' + tab.replace('#', '') + '"]').tab('show');
+        var tab = localStorage.getItem('client_tab') || '';
+        var selector = '.nav-tabs a[href="#' + tab.replace('#', '') + '"]';
+        if (tab && tab != 'activity' && $(selector).length) {
+            $(selector).tab('show');
         } else {
             window['load_activity']();
         }
