@@ -30926,8 +30926,13 @@ function GetPdfMake(invoice, javascript, callback) {
             }
         }
 
-        // only show the footer on the last page
-        if (invoice.is_pro && key === 'footer') {
+        // only show the header on the first page 
+        // and the footer on the last page
+        if (key === 'header') {
+            return function(page, pages) {
+                return page === 1 ? val : '';
+            }
+        } else if (invoice.is_pro && key === 'footer') {
             return function(page, pages) {
                 return page === pages ? val : '';
             }
