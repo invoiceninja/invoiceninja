@@ -242,7 +242,9 @@
                 var fieldName = 'email_' + section + '_' + field;
                 var value = templates[field][section];
                 $('#' + fieldName).val(value);
-                editors[field].setHTML(value);
+                if (section == 'template') {
+                    editors[field].setHTML(value);
+                }
                 refreshPreview();
             }
 
