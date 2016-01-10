@@ -20,7 +20,6 @@ class Account extends Eloquent
     protected $presenter = 'App\Ninja\Presenters\AccountPresenter';
     protected $dates = ['deleted_at'];
     protected $hidden = ['ip'];
-    public $fonts_obj = null;
 
     public static $basicSettings = [
         ACCOUNT_COMPANY_DETAILS,
@@ -897,6 +896,11 @@ class Account extends Eloquent
         return $css;
     }
     
+    public function hasLargeFont()
+    {
+        return stripos($this->getBodyFontName(), 'chinese') || stripos($this->getHeaderFontName(), 'chinese');
+    }
+
     public function getFontsUrl($protocol = ''){
         if ($this->isPro()){
             $bodyFont = $this->body_font_id;
