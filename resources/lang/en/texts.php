@@ -1034,5 +1034,8 @@ return array(
     'live_preview' => 'Live Preview',
     'invalid_mail_config' => 'Unable to send email, please check that the mail settings are correct.',
 
-
+    'invoice_message_button' => 'To view your invoice for :amount, click the button below.',
+    'quote_message_button' => 'To view your quote for :amount, click the button below.',
+    'payment_message_button' => 'Thank you for your payment of :amount.',
+    
 );
