@@ -1,7 +1,10 @@
 <?php namespace app\Listeners;
 
+use Utils;
+use Auth;
 use App\Events\InvoiceWasEmailed;
 use App\Events\InvoiceWasUpdated;
+use App\Events\InvoiceWasCreated;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
 use App\Events\PaymentWasRestored;
@@ -9,15 +12,19 @@ use App\Events\InvoiceInvitationWasViewed;
 
 class InvoiceListener
 {
-    public function createdPayment(PaymentWasCreated $event)
+    public function createdInvoice(InvoiceWasCreated $event)
     {
-        $payment = $event->payment;
-        $invoice = $payment->invoice;
-        $adjustment = $payment->amount * -1;
-        $partial = max(0, $invoice->partial - $payment->amount);
+        if (Utils::isPro()) {
+            return;
+        }
 
-        $invoice->updateBalances($adjustment, $partial);
-        $invoice->updatePaidStatus();
+        $invoice = $event->invoice;
+        $account = Auth::user()->account;
+
+        if ($account->invoice_design_id != $invoice->invoice_design_id) {
+            $account->invoice_design_id = $invoice->invoice_design_id;
+            $account->save();
+        }
     }
 
     public function updatedInvoice(InvoiceWasUpdated $event)
@@ -30,6 +37,17 @@ class InvoiceListener
     {
         $invitation = $event->invitation;
         $invitation->markViewed();
+    }
+
+    public function createdPayment(PaymentWasCreated $event)
+    {
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
+        $adjustment = $payment->amount * -1;
+        $partial = max(0, $invoice->partial - $payment->amount);
+
+        $invoice->updateBalances($adjustment, $partial);
+        $invoice->updatePaidStatus();
     }
 
     public function deletedPayment(PaymentWasDeleted $event)
