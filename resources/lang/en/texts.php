@@ -992,7 +992,7 @@ return array(
     'custom_account_fields_helps' => 'Add a label and value to the company details section of the PDF.',
     'custom_invoice_fields_helps' => 'Add a text input to the invoice create/edit page and display the label and value on the PDF.',
     'custom_invoice_charges_helps' => 'Add a text input to the invoice create/edit page and include the charge in the invoice subtotals.',
-    
+
     'token_expired' => 'Validation token was expired. Please try again.',
     'invoice_link' => 'Invoice Link',
     'button_confirmation_message' => 'Click to confirm your email address.',
@@ -1012,7 +1012,7 @@ return array(
 
     'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
     'white_label_purchase_link' => 'Purchase a white label license',
-<<<<<<< HEAD
+
 
     // Expense / vendor
     'expense' => 'Expense',
@@ -1061,9 +1061,8 @@ return array(
     'edit_payment_terms' => 'Edit payment term',
     'edit_payment_term' => 'Edit payment term',
     'archive_payment_term' => 'Archive payment term',
-);
-=======
-    
+
+
     // recurring due dates
     'recurring_due_dates' => 'Recurring Invoice Due Dates',
     'recurring_due_date_help' => '<p>Automatically sets a due date for the invoice.</p>
@@ -1106,4 +1105,4 @@ return array(
     'payment_message_button' => 'Thank you for your payment of :amount.',
     
 );
->>>>>>> cf24684adbce402f1c0e266672c4a2a5767dc754
+

@@ -175,10 +175,10 @@
             @if ($account->showCustomField('custom_invoice_text_label2', $invoice))
                 {!! Former::text('custom_text_value2')->label($account->custom_invoice_text_label2)->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
             @endif
-            
+
             @if ($entityType == ENTITY_INVOICE)
             <div class="form-group" style="margin-bottom: 8px">
-                <div class="col-lg-8 col-sm-8 col-sm-offset-4" style="padding-top: 10px">                    
+                <div class="col-lg-8 col-sm-8 col-sm-offset-4" style="padding-top: 10px">
                 	@if ($invoice->recurring_invoice)
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
     				@elseif ($invoice->id)
@@ -628,7 +628,7 @@
 	    </div>
 	  </div>
 	</div>
-        
+
     <div class="modal fade" id="recurringDueDateModal" tabindex="-1" role="dialog" aria-labelledby="recurringDueDateModalLabel" aria-hidden="true">
 	  <div class="modal-dialog" style="min-width:150px">
 	    <div class="modal-content">
@@ -644,7 +644,7 @@
 	     <div class="modal-footer" style="margin-top: 0px">
 	      	<button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
 	     </div>
-	  		
+
 	    </div>
 	  </div>
 	</div>
@@ -673,7 +673,7 @@
     var $clientSelect = $('select#client');
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
-        
+
 
 	$(function() {
         // create client dictionary
@@ -892,20 +892,17 @@
         @endif
 
         applyComboboxListeners();
-<<<<<<< HEAD
 	});
-=======
-	});	
-        
+
     function onFrequencyChange(){
         var currentName = $('#frequency_id').find('option:selected').text()
         var currentDueDateNumber = $('#recurring_due_date').find('option:selected').attr('data-num');
         var optionClass = currentName && currentName.toLowerCase().indexOf('week') > -1 ? 'weekly' :  'monthly';
         var replacementOption = $('#recurring_due_date option[data-num=' + currentDueDateNumber + '].' + optionClass);
-        
+
         $('#recurring_due_date option').hide();
         $('#recurring_due_date option.' + optionClass).show();
-        
+
         // Switch to an equivalent option
         if(replacementOption.length){
             replacementOption.attr('selected','selected');
@@ -914,7 +911,6 @@
             $('#recurring_due_date').val('');
         }
     }
->>>>>>> cf24684adbce402f1c0e266672c4a2a5767dc754
 
 	function applyComboboxListeners() {
         var selectorStr = '.invoice-table input, .invoice-table textarea';

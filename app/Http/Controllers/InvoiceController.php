@@ -124,12 +124,8 @@ class InvoiceController extends BaseController
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->is_pro = $account->isPro();
-<<<<<<< HEAD
-
-=======
         $invoice->invoice_fonts = $account->getFontsData();
-        
->>>>>>> cf24684adbce402f1c0e266672c4a2a5767dc754
+
         if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
             $invoice->invoice_design->javascript = $account->custom_design;
         } else {
@@ -364,7 +360,7 @@ class InvoiceController extends BaseController
                 $recurringHelp .= $line;
             }
         }
-        
+
         $recurringDueDateHelp = '';
         foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_due_date_help')) as $line) {
             $parts = explode("=>", $line);
@@ -380,20 +376,20 @@ class InvoiceController extends BaseController
         $recurringDueDates = array(
             trans('texts.use_client_terms') => array('value' => '', 'class' => 'monthly weekly'),
         );
-        
+
         $ends = array('th','st','nd','rd','th','th','th','th','th','th');
         for($i = 1; $i < 31; $i++){
             if ($i >= 11 && $i <= 13) $ordinal = $i. 'th';
             else $ordinal = $i . $ends[$i % 10];
-            
+
             $dayStr = str_pad($i, 2, '0', STR_PAD_LEFT);
             $str = trans('texts.day_of_month', array('ordinal'=>$ordinal));
-            
+
             $recurringDueDates[$str] = array('value' => "1998-01-$dayStr", 'data-num' => $i, 'class' => 'monthly');
         }
         $recurringDueDates[trans('texts.last_day_of_month')] = array('value' => "1998-01-31", 'data-num' => 31, 'class' => 'monthly');
-        
-        
+
+
         $daysOfWeek = array(
             trans('texts.sunday'),
             trans('texts.monday'),
@@ -406,13 +402,13 @@ class InvoiceController extends BaseController
         foreach(array('1st','2nd','3rd','4th') as $i=>$ordinal){
             foreach($daysOfWeek as $j=>$dayOfWeek){
                 $str = trans('texts.day_of_week_after', array('ordinal' => $ordinal, 'day' => $dayOfWeek));
-                
+
                 $day = $i * 7 + $j  + 1;
                 $dayStr = str_pad($day, 2, '0', STR_PAD_LEFT);
                 $recurringDueDates[$str] = array('value' => "1998-02-$dayStr", 'data-num' => $day, 'class' => 'weekly');
             }
         }
-        
+
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
