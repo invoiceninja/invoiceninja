@@ -896,7 +896,7 @@ return array(
     'activity_31' => ':user created :vendor',
     'activity_32' => ':user created :vendor',
     'activity_33' => ':user created :vendor',
-    'activity_34' => ':user created :expense',
+    'activity_34' => ':user created expense :expense',
     'activity_35' => ':user created :vendor',
     'activity_36' => ':user created :vendor',
     'activity_37' => ':user created :vendor',

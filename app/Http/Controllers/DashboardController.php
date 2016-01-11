@@ -13,6 +13,7 @@ class DashboardController extends BaseController
 {
     public function index()
     {
+
         // total_income, billed_clients, invoice_sent and active_clients
         $select = DB::raw('COUNT(DISTINCT CASE WHEN invoices.id IS NOT NULL THEN clients.id ELSE null END) billed_clients,
                         SUM(CASE WHEN invoices.invoice_status_id >= '.INVOICE_STATUS_SENT.' THEN 1 ELSE 0 END) invoices_sent,
@@ -76,13 +77,13 @@ class DashboardController extends BaseController
                 ->orderBy('created_at', 'desc')
                 ->take(50)
                 ->get();
-                
+
         $expenseactivities = ExpenseActivity::where('expense_activities.account_id', '=', Auth::user()->account_id)
                 ->where('activity_type_id', '>', 0)
                 ->orderBy('created_at', 'desc')
                 ->take(50)
                 ->get();
-                
+
         $pastDue = DB::table('invoices')
                     ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
                     ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
