@@ -1032,4 +1032,7 @@ return array(
     'color_font_help' => 'Note: the primary color and fonts are also used in the client portal and custom email designs.',
 
     'live_preview' => 'Live Preview',
+    'invalid_mail_config' => 'Unable to send email, please check that the mail settings are correct.',
+
+
 );
