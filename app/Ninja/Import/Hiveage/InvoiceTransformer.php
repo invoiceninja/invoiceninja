@@ -25,7 +25,7 @@ class InvoiceTransformer extends BaseTransformer
                 'invoice_items' => [
                     [
                         'product_key' => '',
-                        'notes' => $data->summary,
+                        'notes' => $this->getString($data, 'summary'),
                         'cost' => (float) $data->billed_total,
                         'qty' => 1,
                     ]

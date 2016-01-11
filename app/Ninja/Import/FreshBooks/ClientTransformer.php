@@ -13,20 +13,20 @@ class ClientTransformer extends BaseTransformer
 
         return new Item($data, function ($data) {
             return [
-                'name' => $data->organization,
-                'work_phone' => $data->busphone,
-                'address1' => $data->street,
-                'address2' => $data->street2,
-                'city' => $data->city,
-                'state' => $data->province,
-                'postal_code' => $data->postalcode,
-                'private_notes' => $data->notes,
+                'name' => $this->getString($data, 'organization'),
+                'work_phone' => $this->getString($data, 'busphone'),
+                'address1' => $this->getString($data, 'street'),
+                'address2' => $this->getString($data, 'street2'),
+                'city' => $this->getString($data, 'city'),
+                'state' => $this->getString($data, 'province'),
+                'postal_code' => $this->getString($data, 'postalcode'),
+                'private_notes' => $this->getString($data, 'notes'),
                 'contacts' => [
                     [
-                        'first_name' => $data->firstname,
-                        'last_name' => $data->lastname,
-                        'email' => $data->email,
-                        'phone' => $data->mobphone ?: $data->homephone,
+                        'first_name' => $this->getString($data, 'firstname'),
+                        'last_name' => $this->getString($data, 'lastname'),
+                        'email' => $this->getString($data, 'email'),
+                        'phone' => $this->getString($data, 'mobphone') ?: $this->getString($data, 'homephone'),
                     ],
                 ],
                 'country_id' => $this->getCountryId($data->country),

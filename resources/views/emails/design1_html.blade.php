@@ -46,7 +46,7 @@
     </tr>
     <tr>
         <td class="content" style="border-collapse: collapse;">
-            <div style="font-size: 18px; margin: 42px 40px 42px; padding: 0;">{!! $body !!}</div>
+            <div style="font-size: 18px; margin: 42px 40px 42px; padding: 0; max-width: 520px;">{!! $body !!}</div>
         </td>
     </tr>
 @stop

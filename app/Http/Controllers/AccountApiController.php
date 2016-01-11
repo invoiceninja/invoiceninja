@@ -62,32 +62,21 @@ class AccountApiController extends BaseAPIController
         $account = Auth::user()->account;
         $updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
 
-        if ($updatedAt) {
-            $account->load(['users' => function($query) use ($updatedAt) {
-                $query->where('updated_at', '>=', $updatedAt);
-            }])
-            ->load(['clients' => function($query) use ($updatedAt) {
-                $query->where('updated_at', '>=', $updatedAt)->with('contacts');
-            }])
-            ->load(['invoices' => function($query) use ($updatedAt) {
-                $query->where('updated_at', '>=', $updatedAt)->with('invoice_items', 'user', 'client');
-            }])
-            ->load(['products' => function($query) use ($updatedAt) {
-                $query->where('updated_at', '>=', $updatedAt);
-            }])
-            ->load(['tax_rates' => function($query) use ($updatedAt) {
-                $query->where('updated_at', '>=', $updatedAt);
+        $map = [
+            'users' => [],
+            'clients' => ['contacts'],
+            'invoices' => ['invoice_items', 'user', 'client', 'payments'],
+            'products' => [],
+            'tax_rates' => [],
+        ];
+
+        foreach ($map as $key => $values) {
+            $account->load([$key => function($query) use ($values, $updatedAt) {
+                $query->withTrashed()->with($values);
+                if ($updatedAt) {
+                    $query->where('updated_at', '>=', $updatedAt);
+                }
             }]);
-        } else {
-            $account->load(
-                'users',
-                'clients.contacts',
-                'invoices.invoice_items',
-                'invoices.user',
-                'invoices.client',
-                'products',
-                'tax_rates'
-            );
         }
 
         $transformer = new AccountTransformer(null, $request->serializer);

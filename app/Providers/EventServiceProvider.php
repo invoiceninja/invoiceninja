@@ -31,6 +31,7 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\InvoiceWasCreated' => [
             'App\Listeners\ActivityListener@createdInvoice',
             'App\Listeners\SubscriptionListener@createdInvoice',
+            'App\Listeners\InvoiceListener@createdInvoice',
         ],
         'App\Events\InvoiceWasUpdated' => [
             'App\Listeners\ActivityListener@updatedInvoice',

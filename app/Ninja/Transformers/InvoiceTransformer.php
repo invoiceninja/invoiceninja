@@ -22,12 +22,19 @@ class InvoiceTransformer extends EntityTransformer
 
     protected $defaultIncludes = [
         'invoice_items',
+        'payments'
     ];
 
     public function includeInvoiceItems(Invoice $invoice)
     {
         $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
         return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEMS);
+    }
+
+    public function includePayments(Invoice $invoice)
+    {
+        $transformer = new PaymentTransformer($this->account, $this->serializer);
+        return $this->includeCollection($invoice->payments, $transformer, ENTITY_PAYMENT);
     }
 
     public function transform(Invoice $invoice)
@@ -66,8 +73,8 @@ class InvoiceTransformer extends EntityTransformer
             'auto_bill' => (bool) $invoice->auto_bill,
             'account_key' => $this->account->account_key,
             'user_id' => (int) $invoice->user->public_id + 1,
-            'custom_value1' => $invoice->custom_value1,
-            'custom_value2' => $invoice->custom_value2,
+            'custom_value1' => (float) $invoice->custom_value1,
+            'custom_value2' => (float) $invoice->custom_value2,
             'custom_taxes1' => (bool) $invoice->custom_taxes1,
             'custom_taxes2' => (bool) $invoice->custom_taxes2,
             'has_expenses' => (bool) $invoice->has_expenses,

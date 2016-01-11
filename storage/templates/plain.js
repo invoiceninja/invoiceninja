@@ -91,6 +91,7 @@
         "margin": [40, -20, 40, 40]
     },
     "defaultStyle": {
+        "font": "$bodyFont",
         "fontSize": "$fontSize",
         "margin": [8, 4, 8, 4]
     },
@@ -154,10 +155,12 @@
             "fillColor": "#e6e6e6"
         },
         "header": {
+            "font": "$headerFont",
             "fontSize": "$fontSizeLargest",
             "bold": true
         },
         "subheader": {
+            "font": "$headerFont",
             "fontSize": "$fontSizeLarger"
         },
         "help": {

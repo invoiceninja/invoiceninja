@@ -54,8 +54,13 @@ function GetPdfMake(invoice, javascript, callback) {
             }
         }
 
-        // only show the footer on the last page
-        if (invoice.is_pro && key === 'footer') {
+        // only show the header on the first page 
+        // and the footer on the last page
+        if (key === 'header') {
+            return function(page, pages) {
+                return page === 1 ? val : '';
+            }
+        } else if (invoice.is_pro && key === 'footer') {
             return function(page, pages) {
                 return page === pages ? val : '';
             }
@@ -90,16 +95,30 @@ function GetPdfMake(invoice, javascript, callback) {
         }
     }
     
-    /*
-    var fonts = {
-        Roboto: {
-            normal: 'Roboto-Regular.ttf',
-            bold: 'Roboto-Medium.ttf',
-            italics: 'Roboto-Italic.ttf',
-            bolditalics: 'Roboto-Italic.ttf'
-        },
-    };
-    */
+    
+    
+    pdfMake.fonts = {}
+    fonts = window.invoiceFonts || invoice.invoice_fonts;
+
+    // Add only the loaded fonts
+    $.each(fonts, function(i,font){
+        addFont(font);
+    });
+
+
+    function addFont(font){
+        if(window.ninjaFontVfs[font.folder]){
+            pdfMake.fonts[font.name] = {
+                normal: font.folder+'/'+font.normal,
+                italics: font.folder+'/'+font.italics,
+                bold: font.folder+'/'+font.bold,
+                bolditalics: font.folder+'/'+font.bolditalics
+            }
+        }
+    }
+        
+    if(!dd.defaultStyle)dd.defaultStyle = {font:NINJA.bodyFont};
+    else if(!dd.defaultStyle.font)dd.defaultStyle.font = NINJA.bodyFont;
     
     doc = pdfMake.createPdf(dd);
     doc.save = function(fileName) {
@@ -141,6 +160,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'fontSizeLarger': NINJA.fontSize + 1,
         'fontSizeLargest': NINJA.fontSize + 2,
         'fontSizeSmaller': NINJA.fontSize - 1,
+        'bodyFont': NINJA.bodyFont,
+        'headerFont': NINJA.headerFont,
     }
 
     for (var key in json) {

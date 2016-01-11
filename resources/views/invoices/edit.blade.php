@@ -4,6 +4,9 @@
 	@parent
 
     @include('money_script')
+    @foreach ($account->getFontFolders() as $font)
+    <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+    @endforeach
 	<script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
 
     <style type="text/css">
@@ -113,17 +116,19 @@
             @if ($entityType == ENTITY_INVOICE)
 			<div data-bind="visible: is_recurring" style="display: none">
 				{!! Former::select('frequency_id')->options($frequencies)->data_bind("value: frequency_id")
-                        ->appendIcon('question-sign')->addGroupClass('frequency_id') !!}
+                        ->appendIcon('question-sign')->addGroupClass('frequency_id')->onchange('onFrequencyChange()') !!}
 				{!! Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('start_date') !!}
 				{!! Former::text('end_date')->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('end_date') !!}
+                {!! Former::select('recurring_due_date')->label(trans('texts.due_date'))->options($recurringDueDates)->data_bind("value: recurring_due_date")->appendIcon('question-sign')->addGroupClass('recurring_due_date') !!}
 			</div>
             @endif
 
             @if ($account->showCustomField('custom_invoice_text_label1', $invoice))
                 {!! Former::text('custom_text_value1')->label($account->custom_invoice_text_label1)->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
             @endif
+<<<<<<< HEAD
 
             @if ($entityType == ENTITY_INVOICE)
             <div class="form-group" style="margin-bottom: 8px">
@@ -144,6 +149,8 @@
                 </div>
             </div>
             @endif
+=======
+>>>>>>> cf24684adbce402f1c0e266672c4a2a5767dc754
 		</div>
 
 		<div class="col-md-4" id="col_2">
@@ -168,7 +175,30 @@
             @if ($account->showCustomField('custom_invoice_text_label2', $invoice))
                 {!! Former::text('custom_text_value2')->label($account->custom_invoice_text_label2)->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
             @endif
-
+            
+            @if ($entityType == ENTITY_INVOICE)
+            <div class="form-group" style="margin-bottom: 8px">
+                <div class="col-lg-8 col-sm-8 col-sm-offset-4" style="padding-top: 10px">                    
+                	@if ($invoice->recurring_invoice)
+                        {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
+    				@elseif ($invoice->id)
+                        <span class="smaller">
+                        @if (isset($lastSent) && $lastSent)
+                            {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!} <br/>
+                        @endif
+                        @if ($invoice->is_recurring && $invoice->getNextSendDate())
+                           {!! trans('texts.next_send_on', ['date' => '<span data-bind="tooltip: {title: \''.$invoice->getPrettySchedule().'\', html: true}">'.$account->formatDate($invoice->getNextSendDate()).
+                                '<span class="glyphicon glyphicon-info-sign" style="padding-left:10px;color:#B1B5BA"></span></span>']) !!}
+                            @if ($invoice->getDueDate())
+                                <br>
+                                {!! trans('texts.next_due_on', ['date' => '<span>'.$account->formatDate($invoice->getDueDate($invoice->getNextSendDate())).'</span>']) !!}
+                            @endif
+                        @endif
+                        </span>
+                    @endif
+                </div>
+            </div>
+            @endif
 		</div>
 	</div>
 
@@ -388,6 +418,11 @@
             {!! Former::text('pdfupload') !!}
 		</div>
 
+        @if ($account->hasLargeFont())
+            <label for="livePreview" class="control-label" style="padding-right:10px">
+                <input id="livePreview" type="checkbox"/> {{ trans('texts.live_preview') }}
+            </label>
+        @endif
 
 		@if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
@@ -593,6 +628,26 @@
 	    </div>
 	  </div>
 	</div>
+        
+    <div class="modal fade" id="recurringDueDateModal" tabindex="-1" role="dialog" aria-labelledby="recurringDueDateModalLabel" aria-hidden="true">
+	  <div class="modal-dialog" style="min-width:150px">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	        <h4 class="modal-title" id="recurringDueDateModalLabel">{{ trans('texts.recurring_due_dates') }}</h4>
+	      </div>
+
+	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
+	    	&nbsp; {!! isset($recurringDueDateHelp) ? $recurringDueDateHelp : '' !!} &nbsp;
+		</div>
+
+	     <div class="modal-footer" style="margin-top: 0px">
+	      	<button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+	     </div>
+	  		
+	    </div>
+	  </div>
+	</div>
 
 	{!! Former::close() !!}
 
@@ -617,6 +672,8 @@
     var clientMap = {};
     var $clientSelect = $('select#client');
     var invoiceDesigns = {!! $invoiceDesigns !!};
+    var invoiceFonts = {!! $invoiceFonts !!};
+        
 
 	$(function() {
         // create client dictionary
@@ -780,6 +837,10 @@
             showLearnMore();
         });
 
+        $('.recurring_due_date .input-group-addon').click(function() {
+            showRecurringDueDateLearnMore();
+        });
+
         var fields = ['invoice_date', 'due_date', 'start_date', 'end_date', 'last_sent_date'];
         for (var i=0; i<fields.length; i++) {
             var field = fields[i];
@@ -831,7 +892,29 @@
         @endif
 
         applyComboboxListeners();
+<<<<<<< HEAD
 	});
+=======
+	});	
+        
+    function onFrequencyChange(){
+        var currentName = $('#frequency_id').find('option:selected').text()
+        var currentDueDateNumber = $('#recurring_due_date').find('option:selected').attr('data-num');
+        var optionClass = currentName && currentName.toLowerCase().indexOf('week') > -1 ? 'weekly' :  'monthly';
+        var replacementOption = $('#recurring_due_date option[data-num=' + currentDueDateNumber + '].' + optionClass);
+        
+        $('#recurring_due_date option').hide();
+        $('#recurring_due_date option.' + optionClass).show();
+        
+        // Switch to an equivalent option
+        if(replacementOption.length){
+            replacementOption.attr('selected','selected');
+        }
+        else{
+            $('#recurring_due_date').val('');
+        }
+    }
+>>>>>>> cf24684adbce402f1c0e266672c4a2a5767dc754
 
 	function applyComboboxListeners() {
         var selectorStr = '.invoice-table input, .invoice-table textarea';
@@ -915,11 +998,20 @@
         return invoice;
 	}
 
+    window.generatedPDF = false;
 	function getPDFString(cb, force) {
+        @if ($account->hasLargeFont())
+            console.log('checked: %s', $('#livePreview').is(':checked'));
+            if (!$('#livePreview').is(':checked') && window.generatedPDF) {
+                console.log('returning');
+                return;
+            }
+        @endif
         var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
         generatePDF(invoice, design, force, cb);
+        window.generatedPDF = true;
 	}
 
 	function getDesignJavascript() {
@@ -1158,6 +1250,10 @@
 
     function showLearnMore() {
         $('#recurringModal').modal('show');
+    }
+
+    function showRecurringDueDateLearnMore() {
+        $('#recurringDueDateModal').modal('show');
     }
 
     function setInvoiceNumber(client) {

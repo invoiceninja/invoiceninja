@@ -28,7 +28,7 @@ use App\Events\InvoiceInvitationWasViewed;
 use App\Events\QuoteInvitationWasViewed;
 use App\Services\InvoiceService;
 use App\Services\RecurringInvoiceService;
-use App\Http\Requests\SaveInvoiceRequest;
+use App\Http\Requests\SaveInvoiceWithClientRequest;
 
 class InvoiceController extends BaseController
 {
@@ -104,6 +104,7 @@ class InvoiceController extends BaseController
                 'error' => trans('texts.invoice_not_found'),
                 'hideHeader' => true,
                 'clientViewCSS' => $account->clientViewCSS(),
+                'clientFontUrl' => $account->getFontsUrl(),
             ]);
         }
 
@@ -123,7 +124,12 @@ class InvoiceController extends BaseController
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->is_pro = $account->isPro();
+<<<<<<< HEAD
 
+=======
+        $invoice->invoice_fonts = $account->getFontsData();
+        
+>>>>>>> cf24684adbce402f1c0e266672c4a2a5767dc754
         if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
             $invoice->invoice_design->javascript = $account->custom_design;
         } else {
@@ -156,6 +162,7 @@ class InvoiceController extends BaseController
             'hideLogo' => $account->isWhiteLabel(),
             'hideHeader' => $account->isNinjaAccount(),
             'clientViewCSS' => $account->clientViewCSS(),
+            'clientFontUrl' => $account->getFontsUrl(),
             'invoice' => $invoice->hidePrivateFields(),
             'invitation' => $invitation,
             'invoiceLabels' => $account->getInvoiceLabels(),
@@ -227,6 +234,7 @@ class InvoiceController extends BaseController
         }
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
+        $invoice->recurring_due_date = $invoice->due_date;// Keep in SQL form
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->start_date = Utils::fromSqlDate($invoice->start_date);
         $invoice->end_date = Utils::fromSqlDate($invoice->end_date);
@@ -356,7 +364,55 @@ class InvoiceController extends BaseController
                 $recurringHelp .= $line;
             }
         }
+        
+        $recurringDueDateHelp = '';
+        foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_due_date_help')) as $line) {
+            $parts = explode("=>", $line);
+            if (count($parts) > 1) {
+                $line = $parts[0].' => '.Utils::processVariables($parts[0]);
+                $recurringDueDateHelp .= '<li>'.strip_tags($line).'</li>';
+            } else {
+                $recurringDueDateHelp .= $line;
+            }
+        }
 
+        // Create due date options
+        $recurringDueDates = array(
+            trans('texts.use_client_terms') => array('value' => '', 'class' => 'monthly weekly'),
+        );
+        
+        $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+        for($i = 1; $i < 31; $i++){
+            if ($i >= 11 && $i <= 13) $ordinal = $i. 'th';
+            else $ordinal = $i . $ends[$i % 10];
+            
+            $dayStr = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $str = trans('texts.day_of_month', array('ordinal'=>$ordinal));
+            
+            $recurringDueDates[$str] = array('value' => "1998-01-$dayStr", 'data-num' => $i, 'class' => 'monthly');
+        }
+        $recurringDueDates[trans('texts.last_day_of_month')] = array('value' => "1998-01-31", 'data-num' => 31, 'class' => 'monthly');
+        
+        
+        $daysOfWeek = array(
+            trans('texts.sunday'),
+            trans('texts.monday'),
+            trans('texts.tuesday'),
+            trans('texts.wednesday'),
+            trans('texts.thursday'),
+            trans('texts.friday'),
+            trans('texts.saturday'),
+        );
+        foreach(array('1st','2nd','3rd','4th') as $i=>$ordinal){
+            foreach($daysOfWeek as $j=>$dayOfWeek){
+                $str = trans('texts.day_of_week_after', array('ordinal' => $ordinal, 'day' => $dayOfWeek));
+                
+                $day = $i * 7 + $j  + 1;
+                $dayStr = str_pad($day, 2, '0', STR_PAD_LEFT);
+                $recurringDueDates[$str] = array('value' => "1998-02-$dayStr", 'data-num' => $day, 'class' => 'weekly');
+            }
+        }
+        
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
@@ -368,6 +424,7 @@ class InvoiceController extends BaseController
             'paymentTerms' => Cache::get('paymentTerms'),
             'industries' => Cache::get('industries'),
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
+            'invoiceFonts' => Cache::get('fonts'),
             'frequencies' => array(
                 1 => 'Weekly',
                 2 => 'Two weeks',
@@ -377,7 +434,9 @@ class InvoiceController extends BaseController
                 6 => 'Six months',
                 7 => 'Annually',
             ),
+            'recurringDueDates' => $recurringDueDates,
             'recurringHelp' => $recurringHelp,
+            'recurringDueDateHelp' => $recurringDueDateHelp,
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
             'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
             'expenses' => Session::get('expenses') ? json_encode(Session::get('expenses')) : null,
@@ -390,7 +449,7 @@ class InvoiceController extends BaseController
      *
      * @return Response
      */
-    public function store(SaveInvoiceRequest $request)
+    public function store(SaveInvoiceWithClientRequest $request)
     {
         $action = Input::get('action');
         $entityType = Input::get('entityType');
@@ -424,7 +483,7 @@ class InvoiceController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function update(SaveInvoiceRequest $request)
+    public function update(SaveInvoiceWithClientRequest $request)
     {
         $action = Input::get('action');
         $entityType = Input::get('entityType');
@@ -589,6 +648,7 @@ class InvoiceController extends BaseController
             'versionsJson' => json_encode($versionsJson),
             'versionsSelect' => $versionsSelect,
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
+            'invoiceFonts' => Cache::get('fonts'),
         ];
 
         return View::make('invoices.history', $data);

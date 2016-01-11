@@ -7,7 +7,9 @@
         <link href="{{ asset('css/jsoneditor.min.css') }}" rel="stylesheet" type="text/css">
         <script src="{{ asset('js/jsoneditor.min.js') }}" type="text/javascript"></script>
 
-
+    @foreach ($account->getFontFolders() as $font)
+        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+    @endforeach
         <script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
 
       <style type="text/css">
@@ -29,6 +31,7 @@
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
+    var invoiceFonts = {!! $invoiceFonts !!};
     var invoice = {!! json_encode($invoice) !!};      
     var sections = ['content', 'styles', 'defaultStyle', 'pageMargins', 'header', 'footer'];
     var customDesign = origCustomDesign = {!! $customDesign ?: 'JSON.parse(invoiceDesigns[0].javascript);' !!};
@@ -42,6 +45,8 @@
       NINJA.primaryColor = '{!! Auth::user()->account->primary_color !!}';
       NINJA.secondaryColor = '{!! Auth::user()->account->secondary_color !!}';
       NINJA.fontSize = {!! Auth::user()->account->font_size !!};
+      NINJA.headerFont = {!! json_encode(Auth::user()->account->getHeaderFontName()) !!};
+      NINJA.bodyFont = {!! json_encode(Auth::user()->account->getBodyFontName()) !!};
 
       generatePDF(invoice, getDesignJavascript(), force, cb);
     }
@@ -118,7 +123,6 @@
 
     $(function() {
        clearError();
-       refreshPDF(true);
       
         var container = document.getElementById("jsoneditor");
           var options = {
@@ -130,12 +134,14 @@
           };
         window.editor = new JSONEditor(container, options);
         loadEditor('content');
-
+        
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
           var target = $(e.target).attr("href") // activated tab
           target = target.substring(1); // strip leading #
           loadEditor(target);
         });
+        
+        refreshPDF(true);
     });
 
   </script> 

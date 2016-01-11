@@ -38,7 +38,9 @@ class CreateClientRequest extends Request
         }
 
         return $factory->make(
-            $this->input(), $this->container->call([$this, 'rules']), $this->messages()
+            $this->input(),
+            $this->container->call([$this, 'rules']),
+            $this->messages()
         );
     }
 }
