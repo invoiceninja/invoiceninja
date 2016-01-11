@@ -1481,16 +1481,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "v2.5.3",
+            "version": "v2.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "2fbcea96eae34a53183377cdbb0b9bec33974648"
+                "reference": "abbdfd1cff43a7b99d027af3be709bc8fc7d4769"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/2fbcea96eae34a53183377cdbb0b9bec33974648",
-                "reference": "2fbcea96eae34a53183377cdbb0b9bec33974648",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/abbdfd1cff43a7b99d027af3be709bc8fc7d4769",
+                "reference": "abbdfd1cff43a7b99d027af3be709bc8fc7d4769",
                 "shasum": ""
             },
             "require": {
@@ -1548,7 +1548,7 @@
                 "persistence",
                 "queryobject"
             ],
-            "time": "2015-12-25 16:28:24"
+            "time": "2016-01-05 22:11:12"
         },
         {
             "name": "doctrine/inflector",
@@ -2254,12 +2254,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/image.git",
-                "reference": "9f29360b8ab94585cb9e80cf9045abd5b85feb89"
+                "reference": "86dfe2f2a95aa9eed58faf1cc1dae6534a6ce931"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/9f29360b8ab94585cb9e80cf9045abd5b85feb89",
-                "reference": "9f29360b8ab94585cb9e80cf9045abd5b85feb89",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/86dfe2f2a95aa9eed58faf1cc1dae6534a6ce931",
+                "reference": "86dfe2f2a95aa9eed58faf1cc1dae6534a6ce931",
                 "shasum": ""
             },
             "require": {
@@ -2308,7 +2308,7 @@
                 "thumbnail",
                 "watermark"
             ],
-            "time": "2016-01-02 19:15:13"
+            "time": "2016-01-10 11:20:02"
         },
         {
             "name": "ircmaxell/password-compat",
@@ -3463,12 +3463,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/meebio/omnipay-secure-trading.git",
-                "reference": "42f97ee5ad1d28605550d816fc1893919e19e502"
+                "reference": "992224a3c8dd834ee18f6f253a77ecb4c87c1c1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/meebio/omnipay-secure-trading/zipball/42f97ee5ad1d28605550d816fc1893919e19e502",
-                "reference": "42f97ee5ad1d28605550d816fc1893919e19e502",
+                "url": "https://api.github.com/repos/meebio/omnipay-secure-trading/zipball/992224a3c8dd834ee18f6f253a77ecb4c87c1c1a",
+                "reference": "992224a3c8dd834ee18f6f253a77ecb4c87c1c1a",
                 "shasum": ""
             },
             "require": {
@@ -3513,7 +3513,7 @@
                 "secure trading",
                 "securetrading"
             ],
-            "time": "2015-12-01 10:03:20"
+            "time": "2016-01-05 09:26:36"
         },
         {
             "name": "mfauveau/omnipay-pacnet",
@@ -7030,16 +7030,16 @@
         },
         {
             "name": "true/punycode",
-            "version": "v2.0.1",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/true/php-punycode.git",
-                "reference": "b672918d992b84f8016bbe353a42516928393c63"
+                "reference": "74fa01d4de396c40e239794123b3874cb594a30c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/true/php-punycode/zipball/b672918d992b84f8016bbe353a42516928393c63",
-                "reference": "b672918d992b84f8016bbe353a42516928393c63",
+                "url": "https://api.github.com/repos/true/php-punycode/zipball/74fa01d4de396c40e239794123b3874cb594a30c",
+                "reference": "74fa01d4de396c40e239794123b3874cb594a30c",
                 "shasum": ""
             },
             "require": {
@@ -7072,7 +7072,7 @@
                 "idna",
                 "punycode"
             ],
-            "time": "2015-09-01 14:53:31"
+            "time": "2016-01-07 17:12:58"
         },
         {
             "name": "twbs/bootstrap",

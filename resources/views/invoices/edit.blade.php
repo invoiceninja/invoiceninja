@@ -128,7 +128,6 @@
             @if ($account->showCustomField('custom_invoice_text_label1', $invoice))
                 {!! Former::text('custom_text_value1')->label($account->custom_invoice_text_label1)->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
             @endif
-<<<<<<< HEAD
 
             @if ($entityType == ENTITY_INVOICE)
             <div class="form-group" style="margin-bottom: 8px">
@@ -149,8 +148,6 @@
                 </div>
             </div>
             @endif
-=======
->>>>>>> cf24684adbce402f1c0e266672c4a2a5767dc754
 		</div>
 
 		<div class="col-md-4" id="col_2">
