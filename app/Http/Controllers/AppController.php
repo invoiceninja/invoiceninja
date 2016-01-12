@@ -243,6 +243,7 @@ class AppController extends BaseController
             try {
                 Artisan::call('migrate', array('--force' => true));
                 Artisan::call('db:seed', array('--force' => true, '--class' => 'PaymentLibrariesSeeder'));
+                Artisan::call('db:seed', array('--force' => true, '--class' => 'FontsSeeder'));
                 Artisan::call('optimize', array('--force' => true));
                 Cache::flush();
                 Session::flush();
