@@ -154,13 +154,14 @@ class StartupCheck
         }
         foreach ($cachedTables as $name => $class) {
             if (Input::has('clear_cache') || !Cache::has($name)) {
+                if ( ! class_exists($class)) {
+                    continue;
+                }
                 if ($name == 'paymentTerms') {
                     $orderBy = 'num_days';
-                }
-                else if ($name == 'fonts') {
+                } elseif ($name == 'fonts') {
                     $orderBy = 'sort_order';
                 } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries'])) {
-                    
                     $orderBy = 'name';
                 } else {
                     $orderBy = 'id';
