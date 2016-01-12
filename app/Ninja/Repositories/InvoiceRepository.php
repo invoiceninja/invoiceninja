@@ -223,6 +223,9 @@ class InvoiceRepository extends BaseRepository
         if (isset($data['invoice_number']) && !$invoice->is_recurring) {
             $invoice->invoice_number = trim($data['invoice_number']);
         }
+        elseif (!isset($data['invoice_number']) && !$invoice->is_recurring) {
+            $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
+        }
 
         if (isset($data['discount'])) {
             $invoice->discount = round(Utils::parseFloat($data['discount']), 2);
