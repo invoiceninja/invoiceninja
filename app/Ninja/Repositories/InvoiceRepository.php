@@ -247,10 +247,12 @@ class InvoiceRepository extends BaseRepository
             $invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
             $invoice->start_date = Utils::toSqlDate($data['start_date']);
             $invoice->end_date = Utils::toSqlDate($data['end_date']);
-            $invoice->due_date = null;
             $invoice->auto_bill = isset($data['auto_bill']) && $data['auto_bill'] ? true : false;
-            if(isset($data['recurring_due_date'])){
+            
+            if (isset($data['recurring_due_date'])) {
                 $invoice->due_date = $data['recurring_due_date'];
+            } elseif (isset($data['due_date'])) {
+                $invoice->due_date = $data['due_date'];
             }
         } else {
             if (isset($data['due_date']) || isset($data['due_date_sql'])) {
