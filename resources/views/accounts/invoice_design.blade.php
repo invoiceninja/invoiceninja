@@ -52,9 +52,12 @@
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
-      NINJA.headerFont = $('#header_font_id option:selected').text();
-      NINJA.bodyFont = $('#body_font_id option:selected').text();
-
+      @if (Auth::user()->isPro())
+        NINJA.headerFont = $('#header_font_id option:selected').text();
+        NINJA.bodyFont = $('#body_font_id option:selected').text();
+      @else
+        NINJA.headerFont = NINJA.bodyFont = 'Roboto';
+      @endif
       var fields = ['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms'];
       invoiceLabels.old = {};
       for (var i=0; i<fields.length; i++) {
