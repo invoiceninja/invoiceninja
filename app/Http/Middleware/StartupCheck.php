@@ -10,6 +10,7 @@ use Redirect;
 use Cache;
 use Session;
 use Event;
+use Schema;
 use App\Models\Language;
 use App\Models\InvoiceDesign;
 use App\Events\UserSettingsChanged;
@@ -154,7 +155,8 @@ class StartupCheck
         }
         foreach ($cachedTables as $name => $class) {
             if (Input::has('clear_cache') || !Cache::has($name)) {
-                if ( ! class_exists($class)) {
+                // check that the table exists in case the migration is pending
+                if ( ! Schema::hasTable((new $class)->getTable())) {
                     continue;
                 }
                 if ($name == 'paymentTerms') {
