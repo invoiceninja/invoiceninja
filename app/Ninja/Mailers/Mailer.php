@@ -61,8 +61,8 @@ class Mailer
 
             // Track the Postmark message id
             if (isset($_ENV['POSTMARK_API_TOKEN']) && $response) {
-                $json = $response->json();
-                $messageId = $json['MessageID'];
+                $json = json_decode((string) $response->getBody());
+                $messageId = $json->MessageID;
             }
 
             $invoice->markInvitationSent($invitation, $messageId);
