@@ -18,13 +18,15 @@ class InvoiceListener
             return;
         }
 
-        $invoice = $event->invoice;
-        $account = Auth::user()->account;
+        if (Auth::check()) {
+            $invoice = $event->invoice;
+            $account = Auth::user()->account;
 
-        if ($invoice->invoice_design_id
-                && $account->invoice_design_id != $invoice->invoice_design_id) {
-            $account->invoice_design_id = $invoice->invoice_design_id;
-            $account->save();
+            if ($invoice->invoice_design_id
+                    && $account->invoice_design_id != $invoice->invoice_design_id) {
+                $account->invoice_design_id = $invoice->invoice_design_id;
+                $account->save();
+            }
         }
     }
 

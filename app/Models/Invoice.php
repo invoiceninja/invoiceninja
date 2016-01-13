@@ -513,7 +513,8 @@ class Invoice extends EntityModel implements BalanceAffecting
                 $dueDateVal = strtotime($this->due_date);
                 $monthVal = (int)date('n', $dueDateVal);
                 $dayVal = (int)date('j', $dueDateVal);
-
+                $dueDate = false;
+                
                 if($monthVal == 1) {// January; day of month
                     $currentDay = (int)date('j', $now);
                     $lastDayOfMonth = (int)date('t', $now);
