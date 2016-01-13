@@ -923,11 +923,11 @@ class Account extends Eloquent
     }
     
     public function getHeaderFontId() {
-        return $this->isPro() ? $this->header_font_id : DEFAULT_HEADER_FONT;
+        return ($this->isPro() && $this->header_font_id) ? $this->header_font_id : DEFAULT_HEADER_FONT;
     }
 
     public function getBodyFontId() {
-        return $this->isPro() ? $this->body_font_id : DEFAULT_BODY_FONT;
+        return ($this->isPro() && $this->body_font_id) ? $this->body_font_id : DEFAULT_BODY_FONT;
     }
 
     public function getHeaderFontName(){
