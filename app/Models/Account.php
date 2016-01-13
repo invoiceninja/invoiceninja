@@ -806,7 +806,7 @@ class Account extends Eloquent
         for ($i=1; $i<=3; $i++) {
             if ($date = $this->getReminderDate($i)) {
                 $field = $this->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
-                if ($this->$field == $date) {
+                if ($invoice->$field == $date) {
                     return "reminder{$i}";
                 }
             }
