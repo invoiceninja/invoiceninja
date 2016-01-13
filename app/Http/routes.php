@@ -423,6 +423,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_MOOLAH', 31);
     define('GATEWAY_BITPAY', 42);
     define('GATEWAY_DWOLLA', 43);
+    define('GATEWAY_CHECKOUT_COM', 47);
 
     define('EVENT_CREATE_CLIENT', 1);
     define('EVENT_CREATE_INVOICE', 2);
@@ -437,7 +438,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.4.9.4');
+    define('NINJA_VERSION', '2.4.9.5');
     define('NINJA_DATE', '2000-01-01');
 
     define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');
