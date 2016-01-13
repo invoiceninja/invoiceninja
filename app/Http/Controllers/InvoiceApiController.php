@@ -197,15 +197,6 @@ class InvoiceApiController extends BaseAPIController
             }
         }
 
-        // hardcode some fields
-        $fields = [
-            'is_recurring' => false
-        ];
-
-        foreach ($fields as $key => $val) {
-            $data[$key] = $val;
-        }
-
         // initialize the line items
         if (isset($data['product_key']) || isset($data['cost']) || isset($data['notes']) || isset($data['qty'])) {
             $data['invoice_items'] = [self::prepareItem($data)];
