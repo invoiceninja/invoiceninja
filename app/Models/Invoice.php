@@ -332,6 +332,17 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->partial > 0 ? $this->partial : $this->balance;
     }
 
+    public function getCurrencyCode()
+    {
+        if ($this->client->currency) {
+            return $this->client->currency->code;
+        } elseif ($this->account->currency) {
+            return $this->account->currency->code;
+        } else {
+            return 'USD';
+        }
+    }
+
     public function hidePrivateFields()
     {
         $this->setVisible([
@@ -506,7 +517,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                 }
             }
             
-            if($this->due_date){
+            if($this->due_date && $this->due_date != '0000-00-00'){
                 // This is a recurring invoice; we're using a custom format here.
                 // The year is always 1998; January is 1st, 2nd, last day of the month.
                 // February is 1st Sunday after, 1st Monday after, ..., through 4th Saturday after.
@@ -706,7 +717,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         $invitation = $this->invitations[0];
         $link = $invitation->getLink();
         $curl = curl_init();
-
+        
         $jsonEncodedData = json_encode([
             'url' => "{$link}?phantomjs=true",
             'renderType' => 'html',
@@ -730,10 +741,17 @@ class Invoice extends EntityModel implements BalanceAffecting
         ];
 
         curl_setopt_array($curl, $opts);
-        $encodedString = strip_tags(curl_exec($curl));
+        $response = curl_exec($curl);
         curl_close($curl);
 
-        return Utils::decodePDF($encodedString);
+        $encodedString = strip_tags($response);
+        $pdfString = Utils::decodePDF($encodedString);
+
+        if ( ! $pdfString || strlen($pdfString) < 200) {
+            Utils::logError("PhantomJSCloud - failed to create pdf: {$encodedString}");
+        }
+
+        return $pdfString;
     }
 }
 
