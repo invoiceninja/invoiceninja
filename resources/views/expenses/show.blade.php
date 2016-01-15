@@ -74,12 +74,11 @@
         <div class="tab-pane active" id="activity">
 			{!! Datatable::table()
 		    	->addColumn(
-		    		trans('texts.date'),
+		    		trans('texts.expense_date'),
 		    		trans('texts.message'),
-		    		trans('texts.balance'),
-		    		trans('texts.adjustment'))
+		    		trans('texts.amount'),
+		    		trans('texts.public_notes'))
 		    	->setUrl(url('api/expenseactivities/'. $expense->public_id))
-                ->setCustomValues('entityType', 'activity')
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
@@ -98,6 +97,7 @@
 		$('.primaryDropDown:not(.dropdown-toggle)').click(function() {
 			window.location = '{{ URL::to('expenses/create/' . $expense->public_id ) }}';
 		});
+
 	});
 
 	function onArchiveClick() {

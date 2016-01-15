@@ -75,9 +75,9 @@ class VendorController extends BaseController
     public function store(CreateVendorRequest $request)
     {
         $vendor = $this->vendorService->save($request->input());
-        
+
         Session::flash('message', trans('texts.created_vendor'));
-        
+
         return redirect()->to($vendor->getRoute());
     }
 
@@ -167,7 +167,8 @@ class VendorController extends BaseController
             'data' => Input::old('data'),
             'account' => Auth::user()->account,
             'sizes' => Cache::get('sizes'),
-            'paymentTerms' => Cache::get('paymentTerms'),
+            //'paymentTerms' => Cache::get('paymentTerms'),
+            'paymentTerms' => PaymentTerm::get(),
             'industries' => Cache::get('industries'),
             'currencies' => Cache::get('currencies'),
             'languages' => Cache::get('languages'),
@@ -186,9 +187,9 @@ class VendorController extends BaseController
     public function update(UpdateVendorRequest $request)
     {
         $vendor = $this->vendorService->save($request->input());
-        
+
         Session::flash('message', trans('texts.updated_vendor'));
-        
+
         return redirect()->to($vendor->getRoute());
     }
 

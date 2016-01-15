@@ -4,13 +4,14 @@ use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\ExpenseWasCreated;
 use App\Events\ExpenseWasUpdated;
+use App\Events\ExpenseWasDeleted;
 
 class Expense extends EntityModel
 {
     // Expenses
     use SoftDeletes;
     use PresentableTrait;
-    
+
     protected $dates = ['deleted_at'];
     protected $presenter = 'App\Ninja\Presenters\ExpensePresenter';
 
@@ -20,7 +21,7 @@ class Expense extends EntityModel
         'exchange_rate',
         'private_notes',
         'public_notes',
-    ];    
+    ];
     public function account()
     {
         return $this->belongsTo('App\Models\Account');
@@ -40,10 +41,10 @@ class Expense extends EntityModel
     {
         if($this->expense_number)
             return $this->expense_number;
-        
+
         return $this->public_id;
     }
-    
+
     public function getDisplayName()
     {
         return $this->getName();
@@ -53,7 +54,7 @@ class Expense extends EntityModel
     {
         return "/expenses/{$this->public_id}";
     }
-    
+
     public function getEntityType()
     {
         return ENTITY_EXPENSE;
@@ -91,5 +92,10 @@ Expense::updated(function ($expense) {
     event(new ExpenseWasUpdated($expense));
 });
 
+Expense::deleting(function ($expense) {
+    $expense->setNullValues();
+});
 
-
+Expense::deleted(function ($expense) {
+    event(new ExpenseWasDeleted($expense));
+});

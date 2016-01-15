@@ -154,7 +154,7 @@ class Vendor extends EntityModel
 
         $this->balance = $this->balance + $balanceAdjustment;
         $this->paid_to_date = $this->paid_to_date + $paidToDateAdjustment;
-        
+
         $this->save();
     }
 
@@ -167,18 +167,18 @@ class Vendor extends EntityModel
     {
         return 0;
     }
-	
+
     public function getName()
     {
         return $this->name;
     }
-    
+
     public function getDisplayName()
     {
         if ($this->name) {
             return $this->name;
         }
-        
+
         if ( ! count($this->contacts)) {
             return '';
         }
@@ -236,7 +236,7 @@ class Vendor extends EntityModel
         }
 
         $accountGateway = $this->account->getGatewayConfig(GATEWAY_STRIPE);
-        
+
         if (!$accountGateway) {
             return false;
         }
@@ -282,3 +282,11 @@ Vendor::updated(function ($vendor) {
     event(new VendorWasUpdated($vendor));
 });
 
+
+Vendor::deleting(function ($vendor) {
+    $vendor->setNullValues();
+});
+
+Vendor::deleted(function ($vendor) {
+    event(new VendorWasDeleted($vendor));
+});

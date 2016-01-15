@@ -100,13 +100,13 @@
             @if ($vendor->private_notes)
                 <p><i>{{ $vendor->private_notes }}</i></p>
             @endif
-		  	
+
   	        @if ($vendor->vendor_industry)
                 {{ $vendor->vendor_industry->name }}<br/>
             @endif
             @if ($vendor->vendor_size)
                 {{ $vendor->vendor_size->name }}<br/>
-            @endif            
+            @endif
 
 		  	@if ($vendor->website)
 		  	   <p>{!! Utils::formatWebsite($vendor->website) !!}</p>
@@ -130,7 +130,7 @@
                 @endif
                 @if ($contact->phone)
                     <i class="fa fa-phone" style="width: 20px"></i>{{ $contact->phone }}<br/>
-                @endif		  		
+                @endif
 		  	@endforeach
 		</div>
 
@@ -194,7 +194,7 @@
 								trans('texts.credit_balance'),
 								trans('texts.credit_date'),
 								trans('texts.private_notes'))
-				->setUrl(url('api/credits/' . $vendor->public_id))
+				->setUrl(url('api/expenses/' . $vendor->public_id))
                 ->setCustomValues('entityType', 'credits')
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
@@ -266,14 +266,14 @@
 
             var map = new google.maps.Map(mapCanvas, mapOptions)
             var address = "{{ "{$vendor->address1} {$vendor->address2} {$vendor->city} {$vendor->state} {$vendor->postal_code} " . ($vendor->country ? $vendor->country->name : '') }}";
-            
+
             geocoder = new google.maps.Geocoder();
             geocoder.geocode( { 'address': address}, function(results, status) {
                 if (status == google.maps.GeocoderStatus.OK) {
                   if (status != google.maps.GeocoderStatus.ZERO_RESULTS) {
                     var result = results[0];
                     map.setCenter(result.geometry.location);
-                    
+
                     var infowindow = new google.maps.InfoWindow(
                         { content: '<b>'+result.formatted_address+'</b>',
                         size: new google.maps.Size(150, 50)
@@ -281,9 +281,9 @@
 
                     var marker = new google.maps.Marker({
                         position: result.geometry.location,
-                        map: map, 
+                        map: map,
                         title:address,
-                    }); 
+                    });
                     google.maps.event.addListener(marker, 'click', function() {
                         infowindow.open(map, marker);
                     });
