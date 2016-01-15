@@ -30298,6 +30298,17 @@ function getClientDisplayName(client)
   return '';
 }
 
+function getVendorDisplayName(vendor)
+{
+  var contact = vendor.contacts ? vendor.vendorcontacts[0] : false;
+  if (vendor.name) {
+    return vendor.name;
+  } else if (contact) {
+    return getContactDisplayName(contact);
+  }
+  return '';
+}
+
 function populateInvoiceComboboxes(clientId, invoiceId) {
   var clientMap = {};
   var invoiceMap = {};

@@ -87,4 +87,11 @@ class BaseTransformer extends TransformerAbstract
         return isset($this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber])? $this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber] : null;
     }
 
+    
+    protected function getVendorId($name)
+    {
+        $name = strtolower($name);
+        return isset($this->maps[ENTITY_VENDOR][$name]) ? $this->maps[ENTITY_VENDOR][$name] : null;
+    }
+    
 }

@@ -120,12 +120,12 @@ class InvoiceController extends BaseController
         Session::put('invitation_key', $invitationKey); // track current invitation
 
         $account->loadLocalizationSettings($client);
-        
+
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->is_pro = $account->isPro();
         $invoice->invoice_fonts = $account->getFontsData();
-        
+
         if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
             $invoice->invoice_design->javascript = $account->custom_design;
         } else {
@@ -207,7 +207,7 @@ class InvoiceController extends BaseController
                         ->withTrashed()
                         ->firstOrFail();
         $entityType = $invoice->getEntityType();
-        
+
         $contactIds = DB::table('invitations')
             ->join('contacts', 'contacts.id', '=', 'invitations.contact_id')
             ->where('invitations.invoice_id', '=', $invoice->id)
@@ -286,7 +286,7 @@ class InvoiceController extends BaseController
                 'actions' => $actions,
                 'lastSent' => $lastSent);
         $data = array_merge($data, self::getViewModel());
-        
+
         if ($clone) {
             $data['formIsChanged'] = true;
         }
@@ -322,14 +322,14 @@ class InvoiceController extends BaseController
         $account = Auth::user()->account;
         $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
         $clientId = null;
-        
+
         if ($clientPublicId) {
             $clientId = Client::getPrivateId($clientPublicId);
         }
-        
+
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
-        
+
         $data = [
             'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
             'entityType' => $invoice->getEntityType(),
@@ -339,7 +339,7 @@ class InvoiceController extends BaseController
             'title' => trans('texts.new_invoice'),
         ];
         $data = array_merge($data, self::getViewModel());
-        
+
         return View::make('invoices.edit', $data);
     }
 
@@ -360,7 +360,7 @@ class InvoiceController extends BaseController
                 $recurringHelp .= $line;
             }
         }
-        
+
         $recurringDueDateHelp = '';
         foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_due_date_help')) as $line) {
             $parts = explode("=>", $line);
@@ -376,20 +376,20 @@ class InvoiceController extends BaseController
         $recurringDueDates = array(
             trans('texts.use_client_terms') => array('value' => '', 'class' => 'monthly weekly'),
         );
-        
+
         $ends = array('th','st','nd','rd','th','th','th','th','th','th');
         for($i = 1; $i < 31; $i++){
             if ($i >= 11 && $i <= 13) $ordinal = $i. 'th';
             else $ordinal = $i . $ends[$i % 10];
-            
+
             $dayStr = str_pad($i, 2, '0', STR_PAD_LEFT);
             $str = trans('texts.day_of_month', array('ordinal'=>$ordinal));
-            
+
             $recurringDueDates[$str] = array('value' => "1998-01-$dayStr", 'data-num' => $i, 'class' => 'monthly');
         }
         $recurringDueDates[trans('texts.last_day_of_month')] = array('value' => "1998-01-31", 'data-num' => 31, 'class' => 'monthly');
-        
-        
+
+
         $daysOfWeek = array(
             trans('texts.sunday'),
             trans('texts.monday'),
@@ -402,13 +402,13 @@ class InvoiceController extends BaseController
         foreach(array('1st','2nd','3rd','4th') as $i=>$ordinal){
             foreach($daysOfWeek as $j=>$dayOfWeek){
                 $str = trans('texts.day_of_week_after', array('ordinal' => $ordinal, 'day' => $dayOfWeek));
-                
+
                 $day = $i * 7 + $j  + 1;
                 $dayStr = str_pad($day, 2, '0', STR_PAD_LEFT);
                 $recurringDueDates[$str] = array('value' => "1998-02-$dayStr", 'data-num' => $day, 'class' => 'weekly');
             }
         }
-        
+
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
@@ -435,6 +435,7 @@ class InvoiceController extends BaseController
             'recurringDueDateHelp' => $recurringDueDateHelp,
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
             'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
+            'expenses' => Session::get('expenses') ? json_encode(Session::get('expenses')) : null,
         ];
 
     }
@@ -468,7 +469,7 @@ class InvoiceController extends BaseController
         if ($action == 'email') {
             return $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
-        
+
         return redirect()->to($invoice->getRoute());
     }
 
@@ -495,7 +496,7 @@ class InvoiceController extends BaseController
         } elseif ($action == 'email') {
             return $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
-        
+
         return redirect()->to($invoice->getRoute());
     }
 
