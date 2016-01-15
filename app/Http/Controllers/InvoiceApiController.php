@@ -49,8 +49,8 @@ class InvoiceApiController extends BaseAPIController
      */
     public function index()
     {
-        $paginator = Invoice::scope();
-        $invoices = Invoice::scope()
+        $paginator = Invoice::scope()->withTrashed();
+        $invoices = Invoice::scope()->withTrashed()
                         ->with(array_merge(['invoice_items'], $this->getIncluded()));
 
         if ($clientPublicId = Input::get('client_id')) {
