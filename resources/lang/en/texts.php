@@ -593,6 +593,7 @@ return array(
     'payment_type_credit_card' => 'Credit Card',
     'payment_type_paypal' => 'PayPal',
     'payment_type_bitcoin' => 'Bitcoin',
+    'payment_type_direct_debit' => 'Direct Debit',
     'knowledge_base' => 'Knowledge Base',
     'partial' => 'Partial',
     'partial_remaining' => ':partial of :balance',
@@ -895,7 +896,7 @@ return array(
     'default_invoice_footer' => 'Default Invoice Footer',
     'quote_footer' => 'Quote Footer',
     'free' => 'Free',
-    
+
     'quote_is_approved' => 'This quote is approved',
     'apply_credit' => 'Apply Credit',
     'system_settings' => 'System Settings',
@@ -976,7 +977,7 @@ return array(
     'custom_account_fields_helps' => 'Add a label and value to the company details section of the PDF.',
     'custom_invoice_fields_helps' => 'Add a text input to the invoice create/edit page and display the label and value on the PDF.',
     'custom_invoice_charges_helps' => 'Add a text input to the invoice create/edit page and include the charge in the invoice subtotals.',
-    
+
     'token_expired' => 'Validation token was expired. Please try again.',
     'invoice_link' => 'Invoice Link',
     'button_confirmation_message' => 'Click to confirm your email address.',
@@ -996,7 +997,7 @@ return array(
 
     'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
     'white_label_purchase_link' => 'Purchase a white label license',
-    
+
     // recurring due dates
     'recurring_due_dates' => 'Recurring Invoice Due Dates',
     'recurring_due_date_help' => '<p>Automatically sets a due date for the invoice.</p>
@@ -1037,5 +1038,5 @@ return array(
     'invoice_message_button' => 'To view your invoice for :amount, click the button below.',
     'quote_message_button' => 'To view your quote for :amount, click the button below.',
     'payment_message_button' => 'Thank you for your payment of :amount.',
-    
+
 );

@@ -12,7 +12,8 @@ class Gateway extends Eloquent
         PAYMENT_TYPE_CREDIT_CARD,
         PAYMENT_TYPE_PAYPAL,
         PAYMENT_TYPE_BITCOIN,
-        PAYMENT_TYPE_DWOLLA
+        PAYMENT_TYPE_DIRECT_DEBIT,
+        PAYMENT_TYPE_DWOLLA,
     ];
 
     public static $hiddenFields = [
@@ -94,6 +95,8 @@ class Gateway extends Eloquent
             return PAYMENT_TYPE_BITCOIN;
         } else if ($gatewayId == GATEWAY_DWOLLA) {
             return PAYMENT_TYPE_DWOLLA;
+        }else if ($gatewayId == GATEWAY_GOCARDLESS) {
+            return PAYMENT_TYPE_DIRECT_DEBIT;
         } else {
             return PAYMENT_TYPE_CREDIT_CARD;
         }
