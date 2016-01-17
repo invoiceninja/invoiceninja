@@ -149,7 +149,8 @@ class InvoiceRepository extends BaseRepository
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', false)
-          ->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT)
+          // This needs to be a setting to also hide the activity on the dashboard page
+          //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT) 
           ->select(
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                 DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
@@ -603,7 +604,6 @@ class InvoiceRepository extends BaseRepository
         $invoice->custom_text_value2 = $recurInvoice->custom_text_value2;
         $invoice->is_amount_discount = $recurInvoice->is_amount_discount;
         $invoice->due_date = $recurInvoice->getDueDate();
-
         $invoice->save();
 
         foreach ($recurInvoice->invoice_items as $recurItem) {
