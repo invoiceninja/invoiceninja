@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
+use Illuminate\Support\Facades\Request;
 use Utils;
 use Response;
 use Input;
@@ -49,8 +50,8 @@ class InvoiceApiController extends BaseAPIController
      */
     public function index()
     {
-        $paginator = Invoice::scope();
-        $invoices = Invoice::scope()
+        $paginator = Invoice::scope()->withTrashed();
+        $invoices = Invoice::scope()->withTrashed()
                         ->with(array_merge(['invoice_items'], $this->getIncluded()));
 
         if ($clientPublicId = Input::get('client_id')) {
@@ -270,16 +271,41 @@ class InvoiceApiController extends BaseAPIController
         return Response::make($response, $error ? 400 : 200, $headers);
     }
 
-
+        /**
+         * @SWG\Put(
+         *   path="/invoices",
+         *   tags={"invoice"},
+         *   summary="Update an invoice",
+         *   @SWG\Parameter(
+         *     in="body",
+         *     name="body",
+         *     @SWG\Schema(ref="#/definitions/Invoice")
+         *   ),
+         *   @SWG\Response(
+         *     response=200,
+         *     description="Update invoice",
+         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
+         *   ),
+         *   @SWG\Response(
+         *     response="default",
+         *     description="an ""unexpected"" error"
+         *   )
+         * )
+         */
     public function update(UpdateInvoiceRequest $request, $publicId)
     {
         if ($request->action == ACTION_ARCHIVE) {
             $invoice = Invoice::scope($publicId)->firstOrFail();
             $this->invoiceRepo->archive($invoice);
-            
+            /*
             $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
             $headers = Utils::getApiHeaders();
             return Response::make($response, 200, $headers);
+            */
+            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($invoice, $transformer, 'invoice');
+
+            return $this->response($data);
         }
 
         $data = $request->input();
@@ -292,4 +318,41 @@ class InvoiceApiController extends BaseAPIController
 
         return $this->response($data);
     }
+
+        /**
+         * @SWG\Delete(
+         *   path="/invoices",
+         *   tags={"invoice"},
+         *   summary="Delete an invoice",
+         *   @SWG\Parameter(
+         *     in="body",
+         *     name="body",
+         *     @SWG\Schema(ref="#/definitions/Invoice")
+         *   ),
+         *   @SWG\Response(
+         *     response=200,
+         *     description="Delete invoice",
+         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
+         *   ),
+         *   @SWG\Response(
+         *     response="default",
+         *     description="an ""unexpected"" error"
+         *   )
+         * )
+         */
+
+    public function destroy($publicId)
+    {
+        $data['public_id'] = $publicId;
+        $invoice = Invoice::scope($publicId)->firstOrFail();
+
+        $this->invoiceRepo->delete($invoice);
+
+        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+        $data = $this->createItem($invoice, $transformer, 'invoice');
+
+        return $this->response($data);
+
+    }
+
 }
