@@ -320,12 +320,19 @@ class Account extends Eloquent
 
     public function hasLogo()
     {
-        return file_exists($this->getLogoPath());
+        return file_exists($this->getLogoFullPath());
     }
 
     public function getLogoPath()
     {
         $fileName = 'logo/' . $this->account_key;
+
+        return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
+    }
+
+    public function getLogoFullPath()
+    {
+        $fileName = public_path() . '/logo/' . $this->account_key;
 
         return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
     }
@@ -348,7 +355,7 @@ class Account extends Eloquent
 
     public function getLogoWidth()
     {
-        $path = $this->getLogoPath();
+        $path = $this->getLogoFullPath();
         if (!file_exists($path)) {
             return 0;
         }
@@ -359,7 +366,7 @@ class Account extends Eloquent
 
     public function getLogoHeight()
     {
-        $path = $this->getLogoPath();
+        $path = $this->getLogoFullPath();
         if (!file_exists($path)) {
             return 0;
         }
@@ -656,7 +663,7 @@ class Account extends Eloquent
             return 0;
         }
 
-        $filename = $this->getLogoPath();
+        $filename = $this->getLogoFullPath();
         return round(File::size($filename) / 1000);
     }
 

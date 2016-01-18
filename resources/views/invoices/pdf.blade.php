@@ -62,7 +62,7 @@
   logoImages.imageLogoWidth3 =325/2;
   logoImages.imageLogoHeight3 = 81/2;
 
-  @if (file_exists($account->getLogoPath()))
+  @if ($account->hasLogo())
   window.accountLogo = "{{ HTML::image_data($account->getLogoPath()) }}";
   if (window.invoice) {
     invoice.image = window.accountLogo;
