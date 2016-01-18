@@ -593,7 +593,6 @@ return array(
     'payment_type_credit_card' => 'Credit Card',
     'payment_type_paypal' => 'PayPal',
     'payment_type_bitcoin' => 'Bitcoin',
-    'payment_type_direct_debit' => 'Direct Debit',
     'knowledge_base' => 'Knowledge Base',
     'partial' => 'Partial',
     'partial_remaining' => ':partial of :balance',
@@ -1038,5 +1037,7 @@ return array(
     'invoice_message_button' => 'To view your invoice for :amount, click the button below.',
     'quote_message_button' => 'To view your quote for :amount, click the button below.',
     'payment_message_button' => 'Thank you for your payment of :amount.',
+    'payment_type_direct_debit' => 'Direct Debit',
+
 
 );
