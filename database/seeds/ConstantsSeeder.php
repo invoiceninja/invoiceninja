@@ -53,6 +53,7 @@ class ConstantsSeeder extends Seeder
 		InvoiceStatus::create(array('name' => 'Draft'));
 		InvoiceStatus::create(array('name' => 'Sent'));
 		InvoiceStatus::create(array('name' => 'Viewed'));
+		InvoiceStatus::create(array('name' => 'Approved'));
 		InvoiceStatus::create(array('name' => 'Partial'));
 		InvoiceStatus::create(array('name' => 'Paid'));		
 

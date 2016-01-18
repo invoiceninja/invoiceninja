@@ -401,6 +401,7 @@ return array(
     'notification_quote_viewed_subject' => 'Quote :invoice was viewed by :client',
     'notification_quote_sent' => 'The following client :client was emailed Quote :invoice for :amount.',
     'notification_quote_viewed' => 'The following client :client viewed Quote :invoice for :amount.',
+    'quote_to_invoice' => 'Converted quote to invoice automatically when client approves',
 
     'session_expired' => 'Your session has expired.',
 
@@ -766,6 +767,7 @@ return array(
     'status_draft' => 'Draft',
     'status_sent' => 'Sent',
     'status_viewed' => 'Viewed',
+    'status_approved' => 'Approved',
     'status_partial' => 'Partial',
     'status_paid' => 'Paid',
     'show_line_item_tax' => 'Display <b>line item taxes inline</b>',

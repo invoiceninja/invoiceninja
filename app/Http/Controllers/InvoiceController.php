@@ -475,7 +475,7 @@ class InvoiceController extends BaseController
     public function convertQuote($publicId)
     {
         $invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();
-        $clone = $this->invoiceService->approveQuote($invoice);
+        $clone = $this->invoiceService->convertQuote($invoice);
 
         Session::flash('message', trans('texts.converted_to_invoice'));
         return Redirect::to('invoices/'.$clone->public_id);

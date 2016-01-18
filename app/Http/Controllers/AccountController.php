@@ -645,6 +645,7 @@ class AccountController extends BaseController
                 $account->invoice_terms = Input::get('invoice_terms');
                 $account->invoice_footer = Input::get('invoice_footer');
                 $account->quote_terms = Input::get('quote_terms');
+                $account->quote_to_invoice = Input::get('quote_to_invoice');
 
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');
