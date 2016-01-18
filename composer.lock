@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f3b07ee34ed5086cd684a7207fd3617e",
-    "content-hash": "7305e2f5d6864894aeb23ac91f3e1fe7",
+    "hash": "9ed916108c17ac2634ffc4b9676098d1",
+    "content-hash": "e5177cc53f079158f3180a7e4ef0ded6",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -127,7 +127,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alfaproject/omnipay-skrill/zipball/2fa2ba8083fd5289366660f8de1b46b5f49ac052",
+                "url": "https://api.github.com/repos/alfaproject/omnipay-skrill/zipball/41a7a03c5b90d496720e288bebc157d898837ccd",
                 "reference": "2fa2ba8083fd5289366660f8de1b46b5f49ac052",
                 "shasum": ""
             },
@@ -2258,7 +2258,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/e6acb1609ce89f2c1ec7864fbbda0a20a3eeca70",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/86dfe2f2a95aa9eed58faf1cc1dae6534a6ce931",
                 "reference": "e6acb1609ce89f2c1ec7864fbbda0a20a3eeca70",
                 "shasum": ""
             },
@@ -3467,7 +3467,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/meebio/omnipay-secure-trading/zipball/42f97ee5ad1d28605550d816fc1893919e19e502",
+                "url": "https://api.github.com/repos/meebio/omnipay-secure-trading/zipball/992224a3c8dd834ee18f6f253a77ecb4c87c1c1a",
                 "reference": "42f97ee5ad1d28605550d816fc1893919e19e502",
                 "shasum": ""
             },
@@ -4421,16 +4421,16 @@
         },
         {
             "name": "omnipay/gocardless",
-            "version": "2.2.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-gocardless.git",
-                "reference": "1c0bebdcc32d89fd243e1183028d2d50316e8bb1"
+                "reference": "f4f707921273b196ab526f3dbf3790cca0c77a80"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-gocardless/zipball/1c0bebdcc32d89fd243e1183028d2d50316e8bb1",
-                "reference": "1c0bebdcc32d89fd243e1183028d2d50316e8bb1",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-gocardless/zipball/f4f707921273b196ab526f3dbf3790cca0c77a80",
+                "reference": "f4f707921273b196ab526f3dbf3790cca0c77a80",
                 "shasum": ""
             },
             "require": {
@@ -4475,7 +4475,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2015-09-24 14:44:29"
+            "time": "2016-01-16 03:19:31"
         },
         {
             "name": "omnipay/manual",
@@ -8824,6 +8824,7 @@
     "stability-flags": {
         "omnipay/mollie": 20,
         "omnipay/2checkout": 20,
+        "omnipay/gocardless": 20,
         "anahkiasen/former": 20,
         "chumper/datatable": 20,
         "intervention/image": 20,
