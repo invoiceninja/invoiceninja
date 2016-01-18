@@ -86,7 +86,10 @@
 		],
 		"psr-4": {
 			"App\\": "app/"
-		}
+		},
+        "files": [
+            "app/Libraries/lib_autolink.php"
+        ]
 	},
 	"autoload-dev": {
 		"classmap": [

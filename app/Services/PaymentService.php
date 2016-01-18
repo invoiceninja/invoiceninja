@@ -184,6 +184,30 @@ class PaymentService extends BaseService
         return $cardReference;
     }
 
+    public function getCheckoutComToken($invitation)
+    {
+        $token = false;
+        $invoice = $invitation->invoice;
+        $client = $invoice->client;
+        $account = $invoice->account;
+
+        $accountGateway = $account->getGatewayConfig(GATEWAY_CHECKOUT_COM);
+        $gateway = $this->createGateway($accountGateway);
+
+        $response = $gateway->purchase([
+            'amount' => $invoice->getRequestedAmount(),
+            'currency' => $client->currency ? $client->currency->code : ($account->currency ? $account->currency->code : 'USD')
+        ])->send();
+
+        if ($response->isRedirect()) {
+            $token = $response->getTransactionReference();
+        }
+        
+        Session::set($invitation->id . 'payment_type', PAYMENT_TYPE_CREDIT_CARD);
+
+        return $token;
+    }
+
     public function createPayment($invitation, $accountGateway, $ref, $payerId = null)
     {
         $invoice = $invitation->invoice;

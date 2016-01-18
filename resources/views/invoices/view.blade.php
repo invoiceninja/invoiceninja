@@ -21,24 +21,28 @@
 
 	<div class="container">
 
-		<p>&nbsp;</p>
-        <div class="pull-right" style="text-align:right">
-        @if ($invoice->is_quote)            
-            {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
-            @if ($showApprove)
-                {!! Button::success(trans('texts.approve'))->asLinkTo(URL::to('/approve/' . $invitation->invitation_key))->large() !!}
-            @endif
-		@elseif ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)
-            {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
-            @if (count($paymentTypes) > 1)
-                {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
-            @else
-                <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }}</a>
-            @endif            
-		@else 
-			{!! Button::normal('Download PDF')->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
-		@endif
-		</div>        
+        @if ($checkoutComToken)
+            @include('partials.checkout_com_payment')
+        @else
+    		<p>&nbsp;</p>
+            <div class="pull-right" style="text-align:right">
+            @if ($invoice->is_quote)            
+                {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
+                @if ($showApprove)
+                    {!! Button::success(trans('texts.approve'))->asLinkTo(URL::to('/approve/' . $invitation->invitation_key))->large() !!}
+                @endif
+    		@elseif ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)
+                {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
+                @if (count($paymentTypes) > 1)
+                    {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
+                @else
+                    <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }}</a>
+                @endif            
+    		@else 
+    			{!! Button::normal('Download PDF')->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
+    		@endif
+    		</div>
+        @endif
 
 		<div class="clearfix"></div><p>&nbsp;</p>
 

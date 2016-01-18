@@ -46,6 +46,11 @@ class Utils
         return file_exists(storage_path() . '/framework/down');
     }
 
+    public static function isCron()
+    {
+        return php_sapi_name() == 'cli';
+    }
+
     public static function isNinja()
     {
         return self::isNinjaProd() || self::isNinjaDev();

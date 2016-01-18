@@ -62,7 +62,7 @@ class AppServiceProvider extends ServiceProvider {
         });
 
         HTML::macro('image_data', function($imagePath) {
-            return 'data:image/jpeg;base64,' . base64_encode(file_get_contents(public_path().'/'.$imagePath));
+            return 'data:image/jpeg;base64,' . base64_encode(file_get_contents($imagePath));
         });
 
         HTML::macro('flatButton', function($label, $color) {

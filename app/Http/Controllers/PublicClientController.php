@@ -1,25 +1,162 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
+use View;
 use DB;
+use URL;
 use Input;
 use Utils;
+use Request;
+use Session;
 use Datatable;
+use App\Models\Gateway;
 use App\Models\Invitation;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ActivityRepository;
+use App\Events\InvoiceInvitationWasViewed;
+use App\Events\QuoteInvitationWasViewed;
+use App\Services\PaymentService;
 
 class PublicClientController extends BaseController
 {
     private $invoiceRepo;
     private $paymentRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo)
+    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo, PaymentService $paymentService)
     {
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
         $this->activityRepo = $activityRepo;
+        $this->paymentService = $paymentService;
+    }
+
+    public function view($invitationKey)
+    {
+        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return response()->view('error', [
+                'error' => trans('texts.invoice_not_found'),
+                'hideHeader' => true,
+            ]);
+        }
+
+        $invoice = $invitation->invoice;
+        $client = $invoice->client;
+        $account = $invoice->account;
+
+        if (!$account->checkSubdomain(Request::server('HTTP_HOST'))) {
+            return response()->view('error', [
+                'error' => trans('texts.invoice_not_found'),
+                'hideHeader' => true,
+                'clientViewCSS' => $account->clientViewCSS(),
+                'clientFontUrl' => $account->getFontsUrl(),
+            ]);
+        }
+
+        if (!Input::has('phantomjs') && !Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
+            if ($invoice->is_quote) {
+                event(new QuoteInvitationWasViewed($invoice, $invitation));
+            } else {
+                event(new InvoiceInvitationWasViewed($invoice, $invitation));
+            }
+        }
+
+        Session::put($invitationKey, true); // track this invitation has been seen
+        Session::put('invitation_key', $invitationKey); // track current invitation
+
+        $account->loadLocalizationSettings($client);
+        
+        $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
+        $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
+        $invoice->is_pro = $account->isPro();
+        $invoice->invoice_fonts = $account->getFontsData();
+        
+        if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
+            $invoice->invoice_design->javascript = $account->custom_design;
+        } else {
+            $invoice->invoice_design->javascript = $invoice->invoice_design->pdfmake;
+        }
+        $contact = $invitation->contact;
+        $contact->setVisible([
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+        ]);
+
+        $paymentTypes = $this->getPaymentTypes($client, $invitation);
+        $paymentURL = '';
+        if (count($paymentTypes)) {
+            $paymentURL = $paymentTypes[0]['url'];
+            if (!$account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
+                $paymentURL = URL::to($paymentURL);
+            }
+        }
+
+        $showApprove = $invoice->quote_invoice_id ? false : true;
+        if ($invoice->due_date) {
+            $showApprove = time() < strtotime($invoice->due_date);
+        }
+
+        // Checkout.com requires first getting a payment token
+        $checkoutComToken = false;
+        $checkoutComKey = false;
+        if ($accountGateway = $account->getGatewayConfig(GATEWAY_CHECKOUT_COM)) {
+            if ($checkoutComToken = $this->paymentService->getCheckoutComToken($invitation)) {
+                $checkoutComKey = $accountGateway->getConfigField('publicApiKey');
+                $invitation->transaction_reference = $checkoutComToken;
+                $invitation->save();
+            }
+        }
+
+        $data = array(
+            'account' => $account,
+            'showApprove' => $showApprove,
+            'showBreadcrumbs' => false,
+            'hideLogo' => $account->isWhiteLabel(),
+            'hideHeader' => $account->isNinjaAccount(),
+            'clientViewCSS' => $account->clientViewCSS(),
+            'clientFontUrl' => $account->getFontsUrl(),
+            'invoice' => $invoice->hidePrivateFields(),
+            'invitation' => $invitation,
+            'invoiceLabels' => $account->getInvoiceLabels(),
+            'contact' => $contact,
+            'paymentTypes' => $paymentTypes,
+            'paymentURL' => $paymentURL,
+            'checkoutComToken' => $checkoutComToken,
+            'checkoutComKey' => $checkoutComKey,
+            'phantomjs' => Input::has('phantomjs'),
+        );
+
+        return View::make('invoices.view', $data);
+    }
+
+    private function getPaymentTypes($client, $invitation)
+    {
+        $paymentTypes = [];
+        $account = $client->account;
+
+        if ($client->getGatewayToken()) {
+            $paymentTypes[] = [
+                'url' => URL::to("payment/{$invitation->invitation_key}/token"), 'label' => trans('texts.use_card_on_file')
+            ];
+        }
+        foreach(Gateway::$paymentTypes as $type) {
+            if ($account->getGatewayByType($type)) {
+                $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
+                $url = URL::to("/payment/{$invitation->invitation_key}/{$typeLink}");
+
+                // PayPal doesn't allow being run in an iframe so we need to open in new tab
+                if ($type === PAYMENT_TYPE_PAYPAL && $account->iframe_url) {
+                    $url = 'javascript:window.open("'.$url.'", "_blank")';
+                }
+                $paymentTypes[] = [
+                    'url' => $url, 'label' => trans('texts.'.strtolower($type))
+                ];
+            }
+        }
+
+        return $paymentTypes;
     }
 
     public function dashboard()

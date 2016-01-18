@@ -20,12 +20,9 @@ use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\InvoiceDesign;
 use App\Models\Activity;
-use App\Models\Gateway;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
-use App\Events\InvoiceInvitationWasViewed;
-use App\Events\QuoteInvitationWasViewed;
 use App\Services\InvoiceService;
 use App\Services\RecurringInvoiceService;
 use App\Http\Requests\SaveInvoiceWithClientRequest;
@@ -84,119 +81,6 @@ class InvoiceController extends BaseController
         $search = Input::get('sSearch');
 
         return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_INVOICE, $search);
-    }
-
-    public function view($invitationKey)
-    {
-        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
-            return response()->view('error', [
-                'error' => trans('texts.invoice_not_found'),
-                'hideHeader' => true,
-            ]);
-        }
-
-        $invoice = $invitation->invoice;
-        $client = $invoice->client;
-        $account = $invoice->account;
-
-        if (!$account->checkSubdomain(Request::server('HTTP_HOST'))) {
-            return response()->view('error', [
-                'error' => trans('texts.invoice_not_found'),
-                'hideHeader' => true,
-                'clientViewCSS' => $account->clientViewCSS(),
-                'clientFontUrl' => $account->getFontsUrl(),
-            ]);
-        }
-
-        if (!Input::has('phantomjs') && !Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
-            if ($invoice->is_quote) {
-                event(new QuoteInvitationWasViewed($invoice, $invitation));
-            } else {
-                event(new InvoiceInvitationWasViewed($invoice, $invitation));
-            }
-        }
-
-        Session::put($invitationKey, true); // track this invitation has been seen
-        Session::put('invitation_key', $invitationKey); // track current invitation
-
-        $account->loadLocalizationSettings($client);
-        
-        $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
-        $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-        $invoice->is_pro = $account->isPro();
-        $invoice->invoice_fonts = $account->getFontsData();
-        
-        if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
-            $invoice->invoice_design->javascript = $account->custom_design;
-        } else {
-            $invoice->invoice_design->javascript = $invoice->invoice_design->pdfmake;
-        }
-        $contact = $invitation->contact; $contact->setVisible([
-            'first_name',
-            'last_name',
-            'email',
-            'phone',
-        ]);
-
-        $paymentTypes = $this->getPaymentTypes($client, $invitation);
-        $paymentURL = '';
-        if (count($paymentTypes)) {
-            $paymentURL = $paymentTypes[0]['url'];
-            if (!$account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
-                $paymentURL = URL::to($paymentURL);
-            }
-        }
-
-        $showApprove = $invoice->quote_invoice_id ? false : true;
-        if ($invoice->due_date) {
-            $showApprove = time() < strtotime($invoice->due_date);
-        }
-
-        $data = array(
-            'showApprove' => $showApprove,
-            'showBreadcrumbs' => false,
-            'hideLogo' => $account->isWhiteLabel(),
-            'hideHeader' => $account->isNinjaAccount(),
-            'clientViewCSS' => $account->clientViewCSS(),
-            'clientFontUrl' => $account->getFontsUrl(),
-            'invoice' => $invoice->hidePrivateFields(),
-            'invitation' => $invitation,
-            'invoiceLabels' => $account->getInvoiceLabels(),
-            'contact' => $contact,
-            'paymentTypes' => $paymentTypes,
-            'paymentURL' => $paymentURL,
-            'phantomjs' => Input::has('phantomjs'),
-        );
-
-        return View::make('invoices.view', $data);
-    }
-
-    private function getPaymentTypes($client, $invitation)
-    {
-        $paymentTypes = [];
-        $account = $client->account;
-
-        if ($client->getGatewayToken()) {
-            $paymentTypes[] = [
-                'url' => URL::to("payment/{$invitation->invitation_key}/token"), 'label' => trans('texts.use_card_on_file')
-            ];
-        }
-        foreach(Gateway::$paymentTypes as $type) {
-            if ($account->getGatewayByType($type)) {
-                $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
-                $url = URL::to("/payment/{$invitation->invitation_key}/{$typeLink}");
-
-                // PayPal doesn't allow being run in an iframe so we need to open in new tab
-                if ($type === PAYMENT_TYPE_PAYPAL && $account->iframe_url) {
-                    $url = 'javascript:window.open("'.$url.'", "_blank")';
-                }
-                $paymentTypes[] = [
-                    'url' => $url, 'label' => trans('texts.'.strtolower($type))
-                ];
-            }
-        }
-
-        return $paymentTypes;
     }
 
     public function edit($publicId, $clone = false)

@@ -260,7 +260,8 @@ class ContactMailer extends Mailer
         }
 
         $str = str_replace(array_keys($variables), array_values($variables), $template);
-
+        $str = autolink($str, 100);
+        
         return $str;
     }
 }
