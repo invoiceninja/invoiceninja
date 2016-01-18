@@ -68,6 +68,7 @@
         var currency = currencyMap[currencyId];
         var thousand = currency.thousand_separator;
         var decimal = currency.decimal_separator;
+        var code = currency.code;
         var swapSymbol = false;
 
         if (countryId && currencyId == {{ CURRENCY_EURO }}) {
@@ -86,6 +87,8 @@
 
         if (hideSymbol) {
             return value;
+        } else if (!symbol) {
+            return value + ' ' + code;
         } else if (swapSymbol) {
             return value + ' ' + symbol.trim();
         } else {
