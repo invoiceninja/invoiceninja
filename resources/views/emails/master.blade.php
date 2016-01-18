@@ -53,7 +53,7 @@
     <div id="body_style" style="min-height: 700px;{!! isset($account) ? $account->getBodyFontCss() : '' !!};color: #2E2B2B; font-size: 16px; 
         background: #F4F5F5; padding: 0px 15px;"> 
 
-        <table cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" width="600" align="center">
+        <table cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" width="580" align="center">
 
             @yield('content')
             
