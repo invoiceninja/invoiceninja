@@ -328,7 +328,7 @@
 					<td>{{ trans('texts.tax') }}</td>
 				@endif
 				<td style="min-width:120px">
-                    <select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select>
+                    <select id="taxRateSelect" class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select>
                     <input type="text" name="tax_name" data-bind="value: tax().name" style="display:none">
                     <input type="text" name="tax_rate" data-bind="value: tax().rate" style="display:none">
                 </td>
