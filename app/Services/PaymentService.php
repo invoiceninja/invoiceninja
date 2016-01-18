@@ -213,7 +213,7 @@ class PaymentService extends BaseService
         $invoice = $invitation->invoice;
 
         // sync pro accounts
-        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY 
+        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY
                 && $invoice->amount == PRO_PLAN_PRICE) {
             $account = Account::with('users')->find($invoice->client->public_id);
             if ($account->pro_plan_paid && $account->pro_plan_paid != '0000-00-00') {
@@ -237,7 +237,7 @@ class PaymentService extends BaseService
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = date_create()->format('Y-m-d');
-        
+
         if ($payerId) {
             $payment->payer_id = $payerId;
         }
@@ -254,6 +254,7 @@ class PaymentService extends BaseService
             $response = $gateway->fetchTransaction($details)->send();
             return $gateway->fetchTransaction($details)->send();
         } else {
+
             return $gateway->completePurchase($details)->send();
         }
     }

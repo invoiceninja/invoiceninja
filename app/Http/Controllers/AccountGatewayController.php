@@ -43,7 +43,7 @@ class AccountGatewayController extends BaseController
     {
         $accountGateway = AccountGateway::scope($publicId)->firstOrFail();
         $config = $accountGateway->getConfig();
-        
+
         foreach ($config as $field => $value) {
             $config->$field = str_repeat('*', strlen($value));
         }
@@ -84,6 +84,7 @@ class AccountGatewayController extends BaseController
         $data['selectGateways'] = Gateway::where('payment_library_id', '=', 1)
                                     ->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)
                                     ->where('id', '!=', GATEWAY_BITPAY)
+                                    ->where('id', '!=', GATEWAY_GOCARDLESS)
                                     ->where('id', '!=', GATEWAY_DWOLLA)
                                     ->orderBy('name')->get();
         $data['hiddenFields'] = Gateway::$hiddenFields;
@@ -103,6 +104,9 @@ class AccountGatewayController extends BaseController
 
                 if ($type == PAYMENT_TYPE_BITCOIN) {
                     $paymentTypes[$type] .= ' - BitPay';
+                }
+                if ($type == PAYMENT_TYPE_DIRECT_DEBIT) {
+                    $paymentTypes[$type] .= ' - GoCardless';
                 }
             }
         }
@@ -173,6 +177,8 @@ class AccountGatewayController extends BaseController
             $gatewayId = GATEWAY_PAYPAL_EXPRESS;
         } elseif ($paymentType == PAYMENT_TYPE_BITCOIN) {
             $gatewayId = GATEWAY_BITPAY;
+        } elseif ($paymentType == PAYMENT_TYPE_DIRECT_DEBIT) {
+            $gatewayId = GATEWAY_GOCARDLESS;
         } elseif ($paymentType == PAYMENT_TYPE_DWOLLA) {
             $gatewayId = GATEWAY_DWOLLA;
         }

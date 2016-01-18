@@ -125,6 +125,7 @@ class PaymentController extends BaseController
 
     public function show_payment($invitationKey, $paymentType = false)
     {
+
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
         $client = $invoice->client;
@@ -137,6 +138,7 @@ class PaymentController extends BaseController
             $paymentType = Session::get($invitation->id . 'payment_type') ?:
                                 $account->account_gateways[0]->getPaymentType();
         }
+
         if ($paymentType == PAYMENT_TYPE_TOKEN) {
             $useToken = true;
             $paymentType = PAYMENT_TYPE_CREDIT_CARD;
@@ -145,11 +147,13 @@ class PaymentController extends BaseController
 
         $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
         $gateway = $accountGateway->gateway;
+
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
+
         // Handle offsite payments
-        if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD 
-            || $gateway->id == GATEWAY_EWAY 
+        if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD
+            || $gateway->id == GATEWAY_EWAY
             || $gateway->id == GATEWAY_TWO_CHECKOUT
             || $gateway->id == GATEWAY_PAYFAST
             || $gateway->id == GATEWAY_MOLLIE) {
@@ -353,6 +357,7 @@ class PaymentController extends BaseController
         $account = $client->account;
         $accountGateway = $account->getGatewayByType(Session::get($invitation->id . 'payment_type'));
 
+
         $rules = [
             'first_name' => 'required',
             'last_name' => 'required',
@@ -434,16 +439,19 @@ class PaymentController extends BaseController
 
             $response = $gateway->purchase($details)->send();
 
+
             if ($accountGateway->gateway_id == GATEWAY_EWAY) {
                 $ref = $response->getData()['AccessCode'];
             } elseif ($accountGateway->gateway_id == GATEWAY_TWO_CHECKOUT) {
                 $ref = $response->getData()['cart_order_id'];
             } elseif ($accountGateway->gateway_id == GATEWAY_PAYFAST) {
                 $ref = $response->getData()['m_payment_id'];
+            } elseif ($accountGateway->gateway_id == GATEWAY_GOCARDLESS) {
+                $ref = $response->getData()['signature'];
             } else {
                 $ref = $response->getTransactionReference();
             }
-            
+
             if (!$ref) {
                 $this->error('No-Ref', $response->getMessage(), $accountGateway);
 
@@ -466,6 +474,7 @@ class PaymentController extends BaseController
 
                 return Redirect::to('view/'.$payment->invitation->invitation_key);
             } elseif ($response->isRedirect()) {
+
                 $invitation->transaction_reference = $ref;
                 $invitation->save();
                 Session::put('transaction_reference', $ref);
@@ -515,7 +524,6 @@ class PaymentController extends BaseController
             $this->error('No-Payment-Type', false, false);
             return Redirect::to($invitation->getLink());
         }
-
         $accountGateway = $account->getGatewayByType($paymentType);
         $gateway = $this->paymentService->createGateway($accountGateway);
 
@@ -535,7 +543,9 @@ class PaymentController extends BaseController
                 && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)
                 && !$accountGateway->isGateway(GATEWAY_CHECKOUT_COM)) {
                 $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
+
                 $response = $this->paymentService->completePurchase($gateway, $accountGateway, $details, $token);
+
                 $ref = $response->getTransactionReference() ?: $token;
 
                 if ($response->isCancelled()) {
@@ -554,6 +564,7 @@ class PaymentController extends BaseController
                 return Redirect::to($invitation->getLink());
             }
         } catch (\Exception $e) {
+
             $this->error('Offsite-uncaught', false, $accountGateway, $e);
             return Redirect::to($invitation->getLink());
         }

@@ -87,7 +87,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
-    
+
     Route::get('api/users', array('as'=>'api.users', 'uses'=>'UserController@getDatatable'));
     Route::resource('users', 'UserController');
     Route::post('users/bulk', 'UserController@bulk');
@@ -118,12 +118,12 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('settings/cancel_account', 'AccountController@cancelAccount');
     Route::get('settings/{section?}', 'AccountController@showSection');
     Route::post('settings/{section?}', 'AccountController@doSection');
-    
+
     Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
     Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
     Route::post('account/go_pro', 'AccountController@enableProPlan');
-    
+
     Route::post('/export', 'ExportController@doExport');
     Route::post('/import', 'ImportController@doImport');
     Route::post('/import_csv', 'ImportController@doImportCSV');
@@ -143,10 +143,10 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('tasks/bulk', 'TaskController@bulk');
 
     Route::get('api/recurring_invoices/{client_id?}', array('as'=>'api.recurring_invoices', 'uses'=>'InvoiceController@getRecurringDatatable'));
-    
+
     Route::get('invoices/invoice_history/{invoice_id}', 'InvoiceController@invoiceHistory');
     Route::get('quotes/quote_history/{invoice_id}', 'InvoiceController@invoiceHistory');
-    
+
     Route::resource('invoices', 'InvoiceController');
     Route::get('api/invoices/{client_id?}', array('as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable'));
     Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
@@ -417,6 +417,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_PAYPAL_EXPRESS', 17);
     define('GATEWAY_PAYPAL_PRO', 18);
     define('GATEWAY_STRIPE', 23);
+    define('GATEWAY_GOCARDLESS', 6);
     define('GATEWAY_TWO_CHECKOUT', 27);
     define('GATEWAY_BEANSTREAM', 29);
     define('GATEWAY_PSIGATE', 30);
@@ -484,6 +485,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
     define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
+    define('PAYMENT_TYPE_DIRECT_DEBIT', 'PAYMENT_TYPE_DIRECT_DEBIT');
     define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');
     define('PAYMENT_TYPE_DWOLLA', 'PAYMENT_TYPE_DWOLLA');
     define('PAYMENT_TYPE_TOKEN', 'PAYMENT_TYPE_TOKEN');
