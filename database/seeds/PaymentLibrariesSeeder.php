@@ -124,6 +124,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'East Caribbean Dollar', 'code' => 'XCD', 'symbol' => 'EC$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Ghanaian Cedi', 'code' => 'GHS', 'symbol' => 'GHS ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['name' => 'Bulgarian Lev', 'code' => 'BGN', 'symbol' => 'BGN ', 'precision' => '2', 'thousand_separator' => ' ', 'decimal_separator' => '.'],
+            ['name' => 'Aruban Florin', 'code' => 'AWG', 'symbol' => 'Afl. ', 'precision' => '2', 'thousand_separator' => ' ', 'decimal_separator' => '.'],
         ];
 
         foreach ($currencies as $currency) {
