@@ -35,7 +35,7 @@
   <string id="last_remote_directory">None</string>
   <string id="lessDefaultInterpreter">None</string>
   <string id="phpDefaultInterpreter">c:\wamp\bin\php\php5.6.15\php.exe</string>
-  <string id="phpExtraPaths">C:\webdev\invoiceninja;C:\webdev\invoiceninja\lavarelcodecomplete</string>
+  <string relative="path" id="phpExtraPaths">vendor;C:/webdev/invoiceninja/app</string>
   <long id="prefs_version">1</long>
   <string id="sassDefaultInterpreter">None</string>
   <string id="scssDefaultInterpreter">None</string>

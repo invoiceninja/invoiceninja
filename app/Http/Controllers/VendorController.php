@@ -37,6 +37,8 @@ class VendorController extends BaseController
 
         $this->vendorRepo = $vendorRepo;
         $this->vendorService = $vendorService;
+
+
     }
 
     /**
@@ -93,19 +95,18 @@ class VendorController extends BaseController
         Utils::trackViewed($vendor->getDisplayName(), 'vendor');
 
         $actionLinks = [
-            ['label' => trans('texts.new_vendor'), 'url' => '/vendors/create/'.$vendor->public_id]
+            ['label' => trans('texts.new_vendor'), 'url' => '/vendors/create/' . $vendor->public_id]
         ];
 
         $data = array(
-            'actionLinks' => $actionLinks,
-            'showBreadcrumbs' => false,
-            'vendor' => $vendor,
-            'credit' => $vendor->getTotalCredit(),
-            'title' => trans('texts.view_vendor'),
-            'hasRecurringInvoices' => false,
-            'hasQuotes' => false,
-            'hasTasks' => false,
-            'gatewayLink' => $vendor->getGatewayLink(),
+            'actionLinks'           => $actionLinks,
+            'showBreadcrumbs'       => false,
+            'vendor'                => $vendor,
+            'totalexpense'          => $vendor->getTotalExpense(),
+            'title'                 => trans('texts.view_vendor'),
+            'hasRecurringInvoices'  => false,
+            'hasQuotes'             => false,
+            'hasTasks'          => false,
         );
 
         return View::make('vendors.show', $data);

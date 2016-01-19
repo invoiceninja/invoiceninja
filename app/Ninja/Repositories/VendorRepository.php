@@ -38,7 +38,6 @@ class VendorRepository extends BaseRepository
                         'vendor_contacts.first_name',
                         'vendor_contacts.last_name',
                         'vendors.balance',
-                        //'vendors.last_login',
                         'vendors.created_at',
                         'vendors.work_phone',
                         'vendor_contacts.email',
@@ -61,7 +60,7 @@ class VendorRepository extends BaseRepository
 
         return $query;
     }
-    
+
     public function save($data)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
@@ -75,26 +74,16 @@ class VendorRepository extends BaseRepository
         $vendor->fill($data);
         $vendor->save();
 
-        
-        if ( ! isset($data['vendor_contact']) && ! isset($data['vendor_contacts'])) {
+        if ( ! isset($data['vendorcontact']) && ! isset($data['vendorcontacts'])) {
             return $vendor;
         }
-        
-        
+
         $first              = true;
-        $vendorcontacts     = isset($data['vendor_contact']) ? [$data['vendor_contact']] : $data['vendor_contacts'];
-        $vendorcontactIds   = [];
+        $vendorcontacts     = isset($data['vendorcontact']) ? [$data['vendorcontact']] : $data['vendorcontacts'];
 
         foreach ($vendorcontacts as $vendorcontact) {
             $vendorcontact      = $vendor->addVendorContact($vendorcontact, $first);
-            $vendorcontactIds[] = $vendorcontact->public_id;
             $first              = false;
-        }
-
-        foreach ($vendor->vendorcontacts as $vendorcontact) {
-            if (!in_array($vendorcontact->public_id, $vendorcontactIds)) {
-                $vendorcontact->delete();
-            }
         }
 
         return $vendor;

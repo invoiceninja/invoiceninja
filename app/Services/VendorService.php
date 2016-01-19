@@ -6,7 +6,7 @@ use Auth;
 use App\Services\BaseService;
 use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Repositories\NinjaRepository;
-// vendor
+
 class VendorService extends BaseService
 {
     protected $vendorRepo;
@@ -14,8 +14,8 @@ class VendorService extends BaseService
 
     public function __construct(VendorRepository $vendorRepo, DatatableService $datatableService, NinjaRepository $ninjaRepo)
     {
-        $this->vendorRepo = $vendorRepo;
-        $this->ninjaRepo = $ninjaRepo;
+        $this->vendorRepo       = $vendorRepo;
+        $this->ninjaRepo        = $ninjaRepo;
         $this->datatableService = $datatableService;
     }
 
@@ -67,12 +67,6 @@ class VendorService extends BaseService
                     return Utils::timestampToDateString(strtotime($model->created_at));
                 }
             ],
-            /*[
-                'last_login',
-                function ($model) {
-                    return Utils::timestampToDateString(strtotime($model->last_login));
-                }
-            ],*/
             [
                 'balance',
                 function ($model) {

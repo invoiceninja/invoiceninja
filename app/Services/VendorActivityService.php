@@ -39,12 +39,9 @@ class VendorActivityService extends BaseService
                 function ($model) {
                     $data = [
                         'vendor' => link_to('/vendors/' . $model->vendor_public_id, Utils::getVendorDisplayName($model)),
-                        'user' => $model->is_system ? '<i>' . trans('texts.system') . '</i>' : Utils::getPersonDisplayName($model->user_first_name, $model->user_last_name, $model->user_email), 
-                        'invoice' => $model->invoice ? link_to('/invoices/' . $model->invoice_public_id, $model->is_recurring ? trans('texts.recurring_invoice') : $model->invoice) : null,
-                        'quote' => $model->invoice ? link_to('/quotes/' . $model->invoice_public_id, $model->invoice) : null,
+                        'user' => $model->is_system ? '<i>' . trans('texts.system') . '</i>' : Utils::getPersonDisplayName($model->user_first_name, $model->user_last_name, $model->user_email),
                         'contact' => $model->contact_id ? link_to('/vendors/' . $model->vendor_public_id, Utils::getVendorDisplayName($model)) : Utils::getPersonDisplayName($model->user_first_name, $model->user_last_name, $model->user_email),
-                        'payment' => $model->payment ?: '',
-                        'credit' => Utils::formatMoney($model->credit, $model->currency_id, $model->country_id)
+                        'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id)
                     ];
 
                     return trans("texts.activity_{$model->activity_type_id}", $data);

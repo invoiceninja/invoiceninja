@@ -137,7 +137,7 @@ class Utils
         $history = Session::get(RECENTLY_VIEWED);
         $last = $history[0];
         $penultimate = count($history) > 1 ? $history[1] : $last;
-        
+
         return Request::url() == $last->url ? $penultimate->url : $last->url;
     }
 
@@ -249,7 +249,7 @@ class Utils
         $data = Cache::get($type)->filter(function($item) use ($id) {
             return $item->id == $id;
         });
-        
+
         return $data->first();
     }
 
@@ -344,7 +344,7 @@ class Utils
         if (!$date) {
             return false;
         }
-        
+
         $dateTime = new DateTime($date);
         $timestamp = $dateTime->getTimestamp();
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
@@ -468,7 +468,7 @@ class Utils
         }
 
         array_unshift($data, $object);
-        
+
         if (isset($counts[Auth::user()->account_id]) && $counts[Auth::user()->account_id] > RECENTLY_VIEWED_LIMIT) {
             array_pop($data);
         }
@@ -579,9 +579,15 @@ class Utils
 
     public static function getVendorDisplayName($model)
     {
-        return $model->getDisplayName();
+        if(is_null($model))
+            return '';
+
+        if($model->vendor_name)
+            return $model->vendor_name;
+
+        return 'No vendor name';
     }
-    
+
     public static function getPersonDisplayName($firstName, $lastName, $email)
     {
         if ($firstName || $lastName) {
@@ -673,7 +679,7 @@ class Utils
         if ($publicId) {
             $data['id'] = $publicId;
         }
-        
+
         return $data;
     }
 
@@ -719,7 +725,7 @@ class Utils
                 $str .= 'ENTITY_DELETED ';
             }
         }
-        
+
         if ($model->deleted_at && $model->deleted_at != '0000-00-00') {
             $str .= 'ENTITY_ARCHIVED ';
         }
@@ -739,7 +745,7 @@ class Utils
 
         fwrite($output, "\n");
     }
-    
+
     public static function getFirst($values)
     {
         if (is_array($values)) {
@@ -904,7 +910,7 @@ class Utils
         if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
             $url = "http://" . $url;
         }
-        
+
         return $url;
     }
 }

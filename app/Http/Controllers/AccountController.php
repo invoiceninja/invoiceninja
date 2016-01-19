@@ -326,7 +326,7 @@ class AccountController extends BaseController
 
         return View::make('accounts.payment_terms', $data);
     }
-    
+
     private function showInvoiceDesign($section)
     {
         $account = Auth::user()->account->load('country');
@@ -336,13 +336,15 @@ class AccountController extends BaseController
         $invoiceItem = new stdClass();
 
         $client->name = 'Sample Client';
-        $client->address1 = '';
-        $client->city = '';
-        $client->state = '';
-        $client->postal_code = '';
-        $client->work_phone = '';
-        $client->work_email = '';
-
+        $client->address1 = 'address 1';
+        $client->city = ' city';
+        $client->state = 'state';
+        $client->postal_code = 'postal code';
+        $client->work_phone = 'work phone';
+        $client->work_email = 'work email';
+        $client->id_number = 'cleint id';
+        $client->vat_number = 'vat number';
+        
         $invoice->invoice_number = '0000';
         $invoice->invoice_date = Utils::fromSqlDate(date('Y-m-d'));
         $invoice->account = json_decode($account->toJson());
@@ -361,7 +363,7 @@ class AccountController extends BaseController
 
         $invoice->client = $client;
         $invoice->invoice_items = [$invoiceItem];
-        
+
         $data['account'] = $account;
         $data['invoice'] = $invoice;
         $data['invoiceLabels'] = json_decode($account->invoice_labels) ?: [];
@@ -369,7 +371,7 @@ class AccountController extends BaseController
         $data['invoiceDesigns'] = InvoiceDesign::getDesigns();
         $data['invoiceFonts'] = Cache::get('fonts');
         $data['section'] = $section;
-        
+
         $design = false;
         foreach ($data['invoiceDesigns'] as $item) {
             if ($item->id == $account->invoice_design_id) {
@@ -711,7 +713,7 @@ class AccountController extends BaseController
             $account->primary_color = Input::get('primary_color');
             $account->secondary_color = Input::get('secondary_color');
             $account->invoice_design_id = Input::get('invoice_design_id');
-            
+
             if (Input::has('font_size')) {
                 $account->font_size =  intval(Input::get('font_size'));
             }

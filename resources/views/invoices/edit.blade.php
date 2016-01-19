@@ -476,6 +476,7 @@
                     ->label('client_name') !!}
 
                 <span data-bind="visible: $root.showMore">
+
                     {!! Former::text('client[id_number]')
                             ->label('id_number')
                             ->data_bind("value: id_number, valueUpdate: 'afterkeydown'") !!}
@@ -489,6 +490,7 @@
                     {!! Former::text('client[work_phone]')
                             ->label('work_phone')
                             ->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") !!}
+				
                 </span>
 
                 @if (Auth::user()->isPro())

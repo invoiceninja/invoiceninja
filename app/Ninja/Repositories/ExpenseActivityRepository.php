@@ -15,7 +15,7 @@ class ExpenseActivityRepository
     {
         // init activity and copy over context
         $activity = self::getBlank($entity);
-        
+
         // Fill with our information
         $activity->vendor_id        = $entity->vendor_id;
         $activity->contact_id       = $entity->contact_id;
@@ -38,14 +38,15 @@ class ExpenseActivityRepository
             $activity->user_id = $entity->user_id;
             $activity->account_id = $entity->account_id;
         }
-        
+
         $activity->token_id = session('token_id');
         $activity->ip       = Request::getClientIp();
+
         
         return $activity;
     }
-    
-    
+
+
     public function findByExpenseId($expenseId)
     {
         return DB::table('expense_activities')

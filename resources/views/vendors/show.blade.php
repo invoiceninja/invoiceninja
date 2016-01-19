@@ -28,10 +28,6 @@
 			{!! Former::text('public_id')->value($vendor->public_id) !!}
 		</div>
 
-        @if ($gatewayLink)
-            {!! Button::normal(trans('texts.view_in_stripe'))->asLinkTo($gatewayLink)->withAttributes(['target' => '_blank']) !!}
-        @endif
-
 		@if ($vendor->trashed())
 			{!! Button::primary(trans('texts.restore_vendor'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
 		@else
@@ -53,17 +49,9 @@
 
 
 	<h2>{{ $vendor->getDisplayName() }}</h2>
-    {{--
-	@if ($vendor->last_login > 0)
-	<h3 style="margin-top:0px"><small>
-		{{ trans('texts.last_logged_in') }} {{ Utils::timestampToDateTimeString(strtotime($vendor->last_login)) }}
-	</small></h3>
-	@endif
-    --}}
     <div class="panel panel-default">
     <div class="panel-body">
 	<div class="row">
-
 		<div class="col-md-3">
 			<h3>{{ trans('texts.details') }}</h3>
             @if ($vendor->id_number)
@@ -138,19 +126,9 @@
 			<h3>{{ trans('texts.standing') }}
 			<table class="table" style="width:100%">
 				<tr>
-					<td><small>{{ trans('texts.paid_to_date') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($vendor->paid_to_date, $vendor->getCurrencyId()) }}</td>
-				</tr>
-				<tr>
 					<td><small>{{ trans('texts.balance') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($vendor->balance, $vendor->getCurrencyId()) }}</td>
+					<td style="text-align: right">{{ Utils::formatMoney($totalexpense, $vendor->getCurrencyId()) }}</td>
 				</tr>
-				@if ($credit > 0)
-				<tr>
-					<td><small>{{ trans('texts.credit') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($credit, $vendor->getCurrencyId()) }}</td>
-				</tr>
-				@endif
 			</table>
 			</h3>
 		</div>
@@ -165,43 +143,36 @@
 
 	<ul class="nav nav-tabs nav-justified">
 		{!! HTML::tab_link('#activity', trans('texts.activity'), true) !!}
-		{!! HTML::tab_link('#credits', trans('texts.expenses')) !!}
+		{!! HTML::tab_link('#expenses', trans('texts.expenses')) !!}
 	</ul>
 
 	<div class="tab-content">
         <div class="tab-pane active" id="activity">
-
 			{!! Datatable::table()
 		    	->addColumn(
 		    		trans('texts.date'),
-		    		trans('texts.message'),
-		    		trans('texts.balance'),
-		    		trans('texts.adjustment'))
+		    		trans('texts.message'))
 		    	->setUrl(url('api/vendoractivities/'. $vendor->public_id))
                 ->setCustomValues('entityType', 'activity')
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
 		    	->render('datatable') !!}
-
         </div>
 
         <div class="tab-pane" id="expenses">
-
 	    	{!! Datatable::table()
 						->addColumn(
-								trans('texts.credit_amount'),
-								trans('texts.credit_balance'),
-								trans('texts.credit_date'),
+								trans('texts.expense_date'),
+								trans('texts.amount'),
 								trans('texts.private_notes'))
-				->setUrl(url('api/expenses/' . $vendor->public_id))
-                ->setCustomValues('entityType', 'credits')
+				->setUrl(url('api/expense/' . $vendor->public_id))
+                ->setCustomValues('entityType', 'expenses')
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->setOptions('aaSorting', [['0', 'asc']])
 				->render('datatable')
 				!!}
-
         </div>
     </div>
 
@@ -214,7 +185,7 @@
 			window.location = '{{ URL::to('vendors/' . $vendor->public_id . '/edit') }}';
 		});
 		$('.primaryDropDown:not(.dropdown-toggle)').click(function() {
-			window.location = '{{ URL::to('invoices/create/' . $vendor->public_id ) }}';
+			window.location = '{{ URL::to('expenses/create/' . $vendor->public_id ) }}';
 		});
 
         // load datatable data when tab is shown and remember last tab selected
@@ -225,9 +196,6 @@
           if (!loadedTabs.hasOwnProperty(target)) {
             loadedTabs[target] = true;
             window['load_' + target]();
-            if (target == 'invoices' && window.hasOwnProperty('load_recurring_invoices')) {
-                window['load_recurring_invoices']();
-            }
           }
         });
         var tab = localStorage.getItem('vendor_tab');

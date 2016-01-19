@@ -137,7 +137,6 @@ class Vendor extends EntityModel
             $contact = VendorContact::scope($publicId)->firstOrFail();
         } else {
             $contact = VendorContact::createNew();
-            //$contact->send_invoice = true;
         }
 
         $contact->fill($data);
@@ -146,26 +145,9 @@ class Vendor extends EntityModel
         return $this->vendorContacts()->save($contact);
     }
 
-    public function updateBalances($balanceAdjustment, $paidToDateAdjustment)
-    {
-        if ($balanceAdjustment === 0 && $paidToDateAdjustment === 0) {
-            return;
-        }
-
-        $this->balance = $this->balance + $balanceAdjustment;
-        $this->paid_to_date = $this->paid_to_date + $paidToDateAdjustment;
-
-        $this->save();
-    }
-
     public function getRoute()
     {
         return "/vendors/{$this->public_id}";
-    }
-
-    public function getTotalCredit()
-    {
-        return 0;
     }
 
     public function getName()
@@ -175,16 +157,7 @@ class Vendor extends EntityModel
 
     public function getDisplayName()
     {
-        if ($this->name) {
-            return $this->name;
-        }
-
-        if ( ! count($this->contacts)) {
-            return '';
-        }
-
-        $contact = $this->contacts[0];
-        return $contact->getDisplayName();
+        return $this->getName();
     }
 
     public function getCityState()
@@ -227,31 +200,6 @@ class Vendor extends EntityModel
         }
     }
 
-    public function getGatewayToken()
-    {
-        $this->account->load('account_gateways');
-
-        if (!count($this->account->account_gateways)) {
-            return false;
-        }
-
-        $accountGateway = $this->account->getGatewayConfig(GATEWAY_STRIPE);
-
-        if (!$accountGateway) {
-            return false;
-        }
-
-        $token = AccountGatewayToken::where('vendor_id', '=', $this->id)->where('account_gateway_id', '=', $accountGateway->id)->first();
-
-        return $token ? $token->token : false;
-    }
-
-    public function getGatewayLink()
-    {
-        $token = $this->getGatewayToken();
-        return $token ? "https://dashboard.stripe.com/customers/{$token}" : false;
-    }
-
     public function getCurrencyId()
     {
         if ($this->currency_id) {
@@ -263,6 +211,14 @@ class Vendor extends EntityModel
         }
 
         return $this->account->currency_id ?: DEFAULT_CURRENCY;
+    }
+
+    public function getTotalExpense()
+    {
+        return DB::table('expenses')
+                ->where('vendor_id', '=', $this->id)
+                ->whereNull('deleted_at')
+                ->sum('amount');
     }
 }
 
