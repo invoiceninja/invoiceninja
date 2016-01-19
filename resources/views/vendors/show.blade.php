@@ -165,8 +165,8 @@
 						->addColumn(
 								trans('texts.expense_date'),
 								trans('texts.amount'),
-								trans('texts.private_notes'))
-				->setUrl(url('api/expense/' . $vendor->public_id))
+								trans('texts.public_notes'))
+				->setUrl(url('api/expenseVendor/' . $vendor->public_id))
                 ->setCustomValues('entityType', 'expenses')
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)

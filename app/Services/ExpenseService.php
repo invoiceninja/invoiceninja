@@ -36,6 +36,16 @@ class ExpenseService extends BaseService
         return $this->createDatatable(ENTITY_EXPENSE, $query);
     }
 
+    public function getDatatableVendor($vendorPublicId)
+    {
+        $query = $this->expenseRepo->findVendor($vendorPublicId);
+        return $this->datatableService->createDatatable(ENTITY_EXPENSE,
+                                                        $query,
+                                                        $this->getDatatableColumnsVendor(ENTITY_EXPENSE,false),
+                                                        $this->getDatatableActionsVendor(ENTITY_EXPENSE),
+                                                        false);
+    }
+
     protected function getDatatableColumns($entityType, $hideClient)
     {
         return [
@@ -80,12 +90,49 @@ class ExpenseService extends BaseService
                     return $model->should_be_invoiced ? trans('texts.yes') : trans('texts.no');
                 }
             ],
-            /*[
-                'public_id',
-                function($model) {
-                   return link_to("expenses/{$model->public_id}", trans('texts.view', ['expense' => $model->public_id]));
+        ];
+    }
+
+    protected function getDatatableColumnsVendor($entityType, $hideClient)
+    {
+        return [
+            /*
+                [
+                'expenses.id',
+                function ($model) {
+                    return Utils::timestampToDateTimeString(strtotime($model->created_at));
                 }
-             ]*/
+            ],*/
+            [
+                'expense_date',
+                function ($model) {
+                    return $model->expense_date;
+                }
+            ],
+            [
+                'amount',
+                function ($model) {
+                    return Utils::formatMoney($model->amount, false, false);
+                }
+            ],
+            [
+                'public_notes',
+                function ($model) {
+                    return $model->public_notes != null ? $model->public_notes : '';
+                }
+            ],
+            [
+                'is_invoiced',
+                function ($model) {
+                    return $model->is_invoiced ? trans('texts.yes') : trans('texts.no');
+                }
+            ],
+            [
+                'should_be_invoiced',
+                function ($model) {
+                    return $model->should_be_invoiced ? trans('texts.yes') : trans('texts.no');
+                }
+            ],
         ];
     }
 
@@ -110,7 +157,32 @@ class ExpenseService extends BaseService
                     return URL::to("expenses/{$model->public_id}/edit") ;
                 }
             ],
-            
+
         ];
     }
+    protected function getDatatableActionsVendor($entityType)
+    {
+            return [
+            [
+                trans('texts.invoice_expense'),
+                function ($model) {
+                    return URL::to("expense/invoice/{$model->public_id}") . '?client=1';
+                }
+            ],
+            [
+                trans('texts.view'),
+                function ($model) {
+                    return URL::to("expenses/{$model->public_id}") ;
+                }
+            ],
+            [
+                trans('texts.edit'),
+                function ($model) {
+                    return URL::to("expenses/{$model->public_id}/edit") ;
+                }
+            ],
+
+        ];
+    }
+
 }

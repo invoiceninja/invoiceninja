@@ -23,7 +23,23 @@ class ExpenseRepository extends BaseRepository
                 ->where('is_deleted', '=', false)
                 ->get();
     }
-    
+
+    public function findVendor($vendorPublicId)
+    {
+        $accountid = \Auth::user()->account_id;
+        $query = DB::table('expenses')
+                    ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
+                    ->where('expenses.account_id', '=', $accountid)
+                    ->where('expenses.vendor_id','=',$vendorPublicId)
+                    ->select('expenses.id',
+                             'expenses.expense_date',
+                             'expenses.amount',
+                             'expenses.public_notes',
+                             'expenses.public_id',
+                             'expenses.deleted_at','expenses.is_invoiced','expenses.should_be_invoiced','expenses.created_at');
+         return $query;
+    }
+
     public function find($filter = null)
     {
         $accountid = \Auth::user()->account_id;
@@ -50,19 +66,11 @@ class ExpenseRepository extends BaseRepository
                         'vendors.public_id as vendor_public_id');
 
         $showTrashed = \Session::get('show_trash:expense');
-        
-        //var_dump($showTrashed);
-        
+
         if (!$showTrashed) {
             $query->where('expenses.deleted_at', '=', null);
         }
-        
-        /*
-        if (!\Session::get('show_trash:expense')) {
-            $query->where('expenses.deleted_at', '=', null);
-        }
-        */
-        
+
         if ($filter) {
             $query->where(function ($query) use ($filter) {
                 $query->where('expenses.public_notes', 'like', '%'.$filter.'%');
@@ -84,36 +92,36 @@ class ExpenseRepository extends BaseRepository
 
         // First auto fill
         $expense->fill($input);
-        
+
         // We can have an expense without a vendor
         if(isset($input['vendor'])) {
-            $expense->vendor_id = $input['vendor'];    
+            $expense->vendor_id = $input['vendor'];
         }
-        
+
         $expense->expense_date = Utils::toSqlDate($input['expense_date']);
         $expense->amount = Utils::parseFloat($input['amount']);
-        
+
         if(isset($input['amount_cur']))
             $expense->amount_cur = Utils::parseFloat($input['amount_cur']);
-        
+
         $expense->private_notes = trim($input['private_notes']);
         $expense->public_notes = trim($input['public_notes']);
-        
+
         if(isset($input['exchange_rate']))
             $expense->exchange_rate = Utils::parseFloat($input['exchange_rate']);
         else
             $expense->exchange_rate = 100;
-        
+
         if($expense->exchange_rate == 0)
             $expense->exchange_rate = 100;
-            
+
         // set the currency
         if(isset($input['currency_id']))
             $expense->currency_id = $input['currency_id'];
-        
+
         if($expense->currency_id == 0)
             $expense->currency_id = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
-        
+
         // Calculate the amount cur
         $expense->amount_cur = ($expense->amount / 100) * $expense->exchange_rate;
 
@@ -125,7 +133,7 @@ class ExpenseRepository extends BaseRepository
 
         return $expense;
     }
-    
+
     public function bulk($ids, $action)
     {
         $expenses = Expense::withTrashed()->scope($ids)->get();
@@ -148,5 +156,5 @@ class ExpenseRepository extends BaseRepository
 
         return count($tasks);
     }
-    
+
 }

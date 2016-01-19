@@ -12,7 +12,7 @@ class Expense extends EntityModel
     use SoftDeletes;
     use PresentableTrait;
 
-    protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at','expense_date'];
     protected $presenter = 'App\Ninja\Presenters\ExpensePresenter';
 
     protected $fillable = [

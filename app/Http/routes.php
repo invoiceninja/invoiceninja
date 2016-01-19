@@ -198,10 +198,10 @@ Route::group(['middleware' => 'auth'], function() {
     // Expense
     Route::resource('expenses', 'ExpenseController');
     Route::get('expenses/create/{vendor_id?}', 'ExpenseController@create');
-    Route::post('expenses/bulk', 'ExpenseController@bulk');
-    Route::get('api/expense/', array('as'=>'api.expenses', 'uses'=>'ExpenseController@getDatatable'));
+    Route::get('api/expense', array('as'=>'api.expenses', 'uses'=>'ExpenseApiController@getDatatable'));
+    Route::get('api/expenseVendor/{id}', array('as'=>'api.expense', 'uses'=>'ExpenseApiController@getDatatableVendor'));
     Route::get('api/expenseactivities/{expense_id?}', array('as'=>'api.expenseactivities', 'uses'=>'ExpenseActivityController@getDatatable'));
-
+    Route::post('expenses/bulk', 'ExpenseController@bulk');
 });
 
 // Route groups for API
@@ -223,8 +223,12 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
     Route::get('user_accounts','AccountApiController@getUserAccounts');
+
     // Vendor
     Route::resource('vendors', 'VendorApiController');
+
+    //Expense
+    Route::resource('expenses', 'ExpenseApiController');
 });
 
 // Redirects for legacy links
@@ -580,7 +584,7 @@ if (!defined('CONTACT_EMAIL')) {
         'dateFormats' => 'App\Models\DateFormat',
         'datetimeFormats' => 'App\Models\DatetimeFormat',
         'languages' => 'App\Models\Language',
-        //'paymentTerms' => 'App\Models\PaymentTerm',
+        'paymentTerms' => 'App\Models\PaymentTerm',
         'paymentTypes' => 'App\Models\PaymentType',
         'countries' => 'App\Models\Country',
         'invoiceDesigns' => 'App\Models\InvoiceDesign',
