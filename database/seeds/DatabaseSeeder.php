@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder {
 		$this->call('ConstantsSeeder');
 		$this->call('CountriesSeeder');
 		$this->call('PaymentLibrariesSeeder');
-		$this->call('FontsSeeder');
+        $this->call('FontsSeeder');
+        $this->call('BanksSeeder');
 	}
 
 }

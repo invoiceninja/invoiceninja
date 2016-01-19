@@ -144,6 +144,8 @@ class AccountController extends BaseController
             return self::showLocalization();
         } elseif ($section == ACCOUNT_PAYMENTS) {
             return self::showOnlinePayments();
+        } elseif ($section == ACCOUNT_BANKS) {
+            return self::showBankAccounts();
         } elseif ($section == ACCOUNT_INVOICE_SETTINGS) {
             return self::showInvoiceSettings();
         } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
@@ -261,6 +263,21 @@ class AccountController extends BaseController
         ];
 
         return View::make('accounts.localization', $data);
+    }
+
+    private function showBankAccounts()
+    {
+        $account = Auth::user()->account;
+        $account->load('bank_accounts');
+        $count = count($account->bank_accounts);
+
+        if ($count == 0) {
+            return Redirect::to('bank_accounts/create');
+        } else {
+            return View::make('accounts.banks', [
+                'title' => trans('texts.bank_accounts')
+            ]);
+        }
     }
 
     private function showOnlinePayments()

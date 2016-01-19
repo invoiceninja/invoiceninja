@@ -132,6 +132,11 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 
+    Route::resource('bank_accounts', 'BankAccountController');
+    Route::get('api/bank_accounts', array('as'=>'api.bank_accounts', 'uses'=>'BankAccountController@getDatatable'));
+    Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
+    Route::post('bank_accounts/test', 'BankAccountController@test');
+
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
     Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));
@@ -253,6 +258,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_QUOTE', 'quote');
     define('ENTITY_TASK', 'task');
     define('ENTITY_ACCOUNT_GATEWAY', 'account_gateway');
+    define('ENTITY_BANK_ACCOUNT', 'bank_account');
     define('ENTITY_USER', 'user');
     define('ENTITY_TOKEN', 'token');
     define('ENTITY_TAX_RATE', 'tax_rate');
@@ -271,6 +277,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_NOTIFICATIONS', 'notifications');
     define('ACCOUNT_IMPORT_EXPORT', 'import_export');
     define('ACCOUNT_PAYMENTS', 'online_payments');
+    define('ACCOUNT_BANKS', 'bank_accounts');
     define('ACCOUNT_MAP', 'import_map');
     define('ACCOUNT_EXPORT', 'export');
     define('ACCOUNT_TAX_RATES', 'tax_rates');
@@ -518,6 +525,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('EMAIL_DESIGN_LIGHT', 2);
     define('EMAIL_DESIGN_DARK', 3);
 
+    define('BANK_LIBRARY_OFX', 1);
+
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
@@ -543,6 +552,7 @@ if (!defined('CONTACT_EMAIL')) {
         'frequencies' => 'App\Models\Frequency',
         'gateways' => 'App\Models\Gateway',
         'fonts' => 'App\Models\Font',
+        'banks' => 'App\Models\Bank',
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 
@@ -596,3 +606,4 @@ if (Auth::check() && Auth::user()->id === 1)
   Auth::loginUsingId(1);
 }
 */
+

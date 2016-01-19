@@ -89,7 +89,8 @@
 			"App\\": "app/"
 		},
         "files": [
-            "app/Libraries/lib_autolink.php"
+            "app/Libraries/lib_autolink.php",
+            "app/Libraries/OFX.php"
         ]
 	},
 	"autoload-dev": {

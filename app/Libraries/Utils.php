@@ -311,6 +311,39 @@ class Utils
         return $string;
     }
 
+    public static function maskAccountNumber($value)
+    {
+        $length = strlen($value);
+        if ($length < 4) {
+            str_repeat('*', 16);
+        }
+
+        $lastDigits = substr($value, -4);
+        return str_repeat('*', $length - 4) . $lastDigits;
+    }
+
+    // http://wephp.co/detect-credit-card-type-php/
+    public static function getCardType($number)
+    {
+        $number = preg_replace('/[^\d]/', '', $number);
+
+        if (preg_match('/^3[47][0-9]{13}$/', $number)) {
+            return 'American Express';
+        } elseif (preg_match('/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/', $number)) {
+            return 'Diners Club';
+        } elseif (preg_match('/^6(?:011|5[0-9][0-9])[0-9]{12}$/', $number)) {
+            return 'Discover';
+        } elseif (preg_match('/^(?:2131|1800|35\d{3})\d{11}$/', $number)) {
+            return 'JCB';
+        } elseif (preg_match('/^5[1-5][0-9]{14}$/', $number)) {
+            return 'MasterCard';
+        } elseif (preg_match('/^4[0-9]{12}(?:[0-9]{3})?$/', $number)) {
+            return 'Visa';
+        } else {
+            return 'Unknown';
+        }
+    }
+
     public static function toArray($data)
     {
         return json_decode(json_encode((array) $data), true);

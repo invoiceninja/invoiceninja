@@ -26,6 +26,7 @@ class Account extends Eloquent
         ACCOUNT_USER_DETAILS,
         ACCOUNT_LOCALIZATION,
         ACCOUNT_PAYMENTS,
+        ACCOUNT_BANKS,
         ACCOUNT_TAX_RATES,
         ACCOUNT_PRODUCTS,
         ACCOUNT_NOTIFICATIONS,
@@ -77,6 +78,11 @@ class Account extends Eloquent
     public function account_gateways()
     {
         return $this->hasMany('App\Models\AccountGateway');
+    }
+
+    public function bank_accounts()
+    {
+        return $this->hasMany('App\Models\BankAccount');
     }
 
     public function tax_rates()

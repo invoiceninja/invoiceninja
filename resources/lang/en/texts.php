@@ -1038,6 +1038,21 @@ return array(
     'quote_message_button' => 'To view your quote for :amount, click the button below.',
     'payment_message_button' => 'Thank you for your payment of :amount.',
     'payment_type_direct_debit' => 'Direct Debit',
-
+    'bank_accounts' => 'Bank Accounts',
+    'add_bank_account' => 'Add Bank Account',
+    'bank_id' => 'bank',
+    'integration_type' => 'Integration Type',
+    'updated_bank_account' => 'Successfully updated bank account',
+    'edit_bank_account' => 'Edit Bank Account',
+    'archive_bank_account' => 'Archive Bank Account',
+    'archived_bank_account' => 'Successfully archived bank account',
+    'created_bank_account' => 'Successfully created bank account',
+    'test' => 'Test',
+    'test_bank_account' => 'Test Bank Account',
+    'bank_password_help' => 'Note: your password is transmitted securely and never stored on our servers.',
+    'bank_password_warning' => 'Warning: your password may be transmitted in plain text, consider enabling HTTPS.',
+    'username' => 'Username',
+    'account_number' => 'Account Number',
+    'bank_account_error' => 'Failed to retreive account details, please check your credentials.',
 
 );
