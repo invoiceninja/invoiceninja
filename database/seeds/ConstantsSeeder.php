@@ -50,12 +50,6 @@ class ConstantsSeeder extends Seeder
 		Theme::create(array('name' => 'united'));
 		Theme::create(array('name' => 'yeti'));
 
-		InvoiceStatus::create(array('name' => 'Draft'));
-		InvoiceStatus::create(array('name' => 'Sent'));
-		InvoiceStatus::create(array('name' => 'Viewed'));
-		InvoiceStatus::create(array('name' => 'Partial'));
-		InvoiceStatus::create(array('name' => 'Paid'));		
-
 		Frequency::create(array('name' => 'Weekly'));
 		Frequency::create(array('name' => 'Two weeks'));
 		Frequency::create(array('name' => 'Four weeks'));

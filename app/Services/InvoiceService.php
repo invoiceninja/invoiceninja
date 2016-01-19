@@ -1,5 +1,6 @@
 <?php namespace App\Services;
 
+use Auth;
 use Utils;
 use URL;
 use App\Services\BaseService;
@@ -62,23 +63,42 @@ class InvoiceService extends BaseService
         return $invoice;
     }
 
+    public function convertQuote($quote, $invitation = null)
+    {
+        $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
+        if (!$invitation) {
+            return $invoice;
+        }
+        
+        foreach ($invoice->invitations as $invoiceInvitation) {
+            if ($invitation->contact_id == $invoiceInvitation->contact_id) {
+                return $invoiceInvitation->invitation_key;
+            }
+        }
+    }
+
     public function approveQuote($quote, $invitation = null)
     {
+        $account = Auth::user()->account;
         if (!$quote->is_quote || $quote->quote_invoice_id) {
             return null;
         }
         
-        $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
+        if ($account->auto_convert_quote) {
+            $invoice = $this->convertQuote($quote, $invitation);
 
-        if (!$invitation) {
+            event(new QuoteInvitationWasApproved($quote, $invoice, $invitation));
+
             return $invoice;
-        }
+        } else {
+            $quote->markApproved();
 
-        event(new QuoteInvitationWasApproved($quote, $invoice, $invitation));
-
-        foreach ($invoice->invitations as $invoiceInvitation) {
-            if ($invitation->contact_id == $invoiceInvitation->contact_id) {
-                return $invoiceInvitation->invitation_key;
+            event(new QuoteInvitationWasApproved($quote, null, $invitation));
+            
+            foreach ($quote->invitations as $invoiceInvitation) {
+                if ($invitation->contact_id == $invoiceInvitation->contact_id) {
+                    return $invoiceInvitation->invitation_key;
+                }
             }
         }
     }
@@ -226,6 +246,9 @@ class InvoiceService extends BaseService
                 break;
             case INVOICE_STATUS_VIEWED:
                 $class = 'warning';
+                break;
+            case INVOICE_STATUS_APPROVED:
+                $class = 'success';
                 break;
             case INVOICE_STATUS_PARTIAL:
                 $class = 'primary';
