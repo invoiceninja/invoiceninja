@@ -13,7 +13,7 @@ class UpdateInvoiceStatusesAfterAddingApproved extends Migration {
 	public function up()
 	{
         DB::table('invoices')
-            ->whereIn('invoice_status_id', [3, 4, 5])
+            ->whereIn('invoice_status_id', [4, 5])
             ->increment('invoice_status_id');
 	}
 
@@ -24,10 +24,9 @@ class UpdateInvoiceStatusesAfterAddingApproved extends Migration {
 	 */
 	public function down()
 	{
-		Schema::table('invoices', function(Blueprint $table)
-		{
-			//
-		});
+        DB::table('invoices')
+            ->whereIn('invoice_status_id', [5, 6])
+            ->decrement('invoice_status_id');
 	}
 
 }
