@@ -15,7 +15,7 @@ class AddQuoteToInvoiceOption extends Migration {
 	{
 		Schema::table('accounts', function(Blueprint $table)
 		{
-			$table->smallInteger('quote_to_invoice')->default(1);
+			$table->boolean('auto_convert_quote')->default(true);
 		});
 	}
 
@@ -28,7 +28,7 @@ class AddQuoteToInvoiceOption extends Migration {
 	{
 		Schema::table('accounts', function(Blueprint $table)
 		{
-            $table->dropColumn('quote_to_invoice');
+            $table->dropColumn('auto_convert_quote');
 		});
 	}
 

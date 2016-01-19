@@ -390,7 +390,7 @@ return array(
   'notification_quote_viewed_subject' => 'Offerte :invoice is bekeken door :client',
   'notification_quote_sent' => 'Klant :client heeft offerte :invoice voor :amount per email ontvangen.',
   'notification_quote_viewed' => 'Klant :client heeft offerte :invoice voor :amount bekeken.',  
-  'quote_to_invoice' => 'Offerte automatisch omzetten in factuur als deze goed gekeurd wordt',
+  'auto_convert_quote' => 'Offerte automatisch omzetten in factuur als deze goed gekeurd wordt',
 
   'session_expired' => 'Uw sessie is verlopen.',  
 
