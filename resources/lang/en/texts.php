@@ -256,6 +256,14 @@ return array(
     'deleted_credits' => 'Successfully deleted :count credits',
     'imported_file' => 'Successfully imported file',
 
+    'updated_vendor' => 'Successfully updated vendor',
+    'created_vendor' => 'Successfully created vendor',
+    'archived_vendor' => 'Successfully archived vendor',
+    'archived_vendors' => 'Successfully archived :count vendors',
+    'deleted_vendor' => 'Successfully deleted vendor',
+    'deleted_vendors' => 'Successfully deleted :count vendors',
+
+
     // Emails
     'confirmation_subject' => 'Invoice Ninja Account Confirmation',
     'confirmation_header' => 'Account Confirmation',
@@ -884,6 +892,14 @@ return array(
     'activity_27' => ':user restored payment :payment',
     'activity_28' => ':user restored :credit credit',
     'activity_29' => ':contact approved quote :quote',
+    'activity_30' => ':user created :vendor',
+    'activity_31' => ':user created :vendor',
+    'activity_32' => ':user created :vendor',
+    'activity_33' => ':user created :vendor',
+    'activity_34' => ':user created expense :expense',
+    'activity_35' => ':user created :vendor',
+    'activity_36' => ':user created :vendor',
+    'activity_37' => ':user created :vendor',
 
     'payment' => 'Payment',
     'system' => 'System',
@@ -996,6 +1012,54 @@ return array(
 
     'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
     'white_label_purchase_link' => 'Purchase a white label license',
+
+    // Expense / vendor
+    'expense' => 'Expense',
+    'expenses' => 'Expenses',
+    'new_expense' => 'Create expense',
+    'vendors' => 'Vendors',
+    'new_vendor' => 'Create vendor',
+    'payment_terms_net' => 'Net',
+    'vendor' => 'Vendor',
+    'edit_vendor' => 'Edit vendor',
+    'archive_vendor' => 'Archive vendor',
+    'delete_vendor' => 'Delete vendor',
+    'view_vendor' => 'View vendor',
+
+    // Expenses
+    'expense_amount' => 'Expense amount',
+    'expense_balance' => 'Expense balance',
+    'expense_date' => 'Expense date',
+    'expense_exchange_rate_100' => 'The amount for 100 in company currency',
+    'expense_should_be_invoiced' => 'Should this expense be invoiced?',
+    'public_notes' => 'Public notes',
+    'expense_amount_in_cur' => 'Expense amount in curency',
+    'is_invoiced' => 'Is invoiced',
+    'expense_is_not_invoiced' => 'Expense not invoiced',
+    'expense_is_invoiced' => 'Expense invoiced',
+    'yes' => 'Yes',
+    'no' => 'No',
+    'should_be_invoiced' => 'Should be invoiced',
+    'view_expense' => 'View expense # :expense',
+    'edit_expense' => 'Edit expense',
+    'archive_expense' => 'Archive expense',
+    'delete_expense' => 'Delete expense',
+    'view_expense_num' => 'Expense # :expense',
+    'updated_expense' => 'Expense updated',
+    'enter_expense' => 'Enter expense',
+    'view' => 'View',
+    'restore_expense' => 'Restore expense',
+    'invoice_expense' => 'Invoice',
+    'expense_error_multiple_clients' =>'The expenses can\'t belong to different clients',
+    'expense_error_invoiced' => 'Expense have already been invoiced',
+    'expense_error_should_not_be_invoiced' => 'Expense maked not to be invoiced',
+
+    // Payment terms
+    'num_days' => 'Number of days',
+    'create_payment_term' => 'Create payment term',
+    'edit_payment_terms' => 'Edit payment term',
+    'edit_payment_term' => 'Edit payment term',
+    'archive_payment_term' => 'Archive payment term',
 
     // recurring due dates
     'recurring_due_dates' => 'Recurring Invoice Due Dates',

@@ -319,6 +319,7 @@ class InvoiceController extends BaseController
             'recurringDueDateHelp' => $recurringDueDateHelp,
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
             'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
+            'expenses' => Session::get('expenses') ? json_encode(Session::get('expenses')) : null,
         ];
 
     }

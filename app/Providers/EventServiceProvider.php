@@ -138,6 +138,36 @@ class EventServiceProvider extends ServiceProvider {
             'App\Listeners\HandleUserSettingsChanged',
         ],
 
+        // vendor events
+        'App\Events\VendorWasCreated' => [
+            'App\Listeners\VendorActivityListener@createdVendor',
+            'App\Listeners\SubscriptionListener@createdVendor',
+        ],
+        'App\Events\VendorWasArchived' => [
+            'App\Listeners\VendorActivityListener@archivedVendor',
+        ],
+        'App\Events\VendorWasDeleted' => [
+            'App\Listeners\VendorActivityListener@deletedVendor',
+        ],
+        'App\Events\VendorWasRestored' => [
+            'App\Listeners\VendorActivityListener@restoredVendor',
+        ],
+
+        // Expense events
+        'App\Events\ExpenseWasCreated' => [
+            'App\Listeners\ExpenseActivityListener@createdExpense',
+            'App\Listeners\SubscriptionListener@createdExpense',
+        ],
+        'App\Events\ExpenseWasArchived' => [
+            'App\Listeners\ExpenseActivityListener@archivedExpense',
+        ],
+        'App\Events\ExpenseWasDeleted' => [
+            'App\Listeners\ExpenseActivityListener@deletedExpense',
+        ],
+        'App\Events\ExpenseWasRestored' => [
+            'App\Listeners\ExpenseActivityListener@restoredExpense',
+        ],
+        
 	];
 
 	/**

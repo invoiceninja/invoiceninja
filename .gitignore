@@ -34,3 +34,5 @@ tests/_bootstrap.php
 
 # composer stuff
 /c3.php
+
+_ide_helper.php

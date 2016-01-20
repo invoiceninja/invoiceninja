@@ -53,7 +53,11 @@ class AppServiceProvider extends ServiceProvider {
                 $str .= '<li class="divider"></li>
                         <li><a href="'.URL::to('credits').'">'.trans("texts.credits").'</a></li>
                         <li><a href="'.URL::to('credits/create').'">'.trans("texts.new_credit").'</a></li>';
-            }
+            } else if ($type == ENTITY_EXPENSE) {
+				$str .= '<li class="divider"></li>
+                        <li><a href="'.URL::to('vendors').'">'.trans("texts.vendors").'</a></li>
+                        <li><a href="'.URL::to('vendors/create').'">'.trans("texts.new_vendor").'</a></li>';
+			}
 
             $str .= '</ul>
                   </li>';

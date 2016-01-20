@@ -24,7 +24,7 @@ class InvoiceTransformer extends EntityTransformer
         'invoice_items',
         'payments'
     ];
-    
+
     public function includeInvoiceItems(Invoice $invoice)
     {
         $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
@@ -77,6 +77,7 @@ class InvoiceTransformer extends EntityTransformer
             'custom_value2' => (float) $invoice->custom_value2,
             'custom_taxes1' => (bool) $invoice->custom_taxes1,
             'custom_taxes2' => (bool) $invoice->custom_taxes2,
+            'has_expenses' => (bool) $invoice->has_expenses,
         ];
     }
 }

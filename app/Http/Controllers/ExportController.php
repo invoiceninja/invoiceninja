@@ -13,6 +13,8 @@ use App\Models\Credit;
 use App\Models\Task;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Vendor;
+use App\Models\VendorContact;
 
 class ExportController extends BaseController
 {
@@ -155,6 +157,25 @@ class ExportController extends BaseController
                 ->get();
         }
 
+        
+        if ($request->input(ENTITY_VENDOR)) {
+            $data['clients'] = Vendor::scope()
+                ->with('user', 'vendorcontacts', 'country')
+                ->withTrashed()
+                ->where('is_deleted', '=', false)
+                ->get();
+
+            $data['vendor_contacts'] = VendorContact::scope()
+                ->with('user', 'vendor.contacts')
+                ->withTrashed()
+                ->get();
+            /*
+            $data['expenses'] = Credit::scope()
+                ->with('user', 'client.contacts')
+                ->get();
+            */
+        }
+        
         return $data;
     }
 }

@@ -28,6 +28,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         'is_recurring' => 'boolean',
         'has_tasks' => 'boolean',
         'auto_bill' => 'boolean',
+        'has_expenses' => 'boolean',
     ];
 
     // used for custom invoice numbers
@@ -82,7 +83,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function getDisplayName()
     {
-        return $this->is_recurring ? trans('texts.recurring') : $this->invoice_number; 
+        return $this->is_recurring ? trans('texts.recurring') : $this->invoice_number;
     }
 
     public function affectsBalance()
@@ -136,7 +137,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         return ($this->amount - $this->balance);
     }
-    
+
     public function trashed()
     {
         if ($this->client && $this->client->trashed()) {
@@ -212,7 +213,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         $invitation->markSent($messageId);
 
-        // if the user marks it as sent rather than acually sending it 
+        // if the user marks it as sent rather than acually sending it
         // then we won't track it in the activity log
         if (!$notify) {
             return;
@@ -375,6 +376,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'has_tasks',
             'custom_text_value1',
             'custom_text_value2',
+            'has_expenses',
         ]);
 
         $this->client->setVisible([
@@ -468,7 +470,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         // Fix for months with less than 31 days
         $transformerConfig = new \Recurr\Transformer\ArrayTransformerConfig();
         $transformerConfig->enableLastDayOfMonthFix();
-        
+
         $transformer = new \Recurr\Transformer\ArrayTransformer();
         $transformer->setConfig($transformerConfig);
         $dates = $transformer->transform($rule);
@@ -494,7 +496,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         if (count($schedule) < 2) {
             return null;
         }
-        
+
         return $schedule[1]->getStart();
     }
     
@@ -651,7 +653,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         if (!$nextSendDate = $this->getNextSendDate()) {
             return false;
         }
-        
+
         return $this->account->getDateTime() >= $nextSendDate;
     }
     */
