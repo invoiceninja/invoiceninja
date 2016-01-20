@@ -12,6 +12,9 @@
     @if ($entityType == ENTITY_TASK)
         {!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
     @endif
+    @if ($entityType == ENTITY_EXPENSE)
+        {!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
+    @endif
 
 	{!! DropdownButton::normal(trans('texts.archive'))->withContents([
 		      ['label' => trans('texts.archive_'.$entityType), 'url' => 'javascript:submitForm("archive")'],

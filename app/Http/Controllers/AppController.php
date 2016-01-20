@@ -241,12 +241,12 @@ class AppController extends BaseController
     {
         if (!Utils::isNinjaProd()) {
             try {
+                Cache::flush();
+                Session::flush();
+                Artisan::call('optimize', array('--force' => true));
                 Artisan::call('migrate', array('--force' => true));
                 Artisan::call('db:seed', array('--force' => true, '--class' => 'PaymentLibrariesSeeder'));
                 Artisan::call('db:seed', array('--force' => true, '--class' => 'FontsSeeder'));
-                Artisan::call('optimize', array('--force' => true));
-                Cache::flush();
-                Session::flush();
                 Event::fire(new UserSettingsChanged());
                 Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {

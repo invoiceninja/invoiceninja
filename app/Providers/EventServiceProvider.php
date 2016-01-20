@@ -137,7 +137,7 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\UserSettingsChanged' => [
             'App\Listeners\HandleUserSettingsChanged',
         ],
-
+        
 	];
 
 	/**

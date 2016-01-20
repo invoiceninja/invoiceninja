@@ -25,7 +25,7 @@
 		"omnipay/omnipay": "~2.3.0",
 		"intervention/image": "dev-master",
 		"webpatser/laravel-countries": "dev-master",
-		"barryvdh/laravel-ide-helper": "2.0.x",
+		"barryvdh/laravel-ide-helper": "^2.1",
 		"doctrine/dbal": "2.5.x",
 		"jsanc623/phpbenchtime": "2.x",
 		"lokielse/omnipay-alipay": "dev-master",
