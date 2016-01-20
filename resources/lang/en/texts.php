@@ -1057,6 +1057,7 @@ return array(
     'status_approved' => 'Approved',
     'quote_settings' => 'Quote Settings',
     'auto_convert_quote' => 'Auto convert quote',
-    'auto_convert_quote_help' => 'When a client approves a quote automatically convert it to an invoice.',
+    'auto_convert_quote_help' => 'Automatically convert a quote to an invoice when approved by a client.',
+
     
 );
