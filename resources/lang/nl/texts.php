@@ -390,6 +390,7 @@ return array(
   'notification_quote_viewed_subject' => 'Offerte :invoice is bekeken door :client',
   'notification_quote_sent' => 'Klant :client heeft offerte :invoice voor :amount per email ontvangen.',
   'notification_quote_viewed' => 'Klant :client heeft offerte :invoice voor :amount bekeken.',  
+  'auto_convert_quote' => 'Offerte automatisch omzetten in factuur als deze goed gekeurd wordt',
 
   'session_expired' => 'Uw sessie is verlopen.',  
 
@@ -757,6 +758,7 @@ return array(
   'status_draft' => 'Concept',
   'status_sent' => 'Verstuurd',
   'status_viewed' => 'Bekeken',
+  'status_approved' => 'Goedgekeurd',
   'status_partial' => 'Gedeeltelijk',
   'status_paid' => 'Betaald',
   'show_line_item_tax' => '<b>BTW-tarieven per regel</b> tonen',

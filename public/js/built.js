@@ -30394,8 +30394,9 @@ var CONSTS = {};
 CONSTS.INVOICE_STATUS_DRAFT = 1;
 CONSTS.INVOICE_STATUS_SENT = 2;
 CONSTS.INVOICE_STATUS_VIEWED = 3;
-CONSTS.INVOICE_STATUS_PARTIAL = 4;
-CONSTS.INVOICE_STATUS_PAID = 5;
+CONSTS.INVOICE_STATUS_APPROVED = 4;
+CONSTS.INVOICE_STATUS_PARTIAL = 5;
+CONSTS.INVOICE_STATUS_PAID = 6;
 
 $.fn.datepicker.defaults.autoclose = true;
 $.fn.datepicker.defaults.todayHighlight = true;
@@ -30870,6 +30871,7 @@ function actionListHandler() {
         }
     });
 }
+
 var NINJA = NINJA || {};
 
 NINJA.TEMPLATES = {

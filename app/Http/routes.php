@@ -368,8 +368,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);
     define('INVOICE_STATUS_VIEWED', 3);
-    define('INVOICE_STATUS_PARTIAL', 4);
-    define('INVOICE_STATUS_PAID', 5);
+    define('INVOICE_STATUS_APPROVED', 4);
+    define('INVOICE_STATUS_PARTIAL', 5);
+    define('INVOICE_STATUS_PAID', 6);
 
     define('PAYMENT_TYPE_CREDIT', 1);
     define('CUSTOM_DESIGN', 11);

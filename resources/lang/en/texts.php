@@ -1054,5 +1054,9 @@ return array(
     'username' => 'Username',
     'account_number' => 'Account Number',
     'bank_account_error' => 'Failed to retreive account details, please check your credentials.',
-
+    'status_approved' => 'Approved',
+    'quote_settings' => 'Quote Settings',
+    'auto_convert_quote' => 'Auto convert quote',
+    'auto_convert_quote_help' => 'When a client approves a quote automatically convert it to an invoice.',
+    
 );

@@ -252,6 +252,14 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
     }
 
+    public function markApproved()
+    {
+        if ($this->is_quote) {
+            $this->invoice_status_id = INVOICE_STATUS_APPROVED;
+            $this->save();
+        }
+    }
+
     public function updateBalances($balanceAdjustment, $partial = 0)
     {
         if ($this->is_deleted) {

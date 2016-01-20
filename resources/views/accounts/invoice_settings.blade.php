@@ -20,10 +20,11 @@
 	@parent
     @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_SETTINGS, 'advanced' => true])
 
-	{!! Former::open()->rules(['iframe_url' => 'url'])->addClass('warn-on-exit') !!}
-	{{ Former::populate($account) }}
-	{{ Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) }}
-	{{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}
+    {!! Former::open()->rules(['iframe_url' => 'url'])->addClass('warn-on-exit') !!}
+    {{ Former::populate($account) }}
+    {{ Former::populateField('auto_convert_quote', intval($account->auto_convert_quote)) }}
+    {{ Former::populateField('custom_invoice_taxes1', intval($account->custom_invoice_taxes1)) }}
+    {{ Former::populateField('custom_invoice_taxes2', intval($account->custom_invoice_taxes2)) }}
     {{ Former::populateField('share_counter', intval($account->share_counter)) }}
 
     <div class="panel panel-default">
@@ -97,6 +98,7 @@
 
         </div>
     </div>
+    
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -169,6 +171,17 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.quote_settings') !!}</h3>
+        </div>
+        <div class="panel-body form-padding-right">
+            {!! Former::checkbox('auto_convert_quote')
+                    ->text(trans('texts.enable'))
+                    ->blockHelp(trans('texts.auto_convert_quote_help')) !!}
         </div>
     </div>
 
