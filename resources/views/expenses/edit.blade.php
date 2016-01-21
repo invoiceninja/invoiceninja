@@ -50,8 +50,8 @@
 	            </div>
                 <div class="col-md-6">
 
-                    {!! Former::textarea('public_notes')->rows(8) !!}
-                    {!! Former::textarea('private_notes')->rows(8) !!}
+                    {!! Former::textarea('public_notes')->rows(5) !!}
+                    {!! Former::textarea('private_notes')->rows(5) !!}
                 </div>
             </div>
         </div>
