@@ -200,7 +200,7 @@ Route::group(['middleware' => 'auth'], function() {
 
     // Expense
     Route::resource('expenses', 'ExpenseController');
-    Route::get('expenses/create/{vendor_id?}', 'ExpenseController@create');
+    Route::get('expenses/create/{vendor_id?}/{client_id?}', 'ExpenseController@create');
     Route::get('api/expense', array('as'=>'api.expenses', 'uses'=>'ExpenseController@getDatatable'));
     Route::get('api/expenseVendor/{id}', array('as'=>'api.expense', 'uses'=>'ExpenseController@getDatatableVendor'));
     Route::post('expenses/bulk', 'ExpenseController@bulk');

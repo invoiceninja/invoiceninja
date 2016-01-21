@@ -37,6 +37,11 @@ class Expense extends EntityModel
         return $this->belongsTo('App\Models\Vendor')->withTrashed();
     }
 
+    public function client()
+    {
+        return $this->belongsTo('App\Models\Client')->withTrashed();
+    }
+
     public function getName()
     {
         if($this->expense_number)

@@ -97,13 +97,13 @@ class ConstantsSeeder extends Seeder
 		Size::create(array('name' => '101 - 500'));
 		Size::create(array('name' => '500+'));		
 
-        	PaymentTerm::create(array('num_days' => 7, 'name' => 'Net 7'));
-		PaymentTerm::create(array('num_days' => 10, 'name' => 'Net 10'));
-		PaymentTerm::create(array('num_days' => 14, 'name' => 'Net 14'));
-		PaymentTerm::create(array('num_days' => 15, 'name' => 'Net 15'));
-		PaymentTerm::create(array('num_days' => 30, 'name' => 'Net 30'));
-		PaymentTerm::create(array('num_days' => 60, 'name' => 'Net 60'));
-		PaymentTerm::create(array('num_days' => 90, 'name' => 'Net 90'));
+    	PaymentTerm::create(array('num_days' => 7, 'name' => 'Net 7', 'public_id' => 1));
+		PaymentTerm::create(array('num_days' => 10, 'name' => 'Net 10', 'public_id' => 2));
+		PaymentTerm::create(array('num_days' => 14, 'name' => 'Net 14', 'public_id' => 3));
+		PaymentTerm::create(array('num_days' => 15, 'name' => 'Net 15', 'public_id' => 4));
+		PaymentTerm::create(array('num_days' => 30, 'name' => 'Net 30', 'public_id' => 5));
+		PaymentTerm::create(array('num_days' => 60, 'name' => 'Net 60', 'public_id' => 6));
+		PaymentTerm::create(array('num_days' => 90, 'name' => 'Net 90', 'public_id' => 7));
         
 		PaymentLibrary::create(['name' => 'Omnipay']);
         	PaymentLibrary::create(['name' => 'PHP-Payments [Deprecated]']);

@@ -166,10 +166,11 @@
         $('#testModal').on('shown.bs.modal', function() {
             $('#bank_password').focus();
         });
+        
+        $('#bank_id').focus();
     });
 
 
-    // Here's my data model
     var ViewModel = function() {
         var self = this;
         self.bank_id = ko.observable({{ $bankAccount ? $bankAccount->bank_id : 0 }});
@@ -186,8 +187,6 @@
         self.disableDoTest = ko.computed(function() {
             return !self.bank_id() || !self.bank_username() || !self.bank_password();
         }, self);
-
-        $('#bank_id').focus();
     };
      
     window.model = new ViewModel();

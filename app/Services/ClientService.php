@@ -125,6 +125,12 @@ class ClientService extends BaseService
                 function ($model) {
                     return URL::to("credits/create/{$model->public_id}");
                 }
+            ],
+            [
+                trans('texts.enter_expense'),
+                function ($model) {
+                    return URL::to("expenses/create/0/{$model->public_id}");
+                }
             ]
         ];
     }

@@ -14,4 +14,11 @@ class AccountPresenter extends Presenter {
     {
         return Utils::addHttp($this->entity->website);
     }
+
+    public function currencyCode()
+    {
+        $currencyId = $this->entity->getCurrencyId();
+        $currency = Utils::getFromCache($currencyId, 'currencies');
+        return $currency->code;
+    }
 }

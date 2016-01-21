@@ -356,6 +356,31 @@ if (window.ko) {
       }
   };
 
+  ko.bindingHandlers.combobox = {
+      init: function (element, valueAccessor, allBindingsAccessor) {
+         var options = allBindingsAccessor().dropdownOptions|| {};
+         var value = ko.utils.unwrapObservable(valueAccessor());
+         var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
+         if (id) $(element).val(id);
+         $(element).combobox(options);
+
+          ko.utils.registerEventHandler(element, "change", function () {
+            var value = valueAccessor();
+            value($(element).val());
+          });
+      },
+      update: function (element, valueAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
+        if (id) {
+          $(element).val(id);
+          $(element).combobox('refresh');
+        } else {
+          $(element).combobox('clearTarget');
+          $(element).combobox('clearElement');
+        }
+      }
+  };
 
   ko.bindingHandlers.datePicker = {
       init: function (element, valueAccessor, allBindingsAccessor) {

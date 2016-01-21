@@ -251,6 +251,11 @@ class Account extends Eloquent
         return Utils::formatMoney($amount, $currencyId, $countryId, $hideSymbol);
     }
 
+    public function getCurrencyId()
+    {
+        return $this->currency_id ?: DEFAULT_CURRENCY;
+    }
+
     public function formatDate($date)
     {
         $date = $this->getDateTime($date);

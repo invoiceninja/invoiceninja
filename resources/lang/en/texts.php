@@ -1016,7 +1016,8 @@ return array(
     // Expense / vendor
     'expense' => 'Expense',
     'expenses' => 'Expenses',
-    'new_expense' => 'Create Expense',
+    'new_expense' => 'Enter Expense',
+    'enter_expense' => 'Enter Expense',
     'vendors' => 'Vendors',
     'new_vendor' => 'Create Vendor',
     'payment_terms_net' => 'Net',
@@ -1027,6 +1028,8 @@ return array(
     'view_vendor' => 'View Vendor',
     'deleted_expense' => 'Successfully deleted expense',
     'archived_expense' => 'Successfully archived expense',
+    'deleted_expenses' => 'Successfully deleted expenses',
+    'archived_expenses' => 'Successfully archived expenses',
 
     // Expenses
     'expense_amount' => 'Expense Amount',
@@ -1034,7 +1037,7 @@ return array(
     'expense_date' => 'Expense Date',
     'expense_should_be_invoiced' => 'Should this expense be invoiced?',
     'public_notes' => 'Public Notes',
-    'foreign_amount' => 'Foreign Amount',
+    'converted_amount' => 'Converted Amount',
     'exchange_rate' => 'Exchange Rate',
     'yes' => 'Yes',
     'no' => 'No',
@@ -1053,6 +1056,7 @@ return array(
     'expense_error_multiple_clients' =>'The expenses can\'t belong to different clients',
     'expense_error_invoiced' => 'Expense have already been invoiced',
     'expense_error_should_not_be_invoiced' => 'Expense maked not to be invoiced',
+    'convert_currency' => 'Convert currency',
 
     // Payment terms
     'num_days' => 'Number of days',

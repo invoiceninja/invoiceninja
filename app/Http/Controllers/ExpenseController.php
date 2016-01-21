@@ -67,7 +67,7 @@ class ExpenseController extends BaseController
         return $this->expenseService->getDatatableVendor($vendorPublicId);
     }
 
-    public function create($vendorPublicId = 0)
+    public function create($vendorPublicId = null, $clientPublicId = null)
     {
         if($vendorPublicId != 0) {
             $vendor = Vendor::scope($vendorPublicId)->with('vendorcontacts')->firstOrFail();
@@ -83,7 +83,7 @@ class ExpenseController extends BaseController
             'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(),
             'vendor' => $vendor,
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
-            'clientPublicId' => null,
+            'clientPublicId' => $clientPublicId,
             );
 
         $data = array_merge($data, self::getViewModel());

@@ -359,8 +359,6 @@ class AccountController extends BaseController
         $client->postal_code = trans('texts.postal_code');
         $client->work_phone = trans('texts.work_phone');
         $client->work_email = trans('texts.work_id');
-        $client->id_number = trans('texts.id_number');
-        $client->vat_number = trans('texts.var_number');
         
         $invoice->invoice_number = '0000';
         $invoice->invoice_date = Utils::fromSqlDate(date('Y-m-d'));

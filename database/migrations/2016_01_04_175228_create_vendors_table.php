@@ -79,7 +79,7 @@ class CreateVendorsTable extends Migration
             $table->date('expense_date')->nullable();
             $table->text('private_notes');
             $table->text('public_notes');
-            $table->integer('currency_id', false, true)->nullable();
+            $table->unsignedInteger('currency_id')->nullable();
             $table->boolean('should_be_invoiced')->default(true);
 
             // Relations
@@ -96,10 +96,9 @@ class CreateVendorsTable extends Migration
             $table->softDeletes();
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id');
-            $table->integer('public_id')->default(0);
 
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            //$table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            //$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->unsignedInteger('public_id')->index();
             $table->unique(array('account_id', 'public_id'));
@@ -112,7 +111,7 @@ class CreateVendorsTable extends Migration
                     ->get();
         $i = 1;
         foreach ($paymentTerms as $pTerm) {
-            $data = ['public_id' => $i];
+            $data = ['public_id' => $i++];
             DB::table('paymet_terms')->where('id', $pTerm->id)->update($data);
         }
 

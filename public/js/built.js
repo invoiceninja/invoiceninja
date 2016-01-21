@@ -30234,6 +30234,44 @@ if (window.ko) {
       }
   };
 
+  ko.bindingHandlers.combobox = {
+      init: function (element, valueAccessor, allBindingsAccessor) {
+         var options = allBindingsAccessor().dropdownOptions|| {};
+         var value = ko.utils.unwrapObservable(valueAccessor());
+         var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
+         if (id) $(element).val(id);
+         $(element).combobox(options);
+
+          ko.utils.registerEventHandler(element, "change", function () {
+            var value = valueAccessor();
+            value($(element).val());
+          });
+      },
+      update: function (element, valueAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
+        if (id) {
+          $(element).val(id);
+          $(element).combobox('refresh');
+        } else {
+          $(element).combobox('clearTarget');
+          $(element).combobox('clearElement');
+        }
+      }
+  };
+
+  ko.bindingHandlers.fadeVisible = {
+    init: function(element, valueAccessor) {
+        // Initially set the element to be instantly visible/hidden depending on the value
+        var value = valueAccessor();
+        $(element).toggle(ko.unwrap(value)); // Use "unwrapObservable" so we can handle values that may or may not be observable
+    },
+    update: function(element, valueAccessor) {
+        // Whenever the value subsequently changes, slowly fade the element in or out
+        var value = valueAccessor();
+        ko.unwrap(value) ? $(element).fadeIn() : $(element).fadeOut();
+    }
+  };
 
   ko.bindingHandlers.datePicker = {
       init: function (element, valueAccessor, allBindingsAccessor) {
@@ -30292,17 +30330,6 @@ function getClientDisplayName(client)
   var contact = client.contacts ? client.contacts[0] : false;
   if (client.name) {
     return client.name;
-  } else if (contact) {
-    return getContactDisplayName(contact);
-  }
-  return '';
-}
-
-function getVendorDisplayName(vendor)
-{
-  var contact = vendor.contacts ? vendor.vendorcontacts[0] : false;
-  if (vendor.name) {
-    return vendor.name;
   } else if (contact) {
     return getContactDisplayName(contact);
   }
