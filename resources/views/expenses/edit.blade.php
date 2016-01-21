@@ -43,8 +43,10 @@
                         ->fromQuery($currencies, 'name', 'id') !!}
 
                     {!! Former::text('amount')->label(trans('texts.expense_amount')) !!}
+                    <!--
                     {!! Former::text('foreign_amount') !!}
                     {!! Former::text('exchange_rate') !!}
+                    -->
 	            </div>
                 <div class="col-md-6">
 
