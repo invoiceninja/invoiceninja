@@ -950,6 +950,11 @@ function roundToTwo(num, toString) {
   return toString ? val.toFixed(2) : (val || 0);
 }
 
+function roundToFour(num, toString) {
+  var val = +(Math.round(num + "e+4")  + "e-4");
+  return toString ? val.toFixed(4) : (val || 0);
+}
+
 function truncate(str, length) {
   return (str && str.length > length) ? (str.substr(0, length-1) + '...') : str;
 }

@@ -27,6 +27,7 @@
 
                     {!! Former::text('amount')
                             ->label(trans('texts.amount'))
+                            ->data_bind("value: amount, valueUpdate: 'afterkeydown'")
                             ->addGroupClass('amount')
                             ->append($account->present()->currencyCode) !!}
 
@@ -42,10 +43,12 @@
                             ->data_bind('combobox: client_id')
                             ->addGroupClass('client-select') !!}
 
-                    {!! Former::checkbox('should_be_invoiced')
-                            ->text(trans('texts.should_be_invoiced'))
-                            ->data_bind('checked: should_be_invoiced() || client_id(), enable: !client_id()')
-                            ->label(' ') !!}<br/>
+                    @if (!$expense || ($expense && !$expense->invoice_id))
+                        {!! Former::checkbox('should_be_invoiced')
+                                ->text(trans('texts.should_be_invoiced'))
+                                ->data_bind('checked: should_be_invoiced() || client_id(), enable: !client_id()')
+                                ->label(' ') !!}<br/>
+                    @endif
 
                     <span style="display:none" data-bind="visible: !client_id()">
                         {!! Former::select('currency_id')->addOption('','')
@@ -60,11 +63,11 @@
                     </span>
 
                     {!! Former::text('exchange_rate')
-                            ->data_bind('enable: enableExchangeRate') !!}
+                            ->data_bind("value: exchange_rate, enable: enableExchangeRate, valueUpdate: 'afterkeydown'") !!}
 
                     {!! Former::text('converted_amount')
                             ->addGroupClass('converted-amount')
-                            ->data_bind('enable: enableExchangeRate')
+                            ->data_bind("value: convertedAmount, enable: enableExchangeRate")
                             ->append('<span data-bind="html: currencyCode"></span>') !!}
 
 	            </div>
@@ -127,8 +130,15 @@
                 onClientChange();
             });
 
-            window.model = new ViewModel();
-            ko.applyBindings(model);
+            @if ($data)
+                // this means we failed so we'll reload the previous state
+                window.model = new ViewModel({!! $data !!});
+            @else
+                // otherwise create blank model
+                window.model = new ViewModel({!! $expense !!});
+
+                ko.applyBindings(model);
+            @endif
 
             @if (!$expense && $clientPublicId)
                 onClientChange();
@@ -141,14 +151,29 @@
             @endif
         });
 
-        var ViewModel = function() {
+        var ViewModel = function(data) {
             var self = this;
 
             self.client_id = ko.observable({{ $clientPublicId }});
             self.vendor_id = ko.observable({{ $vendorPublicId }});
-            self.currency_id = ko.observable({{ $expense && $expense->currency_id ? $expense->currency_id : null }});
-            self.should_be_invoiced = ko.observable({{ $expense && ($expense->should_be_invoiced || $expense->client_id) ? 'true' : 'false' }});
+            self.currency_id = ko.observable();
+            self.amount = ko.observable();
+            self.exchange_rate = ko.observable(1);
+            self.should_be_invoiced = ko.observable();
             self.account_currency_id = ko.observable({{ $account->getCurrencyId() }});
+
+            if (data) {
+                ko.mapping.fromJS(data, {}, this);
+            }
+
+            self.convertedAmount = ko.computed({
+                read: function () {
+                    return roundToTwo(self.amount() * self.exchange_rate()).toFixed(2);
+                },
+                write: function(value) {
+                    self.exchange_rate(roundToFour(value / self.amount()));
+                }
+            }, self);
 
             self.currencyCode = ko.computed(function() {
                 var currencyId = self.currency_id() || self.account_currency_id();
@@ -159,6 +184,7 @@
             self.currencyName = ko.computed(function() {
                 var currencyId = self.currency_id() || self.account_currency_id();
                 var currency = currencyMap[currencyId];
+                console.log(currencyId);
                 return currency.name;
             });
 

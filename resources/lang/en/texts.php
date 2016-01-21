@@ -1055,7 +1055,6 @@ return array(
     'invoice_expense' => 'Invoice Expense',
     'expense_error_multiple_clients' =>'The expenses can\'t belong to different clients',
     'expense_error_invoiced' => 'Expense have already been invoiced',
-    'expense_error_should_not_be_invoiced' => 'Expense maked not to be invoiced',
     'convert_currency' => 'Convert currency',
 
     // Payment terms

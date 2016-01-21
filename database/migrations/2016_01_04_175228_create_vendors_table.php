@@ -75,7 +75,7 @@ class CreateVendorsTable extends Migration
             $table->boolean('is_deleted')->default(false);
             $table->decimal('amount', 13, 2);
             $table->decimal('foreign_amount', 13, 2);
-            $table->decimal('exchange_rate', 13, 2);
+            $table->decimal('exchange_rate', 13, 4);
             $table->date('expense_date')->nullable();
             $table->text('private_notes');
             $table->text('public_notes');

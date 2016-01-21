@@ -30260,19 +30260,6 @@ if (window.ko) {
       }
   };
 
-  ko.bindingHandlers.fadeVisible = {
-    init: function(element, valueAccessor) {
-        // Initially set the element to be instantly visible/hidden depending on the value
-        var value = valueAccessor();
-        $(element).toggle(ko.unwrap(value)); // Use "unwrapObservable" so we can handle values that may or may not be observable
-    },
-    update: function(element, valueAccessor) {
-        // Whenever the value subsequently changes, slowly fade the element in or out
-        var value = valueAccessor();
-        ko.unwrap(value) ? $(element).fadeIn() : $(element).fadeOut();
-    }
-  };
-
   ko.bindingHandlers.datePicker = {
       init: function (element, valueAccessor, allBindingsAccessor) {
          var value = ko.utils.unwrapObservable(valueAccessor());
@@ -30839,6 +30826,11 @@ function toggleDatePicker(field) {
 function roundToTwo(num, toString) {
   var val = +(Math.round(num + "e+2")  + "e-2");
   return toString ? val.toFixed(2) : (val || 0);
+}
+
+function roundToFour(num, toString) {
+  var val = +(Math.round(num + "e+4")  + "e-4");
+  return toString ? val.toFixed(4) : (val || 0);
 }
 
 function truncate(str, length) {

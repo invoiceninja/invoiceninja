@@ -50,7 +50,6 @@ class ExpenseRepository extends BaseRepository
                     ->where('expenses.account_id', '=', $accountid)
                     ->select('expenses.account_id',
                         'expenses.amount',
-                        'expenses.converted_amount',
                         'expenses.currency_id',
                         'expenses.deleted_at',
                         'expenses.exchange_rate',
@@ -94,48 +93,15 @@ class ExpenseRepository extends BaseRepository
         // First auto fill
         $expense->fill($input);
 
-        // We can have an expense without a vendor
-        if (isset($input['vendor_id'])) {
-            $expense->vendor_id = $input['vendor_id'];
-        }
-
         $expense->expense_date = Utils::toSqlDate($input['expense_date']);
-        $expense->amount = Utils::parseFloat($input['amount']);
-
-        if (isset($input['converted_amount'])) {
-            $expense->converted_amount = Utils::parseFloat($input['converted_amount']);
-        }
-
         $expense->private_notes = trim($input['private_notes']);
         $expense->public_notes = trim($input['public_notes']);
-
-        if (isset($input['exchange_rate'])) {
-            $expense->exchange_rate = Utils::parseFloat($input['exchange_rate']);
-        } else {
-            $expense->exchange_rate = 100;
-        }
-
-        if ($expense->exchange_rate == 0) {
-            $expense->exchange_rate = 100;
-        }
-
-        // set the currency
-        if (isset($input['currency_id'])) {
-            $expense->currency_id = $input['currency_id'];
-        }
-
-        if ($expense->currency_id == 0) {
-            $expense->currency_id = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
-        }
-
-        // Calculate the amount cur
-        $expense->converted_amount = ($expense->amount / 100) * $expense->exchange_rate;
-
         $expense->should_be_invoiced = isset($input['should_be_invoiced']) || $expense->client_id ? true : false;
 
-        if (isset($input['client_id'])) {
-            $expense->client_id = $input['client_id'];
-        }
+        $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
+        $expense->exchange_rate = round($rate, 4);
+        $expense->amount = round(Utils::parseFloat($input['amount']), 2);
+
         $expense->save();
 
         return $expense;

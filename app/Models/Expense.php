@@ -16,6 +16,9 @@ class Expense extends EntityModel
     protected $presenter = 'App\Ninja\Presenters\ExpensePresenter';
 
     protected $fillable = [
+        'client_id',
+        'vendor_id',
+        'currency_id',
         'amount',
         'foreign_amount',
         'exchange_rate',

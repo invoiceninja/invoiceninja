@@ -172,17 +172,12 @@ class ExpenseController extends BaseController
                         return Redirect::to('expenses');
                     }
 
-                    if ($expense->should_be_invoiced == 0) {
-                        Session::flash('error', trans('texts.expense_error_should_not_be_invoiced'));
-                        return Redirect::to('expenses');
-                    }
-
                     $account = Auth::user()->account;
                     $data[] = [
                         'publicId' => $expense->public_id,
                         'description' => $expense->public_notes,
                         'qty' => 1,
-                        'cost' => $expense->amount,
+                        'cost' => $expense->present()->converted_amount,
                     ];
                 }
 

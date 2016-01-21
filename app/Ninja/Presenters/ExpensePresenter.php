@@ -15,4 +15,9 @@ class ExpensePresenter extends Presenter {
     {
         return Utils::fromSqlDate($this->entity->expense_date);
     }
+
+    public function converted_amount()
+    {
+        return round($this->entity->amount * $this->entity->exchange_rate, 2);
+    }
 }
