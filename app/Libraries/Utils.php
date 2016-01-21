@@ -258,7 +258,7 @@ class Utils
         return $data->first();
     }
 
-    public static function formatMoney($value, $currencyId = false, $countryId = false, $hideSymbol = false)
+    public static function formatMoney($value, $currencyId = false, $countryId = false, $showCode = false)
     {
         if (!$value) {
             $value = 0;
@@ -292,9 +292,7 @@ class Utils
         $value = number_format($value, $currency->precision, $decimal, $thousand);
         $symbol = $currency->symbol;
 
-        if ($hideSymbol) {
-            return $value;
-        } elseif (!$symbol) {
+        if ($showCode || !$symbol) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
             return "{$value} " . trim($symbol);

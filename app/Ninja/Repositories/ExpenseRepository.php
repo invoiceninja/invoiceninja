@@ -31,12 +31,16 @@ class ExpenseRepository extends BaseRepository
                     ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
                     ->where('expenses.account_id', '=', $accountid)
                     ->where('expenses.vendor_id', '=', $vendorPublicId)
-                    ->select('expenses.id',
-                             'expenses.expense_date',
-                             'expenses.amount',
-                             'expenses.public_notes',
-                             'expenses.public_id',
-                             'expenses.deleted_at', 'expenses.should_be_invoiced', 'expenses.created_at');
+                    ->select(
+                        'expenses.id',
+                        'expenses.expense_date',
+                        'expenses.amount',
+                        'expenses.public_notes',
+                        'expenses.public_id',
+                        'expenses.deleted_at',
+                        'expenses.should_be_invoiced',
+                        'expenses.created_at'
+                    );
 
         return $query;
     }
@@ -46,7 +50,9 @@ class ExpenseRepository extends BaseRepository
         $accountid = \Auth::user()->account_id;
         $query = DB::table('expenses')
                     ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
-                    ->leftjoin('vendors', 'vendors.public_id', '=', 'expenses.vendor_id')
+                    ->leftjoin('clients', 'clients.id', '=', 'expenses.client_id')
+                    ->leftjoin('vendors', 'vendors.id', '=', 'expenses.vendor_id')
+                    ->leftJoin('invoices', 'invoices.id', '=', 'expenses.invoice_id')
                     ->where('expenses.account_id', '=', $accountid)
                     ->select('expenses.account_id',
                         'expenses.amount',
@@ -62,8 +68,13 @@ class ExpenseRepository extends BaseRepository
                         'expenses.public_notes',
                         'expenses.should_be_invoiced',
                         'expenses.vendor_id',
+                        'invoices.public_id as invoice_public_id',
                         'vendors.name as vendor_name',
-                        'vendors.public_id as vendor_public_id');
+                        'vendors.public_id as vendor_public_id',
+                        'accounts.country_id as account_country_id',
+                        'accounts.currency_id as account_currency_id',
+                        'clients.country_id as client_country_id'
+                    );
 
         $showTrashed = \Session::get('show_trash:expense');
 

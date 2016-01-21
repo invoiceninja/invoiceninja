@@ -8,7 +8,10 @@
 
 @section('content')
 	
-	{!! Former::open($url)->addClass('warn-on-exit')->method($method) !!}
+	{!! Former::open($url)->addClass('warn-on-exit main-form')->method($method) !!}
+    <div style="display:none">
+        {!! Former::text('action') !!}
+    </div>
 
 	@if ($expense)
 		{!! Former::populate($expense) !!}
@@ -83,6 +86,12 @@
 	<center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/expenses'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+        @if ($expense)
+            {!! DropdownButton::normal(trans('texts.more_actions'))
+                  ->withContents($actions)
+                  ->large()
+                  ->dropup() !!}
+        @endif
 	</center>
 
 	{!! Former::close() !!}
@@ -103,6 +112,17 @@
             var client = clientMap[clientId];
             if (client) {
                 model.currency_id(client.currency_id);
+            }
+        }
+
+        function submitAction(action) {
+            $('#action').val(action);
+            $('.main-form').submit();
+        }
+
+        function onDeleteClick() {
+            if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+                submitAction('delete');
             }
         }
 

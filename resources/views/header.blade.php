@@ -373,9 +373,9 @@
         {!! HTML::nav_link('dashboard', 'dashboard') !!}
         {!! HTML::menu_link('client') !!}
         {!! HTML::menu_link('task') !!}
+        {!! HTML::menu_link('expense') !!}
         {!! HTML::menu_link('invoice') !!}
         {!! HTML::menu_link('payment') !!}
-        {!! HTML::menu_link('expense') !!}
       </ul>
 
       <div class="navbar-form navbar-right">

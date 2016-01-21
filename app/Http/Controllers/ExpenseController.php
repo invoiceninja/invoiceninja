@@ -49,7 +49,7 @@ class ExpenseController extends BaseController
               'checkbox',
               'vendor',
               'expense_date',
-              'expense_amount',
+              'amount',
               'public_notes',
               'status',
               ''
@@ -96,17 +96,42 @@ class ExpenseController extends BaseController
         $expense = Expense::scope($publicId)->firstOrFail();
         $expense->expense_date = Utils::fromSqlDate($expense->expense_date);
 
+        $actions = [];
+        if ($expense->invoice) {
+            $actions[] = ['url' => URL::to("invoices/{$expense->invoice->public_id}/edit"), 'label' => trans("texts.view_invoice")];
+        } else {
+            $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans("texts.invoice_expense")];
+
+            /*
+            // check for any open invoices
+            $invoices = $task->client_id ? $this->invoiceRepo->findOpenInvoices($task->client_id) : [];
+
+            foreach ($invoices as $invoice) {
+                $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans("texts.add_to_invoice", ["invoice" => $invoice->invoice_number])];
+            }
+            */
+        }
+
+        $actions[] = \DropdownButton::DIVIDER;
+        if (!$expense->trashed()) {
+            $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_expense')];
+            $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_expense')];
+        } else {
+            $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_expense')];
+        }
+
         $data = array(
             'vendor' => null,
             'expense' => $expense,
             'method' => 'PUT',
             'url' => 'expenses/'.$publicId,
             'title' => 'Edit Expense',
+            'actions' => $actions,
             'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(),
             'vendorPublicId' => $expense->vendor ? $expense->vendor->public_id : null,
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $expense->client ? $expense->client->public_id : null,
-            );
+        );
 
         $data = array_merge($data, self::getViewModel());
 
@@ -130,6 +155,11 @@ class ExpenseController extends BaseController
         $expense = $this->expenseRepo->save($request->input());
 
         Session::flash('message', trans('texts.updated_expense'));
+
+        $action = Input::get('action');
+        if (in_array($action, ['archive', 'delete', 'restore', 'invoice'])) {
+            return self::bulk();
+        }
 
         return redirect()->to("expenses/{$expense->public_id}/edit");
     }
@@ -161,10 +191,10 @@ class ExpenseController extends BaseController
                     if ($expense->client_id) {
                         if (!$clientPublicId) {
                             $clientPublicId = $expense->client_id;
-                    } else if ($clientPublicId != $expense->client_id) {
-                        Session::flash('error', trans('texts.expense_error_multiple_clients'));
-                        return Redirect::to('expenses');
-                    }
+                        } elseif ($clientPublicId != $expense->client_id) {
+                            Session::flash('error', trans('texts.expense_error_multiple_clients'));
+                            return Redirect::to('expenses');
+                        }
                     }
 
                     if ($expense->invoice_id) {

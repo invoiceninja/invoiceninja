@@ -91,7 +91,7 @@
         submitForm('stop');
     }
 
-    function invoiceTask(id) {
+    function invoiceEntity(id) {
         $('#public_id').val(id);
         submitForm('invoice');
     }

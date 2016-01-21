@@ -101,7 +101,7 @@
             <header>
                 @if ($client)
                     <h2>{{ $client->getDisplayName() }}</h2>
-                    <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ $account->formatMoney($amount, $client, true) }} {{ $currencyCode }}</em></span></h3>
+                    <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ $account->formatMoney($amount, $client, true) }}</em></span></h3>
                 @elseif ($paymentTitle)
                     <h2>{{ $paymentTitle }}<br/><small>{{ $paymentSubtitle }}</small></h2>                    
                 @endif
@@ -280,7 +280,7 @@
 
         <div class="row">
             <div class="col-md-4 col-md-offset-4">
-                {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true) . ' ' . $currencyCode  ))->submit()->block()->large() !!}
+                {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))->submit()->block()->large() !!}
             </div>
         </div>
 

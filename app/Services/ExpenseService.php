@@ -69,7 +69,11 @@ class ExpenseService extends BaseService
             [
                 'amount',
                 function ($model) {
-                    return Utils::formatMoney($model->amount, false, false);
+                    $str = Utils::formatMoney($model->amount, $model->account_currency_id, $model->account_country_id, true);
+                    if ($model->exchange_rate != 1) {
+                        $str .= ' | ' . Utils::formatMoney(round($model->amount * $model->exchange_rate,2), $model->currency_id, $model->client_country_id, true);
+                    }
+                    return $str;
                 }
             ],
             [
@@ -126,14 +130,24 @@ class ExpenseService extends BaseService
                     return URL::to("expenses/{$model->public_id}/edit") ;
                 }
             ],
-            /*
+            [
+                trans('texts.view_invoice'),
+                function ($model) {
+                    return URL::to("/invoices/{$model->invoice_public_id}/edit");
+                },
+                function ($model) {
+                    return $model->invoice_public_id;
+                }
+            ],
             [
                 trans('texts.invoice_expense'),
                 function ($model) {
-                    return URL::to("expense/invoice/{$model->public_id}") . '?client=1';
+                    return "javascript:invoiceEntity({$model->public_id})";
+                },
+                function ($model) {
+                    return ! $model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00');
                 }
             ],
-            */
         ];
     }
 

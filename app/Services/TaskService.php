@@ -106,7 +106,7 @@ class TaskService extends BaseService
             [
                 trans('texts.invoice_task'),
                 function ($model) {
-                    return "javascript:invoiceTask({$model->public_id})";
+                    return "javascript:invoiceEntity({$model->public_id})";
                 },
                 function ($model) {
                     return ! $model->invoice_number && (!$model->deleted_at || $model->deleted_at == '0000-00-00');
