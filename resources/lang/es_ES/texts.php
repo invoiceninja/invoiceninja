@@ -38,7 +38,7 @@ return array(
   'frequency_id' => 'Frecuencia',
   'discount' => 'Descuento',
   'taxes' => 'Impuestos',
-  'tax' => 'IVA',
+  'tax' => 'Impuesto',
   'item' => 'Concepto',
   'description' => 'Descripción',
   'unit_cost' => 'Coste unitario',
