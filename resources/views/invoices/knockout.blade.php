@@ -388,12 +388,14 @@ function InvoiceModel(data) {
         }
 
         var taxRate = parseFloat(self.tax_rate());
-        if (taxRate > 0) {
-            var tax = roundToTwo(total * (taxRate/100));
-            return self.formatMoney(tax);
-        } else {
-            return self.formatMoney(0);
-        }
+        //if (taxRate > 0) {
+        //    var tax = roundToTwo(total * (taxRate/100));
+        //    return self.formatMoney(tax);
+        //} else {
+        //    return self.formatMoney(0);
+        //}
+        var tax = roundToTwo(total * (taxRate/100));
+        return self.formatMoney(tax);
     });
 
     self.totals.itemTaxes = ko.computed(function() {
@@ -482,9 +484,10 @@ function InvoiceModel(data) {
         }
 
         var taxRate = parseFloat(self.tax_rate());
-        if (taxRate > 0) {
-            total = NINJA.parseFloat(total) + roundToTwo((total * (taxRate/100)));
-        }
+        //if (taxRate > 0) {
+        //    total = NINJA.parseFloat(total) + roundToTwo((total * (taxRate/100)));
+        //}
+        total = NINJA.parseFloat(total) + roundToTwo((total * (taxRate/100)));
 
         var taxes = self.totals.itemTaxes();
         for (var key in taxes) {
