@@ -117,6 +117,10 @@ class CreateVendorsTable extends Migration
         Schema::table('invoices', function (Blueprint $table) {
             $table->boolean('has_expenses')->default(false);
         });
+
+        Schema::table('payment_terms', function (Blueprint $table) {
+            $table->unique(array('account_id', 'public_id'));
+        });
     }
 
     /**
