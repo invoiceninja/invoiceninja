@@ -112,7 +112,7 @@ class CreateVendorsTable extends Migration
         $i = 1;
         foreach ($paymentTerms as $pTerm) {
             $data = ['public_id' => $i++];
-            DB::table('paymet_terms')->where('id', $pTerm->id)->update($data);
+            DB::table('payment_terms')->where('id', $pTerm->id)->update($data);
         }
 
         Schema::table('invoices', function (Blueprint $table) {
