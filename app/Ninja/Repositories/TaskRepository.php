@@ -23,7 +23,23 @@ class TaskRepository
                     })
                     ->where('contacts.deleted_at', '=', null)
                     ->where('clients.deleted_at', '=', null)
-                    ->select('tasks.public_id', 'clients.name as client_name', 'clients.public_id as client_public_id', 'contacts.first_name', 'contacts.email', 'contacts.last_name', 'invoices.invoice_status_id', 'tasks.description', 'tasks.is_deleted', 'tasks.deleted_at', 'invoices.invoice_number', 'invoices.public_id as invoice_public_id', 'tasks.is_running', 'tasks.time_log', 'tasks.created_at');
+                    ->select(
+                        'tasks.public_id',
+                        'clients.name as client_name',
+                        'clients.public_id as client_public_id',
+                        'contacts.first_name',
+                        'contacts.email',
+                        'contacts.last_name',
+                        'invoices.invoice_status_id',
+                        'tasks.description',
+                        'tasks.is_deleted',
+                        'tasks.deleted_at',
+                        'invoices.invoice_number',
+                        'invoices.public_id as invoice_public_id',
+                        'tasks.is_running',
+                        'tasks.time_log',
+                        'tasks.created_at'
+                    );
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);

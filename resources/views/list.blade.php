@@ -29,10 +29,12 @@
 	<div id="top_right_buttons" class="pull-right">
 		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" 
             class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
-        @if (Auth::user()->isPro() && $entityType == ENTITY_INVOICE)        
+        @if (Auth::user()->isPro() && $entityType == ENTITY_INVOICE)
             {!! Button::normal(trans('texts.quotes'))->asLinkTo(URL::to('/quotes'))->appendIcon(Icon::create('list')) !!}
             {!! Button::normal(trans('texts.recurring'))->asLinkTo(URL::to('/recurring_invoices'))->appendIcon(Icon::create('list')) !!}
-        @elseif ($entityType == ENTITY_CLIENT)        
+        @elseif ($entityType == ENTITY_EXPENSE)
+            {!! Button::normal(trans('texts.vendors'))->asLinkTo(URL::to('/vendors'))->appendIcon(Icon::create('list')) !!}
+        @elseif ($entityType == ENTITY_CLIENT)
             {!! Button::normal(trans('texts.credits'))->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('list')) !!}
         @endif
 

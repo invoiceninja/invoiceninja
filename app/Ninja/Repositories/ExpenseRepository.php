@@ -51,10 +51,19 @@ class ExpenseRepository extends BaseRepository
         $query = DB::table('expenses')
                     ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
                     ->leftjoin('clients', 'clients.id', '=', 'expenses.client_id')
+                    ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->leftjoin('vendors', 'vendors.id', '=', 'expenses.vendor_id')
                     ->leftJoin('invoices', 'invoices.id', '=', 'expenses.invoice_id')
                     ->where('expenses.account_id', '=', $accountid)
-                    ->select('expenses.account_id',
+                    ->where('contacts.deleted_at', '=', null)
+                    ->where('vendors.deleted_at', '=', null)
+                    ->where('clients.deleted_at', '=', null)
+                    ->where(function ($query) {
+                        $query->where('contacts.is_primary', '=', true)
+                                ->orWhere('contacts.is_primary', '=', null);
+                    })
+                    ->select(
+                        'expenses.account_id',
                         'expenses.amount',
                         'expenses.currency_id',
                         'expenses.deleted_at',
@@ -69,10 +78,15 @@ class ExpenseRepository extends BaseRepository
                         'expenses.should_be_invoiced',
                         'expenses.vendor_id',
                         'invoices.public_id as invoice_public_id',
-                        'vendors.name as vendor_name',
-                        'vendors.public_id as vendor_public_id',
                         'accounts.country_id as account_country_id',
                         'accounts.currency_id as account_currency_id',
+                        'vendors.name as vendor_name',
+                        'vendors.public_id as vendor_public_id',
+                        'clients.name as client_name',
+                        'clients.public_id as client_public_id',
+                        'contacts.first_name',
+                        'contacts.email',
+                        'contacts.last_name',
                         'clients.country_id as client_country_id'
                     );
 
@@ -108,6 +122,10 @@ class ExpenseRepository extends BaseRepository
         $expense->private_notes = trim($input['private_notes']);
         $expense->public_notes = trim($input['public_notes']);
         $expense->should_be_invoiced = isset($input['should_be_invoiced']) || $expense->client_id ? true : false;
+
+        if (! $expense->currency_id) {
+            $expense->currency_id = \Auth::user()->account->getCurrencyId();
+        }
 
         $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
         $expense->exchange_rate = round($rate, 4);

@@ -48,6 +48,7 @@ class ExpenseController extends BaseController
             'columns' => Utils::trans([
               'checkbox',
               'vendor',
+              'client',
               'expense_date',
               'amount',
               'public_notes',

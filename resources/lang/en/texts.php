@@ -1054,7 +1054,7 @@ return array(
     'restore_expense' => 'Restore Expense',
     'invoice_expense' => 'Invoice Expense',
     'expense_error_multiple_clients' =>'The expenses can\'t belong to different clients',
-    'expense_error_invoiced' => 'Expense have already been invoiced',
+    'expense_error_invoiced' => 'Expense has already been invoiced',
     'convert_currency' => 'Convert currency',
 
     // Payment terms

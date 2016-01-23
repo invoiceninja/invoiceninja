@@ -53,26 +53,37 @@ class ExpenseService extends BaseService
                 'vendor_name',
                 function ($model)
                 {
-                    if($model->vendor_public_id) {
+                    if ($model->vendor_public_id) {
                         return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name);
                     } else {
-                        return 'No vendor' ;
+                        return '';
+                    }
+                }
+            ],
+            [
+                'client_name',
+                function ($model)
+                {
+                    if ($model->client_public_id) {
+                        return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model));
+                    } else {
+                        return '';
                     }
                 }
             ],
             [
                 'expense_date',
                 function ($model) {
-                    return Utils::fromSqlDate($model->expense_date);
+                    return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date));
                 }
             ],
             [
                 'amount',
                 function ($model) {
                     // show both the amount and the converted amount
-                    $str = Utils::formatMoney($model->amount, $model->account_currency_id, $model->account_country_id, true);
+                    $str = Utils::formatMoney($model->amount, $model->account_currency_id, $model->account_country_id);
                     if ($model->exchange_rate != 1) {
-                        $str .= ' | ' . Utils::formatMoney(round($model->amount * $model->exchange_rate,2), $model->currency_id, $model->client_country_id, true);
+                        $str .= ' | ' . Utils::formatMoney(round($model->amount * $model->exchange_rate,2), $model->currency_id, $model->client_country_id);
                     }
                     return $str;
                 }
