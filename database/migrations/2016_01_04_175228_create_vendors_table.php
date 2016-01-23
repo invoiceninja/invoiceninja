@@ -96,12 +96,11 @@ class CreateVendorsTable extends Migration
             $table->softDeletes();
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id');
+            $table->unsignedInteger('public_id')->index();
 
             //$table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             //$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-
-            $table->unsignedInteger('public_id')->index();
-            $table->unique(array('account_id', 'public_id'));
+            //$table->unique(array('account_id', 'public_id'));
         });
 
         // Update public id

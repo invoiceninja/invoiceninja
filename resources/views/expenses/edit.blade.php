@@ -68,7 +68,7 @@
                     {!! Former::text('exchange_rate')
                             ->data_bind("value: exchange_rate, enable: enableExchangeRate, valueUpdate: 'afterkeydown'") !!}
 
-                    {!! Former::text('converted_amount')
+                    {!! Former::text('invoice_amount')
                             ->addGroupClass('converted-amount')
                             ->data_bind("value: convertedAmount, enable: enableExchangeRate")
                             ->append('<span data-bind="html: currencyCode"></span>') !!}
