@@ -1037,7 +1037,7 @@ return array(
     'expense_date' => 'Expense Date',
     'expense_should_be_invoiced' => 'Should this expense be invoiced?',
     'public_notes' => 'Public Notes',
-    'converted_amount' => 'Converted Amount',
+    'invoice_amount' => 'Invoice Amount',
     'exchange_rate' => 'Exchange Rate',
     'yes' => 'Yes',
     'no' => 'No',
