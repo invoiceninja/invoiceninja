@@ -75,6 +75,9 @@ return array(
     "has_credit" => "Le client n'a pas un crédit suffisant.",
     "notmasked" => "Les valeurs sont masquées",
     "less_than" => 'The :attribute must be less than :value',
+    "has_counter" => 'The value must contain {$counter}',
+    "valid_contacts" => "All of the contacts must have either an email or name",
+    "valid_invoice_items" => "The invoice exceeds the maximum amount",
     
     /*
     |--------------------------------------------------------------------------

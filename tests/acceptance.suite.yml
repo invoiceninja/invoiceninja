@@ -15,7 +15,7 @@ modules:
             browser: phantomjs
             capabilities:
                 unexpectedAlertBehaviour: 'accept'
-                webStorageEnabled: true                
+                webStorageEnabled: true
         - Db:
             dsn: 'mysql:dbname=ninja;host=localhost;'
             user: 'ninja'

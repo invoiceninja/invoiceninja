@@ -1,58 +1,75 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png" alt="Sublime's custom image"/>
+</p>
+
 # Invoice Ninja
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
-If you'd like to use our code to sell your own invoicing app email us for details about our affiliate program.
+[![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+### Referral Program
+* $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
+
+### Reseller Program
+There are two options:
+* 10% of revenue
+* $1,000 for a site limited to 1,000 accounts
 
 ### Installation Options
+* [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
+* [Docker File](https://github.com/invoiceninja/dockerfiles) - Free
+* [Bitnami](https://bitnami.com/stack/invoice-ninja) - Free
+* [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja) - $30
 
-* [Zip - Free](https://www.invoiceninja.com/knowledgebase/self-host/)
-* [Bitnami - Free](https://bitnami.com/stack/invoice-ninja)
-* [Softaculous - $30](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
-
-### Getting Started
-
-If you have any questions or comments please use our [support forum](https://www.invoiceninja.com/forums/forum/support/). For updates follow [@invoiceninja](https://twitter.com/invoiceninja) or join the [Facebook Group](https://www.facebook.com/invoiceninja). 
-
-If you'd like to translate the site please use [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) for the starter files.
+### Requirements
+* PHP >= 5.4.0
+* MCrypt PHP Extension
+* MySQL
 
 ### Features
-
 * Built using Laravel 5
-* Live PDF generation
-* Integrates with 30+ payment providers
-* Recurring invoices
+* Live PDF generation using [pdfmake](http://pdfmake.org/)
+* Integrates with 50+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
+* Recurring invoices with auto-billing
 * Tasks with time-tracking
-* Multi-user support
+* Multi-user/multi-company support
 * Tax rates and payment terms
+* Reminder emails
 * Partial payments
+* Client portal
 * Custom email templates
 * [Zapier](https://zapier.com/) integration
 * [D3.js](http://d3js.org/) visualizations
 
-### Contributors
-
-* [Troels Liebe Bentsen](https://github.com/tlbdk)
-* [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
-* [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
+### Recommended Providers
+* [Stripe](https://stripe.com/)
+* [Postmark](https://postmarkapp.com/)
 
 ### Documentation
 * [Ubuntu and Apache](http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/)
 * [Debian and Nginx](https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/)
-* [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
-* [User Guide](https://www.invoiceninja.com/user-guide/)
+* [User Guide](https://www.invoiceninja.com/app-user-guide/)
 * [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
+* [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
+* [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
+* [Feature Roadmap](https://trello.com/b/63BbiVVe/)
+
+### Contributors
+* [Troels Liebe Bentsen](https://github.com/tlbdk)
+* [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
+* [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
+* [Joshua Dwire](https://github.com/joshuadwire) - [Some Techie](https://www.sometechie.com)
 
 ### Frameworks/Libraries
 * [laravel/laravel](https://github.com/laravel/laravel) - A PHP Framework For Web Artisans
 * [twbs/bootstrap](https://github.com/twbs/bootstrap) - Sleek, intuitive, and powerful front-end framework for faster and easier web development.
+* [jquery/jquery](https://github.com/jquery/jquery) - jQuery JavaScript Library
+* [jquery/jquery-ui](https://github.com/jquery/jquery-ui) - The official jQuery user interface library
 * [patricktalmadge/bootstrapper](https://github.com/patricktalmadge/bootstrapper) - Laravel Twitter Bootstrap Bundle
 * [danielfarrell/bootstrap-combobox](https://github.com/danielfarrell/bootstrap-combobox) - A combobox plugin 
-* [jquery/jquery](https://github.com/jquery/jquery) - jQuery JavaScript Library
 * [eternicode/bootstrap-datepicker](https://github.com/eternicode/bootstrap-datepicker) - A datepicker for @twitter bootstrap
-* [jquery/jquery-ui](https://github.com/jquery/jquery-ui) - The official jQuery user interface library
 * [knockout/knockout](https://github.com/knockout/knockout) - Knockout makes it easier to create rich, responsive UIs with JavaScript
 * [rniemeyer/knockout-sortable](https://github.com/rniemeyer/knockout-sortable) - A Knockout.js binding to connect observableArrays with jQuery UI sortable functionality
-* [MrRio/jsPDF](https://github.com/MrRio/jsPDF) - Generate PDF files in JavaScript. HTML5 FTW.
 * [bpampuch/pdfmake](https://github.com/bpampuch/pdfmake) - Client/server side PDF printing in pure JavaScript
 * [FortAwesome/Font-Awesome](https://github.com/FortAwesome/Font-Awesome) - The iconic font designed for Bootstrap that works with twitter bootstrap
 * [Anahkiasen/former](https://github.com/Anahkiasen/former) - A powerful form builder, for Laravel and other frameworks (stand-alone too)
@@ -72,3 +89,9 @@ If you'd like to translate the site please use [caouecs/Laravel4-long](https://g
 * [bgrins/spectrum](https://github.com/bgrins/spectrum) - The No Hassle JavaScript Colorpicker
 * [lokesh/lightbox2](https://github.com/lokesh/lightbox2/) - The original lightbox script
 * [josdejong/jsoneditor](https://github.com/josdejong/jsoneditor/) - A web-based tool to view, edit and format JSON
+* [simshaun/recurr](https://github.com/simshaun/recurr) - PHP library for working with recurrence rules
+* [quilljs/quill](https://github.com/quilljs/quill/) - A cross browser rich text editor with an API
+* [Maatwebsite/Laravel-Excel](https://github.com/Maatwebsite/Laravel-Excel) - An eloquent way of importing and exporting Excel and CSV files for Laravel
+* [thephpleague/fractal](https://github.com/thephpleague/fractal) - Output complex, flexible, AJAX/RESTful data structures
+* [ezyang/htmlpurifier](https://github.com/ezyang/htmlpurifier) - Standards compliant HTML filter written in PHP
+* [cerdic/css-tidy](https://github.com/Cerdic/CSSTidy) - CSSTidy is a CSS minifier

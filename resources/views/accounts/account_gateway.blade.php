@@ -1,9 +1,11 @@
-@extends('accounts.nav')
+@extends('header')
 
-@section('content') 
-    @parent 
+@section('content')
+    @parent
 
-    {!! Former::open($url)->method($method)->rule()->addClass('col-md-8 col-md-offset-2 warn-on-exit') !!} 
+    @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
+
+    {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!}
     {!! Former::populate($account) !!}
 
 
@@ -11,14 +13,15 @@
     <div class="panel-heading">
         <h3 class="panel-title">{!! trans($title) !!}</h3>
     </div>
-    <div class="panel-body">
-        
+    <div class="panel-body form-padding-right">
+
     @if ($accountGateway)
         {!! Former::populateField('gateway_id', $accountGateway->gateway_id) !!}
         {!! Former::populateField('payment_type_id', $paymentTypeId) !!}
         {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}
-        {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}        
+        {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
+        {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
 
         @if ($config)
             @foreach ($accountGateway->fields as $field => $junk)
@@ -31,10 +34,10 @@
         @endif
     @else
         {!! Former::populateField('gateway_id', GATEWAY_STRIPE) !!}
-        {!! Former::populateField('show_address', 1) !!}        
+        {!! Former::populateField('show_address', 1) !!}
         {!! Former::populateField('update_address', 1) !!}
     @endif
-        
+
     {!! Former::select('payment_type_id')
         ->options($paymentTypes)
         ->addGroupClass('payment-type-option')
@@ -51,17 +54,21 @@
         <div id="gateway_{{ $gateway->id }}_div" class='gateway-fields' style="display: none">
             @foreach ($gateway->fields as $field => $details)
 
+                @if ($details && !$accountGateway)
+                    {!! Former::populateField($gateway->id.'_'.$field, $details) !!}
+                @endif
+
                 @if (in_array($field, $hiddenFields))
                     {{-- do nothing --}}
-                @elseif ($gateway->id == GATEWAY_DWOLLA && ($field == 'key' || $field == 'secret') 
+                @elseif ($gateway->id == GATEWAY_DWOLLA && ($field == 'key' || $field == 'secret')
                     && isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET']))
                     {{-- do nothing --}}
-                @elseif ($field == 'testMode' || $field == 'developerMode' || $field == 'sandbox') 
+                @elseif ($field == 'testMode' || $field == 'developerMode' || $field == 'sandbox')
                     {!! Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable')->value('true') !!}
-                @elseif ($field == 'username' || $field == 'password') 
+                @elseif ($field == 'username' || $field == 'password')
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
                 @else
-                    {!! Former::text($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field)) !!} 
+                    {!! Former::text($gateway->id.'_'.$field)->label($gateway->id == GATEWAY_STRIPE ? trans('texts.secret_key') : Utils::toSpaceCase($field)) !!}
                 @endif
 
             @endforeach
@@ -72,14 +79,18 @@
                     <div class="col-lg-8 col-sm-8 help-block">
                         {!! $gateway->getHelp() !!}
                     </div>
-                </div>                  
+                </div>
             @endif
 
             @if ($gateway->id == GATEWAY_STRIPE)
-                {!! Former::select('token_billing_type_id')->options($tokenBillingOptions)->help(trans('texts.token_billing_help')) !!}
+                {!! Former::text('publishable_key') !!}
+
+                {!! Former::select('token_billing_type_id')
+                        ->options($tokenBillingOptions)
+                        ->help(trans('texts.token_billing_help')) !!}
             @endif
         </div>
-        
+
     @endforeach
 
     {!! Former::checkbox('show_address')
@@ -100,11 +111,11 @@
 
     </div>
     </div>
-    
+
     <p/>&nbsp;<p/>
 
-    {!! Former::actions( 
-        $countGateways > 0 ? Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/company/payments'))->appendIcon(Icon::create('remove-circle')) : false,
+    {!! Former::actions(
+        $countGateways > 0 ? Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/online_payments'))->appendIcon(Icon::create('remove-circle')) : false,
         Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}
     {!! Former::close() !!}
 
@@ -123,10 +134,12 @@
                 setFieldsShown({{ GATEWAY_PAYPAL_EXPRESS }});
             } else if (val == 'PAYMENT_TYPE_DWOLLA') {
                 setFieldsShown({{ GATEWAY_DWOLLA }});
+            } else if (val == 'PAYMENT_TYPE_DIRECT_DEBIT') {
+                setFieldsShown({{ GATEWAY_GOCARDLESS }});
             } else {
                 setFieldsShown({{ GATEWAY_BITPAY }});
             }
-        }        
+        }
     }
 
     function setFieldsShown(val) {
@@ -151,7 +164,7 @@
         $('label[for=update_address]').css('color', disabled ? '#888' : '#000');
         if (disabled) {
             $('#update_address').prop('checked', false);
-        } else if (event) {            
+        } else if (event) {
             $('#update_address').prop('checked', true);
         }
     }

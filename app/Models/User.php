@@ -5,6 +5,7 @@ use Auth;
 use Event;
 use App\Libraries\Utils;
 use App\Events\UserSettingsChanged;
+use App\Events\UserSignedUp;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -28,14 +29,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @var array
      */
-    protected $fillable = ['name', 'email', 'password'];
+    protected $fillable = ['first_name', 'last_name', 'email', 'password'];
 
     /**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
      */
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'confirmation_code'];
 
     use SoftDeletes;
     protected $dates = ['deleted_at'];
@@ -95,11 +96,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->account->isPro();
     }
 
-    public function isDemo()
-    {
-        return $this->account->id == Utils::getDemoAccountId();
-    }
-
     public function maxInvoiceDesignId()
     {
         return $this->isPro() ? 11 : (Utils::isNinja() ? COUNT_FREE_DESIGNS : COUNT_FREE_DESIGNS_SELF_HOST);
@@ -134,27 +130,6 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     {
         return Session::get(SESSION_COUNTER, 0);
     }
-
-    /*
-    public function getPopOverText()
-    {
-        if (!Utils::isNinja() || !Auth::check() || Session::has('error')) {
-            return false;
-        }
-
-        $count = self::getRequestsCount();
-
-        if ($count == 1 || $count % 5 == 0) {
-            if (!Utils::isRegistered()) {
-                return trans('texts.sign_up_to_save');
-            } elseif (!Auth::user()->account->name) {
-                return trans('texts.set_name');
-            }
-        }
-
-        return false;
-    }
-    */
     
     public function afterSave($success = true, $forced = false)
     {
@@ -167,9 +142,31 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getMaxNumClients()
     {
-        return $this->isPro() ? MAX_NUM_CLIENTS_PRO : MAX_NUM_CLIENTS;
+        if ($this->isPro()) {
+            return MAX_NUM_CLIENTS_PRO;
+        }
+
+        if ($this->id < LEGACY_CUTOFF) {
+            return MAX_NUM_CLIENTS_LEGACY;
+        }
+
+        return MAX_NUM_CLIENTS;
     }
 
+    public function getMaxNumVendors()
+    {
+        if ($this->isPro()) {
+            return MAX_NUM_VENDORS_PRO;
+        }
+
+        if ($this->id < LEGACY_CUTOFF) {
+            return MAX_NUM_VENDORS_LEGACY;
+        }
+
+        return MAX_NUM_VENDORS;
+    }
+    
+    
     public function getRememberToken()
     {
         return $this->remember_token;
@@ -203,20 +200,44 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         }
     }
 
-    public static function updateUser($user)
+    public static function onUpdatingUser($user)
     {
-        if ($user->password != !$user->getOriginal('password')) {
+        if ($user->password != $user->getOriginal('password')) {
             $user->failed_logins = 0;
         }
+
+        // if the user changes their email then they need to reconfirm it
+        if ($user->isEmailBeingChanged()) {
+            $user->confirmed = 0;
+            $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
+        }
+    }
+
+    public static function onUpdatedUser($user)
+    {
+        if (!$user->getOriginal('email')
+            || $user->getOriginal('email') == TEST_USERNAME
+            || $user->getOriginal('username') == TEST_USERNAME
+            || $user->getOriginal('email') == 'tests@bitrock.com') {
+            event(new UserSignedUp());
+        }
+
+        event(new UserSettingsChanged($user));
+    }
+
+    public function isEmailBeingChanged()
+    {
+        return Utils::isNinjaProd()
+                && $this->email != $this->getOriginal('email')
+                && $this->getOriginal('confirmed');
     }
 
 }
 
 User::updating(function ($user) {
-    User::updateUser($user);
+    User::onUpdatingUser($user);
 });
 
 User::updated(function ($user) {
-    Event::fire(new UserSettingsChanged());
+    User::onUpdatedUser($user);
 });
-

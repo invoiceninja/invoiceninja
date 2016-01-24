@@ -62,8 +62,11 @@
 @section('body')
 <div class="container">
 
+    @include('partials.warn_session', ['redirectTo' => '/login'])
 
-    {!! Former::open('login')->rules(['email' => 'required|email', 'password' => 'required'])->addClass('form-signin') !!}
+    {!! Former::open('login')
+            ->rules(['email' => 'required|email', 'password' => 'required'])
+            ->addClass('form-signin') !!}
     {{ Former::populateField('remember', 'true') }}
 
     <div class="modal-header">
@@ -79,13 +82,27 @@
                 {!! Former::hidden('remember')->raw() !!}
             </p>
 
-            <p>{!! Button::success(trans(Input::get('new_company') ? 'texts.login' : 'texts.lets_go'))->large()->submit()->block() !!}</p>
+            <p>{!! Button::success(trans('texts.login'))
+                    ->withAttributes(['id' => 'loginButton'])
+                    ->large()->submit()->block() !!}</p>
 
             @if (Input::get('new_company') && Utils::allowNewAccounts())
+                {!! Former::hidden('link_accounts')->value('true') !!}
                 <center><p>- {{ trans('texts.or') }} -</p></center>
-                <p>{!! Button::primary(trans('texts.new_company'))->asLinkTo(URL::to('/invoice_now?new_company=true&sign_up=true'))->large()->submit()->block() !!}</p>
+                <p>{!! Button::primary(trans('texts.new_company'))->asLinkTo(URL::to('/invoice_now?new_company=true&sign_up=true'))->large()->submit()->block() !!}</p><br/>
+            @elseif (Utils::isOAuthEnabled())
+                <center><p>- {{ trans('texts.or') }} -</p></center>
+                <div class="row">
+                @foreach (App\Services\AuthService::$providers as $provider)
+                    <div class="col-md-6">
+                        <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-block social-login-button" id="{{ strtolower($provider) }}LoginButton">
+                            <i class="fa fa-{{ strtolower($provider) }}"></i> &nbsp;
+                            {{ $provider }}
+                        </a><br/>
+                    </div>
+                @endforeach
+                </div>
             @endif
-
 
             <p class="link">
                 {!! link_to('/forgot', trans('texts.forgot_password')) !!}
@@ -99,7 +116,7 @@
                         <li>{{ $error }}</li>
                     @endforeach
                 </div>
-            @endif            
+            @endif
 
             @if (Session::has('warning'))
             <div class="alert alert-warning">{{ Session::get('warning') }}</div>
@@ -156,7 +173,15 @@
             } else {
                 $('#email').focus();
             }
+
+            /*
+            var authProvider = localStorage.getItem('auth_provider');
+            if (authProvider) {
+                $('#' + authProvider + 'LoginButton').removeClass('btn-primary').addClass('btn-success');
+            }
+            */
         })
+
     </script>
 
 @endsection

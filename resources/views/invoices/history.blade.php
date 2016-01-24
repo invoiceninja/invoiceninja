@@ -3,14 +3,16 @@
 @section('head')
     @parent
 
-    <script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
-    <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
+    @include('money_script')
+@foreach (Auth::user()->account->getFontFolders() as $font)
+  <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+@endforeach
+  <script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
 
   <script>
 
     var invoiceDesigns = {!! $invoiceDesigns !!};
+    var invoiceFonts = {!! $invoiceFonts !!};
     var currentInvoice = {!! $invoice !!};
     var versionsJson = {!! $versionsJson !!};
     

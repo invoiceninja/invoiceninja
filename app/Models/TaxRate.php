@@ -6,4 +6,9 @@ class TaxRate extends EntityModel
 {
     use SoftDeletes;
     protected $dates = ['deleted_at'];
+
+    public function getEntityType()
+    {
+        return ENTITY_TAX_RATE;
+    }
 }

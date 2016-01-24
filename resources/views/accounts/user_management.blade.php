@@ -1,19 +1,11 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content')
 	@parent
-	@include('accounts.nav_advanced')
-
-  {!! Former::open('users/delete')->addClass('user-form') !!}
-
-  <div style="display:none">
-    {!! Former::text('userPublicId') !!}
-  </div>
-  {!! Former::close() !!}
+    @include('accounts.nav', ['selected' => ACCOUNT_USER_MANAGEMENT, 'advanced' => true])
 
 
   <div class="pull-right">  
-    {!! Button::normal(trans('texts.api_tokens'))->asLinkTo(URL::to('/company/advanced_settings/token_management'))->appendIcon(Icon::create('cloud')) !!}
     @if (Utils::isPro())    
         {!! Button::primary(trans('texts.add_user'))->asLinkTo(URL::to('/users/create'))->appendIcon(Icon::create('plus-sign')) !!}
     @endif
@@ -22,9 +14,10 @@
 
     <label for="trashed" style="font-weight:normal; margin-left: 10px;">
         <input id="trashed" type="checkbox" onclick="setTrashVisible()"
-            {!! Session::get('show_trash:user') ? 'checked' : ''!!}/> {!! trans('texts.show_deleted_users')!!}
+            {!! Session::get('show_trash:user') ? 'checked' : ''!!}/> {!! trans('texts.show_archived_users')!!}
     </label>
 
+  @include('partials.bulk_form', ['entityType' => ENTITY_USER])
 
   {!! Datatable::table()
       ->addColumn(
@@ -41,30 +34,14 @@
       ->render('datatable') !!}
 
   <script>
-  window.onDatatableReady = function() {
-    $('tbody tr').mouseover(function() {
-      $(this).closest('tr').find('.tr-action').css('visibility','visible');
-    }).mouseout(function() {
-      $dropdown = $(this).closest('tr').find('.tr-action');
-      if (!$dropdown.hasClass('open')) {
-        $dropdown.css('visibility','hidden');
-      }
-    });
-  }
+    
+    window.onDatatableReady = actionListHandler;
 
     function setTrashVisible() {
         var checked = $('#trashed').is(':checked');
         window.location = '{!! URL::to('view_archive/user') !!}' + (checked ? '/true' : '/false');
     }
 
-  function deleteUser(id) {
-    if (!confirm("{!! trans('texts.are_you_sure') !!}")) {    
-      return;
-    }
-
-    $('#userPublicId').val(id);
-    $('form.user-form').submit();
-  }
   </script>
 
 @stop

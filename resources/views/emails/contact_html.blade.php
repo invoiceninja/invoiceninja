@@ -1,1 +1,1 @@
-{!! nl2br($text) !!}
+{{ nl2br($text) }}

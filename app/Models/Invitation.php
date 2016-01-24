@@ -1,5 +1,7 @@
 <?php namespace App\Models;
 
+use Utils;
+use Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invitation extends EntityModel
@@ -27,26 +29,67 @@ class Invitation extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    public function getLink()
+    public function getLink($type = 'view')
     {
         if (!$this->account) {
             $this->load('account');
         }
-        
+
         $url = SITE_URL;
-                
-        if ($this->account->subdomain) {
-            $parsedUrl = parse_url($url);
-            $host = explode('.', $parsedUrl['host']);
-            $subdomain = $host[0];
-            $url = str_replace("://{$subdomain}.", "://{$this->account->subdomain}.", $url);
+        $iframe_url = $this->account->iframe_url;
+        
+        if ($this->account->isPro()) {
+            if ($iframe_url) {
+                return "{$iframe_url}/?{$this->invitation_key}";
+            } elseif ($this->account->subdomain) {
+                $url = Utils::replaceSubdomain($url, $this->account->subdomain);
+            }
+        }
+        
+        return "{$url}/{$type}/{$this->invitation_key}";
+    }
+
+    public function getStatus()
+    {
+        $hasValue = false;
+        $parts = [];
+        $statuses = $this->message_id ? ['sent', 'opened', 'viewed'] : ['sent', 'viewed'];
+
+        foreach ($statuses as $status) {
+            $field = "{$status}_date";
+            $date = '';
+            if ($this->$field && $this->field != '0000-00-00 00:00:00') {
+                $date = Utils::dateToString($this->$field);
+                $hasValue = true;
+            }
+            $parts[] = trans('texts.invitation_status.' . $status) . ': ' . $date;
         }
 
-        return "{$url}/view/{$this->invitation_key}";
+        return $hasValue ? implode($parts, '<br/>') : false;
     }
 
     public function getName()
     {
         return $this->invitation_key;
+    }
+
+    public function markSent($messageId = null)
+    {
+        $this->message_id = $messageId;
+        $this->email_error = null;
+        $this->sent_date = Carbon::now()->toDateTimeString();
+        $this->save();
+    }
+
+    public function markViewed()
+    {
+        $invoice = $this->invoice;
+        $client = $invoice->client;
+
+        $this->viewed_date = Carbon::now()->toDateTimeString();
+        $this->save();
+
+        $invoice->markViewed();
+        $client->markLoggedIn();
     }
 }

@@ -32,8 +32,11 @@ return array(
     "countbetween"   => ":attribute moet tussen :min en :max geselecteerde elementen bevatten.",
     "countmax"       => ":attribute moet minder dan :max geselecteerde elementen bevatten.",
     "countmin"       => ":attribute moet minimaal :min geselecteerde elementen bevatten.",
+    "date"           => ":attribute is een ongeldige datum.",
     "date_format"    => ":attribute moet een geldig datum formaat bevatten.",
     "different"      => ":attribute en :other moeten verschillend zijn.",
+    "digits"         => ":attribute moet :digits cijfers bevatten.",
+    "digits_between" => ":attribute moet minimaal :min en maximaal :max cijfers bevatten.",
     "email"          => ":attribute is geen geldig e-mailadres.",
     "exists"         => ":attribute bestaat niet.",
     "image"          => ":attribute moet een afbeelding zijn.",
@@ -54,10 +57,12 @@ return array(
         "string"  => ":attribute moet minimaal :min karakters zijn.",
         "array"   => ":attribute moet minimaal :min items bevatten."
     ),
-    "not_in"         => "Het formaat van :attribute is ongeldig.",
+    "not_in"         => "Het geselecteerde :attribute is ongeldig.",
     "numeric"        => ":attribute moet een nummer zijn.",
-    "required"       => ":attribute is verplicht.",
-    "required_with"  => ":attribute is verplicht i.c.m. :values",
+    "regex"            => ":attribute formaat is ongeldig.",
+    "required"         => ":attribute is verplicht.",
+    "required_if"      => ":attribute is verplicht wanneer in het veld :other gekozen is voor :value.",
+    "required_with"    => ":attribute is verplicht wanneer :values ingevuld is.",
     "required_with_all" => ":attribute is verplicht i.c.m. :values",
     "required_without"     => ":attribute is verplicht als :values niet ingevuld is.",
     "required_without_all" => ":attribute is verplicht als :values niet ingevuld zijn.",
@@ -65,7 +70,7 @@ return array(
     "size"           => array(
         "numeric" => ":attribute moet :size zijn.",
         "file"    => ":attribute moet :size kilobyte zijn.",
-        "string"  => ":attribute moet :size characters zijn.",
+        "string"  => ":attribute moet :size karakters lang zijn.",
         "array"   => ":attribute moet :size items bevatten."
     ),
     "unique"         => ":attribute is al in gebruik.",
@@ -75,6 +80,9 @@ return array(
     "has_credit" => "De klant heeft niet voldoende krediet.",
     "notmasked" => "De waarden zijn verborgen",
     "less_than" => 'Het :attribute moet minder zijn dan :value',
+    "has_counter" => 'De waarde moet {$counter} bevatten',
+    "valid_contacts" => "Alle contacten moeten een e-mailadres of een naam hebben",
+    "valid_invoice_items" => "De factuur overschrijd het maximale aantal",
     
     /*
     |--------------------------------------------------------------------------

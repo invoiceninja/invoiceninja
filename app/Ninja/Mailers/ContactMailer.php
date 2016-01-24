@@ -1,110 +1,204 @@
 <?php namespace App\Ninja\Mailers;
 
+use HTML;
 use Utils;
 use Event;
 use URL;
+use Auth;
 
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Activity;
 use App\Models\Gateway;
-use App\Events\InvoiceSent;
+
+use App\Events\InvoiceWasEmailed;
+use App\Events\QuoteWasEmailed;
 
 class ContactMailer extends Mailer
 {
-    public function sendInvoice(Invoice $invoice)
+    public static $variableFields = [
+        'footer',
+        'account',
+        'client',
+        'amount',
+        'contact',
+        'firstName',
+        'invoice',
+        'quote',
+        'dueDate',
+        'viewLink',
+        'viewButton',
+        'paymentLink',
+        'paymentButton',
+    ];
+
+    public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false)
     {
-        $invoice->load('invitations', 'client', 'account');
+        $invoice->load('invitations', 'client.language', 'account');
         $entityType = $invoice->getEntityType();
 
-        $view = 'invoice';
-        $subject = trans("texts.{$entityType}_subject", ['invoice' => $invoice->invoice_number, 'account' => $invoice->account->getDisplayName()]);
-        $accountName = $invoice->account->getDisplayName();
-        $emailTemplate = $invoice->account->getEmailTemplate($entityType);
-        $invoiceAmount = Utils::formatMoney($invoice->getRequestedAmount(), $invoice->client->getCurrencyId());
+        $client = $invoice->client;
+        $account = $invoice->account;
 
-        $this->initClosure($invoice);
+        if ($client->trashed()) {
+            return trans('texts.email_errors.inactive_client');
+        } elseif ($invoice->trashed()) {
+            return trans('texts.email_errors.inactive_invoice');
+        }
+
+        $account->loadLocalizationSettings($client);
+        $emailTemplate = $account->getEmailTemplate($reminder ?: $entityType);
+        $emailSubject = $account->getEmailSubject($reminder ?: $entityType);
+
+        $sent = false;
+
+        if ($account->attatchPDF() && !$pdfString) {
+            $pdfString = $invoice->getPDFString();
+        }
 
         foreach ($invoice->invitations as $invitation) {
-            if (!$invitation->user || !$invitation->user->email || $invitation->user->trashed()) {
-                return false;
+            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString);
+            if ($response === true) {
+                $sent = true;
             }
-            if (!$invitation->contact || !$invitation->contact->email || $invitation->contact->trashed()) {
-                return false;
-            }
-
-            $invitation->sent_date = \Carbon::now()->toDateTimeString();
-            $invitation->save();
-
-            $variables = [
-                '$footer' => $invoice->account->getEmailFooter(),
-                '$link' => $invitation->getLink(),
-                '$client' => $invoice->client->getDisplayName(),
-                '$account' => $accountName,
-                '$contact' => $invitation->contact->getDisplayName(),
-                '$amount' => $invoiceAmount,
-                '$advancedRawInvoice->' => '$'
-            ];
-
-            // Add variables for available payment types
-            foreach (Gateway::getPaymentTypeLinks() as $type) {
-                $variables["\${$type}_link"] = URL::to("/payment/{$invitation->invitation_key}/{$type}");
-            }
-
-            $data['body'] = str_replace(array_keys($variables), array_values($variables), $emailTemplate);
-            $data['body'] = preg_replace_callback('/\{\{\$?(.*)\}\}/', $this->advancedTemplateHandler, $data['body']);
-            $data['link'] = $invitation->getLink();
-            $data['entityType'] = $entityType;
-            $data['invoice_id'] = $invoice->id;
-
-            $fromEmail = $invitation->user->email;
-            $response = $this->sendTo($invitation->contact->email, $fromEmail, $accountName, $subject, $view, $data);
-
-            if ($response !== true) {
-                return $response;
-            }
-
-            Activity::emailInvoice($invitation);
         }
+        
+        $account->loadLocalizationSettings();
 
-        if (!$invoice->isSent()) {
-            $invoice->invoice_status_id = INVOICE_STATUS_SENT;
-            $invoice->save();
+        if ($sent === true) {
+            if ($invoice->is_quote) {
+                event(new QuoteWasEmailed($invoice));
+            } else {
+                event(new InvoiceWasEmailed($invoice));
+            }
         }
-
-        Event::fire(new InvoiceSent($invoice));
 
         return $response;
     }
 
-    public function sendPaymentConfirmation(Payment $payment)
+    private function sendInvitation($invitation, $invoice, $body, $subject, $pdfString)
     {
-        $invoice = $payment->invoice;
-        $view = 'payment_confirmation';
-        $subject = trans('texts.payment_subject', ['invoice' => $invoice->invoice_number]);
-        $accountName = $payment->account->getDisplayName();
-        $emailTemplate = $invoice->account->getEmailTemplate(ENTITY_PAYMENT);
+        $client = $invoice->client;
+        $account = $invoice->account;
+        
+        if (Auth::check()) {
+            $user = Auth::user();
+        } else {
+            $user = $invitation->user;
+            if ($invitation->user->trashed()) {
+                $user = $account->users()->orderBy('id')->first();
+            }
+        }
+
+        if (!$user->email || !$user->registered) {
+            return trans('texts.email_errors.user_unregistered');
+        } elseif (!$user->confirmed) {
+            return trans('texts.email_errors.user_unconfirmed');
+        } elseif (!$invitation->contact->email) {
+            return trans('texts.email_errors.invalid_contact_email');
+        } elseif ($invitation->contact->trashed()) {
+            return trans('texts.email_errors.inactive_contact');
+        }
 
         $variables = [
-            '$footer' => $payment->account->getEmailFooter(),
-            '$client' => $payment->client->getDisplayName(),
-            '$account' => $accountName,
-            '$amount' => Utils::formatMoney($payment->amount, $payment->client->getCurrencyId())
+            'account' => $account,
+            'client' => $client,
+            'invitation' => $invitation,
+            'amount' => $invoice->getRequestedAmount()
         ];
 
-        $data = ['body' => str_replace(array_keys($variables), array_values($variables), $emailTemplate)];
+        $data = [
+            'body' => $this->processVariables($body, $variables),
+            'link' => $invitation->getLink(),
+            'entityType' => $invoice->getEntityType(),
+            'invoiceId' => $invoice->id,
+            'invitation' => $invitation,
+            'account' => $account,
+            'client' => $client,
+            'invoice' => $invoice,
+        ];
+
+        if ($account->attatchPDF()) {
+            $data['pdfString'] = $pdfString;
+            $data['pdfFileName'] = $invoice->getFileName();
+        }
+
+        $subject = $this->processVariables($subject, $variables);
+        $fromEmail = $user->email;
+
+        if ($account->email_design_id == EMAIL_DESIGN_PLAIN) {
+            $view = ENTITY_INVOICE;
+        } else {
+            $view = 'design' . ($account->email_design_id - 1);
+        }
+        
+        $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
+
+        if ($response === true) {
+            return true;
+        } else {
+            return $response;
+        }
+    }
+
+    public function sendPaymentConfirmation(Payment $payment)
+    {
+        $account = $payment->account;
+        $client = $payment->client;
+
+        $account->loadLocalizationSettings($client);
+
+        $invoice = $payment->invoice;
+        $accountName = $account->getDisplayName();
+        $emailTemplate = $account->getEmailTemplate(ENTITY_PAYMENT);
+        $emailSubject = $invoice->account->getEmailSubject(ENTITY_PAYMENT);
 
         if ($payment->invitation) {
             $user = $payment->invitation->user;
             $contact = $payment->contact;
+            $invitation = $payment->invitation;
         } else {
             $user = $payment->user;
-            $contact = $payment->client->contacts[0];
+            $contact = $client->contacts[0];
+            $invitation = $payment->invoice->invitations[0];
+        }
+
+        $variables = [
+            'account' => $account,
+            'client' => $client,
+            'invitation' => $invitation,
+            'amount' => $payment->amount,
+        ];
+
+        $data = [
+            'body' => $this->processVariables($emailTemplate, $variables),
+            'link' => $invitation->getLink(),
+            'invoice' => $invoice,
+            'client' => $client,
+            'account' => $account,
+            'payment' => $payment,
+            'entityType' => ENTITY_INVOICE,
+        ];
+
+        if ($account->attatchPDF()) {
+            $data['pdfString'] = $invoice->getPDFString();
+            $data['pdfFileName'] = $invoice->getFileName();
+        }
+
+        $subject = $this->processVariables($emailSubject, $variables);
+        $data['invoice_id'] = $payment->invoice->id;
+
+        if ($account->email_design_id == EMAIL_DESIGN_PLAIN) {
+            $view = 'payment_confirmation';
+        } else {
+            $view = 'design' . ($account->email_design_id - 1);
         }
 
         if ($user->email && $contact->email) {
             $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);
         }
+
+        $account->loadLocalizationSettings();
     }
 
     public function sendLicensePaymentConfirmation($name, $email, $amount, $license, $productId)
@@ -121,30 +215,53 @@ class ContactMailer extends Mailer
         }
         
         $data = [
-            'account' => trans('texts.email_from'),
             'client' => $name,
-            'amount' => Utils::formatMoney($amount, 1),
+            'amount' => Utils::formatMoney($amount, DEFAULT_CURRENCY, DEFAULT_COUNTRY),
             'license' => $license
         ];
         
         $this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 
-    private function initClosure($object)
+    private function processVariables($template, $data)
     {
-        $this->advancedTemplateHandler = function($match) use ($object) {
-            for ($i = 1; $i < count($match); $i++) {
-                $blobConversion = $match[$i];
+        $account = $data['account'];
+        $client = $data['client'];
+        $invitation = $data['invitation'];
+        $invoice = $invitation->invoice;
 
-                if (isset($$blobConversion)) {
-                    return $$blobConversion;
-                } else if (preg_match('/trans\(([\w\.]+)\)/', $blobConversion, $regexTranslation)) {
-                    return trans($regexTranslation[1]);
-                } else if (strpos($blobConversion, '->') !== false) {
-                    return Utils::stringToObjectResolution($object, $blobConversion);
-                }
+        $variables = [
+            '$footer' => $account->getEmailFooter(),
+            '$client' => $client->getDisplayName(),
+            '$account' => $account->getDisplayName(),
+            '$contact' => $invitation->contact->getDisplayName(),
+            '$firstName' => $invitation->contact->first_name,
+            '$amount' => $account->formatMoney($data['amount'], $client),
+            '$invoice' => $invoice->invoice_number,
+            '$quote' => $invoice->invoice_number,
+            '$link' => $invitation->getLink(),
+            '$dueDate' => $account->formatDate($invoice->due_date),
+            '$viewLink' => $invitation->getLink(),
+            '$viewButton' => HTML::emailViewButton($invitation->getLink(), $invoice->getEntityType()),
+            '$paymentLink' => $invitation->getLink('payment'),
+            '$paymentButton' => HTML::emailPaymentButton($invitation->getLink('payment')),
+            '$customClient1' => $account->custom_client_label1,
+            '$customClient2' => $account->custom_client_label2,
+            '$customInvoice1' => $account->custom_invoice_text_label1,
+            '$customInvoice2' => $account->custom_invoice_text_label2,
+        ];
 
-            }
-        };
+        // Add variables for available payment types
+        foreach (Gateway::$paymentTypes as $type) {
+            $camelType = Gateway::getPaymentTypeName($type);
+            $type = Utils::toSnakeCase($camelType);
+            $variables["\${$camelType}Link"] = $invitation->getLink() . "/{$type}";
+            $variables["\${$camelType}Button"] = HTML::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
+        }
+
+        $str = str_replace(array_keys($variables), array_values($variables), $template);
+        $str = autolink($str, 100);
+        
+        return $str;
     }
 }

@@ -14,7 +14,7 @@ class AddInvoiceDesignTable extends Migration {
 	{
 		Schema::table('invoice_designs', function($table)
 		{
-			$table->text('javascript')->nullable();
+			$table->mediumText('javascript')->nullable();
 		});
 
 		Schema::table('accounts', function($table)

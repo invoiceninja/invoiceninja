@@ -1,20 +1,32 @@
-<!DOCTYPE html>
-<html lang="{{ App::getLocale() }}">
-<head>
-  <meta charset="utf-8">
-</head>
-<body>
-  @if (false)
-    @include('emails.view_action', ['link' => $invoiceLink, 'entityType' => $entityType])
-  @endif
-  {{ trans('texts.email_salutation', ['name' => $userName]) }} <p/>
+@extends('emails.master_user')
 
-  {{ trans("texts.notification_{$entityType}_approved", ['amount' => $invoiceAmount, 'client' => $clientName, 'invoice' => $invoiceNumber]) }} <p/>  
+@section('markup')
+    @if ($account->enable_email_markup)
+        @include('emails.partials.user_view_action')
+    @endif
+@stop
 
-  {{ trans('texts.email_signature') }} <br/>
-  {{ trans('texts.email_from') }} <p/>
-  
-  {{ trans('texts.user_email_footer') }} <p/>
-
-</body>
-</html>
+@section('body')
+    <div>
+        {{ trans('texts.email_salutation', ['name' => $userName]) }}
+    </div>
+    &nbsp;
+    <div>
+        {{ trans("texts.notification_quote_approved", ['amount' => $invoiceAmount, 'client' => $clientName, 'invoice' => $invoiceNumber]) }}
+    </div>
+    &nbsp;
+    <div>
+        <center>
+            @include('partials.email_button', [
+                'link' => $invoiceLink,
+                'field' => "view_{$entityType}",
+                'color' => '#0b4d78',
+            ])
+        </center>
+    </div>
+    &nbsp;
+    <div>
+        {{ trans('texts.email_signature') }} <br/>
+        {{ trans('texts.email_from') }}
+    </div>
+@stop

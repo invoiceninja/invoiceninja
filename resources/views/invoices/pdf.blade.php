@@ -62,7 +62,7 @@
   logoImages.imageLogoWidth3 =325/2;
   logoImages.imageLogoHeight3 = 81/2;
 
-  @if (file_exists($account->getLogoPath()))
+  @if ($account->hasLogo())
   window.accountLogo = "{{ HTML::image_data($account->getLogoPath()) }}";
   if (window.invoice) {
     invoice.image = window.accountLogo;
@@ -72,30 +72,34 @@
   @endif
 
   var NINJA = NINJA || {};
-  NINJA.primaryColor = "{{ $account->primary_color }}";
-  NINJA.secondaryColor = "{{ $account->secondary_color }}";
-  NINJA.fontSize = {{ $account->font_size }};
-
+  @if ($account->isPro())
+      NINJA.primaryColor = "{{ $account->primary_color }}";
+      NINJA.secondaryColor = "{{ $account->secondary_color }}";
+      NINJA.fontSize = {{ $account->font_size }};
+      NINJA.headerFont = {!! json_encode($account->getHeaderFontName()) !!};
+      NINJA.bodyFont = {!! json_encode($account->getBodyFontName()) !!};
+  @endif
   var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
 
   if (window.invoice) {
-    invoiceLabels.item = invoice.has_tasks ? invoiceLabels.date : invoiceLabels.item_orig;
+    //invoiceLabels.item = invoice.has_tasks ? invoiceLabels.date : invoiceLabels.item_orig;
     invoiceLabels.quantity = invoice.has_tasks ? invoiceLabels.hours : invoiceLabels.quantity_orig;
-    invoiceLabels.unit_cost = invoice.has_tasks ? invoiceLabels.rate : invoiceLabels.unit_cost_orig;    
+    invoiceLabels.unit_cost = invoice.has_tasks ? invoiceLabels.rate : invoiceLabels.unit_cost_orig;
   }
 
   var isRefreshing = false;
   var needsRefresh = false;
 
   function refreshPDF(force) {
-    getPDFString(refreshPDFCB, force);
+    //console.log('refresh PDF - force: ' + force + ' ' + (new Date()).getTime())
+    return getPDFString(refreshPDFCB, force);
   }
   
   function refreshPDFCB(string) {
     if (!string) return;
     PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
-    if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChromium))) { 
-      $('#theFrame').attr('src', string).show();    
+    if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || isChrome)) { 
+      $('#theFrame').attr('src', string).show();
     } else {      
       if (isRefreshing) {
         //needsRefresh = true;

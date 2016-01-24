@@ -1,123 +1,15 @@
 @extends('master')
 
 @section('head')
-
-<link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
-<style type="text/css">
-
-
-body {
-    font-family: 'Roboto', sans-serif;
-    font-size: 14px;
-}
-
-
-@media screen and (min-width: 700px) { 
-    .navbar-header {
-        padding-top: 16px;
-        padding-bottom: 16px;        
-    }
-    .navbar li a {
-        padding: 31px 20px 31px 20px;
-    }
-}
-
-#footer {
-    text-align: center
-}
-
-#footer .top {
-    background: #2e2b2b;
-    font-size: 12px;
-    font-weight: 900;
-    text-transform: uppercase;
-    padding: 40px 0 27px;
-}
-
-#footer .top li {
-    display: inline-block;
-    margin: 0 30px 10px;
-}
-
-#footer .top a {
-    color: #fff;
-    text-decoration: none;
-}
-
-#footer .bottom {
-    border-top: 1px solid #5f5d5d;
-    background: #211f1f;
-    font-size: 11px;
-    font-weight: 400;
-    color: #636262;
-    padding: 28px 0;
-}
-
-#footer .bottom a {
-    color: #636262;
-}
-
-#footer .menu-item-31 a:before {
-    content: '';
-    display: inline-block;
-    width: 9px;
-    height: 15px;
-    background: url({{ asset('images/social/facebook.svg') }}) no-repeat;
-    margin: 0 6px 0 0;
-    position: relative;
-    top: 3px;
-}
-
-#footer .menu-item-32 a:before {
-    content: '';
-    display: inline-block;
-    width: 19px;
-    height: 16px;
-    background: url({{ asset('images/social/twitter.svg') }}) no-repeat;
-    margin: 0 6px 0 0;
-    position: relative;
-    top: 3px;
-}
-
-#footer .menu-item-33 a:before {
-    content: '';
-    display: inline-block;
-    width: 19px;
-    height: 16px;
-    background: url({{ asset('images/social/github.png') }}) no-repeat;
-    margin: 0 6px 0 0;
-    position: relative;
-    top: 3px;
-}
-
-/* Hide bootstrap sort header icons */
-table.table thead .sorting:after { content: '' !important }
-table.table thead .sorting_asc:after { content: '' !important }
-table.table thead .sorting_desc:after { content: '' !important}
-table.table thead .sorting_asc_disabled:after { content: '' !important }
-table.table thead .sorting_desc_disabled:after { content: '' !important }
-
-.dataTables_length {
-    padding-left: 20px;
-    padding-top: 8px;
-}
-
-.dataTables_length label {
-    font-weight: 500;
-}
-
-@media screen and (min-width: 700px) { 
-    #footer .top {
-        padding: 27px 0;
-    }
-
-    #footer .bottom {
-        padding: 25px 0;
-    }
-}
-
-</style>
-
+    @if (!empty($clientFontUrl))
+    <link href="{!! $clientFontUrl !!}" rel="stylesheet" type="text/css">
+    @else
+    <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100" rel="stylesheet" type="text/css">
+    @endif
+    <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+    @if (!empty($clientViewCSS))
+        <style type="text/css">{!! $clientViewCSS !!}</style>
+    @endif
 @stop
 
 @section('body')
@@ -143,10 +35,6 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
     if (isStorageSupported()) {
         $('[name="guest_key"]').val(localStorage.getItem('guest_key'));
     }
-
-    @if (isset($invoiceNow) && $invoiceNow)
-    getStarted();
-    @endif
 
     function isStorageSupported() {
         if ('localStorage' in window && window['localStorage'] !== null) {
@@ -188,6 +76,9 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
         <div id="navbar" class="collapse navbar-collapse">
             @if (!isset($hideHeader) || !$hideHeader)
             <ul class="nav navbar-nav navbar-right">
+                <li {{ Request::is('*client/dashboard') ? 'class="active"' : '' }}>
+                    {!! link_to('/client/dashboard', trans('texts.dashboard') ) !!}
+                </li>
                 <li {{ Request::is('*client/quotes') ? 'class="active"' : '' }}>
                     {!! link_to('/client/quotes', trans('texts.quotes') ) !!}
                 </li>
@@ -203,8 +94,10 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
     </div>
 </nav>
 
-
     <div class="container">
+
+      @include('partials.warn_session', ['redirectTo' => '/'])
+
       @if (Session::has('warning'))
       <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
       @endif
@@ -223,10 +116,10 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
 <footer id="footer" role="contentinfo">
     <div class="top">
         <div class="wrap">
-            @if (!isset($hideLogo) || !$hideLogo)                                    
+            @if (!isset($hideLogo) || !$hideLogo)
             <div id="footer-menu" class="menu-wrap">
                 <ul id="menu-footer-menu" class="menu">
-                    <li id="menu-item-31" class="menu-item-31">                    
+                    <li id="menu-item-31" class="menu-item-31">
                         {!! link_to('#', 'Facebook', ['target' => '_blank', 'onclick' => 'openUrl("https://www.facebook.com/invoiceninja", "/footer/social/facebook")']) !!}
                     </li>
                     <li id="menu-item-32" class="menu-item-32">
@@ -246,7 +139,9 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
     
     <div class="bottom">
         <div class="wrap">
-            <div class="copy">Copyright &copy;2015 <a href="{{ NINJA_WEB_URL }}" target="_blank">Invoice Ninja</a>. All rights reserved.</div>
+            @if (!isset($hideLogo) || !$hideLogo)
+                <div class="copy">Copyright &copy;2015 <a href="{{ NINJA_WEB_URL }}" target="_blank">Invoice Ninja</a>. All rights reserved.</div>
+            @endif
         </div><!-- .wrap -->
     </div><!-- .bottom -->
 </footer><!-- #footer -->

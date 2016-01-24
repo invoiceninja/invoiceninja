@@ -9,27 +9,32 @@ use Exception;
 use Input;
 use Utils;
 use View;
+use Event;
 use Session;
 use Cookie;
 use Response;
+use Redirect;
 use App\Models\User;
 use App\Models\Account;
 use App\Models\Industry;
 use App\Ninja\Mailers\Mailer;
 use App\Ninja\Repositories\AccountRepository;
-use Redirect;
+use App\Events\UserSettingsChanged;
+use App\Services\EmailService;
 
 class AppController extends BaseController
 {
     protected $accountRepo;
     protected $mailer;
+    protected $emailService;
 
-    public function __construct(AccountRepository $accountRepo, Mailer $mailer)
+    public function __construct(AccountRepository $accountRepo, Mailer $mailer, EmailService $emailService)
     {
         parent::__construct();
 
         $this->accountRepo = $accountRepo;
         $this->mailer = $mailer;
+        $this->emailService = $emailService;
     }
 
     public function showSetup()
@@ -43,7 +48,7 @@ class AppController extends BaseController
 
     public function doSetup()
     {
-        if (Utils::isNinjaProd() || (Utils::isDatabaseSetup() && Account::count() > 0)) {
+        if (Utils::isNinjaProd()) {
             return Redirect::to('/');
         }
 
@@ -51,10 +56,11 @@ class AppController extends BaseController
         $test = Input::get('test');
 
         $app = Input::get('app');
-        $app['key'] = str_random(RANDOM_KEY_LENGTH);
+        $app['key'] = env('APP_KEY') ?: str_random(RANDOM_KEY_LENGTH);
+        $app['debug'] = Input::get('debug') ? 'true' : 'false';
 
         $database = Input::get('database');
-        $dbType = $database['default'];
+        $dbType = 'mysql'; // $database['default'];
         $database['connections'] = [$dbType => $database['type']];
 
         $mail = Input::get('mail');
@@ -73,8 +79,12 @@ class AppController extends BaseController
             return Redirect::to('/setup')->withInput();
         }
         
+        if (Utils::isDatabaseSetup() && Account::count() > 0) {
+            return Redirect::to('/');
+        }
+
         $config = "APP_ENV=production\n".
-                    "APP_DEBUG=false\n".
+                    "APP_DEBUG={$app['debug']}\n".
                     "APP_URL={$app['url']}\n".
                     "APP_KEY={$app['key']}\n\n".
                     "DB_TYPE={$dbType}\n".
@@ -88,7 +98,8 @@ class AppController extends BaseController
                     "MAIL_HOST={$mail['host']}\n".
                     "MAIL_USERNAME={$mail['username']}\n".
                     "MAIL_FROM_NAME={$mail['from']['name']}\n".
-                    "MAIL_PASSWORD={$mail['password']}";
+                    "MAIL_PASSWORD={$mail['password']}\n\n".
+                    "PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'";
 
         // Write Config Settings
         $fp = fopen(base_path()."/.env", 'w');
@@ -114,17 +125,68 @@ class AppController extends BaseController
         return Redirect::to('/login');
     }
 
+    public function updateSetup()
+    {
+        if (Utils::isNinjaProd()) {
+            return Redirect::to('/');
+        }
+
+        if (!Auth::check() && Utils::isDatabaseSetup() && Account::count() > 0) {
+            return Redirect::to('/');
+        }
+
+        if ( ! $canUpdateEnv = @fopen(base_path()."/.env", 'w')) {
+            Session::flash('error', 'Warning: Permission denied to write to .env config file, try running <code>sudo chown www-data:www-data /path/to/ninja/.env</code>');
+            return Redirect::to('/settings/system_settings');
+        }
+
+        $app = Input::get('app');
+        $db = Input::get('database');
+        $mail = Input::get('mail');
+
+        $_ENV['APP_URL'] = $app['url'];
+        $_ENV['APP_DEBUG'] = Input::get('debug') ? 'true' : 'false';
+
+        $_ENV['DB_TYPE'] = 'mysql'; // $db['default'];
+        $_ENV['DB_HOST'] = $db['type']['host'];
+        $_ENV['DB_DATABASE'] = $db['type']['database'];
+        $_ENV['DB_USERNAME'] = $db['type']['username'];
+        $_ENV['DB_PASSWORD'] = $db['type']['password'];
+        
+        if ($mail) {
+            $_ENV['MAIL_DRIVER'] = $mail['driver'];
+            $_ENV['MAIL_PORT'] = $mail['port'];
+            $_ENV['MAIL_ENCRYPTION'] = $mail['encryption'];
+            $_ENV['MAIL_HOST'] = $mail['host'];
+            $_ENV['MAIL_USERNAME'] = $mail['username'];
+            $_ENV['MAIL_FROM_NAME'] = $mail['from']['name'];
+            $_ENV['MAIL_PASSWORD'] = $mail['password'];
+            $_ENV['MAIL_FROM_ADDRESS'] = $mail['username'];
+        }
+
+        $config = '';
+        foreach ($_ENV as $key => $val) {
+            $config .= "{$key}={$val}\n";
+        }
+
+        $fp = fopen(base_path()."/.env", 'w');
+        fwrite($fp, $config);
+        fclose($fp);
+
+        Session::flash('message', trans('texts.updated_settings'));
+        return Redirect::to('/settings/system_settings');
+    }
+
     private function testDatabase($database)
     {
-        $dbType = $database['default'];
-
+        $dbType = 'mysql'; // $database['default'];
         Config::set('database.default', $dbType);
-        
         foreach ($database['connections'][$dbType] as $key => $val) {
             Config::set("database.connections.{$dbType}.{$key}", $val);
         }
-
+        
         try {
+            DB::reconnect();
             $valid = DB::connection()->getDatabaseName() ? true : false;
         } catch (Exception $e) {
             return $e->getMessage();
@@ -179,10 +241,13 @@ class AppController extends BaseController
     {
         if (!Utils::isNinjaProd()) {
             try {
+                Cache::flush();
+                Session::flush();
+                Artisan::call('optimize', array('--force' => true));
                 Artisan::call('migrate', array('--force' => true));
                 Artisan::call('db:seed', array('--force' => true, '--class' => 'PaymentLibrariesSeeder'));
-                Artisan::call('optimize', array('--force' => true));
-                Cache::flush();
+                Artisan::call('db:seed', array('--force' => true, '--class' => 'FontsSeeder'));
+                Event::fire(new UserSettingsChanged());
                 Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {
                 Response::make($e->getMessage(), 500);
@@ -190,5 +255,20 @@ class AppController extends BaseController
         }
 
         return Redirect::to('/');
+    }
+
+    public function emailBounced()
+    {
+        $messageId = Input::get('MessageID');
+        $error = Input::get('Name') . ': ' . Input::get('Description');
+        return $this->emailService->markBounced($messageId, $error) ? RESULT_SUCCESS : RESULT_FAILURE;
+    }
+
+    public function emailOpened()
+    {
+        $messageId = Input::get('MessageID');
+        return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
+        
+        return RESULT_SUCCESS;
     }
 }

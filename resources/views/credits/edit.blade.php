@@ -16,7 +16,10 @@
 
 			{!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
 			{!! Former::text('amount') !!}
-			{!! Former::text('credit_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+			{!! Former::text('credit_date')
+                        ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+                        ->addGroupClass('credit_date')
+                        ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 			{!! Former::textarea('private_notes') !!}
 
             </div>
@@ -61,6 +64,9 @@
             $('#amount').focus();
         @endif
 
+        $('.credit_date .input-group-addon').click(function() {
+            toggleDatePicker('credit_date');
+        });
 	});
 
 	</script>

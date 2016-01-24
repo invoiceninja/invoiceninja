@@ -91,6 +91,7 @@
         "margin": [40, -20, 40, 40]
     },
     "defaultStyle": {
+        "font": "$bodyFont",
         "fontSize": "$fontSize",
         "margin": [8, 4, 8, 4]
     },
@@ -110,6 +111,15 @@
         "tableHeader": {
             "bold": true
         },
+        "costTableHeader": {
+            "alignment": "right"
+        },
+        "qtyTableHeader": {
+            "alignment": "right"
+        },
+        "lineTotalTableHeader": {
+            "alignment": "right"
+        },        
         "invoiceLineItemsTable": {
             "margin": [0, 16, 0, 16]
         },
@@ -143,6 +153,19 @@
         },
         "balanceDue": {
             "fillColor": "#e6e6e6"
+        },
+        "header": {
+            "font": "$headerFont",
+            "fontSize": "$fontSizeLargest",
+            "bold": true
+        },
+        "subheader": {
+            "font": "$headerFont",
+            "fontSize": "$fontSizeLarger"
+        },
+        "help": {
+            "fontSize": "$fontSizeSmaller",
+            "color": "#737373"
         }
      },
     "pageMargins": [40, 40, 40, 60]

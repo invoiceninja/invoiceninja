@@ -7,12 +7,17 @@ class VerifyCsrfToken extends BaseVerifier {
 
     private $openRoutes = [
         'signup/register',
+        'api/v1/login',
         'api/v1/clients',
+		'api/v1/invoices/*',
         'api/v1/invoices',
         'api/v1/quotes',
         'api/v1/payments',
+        'api/v1/tasks',
         'api/v1/email_invoice',
         'api/v1/hooks',
+        'hook/email_opened',
+        'hook/email_bounced',
     ];
 
 	/**

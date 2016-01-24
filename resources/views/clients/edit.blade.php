@@ -6,16 +6,25 @@
 @stop
 
 @section('content')
+
+@if ($errors->first('contacts'))
+    <div class="alert alert-danger">{{ trans($errors->first('contacts')) }}</div>
+@endif
+
 <div class="row">
 
 	{!! Former::open($url)
+            ->autocomplete('off')
             ->rules(
                 ['email' => 'email']
             )->addClass('col-md-12 warn-on-exit')
             ->method($method) !!}
+            
+    @include('partials.autocomplete_fix')
 
 	@if ($client)
 		{!! Former::populate($client) !!}
+        {!! Former::hidden('public_id') !!}
 	@endif
 
 	<div class="row">
@@ -34,7 +43,7 @@
                         {!! Former::text('website') !!}
 			{!! Former::text('work_phone') !!}
 			
-			@if (Auth::user()->isPro())				
+			@if (Auth::user()->isPro())
 				@if ($customLabel1)
 					{!! Former::text('custom_value1')->label($customLabel1) !!}
 				@endif
@@ -74,11 +83,16 @@
 			<div data-bind='template: { foreach: contacts,
 		                            beforeRemove: hideContact,
 		                            afterAdd: showContact }'>
-				{!! Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") !!}
-				{!! Former::text('email')->data_bind('value: email, valueUpdate: \'afterkeydown\', attr: {id:\'email\'+$index()}') !!}
-				{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") !!}
+				{!! Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown',
+                        attr: {name: 'contacts[' + \$index() + '][public_id]'}") !!}
+				{!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown', 
+                        attr: {name: 'contacts[' + \$index() + '][first_name]'}") !!}
+				{!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown',
+                        attr: {name: 'contacts[' + \$index() + '][last_name]'}") !!}
+				{!! Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown', 
+                        attr: {name: 'contacts[' + \$index() + '][email]', id:'email'+\$index()}") !!}
+				{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown',
+                        attr: {name: 'contacts[' + \$index() + '][phone]'}") !!}
 
 				<div class="form-group">
 					<div class="col-lg-8 col-lg-offset-4 bold">
@@ -102,7 +116,11 @@
             <div class="panel-body">
 			
             {!! Former::select('currency_id')->addOption('','')
+                ->placeholder($account->currency ? $account->currency->name : '')
                 ->fromQuery($currencies, 'name', 'id') !!}
+            {!! Former::select('language_id')->addOption('','')
+                ->placeholder($account->language ? $account->language->name : '')
+                ->fromQuery($languages, 'name', 'id') !!}
 			{!! Former::select('payment_terms')->addOption('','')
 				->fromQuery($paymentTerms, 'name', 'num_days')
                 ->help(trans('texts.payment_terms_help')) !!}
@@ -111,6 +129,21 @@
 			{!! Former::select('industry_id')->addOption('','')
 				->fromQuery($industries, 'name', 'id') !!}
 			{!! Former::textarea('private_notes') !!}
+
+
+            @if (isset($proPlanPaid))
+                {!! Former::populateField('pro_plan_paid', $proPlanPaid) !!}
+                {!! Former::text('pro_plan_paid')
+                            ->data_date_format('yyyy-mm-dd')
+                            ->addGroupClass('pro_plan_paid_date')
+                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+                <script type="text/javascript">
+                    $(function() {
+                        $('#pro_plan_paid').datepicker();
+                    });
+                </script>
+            @endif
+
             </div>
             </div>
 
@@ -135,13 +168,14 @@
 		self.phone = ko.observable('');
 
 		if (data) {
-			ko.mapping.fromJS(data, {}, this);			
-		}		
+			ko.mapping.fromJS(data, {}, this);
+		}
 	}
 
-	function ContactsModel(data) {
+	function ClientModel(data) {
 		var self = this;
-		self.contacts = ko.observableArray();
+
+        self.contacts = ko.observableArray();
 
 		self.mapping = {
 		    'contacts': {
@@ -149,10 +183,10 @@
 		    		return new ContactModel(options.data);
 		    	}
 		    }
-		}		
+		}
 
 		if (data) {
-			ko.mapping.fromJS(data, self.mapping, this);			
+			ko.mapping.fromJS(data, self.mapping, this);
 		} else {
 			self.contacts.push(new ContactModel());
 		}
@@ -168,7 +202,11 @@
 		});	
 	}
 
-	window.model = new ContactsModel({!! $client !!});
+    @if ($data)
+        window.model = new ClientModel({!! $data !!});
+    @else
+	    window.model = new ClientModel({!! $client !!});
+    @endif
 
 	model.showContact = function(elem) { if (elem.nodeType === 1) $(elem).hide().slideDown() }
 	model.hideContact = function(elem) { if (elem.nodeType === 1) $(elem).slideUp(function() { $(elem).remove(); }) }

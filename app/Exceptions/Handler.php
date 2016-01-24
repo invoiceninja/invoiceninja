@@ -27,11 +27,13 @@ class Handler extends ExceptionHandler {
 	 */
 	public function report(Exception $e)
 	{
-        Utils::logError(Utils::getErrorString($e));
-        return false;
-        
-		//return parent::report($e);
-	}
+        if (Utils::isNinja()) {
+            Utils::logError(Utils::getErrorString($e));
+            return false;
+        } else {
+            return parent::report($e);
+        }
+    }
 
 	/**
 	 * Render an exception into an HTTP response.
@@ -41,13 +43,21 @@ class Handler extends ExceptionHandler {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function render($request, Exception $e)
-	{     
-
+	{
         if ($e instanceof ModelNotFoundException) {
             return Redirect::to('/');
+        } elseif ($e instanceof \Illuminate\Session\TokenMismatchException) {
+            // https://gist.github.com/jrmadsen67/bd0f9ad0ef1ed6bb594e
+            return redirect()
+                    ->back()
+                    ->withInput($request->except('password', '_token'))
+                    ->with([
+                        'warning' => trans('texts.token_expired')
+                    ]);
         }
 
-        if (Utils::isNinjaProd()) {
+        // In production, except for maintenance mode, we'll show a custom error screen
+        if (Utils::isNinjaProd() && !Utils::isDownForMaintenance()) {
             $data = [
                 'error' => get_class($e),
                 'hideHeader' => true,

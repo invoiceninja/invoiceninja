@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="{{App::getLocale()}}">
 <head>
-    <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }} | </title> 
-    <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}" />
+    @if (isset($hideLogo) && $hideLogo)
+        <title>{{ trans('texts.client_portal') }}</title>
+    @else
+        <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }}</title> 
+        <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}" />
+        <link href="{{ asset('favicon-v2.png') }}" rel="shortcut icon" type="image/png">
+    @endif
 
     <!-- Source: https://github.com/hillelcoren/invoice-ninja -->
     <!-- Version: {{ NINJA_VERSION }} -->
@@ -11,22 +16,22 @@
     <meta property="og:site_name" content="Invoice Ninja" />
     <meta property="og:url" content="{{ SITE_URL }}" />
     <meta property="og:title" content="Invoice Ninja" />
-    <meta property="og:image" content="{{ SITE_URL }}/images/social.jpg" />
+    <meta property="og:image" content="{{ SITE_URL }}/images/round_logo.png" />
     <meta property="og:description" content="Simple, Intuitive Invoicing." />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="msapplication-config" content="none"/> 
 
-    <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-    <link href="//fonts.googleapis.com/css?family=Roboto+Slab:400,300,700&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-    <link href="{{ asset('favicon.png?test') }}" rel="shortcut icon">
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}" />
 
     <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    
 
     <script type="text/javascript">
-        var NINJA = NINJA || {};      
+        var NINJA = NINJA || {};
+        NINJA.fontSize = 9;
+
         NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};    
 
         window.onerror = function(e) {
@@ -60,7 +65,39 @@
         });
         */
         
+        @if (env('FACEBOOK_PIXEL'))
+            <!-- Facebook Pixel Code -->
+            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+            n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+            document,'script','//connect.facebook.net/en_US/fbevents.js');
+
+            fbq('init', '{{ env('FACEBOOK_PIXEL') }}');
+            fbq('track', "PageView");
+
+            (function() {
+              var _fbq = window._fbq || (window._fbq = []);
+              if (!_fbq.loaded) {
+                var fbds = document.createElement('script');
+                fbds.async = true;
+                fbds.src = '//connect.facebook.net/en_US/fbds.js';
+                var s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(fbds, s);
+                _fbq.loaded = true;
+             }
+            })();
+            
+        @else
+            function fbq() {
+                // do nothing
+            };
+        @endif
+
+        window._fbq = window._fbq || [];
+            
     </script>
+
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -72,7 +109,7 @@
 
 </head>
 
-<body>
+<body class="body">
 
     @if (isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])  
     <!-- Google Tag Manager -->
@@ -107,18 +144,26 @@
         function trackEvent(category, action) {}
     </script>
     @endif
-
+    
 @yield('body')
 
 <script type="text/javascript">
-    NINJA.formIsChanged = false;
-    $(function() {      
+    NINJA.formIsChanged = {{ isset($formIsChanged) && $formIsChanged ? 'true' : 'false' }};
+
+    $(function() {
         $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function() {
-            NINJA.formIsChanged = true;      
+            NINJA.formIsChanged = true;
         }); 
 
         @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))
-            trackEvent('{{ session('trackEventCategory') }}', '{{ session('trackEventAction') }}');            
+            trackEvent('{{ session('trackEventCategory') }}', '{{ session('trackEventAction') }}');
+            @if (Session::get('trackEventAction') === '/buy_pro_plan')
+                window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_BUY_PRO') }}', {'value':'{{ PRO_PLAN_PRICE }}.00','currency':'USD'}]);
+            @endif
+        @endif
+
+        @if (Session::has('onReady'))
+            {{ Session::get('onReady') }}
         @endif
     });
     $('form').submit(function() {
@@ -135,8 +180,6 @@
         trackEvent('/view_link', track ? track : url);
         window.open(url, '_blank');
     }
-
-//$('a[rel!=ext]').click(function() { $(window).off('beforeunload') });
 </script> 
 
 </body>

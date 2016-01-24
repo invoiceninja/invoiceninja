@@ -4,7 +4,9 @@
 
 
 <center>
-    {!! Button::success(trans('texts.add_company'))->asLinkTo('/login?new_company=true') !!}
+    @if (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
+        {!! Button::success(trans('texts.add_company'))->asLinkTo('/login?new_company=true') !!}
+    @endif
 </center>
 
 <p>&nbsp;</p>

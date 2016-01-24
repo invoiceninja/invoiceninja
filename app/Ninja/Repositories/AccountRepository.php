@@ -6,6 +6,7 @@ use Session;
 use Utils;
 use DB;
 use stdClass;
+use Validator;
 use Schema;
 use App\Models\AccountGateway;
 use App\Models\Invitation;
@@ -17,6 +18,7 @@ use App\Models\Contact;
 use App\Models\Account;
 use App\Models\User;
 use App\Models\UserAccount;
+use App\Models\AccountToken;
 
 class AccountRepository
 {
@@ -26,8 +28,14 @@ class AccountRepository
         $account->ip = Request::getClientIp();
         $account->account_key = str_random(RANDOM_KEY_LENGTH);
 
-        if (Session::has(SESSION_LOCALE)) {
-            $locale = Session::get(SESSION_LOCALE);
+        // Track referal code
+        if ($referralCode = Session::get(SESSION_REFERRAL_CODE)) {
+            if ($user = User::whereReferralCode($referralCode)->first()) {
+                $account->referral_user_id = $user->id;
+            }
+        }
+
+        if ($locale = Session::get(SESSION_LOCALE)) {
             if ($language = Language::whereLocale($locale)->first()) {
                 $account->language_id = $language->id;
             }
@@ -43,6 +51,9 @@ class AccountRepository
             $user->first_name = $firstName;
             $user->last_name = $lastName;
             $user->email = $user->username = $email;
+            if (!$password) {
+                $password = str_random(RANDOM_KEY_LENGTH);
+            }
             $user->password = bcrypt($password);
         }
 
@@ -129,7 +140,7 @@ class AccountRepository
         $invoice->user_id = $account->users()->first()->id;
         $invoice->public_id = $publicId;
         $invoice->client_id = $client->id;
-        $invoice->invoice_number = $account->getNextInvoiceNumber();
+        $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
         $invoice->invoice_date = date_create()->format('Y-m-d');
         $invoice->amount = PRO_PLAN_PRICE;
         $invoice->balance = PRO_PLAN_PRICE;
@@ -188,7 +199,7 @@ class AccountRepository
             $accountGateway->user_id = $user->id;
             $accountGateway->gateway_id = NINJA_GATEWAY_ID;
             $accountGateway->public_id = 1;
-            $accountGateway->config = NINJA_GATEWAY_CONFIG;
+            $accountGateway->setConfig(json_decode(env(NINJA_GATEWAY_CONFIG)));
             $account->account_gateways()->save($accountGateway);
         }
 
@@ -206,7 +217,7 @@ class AccountRepository
             $client->public_id = $account->id;
             $client->user_id = $ninjaAccount->users()->first()->id;
             $client->currency_id = 1;
-            foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone'] as $field) {
+            foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id'] as $field) {
                 $client->$field = $account->$field;
             }
             $ninjaAccount->clients()->save($client);
@@ -225,9 +236,52 @@ class AccountRepository
         return $client;
     }
 
-    public function registerUser($user)
+    public function findByKey($key)
     {
-        $url = (Utils::isNinjaDev() ? '' : NINJA_APP_URL) . '/signup/register';
+        $account = Account::whereAccountKey($key)
+                    ->with('clients.invoices.invoice_items', 'clients.contacts')
+                    ->firstOrFail();
+
+        return $account;
+    }
+
+    public function unlinkUserFromOauth($user)
+    {
+        $user->oauth_provider_id = null;
+        $user->oauth_user_id = null;
+        $user->save();
+    }
+
+    public function updateUserFromOauth($user, $firstName, $lastName, $email, $providerId, $oauthUserId)
+    {
+        if (!$user->registered) {
+            $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
+            $validator = Validator::make(['email' => $email], $rules);
+            if ($validator->fails()) {
+                $messages = $validator->messages();
+                return $messages->first('email');
+            }
+
+            $user->email = $email;
+            $user->first_name = $firstName;
+            $user->last_name = $lastName;
+            $user->registered = true;
+        }
+
+        $user->oauth_provider_id = $providerId;
+        $user->oauth_user_id = $oauthUserId;
+        $user->save();
+
+        return true;
+    }
+
+    public function registerNinjaUser($user)
+    {
+        if ($user->email == TEST_USERNAME) {
+            return false;
+        }
+
+        $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . '/signup/register';
         $data = '';
         $fields = [
             'first_name' => urlencode($user->first_name),
@@ -244,8 +298,27 @@ class AccountRepository
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, count($fields));
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
         curl_close($ch);
+    }
+
+    public function findUserByOauth($providerId, $oauthUserId)
+    {
+        return User::where('oauth_user_id', $oauthUserId)
+                    ->where('oauth_provider_id', $providerId)
+                    ->first();
+    }
+
+    public function findUsers($user, $with = null)
+    {
+        $accounts = $this->findUserAccounts($user->id);
+
+        if ($accounts) {
+            return $this->getUserAccounts($accounts, $with);
+        } else {
+            return [$user];
+        }
     }
 
     public function findUserAccounts($userId1, $userId2 = false)
@@ -271,7 +344,8 @@ class AccountRepository
         return $query->first(['id', 'user_id1', 'user_id2', 'user_id3', 'user_id4', 'user_id5']);
     }
 
-    public function prepareUsersData($record) {
+    public function getUserAccounts($record, $with = null)
+    {
         if (!$record) {
             return false;
         }
@@ -285,8 +359,22 @@ class AccountRepository
         }
 
         $users = User::with('account')
-                    ->whereIn('id', $userIds)
-                    ->get();
+                    ->whereIn('id', $userIds);
+
+        if ($with) {
+            $users->with($with);
+        }
+        
+        return $users->get();
+    }
+
+    public function prepareUsersData($record)
+    {
+        if (!$record) {
+            return false;
+        }
+
+        $users = $this->getUserAccounts($record);
 
         $data = [];
         foreach ($users as $user) {
@@ -297,7 +385,7 @@ class AccountRepository
             $item->account_id = $user->account->id;
             $item->account_name = $user->account->getDisplayName();
             $item->pro_plan_paid = $user->account->pro_plan_paid;
-            $item->logo_path = file_exists($user->account->getLogoPath()) ? $user->account->getLogoPath() : null;
+            $item->logo_path = $user->account->hasLogo() ? $user->account->getLogoPath() : null;
             $data[] = $item;
         }
 
@@ -385,5 +473,47 @@ class AccountRepository
             $userAccount->removeUserId($userId);
             $userAccount->save();
         }
+    }
+
+    public function findWithReminders()
+    {
+        return Account::whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1')->get();
+    }
+
+    public function getReferralCode()
+    {
+        do {
+            $code = strtoupper(str_random(8));
+            $match = User::whereReferralCode($code)
+                        ->withTrashed()
+                        ->first();
+        } while ($match);
+        
+        return $code;
+    }
+
+    public function createTokens($user, $name)
+    {
+        $name = trim($name) ?: 'TOKEN';
+        $users = $this->findUsers($user);
+
+        foreach ($users as $user) {
+            if ($token = AccountToken::whereUserId($user->id)->whereName($name)->first()) {
+                continue;
+            }
+
+            $token = AccountToken::createNew($user);
+            $token->name = $name;
+            $token->token = str_random(RANDOM_KEY_LENGTH);
+            $token->save();
+        }
+    }
+
+    public function getUserAccountId($account)
+    {
+        $user = $account->users()->first();
+        $userAccount = $this->findUserAccounts($user->id);
+
+        return $userAccount ? $userAccount->id : false;
     }
 }

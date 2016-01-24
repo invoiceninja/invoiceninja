@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\Account;
+use App\Models\Affiliate;
 
 class UserTableSeeder extends Seeder
 {
@@ -13,8 +14,8 @@ class UserTableSeeder extends Seeder
         Eloquent::unguard();
 
         $account = Account::create([
-            'name' => 'Test Account',
-            'account_key' => str_random(16),
+            //'name' => 'Test Account',
+            'account_key' => str_random(RANDOM_KEY_LENGTH),
             'timezone_id' => 1,
         ]);
 
@@ -26,6 +27,11 @@ class UserTableSeeder extends Seeder
             'registered' => true,
             'confirmed' => true,
         ]);
+
+        Affiliate::create([
+            'affiliate_key' => SELF_HOST_AFFILIATE_KEY
+        ]);
+        
 	}
 
 }

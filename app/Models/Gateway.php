@@ -2,6 +2,7 @@
 
 use Eloquent;
 use Omnipay;
+use Utils;
 
 class Gateway extends Eloquent
 {
@@ -11,7 +12,8 @@ class Gateway extends Eloquent
         PAYMENT_TYPE_CREDIT_CARD,
         PAYMENT_TYPE_PAYPAL,
         PAYMENT_TYPE_BITCOIN,
-        PAYMENT_TYPE_DWOLLA
+        PAYMENT_TYPE_DIRECT_DEBIT,
+        PAYMENT_TYPE_DWOLLA,
     ];
 
     public static $hiddenFields = [
@@ -39,13 +41,25 @@ class Gateway extends Eloquent
         return '/images/gateways/logo_'.$this->provider.'.png';
     }
 
+    public function isGateway($gatewayId)
+    {
+        return $this->id == $gatewayId;
+    }
+
+    public static function getPaymentTypeName($type)
+    {
+        return Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
+    }
+
+    /*
     public static function getPaymentTypeLinks() {
         $data = [];
         foreach (self::$paymentTypes as $type) {
-            $data[] = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
+            $data[] = Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
         }
         return $data;
     }
+    */
 
     public function getHelp()
     {
@@ -81,6 +95,8 @@ class Gateway extends Eloquent
             return PAYMENT_TYPE_BITCOIN;
         } else if ($gatewayId == GATEWAY_DWOLLA) {
             return PAYMENT_TYPE_DWOLLA;
+        }else if ($gatewayId == GATEWAY_GOCARDLESS) {
+            return PAYMENT_TYPE_DIRECT_DEBIT;
         } else {
             return PAYMENT_TYPE_CREDIT_CARD;
         }

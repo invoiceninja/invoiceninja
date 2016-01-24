@@ -1,11 +1,16 @@
 <?php namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\PaymentWasCreated;
+use Laracasts\Presenter\PresentableTrait;
 
 class Payment extends EntityModel
 {
+    use PresentableTrait;
     use SoftDeletes;
+
     protected $dates = ['deleted_at'];
+    protected $presenter = 'App\Ninja\Presenters\PaymentPresenter';
 
     public function invoice()
     {
@@ -37,10 +42,27 @@ class Payment extends EntityModel
         return $this->belongsTo('App\Models\Contact');
     }
 
+    public function account_gateway()
+    {
+        return $this->belongsTo('App\Models\AccountGateway');
+    }
+
+    public function payment_type()
+    {
+        return $this->belongsTo('App\Models\PaymentType');
+    }
+
+    public function getRoute()
+    {
+        return "/payments/{$this->public_id}/edit";
+    }
+
+    /*
     public function getAmount()
     {
         return Utils::formatMoney($this->amount, $this->client->getCurrencyId());
     }
+    */
 
     public function getName()
     {
@@ -53,18 +75,10 @@ class Payment extends EntityModel
     }
 }
 
+Payment::creating(function ($payment) {
+    
+});
+
 Payment::created(function ($payment) {
-    Activity::createPayment($payment);
-});
-
-Payment::updating(function ($payment) {
-    Activity::updatePayment($payment);
-});
-
-Payment::deleting(function ($payment) {
-    Activity::archivePayment($payment);
-});
-
-Payment::restoring(function ($payment) {
-    Activity::restorePayment($payment);
+    event(new PaymentWasCreated($payment));
 });

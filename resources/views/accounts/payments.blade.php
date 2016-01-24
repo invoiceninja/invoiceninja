@@ -1,15 +1,8 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('content')	
 	@parent	
-
-  {!! Former::open('gateways/delete')->addClass('user-form') !!}
-
-  <div style="display:none">
-    {!! Former::text('accountGatewayPublicId') !!}
-  </div>
-  {!! Former::close() !!}
-
+    @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
 
   @if ($showAdd)
       {!! Button::primary(trans('texts.add_gateway'))
@@ -17,6 +10,8 @@
             ->withAttributes(['class' => 'pull-right'])
             ->appendIcon(Icon::create('plus-sign')) !!}
   @endif
+
+  @include('partials.bulk_form', ['entityType' => ENTITY_ACCOUNT_GATEWAY])
 
   {!! Datatable::table()
       ->addColumn(
@@ -32,32 +27,7 @@
       ->render('datatable') !!}
 
   <script>
-  window.onDatatableReady = function() {
-    $('tbody tr').mouseover(function() {
-      $(this).closest('tr').find('.tr-action').css('visibility','visible');
-    }).mouseout(function() {
-      $dropdown = $(this).closest('tr').find('.tr-action');
-      if (!$dropdown.hasClass('open')) {
-        $dropdown.css('visibility','hidden');
-      }
-    });
-  }
-
-  /*
-    function setTrashVisible() {
-        var checked = $('#trashed').is(':checked');
-        window.location = '{{ URL::to('view_archive/token') }}' + (checked ? '/true' : '/false');
-    }
-  */
-
-  function deleteAccountGateway(id) {
-    if (!confirm("{!! trans('texts.are_you_sure') !!}")) {
-      return;
-    }
-
-    $('#accountGatewayPublicId').val(id);
-    $('form.user-form').submit();
-  }
+    window.onDatatableReady = actionListHandler;
   </script>
 
 @stop

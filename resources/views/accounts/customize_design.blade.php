@@ -1,16 +1,16 @@
-@extends('accounts.nav')
+@extends('header')
 
 @section('head')
 	@parent
 
-		<script src="{{ asset('js/pdf_viewer.js') }}" type="text/javascript"></script>
-    	<script src="{{ asset('js/compatibility.js') }}" type="text/javascript"></script>
-
+    @include('money_script')
         <link href="{{ asset('css/jsoneditor.min.css') }}" rel="stylesheet" type="text/css">
         <script src="{{ asset('js/jsoneditor.min.js') }}" type="text/javascript"></script>
 
-        <script src="{{ asset('js/pdfmake.min.js') }}" type="text/javascript"></script>
-        <script src="{{ asset('js/vfs_fonts.js') }}" type="text/javascript"></script>
+    @foreach ($account->getFontFolders() as $font)
+        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+    @endforeach
+        <script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
 
       <style type="text/css">
 
@@ -27,13 +27,11 @@
 @stop
 
 @section('content')	
-	@parent
-	@include('accounts.nav_advanced')
-
-
+    @parent
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
+    var invoiceFonts = {!! $invoiceFonts !!};
     var invoice = {!! json_encode($invoice) !!};      
     var sections = ['content', 'styles', 'defaultStyle', 'pageMargins', 'header', 'footer'];
     var customDesign = origCustomDesign = {!! $customDesign ?: 'JSON.parse(invoiceDesigns[0].javascript);' !!};
@@ -47,6 +45,8 @@
       NINJA.primaryColor = '{!! Auth::user()->account->primary_color !!}';
       NINJA.secondaryColor = '{!! Auth::user()->account->secondary_color !!}';
       NINJA.fontSize = {!! Auth::user()->account->font_size !!};
+      NINJA.headerFont = {!! json_encode(Auth::user()->account->getHeaderFontName()) !!};
+      NINJA.bodyFont = {!! json_encode(Auth::user()->account->getBodyFontName()) !!};
 
       generatePDF(invoice, getDesignJavascript(), force, cb);
     }
@@ -78,9 +78,10 @@
     function saveEditor(data)
     {        
         setTimeout(function() {
-            customDesign[editorSection] = editor.get();           
-            refreshPDF();        
-        }, 100)                
+            customDesign[editorSection] = editor.get();
+            clearError();
+            refreshPDF();
+        }, 100)
     }
 
     function onSelectChange()
@@ -94,17 +95,34 @@
         }
 
         loadEditor(editorSection);
-        refreshPDF(true);          
+        clearError();
+        refreshPDF(true);
     }
 
     function submitForm()
     {
+        if (!NINJA.isPDFValid) {
+            return;
+        }
+
         $('#custom_design').val(JSON.stringify(customDesign));
         $('form.warn-on-exit').submit();
     }
 
-    $(function() {                       
-       refreshPDF(true);
+    window.onerror = function(e) {
+        $('#pdf-error').html(e.message ? e.message : e).show();
+        $('button.save-button').prop('disabled', true);
+        NINJA.isPDFValid = false;
+    }
+
+    function clearError() {
+        NINJA.isPDFValid = true;
+        $('#pdf-error').hide();
+        $('button.save-button').prop('disabled', false);
+    }
+
+    $(function() {
+       clearError();
       
         var container = document.getElementById("jsoneditor");
           var options = {
@@ -114,14 +132,16 @@
               saveEditor();
             }
           };
-        window.editor = new JSONEditor(container, options);      
+        window.editor = new JSONEditor(container, options);
         loadEditor('content');
-
+        
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
           var target = $(e.target).attr("href") // activated tab
           target = target.substring(1); // strip leading #
           loadEditor(target);
-        });        
+        });
+        
+        refreshPDF(true);
     });
 
   </script> 
@@ -155,17 +175,15 @@
     {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->onchange('onSelectChange()')->raw() !!}
     <div class="pull-right">
         {!! Button::normal(trans('texts.help'))->withAttributes(['onclick' => 'showHelp()'])->appendIcon(Icon::create('question-sign')) !!}
-        {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/company/advanced_settings/invoice_design'))->appendIcon(Icon::create('remove-circle')) !!}
-        @if (Auth::user()->isPro())
-            {!! Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->appendIcon(Icon::create('floppy-disk')) !!}
-        @endif
+        {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/invoice_design'))->appendIcon(Icon::create('remove-circle')) !!}
+        {!! Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->appendIcon(Icon::create('floppy-disk'))->withAttributes(['class' => 'save-button']) !!}
     </div>
     </div>
 
       <script>
       @if (!Auth::user()->isPro())
         $(function() {   
-            $('form.warn-on-exit input').prop('disabled', true);
+            $('form.warn-on-exit input, .save-button').prop('disabled', true);
         });
       @endif
 
@@ -202,6 +220,7 @@
 
     </div>
     <div class="col-md-6">
+      <div id="pdf-error" class="alert alert-danger" style="display:none"></div>
 
       @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
 

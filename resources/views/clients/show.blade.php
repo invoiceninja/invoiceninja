@@ -1,13 +1,31 @@
 @extends('header')
 
-@section('content')
+@section('head')
+    @parent
 
+    @if ($client->hasAddress())
+        <style>
+          #map {
+            width: 100%;
+            height: 200px;
+            border-width: 1px;
+            border-style: solid;
+            border-color: #ddd;
+          }
+        </style>
+
+        <script src="https://maps.googleapis.com/maps/api/js"></script>
+    @endif
+@stop
+
+
+@section('content')
 
 	<div class="pull-right">
 		{!! Former::open('clients/bulk')->addClass('mainForm') !!}
 		<div style="display:none">
 			{!! Former::text('action') !!}
-			{!! Former::text('id')->value($client->public_id) !!}
+			{!! Former::text('public_id')->value($client->public_id) !!}
 		</div>
 
         @if ($gatewayLink)
@@ -60,17 +78,11 @@
             @if ($client->address2)
                 {{ $client->address2 }}<br/>
             @endif
-            @if ($client->city)
-                {{ $client->city }},
-            @endif
-            @if ($client->state)
-                {{ $client->state }}
-            @endif
-            @if ($client->postal_code)
-                {{ $client->postal_code }}
+            @if ($client->getCityState())
+                {{ $client->getCityState() }}<br/>
             @endif
             @if ($client->country)
-                <br/>{{ $client->country->name }}
+                {{ $client->country->name }}<br/>
             @endif
 
             @if ($client->account->custom_client_label1 && $client->custom_value1)
@@ -81,7 +93,7 @@
             @endif
 
             @if ($client->work_phone)
-                <i class="fa fa-phone" style="width: 20px"></i>{{ Utils::formatPhoneNumber($client->work_phone) }}
+                <i class="fa fa-phone" style="width: 20px"></i>{{ $client->work_phone }}
             @endif
 
             @if ($client->private_notes)
@@ -96,7 +108,11 @@
             @endif            
 
 		  	@if ($client->website)
-		  	   <p>{!! $client->getWebsite() !!}</p>
+		  	   <p>{!! Utils::formatWebsite($client->website) !!}</p>
+            @endif
+
+            @if ($client->language)
+                <p><i class="fa fa-language" style="width: 20px"></i>{{ $client->language->name }}</p>
             @endif
 
 		  	<p>{{ $client->payment_terms ? trans('texts.payment_terms') . ": Net " . $client->payment_terms : '' }}</p>
@@ -112,14 +128,14 @@
                     <i class="fa fa-envelope" style="width: 20px"></i>{!! HTML::mailto($contact->email, $contact->email) !!}<br/>
                 @endif
                 @if ($contact->phone)
-                    <i class="fa fa-phone" style="width: 20px"></i>{!! Utils::formatPhoneNumber($contact->phone) !!}<br/>
+                    <i class="fa fa-phone" style="width: 20px"></i>{{ $contact->phone }}<br/>
                 @endif		  		
 		  	@endforeach
 		</div>
 
-		<div class="col-md-6">
+		<div class="col-md-4">
 			<h3>{{ trans('texts.standing') }}
-			<table class="table" style="width:300px">
+			<table class="table" style="width:100%">
 				<tr>
 					<td><small>{{ trans('texts.paid_to_date') }}</small></td>
 					<td style="text-align: right">{{ Utils::formatMoney($client->paid_to_date, $client->getCurrencyId()) }}</td>
@@ -136,11 +152,15 @@
 				@endif
 			</table>
 			</h3>
-
 		</div>
 	</div>
     </div>
     </div>
+
+    @if ($client->hasAddress())
+        <div id="map"></div>
+        <br/>
+    @endif
 
 	<ul class="nav nav-tabs nav-justified">
 		{!! HTML::tab_link('#activity', trans('texts.activity'), true) !!}
@@ -166,6 +186,7 @@
 		    		trans('texts.balance'),
 		    		trans('texts.adjustment'))
 		    	->setUrl(url('api/activities/'. $client->public_id))
+                ->setCustomValues('entityType', 'activity')
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
@@ -183,6 +204,7 @@
                     trans('texts.description'),
                     trans('texts.status'))
                 ->setUrl(url('api/tasks/'. $client->public_id))
+                ->setCustomValues('entityType', 'tasks')
                 ->setOptions('sPaginationType', 'bootstrap')
                 ->setOptions('bFilter', false)
                 ->setOptions('aaSorting', [['0', 'desc']])
@@ -200,9 +222,10 @@
 	    			trans('texts.quote_number'),
 	    			trans('texts.quote_date'),
 	    			trans('texts.total'),
-	    			trans('texts.due_date'),
+	    			trans('texts.valid_until'),
 	    			trans('texts.status'))
 		    	->setUrl(url('api/quotes/'. $client->public_id))
+                ->setCustomValues('entityType', 'quotes')
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
@@ -221,6 +244,7 @@
 			    		trans('texts.end_date'),
 			    		trans('texts.invoice_total'))
 			    	->setUrl(url('api/recurring_invoices/' . $client->public_id))
+                    ->setCustomValues('entityType', 'recurring_invoices')
 			    	->setOptions('sPaginationType', 'bootstrap')
 			    	->setOptions('bFilter', false)
 			    	->setOptions('aaSorting', [['0', 'asc']])
@@ -236,6 +260,7 @@
 		    			trans('texts.due_date'),
 		    			trans('texts.status'))
 		    	->setUrl(url('api/invoices/' . $client->public_id))
+                ->setCustomValues('entityType', 'invoices')
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
@@ -252,6 +277,7 @@
 			    			trans('texts.payment_amount'),
 			    			trans('texts.payment_date'))
 				->setUrl(url('api/payments/' . $client->public_id))
+                ->setCustomValues('entityType', 'payments')
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->setOptions('aaSorting', [['0', 'desc']])
@@ -267,6 +293,7 @@
 								trans('texts.credit_date'),
 								trans('texts.private_notes'))
 				->setUrl(url('api/credits/' . $client->public_id))
+                ->setCustomValues('entityType', 'credits')
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)
 				->setOptions('aaSorting', [['0', 'asc']])
@@ -277,6 +304,8 @@
 
 	<script type="text/javascript">
 
+    var loadedTabs = {};
+
 	$(function() {
 		$('.normalDropDown:not(.dropdown-toggle)').click(function() {
 			window.location = '{{ URL::to('clients/' . $client->public_id . '/edit') }}';
@@ -284,6 +313,27 @@
 		$('.primaryDropDown:not(.dropdown-toggle)').click(function() {
 			window.location = '{{ URL::to('invoices/create/' . $client->public_id ) }}';
 		});
+
+        // load datatable data when tab is shown and remember last tab selected
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          var target = $(e.target).attr("href") // activated tab
+          target = target.substring(1);
+          localStorage.setItem('client_tab', target);
+          if (!loadedTabs.hasOwnProperty(target)) {
+            loadedTabs[target] = true;
+            window['load_' + target]();
+            if (target == 'invoices' && window.hasOwnProperty('load_recurring_invoices')) {
+                window['load_recurring_invoices']();
+            }
+          }
+        });
+        var tab = localStorage.getItem('client_tab') || '';
+        var selector = '.nav-tabs a[href="#' + tab.replace('#', '') + '"]';
+        if (tab && tab != 'activity' && $(selector).length) {
+            $(selector).tab('show');
+        } else {
+            window['load_activity']();
+        }
 	});
 
 	function onArchiveClick() {
@@ -302,6 +352,50 @@
 			$('.mainForm').submit();
 		}
 	}
+
+    @if ($client->hasAddress())
+        function initialize() {
+            var mapCanvas = document.getElementById('map');
+            var mapOptions = {
+                zoom: {{ DEFAULT_MAP_ZOOM }},
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                zoomControl: true,
+            };
+
+            var map = new google.maps.Map(mapCanvas, mapOptions)
+            var address = "{{ "{$client->address1} {$client->address2} {$client->city} {$client->state} {$client->postal_code} " . ($client->country ? $client->country->name : '') }}";
+            
+            geocoder = new google.maps.Geocoder();
+            geocoder.geocode( { 'address': address}, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                  if (status != google.maps.GeocoderStatus.ZERO_RESULTS) {
+                    var result = results[0];
+                    map.setCenter(result.geometry.location);
+                    
+                    var infowindow = new google.maps.InfoWindow(
+                        { content: '<b>'+result.formatted_address+'</b>',
+                        size: new google.maps.Size(150, 50)
+                    });
+
+                    var marker = new google.maps.Marker({
+                        position: result.geometry.location,
+                        map: map, 
+                        title:address,
+                    }); 
+                    google.maps.event.addListener(marker, 'click', function() {
+                        infowindow.open(map, marker);
+                    });
+                } else {
+                    $('#map').hide();
+                }
+            } else {
+              $('#map').hide();
+          }
+      });
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+    @endif
 
 	</script>
 

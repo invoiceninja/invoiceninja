@@ -46,29 +46,105 @@ class CheckData extends Command {
     public function fire()
     {
         $this->info(date('Y-m-d') . ' Running CheckData...');
-        $today = new DateTime();
 
         if (!$this->option('client_id')) {
-            // update client paid_to_date value
-            $clients = DB::table('clients')
-                        ->join('payments', 'payments.client_id', '=', 'clients.id')
-                        ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
-                        ->where('payments.is_deleted', '=', 0)
-                        ->where('invoices.is_deleted', '=', 0)
-                        ->groupBy('clients.id')
-                        ->havingRaw('clients.paid_to_date != sum(payments.amount) and clients.paid_to_date != 999999999.9999')
-                        ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(payments.amount) as amount')]);
-            $this->info(count($clients) . ' clients with incorrect paid to date');
-            
-            if ($this->option('fix') == 'true') {
-                foreach ($clients as $client) {
-                    DB::table('clients')
-                        ->where('id', $client->id)
-                        ->update(['paid_to_date' => $client->amount]);
+            $this->checkPaidToDate();
+        }
+
+        $this->checkBalances();
+
+        $this->checkAccountData();
+
+        $this->info('Done');
+    }
+
+    private function checkAccountData()
+    {
+        $tables = [
+            'activities' => [
+                ENTITY_INVOICE,
+                ENTITY_CLIENT,
+                ENTITY_CONTACT,
+                ENTITY_PAYMENT,
+                ENTITY_INVITATION,
+                ENTITY_USER
+            ],
+            'invoices' => [
+                ENTITY_CLIENT,
+                ENTITY_USER
+            ],
+            'payments' => [
+                ENTITY_INVOICE,
+                ENTITY_CLIENT,
+                ENTITY_USER,
+                ENTITY_INVITATION,
+                ENTITY_CONTACT
+            ],
+            'tasks' => [
+                ENTITY_INVOICE,
+                ENTITY_CLIENT,
+                ENTITY_USER
+            ],
+            'credits' => [
+                ENTITY_CLIENT,
+                ENTITY_USER
+            ],
+        ];
+
+        foreach ($tables as $table => $entityTypes) {
+            foreach ($entityTypes as $entityType) {
+                $records = DB::table($table)
+                                ->join("{$entityType}s", "{$entityType}s.id", '=', "{$table}.{$entityType}_id");
+
+                if ($entityType != ENTITY_CLIENT) {
+                    $records = $records->join('clients', 'clients.id', '=', "{$table}.client_id");
+                }
+                
+                $records = $records->where("{$table}.account_id", '!=', DB::raw("{$entityType}s.account_id"))
+                                ->get(["{$table}.id", "clients.account_id", "clients.user_id"]);
+
+                if (count($records)) {
+                    $this->info(count($records) . " {$table} records with incorrect {$entityType} account id");
+
+                    if ($this->option('fix') == 'true') {
+                        foreach ($records as $record) {
+                            DB::table($table)
+                                ->where('id', $record->id)
+                                ->update([
+                                    'account_id' => $record->account_id,
+                                    'user_id' => $record->user_id,
+                                ]);
+                        }
+                    }
                 }
             }
         }
+    }
 
+    private function checkPaidToDate()
+    {
+        // update client paid_to_date value
+        $clients = DB::table('clients')
+                    ->join('payments', 'payments.client_id', '=', 'clients.id')
+                    ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
+                    ->where('payments.is_deleted', '=', 0)
+                    ->where('invoices.is_deleted', '=', 0)
+                    ->groupBy('clients.id')
+                    ->havingRaw('clients.paid_to_date != sum(payments.amount) and clients.paid_to_date != 999999999.9999')
+                    ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(payments.amount) as amount')]);
+        $this->info(count($clients) . ' clients with incorrect paid to date');
+        
+        if ($this->option('fix') == 'true') {
+            foreach ($clients as $client) {
+                DB::table('clients')
+                    ->where('id', $client->id)
+                    ->update(['paid_to_date' => $client->amount]);
+            }
+        }
+    }
+
+    private function checkBalances()
+    {
         // find all clients where the balance doesn't equal the sum of the outstanding invoices
         $clients = DB::table('clients')
                     ->join('invoices', 'invoices.client_id', '=', 'clients.id')
@@ -98,7 +174,7 @@ class CheckData extends Command {
             $activities = DB::table('activities')
                         ->where('client_id', '=', $client->id)
                         ->orderBy('activities.id')
-                        ->get(['activities.id', 'activities.created_at', 'activities.activity_type_id', 'activities.message', 'activities.adjustment', 'activities.balance', 'activities.invoice_id']);
+                        ->get(['activities.id', 'activities.created_at', 'activities.activity_type_id', 'activities.adjustment', 'activities.balance', 'activities.invoice_id']);
             //$this->info(var_dump($activities));
 
             foreach ($activities as $activity) {
@@ -111,7 +187,7 @@ class CheckData extends Command {
                                 ->first(['invoices.amount', 'invoices.is_recurring', 'invoices.is_quote', 'invoices.deleted_at', 'invoices.id', 'invoices.is_deleted']);
 
                     // Check if this invoice was once set as recurring invoice
-                    if (!$invoice->is_recurring && DB::table('invoices')
+                    if ($invoice && !$invoice->is_recurring && DB::table('invoices')
                             ->where('recurring_invoice_id', '=', $activity->invoice_id)
                             ->first(['invoices.id'])) {
                         $invoice->is_recurring = 1;
@@ -197,7 +273,7 @@ class CheckData extends Command {
                         $activityFix = 0;
                     }
                 } else if ($activity->activity_type_id == ACTIVITY_TYPE_DELETE_PAYMENT) {
-                    // **Fix for delting payment after deleting invoice**
+                    // **Fix for deleting payment after deleting invoice**
                     if ($activity->adjustment != 0 && $invoice->is_deleted && $activity->created_at > $invoice->deleted_at) {
                         $this->info("Incorrect adjustment for deleted payment adjustment:{$activity->adjustment}");
                         $foundProblem = true;
@@ -235,7 +311,6 @@ class CheckData extends Command {
                             'updated_at' => new Carbon,
                             'account_id' => $client->account_id,
                             'client_id' => $client->id,
-                            'message' => 'Recovered update to invoice [<a href="https://github.com/hillelcoren/invoice-ninja/releases/tag/v1.7.1" target="_blank">details</a>]',
                             'adjustment' => $client->actual_balance - $activity->balance,
                             'balance' => $client->actual_balance,
                     ]);
@@ -250,8 +325,6 @@ class CheckData extends Command {
                     ->update($data);
             }
         }
-
-        $this->info('Done');
     }
 
     protected function getArguments()

@@ -5,21 +5,56 @@ use Utils;
 use Session;
 use DateTime;
 use Event;
+use Cache;
 use App;
+use File;
 use App\Events\UserSettingsChanged;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 
 class Account extends Eloquent
 {
+    use PresentableTrait;
     use SoftDeletes;
+
+    protected $presenter = 'App\Ninja\Presenters\AccountPresenter';
     protected $dates = ['deleted_at'];
+    protected $hidden = ['ip'];
+
+    public static $basicSettings = [
+        ACCOUNT_COMPANY_DETAILS,
+        ACCOUNT_USER_DETAILS,
+        ACCOUNT_LOCALIZATION,
+        ACCOUNT_PAYMENTS,
+        //ACCOUNT_BANKS,
+        ACCOUNT_TAX_RATES,
+        ACCOUNT_PRODUCTS,
+        ACCOUNT_NOTIFICATIONS,
+        ACCOUNT_IMPORT_EXPORT,
+    ];
+
+    public static $advancedSettings = [
+        ACCOUNT_INVOICE_SETTINGS,
+        ACCOUNT_INVOICE_DESIGN,
+        ACCOUNT_EMAIL_SETTINGS,
+        ACCOUNT_TEMPLATES_AND_REMINDERS,
+        ACCOUNT_CLIENT_PORTAL,
+        ACCOUNT_CHARTS_AND_REPORTS,
+        ACCOUNT_DATA_VISUALIZATIONS,
+        ACCOUNT_USER_MANAGEMENT,
+        ACCOUNT_API_TOKENS,
+    ];
 
     /*
     protected $casts = [
-        'hide_quantity' => 'boolean',
+        'invoice_settings' => 'object',
     ];
     */
-    
+    public function account_tokens()
+    {
+        return $this->hasMany('App\Models\AccountToken');
+    }
+
     public function users()
     {
         return $this->hasMany('App\Models\User');
@@ -28,6 +63,11 @@ class Account extends Eloquent
     public function clients()
     {
         return $this->hasMany('App\Models\Client');
+    }
+
+    public function contacts()
+    {
+        return $this->hasMany('App\Models\Contact');
     }
 
     public function invoices()
@@ -40,9 +80,19 @@ class Account extends Eloquent
         return $this->hasMany('App\Models\AccountGateway');
     }
 
+    public function bank_accounts()
+    {
+        return $this->hasMany('App\Models\BankAccount');
+    }
+
     public function tax_rates()
     {
         return $this->hasMany('App\Models\TaxRate');
+    }
+
+    public function products()
+    {
+        return $this->hasMany('App\Models\Product');
     }
 
     public function country()
@@ -85,6 +135,11 @@ class Account extends Eloquent
         return $this->belongsTo('App\Models\Industry');
     }
 
+    public function default_tax_rate()
+    {
+        return $this->belongsTo('App\Models\TaxRate');
+    }
+
     public function isGatewayConfigured($gatewayId = 0)
     {
         $this->load('account_gateways');
@@ -101,6 +156,15 @@ class Account extends Eloquent
         return !$this->language_id || $this->language_id == DEFAULT_LANGUAGE;
     }
 
+    public function hasInvoicePrefix()
+    {
+        if ( ! $this->invoice_number_prefix && ! $this->quote_number_prefix) {
+            return false;
+        }
+
+        return $this->invoice_number_prefix != $this->quote_number_prefix;
+    }
+
     public function getDisplayName()
     {
         if ($this->name) {
@@ -113,6 +177,32 @@ class Account extends Eloquent
         return $user->getDisplayName();
     }
 
+    public function getCityState()
+    {
+        $swap = $this->country && $this->country->swap_postal_code;
+        return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
+    }
+
+    public function getMomentDateTimeFormat()
+    {
+        $format = $this->datetime_format ? $this->datetime_format->format_moment : DEFAULT_DATETIME_MOMENT_FORMAT;
+
+        if ($this->military_time) {
+            $format = str_replace('h:mm:ss a', 'H:mm:ss', $format);
+        }
+
+        return $format;
+    }
+
+    public function getMomentDateFormat()
+    {
+        $format = $this->getMomentDateTimeFormat();
+        $format = str_replace('h:mm:ss a', '', $format);
+        $format = str_replace('H:mm:ss', '', $format);
+
+        return trim($format);
+    }
+
     public function getTimezone()
     {
         if ($this->timezone) {
@@ -120,6 +210,99 @@ class Account extends Eloquent
         } else {
             return 'US/Eastern';
         }
+    }
+
+    public function getDateTime($date = 'now')
+    {
+        if ( ! $date) {
+            return null;
+        } elseif ( ! $date instanceof \DateTime) {
+            $date = new \DateTime($date);
+        }
+
+        $date->setTimeZone(new \DateTimeZone($this->getTimezone()));
+
+        return $date;
+    }
+
+    public function getCustomDateFormat()
+    {
+        return $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT;
+    }
+
+    public function formatMoney($amount, $client = null, $hideSymbol = false)
+    {
+        if ($client && $client->currency_id) {
+            $currencyId = $client->currency_id;
+        } elseif ($this->currency_id) {
+            $currencyId = $this->currency_id;
+        } else {
+            $currencyId = DEFAULT_CURRENCY;
+        }
+
+        if ($client && $client->country_id) {
+            $countryId = $client->country_id;
+        } elseif ($this->country_id) {
+            $countryId = $this->country_id;
+        } else {
+            $countryId = false;
+        }
+
+        return Utils::formatMoney($amount, $currencyId, $countryId, $hideSymbol);
+    }
+
+    public function getCurrencyId()
+    {
+        return $this->currency_id ?: DEFAULT_CURRENCY;
+    }
+
+    public function formatDate($date)
+    {
+        $date = $this->getDateTime($date);
+
+        if ( ! $date) {
+            return null;
+        }
+
+        return $date->format($this->getCustomDateFormat());
+    }
+
+    public function formatDateTime($date)
+    {
+        $date = $this->getDateTime($date);
+
+        if ( ! $date) {
+            return null;
+        }
+
+        return $date->format($this->getCustomDateTimeFormat());
+    }
+
+    public function formatTime($date)
+    {
+        $date = $this->getDateTime($date);
+
+        if ( ! $date) {
+            return null;
+        }
+
+        return $date->format($this->getCustomTimeFormat());
+    }
+
+    public function getCustomTimeFormat()
+    {
+        return $this->military_time ? 'H:i' : 'g:i a';
+    }
+
+    public function getCustomDateTimeFormat()
+    {
+        $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
+
+        if ($this->military_time) {
+            $format = str_replace('g:i a', 'H:i', $format);
+        }
+
+        return $format;
     }
 
     public function getGatewayByType($type = PAYMENT_TYPE_ANY)
@@ -146,12 +329,10 @@ class Account extends Eloquent
         return false;
     }
 
-    /*
     public function hasLogo()
     {
-        file_exists($this->getLogoPath());
+        return file_exists($this->getLogoFullPath());
     }
-    */
 
     public function getLogoPath()
     {
@@ -160,9 +341,32 @@ class Account extends Eloquent
         return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
     }
 
+    public function getLogoFullPath()
+    {
+        $fileName = public_path() . '/logo/' . $this->account_key;
+
+        return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
+    }
+
+    public function getLogoURL()
+    {
+        return SITE_URL . '/' . $this->getLogoPath();
+    }
+
+    public function getToken($name)
+    {
+        foreach ($this->account_tokens as $token) {
+            if ($token->name === $name) {
+                return $token->token;
+            }
+        }
+
+        return null;
+    }
+
     public function getLogoWidth()
     {
-        $path = $this->getLogoPath();
+        $path = $this->getLogoFullPath();
         if (!file_exists($path)) {
             return 0;
         }
@@ -173,7 +377,7 @@ class Account extends Eloquent
 
     public function getLogoHeight()
     {
-        $path = $this->getLogoPath();
+        $path = $this->getLogoFullPath();
         if (!file_exists($path)) {
             return 0;
         }
@@ -182,15 +386,131 @@ class Account extends Eloquent
         return $height;
     }
 
-    public function getNextInvoiceNumber($isQuote = false, $prefix = '')
+    public function createInvoice($entityType, $clientId = null)
     {
-        $counter = $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
-        $prefix .= $isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix;
+        $invoice = Invoice::createNew();
+
+        $invoice->is_recurring = false;
+        $invoice->is_quote = false;
+        $invoice->invoice_date = Utils::today();
+        $invoice->start_date = Utils::today();
+        $invoice->invoice_design_id = $this->invoice_design_id;
+        $invoice->client_id = $clientId;
+        
+        if ($entityType === ENTITY_RECURRING_INVOICE) {
+            $invoice->invoice_number = microtime(true);
+            $invoice->is_recurring = true;
+        } else {
+            if ($entityType == ENTITY_QUOTE) {
+                $invoice->is_quote = true;
+            }
+
+            if ($this->hasClientNumberPattern($invoice) && !$clientId) {
+                // do nothing, we don't yet know the value
+            } else {
+                $invoice->invoice_number = $this->getNextInvoiceNumber($invoice);
+            }
+        }
+        
+        if (!$clientId) {
+            $invoice->client = Client::createNew();
+            $invoice->client->public_id = 0;
+        }
+
+        return $invoice;
+    }
+
+    public function hasNumberPattern($isQuote)
+    {
+        return $isQuote ? ($this->quote_number_pattern ? true : false) : ($this->invoice_number_pattern ? true : false);
+    }
+
+    public function hasClientNumberPattern($invoice)
+    {
+        $pattern = $invoice->is_quote ? $this->quote_number_pattern : $this->invoice_number_pattern;
+        
+        return strstr($pattern, '$custom');
+    }
+
+    public function getNumberPattern($invoice)
+    {
+        $pattern = $invoice->is_quote ? $this->quote_number_pattern : $this->invoice_number_pattern;
+
+        if (!$pattern) {
+            return false;
+        }
+
+        $search = ['{$year}'];
+        $replace = [date('Y')];
+
+        $search[] = '{$counter}';
+        $replace[] = str_pad($this->getCounter($invoice->is_quote), 4, '0', STR_PAD_LEFT);
+
+        if (strstr($pattern, '{$userId}')) {
+            $search[] = '{$userId}';
+            $replace[] = str_pad(($invoice->user->public_id + 1), 2, '0', STR_PAD_LEFT);
+        }
+
+        $matches = false;
+        preg_match('/{\$date:(.*?)}/', $pattern, $matches);
+        if (count($matches) > 1) {
+            $format = $matches[1];
+            $search[] = $matches[0];
+            $replace[] = str_replace($format, date($format), $matches[1]);
+        }
+
+        $pattern = str_replace($search, $replace, $pattern);
+
+        if ($invoice->client_id) {
+            $pattern = $this->getClientInvoiceNumber($pattern, $invoice);
+        }
+
+        return $pattern;
+    }
+
+    private function getClientInvoiceNumber($pattern, $invoice)
+    {
+        if (!$invoice->client) {
+            return $pattern;
+        }
+
+        $search = [
+            '{$custom1}',
+            '{$custom2}',
+        ];
+
+        $replace = [
+            $invoice->client->custom_value1,
+            $invoice->client->custom_value2,
+        ];
+
+        return str_replace($search, $replace, $pattern);
+    }
+
+    public function getCounter($isQuote)
+    {
+        return $isQuote && !$this->share_counter ? $this->quote_number_counter : $this->invoice_number_counter;
+    }
+
+    public function previewNextInvoiceNumber($entityType = ENTITY_INVOICE)
+    {
+        $invoice = $this->createInvoice($entityType);
+        return $this->getNextInvoiceNumber($invoice);
+    }
+
+    public function getNextInvoiceNumber($invoice)
+    {
+        if ($this->hasNumberPattern($invoice->is_quote)) {
+            return $this->getNumberPattern($invoice);
+        }
+
+        $counter = $this->getCounter($invoice->is_quote);
+        $prefix = $invoice->is_quote ? $this->quote_number_prefix : $this->invoice_number_prefix;
         $counterOffset = 0;
 
         // confirm the invoice number isn't already taken 
         do {
-            $number = $prefix.str_pad($counter, 4, "0", STR_PAD_LEFT);
+            $number = $prefix . str_pad($counter, 4, '0', STR_PAD_LEFT);
             $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
             $counter++;
             $counterOffset++;
@@ -198,7 +518,7 @@ class Account extends Eloquent
 
         // update the invoice counter to be caught up
         if ($counterOffset > 1) {
-            if ($isQuote && !$this->share_counter) {
+            if ($invoice->is_quote && !$this->share_counter) {
                 $this->quote_number_counter += $counterOffset - 1;
             } else {
                 $this->invoice_number_counter += $counterOffset - 1;
@@ -210,36 +530,47 @@ class Account extends Eloquent
         return $number;
     }
 
-    public function incrementCounter($isQuote = false)
+    public function incrementCounter($invoice)
     {
-        if ($isQuote && !$this->share_counter) {
+        if ($invoice->is_quote && !$this->share_counter) {
             $this->quote_number_counter += 1;
         } else {
-            $this->invoice_number_counter += 1;
-        }
+            $default = $this->invoice_number_counter;
+            $actual = Utils::parseInt($invoice->invoice_number);
 
+            if ( ! $this->isPro() && $default != $actual) {
+                $this->invoice_number_counter = $actual + 1;
+            } else {
+                $this->invoice_number_counter += 1;
+            }
+        }
+        
         $this->save();
     }
 
-    public function getLocale()
-    {
-        $language = Language::where('id', '=', $this->account->language_id)->first();
-
-        return $language->locale;
-    }
-
-    public function loadLocalizationSettings()
+    public function loadLocalizationSettings($client = false)
     {
         $this->load('timezone', 'date_format', 'datetime_format', 'language');
 
-        Session::put(SESSION_TIMEZONE, $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE);
+        $timezone = $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE;
+        Session::put(SESSION_TIMEZONE, $timezone);
+
         Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
         Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
-        Session::put(SESSION_DATETIME_FORMAT, $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT);
-        Session::put(SESSION_CURRENCY, $this->currency_id ? $this->currency_id : DEFAULT_CURRENCY);
-        Session::put(SESSION_LOCALE, $this->language_id ? $this->language->locale : DEFAULT_LOCALE);
 
-        App::setLocale(session(SESSION_LOCALE));
+        $currencyId = ($client && $client->currency_id) ? $client->currency_id : $this->currency_id ?: DEFAULT_CURRENCY; 
+        $locale = ($client && $client->language_id) ? $client->language->locale : ($this->language_id ? $this->Language->locale : DEFAULT_LOCALE); 
+
+        Session::put(SESSION_CURRENCY, $currencyId);
+        Session::put(SESSION_LOCALE, $locale);
+
+        App::setLocale($locale);
+
+        $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
+        if ($this->military_time) {
+            $format = str_replace('g:i a', 'H:i', $format);
+        }
+        Session::put(SESSION_DATETIME_FORMAT, $format);
     }
 
     public function getInvoiceLabels()
@@ -273,7 +604,7 @@ class Account extends Eloquent
             'quote_number',
             'total',
             'invoice_issued_to',
-            'date',
+            //'date',
             'rate',
             'hours',
             'balance',
@@ -282,6 +613,7 @@ class Account extends Eloquent
             'invoice_to',
             'details',
             'invoice_no',
+            'valid_until',
         ];
 
         foreach ($fields as $field) {
@@ -299,38 +631,56 @@ class Account extends Eloquent
         return $data;
     }
 
+    public function isNinjaAccount()
+    {
+        return $this->account_key === NINJA_ACCOUNT_KEY;
+    }
+
     public function isPro()
     {
         if (!Utils::isNinjaProd()) {
             return true;
         }
 
-        if ($this->account_key == NINJA_ACCOUNT_KEY) {
+        if ($this->isNinjaAccount()) {
             return true;
         }
 
         $datePaid = $this->pro_plan_paid;
 
-        if (!$datePaid || $datePaid == '0000-00-00') {
-            return false;
-        } elseif ($datePaid == NINJA_DATE) {
+        if ($datePaid == NINJA_DATE) {
             return true;
         }
 
-        $today = new DateTime('now');
-        $datePaid = DateTime::createFromFormat('Y-m-d', $datePaid);
-        $interval = $today->diff($datePaid);
-
-        return $interval->y == 0;
+        return Utils::withinPastYear($datePaid);
     }
 
     public function isWhiteLabel()
     {
+        if ($this->isNinjaAccount()) {
+            return false;
+        }
+
         if (Utils::isNinjaProd()) {
             return self::isPro() && $this->pro_plan_paid != NINJA_DATE;
         } else {
             return $this->pro_plan_paid == NINJA_DATE;
         }
+    }
+
+    public function getLogoSize()
+    {
+        if (!$this->hasLogo()) {
+            return 0;
+        }
+
+        $filename = $this->getLogoFullPath();
+        return round(File::size($filename) / 1000);
+    }
+
+    public function isLogoTooLarge()
+    {
+        return $this->getLogoSize() > MAX_LOGO_FILE_SIZE;
     }
 
     public function getSubscription($eventId)
@@ -384,20 +734,43 @@ class Account extends Eloquent
         return $this;
     }
 
-    public function getEmailTemplate($entityType, $message = false)
+    public function getDefaultEmailSubject($entityType)
     {
-        $field = "email_template_$entityType";
-        $template = $this->$field;
-
-        if ($template) {
-            return $template;
+        if (strpos($entityType, 'reminder') !== false) {
+            $entityType = 'reminder';
         }
 
-        $template = "\$client,<p/>\r\n\r\n" .
-                    trans("texts.{$entityType}_message", ['amount' => '$amount']) . "<p/>\r\n\r\n";
+        return trans("texts.{$entityType}_subject", ['invoice' => '$invoice', 'account' => '$account']);
+    }
 
-        if ($entityType != ENTITY_PAYMENT) {
-            $template .= "<a href=\"\$link\">\$link</a><p/>\r\n\r\n";
+    public function getEmailSubject($entityType)
+    {
+        if ($this->isPro()) {
+            $field = "email_subject_{$entityType}";
+            $value = $this->$field;
+
+            if ($value) {
+                return $value;
+            }
+        }
+
+        return $this->getDefaultEmailSubject($entityType);
+    }
+
+    public function getDefaultEmailTemplate($entityType, $message = false)
+    {
+        if (strpos($entityType, 'reminder') !== false) {
+            $entityType = ENTITY_INVOICE;
+        }
+
+        $template = "<div>\$client,</div><br>";
+
+        if ($this->isPro() && $this->email_design_id != EMAIL_DESIGN_PLAIN) {
+            $template .= "<div>" . trans("texts.{$entityType}_message_button", ['amount' => '$amount']) . "</div><br>" .
+                         "<div style=\"text-align: center;\">\$viewButton</div><br>";
+        } else {
+            $template .= "<div>" . trans("texts.{$entityType}_message", ['amount' => '$amount']) . "</div><br>" .
+                         "<div>\$viewLink</div><br>";
         }
 
         if ($message) {
@@ -407,14 +780,57 @@ class Account extends Eloquent
         return $template . "\$footer";
     }
 
+    public function getEmailTemplate($entityType, $message = false)
+    {
+        $template = false;
+
+        if ($this->isPro()) {
+            $field = "email_template_{$entityType}";
+            $template = $this->$field;
+        }
+        
+        if (!$template) {
+            $template = $this->getDefaultEmailTemplate($entityType, $message);
+        }
+
+        // <br/> is causing page breaks with the email designs
+        return str_replace('/>', ' />', $template);
+    }
+
     public function getEmailFooter()
     {
         if ($this->email_footer) {
             // Add line breaks if HTML isn't already being used
-            return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;            
+            return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;
         } else {
-            return "<p>" . trans('texts.email_signature') . "<br>\$account</p>";
+            return "<p>" . trans('texts.email_signature') . "\n<br>\$account</ p>";
         }
+    }
+
+    public function getReminderDate($reminder)
+    {
+        if ( ! $this->{"enable_reminder{$reminder}"}) {
+            return false;
+        }
+
+        $numDays = $this->{"num_days_reminder{$reminder}"};
+        $plusMinus = $this->{"direction_reminder{$reminder}"} == REMINDER_DIRECTION_AFTER ? '-' : '+';
+
+        return date('Y-m-d', strtotime("$plusMinus $numDays days"));
+    }
+
+    public function getInvoiceReminder($invoice)
+    {
+        for ($i=1; $i<=3; $i++) {
+            if ($date = $this->getReminderDate($i)) {
+                $field = $this->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
+                if ($invoice->$field == $date) {
+                    return "reminder{$i}";
+                }
+            }
+        }
+
+        return false;
     }
 
     public function showTokenCheckbox()
@@ -430,6 +846,154 @@ class Account extends Eloquent
     public function selectTokenCheckbox()
     {
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
+    }
+
+    public function getSiteUrl()
+    {
+        $url = SITE_URL;
+        $iframe_url = $this->iframe_url;
+                
+        if ($iframe_url) {
+            return "{$iframe_url}/?";
+        } else if ($this->subdomain) {
+            $url = Utils::replaceSubdomain($url, $this->subdomain);
+        }
+
+        return $url;
+    }
+
+    public function checkSubdomain($host)
+    {
+        if (!$this->subdomain) {
+            return true;
+        }
+
+        $server = explode('.', $host);
+        $subdomain = $server[0];
+
+        if (!in_array($subdomain, ['app', 'www']) && $subdomain != $this->subdomain) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function showCustomField($field, $entity)
+    {
+        if ($this->isPro()) {
+            return $this->$field ? true : false;
+        }
+
+        if (!$entity) {
+            return false;
+        }
+        
+        // convert (for example) 'custom_invoice_label1' to 'invoice.custom_value1'
+        $field = str_replace(['invoice_', 'label'], ['', 'value'], $field);
+        
+        return Utils::isEmpty($entity->$field) ? false : true;
+    }
+
+    public function attatchPDF()
+    {
+        return $this->isPro() && $this->pdf_email_attachment;
+    }
+    
+    public function clientViewCSS(){
+        $css = null;
+        
+        if ($this->isPro()) {
+            $bodyFont = $this->getBodyFontCss();
+            $headerFont = $this->getHeaderFontCss();
+            
+            $css = 'body{'.$bodyFont.'}';
+            if ($headerFont != $bodyFont) {
+                $css .= 'h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6{'.$headerFont.'}';
+            }
+            
+            if ((Utils::isNinja() && $this->isPro()) || $this->isWhiteLabel()) {
+                // For self-hosted users, a white-label license is required for custom CSS
+                $css .= $this->client_view_css;
+            }
+        }
+        
+        return $css;
+    }
+    
+    public function hasLargeFont()
+    {
+        return stripos($this->getBodyFontName(), 'chinese') || stripos($this->getHeaderFontName(), 'chinese');
+    }
+
+    public function getFontsUrl($protocol = ''){
+        $bodyFont = $this->getHeaderFontId();
+        $headerFont = $this->getBodyFontId();
+
+        $bodyFontSettings = Utils::getFromCache($bodyFont, 'fonts');
+        $google_fonts = array($bodyFontSettings['google_font']);
+        
+        if($headerFont != $bodyFont){
+            $headerFontSettings = Utils::getFromCache($headerFont, 'fonts');
+            $google_fonts[] = $headerFontSettings['google_font'];
+        }
+
+        return ($protocol?$protocol.':':'').'//fonts.googleapis.com/css?family='.implode('|',$google_fonts);
+    }
+    
+    public function getHeaderFontId() {
+        return ($this->isPro() && $this->header_font_id) ? $this->header_font_id : DEFAULT_HEADER_FONT;
+    }
+
+    public function getBodyFontId() {
+        return ($this->isPro() && $this->body_font_id) ? $this->body_font_id : DEFAULT_BODY_FONT;
+    }
+
+    public function getHeaderFontName(){
+        return Utils::getFromCache($this->getHeaderFontId(), 'fonts')['name'];
+    }
+    
+    public function getBodyFontName(){
+        return Utils::getFromCache($this->getBodyFontId(), 'fonts')['name'];
+    }
+    
+    public function getHeaderFontCss($include_weight = true){
+        $font_data = Utils::getFromCache($this->getHeaderFontId(), 'fonts');
+        $css = 'font-family:'.$font_data['css_stack'].';';
+            
+        if($include_weight){
+            $css .= 'font-weight:'.$font_data['css_weight'].';';
+        }
+            
+        return $css;
+    }
+    
+    public function getBodyFontCss($include_weight = true){
+        $font_data = Utils::getFromCache($this->getBodyFontId(), 'fonts');
+        $css = 'font-family:'.$font_data['css_stack'].';';
+            
+        if($include_weight){
+            $css .= 'font-weight:'.$font_data['css_weight'].';';
+        }
+            
+        return $css;
+    }
+    
+    public function getFonts(){
+        return array_unique(array($this->getHeaderFontId(), $this->getBodyFontId()));
+    }
+    
+    public function getFontsData(){
+        $data = array();
+        
+        foreach($this->getFonts() as $font){
+            $data[] = Utils::getFromCache($font, 'fonts');
+        }
+        
+        return $data;
+    }
+    
+    public function getFontFolders(){
+        return array_map(function($item){return $item['folder'];}, $this->getFontsData());
     }
 }
 

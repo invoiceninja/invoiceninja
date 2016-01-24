@@ -24,7 +24,6 @@ class AddZapierSupport extends Migration {
       $table->string('target_url');
 
       $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-      $table->unique( ['account_id', 'event_id'] );
     });
 
 	}

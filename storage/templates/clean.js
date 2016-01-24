@@ -30,7 +30,7 @@
                     "table": { 
                         "body": "$invoiceDetails"
                     },
-                    "margin": [0, 4, 12, 4],
+                    "margin": [0, 0, 12, 0],
                     "layout": "noBorders"
                 }, 
                 {
@@ -48,8 +48,8 @@
             "hLineColor": "#D8D8D8",
             "paddingLeft": "$amount:8", 
             "paddingRight": "$amount:8", 
-            "paddingTop": "$amount:4", 
-            "paddingBottom": "$amount:4"            
+            "paddingTop": "$amount:6", 
+            "paddingBottom": "$amount:6"
         }
     },
     {
@@ -90,6 +90,7 @@
     }
     ],
     "defaultStyle": {
+        "font": "$bodyFont",
         "fontSize": "$fontSize",
         "margin": [8, 4, 8, 4]
     },
@@ -104,6 +105,7 @@
     },
     "styles": {
         "entityTypeLabel": {
+            "font": "$headerFont",
             "fontSize": "$fontSizeLargest",
             "color": "$primaryColor:#37a3c6"
         },
@@ -150,6 +152,18 @@
             "bold": true,
             "fontSize": "$fontSizeLarger"
         },
+        "costTableHeader": {
+            "alignment": "right"
+        },
+        "qtyTableHeader": {
+            "alignment": "right"
+        },
+        "taxTableHeader": {
+            "alignment": "right"
+        },
+        "lineTotalTableHeader": {
+            "alignment": "right"
+        },        
         "invoiceLineItemsTable": {
             "margin": [0, 16, 0, 16]
         },
@@ -173,7 +187,20 @@
         },            
         "termsLabel": {
             "bold": true
-        }           
+        },
+        "header": {
+            "font": "$headerFont",
+            "fontSize": "$fontSizeLargest",
+            "bold": true
+        },
+        "subheader": {
+            "font": "$headerFont",
+            "fontSize": "$fontSizeLarger"
+        },
+        "help": {
+            "fontSize": "$fontSizeSmaller",
+            "color": "#737373"
+        }
     },
     "pageMargins": [40, 40, 40, 60]
 }

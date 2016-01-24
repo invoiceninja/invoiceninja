@@ -3,13 +3,16 @@
 @section('content')
 
 	{!! Former::open($entityType . 's/bulk')->addClass('listForm') !!}
+
 	<div style="display:none">
 		{!! Former::text('action') !!}
-		{!! Former::text('statusId') !!}
-		{!! Former::text('id') !!}
+        {!! Former::text('public_id') !!}
 	</div>
 
     @if ($entityType == ENTITY_TASK)
+        {!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
+    @endif
+    @if ($entityType == ENTITY_EXPENSE)
         {!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
     @endif
 
@@ -20,29 +23,24 @@
 	
 	&nbsp;<label for="trashed" style="font-weight:normal; margin-left: 10px;">
 		<input id="trashed" type="checkbox" onclick="setTrashVisible()" 
-			{{ Session::get("show_trash:{$entityType}") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}} {{ strtolower(trans('texts.'.$entityType.'s')) }}
+			{{ Session::get("show_trash:{$entityType}") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}} {{ Utils::transFlowText($entityType.'s') }}
 	</label>
 
 	<div id="top_right_buttons" class="pull-right">
-		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" class="form-control pull-left" placeholder="{{ trans('texts.filter') }}"/>
-        @if (Auth::user()->isPro() && $entityType == ENTITY_INVOICE)        
+		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" 
+            class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
+        @if (Auth::user()->isPro() && $entityType == ENTITY_INVOICE)
             {!! Button::normal(trans('texts.quotes'))->asLinkTo(URL::to('/quotes'))->appendIcon(Icon::create('list')) !!}
-        @elseif ($entityType == ENTITY_CLIENT)        
+            {!! Button::normal(trans('texts.recurring'))->asLinkTo(URL::to('/recurring_invoices'))->appendIcon(Icon::create('list')) !!}
+        @elseif ($entityType == ENTITY_EXPENSE)
+            {!! Button::normal(trans('texts.vendors'))->asLinkTo(URL::to('/vendors'))->appendIcon(Icon::create('list')) !!}
+        @elseif ($entityType == ENTITY_CLIENT)
             {!! Button::normal(trans('texts.credits'))->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('list')) !!}
         @endif
 
-        @if ($entityType != ENTITY_TASK || Auth::user()->account->timezone_id)
-		  {!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->appendIcon(Icon::create('plus-sign')) !!}
-        @endif
+        {!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->appendIcon(Icon::create('plus-sign')) !!}
+        
 	</div>
-
-    @if (isset($secEntityType))
-		{!! Datatable::table()		
-	    	->addColumn($secColumns)
-	    	->setUrl(route('api.' . $secEntityType . 's'))    	
-	    	->setOptions('sPaginationType', 'bootstrap')
-	    	->render('datatable') !!}    
-	@endif	
 
 	{!! Datatable::table()		
     	->addColumn($columns)
@@ -67,37 +65,36 @@
 	}
 
 	function deleteEntity(id) {
-		$('#id').val(id);
+		$('#public_id').val(id);
 		submitForm('delete');
 	}
 
 	function archiveEntity(id) {
-		$('#id').val(id);
+		$('#public_id').val(id);
 		submitForm('archive');
 	}
 
     function restoreEntity(id) {
-        $('#id').val(id);
+        $('#public_id').val(id);
         submitForm('restore');
     }
     function convertEntity(id) {
-        $('#id').val(id);
+        $('#public_id').val(id);
         submitForm('convert');
     }
 
-	function markEntity(id, statusId) {
-		$('#id').val(id);
-		$('#statusId').val(statusId);
-		submitForm('mark');
+	function markEntity(id) {
+		$('#public_id').val(id);
+		submitForm('markSent');
 	}
 
     function stopTask(id) {
-        $('#id').val(id);
+        $('#public_id').val(id);
         submitForm('stop');
     }
 
-    function invoiceTask(id) {
-        $('#id').val(id);
+    function invoiceEntity(id) {
+        $('#public_id').val(id);
         submitForm('invoice');
     }
 
@@ -118,9 +115,6 @@
             }
             tableFilter = val;
             oTable0.fnFilter(val);
-            @if (isset($secEntityType))
-                oTable1.fnFilter(val);
-            @endif
         }
 
         $('#tableFilter').on('keyup', function(){
@@ -130,33 +124,29 @@
 
             searchTimeout = setTimeout(function() {
                 filterTable($('#tableFilter').val());
-            }, 500);                   
+            }, 500);
         })
+
+        if ($('#tableFilter').val()) {
+            filterTable($('#tableFilter').val());
+        }
 
         window.onDatatableReady = function() {      
             $(':checkbox').click(function() {
                 setBulkActionsEnabled();
             }); 
 
-            $('tbody tr').click(function(event) {        
+            $('tbody tr').unbind('click').click(function(event) {
                 if (event.target.type !== 'checkbox' && event.target.type !== 'button' && event.target.tagName.toLowerCase() !== 'a') {
-                    $checkbox = $(this).closest('tr').find(':checkbox:not(:disabled)');             
+                    $checkbox = $(this).closest('tr').find(':checkbox:not(:disabled)');
                     var checked = $checkbox.prop('checked');
                     $checkbox.prop('checked', !checked);
                     setBulkActionsEnabled();
                 }
             });
 
-            $('tbody tr').mouseover(function() {
-                $(this).closest('tr').find('.tr-action').css('visibility','visible');
-            }).mouseout(function() {
-                $dropdown = $(this).closest('tr').find('.tr-action');
-                if (!$dropdown.hasClass('open')) {
-                    $dropdown.css('visibility','hidden');
-                }           
-            });
-
-        }   
+            actionListHandler();
+        }
 
         $('.archive, .invoice').prop('disabled', true);
         $('.archive:not(.dropdown-toggle)').click(function() {
@@ -168,10 +158,13 @@
         });
 
         function setBulkActionsEnabled() {
-            var checked = $('tbody :checkbox:checked').length > 0;
-            $('button.archive, button.invoice').prop('disabled', !checked); 
-
-
+            var buttonLabel = "{{ trans('texts.archive') }}";
+            var count = $('tbody :checkbox:checked').length;
+            $('button.archive, button.invoice').prop('disabled', !count); 
+            if (count) {
+                buttonLabel += ' (' + count + ')';
+            }
+            $('button.archive').not('.dropdown-toggle').text(buttonLabel);
         }
 
     });

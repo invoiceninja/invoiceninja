@@ -9,34 +9,38 @@ class Contact extends EntityModel
     use SoftDeletes;
     protected $dates = ['deleted_at'];
 
-    public static $fieldFirstName = 'Contact - First Name';
-    public static $fieldLastName = 'Contact - Last Name';
-    public static $fieldEmail = 'Contact - Email';
-    public static $fieldPhone = 'Contact - Phone';
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
+        'send_invoice',
+    ];
+
+    public static $fieldFirstName = 'first_name';
+    public static $fieldLastName = 'last_name';
+    public static $fieldEmail = 'email';
+    public static $fieldPhone = 'phone';
+
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
 
     public function client()
     {
-        return $this->belongsTo('App\Models\Client');
+        return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
     public function getPersonType()
     {
         return PERSON_CONTACT;
     }
-
-    /*
-    public function getLastLogin()
-    {
-        if ($this->last_login == '0000-00-00 00:00:00')
-        {
-            return '---';
-        }
-        else
-        {
-            return $this->last_login->format('m/d/y h:i a');
-        }
-    }
-    */
 
     public function getName()
     {

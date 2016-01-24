@@ -19,6 +19,6 @@ return array(
 
     "token"    => "Der Passwort-Wiederherstellungs-Schlüssel ist ungültig.",
 
-    "sent"     => "Passworterinnerung wurde gesendet!",
+    "sent"     => "Passworterinnerung wurde versendet!",
 
 );

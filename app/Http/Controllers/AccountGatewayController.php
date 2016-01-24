@@ -16,59 +16,43 @@ use App\Models\Account;
 use App\Models\AccountGateway;
 
 use App\Ninja\Repositories\AccountRepository;
+use App\Services\AccountGatewayService;
 
 class AccountGatewayController extends BaseController
 {
+    protected $accountGatewayService;
+
+    public function __construct(AccountGatewayService $accountGatewayService)
+    {
+        parent::__construct();
+
+        $this->accountGatewayService = $accountGatewayService;
+    }
+
+    public function index()
+    {
+        return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
+    }
+
     public function getDatatable()
     {
-        $query = DB::table('account_gateways')
-                    ->join('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
-                    ->where('account_gateways.deleted_at', '=', null)
-                    ->where('account_gateways.account_id', '=', Auth::user()->account_id)
-                    ->select('account_gateways.public_id', 'gateways.name', 'account_gateways.deleted_at', 'account_gateways.gateway_id');
-
-        return Datatable::query($query)
-            ->addColumn('name', function ($model) { return link_to('gateways/'.$model->public_id.'/edit', $model->name); })
-            ->addColumn('payment_type', function ($model) { return Gateway::getPrettyPaymentType($model->gateway_id); })
-            ->addColumn('dropdown', function ($model) {
-              $actions = '<div class="btn-group tr-action" style="visibility:hidden;">
-                  <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
-                    '.trans('texts.select').' <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu" role="menu">';
-
-              if (!$model->deleted_at) {
-                  $actions .= '<li><a href="'.URL::to('gateways/'.$model->public_id).'/edit">'.uctrans('texts.edit_gateway').'</a></li>
-                               <li class="divider"></li>
-                               <li><a href="javascript:deleteAccountGateway('.$model->public_id.')">'.uctrans('texts.delete_gateway').'</a></li>';
-              }
-
-               $actions .= '</ul>
-              </div>';
-
-              return $actions;
-            })
-            ->orderColumns(['name'])
-            ->make();
+        return $this->accountGatewayService->getDatatable(Auth::user()->account_id);
     }
 
     public function edit($publicId)
     {
         $accountGateway = AccountGateway::scope($publicId)->firstOrFail();
-        $config = $accountGateway->config;
-        $selectedCards = $accountGateway->accepted_credit_cards;
+        $config = $accountGateway->getConfig();
 
-        $configFields = json_decode($config);
-
-        foreach ($configFields as $configField => $value) {
-            $configFields->$configField = str_repeat('*', strlen($value));
+        foreach ($config as $field => $value) {
+            $config->$field = str_repeat('*', strlen($value));
         }
 
         $data = self::getViewModel($accountGateway);
         $data['url'] = 'gateways/'.$publicId;
         $data['method'] = 'PUT';
         $data['title'] = trans('texts.edit_gateway') . ' - ' . $accountGateway->gateway->name;
-        $data['config'] = $configFields;
+        $data['config'] = $config;
         $data['hiddenFields'] = Gateway::$hiddenFields;
         $data['paymentTypeId'] = $accountGateway->getPaymentType();
         $data['selectGateways'] = Gateway::where('id', '=', $accountGateway->gateway_id)->get();
@@ -97,7 +81,12 @@ class AccountGatewayController extends BaseController
         $data['url'] = 'gateways';
         $data['method'] = 'POST';
         $data['title'] = trans('texts.add_gateway');
-        $data['selectGateways'] = Gateway::where('payment_library_id', '=', 1)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)->orderBy('name')->get();
+        $data['selectGateways'] = Gateway::where('payment_library_id', '=', 1)
+                                    ->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)
+                                    ->where('id', '!=', GATEWAY_BITPAY)
+                                    ->where('id', '!=', GATEWAY_GOCARDLESS)
+                                    ->where('id', '!=', GATEWAY_DWOLLA)
+                                    ->orderBy('name')->get();
         $data['hiddenFields'] = Gateway::$hiddenFields;
 
         return View::make('accounts.account_gateway', $data);
@@ -115,6 +104,9 @@ class AccountGatewayController extends BaseController
 
                 if ($type == PAYMENT_TYPE_BITCOIN) {
                     $paymentTypes[$type] .= ' - BitPay';
+                }
+                if ($type == PAYMENT_TYPE_DIRECT_DEBIT) {
+                    $paymentTypes[$type] .= ' - GoCardless';
                 }
             }
         }
@@ -155,21 +147,20 @@ class AccountGatewayController extends BaseController
             'gateways' => $gateways,
             'creditCardTypes' => $creditCards,
             'tokenBillingOptions' => $tokenBillingOptions,
-            'showBreadcrumbs' => false,
             'countGateways' => count($currentGateways)
         ];
     }
 
-    public function delete()
+
+    public function bulk()
     {
-        $accountGatewayPublicId = Input::get('accountGatewayPublicId');
-        $gateway = AccountGateway::scope($accountGatewayPublicId)->firstOrFail();
+        $action = Input::get('bulk_action');
+        $ids = Input::get('bulk_public_id');
+        $count = $this->accountGatewayService->bulk($ids, $action);
 
-        $gateway->delete();
+        Session::flash('message', trans('texts.archived_account_gateway'));
 
-        Session::flash('message', trans('texts.deleted_gateway'));
-
-        return Redirect::to('company/payments');
+        return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
     }
 
     /**
@@ -186,6 +177,8 @@ class AccountGatewayController extends BaseController
             $gatewayId = GATEWAY_PAYPAL_EXPRESS;
         } elseif ($paymentType == PAYMENT_TYPE_BITCOIN) {
             $gatewayId = GATEWAY_BITPAY;
+        } elseif ($paymentType == PAYMENT_TYPE_DIRECT_DEBIT) {
+            $gatewayId = GATEWAY_GOCARDLESS;
         } elseif ($paymentType == PAYMENT_TYPE_DWOLLA) {
             $gatewayId = GATEWAY_DWOLLA;
         }
@@ -229,7 +222,7 @@ class AccountGatewayController extends BaseController
 
             if ($accountGatewayPublicId) {
                 $accountGateway = AccountGateway::scope($accountGatewayPublicId)->firstOrFail();
-                $oldConfig = json_decode($accountGateway->config);
+                $oldConfig = $accountGateway->getConfig();
             } else {
                 $accountGateway = AccountGateway::createNew();
                 $accountGateway->gateway_id = $gatewayId;
@@ -239,7 +232,7 @@ class AccountGatewayController extends BaseController
             foreach ($fields as $field => $details) {
                 $value = trim(Input::get($gateway->id.'_'.$field));
                 // if the new value is masked use the original value
-                if ($value && $value === str_repeat('*', strlen($value))) {
+                if ($oldConfig && $value && $value === str_repeat('*', strlen($value))) {
                     $value = $oldConfig->$field;
                 }
                 if (!$value && ($field == 'testMode' || $field == 'developerMode')) {
@@ -247,6 +240,13 @@ class AccountGatewayController extends BaseController
                 } else {
                     $config->$field = $value;
                 }
+            }
+
+            $publishableKey = Input::get('publishable_key');
+            if ($publishableKey = str_replace('*', '', $publishableKey)) {
+                $config->publishableKey = $publishableKey;
+            } elseif ($oldConfig && property_exists($oldConfig, 'publishableKey')) {
+                $config->publishableKey = $oldConfig->publishableKey;
             }
 
             $cardCount = 0;
@@ -259,7 +259,7 @@ class AccountGatewayController extends BaseController
             $accountGateway->accepted_credit_cards = $cardCount;
             $accountGateway->show_address = Input::get('show_address') ? true : false;
             $accountGateway->update_address = Input::get('update_address') ? true : false;
-            $accountGateway->config = json_encode($config);
+            $accountGateway->setConfig($config);
 
             if ($accountGatewayPublicId) {
                 $accountGateway->save();

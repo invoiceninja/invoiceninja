@@ -1,11 +1,26 @@
 <?php namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\CreditWasCreated;
+use Laracasts\Presenter\PresentableTrait;
 
 class Credit extends EntityModel
 {
     use SoftDeletes;
+    use PresentableTrait;
+    
     protected $dates = ['deleted_at'];
+    protected $presenter = 'App\Ninja\Presenters\CreditPresenter';
+
+    public function account()
+    {
+        return $this->belongsTo('App\Models\Account');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
 
     public function invoice()
     {
@@ -43,18 +58,10 @@ class Credit extends EntityModel
     }
 }
 
+Credit::creating(function ($credit) {
+    
+});
+
 Credit::created(function ($credit) {
-    Activity::createCredit($credit);
-});
-
-Credit::updating(function ($credit) {
-    Activity::updateCredit($credit);
-});
-
-Credit::deleting(function ($credit) {
-    Activity::archiveCredit($credit);
-});
-
-Credit::restoring(function ($credit) {
-    Activity::restoreCredit($credit);
+    event(new CreditWasCreated($credit));
 });

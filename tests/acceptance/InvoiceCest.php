@@ -19,14 +19,20 @@ class InvoiceCest
 
     public function createInvoice(AcceptanceTester $I)
     {
-        $clientName = $I->grabFromDatabase('clients', 'name');
+        $clientEmail = $this->faker->safeEmail;
 
         $I->wantTo('create an invoice');
+
+        $I->amOnPage('/clients/create');
+        $I->fillField(['name' => 'contacts[0][email]'], $clientEmail);
+        $I->click('Save');
+        $I->see($clientEmail);
+
         $I->amOnPage('/invoices/create');
 
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
 
-        $I->selectDropdown($I, $clientName, '.client_select .dropdown-toggle');
+        $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->selectDataPicker($I, '#invoice_date');
         $I->selectDataPicker($I, '#due_date', '+ 15 day');
         $I->fillField('#po_number', rand(100, 200));
@@ -41,12 +47,17 @@ class InvoiceCest
 
     public function createRecurringInvoice(AcceptanceTester $I)
     {
-        $clientName = $I->grabFromDatabase('clients', 'name');
+        $clientEmail = $this->faker->safeEmail;
 
         $I->wantTo('create a recurring invoice');
-        $I->amOnPage('/recurring_invoices/create');
+        
+        $I->amOnPage('/clients/create');
+        $I->fillField(['name' => 'contacts[0][email]'], $clientEmail);
+        $I->click('Save');
+        $I->see($clientEmail);
 
-        $I->selectDropdown($I, $clientName, '.client_select .dropdown-toggle');
+        $I->amOnPage('/recurring_invoices/create');
+        $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->selectDataPicker($I, '#end_date', '+ 1 week');
         $I->fillField('#po_number', rand(100, 200));
         $I->fillField('#discount', rand(0, 20));
@@ -55,16 +66,16 @@ class InvoiceCest
         
         $I->executeJS("submitAction('email')");
         $I->wait(1);
-        $I->see($clientName);
+        $I->see($clientEmail);
 
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
         $I->click('Recurring Invoice');
-        $I->see($clientName);
+        $I->see($clientEmail);
 
-        $I->click('#lastInvoiceSent');
+        $I->click('#lastSent');
         $I->see($invoiceNumber);
     }
-    
+
     public function editInvoice(AcceptanceTester $I)
     {
         $I->wantTo('edit an invoice');
@@ -73,7 +84,7 @@ class InvoiceCest
 
         //change po_number with random number
         $po_number = rand(100, 300);
-        $I->fillField('po_number', $po_number);
+        $I->fillField('#po_number', $po_number);
 
         //save
         $I->executeJS('submitAction()');
@@ -86,7 +97,7 @@ class InvoiceCest
     public function cloneInvoice(AcceptanceTester $I)
     {
         $I->wantTo('clone an invoice');
-        $I->amOnPage('invoices/1/clone');
+        $I->amOnPage('/invoices/1/clone');
         
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
 
@@ -95,7 +106,6 @@ class InvoiceCest
 
         $I->see($invoiceNumber);
     }
-
     
     /*
     public function deleteInvoice(AcceptanceTester $I)

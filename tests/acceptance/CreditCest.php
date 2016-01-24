@@ -19,12 +19,17 @@ class CreditCest
     public function create(AcceptanceTester $I)
     {
         $note = $this->faker->catchPhrase;
-        $clientName = $I->grabFromDatabase('clients', 'name');
+        $clientEmail = $this->faker->safeEmail;
 
         $I->wantTo('Create a credit');
-        $I->amOnPage('/credits/create');
 
-        $I->selectDropdown($I, $clientName, '.client-select .dropdown-toggle');
+        $I->amOnPage('/clients/create');
+        $I->fillField(['name' => 'contacts[0][email]'], $clientEmail);
+        $I->click('Save');
+        $I->see($clientEmail);
+
+        $I->amOnPage('/credits/create');
+        $I->selectDropdown($I, $clientEmail, '.client-select .dropdown-toggle');
         $I->fillField(['name' => 'amount'], rand(50, 200));
         $I->fillField(['name' => 'private_notes'], $note);
         $I->selectDataPicker($I, '#credit_date', 'now + 1 day');
@@ -35,7 +40,7 @@ class CreditCest
     
         $I->amOnPage('/credits');
         $I->seeCurrentUrlEquals('/credits');
-        $I->see($clientName);
+        $I->see($clientEmail);
     }
     
 }

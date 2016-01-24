@@ -7,6 +7,7 @@ use App;
 use Schema;
 use Session;
 use Request;
+use Exception;
 use View;
 use DateTimeZone;
 use Input;
@@ -35,14 +36,19 @@ class Utils
             if (Schema::hasTable('accounts')) {
                 return true;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
 
-    public static function isProd()
+    public static function isDownForMaintenance()
     {
-        return App::environment() == ENV_PRODUCTION;
+        return file_exists(storage_path() . '/framework/down');
+    }
+
+    public static function isCron()
+    {
+        return php_sapi_name() == 'cli';
     }
 
     public static function isNinja()
@@ -58,6 +64,30 @@ class Utils
     public static function isNinjaDev()
     {
         return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'] == 'true';
+    }
+
+    public static function requireHTTPS()
+    {
+        return Utils::isNinjaProd() || (isset($_ENV['REQUIRE_HTTPS']) && $_ENV['REQUIRE_HTTPS'] == 'true');
+    }
+
+    public static function isOAuthEnabled()
+    {
+        $providers = [
+            SOCIAL_GOOGLE,
+            SOCIAL_FACEBOOK,
+            SOCIAL_GITHUB,
+            SOCIAL_LINKEDIN
+        ];
+
+        foreach ($providers as $provider) {
+            $key = strtoupper($provider) . '_CLIENT_ID';
+            if (isset($_ENV[$key]) && $_ENV[$key]) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static function allowNewAccounts()
@@ -89,11 +119,6 @@ class Utils
         return isset($_ENV[DEMO_ACCOUNT_ID]) ? $_ENV[DEMO_ACCOUNT_ID] : false;
     }
 
-    public static function isDemo()
-    {
-        return Auth::check() && Auth::user()->isDemo();
-    }
-
     public static function getNewsFeedResponse($userType = false)
     {
         if (!$userType) {
@@ -106,6 +131,19 @@ class Utils
         $response->version = NINJA_VERSION;
 
         return $response;
+    }
+
+    public static function getLastURL()
+    {
+        if (!count(Session::get(RECENTLY_VIEWED))) {
+            return '#';
+        }
+
+        $history = Session::get(RECENTLY_VIEWED);
+        $last = $history[0];
+        $penultimate = count($history) > 1 ? $history[1] : $last;
+
+        return Request::url() == $last->url ? $penultimate->url : $last->url;
     }
 
     public static function getProLabel($feature)
@@ -131,8 +169,10 @@ class Utils
         foreach ($input as $field) {
             if ($field == "checkbox") {
                 $data[] = $field;
-            } else {
+            } elseif ($field) {
                 $data[] = trans("texts.$field");
+            } else {
+                $data[] = '';
             }
         }
 
@@ -164,6 +204,10 @@ class Utils
 
     public static function logError($error, $context = 'PHP')
     {
+        if ($error instanceof Exception) {
+            $error = self::getErrorString($error);
+        }
+
         $count = Session::get('error_count', 0);
         Session::put('error_count', ++$count);
         if ($count > 100) {
@@ -173,12 +217,13 @@ class Utils
         $data = [
             'context' => $context,
             'user_id' => Auth::check() ? Auth::user()->id : 0,
+            'account_id' => Auth::check() ? Auth::user()->account_id : 0,
             'user_name' => Auth::check() ? Auth::user()->getDisplayName() : '',
+            'method' => Request::method(),
             'url' => Input::get('url', Request::url()),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
             'ip' => Request::getClientIp(),
             'count' => Session::get('error_count', 0),
-            //'input' => Input::all()
         ];
 
         Log::error($error."\n", $data);
@@ -198,72 +243,62 @@ class Utils
         return floatval($value);
     }
 
-    public static function formatPhoneNumber($phoneNumber)
+    public static function parseInt($value)
     {
-        $phoneNumber = preg_replace('/[^0-9a-zA-Z]/', '', $phoneNumber);
+        $value = preg_replace('/[^0-9]/', '', $value);
 
-        if (!$phoneNumber) {
-            return '';
-        }
-
-        if (strlen($phoneNumber) > 10) {
-            $countryCode = substr($phoneNumber, 0, strlen($phoneNumber)-10);
-            $areaCode = substr($phoneNumber, -10, 3);
-            $nextThree = substr($phoneNumber, -7, 3);
-            $lastFour = substr($phoneNumber, -4, 4);
-
-            $phoneNumber = '+'.$countryCode.' ('.$areaCode.') '.$nextThree.'-'.$lastFour;
-        } elseif (strlen($phoneNumber) == 10 && in_array(substr($phoneNumber, 0, 3), array(653, 656, 658, 659))) {
-            /**
-             * SG country code are 653, 656, 658, 659
-             * US area code consist of 650, 651 and 657
-             * @see http://en.wikipedia.org/wiki/Telephone_numbers_in_Singapore#Numbering_plan
-             * @see http://www.bennetyee.org/ucsd-pages/area.html
-             */
-            $countryCode = substr($phoneNumber, 0, 2);
-            $nextFour = substr($phoneNumber, 2, 4);
-            $lastFour = substr($phoneNumber, 6, 4);
-
-            $phoneNumber = '+'.$countryCode.' '.$nextFour.' '.$lastFour;
-        } elseif (strlen($phoneNumber) == 10) {
-            $areaCode = substr($phoneNumber, 0, 3);
-            $nextThree = substr($phoneNumber, 3, 3);
-            $lastFour = substr($phoneNumber, 6, 4);
-
-            $phoneNumber = '('.$areaCode.') '.$nextThree.'-'.$lastFour;
-        } elseif (strlen($phoneNumber) == 7) {
-            $nextThree = substr($phoneNumber, 0, 3);
-            $lastFour = substr($phoneNumber, 3, 4);
-
-            $phoneNumber = $nextThree.'-'.$lastFour;
-        }
-
-        return $phoneNumber;
+        return intval($value);
     }
 
-    public static function formatMoney($value, $currencyId = false)
+    public static function getFromCache($id, $type) {
+        $data = Cache::get($type)->filter(function($item) use ($id) {
+            return $item->id == $id;
+        });
+
+        return $data->first();
+    }
+
+    public static function formatMoney($value, $currencyId = false, $countryId = false, $showCode = false)
     {
-        if (!$currencyId) {
-            $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
-        }
-
-        foreach (Cache::get('currencies') as $currency) {
-            if ($currency->id == $currencyId) {
-                break;
-            }
-        }
-
-        if (!$currency) {
-            $currency = Currency::find(1);
-        }
-
         if (!$value) {
             $value = 0;
         }
 
-        Cache::add('currency', $currency, DEFAULT_QUERY_CACHE);
+        if (!$currencyId) {
+            $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
+        }
 
-        return $currency->symbol.number_format($value, $currency->precision, $currency->decimal_separator, $currency->thousand_separator);
+        if (!$countryId && Auth::check()) {
+            $countryId = Auth::user()->account->country_id;
+        }
+
+        $currency = self::getFromCache($currencyId, 'currencies');
+        $thousand = $currency->thousand_separator;
+        $decimal = $currency->decimal_separator;
+        $code = $currency->code;
+        $swapSymbol = false;
+
+        if ($countryId && $currencyId == CURRENCY_EURO) {
+            $country = self::getFromCache($countryId, 'countries');
+            $swapSymbol = $country->swap_currency_symbol;
+            if ($country->thousand_separator) {
+                $thousand = $country->thousand_separator;
+            }
+            if ($country->decimal_separator) {
+                $decimal = $country->decimal_separator;
+            }
+        }
+
+        $value = number_format($value, $currency->precision, $decimal, $thousand);
+        $symbol = $currency->symbol;
+
+        if ($showCode || !$symbol) {
+            return "{$value} {$code}";
+        } elseif ($swapSymbol) {
+            return "{$value} " . trim($symbol);
+        } else {
+            return "{$symbol}{$value}";
+        }
     }
 
     public static function pluralize($string, $count)
@@ -274,14 +309,57 @@ class Utils
         return $string;
     }
 
+    public static function maskAccountNumber($value)
+    {
+        $length = strlen($value);
+        if ($length < 4) {
+            str_repeat('*', 16);
+        }
+
+        $lastDigits = substr($value, -4);
+        return str_repeat('*', $length - 4) . $lastDigits;
+    }
+
+    // http://wephp.co/detect-credit-card-type-php/
+    public static function getCardType($number)
+    {
+        $number = preg_replace('/[^\d]/', '', $number);
+
+        if (preg_match('/^3[47][0-9]{13}$/', $number)) {
+            return 'American Express';
+        } elseif (preg_match('/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/', $number)) {
+            return 'Diners Club';
+        } elseif (preg_match('/^6(?:011|5[0-9][0-9])[0-9]{12}$/', $number)) {
+            return 'Discover';
+        } elseif (preg_match('/^(?:2131|1800|35\d{3})\d{11}$/', $number)) {
+            return 'JCB';
+        } elseif (preg_match('/^5[1-5][0-9]{14}$/', $number)) {
+            return 'MasterCard';
+        } elseif (preg_match('/^4[0-9]{12}(?:[0-9]{3})?$/', $number)) {
+            return 'Visa';
+        } else {
+            return 'Unknown';
+        }
+    }
+
     public static function toArray($data)
     {
         return json_decode(json_encode((array) $data), true);
     }
 
-    public static function toSpaceCase($camelStr)
+    public static function toSpaceCase($string)
     {
-        return preg_replace('/([a-z])([A-Z])/s', '$1 $2', $camelStr);
+        return preg_replace('/([a-z])([A-Z])/s', '$1 $2', $string);
+    }
+
+    public static function toSnakeCase($string)
+    {
+        return preg_replace('/([a-z])([A-Z])/s', '$1_$2', $string);
+    }
+
+    public static function toCamelCase($string)
+    {
+        return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $string))));
     }
 
     public static function timestampToDateTimeString($timestamp)
@@ -302,6 +380,10 @@ class Utils
 
     public static function dateToString($date)
     {
+        if (!$date) {
+            return false;
+        }
+
         $dateTime = new DateTime($date);
         $timestamp = $dateTime->getTimestamp();
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
@@ -325,29 +407,19 @@ class Utils
         return $date->format($format);
     }
 
-    public static function getTiemstampOffset()
-    {
-        $timezone = new DateTimeZone(Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE));
-        $datetime = new DateTime('now', $timezone);
-        $offset = $timezone->getOffset($datetime);
-        $minutes = $offset / 60;
-
-        return $minutes;
-    }
-
     public static function toSqlDate($date, $formatResult = true)
     {
         if (!$date) {
             return;
         }
 
-        //$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
-
-        //$dateTime = DateTime::createFromFormat($format, $date, new DateTimeZone($timezone));
         $dateTime = DateTime::createFromFormat($format, $date);
 
-        return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
+        if(!$dateTime)
+            return $date;
+        else
+            return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
     }
 
     public static function fromSqlDate($date, $formatResult = true)
@@ -356,13 +428,13 @@ class Utils
             return '';
         }
 
-        //$timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
-
         $dateTime = DateTime::createFromFormat('Y-m-d', $date);
-        //$dateTime->setTimeZone(new DateTimeZone($timezone));
 
-        return $formatResult ? $dateTime->format($format) : $dateTime;
+        if(!$dateTime)
+            return $date;
+        else
+            return $formatResult ? $dateTime->format($format) : $dateTime;
     }
 
     public static function fromSqlDateTime($date, $formatResult = true)
@@ -378,6 +450,13 @@ class Utils
         $dateTime->setTimeZone(new DateTimeZone($timezone));
 
         return $formatResult ? $dateTime->format($format) : $dateTime;
+    }
+
+    public static function formatTime($t)
+    {
+        // http://stackoverflow.com/a/3172665
+        $f = ':';
+        return sprintf("%02d%s%02d%s%02d", floor($t/3600), $f, ($t/60)%60, $f, $t%60);
     }
 
     public static function today($formatResult = true)
@@ -421,12 +500,8 @@ class Utils
                 continue;
             }
 
-            // temporary fix to check for new property in session
-            if (!property_exists($item, 'accountId')) {
-                continue;
-            }
+            array_push($data, $item);
 
-            array_unshift($data, $item);
             if (isset($counts[$item->accountId])) {
                 $counts[$item->accountId]++;
             } else {
@@ -435,7 +510,7 @@ class Utils
         }
 
         array_unshift($data, $object);
-        
+
         if (isset($counts[Auth::user()->account_id]) && $counts[Auth::user()->account_id] > RECENTLY_VIEWED_LIMIT) {
             array_pop($data);
         }
@@ -544,32 +619,26 @@ class Utils
         }
     }
 
-    public static function encodeActivity($person = null, $action, $entity = null, $otherPerson = null)
+    public static function getVendorDisplayName($model)
     {
-        $person = $person ? $person->getDisplayName() : '<i>System</i>';
-        $entity = $entity ? $entity->getActivityKey() : '';
-        $otherPerson = $otherPerson ? 'to '.$otherPerson->getDisplayName() : '';
-        $token = Session::get('token_id') ? ' ('.trans('texts.token').')' : '';
+        if(is_null($model))
+            return '';
 
-        return trim("$person $token $action $entity $otherPerson");
+        if($model->vendor_name)
+            return $model->vendor_name;
+
+        return 'No vendor name';
     }
 
-    public static function decodeActivity($message)
+    public static function getPersonDisplayName($firstName, $lastName, $email)
     {
-        $pattern = '/\[([\w]*):([\d]*):(.*)\]/i';
-        preg_match($pattern, $message, $matches);
-
-        if (count($matches) > 0) {
-            $match = $matches[0];
-            $type = $matches[1];
-            $publicId = $matches[2];
-            $name = $matches[3];
-
-            $link = link_to($type.'s/'.$publicId, $name);
-            $message = str_replace($match, "$type $link", $message);
+        if ($firstName || $lastName) {
+            return $firstName.' '.$lastName;
+        } elseif ($email) {
+            return $email;
+        } else {
+            return trans('texts.guest');
         }
-
-        return $message;
     }
 
     public static function generateLicense()
@@ -592,7 +661,9 @@ class Utils
             return EVENT_CREATE_QUOTE;
         } elseif ($eventName == 'create_payment') {
             return EVENT_CREATE_PAYMENT;
-        } else {
+        } elseif ($eventName == 'create_vendor') {
+            return EVENT_CREATE_VENDOR;
+        }else {
             return false;
         }
     }
@@ -600,9 +671,8 @@ class Utils
     public static function notifyZapier($subscription, $data)
     {
         $curl = curl_init();
-
         $jsonEncodedData = json_encode($data->toPublicArray());
-        
+
         $opts = [
             CURLOPT_URL => $subscription->target_url,
             CURLOPT_RETURNTRANSFER => true,
@@ -624,26 +694,23 @@ class Utils
         }
     }
 
-
-    public static function remapPublicIds($items)
-    {
-        $return = [];
-        
-        foreach ($items as $item) {
-            $return[] = $item->toPublicArray();
-        }
-
-        return $return;
-    }
-
-    public static function hideIds($data)
+    public static function hideIds($data, $mapped = false)
     {
         $publicId = null;
 
+        if (!$mapped) {
+            $mapped = [];
+        }
+
         foreach ($data as $key => $val) {
             if (is_array($val)) {
-                $data[$key] = Utils::hideIds($val);
-            } else if ($key == 'id' || strpos($key, '_id')) {
+                if ($key == 'account' || isset($mapped[$key])) {
+                    // do nothing
+                } else {
+                    $mapped[$key] = true;
+                    $data[$key] = Utils::hideIds($val, $mapped);
+                }
+            } elseif ($key == 'id' || strpos($key, '_id')) {
                 if ($key == 'public_id') {
                     $publicId = $val;
                 }
@@ -654,7 +721,7 @@ class Utils
         if ($publicId) {
             $data['id'] = $publicId;
         }
-        
+
         return $data;
     }
 
@@ -667,10 +734,16 @@ class Utils
           //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',
           //'Access-Control-Allow-Credentials' => 'true',
           'X-Total-Count' => $count,
+          'X-Ninja-Version' => NINJA_VERSION,
           //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
           //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
           //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
         ];
+    }
+
+    public static function isEmpty($value)
+    {
+        return !$value || $value == '0' || $value == '0.00' || $value == '0,00';
     }
 
     public static function startsWith($haystack, $needle)
@@ -685,10 +758,14 @@ class Utils
 
     public static function getEntityRowClass($model)
     {
-        $str = $model->is_deleted || ($model->deleted_at && $model->deleted_at != '0000-00-00') ? 'DISABLED ' : '';
+        $str = '';
 
-        if ($model->is_deleted) {
-            $str .= 'ENTITY_DELETED ';
+        if (property_exists($model, 'is_deleted')) {
+            $str = $model->is_deleted || ($model->deleted_at && $model->deleted_at != '0000-00-00') ? 'DISABLED ' : '';
+
+            if ($model->is_deleted) {
+                $str .= 'ENTITY_DELETED ';
+            }
         }
 
         if ($model->deleted_at && $model->deleted_at != '0000-00-00') {
@@ -710,37 +787,172 @@ class Utils
 
         fwrite($output, "\n");
     }
-    
-    public static function stringToObjectResolution($baseObject, $rawPath)
-    {
-        $val = '';
-        
-        if (!is_object($baseObject)) {
-          return $val;
-        }
-        
-        $path = preg_split('/->/', $rawPath);
-        $node = $baseObject;
-        
-        while (($prop = array_shift($path)) !== null) {
-            if (property_exists($node, $prop)) {
-                $val = $node->$prop;
-                $node = $node->$prop;
-            } else if (is_object($node) && isset($node->$prop)) {
-                $node = $node->{$prop};
-            } else if ( method_exists($node, $prop)) {
-                $val = call_user_func(array($node, $prop));
-            }
-        }
-        
-        return $val;
-    }
 
-    public static function getFirst($values) {
+    public static function getFirst($values)
+    {
         if (is_array($values)) {
             return count($values) ? $values[0] : false;
         } else {
             return $values;
         }
+    }
+
+    // nouns in German and French should be uppercase
+    public static function transFlowText($key)
+    {
+        $str = trans("texts.$key");
+        if (!in_array(App::getLocale(), ['de', 'fr'])) {
+            $str = strtolower($str);
+        }
+        return $str;
+    }
+
+    public static function getSubdomainPlaceholder()
+    {
+        $parts = parse_url(SITE_URL);
+        $subdomain = '';
+        if (isset($parts['host'])) {
+            $host = explode('.', $parts['host']);
+            if (count($host) > 2) {
+                $subdomain = $host[0];
+            }
+        }
+        return $subdomain;
+    }
+
+    public static function getDomainPlaceholder()
+    {
+        $parts = parse_url(SITE_URL);
+        $domain = '';
+        if (isset($parts['host'])) {
+            $host = explode('.', $parts['host']);
+            if (count($host) > 2) {
+                array_shift($host);
+                $domain .= implode('.', $host);
+            } else {
+                $domain .= $parts['host'];
+            }
+        }
+        if (isset($parts['path'])) {
+            $domain .= $parts['path'];
+        }
+        return $domain;
+    }
+
+    public static function replaceSubdomain($domain, $subdomain)
+    {
+        $parsedUrl = parse_url($domain);
+        $host = explode('.', $parsedUrl['host']);
+        if (count($host) > 0) {
+            $oldSubdomain = $host[0];
+            $domain = str_replace("://{$oldSubdomain}.", "://{$subdomain}.", $domain);
+        }
+        return $domain;
+    }
+
+    public static function splitName($name)
+    {
+        $name = trim($name);
+        $lastName = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
+        $firstName = trim(preg_replace('#'.$lastName.'#', '', $name));
+        return array($firstName, $lastName);
+    }
+
+    public static function decodePDF($string)
+    {
+        $string = str_replace('data:application/pdf;base64,', '', $string);
+        return base64_decode($string);
+    }
+
+    public static function cityStateZip($city, $state, $postalCode, $swap)
+    {
+        $str = $city;
+
+        if ($state) {
+            if ($str) {
+                $str .= ', ';
+            }
+            $str .= $state;
+        }
+
+        if ($swap) {
+            return $postalCode . ' ' . $str;
+        } else {
+            return $str . ' ' . $postalCode;
+        }
+    }
+
+    public static function formatWebsite($website)
+    {
+        if (!$website) {
+            return '';
+        }
+
+        $link = $website;
+        $title = $website;
+        $prefix = 'http://';
+
+        if (strlen($link) > 7 && substr($link, 0, 7) === $prefix) {
+            $title = substr($title, 7);
+        } else {
+            $link = $prefix.$link;
+        }
+
+        return link_to($link, $title, array('target' => '_blank'));
+    }
+
+    public static function wrapAdjustment($adjustment, $currencyId, $countryId)
+    {
+        $class = $adjustment <= 0 ? 'success' : 'default';
+        $adjustment = Utils::formatMoney($adjustment, $currencyId, $countryId);
+        return "<h4><div class=\"label label-{$class}\">$adjustment</div></h4>";
+    }
+
+    public static function copyContext($entity1, $entity2)
+    {
+        if (!$entity2) {
+            return $entity1;
+        }
+
+        $fields = [
+            'contact_id',
+            'payment_id',
+            'invoice_id',
+            'credit_id',
+            'invitation_id'
+        ];
+
+        $fields1 = $entity1->getAttributes();
+        $fields2 = $entity2->getAttributes();
+
+        foreach ($fields as $field) {
+            if (isset($fields2[$field]) && $fields2[$field]) {
+                $entity1->$field = $entity2->$field;
+            }
+        }
+
+        return $entity1;
+    }
+
+    public static function withinPastYear($date)
+    {
+        if (!$date || $date == '0000-00-00') {
+            return false;
+        }
+
+        $today = new DateTime('now');
+        $datePaid = DateTime::createFromFormat('Y-m-d', $date);
+        $interval = $today->diff($datePaid);
+
+        return $interval->y == 0;
+    }
+
+    public static function addHttp($url)
+    {
+        if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+            $url = "http://" . $url;
+        }
+
+        return $url;
     }
 }

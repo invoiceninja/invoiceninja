@@ -2,6 +2,9 @@ body { background: #f8f8f8 !important;
     font-family: 'Roboto', sans-serif;
     font-size: 15px;
 }
+html {
+  /* overflow-y: scroll; */
+}
 .bold { font-weight: 700; }
 a {color:#0b4d78;}
 /*a:hover { text-decoration: none; color: #0a3857;}*/
@@ -54,11 +57,18 @@ margin-top: 0;
 margin-bottom: 0;
 padding-top: 10px;
 }
+.form-control-static {
+    padding-top: 11px;
+}
 textarea.form-control {
-/*height: auto !important;*/
-min-height: 40px;
+    /*height: auto !important;*/
+    min-height: 40px;
 }
 /*tables*/
+table.data-table td {
+    height: 38px !important;
+}
+
 table.dataTable { border-radius: 3px; border-collapse: collapse;
     /*border-spacing: 0;*/}
 table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
@@ -105,6 +115,11 @@ padding: 12px 10px;
 }
 table.dataTable tbody th, table.dataTable tbody td {
 padding: 10px;
+}
+
+table.data-table tr {
+    border-bottom: 1px solid #d0d0d0;
+    border-top: 1px solid #d0d0d0;
 }
 
 .datepicker {
@@ -743,23 +758,45 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
     text-decoration: line-through;
 }
 
-@media screen and (min-width: 992px) {
-   .hide-desktop {display: none;}
+
+/* Custom, iPhone Retina */ 
+@media only screen and (min-width : 320px) {
+    
+}
+
+/* Extra Small Devices, Phones */ 
+@media only screen and (min-width : 480px) {
+
+}
+
+/* Small Devices, Tablets */
+@media only screen and (min-width : 768px) {
+   .form-padding-right {
+        padding-right: 40px;
+   }
+}
+
+/* Medium Devices, Desktops */
+@media only screen and (min-width : 992px) {
+   .form-padding-right {
+        padding-right: 100px;
+   }
+   .medium-dialog {
+        width: 760px;
+   }
+   .large-dialog {
+        width: 960px;
+   }
+   .hide-desktop 
+   {
+        display: none;
+   }
 }
 
 @media (max-width: 992px) {
     .hide-phone {
         display: none !important;
     }    
-}
-
-@media screen and (min-width: 992px) {
-   .medium-dialog {
-        width: 760px;
-   }
-   .large-dialog {
-        width: 960px;
-   }   
 }
 
 @media (max-width: 767px) {
@@ -881,7 +918,7 @@ div.dataTables_length label {
 
 a .glyphicon,
 button .glyphicon {
-    padding-left: 8px;
+    padding-left: 12px;
 }
 
 .pro-plan-modal {
@@ -975,3 +1012,26 @@ ul.user-accounts a:hover div.remove {
     visibility: visible;
 }
 
+.invoice-contact .tooltip-inner {
+    text-align:left;
+    width: 350px; 
+}
+
+.smaller {
+    font-size: .9em;
+}
+
+/* Show selected section in settings nav */
+.list-group-item.selected:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 2px;
+    content: "";
+    background-color: #e37329;
+}
+
+div.panel-body div.panel-body {
+    padding-bottom: 0px;
+}

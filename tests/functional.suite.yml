@@ -9,7 +9,9 @@ modules:
     enabled:
         - \Helper\Functional
         - PhpBrowser:
-            url: 'http://ninja.dev/'
+            url: 'http://ninja.dev'
+            curl:
+               CURLOPT_RETURNTRANSFER: true
         - Laravel5:
             environment_file: '.env'
             cleanup: false
