@@ -37,7 +37,7 @@ class InvoiceTransformer extends EntityTransformer
 
     public function includeInvitations(Invoice $invoice)
     {
-        $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
+        $transformer = new InvitationTransformer($this->account, $this->serializer);
         return $this->includeCollection($invoice->invitations, $transformer, ENTITY_INVITATION);
     }
 
