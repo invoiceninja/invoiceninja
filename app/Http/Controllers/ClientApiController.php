@@ -93,20 +93,7 @@ class ClientApiController extends BaseAPIController
      */
     public function store(CreateClientRequest $request)
     {
-        if ($request->has('filter_by_email')) {
-
-            $email = $request->get('filter_by_email');
-            $client = Client::whereHas('contacts', function ($query) use ($email) {
-                $query->where('email', $email);
-            })->with('contacts')->first();
-
-            if (is_null($client)) {
-                $client = $this->clientRepo->save($request->input());
-            }
-
-        } else {
-            $client = $this->clientRepo->save($request->input());
-        }
+        $client = $this->clientRepo->save($request->input());
 
         $client = Client::scope($client->public_id)
                     ->with('country', 'contacts', 'industry', 'size', 'currency')
