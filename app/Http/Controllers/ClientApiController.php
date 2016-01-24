@@ -48,8 +48,19 @@ class ClientApiController extends BaseAPIController
     {
         $clients = Client::scope()
                     ->with($this->getIncluded())
-                    ->orderBy('created_at', 'desc')
-                    ->paginate();
+                    ->orderBy('created_at', 'desc');
+
+        // Filter by email
+        if (Input::has('email')) {
+
+            $email = Input::get('email');
+            $clients = $clients->whereHas('contacts', function ($query) use ($email) {
+                $query->where('email', $email);
+            });
+
+        }
+
+        $clients = $clients->paginate();
 
         $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
         $paginator = Client::scope()->paginate();
@@ -83,7 +94,7 @@ class ClientApiController extends BaseAPIController
     public function store(CreateClientRequest $request)
     {
         $client = $this->clientRepo->save($request->input());
-        
+
         $client = Client::scope($client->public_id)
                     ->with('country', 'contacts', 'industry', 'size', 'currency')
                     ->first();
