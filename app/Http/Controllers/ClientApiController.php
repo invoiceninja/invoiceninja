@@ -131,11 +131,13 @@ class ClientApiController extends BaseAPIController
      * )
      */
 
-    public function update(UpdateClientRequest $request)
+    public function update(UpdateClientRequest $request, $publicId)
     {
-        $client = $this->clientService->save($request->input());
+        $data = $request->input();
+        $data['public_id'] = $publicId;
+        $this->clientService->save($data);
 
-        $client = Client::scope($client->public_id)
+        $client = Client::scope($publicId)
             ->with('country', 'contacts', 'industry', 'size', 'currency')
             ->first();
 
