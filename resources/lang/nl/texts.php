@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 return array(
 
@@ -116,11 +116,11 @@ return array(
   'billed_client' => 'Gefactureerde klant',
   'billed_clients' => 'Gefactureerde klanten',
   'active_client' => 'Actieve klant',
-  'active_clients' => 'Actieve klanten',  
+  'active_clients' => 'Actieve klanten',
   'invoices_past_due' => 'Vervallen facturen',
   'upcoming_invoices' => 'Aankomende facturen',
   'average_invoice' => 'Gemiddelde factuur',
-  
+
   // list pages
   'archive' => 'Archiveer',
   'delete' => 'Verwijder',
@@ -270,15 +270,15 @@ return array(
   'notification_invoice_sent' => 'De volgende klant :client heeft Factuur :invoice voor :amount gemaild gekregen.',
   'notification_invoice_viewed' => 'De volgende klant :client heeft Factuur :invoice voor :amount bekeken.',
   'reset_password' => 'U kunt het wachtwoord van uw account resetten door op de volgende link te klikken:',
-  'reset_password_footer' => 'Neem a.u.b. contact op met onze helpdesk indien u deze wachtwoordreset niet heeft aangevraagd. Het e-mailadres van de helpdesk is ' . CONTACT_EMAIL,
+  'reset_password_footer' => 'Neem a.u.b. contact op met onze helpdesk indien u deze wachtwoordreset niet heeft aangevraagd. Het e-mailadres van de helpdesk is '.CONTACT_EMAIL,
 
   // Payment page
   'secure_payment' => 'Veilige betaling',
   'card_number' => 'Kaartnummer',
-  'expiration_month' => 'Verval maand',  
+  'expiration_month' => 'Verval maand',
   'expiration_year' => 'Verval jaar',
   'cvv' => 'CVV',
-  
+
   // Security alerts
   'security' => [
     'too_many_attempts' => 'Te veel pogingen. Probeer opnieuw binnen enkele minuten.',
@@ -289,16 +289,16 @@ return array(
     'password_reset' => 'Uw wachtwoord is succesvol aangepast.',
     'wrong_password_reset' => 'Ongeldig wachtwoord. Probeer opnieuw',
   ],
-  
+
   // Pro Plan
   'pro_plan' => [
     'remove_logo' => ':link om het InvoiceNinja logo te verwijderen door het pro plan te nemen',
     'remove_logo_link' => 'Klik hier',
   ],
 
-  'logout' => 'Afmelden',    
+  'logout' => 'Afmelden',
   'sign_up_to_save' => 'Registreer u om uw werk op te slaan',
-  'agree_to_terms' =>'Ik accepteer de InvoiceNinja :terms',
+  'agree_to_terms' => 'Ik accepteer de InvoiceNinja :terms',
   'terms_of_service' => 'Gebruiksvoorwaarden',
   'email_taken' => 'Het e-mailadres is al geregistreerd',
   'working' => 'Actief',
@@ -307,7 +307,7 @@ return array(
   'erase_data' => 'Dit zal uw data permanent verwijderen.',
   'password' => 'Wachtwoord',
   'invoice_subject' => 'Nieuwe factuur :invoice van :account',
-  'close' => 'Sluiten',  
+  'close' => 'Sluiten',
 
   'pro_plan_product' => 'Pro Plan',
   'pro_plan_description' => 'Één jaar abbonnement op het InvoiceNinja Pro Plan.',
@@ -389,10 +389,10 @@ return array(
   'notification_quote_sent_subject' => 'Offerte :invoice is verstuurd naar :client',
   'notification_quote_viewed_subject' => 'Offerte :invoice is bekeken door :client',
   'notification_quote_sent' => 'Klant :client heeft offerte :invoice voor :amount per email ontvangen.',
-  'notification_quote_viewed' => 'Klant :client heeft offerte :invoice voor :amount bekeken.',  
+  'notification_quote_viewed' => 'Klant :client heeft offerte :invoice voor :amount bekeken.',
   'auto_convert_quote' => 'Offerte automatisch omzetten in factuur als deze goed gekeurd wordt',
 
-  'session_expired' => 'Uw sessie is verlopen.',  
+  'session_expired' => 'Uw sessie is verlopen.',
 
   'invoice_fields' => 'Factuurvelden',
   'invoice_options' => 'Factuuropties',
@@ -415,11 +415,11 @@ return array(
   'active' => 'Actief',
   'pending' => 'In afwachting',
   'deleted_user' => 'Gebruiker succesvol verwijderd',
-  'limit_users' => 'Sorry, dit zou de limiet van ' . MAX_NUM_USERS . ' gebruikers overschrijden',
+  'limit_users' => 'Sorry, dit zou de limiet van '.MAX_NUM_USERS.' gebruikers overschrijden',
 
   'confirm_email_invoice' => 'Weet u zeker dat u deze factuur wilt mailen?',
   'confirm_email_quote' => 'Weet u zeker dat u deze offerte wilt mailen?',
-  'confirm_recurring_email_invoice' => 'Terugkeren (herhalen) staat aan, weet u zeker dat u deze factuur wilt mailen?',  
+  'confirm_recurring_email_invoice' => 'Terugkeren (herhalen) staat aan, weet u zeker dat u deze factuur wilt mailen?',
 
   'cancel_account' => 'Zeg Account Op',
   'cancel_account_message' => 'Waarschuwing: Dit zal al uw data verwijderen. Er is geen manier om dit ongedaan te maken',
@@ -438,8 +438,7 @@ return array(
   'share_invoice_counter' => 'Deel factuur teller',
   'invoice_issued_to' => 'Factuur uitgegeven aan',
   'invalid_counter' => 'Stel een factuurnummervoorvoegsel of offertenummervoorvoegsel in om een mogelijk conflict te voorkomen.',
-  'mark_sent' => 'Markeer als verzonden',    
-  
+  'mark_sent' => 'Markeer als verzonden',
 
   'gateway_help_1' => ':link om in te schrijven voor Authorize.net.',
   'gateway_help_2' => ':link om in te schrijven voor Authorize.net.',
@@ -455,7 +454,6 @@ return array(
   'buy' => 'Koop',
   'bought_designs' => 'Aanvullende factuurontwerpen succesvol toegevoegd',
 
-  
   'sent' => 'verzonden',
   'timesheets' => 'Timesheets',
 
@@ -472,7 +470,6 @@ return array(
   'bought_white_label' => 'White label licentie succesvol geactiveerd',
   'white_labeled' => 'White labeled',
 
-
   'restore' => 'Herstel',
   'restore_invoice' => 'Herstel factuur',
   'restore_quote' => 'Herstel offerte',
@@ -485,7 +482,7 @@ return array(
   'restored_client' => 'Klant succesvol hersteld',
   'restored_payment' => 'Betaling succesvol hersteld',
   'restored_credit' => 'Kredietnota succesvol hersteld',
-  
+
   'reason_for_canceling' => 'Help ons om onze site te verbeteren door ons te vertellen waarom u weggaat.',
   'discount_percent' => 'Percentage',
   'discount_amount' => 'Bedrag',
@@ -589,7 +586,7 @@ return array(
   'knowledge_base' => 'Kennis databank',
   'partial' => 'Gedeeld',
   'partial_remaining' => ':partial / :balance',
-    
+
   'more_fields' => 'Meer velden',
   'less_fields' => 'Minder velden',
   'client_name' => 'Klantnaam',
@@ -600,7 +597,7 @@ return array(
   'view_documentation' => 'Bekijk documentatie',
   'app_title' => 'Gratis Open-Source Online Facturatie',
   'app_description' => 'Invoice Ninja is een gratis, open-source oplossing voor het aanmkaen en versturen van facturen aan klanten. Met Invoice Ninja, kun je gemakkelijk mooie facturen aanmaken en verzenden van om het even welk toestel met internettoegang. Je klanten kunnen je facturen afdrukken, downloaden als pdf bestanden en je zelfs online betalen vanuit het systeem.',
-  
+
   'rows' => 'rijen',
   'www' => 'www',
   'logo' => 'Logo',
@@ -736,7 +733,7 @@ return array(
   'recent_payments' => 'Recente betalingen',
   'outstanding' => 'Uitstaand',
   'manage_companies' => 'Beheer bedrijven',
-  'total_revenue' => 'Totale opbrengst',  
+  'total_revenue' => 'Totale opbrengst',
 
   'current_user' => 'Huidige gebruiker',
   'new_recurring_invoice' => 'Nieuwe terugkerende factuur',
@@ -762,7 +759,7 @@ return array(
   'status_partial' => 'Gedeeltelijk',
   'status_paid' => 'Betaald',
   'show_line_item_tax' => '<b>BTW-tarieven per regel</b> tonen',
-  
+
   'iframe_url' => 'Website',
   'iframe_url_help1' => 'Kopieer de volgende code naar een pagina op uw site.',
   'iframe_url_help2' => 'U kunt de functionaliteit testen door te klikken op \'Bekijk als ontvanger\' bij een factuur.',
@@ -887,7 +884,7 @@ return array(
   'default_invoice_footer' => 'Standaard factuurfooter',
   'quote_footer' => 'Offertefooter',
   'free' => 'Gratis',
-  
+
   'quote_is_approved' => 'Deze offerte is geaccordeerd',
   'apply_credit' => 'Apply Credit',
   'system_settings' => 'Systeeminstellingen',
@@ -975,7 +972,7 @@ return array(
   'button_confirmation_message' => 'Click to confirm your email address.',
   'confirm' => 'Confirm',
   'email_preferences' => 'Email Preferences',
-  'created_invoices' => 'Successfully created :count invoice(s)',  
+  'created_invoices' => 'Successfully created :count invoice(s)',
   'next_invoice_number' => 'The next invoice number is :number.',
   'next_quote_number' => 'The next quote number is :number.',
 
@@ -986,5 +983,127 @@ return array(
   'schedule' => 'Schedule',
   'email_designs' => 'Email Designs',
   'assigned_when_sent' => 'Assigned when sent',
-  
+
+    'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
+    'white_label_purchase_link' => 'Purchase a white label license',
+
+    // Expense / vendor
+    'expense' => 'Expense',
+    'expenses' => 'Expenses',
+    'new_expense' => 'Enter Expense',
+    'enter_expense' => 'Enter Expense',
+    'vendors' => 'Vendors',
+    'new_vendor' => 'Create Vendor',
+    'payment_terms_net' => 'Net',
+    'vendor' => 'Vendor',
+    'edit_vendor' => 'Edit Vendor',
+    'archive_vendor' => 'Archive Vendor',
+    'delete_vendor' => 'Delete Vendor',
+    'view_vendor' => 'View Vendor',
+    'deleted_expense' => 'Successfully deleted expense',
+    'archived_expense' => 'Successfully archived expense',
+    'deleted_expenses' => 'Successfully deleted expenses',
+    'archived_expenses' => 'Successfully archived expenses',
+
+    // Expenses
+    'expense_amount' => 'Expense Amount',
+    'expense_balance' => 'Expense Balance',
+    'expense_date' => 'Expense Date',
+    'expense_should_be_invoiced' => 'Should this expense be invoiced?',
+    'public_notes' => 'Public Notes',
+    'invoice_amount' => 'Invoice Amount',
+    'exchange_rate' => 'Exchange Rate',
+    'yes' => 'Yes',
+    'no' => 'No',
+    'should_be_invoiced' => 'Should be invoiced',
+    'view_expense' => 'View expense # :expense',
+    'edit_expense' => 'Edit Expense',
+    'archive_expense' => 'Archive Expense',
+    'delete_expense' => 'Delete Expense',
+    'view_expense_num' => 'Expense # :expense',
+    'updated_expense' => 'Successfully updated expense',
+    'created_expense' => 'Successfully created expense',
+    'enter_expense' => 'Enter Expense',
+    'view' => 'View',
+    'restore_expense' => 'Restore Expense',
+    'invoice_expense' => 'Invoice Expense',
+    'expense_error_multiple_clients' => 'The expenses can\'t belong to different clients',
+    'expense_error_invoiced' => 'Expense has already been invoiced',
+    'convert_currency' => 'Convert currency',
+
+    // Payment terms
+    'num_days' => 'Number of days',
+    'create_payment_term' => 'Create Payment Term',
+    'edit_payment_terms' => 'Edit Payment Term',
+    'edit_payment_term' => 'Edit Payment Term',
+    'archive_payment_term' => 'Archive Payment Term',
+
+    // recurring due dates
+    'recurring_due_dates' => 'Recurring Invoice Due Dates',
+    'recurring_due_date_help' => '<p>Automatically sets a due date for the invoice.</p>
+        <p>Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.</p>
+        <p>Invoices on a weekly cycle set to be due on the day of the week they are created will be due the next week.</p>
+        <p>For example:</p>
+        <ul>
+          <li>Today is the 15th, due date is 1st of the month. The due date should likely be the 1st of the next month.</li>
+          <li>Today is the 15th, due date is the last day of the month. The due date will be the last day of the this month.
+</li>
+          <li>Today is the 15th, due date is the 15th day of the month. The due date will be the 15th day of <strong>next</strong> month.
+</li>
+          <li>Today is the Friday, due date is the 1st Friday after. The due date will be next Friday, not today.
+</li>
+        </ul>',
+    'due' => 'Due',
+    'next_due_on' => 'Due Next: :date',
+    'use_client_terms' => 'Use client terms',
+    'day_of_month' => ':ordinal day of month',
+    'last_day_of_month' => 'Last day of month',
+    'day_of_week_after' => ':ordinal :day after',
+    'sunday' => 'Sunday',
+    'monday' => 'Monday',
+    'tuesday' => 'Tuesday',
+    'wednesday' => 'Wednesday',
+    'thursday' => 'Thursday',
+    'friday' => 'Friday',
+    'saturday' => 'Saturday',
+
+    // Fonts
+    'header_font_id' => 'Header Font',
+    'body_font_id' => 'Body Font',
+    'color_font_help' => 'Note: the primary color and fonts are also used in the client portal and custom email designs.',
+
+    'live_preview' => 'Live Preview',
+    'invalid_mail_config' => 'Unable to send email, please check that the mail settings are correct.',
+
+    'invoice_message_button' => 'To view your invoice for :amount, click the button below.',
+    'quote_message_button' => 'To view your quote for :amount, click the button below.',
+    'payment_message_button' => 'Thank you for your payment of :amount.',
+    'payment_type_direct_debit' => 'Direct Debit',
+    'bank_accounts' => 'Bank Accounts',
+    'add_bank_account' => 'Add Bank Account',
+    'setup_account' => 'Setup Account',
+    'import_expenses' => 'Import Expenses',
+    'bank_id' => 'bank',
+    'integration_type' => 'Integration Type',
+    'updated_bank_account' => 'Successfully updated bank account',
+    'edit_bank_account' => 'Edit Bank Account',
+    'archive_bank_account' => 'Archive Bank Account',
+    'archived_bank_account' => 'Successfully archived bank account',
+    'created_bank_account' => 'Successfully created bank account',
+    'validate_bank_account' => 'Validate Bank Account',
+    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href="'.OFX_HOME_URL.'" target="_blank">400+ US banks.</a>',
+    'bank_password_help' => 'Note: your password is transmitted securely and never stored on our servers.',
+    'bank_password_warning' => 'Warning: your password may be transmitted in plain text, consider enabling HTTPS.',
+    'username' => 'Username',
+    'account_number' => 'Account Number',
+    'account_name' => 'Account Name',
+    'bank_account_error' => 'Failed to retreive account details, please check your credentials.',
+    'status_approved' => 'Approved',
+    'quote_settings' => 'Quote Settings',
+    'auto_convert_quote' => 'Auto convert quote',
+    'auto_convert_quote_help' => 'Automatically convert a quote to an invoice when approved by a client.',
+    'validate' => 'Validate',
+    'info' => 'Info',
+    'imported_expenses' => 'Successfully created :count_vendors vendor(s) and :count_expenses expense(s)',
+
 );

@@ -247,6 +247,7 @@ class AppController extends BaseController
                 Artisan::call('migrate', array('--force' => true));
                 Artisan::call('db:seed', array('--force' => true, '--class' => 'PaymentLibrariesSeeder'));
                 Artisan::call('db:seed', array('--force' => true, '--class' => 'FontsSeeder'));
+                Artisan::call('db:seed', array('--force' => true, '--class' => 'BanksSeeder'));
                 Event::fire(new UserSettingsChanged());
                 Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {

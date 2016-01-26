@@ -26,11 +26,12 @@ class ExpenseRepository extends BaseRepository
 
     public function findVendor($vendorPublicId)
     {
+        $vendorId = Vendor::getPrivateId($vendorPublicId);
         $accountid = \Auth::user()->account_id;
         $query = DB::table('expenses')
                     ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
                     ->where('expenses.account_id', '=', $accountid)
-                    ->where('expenses.vendor_id', '=', $vendorPublicId)
+                    ->where('expenses.vendor_id', '=', $vendorId)
                     ->select(
                         'expenses.id',
                         'expenses.expense_date',
@@ -119,7 +120,10 @@ class ExpenseRepository extends BaseRepository
         $expense->fill($input);
 
         $expense->expense_date = Utils::toSqlDate($input['expense_date']);
-        $expense->private_notes = trim($input['private_notes']);
+
+        if (isset($input['private_notes'])) {
+            $expense->private_notes = trim($input['private_notes']);
+        }
         $expense->public_notes = trim($input['public_notes']);
         $expense->should_be_invoiced = isset($input['should_be_invoiced']) || $expense->client_id ? true : false;
 

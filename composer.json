@@ -7,16 +7,13 @@
 		{
 			"name": "Hillel Coren",
 			"email": "hillelcoren@gmail.com"
-		},
-		{
-			"name": "Jeramy Simpson",
-			"email": "jeramy.n.simpson@gmail.com"
 		}
 	],
 	"require": {
         "omnipay/mollie": "dev-master#22956c1a62a9662afa5f5d119723b413770ac525",
         "omnipay/2checkout": "dev-master#e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
         "omnipay/gocardless": "dev-master",
+        "omnipay/stripe": "2.3.0",
 		"laravel/framework": "5.0.*",
 		"patricktalmadge/bootstrapper": "5.5.x",
 		"anahkiasen/former": "4.0.*@dev",
@@ -25,7 +22,7 @@
 		"omnipay/omnipay": "~2.3.0",
 		"intervention/image": "dev-master",
 		"webpatser/laravel-countries": "dev-master",
-		"barryvdh/laravel-ide-helper": "^2.1",
+		"barryvdh/laravel-ide-helper": "dev-master",
 		"doctrine/dbal": "2.5.x",
 		"jsanc623/phpbenchtime": "2.x",
 		"lokielse/omnipay-alipay": "dev-master",
@@ -66,7 +63,8 @@
 		"jlapp/swaggervel": "master-dev",
 		"maatwebsite/excel": "~2.0",
 		"ezyang/htmlpurifier": "~v4.7",
-		"cerdic/css-tidy": "~v1.5"
+		"cerdic/css-tidy": "~v1.5",
+		"asgrim/ofxparser": "^1.1"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

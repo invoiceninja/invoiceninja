@@ -26,7 +26,7 @@ class Account extends Eloquent
         ACCOUNT_USER_DETAILS,
         ACCOUNT_LOCALIZATION,
         ACCOUNT_PAYMENTS,
-        //ACCOUNT_BANKS,
+        ACCOUNT_BANKS,
         ACCOUNT_TAX_RATES,
         ACCOUNT_PRODUCTS,
         ACCOUNT_NOTIFICATIONS,

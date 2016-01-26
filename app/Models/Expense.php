@@ -24,6 +24,8 @@ class Expense extends EntityModel
         'exchange_rate',
         'private_notes',
         'public_notes',
+        'bank_id',
+        'transaction_id',
     ];
     public function account()
     {

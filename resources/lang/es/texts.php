@@ -3,7 +3,7 @@
 return array(
 
    // client
-      'organization' => 'Empresa',
+   'organization' => 'Empresa',
    'name' => 'Nombre', //Razon social-Colombia,
    'website' => 'Sitio Web',
    'work_phone' => 'Teléfono',
@@ -116,7 +116,7 @@ return array(
    'billed_client' => 'cliente facturado',
    'billed_clients' => 'clientes facturados',
    'active_client' => 'cliente activo',
-   'active_clients' => 'clientes activos', 
+   'active_clients' => 'clientes activos',
    'invoices_past_due' => 'Facturas vencidas',
    'upcoming_invoices' => 'Próximas facturas',
    'average_invoice' => 'Promedio de facturación',
@@ -265,12 +265,12 @@ return array(
    'notification_invoice_sent' => 'La factura :invoice por valor de :amount fue enviada al cliente :cliente.',
    'notification_invoice_viewed' => 'La factura :invoice por valor de :amount fue visualizada por el cliente :client.',
    'reset_password' => 'Puedes reconfigurar la contraseña de tu cuenta haciendo clic en el siguiente enlace:',
-   'reset_password_footer' => 'Si no has solicitado un cambio de contraseña, por favor contactate con nosostros: ' . CONTACT_EMAIL,
+   'reset_password_footer' => 'Si no has solicitado un cambio de contraseña, por favor contactate con nosostros: '.CONTACT_EMAIL,
 
    // Payment page
    'secure_payment' => 'Pago seguro',
    'card_number' => 'Número de tarjeta',
-   'expiration_month' => 'Mes de caducidad', 
+   'expiration_month' => 'Mes de caducidad',
    'expiration_year' => 'Año de caducidad',
    'cvv' => 'CVV',
 
@@ -290,9 +290,9 @@ return array(
    'remove_logo' => ':link haz click para eliminar el logo de Invoice Ninja', //Maybe incorrect for the context
    'remove_logo_link' => 'Haz clic aquí',
    ],
-   'logout' => 'Cerrar sesión',   
-   'sign_up_to_save' => 'Registrate para guardar tu trabajo', 
-   'agree_to_terms' =>'Estoy de acuerdo con los términos de Invoice Ninja :terms',
+   'logout' => 'Cerrar sesión',
+   'sign_up_to_save' => 'Registrate para guardar tu trabajo',
+   'agree_to_terms' => 'Estoy de acuerdo con los términos de Invoice Ninja :terms',
    'terms_of_service' => 'Términos de servicio',
    'email_taken' => 'Esta dirección de correo electrónico ya se ha registrado',
    'working' => 'Procesando',
@@ -311,7 +311,7 @@ return array(
    'field_label' => 'Etiqueta del campo',
    'field_value' => 'Valor del campo',
    'edit' => 'Editar',
-   'view_as_recipient' => 'Ver como destinitario',   
+   'view_as_recipient' => 'Ver como destinitario',
 
    // product management
    'product_library' => 'Inventario de productos',
@@ -374,7 +374,7 @@ return array(
    'notification_quote_sent_subject' => 'Cotización :invoice enviada a el cliente :client',
    'notification_quote_viewed_subject' => 'Cotización :invoice visualizada por el cliente :client',
    'notification_quote_sent' => 'La cotización :invoice por un valor de :amount, ha sido enviada al cliente :client.',
-   'notification_quote_viewed' => 'La cotizacion :invoice por un valor de :amount ha sido visualizada por el cliente :client.', 
+   'notification_quote_viewed' => 'La cotizacion :invoice por un valor de :amount ha sido visualizada por el cliente :client.',
    'session_expired' => 'Tu sesión ha caducado.',
    'invoice_fields' => 'Campos de factura',
    'invoice_options' => 'Opciones de factura',
@@ -396,7 +396,7 @@ return array(
    'active' => 'Activar',
    'pending' => 'Pendiente',
    'deleted_user' => 'Usario eliminado con éxito',
-   'limit_users' => 'Lo sentimos, esta acción excederá el límite de ' . MAX_NUM_USERS . ' usarios',
+   'limit_users' => 'Lo sentimos, esta acción excederá el límite de '.MAX_NUM_USERS.' usarios',
    'confirm_email_invoice' => '¿Estás seguro que quieres enviar esta factura?',
    'confirm_email_quote' => '¿Estás seguro que quieres enviar esta cotización?',
    'confirm_recurring_email_invoice' => 'Se ha marcado esta factura como recurrente, estás seguro que quieres enviar esta factura?',
@@ -459,7 +459,7 @@ return array(
   'restored_client' => 'Cliente restaurado con éxito',
   'restored_payment' => 'Pago restaurado con éxito',
   'restored_credit' => 'Crédito restaurado con éxito',
-  
+
   'reason_for_canceling' => 'Ayúdenos a mejorar contándonos porqué se va.',
   'discount_percent' => 'Porcentaje',
   'discount_amount' => 'Cantidad',
@@ -481,7 +481,7 @@ return array(
   'payment_email' => 'Correo de Pago',
   'quote_email' => 'Correo de Cotizacion',
   'reset_all' => 'Reiniciar Todos',
-  'approve' => 'Aprobar',  
+  'approve' => 'Aprobar',
 
   'token_billing_type_id' => 'Token de Facturación',
   'token_billing_help' => 'Permite almacenar tarjetas de crédito con su gateway de pagos, y facturar en una fecha posterior.',
@@ -549,7 +549,7 @@ return array(
   'send_email' => 'Enviar Correo',
   'set_password' => 'Asignar Contraseña',
   'converted' => 'Convertido',
-  
+
   'email_approved' => 'Enviarme un correo cuando una cotización sea <b>aprobada</b>',
   'notification_quote_approved_subject' => 'Cotización :invoice fue aprobada por :client',
   'notification_quote_approved' => 'El cliente :client ha aprobado la cotización :invoice por el valor :amount.',
@@ -574,7 +574,7 @@ return array(
   'view_documentation' => 'Ver Documentación',
   'app_title' => 'Facturación Open-Source Gratuita',
   'app_description' => 'Invoice Ninja es una solución open-source gratuita para manejar la facturación de tus clientes. Con Invoice Ninja, se pueden crear y enviar hermosas facturas desde cualquier dispositivo que tenga acceso a Internet. Tus clientes pueden imprimir tus facturas, descargarlas en formato PDF o inclusive pagarlas en linea desde esta misma plataforma',
-  
+
   'rows' => 'filas',
   'www' => 'www',
   'logo' => 'Logo',
@@ -717,7 +717,7 @@ return array(
   'recent_payments' => 'Pagos Recientes',
   'outstanding' => 'Sobresaliente',
   'manage_companies' => 'Administrar Compañías',
-  'total_revenue' => 'Ingresos Totales',  
+  'total_revenue' => 'Ingresos Totales',
 
   'current_user' => 'Usuario Actual',
   'new_recurring_invoice' => 'Nueva Factura Recurrente',
@@ -867,7 +867,7 @@ return array(
   'default_invoice_footer' => 'Default Invoice Footer',
   'quote_footer' => 'Quote Footer',
   'free' => 'Free',
-  
+
   'quote_is_approved' => 'This quote is approved',
   'apply_credit' => 'Apply Credit',
   'system_settings' => 'System Settings',
@@ -966,5 +966,126 @@ return array(
   'schedule' => 'Schedule',
   'email_designs' => 'Email Designs',
   'assigned_when_sent' => 'Assigned when sent',
-  
+    'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
+    'white_label_purchase_link' => 'Purchase a white label license',
+
+    // Expense / vendor
+    'expense' => 'Expense',
+    'expenses' => 'Expenses',
+    'new_expense' => 'Enter Expense',
+    'enter_expense' => 'Enter Expense',
+    'vendors' => 'Vendors',
+    'new_vendor' => 'Create Vendor',
+    'payment_terms_net' => 'Net',
+    'vendor' => 'Vendor',
+    'edit_vendor' => 'Edit Vendor',
+    'archive_vendor' => 'Archive Vendor',
+    'delete_vendor' => 'Delete Vendor',
+    'view_vendor' => 'View Vendor',
+    'deleted_expense' => 'Successfully deleted expense',
+    'archived_expense' => 'Successfully archived expense',
+    'deleted_expenses' => 'Successfully deleted expenses',
+    'archived_expenses' => 'Successfully archived expenses',
+
+    // Expenses
+    'expense_amount' => 'Expense Amount',
+    'expense_balance' => 'Expense Balance',
+    'expense_date' => 'Expense Date',
+    'expense_should_be_invoiced' => 'Should this expense be invoiced?',
+    'public_notes' => 'Public Notes',
+    'invoice_amount' => 'Invoice Amount',
+    'exchange_rate' => 'Exchange Rate',
+    'yes' => 'Yes',
+    'no' => 'No',
+    'should_be_invoiced' => 'Should be invoiced',
+    'view_expense' => 'View expense # :expense',
+    'edit_expense' => 'Edit Expense',
+    'archive_expense' => 'Archive Expense',
+    'delete_expense' => 'Delete Expense',
+    'view_expense_num' => 'Expense # :expense',
+    'updated_expense' => 'Successfully updated expense',
+    'created_expense' => 'Successfully created expense',
+    'enter_expense' => 'Enter Expense',
+    'view' => 'View',
+    'restore_expense' => 'Restore Expense',
+    'invoice_expense' => 'Invoice Expense',
+    'expense_error_multiple_clients' => 'The expenses can\'t belong to different clients',
+    'expense_error_invoiced' => 'Expense has already been invoiced',
+    'convert_currency' => 'Convert currency',
+
+    // Payment terms
+    'num_days' => 'Number of days',
+    'create_payment_term' => 'Create Payment Term',
+    'edit_payment_terms' => 'Edit Payment Term',
+    'edit_payment_term' => 'Edit Payment Term',
+    'archive_payment_term' => 'Archive Payment Term',
+
+    // recurring due dates
+    'recurring_due_dates' => 'Recurring Invoice Due Dates',
+    'recurring_due_date_help' => '<p>Automatically sets a due date for the invoice.</p>
+        <p>Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.</p>
+        <p>Invoices on a weekly cycle set to be due on the day of the week they are created will be due the next week.</p>
+        <p>For example:</p>
+        <ul>
+          <li>Today is the 15th, due date is 1st of the month. The due date should likely be the 1st of the next month.</li>
+          <li>Today is the 15th, due date is the last day of the month. The due date will be the last day of the this month.
+</li>
+          <li>Today is the 15th, due date is the 15th day of the month. The due date will be the 15th day of <strong>next</strong> month.
+</li>
+          <li>Today is the Friday, due date is the 1st Friday after. The due date will be next Friday, not today.
+</li>
+        </ul>',
+    'due' => 'Due',
+    'next_due_on' => 'Due Next: :date',
+    'use_client_terms' => 'Use client terms',
+    'day_of_month' => ':ordinal day of month',
+    'last_day_of_month' => 'Last day of month',
+    'day_of_week_after' => ':ordinal :day after',
+    'sunday' => 'Sunday',
+    'monday' => 'Monday',
+    'tuesday' => 'Tuesday',
+    'wednesday' => 'Wednesday',
+    'thursday' => 'Thursday',
+    'friday' => 'Friday',
+    'saturday' => 'Saturday',
+
+    // Fonts
+    'header_font_id' => 'Header Font',
+    'body_font_id' => 'Body Font',
+    'color_font_help' => 'Note: the primary color and fonts are also used in the client portal and custom email designs.',
+
+    'live_preview' => 'Live Preview',
+    'invalid_mail_config' => 'Unable to send email, please check that the mail settings are correct.',
+
+    'invoice_message_button' => 'To view your invoice for :amount, click the button below.',
+    'quote_message_button' => 'To view your quote for :amount, click the button below.',
+    'payment_message_button' => 'Thank you for your payment of :amount.',
+    'payment_type_direct_debit' => 'Direct Debit',
+    'bank_accounts' => 'Bank Accounts',
+    'add_bank_account' => 'Add Bank Account',
+    'setup_account' => 'Setup Account',
+    'import_expenses' => 'Import Expenses',
+    'bank_id' => 'bank',
+    'integration_type' => 'Integration Type',
+    'updated_bank_account' => 'Successfully updated bank account',
+    'edit_bank_account' => 'Edit Bank Account',
+    'archive_bank_account' => 'Archive Bank Account',
+    'archived_bank_account' => 'Successfully archived bank account',
+    'created_bank_account' => 'Successfully created bank account',
+    'validate_bank_account' => 'Validate Bank Account',
+    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href="'.OFX_HOME_URL.'" target="_blank">400+ US banks.</a>',
+    'bank_password_help' => 'Note: your password is transmitted securely and never stored on our servers.',
+    'bank_password_warning' => 'Warning: your password may be transmitted in plain text, consider enabling HTTPS.',
+    'username' => 'Username',
+    'account_number' => 'Account Number',
+    'account_name' => 'Account Name',
+    'bank_account_error' => 'Failed to retreive account details, please check your credentials.',
+    'status_approved' => 'Approved',
+    'quote_settings' => 'Quote Settings',
+    'auto_convert_quote' => 'Auto convert quote',
+    'auto_convert_quote_help' => 'Automatically convert a quote to an invoice when approved by a client.',
+    'validate' => 'Validate',
+    'info' => 'Info',
+    'imported_expenses' => 'Successfully created :count_vendors vendor(s) and :count_expenses expense(s)',
+
 );

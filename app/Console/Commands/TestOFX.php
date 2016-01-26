@@ -18,13 +18,15 @@ class TestOFX extends Command
     public function fire()
     {
         $this->info(date('Y-m-d').' Running TestOFX...');
-
+        
+        /*
         $bankId = env('TEST_BANK_ID');
         $username = env('TEST_BANK_USERNAME');
         $password = env('TEST_BANK_PASSWORD');
 
         $data = $this->bankAccountService->loadBankAccounts($bankId, $username, $password, false);
 
-        print "<pre>".print_r($data, 1)."</pre>";
+        echo json_encode($data);
+        */
     }
 }

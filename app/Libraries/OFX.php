@@ -24,8 +24,9 @@ class OFX
         curl_setopt($c, CURLOPT_HTTPHEADER, array('Content-Type: application/x-ofx'));
         curl_setopt($c, CURLOPT_POSTFIELDS, $this->request);
         curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
-        //curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
         $this->response = curl_exec($c);
+        //print_r($this->response);
+        //\Log::info(print_r($this->response, true));
         curl_close($c);
         $tmp = explode('<OFX>', $this->response);
         $this->responseHeader = $tmp[0];

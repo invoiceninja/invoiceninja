@@ -19,5 +19,9 @@ class BankAccount extends EntityModel
         return $this->belongsTo('App\Models\Bank');
     }
 
+    public function bank_subaccounts()
+    {
+        return $this->hasMany('App\Models\BankSubaccount');
+    }
 }
 
