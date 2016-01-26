@@ -9,16 +9,20 @@ use App\Ninja\Repositories\ClientRepository;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Transformers\ClientTransformer;
+use App\Services\ClientService;
+use App\Http\Requests\UpdateClientRequest;
 
 class ClientApiController extends BaseAPIController
 {
     protected $clientRepo;
+    protected $clientService;
 
-    public function __construct(ClientRepository $clientRepo)
+    public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
         parent::__construct();
 
         $this->clientRepo = $clientRepo;
+        $this->clientService = $clientService;
     }
 
     public function ping()
@@ -98,6 +102,42 @@ class ClientApiController extends BaseAPIController
         $client = Client::scope($client->public_id)
                     ->with('country', 'contacts', 'industry', 'size', 'currency')
                     ->first();
+
+        $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
+        $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
+
+        return $this->response($data);
+    }
+
+    /**
+     * @SWG\Putt(
+     *   path="/clients/{client_id}",
+     *   tags={"client"},
+     *   summary="Update a client",
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Client")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Update client",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+
+    public function update(UpdateClientRequest $request)
+    {
+        $client = $this->clientService->save($request->input());
+
+        $client = Client::scope($client->public_id)
+            ->with('country', 'contacts', 'industry', 'size', 'currency')
+            ->first();
 
         $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
