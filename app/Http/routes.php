@@ -211,7 +211,7 @@ Route::group(['middleware' => 'auth'], function() {
 // Route groups for API
 Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
-    Route::resource('ping', 'ClientApiController@ping');
+    Route::get('ping', 'ClientApiController@ping');
     Route::post('login', 'AccountApiController@login');
     Route::get('static', 'AccountApiController@getStaticData');
     Route::get('accounts', 'AccountApiController@show');

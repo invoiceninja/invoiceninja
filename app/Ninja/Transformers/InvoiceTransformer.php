@@ -25,10 +25,20 @@ class InvoiceTransformer extends EntityTransformer
         'payments'
     ];
 
+    protected $availableIncludes = [
+        'invitations',
+    ];
+
     public function includeInvoiceItems(Invoice $invoice)
     {
         $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
         return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEMS);
+    }
+
+    public function includeInvitations(Invoice $invoice)
+    {
+        $transformer = new InvitationTransformer($this->account, $this->serializer);
+        return $this->includeCollection($invoice->invitations, $transformer, ENTITY_INVITATION);
     }
 
     public function includePayments(Invoice $invoice)
