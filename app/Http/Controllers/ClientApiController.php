@@ -110,7 +110,7 @@ class ClientApiController extends BaseAPIController
     }
 
     /**
-     * @SWG\Putt(
+     * @SWG\Put(
      *   path="/clients/{client_id}",
      *   tags={"client"},
      *   summary="Update a client",
