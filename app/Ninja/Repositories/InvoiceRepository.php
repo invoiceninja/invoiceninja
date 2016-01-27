@@ -244,6 +244,13 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
         }
 
+        if(isset($data['invoice_status_id'])) {
+            if($data['invoice_status_id'] == 0) {
+                $data['invoice_status_id'] = INVOICE_STATUS_DRAFT;
+            }
+            $invoice->invoice_status_id = $data['invoice_status_id'];
+        }
+
         if ($invoice->is_recurring) {
             if ($invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
                 $invoice->last_sent_date = null;
