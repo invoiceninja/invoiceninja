@@ -133,9 +133,19 @@ class ClientApiController extends BaseAPIController
 
     public function update(UpdateClientRequest $request, $publicId)
     {
+        if ($request->action == ACTION_ARCHIVE) {
+            $client = Client::scope($publicId)->firstOrFail();
+            $this->clientRepo->archive($client);
+
+            $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
+
+            return $this->response($data);
+        }
+
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $this->clientService->save($data);
+        $this->clientRepo->save($data);
 
         $client = Client::scope($publicId)
             ->with('country', 'contacts', 'industry', 'size', 'currency')
