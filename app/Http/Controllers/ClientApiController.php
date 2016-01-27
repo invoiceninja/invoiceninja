@@ -52,7 +52,7 @@ class ClientApiController extends BaseAPIController
     {
         $clients = Client::scope()
                     ->with($this->getIncluded())
-                    ->orderBy('created_at', 'desc');
+                    ->orderBy('created_at', 'desc')->withTrashed();
 
         // Filter by email
         if (Input::has('email')) {
@@ -131,11 +131,23 @@ class ClientApiController extends BaseAPIController
      * )
      */
 
-    public function update(UpdateClientRequest $request)
+    public function update(UpdateClientRequest $request, $publicId)
     {
-        $client = $this->clientService->save($request->input());
+        if ($request->action == ACTION_ARCHIVE) {
+            $client = Client::scope($publicId)->firstOrFail();
+            $this->clientRepo->archive($client);
 
-        $client = Client::scope($client->public_id)
+            $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
+
+            return $this->response($data);
+        }
+
+        $data = $request->input();
+        $data['public_id'] = $publicId;
+        $this->clientRepo->save($data);
+
+        $client = Client::scope($publicId)
             ->with('country', 'contacts', 'industry', 'size', 'currency')
             ->first();
 
