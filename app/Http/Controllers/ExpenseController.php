@@ -153,7 +153,7 @@ class ExpenseController extends BaseController
      */
     public function update(UpdateExpenseRequest $request)
     {
-        $expense = $this->expenseRepo->save($request->input());
+        $expense = $this->expenseService->save($request->input());
 
         Session::flash('message', trans('texts.updated_expense'));
 
@@ -167,7 +167,7 @@ class ExpenseController extends BaseController
 
     public function store(CreateExpenseRequest $request)
     {
-        $expense = $this->expenseRepo->save($request->input());
+        $expense = $this->expenseService->save($request->input());
 
         Session::flash('message', trans('texts.created_expense'));
 

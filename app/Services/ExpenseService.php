@@ -5,7 +5,8 @@ use Utils;
 use URL;
 use App\Services\BaseService;
 use App\Ninja\Repositories\ExpenseRepository;
-
+use App\Models\Client;
+use App\Models\Vendor;
 
 class ExpenseService extends BaseService
 {
@@ -26,6 +27,14 @@ class ExpenseService extends BaseService
 
     public function save($data)
     {
+        if (isset($data['client_id']) && $data['client_id']) {
+            $data['client_id'] = Client::getPrivateId($data['client_id']);
+        }
+        
+        if (isset($data['vendor_id']) && $data['vendor_id']) {
+            $data['vendor_id'] = Vendor::getPrivateId($data['vendor_id']);
+        }
+        
         return $this->expenseRepo->save($data);
     }
 
