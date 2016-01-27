@@ -52,7 +52,7 @@ class ClientApiController extends BaseAPIController
     {
         $clients = Client::scope()
                     ->with($this->getIncluded())
-                    ->orderBy('created_at', 'desc');
+                    ->orderBy('created_at', 'desc')->withTrashed();
 
         // Filter by email
         if (Input::has('email')) {
