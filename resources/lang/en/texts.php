@@ -1130,4 +1130,5 @@ return array(
     'info' => 'Info',
     'imported_expenses' => 'Successfully created :count_vendors vendor(s) and :count_expenses expense(s)',
 
+    'iframe_url_help3' => 'Note: if you plan on accepting credit cards we strongly recommend having HTTPS enabled on your site.',
 );

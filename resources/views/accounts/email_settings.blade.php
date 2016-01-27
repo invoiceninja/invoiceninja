@@ -96,6 +96,7 @@
                  + window.location.search.substring(1);
 &lt;/script&gt;</pre>
                     <p>{{ trans('texts.iframe_url_help2') }}</p>
+                    <p><b>{{ trans('texts.iframe_url_help3') }}</b></p>
                     </div>
 
                 <div class="modal-footer" style="margin-top: 0px">

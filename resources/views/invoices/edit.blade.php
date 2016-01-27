@@ -937,10 +937,15 @@
 					var product = products[i];
 					if (product.product_key == key) {
 						var model = ko.dataFor(this);
+                        if (model.expense_public_id()) {
+                            return;
+                        }
                         if (product.notes) {
                             model.notes(product.notes);
                         }
-                        model.cost(accounting.toFixed(product.cost,2));
+                        if (product.cost) {
+                            model.cost(accounting.toFixed(product.cost, 2));
+                        }
                         if (!model.qty()) {
 						  model.qty(1);
                         }
