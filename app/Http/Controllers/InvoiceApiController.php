@@ -185,6 +185,10 @@ class InvoiceApiController extends BaseAPIController
             'partial' => 0
         ];
 
+        if (!isset($data['invoice_status_id']) || $data['invoice_status_id'] == 0) {
+            $data['invoice_status_id'] = INVOICE_STATUS_DRAFT;
+        }
+
         if (!isset($data['invoice_date'])) {
             $fields['invoice_date_sql'] = date_create()->format('Y-m-d');
         }
