@@ -297,11 +297,7 @@ class InvoiceApiController extends BaseAPIController
         if ($request->action == ACTION_ARCHIVE) {
             $invoice = Invoice::scope($publicId)->firstOrFail();
             $this->invoiceRepo->archive($invoice);
-            /*
-            $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
-            $headers = Utils::getApiHeaders();
-            return Response::make($response, 200, $headers);
-            */
+
             $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
             $data = $this->createItem($invoice, $transformer, 'invoice');
 
