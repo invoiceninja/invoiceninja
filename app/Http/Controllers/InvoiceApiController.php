@@ -316,6 +316,15 @@ class InvoiceApiController extends BaseAPIController
 
             return $this->response($data);
         }
+        else if ($request->action == ACTION_RESTORE) {
+            $invoice = Invoice::scope($publicId)->firstOrFail();
+            $invoice = $this->invoiceRepo->restore($invoice);
+
+            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($invoice, $transformer, 'invoice');
+
+            return $this->response($data);
+        }
 
         $data = $request->input();
         $data['public_id'] = $publicId;
