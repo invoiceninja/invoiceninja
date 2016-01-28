@@ -999,7 +999,7 @@ return array(
     'new_expense' => 'Enter Expense',
     'enter_expense' => 'Enter Expense',
     'vendors' => 'Vendors',
-    'new_vendor' => 'Create Vendor',
+    'new_vendor' => 'New Vendor',
     'payment_terms_net' => 'Net',
     'vendor' => 'Vendor',
     'edit_vendor' => 'Edit Vendor',

@@ -95,3 +95,4 @@ There are two options:
 * [thephpleague/fractal](https://github.com/thephpleague/fractal) - Output complex, flexible, AJAX/RESTful data structures
 * [ezyang/htmlpurifier](https://github.com/ezyang/htmlpurifier) - Standards compliant HTML filter written in PHP
 * [cerdic/css-tidy](https://github.com/Cerdic/CSSTidy) - CSSTidy is a CSS minifier
+* [asgrim/ofxparser](https://github.com/asgrim/ofxparser) - OFX File Parser
