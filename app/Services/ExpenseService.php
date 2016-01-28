@@ -118,7 +118,7 @@ class ExpenseService extends BaseService
             [
                 'expense_date',
                 function ($model) {
-                    return $model->expense_date;
+                    return Utils::dateToString($model->expense_date);
                 }
             ],
             [

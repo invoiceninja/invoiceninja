@@ -334,9 +334,6 @@ NINJA.invoiceLines = function(invoice) {
         }
 
         var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
-        if (showItemTaxes && tax) {
-            lineTotal += lineTotal * tax / 100;
-        }
         lineTotal = formatMoneyInvoice(lineTotal, invoice);
 
         rowStyle = (i % 2 == 0) ? 'odd' : 'even';

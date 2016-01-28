@@ -278,12 +278,11 @@
 
         <p>&nbsp;<br/>&nbsp;</p>
 
-        <div class="row">
-            <div class="col-md-4 col-md-offset-4">
-                {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))->submit()->block()->large() !!}
-            </div>
-        </div>
-
+        <center>
+            {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))
+                            ->submit()
+                            ->large() !!}
+        </center>
 
     </div>
 

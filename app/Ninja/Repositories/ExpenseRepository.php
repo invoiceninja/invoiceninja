@@ -61,7 +61,7 @@ class ExpenseRepository extends BaseRepository
                     ->where('clients.deleted_at', '=', null)
                     ->where(function ($query) {
                         $query->where('contacts.is_primary', '=', true)
-                                ->orWhere('contacts.is_primary', '=', null);
+                              ->orWhere('contacts.is_primary', '=', null);
                     })
                     ->select(
                         'expenses.account_id',
@@ -99,7 +99,9 @@ class ExpenseRepository extends BaseRepository
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {
-                $query->where('expenses.public_notes', 'like', '%'.$filter.'%');
+                $query->where('expenses.public_notes', 'like', '%'.$filter.'%')
+                      ->orWhere('clients.name', 'like', '%'.$filter.'%')
+                      ->orWhere('vendors.name', 'like', '%'.$filter.'%');
             });
         }
 
