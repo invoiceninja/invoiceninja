@@ -183,16 +183,16 @@ class ExpenseController extends BaseController
         {
             case 'invoice':
                 $expenses       = Expense::scope($ids)->get();
-                $clientPublicId = null;
+                $clientId = null;
                 $data           = [];
 
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
                 foreach ($expenses as $expense)
                 {
                     if ($expense->client_id) {
-                        if (!$clientPublicId) {
-                            $clientPublicId = $expense->client_id;
-                        } elseif ($clientPublicId != $expense->client_id) {
+                        if (!$clientId) {
+                            $clientId = $expense->client_id;
+                        } elseif ($clientId != $expense->client_id) {
                             Session::flash('error', trans('texts.expense_error_multiple_clients'));
                             return Redirect::to('expenses');
                         }
@@ -212,6 +212,7 @@ class ExpenseController extends BaseController
                     ];
                 }
 
+                $clientPublicId = $clientId ? Client::findOrFail($clientId)->public_id : '';
                 return Redirect::to("invoices/create/{$clientPublicId}")->with('expenses', $data);
                 break;
 
