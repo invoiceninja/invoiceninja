@@ -83,6 +83,10 @@ if (Utils::isNinja()) {
     Route::get('/demo', 'AccountController@demo');
 }
 
+if (Utils::isReseller()) {
+    Route::post('/reseller_stats', 'AppController@stats');
+}
+
 Route::group(['middleware' => 'auth'], function() {
     Route::get('dashboard', 'DashboardController@index');
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
@@ -582,6 +586,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('EMAIL_DESIGN_DARK', 3);
 
     define('BANK_LIBRARY_OFX', 1);
+
+    define('RESELLER_REVENUE_SHARE', 'A');
+    define('RESELLER_LIMITED_USERS', 'B');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],

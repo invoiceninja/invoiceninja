@@ -264,12 +264,12 @@
     }, 3000);
 
     $('#search').blur(function(){
-      $('#search').css('width', '{{ Utils::isEnglish() ? 150 : 110 }}px');
+      $('#search').css('width', '110px');
       $('ul.navbar-right').show();
     });
 
     $('#search').focus(function(){
-      $('#search').css('width', '{{ Utils::isEnglish() ? 264 : 216 }}px');
+      $('#search').css('width', '224px');
       $('ul.navbar-right').hide();
       if (!window.hasOwnProperty('searchData')) {
         trackEvent('/activity', '/search');
@@ -480,7 +480,7 @@
 
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="text" id="search" style="width: {{ Utils::isEnglish() ? 150 : 110 }}px;padding-top:0px;padding-bottom:0px" 
+          <input type="text" id="search" style="width: 110px;padding-top:0px;padding-bottom:0px" 
             class="form-control" placeholder="{{ trans('texts.search') }}">
         </div>
       </form>

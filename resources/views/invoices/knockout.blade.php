@@ -484,10 +484,8 @@ function InvoiceModel(data) {
         }
 
         var taxRate = parseFloat(self.tax_rate());
-        //if (taxRate > 0) {
-        //    total = NINJA.parseFloat(total) + roundToTwo((total * (taxRate/100)));
-        //}
-        total = NINJA.parseFloat(total) + roundToTwo((total * (taxRate/100)));
+        total = NINJA.parseFloat(total) + roundToTwo(total * (taxRate/100));
+        total = roundToTwo(total);
 
         var taxes = self.totals.itemTaxes();
         for (var key in taxes) {

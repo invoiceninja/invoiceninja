@@ -24,6 +24,10 @@ class AccountRepository
 {
     public function create($firstName = '', $lastName = '', $email = '', $password = '')
     {
+        if (Utils::getResllerType() == RESELLER_LIMITED_USERS && User::count() >= 1000) {
+            return false;
+        }
+
         $account = new Account();
         $account->ip = Request::getClientIp();
         $account->account_key = str_random(RANDOM_KEY_LENGTH);

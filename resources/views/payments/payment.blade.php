@@ -239,7 +239,6 @@
                         ->autocomplete('cc-exp-year')
                         ->data_stripe('exp-year')
                         ->placeholder(trans('texts.expiration_year'))
-                            ->addOption('2015', '2015')
                             ->addOption('2016', '2016')
                             ->addOption('2017', '2017')
                             ->addOption('2018', '2018')
@@ -249,7 +248,8 @@
                             ->addOption('2022', '2022')
                             ->addOption('2023', '2023')
                             ->addOption('2024', '2024')
-                            ->addOption('2025', '2025')->label('')
+                            ->addOption('2025', '2025')
+                            ->addOption('2026', '2026')->label('')
                           !!}
             </div>
         </div>

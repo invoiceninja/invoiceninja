@@ -272,4 +272,29 @@ class AppController extends BaseController
         
         return RESULT_SUCCESS;
     }
+
+    public function stats()
+    {
+        if (Input::get('password') != env('RESELLER_PASSWORD')) {
+            sleep(3);
+            return '';
+        }
+
+        if (Utils::getResllerType() == RESELLER_LIMITED_USERS) {
+            return User::count();
+        } else {
+            $payments = DB::table('accounts')
+                            ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
+                            ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
+                            ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
+                            ->where('payments.is_deleted', '=', false)
+                            ->get([
+                                'clients.public_id as client_id',
+                                'payments.public_id as payment_id',
+                                'payments.payment_date',
+                                'payments.amount'
+                            ]);
+            return json_encode($payments);
+        }
+    }
 }

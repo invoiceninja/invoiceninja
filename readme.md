@@ -13,7 +13,7 @@
 ### Reseller Program
 There are two options:
 * 10% of revenue
-* $1,000 for a site limited to 1,000 accounts
+* $1,000 for a site limited to 1,000 users
 
 ### Installation Options
 * [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
