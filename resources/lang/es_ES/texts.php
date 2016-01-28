@@ -401,7 +401,7 @@ return array(
     'hide_paid_to_date' => 'Ocultar valor pagado a la fecha',
     'hide_paid_to_date_help' => 'Solo mostrar la opción “Pagado a la fecha” en sus facturas cuando se ha recibido un pago.',
     'charge_taxes' => 'Cargar Impuestos',
-    'user_management' => 'Gestión de Usuario',
+    'user_management' => 'Gestión de Usuarios',
     'add_user' => 'Añadir Usuario',
     'send_invite' => 'Enviar Invitación', //Context for its use
     'sent_invite' => 'Invitación enviada con éxito',
@@ -735,7 +735,7 @@ return array(
     'invoice_to' => 'Factura para',
     'invoice_no' => 'N.º Factura',
     'recent_payments' => 'Pagos recientes',
-    'outstanding' => 'Destacado',
+    'outstanding' => 'Pendiente de Cobro',
     'manage_companies' => 'Gestionar compañías',
     'total_revenue' => 'Ingresos Totales',
 
@@ -890,7 +890,7 @@ return array(
 
     'quote_is_approved' => 'Este presupuesto esta aprovado',
     'apply_credit' => 'Aplicar Crédito',
-    'system_settings' => 'Configuraciones de Sistemas',
+    'system_settings' => 'Configuración del Sistema',
     'archive_token' => 'Archivar Token',
     'archived_token' => 'Token archivado',
     'archive_user' => 'Archivar Usuario',
