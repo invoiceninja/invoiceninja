@@ -16,7 +16,7 @@ general:
 dependencies:
   pre:
     # set GitHub token and update composer
-    - composer config github-oauth.github.com ${GH_TOKEN}
+    - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
     - sudo composer self-update && composer -V
 
   override:
