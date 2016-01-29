@@ -230,6 +230,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('tasks', 'TaskApiController');
     Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
+    Route::post('email_invoicev2', 'InvoiceApiController@emailInvoicev2');
     Route::get('user_accounts','AccountApiController@getUserAccounts');
 
     // Vendor
