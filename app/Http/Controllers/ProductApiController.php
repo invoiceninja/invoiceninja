@@ -29,8 +29,6 @@ class ProductApiController extends BaseAPIController
 
     public function index()
     {
-        //$products = Product::scope()->withTrashed()->orderBy('created_at', 'desc')->paginate();
-        //$products = $products
 
         $products = Product::scope()->withTrashed();
         $products = $products->paginate();
@@ -49,12 +47,6 @@ class ProductApiController extends BaseAPIController
         return $this->productService->getDatatable(Auth::user()->account_id);
     }
 
-    public function edit($publicId)
-    {
-        //stub
-    }
-
-
     public function store()
     {
         return $this->save();
@@ -65,7 +57,7 @@ class ProductApiController extends BaseAPIController
         return $this->save($publicId);
     }
 
-    public function destroy()
+    public function destroy($publicId)
     {
         //stub
     }
