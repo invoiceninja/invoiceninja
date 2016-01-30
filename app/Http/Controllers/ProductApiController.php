@@ -29,11 +29,12 @@ class ProductApiController extends BaseAPIController
 
     public function index()
     {
-        $products = Product::scope()->withTrashed();
-        $products = $products->orderBy('created_at', 'desc')->paginate();
+        //$products = Product::scope()->withTrashed()->orderBy('created_at', 'desc')->paginate();
+        //$products = $products
 
+        $products = Product::scope()->withTrashed()->paginate();
         $transformer = new ProductTransformer(\Auth::user()->account, $this->serializer);
-        $data = $this->includeCollection($products, $transformer, 'products', $products->paginate());
+        $data = $this->includeCollection($products, $transformer, 'products');
 
         return $this->response($data);
 
