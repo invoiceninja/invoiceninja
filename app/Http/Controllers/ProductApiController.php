@@ -32,9 +32,9 @@ class ProductApiController extends BaseAPIController
         //$products = Product::scope()->withTrashed()->orderBy('created_at', 'desc')->paginate();
         //$products = $products
 
-        $products = Product::scope()->withTrashed()->paginate();
+        $products = Product::scope()->withTrashed();
         $transformer = new ProductTransformer(\Auth::user()->account, $this->serializer);
-        $data = $this->createCollection($products, $transformer, 'products');
+        $data = $this->createCollection($products, $transformer, 'products', $products->paginate());
 
         return $this->response($data);
 
