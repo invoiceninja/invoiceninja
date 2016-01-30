@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Ninja\Transformers\ProductTransformer;
 use Auth;
 use Str;
 use DB;
@@ -72,7 +73,7 @@ class ProductApiController extends BaseAPIController
 
         $product->save();
 
-        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+        $transformer = new ProductTransformer(\Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($product, $transformer, 'products');
 
         return $this->response($data);
