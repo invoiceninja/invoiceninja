@@ -29,7 +29,14 @@ class ProductApiController extends BaseAPIController
 
     public function index()
     {
-        //stub
+        $products = Product::scope()->withTrashed();
+        $products = $products->orderBy('created_at', 'desc')->paginate();
+
+        $transformer = new ProductTransformer(\Auth::user()->account, $this->serializer);
+        $data = $this->includeCollection($products, $transformer, 'products', $products->paginate());
+
+        return $this->response($data);
+
     }
 
     public function getDatatable()
