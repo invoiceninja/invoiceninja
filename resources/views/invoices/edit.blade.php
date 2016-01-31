@@ -38,6 +38,7 @@
             ->method($method)
             ->addClass('warn-on-exit')
             ->autocomplete('off')
+            ->onsubmit('return onFormSubmit(event)')
             ->rules(array(
         		'client' => 'required',
                 'invoice_number' => 'required',
@@ -52,7 +53,7 @@
     <div class="panel panel-default">
     <div class="panel-body" style="padding-bottom: 0px;">
 
-    <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)" onsubmit="onSubmit()">
+    <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-4" id="col_1">
 
     		@if ($invoice->id || $data)
@@ -1055,13 +1056,13 @@
 	}
 
 	function onEmailClick() {
-        if (!isEmailValid()) {
-            alert("{!! trans('texts.provide_email') !!}");
+        if (!NINJA.isRegistered) {
+            alert("{!! trans('texts.registration_required') !!}");
             return;
         }
 
-        if (!NINJA.isRegistered) {
-            alert("{!! trans('texts.registration_required') !!}");
+        if (!isEmailValid()) {
+            alert("{!! trans('texts.provide_email') !!}");
             return;
         }
 
@@ -1107,26 +1108,26 @@
     }
 
 	function submitAction(value) {
-		if (!isSaveValid()) {
-			model.showClientForm();
-			return;
-		}
+		$('#action').val(value);
+		$('#submitButton').click();
+	}
+
+    function onFormSubmit(event) {
+        if (!isSaveValid()) {
+            model.showClientForm();
+            return false;
+        }
 
         // check currency matches for expenses
         var expenseCurrencyId = model.expense_currency_id();
         var clientCurrencyId = model.invoice().client().currency_id() || {{ $account->getCurrencyId() }};
         if (expenseCurrencyId && expenseCurrencyId != clientCurrencyId) {
             alert("{!! trans('texts.expense_error_mismatch_currencies') !!}");
-            return;
+            return false;
         }
 
         onPartialChange(true);
-		$('#action').val(value);
-		$('#submitButton').click();
-	}
-
-    function onSubmit() {
-        console.log('submit');
+        
         return true;
     }
 
