@@ -249,7 +249,7 @@ class InvoiceApiController extends BaseAPIController
         return $item;
     }
 
-    public function emailInvoicev2()
+    public function emailInvoice()
     {
         $data = Input::all();
         $error = null;
@@ -269,31 +269,6 @@ class InvoiceApiController extends BaseAPIController
         return Response::make($response, $error ? 400 : 200, $headers);
     }
 
-    public function emailInvoice()
-    {
-        $data = Input::all();
-        $error = null;
-
-        if (!isset($data['id'])) {
-            $error = trans('validation.required', ['attribute' => 'id']);
-        } else {
-            $invoice = Invoice::scope($data['id'])->first();
-            if (!$invoice) {
-                $error = trans('validation.not_in', ['attribute' => 'id']);
-            } else {
-                $this->mailer->sendInvoice($invoice);
-            }
-        }
-
-        if ($error) {
-            $response = json_encode($error, JSON_PRETTY_PRINT);
-        } else {
-            $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
-        }
-
-        $headers = Utils::getApiHeaders();
-        return Response::make($response, $error ? 400 : 200, $headers);
-    }
 
         /**
          * @SWG\Put(
