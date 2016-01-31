@@ -26,24 +26,42 @@
 
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}" />
 
-    <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    
+    <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    
 
     <script type="text/javascript">
         var NINJA = NINJA || {};
         NINJA.fontSize = 9;
+        NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};
 
-        NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};    
+        window.onerror = function (errorMsg, url, lineNumber, column, error) {
+            if (errorMsg.indexOf('Script error.') > -1) {
+                return;
+            }
 
-        window.onerror = function(e) {
-            var message = e.message ? (e.message + ' - ' + e.filename + ': ' + e.lineno) : e;
             try {
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ URL::to('log_error') }}',
-                    data: 'error='+encodeURIComponent(message)+'&url='+encodeURIComponent(window.location)
-                });     
+                // Use StackTraceJS to parse the error context 
+                if (error) {
+                    var message = error.message ? error.message : error;
+                    StackTrace.fromError(error).then(function(result) {
+                        var gps = new StackTraceGPS();
+                        gps.findFunctionName(result[0]).then(function(result) {
+                            logError(errorMsg + ': ' + JSON.stringify(result));
+                        });
+                    });
+                } else {
+                    logError(errorMsg);
+                }
             } catch(err) {}
+
             return false;
+        }
+
+        function logError(message) {
+            $.ajax({
+                type: 'GET',
+                url: '{{ URL::to('log_error') }}',
+                data: 'error='+encodeURIComponent(message)+'&url='+encodeURIComponent(window.location)
+            });
         }
 
         /* Set the defaults for DataTables initialisation */
