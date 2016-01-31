@@ -704,7 +704,9 @@ class AccountController extends BaseController
                     $account->quote_number_prefix = null;
                 }
 
-                if (!$account->share_counter && $account->invoice_number_prefix == $account->quote_number_prefix) {
+                if (!$account->share_counter
+                        && $account->invoice_number_prefix == $account->quote_number_prefix
+                        && $account->invoice_number_pattern == $account->quote_number_pattern) {
                     Session::flash('error', trans('texts.invalid_counter'));
 
                     return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS)->withInput();
