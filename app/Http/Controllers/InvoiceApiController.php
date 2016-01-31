@@ -249,6 +249,26 @@ class InvoiceApiController extends BaseAPIController
         return $item;
     }
 
+    public function emailInvoicev2()
+    {
+        $data = Input::all();
+        $error = null;
+
+        $invoice = Invoice::scope($data['id'])->firstOrFail();
+
+        $this->mailer->sendInvoice($invoice);
+
+        if($error) {
+            $response['error'] = "There was an error sending the invoice";
+        }
+        else {
+            $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
+        }
+
+        $headers = Utils::getApiHeaders();
+        return Response::make($response, $error ? 400 : 200, $headers);
+    }
+
     public function emailInvoice()
     {
         $data = Input::all();

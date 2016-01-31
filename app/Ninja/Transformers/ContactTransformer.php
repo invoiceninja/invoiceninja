@@ -19,6 +19,7 @@ class ContactTransformer extends EntityTransformer
             'phone' => $contact->phone,
             'last_login' => $contact->last_login,
             'account_key' => $this->account->account_key,
+            'send_invoice' => (bool) $contact->send_invoice,
         ];
     }
 }
