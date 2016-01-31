@@ -192,7 +192,7 @@
                     return roundToTwo(self.amount() * self.exchange_rate()).toFixed(2);
                 },
                 write: function(value) {
-                    self.exchange_rate(roundToFour(value / self.amount()));
+                    self.amount(roundToTwo(value / self.exchange_rate()));
                 }
             }, self);
 
