@@ -1135,9 +1135,10 @@ return array(
     'expense_error_mismatch_currencies' => 'The client\'s currency does not match the expense currency.',
     'trello_roadmap' => 'Trello Roadmap',
     'header_footer' => 'Header/Footer',
-    'all_pages_header' => 'Header',
-    'all_pages_header_help' => 'Show on all pages',
-    'all_pages_footer' => 'Footer',
-    'all_pages_footer_help' => 'Show on all pages',
-
+    'first_page' => 'first page',
+    'all_pages' => 'all pages',
+    'last_page' => 'last page',
+    'all_pages_header' => 'Show header on',
+    'all_pages_footer' => 'Show footer on',
+    
 );

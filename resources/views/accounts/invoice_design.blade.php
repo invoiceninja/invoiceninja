@@ -200,8 +200,19 @@
                 <div role="tabpanel" class="tab-pane" id="headerFooter">
                     <div class="panel-body">
 
-                      {!! Former::checkbox('all_pages_header')->text(trans('texts.all_pages_header_help')) !!}
-                      {!! Former::checkbox('all_pages_footer')->text(trans('texts.all_pages_footer_help')) !!}
+                    {!! Former::inline_radios('all_pages_header')
+                            ->label(trans('texts.all_pages_header'))
+                            ->radios([
+                                trans('texts.first_page') => ['value' => 0, 'name' => 'all_pages_header'],
+                                trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_header'],
+                            ])->check($account->all_pages_header) !!}
+
+                    {!! Former::inline_radios('all_pages_footer')
+                            ->label(trans('texts.all_pages_footer'))
+                            ->radios([
+                                trans('texts.last_page') => ['value' => 0, 'name' => 'all_pages_footer'],
+                                trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_footer'],
+                            ])->check($account->all_pages_footer) !!}
 
                     </div>
                 </div>
