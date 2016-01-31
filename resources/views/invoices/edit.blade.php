@@ -52,7 +52,7 @@
     <div class="panel panel-default">
     <div class="panel-body" style="padding-bottom: 0px;">
 
-    <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
+    <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)" onsubmit="onSubmit()">
     	<div class="col-md-4" id="col_1">
 
     		@if ($invoice->id || $data)
@@ -1115,7 +1115,7 @@
         // check currency matches for expenses
         var expenseCurrencyId = model.expense_currency_id();
         var clientCurrencyId = model.invoice().client().currency_id() || {{ $account->getCurrencyId() }};
-        if (expenseCurrencyId != clientCurrencyId) {
+        if (expenseCurrencyId && expenseCurrencyId != clientCurrencyId) {
             alert("{!! trans('texts.expense_error_mismatch_currencies') !!}");
             return;
         }
@@ -1124,6 +1124,11 @@
 		$('#action').val(value);
 		$('#submitButton').click();
 	}
+
+    function onSubmit() {
+        console.log('submit');
+        return true;
+    }
 
     function submitBulkAction(value) {
         $('#bulk_action').val(value);
