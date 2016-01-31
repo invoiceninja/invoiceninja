@@ -1,10 +1,22 @@
 @extends('header')
 
+@section('head')
+    @parent
+
+    <style type="text/css">
+        .iframe_url {
+            display: none;
+        }
+    </style>
+@stop
+
 @section('content') 
     @parent
     @include('accounts.nav', ['selected' => ACCOUNT_EMAIL_SETTINGS, 'advanced' => true])
 
-    {!! Former::open()->addClass('warn-on-exit') !!}
+    {!! Former::open()->rules([
+            'iframe_url' => 'url'
+        ])->addClass('warn-on-exit') !!}
     {{ Former::populate($account) }}
     {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
     {{ Former::populateField('enable_email_markup', intval($account->enable_email_markup)) }}
