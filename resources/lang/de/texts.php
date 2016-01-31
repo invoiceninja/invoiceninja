@@ -59,7 +59,7 @@ return array(
     'learn_more' => 'Mehr erfahren',
     'manage_rates' => 'Steuersätze verwalten',
     'note_to_client' => 'Notiz an den Kunden',
-    'invoice_terms' => 'Zahlungsbedingungen',
+    'invoice_terms' => 'Rechnungsbedingungen',
     'save_as_default_terms' => 'Als Standardbedingungen speichern',
     'download_pdf' => 'PDF herunterladen',
     'pay_now' => 'Jetzt bezahlen',
