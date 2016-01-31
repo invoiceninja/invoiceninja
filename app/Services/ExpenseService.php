@@ -90,11 +90,13 @@ class ExpenseService extends BaseService
                 'amount',
                 function ($model) {
                     // show both the amount and the converted amount
-                    $str = Utils::formatMoney($model->amount, $model->account_currency_id, $model->account_country_id);
                     if ($model->exchange_rate != 1) {
-                        $str .= ' | ' . Utils::formatMoney(round($model->amount * $model->exchange_rate,2), $model->currency_id, $model->client_country_id);
+                        $converted = round($model->amount * $model->exchange_rate, 2);
+                        return Utils::formatMoney($model->amount, $model->account_currency_id, $model->account_country_id) . ' | ' . 
+                            Utils::formatMoney($converted, $model->currency_id, $model->client_country_id);
+                    } else {
+                        return Utils::formatMoney($model->amount, $model->currency_id, $model->account_country_id);
                     }
-                    return $str;
                 }
             ],
             [

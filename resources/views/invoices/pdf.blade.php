@@ -98,7 +98,7 @@
   function refreshPDFCB(string) {
     if (!string) return;
     PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
-    if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || isChrome)) { 
+    if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChrome48))) { 
       $('#theFrame').attr('src', string).show();
     } else {      
       if (isRefreshing) {

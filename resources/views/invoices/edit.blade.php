@@ -745,6 +745,8 @@
             @endif
 
             @if (isset($expenses) && $expenses)
+                model.expense_currency_id({{ $expenseCurrencyId }});
+
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
                 var expenses = {!! $expenses !!};
@@ -1109,6 +1111,15 @@
 			model.showClientForm();
 			return;
 		}
+
+        // check currency matches for expenses
+        var expenseCurrencyId = model.expense_currency_id();
+        var clientCurrencyId = model.invoice().client().currency_id() || {{ $account->getCurrencyId() }};
+        if (expenseCurrencyId != clientCurrencyId) {
+            alert("{!! trans('texts.expense_error_mismatch_currencies') !!}");
+            return;
+        }
+
         onPartialChange(true);
 		$('#action').val(value);
 		$('#submitButton').click();

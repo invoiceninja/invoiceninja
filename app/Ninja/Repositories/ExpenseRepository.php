@@ -64,9 +64,9 @@ class ExpenseRepository extends BaseRepository
                               ->orWhere('contacts.is_primary', '=', null);
                     })
                     ->select(
+                        DB::raw('COALESCE(clients.currency_id, expenses.currency_id, accounts.currency_id) currency_id'),
                         'expenses.account_id',
                         'expenses.amount',
-                        'expenses.currency_id',
                         'expenses.deleted_at',
                         'expenses.exchange_rate',
                         'expenses.expense_date',

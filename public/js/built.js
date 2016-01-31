@@ -29883,6 +29883,7 @@ var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Const
 var isEdge = navigator.userAgent.indexOf('Edge/') >= 0;
 var isChrome = !!window.chrome && !isOpera && !isEdge; // Chrome 1+
 var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
+var isChrome48 = isChrome && navigator.userAgent.indexOf('Chrome/48') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
 var refreshTimer;
