@@ -699,8 +699,9 @@
 </div>
 <p>&nbsp;</p>
 <div class="container">
-  {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> -
-  {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank']) !!} | 
+  {{ trans('texts.powered_by') }}
+  {!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => 'invoiceninja.com']) !!} -
+  {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank', 'title' => trans('texts.trello_roadmap')]) !!} | 
   @if (Auth::user()->account->isWhiteLabel())  
     {{ trans('texts.white_labeled') }}
   @else
