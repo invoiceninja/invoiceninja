@@ -1140,5 +1140,6 @@ return array(
     'last_page' => 'last page',
     'all_pages_header' => 'Show header on',
     'all_pages_footer' => 'Show footer on',
-    
+    'invoice_currency' => 'Invoice Currency',
+
 );
