@@ -172,7 +172,11 @@
             $(['current_password', 'newer_password', 'confirm_password']).each(function(i, field) {
                 var $input = $('form #'+field),
                 val = $.trim($input.val());
-                var isValid = val && val.length >= 6;
+                var isValid = val;
+
+                if (field != 'current_password') {
+                    isValid = val.length >= 6;
+                }
 
                 if (isValid && field == 'confirm_password') {
                     isValid = val == $.trim($('#newer_password').val());

@@ -112,7 +112,7 @@ class DashboardController extends BaseController
                     ->where('payments.account_id', '=', Auth::user()->account_id)
                     ->where('payments.is_deleted', '=', false)
                     ->where('invoices.is_deleted', '=', false)
-                    ->where('clients.deleted_at', '=', null)
+                    ->where('clients.is_deleted', '=', false)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
                     ->select(['payments.payment_date', 'payments.amount', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id'])

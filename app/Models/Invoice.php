@@ -429,6 +429,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             'secondary_color',
             'hide_quantity',
             'hide_paid_to_date',
+            'all_pages_header',
+            'all_pages_footer',
             'custom_invoice_label1',
             'custom_invoice_label2',
             'pdf_email_attachment',

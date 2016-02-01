@@ -96,3 +96,4 @@ There are two options:
 * [ezyang/htmlpurifier](https://github.com/ezyang/htmlpurifier) - Standards compliant HTML filter written in PHP
 * [cerdic/css-tidy](https://github.com/Cerdic/CSSTidy) - CSSTidy is a CSS minifier
 * [asgrim/ofxparser](https://github.com/asgrim/ofxparser) - OFX File Parser
+* [stacktracejs/stacktrace.js](https://github.com/stacktracejs/stacktrace.js) - Framework-agnostic, micro-library for getting stack traces in all web browsers

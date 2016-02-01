@@ -101,6 +101,7 @@ module.exports = function(grunt) {
           'public/vendor/jspdf/dist/jspdf.min.js',
           'public/vendor/moment/min/moment.min.js',
           'public/vendor/moment-timezone/builds/moment-timezone-with-data.min.js',
+          'public/vendor/stacktrace-js/dist/stacktrace-with-polyfills.min.js',
           //'public/vendor/moment-duration-format/lib/moment-duration-format.js',
           //'public/vendor/handsontable/dist/jquery.handsontable.full.min.js',
           //'public/vendor/pdfmake/build/pdfmake.min.js',
@@ -111,7 +112,7 @@ module.exports = function(grunt) {
           'public/js/script.js',
           'public/js/pdf.pdfmake.js',
         ],
-        dest: 'public/js/built.js',
+        dest: 'public/built.js',
         nonull: true
       },
       js_public: {
@@ -126,7 +127,7 @@ module.exports = function(grunt) {
           'public/js/bootstrap-combobox.js',
 
         ],
-        dest: 'public/js/built.public.js',
+        dest: 'public/built.public.js',
         nonull: true
       },
       css: {
@@ -171,7 +172,7 @@ module.exports = function(grunt) {
           'public/js/pdfmake.min.js',
           'public/js/vfs_fonts.js',
         ],
-        dest: 'public/js/pdf.built.js',
+        dest: 'public/pdf.built.js',
         nonull: true
       }
     }

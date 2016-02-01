@@ -4,7 +4,7 @@
     <title>Invoice Ninja | Setup</title> 
     <meta charset="utf-8">    
     <meta name="csrf-token" content="<?= csrf_token() ?>">
-    <script src="{{ asset('js/built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
+    <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
     <link href="{{ asset('favicon.png?test') }}" rel="shortcut icon">

@@ -60,6 +60,11 @@ class Expense extends EntityModel
         return $this->public_id;
     }
 
+    public function getCurrencyId()
+    {
+        return $this->client ? $this->client->currency_id : $this->currency_id;
+    }
+
     public function getDisplayName()
     {
         return $this->getName();

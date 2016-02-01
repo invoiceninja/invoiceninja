@@ -704,7 +704,9 @@ class AccountController extends BaseController
                     $account->quote_number_prefix = null;
                 }
 
-                if (!$account->share_counter && $account->invoice_number_prefix == $account->quote_number_prefix) {
+                if (!$account->share_counter
+                        && $account->invoice_number_prefix == $account->quote_number_prefix
+                        && $account->invoice_number_pattern == $account->quote_number_pattern) {
                     Session::flash('error', trans('texts.invalid_counter'));
 
                     return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS)->withInput();
@@ -720,10 +722,13 @@ class AccountController extends BaseController
 
     private function saveInvoiceDesign()
     {
+        //dd(Input::get('all_pages_header'));
         if (Auth::user()->account->isPro()) {
             $account = Auth::user()->account;
             $account->hide_quantity = Input::get('hide_quantity') ? true : false;
             $account->hide_paid_to_date = Input::get('hide_paid_to_date') ? true : false;
+            $account->all_pages_header = Input::get('all_pages_header') ? true : false;
+            $account->all_pages_footer = Input::get('all_pages_footer') ? true : false;
             $account->header_font_id = Input::get('header_font_id');
             $account->body_font_id = Input::get('body_font_id');
             $account->primary_color = Input::get('primary_color');

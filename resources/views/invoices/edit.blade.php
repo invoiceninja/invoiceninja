@@ -7,7 +7,7 @@
     @foreach ($account->getFontFolders() as $font)
     <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
-	<script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
+	<script src="{{ asset('pdf.built.js') }}" type="text/javascript"></script>
 
     <style type="text/css">
 
@@ -38,6 +38,7 @@
             ->method($method)
             ->addClass('warn-on-exit')
             ->autocomplete('off')
+            ->onsubmit('return onFormSubmit(event)')
             ->rules(array(
         		'client' => 'required',
                 'invoice_number' => 'required',
@@ -745,6 +746,8 @@
             @endif
 
             @if (isset($expenses) && $expenses)
+                model.expense_currency_id({{ $expenseCurrencyId }});
+
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
                 var expenses = {!! $expenses !!};
@@ -1053,13 +1056,13 @@
 	}
 
 	function onEmailClick() {
-        if (!isEmailValid()) {
-            alert("{!! trans('texts.provide_email') !!}");
+        if (!NINJA.isRegistered) {
+            alert("{!! trans('texts.registration_required') !!}");
             return;
         }
 
-        if (!NINJA.isRegistered) {
-            alert("{!! trans('texts.registration_required') !!}");
+        if (!isEmailValid()) {
+            alert("{!! trans('texts.provide_email') !!}");
             return;
         }
 
@@ -1105,14 +1108,28 @@
     }
 
 	function submitAction(value) {
-		if (!isSaveValid()) {
-			model.showClientForm();
-			return;
-		}
-        onPartialChange(true);
 		$('#action').val(value);
 		$('#submitButton').click();
 	}
+
+    function onFormSubmit(event) {
+        if (!isSaveValid()) {
+            model.showClientForm();
+            return false;
+        }
+
+        // check currency matches for expenses
+        var expenseCurrencyId = model.expense_currency_id();
+        var clientCurrencyId = model.invoice().client().currency_id() || {{ $account->getCurrencyId() }};
+        if (expenseCurrencyId && expenseCurrencyId != clientCurrencyId) {
+            alert("{!! trans('texts.expense_error_mismatch_currencies') !!}");
+            return false;
+        }
+
+        onPartialChange(true);
+        
+        return true;
+    }
 
     function submitBulkAction(value) {
         $('#bulk_action').val(value);

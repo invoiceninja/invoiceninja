@@ -224,7 +224,7 @@ class Utils
 
         $count = Session::get('error_count', 0);
         Session::put('error_count', ++$count);
-        if ($count > 100) {
+        if ($count > 200) {
             return 'logged';
         }
 

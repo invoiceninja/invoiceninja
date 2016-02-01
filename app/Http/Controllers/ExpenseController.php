@@ -182,20 +182,28 @@ class ExpenseController extends BaseController
         switch($action)
         {
             case 'invoice':
-                $expenses       = Expense::scope($ids)->get();
-                $clientId = null;
-                $data           = [];
+                $expenses = Expense::scope($ids)->with('client')->get();
+                $clientPublicId = null;
+                $currencyId = null;
+                $data = [];
 
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
                 foreach ($expenses as $expense)
                 {
-                    if ($expense->client_id) {
-                        if (!$clientId) {
-                            $clientId = $expense->client_id;
-                        } elseif ($clientId != $expense->client_id) {
+                    if ($expense->client) {
+                        if (!$clientPublicId) {
+                            $clientPublicId = $expense->client->public_id;
+                        } elseif ($clientPublicId != $expense->client->public_id) {
                             Session::flash('error', trans('texts.expense_error_multiple_clients'));
                             return Redirect::to('expenses');
                         }
+                    }
+
+                    if (!$currencyId) {
+                        $currencyId = $expense->getCurrencyId();
+                    } elseif ($currencyId != $expense->getCurrencyId() && $expense->getCurrencyId()) {
+                        Session::flash('error', trans('texts.expense_error_multiple_currencies'));
+                        return Redirect::to('expenses');
                     }
 
                     if ($expense->invoice_id) {
@@ -212,8 +220,9 @@ class ExpenseController extends BaseController
                     ];
                 }
 
-                $clientPublicId = $clientId ? Client::findOrFail($clientId)->public_id : '';
-                return Redirect::to("invoices/create/{$clientPublicId}")->with('expenses', $data);
+                return Redirect::to("invoices/create/{$clientPublicId}")
+                        ->with('expenseCurrencyId', $currencyId)
+                        ->with('expenses', $data);
                 break;
 
             default:
