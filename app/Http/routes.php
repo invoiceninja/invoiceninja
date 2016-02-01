@@ -219,6 +219,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::post('login', 'AccountApiController@login');
     Route::get('static', 'AccountApiController@getStaticData');
     Route::get('accounts', 'AccountApiController@show');
+    Route::put('accounts', 'AccountApiController@update');
     Route::resource('clients', 'ClientApiController');
     Route::get('quotes', 'QuoteApiController@index');
     Route::resource('quotes', 'QuoteApiController');

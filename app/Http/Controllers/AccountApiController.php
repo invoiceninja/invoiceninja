@@ -4,6 +4,7 @@ use Auth;
 use Utils;
 use Response;
 use Input;
+use Validator;
 use Cache;
 use App\Models\Client;
 use App\Models\Account;
@@ -100,5 +101,43 @@ class AccountApiController extends BaseAPIController
     public function getUserAccounts(Request $request)
     {
         return $this->processLogin($request);
+    }
+
+    public function update(Request $request)
+    {
+        $rules = array(
+            'name' => 'required',
+        );
+
+        $validator = Validator::make(Input::all(), $rules);
+
+        if ($validator->fails()) {
+            $data = $validator->messages();
+            return $this->errorResponse($data);
+        } else {
+            $account = Auth::user()->account;
+            $account->name = trim(Input::get('name'));
+            $account->id_number = trim(Input::get('id_number'));
+            $account->vat_number = trim(Input::get('vat_number'));
+            $account->work_email = trim(Input::get('work_email'));
+            $account->website = trim(Input::get('website'));
+            $account->work_phone = trim(Input::get('work_phone'));
+            $account->address1 = trim(Input::get('address1'));
+            $account->address2 = trim(Input::get('address2'));
+            $account->city = trim(Input::get('city'));
+            $account->state = trim(Input::get('state'));
+            $account->postal_code = trim(Input::get('postal_code'));
+            $account->country_id = Input::get('country_id') ? Input::get('country_id') : null;
+            $account->size_id = Input::get('size_id') ? Input::get('size_id') : null;
+            $account->industry_id = Input::get('industry_id') ? Input::get('industry_id') : null;
+            $account->email_footer = Input::get('email_footer');
+            $account->save();
+
+            $transformer = new AccountTransformer(null, $request->serializer);
+            $account = $this->createItem($account, $transformer, 'account');
+
+            return $this->response($account);
+        }
+
     }
 }
