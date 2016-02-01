@@ -37,8 +37,8 @@ before_script:
   - cp tests/_bootstrap.php.default tests/_bootstrap.php
   - cp tests/.env.circleci .env
   # create the database and user
-  - mysql -u ubuntu -e "create database IF NOT EXISTS ninja;"
-  - mysql -u ubuntu -e "GRANT ALL PRIVILEGES ON ninja.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
+  - mysql -u root -e "create database IF NOT EXISTS ninja;"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON ninja.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
   # migrate and seed the database
   - php artisan migrate --no-interaction
   - php artisan db:seed --no-interaction # default seed
