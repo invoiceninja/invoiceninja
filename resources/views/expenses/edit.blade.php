@@ -4,6 +4,13 @@
     @parent
 
         @include('money_script')
+
+
+        <style type="text/css">
+            .input-group-addon {
+                min-width: 40px;
+            }
+        </style>
 @stop
 
 @section('content')
