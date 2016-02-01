@@ -16,6 +16,7 @@ class ProductTransformer extends EntityTransformer
             'account_key' =>$this->account->account_key,
             'default_tax_rate_id' =>$product->default_tax_rate_id,
             'updated_at' =>$this->getTimestamp($product->updated_at),
+            'archived_at' => $this->getTimestamp($product->deleted_at),
         ];
     }
 }
