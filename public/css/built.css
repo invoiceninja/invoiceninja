@@ -3372,6 +3372,10 @@ ul.user-accounts a:hover div.remove {
     font-size: .9em;
 }
 
+td.right {
+  text-align: right;
+}
+
 /* Show selected section in settings nav */
 .list-group-item.selected:before {
     position: absolute;

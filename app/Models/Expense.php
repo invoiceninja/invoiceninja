@@ -18,7 +18,8 @@ class Expense extends EntityModel
     protected $fillable = [
         'client_id',
         'vendor_id',
-        'currency_id',
+        'expense_currency_id',
+        'invoice_currency_id',
         'amount',
         'foreign_amount',
         'exchange_rate',
@@ -58,11 +59,6 @@ class Expense extends EntityModel
             return $this->expense_number;
 
         return $this->public_id;
-    }
-
-    public function getCurrencyId()
-    {
-        return $this->client ? $this->client->currency_id : $this->currency_id;
     }
 
     public function getDisplayName()

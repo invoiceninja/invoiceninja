@@ -200,8 +200,8 @@ class ExpenseController extends BaseController
                     }
 
                     if (!$currencyId) {
-                        $currencyId = $expense->getCurrencyId();
-                    } elseif ($currencyId != $expense->getCurrencyId() && $expense->getCurrencyId()) {
+                        $currencyId = $expense->invoice_currency_id;
+                    } elseif ($currencyId != $expense->invoice_currency_id && $expense->invoice_currency_id) {
                         Session::flash('error', trans('texts.expense_error_multiple_currencies'));
                         return Redirect::to('expenses');
                     }

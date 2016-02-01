@@ -45,6 +45,7 @@
 	{!! Datatable::table()		
     	->addColumn($columns)
     	->setUrl(route('api.' . $entityType . 's'))    	
+        ->setCustomValues('rightAlign', isset($rightAlign) ? $rightAlign : [])
     	->setOptions('sPaginationType', 'bootstrap')
         ->setOptions('aaSorting', [[isset($sortCol) ? $sortCol : '1', 'desc']])
     	->render('datatable') !!}

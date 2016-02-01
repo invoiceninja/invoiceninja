@@ -56,10 +56,16 @@
             @if (isset($hasCheckboxes) && $hasCheckboxes)
             'aaSorting': [['1', 'asc']],
             // Disable sorting on the first column
-            "aoColumnDefs": [ {
-                'bSortable': false,
-                'aTargets': [ 0, {{ count($columns) - 1 }} ]
-            } ],
+            "aoColumnDefs": [ 
+                {
+                    'bSortable': false,
+                    'aTargets': [ 0, {{ count($columns) - 1 }} ]
+                },
+                {
+                    'sClass': 'right',
+                    'aTargets': {{ isset($values['rightAlign']) ? json_encode($values['rightAlign']) : '[]' }}
+                }
+            ],
             @endif
             @foreach ($options as $k => $o)
             {!! json_encode($k) !!}: {!! json_encode($o) !!},

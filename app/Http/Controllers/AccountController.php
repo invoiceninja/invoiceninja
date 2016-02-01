@@ -722,7 +722,6 @@ class AccountController extends BaseController
 
     private function saveInvoiceDesign()
     {
-        //dd(Input::get('all_pages_header'));
         if (Auth::user()->account->isPro()) {
             $account = Auth::user()->account;
             $account->hide_quantity = Input::get('hide_quantity') ? true : false;

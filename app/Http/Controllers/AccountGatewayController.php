@@ -195,6 +195,8 @@ class AccountGatewayController extends BaseController
 
         if ($gatewayId == GATEWAY_DWOLLA) {
             $optional = array_merge($optional, ['key', 'secret']);
+        } elseif ($gatewayId == GATEWAY_STRIPE) {
+            $rules['publishable_key'] = 'required';
         }
 
         foreach ($fields as $field => $details) {
