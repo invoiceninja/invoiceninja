@@ -19,7 +19,6 @@ cache:
 
 env:
   global:
-    - NODE_VERSION="5.1"
     - COMPOSER_DISCARD_CHANGES=true
     - COMPOSER_NO_INTERACTION=1
     - COMPOSER_DISABLE_XDEBUG_WARN=1
@@ -28,20 +27,10 @@ before_install:
   # set GitHub token and update composer
   - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
   - composer self-update && composer -V
-  # set Node version
-  - rm -rf ~/.nvm
-  - git clone https://github.com/creationix/nvm.git ~/.nvm
-  - source ~/.nvm/nvm.sh
-  - nvm install $NODE_VERSION
-  - node --version
 
 install:
   # install Composer dependencies
   - travis_retry composer update --prefer-dist;
-  # install Node dependencies and build assets
-  - npm install
-  - bower install
-  - grunt
 
 before_script:
   # copy configuration files
