@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Ninja\Repositories\ProductRepository;
 use App\Ninja\Transformers\ProductTransformer;
 use Auth;
 use Str;
@@ -20,11 +21,14 @@ class ProductApiController extends BaseAPIController
 {
     protected $productService;
 
-    public function __construct(ProductService $productService)
+    protected  $productRepo;
+
+    public function __construct(ProductService $productService, ProductRepository $productRepo)
     {
         parent::__construct();
 
         $this->productService = $productService;
+        $this->productRepo = $productRepo;
     }
 
     public function index()
@@ -52,14 +56,25 @@ class ProductApiController extends BaseAPIController
         return $this->save();
     }
 
-    public function update($publicId)
+    public function update(\Illuminate\Http\Request $request, $publicId)
     {
-        return $this->save($publicId);
+
+        if ($request->action == ACTION_ARCHIVE) {
+            $product = Product::scope($publicId)->withTrashed()->firstOrFail();
+            $this->productRepo->archive($product);
+
+            $transformer = new ProductTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($product, $transformer, 'products');
+
+            return $this->response($data);
+        }
+        else
+            return $this->save($publicId);
     }
 
     public function destroy($publicId)
     {
-        //stub
+       //stub
     }
 
     private function save($productPublicId = false)
