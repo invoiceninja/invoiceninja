@@ -9,7 +9,7 @@ php:
   - hhvm
 
 node_js:
-  - "4.1" # for Bower and Grunt
+  - "5" # for Bower and Grunt
 
 addons:
   hosts:
