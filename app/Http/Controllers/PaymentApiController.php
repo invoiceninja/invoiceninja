@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Ninja\Mailers\ContactMailer;
 use Auth;
 use Input;
 use Utils;
@@ -9,16 +10,19 @@ use App\Models\Invoice;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Transformers\PaymentTransformer;
+use App\Ninja\Transformers\InvoiceTransformer;
 
 class PaymentApiController extends BaseAPIController
 {
     protected $paymentRepo;
 
-    public function __construct(PaymentRepository $paymentRepo)
+    public function __construct(PaymentRepository $paymentRepo, ContactMailer $contactMailer)
     {
         parent::__construct();
 
         $this->paymentRepo = $paymentRepo;
+        $this->contactMailer = $contactMailer;
+
     }
 
     /**
@@ -107,12 +111,20 @@ class PaymentApiController extends BaseAPIController
             return $error;
         }
 
-
         $payment = $this->paymentRepo->save($data);
-        $payment = Payment::scope($payment->public_id)->with('client', 'contact', 'user', 'invoice')->first();
 
+        if (Input::get('email_receipt')) {
+            $this->contactMailer->sendPaymentConfirmation($payment);
+        }
+
+        /*
+        $payment = Payment::scope($payment->public_id)->with('client', 'contact', 'user', 'invoice')->first();
         $transformer = new PaymentTransformer(Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($payment, $transformer, 'payment');
+        */
+        $invoice = Invoice::scope($payment->invoice_id)->with('client', 'invoice_items', 'invitations')->first();
+        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+        $data = $this->createItem($invoice, $transformer, 'invoice');
 
         return $this->response($data);
     }
