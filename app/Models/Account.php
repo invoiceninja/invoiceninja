@@ -646,6 +646,7 @@ class Account extends Eloquent
             'quote_number',
             'total',
             'invoice_issued_to',
+            'quote_issued_to',
             //'date',
             'rate',
             'hours',
