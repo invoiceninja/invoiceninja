@@ -43,6 +43,7 @@ class ClientTransformer extends EntityTransformer
     protected $availableIncludes = [
         'contacts',
         'invoices',
+        'credits',
     ];
     
     public function includeContacts(Client $client)
@@ -55,6 +56,12 @@ class ClientTransformer extends EntityTransformer
     {
         $transformer = new InvoiceTransformer($this->account, $this->serializer);
         return $this->includeCollection($client->invoices, $transformer, ENTITY_INVOICE);
+    }
+
+    public function includeCredits(Client $client)
+    {
+        $transformer = new CreditTransformer($this->account, $this->serializer);
+        return $this->includeCollection($client->credits, $transformer, ENTITY_CREDIT);
     }
 
     public function transform(Client $client)
