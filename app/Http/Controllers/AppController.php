@@ -206,15 +206,15 @@ class AppController extends BaseController
 
         Config::set('mail.from.address', $email);
         Config::set('mail.from.name', $fromName);
-
+        
         $data = [
             'text' => 'Test email',
         ];
 
         try {
-            $this->mailer->sendTo($email, $email, $fromName, 'Test email', 'contact', $data);
+            $response = $this->mailer->sendTo($email, $email, $fromName, 'Test email', 'contact', $data);
 
-            return 'Sent';
+            return $response === true ? 'Sent' : $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
