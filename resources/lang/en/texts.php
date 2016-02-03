@@ -1141,6 +1141,7 @@ return array(
     'all_pages_header' => 'Show header on',
     'all_pages_footer' => 'Show footer on',
     'invoice_currency' => 'Invoice Currency',
-    'enable_https' => 'We strongly recommend using HTTPS to accept payments online.'
+    'enable_https' => 'We strongly recommend using HTTPS to accept credit card details online.',
+    
 
 );
