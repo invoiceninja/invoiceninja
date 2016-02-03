@@ -224,6 +224,7 @@ class AppController extends BaseController
     {
         if (!Utils::isNinjaProd() && !Utils::isDatabaseSetup()) {
             try {
+                set_time_limit(60 * 5); // shouldn't take this long but just in case
                 Artisan::call('migrate', array('--force' => true));
                 if (Industry::count() == 0) {
                     Artisan::call('db:seed', array('--force' => true));
@@ -241,6 +242,7 @@ class AppController extends BaseController
     {
         if (!Utils::isNinjaProd()) {
             try {
+                set_time_limit(60 * 5);
                 Cache::flush();
                 Session::flush();
                 Artisan::call('optimize', array('--force' => true));
