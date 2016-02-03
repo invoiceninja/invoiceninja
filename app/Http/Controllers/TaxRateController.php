@@ -13,16 +13,22 @@ use Redirect;
 
 use App\Models\TaxRate;
 use App\Services\TaxRateService;
+use App\Ninja\Repositories\TaxRateRepository;
+
+use App\Http\Requests\CreateTaxRateRequest;
+use App\Http\Requests\UpdateTaxRateRequest;
 
 class TaxRateController extends BaseController
 {
     protected $taxRateService;
+    protected $taxRateRepo;
 
-    public function __construct(TaxRateService $taxRateService)
+    public function __construct(TaxRateService $taxRateService, TaxRateRepository $taxRateRepo)
     {
         parent::__construct();
 
         $this->taxRateService = $taxRateService;
+        $this->taxRateRepo = $taxRateRepo;
     }
 
     public function index()
@@ -59,33 +65,24 @@ class TaxRateController extends BaseController
         return View::make('accounts.tax_rate', $data);
     }
 
-    public function store()
+    public function store(CreateTaxRateRequest $request)
     {
-        return $this->save();
-    }
+        $this->taxRateRepo->save($request->input());
 
-    public function update($publicId)
-    {
-        return $this->save($publicId);
-    }
-
-    private function save($publicId = false)
-    {
-        if ($publicId) {
-            $taxRate = TaxRate::scope($publicId)->firstOrFail();
-        } else {
-            $taxRate = TaxRate::createNew();
-        }
-
-        $taxRate->name = trim(Input::get('name'));
-        $taxRate->rate = Utils::parseFloat(Input::get('rate'));
-        $taxRate->save();
-
-        $message = $publicId ? trans('texts.updated_tax_rate') : trans('texts.created_tax_rate');
-        Session::flash('message', $message);
-
+        Session::flash('message', trans('texts.created_tax_rate'));
         return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }
+
+    public function update(UpdateTaxRateRequest $request, $publicId)
+    {
+        $taxRate = TaxRate::scope($publicId)->firstOrFail();
+        
+        $this->taxRateRepo->save($request->input(), $taxRate);
+        
+        Session::flash('message', trans('texts.updated_tax_rate'));
+        return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
+    }
+
 
     public function bulk()
     {

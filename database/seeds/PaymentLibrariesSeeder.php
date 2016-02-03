@@ -152,7 +152,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['format' => 'M j, Y', 'picker_format' => 'M d, yyyy', 'label' => 'Mar 10, 2013'],
             ['format' => 'F j, Y', 'picker_format' => 'MM d, yyyy', 'label' => 'March 10, 2013'],
             ['format' => 'D M j, Y', 'picker_format' => 'D MM d, yyyy', 'label' => 'Mon March 10, 2013'],
-            ['format' => 'Y-M-d', 'picker_format' => 'yyyy-mm-dd', 'label' => '2013-03-10'],
+            ['format' => 'Y-m-d', 'picker_format' => 'yyyy-mm-dd', 'label' => '2013-03-10'],
             ['format' => 'd-m-Y', 'picker_format' => 'dd-mm-yyyy', 'label' => '20-03-2013'],
             ['format' => 'm/d/Y', 'picker_format' => 'mm/dd/yyyy', 'label' => '03/20/2013']
         ];
@@ -208,7 +208,7 @@ class PaymentLibrariesSeeder extends Seeder
                 'label' => 'Mon March 10th, 2013 6:15 pm'
             ],
             [
-                'format' => 'Y-M-d g:i a',
+                'format' => 'Y-m-d g:i a',
                 'format_moment' => 'YYYY-MMM-DD h:mm:ss a',
                 'label' => '2013-03-10 6:15 pm'
             ],

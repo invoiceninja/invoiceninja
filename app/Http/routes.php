@@ -121,6 +121,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('settings/charts_and_reports', 'ReportController@showReports');
 
     Route::post('settings/cancel_account', 'AccountController@cancelAccount');
+    Route::post('settings/company_details', 'AccountController@updateDetails');
     Route::get('settings/{section?}', 'AccountController@showSection');
     Route::post('settings/{section?}', 'AccountController@doSection');
 
@@ -231,9 +232,9 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('tasks', 'TaskApiController');
     Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
-    Route::post('email_invoicev2', 'InvoiceApiController@emailInvoicev2');
-    Route::get('user_accounts','AccountApiController@getUserAccounts');
+    Route::get('user_accounts', 'AccountApiController@getUserAccounts');
     Route::resource('products', 'ProductApiController');
+    Route::resource('tax_rates', 'TaxRateApiController');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
