@@ -20,6 +20,10 @@ class AddSourceCurrencyToExpenses extends Migration
             $table->renameColumn('currency_id', 'invoice_currency_id');
             $table->unsignedInteger('expense_currency_id');
 
+        });
+
+        Schema::table('expenses', function (Blueprint $table) {
+
             // set account value so we're able to create foreign constraint
             DB::statement('update expenses e
                             left join accounts a on a.id = e.account_id
