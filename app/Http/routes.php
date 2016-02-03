@@ -121,6 +121,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('settings/charts_and_reports', 'ReportController@showReports');
 
     Route::post('settings/cancel_account', 'AccountController@cancelAccount');
+    Route::post('settings/company_details', 'AccountController@updateDetails');
     Route::get('settings/{section?}', 'AccountController@showSection');
     Route::post('settings/{section?}', 'AccountController@doSection');
 

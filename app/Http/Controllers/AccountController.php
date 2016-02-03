@@ -29,6 +29,8 @@ use App\Events\UserLoggedIn;
 use App\Events\UserSettingsChanged;
 use App\Services\AuthService;
 
+use App\Http\Requests\UpdateAccountRequest;
+
 class AccountController extends BaseController
 {
     protected $accountRepo;
@@ -766,80 +768,52 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_NOTIFICATIONS);
     }
 
-    private function saveDetails()
+    public function updateDetails(UpdateAccountRequest $request)
     {
-        $rules = array(
-            'name' => 'required',
-            'logo' => 'sometimes|max:'.MAX_LOGO_FILE_SIZE.'|mimes:jpeg,gif,png',
-        );
+        $account = Auth::user()->account;
+        $this->accountRepo->save($request->input(), $account);
 
-        $validator = Validator::make(Input::all(), $rules);
+        /* Logo image file */
+        if ($file = Input::file('logo')) {
+            $path = Input::file('logo')->getRealPath();
+            File::delete('logo/'.$account->account_key.'.jpg');
+            File::delete('logo/'.$account->account_key.'.png');
 
-        if ($validator->fails()) {
-            return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS)
-                ->withErrors($validator)
-                ->withInput();
-        } else {
-            $account = Auth::user()->account;
-            $account->name = trim(Input::get('name'));
-            $account->id_number = trim(Input::get('id_number'));
-            $account->vat_number = trim(Input::get('vat_number'));
-            $account->work_email = trim(Input::get('work_email'));
-            $account->website = trim(Input::get('website'));
-            $account->work_phone = trim(Input::get('work_phone'));
-            $account->address1 = trim(Input::get('address1'));
-            $account->address2 = trim(Input::get('address2'));
-            $account->city = trim(Input::get('city'));
-            $account->state = trim(Input::get('state'));
-            $account->postal_code = trim(Input::get('postal_code'));
-            $account->country_id = Input::get('country_id') ? Input::get('country_id') : null;
-            $account->size_id = Input::get('size_id') ? Input::get('size_id') : null;
-            $account->industry_id = Input::get('industry_id') ? Input::get('industry_id') : null;
-            $account->email_footer = Input::get('email_footer');
-            $account->save();
+            $mimeType = $file->getMimeType();
 
-            /* Logo image file */
-            if ($file = Input::file('logo')) {
-                $path = Input::file('logo')->getRealPath();
-                File::delete('logo/'.$account->account_key.'.jpg');
-                File::delete('logo/'.$account->account_key.'.png');
-
-                $mimeType = $file->getMimeType();
-
-                if ($mimeType == 'image/jpeg') {
-                    $path = 'logo/'.$account->account_key.'.jpg';
-                    $file->move('logo/', $account->account_key.'.jpg');
-                } elseif ($mimeType == 'image/png') {
-                    $path = 'logo/'.$account->account_key.'.png';
-                    $file->move('logo/', $account->account_key.'.png');
-                } else {
-                    if (extension_loaded('fileinfo')) {
-                        $image = Image::make($path);
-                        $image->resize(200, 120, function ($constraint) {
-                            $constraint->aspectRatio();
-                        });
-                        $path = 'logo/'.$account->account_key.'.jpg';
-                        Image::canvas($image->width(), $image->height(), '#FFFFFF')
-                            ->insert($image)->save($path);
-                    } else {
-                        Session::flash('warning', 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.');
-                    }
-                }
-
-                // make sure image isn't interlaced
+            if ($mimeType == 'image/jpeg') {
+                $path = 'logo/'.$account->account_key.'.jpg';
+                $file->move('logo/', $account->account_key.'.jpg');
+            } elseif ($mimeType == 'image/png') {
+                $path = 'logo/'.$account->account_key.'.png';
+                $file->move('logo/', $account->account_key.'.png');
+            } else {
                 if (extension_loaded('fileinfo')) {
-                    $img = Image::make($path);
-                    $img->interlace(false);
-                    $img->save();
+                    $image = Image::make($path);
+                    $image->resize(200, 120, function ($constraint) {
+                        $constraint->aspectRatio();
+                    });
+                    $path = 'logo/'.$account->account_key.'.jpg';
+                    Image::canvas($image->width(), $image->height(), '#FFFFFF')
+                        ->insert($image)->save($path);
+                } else {
+                    Session::flash('warning', 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.');
                 }
             }
 
-            event(new UserSettingsChanged());
-
-            Session::flash('message', trans('texts.updated_settings'));
-
-            return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS);
+            // make sure image isn't interlaced
+            if (extension_loaded('fileinfo')) {
+                $img = Image::make($path);
+                $img->interlace(false);
+                $img->save();
+            }
         }
+
+        event(new UserSettingsChanged());
+
+        Session::flash('message', trans('texts.updated_settings'));
+
+        return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS);
     }
 
     private function saveUserDetails()
