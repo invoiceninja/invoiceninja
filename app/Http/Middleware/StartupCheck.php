@@ -35,7 +35,7 @@ class StartupCheck
 
         // Ensure all request are over HTTPS in production
         if (Utils::requireHTTPS() && !Request::secure()) {
-            //return Redirect::secure(Request::path());
+            return Redirect::secure(Request::path());
         }
 
         // If the database doens't yet exist we'll skip the rest

@@ -89,6 +89,10 @@ class AccountGatewayController extends BaseController
                                     ->orderBy('name')->get();
         $data['hiddenFields'] = Gateway::$hiddenFields;
 
+        if ( ! \Request::secure() && ! Utils::isNinjaDev()) {
+            Session::flash('warning', trans('texts.enable_https'));
+        }
+
         return View::make('accounts.account_gateway', $data);
     }
 
