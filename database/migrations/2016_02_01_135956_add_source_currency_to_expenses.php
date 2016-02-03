@@ -43,9 +43,6 @@ class AddSourceCurrencyToExpenses extends Migration
     {
         Schema::table('expenses', function($table) {
 
-            $table->dropColumn('expense_currency_id');
-            $table->renameColumn('invoice_currency_id', 'currency_id');
-            $table->renameColumn('invoice_amount', 'foreign_amount');
         });
     }
 }
