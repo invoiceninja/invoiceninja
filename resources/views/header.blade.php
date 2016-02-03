@@ -364,7 +364,7 @@
         <span class="icon-bar"></span>
       </button>
       <a href="{{ URL::to(NINJA_WEB_URL) }}" class='navbar-brand' target="_blank">
-        <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:18px;width:auto"/>
+        <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:20px;width:auto;padding-right:10px"/>
       </a>	    
     </div>
 
