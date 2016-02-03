@@ -37,6 +37,12 @@ class Account extends Eloquent
         'size_id',
         'industry_id',
         'email_footer',
+        'timezone_id',
+        'date_format_id',
+        'datetime_format_id',
+        'currency_id',
+        'language_id',
+        'military_time',
     ];
 
     public static $basicSettings = [
