@@ -673,6 +673,8 @@ class InvoiceRepository extends BaseRepository
         $sql = implode(' OR ', $dates);
         $invoices = Invoice::whereAccountId($account->id)
                     ->where('balance', '>', 0)
+                    ->where('is_quote', '=', false)
+                    ->where('is_recurring', '=', false)
                     ->whereRaw('('.$sql.')')
                     ->get();
 
