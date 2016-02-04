@@ -23,10 +23,11 @@ class CreateVendorRequest extends Request
     public function rules()
     {
         return [
-            'vendorcontacts' => 'valid_contacts',
+            'name' => 'required',
         ];
     }
 
+    /*
     public function validator($factory)
     {
         // support submiting the form with a single contact record
@@ -41,4 +42,5 @@ class CreateVendorRequest extends Request
             $this->input(), $this->container->call([$this, 'rules']), $this->messages()
         );
     }
+    */
 }

@@ -613,11 +613,12 @@ class AccountController extends BaseController
             $iframeURL = rtrim($iframeURL, "/");
 
             $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
-            if ($iframeURL || !$subdomain || in_array($subdomain, ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner'])) {
+            if ($iframeURL) {
                 $subdomain = null;
             }
             if ($subdomain) {
-                $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id";
+                $exclude = ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner', 'info', 'ninja'];
+                $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id|not_in:" . implode(',', $exclude);
             }
 
             $validator = Validator::make(Input::all(), $rules);
