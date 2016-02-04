@@ -26,4 +26,13 @@ class UserRepository extends BaseRepository
 
         return $query;
     }
+
+    public function save($data, $user)
+    {
+        $user->fill($data);
+        $user->save();
+
+        return $user;
+    }
+
 }
