@@ -861,6 +861,7 @@ class AccountController extends BaseController
         $account->currency_id = Input::get('currency_id') ? Input::get('currency_id') : 1; // US Dollar
         $account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
         $account->military_time = Input::get('military_time') ? true : false;
+        $account->show_currency_code = Input::get('show_currency_code') ? true : false;
         $account->save();
 
         event(new UserSettingsChanged());

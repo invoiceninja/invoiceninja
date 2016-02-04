@@ -1143,5 +1143,5 @@ return array(
     'invoice_currency' => 'Invoice Currency',
     'enable_https' => 'We strongly recommend using HTTPS to accept credit card details online.',
     'quote_issued_to' => 'Quote issued to',
-
+    'show_currency_code' => 'Currency Code',
 );
