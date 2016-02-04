@@ -129,26 +129,6 @@
             @if ($account->showCustomField('custom_invoice_text_label1', $invoice))
                 {!! Former::text('custom_text_value1')->label($account->custom_invoice_text_label1)->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
             @endif
-
-            @if ($entityType == ENTITY_INVOICE)
-            <div class="form-group" style="margin-bottom: 8px">
-                <div class="col-lg-8 col-sm-8 col-sm-offset-4" style="padding-top: 10px">
-                	@if ($invoice->recurring_invoice)
-                        {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
-    				@elseif ($invoice->id)
-                        <span class="smaller">
-                        @if (isset($lastSent) && $lastSent)
-                            {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!} <br/>
-                        @endif
-                        @if ($invoice->is_recurring && $invoice->getNextSendDate())
-                            {!! trans('texts.next_send_on', ['date' => '<span data-bind="tooltip: {title: \''.$invoice->getPrettySchedule().'\', html: true}">'.$account->formatDate($invoice->getNextSendDate()).
-                                    '<span class="glyphicon glyphicon-info-sign" style="padding-left:10px;color:#B1B5BA"></span></span>']) !!}
-                        @endif
-                        </span>
-                    @endif
-                </div>
-            </div>
-            @endif
 		</div>
 
 		<div class="col-md-4" id="col_2">
