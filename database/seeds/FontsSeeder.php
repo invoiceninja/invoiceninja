@@ -224,6 +224,7 @@ class FontsSeeder extends Seeder
 
         foreach ($fonts as $font) {
             if (!DB::table('fonts')->where('name', '=', $font['name'])->get()) {
+                $font['is_early_access'] = false;
                 Font::create($font);
             }
         }
