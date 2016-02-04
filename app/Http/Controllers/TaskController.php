@@ -145,6 +145,7 @@ class TaskController extends BaseController
             'actions' => $actions,
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
             'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
+            //'entityStatus' => $task->present()->status,
         ];
 
         $data = array_merge($data, self::getViewModel());

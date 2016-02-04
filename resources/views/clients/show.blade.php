@@ -21,43 +21,54 @@
 
 @section('content')
 
-	<div class="pull-right">
-		{!! Former::open('clients/bulk')->addClass('mainForm') !!}
-		<div style="display:none">
-			{!! Former::text('action') !!}
-			{!! Former::text('public_id')->value($client->public_id) !!}
-		</div>
+    <div class="row">
+        <div class="col-md-8">
+            <div>
+                <span style="font-size:28px">{{ $client->getDisplayName() }}</span>
+                @if ($client->trashed())
+                    &nbsp;&nbsp;{!! $client->present()->status !!}
+                @endif
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="pull-right">
+                {!! Former::open('clients/bulk')->addClass('mainForm') !!}
+                <div style="display:none">
+                    {!! Former::text('action') !!}
+                    {!! Former::text('public_id')->value($client->public_id) !!}
+                </div>
 
-        @if ($gatewayLink)
-            {!! Button::normal(trans('texts.view_in_stripe'))->asLinkTo($gatewayLink)->withAttributes(['target' => '_blank']) !!}
-        @endif
+                @if ($gatewayLink)
+                    {!! Button::normal(trans('texts.view_in_stripe'))->asLinkTo($gatewayLink)->withAttributes(['target' => '_blank']) !!}
+                @endif
 
-		@if ($client->trashed())
-			{!! Button::primary(trans('texts.restore_client'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
-		@else
-		    {!! DropdownButton::normal(trans('texts.edit_client'))
-                ->withAttributes(['class'=>'normalDropDown'])
-                ->withContents([
-			      ['label' => trans('texts.archive_client'), 'url' => "javascript:onArchiveClick()"],
-			      ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
-			    ]
-			  )->split() !!}
+                @if ($client->trashed())
+                    {!! Button::primary(trans('texts.restore_client'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
+                @else
+                    {!! DropdownButton::normal(trans('texts.edit_client'))
+                        ->withAttributes(['class'=>'normalDropDown'])
+                        ->withContents([
+                          ['label' => trans('texts.archive_client'), 'url' => "javascript:onArchiveClick()"],
+                          ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
+                        ]
+                      )->split() !!}
 
-			{!! DropdownButton::primary(trans('texts.new_invoice'))
-                    ->withAttributes(['class'=>'primaryDropDown'])
-                    ->withContents($actionLinks)->split() !!}
-		@endif
-	  {!! Former::close() !!}
+                    {!! DropdownButton::primary(trans('texts.new_invoice'))
+                            ->withAttributes(['class'=>'primaryDropDown'])
+                            ->withContents($actionLinks)->split() !!}
+                @endif
+              {!! Former::close() !!}
 
-	</div>
+            </div>
+        </div>
+    </div>
 
-
-	<h2>{{ $client->getDisplayName() }}</h2>
 	@if ($client->last_login > 0)
 	<h3 style="margin-top:0px"><small>
 		{{ trans('texts.last_logged_in') }} {{ Utils::timestampToDateTimeString(strtotime($client->last_login)) }}
 	</small></h3>
 	@endif
+    <br/>
 
     <div class="panel panel-default">
     <div class="panel-body">
