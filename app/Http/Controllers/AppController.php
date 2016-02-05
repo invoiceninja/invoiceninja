@@ -245,7 +245,6 @@ class AppController extends BaseController
                 set_time_limit(60 * 5);
                 Cache::flush();
                 Session::flush();
-                Artisan::call('optimize', array('--force' => true));
                 Artisan::call('migrate', array('--force' => true));
                 foreach ([
                     'PaymentLibraries',
@@ -255,6 +254,7 @@ class AppController extends BaseController
                 ] as $seeder) {
                     Artisan::call('db:seed', array('--force' => true, '--class' => "{$seeder}Seeder"));
                 }
+                Artisan::call('optimize', array('--force' => true));
                 Event::fire(new UserSettingsChanged());
                 Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {

@@ -290,6 +290,8 @@ class Account extends Eloquent
             $countryId = false;
         }
 
+        $hideSymbol = $this->show_currency_code || $hideSymbol;
+
         return Utils::formatMoney($amount, $currencyId, $countryId, $hideSymbol);
     }
 

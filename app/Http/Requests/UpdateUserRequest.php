@@ -1,10 +1,12 @@
 <?php namespace app\Http\Requests;
-// vendor
+
+use Auth;
 use App\Http\Requests\Request;
 use Illuminate\Validation\Factory;
 
-class UpdateVendorRequest extends Request
+class UpdateUserRequest extends Request
 {
+    // Expenses 
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -23,7 +25,9 @@ class UpdateVendorRequest extends Request
     public function rules()
     {
         return [
-            'name' => 'required',
+            'email' => 'email|required|unique:users,email,' . Auth::user()->id . ',id',
+            'first_name' => 'required',
+            'last_name' => 'required',
         ];
     }
 }

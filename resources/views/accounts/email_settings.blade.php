@@ -100,7 +100,7 @@
                 <div class="modal-body">
                     <p>{{ trans('texts.iframe_url_help1') }}</p>
                     <pre>&lt;center&gt;
-    &lt;iframe id="invoiceIFrame" width="1000" height="1200"&gt;&lt;/iframe&gt;
+    &lt;iframe id="invoiceIFrame" width="100%" height="1200" style="max-width:1000px"&gt;&lt;/iframe&gt;
 &lt;center&gt;
 &lt;script language="javascript"&gt;
     var iframe = document.getElementById('invoiceIFrame');

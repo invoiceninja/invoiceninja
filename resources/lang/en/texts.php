@@ -1130,7 +1130,7 @@ return array(
     'info' => 'Info',
     'imported_expenses' => 'Successfully created :count_vendors vendor(s) and :count_expenses expense(s)',
 
-    'iframe_url_help3' => 'Note: if you plan on accepting credit cards we strongly recommend having HTTPS enabled on your site.',
+    'iframe_url_help3' => 'Note: if you plan on accepting credit cards details we strongly recommend enabling HTTPS on your site.',
     'expense_error_multiple_currencies' => 'The expenses can\'t have different currencies.',
     'expense_error_mismatch_currencies' => 'The client\'s currency does not match the expense currency.',
     'trello_roadmap' => 'Trello Roadmap',
@@ -1143,5 +1143,5 @@ return array(
     'invoice_currency' => 'Invoice Currency',
     'enable_https' => 'We strongly recommend using HTTPS to accept credit card details online.',
     'quote_issued_to' => 'Quote issued to',
-
+    'show_currency_code' => 'Currency Code',
 );

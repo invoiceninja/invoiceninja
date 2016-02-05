@@ -519,7 +519,7 @@
   @endif
 
   @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-    {!! HTML::breadcrumbs() !!}
+    {!! HTML::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
   @endif
 
   @yield('content')		
