@@ -64,6 +64,26 @@ class PaymentApiController extends BaseAPIController
         return $this->response($data);
     }
 
+        public function update($publicId)
+        {
+            $data = Input::all();
+            $data['public_id'] = $publicId;
+
+            $error = false;
+
+            $payment = $this->paymentRepo->save($data);
+
+            if ($error) {
+                return $error;
+            }
+
+            $invoice = Invoice::scope($payment->invoice_id)->with('client', 'invoice_items', 'invitations')->first();
+            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($invoice, $transformer, 'invoice');
+
+            return $this->response($data);
+        }
+
     /**
      * @SWG\Post(
      *   path="/payments",
