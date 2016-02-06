@@ -64,6 +64,44 @@ class PaymentApiController extends BaseAPIController
         return $this->response($data);
     }
 
+
+            /**
+             * @SWG\Put(
+             *   path="/payments/{payment_id",
+             *   summary="Update a payment",
+             *   tags={"payment"},
+             *   @SWG\Parameter(
+             *     in="body",
+             *     name="body",
+             *     @SWG\Schema(ref="#/definitions/Payment")
+             *   ),
+             *   @SWG\Response(
+             *     response=200,
+             *     description="Update payment",
+             *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
+             *   ),
+             *   @SWG\Response(
+             *     response="default",
+             *     description="an ""unexpected"" error"
+             *   )
+             * )
+             */
+        public function update($publicId)
+        {
+            $data = Input::all();
+            $data['public_id'] = $publicId;
+            $error = false;
+            $payment = $this->paymentRepo->save($data);
+            if ($error) {
+                return $error;
+            }
+            $invoice = Invoice::scope($payment->invoice_id)->with('client', 'invoice_items', 'invitations')->first();
+            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($invoice, $transformer, 'invoice');
+            return $this->response($data);
+        }
+
+    
     /**
      * @SWG\Post(
      *   path="/payments",
