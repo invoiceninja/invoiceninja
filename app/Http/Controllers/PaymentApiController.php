@@ -156,13 +156,15 @@ class PaymentApiController extends BaseAPIController
             $this->contactMailer->sendPaymentConfirmation($payment);
         }
 
-        Log::info($payment);
         /*
         $payment = Payment::scope($payment->public_id)->with('client', 'contact', 'user', 'invoice')->first();
         $transformer = new PaymentTransformer(Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($payment, $transformer, 'payment');
         */
-        $invoice = Invoice::scope($payment->invoice_id)->with('client', 'invoice_items', 'invitations')->first();
+        $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->first();
+
+
+
         $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($invoice, $transformer, 'invoice');
 
