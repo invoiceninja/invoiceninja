@@ -2,6 +2,7 @@
 
 use App\Ninja\Mailers\ContactMailer;
 use Auth;
+use Illuminate\Support\Facades\Log;
 use Input;
 use Utils;
 use Response;
@@ -156,7 +157,6 @@ class PaymentApiController extends BaseAPIController
         }
 
         Log::info($payment);
-        
         /*
         $payment = Payment::scope($payment->public_id)->with('client', 'contact', 'user', 'invoice')->first();
         $transformer = new PaymentTransformer(Auth::user()->account, Input::get('serializer'));
