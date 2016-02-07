@@ -345,7 +345,7 @@ return array(
 
     'chart_builder' => 'Concepteur de graphiques',
     'ninja_email_footer' => 'Utilisez :site pour facturer vos clients et être payés en ligne gratuitement!',
-    'go_pro' => 'Passez au Plan Pro',
+    'go_pro' => 'Devenez Pro',
 
     // Quotes
     'quote' => 'Devis',
