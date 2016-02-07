@@ -91,12 +91,14 @@ class PaymentApiController extends BaseAPIController
         {
             $data = Input::all();
             $data['public_id'] = $publicId;
+            $invoice = Invoice::scope($data['invoice_id'])->with('client')->first();
+
             $error = false;
             $payment = $this->paymentRepo->save($data);
             if ($error) {
                 return $error;
             }
-            $invoice = Invoice::scope($payment->invoice_id)->with('client', 'invoice_items', 'invitations')->first();
+            $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->first();
             $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
             $data = $this->createItem($invoice, $transformer, 'invoice');
             return $this->response($data);
