@@ -2,7 +2,7 @@
 
 use App\Ninja\Mailers\ContactMailer;
 use Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 use Input;
 use Utils;
 use Response;
@@ -87,18 +87,31 @@ class PaymentApiController extends BaseAPIController
              *   )
              * )
              */
-        public function update($publicId)
+
+        public function update(Request $request, $publicId)
         {
             $data = Input::all();
             $data['public_id'] = $publicId;
-            $invoice = Invoice::scope($data['invoice_id'])->with('client')->first();
-
             $error = false;
-            $payment = $this->paymentRepo->save($data);
+
+            if ($request->action == ACTION_ARCHIVE) {
+                $payment = Payment::scope($publicId)->firstOrFail();
+                $this->paymentRepo->archive($payment);
+
+                $invoice = Invoice::scope($data['invoice_id'])->with('client')->first();
+                $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+                $data = $this->createItem($invoice, $transformer, 'invoice');
+
+                return $this->response($data);
+            }
+
+            $this->paymentRepo->save($data);
+
             if ($error) {
                 return $error;
             }
-            $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->first();
+
+            $invoice = Invoice::scope($data['invoice_id'])->with('client', 'invoice_items', 'invitations','payments')->first();
             $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
             $data = $this->createItem($invoice, $transformer, 'invoice');
             return $this->response($data);
@@ -165,11 +178,44 @@ class PaymentApiController extends BaseAPIController
         */
         $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->first();
 
-
-
         $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($invoice, $transformer, 'invoice');
 
         return $this->response($data);
     }
+
+        /**
+         * @SWG\Delete(
+         *   path="/payments/{payment_id}",
+         *   summary="Delete a payment",
+         *   tags={"payment"},
+         *   @SWG\Parameter(
+         *     in="body",
+         *     name="body",
+         *     @SWG\Schema(ref="#/definitions/Payment")
+         *   ),
+         *   @SWG\Response(
+         *     response=200,
+         *     description="Delete payment",
+         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
+         *   ),
+         *   @SWG\Response(
+         *     response="default",
+         *     description="an ""unexpected"" error"
+         *   )
+         * )
+         */
+
+        public function destroy($publicId)
+        {
+            $payment = Payment::scope($publicId)->withTrashed()->first();
+            $invoice = Invoice::scope($payment->invoice->public_id)->first();
+
+            $this->paymentRepo->delete($payment);
+
+            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($invoice, $transformer, 'invoice');
+
+            return $this->response($data);
+        }
 }
