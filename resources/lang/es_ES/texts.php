@@ -4,7 +4,7 @@ return array(
 
     // client
     'organization' => 'Empresa',
-    'name' => 'Nombre de Empresa',
+    'name' => 'Nombre',
     'website' => 'Sitio Web',
     'work_phone' => 'Teléfono',
     'address' => 'Dirección',
@@ -995,7 +995,7 @@ return array(
     'expenses' => 'Gastos',
     'new_expense' => 'Nuevo Gasto',
     'enter_expense' => 'Introducir Gasto',
-    'vendors' => 'Proveedor',
+    'vendors' => 'Proveedores',
     'new_vendor' => 'Nuevo Proveedor',
     'payment_terms_net' => 'Net',
     'vendor' => 'Proveedor',
@@ -1029,7 +1029,7 @@ return array(
     'enter_expense' => 'Introducir Gasto',
     'view' => 'Ver',
     'restore_expense' => 'Restaurar Gasto',
-    'invoice_expense' => 'Gasto factura',
+    'invoice_expense' => 'Facturar Gasto',
     'expense_error_multiple_clients' => 'Los gastos no pertenecen a diferentes clientes',
     'expense_error_invoiced' => 'El gasto ya ha sido Facturado',
     'convert_currency' => 'Convertir moneda',
