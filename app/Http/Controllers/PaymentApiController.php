@@ -101,7 +101,7 @@ class PaymentApiController extends BaseAPIController
             return $this->response($data);
         }
 
-    
+
     /**
      * @SWG\Post(
      *   path="/payments",
@@ -155,6 +155,8 @@ class PaymentApiController extends BaseAPIController
             $this->contactMailer->sendPaymentConfirmation($payment);
         }
 
+        Log::info($payment);
+        
         /*
         $payment = Payment::scope($payment->public_id)->with('client', 'contact', 'user', 'invoice')->first();
         $transformer = new PaymentTransformer(Auth::user()->account, Input::get('serializer'));
