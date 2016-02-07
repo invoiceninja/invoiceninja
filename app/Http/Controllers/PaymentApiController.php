@@ -2,6 +2,7 @@
 
 use App\Ninja\Mailers\ContactMailer;
 use Auth;
+use Illuminate\Support\Facades\Log;
 use Input;
 use Utils;
 use Response;
@@ -90,18 +91,20 @@ class PaymentApiController extends BaseAPIController
         {
             $data = Input::all();
             $data['public_id'] = $publicId;
+            $invoice = Invoice::scope($data['invoice_id'])->with('client')->first();
+
             $error = false;
             $payment = $this->paymentRepo->save($data);
             if ($error) {
                 return $error;
             }
-            $invoice = Invoice::scope($payment->invoice_id)->with('client', 'invoice_items', 'invitations')->first();
+            $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->first();
             $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
             $data = $this->createItem($invoice, $transformer, 'invoice');
             return $this->response($data);
         }
 
-    
+
     /**
      * @SWG\Post(
      *   path="/payments",
@@ -160,7 +163,10 @@ class PaymentApiController extends BaseAPIController
         $transformer = new PaymentTransformer(Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($payment, $transformer, 'payment');
         */
-        $invoice = Invoice::scope($payment->invoice_id)->with('client', 'invoice_items', 'invitations')->first();
+        $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->first();
+
+
+
         $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($invoice, $transformer, 'invoice');
 
