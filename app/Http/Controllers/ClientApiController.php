@@ -67,7 +67,7 @@ class ClientApiController extends BaseAPIController
         $clients = $clients->paginate();
 
         $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
-        $paginator = Client::scope()->paginate();
+        $paginator = Client::scope()->withTrashed()->paginate();
 
         $data = $this->createCollection($clients, $transformer, ENTITY_CLIENT, $paginator);
 
