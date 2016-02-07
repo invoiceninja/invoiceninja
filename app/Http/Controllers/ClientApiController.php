@@ -51,8 +51,8 @@ class ClientApiController extends BaseAPIController
     public function index()
     {
         $clients = Client::scope()
-                    ->with($this->getIncluded())
-                    ->orderBy('created_at', 'desc')->withTrashed();
+            ->with($this->getIncluded())
+            ->orderBy('created_at', 'desc')->withTrashed();
 
         // Filter by email
         if (Input::has('email')) {
@@ -100,8 +100,8 @@ class ClientApiController extends BaseAPIController
         $client = $this->clientRepo->save($request->input());
 
         $client = Client::scope($client->public_id)
-                    ->with('country', 'contacts', 'industry', 'size', 'currency')
-                    ->first();
+            ->with('country', 'contacts', 'industry', 'size', 'currency')
+            ->first();
 
         $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
@@ -156,4 +156,7 @@ class ClientApiController extends BaseAPIController
 
         return $this->response($data);
     }
+
+
+
 }
