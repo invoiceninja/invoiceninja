@@ -46,7 +46,7 @@ class PaymentApiController extends BaseAPIController
     {
         $paginator = Payment::scope();
         $payments = Payment::scope()
-                        ->with('client.contacts', 'invitation', 'user', 'invoice');
+                        ->with('client.contacts', 'invitation', 'user', 'invoice')->withTrashed();
 
         if ($clientPublicId = Input::get('client_id')) {
             $filter = function($query) use ($clientPublicId) {
@@ -95,23 +95,23 @@ class PaymentApiController extends BaseAPIController
             $error = false;
 
             if ($request->action == ACTION_ARCHIVE) {
-                $payment = Payment::scope($publicId)->firstOrFail();
+                $payment = Payment::scope($publicId)->withTrashed()->firstOrFail();
                 $this->paymentRepo->archive($payment);
 
-                $invoice = Invoice::scope($data['invoice_id'])->with('client')->first();
+                $invoice = Invoice::scope($data['invoice_id'])->with('client','payments')->withTrashed()->first();
                 $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
                 $data = $this->createItem($invoice, $transformer, 'invoice');
 
                 return $this->response($data);
             }
 
-            $this->paymentRepo->save($data);
+            $payment = $this->paymentRepo->save($data);
 
             if ($error) {
                 return $error;
             }
 
-            $invoice = Invoice::scope($data['invoice_id'])->with('client', 'invoice_items', 'invitations','payments')->first();
+            $invoice = Invoice::scope($data['invoice_id'])->with('client', 'invoice_items', 'invitations','payments')->withTrashed()->first();
             $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
             $data = $this->createItem($invoice, $transformer, 'invoice');
             return $this->response($data);
@@ -208,10 +208,13 @@ class PaymentApiController extends BaseAPIController
 
         public function destroy($publicId)
         {
+
             $payment = Payment::scope($publicId)->withTrashed()->first();
-            $invoice = Invoice::scope($payment->invoice->public_id)->first();
+            $invoiceId = $payment->invoice->public_id;
 
             $this->paymentRepo->delete($payment);
+
+            $invoice = Invoice::scope($invoiceId)->with('payments')->withTrashed()->first();
 
             $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
             $data = $this->createItem($invoice, $transformer, 'invoice');
