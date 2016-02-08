@@ -158,5 +158,45 @@ class ClientApiController extends BaseAPIController
     }
 
 
+    /**
+     * @SWG\Delete(
+     *   path="/clients/{client_id}",
+     *   tags={"client"},
+     *   summary="Delete a client",
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Client")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Delete client",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    
+    public function destroy($publicId)
+    {
+
+        $client = Client::scope($publicId)->withTrashed()->first();
+        $this->clientRepo->delete($client);
+
+        $client = Client::scope($publicId)
+            ->with('country', 'contacts', 'industry', 'size', 'currency')
+            ->withTrashed()
+            ->first();
+
+        $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
+        $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
+
+        return $this->response($data);
+
+    }
+
 
 }
