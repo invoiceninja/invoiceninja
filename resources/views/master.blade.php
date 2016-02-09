@@ -77,11 +77,11 @@
             }
         } );
         
-        /*   
+		var appLocale = '{{App::getLocale()}}';
+  
         $.extend( true, $.fn.datepicker.defaults, {
-            language:'{{App::getLocale()}}'
+			language: appLocale.replace("_", "-")
         });
-        */
         
         @if (env('FACEBOOK_PIXEL'))
             <!-- Facebook Pixel Code -->
