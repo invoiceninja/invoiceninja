@@ -18,12 +18,15 @@ class Expense extends EntityModel
     protected $fillable = [
         'client_id',
         'vendor_id',
-        'currency_id',
+        'expense_currency_id',
+        'invoice_currency_id',
         'amount',
         'foreign_amount',
         'exchange_rate',
         'private_notes',
         'public_notes',
+        'bank_id',
+        'transaction_id',
     ];
     public function account()
     {

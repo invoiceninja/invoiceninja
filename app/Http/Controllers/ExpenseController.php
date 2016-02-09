@@ -48,6 +48,7 @@ class ExpenseController extends BaseController
             'columns' => Utils::trans([
               'checkbox',
               'vendor',
+              'client',
               'expense_date',
               'amount',
               'public_notes',
@@ -59,7 +60,7 @@ class ExpenseController extends BaseController
 
     public function getDatatable($expensePublicId = null)
     {
-        return $this->expenseService->getDatatable($expensePublicId, Input::get('sSearch'));
+        return $this->expenseService->getDatatable(Input::get('sSearch'));
     }
 
     public function getDatatableVendor($vendorPublicId = null)
@@ -152,7 +153,7 @@ class ExpenseController extends BaseController
      */
     public function update(UpdateExpenseRequest $request)
     {
-        $expense = $this->expenseRepo->save($request->input());
+        $expense = $this->expenseService->save($request->input());
 
         Session::flash('message', trans('texts.updated_expense'));
 
@@ -166,7 +167,7 @@ class ExpenseController extends BaseController
 
     public function store(CreateExpenseRequest $request)
     {
-        $expense = $this->expenseRepo->save($request->input());
+        $expense = $this->expenseService->save($request->input());
 
         Session::flash('message', trans('texts.created_expense'));
 
@@ -181,20 +182,28 @@ class ExpenseController extends BaseController
         switch($action)
         {
             case 'invoice':
-                $expenses       = Expense::scope($ids)->get();
+                $expenses = Expense::scope($ids)->with('client')->get();
                 $clientPublicId = null;
-                $data           = [];
+                $currencyId = null;
+                $data = [];
 
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
                 foreach ($expenses as $expense)
                 {
-                    if ($expense->client_id) {
+                    if ($expense->client) {
                         if (!$clientPublicId) {
-                            $clientPublicId = $expense->client_id;
-                        } elseif ($clientPublicId != $expense->client_id) {
+                            $clientPublicId = $expense->client->public_id;
+                        } elseif ($clientPublicId != $expense->client->public_id) {
                             Session::flash('error', trans('texts.expense_error_multiple_clients'));
                             return Redirect::to('expenses');
                         }
+                    }
+
+                    if (!$currencyId) {
+                        $currencyId = $expense->invoice_currency_id;
+                    } elseif ($currencyId != $expense->invoice_currency_id && $expense->invoice_currency_id) {
+                        Session::flash('error', trans('texts.expense_error_multiple_currencies'));
+                        return Redirect::to('expenses');
                     }
 
                     if ($expense->invoice_id) {
@@ -211,7 +220,9 @@ class ExpenseController extends BaseController
                     ];
                 }
 
-                return Redirect::to("invoices/create/{$clientPublicId}")->with('expenses', $data);
+                return Redirect::to("invoices/create/{$clientPublicId}")
+                        ->with('expenseCurrencyId', $currencyId)
+                        ->with('expenses', $data);
                 break;
 
             default:

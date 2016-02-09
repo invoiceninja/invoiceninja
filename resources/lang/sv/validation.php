@@ -80,7 +80,7 @@ return [
     "has_counter" => 'The value must contain {$counter}',
     "valid_contacts" => "All of the contacts must have either an email or name",
     "valid_invoice_items" => "The invoice exceeds the maximum amount",
-    
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

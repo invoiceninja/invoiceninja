@@ -23,7 +23,7 @@ class UpdateVendorRequest extends Request
     public function rules()
     {
         return [
-            'vendor_contacts' => 'valid_contacts',
+            'name' => 'required',
         ];
     }
 }

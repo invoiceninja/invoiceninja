@@ -18,10 +18,12 @@ class AddQuoteToInvoiceOption extends Migration
         });
         
         // we need to create the last status to resolve a foreign key constraint
-        DB::table('invoice_statuses')->insert([
-            'id' => 6,
-            'name' => 'Paid'
-        ]);
+        if (DB::table('invoice_statuses')->count() == 5) {
+            DB::table('invoice_statuses')->insert([
+                'id' => 6,
+                'name' => 'Paid'
+            ]);
+        }
 
         DB::table('invoices')
             ->whereIn('invoice_status_id', [4, 5])

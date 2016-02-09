@@ -25,10 +25,20 @@ class InvoiceTransformer extends EntityTransformer
         'payments'
     ];
 
+    protected $availableIncludes = [
+        'invitations',
+    ];
+
     public function includeInvoiceItems(Invoice $invoice)
     {
         $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
         return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEMS);
+    }
+
+    public function includeInvitations(Invoice $invoice)
+    {
+        $transformer = new InvitationTransformer($this->account, $this->serializer);
+        return $this->includeCollection($invoice->invitations, $transformer, ENTITY_INVITATION);
     }
 
     public function includePayments(Invoice $invoice)
@@ -78,6 +88,7 @@ class InvoiceTransformer extends EntityTransformer
             'custom_taxes1' => (bool) $invoice->custom_taxes1,
             'custom_taxes2' => (bool) $invoice->custom_taxes2,
             'has_expenses' => (bool) $invoice->has_expenses,
+            'quote_invoice_id' => (int) $invoice->quote_invoice_id,
         ];
     }
 }

@@ -13,7 +13,7 @@
 ### Reseller Program
 There are two options:
 * 10% of revenue
-* $1,000 for a site limited to 1,000 accounts
+* $1,000 for a site limited to 1,000 users
 
 ### Installation Options
 * [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
@@ -95,3 +95,5 @@ There are two options:
 * [thephpleague/fractal](https://github.com/thephpleague/fractal) - Output complex, flexible, AJAX/RESTful data structures
 * [ezyang/htmlpurifier](https://github.com/ezyang/htmlpurifier) - Standards compliant HTML filter written in PHP
 * [cerdic/css-tidy](https://github.com/Cerdic/CSSTidy) - CSSTidy is a CSS minifier
+* [asgrim/ofxparser](https://github.com/asgrim/ofxparser) - OFX File Parser
+* [stacktracejs/stacktrace.js](https://github.com/stacktracejs/stacktrace.js) - Framework-agnostic, micro-library for getting stack traces in all web browsers

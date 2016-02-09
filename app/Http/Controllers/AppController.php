@@ -206,15 +206,15 @@ class AppController extends BaseController
 
         Config::set('mail.from.address', $email);
         Config::set('mail.from.name', $fromName);
-
+        
         $data = [
             'text' => 'Test email',
         ];
 
         try {
-            $this->mailer->sendTo($email, $email, $fromName, 'Test email', 'contact', $data);
+            $response = $this->mailer->sendTo($email, $email, $fromName, 'Test email', 'contact', $data);
 
-            return 'Sent';
+            return $response === true ? 'Sent' : $response;
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -224,6 +224,7 @@ class AppController extends BaseController
     {
         if (!Utils::isNinjaProd() && !Utils::isDatabaseSetup()) {
             try {
+                set_time_limit(60 * 5); // shouldn't take this long but just in case
                 Artisan::call('migrate', array('--force' => true));
                 if (Industry::count() == 0) {
                     Artisan::call('db:seed', array('--force' => true));
@@ -241,12 +242,19 @@ class AppController extends BaseController
     {
         if (!Utils::isNinjaProd()) {
             try {
+                set_time_limit(60 * 5);
                 Cache::flush();
                 Session::flush();
-                Artisan::call('optimize', array('--force' => true));
                 Artisan::call('migrate', array('--force' => true));
-                Artisan::call('db:seed', array('--force' => true, '--class' => 'PaymentLibrariesSeeder'));
-                Artisan::call('db:seed', array('--force' => true, '--class' => 'FontsSeeder'));
+                foreach ([
+                    'PaymentLibraries',
+                    'Fonts',
+                    'Banks',
+                    'InvoiceStatus'
+                ] as $seeder) {
+                    Artisan::call('db:seed', array('--force' => true, '--class' => "{$seeder}Seeder"));
+                }
+                Artisan::call('optimize', array('--force' => true));
                 Event::fire(new UserSettingsChanged());
                 Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {
@@ -270,5 +278,37 @@ class AppController extends BaseController
         return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
         
         return RESULT_SUCCESS;
+    }
+
+    public function stats()
+    {
+        if (Input::get('password') != env('RESELLER_PASSWORD')) {
+            sleep(3);
+            return '';
+        }
+
+        if (Utils::getResllerType() == RESELLER_REVENUE_SHARE) {
+            $payments = DB::table('accounts')
+                            ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
+                            ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
+                            ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
+                            ->where('payments.is_deleted', '=', false)
+                            ->get([
+                                'clients.public_id as client_id',
+                                'payments.public_id as payment_id',
+                                'payments.payment_date',
+                                'payments.amount'
+                            ]);
+        } else {
+            $payments = DB::table('accounts')
+                            ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
+                            ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
+                            ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
+                            ->where('payments.is_deleted', '=', false)
+                            ->groupBy('clients.id')
+                            ->count();
+        }
+
+        return json_encode($payments);
     }
 }

@@ -54,15 +54,16 @@ function GetPdfMake(invoice, javascript, callback) {
             }
         }
 
-        // only show the header on the first page 
-        // and the footer on the last page
-        if (key === 'header') {
-            return function(page, pages) {
-                return page === 1 ? val : '';
-            }
-        } else if (invoice.is_pro && key === 'footer') {
-            return function(page, pages) {
-                return page === pages ? val : '';
+        // determine whether or not to show the header/footer
+        if (invoice.is_pro) {
+            if (key === 'header') {
+                return function(page, pages) {
+                    return page === 1 || account.all_pages_header ? val : '';
+                }
+            } else if (key === 'footer') {
+                return function(page, pages) {
+                    return page === pages || account.all_pages_footer ? val : '';
+                }
             }
         }
 
@@ -190,8 +191,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
             if (match.indexOf('?') < 0 || value) {
                 if (invoice.partial && field == 'balance_due') {
                     field = 'amount_due';
-                } else if (invoice.is_quote && field == 'your_invoice') {
-                    field = 'your_quote';
+                } else if (invoice.is_quote) {
+                    field = field.replace('invoice', 'quote');
                 }
                 var label = invoiceLabels[field];
                 if (match.indexOf('UC') >= 0) {
@@ -334,9 +335,6 @@ NINJA.invoiceLines = function(invoice) {
         }
 
         var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
-        if (showItemTaxes && tax) {
-            lineTotal += lineTotal * tax / 100;
-        }
         lineTotal = formatMoneyInvoice(lineTotal, invoice);
 
         rowStyle = (i % 2 == 0) ? 'odd' : 'even';

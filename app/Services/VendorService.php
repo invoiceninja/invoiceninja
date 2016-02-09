@@ -50,9 +50,15 @@ class VendorService extends BaseService
                 }
             ],
             [
-                'first_name',
+                'city',
                 function ($model) {
-                    return link_to("vendors/{$model->public_id}", $model->first_name.' '.$model->last_name);
+                    return $model->city;
+                }
+            ],
+            [
+                'work_phone',
+                function ($model) {
+                    return $model->work_phone;
                 }
             ],
             [

@@ -264,12 +264,12 @@
     }, 3000);
 
     $('#search').blur(function(){
-      $('#search').css('width', '{{ Utils::isEnglish() ? 150 : 110 }}px');
+      $('#search').css('width', '110px');
       $('ul.navbar-right').show();
     });
 
     $('#search').focus(function(){
-      $('#search').css('width', '{{ Utils::isEnglish() ? 264 : 216 }}px');
+      $('#search').css('width', '224px');
       $('ul.navbar-right').hide();
       if (!window.hasOwnProperty('searchData')) {
         trackEvent('/activity', '/search');
@@ -364,7 +364,7 @@
         <span class="icon-bar"></span>
       </button>
       <a href="{{ URL::to(NINJA_WEB_URL) }}" class='navbar-brand' target="_blank">
-        <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:18px;width:auto"/>
+        <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:20px;width:auto;padding-right:10px"/>
       </a>	    
     </div>
 
@@ -480,7 +480,7 @@
 
       <form class="navbar-form navbar-right" role="search">
         <div class="form-group">
-          <input type="text" id="search" style="width: {{ Utils::isEnglish() ? 150 : 110 }}px;padding-top:0px;padding-bottom:0px" 
+          <input type="text" id="search" style="width: 110px;padding-top:0px;padding-bottom:0px" 
             class="form-control" placeholder="{{ trans('texts.search') }}">
         </div>
       </form>
@@ -519,7 +519,7 @@
   @endif
 
   @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-    {!! HTML::breadcrumbs() !!}
+    {!! HTML::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
   @endif
 
   @yield('content')		
@@ -699,8 +699,9 @@
 </div>
 <p>&nbsp;</p>
 <div class="container">
-  {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> -
-  {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank']) !!} | 
+  {{ trans('texts.powered_by') }}
+  {!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => 'invoiceninja.com']) !!} -
+  {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank', 'title' => trans('texts.trello_roadmap')]) !!} | 
   @if (Auth::user()->account->isWhiteLabel())  
     {{ trans('texts.white_labeled') }}
   @else

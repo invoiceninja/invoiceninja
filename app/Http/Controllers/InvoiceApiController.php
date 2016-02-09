@@ -185,6 +185,10 @@ class InvoiceApiController extends BaseAPIController
             'partial' => 0
         ];
 
+        if (!isset($data['invoice_status_id']) || $data['invoice_status_id'] == 0) {
+            $data['invoice_status_id'] = INVOICE_STATUS_DRAFT;
+        }
+
         if (!isset($data['invoice_date'])) {
             $fields['invoice_date_sql'] = date_create()->format('Y-m-d');
         }
@@ -250,26 +254,21 @@ class InvoiceApiController extends BaseAPIController
         $data = Input::all();
         $error = null;
 
-        if (!isset($data['id'])) {
-            $error = trans('validation.required', ['attribute' => 'id']);
-        } else {
-            $invoice = Invoice::scope($data['id'])->first();
-            if (!$invoice) {
-                $error = trans('validation.not_in', ['attribute' => 'id']);
-            } else {
-                $this->mailer->sendInvoice($invoice);
-            }
-        }
+        $invoice = Invoice::scope($data['id'])->firstOrFail();
 
-        if ($error) {
-            $response = json_encode($error, JSON_PRETTY_PRINT);
-        } else {
+        $this->mailer->sendInvoice($invoice);
+
+        if($error) {
+            $response['error'] = "There was an error sending the invoice";
+        }
+        else {
             $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
         }
 
         $headers = Utils::getApiHeaders();
         return Response::make($response, $error ? 400 : 200, $headers);
     }
+
 
         /**
          * @SWG\Put(
@@ -297,11 +296,25 @@ class InvoiceApiController extends BaseAPIController
         if ($request->action == ACTION_ARCHIVE) {
             $invoice = Invoice::scope($publicId)->firstOrFail();
             $this->invoiceRepo->archive($invoice);
-            /*
-            $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
-            $headers = Utils::getApiHeaders();
-            return Response::make($response, 200, $headers);
-            */
+
+            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($invoice, $transformer, 'invoice');
+
+            return $this->response($data);
+        }
+        else if ($request->action == ACTION_CONVERT) {
+            $quote = Invoice::scope($publicId)->firstOrFail();
+            $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
+
+            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($invoice, $transformer, 'invoice');
+
+            return $this->response($data);
+        }
+        else if ($request->action == ACTION_RESTORE) {
+            $invoice = Invoice::scope($publicId)->withTrashed()->firstOrFail();
+            $this->invoiceRepo->restore($invoice);
+
             $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
             $data = $this->createItem($invoice, $transformer, 'invoice');
 

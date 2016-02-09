@@ -21,6 +21,30 @@ class Account extends Eloquent
     protected $dates = ['deleted_at'];
     protected $hidden = ['ip'];
 
+    protected $fillable = [
+        'name',
+        'id_number',
+        'vat_number',
+        'work_email',
+        'website',
+        'work_phone',
+        'address1',
+        'address2',
+        'city',
+        'state',
+        'postal_code',
+        'country_id',
+        'size_id',
+        'industry_id',
+        'email_footer',
+        'timezone_id',
+        'date_format_id',
+        'datetime_format_id',
+        'currency_id',
+        'language_id',
+        'military_time',
+    ];
+
     public static $basicSettings = [
         ACCOUNT_COMPANY_DETAILS,
         ACCOUNT_USER_DETAILS,
@@ -140,6 +164,24 @@ class Account extends Eloquent
         return $this->belongsTo('App\Models\TaxRate');
     }
 
+
+    public function setIndustryIdAttribute($value)
+    {
+        $this->attributes['industry_id'] = $value ?: null;
+    }
+
+    public function setCountryIdAttribute($value)
+    {
+        $this->attributes['country_id'] = $value ?: null;
+    }
+
+    public function setSizeIdAttribute($value)
+    {
+        $this->attributes['size_id'] = $value ?: null;
+    }
+
+
+
     public function isGatewayConfigured($gatewayId = 0)
     {
         $this->load('account_gateways');
@@ -247,6 +289,8 @@ class Account extends Eloquent
         } else {
             $countryId = false;
         }
+
+        $hideSymbol = $this->show_currency_code || $hideSymbol;
 
         return Utils::formatMoney($amount, $currencyId, $countryId, $hideSymbol);
     }
@@ -604,6 +648,7 @@ class Account extends Eloquent
             'quote_number',
             'total',
             'invoice_issued_to',
+            'quote_issued_to',
             //'date',
             'rate',
             'hours',

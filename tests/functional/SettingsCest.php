@@ -129,21 +129,6 @@ class SettingsCest
     }
     */
     
-    public function updateInvoiceDesign(FunctionalTester $I)
-    {
-        $I->wantTo('update invoice design');
-        $I->amOnPage('/settings/invoice_design');
-
-        $color = $this->faker->hexcolor;
-
-        $I->fillField(['name' => 'labels_item'], $this->faker->text(14));
-        $I->fillField(['name' => 'primary_color'], $color);
-        $I->click('Save');
-
-        $I->seeResponseCodeIs(200);
-        $I->seeRecord('accounts', array('primary_color' => $color));
-    }
-
     public function updateInvoiceSettings(FunctionalTester $I)
     {
         $I->wantTo('update invoice settings');

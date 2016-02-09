@@ -296,7 +296,7 @@ class InvoiceController extends BaseController
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
-            'products' => Product::scope()->with('default_tax_rate')->orderBy('id')->get(),
+            'products' => Product::scope()->with('default_tax_rate')->orderBy('product_key')->get(),
             'taxRates' => TaxRate::scope()->orderBy('name')->get(),
             'currencies' => Cache::get('currencies'),
             'languages' => Cache::get('languages'),
@@ -320,6 +320,7 @@ class InvoiceController extends BaseController
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
             'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
             'expenses' => Session::get('expenses') ? json_encode(Session::get('expenses')) : null,
+            'expenseCurrencyId' => Session::get('expenseCurrencyId') ?: null,
         ];
 
     }
@@ -333,7 +334,7 @@ class InvoiceController extends BaseController
     {
         $action = Input::get('action');
         $entityType = Input::get('entityType');
-
+        
         $invoice = $this->invoiceService->save($request->input());
         $entityType = $invoice->getEntityType();
         $message = trans("texts.created_{$entityType}");

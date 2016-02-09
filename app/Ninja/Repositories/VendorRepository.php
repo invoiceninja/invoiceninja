@@ -39,6 +39,7 @@ class VendorRepository extends BaseRepository
                         'vendor_contacts.last_name',
                         'vendors.created_at',
                         'vendors.work_phone',
+                        'vendors.city',
                         'vendor_contacts.email',
                         'vendors.deleted_at',
                         'vendors.is_deleted'
@@ -72,10 +73,6 @@ class VendorRepository extends BaseRepository
 
         $vendor->fill($data);
         $vendor->save();
-
-        if ( ! isset($data['vendorcontact']) && ! isset($data['vendorcontacts'])) {
-            return $vendor;
-        }
 
         $first              = true;
         $vendorcontacts     = isset($data['vendorcontact']) ? [$data['vendorcontact']] : $data['vendorcontacts'];

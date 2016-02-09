@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use Crypt;
 use Cache;
 use Auth;
 use Datatable;
@@ -11,23 +10,27 @@ use Session;
 use View;
 use Validator;
 use stdClass;
+use Crypt;
 use URL;
 use Utils;
 use App\Models\Gateway;
 use App\Models\Account;
 use App\Models\BankAccount;
-use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Repositories\BankAccountRepository;
 use App\Services\BankAccountService;
+use App\Http\Requests\CreateBankAccountRequest;
 
 class BankAccountController extends BaseController
 {
     protected $bankAccountService;
+    protected $bankAccountRepo;
 
-    public function __construct(BankAccountService $bankAccountService)
+    public function __construct(BankAccountService $bankAccountService, BankAccountRepository $bankAccountRepo)
     {
         parent::__construct();
 
         $this->bankAccountService = $bankAccountService;
+        $this->bankAccountRepo = $bankAccountRepo;
     }
 
     public function index()
@@ -43,11 +46,8 @@ class BankAccountController extends BaseController
     public function edit($publicId)
     {
         $bankAccount = BankAccount::scope($publicId)->firstOrFail();
-        $bankAccount->username = str_repeat('*', 16);
 
         $data = [
-            'url' => 'bank_accounts/' . $publicId,
-            'method' => 'PUT',
             'title' => trans('texts.edit_bank_account'),
             'banks' => Cache::get('banks'),
             'bankAccount' => $bankAccount,
@@ -61,11 +61,6 @@ class BankAccountController extends BaseController
         return $this->save($publicId);
     }
 
-    public function store()
-    {
-        return $this->save();
-    }
-
     /**
      * Displays the form for account creation
      *
@@ -73,9 +68,6 @@ class BankAccountController extends BaseController
     public function create()
     {
         $data = [
-            'url' => 'bank_accounts',
-            'method' => 'POST',
-            'title' => trans('texts.add_bank_account'),
             'banks' => Cache::get('banks'),
             'bankAccount' => null,
         ];
@@ -94,59 +86,40 @@ class BankAccountController extends BaseController
         return Redirect::to('settings/' . ACCOUNT_BANKS);
     }
 
-    /**
-     * Stores new account
-     *
-     */
-    public function save($bankAccountPublicId = false)
+    public function validateAccount()
     {
-        $account = Auth::user()->account;
-        $bankId = Input::get('bank_id');
-        $username = Input::get('bank_username');
-
-        $rules = [
-            'bank_id' => $bankAccountPublicId ? '' : 'required',
-            'bank_username' => 'required',
-        ];
-
-        $validator = Validator::make(Input::all(), $rules);
-
-        if ($validator->fails()) {
-            return Redirect::to('bank_accounts/create')
-                ->withErrors($validator)
-                ->withInput();
+        $publicId = Input::get('public_id');
+        $username = trim(Input::get('bank_username'));
+        $password = trim(Input::get('bank_password'));
+        
+        if ($publicId) {
+            $bankAccount = BankAccount::scope($publicId)->firstOrFail();
+            if ($username != $bankAccount->username) {
+                // TODO update username
+            }
+            $username = Crypt::decrypt($username);
+            $bankId = $bankAccount->bank_id;
         } else {
-            if ($bankAccountPublicId) {
-                $bankAccount = BankAccount::scope($bankAccountPublicId)->firstOrFail();
-            } else {
-                $bankAccount = BankAccount::createNew();
-                $bankAccount->bank_id = $bankId;
-            }
-
-            if ($username != str_repeat('*', strlen($username))) {
-                $bankAccount->username = Crypt::encrypt(trim($username));
-            }
-
-            if ($bankAccountPublicId) {
-                $bankAccount->save();
-                $message = trans('texts.updated_bank_account');
-            } else {
-                $account->bank_accounts()->save($bankAccount);
-                $message = trans('texts.created_bank_account');
-            }
-
-            Session::flash('message', $message);
-            return Redirect::to("bank_accounts/{$bankAccount->public_id}/edit");
+            $bankId = Input::get('bank_id');
         }
+
+        return json_encode($this->bankAccountService->loadBankAccounts($bankId, $username, $password, $publicId));
     }
 
-    public function test()
+    public function store(CreateBankAccountRequest $request)
     {
-        $bankId = Input::get('bank_id');
-        $username = Input::get('bank_username');
-        $password = Input::get('bank_password');
+        $bankAccount = $this->bankAccountRepo->save(Input::all());
 
-        return json_encode($this->bankAccountService->loadBankAccounts($bankId, $username, $password, false));
+        $bankId = Input::get('bank_id');
+        $username = trim(Input::get('bank_username'));
+        $password = trim(Input::get('bank_password'));
+
+        return json_encode($this->bankAccountService->loadBankAccounts($bankId, $username, $password, true));
+    }
+
+    public function importExpenses($bankId)
+    {
+        return $this->bankAccountService->importExpenses($bankId, Input::all());
     }
 
 }

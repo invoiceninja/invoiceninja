@@ -29,6 +29,7 @@ class Vendor extends EntityModel
         'private_notes',
         'currency_id',
         'website',
+        'transaction_name',
     ];
 
     public static $fieldName        = 'name';

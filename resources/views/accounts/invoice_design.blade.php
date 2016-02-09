@@ -7,7 +7,7 @@
     @foreach ($account->getFontFolders() as $font)
         <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
-        <script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('pdf.built.js') }}" type="text/javascript"></script>
 
 @stop
 
@@ -103,6 +103,8 @@
       {!! Former::populate($account) !!}
       {!! Former::populateField('hide_quantity', intval($account->hide_quantity)) !!}
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
+      {!! Former::populateField('all_pages_header', intval($account->all_pages_header)) !!}
+      {!! Former::populateField('all_pages_footer', intval($account->all_pages_footer)) !!}
 
         @foreach ($invoiceLabels as $field => $value)
           {!! Former::populateField("labels_{$field}", $value) !!}
@@ -119,6 +121,7 @@
                     <li role="presentation" class="active"><a href="#generalSettings" aria-controls="generalSettings" role="tab" data-toggle="tab">{{ trans('texts.general_settings') }}</a></li>
                     <li role="presentation"><a href="#invoiceLabels" aria-controls="invoiceLabels" role="tab" data-toggle="tab">{{ trans('texts.invoice_labels') }}</a></li>
                     <li role="presentation"><a href="#invoiceOptions" aria-controls="invoiceOptions" role="tab" data-toggle="tab">{{ trans('texts.invoice_options') }}</a></li>
+                    <li role="presentation"><a href="#headerFooter" aria-controls="headerFooter" role="tab" data-toggle="tab">{{ trans('texts.header_footer') }}</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -191,6 +194,25 @@
 
                       {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) !!}
                       {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="headerFooter">
+                    <div class="panel-body">
+
+                    {!! Former::inline_radios('all_pages_header')
+                            ->label(trans('texts.all_pages_header'))
+                            ->radios([
+                                trans('texts.first_page') => ['value' => 0, 'name' => 'all_pages_header'],
+                                trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_header'],
+                            ])->check($account->all_pages_header) !!}
+
+                    {!! Former::inline_radios('all_pages_footer')
+                            ->label(trans('texts.all_pages_footer'))
+                            ->radios([
+                                trans('texts.last_page') => ['value' => 0, 'name' => 'all_pages_footer'],
+                                trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_footer'],
+                            ])->check($account->all_pages_footer) !!}
 
                     </div>
                 </div>

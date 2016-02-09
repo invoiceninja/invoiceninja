@@ -25,7 +25,7 @@ return array(
         "numeric" => ":attribute muss zwischen :min & :max liegen.",
         "file"    => ":attribute muss zwischen :min & :max Kilobytes groß sein.",
         "string"  => ":attribute muss zwischen :min & :max Zeichen lang sein.",
-        "array"   => ":attribute muss zwischen :min & :max Elemente haben."
+        "array"   => ":attribute muss zwischen :min & :max Elemente haben.",
     ),
     "confirmed"        => ":attribute stimmt nicht mit der Bestätigung überein.",
     "date"             => ":attribute muss ein gültiges Datum sein.",
@@ -43,14 +43,14 @@ return array(
         "numeric" => ":attribute darf maximal :max sein.",
         "file"    => ":attribute darf maximal :max Kilobytes groß sein.",
         "string"  => ":attribute darf maximal :max Zeichen haben.",
-        "array"   => ":attribute darf nicht mehr als :max Elemente haben."
+        "array"   => ":attribute darf nicht mehr als :max Elemente haben.",
     ),
     "mimes"            => ":attribute muss den Dateityp :values haben.",
     "min"              => array(
         "numeric" => ":attribute muss mindestens :min sein.",
         "file"    => ":attribute muss mindestens :min Kilobytes groß sein.",
         "string"  => ":attribute muss mindestens :min Zeichen lang sein.",
-        "array"   => ":attribute muss mindestens :min Elemente haben."
+        "array"   => ":attribute muss mindestens :min Elemente haben.",
     ),
     "not_in"           => "Der gewählte Wert für :attribute ist ungültig.",
     "numeric"          => ":attribute muss eine Zahl sein.",
@@ -66,7 +66,7 @@ return array(
         "numeric" => ":attribute muss gleich :size sein.",
         "file"    => ":attribute muss :size Kilobyte groß sein.",
         "string"  => ":attribute muss :size Zeichen lang sein.",
-        "array"   => ":attribute muss genau :size Elemente haben."
+        "array"   => ":attribute muss genau :size Elemente haben.",
     ),
     "unique"           => ":attribute ist schon vergeben.",
     "url"              => "Das Format von :attribute ist ungültig.",
@@ -78,7 +78,7 @@ return array(
     "has_counter" => 'Der Wert muss {$counter} beinhalten',
     "valid_contacts" => "Alle Kontake müssen entweder einen Namen oder eine E-Mail Adresse haben",
     "valid_invoice_items" => "Die Rechnung übersteigt den maximalen Betrag",
-    
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

@@ -93,7 +93,7 @@ class AppServiceProvider extends ServiceProvider {
                         ->render();
         });
 
-        HTML::macro('breadcrumbs', function() {
+        HTML::macro('breadcrumbs', function($status = false) {
             $str = '<ol class="breadcrumb">';
 
             // Get the breadcrumbs by exploding the current path.
@@ -128,6 +128,11 @@ class AppServiceProvider extends ServiceProvider {
                     $str .= '<li>'.link_to($crumb, $name).'</li>';
                 }
             }
+
+            if ($status) {
+                $str .= '&nbsp;&nbsp;&nbsp;&nbsp;' . $status;
+            }
+
             return $str . '</ol>';
         });
 

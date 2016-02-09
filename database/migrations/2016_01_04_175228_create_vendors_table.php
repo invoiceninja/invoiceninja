@@ -96,12 +96,11 @@ class CreateVendorsTable extends Migration
             $table->softDeletes();
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id');
+            $table->unsignedInteger('public_id')->index();
 
             //$table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             //$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-
-            $table->unsignedInteger('public_id')->index();
-            $table->unique(array('account_id', 'public_id'));
+            //$table->unique(array('account_id', 'public_id'));
         });
 
         // Update public id
@@ -112,11 +111,15 @@ class CreateVendorsTable extends Migration
         $i = 1;
         foreach ($paymentTerms as $pTerm) {
             $data = ['public_id' => $i++];
-            DB::table('paymet_terms')->where('id', $pTerm->id)->update($data);
+            DB::table('payment_terms')->where('id', $pTerm->id)->update($data);
         }
 
         Schema::table('invoices', function (Blueprint $table) {
             $table->boolean('has_expenses')->default(false);
+        });
+
+        Schema::table('payment_terms', function (Blueprint $table) {
+            $table->unique(array('account_id', 'public_id'));
         });
     }
 

@@ -4,6 +4,7 @@ use Auth;
 use Utils;
 use Response;
 use Input;
+use Validator;
 use Cache;
 use App\Models\Client;
 use App\Models\Account;
@@ -17,6 +18,8 @@ use App\Ninja\Transformers\AccountTransformer;
 use App\Ninja\Transformers\UserAccountTransformer;
 use App\Http\Controllers\BaseAPIController;
 use Swagger\Annotations as SWG;
+
+use App\Http\Requests\UpdateAccountRequest;
 
 class AccountApiController extends BaseAPIController
 {
@@ -100,5 +103,16 @@ class AccountApiController extends BaseAPIController
     public function getUserAccounts(Request $request)
     {
         return $this->processLogin($request);
+    }
+
+    public function update(UpdateAccountRequest $request)
+    {
+        $account = Auth::user()->account;
+        $this->accountRepo->save($request->input(), $account);
+
+        $transformer = new AccountTransformer(null, $request->serializer);
+        $account = $this->createItem($account, $transformer, 'account');
+
+        return $this->response($account);
     }
 }

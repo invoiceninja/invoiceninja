@@ -136,6 +136,12 @@ class Client extends EntityModel
         return $this->belongsTo('App\Models\Industry');
     }
 
+    public function credits()
+    {
+        return $this->hasMany('App\Models\Credit');
+    }
+
+
     public function addContact($data, $isPrimary = false)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;

@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -82,6 +83,10 @@ if (Utils::isNinja()) {
     Route::get('/demo', 'AccountController@demo');
 }
 
+if (Utils::isReseller()) {
+    Route::post('/reseller_stats', 'AppController@stats');
+}
+
 Route::group(['middleware' => 'auth'], function() {
     Route::get('dashboard', 'DashboardController@index');
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
@@ -116,6 +121,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('settings/charts_and_reports', 'ReportController@showReports');
 
     Route::post('settings/cancel_account', 'AccountController@cancelAccount');
+    Route::post('settings/company_details', 'AccountController@updateDetails');
     Route::get('settings/{section?}', 'AccountController@showSection');
     Route::post('settings/{section?}', 'AccountController@doSection');
 
@@ -140,7 +146,8 @@ Route::group(['middleware' => 'auth'], function() {
     Route::resource('bank_accounts', 'BankAccountController');
     Route::get('api/bank_accounts', array('as'=>'api.bank_accounts', 'uses'=>'BankAccountController@getDatatable'));
     Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
-    Route::post('bank_accounts/test', 'BankAccountController@test');
+    Route::post('bank_accounts/validate', 'BankAccountController@validateAccount');
+    Route::post('bank_accounts/import_expenses/{bank_id}', 'BankAccountController@importExpenses');
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
@@ -209,10 +216,11 @@ Route::group(['middleware' => 'auth'], function() {
 // Route groups for API
 Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
-    Route::resource('ping', 'ClientApiController@ping');
+    Route::get('ping', 'ClientApiController@ping');
     Route::post('login', 'AccountApiController@login');
     Route::get('static', 'AccountApiController@getStaticData');
     Route::get('accounts', 'AccountApiController@show');
+    Route::put('accounts', 'AccountApiController@update');
     Route::resource('clients', 'ClientApiController');
     Route::get('quotes', 'QuoteApiController@index');
     Route::resource('quotes', 'QuoteApiController');
@@ -224,7 +232,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('tasks', 'TaskApiController');
     Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
-    Route::get('user_accounts','AccountApiController@getUserAccounts');
+    Route::get('user_accounts', 'AccountApiController@getUserAccounts');
+    Route::resource('products', 'ProductApiController');
+    Route::resource('tax_rates', 'TaxRateApiController');
+    Route::resource('users', 'UserApiController');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
@@ -283,17 +294,18 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_QUOTE', 'quote');
     define('ENTITY_TASK', 'task');
     define('ENTITY_ACCOUNT_GATEWAY', 'account_gateway');
-    define('ENTITY_BANK_ACCOUNT', 'bank_account');
     define('ENTITY_USER', 'user');
     define('ENTITY_TOKEN', 'token');
     define('ENTITY_TAX_RATE', 'tax_rate');
     define('ENTITY_PRODUCT', 'product');
     define('ENTITY_ACTIVITY', 'activity');
-    define('ENTITY_VENDOR','vendor');
-    define('ENTITY_VENDOR_ACTIVITY','vendor_activity');
+    define('ENTITY_VENDOR', 'vendor');
+    define('ENTITY_VENDOR_ACTIVITY', 'vendor_activity');
     define('ENTITY_EXPENSE', 'expense');
-    define('ENTITY_PAYMENT_TERM','payment_term');
-    define('ENTITY_EXPENSE_ACTIVITY','expense_activity');
+    define('ENTITY_PAYMENT_TERM', 'payment_term');
+    define('ENTITY_EXPENSE_ACTIVITY', 'expense_activity');
+    define('ENTITY_BANK_ACCOUNT', 'bank_account');
+    define('ENTITY_BANK_SUBACCOUNT', 'bank_subaccount');
 
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
@@ -309,6 +321,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_IMPORT_EXPORT', 'import_export');
     define('ACCOUNT_PAYMENTS', 'online_payments');
     define('ACCOUNT_BANKS', 'bank_accounts');
+    define('ACCOUNT_IMPORT_EXPENSES', 'import_expenses');
     define('ACCOUNT_MAP', 'import_map');
     define('ACCOUNT_EXPORT', 'export');
     define('ACCOUNT_TAX_RATES', 'tax_rates');
@@ -329,6 +342,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('ACTION_RESTORE', 'restore');
     define('ACTION_ARCHIVE', 'archive');
+    define('ACTION_CONVERT', 'convert');
     define('ACTION_DELETE', 'delete');
 
     define('ACTIVITY_TYPE_CREATE_CLIENT', 1);
@@ -512,6 +526,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PHP_DATE_FORMATS', 'http://php.net/manual/en/function.date.php');
     define('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/referral-program/');
     define('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup');
+    define('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all');
 
     define('COUNT_FREE_DESIGNS', 4);
     define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design
@@ -576,6 +591,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('EMAIL_DESIGN_DARK', 3);
 
     define('BANK_LIBRARY_OFX', 1);
+
+    define('RESELLER_REVENUE_SHARE', 'A');
+    define('RESELLER_LIMITED_USERS', 'B');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],

@@ -15,9 +15,10 @@
 
 	{!! Former::open($url)
             ->autocomplete('off')
-            ->rules(
-                ['email' => 'email']
-            )->addClass('col-md-12 warn-on-exit')
+            ->rules([
+                'namey' => 'required',
+                'email' => 'email'
+            ])->addClass('col-md-12 warn-on-exit')
             ->method($method) !!}
 
     @include('partials.autocomplete_fix')

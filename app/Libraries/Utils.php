@@ -58,6 +58,10 @@ class Utils
 
     public static function isNinjaProd()
     {
+        if (Utils::isReseller()) {
+            return true;
+        }
+
         return isset($_ENV['NINJA_PROD']) && $_ENV['NINJA_PROD'] == 'true';
     }
 
@@ -69,6 +73,16 @@ class Utils
     public static function requireHTTPS()
     {
         return Utils::isNinjaProd() || (isset($_ENV['REQUIRE_HTTPS']) && $_ENV['REQUIRE_HTTPS'] == 'true');
+    }
+
+    public static function isReseller()
+    {
+        return Utils::getResllerType() ? true : false;
+    }
+
+    public static function getResllerType()
+    {
+        return isset($_ENV['RESELLER_TYPE']) ? $_ENV['RESELLER_TYPE'] : false;
     }
 
     public static function isOAuthEnabled()
@@ -210,7 +224,7 @@ class Utils
 
         $count = Session::get('error_count', 0);
         Session::put('error_count', ++$count);
-        if ($count > 100) {
+        if ($count > 200) {
             return 'logged';
         }
 

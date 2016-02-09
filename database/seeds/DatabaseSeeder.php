@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call('PaymentLibrariesSeeder');
         $this->call('FontsSeeder');
         $this->call('BanksSeeder');
-        $this->call('FontsSeeder');
         $this->call('InvoiceStatusSeeder');
     }
 }

@@ -516,4 +516,10 @@ class AccountRepository
 
         return $userAccount ? $userAccount->id : false;
     }
+
+    public function save($data, $account)
+    {
+        $account->fill($data);
+        $account->save();
+    }
 }

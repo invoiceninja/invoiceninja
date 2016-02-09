@@ -263,7 +263,6 @@ return array(
     'deleted_vendor' => 'Successfully deleted vendor',
     'deleted_vendors' => 'Successfully deleted :count vendors',
 
-
     // Emails
     'confirmation_subject' => 'Invoice Ninja Account Confirmation',
     'confirmation_header' => 'Account Confirmation',
@@ -284,8 +283,7 @@ return array(
     'notification_invoice_sent' => 'The following client :client was emailed Invoice :invoice for :amount.',
     'notification_invoice_viewed' => 'The following client :client viewed Invoice :invoice for :amount.',
     'reset_password' => 'You can reset your account password by clicking the following button:',
-    'reset_password_footer' => 'If you did not request this password reset please email our support: ' . CONTACT_EMAIL,
-
+    'reset_password_footer' => 'If you did not request this password reset please email our support: '.CONTACT_EMAIL,
 
     // Payment page
     'secure_payment' => 'Secure Payment',
@@ -313,7 +311,7 @@ return array(
 
     'logout' => 'Log Out',
     'sign_up_to_save' => 'Sign up to save your work',
-    'agree_to_terms' =>'I agree to the Invoice Ninja :terms',
+    'agree_to_terms' => 'I agree to the Invoice Ninja :terms',
     'terms_of_service' => 'Terms of Service',
     'email_taken' => 'The email address is already registered',
     'working' => 'Working',
@@ -433,7 +431,7 @@ return array(
     'active' => 'Active',
     'pending' => 'Pending',
     'deleted_user' => 'Successfully deleted user',
-    'limit_users' => 'Sorry, this will exceed the limit of ' . MAX_NUM_USERS . ' users',
+    'limit_users' => 'Sorry, this will exceed the limit of '.MAX_NUM_USERS.' users',
 
     'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
     'confirm_email_quote' => 'Are you sure you want to email this quote?',
@@ -1019,7 +1017,7 @@ return array(
     'new_expense' => 'Enter Expense',
     'enter_expense' => 'Enter Expense',
     'vendors' => 'Vendors',
-    'new_vendor' => 'Create Vendor',
+    'new_vendor' => 'New Vendor',
     'payment_terms_net' => 'Net',
     'vendor' => 'Vendor',
     'edit_vendor' => 'Edit Vendor',
@@ -1037,7 +1035,7 @@ return array(
     'expense_date' => 'Expense Date',
     'expense_should_be_invoiced' => 'Should this expense be invoiced?',
     'public_notes' => 'Public Notes',
-    'converted_amount' => 'Converted Amount',
+    'invoice_amount' => 'Invoice Amount',
     'exchange_rate' => 'Exchange Rate',
     'yes' => 'Yes',
     'no' => 'No',
@@ -1053,8 +1051,8 @@ return array(
     'view' => 'View',
     'restore_expense' => 'Restore Expense',
     'invoice_expense' => 'Invoice Expense',
-    'expense_error_multiple_clients' =>'The expenses can\'t belong to different clients',
-    'expense_error_invoiced' => 'Expense have already been invoiced',
+    'expense_error_multiple_clients' => 'The expenses can\'t belong to different clients',
+    'expense_error_invoiced' => 'Expense has already been invoiced',
     'convert_currency' => 'Convert currency',
 
     // Payment terms
@@ -1107,6 +1105,8 @@ return array(
     'payment_type_direct_debit' => 'Direct Debit',
     'bank_accounts' => 'Bank Accounts',
     'add_bank_account' => 'Add Bank Account',
+    'setup_account' => 'Setup Account',
+    'import_expenses' => 'Import Expenses',
     'bank_id' => 'bank',
     'integration_type' => 'Integration Type',
     'updated_bank_account' => 'Successfully updated bank account',
@@ -1114,17 +1114,34 @@ return array(
     'archive_bank_account' => 'Archive Bank Account',
     'archived_bank_account' => 'Successfully archived bank account',
     'created_bank_account' => 'Successfully created bank account',
-    'test' => 'Test',
-    'test_bank_account' => 'Test Bank Account',
+    'validate_bank_account' => 'Validate Bank Account',
+    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href="'.OFX_HOME_URL.'" target="_blank">400+ US banks.</a>',
     'bank_password_help' => 'Note: your password is transmitted securely and never stored on our servers.',
     'bank_password_warning' => 'Warning: your password may be transmitted in plain text, consider enabling HTTPS.',
     'username' => 'Username',
     'account_number' => 'Account Number',
+    'account_name' => 'Account Name',
     'bank_account_error' => 'Failed to retreive account details, please check your credentials.',
     'status_approved' => 'Approved',
     'quote_settings' => 'Quote Settings',
     'auto_convert_quote' => 'Auto convert quote',
     'auto_convert_quote_help' => 'Automatically convert a quote to an invoice when approved by a client.',
+    'validate' => 'Validate',
+    'info' => 'Info',
+    'imported_expenses' => 'Successfully created :count_vendors vendor(s) and :count_expenses expense(s)',
 
-    
+    'iframe_url_help3' => 'Note: if you plan on accepting credit cards details we strongly recommend enabling HTTPS on your site.',
+    'expense_error_multiple_currencies' => 'The expenses can\'t have different currencies.',
+    'expense_error_mismatch_currencies' => 'The client\'s currency does not match the expense currency.',
+    'trello_roadmap' => 'Trello Roadmap',
+    'header_footer' => 'Header/Footer',
+    'first_page' => 'first page',
+    'all_pages' => 'all pages',
+    'last_page' => 'last page',
+    'all_pages_header' => 'Show header on',
+    'all_pages_footer' => 'Show footer on',
+    'invoice_currency' => 'Invoice Currency',
+    'enable_https' => 'We strongly recommend using HTTPS to accept credit card details online.',
+    'quote_issued_to' => 'Quote issued to',
+    'show_currency_code' => 'Currency Code',
 );

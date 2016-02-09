@@ -89,6 +89,10 @@ class AccountGatewayController extends BaseController
                                     ->orderBy('name')->get();
         $data['hiddenFields'] = Gateway::$hiddenFields;
 
+        if ( ! \Request::secure() && ! Utils::isNinjaDev()) {
+            Session::flash('warning', trans('texts.enable_https'));
+        }
+
         return View::make('accounts.account_gateway', $data);
     }
 
@@ -195,6 +199,8 @@ class AccountGatewayController extends BaseController
 
         if ($gatewayId == GATEWAY_DWOLLA) {
             $optional = array_merge($optional, ['key', 'secret']);
+        } elseif ($gatewayId == GATEWAY_STRIPE) {
+            $rules['publishable_key'] = 'required';
         }
 
         foreach ($fields as $field => $details) {

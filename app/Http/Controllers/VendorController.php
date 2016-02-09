@@ -55,7 +55,8 @@ class VendorController extends BaseController
             'columns' => Utils::trans([
               'checkbox',
               'vendor',
-              'contact',
+              'city',
+              'phone',
               'email',
               'date_created',
               ''

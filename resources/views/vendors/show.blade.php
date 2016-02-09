@@ -39,9 +39,9 @@
 			    ]
 			  )->split() !!}
 
-			{!! DropdownButton::primary(trans('texts.new_expense'))
-                    ->withAttributes(['class'=>'primaryDropDown'])
-                    ->withContents($actionLinks)->split() !!}
+            {!! Button::primary(trans("texts.new_expense"))
+                    ->asLinkTo(URL::to("/expenses/create/{$vendor->public_id}"))
+                    ->appendIcon(Icon::create('plus-sign')) !!}
 		@endif
 	  {!! Former::close() !!}
 

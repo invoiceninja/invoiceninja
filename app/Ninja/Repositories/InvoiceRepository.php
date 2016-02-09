@@ -244,6 +244,13 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
         }
 
+        if(isset($data['invoice_status_id'])) {
+            if($data['invoice_status_id'] == 0) {
+                $data['invoice_status_id'] = INVOICE_STATUS_DRAFT;
+            }
+            $invoice->invoice_status_id = $data['invoice_status_id'];
+        }
+
         if ($invoice->is_recurring) {
             if ($invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
                 $invoice->last_sent_date = null;
@@ -395,6 +402,7 @@ class InvoiceRepository extends BaseRepository
                 continue;
             }
 
+            $task = false;
             if (isset($item['task_public_id']) && $item['task_public_id']) {
                 $task = Task::scope($item['task_public_id'])->where('invoice_id', '=', null)->firstOrFail();
                 $task->invoice_id = $invoice->id;
@@ -402,6 +410,7 @@ class InvoiceRepository extends BaseRepository
                 $task->save();
             }
 
+            $expense = false;
             if (isset($item['expense_public_id']) && $item['expense_public_id']) {
                 $expense = Expense::scope($item['expense_public_id'])->where('invoice_id', '=', null)->firstOrFail();
                 $expense->invoice_id = $invoice->id;
@@ -417,11 +426,8 @@ class InvoiceRepository extends BaseRepository
                         $product = Product::createNew();
                         $product->product_key = trim($item['product_key']);
                     }
-
-                    $product->notes = $invoice->has_tasks ? '' : $item['notes'];
-                    $product->notes = $invoice->has_expenses ? '' : $item['notes'];
-
-                    $product->cost = $item['cost'];
+                    $product->notes = ($task || $expense) ? '' : $item['notes'];
+                    $product->cost = $expense ? 0 : $item['cost'];
                     $product->save();
                 }
             }
@@ -667,6 +673,8 @@ class InvoiceRepository extends BaseRepository
         $sql = implode(' OR ', $dates);
         $invoices = Invoice::whereAccountId($account->id)
                     ->where('balance', '>', 0)
+                    ->where('is_quote', '=', false)
+                    ->where('is_recurring', '=', false)
                     ->whereRaw('('.$sql.')')
                     ->get();
 

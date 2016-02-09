@@ -9,7 +9,7 @@
             },
             {
                 "stack": "$clientDetails",
-                "margin": [0, 80, 0, 0]
+                "margin": [0, 60, 0, 0]
             }
             ]
         },
@@ -246,5 +246,5 @@
                 "color": "#737373"
             }
         },
-        "pageMargins": [40, 80, 40, 50]
+        "pageMargins": [40, 120, 40, 50]
     }
