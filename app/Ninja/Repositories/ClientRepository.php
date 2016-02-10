@@ -66,8 +66,6 @@ class ClientRepository extends BaseRepository
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
-        DB::beginTransaction();
-
         if (!$publicId || $publicId == '-1') {
             $client = Client::createNew();
         } else {
@@ -76,9 +74,6 @@ class ClientRepository extends BaseRepository
 
         $client->fill($data);
         $client->save();
-
-        DB::commit();
-
 
         /*
         if ( ! isset($data['contact']) && ! isset($data['contacts'])) {

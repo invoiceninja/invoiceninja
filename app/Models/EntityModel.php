@@ -27,7 +27,6 @@ class EntityModel extends Eloquent
         $lastEntity = $className::withTrashed()
                         ->scope(false, $entity->account_id)
                         ->orderBy('public_id', 'DESC')
-                        ->lockForUpdate()
                         ->first();
 
         if ($lastEntity) {
