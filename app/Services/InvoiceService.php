@@ -160,7 +160,7 @@ class InvoiceService extends BaseService
             [
                 'invoice_status_name',
                 function ($model) {
-                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : self::getStatusLabel($model->invoice_status_id, $model->invoice_status_name);
+                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : self::getStatusLabel($model);
                 }
             ]
         ];
@@ -236,11 +236,18 @@ class InvoiceService extends BaseService
         ];
     }
 
-    private function getStatusLabel($statusId, $statusName)
+    private function getStatusLabel($model)
     {
-        $label = trans("texts.status_" . strtolower($statusName));
+        // check if invoice is overdue
+        if (Utils::parseFloat($model->balance) && $model->due_date && $model->due_date != '0000-00-00') {
+            if (\DateTime::createFromFormat('Y-m-d', $model->due_date) < new \DateTime("now")) {
+                return "<h4><div class=\"label label-danger\">".trans('texts.overdue')."</div></h4>";
+            }
+        }
+
+        $label = trans("texts.status_" . strtolower($model->invoice_status_name));
         $class = 'default';
-        switch ($statusId) {
+        switch ($model->invoice_status_id) {
             case INVOICE_STATUS_SENT:
                 $class = 'info';
                 break;

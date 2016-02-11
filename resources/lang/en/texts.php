@@ -1149,4 +1149,6 @@ return array(
     'trial_footer_last_day' => 'This is the last day of your free trial, :link to upgrade now.',
     'trial_call_to_action' => 'Start Free Trial',
     'trial_success' => 'Successfully enabled two week free pro plan trial',
+    'overdue' => 'Overdue',
+    
 );
