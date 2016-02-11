@@ -32,7 +32,7 @@ class UpdateInvoiceRequest extends Request
         $invoiceId = Invoice::getPrivateId($publicId);
 
         $rules = [
-            'invoice_items' => 'required|valid_invoice_items',
+            'invoice_items' => 'valid_invoice_items',
             'invoice_number' => 'unique:invoices,invoice_number,'.$invoiceId.',id,account_id,'.Auth::user()->account_id,
             'discount' => 'positive',
         ];
