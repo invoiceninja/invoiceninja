@@ -460,7 +460,6 @@ return array(
 
     'id_number' => 'Número de Identificación',
     'white_label_link' => 'Marca Blanca" ',
-    'white_label_text' => 'Obtener una licencia de marca blanca por'.WHITE_LABEL_PRICE.' para quitar la marca Invoice Ninja de la parte superior de las páginas del cliente.', // comprobar
     'white_label_link' => 'Marca Blanca" ',
     'bought_white_label' => 'Se ha conseguido con exito la licencia de Marca Blanca',
     'white_labeled' => 'Marca Blanca',
@@ -1109,5 +1108,7 @@ return array(
     'imported_expenses' => ' :count_vendors proveedor(es) and :count_expenses gasto(s) importados correctamente',
 
     'iframe_url_help3' => 'Nota: Si piensas aceptar tarjetas de credito recomendamos tener habilitado HTTPS.',
+
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
 
 );

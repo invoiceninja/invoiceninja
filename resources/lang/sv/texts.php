@@ -468,7 +468,6 @@ return array(
 
     'id_number' => 'ID-nummer',
     'white_label_link' => 'White label',
-    'white_label_text' => 'Köp en white label licens för $'.WHITE_LABEL_PRICE.' för att ta bort Invoice Ninja loggan från kundernas sidor.',
     'white_label_header' => 'White Label',
     'bought_white_label' => 'White label licens köpt',
     'white_labeled' => 'White labeled',
@@ -1107,5 +1106,7 @@ return array(
     'validate' => 'Validate',
     'info' => 'Info',
     'imported_expenses' => 'Successfully created :count_vendors vendor(s) and :count_expenses expense(s)',
+
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
 
 );

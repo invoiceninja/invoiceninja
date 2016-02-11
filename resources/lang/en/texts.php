@@ -481,7 +481,6 @@ return array(
 
     'id_number' => 'ID Number',
     'white_label_link' => 'White label',
-    'white_label_text' => 'Purchase a white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
     'white_label_header' => 'White Label',
     'bought_white_label' => 'Successfully enabled white label license',
     'white_labeled' => 'White labeled',
@@ -1150,5 +1149,7 @@ return array(
     'trial_call_to_action' => 'Start Free Trial',
     'trial_success' => 'Successfully enabled two week free pro plan trial',
     'overdue' => 'Overdue',
+
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
     
 );

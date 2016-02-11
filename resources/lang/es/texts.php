@@ -442,7 +442,6 @@ return array(
 
     'id_number' => 'ID Number',
     'white_label_link' => 'Etiqueta Blanca',
-    'white_label_text' => 'Adquiere una licencia de etiqueta blanca por $'.WHITE_LABEL_PRICE.' para eliminar la marca de Invoice Ninja branding de la parte superior de las páginas de los clientes.',
     'white_label_header' => 'Etiqueta Blanca',
     'bought_white_label' => 'Licencia de etiqueta blanca habilitada con éxito',
     'white_labeled' => 'Etiqueta Blanca',
@@ -1087,5 +1086,7 @@ return array(
     'validate' => 'Validate',
     'info' => 'Info',
     'imported_expenses' => 'Successfully created :count_vendors vendor(s) and :count_expenses expense(s)',
+
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
 
 );

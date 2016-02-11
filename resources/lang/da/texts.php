@@ -469,7 +469,6 @@ return array(
 
     'id_number' => 'SE/CVR nummer',
     'white_label_link' => 'Hvid Label',
-    'white_label_text' => 'Køb en Hvid Label licens til $'.WHITE_LABEL_PRICE.' for at fjerne Invoice Ninja mærket fra toppen af klient siderne.',
     'white_label_header' => 'Hvid Label',
     'bought_white_label' => 'Hvid Label licens accepteret',
     'white_labeled' => 'Hvid Label',
@@ -1110,5 +1109,7 @@ return array(
     'validate' => 'Validate',
     'info' => 'Info',
     'imported_expenses' => 'Successfully created :count_vendors vendor(s) and :count_expenses expense(s)',
+
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
 
 );

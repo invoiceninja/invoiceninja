@@ -770,7 +770,11 @@ class Account extends Eloquent
         if (Utils::isNinjaProd()) {
             return self::isPro() && $this->pro_plan_paid != NINJA_DATE;
         } else {
-            return $this->pro_plan_paid == NINJA_DATE;
+            if ($this->pro_plan_paid == NINJA_DATE) {
+                return true;
+            }
+            
+            return Utils::withinPastYear($this->pro_plan_paid);
         }
     }
 

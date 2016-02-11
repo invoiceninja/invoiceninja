@@ -463,7 +463,6 @@ return array(
     'id_number' => 'CNPJ',
 
     'white_label_link' => 'White Label',
-    'white_label_text' => 'Adquira uma "white label license" por $'.WHITE_LABEL_PRICE.' para utilizar sua própria marca no topo da página.',
     'white_label_header' => 'White Label',
     'bought_white_label' => 'Licença "white label" habilitada',
     'white_labeled' => 'White labeled',
@@ -1102,5 +1101,7 @@ return array(
     'validate' => 'Validate',
     'info' => 'Info',
     'imported_expenses' => 'Successfully created :count_vendors vendor(s) and :count_expenses expense(s)',
+
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
 
 );
