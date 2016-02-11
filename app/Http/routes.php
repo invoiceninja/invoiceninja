@@ -97,6 +97,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::resource('users', 'UserController');
     Route::post('users/bulk', 'UserController@bulk');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
+    Route::get('start_trial', 'AccountController@startTrial');
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
@@ -425,7 +426,6 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('MAX_NUM_VENDORS', 100);
     define('MAX_NUM_VENDORS_PRO', 20000);
-    define('MAX_NUM_VENDORS_LEGACY', 500);
 
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);
@@ -669,9 +669,8 @@ if (Utils::isNinjaDev()) {
 */
 
 /*
-if (Auth::check() && Auth::user()->id === 1)
+if (Utils::isNinjaDev() && Auth::check() && Auth::user()->id === 1)
 {
   Auth::loginUsingId(1);
 }
 */
-

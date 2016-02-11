@@ -1103,7 +1103,7 @@ return array(
     'quote_message_button' => 'To view your quote for :amount, click the button below.',
     'payment_message_button' => 'Thank you for your payment of :amount.',
     'payment_type_direct_debit' => 'Direct Debit',
-    'bank_accounts' => 'Bank Accounts',
+    'bank_accounts' => 'Credit Cards & Banks',
     'add_bank_account' => 'Add Bank Account',
     'setup_account' => 'Setup Account',
     'import_expenses' => 'Import Expenses',
@@ -1144,4 +1144,9 @@ return array(
     'enable_https' => 'We strongly recommend using HTTPS to accept credit card details online.',
     'quote_issued_to' => 'Quote issued to',
     'show_currency_code' => 'Currency Code',
+    'trial_message' => 'Your account will receive a free two week trial of our pro plan.',
+    'trial_footer' => 'Your free trial lasts :count more days, :link to upgrade now.',
+    'trial_footer_last_day' => 'This is the last day of your free trial, :link to upgrade now.',
+    'trial_call_to_action' => 'Start Free Trial',
+    'trial_success' => 'Successfully enabled two week free pro plan trial',
 );

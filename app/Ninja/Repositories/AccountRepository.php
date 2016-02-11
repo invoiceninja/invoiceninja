@@ -119,7 +119,7 @@ class AccountRepository
 
     public function enableProPlan()
     {
-        if (Auth::user()->isPro()) {
+        if (Auth::user()->isPro() && ! Auth::user()->isTrial()) {
             return false;
         }
         
@@ -141,7 +141,7 @@ class AccountRepository
         $invoice->public_id = $publicId;
         $invoice->client_id = $client->id;
         $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
-        $invoice->invoice_date = date_create()->format('Y-m-d');
+        $invoice->invoice_date = Auth::user()->account->getRenewalDate();
         $invoice->amount = PRO_PLAN_PRICE;
         $invoice->balance = PRO_PLAN_PRICE;
         $invoice->save();
@@ -266,6 +266,8 @@ class AccountRepository
             $user->first_name = $firstName;
             $user->last_name = $lastName;
             $user->registered = true;
+
+            $user->account->startTrial();
         }
 
         $user->oauth_provider_id = $providerId;

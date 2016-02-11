@@ -84,7 +84,7 @@ class InvoiceService extends BaseService
             return null;
         }
         
-        if ($account->auto_convert_quote) {
+        if ($account->auto_convert_quote || ! $account->isPro()) {
             $invoice = $this->convertQuote($quote, $invitation);
 
             event(new QuoteInvitationWasApproved($quote, $invoice, $invitation));

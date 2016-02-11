@@ -107,6 +107,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->account->isPro();
     }
 
+    public function isTrial()
+    {
+        return $this->account->isTrial();
+    }
+
+    public function isEligibleForTrial()
+    {
+        return $this->account->isEligibleForTrial();
+    }
+
     public function maxInvoiceDesignId()
     {
         return $this->isPro() ? 11 : (Utils::isNinja() ? COUNT_FREE_DESIGNS : COUNT_FREE_DESIGNS_SELF_HOST);
@@ -153,7 +163,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getMaxNumClients()
     {
-        if ($this->isPro()) {
+        if ($this->isPro() && ! $this->isTrial()) {
             return MAX_NUM_CLIENTS_PRO;
         }
 
@@ -166,12 +176,8 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getMaxNumVendors()
     {
-        if ($this->isPro()) {
+        if ($this->isPro() && ! $this->isTrial()) {
             return MAX_NUM_VENDORS_PRO;
-        }
-
-        if ($this->id < LEGACY_CUTOFF) {
-            return MAX_NUM_VENDORS_LEGACY;
         }
 
         return MAX_NUM_VENDORS;

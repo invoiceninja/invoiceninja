@@ -215,6 +215,7 @@ function InvoiceModel(data) {
     self.invoice_date = ko.observable('');
     self.invoice_number = ko.observable('');
     self.due_date = ko.observable('');
+    self.recurring_due_date = ko.observable('');
     self.start_date = ko.observable('');
     self.end_date = ko.observable('');
     self.last_sent_date = ko.observable('');
