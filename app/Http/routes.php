@@ -126,10 +126,9 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('settings/{section?}', 'AccountController@showSection');
     Route::post('settings/{section?}', 'AccountController@doSection');
 
-    // Payment term
-    Route::get('api/payment_terms', array('as'=>'api.payment_terms', 'uses'=>'PaymentTermController@getDatatable'));
-    Route::resource('payment_terms', 'PaymentTermController');
-    Route::post('payment_terms/bulk', 'PaymentTermController@bulk');
+    //Route::get('api/payment_terms', array('as'=>'api.payment_terms', 'uses'=>'PaymentTermController@getDatatable'));
+    //Route::resource('payment_terms', 'PaymentTermController');
+    //Route::post('payment_terms/bulk', 'PaymentTermController@bulk');
 
     Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
     Route::post('user/setTheme', 'UserController@setTheme');
