@@ -77,12 +77,13 @@
             }
         } );
         
+        /* This causes problems with some languages. ie, fr_CA
 		var appLocale = '{{App::getLocale()}}';
-  
         $.extend( true, $.fn.datepicker.defaults, {
 			language: appLocale.replace("_", "-")
         });
-        
+        */
+
         @if (env('FACEBOOK_PIXEL'))
             <!-- Facebook Pixel Code -->
             !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
