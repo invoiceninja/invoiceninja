@@ -31,6 +31,7 @@ There are two options:
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Integrates with 50+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
+* Expenses and vendors
 * Tasks with time-tracking
 * Multi-user/multi-company support
 * Tax rates and payment terms
@@ -38,7 +39,6 @@ There are two options:
 * Partial payments
 * Client portal
 * Custom email templates
-* [Zapier](https://zapier.com/) integration
 * [D3.js](http://d3js.org/) visualizations
 
 ### Recommended Providers
