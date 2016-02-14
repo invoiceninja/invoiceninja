@@ -98,7 +98,9 @@
   function refreshPDFCB(string) {
     if (!string) return;
     PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
-    if ({{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }} && (isFirefox || (isChrome && !isChrome48))) { 
+    var forceJS = {{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }};
+    // Temporarily workaround for: https://code.google.com/p/chromium/issues/detail?id=574648 
+    if (forceJS && (isFirefox || (isChrome && (!isChrome48 || {{ isset($viewPDF) && $viewPDF ? 'true' : 'false' }})))) { 
       $('#theFrame').attr('src', string).show();
     } else {      
       if (isRefreshing) {

@@ -85,7 +85,7 @@
 
 		</script>
 
-		@include('invoices.pdf', ['account' => $invoice->client->account])
+		@include('invoices.pdf', ['account' => $invoice->client->account, 'viewPDF' => true])
 
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>
