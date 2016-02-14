@@ -55,7 +55,7 @@ There are two options:
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
 ### Pull Requests
-We're using the [git-flow](http://nvie.com/posts/a-successful-git-branching-model/) model of branching and releasing, **please create pull requests against the develop branch**.
+We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-model/) model of branching and releasing, **please create pull requests against the develop branch**.
 
 ### Contributors
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
