@@ -107,13 +107,13 @@ class BaseAPIController extends Controller
         return Response::make($response, 200, $headers);
     }
 
-    protected  function errorResponse($response)
+    protected  function errorResponse($response, $httpErrorCode = 400)
     {
         $error['error'] = $response;
         $error = json_encode($error, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders();
 
-        return Response::make($error, 400, $headers);
+        return Response::make($error, $httpErrorCode, $headers);
 
     }
 

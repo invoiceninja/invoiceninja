@@ -36,14 +36,14 @@ class AccountApiController extends BaseAPIController
     {
         if ( ! env(API_SECRET) || $request->api_secret !== env(API_SECRET)) {
             sleep(ERROR_DELAY);
-            return 'Invalid secret';
+            return $this->errorResponse(['message'=>'Invalid secret'],401);
         }
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             return $this->processLogin($request);
         } else {
             sleep(ERROR_DELAY);
-            return 'Invalid credentials';
+            return $this->errorResponse(['message'=>'Invalid credentials'],401);
         }
     }
 
