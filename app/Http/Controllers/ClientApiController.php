@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Utils;
 use Response;
 use Input;
@@ -134,7 +135,13 @@ class ClientApiController extends BaseAPIController
     public function update(UpdateClientRequest $request, $publicId)
     {
         if ($request->action == ACTION_ARCHIVE) {
-            $client = Client::scope($publicId)->firstOrFail();
+
+            try {
+                $client = Client::scope($publicId)->firstOrFail();
+            } catch (ModelNotFoundException $e) {
+                return $this->errorResponse(['message'=>'Record not found'], 400);
+            }
+
             $this->clientRepo->archive($client);
 
             $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
