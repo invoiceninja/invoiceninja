@@ -201,6 +201,7 @@
         <div class="row">
             <div class="col-md-9">
                 {!! Former::text($accountGateway->getPublishableStripeKey() ? '' : 'card_number')
+                        ->id('card_number')
                         ->placeholder(trans('texts.card_number'))
                         ->autocomplete('cc-number')
                         ->data_stripe('number')
@@ -208,6 +209,7 @@
             </div>
             <div class="col-md-3">
                 {!! Former::text($accountGateway->getPublishableStripeKey() ? '' : 'cvv')
+                        ->id('cvv')
                         ->placeholder(trans('texts.cvv'))
                         ->autocomplete('off')
                         ->data_stripe('cvc')
@@ -217,6 +219,7 @@
         <div class="row">
             <div class="col-md-6">
                 {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_month')
+                        ->id('expiration_month')
                         ->autocomplete('cc-exp-month')
                         ->data_stripe('exp-month')
                         ->placeholder(trans('texts.expiration_month'))
@@ -236,6 +239,7 @@
             </div>
             <div class="col-md-6">
                 {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_year')
+                        ->id('expiration_year')
                         ->autocomplete('cc-exp-year')
                         ->data_stripe('exp-year')
                         ->placeholder(trans('texts.expiration_year'))

@@ -27,7 +27,9 @@ class OnlinePaymentCest
         $I->amOnPage('/settings/online_payments');
 
         if (strpos($I->grabFromCurrentUrl(), 'create') !== false) {
-            $I->fillField(['name' =>'23_apiKey'], Fixtures::get('gateway_key'));
+            $I->fillField(['name' =>'23_apiKey'], Fixtures::get('secret_key'));
+            // Fails to load StripeJS causing "ReferenceError: Can't find variable: Stripe"
+            //$I->fillField(['name' =>'publishable_key'], Fixtures::get('publishable_key'));
             $I->selectOption('#token_billing_type_id', 4);
             $I->click('Save');
             $I->see('Successfully created gateway');
@@ -73,11 +75,12 @@ class OnlinePaymentCest
             $I->fillField(['name' => 'state'], $this->faker->state);
             $I->fillField(['name' => 'postal_code'], $this->faker->postcode);
             $I->selectDropdown($I, 'United States', '.country-select .dropdown-toggle');
-            $I->fillField(['name' => 'card_number'], '4242424242424242');
-            $I->fillField(['name' => 'cvv'], '1234');
+            $I->fillField('#card_number', '4242424242424242');
+            $I->fillField('#cvv', '1234');
             $I->selectOption('#expiration_month', 12);
             $I->selectOption('#expiration_year', date('Y'));
             $I->click('.btn-success');
+            $I->wait(3);
             $I->see('Successfully applied payment');
         });
 

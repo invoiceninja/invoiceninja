@@ -97,6 +97,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::resource('users', 'UserController');
     Route::post('users/bulk', 'UserController@bulk');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
+    Route::get('start_trial', 'AccountController@startTrial');
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
@@ -125,10 +126,9 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('settings/{section?}', 'AccountController@showSection');
     Route::post('settings/{section?}', 'AccountController@doSection');
 
-    // Payment term
-    Route::get('api/payment_terms', array('as'=>'api.payment_terms', 'uses'=>'PaymentTermController@getDatatable'));
-    Route::resource('payment_terms', 'PaymentTermController');
-    Route::post('payment_terms/bulk', 'PaymentTermController@bulk');
+    //Route::get('api/payment_terms', array('as'=>'api.payment_terms', 'uses'=>'PaymentTermController@getDatatable'));
+    //Route::resource('payment_terms', 'PaymentTermController');
+    //Route::post('payment_terms/bulk', 'PaymentTermController@bulk');
 
     Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
     Route::post('user/setTheme', 'UserController@setTheme');
@@ -425,7 +425,6 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('MAX_NUM_VENDORS', 100);
     define('MAX_NUM_VENDORS_PRO', 20000);
-    define('MAX_NUM_VENDORS_LEGACY', 500);
 
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);
@@ -510,7 +509,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.4.9.6');
+    define('NINJA_VERSION', '2.5.0.1');
     define('NINJA_DATE', '2000-01-01');
 
     define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');
@@ -669,9 +668,8 @@ if (Utils::isNinjaDev()) {
 */
 
 /*
-if (Auth::check() && Auth::user()->id === 1)
+if (Utils::isNinjaDev() && Auth::check() && Auth::user()->id === 1)
 {
   Auth::loginUsingId(1);
 }
 */
-

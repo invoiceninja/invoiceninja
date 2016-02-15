@@ -984,9 +984,7 @@
     window.generatedPDF = false;
 	function getPDFString(cb, force) {
         @if ($account->hasLargeFont())
-            console.log('checked: %s', $('#livePreview').is(':checked'));
             if (!$('#livePreview').is(':checked') && window.generatedPDF) {
-                console.log('returning');
                 return;
             }
         @endif

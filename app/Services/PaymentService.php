@@ -212,20 +212,13 @@ class PaymentService extends BaseService
     {
         $invoice = $invitation->invoice;
 
-        // sync pro accounts
-        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY
-                && $invoice->amount == PRO_PLAN_PRICE) {
+        // enable pro plan for hosted users
+        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY && $invoice->amount == PRO_PLAN_PRICE) {
             $account = Account::with('users')->find($invoice->client->public_id);
-            if ($account->pro_plan_paid && $account->pro_plan_paid != '0000-00-00') {
-                $date = DateTime::createFromFormat('Y-m-d', $account->pro_plan_paid);
-                $date->modify('+1 year');
-                $date = max($date, date_create());
-                $account->pro_plan_paid = $date->format('Y-m-d');
-            } else {
-                $account->pro_plan_paid = date_create()->format('Y-m-d');
-            }
+            $account->pro_plan_paid = $account->getRenewalDate();
             $account->save();
 
+            // sync pro accounts
             $user = $account->users()->first();
             $this->accountRepo->syncAccounts($user->id, $account->pro_plan_paid);
         }

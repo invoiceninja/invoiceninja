@@ -31,6 +31,7 @@ There are two options:
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Integrates with 50+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
+* Expenses and vendors
 * Tasks with time-tracking
 * Multi-user/multi-company support
 * Tax rates and payment terms
@@ -38,7 +39,6 @@ There are two options:
 * Partial payments
 * Client portal
 * Custom email templates
-* [Zapier](https://zapier.com/) integration
 * [D3.js](http://d3js.org/) visualizations
 
 ### Recommended Providers
@@ -53,6 +53,9 @@ There are two options:
 * [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
+
+### Pull Requests
+We're using the [git-flow](http://nvie.com/posts/a-successful-git-branching-model/) model of branching and releasing, **please create pull requests against the develop branch**.
 
 ### Contributors
 * [Troels Liebe Bentsen](https://github.com/tlbdk)

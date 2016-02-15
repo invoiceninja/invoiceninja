@@ -127,10 +127,10 @@ class ContactMailer extends Mailer
         $subject = $this->processVariables($subject, $variables);
         $fromEmail = $user->email;
 
-        if ($account->email_design_id == EMAIL_DESIGN_PLAIN) {
+        if ($account->getEmailDesignId() == EMAIL_DESIGN_PLAIN) {
             $view = ENTITY_INVOICE;
         } else {
-            $view = 'design' . ($account->email_design_id - 1);
+            $view = 'design' . ($account->getEmailDesignId() - 1);
         }
         
         $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
@@ -189,10 +189,10 @@ class ContactMailer extends Mailer
         $subject = $this->processVariables($emailSubject, $variables);
         $data['invoice_id'] = $payment->invoice->id;
 
-        if ($account->email_design_id == EMAIL_DESIGN_PLAIN) {
+        if ($account->getEmailDesignId() == EMAIL_DESIGN_PLAIN) {
             $view = 'payment_confirmation';
         } else {
-            $view = 'design' . ($account->email_design_id - 1);
+            $view = 'design' . ($account->getEmailDesignId() - 1);
         }
 
         if ($user->email && $contact->email) {

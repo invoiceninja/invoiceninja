@@ -72,6 +72,10 @@ class Utils
 
     public static function requireHTTPS()
     {
+        if (Request::root() === 'http://ninja.dev') {
+            return false;
+        }
+
         return Utils::isNinjaProd() || (isset($_ENV['REQUIRE_HTTPS']) && $_ENV['REQUIRE_HTTPS'] == 'true');
     }
 
@@ -112,6 +116,11 @@ class Utils
     public static function isPro()
     {
         return Auth::check() && Auth::user()->isPro();
+    }
+
+    public static function isTrial()
+    {
+        return Auth::check() && Auth::user()->isTrial();
     }
 
     public static function isEnglish()
@@ -959,6 +968,25 @@ class Utils
         $interval = $today->diff($datePaid);
 
         return $interval->y == 0;
+    }
+
+    public static function getInterval($date)
+    {
+        if (!$date || $date == '0000-00-00') {
+            return false;
+        }
+
+        $today = new DateTime('now');
+        $datePaid = DateTime::createFromFormat('Y-m-d', $date);
+
+        return $today->diff($datePaid);
+    }
+
+    public static function withinPastTwoWeeks($date)
+    {
+        $interval = Utils::getInterval($date);
+
+        return $interval && $interval->d <= 14;
     }
 
     public static function addHttp($url)

@@ -916,6 +916,8 @@ class AccountController extends BaseController
         $user->registered = true;
         $user->save();
 
+        $user->account->startTrial();
+
         if (Input::get('go_pro') == 'true') {
             Session::set(REQUESTED_PRO_PLAN, true);
         }
@@ -978,6 +980,17 @@ class AccountController extends BaseController
         $this->userMailer->sendConfirmation($user);
 
         return Redirect::to('/settings/'.ACCOUNT_USER_DETAILS)->with('message', trans('texts.confirmation_resent'));
+    }
+
+    public function startTrial()
+    {
+        $user = Auth::user();
+
+        if ($user->isEligibleForTrial()) {
+            $user->account->startTrial();
+        }
+
+        return Redirect::back()->with('message', trans('texts.trial_success'));
     }
 
     public function redirectLegacy($section, $subSection = false)

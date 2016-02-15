@@ -166,7 +166,7 @@ class UserController extends BaseController
      */
     public function save($userPublicId = false)
     {
-        if (Auth::user()->account->isPro()) {
+        if (Auth::user()->isPro() && ! Auth::user()->isTrial()) {
             $rules = [
                 'first_name' => 'required',
                 'last_name' => 'required',

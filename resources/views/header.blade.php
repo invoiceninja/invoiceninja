@@ -185,7 +185,7 @@
     window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/license?affiliate_key=' + affiliateKey + '&product_id=' + productId + '&return_url=' + window.location);
   }
 
-  @if (Auth::check() && !Auth::user()->isPro())
+  @if (Auth::check() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
   function submitProPlan() {
     fbq('track', 'AddPaymentInfo');
     trackEvent('/account', '/submit_pro_plan/' + NINJA.proPlanFeature);
@@ -382,7 +382,7 @@
         @if (Auth::check())
           @if (!Auth::user()->registered)
             {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal'))->small() !!} &nbsp;
-          @elseif (!Auth::user()->isPro())
+          @elseif (Utils::isNinjaProd() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
             {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'onclick' => 'showProPlan("")'))->small() !!} &nbsp;
           @endif
         @endif
@@ -599,10 +599,16 @@
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
             </div>
+
+            <div class="col-md-11 col-md-offset-1">
+                <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
+            </div>
         </div>
 
         {!! Former::close() !!}
-
+        
+        
+        
         <center><div id="errorTaken" style="display:none">&nbsp;<br/>{{ trans('texts.email_taken') }}</div></center>
         <br/>
 
@@ -655,11 +661,10 @@
 </div>
 @endif
 
-@if (Auth::check() && !Auth::user()->isPro())
+@if (Auth::check() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
   <div class="modal fade" id="proPlanModal" tabindex="-1" role="dialog" aria-labelledby="proPlanModalLabel" aria-hidden="true">
     <div class="modal-dialog large-dialog">
       <div class="modal-content pro-plan-modal">
-        
 
         <div class="pull-right">
             <img onclick="hideProPlan()" class="close" src="{{ asset('images/pro_plan/close.png') }}"/>
@@ -670,7 +675,11 @@
                 <center>
                     <h2>{{ trans('texts.pro_plan_title') }}</h2>
                     <img class="img-responsive price" alt="Only $50 Per Year" src="{{ asset('images/pro_plan/price.png') }}"/>
-                    <a class="button" href="#" onclick="submitProPlan()">{{ trans('texts.pro_plan_call_to_action') }}</a>
+                    @if (Auth::user()->isEligibleForTrial())
+                        <a class="button" href="{{ URL::to('start_trial') }}">{{ trans('texts.trial_call_to_action') }}</a>
+                    @else
+                        <a class="button" href="#" onclick="submitProPlan()">{{ trans('texts.pro_plan_call_to_action') }}</a>
+                    @endif
                 </center>
             </div>
             <div class="col-md-5">
@@ -694,12 +703,19 @@
 
 @endif
 
-{{-- Per our license, please do not remove or modify this section. --}}
-@if (!Utils::isNinjaProd())
 </div>
-<p>&nbsp;</p>
+<br/>
 <div class="container">
+@if (Utils::isNinjaProd())
+  @if (Auth::check() && Auth::user()->isTrial())
+    {!! trans(Auth::user()->account->getCountTrialDaysLeft() == 0 ? 'texts.trial_footer_last_day' : 'texts.trial_footer', [
+            'count' => Auth::user()->account->getCountTrialDaysLeft(), 
+            'link' => '<a href="javascript:submitProPlan()">' . trans('texts.click_here') . '</a>'
+        ]) !!}
+  @endif
+@else
   {{ trans('texts.powered_by') }}
+  {{-- Per our license, please do not remove or modify this section. --}}
   {!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => 'invoiceninja.com']) !!} -
   {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank', 'title' => trans('texts.trello_roadmap')]) !!} | 
   @if (Auth::user()->account->isWhiteLabel())  
