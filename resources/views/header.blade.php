@@ -282,7 +282,7 @@
           }
           $('#search').typeahead(datasets).on('typeahead:selected', function(element, datum, name) {
             var type = name == 'Contacts' ? 'clients' : name.toLowerCase();
-            window.location = '{{ URL::to('/') }}' + '/' + type + '/' + datum.public_id;
+            window.location = '{{ URL::to('/') }}' + '/' + datum.entity_type + '/' + datum.public_id;
           }).focus().typeahead('setQuery', $('#search').val());
         });
     }
