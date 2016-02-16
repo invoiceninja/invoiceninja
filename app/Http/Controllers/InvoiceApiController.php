@@ -282,12 +282,15 @@ class InvoiceApiController extends BaseAPIController
         $data = Input::all();
         $error = null;
 
-        $invoice = Invoice::scope($data['id'])->firstOrFail();
+        $invoice = Invoice::scope($data['id'])->withTrashed()->first();
 
-        $this->mailer->sendInvoice($invoice);
+        if(!$invoice)
+            return $this->errorResponse(['message'=>'Invoice does not exist.'], 400);
 
-        if($error) {
-            $response['error'] = "There was an error sending the invoice";
+        $emailAction = $this->mailer->sendInvoice($invoice);
+
+        if(($error) || ($emailAction === FALSE)) {
+            return $this->errorResponse(['message'=>'There was an error sending the invoice'], 400);
         }
         else {
             $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
