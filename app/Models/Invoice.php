@@ -1,6 +1,5 @@
 <?php namespace App\Models;
 
-use Illuminate\Support\Facades\Log;
 use Utils;
 use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -756,8 +755,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         curl_setopt_array($curl, $opts);
         $response = curl_exec($curl);
         curl_close($curl);
-
-        Log::info($response);
 
         $encodedString = strip_tags($response);
         $pdfString = Utils::decodePDF($encodedString);
