@@ -5,6 +5,8 @@ use App\Ninja\Repositories\BaseRepository;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Activity;
+use App\Events\ClientWasCreated;
+use App\Events\ClientWasUpdated;
 
 class ClientRepository extends BaseRepository
 {
@@ -95,6 +97,12 @@ class ClientRepository extends BaseRepository
             if (!in_array($contact->public_id, $contactIds)) {
                 $contact->delete();
             }
+        }
+
+        if (!$publicId || $publicId == '-1') {
+            event(new ClientWasCreated($client));
+        } else {
+            event(new ClientWasUpdated($client));
         }
 
         return $client;

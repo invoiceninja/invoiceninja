@@ -3,8 +3,6 @@
 use Utils;
 use DB;
 use Carbon;
-use App\Events\ClientWasCreated;
-use App\Events\ClientWasUpdated;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -299,14 +297,6 @@ Client::creating(function ($client) {
     $client->setNullValues();
 });
 
-Client::created(function ($client) {
-    event(new ClientWasCreated($client));
-});
-
 Client::updating(function ($client) {
     $client->setNullValues();
-});
-
-Client::updated(function ($client) {
-    event(new ClientWasUpdated($client));
 });

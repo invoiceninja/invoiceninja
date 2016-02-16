@@ -686,7 +686,7 @@ class Utils
             return EVENT_CREATE_PAYMENT;
         } elseif ($eventName == 'create_vendor') {
             return EVENT_CREATE_VENDOR;
-        }else {
+        } else {
             return false;
         }
     }
@@ -694,7 +694,7 @@ class Utils
     public static function notifyZapier($subscription, $data)
     {
         $curl = curl_init();
-        $jsonEncodedData = json_encode($data->toPublicArray());
+        $jsonEncodedData = json_encode($data);
 
         $opts = [
             CURLOPT_URL => $subscription->target_url,
@@ -715,37 +715,6 @@ class Utils
         if ($status == 410) {
             $subscription->delete();
         }
-    }
-
-    public static function hideIds($data, $mapped = false)
-    {
-        $publicId = null;
-
-        if (!$mapped) {
-            $mapped = [];
-        }
-
-        foreach ($data as $key => $val) {
-            if (is_array($val)) {
-                if ($key == 'account' || isset($mapped[$key])) {
-                    // do nothing
-                } else {
-                    $mapped[$key] = true;
-                    $data[$key] = Utils::hideIds($val, $mapped);
-                }
-            } elseif ($key == 'id' || strpos($key, '_id')) {
-                if ($key == 'public_id') {
-                    $publicId = $val;
-                }
-                unset($data[$key]);
-            }
-        }
-
-        if ($publicId) {
-            $data['id'] = $publicId;
-        }
-
-        return $data;
     }
 
     public static function getApiHeaders($count = 0)

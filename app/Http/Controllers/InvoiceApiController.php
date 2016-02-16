@@ -12,6 +12,7 @@ use App\Models\Contact;
 use App\Models\Product;
 use App\Models\Invitation;
 use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Http\Controllers\BaseAPIController;
@@ -23,12 +24,13 @@ class InvoiceApiController extends BaseAPIController
 {
     protected $invoiceRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, Mailer $mailer)
+    public function __construct(InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer)
     {
         parent::__construct();
 
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
+        $this->paymentRepo = $paymentRepo;
         $this->mailer = $mailer;
     }
 
@@ -123,14 +125,26 @@ class InvoiceApiController extends BaseAPIController
                 }
 
                 $clientData = ['contact' => ['email' => $email]];
-                foreach (['name', 'private_notes'] as $field) {
+                foreach ([
+                    'name',
+                    'address1',
+                    'address2',
+                    'city',
+                    'state',
+                    'postal_code',
+                    'private_notes',
+                ] as $field) {
                     if (isset($data[$field])) {
                         $clientData[$field] = $data[$field];
                     }
                 }
-                foreach (['first_name', 'last_name'] as $field) {
+                foreach ([
+                    'first_name',
+                    'last_name',
+                    'phone',
+                ] as $field) {
                     if (isset($data[$field])) {
-                        $clientData[$field] = $data[$field];
+                        $clientData['contact'][$field] = $data[$field];
                     }
                 }
 
@@ -143,6 +157,16 @@ class InvoiceApiController extends BaseAPIController
         $data = self::prepareData($data, $client);
         $data['client_id'] = $client->id;
         $invoice = $this->invoiceRepo->save($data);
+        $payment = false;
+
+        // Optionally create payment with invoice
+        if (isset($data['paid']) && $data['paid']) {
+            $payment = $this->paymentRepo->save([
+                'invoice_id' => $invoice->id,
+                'client_id' => $client->id,
+                'amount' => $data['paid']
+            ]);
+        }
 
         if (!isset($data['id'])) {
             $invitation = Invitation::createNew();
@@ -153,7 +177,11 @@ class InvoiceApiController extends BaseAPIController
         }
 
         if (isset($data['email_invoice']) && $data['email_invoice']) {
-            $this->mailer->sendInvoice($invoice);
+            if ($payment) {
+                $this->mailer->sendPaymentConfirmation($payment);
+            } else {
+                $this->mailer->sendInvoice($invoice);
+            }
         }
 
         $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->first();

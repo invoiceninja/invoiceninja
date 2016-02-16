@@ -626,7 +626,7 @@ function ContactModel(data) {
     self.displayName = ko.computed(function() {
         var str = '';
         if (self.first_name() || self.last_name()) {
-            str += self.first_name() + ' ' + self.last_name() + '\n';
+            str += (self.first_name() || '') + ' ' + (self.last_name() || '') + '\n';
         }
         if (self.email()) {
             str += self.email() + '\n';
@@ -637,8 +637,9 @@ function ContactModel(data) {
 
     self.email.display = ko.computed(function() {
         var str = '';
+
         if (self.first_name() || self.last_name()) {
-            str += self.first_name() + ' ' + self.last_name() + '<br/>';
+            str += (self.first_name() || '') + ' ' + (self.last_name() || '') + '<br/>';
         }
         if (self.email()) {
             str += self.email() + '<br/>';
