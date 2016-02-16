@@ -753,14 +753,16 @@ class Invoice extends EntityModel implements BalanceAffecting
             ],
         ];
 
-        Log::info($opts);
-        
         curl_setopt_array($curl, $opts);
         $response = curl_exec($curl);
         curl_close($curl);
 
+        Log::info($response);
+
         $encodedString = strip_tags($response);
         $pdfString = Utils::decodePDF($encodedString);
+
+        Log::info($pdfString);
 
         if ( ! $pdfString || strlen($pdfString) < 200) {
             Utils::logError("PhantomJSCloud - failed to create pdf: {$encodedString}");
