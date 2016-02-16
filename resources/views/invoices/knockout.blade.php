@@ -787,14 +787,7 @@ function ItemModel(data) {
 
     this.totals.total = ko.computed(function() {
         var total = self.totals.rawTotal();
-        return total ? model.invoice().formatMoney(total) : '';
-        /*
-        if (window.hasOwnProperty('model') && model.invoice && model.invoice() && model.invoice().client()) {
-            return total ? model.invoice().formatMoney(total) : '';
-        } else {
-            return total ? model.invoice().formatMoney(total, 1) : '';
-        }
-        */
+        return window.hasOwnProperty('model') && total ? model.invoice().formatMoney(total) : '';
     });
 
     this.hideActions = function() {
