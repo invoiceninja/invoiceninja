@@ -258,20 +258,12 @@
     localStorage.setItem('auth_provider', provider);
   }
 
-  $(function() {
-    window.setTimeout(function() { 
-        $(".alert-hide").fadeOut();
-    }, 3000);
-
-    $('#search').blur(function(){
-      $('#search').css('width', '110px');
-      $('ul.navbar-right').show();
-    });
-
-    $('#search').focus(function(){
-      $('#search').css('width', '224px');
-      $('ul.navbar-right').hide();
-      if (!window.hasOwnProperty('searchData')) {
+  function showSearch() {
+    $('#search-form').show();
+    $('#navbar-options').hide();
+    if (window.hasOwnProperty('searchData')) {
+        $('#search').focus();
+    } else {
         trackEvent('/activity', '/search');
         $.get('{{ URL::route('getSearchData') }}', function(data) {
           window.searchData = true;
@@ -290,12 +282,26 @@
           }
           $('#search').typeahead(datasets).on('typeahead:selected', function(element, datum, name) {
             var type = name == 'Contacts' ? 'clients' : name.toLowerCase();
-            window.location = '{{ URL::to('/') }}' + '/' + type + '/' + datum.public_id;
-          }).focus().typeahead('setQuery', $('#search').val());                         
+            window.location = '{{ URL::to('/') }}' + '/' + datum.entity_type + '/' + datum.public_id;
+          }).focus().typeahead('setQuery', $('#search').val());
         });
-      }
-    });
+    }
+  }
 
+  function hideSearch() {
+    $('#search').typeahead('setQuery', '');
+    $('#search-form').hide();
+    $('#navbar-options').show();
+  }
+
+  $(function() {
+    window.setTimeout(function() { 
+        $(".alert-hide").fadeOut();
+    }, 3000);
+
+    $('#search').blur(function(){
+        hideSearch();
+    });
 
     if (isStorageSupported()) {
       @if (Auth::check() && !Auth::user()->registered)
@@ -378,18 +384,19 @@
         {!! HTML::menu_link('payment') !!}
       </ul>
 
+      <div id="navbar-options">
       <div class="navbar-form navbar-right">
         @if (Auth::check())
           @if (!Auth::user()->registered)
-            {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal'))->small() !!} &nbsp;
+            {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!} &nbsp;
           @elseif (Utils::isNinjaProd() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
-            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'onclick' => 'showProPlan("")'))->small() !!} &nbsp;
+            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'onclick' => 'showProPlan("")', 'style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
           @endif
         @endif
 
         <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-            <div id="myAccountButton" class="ellipsis" style="max-width:100px">
+            <div id="myAccountButton" class="ellipsis" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '100' : '70' }}px">
                 @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
                     {{ Auth::user()->account->getDisplayName() }}
                 @else
@@ -478,14 +485,21 @@
         </li>
       </ul>
 
-      <form class="navbar-form navbar-right" role="search">
+      <ul class="nav navbar-nav navbar-right navbar-settings"> 
+        <li class="dropdown">
+          <a href="#" onclick="showSearch()">
+            <span class="glyphicon glyphicon-search" title="{{ trans('texts.search') }}"/>
+          </a>
+        </li>
+      </ul>
+      </div>
+
+      <form id="search-form" class="navbar-form navbar-right" role="search" style="display:none">
         <div class="form-group">
-          <input type="text" id="search" style="width: 110px;padding-top:0px;padding-bottom:0px" 
+          <input type="text" id="search" style="width: 300px;padding-top:0px;padding-bottom:0px" 
             class="form-control" placeholder="{{ trans('texts.search') }}">
         </div>
       </form>
-
-
       
       
     </div><!-- /.navbar-collapse -->

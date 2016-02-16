@@ -2626,10 +2626,6 @@ border-radius: 3px;
 
 /*new*/
 
-div {
-    word-break: break-word;
-}
-
 div.input-group {
     word-break: normal;
 }
