@@ -744,7 +744,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         $opts = [
             CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY') . '/',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_CUSTOMREQUEST => 'GET',
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => $jsonEncodedData,
             CURLOPT_HTTPHEADER  => [
@@ -757,12 +757,8 @@ class Invoice extends EntityModel implements BalanceAffecting
         $response = curl_exec($curl);
         curl_close($curl);
 
-        Log::info($response);
-
         $encodedString = strip_tags($response);
         $pdfString = Utils::decodePDF($encodedString);
-
-        Log::info($pdfString);
 
         if ( ! $pdfString || strlen($pdfString) < 200) {
             Utils::logError("PhantomJSCloud - failed to create pdf: {$encodedString}");
