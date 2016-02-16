@@ -41,8 +41,6 @@ class ContactMailer extends Mailer
         $client = $invoice->client;
         $account = $invoice->account;
 
-        $response = false;
-
         if ($client->trashed()) {
             return trans('texts.email_errors.inactive_client');
         } elseif ($invoice->trashed()) {
