@@ -289,7 +289,7 @@ class InvoiceApiController extends BaseAPIController
             return $this->errorResponse(['message'=>'Invoice does not exist.'], 400);
 
 
-        $this->mailer->sendInvoice($invoice, false, $invoice->getPDFString());
+        $this->mailer->sendInvoice($invoice, false, false);
 
 
         if($error) {
