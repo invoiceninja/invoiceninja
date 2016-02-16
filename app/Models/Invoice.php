@@ -744,7 +744,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         $opts = [
             CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY') . '/',
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => $jsonEncodedData,
             CURLOPT_HTTPHEADER  => [
@@ -758,7 +758,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         curl_close($curl);
 
         Log::info($response);
-        
+
         $encodedString = strip_tags($response);
         $pdfString = Utils::decodePDF($encodedString);
 
