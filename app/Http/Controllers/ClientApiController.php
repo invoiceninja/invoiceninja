@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Utils;
 use Response;
 use Input;
@@ -134,10 +135,12 @@ class ClientApiController extends BaseAPIController
     public function update(UpdateClientRequest $request, $publicId)
     {
         if ($request->action == ACTION_ARCHIVE) {
+
             $client = Client::scope($publicId)->withTrashed()->first();
 
             if(!$client)
                 return $this->errorResponse(['message'=>'Client not found.']);
+
 
             $this->clientRepo->archive($client);
 
@@ -151,7 +154,7 @@ class ClientApiController extends BaseAPIController
             $client = Client::scope($publicId)->withTrashed()->first();
 
             if(!$client)
-                return $this->errorResponse(['message'=>'Client not found.']);
+                return $this->errorResponse(['message'=>'Client not found.'], 400);
 
             $this->clientRepo->restore($client);
 
@@ -170,7 +173,7 @@ class ClientApiController extends BaseAPIController
             ->first();
 
         if(!$client)
-            return $this->errorResponse(['message'=>'Client not found.']);
+            return $this->errorResponse(['message'=>'Client not found.'],400);
         
         $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
