@@ -30,7 +30,7 @@ before_install:
 
 install:
   # install Composer dependencies
-  - travis_retry composer update --prefer-dist;
+  - travis_retry composer install --prefer-dist;
 
 before_script:
   # copy configuration files
