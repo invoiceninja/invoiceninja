@@ -218,8 +218,8 @@ class PaymentApiController extends BaseAPIController
                 $query->withTrashed();
             }])->first();
 
-            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-            $data = $this->createItem($invoice, $transformer, 'invoice');
+            $transformer = new PaymentTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($payment, $transformer, 'invoice');
 
             return $this->response($data);
         }

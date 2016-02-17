@@ -85,6 +85,19 @@ class InvoiceApiController extends BaseAPIController
         return $this->response($data);
     }
 
+    public function show($publicId)
+    {
+
+        $invoice = Invoice::scope($publicId)->withTrashed()->first();
+
+        if(!$invoice)
+            return $this->errorResponse(['message'=>'Invoice does not exist!'], 404);
+
+        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+        $data = $this->createItem($invoice, $transformer, 'invoice');
+
+        return $this->response($data);
+    }
 
     /**
      * @SWG\Post(

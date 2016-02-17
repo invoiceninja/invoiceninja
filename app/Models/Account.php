@@ -164,6 +164,10 @@ class Account extends Eloquent
         return $this->belongsTo('App\Models\TaxRate');
     }
 
+    public function expenses()
+    {
+        return $this->hasMany('App\Models\Expense','account_id','id')->withTrashed();
+    }
 
     public function setIndustryIdAttribute($value)
     {
