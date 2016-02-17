@@ -13,7 +13,7 @@ addons:
     - ninja.dev
 
 git:
-  depth: 200
+  depth: 300
 
 cache:
   directories:
