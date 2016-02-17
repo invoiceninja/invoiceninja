@@ -39,6 +39,7 @@ install:
 
 before_script:
   # copy configuration files
+  - cp .env.example .env
   - cp tests/_bootstrap.php.default tests/_bootstrap.php
   # create the database and user
   - mysql -u root -e "create database IF NOT EXISTS ninja;"
