@@ -41,6 +41,7 @@ before_script:
   - cp .env.example .env
   - cp tests/_bootstrap.php.default tests/_bootstrap.php
   - php artisan key:generate --no-interaction
+  - sed -i 's/APP_ENV=production/APP_ENV=development/g' .env
   # create the database and user
   - mysql -u root -e "create database IF NOT EXISTS ninja;"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON ninja.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
@@ -48,7 +49,6 @@ before_script:
   - php artisan migrate --no-interaction
   - php artisan db:seed --no-interaction # default seed
   - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
-  - mysql -u root -e "use ninja;select email from users;"
   # Start webserver on ninja.dev:8000
   - php artisan serve --host=ninja.dev --port=8000 & # '&' allows to run in background
   # Start PhantomJS

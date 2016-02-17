@@ -233,7 +233,7 @@
         .attr("class", "no-pointer-events")
         .attr("class", "animate-grow")
         .attr("d", arc)
-        .style("fill", function(d, i) { return 'grey'; });
+        .style("fill", function(d, i) { return '#2e9e49'; });
 
       d3.selectAll("path.animate-grow")
         .transition()
@@ -245,7 +245,8 @@
         .transition()
         .duration(1000)      
         .style("fill", function(d, i) { 
-          return d.displayAge == -1 ? 'grey' : color(d.displayAge);
+          //return d.displayAge == -1 ? 'grey' : color(d.displayAge);
+          return d.displayAge == -1 ? 'grey' : '#FF0000';
         });                
 
       selection.exit().remove();
