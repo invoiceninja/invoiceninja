@@ -17,6 +17,9 @@ cache:
     - vendor
     - $HOME/.composer/cache
 
+git:
+  depth: 150
+
 env:
   global:
     - COMPOSER_DISCARD_CHANGES=true
