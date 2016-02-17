@@ -19,7 +19,7 @@ extensions:
 modules:
     config:
         Db:
-            dsn: 'mysql:dbname=ninja;host=localhost;'
+            dsn: 'mysql:dbname=ninja;host=127.0.0.1;'
             user: 'ninja'
             password: 'ninja'
             dump: tests/_data/dump.sql
