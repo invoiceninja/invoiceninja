@@ -6,3 +6,4 @@ Fixtures::add('username', 'user@example.com');
 Fixtures::add('password', 'password');
 
 Fixtures::add('gateway_key', '');
+Fixtures::add('api_secret', 'password');
