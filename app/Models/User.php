@@ -107,6 +107,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->account->isPro();
     }
 
+    public function isPaidPro()
+    {
+        return $this->isPro() && ! $this->isTrial();
+    }
+
     public function isTrial()
     {
         return $this->account->isTrial();

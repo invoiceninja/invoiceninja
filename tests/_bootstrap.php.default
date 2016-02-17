@@ -2,7 +2,10 @@
 // This is global bootstrap for autoloading
 use Codeception\Util\Fixtures;
 
+Fixtures::add('url', 'http://ninja.dev:8000');
 Fixtures::add('username', 'user@example.com');
 Fixtures::add('password', 'password');
 
-Fixtures::add('gateway_key', '');
+Fixtures::add('api_secret', 'password');
+Fixtures::add('secret_key', '');
+Fixtures::add('publishable_key', '');

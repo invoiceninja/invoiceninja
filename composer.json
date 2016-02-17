@@ -36,7 +36,7 @@
 		"omnipay/bitpay": "dev-master",
 		"guzzlehttp/guzzle": "~6.0",
 		"laravelcollective/html": "~5.0",
-		"wildbit/laravel-postmark-provider": "dev-master",
+		"wildbit/laravel-postmark-provider": "2.0",
 		"Dwolla/omnipay-dwolla": "dev-master",
 		"laravel/socialite": "~2.0",
 		"simshaun/recurr": "dev-master",

@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -37,6 +36,7 @@ Route::post('/get_started', 'AccountController@getStarted');
 
 // Client visible pages
 Route::get('view/{invitation_key}', 'PublicClientController@view');
+Route::get('download/{invitation_key}', 'PublicClientController@download');
 Route::get('view', 'HomeController@viewLogo');
 Route::get('approve/{invitation_key}', 'QuoteController@approve');
 Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');

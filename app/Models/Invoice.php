@@ -733,42 +733,24 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         $invitation = $this->invitations[0];
         $link = $invitation->getLink();
+        $key = env('PHANTOMJS_CLOUD_KEY');
         $curl = curl_init();
         
-        $jsonEncodedData = json_encode([
-            'url' => "{$link}?phantomjs=true",
-            'renderType' => 'html',
-            'outputAsJson' => false,
-            'renderSettings' => [
-                'passThroughHeaders' => true,
-            ],
-            // 'delayTime' => 1000,
-        ]);
-
-        $opts = [
-            CURLOPT_URL => PHANTOMJS_CLOUD . env('PHANTOMJS_CLOUD_KEY') . '/',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => $jsonEncodedData,
-            CURLOPT_HTTPHEADER  => [
-                'Content-Type: application/json',
-                'Content-Length: '.strlen($jsonEncodedData)
-            ],
-        ];
-
-        curl_setopt_array($curl, $opts);
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        $encodedString = strip_tags($response);
-        $pdfString = Utils::decodePDF($encodedString);
-
-        if ( ! $pdfString || strlen($pdfString) < 200) {
-            Utils::logError("PhantomJSCloud - failed to create pdf: {$encodedString}");
+        if (Utils::isNinjaDev()) {
+            $link = env('TEST_LINK');
         }
 
-        return $pdfString;
+        $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
+        
+        $pdfString = file_get_contents($url);
+        $pdfString = strip_tags($pdfString);
+        
+        if ( ! $pdfString || strlen($pdfString) < 200) {
+            Utils::logError("PhantomJSCloud - failed to create pdf: {$pdfString}");
+            return false;
+        }
+
+        return Utils::decodePDF($pdfString);
     }
 }
 
