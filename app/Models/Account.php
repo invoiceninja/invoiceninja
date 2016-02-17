@@ -169,6 +169,11 @@ class Account extends Eloquent
         return $this->hasMany('App\Models\Expense','account_id','id')->withTrashed();
     }
 
+    public function payments()
+    {
+        return $this->hasMany('App\Models\Payment','account_id','id')->withTrashed();
+    }
+
     public function setIndustryIdAttribute($value)
     {
         $this->attributes['industry_id'] = $value ?: null;

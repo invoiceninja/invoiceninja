@@ -71,7 +71,8 @@ class AccountApiController extends BaseAPIController
             'invoices' => ['invoice_items', 'user', 'client', 'payments'],
             'products' => [],
             'tax_rates' => [],
-            'expenses' => ['client', 'invoice', 'vendor']
+            'expenses' => ['client', 'invoice', 'vendor'],
+            'payments' => ['invoice'],
         ];
 
         foreach ($map as $key => $values) {
