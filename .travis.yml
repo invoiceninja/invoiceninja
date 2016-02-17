@@ -12,9 +12,6 @@ addons:
   hosts:
     - ninja.dev
 
-git:
-  depth: 300
-
 cache:
   directories:
     - vendor
@@ -33,7 +30,7 @@ before_install:
 
 install:
   # install Composer dependencies
-  - travis_retry composer install;
+  - travis_retry composer install --prefer-dist;
 
 before_script:
   # copy configuration files
