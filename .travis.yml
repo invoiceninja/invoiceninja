@@ -30,7 +30,7 @@ before_install:
 
 install:
   # install Composer dependencies
-  #- rm composer.lock
+  - rm composer.lock
   #- cat composer.json
   - sed -i '/mollie/d' composer.json
   - sed -i '/2checkout/d' composer.json
