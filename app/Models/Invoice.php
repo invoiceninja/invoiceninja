@@ -197,6 +197,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->hasMany('App\Models\Invitation')->orderBy('invitations.contact_id');
     }
 
+    public function expenses()
+    {
+        return $this->hasMany('App\Models\Expense','invoice_id','id')->withTrashed();
+    }
+
     public function markInvitationsSent($notify = false)
     {
         foreach ($this->invitations as $invitation) {
