@@ -49,13 +49,13 @@ before_script:
   - php artisan db:seed --no-interaction # default seed
   - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
   # Start webserver on ninja.dev:8000
-  - php artisan serve --host=ninja.dev --port=8000 & # '&' allows to run in background
+  - php artisan serve --host=ninja.dev & # '&' allows to run in background
   # Start PhantomJS
   - phantomjs --webdriver=4444 & # '&' allows to run in background
   # Give it some time to start
   - sleep 5
   # Make sure the app is up-to-date
-  - curl -L http://ninja.dev:8000/update
+  - curl -L http://ninja.dev/update
 
 script:
   - php ./vendor/codeception/codeception/codecept run --html --debug
