@@ -126,27 +126,14 @@
     //console.log(JSON.stringify(invoices));
     //console.log(JSON.stringify(products));
     
-    /*
-    var arc = d3.svg.arc()
-      .innerRadius(function(d) { return d.r - 2 })
-      .outerRadius(function(d) { return d.r - 8 })
-      .startAngle(0);
-
-    var fullArc = d3.svg.arc()
-      .innerRadius(function(d) { return d.r - 3 })
-      .outerRadius(function(d) { return d.r - 7 })
-      .startAngle(0)
-      .endAngle(2 * Math.PI);
-    */
-
     var arc = d3.svg.arc()
       .innerRadius(function(d) { return d.r })
-      .outerRadius(function(d) { return d.r - 6 })
+      .outerRadius(function(d) { return d.r - 5 })
       .startAngle(0);
 
     var fullArc = d3.svg.arc()
       .innerRadius(function(d) { return d.r  })
-      .outerRadius(function(d) { return d.r - 6 })
+      .outerRadius(function(d) { return d.r - 5 })
       .startAngle(0)
       .endAngle(2 * Math.PI);
 
