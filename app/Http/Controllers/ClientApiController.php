@@ -140,7 +140,7 @@ class ClientApiController extends BaseAPIController
             $client = Client::scope($publicId)->withTrashed()->first();
 
             if(!$client)
-                return $this->errorResponse(['message'=>'Client not found.']);
+                return $this->errorResponse(['message'=>'Record not found'], 400);
 
             $this->clientRepo->archive($client);
 
