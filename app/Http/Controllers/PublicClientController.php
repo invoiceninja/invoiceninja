@@ -162,6 +162,21 @@ class PublicClientController extends BaseController
         return $paymentTypes;
     }
 
+    public function download($invitationKey)
+    {
+        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return response()->view('error', [
+                'error' => trans('texts.invoice_not_found'),
+                'hideHeader' => true,
+            ]);
+        }
+
+        $invoice = $invitation->invoice;
+        $pdfString = $invoice->getPDFString();
+
+        dd($pdfString);
+    }
+
     public function dashboard()
     {
         if (!$invitation = $this->getInvitation()) {

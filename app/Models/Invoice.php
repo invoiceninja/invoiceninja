@@ -735,6 +735,10 @@ class Invoice extends EntityModel implements BalanceAffecting
         $link = $invitation->getLink();
         $curl = curl_init();
         
+        if (Utils::isNinjaDev()) {
+            $link = env('TEST_LINK');
+        }
+
         $jsonEncodedData = json_encode([
             'url' => "{$link}?phantomjs=true",
             'renderType' => 'html',
@@ -761,11 +765,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         $response = curl_exec($curl);
         curl_close($curl);
 
-        $encodedString = strip_tags($response);
-        $pdfString = Utils::decodePDF($encodedString);
+        $pdfString = strip_tags($response);
 
         if ( ! $pdfString || strlen($pdfString) < 200) {
-            Utils::logError("PhantomJSCloud - failed to create pdf: {$encodedString}");
+            Utils::logError("PhantomJSCloud - failed to create pdf: {$pdfString}");
+            return false;
         }
 
         return $pdfString;

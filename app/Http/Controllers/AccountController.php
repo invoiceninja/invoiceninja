@@ -958,7 +958,13 @@ class AccountController extends BaseController
                 'text' => $reason,
             ];
 
-            $this->userMailer->sendTo(CONTACT_EMAIL, $email, $name, 'Invoice Ninja Feedback [Canceled Account]', 'contact', $data);
+            $subject = 'Invoice Ninja - Canceled Account';
+
+            if (Auth::user()->isPaidPro()) {
+                $subject .= ' [PRO]';
+            }
+
+            $this->userMailer->sendTo(CONTACT_EMAIL, $email, $name, $subject, 'contact', $data);
         }
 
         $user = Auth::user();
