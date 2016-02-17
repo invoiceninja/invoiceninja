@@ -236,6 +236,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('products', 'ProductApiController');
     Route::resource('tax_rates', 'TaxRateApiController');
     Route::resource('users', 'UserApiController');
+    Route::resource('expenses','ExpenseApiController');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
