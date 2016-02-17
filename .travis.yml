@@ -32,8 +32,8 @@ install:
   # install Composer dependencies
   - rm composer.lock
   - cat composer.json
-  - sed '/omnipay/mollie/d' filename.txt
-  - sed '/omnipay/2checkout/d' filename.txt
+  - sed -i '/mollie/d' composer.json
+  - sed -i '/2checkout/d' composer.json
   - cat composer.json
   - travis_retry composer install --prefer-dist;
 
