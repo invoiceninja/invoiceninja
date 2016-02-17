@@ -85,6 +85,36 @@ class InvoiceApiController extends BaseAPIController
         return $this->response($data);
     }
 
+        /**
+         * @SWG\Get(
+         *   path="/invoices/{invoice_id}",
+         *   summary="Individual Invoice",
+         *   tags={"invoice"},
+         *   @SWG\Response(
+         *     response=200,
+         *     description="A single invoice",
+         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
+         *   ),
+         *   @SWG\Response(
+         *     response="default",
+         *     description="an ""unexpected"" error"
+         *   )
+         * )
+         */
+
+    public function show($publicId)
+    {
+
+        $invoice = Invoice::scope($publicId)->withTrashed()->first();
+
+        if(!$invoice)
+            return $this->errorResponse(['message'=>'Invoice does not exist!'], 404);
+
+        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+        $data = $this->createItem($invoice, $transformer, 'invoice');
+
+        return $this->response($data);
+    }
 
     /**
      * @SWG\Post(

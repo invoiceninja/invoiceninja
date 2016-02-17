@@ -57,6 +57,7 @@ class PaymentTransformer extends EntityTransformer
             'archived_at' => $this->getTimestamp($payment->deleted_at),
             'is_deleted' => (bool) $payment->is_deleted,
             'payment_type_id' => (int) $payment->payment_type_id,
+            'invoice_id' => (int) $payment->invoice->public_id,
         ];
     }
 }

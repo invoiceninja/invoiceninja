@@ -12,10 +12,14 @@ class AccountTransformer extends EntityTransformer
 {
     protected $defaultIncludes = [
         'users',
-    //    'clients',
-        'invoices',
         'products',
-        'taxRates'
+        'taxRates',
+        'payments'
+    ];
+
+    protected $availableIncludes = [
+        'clients',
+        'invoices',
     ];
 
     public function includeUsers(Account $account)
@@ -46,6 +50,12 @@ class AccountTransformer extends EntityTransformer
     {
         $transformer = new TaxRateTransformer($account, $this->serializer);
         return $this->includeCollection($account->tax_rates, $transformer, 'taxRates');
+    }
+
+    public function includePayments(Account $account)
+    {
+        $transformer = new PaymentTransformer($account, $this->serializer);
+        return $this->includeCollection($account->payments, $transformer, 'payments');
     }
 
     public function transform(Account $account)
