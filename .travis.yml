@@ -61,6 +61,10 @@ before_script:
 script:
   - php ./vendor/codeception/codeception/codecept run --html --debug
 
+after_script:
+  - cat storage/logs/laravel.log 
+
+
 notifications:
   email:
     on_success: never

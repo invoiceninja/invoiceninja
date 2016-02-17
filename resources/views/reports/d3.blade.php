@@ -126,6 +126,7 @@
     //console.log(JSON.stringify(invoices));
     //console.log(JSON.stringify(products));
     
+    /*
     var arc = d3.svg.arc()
       .innerRadius(function(d) { return d.r - 2 })
       .outerRadius(function(d) { return d.r - 8 })
@@ -136,7 +137,18 @@
       .outerRadius(function(d) { return d.r - 7 })
       .startAngle(0)
       .endAngle(2 * Math.PI);
+    */
 
+    var arc = d3.svg.arc()
+      .innerRadius(function(d) { return d.r })
+      .outerRadius(function(d) { return d.r - 6 })
+      .startAngle(0);
+
+    var fullArc = d3.svg.arc()
+      .innerRadius(function(d) { return d.r  })
+      .outerRadius(function(d) { return d.r - 6 })
+      .startAngle(0)
+      .endAngle(2 * Math.PI);
 
     var diameter = 800,
     format = d3.format(",d");
@@ -245,8 +257,7 @@
         .transition()
         .duration(1000)      
         .style("fill", function(d, i) { 
-          //return d.displayAge == -1 ? 'grey' : color(d.displayAge);
-          return d.displayAge == -1 ? 'grey' : '#FF0000';
+          return d.displayAge == -1 ? 'white' : 'red';
         });                
 
       selection.exit().remove();
