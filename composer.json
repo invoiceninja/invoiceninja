@@ -10,8 +10,6 @@
 		}
 	],
 	"require": {
-        //"omnipay/mollie": "dev-master#22956c1a62a9662afa5f5d119723b413770ac525",
-        //"omnipay/2checkout": "dev-master#e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
         "omnipay/gocardless": "dev-master",
         "omnipay/stripe": "2.3.0",
 		"laravel/framework": "5.0.*",
