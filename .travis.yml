@@ -40,7 +40,6 @@ install:
 before_script:
   # copy configuration files
   - cp tests/_bootstrap.php.default tests/_bootstrap.php
-  - cp tests/.env.example .env
   # create the database and user
   - mysql -u root -e "create database IF NOT EXISTS ninja;"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON ninja.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
