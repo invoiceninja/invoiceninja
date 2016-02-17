@@ -117,7 +117,7 @@ class APICest
         $response = curl_exec($curl);
         curl_close($curl);
 
-        Debug::debug('Response: ' . $response);
+        //Debug::debug('Response: ' . $response);
 
         return json_decode($response);
     }
