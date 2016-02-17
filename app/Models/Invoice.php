@@ -750,7 +750,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return false;
         }
 
-        return $pdfString;
+        return Utils::decodePDF($pdfString);
     }
 }
 

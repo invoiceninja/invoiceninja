@@ -174,7 +174,13 @@ class PublicClientController extends BaseController
         $invoice = $invitation->invoice;
         $pdfString = $invoice->getPDFString();
 
-        dd($pdfString);
+        header('Content-Type: application/pdf');
+        header('Content-Length: ' . strlen($pdfString));
+        header('Content-disposition: attachment; filename="' . $invoice->getFileName() . '"');
+        header('Cache-Control: public, must-revalidate, max-age=0');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+
+        return $pdfString;
     }
 
     public function dashboard()

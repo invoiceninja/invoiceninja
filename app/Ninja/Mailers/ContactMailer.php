@@ -56,7 +56,7 @@ class ContactMailer extends Mailer
         $sent = false;
 
         if ($account->attatchPDF() && !$pdfString) {
-            $pdfString = Utils::decodePDF($invoice->getPDFString());
+            $pdfString = $invoice->getPDFString();
         }
 
         foreach ($invoice->invitations as $invitation) {
@@ -184,7 +184,7 @@ class ContactMailer extends Mailer
         ];
 
         if ($account->attatchPDF()) {
-            $data['pdfString'] = Utils::decodePDF($invoice->getPDFString());
+            $data['pdfString'] = $invoice->getPDFString();
             $data['pdfFileName'] = $invoice->getFileName();
         }
 
