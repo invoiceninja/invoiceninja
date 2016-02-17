@@ -351,6 +351,13 @@
         });
     @endif
 
+    // Focus the search input if the user clicks forward slash
+    $('body').keypress(function(event) {
+        if (event.which == 47) {
+            showSearch();
+        }
+    });
+
   });
 
 </script>  
