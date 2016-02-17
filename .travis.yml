@@ -30,6 +30,7 @@ before_install:
 
 install:
   # install Composer dependencies
+  - cat composer.json
   - travis_retry composer install --prefer-dist;
 
 before_script:
