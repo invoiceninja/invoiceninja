@@ -58,8 +58,8 @@ class PaymentApiController extends BaseAPIController
 
         $payments = $payments->orderBy('created_at', 'desc')->paginate();
         $paginator = $paginator->paginate();
+
         $transformer = new PaymentTransformer(Auth::user()->account, Input::get('serializer'));
-        
         $data = $this->createCollection($payments, $transformer, 'payments', $paginator);
 
         return $this->response($data);
@@ -98,11 +98,8 @@ class PaymentApiController extends BaseAPIController
                 $payment = Payment::scope($publicId)->withTrashed()->firstOrFail();
                 $this->paymentRepo->archive($payment);
 
-                $invoice = Invoice::scope($data['invoice_id'])->with('client')->with(['payments' => function($query) {
-                    $query->withTrashed();
-                }])->first();
-                $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-                $data = $this->createItem($invoice, $transformer, 'invoice');
+                $transformer = new PaymentTransformer(\Auth::user()->account, Input::get('serializer'));
+                $data = $this->createItem($payment, $transformer, 'invoice');
 
                 return $this->response($data);
             }
@@ -113,12 +110,17 @@ class PaymentApiController extends BaseAPIController
                 return $error;
             }
 
+            /*
             $invoice = Invoice::scope($data['invoice_id'])->with('client', 'invoice_items', 'invitations')->with(['payments' => function($query) {
                 $query->withTrashed();
             }])->withTrashed()->first();
-            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-            $data = $this->createItem($invoice, $transformer, 'invoice');
+            */
+
+            $transformer = new PaymentTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($payment, $transformer, 'invoice');
+
             return $this->response($data);
+
         }
 
 
@@ -175,13 +177,17 @@ class PaymentApiController extends BaseAPIController
             $this->contactMailer->sendPaymentConfirmation($payment);
         }
 
+        /*
         $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->with(['payments' => function($query) {
             $query->withTrashed();
         }])->first();
-        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($invoice, $transformer, 'invoice');
+        */
+
+        $transformer = new PaymentTransformer(\Auth::user()->account, Input::get('serializer'));
+        $data = $this->createItem($payment, $transformer, 'invoice');
 
         return $this->response($data);
+
     }
 
         /**
@@ -214,12 +220,13 @@ class PaymentApiController extends BaseAPIController
 
             $this->paymentRepo->delete($payment);
 
+            /*
             $invoice = Invoice::scope($invoiceId)->with('client', 'invoice_items', 'invitations')->with(['payments' => function($query) {
                 $query->withTrashed();
             }])->first();
-
-            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-            $data = $this->createItem($invoice, $transformer, 'invoice');
+            */
+            $transformer = new PaymentTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($payment, $transformer, 'invoice');
 
             return $this->response($data);
         }
