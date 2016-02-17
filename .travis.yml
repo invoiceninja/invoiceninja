@@ -17,9 +17,6 @@ cache:
     - vendor
     - $HOME/.composer/cache
 
-git:
-  depth: 150
-
 env:
   global:
     - COMPOSER_DISCARD_CHANGES=true
@@ -33,6 +30,10 @@ before_install:
 
 install:
   # install Composer dependencies
+  - rm composer.lock
+  - cat composer.json
+  - sed '/omnipay/mollie/d' filename.txt
+  - sed '/omnipay/2checkout/d' filename.txt
   - cat composer.json
   - travis_retry composer install --prefer-dist;
 
