@@ -42,6 +42,7 @@ before_script:
   - cp tests/_bootstrap.php.default tests/_bootstrap.php
   - php artisan key:generate --no-interaction
   - sed -i 's/APP_ENV=production/APP_ENV=development/g' .env
+  - sed -i 's/APP_DEBUG=false/APP_DEBUG=true/g' .env
   # create the database and user
   - mysql -u root -e "create database IF NOT EXISTS ninja;"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON ninja.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
