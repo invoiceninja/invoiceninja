@@ -124,6 +124,11 @@ class Vendor extends EntityModel
         return $this->belongsTo('App\Models\Industry');
     }
 
+    public function expenses()
+    {
+        return $this->hasMany('App\Models\Expense','vendor_id','id');
+    }
+
     public function addVendorContact($data, $isPrimary = false)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;

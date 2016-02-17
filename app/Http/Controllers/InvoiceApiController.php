@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Utils;
 use Response;
@@ -282,12 +283,17 @@ class InvoiceApiController extends BaseAPIController
         $data = Input::all();
         $error = null;
 
-        $invoice = Invoice::scope($data['id'])->firstOrFail();
+        $invoice = Invoice::scope($data['id'])->withTrashed()->first();
 
-        $this->mailer->sendInvoice($invoice);
+        if(!$invoice)
+            return $this->errorResponse(['message'=>'Invoice does not exist.'], 400);
+
+
+        $this->mailer->sendInvoice($invoice, false, false);
+
 
         if($error) {
-            $response['error'] = "There was an error sending the invoice";
+            return $this->errorResponse(['message'=>'There was an error sending the invoice'], 400);
         }
         else {
             $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
