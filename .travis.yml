@@ -12,6 +12,9 @@ addons:
   hosts:
     - ninja.dev
 
+git:
+  depth: 200
+
 cache:
   directories:
     - vendor
