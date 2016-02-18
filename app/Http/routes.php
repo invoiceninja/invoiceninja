@@ -188,9 +188,6 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('api/payments/{client_id?}', array('as'=>'api.payments', 'uses'=>'PaymentController@getDatatable'));
     Route::post('payments/bulk', 'PaymentController@bulk');
 
-    Route::get('credits/{id}/edit', function() {
-        return View::make('header');
-    });
     Route::resource('credits', 'CreditController');
     Route::get('credits/create/{client_id?}/{invoice_id?}', 'CreditController@create');
     Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));
@@ -246,6 +243,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 });
 
 // Redirects for legacy links
+/*
 Route::get('/rocksteady', function() {
     return Redirect::to(NINJA_WEB_URL, 301);
 });
@@ -273,6 +271,7 @@ Route::get('/compare-online-invoicing{sites?}', function() {
 Route::get('/forgot_password', function() {
     return Redirect::to(NINJA_APP_URL.'/forgot', 301);
 });
+*/
 
 if (!defined('CONTACT_EMAIL')) {
     define('CONTACT_EMAIL', Config::get('mail.from.address'));
