@@ -1,8 +1,6 @@
 <?php
 
-return array(
-
-    // client
+$LANG = array(
     'organization' => 'Organization',
     'name' => 'Name',
     'website' => 'Website',
@@ -26,7 +24,6 @@ return array(
     'industry_id' => 'Industry',
     'private_notes' => 'Private Notes',
 
-    // invoice
     'invoice' => 'Invoice',
     'client' => 'Client',
     'invoice_date' => 'Invoice Date',
@@ -75,7 +72,6 @@ return array(
     'enable_invoice_tax' => 'Enable specifying an <b>invoice tax</b>',
     'enable_line_item_tax' => 'Enable specifying <b>line item taxes</b>',
 
-    // navigation
     'dashboard' => 'Dashboard',
     'clients' => 'Clients',
     'invoices' => 'Invoices',
@@ -101,7 +97,6 @@ return array(
     'powered_by' => 'Powered by',
     'no_items' => 'No items',
 
-    // recurring invoices
     'recurring_invoices' => 'Recurring Invoices',
     'recurring_help' => '<p>Automatically send clients the same invoices weekly, bi-monthly, monthly, quarterly or annually. </p>
         <p>Use :MONTH, :QUARTER or :YEAR for dynamic dates. Basic math works as well, for example :MONTH-1.</p>
@@ -112,7 +107,6 @@ return array(
           <li>"Retainer payment for :QUARTER+1" => "Retainer payment for Q2"</li>
         </ul>',
 
-    // dashboard
     'in_total_revenue' => 'in total revenue',
     'billed_client' => 'billed client',
     'billed_clients' => 'billed clients',
@@ -122,7 +116,6 @@ return array(
     'upcoming_invoices' => 'Upcoming Invoices',
     'average_invoice' => 'Average Invoice',
 
-    // list pages
     'archive' => 'Archive',
     'delete' => 'Delete',
     'archive_client' => 'Archive Client',
@@ -159,7 +152,6 @@ return array(
     'edit_client' => 'Edit Client',
     'edit_invoice' => 'Edit Invoice',
 
-    // client view page
     'create_invoice' => 'Create Invoice',
     'enter_credit' => 'Enter Credit',
     'last_logged_in' => 'Last logged in',
@@ -172,11 +164,9 @@ return array(
     'adjustment' => 'Adjustment',
     'are_you_sure' => 'Are you sure?',
 
-    // payment pages
     'payment_type_id' => 'Payment Type',
     'amount' => 'Amount',
 
-    // account/company pages
     'work_email' => 'Email',
     'language_id' => 'Language',
     'timezone_id' => 'Timezone',
@@ -207,12 +197,10 @@ return array(
     'pdf_email_attachment' => 'Attach PDFs',
     'custom_css' => 'Custom CSS',
 
-    //import CSV data pages
     'import_clients' => 'Import Client Data',
     'csv_file' => 'CSV file',
     'export_clients' => 'Export Client Data',
 
-    // application messages
     'created_client' => 'Successfully created client',
     'created_clients' => 'Successfully created :count client(s)',
     'updated_settings' => 'Successfully updated settings',
@@ -263,7 +251,6 @@ return array(
     'deleted_vendor' => 'Successfully deleted vendor',
     'deleted_vendors' => 'Successfully deleted :count vendors',
 
-    // Emails
     'confirmation_subject' => 'Invoice Ninja Account Confirmation',
     'confirmation_header' => 'Account Confirmation',
     'confirmation_message' => 'Please access the link below to confirm your account.',
@@ -285,14 +272,12 @@ return array(
     'reset_password' => 'You can reset your account password by clicking the following button:',
     'reset_password_footer' => 'If you did not request this password reset please email our support: '.CONTACT_EMAIL,
 
-    // Payment page
     'secure_payment' => 'Secure Payment',
     'card_number' => 'Card Number',
     'expiration_month' => 'Expiration Month',
     'expiration_year' => 'Expiration Year',
     'cvv' => 'CVV',
 
-    // Security alerts
     'security' => [
     'too_many_attempts' => 'Too many attempts. Try again in few minutes.',
     'wrong_credentials' => 'Incorrect email or password.',
@@ -303,10 +288,9 @@ return array(
     'wrong_password_reset' => 'Invalid password. Try again',
     ],
 
-    // Pro Plan
     'pro_plan' => [
-    'remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
-    'remove_logo_link' => 'Click here',
+        'remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
+        'remove_logo_link' => 'Click here',
     ],
 
     'logout' => 'Log Out',
@@ -340,7 +324,6 @@ return array(
     'set_name' => 'Set your company name',
     'view_as_recipient' => 'View as recipient',
 
-    // product management
     'product_library' => 'Product Library',
     'product' => 'Product',
     'products' => 'Product Library',
@@ -366,7 +349,6 @@ return array(
     'ninja_email_footer' => 'Use :site to invoice your clients and get paid online for free!',
     'go_pro' => 'Go Pro',
 
-    // Quotes
     'quote' => 'Quote',
     'quotes' => 'Quotes',
     'quote_number' => 'Quote Number',
@@ -582,7 +564,7 @@ return array(
     'forgot_password' => 'Forgot your password?',
     'email_address' => 'Email address',
     'lets_go' => 'Let\'s go',
-    //'lets_go' => 'Login',
+
     'password_recovery' => 'Password Recovery',
     'send_email' => 'Send email',
     'set_password' => 'Set Password',
@@ -1010,7 +992,6 @@ return array(
     'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
     'white_label_purchase_link' => 'Purchase a white label license',
 
-    // Expense / vendor
     'expense' => 'Expense',
     'expenses' => 'Expenses',
     'new_expense' => 'Enter Expense',
@@ -1028,7 +1009,6 @@ return array(
     'deleted_expenses' => 'Successfully deleted expenses',
     'archived_expenses' => 'Successfully archived expenses',
 
-    // Expenses
     'expense_amount' => 'Expense Amount',
     'expense_balance' => 'Expense Balance',
     'expense_date' => 'Expense Date',
@@ -1054,14 +1034,12 @@ return array(
     'expense_error_invoiced' => 'Expense has already been invoiced',
     'convert_currency' => 'Convert currency',
 
-    // Payment terms
     'num_days' => 'Number of days',
     'create_payment_term' => 'Create Payment Term',
     'edit_payment_terms' => 'Edit Payment Term',
     'edit_payment_term' => 'Edit Payment Term',
     'archive_payment_term' => 'Archive Payment Term',
 
-    // recurring due dates
     'recurring_due_dates' => 'Recurring Invoice Due Dates',
     'recurring_due_date_help' => '<p>Automatically sets a due date for the invoice.</p>
         <p>Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.</p>
@@ -1090,7 +1068,6 @@ return array(
     'friday' => 'Friday',
     'saturday' => 'Saturday',
 
-    // Fonts
     'header_font_id' => 'Header Font',
     'body_font_id' => 'Body Font',
     'color_font_help' => 'Note: the primary color and fonts are also used in the client portal and custom email designs.',
@@ -1153,3 +1130,7 @@ return array(
 
     'convert_currency' => 'Convert currency',
 );
+
+return $LANG;
+
+?>
