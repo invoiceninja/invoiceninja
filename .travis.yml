@@ -65,6 +65,15 @@ script:
   - php ./vendor/codeception/codeception/codecept run --html --debug acceptance AllPagesCept.php
   - php ./vendor/codeception/codeception/codecept run --html --debug acceptance APICest.php
   - php ./vendor/codeception/codeception/codecept run --html --debug acceptance CheckBalanceCest.php
+  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance ClientCest.php
+  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance CreditCest.php
+  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance InvoiceCest.php
+  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance InvoiceDesignCest.php
+  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance OnlinePaymentCest.php
+  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance PaymentCest.php
+  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance TaskCest.php
+  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance TaxRatesCest.php
+  #- php ./vendor/codeception/codeception/codecept run --html --debug acceptance GoProCest.php
 
 after_script:
   #- cat tests/_output/*
