@@ -26,7 +26,7 @@ class OnlinePaymentCest
         $I->amOnPage('/settings/online_payments');
 
         if (strpos($I->grabFromCurrentUrl(), 'create') !== false) {
-            $I->fillField(['name' =>'23_apiKey'], Fixtures::get('secret_key'));
+            $I->fillField(['name' =>'23_apiKey'], env('stripe_secret_key') ?: Fixtures::get('stripe_secret_key'));
             // Fails to load StripeJS causing "ReferenceError: Can't find variable: Stripe"
             //$I->fillField(['name' =>'publishable_key'], Fixtures::get('publishable_key'));
             $I->selectOption('#token_billing_type_id', 4);
