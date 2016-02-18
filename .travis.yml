@@ -63,6 +63,7 @@ script:
   - php ./vendor/codeception/codeception/codecept run --html --debug
 
 after_script:
+  - cat tests/_output/*
   - cat /var/log/apache2/access.log
   - cat /var/log/apache2/error.log
   - cat storage/logs/laravel.log 
