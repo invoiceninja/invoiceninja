@@ -8,11 +8,10 @@ class_name: AcceptanceTester
 modules:
     enabled:
         - WebDriver:
-            url: 'http://ninja.dev:8000'
-            host: 127.0.0.1
+            url: 'http://ninja.dev:8000/'
             window_size: 1024x768
             wait: 5
-            browser: phantomjs
+            browser: firefox
             capabilities:
                 unexpectedAlertBehaviour: 'accept'
                 webStorageEnabled: true

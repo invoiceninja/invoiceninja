@@ -1,18 +1,12 @@
 language: php
 
-sudo: false
+sudo: true
 
 php:
   - 5.5
-<<<<<<< HEAD
-  - 5.6
-  - 7.0
-  - hhvm
-=======
 #  - 5.6
 #  - 7.0
 #  - hhvm
->>>>>>> upstream/develop
 
 addons:
   hosts:
@@ -51,12 +45,18 @@ before_script:
   - travis_retry composer install --prefer-dist;
 
 before_script:
+  # prevent MySQL went away error 
+  - mysql -u root -e 'SET @@GLOBAL.wait_timeout=28800;'
   # copy configuration files
   - cp .env.example .env
   - cp tests/_bootstrap.php.default tests/_bootstrap.php
   - php artisan key:generate --no-interaction
   - sed -i 's/APP_ENV=production/APP_ENV=development/g' .env
   - sed -i 's/APP_DEBUG=false/APP_DEBUG=true/g' .env
+<<<<<<< HEAD
+>>>>>>> upstream/develop
+=======
+  - sed -i 's/REQUIRE_HTTPS=false/NINJA_DEV=true/g' .env
 >>>>>>> upstream/develop
   # create the database and user
   - mysql -u root -e "create database IF NOT EXISTS ninja;"
@@ -75,13 +75,24 @@ before_script:
   - curl -L http://ninja.dev:8000/update
 
 script:
-  - php ./vendor/codeception/codeception/codecept run --html --debug
+  #- php ./vendor/codeception/codeception/codecept run --html --debug
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
+  - php ./vendor/codeception/codeception/codecept run acceptance OnlinePaymentCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
+  #- php ./vendor/codeception/codeception/codecept run--debug acceptance GoProCest.php
 
 <<<<<<< HEAD
 =======
 after_script:
-  - cat storage/logs/laravel.log 
-
+  - cat storage/logs/laravel.log
 
 >>>>>>> upstream/develop
 notifications:

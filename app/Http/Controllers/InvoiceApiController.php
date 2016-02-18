@@ -20,18 +20,20 @@ use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Transformers\InvoiceTransformer;
 use App\Http\Requests\CreateInvoiceRequest;
 use App\Http\Requests\UpdateInvoiceRequest;
+use App\Services\InvoiceService;
 
 class InvoiceApiController extends BaseAPIController
 {
     protected $invoiceRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer)
+    public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer)
     {
         parent::__construct();
 
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
         $this->paymentRepo = $paymentRepo;
+        $this->invoiceService = $invoiceService;
         $this->mailer = $mailer;
     }
 
@@ -187,7 +189,7 @@ class InvoiceApiController extends BaseAPIController
 
         $data = self::prepareData($data, $client);
         $data['client_id'] = $client->id;
-        $invoice = $this->invoiceRepo->save($data);
+        $invoice = $this->invoiceService->save($data);
         $payment = false;
 
         // Optionally create payment with invoice
@@ -197,14 +199,6 @@ class InvoiceApiController extends BaseAPIController
                 'client_id' => $client->id,
                 'amount' => $data['paid']
             ]);
-        }
-
-        if (!isset($data['id'])) {
-            $invitation = Invitation::createNew();
-            $invitation->invoice_id = $invoice->id;
-            $invitation->contact_id = $client->contacts[0]->id;
-            $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
-            $invitation->save();
         }
 
         if (isset($data['email_invoice']) && $data['email_invoice']) {
@@ -387,7 +381,7 @@ class InvoiceApiController extends BaseAPIController
 
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $this->invoiceRepo->save($data);
+        $this->invoiceService->save($data);
 
         $invoice = Invoice::scope($publicId)->with('client', 'invoice_items', 'invitations')->firstOrFail();
         $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));

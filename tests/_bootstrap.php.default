@@ -7,5 +7,5 @@ Fixtures::add('username', 'user@example.com');
 Fixtures::add('password', 'password');
 
 Fixtures::add('api_secret', 'password');
-Fixtures::add('secret_key', '');
-Fixtures::add('publishable_key', '');
+Fixtures::add('stripe_secret_key', '');
+Fixtures::add('stripe_publishable_key', '');
