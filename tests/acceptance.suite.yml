@@ -12,7 +12,8 @@ modules:
             host: 127.0.0.1
             window_size: 1024x768
             wait: 5
-            browser: phantomjs
+            browser: firefox
+            http_proxy: direct
             capabilities:
                 unexpectedAlertBehaviour: 'accept'
                 webStorageEnabled: true
