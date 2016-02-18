@@ -58,6 +58,7 @@ before_script:
   - sleep 5
   # Make sure the app is up-to-date
   - curl -L http://ninja.dev:8000/update
+  #- curl -L http://ninja.dev:8000/login
 
 script:
   - php ./vendor/codeception/codeception/codecept run --html --debug
