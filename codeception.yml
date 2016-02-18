@@ -11,8 +11,8 @@ settings:
     memory_limit: 1024M
 extensions:
     enabled:
-        - Codeception\Extension\RunFailed
-        - Codeception\Extension\Recorder
+#        - Codeception\Extension\RunFailed
+#        - Codeception\Extension\Recorder
     config:
         Codeception\Extension\Recorder:
             delete_successful: false
