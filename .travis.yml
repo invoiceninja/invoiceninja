@@ -25,6 +25,7 @@ env:
 
 before_install:
   # set GitHub token and update composer
+  - phantomjs --version
   - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
   - composer self-update && composer -V
 
