@@ -25,7 +25,6 @@ env:
 
 before_install:
   # set GitHub token and update composer
-  - phantomjs --version
   - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
   - composer self-update && composer -V
 
@@ -57,6 +56,8 @@ before_script:
   - phantomjs --webdriver=4444 & # '&' allows to run in background
   # Give it some time to start
   - sleep 5
+  # Make sure the app is up-to-date
+  - curl -L http://ninja.dev:8000/update
 
 script:
   - php ./vendor/codeception/codeception/codecept run --html --debug
