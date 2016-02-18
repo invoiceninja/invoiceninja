@@ -203,7 +203,7 @@ class AccountGatewayController extends BaseController
             if (Utils::isNinjaDev() && Input::get('23_apiKey') == env('TEST_API_KEY')) {
                 // do nothing - we're unable to acceptance test with StripeJS
             } else {
-                $rules['publishable_key'] = 'required';
+                //$rules['publishable_key'] = 'required';
             }
         }
 
