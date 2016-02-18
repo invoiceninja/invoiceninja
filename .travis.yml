@@ -1,6 +1,6 @@
 language: php
 
-sudo: false
+sudo: true
 
 php:
   - 5.5
@@ -27,7 +27,7 @@ before_install:
   # set GitHub token and update composer
   - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
   - composer self-update && composer -V
-  - apt-get -y install phantomjs screen
+  - sudo apt-get -y install phantomjs screen
 
 install:
   # install Composer dependencies
