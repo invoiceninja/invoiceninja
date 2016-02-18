@@ -29,8 +29,8 @@ before_install:
   - composer self-update && composer -V
   # fix for phantomjs 
   - mkdir travis-phantomjs
-  - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -O $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2
-  - tar -xvf $PWD/travis-phantomjs/phantomjs-2.0.0-ubuntu-12.04.tar.bz2 -C $PWD/travis-phantomjs
+  - wget https://s3.amazonaws.com/travis-phantomjs/phantomjs-1.9.7-ubuntu-12.04.tar.bz2 -O $PWD/travis-phantomjs/phantomjs-1.9.7-ubuntu-12.04.tar.bz2
+  - tar -xvf $PWD/travis-phantomjs/phantomjs-1.9.7-ubuntu-12.04.tar.bz2 -C $PWD/travis-phantomjs
   - export PATH=$PWD/travis-phantomjs:$PATH
 
 install:
