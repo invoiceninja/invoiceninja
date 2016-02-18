@@ -1,6 +1,6 @@
 language: php
 
-sudo: false
+sudo: required
 
 php:
   - 5.5
