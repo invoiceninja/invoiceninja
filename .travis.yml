@@ -37,6 +37,7 @@ install:
   - travis_retry composer install --prefer-dist;
 
 before_script:
+  - mysql -e 'SET @@GLOBAL.wait_timeout=28800'
   # copy configuration files
   - cp .env.example .env
   - cp tests/_bootstrap.php.default tests/_bootstrap.php
@@ -58,29 +59,24 @@ before_script:
   - sleep 5
   # Make sure the app is up-to-date
   - curl -L http://ninja.dev:8000/update
-  #- curl -L http://ninja.dev:8000/login
 
 script:
   #- php ./vendor/codeception/codeception/codecept run --html --debug
-  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance AllPagesCept.php
-  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance APICest.php
-  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance CheckBalanceCest.php
-  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance ClientCest.php
-  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance CreditCest.php
-  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance InvoiceCest.php
-  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance InvoiceDesignCest.php
-  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance OnlinePaymentCest.php
-  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance PaymentCest.php
-  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance TaskCest.php
-  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance TaxRatesCest.php
-  #- php ./vendor/codeception/codeception/codecept run --html --debug acceptance GoProCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance OnlinePaymentCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
+  #- php ./vendor/codeception/codeception/codecept run--debug acceptance GoProCest.php
 
 after_script:
-  #- cat tests/_output/*
-  - cat /var/log/apache2/access.log
-  - cat /var/log/apache2/error.log
-  - cat storage/logs/laravel.log 
-
+  - cat storage/logs/laravel.log
 
 notifications:
   email:
