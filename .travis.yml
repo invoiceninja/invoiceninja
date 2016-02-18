@@ -1,6 +1,6 @@
 language: php
 
-sudo: false
+sudo: true
 
 php:
   - 5.5
@@ -64,8 +64,8 @@ script:
 
 after_script:
   #- cat tests/_output/*
-  #- cat /var/log/apache2/access.log
-  #- cat /var/log/apache2/error.log
+  - cat /var/log/apache2/access.log
+  - cat /var/log/apache2/error.log
   - cat storage/logs/laravel.log 
 
 
