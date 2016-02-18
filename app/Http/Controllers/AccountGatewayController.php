@@ -200,10 +200,10 @@ class AccountGatewayController extends BaseController
         if ($gatewayId == GATEWAY_DWOLLA) {
             $optional = array_merge($optional, ['key', 'secret']);
         } elseif ($gatewayId == GATEWAY_STRIPE) {
-            if (Utils::isNinjaDev() && Input::get('23_apiKey') == env('TEST_API_KEY')) {
+            if (Utils::isNinjaDev()) {
                 // do nothing - we're unable to acceptance test with StripeJS
             } else {
-                //$rules['publishable_key'] = 'required';
+                $rules['publishable_key'] = 'required';
             }
         }
 
