@@ -70,7 +70,7 @@ script:
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance OnlinePaymentCest.php
+  - php ./vendor/codeception/codeception/codecept run acceptance OnlinePaymentCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
