@@ -61,7 +61,10 @@ before_script:
   #- curl -L http://ninja.dev:8000/login
 
 script:
-  - php ./vendor/codeception/codeception/codecept run --html --debug
+  #- php ./vendor/codeception/codeception/codecept run --html --debug
+  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance AllPagesCept.php
+  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance APICest.php
+  - php ./vendor/codeception/codeception/codecept run --html --debug acceptance CheckBalanceCest.php
 
 after_script:
   #- cat tests/_output/*
