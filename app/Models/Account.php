@@ -726,6 +726,10 @@ class Account extends Eloquent
 
     public function isTrial()
     {
+        if (!Utils::isNinjaProd()) {
+            return false;
+        }
+
         if ($this->pro_plan_paid && $this->pro_plan_paid != '0000-00-00') {
             return false;
         }

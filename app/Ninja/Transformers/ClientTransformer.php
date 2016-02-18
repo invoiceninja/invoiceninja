@@ -40,8 +40,11 @@ class ClientTransformer extends EntityTransformer
     * @SWG\Property(property="language_id", type="integer", example=1)
     */
 
-    protected $availableIncludes = [
+    protected $defaultIncludes = [
         'contacts',
+    ];
+
+    protected $availableIncludes = [
         'invoices',
         'credits',
     ];
@@ -92,7 +95,9 @@ class ClientTransformer extends EntityTransformer
             'vat_number' => $client->vat_number,
             'id_number' => $client->id_number,
             'language_id' => (int) $client->language_id,
-            'currency_id' => (int) $client->currency_id
+            'currency_id' => (int) $client->currency_id,
+            'custom_value1' => $client->custom_value1,
+            'custom_value2' => $client->custom_value2,
         ];
     }
 }
