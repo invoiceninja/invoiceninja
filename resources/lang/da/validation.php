@@ -25,7 +25,7 @@ return array(
         "numeric" => ":attribute skal være imellem :min - :max.",
         "file"    => ":attribute skal være imellem :min - :max kilobytes.",
         "string"  => ":attribute skal være imellem :min - :max tegn.",
-        "array"   => ":attribute skal indeholde mellem :min - :max elementer."
+        "array"   => ":attribute skal indeholde mellem :min - :max elementer.",
     ),
     "boolean"          => ":attribute skal være sandt eller falsk",
     "confirmed"        => ":attribute er ikke det samme som bekræftelsesfeltet.",
@@ -44,14 +44,14 @@ return array(
         "numeric" => ":attribute skal være højest :max.",
         "file"    => ":attribute skal være højest :max kilobytes.",
         "string"  => ":attribute skal være højest :max tegn.",
-        "array"   => ":attribute må ikke indeholde mere end :max elementer."
+        "array"   => ":attribute må ikke indeholde mere end :max elementer.",
     ),
     "mimes"            => ":attribute skal være en fil af typen: :values.",
     "min"              => array(
         "numeric" => ":attribute skal være mindst :min.",
         "file"    => ":attribute skal være mindst :min kilobytes.",
         "string"  => ":attribute skal være mindst :min tegn.",
-        "array"   => ":attribute skal indeholde mindst :min elementer."
+        "array"   => ":attribute skal indeholde mindst :min elementer.",
     ),
     "not_in"           => "Den valgte :attribute er ugyldig.",
     "numeric"          => ":attribute skal være et tal.",
@@ -67,7 +67,7 @@ return array(
         "numeric" => ":attribute skal være :size.",
         "file"    => ":attribute skal være :size kilobytes.",
         "string"  => ":attribute skal være :size tegn lang.",
-        "array"   => ":attribute skal indeholde :size elementer."
+        "array"   => ":attribute skal indeholde :size elementer.",
     ),
     "timezone"         => "The :attribute must be a valid zone.",
     "unique"           => ":attribute er allerede taget.",
@@ -80,7 +80,7 @@ return array(
     "has_counter" => 'The value must contain {$counter}',
     "valid_contacts" => "All of the contacts must have either an email or name",
     "valid_invoice_items" => "The invoice exceeds the maximum amount",
-    
+
     /*
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines

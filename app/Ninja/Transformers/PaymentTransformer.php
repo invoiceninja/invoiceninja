@@ -20,6 +20,11 @@ class PaymentTransformer extends EntityTransformer
     */
     protected $defaultIncludes = [];
 
+    protected $availableIncludes = [
+        'client',
+        'invoice',
+    ];
+
 
     public function __construct(Account $account)
     {

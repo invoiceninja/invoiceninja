@@ -8,7 +8,7 @@
 		@foreach ($invoice->client->account->getFontFolders() as $font)
         <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     	@endforeach
-        <script src="{{ asset('js/pdf.built.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('pdf.built.js') }}" type="text/javascript"></script>
         
 		<style type="text/css">
 			body {
@@ -85,7 +85,7 @@
 
 		</script>
 
-		@include('invoices.pdf', ['account' => $invoice->client->account])
+		@include('invoices.pdf', ['account' => $invoice->client->account, 'viewPDF' => true])
 
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>

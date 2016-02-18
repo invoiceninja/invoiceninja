@@ -2,7 +2,6 @@
 
 use App\Http\Requests\Request;
 use Illuminate\Validation\Factory;
-use App\Models\Invoice;
 
 class UpdatePaymentRequest extends Request
 {
@@ -24,5 +23,6 @@ class UpdatePaymentRequest extends Request
     public function rules()
     {
         return [];
+
     }
 }

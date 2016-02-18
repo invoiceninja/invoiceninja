@@ -19,13 +19,14 @@ class ContactMailer extends Mailer
     public static $variableFields = [
         'footer',
         'account',
+        'dueDate',
+        'invoiceDate',
         'client',
         'amount',
         'contact',
         'firstName',
         'invoice',
         'quote',
-        'dueDate',
         'viewLink',
         'viewButton',
         'paymentLink',
@@ -126,10 +127,10 @@ class ContactMailer extends Mailer
         $subject = $this->processVariables($subject, $variables);
         $fromEmail = $user->email;
 
-        if ($account->email_design_id == EMAIL_DESIGN_PLAIN) {
+        if ($account->getEmailDesignId() == EMAIL_DESIGN_PLAIN) {
             $view = ENTITY_INVOICE;
         } else {
-            $view = 'design' . ($account->email_design_id - 1);
+            $view = 'design' . ($account->getEmailDesignId() - 1);
         }
         
         $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
@@ -188,10 +189,10 @@ class ContactMailer extends Mailer
         $subject = $this->processVariables($emailSubject, $variables);
         $data['invoice_id'] = $payment->invoice->id;
 
-        if ($account->email_design_id == EMAIL_DESIGN_PLAIN) {
+        if ($account->getEmailDesignId() == EMAIL_DESIGN_PLAIN) {
             $view = 'payment_confirmation';
         } else {
-            $view = 'design' . ($account->email_design_id - 1);
+            $view = 'design' . ($account->getEmailDesignId() - 1);
         }
 
         if ($user->email && $contact->email) {
@@ -234,13 +235,14 @@ class ContactMailer extends Mailer
             '$footer' => $account->getEmailFooter(),
             '$client' => $client->getDisplayName(),
             '$account' => $account->getDisplayName(),
+            '$dueDate' => $account->formatDate($invoice->due_date),
+            '$invoiceDate' => $account->formatDate($invoice->invoice_date),
             '$contact' => $invitation->contact->getDisplayName(),
             '$firstName' => $invitation->contact->first_name,
             '$amount' => $account->formatMoney($data['amount'], $client),
             '$invoice' => $invoice->invoice_number,
             '$quote' => $invoice->invoice_number,
             '$link' => $invitation->getLink(),
-            '$dueDate' => $account->formatDate($invoice->due_date),
             '$viewLink' => $invitation->getLink(),
             '$viewButton' => HTML::emailViewButton($invitation->getLink(), $invoice->getEntityType()),
             '$paymentLink' => $invitation->getLink('payment'),

@@ -20,6 +20,22 @@ class TaxRateRepository extends BaseRepository
                 ->select('tax_rates.public_id', 'tax_rates.name', 'tax_rates.rate', 'tax_rates.deleted_at');
     }
 
+    public function save($data, $taxRate = false)
+    {
+        if ( ! $taxRate) {
+            if (isset($data['public_id'])) {
+                $taxRate = TaxRate::scope($data['public_id'])->firstOrFail();
+            } else {
+                $taxRate = TaxRate::createNew();
+            }
+        }
+        
+        $taxRate->fill($data);
+        $taxRate->save();
+
+        return $taxRate;
+    }
+
     /*
     public function save($taxRates)
     {

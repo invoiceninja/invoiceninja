@@ -3,8 +3,6 @@
 use Utils;
 use DB;
 use Carbon;
-use App\Events\ClientWasCreated;
-use App\Events\ClientWasUpdated;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -93,7 +91,7 @@ class Client extends EntityModel
 
     public function user()
     {
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function invoices()
@@ -135,6 +133,12 @@ class Client extends EntityModel
     {
         return $this->belongsTo('App\Models\Industry');
     }
+
+    public function credits()
+    {
+        return $this->hasMany('App\Models\Credit');
+    }
+
 
     public function addContact($data, $isPrimary = false)
     {
@@ -293,14 +297,6 @@ Client::creating(function ($client) {
     $client->setNullValues();
 });
 
-Client::created(function ($client) {
-    event(new ClientWasCreated($client));
-});
-
 Client::updating(function ($client) {
     $client->setNullValues();
-});
-
-Client::updated(function ($client) {
-    event(new ClientWasUpdated($client));
 });

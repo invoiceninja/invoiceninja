@@ -296,7 +296,7 @@ class InvoiceController extends BaseController
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
-            'products' => Product::scope()->with('default_tax_rate')->orderBy('id')->get(),
+            'products' => Product::scope()->with('default_tax_rate')->orderBy('product_key')->get(),
             'taxRates' => TaxRate::scope()->orderBy('name')->get(),
             'currencies' => Cache::get('currencies'),
             'languages' => Cache::get('languages'),
@@ -319,6 +319,8 @@ class InvoiceController extends BaseController
             'recurringDueDateHelp' => $recurringDueDateHelp,
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
             'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
+            'expenses' => Session::get('expenses') ? json_encode(Session::get('expenses')) : null,
+            'expenseCurrencyId' => Session::get('expenseCurrencyId') ?: null,
         ];
 
     }
@@ -332,7 +334,7 @@ class InvoiceController extends BaseController
     {
         $action = Input::get('action');
         $entityType = Input::get('entityType');
-
+        
         $invoice = $this->invoiceService->save($request->input());
         $entityType = $invoice->getEntityType();
         $message = trans("texts.created_{$entityType}");
@@ -475,7 +477,7 @@ class InvoiceController extends BaseController
     public function convertQuote($publicId)
     {
         $invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();
-        $clone = $this->invoiceService->approveQuote($invoice);
+        $clone = $this->invoiceService->convertQuote($invoice);
 
         Session::flash('message', trans('texts.converted_to_invoice'));
         return Redirect::to('invoices/'.$clone->public_id);

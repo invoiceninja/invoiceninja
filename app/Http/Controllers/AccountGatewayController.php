@@ -89,6 +89,10 @@ class AccountGatewayController extends BaseController
                                     ->orderBy('name')->get();
         $data['hiddenFields'] = Gateway::$hiddenFields;
 
+        if ( ! \Request::secure() && ! Utils::isNinjaDev()) {
+            Session::flash('warning', trans('texts.enable_https'));
+        }
+
         return View::make('accounts.account_gateway', $data);
     }
 
@@ -195,6 +199,12 @@ class AccountGatewayController extends BaseController
 
         if ($gatewayId == GATEWAY_DWOLLA) {
             $optional = array_merge($optional, ['key', 'secret']);
+        } elseif ($gatewayId == GATEWAY_STRIPE) {
+            if (Utils::isNinjaDev() && Input::get('23_apiKey') == env('TEST_API_KEY')) {
+                // do nothing - we're unable to acceptance test with StripeJS
+            } else {
+                $rules['publishable_key'] = 'required';
+            }
         }
 
         foreach ($fields as $field => $details) {

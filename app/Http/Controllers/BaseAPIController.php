@@ -92,13 +92,19 @@ class BaseAPIController extends Controller
     protected function response($response)
     {
         $index = Request::get('index') ?: 'data';
-        $meta = isset($response['meta']) ? $response['meta'] : null;
-        $response = [
-            $index => $response
-        ];
-        if ($meta) {
-            $response['meta'] = $meta;
-            unset($response[$index]['meta']);
+
+        if ($index == 'none') {
+            unset($response['meta']);
+        } else {
+            $meta = isset($response['meta']) ? $response['meta'] : null;
+            $response = [
+                $index => $response
+            ];
+
+            if ($meta) {
+                $response['meta'] = $meta;
+                unset($response[$index]['meta']);
+            }
         }
 
         $response = json_encode($response, JSON_PRETTY_PRINT);
@@ -106,6 +112,17 @@ class BaseAPIController extends Controller
 
         return Response::make($response, 200, $headers);
     }
+
+    protected  function errorResponse($response, $httpErrorCode = 400)
+    {
+        $error['error'] = $response;
+        $error = json_encode($error, JSON_PRETTY_PRINT);
+        $headers = Utils::getApiHeaders();
+
+        return Response::make($error, $httpErrorCode, $headers);
+
+    }
+
 
     protected function getIncluded()
     {
@@ -121,12 +138,15 @@ class BaseAPIController extends Controller
             } elseif ($include == 'clients') {
                 $data[] = 'clients.contacts';
                 $data[] = 'clients.user';
-            } elseif ($include) {
+            } elseif ($include == 'vendors') {
+                $data[] = 'vendors.vendorcontacts';
+                $data[] = 'vendors.user';
+            }
+            elseif ($include) {
                 $data[] = $include;
             }
         }
         
         return $data;
     }
-
 }

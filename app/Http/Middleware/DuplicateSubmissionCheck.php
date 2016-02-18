@@ -7,6 +7,11 @@ class DuplicateSubmissionCheck
     // Prevent users from submitting forms twice
     public function handle($request, Closure $next)
     {
+        
+        if ($request->is('api/v1/*')) {
+            return $next($request);
+        }
+
         $path = $request->path();
         
         if (strpos($path, 'charts_and_reports') !== false) {

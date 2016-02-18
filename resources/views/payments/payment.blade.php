@@ -101,7 +101,7 @@
             <header>
                 @if ($client)
                     <h2>{{ $client->getDisplayName() }}</h2>
-                    <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ $account->formatMoney($amount, $client, true) }} {{ $currencyCode }}</em></span></h3>
+                    <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ $account->formatMoney($amount, $client, true) }}</em></span></h3>
                 @elseif ($paymentTitle)
                     <h2>{{ $paymentTitle }}<br/><small>{{ $paymentSubtitle }}</small></h2>                    
                 @endif
@@ -201,6 +201,7 @@
         <div class="row">
             <div class="col-md-9">
                 {!! Former::text($accountGateway->getPublishableStripeKey() ? '' : 'card_number')
+                        ->id('card_number')
                         ->placeholder(trans('texts.card_number'))
                         ->autocomplete('cc-number')
                         ->data_stripe('number')
@@ -208,6 +209,7 @@
             </div>
             <div class="col-md-3">
                 {!! Former::text($accountGateway->getPublishableStripeKey() ? '' : 'cvv')
+                        ->id('cvv')
                         ->placeholder(trans('texts.cvv'))
                         ->autocomplete('off')
                         ->data_stripe('cvc')
@@ -217,6 +219,7 @@
         <div class="row">
             <div class="col-md-6">
                 {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_month')
+                        ->id('expiration_month')
                         ->autocomplete('cc-exp-month')
                         ->data_stripe('exp-month')
                         ->placeholder(trans('texts.expiration_month'))
@@ -236,10 +239,10 @@
             </div>
             <div class="col-md-6">
                 {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_year')
+                        ->id('expiration_year')
                         ->autocomplete('cc-exp-year')
                         ->data_stripe('exp-year')
                         ->placeholder(trans('texts.expiration_year'))
-                            ->addOption('2015', '2015')
                             ->addOption('2016', '2016')
                             ->addOption('2017', '2017')
                             ->addOption('2018', '2018')
@@ -249,7 +252,8 @@
                             ->addOption('2022', '2022')
                             ->addOption('2023', '2023')
                             ->addOption('2024', '2024')
-                            ->addOption('2025', '2025')->label('')
+                            ->addOption('2025', '2025')
+                            ->addOption('2026', '2026')->label('')
                           !!}
             </div>
         </div>
@@ -278,12 +282,11 @@
 
         <p>&nbsp;<br/>&nbsp;</p>
 
-        <div class="row">
-            <div class="col-md-4 col-md-offset-4">
-                {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true) . ' ' . $currencyCode  ))->submit()->block()->large() !!}
-            </div>
-        </div>
-
+        <center>
+            {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))
+                            ->submit()
+                            ->large() !!}
+        </center>
 
     </div>
 

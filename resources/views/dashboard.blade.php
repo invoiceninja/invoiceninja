@@ -7,37 +7,21 @@
     <div class="col-md-4">  
         <div class="panel panel-default">
             <div class="panel-body">
-                <img src="{{ asset('images/totalinvoices.png') }}" class="in-image"/>  
-                <div class="in-thin">
-                    {{ trans('texts.total_revenue') }}
-                </div>
-                <div class="in-bold">
-                    @if (count($paidToDate))
-                        @foreach ($paidToDate as $item)
-                            {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
-                        @endforeach
-                    @else
-                        {{ Utils::formatMoney(0) }}
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <img src="{{ asset('images/clients.png') }}" class="in-image"/>  
-                <div class="in-thin">
-                    {{ trans('texts.average_invoice') }}                    
-                </div>
-                <div class="in-bold">
-                    @if (count($averageInvoice))
-                        @foreach ($averageInvoice as $item)
-                            {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
-                        @endforeach
-                    @else
-                        {{ Utils::formatMoney(0) }}
-                    @endif
+                <img src="{{ asset('images/totalinvoices.png') }}" 
+                    class="in-image" style="float:left"/>  
+                <div style="overflow:hidden">
+                    <div class="in-thin">
+                        {{ trans('texts.total_revenue') }}
+                    </div>
+                    <div class="in-bold">
+                        @if (count($paidToDate))
+                            @foreach ($paidToDate as $item)
+                                {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
+                            @endforeach
+                        @else
+                            {{ Utils::formatMoney(0) }}
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -45,18 +29,43 @@
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-body">
-                <img src="{{ asset('images/totalincome.png') }}" class="in-image"/>  
-                <div class="in-thin">
-                    {{ trans('texts.outstanding') }}
+                <img src="{{ asset('images/clients.png') }}" 
+                    class="in-image" style="float:left"/>  
+                <div style="overflow:hidden">
+                    <div class="in-thin">
+                        {{ trans('texts.average_invoice') }}
+                    </div>
+                    <div class="in-bold">
+                        @if (count($averageInvoice))
+                            @foreach ($averageInvoice as $item)
+                                {{ Utils::formatMoney($item->invoice_avg, $item->currency_id) }}<br/>
+                            @endforeach
+                        @else
+                            {{ Utils::formatMoney(0) }}
+                        @endif
+                    </div>
                 </div>
-                <div class="in-bold">
-                    @if (count($balances))
-                        @foreach ($balances as $item)
-                            {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
-                        @endforeach
-                    @else
-                        {{ Utils::formatMoney(0) }}
-                    @endif
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <img src="{{ asset('images/totalincome.png') }}" 
+                    class="in-image" style="float:left"/>  
+                <div style="overflow:hidden">
+                    <div class="in-thin">
+                        {{ trans('texts.outstanding') }}
+                    </div>
+                    <div class="in-bold">
+                        @if (count($balances))
+                            @foreach ($balances as $item)
+                                {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
+                            @endforeach
+                        @else
+                            {{ Utils::formatMoney(0) }}
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

@@ -139,7 +139,7 @@ class StartupCheck
                 } elseif ($productId == PRODUCT_WHITE_LABEL) {
                     if ($data == 'valid') {
                         $account = Auth::user()->account;
-                        $account->pro_plan_paid = NINJA_DATE;
+                        $account->pro_plan_paid = date_create()->format('Y-m-d');
                         $account->save();
 
                         Session::flash('message', trans('texts.bought_white_label'));
@@ -163,7 +163,7 @@ class StartupCheck
                     $orderBy = 'num_days';
                 } elseif ($name == 'fonts') {
                     $orderBy = 'sort_order';
-                } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries'])) {
+                } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
                     $orderBy = 'name';
                 } else {
                     $orderBy = 'id';

@@ -29,7 +29,13 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @var array
      */
-    protected $fillable = ['first_name', 'last_name', 'email', 'password'];
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'email',
+        'password',
+        'phone',
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -49,6 +55,11 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function theme()
     {
         return $this->belongsTo('App\Models\Theme');
+    }
+
+    public function setEmailAttribute($value)
+    {
+        $this->attributes['email'] = $this->attributes['username'] = $value;
     }
 
     public function getName()
@@ -94,6 +105,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function isPro()
     {
         return $this->account->isPro();
+    }
+
+    public function isTrial()
+    {
+        return $this->account->isTrial();
+    }
+
+    public function isEligibleForTrial()
+    {
+        return $this->account->isEligibleForTrial();
     }
 
     public function maxInvoiceDesignId()
@@ -142,7 +163,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getMaxNumClients()
     {
-        if ($this->isPro()) {
+        if ($this->isPro() && ! $this->isTrial()) {
             return MAX_NUM_CLIENTS_PRO;
         }
 
@@ -153,6 +174,16 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return MAX_NUM_CLIENTS;
     }
 
+    public function getMaxNumVendors()
+    {
+        if ($this->isPro() && ! $this->isTrial()) {
+            return MAX_NUM_VENDORS_PRO;
+        }
+
+        return MAX_NUM_VENDORS;
+    }
+    
+    
     public function getRememberToken()
     {
         return $this->remember_token;

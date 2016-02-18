@@ -24,7 +24,8 @@
     "jsoneditor": "*",
     "moment-timezone": "~0.4.0",
     "quill": "~0.20.0",
-    "datetimepicker": "~2.4.5"
+    "datetimepicker": "~2.4.5",
+    "stacktrace-js": "~1.0.1"
   },
   "resolutions": {
     "jquery": "~1.11"

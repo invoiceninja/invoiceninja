@@ -22,19 +22,36 @@ class InvoiceTransformer extends EntityTransformer
 
     protected $defaultIncludes = [
         'invoice_items',
-        'payments'
     ];
-    
+
+    protected $availableIncludes = [
+        'invitations',
+        'payments',
+        'client',
+    ];
+
     public function includeInvoiceItems(Invoice $invoice)
     {
         $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
         return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEMS);
     }
 
+    public function includeInvitations(Invoice $invoice)
+    {
+        $transformer = new InvitationTransformer($this->account, $this->serializer);
+        return $this->includeCollection($invoice->invitations, $transformer, ENTITY_INVITATION);
+    }
+
     public function includePayments(Invoice $invoice)
     {
         $transformer = new PaymentTransformer($this->account, $this->serializer);
         return $this->includeCollection($invoice->payments, $transformer, ENTITY_PAYMENT);
+    }
+
+    public function includeClient(Invoice $invoice)
+    {
+        $transformer = new ClientTransformer($this->account, $this->serializer);
+        return $this->includeItem($invoice->client, $transformer, 'client');
     }
 
     public function transform(Invoice $invoice)
@@ -77,6 +94,10 @@ class InvoiceTransformer extends EntityTransformer
             'custom_value2' => (float) $invoice->custom_value2,
             'custom_taxes1' => (bool) $invoice->custom_taxes1,
             'custom_taxes2' => (bool) $invoice->custom_taxes2,
+            'has_expenses' => (bool) $invoice->has_expenses,
+            'quote_invoice_id' => (int) $invoice->quote_invoice_id,
+            'custom_text_value1' => $invoice->custom_text_value1,
+            'custom_text_value2' => $invoice->custom_text_value2,
         ];
     }
 }

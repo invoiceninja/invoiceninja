@@ -1,5 +1,6 @@
 <?php namespace App\Services;
 
+use Auth;
 use Utils;
 use URL;
 use App\Services\BaseService;
@@ -62,23 +63,42 @@ class InvoiceService extends BaseService
         return $invoice;
     }
 
+    public function convertQuote($quote, $invitation = null)
+    {
+        $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
+        if (!$invitation) {
+            return $invoice;
+        }
+        
+        foreach ($invoice->invitations as $invoiceInvitation) {
+            if ($invitation->contact_id == $invoiceInvitation->contact_id) {
+                return $invoiceInvitation->invitation_key;
+            }
+        }
+    }
+
     public function approveQuote($quote, $invitation = null)
     {
+        $account = Auth::user()->account;
         if (!$quote->is_quote || $quote->quote_invoice_id) {
             return null;
         }
         
-        $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
+        if ($account->auto_convert_quote || ! $account->isPro()) {
+            $invoice = $this->convertQuote($quote, $invitation);
 
-        if (!$invitation) {
+            event(new QuoteInvitationWasApproved($quote, $invoice, $invitation));
+
             return $invoice;
-        }
+        } else {
+            $quote->markApproved();
 
-        event(new QuoteInvitationWasApproved($quote, $invoice, $invitation));
-
-        foreach ($invoice->invitations as $invoiceInvitation) {
-            if ($invitation->contact_id == $invoiceInvitation->contact_id) {
-                return $invoiceInvitation->invitation_key;
+            event(new QuoteInvitationWasApproved($quote, null, $invitation));
+            
+            foreach ($quote->invitations as $invoiceInvitation) {
+                if ($invitation->contact_id == $invoiceInvitation->contact_id) {
+                    return $invoiceInvitation->invitation_key;
+                }
             }
         }
     }
@@ -140,7 +160,7 @@ class InvoiceService extends BaseService
             [
                 'invoice_status_name',
                 function ($model) {
-                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : self::getStatusLabel($model->invoice_status_id, $model->invoice_status_name);
+                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : self::getStatusLabel($model);
                 }
             ]
         ];
@@ -216,16 +236,26 @@ class InvoiceService extends BaseService
         ];
     }
 
-    private function getStatusLabel($statusId, $statusName)
+    private function getStatusLabel($model)
     {
-        $label = trans("texts.status_" . strtolower($statusName));
+        // check if invoice is overdue
+        if (Utils::parseFloat($model->balance) && $model->due_date && $model->due_date != '0000-00-00') {
+            if (\DateTime::createFromFormat('Y-m-d', $model->due_date) < new \DateTime("now")) {
+                return "<h4><div class=\"label label-danger\">".trans('texts.overdue')."</div></h4>";
+            }
+        }
+
+        $label = trans("texts.status_" . strtolower($model->invoice_status_name));
         $class = 'default';
-        switch ($statusId) {
+        switch ($model->invoice_status_id) {
             case INVOICE_STATUS_SENT:
                 $class = 'info';
                 break;
             case INVOICE_STATUS_VIEWED:
                 $class = 'warning';
+                break;
+            case INVOICE_STATUS_APPROVED:
+                $class = 'success';
                 break;
             case INVOICE_STATUS_PARTIAL:
                 $class = 'primary';

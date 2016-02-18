@@ -21,11 +21,36 @@ class Account extends Eloquent
     protected $dates = ['deleted_at'];
     protected $hidden = ['ip'];
 
+    protected $fillable = [
+        'name',
+        'id_number',
+        'vat_number',
+        'work_email',
+        'website',
+        'work_phone',
+        'address1',
+        'address2',
+        'city',
+        'state',
+        'postal_code',
+        'country_id',
+        'size_id',
+        'industry_id',
+        'email_footer',
+        'timezone_id',
+        'date_format_id',
+        'datetime_format_id',
+        'currency_id',
+        'language_id',
+        'military_time',
+    ];
+
     public static $basicSettings = [
         ACCOUNT_COMPANY_DETAILS,
         ACCOUNT_USER_DETAILS,
         ACCOUNT_LOCALIZATION,
         ACCOUNT_PAYMENTS,
+        ACCOUNT_BANKS,
         ACCOUNT_TAX_RATES,
         ACCOUNT_PRODUCTS,
         ACCOUNT_NOTIFICATIONS,
@@ -77,6 +102,11 @@ class Account extends Eloquent
     public function account_gateways()
     {
         return $this->hasMany('App\Models\AccountGateway');
+    }
+
+    public function bank_accounts()
+    {
+        return $this->hasMany('App\Models\BankAccount');
     }
 
     public function tax_rates()
@@ -133,6 +163,24 @@ class Account extends Eloquent
     {
         return $this->belongsTo('App\Models\TaxRate');
     }
+
+
+    public function setIndustryIdAttribute($value)
+    {
+        $this->attributes['industry_id'] = $value ?: null;
+    }
+
+    public function setCountryIdAttribute($value)
+    {
+        $this->attributes['country_id'] = $value ?: null;
+    }
+
+    public function setSizeIdAttribute($value)
+    {
+        $this->attributes['size_id'] = $value ?: null;
+    }
+
+
 
     public function isGatewayConfigured($gatewayId = 0)
     {
@@ -242,7 +290,14 @@ class Account extends Eloquent
             $countryId = false;
         }
 
+        $hideSymbol = $this->show_currency_code || $hideSymbol;
+
         return Utils::formatMoney($amount, $currencyId, $countryId, $hideSymbol);
+    }
+
+    public function getCurrencyId()
+    {
+        return $this->currency_id ?: DEFAULT_CURRENCY;
     }
 
     public function formatDate($date)
@@ -409,8 +464,21 @@ class Account extends Eloquent
         return $invoice;
     }
 
+    public function getNumberPrefix($isQuote)
+    {
+        if ( ! $this->isPro()) {
+            return '';
+        }
+
+        return ($isQuote ? $this->quote_number_prefix : $this->invoice_number_prefix) ?: '';
+    }
+
     public function hasNumberPattern($isQuote)
     {
+        if ( ! $this->isPro()) {
+            return false;
+        }
+
         return $isQuote ? ($this->quote_number_pattern ? true : false) : ($this->invoice_number_pattern ? true : false);
     }
 
@@ -494,7 +562,7 @@ class Account extends Eloquent
         }
 
         $counter = $this->getCounter($invoice->is_quote);
-        $prefix = $invoice->is_quote ? $this->quote_number_prefix : $this->invoice_number_prefix;
+        $prefix = $this->getNumberPrefix($invoice->is_quote);
         $counterOffset = 0;
 
         // confirm the invoice number isn't already taken 
@@ -593,6 +661,7 @@ class Account extends Eloquent
             'quote_number',
             'total',
             'invoice_issued_to',
+            'quote_issued_to',
             //'date',
             'rate',
             'hours',
@@ -625,6 +694,16 @@ class Account extends Eloquent
         return $this->account_key === NINJA_ACCOUNT_KEY;
     }
 
+    public function startTrial()
+    {
+        if ( ! Utils::isNinja()) {
+            return;
+        }
+        
+        $this->pro_plan_trial = date_create()->format('Y-m-d');
+        $this->save();
+    }
+
     public function isPro()
     {
         if (!Utils::isNinjaProd()) {
@@ -636,12 +715,54 @@ class Account extends Eloquent
         }
 
         $datePaid = $this->pro_plan_paid;
+        $trialStart = $this->pro_plan_trial;
 
         if ($datePaid == NINJA_DATE) {
             return true;
         }
 
-        return Utils::withinPastYear($datePaid);
+        return Utils::withinPastTwoWeeks($trialStart) || Utils::withinPastYear($datePaid);
+    }
+
+    public function isTrial()
+    {
+        if (!Utils::isNinjaProd()) {
+            return false;
+        }
+
+        if ($this->pro_plan_paid && $this->pro_plan_paid != '0000-00-00') {
+            return false;
+        }
+
+        return Utils::withinPastTwoWeeks($this->pro_plan_trial);
+    }
+
+    public function isEligibleForTrial()
+    {
+        return ! $this->pro_plan_trial || $this->pro_plan_trial == '0000-00-00';
+    }
+
+    public function getCountTrialDaysLeft()
+    {
+        $interval = Utils::getInterval($this->pro_plan_trial);
+        
+        return $interval ? 14 - $interval->d : 0;
+    }
+
+    public function getRenewalDate()
+    {
+        if ($this->pro_plan_paid && $this->pro_plan_paid != '0000-00-00') {
+            $date = DateTime::createFromFormat('Y-m-d', $this->pro_plan_paid);
+            $date->modify('+1 year');
+            $date = max($date, date_create());
+        } elseif ($this->isTrial()) {
+            $date = date_create();
+            $date->modify('+'.$this->getCountTrialDaysLeft().' day');
+        } else {
+            $date = date_create();
+        }
+
+        return $date->format('Y-m-d');
     }
 
     public function isWhiteLabel()
@@ -653,7 +774,11 @@ class Account extends Eloquent
         if (Utils::isNinjaProd()) {
             return self::isPro() && $this->pro_plan_paid != NINJA_DATE;
         } else {
-            return $this->pro_plan_paid == NINJA_DATE;
+            if ($this->pro_plan_paid == NINJA_DATE) {
+                return true;
+            }
+            
+            return Utils::withinPastYear($this->pro_plan_paid);
         }
     }
 
@@ -888,6 +1013,11 @@ class Account extends Eloquent
         return $this->isPro() && $this->pdf_email_attachment;
     }
     
+    public function getEmailDesignId()
+    {
+        return $this->isPro() ? $this->email_design_id : EMAIL_DESIGN_PLAIN;
+    }
+
     public function clientViewCSS(){
         $css = null;
         

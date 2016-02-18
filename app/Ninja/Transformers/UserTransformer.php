@@ -17,7 +17,7 @@ class UserTransformer extends EntityTransformer
             'updated_at' => $this->getTimestamp($user->updated_at),
             'deleted_at' => $this->getTimestamp($user->deleted_at),
             'phone' => $user->phone,
-            'username' => $user->username,
+            //'username' => $user->username,
             'registered' => (bool) $user->registered,
             'confirmed' => (bool) $user->confirmed,
             'oauth_user_id' => $user->oauth_user_id,

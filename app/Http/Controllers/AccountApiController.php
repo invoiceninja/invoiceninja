@@ -4,6 +4,7 @@ use Auth;
 use Utils;
 use Response;
 use Input;
+use Validator;
 use Cache;
 use App\Models\Client;
 use App\Models\Account;
@@ -17,6 +18,8 @@ use App\Ninja\Transformers\AccountTransformer;
 use App\Ninja\Transformers\UserAccountTransformer;
 use App\Http\Controllers\BaseAPIController;
 use Swagger\Annotations as SWG;
+
+use App\Http\Requests\UpdateAccountRequest;
 
 class AccountApiController extends BaseAPIController
 {
@@ -33,14 +36,14 @@ class AccountApiController extends BaseAPIController
     {
         if ( ! env(API_SECRET) || $request->api_secret !== env(API_SECRET)) {
             sleep(ERROR_DELAY);
-            return 'Invalid secret';
+            return $this->errorResponse(['message'=>'Invalid secret'],401);
         }
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             return $this->processLogin($request);
         } else {
             sleep(ERROR_DELAY);
-            return 'Invalid credentials';
+            return $this->errorResponse(['message'=>'Invalid credentials'],401);
         }
     }
 
@@ -100,5 +103,16 @@ class AccountApiController extends BaseAPIController
     public function getUserAccounts(Request $request)
     {
         return $this->processLogin($request);
+    }
+
+    public function update(UpdateAccountRequest $request)
+    {
+        $account = Auth::user()->account;
+        $this->accountRepo->save($request->input(), $account);
+
+        $transformer = new AccountTransformer(null, $request->serializer);
+        $account = $this->createItem($account, $transformer, 'account');
+
+        return $this->response($account);
     }
 }

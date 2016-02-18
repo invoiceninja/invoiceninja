@@ -5,6 +5,8 @@ var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Const
 var isEdge = navigator.userAgent.indexOf('Edge/') >= 0;
 var isChrome = !!window.chrome && !isOpera && !isEdge; // Chrome 1+
 var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
+// https://code.google.com/p/chromium/issues/detail?id=574648
+var isChrome48 = isChrome && navigator.userAgent.indexOf('Chrome/48') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
 var refreshTimer;
@@ -356,6 +358,31 @@ if (window.ko) {
       }
   };
 
+  ko.bindingHandlers.combobox = {
+      init: function (element, valueAccessor, allBindingsAccessor) {
+         var options = allBindingsAccessor().dropdownOptions|| {};
+         var value = ko.utils.unwrapObservable(valueAccessor());
+         var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
+         if (id) $(element).val(id);
+         $(element).combobox(options);
+
+          ko.utils.registerEventHandler(element, "change", function () {
+            var value = valueAccessor();
+            value($(element).val());
+          });
+      },
+      update: function (element, valueAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
+        if (id) {
+          $(element).val(id);
+          $(element).combobox('refresh');
+        } else {
+          $(element).combobox('clearTarget');
+          $(element).combobox('clearElement');
+        }
+      }
+  };
 
   ko.bindingHandlers.datePicker = {
       init: function (element, valueAccessor, allBindingsAccessor) {
@@ -403,7 +430,7 @@ if (window.ko) {
 function getContactDisplayName(contact)
 {
     if (contact.first_name || contact.last_name) {
-        return contact.first_name + ' ' + contact.last_name;
+        return (contact.first_name || '') + ' ' + (contact.last_name || '');
     } else {
         return contact.email;
     }
@@ -516,8 +543,9 @@ var CONSTS = {};
 CONSTS.INVOICE_STATUS_DRAFT = 1;
 CONSTS.INVOICE_STATUS_SENT = 2;
 CONSTS.INVOICE_STATUS_VIEWED = 3;
-CONSTS.INVOICE_STATUS_PARTIAL = 4;
-CONSTS.INVOICE_STATUS_PAID = 5;
+CONSTS.INVOICE_STATUS_APPROVED = 4;
+CONSTS.INVOICE_STATUS_PARTIAL = 5;
+CONSTS.INVOICE_STATUS_PAID = 6;
 
 $.fn.datepicker.defaults.autoclose = true;
 $.fn.datepicker.defaults.todayHighlight = true;
@@ -922,6 +950,11 @@ function toggleDatePicker(field) {
 function roundToTwo(num, toString) {
   var val = +(Math.round(num + "e+2")  + "e-2");
   return toString ? val.toFixed(2) : (val || 0);
+}
+
+function roundToFour(num, toString) {
+  var val = +(Math.round(num + "e+4")  + "e-4");
+  return toString ? val.toFixed(4) : (val || 0);
 }
 
 function truncate(str, length) {

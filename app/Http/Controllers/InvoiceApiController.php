@@ -12,6 +12,7 @@ use App\Models\Contact;
 use App\Models\Product;
 use App\Models\Invitation;
 use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Http\Controllers\BaseAPIController;
@@ -23,12 +24,13 @@ class InvoiceApiController extends BaseAPIController
 {
     protected $invoiceRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, Mailer $mailer)
+    public function __construct(InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer)
     {
         parent::__construct();
 
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
+        $this->paymentRepo = $paymentRepo;
         $this->mailer = $mailer;
     }
 
@@ -123,14 +125,26 @@ class InvoiceApiController extends BaseAPIController
                 }
 
                 $clientData = ['contact' => ['email' => $email]];
-                foreach (['name', 'private_notes'] as $field) {
+                foreach ([
+                    'name',
+                    'address1',
+                    'address2',
+                    'city',
+                    'state',
+                    'postal_code',
+                    'private_notes',
+                ] as $field) {
                     if (isset($data[$field])) {
                         $clientData[$field] = $data[$field];
                     }
                 }
-                foreach (['first_name', 'last_name'] as $field) {
+                foreach ([
+                    'first_name',
+                    'last_name',
+                    'phone',
+                ] as $field) {
                     if (isset($data[$field])) {
-                        $clientData[$field] = $data[$field];
+                        $clientData['contact'][$field] = $data[$field];
                     }
                 }
 
@@ -143,6 +157,16 @@ class InvoiceApiController extends BaseAPIController
         $data = self::prepareData($data, $client);
         $data['client_id'] = $client->id;
         $invoice = $this->invoiceRepo->save($data);
+        $payment = false;
+
+        // Optionally create payment with invoice
+        if (isset($data['paid']) && $data['paid']) {
+            $payment = $this->paymentRepo->save([
+                'invoice_id' => $invoice->id,
+                'client_id' => $client->id,
+                'amount' => $data['paid']
+            ]);
+        }
 
         if (!isset($data['id'])) {
             $invitation = Invitation::createNew();
@@ -153,7 +177,11 @@ class InvoiceApiController extends BaseAPIController
         }
 
         if (isset($data['email_invoice']) && $data['email_invoice']) {
-            $this->mailer->sendInvoice($invoice);
+            if ($payment) {
+                $this->mailer->sendPaymentConfirmation($payment);
+            } else {
+                $this->mailer->sendInvoice($invoice);
+            }
         }
 
         $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->first();
@@ -184,6 +212,10 @@ class InvoiceApiController extends BaseAPIController
             'custom_taxes2' => false,
             'partial' => 0
         ];
+
+        if (!isset($data['invoice_status_id']) || $data['invoice_status_id'] == 0) {
+            $data['invoice_status_id'] = INVOICE_STATUS_DRAFT;
+        }
 
         if (!isset($data['invoice_date'])) {
             $fields['invoice_date_sql'] = date_create()->format('Y-m-d');
@@ -216,6 +248,19 @@ class InvoiceApiController extends BaseAPIController
 
     private function prepareItem($item)
     {
+        // if only the product key is set we'll load the cost and notes
+        if ($item['product_key'] && empty($item['cost']) && empty($item['notes'])) {
+            $product = Product::findProductByKey($item['product_key']);
+            if ($product) {
+                if (empty($item['cost'])) {
+                    $item['cost'] = $product->cost;
+                }
+                if (empty($item['notes'])) {
+                    $item['notes'] = $product->notes;
+                }
+            }
+        }
+
         $fields = [
             'cost' => 0,
             'product_key' => '',
@@ -229,19 +274,6 @@ class InvoiceApiController extends BaseAPIController
             }
         }
 
-        // if only the product key is set we'll load the cost and notes
-        if ($item['product_key'] && (is_null($item['cost']) || is_null($item['notes']))) {
-            $product = Product::findProductByKey($item['product_key']);
-            if ($product) {
-                if (is_null($item['cost'])) {
-                    $item['cost'] = $product->cost;
-                }
-                if (is_null($item['notes'])) {
-                    $item['notes'] = $product->notes;
-                }
-            }
-        }
-
         return $item;
     }
 
@@ -250,26 +282,21 @@ class InvoiceApiController extends BaseAPIController
         $data = Input::all();
         $error = null;
 
-        if (!isset($data['id'])) {
-            $error = trans('validation.required', ['attribute' => 'id']);
-        } else {
-            $invoice = Invoice::scope($data['id'])->first();
-            if (!$invoice) {
-                $error = trans('validation.not_in', ['attribute' => 'id']);
-            } else {
-                $this->mailer->sendInvoice($invoice);
-            }
-        }
+        $invoice = Invoice::scope($data['id'])->firstOrFail();
 
-        if ($error) {
-            $response = json_encode($error, JSON_PRETTY_PRINT);
-        } else {
+        $this->mailer->sendInvoice($invoice);
+
+        if($error) {
+            $response['error'] = "There was an error sending the invoice";
+        }
+        else {
             $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
         }
 
         $headers = Utils::getApiHeaders();
         return Response::make($response, $error ? 400 : 200, $headers);
     }
+
 
         /**
          * @SWG\Put(
@@ -297,11 +324,25 @@ class InvoiceApiController extends BaseAPIController
         if ($request->action == ACTION_ARCHIVE) {
             $invoice = Invoice::scope($publicId)->firstOrFail();
             $this->invoiceRepo->archive($invoice);
-            /*
-            $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
-            $headers = Utils::getApiHeaders();
-            return Response::make($response, 200, $headers);
-            */
+
+            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($invoice, $transformer, 'invoice');
+
+            return $this->response($data);
+        }
+        else if ($request->action == ACTION_CONVERT) {
+            $quote = Invoice::scope($publicId)->firstOrFail();
+            $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
+
+            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($invoice, $transformer, 'invoice');
+
+            return $this->response($data);
+        }
+        else if ($request->action == ACTION_RESTORE) {
+            $invoice = Invoice::scope($publicId)->withTrashed()->firstOrFail();
+            $this->invoiceRepo->restore($invoice);
+
             $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
             $data = $this->createItem($invoice, $transformer, 'invoice');
 

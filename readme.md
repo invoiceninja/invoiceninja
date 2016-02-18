@@ -13,7 +13,7 @@
 ### Reseller Program
 There are two options:
 * 10% of revenue
-* $1,000 for a site limited to 1,000 accounts
+* $1,000 for a site limited to 1,000 users
 
 ### Installation Options
 * [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
@@ -31,6 +31,7 @@ There are two options:
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Integrates with 50+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
+* Expenses and vendors
 * Tasks with time-tracking
 * Multi-user/multi-company support
 * Tax rates and payment terms
@@ -38,7 +39,6 @@ There are two options:
 * Partial payments
 * Client portal
 * Custom email templates
-* [Zapier](https://zapier.com/) integration
 * [D3.js](http://d3js.org/) visualizations
 
 ### Recommended Providers
@@ -53,6 +53,9 @@ There are two options:
 * [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
+
+### Pull Requests
+We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-model/) model of branching and releasing, **please create pull requests against the develop branch**.
 
 ### Contributors
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
@@ -95,3 +98,5 @@ There are two options:
 * [thephpleague/fractal](https://github.com/thephpleague/fractal) - Output complex, flexible, AJAX/RESTful data structures
 * [ezyang/htmlpurifier](https://github.com/ezyang/htmlpurifier) - Standards compliant HTML filter written in PHP
 * [cerdic/css-tidy](https://github.com/Cerdic/CSSTidy) - CSSTidy is a CSS minifier
+* [asgrim/ofxparser](https://github.com/asgrim/ofxparser) - OFX File Parser
+* [stacktracejs/stacktrace.js](https://github.com/stacktracejs/stacktrace.js) - Framework-agnostic, micro-library for getting stack traces in all web browsers

@@ -97,6 +97,9 @@ class PublicClientController extends BaseController
         if ($invoice->due_date) {
             $showApprove = time() < strtotime($invoice->due_date);
         }
+        if ($invoice->invoice_status_id >= INVOICE_STATUS_APPROVED) {
+            $showApprove = false;
+        }
 
         // Checkout.com requires first getting a payment token
         $checkoutComToken = false;

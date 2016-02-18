@@ -33,12 +33,10 @@ class InvoiceDesignCest
 
         $I->click('#primary_color + .sp-replacer');
         $I->executeJS('$("#primary_color").val("#7364b6")');
-        //$I->executeJS('$("#primary_color + .sp-replacer .sp-preview-inner").attr("style", "background-color: rgb(0,98,254);")');
         $I->executeJS('$(".sp-container:nth-child(1) .sp-choose").click()');
 
         $I->click('#secondary_color + .sp-replacer');
         $I->executeJS('$("#secondary_color").val("#aa6709")');
-        //$I->executeJS('$("#secondary_color + .sp-replacer .sp-preview-inner").attr("style", "background-color: rgb(254,0,50);")');
         $I->executeJS('$(".sp-container:nth-child(2) .sp-choose").click()');
 
         /*

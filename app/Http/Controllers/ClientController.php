@@ -104,8 +104,10 @@ class ClientController extends BaseController
         }
 
         array_push($actionLinks,
+            \DropdownButton::DIVIDER,
             ['label' => trans('texts.enter_payment'), 'url' => '/payments/create/'.$client->public_id],
-            ['label' => trans('texts.enter_credit'), 'url' => '/credits/create/'.$client->public_id]
+            ['label' => trans('texts.enter_credit'), 'url' => '/credits/create/'.$client->public_id],
+            ['label' => trans('texts.enter_expense'), 'url' => '/expenses/create/0/'.$client->public_id]
         );
         
         $data = array(

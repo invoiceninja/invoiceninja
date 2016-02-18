@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Komodo Project File - DO NOT EDIT -->
+<project id="63a1b237-cbd6-48f9-bac1-8e5d85debff7" kpf_version="5" name="invoiceninja.komodoproject">
+<preference-set idref="63a1b237-cbd6-48f9-bac1-8e5d85debff7" id="project" preftype="project">
+<preference-set id="Invocations">
+<preference-set id="Project">
+  <string id="cookieparams"></string>
+  <string relative="path" id="cwd"></string>
+  <string id="documentRoot"></string>
+  <string id="executable-params"></string>
+  <string id="filename"></string>
+  <string id="getparams"></string>
+  <string id="language">PHP</string>
+  <string id="mpostparams"></string>
+  <string id="params"></string>
+  <string id="postparams"></string>
+  <string id="posttype">application/x-www-form-urlencoded</string>
+  <string id="request-method">GET</string>
+  <boolean id="show-dialog">1</boolean>
+  <boolean id="sim-cgi">0</boolean>
+  <boolean id="use-console">0</boolean>
+  <string id="userCGIEnvironment"></string>
+  <string id="userEnvironment"></string>
+</preference-set>
+</preference-set>
+  <string id="currentInvocationLanguage">PHP</string>
+  <string id="defaultDateFormat">%25d/%25m/%25Y %25H:%25M:%25S</string>
+  <boolean id="genericLinter:PHP">1</boolean>
+  <string relative="path" id="import_dirname"></string>
+  <string id="jshint_linter_chooser">default</string>
+  <string id="jslint_linter_chooser">default</string>
+  <string id="language">PHP</string>
+  <string id="lastInvocation">Project</string>
+  <string id="last_local_directory">None</string>
+  <string id="last_remote_directory">None</string>
+  <string id="lessDefaultInterpreter">None</string>
+  <string id="phpDefaultInterpreter">c:\wamp\bin\php\php5.6.15\php.exe</string>
+  <string relative="path" id="phpExtraPaths">vendor;C:/webdev/invoiceninja/app</string>
+  <long id="prefs_version">1</long>
+  <string id="sassDefaultInterpreter">None</string>
+  <string id="scssDefaultInterpreter">None</string>
+</preference-set>
+</project>

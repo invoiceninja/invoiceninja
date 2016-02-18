@@ -185,7 +185,7 @@
     window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/license?affiliate_key=' + affiliateKey + '&product_id=' + productId + '&return_url=' + window.location);
   }
 
-  @if (Auth::check() && !Auth::user()->isPro())
+  @if (Auth::check() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
   function submitProPlan() {
     fbq('track', 'AddPaymentInfo');
     trackEvent('/account', '/submit_pro_plan/' + NINJA.proPlanFeature);
@@ -258,20 +258,12 @@
     localStorage.setItem('auth_provider', provider);
   }
 
-  $(function() {
-    window.setTimeout(function() { 
-        $(".alert-hide").fadeOut();
-    }, 3000);
-
-    $('#search').blur(function(){
-      $('#search').css('width', '{{ Utils::isEnglish() ? 150 : 110 }}px');
-      $('ul.navbar-right').show();
-    });
-
-    $('#search').focus(function(){
-      $('#search').css('width', '{{ Utils::isEnglish() ? 264 : 216 }}px');
-      $('ul.navbar-right').hide();
-      if (!window.hasOwnProperty('searchData')) {
+  function showSearch() {
+    $('#search-form').show();
+    $('#navbar-options').hide();
+    if (window.hasOwnProperty('searchData')) {
+        $('#search').focus();
+    } else {
         trackEvent('/activity', '/search');
         $.get('{{ URL::route('getSearchData') }}', function(data) {
           window.searchData = true;
@@ -290,12 +282,26 @@
           }
           $('#search').typeahead(datasets).on('typeahead:selected', function(element, datum, name) {
             var type = name == 'Contacts' ? 'clients' : name.toLowerCase();
-            window.location = '{{ URL::to('/') }}' + '/' + type + '/' + datum.public_id;
-          }).focus().typeahead('setQuery', $('#search').val());                         
+            window.location = '{{ URL::to('/') }}' + '/' + datum.entity_type + '/' + datum.public_id;
+          }).focus().typeahead('setQuery', $('#search').val());
         });
-      }
-    });
+    }
+  }
 
+  function hideSearch() {
+    $('#search').typeahead('setQuery', '');
+    $('#search-form').hide();
+    $('#navbar-options').show();
+  }
+
+  $(function() {
+    window.setTimeout(function() { 
+        $(".alert-hide").fadeOut();
+    }, 3000);
+
+    $('#search').blur(function(){
+        hideSearch();
+    });
 
     if (isStorageSupported()) {
       @if (Auth::check() && !Auth::user()->registered)
@@ -364,7 +370,7 @@
         <span class="icon-bar"></span>
       </button>
       <a href="{{ URL::to(NINJA_WEB_URL) }}" class='navbar-brand' target="_blank">
-        <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:18px;width:auto"/>
+        <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:20px;width:auto;padding-right:10px"/>
       </a>	    
     </div>
 
@@ -373,22 +379,24 @@
         {!! HTML::nav_link('dashboard', 'dashboard') !!}
         {!! HTML::menu_link('client') !!}
         {!! HTML::menu_link('task') !!}
+        {!! HTML::menu_link('expense') !!}
         {!! HTML::menu_link('invoice') !!}
         {!! HTML::menu_link('payment') !!}
       </ul>
 
+      <div id="navbar-options">
       <div class="navbar-form navbar-right">
         @if (Auth::check())
           @if (!Auth::user()->registered)
-            {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal'))->small() !!} &nbsp;
-          @elseif (!Auth::user()->isPro())
-            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'onclick' => 'showProPlan("")'))->small() !!} &nbsp;
+            {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!} &nbsp;
+          @elseif (Utils::isNinjaProd() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
+            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'onclick' => 'showProPlan("")', 'style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
           @endif
         @endif
 
         <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-            <div id="myAccountButton" class="ellipsis" style="max-width:100px">
+            <div id="myAccountButton" class="ellipsis" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '100' : '70' }}px">
                 @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
                     {{ Auth::user()->account->getDisplayName() }}
                 @else
@@ -477,14 +485,21 @@
         </li>
       </ul>
 
-      <form class="navbar-form navbar-right" role="search">
+      <ul class="nav navbar-nav navbar-right navbar-settings"> 
+        <li class="dropdown">
+          <a href="#" onclick="showSearch()">
+            <span class="glyphicon glyphicon-search" title="{{ trans('texts.search') }}"/>
+          </a>
+        </li>
+      </ul>
+      </div>
+
+      <form id="search-form" class="navbar-form navbar-right" role="search" style="display:none">
         <div class="form-group">
-          <input type="text" id="search" style="width: {{ Utils::isEnglish() ? 150 : 110 }}px;padding-top:0px;padding-bottom:0px" 
+          <input type="text" id="search" style="width: 300px;padding-top:0px;padding-bottom:0px" 
             class="form-control" placeholder="{{ trans('texts.search') }}">
         </div>
       </form>
-
-
       
       
     </div><!-- /.navbar-collapse -->
@@ -518,7 +533,7 @@
   @endif
 
   @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-    {!! HTML::breadcrumbs() !!}
+    {!! HTML::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
   @endif
 
   @yield('content')		
@@ -598,10 +613,16 @@
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
             </div>
+
+            <div class="col-md-11 col-md-offset-1">
+                <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
+            </div>
         </div>
 
         {!! Former::close() !!}
-
+        
+        
+        
         <center><div id="errorTaken" style="display:none">&nbsp;<br/>{{ trans('texts.email_taken') }}</div></center>
         <br/>
 
@@ -654,11 +675,10 @@
 </div>
 @endif
 
-@if (Auth::check() && !Auth::user()->isPro())
+@if (Auth::check() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
   <div class="modal fade" id="proPlanModal" tabindex="-1" role="dialog" aria-labelledby="proPlanModalLabel" aria-hidden="true">
     <div class="modal-dialog large-dialog">
       <div class="modal-content pro-plan-modal">
-        
 
         <div class="pull-right">
             <img onclick="hideProPlan()" class="close" src="{{ asset('images/pro_plan/close.png') }}"/>
@@ -669,7 +689,11 @@
                 <center>
                     <h2>{{ trans('texts.pro_plan_title') }}</h2>
                     <img class="img-responsive price" alt="Only $50 Per Year" src="{{ asset('images/pro_plan/price.png') }}"/>
-                    <a class="button" href="#" onclick="submitProPlan()">{{ trans('texts.pro_plan_call_to_action') }}</a>
+                    @if (Auth::user()->isEligibleForTrial())
+                        <a class="button" href="{{ URL::to('start_trial') }}">{{ trans('texts.trial_call_to_action') }}</a>
+                    @else
+                        <a class="button" href="#" onclick="submitProPlan()">{{ trans('texts.pro_plan_call_to_action') }}</a>
+                    @endif
                 </center>
             </div>
             <div class="col-md-5">
@@ -693,13 +717,21 @@
 
 @endif
 
-{{-- Per our license, please do not remove or modify this section. --}}
-@if (!Utils::isNinjaProd())
 </div>
-<p>&nbsp;</p>
+<br/>
 <div class="container">
-  {{ trans('texts.powered_by') }} <a href="https://www.invoiceninja.com/?utm_source=powered_by" target="_blank">InvoiceNinja.com</a> -
-  {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank']) !!} | 
+@if (Utils::isNinjaProd())
+  @if (Auth::check() && Auth::user()->isTrial())
+    {!! trans(Auth::user()->account->getCountTrialDaysLeft() == 0 ? 'texts.trial_footer_last_day' : 'texts.trial_footer', [
+            'count' => Auth::user()->account->getCountTrialDaysLeft(), 
+            'link' => '<a href="javascript:submitProPlan()">' . trans('texts.click_here') . '</a>'
+        ]) !!}
+  @endif
+@else
+  {{ trans('texts.powered_by') }}
+  {{-- Per our license, please do not remove or modify this section. --}}
+  {!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => 'invoiceninja.com']) !!} -
+  {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank', 'title' => trans('texts.trello_roadmap')]) !!} | 
   @if (Auth::user()->account->isWhiteLabel())  
     {{ trans('texts.white_labeled') }}
   @else

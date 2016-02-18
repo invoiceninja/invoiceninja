@@ -2626,10 +2626,6 @@ border-radius: 3px;
 
 /*new*/
 
-div {
-    word-break: break-word;
-}
-
 div.input-group {
     word-break: normal;
 }
@@ -3370,6 +3366,10 @@ ul.user-accounts a:hover div.remove {
 
 .smaller {
     font-size: .9em;
+}
+
+td.right {
+  text-align: right;
 }
 
 /* Show selected section in settings nav */

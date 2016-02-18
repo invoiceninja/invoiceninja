@@ -6,6 +6,7 @@
     {!! Former::open_for_files()->addClass('warn-on-exit') !!}
     {{ Former::populate($account) }}
     {{ Former::populateField('military_time', intval($account->military_time)) }}
+    {{ Former::populateField('show_currency_code', intval($account->show_currency_code)) }}
 
     @include('accounts.nav', ['selected' => ACCOUNT_LOCALIZATION])
 
@@ -28,6 +29,7 @@
             {!! Former::select('datetime_format_id')->addOption('','')
                 ->fromQuery($datetimeFormats, 'label', 'id') !!}
             {!! Former::checkbox('military_time')->text(trans('texts.enable')) !!}
+            {{-- Former::checkbox('show_currency_code')->text(trans('texts.enable')) --}}
 
             </div>
         </div>

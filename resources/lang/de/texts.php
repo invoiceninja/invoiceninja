@@ -59,7 +59,7 @@ return array(
     'learn_more' => 'Mehr erfahren',
     'manage_rates' => 'Steuersätze verwalten',
     'note_to_client' => 'Notiz an den Kunden',
-    'invoice_terms' => 'Zahlungsbedingungen',
+    'invoice_terms' => 'Rechnungsbedingungen',
     'save_as_default_terms' => 'Als Standardbedingungen speichern',
     'download_pdf' => 'PDF herunterladen',
     'pay_now' => 'Jetzt bezahlen',
@@ -271,8 +271,7 @@ return array(
     'notification_invoice_sent' => 'Dem Kunden :client wurde die Rechnung :invoice über :amount versendet.',
     'notification_invoice_viewed' => 'Der Kunde :client hat sich die Rechnung :invoice über :amount angesehen.',
     'reset_password' => 'Du kannst dein Passwort zurücksetzen, indem du auf den folgenden Link klickst:',
-    'reset_password_footer' => 'Wenn du das Zurücksetzen des Passworts nicht beantragt hast, benachrichtige bitte unseren Support: ' . CONTACT_EMAIL,
-
+    'reset_password_footer' => 'Wenn du das Zurücksetzen des Passworts nicht beantragt hast, benachrichtige bitte unseren Support: '.CONTACT_EMAIL,
 
     // Payment page
     'secure_payment' => 'Sichere Zahlung',
@@ -300,7 +299,7 @@ return array(
 
     'logout' => 'Ausloggen',
     'sign_up_to_save' => 'Melde dich an, um deine Arbeit zu speichern',
-    'agree_to_terms' =>'Ich akzeptiere die InvoiceNinja :terms',
+    'agree_to_terms' => 'Ich akzeptiere die InvoiceNinja :terms',
     'terms_of_service' => 'Service-Bedingungen',
     'email_taken' => 'Diese E-Mail-Adresse ist bereits registriert',
     'working' => 'Wird bearbeitet',
@@ -420,7 +419,7 @@ return array(
     'active' => 'Aktiv',
     'pending' => 'Ausstehend',
     'deleted_user' => 'Benutzer erfolgreich gelöscht',
-    'limit_users' => 'Entschuldige, das würde das Limit von ' . MAX_NUM_USERS . ' Benutzern überschreiten',
+    'limit_users' => 'Entschuldige, das würde das Limit von '.MAX_NUM_USERS.' Benutzern überschreiten',
 
     'confirm_email_invoice' => 'Bist du sicher, dass du diese Rechnung per E-Mail versenden möchtest?',
     'confirm_email_quote' => 'Bist du sicher, dass du dieses Angebot per E-Mail versenden möchtest',
@@ -470,7 +469,6 @@ return array(
 
     'id_number' => 'ID-Nummer',
     'white_label_link' => 'Branding entfernen',
-    'white_label_text' => 'Um das Invoice Ninja Logo auf der Kundenseite zu entfernen, kaufe bitte eine Lizenz für $'.WHITE_LABEL_PRICE,
     'white_label_header' => 'Branding entfernen',
     'bought_white_label' => 'Branding-freie Lizenz erfolgreich aktiviert',
     'white_labeled' => 'Branding entfernt',
@@ -990,5 +988,149 @@ return array(
     'schedule' => 'Schedule',
     'email_designs' => 'Email Designs',
     'assigned_when_sent' => 'Assigned when sent',
-    
+
+    'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
+    'white_label_purchase_link' => 'Purchase a white label license',
+
+    // Expense / vendor
+    'expense' => 'Ausgabe',
+    'expenses' => 'Ausgaben',
+    'new_expense' => 'Neue Ausgabe',
+    'enter_expense' => 'Ausgabe eingeben',
+    'vendors' => 'Lieferanten',
+    'new_vendor' => 'Neuer Lieferant',
+    'payment_terms_net' => 'Netto',
+    'vendor' => 'Lieferant',
+    'edit_vendor' => 'Lieferant Bearbeiten',
+    'archive_vendor' => 'Lieferant Archivieren',
+    'delete_vendor' => 'Lieferant Löschen',
+    'view_vendor' => 'Lieferant Ansehen',
+    'deleted_expense' => 'Ausgabe erfolgreich gelöscht',
+    'archived_expense' => 'Ausgabe erfolgreich archiviert',
+    'deleted_expenses' => ' Ausgaben erfolgreich gelöscht',
+    'archived_expenses' => 'Ausgaben erfolgreich archiviert',
+
+    // Expenses
+    'expense_amount' => 'Ausgabensumme',
+    'expense_balance' => 'Ausgabendifferenz', // don't know if this is a good translation.
+    'expense_date' => 'Ausgabendatum',
+    'expense_should_be_invoiced' => 'Soll diese Ausgabe in Rechnung gestellt werden?',
+    'public_notes' => 'Öffentliche Notizen',
+    'invoice_amount' => 'Rechnungssumme',
+    'exchange_rate' => 'Wechselkurs',
+    'yes' => 'Ja',
+    'no' => 'Nein',
+    'should_be_invoiced' => 'Should be invoiced', //???
+    'view_expense' => 'Ausgabe # :expense ansehen',
+    'edit_expense' => 'Ausgabe Bearbeiten',
+    'archive_expense' => 'Ausgabe Archivieren',
+    'delete_expense' => 'Ausgabe Löschen',
+    'view_expense_num' => 'Ausgabe # :expense',
+    'updated_expense' => 'Ausgabe erfolgreich aktualisiert',
+    'created_expense' => 'Ausgabe erfolgreich erstellt',
+    'enter_expense' => 'Ausgabe Eingeben',
+    'view' => 'View',
+    'restore_expense' => 'Ausgabe Wiederherstellen',
+    'invoice_expense' => 'Ausgabe in Rechnung stellen',
+    'expense_error_multiple_clients' => 'Die Ausgaben können nicht zu unterschiedlichen Kunden gehören',
+    'expense_error_invoiced' => 'Ausgabe wurde bereits in Rechnung gestellt',
+    'convert_currency' => 'Währung umrechnen',
+
+    // Payment terms
+    'num_days' => 'Number of days',
+    'create_payment_term' => 'Create Payment Term',
+    'edit_payment_terms' => 'Edit Payment Term',
+    'edit_payment_term' => 'Edit Payment Term',
+    'archive_payment_term' => 'Archive Payment Term',
+
+    // recurring due dates
+    'recurring_due_dates' => 'Recurring Invoice Due Dates',
+    'recurring_due_date_help' => '<p>Automatically sets a due date for the invoice.</p>
+        <p>Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.</p>
+        <p>Invoices on a weekly cycle set to be due on the day of the week they are created will be due the next week.</p>
+        <p>For example:</p>
+        <ul>
+          <li>Today is the 15th, due date is 1st of the month. The due date should likely be the 1st of the next month.</li>
+          <li>Today is the 15th, due date is the last day of the month. The due date will be the last day of the this month.
+</li>
+          <li>Today is the 15th, due date is the 15th day of the month. The due date will be the 15th day of <strong>next</strong> month.
+</li>
+          <li>Today is the Friday, due date is the 1st Friday after. The due date will be next Friday, not today.
+</li>
+        </ul>',
+    'due' => 'Due',
+    'next_due_on' => 'Due Next: :date',
+    'use_client_terms' => 'Kunden-Bedingungen verwenden',
+    'day_of_month' => ':ordinal Tag des Monats',
+    'last_day_of_month' => 'Letzter Tag des Monats',
+    'day_of_week_after' => ':ordinal :day nach',
+    'sunday' => 'Sonntag',
+    'monday' => 'Montag',
+    'tuesday' => 'Dienstag',
+    'wednesday' => 'Mittwoch',
+    'thursday' => 'Donnerstag',
+    'friday' => 'Freitag',
+    'saturday' => 'Samstag',
+
+    // Fonts
+    'header_font_id' => 'Header-Schriftart',
+    'body_font_id' => 'Body-Schriftart',
+    'color_font_help' => 'Info: Die primäre Farbe und Schriftarten werden auch im Kundenportal und im individuellen Mail-Design verwendet.',
+
+    'live_preview' => 'Live-Voransicht',
+    'invalid_mail_config' => 'Unable to send email, please check that the mail settings are correct.',
+
+    'invoice_message_button' => 'Um Ihre Rechnung über :amount zu sehen, klicken Sie die Schaltfläche unten.',
+    'quote_message_button' => 'Um Ihr Angebot über :amount zu sehen, klicken Sie die Schaltfläche unten.',
+    'payment_message_button' => 'Vielen Dank für Ihre Zahlung von :amount.',
+    'payment_type_direct_debit' => 'Einzugsermächtigung',
+    'bank_accounts' => 'Bankverbindungen',
+    'add_bank_account' => 'Bankverbindung hinzufügen',
+    'setup_account' => 'Account einrichten',  // I hope here is not meant "bank account". I translated "Account".
+    'import_expenses' => 'Ausgaben importieren',
+    'bank_id' => 'bank',
+    'integration_type' => 'Integrations-Typ',
+    'updated_bank_account' => 'Bankverbindung erfolgreich aktualisiert',
+    'edit_bank_account' => 'Bankverbindung Bearbeiten',
+    'archive_bank_account' => 'Bankverbindung Archivieren',
+    'archived_bank_account' => 'Bankverbindung erfolgreich archiviert',
+    'created_bank_account' => 'Bankverbindung erfolgreich erstellt',
+    'validate_bank_account' => 'Bankverbindung bestätigen',
+    'bank_accounts_help' => 'Fügen Sie eine Bankverbindung hinzu, um Ausgaben automatisch zu importieren und Lieferanten zu erstellen. Unterstützt American Express und <a href="'.OFX_HOME_URL.'" target="_blank">400+ US-Banken.</a>',
+    'bank_password_help' => 'Info: Ihr Passwort wird sicher übertragen und zu keiner Zeit auf unseren Servern gespeichert.',
+    'bank_password_warning' => 'Warnung: Ihr Passwort könnte in Klartext übertragen werden, wir empfehlen Ihnen HTTPS zu verwenden.',
+    'username' => 'Benutzername',
+    'account_number' => 'Account Number',  // bank account??
+    'account_name' => 'Account Name', // bank account??
+    'bank_account_error' => 'Failed to retreive account details, please check your credentials.',
+    'status_approved' => 'Approved',
+    'quote_settings' => 'Quote Settings',
+    'auto_convert_quote' => 'Auto convert quote',
+    'auto_convert_quote_help' => 'Automatically convert a quote to an invoice when approved by a client.',
+    'validate' => 'Validate',
+    'info' => 'Info',
+    'imported_expenses' => 'Successfully created :count_vendors vendor(s) and :count_expenses expense(s)',
+
+    'iframe_url_help3' => 'Note: if you plan on accepting credit cards details we strongly recommend enabling HTTPS on your site.',
+    'expense_error_multiple_currencies' => 'The expenses can\'t have different currencies.',
+    'expense_error_mismatch_currencies' => 'The client\'s currency does not match the expense currency.',
+    'trello_roadmap' => 'Trello Roadmap',
+    'header_footer' => 'Header/Footer',
+    'first_page' => 'Erste Seite',
+    'all_pages' => 'Alle Seiten',
+    'last_page' => 'Letzte Seite',
+    'all_pages_header' => 'Show header on',
+    'all_pages_footer' => 'Show footer on',
+    'invoice_currency' => 'Rechnungs-Währung',
+    'enable_https' => 'Wir empfehlen dringend HTTPS zu verwendne, um Kreditkarten online zu akzeptieren.',
+    'quote_issued_to' => 'Quote issued to',
+    'show_currency_code' => 'Währungscode',
+    'trial_message' => 'Your account will receive a free two week trial of our pro plan.',
+    'trial_footer' => 'Your free trial lasts :count more days, :link to upgrade now.',
+    'trial_footer_last_day' => 'Heute ist der letzte Tag Ihrer kostenlosen Probezeit, :link um upzugraden.',
+    'trial_call_to_action' => 'Kostenlose Probezeit starten',
+    'trial_success' => 'Successfully enabled two week free pro plan trial',
+    'overdue' => 'Overdue',
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
+
 );

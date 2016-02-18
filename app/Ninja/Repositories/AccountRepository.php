@@ -75,26 +75,26 @@ class AccountRepository
             ->where('clients.deleted_at', '=', null)
             ->where('clients.account_id', '=', \Auth::user()->account_id)
             ->whereRaw("clients.name <> ''")
-            ->select(\DB::raw("'Clients' as type, clients.public_id, clients.name, '' as token"));
+            ->select(\DB::raw("'clients' as type, '" . trans('texts.clients') . "' as trans_type, clients.public_id, clients.name, '' as token"));
 
         $contacts = \DB::table('clients')
             ->join('contacts', 'contacts.client_id', '=', 'clients.id')
             ->where('clients.deleted_at', '=', null)
             ->where('clients.account_id', '=', \Auth::user()->account_id)
             ->whereRaw("CONCAT(contacts.first_name, contacts.last_name, contacts.email) <> ''")
-            ->select(\DB::raw("'Contacts' as type, clients.public_id, CONCAT(contacts.first_name, ' ', contacts.last_name, ' ', contacts.email) as name, '' as token"));
+            ->select(\DB::raw("'clients' as type, '" . trans('texts.contacts') . "' as trans_type, clients.public_id, CONCAT(contacts.first_name, ' ', contacts.last_name, ' ', contacts.email) as name, '' as token"));
 
         $invoices = \DB::table('clients')
             ->join('invoices', 'invoices.client_id', '=', 'clients.id')
             ->where('clients.account_id', '=', \Auth::user()->account_id)
             ->where('clients.deleted_at', '=', null)
             ->where('invoices.deleted_at', '=', null)
-            ->select(\DB::raw("'Invoices' as type, invoices.public_id, CONCAT(invoices.invoice_number, ': ', clients.name) as name, invoices.invoice_number as token"));
+            ->select(\DB::raw("'invoices' as type, '" . trans('texts.invoices') . "' as trans_type, invoices.public_id, CONCAT(invoices.invoice_number, ': ', clients.name) as name, invoices.invoice_number as token"));
 
         $data = [];
 
         foreach ($clients->union($contacts)->union($invoices)->get() as $row) {
-            $type = $row->type;
+            $type = $row->trans_type;
 
             if (!isset($data[$type])) {
                 $data[$type] = [];
@@ -111,6 +111,7 @@ class AccountRepository
                 'value' => $row->name,
                 'public_id' => $row->public_id,
                 'tokens' => $tokens,
+                'entity_type' => $row->type,
             ];
         }
 
@@ -119,7 +120,7 @@ class AccountRepository
 
     public function enableProPlan()
     {
-        if (Auth::user()->isPro()) {
+        if (Auth::user()->isPro() && ! Auth::user()->isTrial()) {
             return false;
         }
         
@@ -141,7 +142,7 @@ class AccountRepository
         $invoice->public_id = $publicId;
         $invoice->client_id = $client->id;
         $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
-        $invoice->invoice_date = date_create()->format('Y-m-d');
+        $invoice->invoice_date = Auth::user()->account->getRenewalDate();
         $invoice->amount = PRO_PLAN_PRICE;
         $invoice->balance = PRO_PLAN_PRICE;
         $invoice->save();
@@ -266,6 +267,8 @@ class AccountRepository
             $user->first_name = $firstName;
             $user->last_name = $lastName;
             $user->registered = true;
+
+            $user->account->startTrial();
         }
 
         $user->oauth_provider_id = $providerId;
@@ -515,5 +518,11 @@ class AccountRepository
         $userAccount = $this->findUserAccounts($user->id);
 
         return $userAccount ? $userAccount->id : false;
+    }
+
+    public function save($data, $account)
+    {
+        $account->fill($data);
+        $account->save();
     }
 }

@@ -58,6 +58,10 @@ class Utils
 
     public static function isNinjaProd()
     {
+        if (Utils::isReseller()) {
+            return true;
+        }
+
         return isset($_ENV['NINJA_PROD']) && $_ENV['NINJA_PROD'] == 'true';
     }
 
@@ -68,7 +72,21 @@ class Utils
 
     public static function requireHTTPS()
     {
+        if (Request::root() === 'http://ninja.dev') {
+            return false;
+        }
+
         return Utils::isNinjaProd() || (isset($_ENV['REQUIRE_HTTPS']) && $_ENV['REQUIRE_HTTPS'] == 'true');
+    }
+
+    public static function isReseller()
+    {
+        return Utils::getResllerType() ? true : false;
+    }
+
+    public static function getResllerType()
+    {
+        return isset($_ENV['RESELLER_TYPE']) ? $_ENV['RESELLER_TYPE'] : false;
     }
 
     public static function isOAuthEnabled()
@@ -98,6 +116,11 @@ class Utils
     public static function isPro()
     {
         return Auth::check() && Auth::user()->isPro();
+    }
+
+    public static function isTrial()
+    {
+        return Auth::check() && Auth::user()->isTrial();
     }
 
     public static function isEnglish()
@@ -142,7 +165,7 @@ class Utils
         $history = Session::get(RECENTLY_VIEWED);
         $last = $history[0];
         $penultimate = count($history) > 1 ? $history[1] : $last;
-        
+
         return Request::url() == $last->url ? $penultimate->url : $last->url;
     }
 
@@ -210,7 +233,7 @@ class Utils
 
         $count = Session::get('error_count', 0);
         Session::put('error_count', ++$count);
-        if ($count > 100) {
+        if ($count > 200) {
             return 'logged';
         }
 
@@ -254,11 +277,11 @@ class Utils
         $data = Cache::get($type)->filter(function($item) use ($id) {
             return $item->id == $id;
         });
-        
+
         return $data->first();
     }
 
-    public static function formatMoney($value, $currencyId = false, $countryId = false, $hideSymbol = false)
+    public static function formatMoney($value, $currencyId = false, $countryId = false, $showCode = false)
     {
         if (!$value) {
             $value = 0;
@@ -292,9 +315,7 @@ class Utils
         $value = number_format($value, $currency->precision, $decimal, $thousand);
         $symbol = $currency->symbol;
 
-        if ($hideSymbol) {
-            return $value;
-        } elseif (!$symbol) {
+        if ($showCode || !$symbol) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
             return "{$value} " . trim($symbol);
@@ -309,6 +330,39 @@ class Utils
         $string = trans("texts.$field", ['count' => $count]);
 
         return $string;
+    }
+
+    public static function maskAccountNumber($value)
+    {
+        $length = strlen($value);
+        if ($length < 4) {
+            str_repeat('*', 16);
+        }
+
+        $lastDigits = substr($value, -4);
+        return str_repeat('*', $length - 4) . $lastDigits;
+    }
+
+    // http://wephp.co/detect-credit-card-type-php/
+    public static function getCardType($number)
+    {
+        $number = preg_replace('/[^\d]/', '', $number);
+
+        if (preg_match('/^3[47][0-9]{13}$/', $number)) {
+            return 'American Express';
+        } elseif (preg_match('/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/', $number)) {
+            return 'Diners Club';
+        } elseif (preg_match('/^6(?:011|5[0-9][0-9])[0-9]{12}$/', $number)) {
+            return 'Discover';
+        } elseif (preg_match('/^(?:2131|1800|35\d{3})\d{11}$/', $number)) {
+            return 'JCB';
+        } elseif (preg_match('/^5[1-5][0-9]{14}$/', $number)) {
+            return 'MasterCard';
+        } elseif (preg_match('/^4[0-9]{12}(?:[0-9]{3})?$/', $number)) {
+            return 'Visa';
+        } else {
+            return 'Unknown';
+        }
     }
 
     public static function toArray($data)
@@ -352,7 +406,7 @@ class Utils
         if (!$date) {
             return false;
         }
-        
+
         $dateTime = new DateTime($date);
         $timestamp = $dateTime->getTimestamp();
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
@@ -400,7 +454,10 @@ class Utils
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat('Y-m-d', $date);
 
-        return $formatResult ? $dateTime->format($format) : $dateTime;
+        if(!$dateTime)
+            return $date;
+        else
+            return $formatResult ? $dateTime->format($format) : $dateTime;
     }
 
     public static function fromSqlDateTime($date, $formatResult = true)
@@ -476,7 +533,7 @@ class Utils
         }
 
         array_unshift($data, $object);
-        
+
         if (isset($counts[Auth::user()->account_id]) && $counts[Auth::user()->account_id] > RECENTLY_VIEWED_LIMIT) {
             array_pop($data);
         }
@@ -585,6 +642,17 @@ class Utils
         }
     }
 
+    public static function getVendorDisplayName($model)
+    {
+        if(is_null($model))
+            return '';
+
+        if($model->vendor_name)
+            return $model->vendor_name;
+
+        return 'No vendor name';
+    }
+
     public static function getPersonDisplayName($firstName, $lastName, $email)
     {
         if ($firstName || $lastName) {
@@ -616,6 +684,8 @@ class Utils
             return EVENT_CREATE_QUOTE;
         } elseif ($eventName == 'create_payment') {
             return EVENT_CREATE_PAYMENT;
+        } elseif ($eventName == 'create_vendor') {
+            return EVENT_CREATE_VENDOR;
         } else {
             return false;
         }
@@ -624,7 +694,7 @@ class Utils
     public static function notifyZapier($subscription, $data)
     {
         $curl = curl_init();
-        $jsonEncodedData = json_encode($data->toPublicArray());
+        $jsonEncodedData = json_encode($data);
 
         $opts = [
             CURLOPT_URL => $subscription->target_url,
@@ -645,37 +715,6 @@ class Utils
         if ($status == 410) {
             $subscription->delete();
         }
-    }
-
-    public static function hideIds($data, $mapped = false)
-    {
-        $publicId = null;
-
-        if (!$mapped) {
-            $mapped = [];
-        }
-
-        foreach ($data as $key => $val) {
-            if (is_array($val)) {
-                if ($key == 'account' || isset($mapped[$key])) {
-                    // do nothing
-                } else {
-                    $mapped[$key] = true;
-                    $data[$key] = Utils::hideIds($val, $mapped);
-                }
-            } elseif ($key == 'id' || strpos($key, '_id')) {
-                if ($key == 'public_id') {
-                    $publicId = $val;
-                }
-                unset($data[$key]);
-            }
-        }
-
-        if ($publicId) {
-            $data['id'] = $publicId;
-        }
-        
-        return $data;
     }
 
     public static function getApiHeaders($count = 0)
@@ -720,7 +759,7 @@ class Utils
                 $str .= 'ENTITY_DELETED ';
             }
         }
-        
+
         if ($model->deleted_at && $model->deleted_at != '0000-00-00') {
             $str .= 'ENTITY_ARCHIVED ';
         }
@@ -740,7 +779,7 @@ class Utils
 
         fwrite($output, "\n");
     }
-    
+
     public static function getFirst($values)
     {
         if (is_array($values)) {
@@ -900,12 +939,31 @@ class Utils
         return $interval->y == 0;
     }
 
+    public static function getInterval($date)
+    {
+        if (!$date || $date == '0000-00-00') {
+            return false;
+        }
+
+        $today = new DateTime('now');
+        $datePaid = DateTime::createFromFormat('Y-m-d', $date);
+
+        return $today->diff($datePaid);
+    }
+
+    public static function withinPastTwoWeeks($date)
+    {
+        $interval = Utils::getInterval($date);
+
+        return $interval && $interval->d <= 14;
+    }
+
     public static function addHttp($url)
     {
         if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
             $url = "http://" . $url;
         }
-        
+
         return $url;
     }
 }
