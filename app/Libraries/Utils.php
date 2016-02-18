@@ -62,12 +62,12 @@ class Utils
             return true;
         }
 
-        return isset($_ENV['NINJA_PROD']) && $_ENV['NINJA_PROD'] == 'true';
+        return env('NINJA_PROD') == 'true';
     }
 
     public static function isNinjaDev()
     {
-        return isset($_ENV['NINJA_DEV']) && $_ENV['NINJA_DEV'] == 'true';
+        return env('NINJA_DEV') == 'true';
     }
 
     public static function requireHTTPS()
