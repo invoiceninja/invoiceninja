@@ -27,6 +27,7 @@ before_install:
   # set GitHub token and update composer
   - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
   - composer self-update && composer -V
+  - sudo apt-get install -y phantomjs screen
 
 install:
   # install Composer dependencies
@@ -53,7 +54,8 @@ before_script:
   # Start webserver on ninja.dev:8000
   - php artisan serve --host=ninja.dev --port=8000 & # '&' allows to run in background
   # Start PhantomJS
-  - phantomjs --webdriver=4444 & # '&' allows to run in background
+  #- phantomjs --webdriver=4444 & # '&' allows to run in background
+  - screen -S server -d -m phantomjs --webdriver=4444
   # Give it some time to start
   - sleep 5
   # Make sure the app is up-to-date

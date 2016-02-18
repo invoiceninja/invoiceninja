@@ -10,10 +10,9 @@ modules:
         - WebDriver:
             url: 'http://ninja.dev:8000'
             host: 127.0.0.1
-            http_proxy: direct
             window_size: 1024x768
             wait: 5
-            browser: firefox
+            browser: phantomjs
             capabilities:
                 unexpectedAlertBehaviour: 'accept'
                 webStorageEnabled: true
