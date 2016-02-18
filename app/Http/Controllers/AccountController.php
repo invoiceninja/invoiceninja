@@ -117,13 +117,7 @@ class AccountController extends BaseController
     {
         Session::put("show_trash:{$entityType}", $visible == 'true');
 
-        if ($entityType == 'user') {
-            return Redirect::to('settings/'.ACCOUNT_USER_MANAGEMENT);
-        } elseif ($entityType == 'token') {
-            return Redirect::to('settings/'.ACCOUNT_API_TOKENS);
-        } else {
-            return Redirect::to("{$entityType}s");
-        }
+        return RESULT_SUCCESS;
     }
 
     public function getSearchData()
