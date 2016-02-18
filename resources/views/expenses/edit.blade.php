@@ -160,7 +160,7 @@
             }
             $vendorSelect.combobox();
 
-            $('#expense_date').datepicker('update', new Date());
+            $('#expense_date').datepicker('update', '{{ $expense ? $expense->expense_date : 'new Date()' }}');
 
             $('.expense_date .input-group-addon').click(function() {
                 toggleDatePicker('expense_date');
