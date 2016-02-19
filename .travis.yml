@@ -78,6 +78,7 @@ script:
   #- php ./vendor/codeception/codeception/codecept run--debug acceptance GoProCest.php
 
 after_script:
+  - cat tests/_output/*
   - cat storage/logs/laravel.log
 
 notifications:
