@@ -64,21 +64,20 @@ before_script:
 
 script:
   #- php ./vendor/codeception/codeception/codecept run --html --debug
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
-  #- php ./vendor/codeception/codeception/codecept run acceptance OnlinePaymentCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
+  - php ./vendor/codeception/codeception/codecept run acceptance OnlinePaymentCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
   #- php ./vendor/codeception/codeception/codecept run--debug acceptance GoProCest.php
 
 after_script:
-  - cat tests/_output/*
   - cat storage/logs/laravel.log
 
 notifications:
