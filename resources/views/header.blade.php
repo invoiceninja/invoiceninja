@@ -260,8 +260,9 @@
 
   function showSearch() {
     $('#search').typeahead('setQuery', '');
-    $('#search-form').show();
     $('#navbar-options').hide();
+    $('#search-form').show();
+
     if (window.hasOwnProperty('searchData')) {
         $('#search').focus();
     } else {
@@ -299,7 +300,7 @@
         $(".alert-hide").fadeOut();
     }, 3000);
 
-    $('#search').blur(function(){
+    $('#search').blur(function(event){
         hideSearch();
     });
 
@@ -354,6 +355,7 @@
     // Focus the search input if the user clicks forward slash
     $('body').keypress(function(event) {
         if (event.which == 47) {
+            event.preventDefault();
             showSearch();
         }
     });
