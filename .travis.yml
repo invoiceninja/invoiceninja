@@ -79,7 +79,12 @@ script:
   - php ./vendor/codeception/codeception/codecept run acceptance GoProCest.php
 
 after_script:
+  - cat .env
+  - mysql -u root -e 'select * from accounts;' ninja
   - mysql -u root -e 'select * from account_gateways;' ninja
+  - mysql -u root -e 'select * from clients;' ninja
+  - mysql -u root -e 'select * from invoices;' ninja
+  - mysql -u root -e 'select * from invoice_items;' ninja
   - cat storage/logs/laravel.log
 
 notifications:
