@@ -63,7 +63,7 @@ before_script:
   - curl -L http://ninja.dev:8000/update
 
 script:
-  #- php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
+  - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
@@ -75,8 +75,8 @@ script:
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
 
-  - sed -i 's/NINJA_DEV=true/NINJA_PROD=true/g' .env
-  - php ./vendor/codeception/codeception/codecept run acceptance GoProCest.php
+  #- sed -i 's/NINJA_DEV=true/NINJA_PROD=true/g' .env
+  #- php ./vendor/codeception/codeception/codecept run acceptance GoProCest.php
 
 after_script:
   - cat .env

@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\SendRenewalInvoices',
         'App\Console\Commands\SendReminders',
         'App\Console\Commands\TestOFX',
+        'App\Console\Commands\GenerateResources',
     ];
 
     /**
