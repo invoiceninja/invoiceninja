@@ -268,6 +268,7 @@
     } else {
         trackEvent('/activity', '/search');
         $.get('{{ URL::route('getSearchData') }}', function(data) {
+          console.log(data);
           window.searchData = true;
           var datasets = [];
           for (var type in data)
@@ -283,8 +284,7 @@
             return;
           }
           $('#search').typeahead(datasets).on('typeahead:selected', function(element, datum, name) {
-            var type = name == 'Contacts' ? 'clients' : name.toLowerCase();
-            window.location = '{{ URL::to('/') }}' + '/' + datum.entity_type + '/' + datum.public_id;
+            window.location = datum.url;
           }).focus().typeahead('setQuery', $('#search').val());
         });
     }

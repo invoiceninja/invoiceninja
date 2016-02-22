@@ -5,6 +5,7 @@ use Request;
 use Session;
 use Utils;
 use DB;
+use URL;
 use stdClass;
 use Validator;
 use Schema;
@@ -71,6 +72,16 @@ class AccountRepository
 
     public function getSearchData()
     {
+        $data = $this->getAccountSearchData();
+
+        $type = trans('texts.navigation');
+        $data[$type] = $this->getNavigationSearchData();
+
+        return $data;
+    }
+
+    private function getAccountSearchData()
+    {
         $clients = \DB::table('clients')
             ->where('clients.deleted_at', '=', null)
             ->where('clients.account_id', '=', \Auth::user()->account_id)
@@ -109,9 +120,56 @@ class AccountRepository
 
             $data[$type][] = [
                 'value' => $row->name,
-                'public_id' => $row->public_id,
                 'tokens' => $tokens,
-                'entity_type' => $row->type,
+                'url' => URL::to("/{$row->type}/{$row->public_id}"),
+            ];
+        }
+
+        return $data;
+    }
+
+    private function getNavigationSearchData()
+    {
+        $features = [
+            ['dashboard', '/dashboard'],
+            ['customize_design', '/settings/customize_design'],
+        ];
+
+        $entityTypes = [
+            ENTITY_INVOICE,
+            ENTITY_CLIENT,
+            ENTITY_QUOTE,
+            ENTITY_TASK,
+            ENTITY_EXPENSE,
+            ENTITY_RECURRING_INVOICE,
+            ENTITY_PAYMENT,
+            ENTITY_CREDIT
+        ];
+
+        foreach ($entityTypes as $entityType) {
+            $features[] = [
+                "new_{$entityType}",
+                "/{$entityType}s/create",
+            ];
+            $features[] = [
+                "list_{$entityType}s",
+                "/{$entityType}s",
+            ];
+        }
+
+        $settings = array_merge(Account::$basicSettings, Account::$advancedSettings);
+
+        foreach ($settings as $setting) {
+            $features[] = [
+                $setting,
+                "/settings/{$setting}",
+            ];
+        }
+
+        foreach ($features as $feature) {
+            $data[] = [
+                'value' => trans('texts.' . $feature[0]),
+                'url' => URL::to($feature[1])
             ];
         }
 
