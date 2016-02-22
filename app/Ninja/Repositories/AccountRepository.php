@@ -124,13 +124,14 @@ class AccountRepository
             return false;
         }
         
-        $client = $this->getNinjaClient(Auth::user()->account);
-        $invitation = $this->createNinjaInvoice($client);
+        $account = Auth::user()->account;
+        $client = $this->getNinjaClient($account);
+        $invitation = $this->createNinjaInvoice($client, $account);
 
         return $invitation;
     }
 
-    public function createNinjaInvoice($client)
+    public function createNinjaInvoice($client, $account)
     {
         $account = $this->getNinjaAccount();
         $lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
@@ -142,7 +143,7 @@ class AccountRepository
         $invoice->public_id = $publicId;
         $invoice->client_id = $client->id;
         $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
-        $invoice->invoice_date = Auth::user()->account->getRenewalDate();
+        $invoice->invoice_date = $account->getRenewalDate();
         $invoice->amount = PRO_PLAN_PRICE;
         $invoice->balance = PRO_PLAN_PRICE;
         $invoice->save();

@@ -47,7 +47,7 @@ class SendRenewalInvoices extends Command
             }
 
             $client = $this->accountRepo->getNinjaClient($account);
-            $invitation = $this->accountRepo->createNinjaInvoice($client);
+            $invitation = $this->accountRepo->createNinjaInvoice($client, $account);
 
             // set the due date to 10 days from now
             $invoice = $invitation->invoice;
