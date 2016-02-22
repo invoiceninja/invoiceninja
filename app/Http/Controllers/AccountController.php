@@ -117,13 +117,7 @@ class AccountController extends BaseController
     {
         Session::put("show_trash:{$entityType}", $visible == 'true');
 
-        if ($entityType == 'user') {
-            return Redirect::to('settings/'.ACCOUNT_USER_MANAGEMENT);
-        } elseif ($entityType == 'token') {
-            return Redirect::to('settings/'.ACCOUNT_API_TOKENS);
-        } else {
-            return Redirect::to("{$entityType}s");
-        }
+        return RESULT_SUCCESS;
     }
 
     public function getSearchData()
@@ -958,7 +952,13 @@ class AccountController extends BaseController
                 'text' => $reason,
             ];
 
-            $this->userMailer->sendTo(CONTACT_EMAIL, $email, $name, 'Invoice Ninja Feedback [Canceled Account]', 'contact', $data);
+            $subject = 'Invoice Ninja - Canceled Account';
+
+            if (Auth::user()->isPaidPro()) {
+                $subject .= ' [PRO]';
+            }
+
+            $this->userMailer->sendTo(CONTACT_EMAIL, $email, $name, $subject, 'contact', $data);
         }
 
         $user = Auth::user();

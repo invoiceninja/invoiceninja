@@ -162,6 +162,27 @@ class PublicClientController extends BaseController
         return $paymentTypes;
     }
 
+    public function download($invitationKey)
+    {
+        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return response()->view('error', [
+                'error' => trans('texts.invoice_not_found'),
+                'hideHeader' => true,
+            ]);
+        }
+
+        $invoice = $invitation->invoice;
+        $pdfString = $invoice->getPDFString();
+
+        header('Content-Type: application/pdf');
+        header('Content-Length: ' . strlen($pdfString));
+        header('Content-disposition: attachment; filename="' . $invoice->getFileName() . '"');
+        header('Cache-Control: public, must-revalidate, max-age=0');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+
+        return $pdfString;
+    }
+
     public function dashboard()
     {
         if (!$invitation = $this->getInvitation()) {

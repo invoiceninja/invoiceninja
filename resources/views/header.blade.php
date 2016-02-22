@@ -259,8 +259,10 @@
   }
 
   function showSearch() {
-    $('#search-form').show();
+    $('#search').typeahead('setQuery', '');
     $('#navbar-options').hide();
+    $('#search-form').show();
+
     if (window.hasOwnProperty('searchData')) {
         $('#search').focus();
     } else {
@@ -289,7 +291,6 @@
   }
 
   function hideSearch() {
-    $('#search').typeahead('setQuery', '');
     $('#search-form').hide();
     $('#navbar-options').show();
   }
@@ -299,7 +300,7 @@
         $(".alert-hide").fadeOut();
     }, 3000);
 
-    $('#search').blur(function(){
+    $('#search').blur(function(event){
         hideSearch();
     });
 
@@ -331,7 +332,7 @@
       showSignUp();
     @endif
 
-    $('ul.navbar-settings, ul.navbar-history').hover(function () {
+    $('ul.navbar-settings, ul.navbar-search').hover(function () {
         if ($('.user-accounts').css('display') == 'block') {
             $('.user-accounts').dropdown('toggle');
         }
@@ -350,6 +351,14 @@
             setSignupEnabled(this.checked);
         });
     @endif
+
+    // Focus the search input if the user clicks forward slash
+    $('body').keypress(function(event) {
+        if (event.which == 47) {
+            event.preventDefault();
+            showSearch();
+        }
+    });
 
   });
 
@@ -396,7 +405,7 @@
 
         <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-            <div id="myAccountButton" class="ellipsis" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '100' : '70' }}px">
+            <div id="myAccountButton" class="ellipsis" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '130' : '100' }}px">
                 @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
                     {{ Auth::user()->account->getDisplayName() }}
                 @else
@@ -466,10 +475,10 @@
       </ul>
 
 
-      <ul class="nav navbar-nav navbar-right navbar-history"> 
+      <ul class="nav navbar-nav navbar-right navbar-search"> 
         <li class="dropdown">
-          <a href="{{ Utils::getLastURL() }}" class="dropdown-toggle">
-            <span class="glyphicon glyphicon-time" title="{{ trans('texts.history') }}"/>
+          <a href="#" onclick="showSearch()">
+            <span class="glyphicon glyphicon-search" title="{{ trans('texts.search') }}"/>
           </a>
           <ul class="dropdown-menu">	        		        	
             @if (count(Session::get(RECENTLY_VIEWED)) == 0)
@@ -484,19 +493,11 @@
           </ul>
         </li>
       </ul>
-
-      <ul class="nav navbar-nav navbar-right navbar-settings"> 
-        <li class="dropdown">
-          <a href="#" onclick="showSearch()">
-            <span class="glyphicon glyphicon-search" title="{{ trans('texts.search') }}"/>
-          </a>
-        </li>
-      </ul>
       </div>
 
       <form id="search-form" class="navbar-form navbar-right" role="search" style="display:none">
         <div class="form-group">
-          <input type="text" id="search" style="width: 300px;padding-top:0px;padding-bottom:0px" 
+          <input type="text" id="search" style="width: 240px;padding-top:0px;padding-bottom:0px" 
             class="form-control" placeholder="{{ trans('texts.search') }}">
         </div>
       </form>

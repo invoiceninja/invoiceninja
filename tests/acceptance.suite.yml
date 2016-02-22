@@ -8,16 +8,15 @@ class_name: AcceptanceTester
 modules:
     enabled:
         - WebDriver:
-            url: 'http://ninja.dev/'
-            host: 127.0.0.1
+            url: 'http://ninja.dev:8000/'
             window_size: 1024x768
             wait: 5
-            browser: phantomjs
+            browser: firefox
             capabilities:
                 unexpectedAlertBehaviour: 'accept'
                 webStorageEnabled: true
         - Db:
-            dsn: 'mysql:dbname=ninja;host=localhost;'
+            dsn: 'mysql:dbname=ninja;host=127.0.0.1;'
             user: 'ninja'
             password: 'ninja'
             dump: tests/_data/dump.sql

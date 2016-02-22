@@ -59,40 +59,50 @@
                             ->data_bind('combobox: client_id')
                             ->addGroupClass('client-select') !!}
 
-                    @if (!$expense || ($expense && !$expense->invoice_id))
+                    @if (!$expense || ($expense && !$expense->invoice_id && !$expense->client_id))
                         {!! Former::checkbox('should_be_invoiced')
                                 ->text(trans('texts.should_be_invoiced'))
                                 ->data_bind('checked: should_be_invoiced() || client_id(), enable: !client_id()')
-                                ->label(' ') !!}<br/>
+                                ->label(' ') !!}
                     @endif
 
-                    <span style="display:none" data-bind="visible: !client_id()">
-                        {!! Former::select('invoice_currency_id')->addOption('','')
-                                ->label(trans('texts.invoice_currency'))
-                                ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->name)
-                                ->data_bind('combobox: invoice_currency_id, disable: true')
-                                ->fromQuery($currencies, 'name', 'id') !!}
-                    </span>
-                    <span style="display:none;" data-bind="visible: client_id">
-                        {!! Former::plaintext('test')
-                                ->value('<span data-bind="html: invoiceCurrencyName"></span>')
-                                ->style('min-height:46px')
-                                ->label(trans('texts.invoice_currency')) !!}
-                    </span>
+                    @if (!$expense || ($expense && ! $expense->isExchanged()))
+                        {!! Former::checkbox('convert_currency')
+                                ->text(trans('texts.convert_currency'))
+                                ->data_bind('checked: convert_currency')
+                                ->label(' ') !!}
+                    @endif
+                    <br/>
 
-                    {!! Former::text('exchange_rate')
-                            ->data_bind("value: exchange_rate, enable: enableExchangeRate, valueUpdate: 'afterkeydown'") !!}
+                    <div style="display:none" data-bind="visible: enableExchangeRate">
+                        <span style="display:none" data-bind="visible: !client_id()">
+                            {!! Former::select('invoice_currency_id')->addOption('','')
+                                    ->label(trans('texts.invoice_currency'))
+                                    ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->name)
+                                    ->data_bind('combobox: invoice_currency_id, disable: true')
+                                    ->fromQuery($currencies, 'name', 'id') !!}
+                        </span>
+                        <span style="display:none;" data-bind="visible: client_id">
+                            {!! Former::plaintext('test')
+                                    ->value('<span data-bind="html: invoiceCurrencyName"></span>')
+                                    ->style('min-height:46px')
+                                    ->label(trans('texts.invoice_currency')) !!}
+                        </span>
 
-                    {!! Former::text('invoice_amount')
-                            ->addGroupClass('converted-amount')
-                            ->data_bind("value: convertedAmount, enable: enableExchangeRate")
-                            ->append('<span data-bind="html: invoiceCurrencyCode"></span>') !!}
+                        {!! Former::text('exchange_rate')
+                                ->data_bind("value: exchange_rate, enable: enableExchangeRate, valueUpdate: 'afterkeydown'") !!}
 
+                        {!! Former::text('invoice_amount')
+                                ->addGroupClass('converted-amount')
+                                ->data_bind("value: convertedAmount, enable: enableExchangeRate")
+                                ->append('<span data-bind="html: invoiceCurrencyCode"></span>') !!}
+                    </div>
 	            </div>
                 <div class="col-md-6">
 
-                    {!! Former::textarea('public_notes')->style('height:255px') !!}
-                    {!! Former::textarea('private_notes')->style('height:255px') !!}
+                    {!! Former::textarea('public_notes')->rows(8) !!}
+                    {!! Former::textarea('private_notes')->rows(8) !!}
+
                 </div>
             </div>
         </div>
@@ -150,7 +160,7 @@
             }
             $vendorSelect.combobox();
 
-            $('#expense_date').datepicker('update', new Date());
+            $('#expense_date').datepicker('update', '{{ $expense ? $expense->expense_date : 'new Date()' }}');
 
             $('.expense_date .input-group-addon').click(function() {
                 toggleDatePicker('expense_date');
@@ -194,6 +204,7 @@
             self.amount = ko.observable();
             self.exchange_rate = ko.observable(1);
             self.should_be_invoiced = ko.observable();
+            self.convert_currency = ko.observable(false);
 
             if (data) {
                 ko.mapping.fromJS(data, {}, this);
@@ -230,9 +241,14 @@
             });
 
             self.enableExchangeRate = ko.computed(function() {
+                if (self.convert_currency()) {
+                    return true;
+                }
                 var expenseCurrencyId = self.expense_currency_id() || self.account_currency_id();
                 var invoiceCurrencyId = self.invoice_currency_id() || self.account_currency_id();
-                return expenseCurrencyId != invoiceCurrencyId;
+                return expenseCurrencyId != invoiceCurrencyId 
+                    || invoiceCurrencyId != self.account_currency_id()
+                    || expenseCurrencyId != self.account_currency_id();
             })
         };
 

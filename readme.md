@@ -5,15 +5,12 @@
 # Invoice Ninja
 ### [https://www.invoiceninja.com](https://www.invoiceninja.com)
 
+[![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=develop)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-### Referral Program
-* $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
-
-### Reseller Program
-There are two options:
-* 10% of revenue
-* $1,000 for a site limited to 1,000 users
+### Affiliates Programs
+* Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
+* White-label reseller (you pay us): 10% of revenue with a $100 sign up fee
 
 ### Installation Options
 * [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
@@ -25,6 +22,10 @@ There are two options:
 * PHP >= 5.4.0
 * MCrypt PHP Extension
 * MySQL
+
+### Recommended Providers
+* [Stripe](https://stripe.com/)
+* [Postmark](https://postmarkapp.com/)
 
 ### Features
 * Built using Laravel 5
@@ -40,10 +41,6 @@ There are two options:
 * Client portal
 * Custom email templates
 * [D3.js](http://d3js.org/) visualizations
-
-### Recommended Providers
-* [Stripe](https://stripe.com/)
-* [Postmark](https://postmarkapp.com/)
 
 ### Documentation
 * [Ubuntu and Apache](http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/)

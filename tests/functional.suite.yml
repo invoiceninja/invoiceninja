@@ -9,7 +9,7 @@ modules:
     enabled:
         - \Helper\Functional
         - PhpBrowser:
-            url: 'http://ninja.dev'
+            url: 'http://ninja.dev:8000'
             curl:
                CURLOPT_RETURNTRANSFER: true
         - Laravel5:

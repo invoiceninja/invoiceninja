@@ -41,6 +41,7 @@ class DatatableService
     private function createDropdown($entityType, $table, $actions)
     {
         $table->addColumn('dropdown', function ($model) use ($entityType, $actions) {
+            $hasAction = false;
             $str = '<center style="min-width:100px">';
 
             if (property_exists($model, 'is_deleted') && $model->is_deleted) {
@@ -70,11 +71,16 @@ class DatatableService
                         if ($visible($model)) {
                             $str .= "<li><a href=\"{$url($model)}\">{$value}</a></li>";
                             $lastIsDivider = false;
+                            $hasAction = true;
                         }
                     } elseif ( ! $lastIsDivider) {
                         $str .= "<li class=\"divider\"></li>";
                         $lastIsDivider = true;
                     }
+                }
+
+                if ( ! $hasAction) {
+                    return '';
                 }
 
                 if ( ! $lastIsDivider) {

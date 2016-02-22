@@ -42,8 +42,12 @@
         });
     @endif
 
+    function refreshDatatable() {
+        window.dataTable.api().ajax.reload();
+    }
+
     function load_{{ $class }}() {
-        jQuery('.{{ $class }}').dataTable({
+        window.dataTable = jQuery('.{{ $class }}').dataTable({
             "fnRowCallback": function(row, data) { 
                 if (data[0].indexOf('ENTITY_DELETED') > 0) {
                     $(row).addClass('entityDeleted');

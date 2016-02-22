@@ -101,7 +101,11 @@
 
 	function setTrashVisible() {
 		var checked = $('#trashed').is(':checked');
-		window.location = '{{ URL::to('view_archive/' . $entityType) }}' + (checked ? '/true' : '/false');
+		var url = '{{ URL::to('view_archive/' . $entityType) }}' + (checked ? '/true' : '/false');
+
+        $.get(url, function(data) {
+            refreshDatatable();
+        })
 	}
 
     $(function() {

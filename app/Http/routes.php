@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -37,6 +36,7 @@ Route::post('/get_started', 'AccountController@getStarted');
 
 // Client visible pages
 Route::get('view/{invitation_key}', 'PublicClientController@view');
+Route::get('download/{invitation_key}', 'PublicClientController@download');
 Route::get('view', 'HomeController@viewLogo');
 Route::get('approve/{invitation_key}', 'QuoteController@approve');
 Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
@@ -188,9 +188,6 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('api/payments/{client_id?}', array('as'=>'api.payments', 'uses'=>'PaymentController@getDatatable'));
     Route::post('payments/bulk', 'PaymentController@bulk');
 
-    Route::get('credits/{id}/edit', function() {
-        return View::make('header');
-    });
     Route::resource('credits', 'CreditController');
     Route::get('credits/create/{client_id?}/{invoice_id?}', 'CreditController@create');
     Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));
@@ -236,6 +233,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('products', 'ProductApiController');
     Route::resource('tax_rates', 'TaxRateApiController');
     Route::resource('users', 'UserApiController');
+    Route::resource('expenses','ExpenseApiController');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
@@ -245,6 +243,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 });
 
 // Redirects for legacy links
+/*
 Route::get('/rocksteady', function() {
     return Redirect::to(NINJA_WEB_URL, 301);
 });
@@ -272,6 +271,7 @@ Route::get('/compare-online-invoicing{sites?}', function() {
 Route::get('/forgot_password', function() {
     return Redirect::to(NINJA_APP_URL.'/forgot', 301);
 });
+*/
 
 if (!defined('CONTACT_EMAIL')) {
     define('CONTACT_EMAIL', Config::get('mail.from.address'));
@@ -509,7 +509,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.5.0.2');
+    define('NINJA_VERSION', '2.5.0.3');
     define('NINJA_DATE', '2000-01-01');
 
     define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');

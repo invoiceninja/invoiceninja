@@ -1,7 +1,6 @@
 /<?php
 
 use Codeception\Util\Fixtures;
-use \AcceptanceTester;
 use Faker\Factory;
 
 class TaxRatesCest
@@ -75,6 +74,7 @@ class TaxRatesCest
         // check total is right before saving
         $I->see("\${$total}");
         $I->click('Save');
+        $I->wait(1);
         $I->see($clientEmail);
 
         // check total is right after saving

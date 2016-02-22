@@ -1,6 +1,5 @@
 <?php
 
-use \AcceptanceTester;
 use App\Models\Payment;
 use Faker\Factory;
 
