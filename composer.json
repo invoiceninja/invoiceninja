@@ -14,7 +14,7 @@
         "omnipay/2checkout": "dev-master#e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
         "omnipay/gocardless": "dev-master",
         "omnipay/stripe": "2.3.0",
-		"laravel/framework": "5.0.*",
+		"laravel/framework": "5.1.*",
 		"patricktalmadge/bootstrapper": "5.5.x",
 		"anahkiasen/former": "4.0.*@dev",
 		"barryvdh/laravel-debugbar": "~2.0.2",

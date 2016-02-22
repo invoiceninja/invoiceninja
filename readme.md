@@ -9,8 +9,8 @@
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Affiliates Programs
-* Referral: $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
-* Reseller: 10% of revenue
+* Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
+* White-label reseller (you pay us): 10% of revenue with a $100 sign up fee
 
 ### Installation Options
 * [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
@@ -22,6 +22,10 @@
 * PHP >= 5.4.0
 * MCrypt PHP Extension
 * MySQL
+
+### Recommended Providers
+* [Stripe](https://stripe.com/)
+* [Postmark](https://postmarkapp.com/)
 
 ### Features
 * Built using Laravel 5
@@ -37,10 +41,6 @@
 * Client portal
 * Custom email templates
 * [D3.js](http://d3js.org/) visualizations
-
-### Recommended Providers
-* [Stripe](https://stripe.com/)
-* [Postmark](https://postmarkapp.com/)
 
 ### Documentation
 * [Ubuntu and Apache](http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/)

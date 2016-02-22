@@ -273,10 +273,13 @@ class PaymentService extends BaseService
 
         // submit purchase/get response
         $response = $gateway->purchase($details)->send();
-        $ref = $response->getTransactionReference();
-
-        // create payment record
-        return $this->createPayment($invitation, $accountGateway, $ref);
+        
+        if ($response->isSuccessful()) {
+            $ref = $response->getTransactionReference();
+            return $this->createPayment($invitation, $accountGateway, $ref);
+        } else {
+            return false;
+        }
     }
 
     public function getDatatable($clientPublicId, $search)
