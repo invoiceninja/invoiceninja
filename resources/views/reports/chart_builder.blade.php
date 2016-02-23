@@ -54,12 +54,12 @@
                         @endif
 
 
-                    </div>                    
+                    </div>
                     <div class="col-md-6">
-                        {!! Former::checkbox('enable_report')->text(trans('texts.enable')) !!}                
-                        {!! Former::select('report_type')->options($reportTypes, $reportType)->label(trans('texts.group_by')) !!}            
+                        {!! Former::checkbox('enable_report')->text(trans('texts.enable')) !!}
+                        {!! Former::select('report_type')->options($reportTypes, $reportType)->label(trans('texts.type')) !!}
                         <p>&nbsp;</p>
-                        {!! Former::checkbox('enable_chart')->text(trans('texts.enable')) !!}                
+                        {!! Former::checkbox('enable_chart')->text(trans('texts.enable')) !!}
                         {!! Former::select('group_by')->options($dateTypes, $groupBy) !!}
                         {!! Former::select('chart_type')->options($chartTypes, $chartType) !!}
 
@@ -77,56 +77,48 @@
         <thead>                
             <tr>
                 @foreach ($columns as $column)    
-                    <th>
-                        {{ trans("texts.{$column}") }}
-                    </th>
+                    <th>{{ trans("texts.{$column}") }}</th>
                 @endforeach
-            </tr>                
+            </tr>
         </thead>
         <tbody>
             @foreach ($displayData as $record)
                 <tr>
                     @foreach ($record as $field)
-                        <td>
-                            {!! $field !!}
-                        </td>
+                        <td>{!! $field !!}</td>
                     @endforeach
                 </tr>
             @endforeach
         </tbody>
-        <tfoot>
-            <tr>
-                <td><b>{{ trans('texts.totals') }}</b></td>
-                @if ($reportType != ENTITY_CLIENT)
-                    <td></td>
-                    <td></td>
-                @endif
-                <td>
-                    @foreach ($reportTotals['amount'] as $currencyId => $total)
-                        <b>{{ Utils::formatMoney($total, $currencyId) }}</b><br/>
-                    @endforeach
-                </td>
-                @if ($reportType == ENTITY_PAYMENT)
-                    <td></td>
-                @endif
-                <td>
-                    @foreach ($reportTotals['paid'] as $currencyId => $total)
-                        <b>{{ Utils::formatMoney($total, $currencyId) }}</b><br/>
-                    @endforeach
-                </td>
-                @if ($reportType != ENTITY_PAYMENT)
-                <td>
-                    @foreach ($reportTotals['balance'] as $currencyId => $total)
-                        <b>{{ Utils::formatMoney($total, $currencyId) }}</b><br/>
-                    @endforeach
-                </td>
-                @endif
-            </tr>
-        </tfoot>
         </table>
 
+        <p>&nbsp;</p>
+
+        @if (count(array_values($reportTotals)))
+        <table class="table table-striped invoice-table">
+        <thead>
+            <tr>
+                <th>{{ trans("texts.totals") }}</th>
+                @foreach (array_values($reportTotals)[0] as $key => $val)
+                    <th>{{ trans("texts.{$key}") }}</th>
+                @endforeach
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($reportTotals as $currencyId => $val)
+                <tr>
+                    <td>{!! Utils::getFromCache($currencyId, 'currencies')->name !!}</td>
+                    @foreach ($val as $id => $field)
+                        <td>{!! Utils::formatMoney($field, $currencyId) !!}</td>
+                    @endforeach
+                </tr>
+            @endforeach
+        </tbody>
+        </table>
+        @endif
+
         </div>
-        </div>       
+        </div>
         @endif
 
         @if ($enableChart)

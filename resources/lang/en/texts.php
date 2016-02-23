@@ -1038,6 +1038,8 @@ $LANG = array(
     'list_recurring_invoices' => 'List Recurring Invoices',
     'list_payments' => 'List Payments',
     'list_credits' => 'List Credits',
+    'tax_name' => 'Tax Name',
+    
 );
 
 return $LANG;
