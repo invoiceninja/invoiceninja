@@ -122,8 +122,8 @@ $LANG = array(
     'filter' => 'Filter',
     'new_client' => 'New Client',
     'new_invoice' => 'New Invoice',
-    'new_payment' => 'Enter Payment',
-    'new_credit' => 'Enter Credit',
+    'new_payment' => 'New Payment',
+    'new_credit' => 'New Credit',
     'contact' => 'Contact',
     'date_created' => 'Date Created',
     'last_login' => 'Last Login',
@@ -868,7 +868,7 @@ $LANG = array(
     'white_label_purchase_link' => 'Purchase a white label license',
     'expense' => 'Expense',
     'expenses' => 'Expenses',
-    'new_expense' => 'Enter Expense',
+    'new_expense' => 'New Expense',
     'enter_expense' => 'Enter Expense',
     'vendors' => 'Vendors',
     'new_vendor' => 'New Vendor',
@@ -1028,6 +1028,16 @@ $LANG = array(
         'user_unconfirmed' => 'Please confirm your account to send emails',
         'invalid_contact_email' => 'Invalid contact email',
     ],
+
+    'navigation' => 'Navigation',
+    'list_invoices' => 'List Invoices',
+    'list_clients' => 'List Clients',
+    'list_quotes' => 'List Quotes',
+    'list_tasks' => 'List Tasks',
+    'list_expensess' => 'List Expenses',
+    'list_recurring_invoices' => 'List Recurring Invoices',
+    'list_payments' => 'List Payments',
+    'list_credits' => 'List Credits',
 );
 
 return $LANG;

@@ -243,6 +243,7 @@ class AppController extends BaseController
         if (!Utils::isNinjaProd()) {
             try {
                 set_time_limit(60 * 5);
+                Artisan::call('optimize', array('--force' => true));
                 Cache::flush();
                 Session::flush();
                 Artisan::call('migrate', array('--force' => true));
@@ -254,7 +255,6 @@ class AppController extends BaseController
                 ] as $seeder) {
                     Artisan::call('db:seed', array('--force' => true, '--class' => "{$seeder}Seeder"));
                 }
-                Artisan::call('optimize', array('--force' => true));
                 Event::fire(new UserSettingsChanged());
                 Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {

@@ -24,29 +24,49 @@ class SubscriptionListener
 {
     public function createdClient(ClientWasCreated $event)
     {
+        if ( ! Auth::check()) {
+            return;
+        }
+
         $transformer = new ClientTransformer(Auth::user()->account);
         $this->checkSubscriptions(ACTIVITY_TYPE_CREATE_CLIENT, $event->client, $transformer);
     }
 
     public function createdQuote(QuoteWasCreated $event)
     {
+        if ( ! Auth::check()) {
+            return;
+        }
+
         $transformer = new InvoiceTransformer(Auth::user()->account);
         $this->checkSubscriptions(ACTIVITY_TYPE_CREATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
     }
 
     public function createdPayment(PaymentWasCreated $event)
     {
+        if ( ! Auth::check()) {
+            return;
+        }
+
         $transformer = new PaymentTransformer(Auth::user()->account);
         $this->checkSubscriptions(ACTIVITY_TYPE_CREATE_PAYMENT, $event->payment, $transformer, [ENTITY_CLIENT, ENTITY_INVOICE]);
     }
 
     public function createdCredit(CreditWasCreated $event)
     {
+        if ( ! Auth::check()) {
+            return;
+        }
+
         //$this->checkSubscriptions(ACTIVITY_TYPE_CREATE_CREDIT, $event->credit);
     }
 
     public function createdInvoice(InvoiceWasCreated $event)
     {
+        if ( ! Auth::check()) {
+            return;
+        }
+
         $transformer = new InvoiceTransformer(Auth::user()->account);
         $this->checkSubscriptions(ACTIVITY_TYPE_CREATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
     }

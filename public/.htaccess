@@ -12,4 +12,8 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+    
+    # In case of running InvoiceNinja in a Subdomain like invoiceninja.example.com,
+    # you have to enablel the following line:
+    # RewriteBase /
 </IfModule>
