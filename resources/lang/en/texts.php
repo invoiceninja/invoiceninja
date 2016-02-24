@@ -1039,7 +1039,12 @@ $LANG = array(
     'list_payments' => 'List Payments',
     'list_credits' => 'List Credits',
     'tax_name' => 'Tax Name',
-    
+    'report_settings' => 'Report Settings',
+    'search_hotkey' => 'shortcut is /',
+
+    'new_user' => 'New User',
+    'new_product' => 'New Product',
+    'new_tax_rate' => 'New Tax Rate',
 );
 
 return $LANG;

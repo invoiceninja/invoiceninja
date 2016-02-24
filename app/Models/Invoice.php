@@ -129,13 +129,21 @@ class Invoice extends EntityModel implements BalanceAffecting
         return false;
     }
 
-    public function getAmountPaid()
+    public function getAmountPaid($calculate = false)
     {
         if ($this->is_quote || $this->is_recurring) {
             return 0;
         }
 
-        return ($this->amount - $this->balance);
+        if ($calculate) {
+            $amount = 0;
+            foreach ($this->payments as $payment) {
+                $amount += $payment->amount;
+            }
+            return $amount;
+        } else {
+            return ($this->amount - $this->balance);
+        }
     }
 
     public function trashed()
@@ -797,7 +805,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $total;
     }
 
-    public function getTaxes()
+    public function getTaxes($calculatePaid = false)
     {
         $taxes = [];
         $taxable = $this->getTaxable();
@@ -811,7 +819,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                     'name' => $this->tax_name,
                     'rate' => $this->tax_rate,
                     'amount' => $taxAmount,
-                    'paid' => $this->getAmountPaid() / $this->amount * $taxAmount
+                    'paid' => round($this->getAmountPaid($calculatePaid) / $this->amount * $taxAmount, 2)
                 ];
             }
         }
@@ -836,7 +844,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                 }
 
                 $taxes[$key]['amount'] += $taxAmount;
-                $taxes[$key]['paid'] += $this->amount && $taxAmount ? ($this->getAmountPaid() / $this->amount * $taxAmount) : 0;
+                $taxes[$key]['paid'] += $this->amount && $taxAmount ? round($this->getAmountPaid($calculatePaid) / $this->amount * $taxAmount, 2) : 0;
                 $taxes[$key]['name'] = $invoiceItem->tax_name;
                 $taxes[$key]['rate'] = $invoiceItem->tax_rate;
             }

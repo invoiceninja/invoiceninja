@@ -49,6 +49,7 @@ class ReportController extends BaseController
             $groupBy = Input::get('group_by');
             $chartType = Input::get('chart_type');
             $reportType = Input::get('report_type');
+            $dateField = Input::get('date_field');
             $startDate = Utils::toSqlDate(Input::get('start_date'), false);
             $endDate = Utils::toSqlDate(Input::get('end_date'), false);
             $enableReport = Input::get('enable_report') ? true : false;
@@ -57,6 +58,7 @@ class ReportController extends BaseController
             $groupBy = 'MONTH';
             $chartType = 'Bar';
             $reportType = ENTITY_INVOICE;
+            $dateField = FILTER_INVOICE_DATE;
             $startDate = Utils::today(false)->modify('-3 month');
             $endDate = Utils::today(false);
             $enableReport = true;
@@ -98,7 +100,7 @@ class ReportController extends BaseController
         if (Auth::user()->account->isPro()) {
             if ($enableReport) {
                 $isExport = $action == 'export';
-                $params = array_merge($params, self::generateReport($reportType, $startDate, $endDate, $isExport));
+                $params = array_merge($params, self::generateReport($reportType, $startDate, $endDate, $dateField, $isExport));
 
                 if ($isExport) {
                     self::export($params['displayData'], $params['columns'], $params['reportTotals']);
@@ -216,7 +218,7 @@ class ReportController extends BaseController
         ];
     }
 
-    private function generateReport($reportType, $startDate, $endDate, $isExport)
+    private function generateReport($reportType, $startDate, $endDate, $dateField, $isExport)
     {
         if ($reportType == ENTITY_CLIENT) {
             return $this->generateClientReport($startDate, $endDate, $isExport);
@@ -225,11 +227,11 @@ class ReportController extends BaseController
         } elseif ($reportType == ENTITY_PAYMENT) {
             return $this->generatePaymentReport($startDate, $endDate, $isExport);
         } elseif ($reportType == ENTITY_TAX_RATE) {
-            return $this->generateTaxRateReport($startDate, $endDate, $isExport);
+            return $this->generateTaxRateReport($startDate, $endDate, $dateField, $isExport);
         }
     }
 
-    private function generateTaxRateReport($startDate, $endDate, $isExport)
+    private function generateTaxRateReport($startDate, $endDate, $dateField, $isExport)
     {
         $columns = ['tax_name', 'tax_rate', 'amount', 'paid'];
 
@@ -238,14 +240,25 @@ class ReportController extends BaseController
         $reportTotals = [];
 
         $clients = Client::scope()
-                        ->withTrashed()
+                        ->withArchived()
                         ->with('contacts')
-                        ->where('is_deleted', '=', false)
-                        ->with(['invoices' => function($query) use ($startDate, $endDate) {
-                            $query->where('invoice_date', '>=', $startDate)
-                                  ->where('invoice_date', '<=', $endDate)
-                                  ->where('is_deleted', '=', false)
-                                  ->withTrashed();
+                        ->with(['invoices' => function($query) use ($startDate, $endDate, $dateField) {
+                            $query->withArchived();
+                            if ($dateField == FILTER_PAYMENT_DATE) {
+                                $query->where('invoice_date', '>=', $startDate)
+                                      ->where('invoice_date', '<=', $endDate)
+                                      ->whereHas('payments', function($query) use ($startDate, $endDate) {
+                                            $query->where('payment_date', '>=', $startDate)
+                                                  ->where('payment_date', '<=', $endDate)
+                                                  ->withArchived();
+                                        })
+                                        ->with(['payments' => function($query) use ($startDate, $endDate) {
+                                            $query->where('payment_date', '>=', $startDate)
+                                                  ->where('payment_date', '<=', $endDate)
+                                                  ->withArchived()
+                                                  ->with('payment_type', 'account_gateway.gateway');
+                                  }, 'invoice_items']);
+                            }
                         }]);
 
         foreach ($clients->get() as $client) {
@@ -255,7 +268,7 @@ class ReportController extends BaseController
             $taxTotals = [];
 
             foreach ($client->invoices as $invoice) {
-                foreach ($invoice->getTaxes() as $key => $tax) {
+                foreach ($invoice->getTaxes(true) as $key => $tax) {
                     if ( ! isset($taxTotals[$currencyId])) {
                         $taxTotals[$currencyId] = [];
                     }
@@ -331,7 +344,7 @@ class ReportController extends BaseController
             $reportTotals = $this->addToTotals($reportTotals, $client, 'amount', $invoice->amount);
             $reportTotals = $this->addToTotals($reportTotals, $client, 'paid', $payment->amount);
         }
-
+        
         return [
             'columns' => $columns,
             'displayData' => $displayData,

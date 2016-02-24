@@ -26,7 +26,7 @@
 		<div class="col-lg-12">
             <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">{!! trans('texts.settings') !!}</h3>
+                <h3 class="panel-title">{!! trans('texts.report_settings') !!}</h3>
             </div>            
             <div class="panel-body">    
                 <div class="row">
@@ -58,6 +58,11 @@
                     <div class="col-md-6">
                         {!! Former::checkbox('enable_report')->text(trans('texts.enable')) !!}
                         {!! Former::select('report_type')->options($reportTypes, $reportType)->label(trans('texts.type')) !!}
+                        <div id="dateField" style="display:{{ $reportType == ENTITY_TAX_RATE ? 'block' : 'none' }}">
+                            {!! Former::select('date_field')->label(trans('texts.filter'))
+                                    ->addOption(trans('texts.invoice_date'), FILTER_INVOICE_DATE)
+                                    ->addOption(trans('texts.payment_date'), FILTER_PAYMENT_DATE) !!}
+                        </div>
                         <p>&nbsp;</p>
                         {!! Former::checkbox('enable_chart')->text(trans('texts.enable')) !!}
                         {!! Former::select('group_by')->options($dateTypes, $groupBy) !!}
@@ -185,6 +190,15 @@
         });
         $('.end_date .input-group-addon').click(function() {
             toggleDatePicker('end_date');
+        });
+
+        $('#report_type').change(function() {
+            var val = $('#report_type').val();
+            if (val == '{{ ENTITY_TAX_RATE }}') {
+                $('#dateField').fadeIn();
+            } else {
+                $('#dateField').fadeOut();
+            }
         });
     })
 
