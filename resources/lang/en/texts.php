@@ -1034,10 +1034,19 @@ $LANG = array(
     'list_clients' => 'List Clients',
     'list_quotes' => 'List Quotes',
     'list_tasks' => 'List Tasks',
-    'list_expensess' => 'List Expenses',
+    'list_expenses' => 'List Expenses',
     'list_recurring_invoices' => 'List Recurring Invoices',
     'list_payments' => 'List Payments',
     'list_credits' => 'List Credits',
+    'tax_name' => 'Tax Name',
+    'report_settings' => 'Report Settings',
+    'search_hotkey' => 'shortcut is /',
+
+    'new_user' => 'New User',
+    'new_product' => 'New Product',
+    'new_tax_rate' => 'New Tax Rate',
+    'invoiced_amount' => 'Invoiced Amount',
+
 );
 
 return $LANG;

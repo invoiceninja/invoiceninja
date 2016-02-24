@@ -55,4 +55,9 @@ class InvoicePresenter extends Presenter {
         return Utils::fromSqlDate($this->entity->due_date);
     }
 
+    public function link()
+    {
+        return link_to('/invoices/' . $this->entity->public_id, $this->entity->invoice_number);
+    }
+
 }

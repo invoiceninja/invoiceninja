@@ -272,6 +272,11 @@ class Client extends EntityModel
         return $token ? "https://dashboard.stripe.com/customers/{$token}" : false;
     }
 
+    public function getAmount()
+    {
+        return $this->balance + $this->paid_to_date;
+    }
+
     public function getCurrencyId()
     {
         if ($this->currency_id) {
