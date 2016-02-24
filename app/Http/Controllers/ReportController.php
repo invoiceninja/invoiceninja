@@ -81,8 +81,8 @@ class ReportController extends BaseController
             ENTITY_CLIENT => trans('texts.client'),
             ENTITY_INVOICE => trans('texts.invoice'),
             ENTITY_PAYMENT => trans('texts.payment'),
-            ENTITY_TAX_RATE => trans('texts.taxes'),
             ENTITY_EXPENSE => trans('texts.expenses'),
+            ENTITY_TAX_RATE => trans('texts.taxes'),
         ];
 
         $params = [
