@@ -12,6 +12,7 @@ use View;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Payment;
+use App\Models\Expense;
 
 class ReportController extends BaseController
 {
@@ -81,6 +82,7 @@ class ReportController extends BaseController
             ENTITY_INVOICE => trans('texts.invoice'),
             ENTITY_PAYMENT => trans('texts.payment'),
             ENTITY_TAX_RATE => trans('texts.taxes'),
+            ENTITY_EXPENSE => trans('texts.expenses'),
         ];
 
         $params = [
@@ -228,6 +230,8 @@ class ReportController extends BaseController
             return $this->generatePaymentReport($startDate, $endDate, $isExport);
         } elseif ($reportType == ENTITY_TAX_RATE) {
             return $this->generateTaxRateReport($startDate, $endDate, $dateField, $isExport);
+        } elseif ($reportType == ENTITY_EXPENSE) {
+            return $this->generateExpenseReport($startDate, $endDate, $isExport);
         }
     }
 
@@ -294,8 +298,8 @@ class ReportController extends BaseController
                     ];
                 }
     
-                $reportTotals = $this->addToTotals($reportTotals, $client, 'amount', $tax['amount']);
-                $reportTotals = $this->addToTotals($reportTotals, $client, 'paid', $tax['paid']);
+                $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $tax['amount']);
+                $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $tax['paid']);
             }
         }
 
@@ -341,8 +345,8 @@ class ReportController extends BaseController
                 $payment->present()->method,
             ];
 
-            $reportTotals = $this->addToTotals($reportTotals, $client, 'amount', $invoice->amount);
-            $reportTotals = $this->addToTotals($reportTotals, $client, 'paid', $payment->amount);
+            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $invoice->amount);
+            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment->amount);
         }
         
         return [
@@ -388,9 +392,9 @@ class ReportController extends BaseController
                     $account->formatMoney($invoice->getAmountPaid(), $client),
                     $account->formatMoney($invoice->balance, $client),
                 ];
-                $reportTotals = $this->addToTotals($reportTotals, $client, 'amount', $invoice->amount);
-                $reportTotals = $this->addToTotals($reportTotals, $client, 'paid', $invoice->getAmountPaid());
-                $reportTotals = $this->addToTotals($reportTotals, $client, 'balance', $invoice->balance);
+                $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $invoice->amount);
+                $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $invoice->getAmountPaid());
+                $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'balance', $invoice->balance);
             }
         }
         
@@ -410,14 +414,12 @@ class ReportController extends BaseController
         $reportTotals = [];
 
         $clients = Client::scope()
-                        ->withTrashed()
+                        ->withArchived()
                         ->with('contacts')
-                        ->where('is_deleted', '=', false)
                         ->with(['invoices' => function($query) use ($startDate, $endDate) {
                             $query->where('invoice_date', '>=', $startDate)
                                   ->where('invoice_date', '<=', $endDate)
-                                  ->where('is_deleted', '=', false)
-                                  ->withTrashed();
+                                  ->withArchived();
                         }]);
 
         foreach ($clients->get() as $client) {
@@ -436,9 +438,9 @@ class ReportController extends BaseController
                 $account->formatMoney($amount - $paid, $client)
             ];
 
-            $reportTotals = $this->addToTotals($reportTotals, $client, 'amount', $amount);
-            $reportTotals = $this->addToTotals($reportTotals, $client, 'paid', $paid);
-            $reportTotals = $this->addToTotals($reportTotals, $client, 'balance', $amount - $paid);
+            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $amount);
+            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $paid);
+            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'balance', $amount - $paid);
         }
 
         return [
@@ -448,8 +450,49 @@ class ReportController extends BaseController
         ];
     }
 
-    private function addToTotals($data, $client, $field, $value) {
-        $currencyId = $client->currency_id ?: Auth::user()->account->getCurrencyId();
+    private function generateExpenseReport($startDate, $endDate, $isExport)
+    {
+        $columns = ['vendor', 'client', 'date', 'expense_amount', 'invoiced_amount'];
+
+        $account = Auth::user()->account;
+        $displayData = [];
+        $reportTotals = [];
+
+        $expenses = Expense::scope()
+                        ->withTrashed()
+                        ->with('client.contacts', 'vendor')
+                        ->where('expense_date', '>=', $startDate)
+                        ->where('expense_date', '<=', $endDate);
+
+
+        foreach ($expenses->get() as $expense) {
+            $amount = $expense->amount;
+            $invoiced = $expense->present()->invoiced_amount;
+
+            $displayData[] = [
+                $expense->vendor ? ($isExport ? $expense->vendor->name : $expense->vendor->present()->link) : '',
+                $expense->client ? ($isExport ? $expense->client->getDisplayName() : $expense->client->present()->link) : '',
+                $expense->present()->expense_date,
+                Utils::formatMoney($amount, $expense->currency_id),
+                Utils::formatMoney($invoiced, $expense->invoice_currency_id),
+            ];
+
+            $reportTotals = $this->addToTotals($reportTotals, $expense->expense_currency_id, 'amount', $amount);
+            $reportTotals = $this->addToTotals($reportTotals, $expense->invoice_currency_id, 'amount', 0);
+            
+            $reportTotals = $this->addToTotals($reportTotals, $expense->invoice_currency_id, 'invoiced', $invoiced);
+            $reportTotals = $this->addToTotals($reportTotals, $expense->expense_currency_id, 'invoiced', 0);
+        }
+
+        return [
+            'columns' => $columns,
+            'displayData' => $displayData,
+            'reportTotals' => $reportTotals,
+        ];
+    }
+
+    private function addToTotals($data, $currencyId, $field, $value) {
+        $currencyId = $currencyId ?: Auth::user()->account->getCurrencyId();
 
         if (!isset($data[$currencyId][$field])) {
             $data[$currencyId][$field] = 0;
