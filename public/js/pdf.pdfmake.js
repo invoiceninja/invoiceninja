@@ -209,18 +209,28 @@ NINJA.decodeJavascript = function(invoice, javascript)
     }
 
     // search/replace values 
-    var regExp = new RegExp('"\\$[\\\w\\\.]*?Value"', 'g');
+    var regExp = new RegExp('"\\$[a-z][\\\w\\\.]*?[Value]?"', 'g');
     var matches = javascript.match(regExp);    
-    
+
     if (matches) {
         for (var i=0; i<matches.length; i++) {
             var match = matches[i];
-            field = match.substring(2, match.indexOf('Value'));
+
+            // reserved words
+            if (['"$none"', '"$firstAndLast"', '"$notFirstAndLastColumn"', '"$notFirst"', '"$amount"', '"$primaryColor"', '"$secondaryColor"'].indexOf(match) >= 0) {
+                continue;
+            }
+
+            // legacy style had 'Value' at the end
+            if (endsWith(match, 'Value"')) {
+                field = match.substring(2, match.indexOf('Value'));
+            } else {
+                field = match.substring(2, match.length - 1);
+            }            
             field = toSnakeCase(field);
-            
+
             var value = getDescendantProp(invoice, field) || ' ';
             value = doubleDollarSign(value);
-
             javascript = javascript.replace(match, '"'+value+'"');
         }
     }

@@ -30833,6 +30833,11 @@ function truncate(str, length) {
   return (str && str.length > length) ? (str.substr(0, length-1) + '...') : str;
 }
 
+// http://stackoverflow.com/questions/280634/endswith-in-javascript
+function endsWith(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
 // http://codeaid.net/javascript/convert-seconds-to-hours-minutes-and-seconds-%28javascript%29
 function secondsToTime(secs)
 {
@@ -30865,6 +30870,11 @@ function toSnakeCase(str) {
     return str.replace(/([A-Z])/g, function($1){return "_"+$1.toLowerCase();});
 }
 
+// https://coderwall.com/p/iprsng/convert-snake-case-to-camelcase
+function snakeToCamel(s){
+    return s.replace(/_([a-z])/g, function (g) { return g[1].toUpperCase(); });
+}
+
 function getDescendantProp(obj, desc) {
     var arr = desc.split(".");
     while(arr.length && (obj = obj[arr.shift()]));
@@ -30873,6 +30883,7 @@ function getDescendantProp(obj, desc) {
 
 function doubleDollarSign(str) {
     if (!str) return '';
+    if (!str.replace) return str;
     return str.replace(/\$/g, '\$\$\$');
 }
 
@@ -30906,6 +30917,29 @@ function loadImages(selector) {
     });
 }
 
+// http://stackoverflow.com/questions/4810841/how-can-i-pretty-print-json-using-javascript
+function prettyJson(json) {
+    if (typeof json != 'string') {
+         json = JSON.stringify(json, undefined, 2);
+    }
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        match = snakeToCamel(match);
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+}
 var NINJA = NINJA || {};
 
 NINJA.TEMPLATES = {
@@ -31117,18 +31151,28 @@ NINJA.decodeJavascript = function(invoice, javascript)
     }
 
     // search/replace values 
-    var regExp = new RegExp('"\\$[\\\w\\\.]*?Value"', 'g');
+    var regExp = new RegExp('"\\$[a-z][\\\w\\\.]*?[Value]?"', 'g');
     var matches = javascript.match(regExp);    
-    
+
     if (matches) {
         for (var i=0; i<matches.length; i++) {
             var match = matches[i];
-            field = match.substring(2, match.indexOf('Value'));
+
+            // reserved words
+            if (['"$none"', '"$firstAndLast"', '"$notFirstAndLastColumn"', '"$notFirst"', '"$amount"', '"$primaryColor"', '"$secondaryColor"'].indexOf(match) >= 0) {
+                continue;
+            }
+
+            // legacy style had 'Value' at the end
+            if (endsWith(match, 'Value"')) {
+                field = match.substring(2, match.indexOf('Value'));
+            } else {
+                field = match.substring(2, match.length - 1);
+            }            
             field = toSnakeCase(field);
-            
+
             var value = getDescendantProp(invoice, field) || ' ';
             value = doubleDollarSign(value);
-
             javascript = javascript.replace(match, '"'+value+'"');
         }
     }

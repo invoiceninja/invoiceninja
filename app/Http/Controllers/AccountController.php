@@ -15,6 +15,7 @@ use Response;
 use Request;
 use App\Models\Affiliate;
 use App\Models\License;
+use App\Models\Invoice;
 use App\Models\User;
 use App\Models\Account;
 use App\Models\Gateway;
@@ -393,6 +394,21 @@ class AccountController extends BaseController
 
         if ($section == ACCOUNT_CUSTOMIZE_DESIGN) {
             $data['customDesign'] = ($account->custom_design && !$design) ? $account->custom_design : $design;
+
+            // sample invoice to help determine variables
+            $invoice = Invoice::scope()
+                            ->with('client', 'account')
+                            ->where('is_quote', '=', false)
+                            ->where('is_recurring', '=', false)
+                            ->first();
+
+            if ($invoice) {
+                $invoice->hidePrivateFields();
+                unset($invoice->account);
+                unset($invoice->invoice_items);
+                unset($invoice->client->contacts);
+                $data['sampleInvoice'] = $invoice;
+            }
         }
 
         return View::make("accounts.{$section}", $data);
