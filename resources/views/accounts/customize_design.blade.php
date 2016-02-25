@@ -25,10 +25,10 @@
         /* http://stackoverflow.com/questions/4810841/how-can-i-pretty-print-json-using-javascript */
         pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
         .string { color: green; }
-        .number { color: darkorange; }
+        .number { color: red; }
         .boolean { color: blue; }
-        .null { color: magenta; }
-        .key { color: red; }
+        .null { color: gray; }
+        .key { color: black; }
 
       </style>
 

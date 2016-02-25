@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Presenters;
 
+use URL;
 use Utils;
 use Laracasts\Presenter\Presenter;
 
@@ -64,6 +65,11 @@ class InvoicePresenter extends Presenter {
     public function frequency()
     {
         return $this->entity->frequency ? $this->entity->frequency->name : '';
+    }
+
+    public function url()
+    {
+        return URL::to('/invoices/' . $this->entity->public_id);
     }
 
     public function link()
