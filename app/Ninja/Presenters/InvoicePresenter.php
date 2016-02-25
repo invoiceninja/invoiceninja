@@ -40,9 +40,15 @@ class InvoicePresenter extends Presenter {
 
     public function status()
     {
-        $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
-        $status = strtolower($status);
-        return trans("texts.status_{$status}");
+        if ($this->entity->is_deleted) {
+            return trans('texts.deleted');
+        } elseif ($this->entity->trashed()) {
+            return trans('texts.archived');
+        } else {
+            $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
+            $status = strtolower($status);
+            return trans("texts.status_{$status}");
+        }
     }
 
     public function invoice_date()
@@ -55,9 +61,19 @@ class InvoicePresenter extends Presenter {
         return Utils::fromSqlDate($this->entity->due_date);
     }
 
+    public function frequency()
+    {
+        return $this->entity->frequency ? $this->entity->frequency->name : '';
+    }
+
     public function link()
     {
         return link_to('/invoices/' . $this->entity->public_id, $this->entity->invoice_number);
     }
 
+    public function email()
+    {
+        $client = $this->entity->client;
+        return count($client->contacts) ? $client->contacts[0]->email : '';
+    }
 }
