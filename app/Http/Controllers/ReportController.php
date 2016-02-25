@@ -292,7 +292,7 @@ class ReportController extends BaseController
                 foreach ($taxes as $tax) {
                     $displayData[] = [
                         $tax['name'],
-                        $tax['rate'],
+                        $tax['rate'] . '%',
                         $account->formatMoney($tax['amount'], $client),
                         $account->formatMoney($tax['paid'], $client)
                     ];
