@@ -130,11 +130,6 @@ class AccountRepository
 
     private function getNavigationSearchData()
     {
-        $features = [
-            ['dashboard', '/dashboard'],
-            ['customize_design', '/settings/customize_design'],
-        ];
-
         $entityTypes = [
             ENTITY_INVOICE,
             ENTITY_CLIENT,
@@ -156,6 +151,12 @@ class AccountRepository
                 "/{$entityType}s",
             ];
         }
+
+        $features[] = ['dashboard', '/dashboard'];
+        $features[] = ['customize_design', '/settings/customize_design'];
+        $features[] = ['new_tax_rate', '/tax_rates/create'];
+        $features[] = ['new_product', '/products/create'];
+        $features[] = ['new_user', '/users/create'];
 
         $settings = array_merge(Account::$basicSettings, Account::$advancedSettings);
 

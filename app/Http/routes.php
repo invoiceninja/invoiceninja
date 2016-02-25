@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -571,6 +572,9 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('REMINDER_FIELD_DUE_DATE', 1);
     define('REMINDER_FIELD_INVOICE_DATE', 2);
+
+    define('FILTER_INVOICE_DATE', 'invoice_date');
+    define('FILTER_PAYMENT_DATE', 'payment_date');
 
     define('SOCIAL_GOOGLE', 'Google');
     define('SOCIAL_FACEBOOK', 'Facebook');

@@ -26,6 +26,10 @@ class ClientPresenter extends Presenter {
         }
 
         return "<span class=\"label label-{$class}\">{$text}</span>";
+    }
 
+    public function link()
+    {
+        return link_to('/clients/' . $this->entity->public_id, $this->entity->getDisplayName());
     }
 }
