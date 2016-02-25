@@ -528,6 +528,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup');
     define('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all');
 
+    define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
+
     define('COUNT_FREE_DESIGNS', 4);
     define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design
     define('PRODUCT_ONE_CLICK_INSTALL', 1);

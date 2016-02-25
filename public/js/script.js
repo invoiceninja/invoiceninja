@@ -1025,3 +1025,11 @@ function actionListHandler() {
         }
     });
 }
+
+function loadImages(selector) {
+    $(selector + ' img').each(function(index, item) {
+        var src = $(item).attr('data-src');
+        $(item).attr('src', src);
+        $(item).attr('data-src', src);
+    });
+}

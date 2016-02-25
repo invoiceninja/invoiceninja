@@ -4,17 +4,19 @@
 	@parent
 
     @include('money_script')
+
     @foreach ($account->getFontFolders() as $font)
-    <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
 	<script src="{{ asset('pdf.built.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
 
     <style type="text/css">
-
-    /* the value is auto set so we're removing the bold formatting */
-    label.control-label[for=invoice_number] {
-        font-weight: normal !important;
-    }
+        /* the value is auto set so we're removing the bold formatting */
+        label.control-label[for=invoice_number] {
+            font-weight: normal !important;
+        }
     </style>
 @stop
 
