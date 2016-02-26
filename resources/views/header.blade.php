@@ -736,7 +736,7 @@
   @if (Auth::user()->account->isWhiteLabel())  
     {{ trans('texts.white_labeled') }}
   @else
-    <a href="#" onclick="$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>
+    <a href="#" onclick="loadImages('#whiteLabelModal');$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>
 
     <div class="modal fade" id="whiteLabelModal" tabindex="-1" role="dialog" aria-labelledby="whiteLabelModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -751,11 +751,11 @@
             <div class="row">
                 <div class="col-md-6">
                     <h4>{{ trans('texts.before') }}</h4>
-                    {!! HTML::image('images/pro_plan/white_label_before.png', 'before', ['width' => '100%']) !!}
+                    <img src="{{ BLANK_IMAGE }}" data-src="http://ninja.dev/images/pro_plan/white_label_before.png" width="100%" alt="before">
                 </div>
                 <div class="col-md-6">
                     <h4>{{ trans('texts.after') }}</h4>
-                    {!! HTML::image('images/pro_plan/white_label_after.png', 'after', ['width' => '100%']) !!}
+                    <img src="{{ BLANK_IMAGE }}" data-src="http://ninja.dev/images/pro_plan/white_label_after.png" width="100%" alt="after">
                 </div>
             </div>
           </div>

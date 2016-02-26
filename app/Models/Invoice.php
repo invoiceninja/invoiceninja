@@ -200,6 +200,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->hasMany('App\Models\Invoice', 'recurring_invoice_id');
     }
 
+    public function frequency()
+    {
+        return $this->belongsTo('App\Models\Frequency');
+    }
+
     public function invitations()
     {
         return $this->hasMany('App\Models\Invitation')->orderBy('invitations.contact_id');

@@ -35,6 +35,11 @@
         @include('export.invoices', ['entityType' => ENTITY_QUOTE])
     @endif
 
+    @if (isset($recurringInvoices) && $recurringInvoices && count($recurringInvoices))
+        <tr><td>{{ strtoupper(trans('texts.recurring_invoices')) }}</td></tr>
+        @include('export.recurring_invoices', ['entityType' => ENTITY_RECURRING_INVOICE])
+    @endif
+
     @if (isset($payments) && $payments && count($payments))
         <tr><td>{{ strtoupper(trans('texts.payments')) }}</td></tr>
         @include('export.payments')

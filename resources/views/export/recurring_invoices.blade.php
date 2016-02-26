@@ -4,13 +4,11 @@
     @if ($multiUser)
         <td>{{ trans('texts.user') }}</td>
     @endif
-    <td>{{ trans(isset($entityType) && $entityType == ENTITY_QUOTE ? 'texts.quote_number' : 'texts.invoice_number') }}</td>
+    <td>{{ trans('texts.frequency') }}</td>
     <td>{{ trans('texts.balance') }}</td>
     <td>{{ trans('texts.amount') }}</td>
     <td>{{ trans('texts.po_number') }}</td>
     <td>{{ trans('texts.status') }}</td>
-    <td>{{ trans(isset($entityType) && $entityType == ENTITY_QUOTE ? 'texts.quote_date' : 'texts.invoice_date') }}</td>
-    <td>{{ trans('texts.due_date') }}</td>
     @if ($account->custom_invoice_label1)
         <td>{{ $account->custom_invoice_label1 }}</td>
     @endif
@@ -25,7 +23,7 @@
     @endif
 </tr>
 
-@foreach ($invoices as $invoice)
+@foreach ($recurringInvoices as $invoice)
     @if (!$invoice->client->is_deleted)
         <tr>
             <td>{{ $invoice->present()->client }}</td>
@@ -33,13 +31,11 @@
             @if ($multiUser)
                 <td>{{ $invoice->present()->user }}</td>
             @endif
-            <td>{{ $invoice->invoice_number }}</td>
+            <td>{{ $invoice->present()->frequency }}</td>
             <td>{{ $account->formatMoney($invoice->balance, $invoice->client) }}</td>
             <td>{{ $account->formatMoney($invoice->amount, $invoice->client) }}</td>
             <td>{{ $invoice->po_number }}</td>
             <td>{{ $invoice->present()->status }}</td>
-            <td>{{ $invoice->present()->invoice_date }}</td>
-            <td>{{ $invoice->present()->due_date }}</td>
             @if ($account->custom_invoice_label1)
                 <td>{{ $invoice->custom_value1 }}</td>
             @endif

@@ -87,13 +87,19 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($displayData as $record)
+            @if (count($displayData))
+                @foreach ($displayData as $record)
+                    <tr>
+                        @foreach ($record as $field)
+                            <td>{!! $field !!}</td>
+                        @endforeach
+                    </tr>
+                @endforeach
+            @else
                 <tr>
-                    @foreach ($record as $field)
-                        <td>{!! $field !!}</td>
-                    @endforeach
+                    <td colspan="10" style="text-align: center">{{ trans('texts.empty_table') }}</td>
                 </tr>
-            @endforeach
+            @endif
         </tbody>
         </table>
 
