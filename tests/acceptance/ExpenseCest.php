@@ -49,6 +49,7 @@ class ExpenseCest
         // invoice expense
         $I->executeJS('submitAction(\'invoice\')');
         $I->click('Save');
+        $I->wait(1);
         $I->see($clientEmail);
         $I->see($amount);
     }
