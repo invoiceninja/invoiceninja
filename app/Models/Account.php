@@ -439,7 +439,7 @@ class Account extends Eloquent
         return $height;
     }
 
-    public function createInvoice($entityType, $clientId = null)
+    public function createInvoice($entityType = ENTITY_INVOICE, $clientId = null)
     {
         $invoice = Invoice::createNew();
 

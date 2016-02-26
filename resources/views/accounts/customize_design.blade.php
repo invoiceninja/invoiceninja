@@ -22,6 +22,14 @@
             background: #FFFFFF !important;        
         }
 
+        /* http://stackoverflow.com/questions/4810841/how-can-i-pretty-print-json-using-javascript */
+        pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+        .string { color: green; }
+        .number { color: red; }
+        .boolean { color: blue; }
+        .null { color: gray; }
+        .key { color: black; }
+
       </style>
 
 @stop
@@ -140,8 +148,14 @@
           target = target.substring(1); // strip leading #
           loadEditor(target);
         });
-        
+
         refreshPDF(true);
+
+        @if (isset($sampleInvoice) && $sampleInvoice)
+            var sample = {!! $sampleInvoice->toJSON() !!}
+            console.log(sample);
+            $('#sampleData').show().html(prettyJson(sample));
+        @endif
     });
 
   </script> 
@@ -206,6 +220,8 @@
 
           <div class="panel-body" style="background-color: #fff">
             {!! trans('texts.customize_help') !!}
+
+            <pre id="sampleData" style="display:none;height:200px;padding-top:16px;"></pre>
           </div>
 
          <div class="modal-footer" style="margin-top: 0px">

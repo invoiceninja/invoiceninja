@@ -288,7 +288,7 @@ class AppController extends BaseController
         }
 
         if (Utils::getResllerType() == RESELLER_REVENUE_SHARE) {
-            $payments = DB::table('accounts')
+            $data = DB::table('accounts')
                             ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
                             ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
                             ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
@@ -300,15 +300,9 @@ class AppController extends BaseController
                                 'payments.amount'
                             ]);
         } else {
-            $payments = DB::table('accounts')
-                            ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
-                            ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
-                            ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
-                            ->where('payments.is_deleted', '=', false)
-                            ->groupBy('clients.id')
-                            ->count();
+            $data = DB::table('users')->count();
         }
 
-        return json_encode($payments);
+        return json_encode($data);
     }
 }

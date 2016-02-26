@@ -82,47 +82,42 @@ class AccountRepository
 
     private function getAccountSearchData()
     {
-        $clients = \DB::table('clients')
-            ->where('clients.deleted_at', '=', null)
-            ->where('clients.account_id', '=', \Auth::user()->account_id)
-            ->whereRaw("clients.name <> ''")
-            ->select(\DB::raw("'clients' as type, '" . trans('texts.clients') . "' as trans_type, clients.public_id, clients.name, '' as token"));
+        $data = [
+            trans('texts.clients') => [],
+            trans('texts.contacts') => [],
+            trans('texts.invoices') => [],
+            trans('texts.quotes') => [],
+        ];
 
-        $contacts = \DB::table('clients')
-            ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-            ->where('clients.deleted_at', '=', null)
-            ->where('clients.account_id', '=', \Auth::user()->account_id)
-            ->whereRaw("CONCAT(contacts.first_name, contacts.last_name, contacts.email) <> ''")
-            ->select(\DB::raw("'clients' as type, '" . trans('texts.contacts') . "' as trans_type, clients.public_id, CONCAT(contacts.first_name, ' ', contacts.last_name, ' ', contacts.email) as name, '' as token"));
+        $clients = Client::scope()
+                    ->with('contacts', 'invoices')
+                    ->get();
 
-        $invoices = \DB::table('clients')
-            ->join('invoices', 'invoices.client_id', '=', 'clients.id')
-            ->where('clients.account_id', '=', \Auth::user()->account_id)
-            ->where('clients.deleted_at', '=', null)
-            ->where('invoices.deleted_at', '=', null)
-            ->select(\DB::raw("'invoices' as type, '" . trans('texts.invoices') . "' as trans_type, invoices.public_id, CONCAT(invoices.invoice_number, ': ', clients.name) as name, invoices.invoice_number as token"));
-
-        $data = [];
-
-        foreach ($clients->union($contacts)->union($invoices)->get() as $row) {
-            $type = $row->trans_type;
-
-            if (!isset($data[$type])) {
-                $data[$type] = [];
+        foreach ($clients as $client) {
+            if ($client->name) {
+                $data[trans('texts.clients')][] = [
+                    'value' => $client->name,
+                    'tokens' => explode(' ', $client->name),
+                    'url' => $client->present()->url,
+                ];
             }
 
-            $tokens = explode(' ', $row->name);
-            $tokens[] = $type;
-
-            if ($type == 'Invoices') {
-                $tokens[] = intVal($row->token).'';
+            foreach ($client->contacts as $contact) {
+                $data[trans('texts.contacts')][] = [
+                    'value' => $contact->getDisplayName(),
+                    'tokens' => explode(' ', $contact->getFullName() . ' ' . $contact->email),
+                    'url' => $client->present()->url,
+                ];
             }
 
-            $data[$type][] = [
-                'value' => $row->name,
-                'tokens' => $tokens,
-                'url' => URL::to("/{$row->type}/{$row->public_id}"),
-            ];
+            foreach ($client->invoices as $invoice) {
+                $entityType = $invoice->getEntityType();
+                $data[trans("texts.{$entityType}s")][] = [
+                    'value' => $invoice->getDisplayName() . ': ' . $client->getDisplayName(),
+                    'tokens' => explode(' ', $invoice->invoice_number . ' ' . intval($invoice->invoice_number) . ' ' . $client->getDisplayName()),
+                    'url' => $invoice->present()->url,
+                ];
+            }
         }
 
         return $data;
