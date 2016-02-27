@@ -72,7 +72,7 @@ class Utils
 
     public static function requireHTTPS()
     {
-        if (Request::root() === 'http://ninja.dev:8000') {
+        if (Request::root() === 'http://ninja.dev' || Request::root() === 'http://ninja.dev:8000') {
             return false;
         }
 
