@@ -259,7 +259,14 @@ NINJA.notesAndTerms = function(invoice)
 NINJA.invoiceColumns = function(invoice)
 {
     var account = invoice.account;
-    var columns = ["15%", "*"];
+    var columns = [];
+
+    if (invoice.has_product_key) {
+        columns.push("15%");
+    }
+
+    columns.push("*")
+
     var count = 3;
     if (account.hide_quantity == '1') {
         count--;
@@ -298,11 +305,14 @@ NINJA.invoiceLines = function(invoice) {
     var hideQuantity = invoice.account.hide_quantity == '1';
     var showItemTaxes = invoice.account.show_item_taxes == '1';
 
-    var grid = [[
-        {text: invoiceLabels.item, style: ['tableHeader', 'itemTableHeader']}, 
-        {text: invoiceLabels.description, style: ['tableHeader', 'descriptionTableHeader']},
-        {text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']}
-    ]];
+    var grid = [[]];
+
+    if (invoice.has_product_key) {
+        grid[0].push({text: invoiceLabels.item, style: ['tableHeader', 'itemTableHeader']});
+    }
+
+    grid[0].push({text: invoiceLabels.description, style: ['tableHeader', 'descriptionTableHeader']});
+    grid[0].push({text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']});
 
     if (!hideQuantity) {
         grid[0].push({text: invoiceLabels.quantity, style: ['tableHeader', 'qtyTableHeader']});
@@ -349,7 +359,9 @@ NINJA.invoiceLines = function(invoice) {
 
         rowStyle = (i % 2 == 0) ? 'odd' : 'even';
         
-        row.push({style:["productKey", rowStyle], text:productKey || ' '}); // product key can be blank when selecting from a datalist
+        if (invoice.has_product_key) {
+            row.push({style:["productKey", rowStyle], text:productKey || ' '}); // product key can be blank when selecting from a datalist
+        }
         row.push({style:["notes", rowStyle], stack:[{text:notes || ' '}]}); 
         row.push({style:["cost", rowStyle], text:cost});
         if (!hideQuantity) {
