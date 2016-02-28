@@ -108,10 +108,21 @@
 
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
-                    <li role="presentation" class="active"><a href="#clientFields" aria-controls="clientFields" role="tab" data-toggle="tab">{{ trans('texts.client_fields') }}</a></li>
-                    <li role="presentation"><a href="#companyFields" aria-controls="companyFields" role="tab" data-toggle="tab">{{ trans('texts.company_fields') }}</a></li>
-                    <li role="presentation"><a href="#invoiceFields" aria-controls="invoiceFields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a></li>
-                    <li role="presentation"><a href="#invoiceCharges" aria-controls="invoiceCharges" role="tab" data-toggle="tab">{{ trans('texts.invoice_charges') }}</a></li>
+                    <li role="presentation" class="active">
+                        <a href="#clientFields" aria-controls="clientFields" role="tab" data-toggle="tab">{{ trans('texts.client_fields') }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#companyFields" aria-controls="companyFields" role="tab" data-toggle="tab">{{ trans('texts.company_fields') }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#invoiceFields" aria-controls="invoiceFields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#invoiceItemFields" aria-controls="invoiceItemFields" role="tab" data-toggle="tab">{{ trans('texts.invoice_item_fields') }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#invoiceCharges" aria-controls="invoiceCharges" role="tab" data-toggle="tab">{{ trans('texts.invoice_charges') }}</a>
+                    </li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -150,6 +161,17 @@
                         {!! Former::text('custom_invoice_text_label2')
                                 ->label(trans('texts.field_label'))
                                 ->help(trans('texts.custom_invoice_fields_helps')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="invoiceItemFields">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_invoice_item_label1')
+                                ->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_invoice_item_label2')
+                                ->label(trans('texts.field_label'))
+                                ->help(trans('texts.custom_invoice_item_fields_help')) !!}
 
                     </div>
                 </div>

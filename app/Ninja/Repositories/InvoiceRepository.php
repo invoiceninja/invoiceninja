@@ -398,7 +398,7 @@ class InvoiceRepository extends BaseRepository
 
         foreach ($data['invoice_items'] as $item) {
             $item = (array) $item;
-            if (!$item['cost'] && !$item['product_key'] && !$item['notes']) {
+            if (empty($item['cost']) && empty($item['product_key']) && empty($item['notes']) && empty($item['custom_value1']) && empty($item['custom_value2'])) {
                 continue;
             }
 
@@ -438,6 +438,13 @@ class InvoiceRepository extends BaseRepository
             $invoiceItem->cost = Utils::parseFloat($item['cost']);
             $invoiceItem->qty = Utils::parseFloat($item['qty']);
             $invoiceItem->tax_rate = 0;
+
+            if (isset($item['custom_value1'])) {
+                $invoiceItem->custom_value1 = $item['custom_value1'];
+            }
+            if (isset($item['custom_value2'])) {
+                $invoiceItem->custom_value2 = $item['custom_value2'];
+            }
 
             if (isset($item['tax_rate']) && isset($item['tax_name']) && $item['tax_name']) {
                 $invoiceItem['tax_rate'] = Utils::parseFloat($item['tax_rate']);

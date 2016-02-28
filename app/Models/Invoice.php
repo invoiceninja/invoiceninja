@@ -455,12 +455,16 @@ class Invoice extends EntityModel implements BalanceAffecting
             'show_item_taxes',
             'custom_invoice_text_label1',
             'custom_invoice_text_label2',
+            'custom_invoice_item_label1',
+            'custom_invoice_item_label2',
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {
             $invoiceItem->setVisible([
                 'product_key',
                 'notes',
+                'custom_value1',
+                'custom_value2',
                 'cost',
                 'qty',
                 'tax_name',

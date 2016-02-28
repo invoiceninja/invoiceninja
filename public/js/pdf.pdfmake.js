@@ -267,6 +267,13 @@ NINJA.invoiceColumns = function(invoice)
 
     columns.push("*")
 
+    if (account.custom_invoice_item_label1) {
+        columns.push("10%");
+    }
+    if (account.custom_invoice_item_label2) {
+        columns.push("10%");
+    }
+
     var count = 3;
     if (account.hide_quantity == '1') {
         count--;
@@ -277,6 +284,7 @@ NINJA.invoiceColumns = function(invoice)
     for (var i=0; i<count; i++) {
         columns.push("14%");
     }
+
     return columns;
 }
 
@@ -300,6 +308,7 @@ NINJA.taxWidth = function(invoice)
 }
 
 NINJA.invoiceLines = function(invoice) {
+    var account = invoice.account;
     var total = 0;
     var shownItem = false;
     var hideQuantity = invoice.account.hide_quantity == '1';
@@ -312,6 +321,14 @@ NINJA.invoiceLines = function(invoice) {
     }
 
     grid[0].push({text: invoiceLabels.description, style: ['tableHeader', 'descriptionTableHeader']});
+
+    if (account.custom_invoice_item_label1) {
+        grid[0].push({text: account.custom_invoice_item_label1, style: ['tableHeader', 'custom1TableHeader']});
+    }
+    if (account.custom_invoice_item_label2) {
+        grid[0].push({text: account.custom_invoice_item_label2, style: ['tableHeader', 'custom2TableHeader']});
+    }
+
     grid[0].push({text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']});
 
     if (!hideQuantity) {
@@ -363,6 +380,12 @@ NINJA.invoiceLines = function(invoice) {
             row.push({style:["productKey", rowStyle], text:productKey || ' '}); // product key can be blank when selecting from a datalist
         }
         row.push({style:["notes", rowStyle], stack:[{text:notes || ' '}]}); 
+        if (account.custom_invoice_item_label1) {
+            row.push({style:["customValue1", rowStyle], text:item.custom_value1 || ' '});
+        }
+        if (account.custom_invoice_item_label2) {
+            row.push({style:["customValue2", rowStyle], text:item.custom_value2 || ' '});
+        }
         row.push({style:["cost", rowStyle], text:cost});
         if (!hideQuantity) {
             row.push({style:["quantity", rowStyle], text:qty || ' '});
