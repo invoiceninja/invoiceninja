@@ -35,8 +35,15 @@
 
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
-                    <li role="presentation" class="active"><a href="#invoiceNumber" aria-controls="invoiceNumber" role="tab" data-toggle="tab">{{ trans('texts.invoice_number') }}</a></li>
-                    <li role="presentation"><a href="#quoteNumber" aria-controls="quoteNumber" role="tab" data-toggle="tab">{{ trans('texts.quote_number') }}</a></li>
+                    <li role="presentation" class="active">
+                        <a href="#invoiceNumber" aria-controls="invoiceNumber" role="tab" data-toggle="tab">{{ trans('texts.invoice_number') }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#quoteNumber" aria-controls="quoteNumber" role="tab" data-toggle="tab">{{ trans('texts.quote_number') }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#recurringInvoiceNumber" aria-controls="recurringInvoiceNumber" role="tab" data-toggle="tab">{{ trans('texts.recurring_invoice_number') }}</a>
+                    </li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -91,6 +98,15 @@
                                 ->help(trans('texts.quote_number_help') . ' ' . 
                                     trans('texts.next_quote_number', ['number' => $account->previewNextInvoiceNumber(ENTITY_QUOTE)])) !!}
 
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="recurringInvoiceNumber">
+                    <div class="panel-body">
+
+                        {!! Former::text('recurring_invoice_number_prefix')
+                                ->label(trans('texts.prefix'))
+                                ->help(trans('texts.recurring_invoice_number_prefix_help')) !!}
 
                     </div>
                 </div>

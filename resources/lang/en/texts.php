@@ -845,7 +845,7 @@ $LANG = array(
     'subdomain_help' => 'Customize the invoice link subdomain or display the invoice on your own website.',
     'invoice_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the invoice number.',
     'quote_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the quote number.',
-    'custom_client_fields_helps' => 'Add a field when creating/editing a client and display the label and value on the PDF.',
+    'custom_client_fields_helps' => 'Add a field when creating a client and display the label and value on the PDF.',
     'custom_account_fields_helps' => 'Add a label and value to the company details section of the PDF.',
     'custom_invoice_fields_helps' => 'Add a field when creating an invoice and display the label and value on the PDF.',
     'custom_invoice_charges_helps' => 'Add a field when creating an invoice and include the charge in the invoice subtotals.',
@@ -1047,7 +1047,8 @@ $LANG = array(
     'invoiced_amount' => 'Invoiced Amount',
     'invoice_item_fields' => 'Invoice Item Fields',
     'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
-
+    'recurring_invoice_number' => 'Recurring Invoice Number',
+    'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.'
 );
 
 return $LANG;
