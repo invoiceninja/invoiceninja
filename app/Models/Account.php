@@ -663,6 +663,7 @@ class Account extends Eloquent
             'balance_due',
             'amount_due',
             'terms',
+            'notes',
             'your_invoice',
             'quote',
             'your_quote',
