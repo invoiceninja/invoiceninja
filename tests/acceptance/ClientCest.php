@@ -1,6 +1,5 @@
 <?php
 
-use \AcceptanceTester;
 use Faker\Factory;
 use Codeception\Util\Fixtures;
 

@@ -22,7 +22,7 @@
 @section('content')
 
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-7">
             <div>
                 <span style="font-size:28px">{{ $client->getDisplayName() }}</span>
                 @if ($client->trashed())
@@ -30,7 +30,7 @@
                 @endif
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-5">
             <div class="pull-right">
                 {!! Former::open('clients/bulk')->addClass('mainForm') !!}
                 <div style="display:none">

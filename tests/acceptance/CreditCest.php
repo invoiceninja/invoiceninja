@@ -1,6 +1,5 @@
 <?php
 
-use \AcceptanceTester;
 use App\Models\Credit;
 use Faker\Factory;
 use Codeception\Util\Fixtures;

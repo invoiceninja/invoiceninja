@@ -48,6 +48,7 @@ class VendorApiController extends BaseAPIController
     {
         $vendors    = Vendor::scope()
                     ->with($this->getIncluded())
+                    ->withTrashed()
                     ->orderBy('created_at', 'desc')
                     ->paginate();
 

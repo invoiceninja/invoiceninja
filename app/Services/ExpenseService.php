@@ -106,7 +106,7 @@ class ExpenseService extends BaseService
                 }
             ],
             [
-                'invoice_id',
+                'expense_status_id',
                 function ($model) {
                     return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced);
                 }

@@ -17,7 +17,6 @@ class VendorContactTransformer extends EntityTransformer
             'archived_at' => $this->getTimestamp($contact->deleted_at),
             'is_primary' => (bool) $contact->is_primary,
             'phone' => $contact->phone,
-            'last_login' => $contact->last_login,
             'account_key' => $this->account->account_key,
         ];
     }

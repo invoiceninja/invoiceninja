@@ -139,6 +139,10 @@ class Client extends EntityModel
         return $this->hasMany('App\Models\Credit');
     }
 
+    public function expenses()
+    {
+        return $this->hasMany('App\Models\Expense','client_id','id')->withTrashed();
+    }
 
     public function addContact($data, $isPrimary = false)
     {

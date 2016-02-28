@@ -36,20 +36,27 @@ class VendorTransformer extends EntityTransformer
     */
 
     protected $availableIncludes = [
-        'contacts',
+        'vendorContacts',
         'invoices',
+        'expenses',
     ];
     
-    public function includeContacts(Vendor $vendor)
+    public function includeVendorContacts(Vendor $vendor)
     {
-        $transformer = new ContactTransformer($this->account, $this->serializer);
-        return $this->includeCollection($vendor->contacts, $transformer, ENTITY_CONTACT);
+        $transformer = new VendorContactTransformer($this->account, $this->serializer);
+        return $this->includeCollection($vendor->vendorContacts, $transformer, ENTITY_CONTACT);
     }
 
     public function includeInvoices(Vendor $vendor)
     {
         $transformer = new InvoiceTransformer($this->account, $this->serializer);
         return $this->includeCollection($vendor->invoices, $transformer, ENTITY_INVOICE);
+    }
+
+    public function includeExpenses(Vendor $vendor)
+    {
+        $transformer = new ExpenseTransformer($this->account, $this->serializer);
+        return $this->includeCollection($vendor->expenses, $transformer, ENTITY_EXPENSE);
     }
 
     public function transform(Vendor $vendor)

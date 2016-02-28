@@ -127,16 +127,15 @@
     //console.log(JSON.stringify(products));
     
     var arc = d3.svg.arc()
-      .innerRadius(function(d) { return d.r - 2 })
-      .outerRadius(function(d) { return d.r - 8 })
+      .innerRadius(function(d) { return d.r })
+      .outerRadius(function(d) { return d.r - 5 })
       .startAngle(0);
 
     var fullArc = d3.svg.arc()
-      .innerRadius(function(d) { return d.r - 3 })
-      .outerRadius(function(d) { return d.r - 7 })
+      .innerRadius(function(d) { return d.r  })
+      .outerRadius(function(d) { return d.r - 5 })
       .startAngle(0)
       .endAngle(2 * Math.PI);
-
 
     var diameter = 800,
     format = d3.format(",d");
@@ -233,7 +232,7 @@
         .attr("class", "no-pointer-events")
         .attr("class", "animate-grow")
         .attr("d", arc)
-        .style("fill", function(d, i) { return 'grey'; });
+        .style("fill", function(d, i) { return '#2e9e49'; });
 
       d3.selectAll("path.animate-grow")
         .transition()
@@ -245,7 +244,7 @@
         .transition()
         .duration(1000)      
         .style("fill", function(d, i) { 
-          return d.displayAge == -1 ? 'grey' : color(d.displayAge);
+          return d.displayAge == -1 ? 'white' : 'red';
         });                
 
       selection.exit().remove();

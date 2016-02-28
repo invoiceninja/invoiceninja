@@ -136,11 +136,11 @@ class ClientApiController extends BaseAPIController
     {
         if ($request->action == ACTION_ARCHIVE) {
 
-            try {
-                $client = Client::scope($publicId)->withTrashed()->firstOrFail();
-            } catch (ModelNotFoundException $e) {
+
+            $client = Client::scope($publicId)->withTrashed()->first();
+
+            if(!$client)
                 return $this->errorResponse(['message'=>'Record not found'], 400);
-            }
 
             $this->clientRepo->archive($client);
 
@@ -154,7 +154,7 @@ class ClientApiController extends BaseAPIController
             $client = Client::scope($publicId)->withTrashed()->first();
 
             if(!$client)
-                return $this->errorResponse(['message'=>'Client not found.']);
+                return $this->errorResponse(['message'=>'Client not found.'], 400);
 
             $this->clientRepo->restore($client);
 
@@ -173,7 +173,7 @@ class ClientApiController extends BaseAPIController
             ->first();
 
         if(!$client)
-            return $this->errorResponse(['message'=>'Client not found.']);
+            return $this->errorResponse(['message'=>'Client not found.'],400);
         
         $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
