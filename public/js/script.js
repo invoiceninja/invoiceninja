@@ -589,6 +589,7 @@ function calculateAmounts(invoice) {
   var total = 0;
   var hasTaxes = false;
   var taxes = {};
+  invoice.has_product_key = false;
 
   // sum line item
   for (var i=0; i<invoice.invoice_items.length; i++) {
@@ -603,6 +604,12 @@ function calculateAmounts(invoice) {
     var item = invoice.invoice_items[i];
     var taxRate = 0;
     var taxName = '';
+
+    if (item.product_key) {
+        invoice.has_product_key = true;
+    } else if (invoice.invoice_items.length == 1 && !item.qty) {
+        invoice.has_product_key = true;
+    }
 
     // the object structure differs if it's read from the db or created by knockoutJS
     if (item.tax && parseFloat(item.tax.rate)) {

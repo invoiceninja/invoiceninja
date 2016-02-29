@@ -48,7 +48,7 @@
                         @if (!Auth::user()->isPro())
                         <script>
                             $(function() {   
-                                $('form.warn-on-exit').find('input, select, button').prop('disabled', true);
+                                $('form.warn-on-exit').find('input, button').prop('disabled', true);
                             });
                         </script>   
                         @endif

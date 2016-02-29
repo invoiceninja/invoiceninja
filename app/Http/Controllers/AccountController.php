@@ -684,6 +684,8 @@ class AccountController extends BaseController
                 $account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;
                 $account->custom_invoice_text_label1 = trim(Input::get('custom_invoice_text_label1'));
                 $account->custom_invoice_text_label2 = trim(Input::get('custom_invoice_text_label2'));
+                $account->custom_invoice_item_label1 = trim(Input::get('custom_invoice_item_label1'));
+                $account->custom_invoice_item_label2 = trim(Input::get('custom_invoice_item_label2'));
 
                 $account->invoice_number_counter = Input::get('invoice_number_counter');
                 $account->quote_number_prefix = Input::get('quote_number_prefix');
@@ -692,6 +694,7 @@ class AccountController extends BaseController
                 $account->invoice_footer = Input::get('invoice_footer');
                 $account->quote_terms = Input::get('quote_terms');
                 $account->auto_convert_quote = Input::get('auto_convert_quote');
+                $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');
 
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');

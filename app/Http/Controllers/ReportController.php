@@ -114,11 +114,7 @@ class ReportController extends BaseController
         } else {
             $params['columns'] = [];
             $params['displayData'] = [];
-            $params['reportTotals'] = [
-                'amount' => [],
-                'balance' => [],
-                'paid' => [],
-            ];
+            $params['reportTotals'] = [];
             $params['labels'] = [];
             $params['datasets'] = [];
             $params['scaleStepWidth'] = 100;
