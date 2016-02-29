@@ -14,6 +14,13 @@ class PushFactory
 {
     /**
      * PushFactory constructor.
+     *
+     * @param $this->certificate - Development or production.
+     *
+     * Static variables defined in routes.php
+     *
+     * IOS_PRODUCTION_PUSH
+     * IOS_DEV_PUSH
      */
 
     public function __construct()
