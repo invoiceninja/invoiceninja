@@ -74,8 +74,7 @@ class AccountRepository
     {
         $data = $this->getAccountSearchData();
 
-        $type = trans('texts.navigation');
-        $data[$type] = $this->getNavigationSearchData();
+        $data['navigation'] = $this->getNavigationSearchData();
 
         return $data;
     }
@@ -83,10 +82,10 @@ class AccountRepository
     private function getAccountSearchData()
     {
         $data = [
-            trans('texts.clients') => [],
-            trans('texts.contacts') => [],
-            trans('texts.invoices') => [],
-            trans('texts.quotes') => [],
+            'clients' => [],
+            'contacts' => [],
+            'invoices' => [],
+            'quotes' => [],
         ];
 
         $clients = Client::scope()
@@ -95,26 +94,31 @@ class AccountRepository
 
         foreach ($clients as $client) {
             if ($client->name) {
-                $data[trans('texts.clients')][] = [
+                $data['clients'][] = [
                     'value' => $client->name,
-                    'tokens' => explode(' ', $client->name),
                     'url' => $client->present()->url,
                 ];
             }
 
             foreach ($client->contacts as $contact) {
-                $data[trans('texts.contacts')][] = [
-                    'value' => $contact->getDisplayName(),
-                    'tokens' => explode(' ', $contact->getFullName() . ' ' . $contact->email),
-                    'url' => $client->present()->url,
-                ];
+                if ($contact->getFullName()) {
+                    $data['contacts'][] = [
+                        'value' => $contact->getDisplayName(),
+                        'url' => $client->present()->url,
+                    ];
+                }
+                if ($contact->email) {
+                    $data[trans('texts.contacts')][] = [
+                        'value' => $contact->email,
+                        'url' => $client->present()->url,
+                    ];
+                }
             }
 
             foreach ($client->invoices as $invoice) {
                 $entityType = $invoice->getEntityType();
-                $data[trans("texts.{$entityType}s")][] = [
+                $data["{$entityType}s"][] = [
                     'value' => $invoice->getDisplayName() . ': ' . $client->getDisplayName(),
-                    'tokens' => explode(' ', $invoice->invoice_number . ' ' . intval($invoice->invoice_number) . ' ' . $client->getDisplayName()),
                     'url' => $invoice->present()->url,
                 ];
             }

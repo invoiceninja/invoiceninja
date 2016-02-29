@@ -251,7 +251,11 @@ class AppController extends BaseController
                     'PaymentLibraries',
                     'Fonts',
                     'Banks',
-                    'InvoiceStatus'
+                    'InvoiceStatus',
+                    'Currencies',
+                    'DateFormats',
+                    'InvoiceDesigns',
+                    'PaymentTerms',
                 ] as $seeder) {
                     Artisan::call('db:seed', array('--force' => true, '--class' => "{$seeder}Seeder"));
                 }

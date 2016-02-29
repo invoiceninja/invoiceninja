@@ -259,36 +259,83 @@
   }
 
   function showSearch() {
-    $('#search').typeahead('setQuery', '');
+    console.log('showSearch..');
+    //$('#search').typeahead('setQuery', '');
     $('#navbar-options').hide();
     $('#search-form').show();
 
-    if (window.hasOwnProperty('searchData')) {
+    if (window.hasOwnProperty('loadedSearchData')) {
+        console.log('has data');
         $('#search').focus();
     } else {
         trackEvent('/activity', '/search');
         $.get('{{ URL::route('getSearchData') }}', function(data) {
-          console.log(data);
-          window.searchData = true;
-          var datasets = [];
-          for (var type in data)
+          window.loadedSearchData = true;
+
+          $('#search').typeahead({
+            hint: true,
+            highlight: true,
+          },
           {
-            if (!data.hasOwnProperty(type)) continue;
-            datasets.push({
-              name: type,
-              header: '&nbsp;<b>' + type  + '</b>',
-              local: data[type]
-            });
-          }
-          if (datasets.length == 0) {
-            return;
-          }
-          $('#search').typeahead(datasets).on('typeahead:selected', function(element, datum, name) {
+            name: 'data',
+            display: 'value',
+            source: searchData(data['clients']),
+            templates: {
+              header: '&nbsp;<b>{{ trans('texts.clients') }}</b>'
+            }
+          },
+          {
+            name: 'data',
+            display: 'value',
+            source: searchData(data['contacts']),
+            templates: {
+              header: '&nbsp;<b>{{ trans('texts.contacts') }}</b>'
+            }
+          },
+          {
+            name: 'data',
+            display: 'value',
+            source: searchData(data['invoices']),
+            templates: {
+              header: '&nbsp;<b>{{ trans('texts.contacts') }}</b>'
+            }
+          },
+          {
+            name: 'data',
+            display: 'value',
+            source: searchData(data['quotes']),
+            templates: {
+              header: '&nbsp;<b>{{ trans('texts.quotes') }}</b>'
+            }
+          },
+          {
+            name: 'data',
+            display: 'value',
+            source: searchData(data['navigation']),
+            templates: {
+              header: '&nbsp;<b>{{ trans('texts.navigation') }}</b>'
+            }
+          }).on('typeahead:selected', function(element, datum, name) {
             window.location = datum.url;
-          }).focus().typeahead('setQuery', $('#search').val());
+          }).focus(); 
+
+          //.typeahead('setQuery', $('#search').val());
         });
     }
   }
+
+  function searchData(data) {
+      return function findMatches(q, cb) {
+        
+        var options = {
+          keys: ['value'],
+        }
+        var fuse = new Fuse(data, options);
+        var matches = fuse.search(q);
+
+        cb(matches);
+      }
+  }; 
 
   function hideSearch() {
     $('#search-form').hide();
@@ -354,7 +401,7 @@
 
     // Focus the search input if the user clicks forward slash
     $('body').keypress(function(event) {
-        if (event.which == 47) {
+        if (event.which == 47 && !$('*:focus').length) {
             event.preventDefault();
             showSearch();
         }
