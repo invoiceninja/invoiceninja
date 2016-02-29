@@ -1075,3 +1075,25 @@ function prettyJson(json) {
         return '<span class="' + cls + '">' + match + '</span>';
     });
 }
+
+function searchData(data, key, fuzzy) {
+    return function findMatches(q, cb) {
+    var matches, substringRegex;
+    if (fuzzy) {
+        var options = {
+          keys: [key],
+        }
+        var fuse = new Fuse(data, options);
+        matches = fuse.search(q);
+    } else {
+        matches = [];
+        substrRegex = new RegExp(q, 'i');
+        $.each(data, function(i, obj) {
+          if (substrRegex.test(obj[key])) {
+            matches.push(obj);
+          }
+        });
+    }
+    cb(matches);
+    }
+}; 

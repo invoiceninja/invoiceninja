@@ -259,13 +259,11 @@
   }
 
   function showSearch() {
-    console.log('showSearch..');
-    //$('#search').typeahead('setQuery', '');
+    $('#search').typeahead('val', '');
     $('#navbar-options').hide();
     $('#search-form').show();
 
     if (window.hasOwnProperty('loadedSearchData')) {
-        console.log('has data');
         $('#search').focus();
     } else {
         trackEvent('/activity', '/search');
@@ -275,68 +273,24 @@
           $('#search').typeahead({
             hint: true,
             highlight: true,
-          },
-          {
+          }
+          @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
+          ,{
             name: 'data',
             display: 'value',
-            source: searchData(data['clients']),
+            source: searchData(data['{{ $type }}'], 'value', true),
             templates: {
-              header: '&nbsp;<b>{{ trans('texts.clients') }}</b>'
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ trans("texts.{$type}") }}</span>'
             }
-          },
-          {
-            name: 'data',
-            display: 'value',
-            source: searchData(data['contacts']),
-            templates: {
-              header: '&nbsp;<b>{{ trans('texts.contacts') }}</b>'
-            }
-          },
-          {
-            name: 'data',
-            display: 'value',
-            source: searchData(data['invoices']),
-            templates: {
-              header: '&nbsp;<b>{{ trans('texts.contacts') }}</b>'
-            }
-          },
-          {
-            name: 'data',
-            display: 'value',
-            source: searchData(data['quotes']),
-            templates: {
-              header: '&nbsp;<b>{{ trans('texts.quotes') }}</b>'
-            }
-          },
-          {
-            name: 'data',
-            display: 'value',
-            source: searchData(data['navigation']),
-            templates: {
-              header: '&nbsp;<b>{{ trans('texts.navigation') }}</b>'
-            }
-          }).on('typeahead:selected', function(element, datum, name) {
+          }
+          @endforeach
+          ).on('typeahead:selected', function(element, datum, name) {
             window.location = datum.url;
           }).focus(); 
-
-          //.typeahead('setQuery', $('#search').val());
         });
     }
   }
-
-  function searchData(data) {
-      return function findMatches(q, cb) {
-        
-        var options = {
-          keys: ['value'],
-        }
-        var fuse = new Fuse(data, options);
-        var matches = fuse.search(q);
-
-        cb(matches);
-      }
-  }; 
-
+  
   function hideSearch() {
     $('#search-form').hide();
     $('#navbar-options').show();
