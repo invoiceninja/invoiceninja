@@ -3,10 +3,14 @@
 use HTML;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
-class Contact extends EntityModel
+class Contact extends EntityModel implements AuthenticatableContract, CanResetPasswordContract
 {
-    use SoftDeletes;
+    use SoftDeletes, Authenticatable, CanResetPassword;
     protected $dates = ['deleted_at'];
 
     protected $fillable = [

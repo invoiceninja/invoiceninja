@@ -1028,6 +1028,12 @@ $LANG = array(
         'user_unconfirmed' => 'Please confirm your account to send emails',
         'invalid_contact_email' => 'Invalid contact email',
     ],
+    
+    // Client Passwords
+    'client_portal_login_settings'=>'Login',
+    'enable_portal_password'=>'Require a password',
+    'send_portal_password'=>'Generate password automatically',
+    'fill_portal_password'=>'Include password in invoice emails',
 );
 
 return $LANG;

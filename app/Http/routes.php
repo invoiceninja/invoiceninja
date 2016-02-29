@@ -35,17 +35,19 @@ Route::get('/keep_alive', 'HomeController@keepAlive');
 Route::post('/get_started', 'AccountController@getStarted');
 
 // Client visible pages
-Route::get('view/{invitation_key}', 'PublicClientController@view');
-Route::get('download/{invitation_key}', 'PublicClientController@download');
-Route::get('view', 'HomeController@viewLogo');
-Route::get('approve/{invitation_key}', 'QuoteController@approve');
-Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
-Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
-Route::get('complete', 'PaymentController@offsite_payment');
-Route::get('client/quotes', 'PublicClientController@quoteIndex');
-Route::get('client/invoices', 'PublicClientController@invoiceIndex');
-Route::get('client/payments', 'PublicClientController@paymentIndex');
-Route::get('client/dashboard', 'PublicClientController@dashboard');
+Route::group(['middleware' => 'auth'], function() {
+    Route::get('view/{invitation_key}', 'PublicClientController@view');
+    Route::get('download/{invitation_key}', 'PublicClientController@download');
+    Route::get('view', 'HomeController@viewLogo');
+    Route::get('approve/{invitation_key}', 'QuoteController@approve');
+    Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
+    Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
+    Route::get('complete', 'PaymentController@offsite_payment');
+    Route::get('client/quotes', 'PublicClientController@quoteIndex');
+    Route::get('client/invoices', 'PublicClientController@invoiceIndex');
+    Route::get('client/payments', 'PublicClientController@paymentIndex');
+    Route::get('client/dashboard', 'PublicClientController@dashboard');
+});
 Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
 Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
 Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PublicClientController@paymentDatatable'));

@@ -150,7 +150,7 @@ class AccountController extends BaseController
         } elseif ($section == ACCOUNT_INVOICE_DESIGN || $section == ACCOUNT_CUSTOMIZE_DESIGN) {
             return self::showInvoiceDesign($section);
         } elseif ($section == ACCOUNT_CLIENT_PORTAL) {
-            return self::showClientViewStyling();
+            return self::showClientPortal();
         } elseif ($section === ACCOUNT_TEMPLATES_AND_REMINDERS) {
             return self::showTemplates();
         } elseif ($section === ACCOUNT_PRODUCTS) {
@@ -398,7 +398,7 @@ class AccountController extends BaseController
         return View::make("accounts.{$section}", $data);
     }
 
-    private function showClientViewStyling()
+    private function showClientPortal()
     {
         $account = Auth::user()->account->load('country');
         $css = $account->client_view_css ? $account->client_view_css : '';
@@ -414,6 +414,9 @@ class AccountController extends BaseController
 
         $data = [
             'client_view_css' => $css,
+            'enable_portal_password' => $account->enable_portal_password,
+            'fill_portal_password' => $account->fill_portal_password,
+            'send_portal_password' => $account->send_portal_password,
             'title' => trans("texts.client_portal"),
             'section' => ACCOUNT_CLIENT_PORTAL,
         ];
@@ -528,6 +531,9 @@ class AccountController extends BaseController
 
             $account = Auth::user()->account;
             $account->client_view_css = $sanitized_css;
+            $account->enable_portal_password = Input::get('enable_portal_password');
+            $account->fill_portal_password = Input::get('fill_portal_password');
+            $account->send_portal_password = Input::get('send_portal_password');
             $account->save();
 
             Session::flash('message', trans('texts.updated_settings'));
