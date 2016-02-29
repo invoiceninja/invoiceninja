@@ -1,6 +1,7 @@
 <?php namespace App\Ninja\Repositories;
 
 use DB;
+use Cache;
 use App\Ninja\Repositories\BaseRepository;
 use App\Models\Client;
 use App\Models\Contact;
@@ -72,6 +73,17 @@ class ClientRepository extends BaseRepository
             $client = Client::createNew();
         } else {
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();
+        }
+
+        // convert currency code to id
+        if (isset($data['currency_code'])) {
+            $currencyCode = strtolower($data['currency_code']);
+            $currency = Cache::get('currencies')->filter(function($item) use ($currencyCode) {
+                return strtolower($item->code) == $currencyCode;
+            })->first();
+            if ($currency) {
+                $data['currency_id'] = $currency->id;
+            }
         }
 
         $client->fill($data);
