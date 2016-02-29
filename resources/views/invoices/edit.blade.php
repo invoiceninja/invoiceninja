@@ -209,7 +209,7 @@
                         $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 				</td>
 				<td>
-                    <input type="text" data-bind="typeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
+                    <input id="product_key" type="text" data-bind="typeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
 				</td>
 				<td>
 					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][notes]'}"
