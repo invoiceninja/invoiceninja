@@ -552,6 +552,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
 
+    define('IOS_PRODUCTION_PUSH','ninjaIOS');
+    define('IOS_DEV_PUSH','devNinjaIOS');
+
     define('TOKEN_BILLING_DISABLED', 1);
     define('TOKEN_BILLING_OPT_IN', 2);
     define('TOKEN_BILLING_OPT_OUT', 3);
