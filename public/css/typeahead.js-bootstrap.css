@@ -4,7 +4,7 @@
 
 /*root typeahead class*/
 .twitter-typeahead {
-    display: inherit !important;
+    /*display: inherit !important;*/
     width: 100%;
 }
 

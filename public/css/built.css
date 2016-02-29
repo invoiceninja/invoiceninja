@@ -2060,7 +2060,7 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
 
 /*root typeahead class*/
 .twitter-typeahead {
-    display: inherit !important;
+    /*display: inherit !important;*/
     width: 100%;
 }
 

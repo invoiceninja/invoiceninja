@@ -209,11 +209,7 @@
                         $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 				</td>
 				<td>
-                {!! Former::text('product_key')->useDatalist($products->toArray(), 'product_key')
-                        ->data_bind("value: product_key, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + \$index() + '][product_key]'}")
-                        ->addClass('datalist')
-                        ->raw()
-                         !!}
+                    <input id="product_key" type="text" data-bind="typeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
 				</td>
 				<td>
 					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][notes]'}"
@@ -915,6 +911,9 @@
 	function applyComboboxListeners() {
         var selectorStr = '.invoice-table input, .invoice-table textarea';
 		$(selectorStr).off('change').on('change', function(event) {
+            if ($(event.target).hasClass('handled')) {
+                return;
+            }
             onItemChange();
             refreshPDF(true);
 		});
@@ -930,38 +929,6 @@
                 $(this).height($(this).height()+1);
             };
         });
-
-		@if (Auth::user()->account->fill_products)
-			$('.datalist').off('input').on('input', function() {
-				var key = $(this).val();
-				for (var i=0; i<products.length; i++) {
-					var product = products[i];
-					if (product.product_key == key) {
-						var model = ko.dataFor(this);
-                        if (model.expense_public_id()) {
-                            return;
-                        }
-                        if (product.notes) {
-                            model.notes(product.notes);
-                        }
-                        if (product.cost) {
-                            model.cost(accounting.toFixed(product.cost, 2));
-                        }
-                        if (!model.qty()) {
-						  model.qty(1);
-                        }
-                        @if ($account->invoice_item_taxes)
-                            if (product.default_tax_rate) {
-                                model.tax(self.model.getTaxRateById(product.default_tax_rate.public_id));
-                            }
-                        @endif
-                        model.product_key(key);
-                        onItemChange();
-                        break;
-					}
-				}
-			});
-		@endif
 	}
 
 	function createInvoiceModel() {
