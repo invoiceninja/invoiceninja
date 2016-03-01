@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Ninja\Notifications;
+namespace App\Services;
 
 use Illuminate\Http\Request;
-
+use App\Ninja\Notifications\PushFactory;
 /**
  * Class PushService
  * @package App\Ninja\Notifications
@@ -13,7 +13,9 @@ use Illuminate\Http\Request;
 /**
  * $account->devices Definition
  *
- * @param string token
+ * @param string token (push notification device token)
+ * @param string email (user email address - required for use as key)
+ * @param string device (ios, gcm etc etc)
  * @param bool notify_sent
  * @param bool notify_paid
  * @param bool notify_approved
@@ -24,6 +26,9 @@ class PushService
 {
     protected $pushFactory;
 
+    /**
+     * @param PushFactory $pushFactory
+     */
     public function __construct(PushFactory $pushFactory)
     {
         $this->pushFactory = $pushFactory;
@@ -45,7 +50,7 @@ class PushService
 
         foreach($devices as $device)
         {
-            if($device["notify_{$type}"] == TRUE)
+            if(($device["notify_{$type}"] == TRUE) && ($device['device'] == 'ios'))
                 $this->pushMessage($invoice, $device['token'], $device["notify_{$type}"]);
         }
 
@@ -53,6 +58,11 @@ class PushService
     }
 
 
+    /**
+     * @param $invoice
+     * @param $token
+     * @param $type
+     */
     private function pushMessage($invoice, $token, $type)
     {
         $this->pushFactory->message($token, $this->messageType($invoice, $type));
@@ -77,6 +87,11 @@ class PushService
             return FALSE;
     }
 
+    /**
+     * @param $invoice
+     * @param $type
+     * @return string
+     */
     private function messageType($invoice, $type)
     {
         switch($type)
@@ -99,6 +114,10 @@ class PushService
         }
     }
 
+    /**
+     * @param $invoice
+     * @return string
+     */
     private function entitySentMessage($invoice)
     {
         if($invoice->is_quote)
@@ -108,16 +127,28 @@ class PushService
 
     }
 
+    /**
+     * @param $invoice
+     * @return string
+     */
     private function invoicePaidMessage($invoice)
     {
         return 'Invoice #{$invoice->invoice_number} paid!';
     }
 
+    /**
+     * @param $invoice
+     * @return string
+     */
     private function quoteApprovedMessage($invoice)
     {
         return 'Quote #{$invoice->invoice_number} approved!';
     }
 
+    /**
+     * @param $invoice
+     * @return string
+     */
     private function entityViewedMessage($invoice)
     {
         if($invoice->is_quote)

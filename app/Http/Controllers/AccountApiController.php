@@ -117,4 +117,40 @@ class AccountApiController extends BaseAPIController
 
         return $this->response($account);
     }
+
+    public function addDeviceToken(Request $request)
+    {
+        $account = Auth::user()->account;
+
+        //scan if this user has a token already registered (tokens can change, so we need to use the users email as key)
+        $devices = json_decode($account->devices,TRUE);
+
+        if(count($devices) >= 1) {
+            foreach ($devices as $device) {
+                if ($device['email'] == Auth::user()->username) {
+                    $device['token'] = $request->token; //update
+                    return $this->response($account);
+                }
+            }
+        }
+        //User does not have a device, create new record
+
+        $newDevice = [
+            'token' => $request->token,
+            'email' => $request->email,
+            'device' => $request->device,
+            'notify_sent' => TRUE,
+            'notify_viewed' => TRUE,
+            'notify_approved' => TRUE,
+            'notify_paid' => TRUE,
+        ];
+
+        $devices[] = $newDevice;
+        $account->devices = json_encode($devices);
+        $account->save();
+
+        return $this->response($account);
+
+    }
+
 }

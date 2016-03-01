@@ -235,6 +235,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('tax_rates', 'TaxRateApiController');
     Route::resource('users', 'UserApiController');
     Route::resource('expenses','ExpenseApiController');
+    Route::post('add_token', 'AccountApiController@addDeviceToken');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
