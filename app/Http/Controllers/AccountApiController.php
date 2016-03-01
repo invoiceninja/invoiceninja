@@ -125,14 +125,17 @@ class AccountApiController extends BaseAPIController
         //scan if this user has a token already registered (tokens can change, so we need to use the users email as key)
         $devices = json_decode($account->devices,TRUE);
 
-        if(count($devices) >= 1) {
-            foreach ($devices as $device) {
-                if ($device['email'] == Auth::user()->username) {
-                    $device['token'] = $request->token; //update
+
+            for($x=0; $x<count($devices); $x++)
+            {
+                if ($devices[$x]['email'] == Auth::user()->username) {
+                    $devices[$x]['token'] = $request->token; //update
+                    $account->devices = json_encode($devices);
+                    $account->save();
                     return $this->response($account);
                 }
             }
-        }
+
         //User does not have a device, create new record
 
         $newDevice = [
