@@ -19,7 +19,7 @@
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja) - $30
 
 ### Requirements
-* PHP >= 5.5.9
+* PHP >= 5.4
 * MCrypt PHP Extension
 * MySQL
 
@@ -28,7 +28,7 @@
 * [Postmark](https://postmarkapp.com/)
 
 ### Features
-* Built using Laravel 5.1
+* Built using Laravel 5
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Integrates with 50+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
