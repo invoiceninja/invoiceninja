@@ -1048,7 +1048,10 @@ $LANG = array(
     'invoice_item_fields' => 'Invoice Item Fields',
     'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
     'recurring_invoice_number' => 'Recurring Invoice Number',
-    'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.'
+    'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
+    'enable_client_portal' => 'Dashboard',
+    'enable_client_portal_help' => 'Show/hide the dashboard page in the client portal.',
+    
 );
 
 return $LANG;

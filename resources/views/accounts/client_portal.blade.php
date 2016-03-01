@@ -12,6 +12,7 @@
 	{!! Former::open_for_files()
                 ->addClass('warn-on-exit') !!}
 
+    {!! Former::populateField('enable_client_portal', intval($account->enable_client_portal)) !!}
     {!! Former::populateField('client_view_css', $client_view_css) !!}
 
     @if (!Utils::isNinja() && !Auth::user()->account->isWhiteLabel())
@@ -25,7 +26,20 @@
     @include('accounts.nav', ['selected' => ACCOUNT_CLIENT_PORTAL])
 
 	<div class="row">
-		<div class="col-md-12">
+	<div class="col-md-12">
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.client_portal') !!}</h3>
+          </div>
+            <div class="panel-body">
+                <div class="col-md-10 col-md-offset-1">
+                    {!! Former::checkbox('enable_client_portal')
+                            ->text(trans('texts.enable'))
+                            ->help(trans('texts.enable_client_portal_help')) !!}
+                </div>
+            </div>
+        </div>
 
         <div class="panel panel-default">
           <div class="panel-heading">
@@ -43,7 +57,7 @@
                 </div>
             </div>
         </div>
-        </div>
+    </div>
     </div>
 	
 	<center>
