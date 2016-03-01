@@ -236,6 +236,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('users', 'UserApiController');
     Route::resource('expenses','ExpenseApiController');
     Route::post('add_token', 'AccountApiController@addDeviceToken');
+    Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
