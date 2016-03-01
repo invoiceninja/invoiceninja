@@ -209,18 +209,28 @@ NINJA.decodeJavascript = function(invoice, javascript)
     }
 
     // search/replace values 
-    var regExp = new RegExp('"\\$[\\\w\\\.]*?Value"', 'g');
+    var regExp = new RegExp('"\\$[a-z][\\\w\\\.]*?[Value]?"', 'g');
     var matches = javascript.match(regExp);    
-    
+
     if (matches) {
         for (var i=0; i<matches.length; i++) {
             var match = matches[i];
-            field = match.substring(2, match.indexOf('Value'));
+
+            // reserved words
+            if (['"$none"', '"$firstAndLast"', '"$notFirstAndLastColumn"', '"$notFirst"', '"$amount"', '"$primaryColor"', '"$secondaryColor"'].indexOf(match) >= 0) {
+                continue;
+            }
+
+            // legacy style had 'Value' at the end
+            if (endsWith(match, 'Value"')) {
+                field = match.substring(2, match.indexOf('Value'));
+            } else {
+                field = match.substring(2, match.length - 1);
+            }            
             field = toSnakeCase(field);
-            
+
             var value = getDescendantProp(invoice, field) || ' ';
             value = doubleDollarSign(value);
-
             javascript = javascript.replace(match, '"'+value+'"');
         }
     }
@@ -249,7 +259,21 @@ NINJA.notesAndTerms = function(invoice)
 NINJA.invoiceColumns = function(invoice)
 {
     var account = invoice.account;
-    var columns = ["15%", "*"];
+    var columns = [];
+
+    if (invoice.has_product_key) {
+        columns.push("15%");
+    }
+
+    columns.push("*")
+
+    if (account.custom_invoice_item_label1) {
+        columns.push("10%");
+    }
+    if (account.custom_invoice_item_label2) {
+        columns.push("10%");
+    }
+
     var count = 3;
     if (account.hide_quantity == '1') {
         count--;
@@ -260,6 +284,7 @@ NINJA.invoiceColumns = function(invoice)
     for (var i=0; i<count; i++) {
         columns.push("14%");
     }
+
     return columns;
 }
 
@@ -283,16 +308,28 @@ NINJA.taxWidth = function(invoice)
 }
 
 NINJA.invoiceLines = function(invoice) {
+    var account = invoice.account;
     var total = 0;
     var shownItem = false;
     var hideQuantity = invoice.account.hide_quantity == '1';
     var showItemTaxes = invoice.account.show_item_taxes == '1';
 
-    var grid = [[
-        {text: invoiceLabels.item, style: ['tableHeader', 'itemTableHeader']}, 
-        {text: invoiceLabels.description, style: ['tableHeader', 'descriptionTableHeader']},
-        {text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']}
-    ]];
+    var grid = [[]];
+
+    if (invoice.has_product_key) {
+        grid[0].push({text: invoiceLabels.item, style: ['tableHeader', 'itemTableHeader']});
+    }
+
+    grid[0].push({text: invoiceLabels.description, style: ['tableHeader', 'descriptionTableHeader']});
+
+    if (account.custom_invoice_item_label1) {
+        grid[0].push({text: account.custom_invoice_item_label1, style: ['tableHeader', 'custom1TableHeader']});
+    }
+    if (account.custom_invoice_item_label2) {
+        grid[0].push({text: account.custom_invoice_item_label2, style: ['tableHeader', 'custom2TableHeader']});
+    }
+
+    grid[0].push({text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']});
 
     if (!hideQuantity) {
         grid[0].push({text: invoiceLabels.quantity, style: ['tableHeader', 'qtyTableHeader']});
@@ -339,8 +376,16 @@ NINJA.invoiceLines = function(invoice) {
 
         rowStyle = (i % 2 == 0) ? 'odd' : 'even';
         
-        row.push({style:["productKey", rowStyle], text:productKey || ' '}); // product key can be blank when selecting from a datalist
+        if (invoice.has_product_key) {
+            row.push({style:["productKey", rowStyle], text:productKey || ' '}); // product key can be blank when selecting from a datalist
+        }
         row.push({style:["notes", rowStyle], stack:[{text:notes || ' '}]}); 
+        if (account.custom_invoice_item_label1) {
+            row.push({style:["customValue1", rowStyle], text:item.custom_value1 || ' '});
+        }
+        if (account.custom_invoice_item_label2) {
+            row.push({style:["customValue2", rowStyle], text:item.custom_value2 || ' '});
+        }
         row.push({style:["cost", rowStyle], text:cost});
         if (!hideQuantity) {
             row.push({style:["quantity", rowStyle], text:qty || ' '});

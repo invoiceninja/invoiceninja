@@ -1,5 +1,6 @@
 <tr>
     <td>{{ trans('texts.client') }}</td>
+    <td>{{ trans('texts.email') }}</td>
     @if ($multiUser)
         <td>{{ trans('texts.user') }}</td>
     @endif
@@ -28,6 +29,7 @@
     @if (!$invoice->client->is_deleted)
         <tr>
             <td>{{ $invoice->present()->client }}</td>
+            <td>{{ $invoice->present()->email }}</td>
             @if ($multiUser)
                 <td>{{ $invoice->present()->user }}</td>
             @endif

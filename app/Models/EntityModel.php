@@ -81,6 +81,11 @@ class EntityModel extends Eloquent
         return $query;
     }
 
+    public function scopeWithArchived($query)
+    {
+        return $query->withTrashed()->where('is_deleted', '=', false);
+    }
+
     public function getName()
     {
         return $this->public_id;

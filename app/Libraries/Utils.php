@@ -72,7 +72,7 @@ class Utils
 
     public static function requireHTTPS()
     {
-        if (Request::root() === 'http://ninja.dev:8000') {
+        if (Request::root() === 'http://ninja.dev' || Request::root() === 'http://ninja.dev:8000') {
             return false;
         }
 
@@ -767,9 +767,11 @@ class Utils
         return $str;
     }
 
-    public static function exportData($output, $data)
+    public static function exportData($output, $data, $headers = false)
     {
-        if (count($data) > 0) {
+        if ($headers) {
+            fputcsv($output, $headers);
+        } elseif (count($data) > 0) {
             fputcsv($output, array_keys($data[0]));
         }
 

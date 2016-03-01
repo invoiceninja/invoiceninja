@@ -10,8 +10,6 @@ use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\AuthService;
-use Illuminate\Contracts\Auth\Guard;
-use Illuminate\Contracts\Auth\Registrar;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 
 class AuthController extends Controller {
@@ -41,15 +39,37 @@ class AuthController extends Controller {
 	 * @param  \Illuminate\Contracts\Auth\Registrar  $registrar
 	 * @return void
 	 */
-	public function __construct(Guard $auth, Registrar $registrar, AccountRepository $repo, AuthService $authService)
+	public function __construct(AccountRepository $repo, AuthService $authService)
 	{
-		$this->auth = $auth;
-		$this->registrar = $registrar;
         $this->accountRepo = $repo;
         $this->authService = $authService;
 
 		//$this->middleware('guest', ['except' => 'getLogout']);
 	}
+
+    public function validator(array $data)
+    {
+        return Validator::make($data, [
+            'name' => 'required|max:255',
+            'email' => 'required|email|max:255|unique:users',
+            'password' => 'required|confirmed|min:6',
+        ]);
+    }
+
+    /**
+     * Create a new user instance after a valid registration.
+     *
+     * @param  array  $data
+     * @return User
+     */
+    public function create(array $data)
+    {
+        return User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+        ]);
+    }
 
     public function authLogin($provider, Request $request)
     {

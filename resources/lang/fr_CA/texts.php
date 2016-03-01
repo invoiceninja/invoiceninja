@@ -741,8 +741,7 @@ return array(
     'primary_user' => 'Utilisateur principal',
     'help' => 'Aide',
     'customize_help' => '<p>Nous utilisons <a href="http://pdfmake.org/" target="_blank">pdfmake</a> pour définir le design des factures de façon déclarative. L\'<a href="http://pdfmake.org/playground.html" target="_blank">environnement</a> pdfmake permet de voir la librairie en action.</p>
-    <p>Vous pouvez accéder à n\'importe quel champ de facture en ajoutant <code>Value</code> à la fin. Par exemple <code>$invoiceNumberValue</code> affiche le numéro de facture.</p>
-    <p>Pour accéder à une propriété enfant en utilisant la notation par point. Par exemple <code>$client.nameValue</code>affiche le nom du client.</p>
+    <p>Pour accéder à une propriété enfant en utilisant la notation par point. Par exemple <code>$client.name</code>affiche le nom du client.</p>
     <p>Si vous avez besoin d\'aide à cet effet, n\'hésitez pas à publier une question sur notre <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">forum d\'aide (en anglais)</a>.</p>',
 
     'invoice_due_date' => 'Échéance',

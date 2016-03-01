@@ -32,7 +32,7 @@
         var NINJA = NINJA || {};
         NINJA.fontSize = 9;
         NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};
-
+        
         window.onerror = function (errorMsg, url, lineNumber, column, error) {
             if (errorMsg.indexOf('Script error.') > -1) {
                 return;

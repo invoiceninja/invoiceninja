@@ -19,7 +19,8 @@
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja) - $30
 
 ### Requirements
-* PHP >= 5.4
+
+* PHP >= 5.5.9
 * MCrypt PHP Extension
 * MySQL
 
@@ -68,6 +69,8 @@ We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-mode
 * [patricktalmadge/bootstrapper](https://github.com/patricktalmadge/bootstrapper) - Laravel Twitter Bootstrap Bundle
 * [danielfarrell/bootstrap-combobox](https://github.com/danielfarrell/bootstrap-combobox) - A combobox plugin 
 * [eternicode/bootstrap-datepicker](https://github.com/eternicode/bootstrap-datepicker) - A datepicker for @twitter bootstrap
+* [twitter/typeahead.js](https://github.com/twitter/typeahead.js) - a fast and fully-featured autocomplete library
+* [krisk/Fuse](https://github.com/krisk/Fuse) - Lightweight fuzzy-search, in JavaScript
 * [knockout/knockout](https://github.com/knockout/knockout) - Knockout makes it easier to create rich, responsive UIs with JavaScript
 * [rniemeyer/knockout-sortable](https://github.com/rniemeyer/knockout-sortable) - A Knockout.js binding to connect observableArrays with jQuery UI sortable functionality
 * [bpampuch/pdfmake](https://github.com/bpampuch/pdfmake) - Client/server side PDF printing in pure JavaScript

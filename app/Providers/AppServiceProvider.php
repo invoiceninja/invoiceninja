@@ -223,11 +223,6 @@ class AppServiceProvider extends ServiceProvider {
 			'Illuminate\Contracts\Auth\Registrar',
 			'App\Services\Registrar'
 		);
-
-        $this->app->bind(
-            'App\Ninja\Import\DataImporterServiceInterface',
-            'App\Ninja\Import\FreshBooks\FreshBooksDataImporterService'
-        );
 	}
 
 }

@@ -243,6 +243,7 @@ class AppController extends BaseController
         if (!Utils::isNinjaProd()) {
             try {
                 set_time_limit(60 * 5);
+                Artisan::call('optimize', array('--force' => true));
                 Cache::flush();
                 Session::flush();
                 Artisan::call('migrate', array('--force' => true));
@@ -250,11 +251,14 @@ class AppController extends BaseController
                     'PaymentLibraries',
                     'Fonts',
                     'Banks',
-                    'InvoiceStatus'
+                    'InvoiceStatus',
+                    'Currencies',
+                    'DateFormats',
+                    'InvoiceDesigns',
+                    'PaymentTerms',
                 ] as $seeder) {
                     Artisan::call('db:seed', array('--force' => true, '--class' => "{$seeder}Seeder"));
                 }
-                Artisan::call('optimize', array('--force' => true));
                 Event::fire(new UserSettingsChanged());
                 Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {
@@ -288,7 +292,7 @@ class AppController extends BaseController
         }
 
         if (Utils::getResllerType() == RESELLER_REVENUE_SHARE) {
-            $payments = DB::table('accounts')
+            $data = DB::table('accounts')
                             ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
                             ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
                             ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
@@ -300,15 +304,9 @@ class AppController extends BaseController
                                 'payments.amount'
                             ]);
         } else {
-            $payments = DB::table('accounts')
-                            ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
-                            ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
-                            ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
-                            ->where('payments.is_deleted', '=', false)
-                            ->groupBy('clients.id')
-                            ->count();
+            $data = DB::table('users')->count();
         }
 
-        return json_encode($payments);
+        return json_encode($data);
     }
 }

@@ -747,8 +747,7 @@ return array(
     'primary_user' => 'Primärer Benutzer',
     'help' => 'Hilfe',
     'customize_help' => '<p>Wir benutzen zur deklarativen Definition der Rechnungsdesigns <a href="http://pdfmake.org/" target="_blank">pdfmake</a>. Der pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> bietet Gelegenheit die Bibliothek in Aktion zu sehen.</p>
-                        <p>Man kann jedes Rechnungsfeld nutzen, in dem man <code>Value</code> hinten anhängt. Zum Beispiel zeigt <code>$invoiceNumberValue</code> die Rechnungsnummer.</p>
-                        <p>Mit der <i>dot notation</i> kann auf Kind-Eigenschaften zugegriffen werden. Für den Kundennamen kann man zum Beispiel <code>$client.nameValue</code> benutzen.</p>
+                        <p>Mit der <i>dot notation</i> kann auf Kind-Eigenschaften zugegriffen werden. Für den Kundennamen kann man zum Beispiel <code>$client.name</code> benutzen.</p>
                         <p>Wenn du Hilfe brauchst schreibe uns gern im <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">Support Forum</a> (Englisch).</p>',
 
     'invoice_due_date' => 'Fällig am',

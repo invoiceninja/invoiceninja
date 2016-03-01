@@ -15,6 +15,7 @@ use Response;
 use Request;
 use App\Models\Affiliate;
 use App\Models\License;
+use App\Models\Invoice;
 use App\Models\User;
 use App\Models\Account;
 use App\Models\Gateway;
@@ -393,6 +394,21 @@ class AccountController extends BaseController
 
         if ($section == ACCOUNT_CUSTOMIZE_DESIGN) {
             $data['customDesign'] = ($account->custom_design && !$design) ? $account->custom_design : $design;
+
+            // sample invoice to help determine variables
+            $invoice = Invoice::scope()
+                            ->with('client', 'account')
+                            ->where('is_quote', '=', false)
+                            ->where('is_recurring', '=', false)
+                            ->first();
+
+            if ($invoice) {
+                $invoice->hidePrivateFields();
+                unset($invoice->account);
+                unset($invoice->invoice_items);
+                unset($invoice->client->contacts);
+                $data['sampleInvoice'] = $invoice;
+            }
         }
 
         return View::make("accounts.{$section}", $data);
@@ -416,6 +432,7 @@ class AccountController extends BaseController
             'client_view_css' => $css,
             'title' => trans("texts.client_portal"),
             'section' => ACCOUNT_CLIENT_PORTAL,
+            'account' => $account,
         ];
 
         return View::make("accounts.client_portal", $data);
@@ -528,6 +545,7 @@ class AccountController extends BaseController
 
             $account = Auth::user()->account;
             $account->client_view_css = $sanitized_css;
+            $account->enable_client_portal = Input::get('enable_client_portal') ? true : false;
             $account->save();
 
             Session::flash('message', trans('texts.updated_settings'));
@@ -668,6 +686,8 @@ class AccountController extends BaseController
                 $account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;
                 $account->custom_invoice_text_label1 = trim(Input::get('custom_invoice_text_label1'));
                 $account->custom_invoice_text_label2 = trim(Input::get('custom_invoice_text_label2'));
+                $account->custom_invoice_item_label1 = trim(Input::get('custom_invoice_item_label1'));
+                $account->custom_invoice_item_label2 = trim(Input::get('custom_invoice_item_label2'));
 
                 $account->invoice_number_counter = Input::get('invoice_number_counter');
                 $account->quote_number_prefix = Input::get('quote_number_prefix');
@@ -676,6 +696,7 @@ class AccountController extends BaseController
                 $account->invoice_footer = Input::get('invoice_footer');
                 $account->quote_terms = Input::get('quote_terms');
                 $account->auto_convert_quote = Input::get('auto_convert_quote');
+                $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');
 
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');

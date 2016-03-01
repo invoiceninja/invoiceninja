@@ -76,9 +76,11 @@
         <div id="navbar" class="collapse navbar-collapse">
             @if (!isset($hideHeader) || !$hideHeader)
             <ul class="nav navbar-nav navbar-right">
-                <li {{ Request::is('*client/dashboard') ? 'class="active"' : '' }}>
-                    {!! link_to('/client/dashboard', trans('texts.dashboard') ) !!}
-                </li>
+                @if (!isset($hideDashboard) || !$hideDashboard)
+                    <li {{ Request::is('*client/dashboard') ? 'class="active"' : '' }}>
+                        {!! link_to('/client/dashboard', trans('texts.dashboard') ) !!}
+                    </li>
+                @endif
                 <li {{ Request::is('*client/quotes') ? 'class="active"' : '' }}>
                     {!! link_to('/client/quotes', trans('texts.quotes') ) !!}
                 </li>
