@@ -59,6 +59,10 @@ class PushService
 
 
     /**
+     * pushMessage function
+     *
+     * method to dispatch iOS notifications
+     *
      * @param $invoice
      * @param $token
      * @param $type
@@ -88,6 +92,10 @@ class PushService
     }
 
     /**
+     * messageType function
+     *
+     * method which formats an appropriate message depending on message type
+     *
      * @param $invoice
      * @param $type
      * @return string
