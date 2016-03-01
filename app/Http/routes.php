@@ -235,6 +235,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('tax_rates', 'TaxRateApiController');
     Route::resource('users', 'UserApiController');
     Route::resource('expenses','ExpenseApiController');
+    Route::post('add_token', 'AccountApiController@addDeviceToken');
+    Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
@@ -551,6 +553,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('TEST_USERNAME', 'user@example.com');
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
+
+    define('IOS_PRODUCTION_PUSH','ninjaIOS');
+    define('IOS_DEV_PUSH','devNinjaIOS');
 
     define('TOKEN_BILLING_DISABLED', 1);
     define('TOKEN_BILLING_OPT_IN', 2);

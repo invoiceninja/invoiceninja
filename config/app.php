@@ -164,6 +164,7 @@ return [
         'App\Providers\RouteServiceProvider',
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
+        'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
     ],
 
     /*
@@ -249,6 +250,7 @@ return [
         'Rocketeer'       => 'Rocketeer\Facades\Rocketeer',
         'Socialite'       => 'Laravel\Socialite\Facades\Socialite',
         'Excel'           => 'Maatwebsite\Excel\Facades\Excel',
+        'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
 
     ],
 
