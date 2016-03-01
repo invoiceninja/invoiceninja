@@ -22,7 +22,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Buckaroo', 'provider' => 'Buckaroo_CreditCard', 'payment_library_id' => 1],
             ['name' => 'Coinbase', 'provider' => 'Coinbase', 'payment_library_id' => 1],
             ['name' => 'DataCash', 'provider' => 'DataCash', 'payment_library_id' => 1],
-            ['name' => 'Neteller', 'provider' => 'Neteller', 'payment_library_id' => 1],
+            ['name' => 'Neteller', 'provider' => 'Neteller', 'payment_library_id' => 2],
             ['name' => 'Pacnet', 'provider' => 'Pacnet', 'payment_library_id' => 1],
             ['name' => 'PaymentSense', 'provider' => 'PaymentSense', 'payment_library_id' => 1],
             ['name' => 'Realex', 'provider' => 'Realex_Remote', 'payment_library_id' => 1],

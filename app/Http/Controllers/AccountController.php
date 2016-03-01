@@ -432,6 +432,7 @@ class AccountController extends BaseController
             'client_view_css' => $css,
             'title' => trans("texts.client_portal"),
             'section' => ACCOUNT_CLIENT_PORTAL,
+            'account' => $account,
         ];
 
         return View::make("accounts.client_portal", $data);
@@ -544,6 +545,7 @@ class AccountController extends BaseController
 
             $account = Auth::user()->account;
             $account->client_view_css = $sanitized_css;
+            $account->enable_client_portal = Input::get('enable_client_portal') ? true : false;
             $account->save();
 
             Session::flash('message', trans('texts.updated_settings'));
