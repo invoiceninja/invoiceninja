@@ -43,7 +43,7 @@ class AddCustomInvoiceFields extends Migration
             $table->dropColumn('devices');
         });
 
-        Schema::table('accounts', function($table) {
+        Schema::table('invoice_items', function($table) {
             $table->dropColumn('custom_value1');
             $table->dropColumn('custom_value2');
         });
