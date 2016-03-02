@@ -32,7 +32,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Buckaroo', 'provider' => 'Buckaroo_CreditCard', 'payment_library_id' => 1],
             ['name' => 'Coinbase', 'provider' => 'Coinbase', 'payment_library_id' => 1],
             ['name' => 'DataCash', 'provider' => 'DataCash', 'payment_library_id' => 1],
-            ['name' => 'Neteller', 'provider' => 'Neteller', 'payment_library_id' => 1],
+            ['name' => 'Neteller', 'provider' => 'Neteller', 'payment_library_id' => 2],
             ['name' => 'Pacnet', 'provider' => 'Pacnet', 'payment_library_id' => 1],
             ['name' => 'PaymentSense', 'provider' => 'PaymentSense', 'payment_library_id' => 1],
             ['name' => 'Realex', 'provider' => 'Realex_Remote', 'payment_library_id' => 1],
@@ -157,7 +157,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['format' => 'd-m-Y', 'picker_format' => 'dd-mm-yyyy', 'label' => '20-03-2013'],
             ['format' => 'm/d/Y', 'picker_format' => 'mm/dd/yyyy', 'label' => '03/20/2013']
         ];
-        
+
         foreach ($formats as $format) {
             $record = DateFormat::whereLabel($format['label'])->first();
             if ($record) {
@@ -224,7 +224,7 @@ class PaymentLibrariesSeeder extends Seeder
                 'label' => '03/20/2013 6:15 pm'
             ]
         ];
-        
+
         foreach ($formats as $format) {
             $record = DatetimeFormat::whereLabel($format['label'])->first();
             if ($record) {
@@ -250,7 +250,7 @@ class PaymentLibrariesSeeder extends Seeder
             'Playful',
             'Photo',
         ];
-        
+
         for ($i=0; $i<count($designs); $i++) {
             $design = $designs[$i];
             $fileName = storage_path() . '/templates/' . strtolower($design) . '.js';
