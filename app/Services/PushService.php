@@ -51,7 +51,7 @@ class PushService
         foreach($devices as $device)
         {
             if(($device["notify_{$type}"] == TRUE) && ($device['device'] == 'ios'))
-                $this->pushMessage($invoice, $device['token'], $device["notify_{$type}"]);
+                $this->pushMessage($invoice, $device['token'], $type);
         }
 
 
@@ -104,19 +104,19 @@ class PushService
     {
         switch($type)
         {
-            case 'notify_sent':
+            case 'sent':
                 return $this->entitySentMessage($invoice);
                 break;
 
-            case 'notify_paid':
+            case 'paid':
                 return $this->invoicePaidMessage($invoice);
                 break;
 
-            case 'notify_approved':
+            case 'approved':
                 return $this->quoteApprovedMessage($invoice);
                 break;
 
-            case 'notify_viewed':
+            case 'viewed':
                 return $this->entityViewedMessage($invoice);
                 break;
         }
