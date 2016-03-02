@@ -120,7 +120,8 @@ class AccountApiController extends BaseAPIController
 
     public function addDeviceToken(Request $request)
     {
-        $account = Auth::user()->account;
+        //$account = Auth::user()->account;
+        $account = Account::where('account_key', $request->account_key)->first();
 
         //scan if this user has a token already registered (tokens can change, so we need to use the users email as key)
         $devices = json_decode($account->devices,TRUE);
@@ -132,7 +133,7 @@ class AccountApiController extends BaseAPIController
                     $devices[$x]['token'] = $request->token; //update
                     $account->devices = json_encode($devices);
                     $account->save();
-                    return $this->response($account);
+                    return $this->response($devices[$x]);
                 }
             }
 
@@ -158,7 +159,8 @@ class AccountApiController extends BaseAPIController
 
     public function updatePushNotifications(Request $request)
     {
-        $account = Auth::user()->account;
+        //$account = Auth::user()->account;
+        $account = Account::where('account_key', $request->account_key)->first();
 
         $devices = json_decode($account->devices, TRUE);
 
