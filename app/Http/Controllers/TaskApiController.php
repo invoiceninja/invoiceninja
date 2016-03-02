@@ -15,7 +15,7 @@ class TaskApiController extends BaseAPIController
 
     public function __construct(TaskRepository $taskRepo)
     {
-        //parent::__construct();
+        parent::__construct();
 
         $this->taskRepo = $taskRepo;
     }

@@ -16,7 +16,7 @@ class VendorApiController extends BaseAPIController
 
     public function __construct(VendorRepository $vendorRepo)
     {
-        //parent::__construct();
+        parent::__construct();
 
         $this->vendorRepo = $vendorRepo;
     }

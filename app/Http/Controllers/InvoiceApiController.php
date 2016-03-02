@@ -28,7 +28,7 @@ class InvoiceApiController extends BaseAPIController
 
     public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer)
     {
-        //parent::__construct();
+        parent::__construct();
 
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;

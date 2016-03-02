@@ -25,7 +25,7 @@ class ProductApiController extends BaseAPIController
 
     public function __construct(ProductService $productService, ProductRepository $productRepo)
     {
-        //parent::__construct();
+        parent::__construct();
 
         $this->productService = $productService;
         $this->productRepo = $productRepo;

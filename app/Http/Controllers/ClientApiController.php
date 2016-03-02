@@ -20,7 +20,7 @@ class ClientApiController extends BaseAPIController
 
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
-        //parent::__construct();
+        parent::__construct();
 
         $this->clientRepo = $clientRepo;
         $this->clientService = $clientService;

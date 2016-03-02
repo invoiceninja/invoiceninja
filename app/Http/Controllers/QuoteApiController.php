@@ -15,7 +15,7 @@ class QuoteApiController extends BaseAPIController
 
     public function __construct(InvoiceRepository $invoiceRepo)
     {
-        //parent::__construct();
+        parent::__construct();
 
         $this->invoiceRepo = $invoiceRepo;
     }

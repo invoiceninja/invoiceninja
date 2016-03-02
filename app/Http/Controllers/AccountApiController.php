@@ -27,7 +27,7 @@ class AccountApiController extends BaseAPIController
 
     public function __construct(AccountRepository $accountRepo)
     {
-        //parent::__construct();
+        parent::__construct();
 
         $this->accountRepo = $accountRepo;
     }
