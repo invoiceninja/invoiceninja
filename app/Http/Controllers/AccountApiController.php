@@ -132,7 +132,7 @@ class AccountApiController extends BaseAPIController
                     $devices[$x]['token'] = $request->token; //update
                     $account->devices = json_encode($devices);
                     $account->save();
-                    return $this->response($account);
+                    return $this->response($devices[$x]);
                 }
             }
 
