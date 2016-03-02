@@ -129,9 +129,9 @@ class PushService
     private function entitySentMessage($invoice)
     {
         if($invoice->is_quote)
-            return 'Quote #{$invoice->invoice_number} sent!';
+            return "Quote #{$invoice->invoice_number} sent!";
         else
-            return 'Invoice #{$invoice->invoice_number} sent!';
+            return "Invoice #{$invoice->invoice_number} sent";
 
     }
 
@@ -141,7 +141,7 @@ class PushService
      */
     private function invoicePaidMessage($invoice)
     {
-        return 'Invoice #{$invoice->invoice_number} paid!';
+        return "Invoice #{$invoice->invoice_number} paid!";
     }
 
     /**
@@ -150,7 +150,7 @@ class PushService
      */
     private function quoteApprovedMessage($invoice)
     {
-        return 'Quote #{$invoice->invoice_number} approved!';
+        return "Quote #{$invoice->invoice_number} approved!";
     }
 
     /**
@@ -160,9 +160,9 @@ class PushService
     private function entityViewedMessage($invoice)
     {
         if($invoice->is_quote)
-            return 'Quote #{$invoice->invoice_number} viewed!';
+            return "Quote #{$invoice->invoice_number} viewed!";
         else
-            return 'Invoice #{$invoice->invoice_number} viewed!';
+            return "Invoice #{$invoice->invoice_number} viewed!";
 
     }
 
