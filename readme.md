@@ -29,7 +29,7 @@
 * [Postmark](https://postmarkapp.com/)
 
 ### Features
-* Built using Laravel 5
+* Built using Laravel 5.2
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Integrates with 50+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
@@ -67,7 +67,7 @@ We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-mode
 * [jquery/jquery](https://github.com/jquery/jquery) - jQuery JavaScript Library
 * [jquery/jquery-ui](https://github.com/jquery/jquery-ui) - The official jQuery user interface library
 * [patricktalmadge/bootstrapper](https://github.com/patricktalmadge/bootstrapper) - Laravel Twitter Bootstrap Bundle
-* [danielfarrell/bootstrap-combobox](https://github.com/danielfarrell/bootstrap-combobox) - A combobox plugin 
+* [danielfarrell/bootstrap-combobox](https://github.com/danielfarrell/bootstrap-combobox) - A combobox plugin
 * [eternicode/bootstrap-datepicker](https://github.com/eternicode/bootstrap-datepicker) - A datepicker for @twitter bootstrap
 * [twitter/typeahead.js](https://github.com/twitter/typeahead.js) - a fast and fully-featured autocomplete library
 * [krisk/Fuse](https://github.com/krisk/Fuse) - Lightweight fuzzy-search, in JavaScript
@@ -87,7 +87,7 @@ We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-mode
 * [mozilla/pdf.js](https://github.com/mozilla/pdf.js) - PDF Reader in JavaScript
 * [nnnick/Chart.js](https://github.com/nnnick/Chart.js) - Simple HTML5 Charts using the canvas tag
 * [josscrowcroft/accounting.js](https://github.com/josscrowcroft/accounting.js) - A lightweight JavaScript library for number, money and currency formatting
-* [jashkenas/underscore](https://github.com/jashkenas/underscore) - JavaScript's utility _ belt 
+* [jashkenas/underscore](https://github.com/jashkenas/underscore) - JavaScript's utility _ belt
 * [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) - List of languages ​​for Laravel4
 * [bgrins/spectrum](https://github.com/bgrins/spectrum) - The No Hassle JavaScript Colorpicker
 * [lokesh/lightbox2](https://github.com/lokesh/lightbox2/) - The original lightbox script
