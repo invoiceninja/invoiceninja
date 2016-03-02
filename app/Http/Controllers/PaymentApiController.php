@@ -19,7 +19,7 @@ class PaymentApiController extends BaseAPIController
 
     public function __construct(PaymentRepository $paymentRepo, ContactMailer $contactMailer)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->paymentRepo = $paymentRepo;
         $this->contactMailer = $contactMailer;

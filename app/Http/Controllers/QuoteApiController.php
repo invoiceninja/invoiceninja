@@ -15,7 +15,7 @@ class QuoteApiController extends BaseAPIController
 
     public function __construct(InvoiceRepository $invoiceRepo)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->invoiceRepo = $invoiceRepo;
     }
@@ -52,7 +52,7 @@ class QuoteApiController extends BaseAPIController
         }
 
         $invoices = $invoices->orderBy('created_at', 'desc')->paginate();
-        
+
         $transformer = new QuoteTransformer(\Auth::user()->account, Input::get('serializer'));
         $paginator = $paginator->paginate();
 

@@ -46,19 +46,19 @@ class ClientService extends BaseService
             [
                 'name',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->name ?: '');
+                    return link_to("clients/{$model->public_id}", $model->name ?: '')->toHtml();
                 }
             ],
             [
                 'first_name',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->first_name.' '.$model->last_name);
+                    return link_to("clients/{$model->public_id}", $model->first_name.' '.$model->last_name)->toHtml();
                 }
             ],
             [
                 'email',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->email ?: '');
+                    return link_to("clients/{$model->public_id}", $model->email ?: '')->toHtml();
                 }
             ],
             [

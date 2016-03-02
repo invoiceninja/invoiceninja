@@ -1,5 +1,6 @@
 <?php namespace App\Services;
 
+use HtmlString;
 use Utils;
 use Datatable;
 

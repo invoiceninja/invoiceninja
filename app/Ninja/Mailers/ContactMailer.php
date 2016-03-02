@@ -1,6 +1,6 @@
 <?php namespace App\Ninja\Mailers;
 
-use HTML;
+use Form;
 use Utils;
 use Event;
 use URL;
@@ -246,9 +246,9 @@ class ContactMailer extends Mailer
             '$quote' => $invoice->invoice_number,
             '$link' => $invitation->getLink(),
             '$viewLink' => $invitation->getLink(),
-            '$viewButton' => HTML::emailViewButton($invitation->getLink(), $invoice->getEntityType()),
+            '$viewButton' => Form::emailViewButton($invitation->getLink(), $invoice->getEntityType()),
             '$paymentLink' => $invitation->getLink('payment'),
-            '$paymentButton' => HTML::emailPaymentButton($invitation->getLink('payment')),
+            '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')),
             '$customClient1' => $account->custom_client_label1,
             '$customClient2' => $account->custom_client_label2,
             '$customInvoice1' => $account->custom_invoice_text_label1,
@@ -260,7 +260,7 @@ class ContactMailer extends Mailer
             $camelType = Gateway::getPaymentTypeName($type);
             $type = Utils::toSnakeCase($camelType);
             $variables["\${$camelType}Link"] = $invitation->getLink() . "/{$type}";
-            $variables["\${$camelType}Button"] = HTML::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
+            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
         }
 
         $str = str_replace(array_keys($variables), array_values($variables), $template);

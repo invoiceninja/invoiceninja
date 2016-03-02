@@ -33,7 +33,7 @@ class VendorController extends BaseController
 
     public function __construct(VendorRepository $vendorRepo, VendorService $vendorService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->vendorRepo = $vendorRepo;
         $this->vendorService = $vendorService;

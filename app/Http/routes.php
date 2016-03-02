@@ -1,6 +1,5 @@
 <?php
 
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -66,16 +65,16 @@ Route::post('/hook/email_bounced', 'AppController@emailBounced');
 Route::post('/hook/email_opened', 'AppController@emailOpened');
 
 // Laravel auth routes
-get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
-post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
-get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));
-post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper'));
-get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper'));
-get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
-post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
-get('/password/reset/{token}', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
-post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
-get('/user/confirm/{code}', 'UserController@confirm');
+Route::get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
+Route::post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
+Route::get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));
+Route::post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper'));
+Route::get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper'));
+Route::get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
+Route::post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
+Route::get('/password/reset/{token}', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
+Route::post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
+Route::get('/user/confirm/{code}', 'UserController@confirm');
 
 
 if (Utils::isNinja()) {
@@ -194,8 +193,8 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));
     Route::post('credits/bulk', 'CreditController@bulk');
 
-    get('/resend_confirmation', 'AccountController@resendConfirmation');
-    post('/update_setup', 'AppController@updateSetup');
+    Route::get('/resend_confirmation', 'AccountController@resendConfirmation');
+    Route::post('/update_setup', 'AppController@updateSetup');
 
 
     // vendor

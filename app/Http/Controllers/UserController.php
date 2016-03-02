@@ -30,7 +30,7 @@ class UserController extends BaseController
 
     public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer, UserMailer $userMailer, UserService $userService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
@@ -130,7 +130,7 @@ class UserController extends BaseController
     {
         $action = Input::get('bulk_action');
         $id = Input::get('bulk_public_id');
-        
+
         $user = User::where('account_id', '=', Auth::user()->account_id)
                     ->where('public_id', '=', $id)
                     ->withTrashed()
@@ -219,7 +219,7 @@ class UserController extends BaseController
 
             Session::flash('message', $message);
         }
-        
+
         return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
 
@@ -243,7 +243,7 @@ class UserController extends BaseController
     public function confirm($code, TokenRepositoryInterface $tokenRepo)
     {
         $user = User::where('confirmation_code', '=', $code)->get()->first();
-            
+
         if ($user) {
             $notice_msg = trans('texts.security.confirmation');
 
@@ -294,7 +294,7 @@ class UserController extends BaseController
         return Redirect::to('/')->with('clearGuestKey', true);
     }
     */
-    
+
     public function changePassword()
     {
         // check the current password is correct
@@ -326,7 +326,7 @@ class UserController extends BaseController
         $oldUserId = Auth::user()->id;
         $referer = Request::header('referer');
         $account = $this->accountRepo->findUserAccounts($newUserId, $oldUserId);
-        
+
         if ($account) {
             if ($account->hasUserId($newUserId) && $account->hasUserId($oldUserId)) {
                 Auth::loginUsingId($newUserId);
@@ -337,7 +337,7 @@ class UserController extends BaseController
                 Session::put('_token', str_random(40));
             }
         }
-        
+
         return Redirect::to($referer);
     }
 

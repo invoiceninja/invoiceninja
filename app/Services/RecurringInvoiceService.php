@@ -28,13 +28,13 @@ class RecurringInvoiceService extends BaseService
             [
                 'frequency',
                 function ($model) {
-                    return link_to("invoices/{$model->public_id}", $model->frequency);
+                    return link_to("invoices/{$model->public_id}", $model->frequency)->toHtml();
                 }
             ],
             [
                 'client_name',
                 function ($model) {
-                    return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model));
+                    return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                 },
                 ! $hideClient
             ],

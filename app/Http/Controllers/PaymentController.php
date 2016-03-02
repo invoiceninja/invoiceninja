@@ -32,7 +32,7 @@ class PaymentController extends BaseController
 {
     public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->paymentRepo = $paymentRepo;
         $this->invoiceRepo = $invoiceRepo;

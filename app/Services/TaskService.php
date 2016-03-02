@@ -42,14 +42,14 @@ class TaskService extends BaseService
             [
                 'client_name',
                 function ($model) {
-                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model)) : '';
+                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
                 ! $hideClient
             ],
             [
                 'created_at',
                 function ($model) {
-                    return link_to("tasks/{$model->public_id}/edit", Task::calcStartTime($model));
+                    return link_to("tasks/{$model->public_id}/edit", Task::calcStartTime($model))->toHtml();
                 }
             ],
             [

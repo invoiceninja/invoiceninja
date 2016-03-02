@@ -16,7 +16,7 @@ class TaxRateApiController extends BaseAPIController
 
     public function __construct(TaxRateService $taxRateService, TaxRateRepository $taxRateRepo)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->taxRateService = $taxRateService;
         $this->taxRateRepo = $taxRateRepo;

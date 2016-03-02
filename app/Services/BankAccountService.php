@@ -121,12 +121,12 @@ class BankAccountService extends BaseService
                 if ($transaction->amount >= 0) {
                     continue;
                 }
-                
+
                 // if vendor has already been imported use current name
                 $vendorName = trim(substr($transaction->name, 0, 20));
                 $key = strtolower($vendorName);
                 $vendor = isset($vendorMap[$key]) ? $vendorMap[$key] : null;
-                
+
                 $transaction->vendor = $vendor ? $vendor->name : $this->prepareValue($vendorName);
                 $transaction->info = $this->prepareValue(substr($transaction->name, 20));
                 $transaction->memo = $this->prepareValue($transaction->memo);
@@ -228,7 +228,7 @@ class BankAccountService extends BaseService
             [
                 'bank_name',
                 function ($model) {
-                    return link_to("bank_accounts/{$model->public_id}/edit", $model->bank_name);
+                    return link_to("bank_accounts/{$model->public_id}/edit", $model->bank_name)->toHtml();
                 },
             ],
             [

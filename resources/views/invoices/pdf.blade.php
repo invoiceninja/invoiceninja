@@ -62,20 +62,20 @@
 <script type="text/javascript">
   window.logoImages = {};
   
-  logoImages.imageLogo1 = "{{ HTML::image_data('images/report_logo1.jpg') }}";
+  logoImages.imageLogo1 = "{{ Form::image_data('images/report_logo1.jpg') }}";
   logoImages.imageLogoWidth1 =120;
   logoImages.imageLogoHeight1 = 40
 
-  logoImages.imageLogo2 = "{{ HTML::image_data('images/report_logo2.jpg') }}";
+  logoImages.imageLogo2 = "{{ Form::image_data('images/report_logo2.jpg') }}";
   logoImages.imageLogoWidth2 =325/2;
   logoImages.imageLogoHeight2 = 81/2;
 
-  logoImages.imageLogo3 = "{{ HTML::image_data('images/report_logo3.jpg') }}";
+  logoImages.imageLogo3 = "{{ Form::image_data('images/report_logo3.jpg') }}";
   logoImages.imageLogoWidth3 =325/2;
   logoImages.imageLogoHeight3 = 81/2;
 
   @if ($account->hasLogo())
-  window.accountLogo = "{{ HTML::image_data($account->getLogoPath()) }}";
+  window.accountLogo = "{{ Form::image_data($account->getLogoPath()) }}";
   if (window.invoice) {
     invoice.image = window.accountLogo;
     invoice.imageWidth = {{ $account->getLogoWidth() }};

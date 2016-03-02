@@ -42,7 +42,7 @@ class EntityModel extends Eloquent
     {
         $className = get_called_class();
 
-        return $className::scope($publicId)->withTrashed()->pluck('id');
+        return $className::scope($publicId)->withTrashed()->value('id');
     }
 
     public function getActivityKey()

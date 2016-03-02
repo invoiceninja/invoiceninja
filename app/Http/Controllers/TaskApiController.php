@@ -15,7 +15,7 @@ class TaskApiController extends BaseAPIController
 
     public function __construct(TaskRepository $taskRepo)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->taskRepo = $taskRepo;
     }
@@ -49,7 +49,7 @@ class TaskApiController extends BaseAPIController
             $tasks->whereHas('client', $filter);
             $paginator->whereHas('client', $filter);
         }
-        
+
         $tasks = $tasks->orderBy('created_at', 'desc')->paginate();
         $paginator = $paginator->paginate();
         $transformer = new TaskTransformer(\Auth::user()->account, Input::get('serializer'));
@@ -84,11 +84,11 @@ class TaskApiController extends BaseAPIController
     {
         $data = Input::all();
         $taskId = isset($data['id']) ? $data['id'] : false;
-        
+
         if (isset($data['client_id']) && $data['client_id']) {
             $data['client'] = $data['client_id'];
         }
-        
+
         $task = $this->taskRepo->save($taskId, $data);
         $task = Task::scope($task->public_id)->with('client')->first();
 

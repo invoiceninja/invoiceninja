@@ -212,9 +212,9 @@
                 "0001", 
                 "0001",
                 "{{ URL::to('/view/...') }}", 
-                '{!! HTML::flatButton('view_invoice', '#0b4d78') !!}',
+                '{!! Form::flatButton('view_invoice', '#0b4d78') !!}',
                 "{{ URL::to('/payment/...') }}", 
-                '{!! HTML::flatButton('pay_now', '#36c157') !!}',
+                '{!! Form::flatButton('pay_now', '#36c157') !!}',
             ];
 
             // Add blanks for custom values
@@ -227,7 +227,7 @@
                 {!! "vals.push('" . URL::to('/payment/...') . "');" !!}
 
                 {!! "keys.push('" . \App\Models\Gateway::getPaymentTypeName($type).'Button' . "');" !!}
-                {!! "vals.push('" . HTML::flatButton('pay_now', '#36c157') . "');" !!}
+                {!! "vals.push('" . Form::flatButton('pay_now', '#36c157') . "');" !!}
             @endforeach
 
             for (var i=0; i<keys.length; i++) {

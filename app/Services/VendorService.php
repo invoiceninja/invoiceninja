@@ -46,7 +46,7 @@ class VendorService extends BaseService
             [
                 'name',
                 function ($model) {
-                    return link_to("vendors/{$model->public_id}", $model->name ?: '');
+                    return link_to("vendors/{$model->public_id}", $model->name ?: '')->toHtml();
                 }
             ],
             [
@@ -64,7 +64,7 @@ class VendorService extends BaseService
             [
                 'email',
                 function ($model) {
-                    return link_to("vendors/{$model->public_id}", $model->email ?: '');
+                    return link_to("vendors/{$model->public_id}", $model->email ?: '')->toHtml();
                 }
             ],
             [

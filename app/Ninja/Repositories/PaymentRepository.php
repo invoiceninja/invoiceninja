@@ -116,7 +116,7 @@ class PaymentRepository extends BaseRepository
     public function save($input)
     {
         $publicId = isset($input['public_id']) ? $input['public_id'] : false;
-        
+
         if ($publicId) {
             $payment = Payment::scope($publicId)->firstOrFail();
         } else {
@@ -136,7 +136,7 @@ class PaymentRepository extends BaseRepository
         } else {
             $payment->payment_date = date('Y-m-d');
         }
-         
+
         if (isset($input['transaction_reference'])) {
             $payment->transaction_reference = trim($input['transaction_reference']);
         }

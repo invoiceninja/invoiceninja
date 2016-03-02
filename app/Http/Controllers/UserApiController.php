@@ -16,7 +16,7 @@ class UserApiController extends BaseAPIController
 
     public function __construct(UserService $userService, UserRepository $userRepo)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->userService = $userService;
         $this->userRepo = $userRepo;
@@ -42,7 +42,7 @@ class UserApiController extends BaseAPIController
         return $this->save($request);
     }
     */
-    
+
     public function update(UpdateUserRequest $request, $userPublicId)
     {
         /*

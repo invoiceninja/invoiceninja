@@ -41,7 +41,7 @@ class AccountController extends BaseController
 
     public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->accountRepo = $accountRepo;
         $this->userMailer = $userMailer;

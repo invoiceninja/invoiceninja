@@ -30,7 +30,7 @@ class AppController extends BaseController
 
     public function __construct(AccountRepository $accountRepo, Mailer $mailer, EmailService $emailService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->accountRepo = $accountRepo;
         $this->mailer = $mailer;
@@ -78,7 +78,7 @@ class AppController extends BaseController
         } elseif (!$valid) {
             return Redirect::to('/setup')->withInput();
         }
-        
+
         if (Utils::isDatabaseSetup() && Account::count() > 0) {
             return Redirect::to('/');
         }
@@ -114,7 +114,7 @@ class AppController extends BaseController
         }
         Cache::flush();
         Artisan::call('optimize', array('--force' => true));
-        
+
         $firstName = trim(Input::get('first_name'));
         $lastName = trim(Input::get('last_name'));
         $email = trim(strtolower(Input::get('email')));
@@ -152,7 +152,7 @@ class AppController extends BaseController
         $_ENV['DB_DATABASE'] = $db['type']['database'];
         $_ENV['DB_USERNAME'] = $db['type']['username'];
         $_ENV['DB_PASSWORD'] = $db['type']['password'];
-        
+
         if ($mail) {
             $_ENV['MAIL_DRIVER'] = $mail['driver'];
             $_ENV['MAIL_PORT'] = $mail['port'];
@@ -184,7 +184,7 @@ class AppController extends BaseController
         foreach ($database['connections'][$dbType] as $key => $val) {
             Config::set("database.connections.{$dbType}.{$key}", $val);
         }
-        
+
         try {
             DB::reconnect();
             $valid = DB::connection()->getDatabaseName() ? true : false;
@@ -206,7 +206,7 @@ class AppController extends BaseController
 
         Config::set('mail.from.address', $email);
         Config::set('mail.from.name', $fromName);
-        
+
         $data = [
             'text' => 'Test email',
         ];
@@ -280,7 +280,7 @@ class AppController extends BaseController
     {
         $messageId = Input::get('MessageID');
         return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
-        
+
         return RESULT_SUCCESS;
     }
 

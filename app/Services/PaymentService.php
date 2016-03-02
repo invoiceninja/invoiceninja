@@ -202,7 +202,7 @@ class PaymentService extends BaseService
         if ($response->isRedirect()) {
             $token = $response->getTransactionReference();
         }
-        
+
         Session::set($invitation->id . 'payment_type', PAYMENT_TYPE_CREDIT_CARD);
 
         return $token;
@@ -273,7 +273,7 @@ class PaymentService extends BaseService
 
         // submit purchase/get response
         $response = $gateway->purchase($details)->send();
-        
+
         if ($response->isSuccessful()) {
             $ref = $response->getTransactionReference();
             return $this->createPayment($invitation, $accountGateway, $ref);
@@ -295,13 +295,13 @@ class PaymentService extends BaseService
             [
                 'invoice_number',
                 function ($model) {
-                    return link_to("invoices/{$model->invoice_public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)]);
+                    return link_to("invoices/{$model->invoice_public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                 }
             ],
             [
                 'client_name',
                 function ($model) {
-                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model)) : '';
+                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
                 ! $hideClient
             ],

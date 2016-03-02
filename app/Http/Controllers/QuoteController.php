@@ -36,7 +36,7 @@ class QuoteController extends BaseController
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
@@ -99,7 +99,7 @@ class QuoteController extends BaseController
             'title' => trans('texts.new_quote'),
         ];
         $data = array_merge($data, self::getViewModel());
-        
+
         return View::make('invoices.edit', $data);
     }
 
@@ -136,7 +136,7 @@ class QuoteController extends BaseController
             Session::flash('message', trans('texts.converted_to_invoice'));
             return Redirect::to('invoices/'.$clone->public_id);
         }
-        
+
         $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {

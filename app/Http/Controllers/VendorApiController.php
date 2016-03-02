@@ -16,7 +16,7 @@ class VendorApiController extends BaseAPIController
 
     public function __construct(VendorRepository $vendorRepo)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->vendorRepo = $vendorRepo;
     }
@@ -83,7 +83,7 @@ class VendorApiController extends BaseAPIController
     public function store(CreateVendorRequest $request)
     {
         $vendor = $this->vendorRepo->save($request->input());
-        
+
         $vendor = Vendor::scope($vendor->public_id)
                     ->with('country', 'vendorcontacts', 'industry', 'size', 'currency')
                     ->first();

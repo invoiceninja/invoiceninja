@@ -386,12 +386,12 @@
 
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
       <ul class="nav navbar-nav" style="font-weight: bold">
-        {!! HTML::nav_link('dashboard', 'dashboard') !!}
-        {!! HTML::menu_link('client') !!}
-        {!! HTML::menu_link('task') !!}
-        {!! HTML::menu_link('expense') !!}
-        {!! HTML::menu_link('invoice') !!}
-        {!! HTML::menu_link('payment') !!}
+        {!! Form::nav_link('dashboard', 'dashboard') !!}
+        {!! Form::menu_link('client') !!}
+        {!! Form::menu_link('task') !!}
+        {!! Form::menu_link('expense') !!}
+        {!! Form::menu_link('invoice') !!}
+        {!! Form::menu_link('payment') !!}
       </ul>
 
       <div id="navbar-options">
@@ -535,7 +535,7 @@
   @endif
 
   @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-    {!! HTML::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
+    {!! Form::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
   @endif
 
   @yield('content')		

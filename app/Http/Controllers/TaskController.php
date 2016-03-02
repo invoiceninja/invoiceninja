@@ -25,7 +25,7 @@ class TaskController extends BaseController
 
     public function __construct(TaskRepository $taskRepo, InvoiceRepository $invoiceRepo, TaskService $taskService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->taskRepo = $taskRepo;
         $this->invoiceRepo = $invoiceRepo;

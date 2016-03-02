@@ -1,11 +1,11 @@
 <?php namespace App\Services;
 
-use Illuminate\Foundation\Bus\DispatchesCommands;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Services\DatatableService;
 
 class BaseService
 {
-    use DispatchesCommands;
+    use DispatchesJobs;
 
     protected function getRepo()
     {

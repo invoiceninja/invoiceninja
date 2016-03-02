@@ -20,7 +20,7 @@ class CreditController extends BaseController
 
     public function __construct(CreditRepository $creditRepo, CreditService $creditService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->creditRepo = $creditRepo;
         $this->creditService = $creditService;
@@ -88,9 +88,9 @@ class CreditController extends BaseController
     public function store(CreateCreditRequest $request)
     {
         $credit = $this->creditRepo->save($request->input());
-        
+
         Session::flash('message', trans('texts.created_credit'));
-        
+
         return redirect()->to($credit->client->getRoute());
     }
 

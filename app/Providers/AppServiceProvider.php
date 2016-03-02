@@ -4,6 +4,7 @@ use Session;
 use Auth;
 use Utils;
 use HTML;
+use Form;
 use URL;
 use Request;
 use Validator;
@@ -18,18 +19,22 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-        HTML::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
+        Form::macro('image_data', function($imagePath) {
+            return 'data:image/jpeg;base64,' . base64_encode(file_get_contents($imagePath));
+        });
+
+        Form::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
             $class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2.'/*') ) ? ' class="active"' : '';
             $title = ucwords(trans("texts.$text")) . Utils::getProLabel($text);
             return '<li'.$class.'><a href="'.URL::to($url).'" '.$extra.'>'.$title.'</a></li>';
         });
 
-        HTML::macro('tab_link', function($url, $text, $active = false) {
+        Form::macro('tab_link', function($url, $text, $active = false) {
             $class = $active ? ' class="active"' : '';
             return '<li'.$class.'><a href="'.URL::to($url).'" data-toggle="tab">'.$text.'</a></li>';
         });
 
-        HTML::macro('menu_link', function($type) {
+        Form::macro('menu_link', function($type) {
             $types = $type.'s';
             $Type = ucfirst($type);
             $Types = ucfirst($types);
@@ -65,15 +70,11 @@ class AppServiceProvider extends ServiceProvider {
             return $str;
         });
 
-        HTML::macro('image_data', function($imagePath) {
-            return 'data:image/jpeg;base64,' . base64_encode(file_get_contents($imagePath));
-        });
-
-        HTML::macro('flatButton', function($label, $color) {
+        Form::macro('flatButton', function($label, $color) {
             return '<input type="button" value="' . trans("texts.{$label}") . '" style="background-color:' . $color . ';border:0 none;border-radius:5px;padding:12px 40px;margin:0 6px;cursor:hand;display:inline-block;font-size:14px;color:#fff;text-transform:none;font-weight:bold;"/>';
         });
 
-        HTML::macro('emailViewButton', function($link = '#', $entityType = ENTITY_INVOICE) {
+        Form::macro('emailViewButton', function($link = '#', $entityType = ENTITY_INVOICE) {
             return view('partials.email_button')
                         ->with([
                             'link' => $link,
@@ -83,7 +84,7 @@ class AppServiceProvider extends ServiceProvider {
                         ->render();
         });
 
-        HTML::macro('emailPaymentButton', function($link = '#') {
+        Form::macro('emailPaymentButton', function($link = '#') {
             return view('partials.email_button')
                         ->with([
                             'link' => $link,
@@ -93,7 +94,7 @@ class AppServiceProvider extends ServiceProvider {
                         ->render();
         });
 
-        HTML::macro('breadcrumbs', function($status = false) {
+        Form::macro('breadcrumbs', function($status = false) {
             $str = '<ol class="breadcrumb">';
 
             // Get the breadcrumbs by exploding the current path.
@@ -135,7 +136,7 @@ class AppServiceProvider extends ServiceProvider {
 
             return $str . '</ol>';
         });
-
+        
         Validator::extend('positive', function($attribute, $value, $parameters) {
             return Utils::parseFloat($value) >= 0;
         });
