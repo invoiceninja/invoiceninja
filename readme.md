@@ -19,6 +19,7 @@
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja) - $30
 
 ### Requirements
+
 * PHP >= 5.5.9
 * MCrypt PHP Extension
 * MySQL

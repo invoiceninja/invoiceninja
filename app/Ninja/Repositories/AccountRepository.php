@@ -194,7 +194,6 @@ class AccountRepository
         $account = $this->getNinjaAccount();
         $lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
         $publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
-
         $invoice = new Invoice();
         $invoice->account_id = $account->id;
         $invoice->user_id = $account->users()->first()->id;
