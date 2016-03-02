@@ -10,6 +10,7 @@ use App\Events\QuoteInvitationWasViewed;
 use App\Events\QuoteInvitationWasApproved;
 use App\Events\PaymentWasCreated;
 use App\Ninja\Notifications;
+use App\Services\PushService;
 
 class NotificationListener
 {
@@ -17,7 +18,7 @@ class NotificationListener
     protected $contactMailer;
     protected $pushService;
 
-    public function __construct(UserMailer $userMailer, ContactMailer $contactMailer, Notifications\PushService $pushService)
+    public function __construct(UserMailer $userMailer, ContactMailer $contactMailer, PushService $pushService)
     {
         $this->userMailer = $userMailer;
         $this->contactMailer = $contactMailer;
