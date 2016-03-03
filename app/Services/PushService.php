@@ -129,9 +129,9 @@ class PushService
     private function entitySentMessage($invoice)
     {
         if($invoice->is_quote)
-            return "Quote #{$invoice->invoice_number} sent!";
+            return trans("texts.notification_quote_sent_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
         else
-            return "Invoice #{$invoice->invoice_number} sent";
+            return trans("texts.notification_invoice_sent_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
 
     }
 
@@ -141,7 +141,7 @@ class PushService
      */
     private function invoicePaidMessage($invoice)
     {
-        return "Invoice #{$invoice->invoice_number} paid!";
+        return trans("texts.notification_invoice_paid_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
     }
 
     /**
@@ -150,7 +150,7 @@ class PushService
      */
     private function quoteApprovedMessage($invoice)
     {
-        return "Quote #{$invoice->invoice_number} approved!";
+        return trans("texts.notification_quote_approved_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
     }
 
     /**
@@ -160,9 +160,9 @@ class PushService
     private function entityViewedMessage($invoice)
     {
         if($invoice->is_quote)
-            return "Quote #{$invoice->invoice_number} viewed!";
+            return trans("texts.notification_quote_viewed_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
         else
-            return "Invoice #{$invoice->invoice_number} viewed!";
+            return trans("texts.notification_invoice_viewed_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
 
     }
 
