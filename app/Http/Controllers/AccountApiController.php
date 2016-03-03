@@ -163,23 +163,24 @@ class AccountApiController extends BaseAPIController
         $devices = json_decode($account->devices, TRUE);
 
         if(count($devices)<1)
-            return $this->errorResponse(['message'=>'no devices exist'], 400);
+            return $this->errorResponse(['message'=>'No registered devices.'], 400);
 
         for($x=0; $x<count($devices); $x++)
         {
             if($devices[$x]['email'] == Auth::user()->username)
             {
-                unset($devices[$x]);
 
                 $newDevice = [
-                    'token' => $request->token,
-                    'email' => $request->email,
-                    'device' => $request->device,
+                    'token' => $devices[$x]['token'],
+                    'email' => $devices[$x]['email'],
+                    'device' => $devices[$x]['device'],
                     'notify_sent' => $request->notify_sent,
                     'notify_viewed' => $request->notify_viewed,
                     'notify_approved' => $request->notify_approved,
                     'notify_paid' => $request->notify_paid,
                 ];
+
+                unset($devices[$x]);
 
                 $devices[] = $newDevice;
                 $account->devices = json_encode($devices);

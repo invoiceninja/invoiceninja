@@ -123,12 +123,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/formers/former.git",
-                "reference": "795f7b9b200a4ff4a33b37a96eaaab0229e36325"
+                "reference": "e196c4336db77be97131f6a3b3c3b69b3a22b683"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/formers/former/zipball/795f7b9b200a4ff4a33b37a96eaaab0229e36325",
-                "reference": "795f7b9b200a4ff4a33b37a96eaaab0229e36325",
+                "url": "https://api.github.com/repos/formers/former/zipball/e196c4336db77be97131f6a3b3c3b69b3a22b683",
+                "reference": "e196c4336db77be97131f6a3b3c3b69b3a22b683",
                 "shasum": ""
             },
             "require": {
@@ -174,7 +174,7 @@
                 "foundation",
                 "laravel"
             ],
-            "time": "2015-11-05 15:53:52"
+            "time": "2016-03-02 17:21:21"
         },
         {
             "name": "anahkiasen/html-object",
