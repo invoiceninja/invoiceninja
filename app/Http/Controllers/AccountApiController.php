@@ -132,6 +132,8 @@ class AccountApiController extends BaseAPIController
                     $devices[$x]['token'] = $request->token; //update
                     $account->devices = json_encode($devices);
                     $account->save();
+                    $devices[$x]['account_key'] = $account->account_key;
+
                     return $this->response($devices[$x]);
                 }
             }
@@ -142,6 +144,7 @@ class AccountApiController extends BaseAPIController
             'token' => $request->token,
             'email' => $request->email,
             'device' => $request->device,
+            'account_key' => $account->account_key,
             'notify_sent' => TRUE,
             'notify_viewed' => TRUE,
             'notify_approved' => TRUE,
@@ -174,15 +177,16 @@ class AccountApiController extends BaseAPIController
                     'token' => $devices[$x]['token'],
                     'email' => $devices[$x]['email'],
                     'device' => $devices[$x]['device'],
+                    'account_key' => $account->account_key,
                     'notify_sent' => $request->notify_sent,
                     'notify_viewed' => $request->notify_viewed,
                     'notify_approved' => $request->notify_approved,
                     'notify_paid' => $request->notify_paid,
                 ];
 
-                unset($devices[$x]);
+                //unset($devices[$x]);
 
-                $devices[] = $newDevice;
+                $devices[$x] = $newDevice;
                 $account->devices = json_encode($devices);
                 $account->save();
 
