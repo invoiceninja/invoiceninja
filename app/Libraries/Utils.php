@@ -127,6 +127,13 @@ class Utils
     {
         return App::getLocale() == 'en';
     }
+    
+    public static function getLocaleRegion()
+    {
+        $parts = explode('_', App::getLocale()); 
+        
+        return count($parts) ? $parts[0] : 'en';
+    }
 
     public static function getUserType()
     {
