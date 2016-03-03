@@ -1,1 +1,1 @@
-{!! strip_tags($body) !!}
+{!! strip_tags(str_replace('</div>', "\n\n", $body)) !!}
