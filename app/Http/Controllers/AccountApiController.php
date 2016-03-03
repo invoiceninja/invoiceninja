@@ -162,7 +162,7 @@ class AccountApiController extends BaseAPIController
 
         $devices = json_decode($account->devices, TRUE);
 
-        if(count($devices)<1)
+        if(count($devices) < 1)
             return $this->errorResponse(['message'=>'No registered devices.'], 400);
 
         for($x=0; $x<count($devices); $x++)
