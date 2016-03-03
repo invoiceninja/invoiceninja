@@ -133,7 +133,7 @@ class AccountApiController extends BaseAPIController
                     $account->devices = json_encode($devices);
                     $account->save();
                     $devices[$x]['account_key'] = $account->account_key;
-                    
+
                     return $this->response($devices[$x]);
                 }
             }
@@ -184,9 +184,9 @@ class AccountApiController extends BaseAPIController
                     'notify_paid' => $request->notify_paid,
                 ];
 
-                unset($devices[$x]);
+                //unset($devices[$x]);
 
-                $devices[] = $newDevice;
+                $devices[$x] = $newDevice;
                 $account->devices = json_encode($devices);
                 $account->save();
 
