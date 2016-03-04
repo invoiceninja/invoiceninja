@@ -1,10 +1,10 @@
 <?php namespace App\Http\Controllers;
 
-use Illuminate\Foundation\Bus\DispatchesCommands;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class BaseController extends Controller
 {
-    use DispatchesCommands;
+    use DispatchesJobs;
 
     /**
      * Setup the layout used by the controller.
@@ -18,8 +18,10 @@ class BaseController extends Controller
         }
     }
 
+    /*
     public function __construct()
     {
         $this->beforeFilter('csrf', array('on' => array('post', 'delete', 'put')));
     }
+    */
 }

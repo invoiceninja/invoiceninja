@@ -9,4 +9,9 @@ class VendorPresenter extends Presenter {
     {
         return $this->entity->country ? $this->entity->country->name : '';
     }
+
+    public function link()
+    {
+        return link_to('/vendors/' . $this->entity->public_id, $this->entity->name);
+    }
 }

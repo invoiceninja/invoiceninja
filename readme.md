@@ -8,6 +8,10 @@
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=develop)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+Note: we've recently updated this branch to Laravel 5.2. If you're upgrading here are some things to note
+* Make sure to run composer install
+* If there are any strings with spaces in your .env file you'll need to enclose them in quotes to prevent error class log not found.
+
 ### Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 * White-label reseller (you pay us): 10% of revenue with a $100 sign up fee
@@ -19,7 +23,8 @@
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja) - $30
 
 ### Requirements
-* PHP >= 5.4.0
+
+* PHP >= 5.5.9
 * MCrypt PHP Extension
 * MySQL
 
@@ -28,7 +33,7 @@
 * [Postmark](https://postmarkapp.com/)
 
 ### Features
-* Built using Laravel 5
+* Built using Laravel 5.2
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Integrates with 50+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
@@ -66,8 +71,10 @@ We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-mode
 * [jquery/jquery](https://github.com/jquery/jquery) - jQuery JavaScript Library
 * [jquery/jquery-ui](https://github.com/jquery/jquery-ui) - The official jQuery user interface library
 * [patricktalmadge/bootstrapper](https://github.com/patricktalmadge/bootstrapper) - Laravel Twitter Bootstrap Bundle
-* [danielfarrell/bootstrap-combobox](https://github.com/danielfarrell/bootstrap-combobox) - A combobox plugin 
+* [danielfarrell/bootstrap-combobox](https://github.com/danielfarrell/bootstrap-combobox) - A combobox plugin
 * [eternicode/bootstrap-datepicker](https://github.com/eternicode/bootstrap-datepicker) - A datepicker for @twitter bootstrap
+* [twitter/typeahead.js](https://github.com/twitter/typeahead.js) - a fast and fully-featured autocomplete library
+* [krisk/Fuse](https://github.com/krisk/Fuse) - Lightweight fuzzy-search, in JavaScript
 * [knockout/knockout](https://github.com/knockout/knockout) - Knockout makes it easier to create rich, responsive UIs with JavaScript
 * [rniemeyer/knockout-sortable](https://github.com/rniemeyer/knockout-sortable) - A Knockout.js binding to connect observableArrays with jQuery UI sortable functionality
 * [bpampuch/pdfmake](https://github.com/bpampuch/pdfmake) - Client/server side PDF printing in pure JavaScript
@@ -84,7 +91,7 @@ We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-mode
 * [mozilla/pdf.js](https://github.com/mozilla/pdf.js) - PDF Reader in JavaScript
 * [nnnick/Chart.js](https://github.com/nnnick/Chart.js) - Simple HTML5 Charts using the canvas tag
 * [josscrowcroft/accounting.js](https://github.com/josscrowcroft/accounting.js) - A lightweight JavaScript library for number, money and currency formatting
-* [jashkenas/underscore](https://github.com/jashkenas/underscore) - JavaScript's utility _ belt 
+* [jashkenas/underscore](https://github.com/jashkenas/underscore) - JavaScript's utility _ belt
 * [caouecs/Laravel4-long](https://github.com/caouecs/Laravel4-lang) - List of languages ​​for Laravel4
 * [bgrins/spectrum](https://github.com/bgrins/spectrum) - The No Hassle JavaScript Colorpicker
 * [lokesh/lightbox2](https://github.com/lokesh/lightbox2/) - The original lightbox script

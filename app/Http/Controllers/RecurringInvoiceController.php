@@ -9,7 +9,7 @@ class RecurringInvoiceController extends BaseController
 
     public function __construct(InvoiceRepository $invoiceRepo)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->invoiceRepo = $invoiceRepo;
     }
@@ -29,7 +29,7 @@ class RecurringInvoiceController extends BaseController
                 'action'
             ])
         ];
-        
+
         return response()->view('list', $data);
     }
 

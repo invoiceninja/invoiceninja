@@ -27,7 +27,7 @@ class BankAccountController extends BaseController
 
     public function __construct(BankAccountService $bankAccountService, BankAccountRepository $bankAccountRepo)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->bankAccountService = $bankAccountService;
         $this->bankAccountRepo = $bankAccountRepo;
@@ -91,7 +91,7 @@ class BankAccountController extends BaseController
         $publicId = Input::get('public_id');
         $username = trim(Input::get('bank_username'));
         $password = trim(Input::get('bank_password'));
-        
+
         if ($publicId) {
             $bankAccount = BankAccount::scope($publicId)->firstOrFail();
             if ($username != $bankAccount->username) {

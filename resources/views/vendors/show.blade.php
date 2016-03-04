@@ -142,7 +142,7 @@
     @endif
 
 	<ul class="nav nav-tabs nav-justified">
-		{!! HTML::tab_link('#expenses', trans('texts.expenses')) !!}
+		{!! Form::tab_link('#expenses', trans('texts.expenses')) !!}
 	</ul>
 
 	<div class="tab-content">

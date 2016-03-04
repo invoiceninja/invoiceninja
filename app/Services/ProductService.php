@@ -44,7 +44,7 @@ class ProductService extends BaseService
             [
                 'product_key',
                 function ($model) {
-                    return link_to('products/'.$model->public_id.'/edit', $model->product_key);
+                    return link_to('products/'.$model->public_id.'/edit', $model->product_key)->toHtml();
                 }
             ],
             [

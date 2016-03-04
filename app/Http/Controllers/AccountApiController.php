@@ -52,7 +52,7 @@ class AccountApiController extends BaseAPIController
         // Create a new token only if one does not already exist
         $user = Auth::user();
         $this->accountRepo->createTokens($user, $request->token_name);
-        
+
         $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
         $transformer = new UserAccountTransformer($user->account, $request->serializer, $request->token_name);
         $data = $this->createCollection($users, $transformer, 'user_account');
@@ -116,5 +116,83 @@ class AccountApiController extends BaseAPIController
         $account = $this->createItem($account, $transformer, 'account');
 
         return $this->response($account);
+    }
+
+    public function addDeviceToken(Request $request)
+    {
+        $account = Auth::user()->account;
+
+        //scan if this user has a token already registered (tokens can change, so we need to use the users email as key)
+        $devices = json_decode($account->devices,TRUE);
+
+
+            for($x=0; $x<count($devices); $x++)
+            {
+                if ($devices[$x]['email'] == Auth::user()->username) {
+                    $devices[$x]['token'] = $request->token; //update
+                    $account->devices = json_encode($devices);
+                    $account->save();
+                    $devices[$x]['account_key'] = $account->account_key;
+
+                    return $this->response($devices[$x]);
+                }
+            }
+
+        //User does not have a device, create new record
+
+        $newDevice = [
+            'token' => $request->token,
+            'email' => $request->email,
+            'device' => $request->device,
+            'account_key' => $account->account_key,
+            'notify_sent' => TRUE,
+            'notify_viewed' => TRUE,
+            'notify_approved' => TRUE,
+            'notify_paid' => TRUE,
+        ];
+
+        $devices[] = $newDevice;
+        $account->devices = json_encode($devices);
+        $account->save();
+
+        return $this->response($newDevice);
+
+    }
+
+    public function updatePushNotifications(Request $request)
+    {
+        $account = Auth::user()->account;
+
+        $devices = json_decode($account->devices, TRUE);
+
+        if(count($devices) < 1)
+            return $this->errorResponse(['message'=>'No registered devices.'], 400);
+
+        for($x=0; $x<count($devices); $x++)
+        {
+            if($devices[$x]['email'] == Auth::user()->username)
+            {
+
+                $newDevice = [
+                    'token' => $devices[$x]['token'],
+                    'email' => $devices[$x]['email'],
+                    'device' => $devices[$x]['device'],
+                    'account_key' => $account->account_key,
+                    'notify_sent' => $request->notify_sent,
+                    'notify_viewed' => $request->notify_viewed,
+                    'notify_approved' => $request->notify_approved,
+                    'notify_paid' => $request->notify_paid,
+                ];
+
+                //unset($devices[$x]);
+
+                $devices[$x] = $newDevice;
+                $account->devices = json_encode($devices);
+                $account->save();
+
+                return $this->response($newDevice);
+            }
+        }
+
     }
 }

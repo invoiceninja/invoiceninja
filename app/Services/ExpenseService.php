@@ -30,11 +30,11 @@ class ExpenseService extends BaseService
         if (isset($data['client_id']) && $data['client_id']) {
             $data['client_id'] = Client::getPrivateId($data['client_id']);
         }
-        
+
         if (isset($data['vendor_id']) && $data['vendor_id']) {
             $data['vendor_id'] = Vendor::getPrivateId($data['vendor_id']);
         }
-        
+
         return $this->expenseRepo->save($data);
     }
 
@@ -63,7 +63,7 @@ class ExpenseService extends BaseService
                 function ($model)
                 {
                     if ($model->vendor_public_id) {
-                        return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name);
+                        return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name)->toHtml();
                     } else {
                         return '';
                     }
@@ -74,7 +74,7 @@ class ExpenseService extends BaseService
                 function ($model)
                 {
                     if ($model->client_public_id) {
-                        return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model));
+                        return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                     } else {
                         return '';
                     }
@@ -83,7 +83,7 @@ class ExpenseService extends BaseService
             [
                 'expense_date',
                 function ($model) {
-                    return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date));
+                    return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date))->toHtml();
                 }
             ],
             [
@@ -92,7 +92,7 @@ class ExpenseService extends BaseService
                     // show both the amount and the converted amount
                     if ($model->exchange_rate != 1) {
                         $converted = round($model->amount * $model->exchange_rate, 2);
-                        return Utils::formatMoney($model->amount, $model->expense_currency_id) . ' | ' . 
+                        return Utils::formatMoney($model->amount, $model->expense_currency_id) . ' | ' .
                             Utils::formatMoney($converted, $model->invoice_currency_id);
                     } else {
                         return Utils::formatMoney($model->amount, $model->expense_currency_id);
@@ -178,7 +178,7 @@ class ExpenseService extends BaseService
     {
         return [];
     }
-    
+
     private function getStatusLabel($invoiceId, $shouldBeInvoiced)
     {
         if ($invoiceId) {

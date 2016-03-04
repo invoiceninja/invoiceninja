@@ -35,7 +35,7 @@ class InvoiceService extends BaseService
         }
 
         $invoice = $this->invoiceRepo->save($data);
-        
+
         $client = $invoice->client;
         $client->load('contacts');
         $sendInvoiceIds = [];
@@ -45,7 +45,7 @@ class InvoiceService extends BaseService
                 $sendInvoiceIds[] = $contact->id;
             }
         }
-        
+
         foreach ($client->contacts as $contact) {
             $invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
 
@@ -69,7 +69,7 @@ class InvoiceService extends BaseService
         if (!$invitation) {
             return $invoice;
         }
-        
+
         foreach ($invoice->invitations as $invoiceInvitation) {
             if ($invitation->contact_id == $invoiceInvitation->contact_id) {
                 return $invoiceInvitation->invitation_key;
@@ -83,7 +83,7 @@ class InvoiceService extends BaseService
         if (!$quote->is_quote || $quote->quote_invoice_id) {
             return null;
         }
-        
+
         if ($account->auto_convert_quote || ! $account->isPro()) {
             $invoice = $this->convertQuote($quote, $invitation);
 
@@ -94,7 +94,7 @@ class InvoiceService extends BaseService
             $quote->markApproved();
 
             event(new QuoteInvitationWasApproved($quote, null, $invitation));
-            
+
             foreach ($quote->invitations as $invoiceInvitation) {
                 if ($invitation->contact_id == $invoiceInvitation->contact_id) {
                     return $invoiceInvitation->invitation_key;
@@ -117,13 +117,13 @@ class InvoiceService extends BaseService
             [
                 'invoice_number',
                 function ($model) use ($entityType) {
-                    return link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)]); 
+                    return link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                 }
             ],
             [
                 'client_name',
                 function ($model) {
-                    return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model));
+                    return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                 },
                 ! $hideClient
             ],
@@ -160,7 +160,7 @@ class InvoiceService extends BaseService
             [
                 'invoice_status_name',
                 function ($model) {
-                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : self::getStatusLabel($model);
+                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted'))->toHtml() : self::getStatusLabel($model);
                 }
             ]
         ];
@@ -266,5 +266,5 @@ class InvoiceService extends BaseService
         }
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
-    
+
 }

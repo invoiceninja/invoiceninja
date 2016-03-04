@@ -109,8 +109,7 @@ class ExportController extends BaseController
         if ($request->input(ENTITY_CLIENT)) {
             $data['clients'] = Client::scope()
                 ->with('user', 'contacts', 'country')
-                ->withTrashed()
-                ->where('is_deleted', '=', false)
+                ->withArchived()
                 ->get();
 
             $data['contacts'] = Contact::scope()
@@ -126,33 +125,36 @@ class ExportController extends BaseController
         if ($request->input(ENTITY_TASK)) {
             $data['tasks'] = Task::scope()
                 ->with('user', 'client.contacts')
-                ->withTrashed()
-                ->where('is_deleted', '=', false)
+                ->withArchived()
                 ->get();
         }
         
         if ($request->input(ENTITY_INVOICE)) {
             $data['invoices'] = Invoice::scope()
                 ->with('user', 'client.contacts', 'invoice_status')
-                ->withTrashed()
-                ->where('is_deleted', '=', false)
+                ->withArchived()
                 ->where('is_quote', '=', false)
                 ->where('is_recurring', '=', false)
                 ->get();
         
             $data['quotes'] = Invoice::scope()
                 ->with('user', 'client.contacts', 'invoice_status')
-                ->withTrashed()
-                ->where('is_deleted', '=', false)
+                ->withArchived()
                 ->where('is_quote', '=', true)
                 ->where('is_recurring', '=', false)
+                ->get();
+
+            $data['recurringInvoices'] = Invoice::scope()
+                ->with('user', 'client.contacts', 'invoice_status', 'frequency')
+                ->withArchived()
+                ->where('is_quote', '=', false)
+                ->where('is_recurring', '=', true)
                 ->get();
         }
         
         if ($request->input(ENTITY_PAYMENT)) {
             $data['payments'] = Payment::scope()
-                ->withTrashed()
-                ->where('is_deleted', '=', false)
+                ->withArchived()
                 ->with('user', 'client.contacts', 'payment_type', 'invoice', 'account_gateway.gateway')
                 ->get();
         }
@@ -161,14 +163,14 @@ class ExportController extends BaseController
         if ($request->input(ENTITY_VENDOR)) {
             $data['clients'] = Vendor::scope()
                 ->with('user', 'vendorcontacts', 'country')
-                ->withTrashed()
-                ->where('is_deleted', '=', false)
+                ->withArchived()
                 ->get();
 
             $data['vendor_contacts'] = VendorContact::scope()
                 ->with('user', 'vendor.contacts')
                 ->withTrashed()
                 ->get();
+            
             /*
             $data['expenses'] = Credit::scope()
                 ->with('user', 'client.contacts')

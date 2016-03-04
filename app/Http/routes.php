@@ -67,16 +67,16 @@ Route::post('/hook/email_bounced', 'AppController@emailBounced');
 Route::post('/hook/email_opened', 'AppController@emailOpened');
 
 // Laravel auth routes
-get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
-post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
-get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));
-post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper'));
-get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper'));
-get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
-post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
-get('/password/reset/{token}', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
-post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
-get('/user/confirm/{code}', 'UserController@confirm');
+Route::get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));
+Route::post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@postRegister'));
+Route::get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));
+Route::post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper'));
+Route::get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper'));
+Route::get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
+Route::post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
+Route::get('/password/reset/{token}', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
+Route::post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
+Route::get('/user/confirm/{code}', 'UserController@confirm');
 
 
 if (Utils::isNinja()) {
@@ -195,8 +195,8 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('api/credits/{client_id?}', array('as'=>'api.credits', 'uses'=>'CreditController@getDatatable'));
     Route::post('credits/bulk', 'CreditController@bulk');
 
-    get('/resend_confirmation', 'AccountController@resendConfirmation');
-    post('/update_setup', 'AppController@updateSetup');
+    Route::get('/resend_confirmation', 'AccountController@resendConfirmation');
+    Route::post('/update_setup', 'AppController@updateSetup');
 
 
     // vendor
@@ -236,6 +236,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('tax_rates', 'TaxRateApiController');
     Route::resource('users', 'UserApiController');
     Route::resource('expenses','ExpenseApiController');
+    Route::post('add_token', 'AccountApiController@addDeviceToken');
+    Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
@@ -529,6 +531,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup');
     define('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all');
 
+    define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
+
     define('COUNT_FREE_DESIGNS', 4);
     define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design
     define('PRODUCT_ONE_CLICK_INSTALL', 1);
@@ -550,6 +554,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('TEST_USERNAME', 'user@example.com');
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
+
+    define('IOS_PRODUCTION_PUSH','ninjaIOS');
+    define('IOS_DEV_PUSH','devNinjaIOS');
 
     define('TOKEN_BILLING_DISABLED', 1);
     define('TOKEN_BILLING_OPT_IN', 2);
@@ -573,6 +580,9 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('REMINDER_FIELD_DUE_DATE', 1);
     define('REMINDER_FIELD_INVOICE_DATE', 2);
+
+    define('FILTER_INVOICE_DATE', 'invoice_date');
+    define('FILTER_PAYMENT_DATE', 'payment_date');
 
     define('SOCIAL_GOOGLE', 'Google');
     define('SOCIAL_FACEBOOK', 'Facebook');
@@ -670,8 +680,9 @@ if (Utils::isNinjaDev()) {
 */
 
 /*
-if (Utils::isNinjaDev() && Auth::check() && Auth::user()->id === 1)
+if (Utils::isNinjaDev())
 {
-  Auth::loginUsingId(1);
+  //ini_set('memory_limit','1024M');
+  //Auth::loginUsingId(1);
 }
 */

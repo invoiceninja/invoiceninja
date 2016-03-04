@@ -25,7 +25,7 @@ class TaxRateController extends BaseController
 
     public function __construct(TaxRateService $taxRateService, TaxRateRepository $taxRateRepo)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->taxRateService = $taxRateService;
         $this->taxRateRepo = $taxRateRepo;
@@ -76,9 +76,9 @@ class TaxRateController extends BaseController
     public function update(UpdateTaxRateRequest $request, $publicId)
     {
         $taxRate = TaxRate::scope($publicId)->firstOrFail();
-        
+
         $this->taxRateRepo->save($request->input(), $taxRate);
-        
+
         Session::flash('message', trans('texts.updated_tax_rate'));
         return Redirect::to('settings/' . ACCOUNT_TAX_RATES);
     }

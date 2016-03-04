@@ -20,7 +20,7 @@ class TokenController extends BaseController
 
     public function __construct(TokenService $tokenService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->tokenService = $tokenService;
     }

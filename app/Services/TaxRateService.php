@@ -41,7 +41,7 @@ class TaxRateService extends BaseService
             [
                 'name',
                 function ($model) {
-                    return link_to("tax_rates/{$model->public_id}/edit", $model->name);
+                    return link_to("tax_rates/{$model->public_id}/edit", $model->name)->toHtml();
                 }
             ],
             [

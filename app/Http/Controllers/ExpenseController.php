@@ -28,7 +28,7 @@ class ExpenseController extends BaseController
 
     public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->expenseRepo = $expenseRepo;
         $this->expenseService = $expenseService;

@@ -174,7 +174,7 @@ class ClientApiController extends BaseAPIController
 
         if(!$client)
             return $this->errorResponse(['message'=>'Client not found.'],400);
-        
+
         $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
 
@@ -203,7 +203,7 @@ class ClientApiController extends BaseAPIController
      *   )
      * )
      */
-    
+
     public function destroy($publicId)
     {
 

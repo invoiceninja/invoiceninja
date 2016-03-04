@@ -128,12 +128,12 @@
     
     var arc = d3.svg.arc()
       .innerRadius(function(d) { return d.r })
-      .outerRadius(function(d) { return d.r - 5 })
+      .outerRadius(function(d) { return d.r - 8 })
       .startAngle(0);
 
     var fullArc = d3.svg.arc()
-      .innerRadius(function(d) { return d.r  })
-      .outerRadius(function(d) { return d.r - 5 })
+      .innerRadius(function(d) { return d.r - 1 })
+      .outerRadius(function(d) { return d.r - 7 })
       .startAngle(0)
       .endAngle(2 * Math.PI);
 

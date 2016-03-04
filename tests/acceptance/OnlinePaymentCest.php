@@ -53,6 +53,7 @@ class OnlinePaymentCest
         $I->amOnPage('/invoices/create');
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
+        $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->click('Save');
         $I->see($clientEmail);
 
@@ -89,10 +90,11 @@ class OnlinePaymentCest
         $I->amOnPage('/recurring_invoices/create');
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
+        $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->checkOption('#auto_bill');
         $I->executeJS('preparePdfData(\'email\')');
         $I->wait(2);
         $I->see("$0.00");
- 
+
    }
 }

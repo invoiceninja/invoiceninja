@@ -259,37 +259,38 @@
   }
 
   function showSearch() {
-    $('#search').typeahead('setQuery', '');
+    $('#search').typeahead('val', '');
     $('#navbar-options').hide();
     $('#search-form').show();
 
-    if (window.hasOwnProperty('searchData')) {
+    if (window.hasOwnProperty('loadedSearchData')) {
         $('#search').focus();
     } else {
         trackEvent('/activity', '/search');
         $.get('{{ URL::route('getSearchData') }}', function(data) {
-          window.searchData = true;
-          var datasets = [];
-          for (var type in data)
-          {
-            if (!data.hasOwnProperty(type)) continue;
-            datasets.push({
-              name: type,
-              header: '&nbsp;<b>' + type  + '</b>',
-              local: data[type]
-            });
+          window.loadedSearchData = true;
+
+          $('#search').typeahead({
+            hint: true,
+            highlight: true,
           }
-          if (datasets.length == 0) {
-            return;
+          @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
+          ,{
+            name: 'data',
+            display: 'value',
+            source: searchData(data['{{ $type }}'], 'value', true),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ trans("texts.{$type}") }}</span>'
+            }
           }
-          $('#search').typeahead(datasets).on('typeahead:selected', function(element, datum, name) {
-            var type = name == 'Contacts' ? 'clients' : name.toLowerCase();
-            window.location = '{{ URL::to('/') }}' + '/' + datum.entity_type + '/' + datum.public_id;
-          }).focus().typeahead('setQuery', $('#search').val());
+          @endforeach
+          ).on('typeahead:selected', function(element, datum, name) {
+            window.location = datum.url;
+          }).focus(); 
         });
     }
   }
-
+  
   function hideSearch() {
     $('#search-form').hide();
     $('#navbar-options').show();
@@ -354,7 +355,7 @@
 
     // Focus the search input if the user clicks forward slash
     $('body').keypress(function(event) {
-        if (event.which == 47) {
+        if (event.which == 47 && !$('*:focus').length) {
             event.preventDefault();
             showSearch();
         }
@@ -385,12 +386,12 @@
 
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
       <ul class="nav navbar-nav" style="font-weight: bold">
-        {!! HTML::nav_link('dashboard', 'dashboard') !!}
-        {!! HTML::menu_link('client') !!}
-        {!! HTML::menu_link('task') !!}
-        {!! HTML::menu_link('expense') !!}
-        {!! HTML::menu_link('invoice') !!}
-        {!! HTML::menu_link('payment') !!}
+        {!! Form::nav_link('dashboard', 'dashboard') !!}
+        {!! Form::menu_link('client') !!}
+        {!! Form::menu_link('task') !!}
+        {!! Form::menu_link('expense') !!}
+        {!! Form::menu_link('invoice') !!}
+        {!! Form::menu_link('payment') !!}
       </ul>
 
       <div id="navbar-options">
@@ -498,7 +499,7 @@
       <form id="search-form" class="navbar-form navbar-right" role="search" style="display:none">
         <div class="form-group">
           <input type="text" id="search" style="width: 240px;padding-top:0px;padding-bottom:0px" 
-            class="form-control" placeholder="{{ trans('texts.search') }}">
+            class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}">
         </div>
       </form>
       
@@ -534,7 +535,7 @@
   @endif
 
   @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-    {!! HTML::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
+    {!! Form::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
   @endif
 
   @yield('content')		
@@ -736,7 +737,7 @@
   @if (Auth::user()->account->isWhiteLabel())  
     {{ trans('texts.white_labeled') }}
   @else
-    <a href="#" onclick="$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>
+    <a href="#" onclick="loadImages('#whiteLabelModal');$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>
 
     <div class="modal fade" id="whiteLabelModal" tabindex="-1" role="dialog" aria-labelledby="whiteLabelModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -751,11 +752,11 @@
             <div class="row">
                 <div class="col-md-6">
                     <h4>{{ trans('texts.before') }}</h4>
-                    {!! HTML::image('images/pro_plan/white_label_before.png', 'before', ['width' => '100%']) !!}
+                    <img src="{{ BLANK_IMAGE }}" data-src="http://ninja.dev/images/pro_plan/white_label_before.png" width="100%" alt="before">
                 </div>
                 <div class="col-md-6">
                     <h4>{{ trans('texts.after') }}</h4>
-                    {!! HTML::image('images/pro_plan/white_label_after.png', 'after', ['width' => '100%']) !!}
+                    <img src="{{ BLANK_IMAGE }}" data-src="http://ninja.dev/images/pro_plan/white_label_after.png" width="100%" alt="after">
                 </div>
             </div>
           </div>

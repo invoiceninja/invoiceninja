@@ -149,7 +149,7 @@ class InvoiceApiController extends BaseAPIController
             $client = Client::scope()->whereHas('contacts', function($query) use ($email) {
                 $query->where('email', '=', $email);
             })->first();
-            
+
             if (!$client) {
                 $validator = Validator::make(['email'=>$email], ['email' => 'email']);
                 if ($validator->fails()) {
@@ -220,7 +220,7 @@ class InvoiceApiController extends BaseAPIController
     {
         $account = Auth::user()->account;
         $account->loadLocalizationSettings($client);
-        
+
         // set defaults for optional fields
         $fields = [
             'discount' => 0,

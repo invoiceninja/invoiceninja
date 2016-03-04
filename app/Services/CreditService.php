@@ -40,7 +40,7 @@ class CreditService extends BaseService
             [
                 'client_name',
                 function ($model) {
-                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model)) : '';
+                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
                 ! $hideClient
             ],

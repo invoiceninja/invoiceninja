@@ -741,8 +741,7 @@ return array(
     'primary_user' => 'Primaire gebruiker',
     'help' => 'Help',
     'customize_help' => '<p>We gebruiken <a href="http://pdfmake.org/" target="_blank">pdfmake</a> om de factuur ontwerpen declaratief te definieren. De pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> is een interessante manier om de library in actie te zien.</p>
-                        <p>Je kan elk factuur veld gebruiken door <code>Veld</code> toe te voegen op het einde. Bijvoorbeeld <code>$invoiceNumberValue</code> toont de factuur nummer.</p>
-                        <p>Gebruik dot notatie om een "kind eigenschap" te gebruiken. Bijvoorbeeld voor de klant naam te tonen gebruik je <code>$client.nameValue</code>.</p>
+                        <p>Gebruik dot notatie om een "kind eigenschap" te gebruiken. Bijvoorbeeld voor de klant naam te tonen gebruik je <code>$client.name</code>.</p>
                         <p>Als je ergens hulp bij nodig hebt, post dan een vraag op ons <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
 
     'invoice_due_date' => 'Vervaldatum',
