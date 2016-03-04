@@ -25,7 +25,7 @@
 
 	</style>
 
-	<div class="container" id="main-container">
+	<div class="container" id="main-container" style="min-height:800px">
 
 		<p>&nbsp;</p>
 
@@ -46,13 +46,5 @@
 	</div>
 
     <p>&nbsp;</p>
-    <p>&nbsp;</p>
-
-    <script type="text/javascript">
-        $(function() {
-            $('#main-container').height($(window).height() - ($('.navbar').height() + $('footer').height() + 20));
-        });
-    </script>
 
 @stop
-
