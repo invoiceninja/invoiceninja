@@ -14,7 +14,21 @@
                 // Disable the submit button to prevent repeated clicks
                 $form.find('button').prop('disabled', true);
 
-                Stripe.card.createToken($form, stripeResponseHandler);
+                var data = {
+                    name: $('#first_name').val() + ' ' + $('#last_name').val(),
+                    address_line1: $('#address1').val(),
+                    address_line2: $('#address2').val(),
+                    address_city: $('#city').val(),
+                    address_state: $('#state').val(),
+                    address_zip: $('#postal_code').val(),
+                    address_country: $("#country_id option:selected").text(),
+                    number: $('#card_number').val(),
+                    cvc: $('#cvv').val(),
+                    exp_month: $('#expiration_month').val(),
+                    exp_year: $('#expiration_year').val()
+                };
+
+                Stripe.card.createToken(data, stripeResponseHandler);
 
                 // Prevent the form from submitting with the default action
                 return false;
@@ -53,7 +67,7 @@
             });
         </script>
     @endif
-    
+
 @stop
 
 @section('content')
@@ -65,7 +79,7 @@
         ->addClass('payment-form')
         ->rules(array(
             'first_name' => 'required',
-            'last_name' => 'required',   
+            'last_name' => 'required',
             'card_number' => 'required',
             'expiration_month' => 'required',
             'expiration_year' => 'required',
@@ -84,7 +98,7 @@
   {{ Former::populateField('first_name', $contact->first_name) }}
   {{ Former::populateField('last_name', $contact->last_name) }}
   @if (!$client->country_id && $client->account->country_id)
-    {{ Former::populateField('country_id', $client->account->country_id) }} 
+    {{ Former::populateField('country_id', $client->account->country_id) }}
   @endif
 @endif
 
@@ -103,15 +117,15 @@
                     <h2>{{ $client->getDisplayName() }}</h2>
                     <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ $account->formatMoney($amount, $client, true) }}</em></span></h3>
                 @elseif ($paymentTitle)
-                    <h2>{{ $paymentTitle }}<br/><small>{{ $paymentSubtitle }}</small></h2>                    
+                    <h2>{{ $paymentTitle }}<br/><small>{{ $paymentSubtitle }}</small></h2>
                 @endif
-            </header>  
+            </header>
         </div>
         <div class="col-md-5">
             @if (Request::secure() || Utils::isNinjaDev())
             <div class="secure">
                 <h3>{{ trans('texts.secure_payment') }}</h3>
-                <div>{{ trans('texts.256_encryption') }}</div>       
+                <div>{{ trans('texts.256_encryption') }}</div>
             </div>
             @endif
         </div>
@@ -204,7 +218,6 @@
                         ->id('card_number')
                         ->placeholder(trans('texts.card_number'))
                         ->autocomplete('cc-number')
-                        ->data_stripe('number')
                         ->label('') !!}
             </div>
             <div class="col-md-3">
@@ -212,7 +225,6 @@
                         ->id('cvv')
                         ->placeholder(trans('texts.cvv'))
                         ->autocomplete('off')
-                        ->data_stripe('cvc')
                         ->label('') !!}
             </div>
         </div>
@@ -221,7 +233,6 @@
                 {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_month')
                         ->id('expiration_month')
                         ->autocomplete('cc-exp-month')
-                        ->data_stripe('exp-month')
                         ->placeholder(trans('texts.expiration_month'))
                           ->addOption('01 - January', '1')
                           ->addOption('02 - February', '2')
@@ -241,7 +252,6 @@
                 {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_year')
                         ->id('expiration_year')
                         ->autocomplete('cc-exp-year')
-                        ->data_stripe('exp-year')
                         ->placeholder(trans('texts.expiration_year'))
                             ->addOption('2016', '2016')
                             ->addOption('2017', '2017')
@@ -266,7 +276,7 @@
                     <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
                     <span class="help-block" style="font-size:15px">{!! trans('texts.token_billing_secure', ['stripe_link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}</span>
                 @endif
-            </div>  
+            </div>
 
             <div class="col-md-7">
             @if (isset($acceptedCreditCardTypes))
@@ -278,7 +288,7 @@
             @endif
             </div>
         </div>
-        
+
 
         <p>&nbsp;<br/>&nbsp;</p>
 
@@ -291,8 +301,8 @@
     </div>
 
   </div>
-</div>    
-    
+</div>
+
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
@@ -302,7 +312,7 @@
 {!! Former::close() !!}
 
 <script type="text/javascript">
-    
+
     $(function() {
         $('select').change(function() {
             $(this).css({color:'#444444'});

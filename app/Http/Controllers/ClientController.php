@@ -78,9 +78,9 @@ class ClientController extends BaseController
     public function store(CreateClientRequest $request)
     {
         $client = $this->clientService->save($request->input());
-        
+
         Session::flash('message', trans('texts.created_client'));
-        
+
         return redirect()->to($client->getRoute());
     }
 
@@ -109,7 +109,7 @@ class ClientController extends BaseController
             ['label' => trans('texts.enter_credit'), 'url' => '/credits/create/'.$client->public_id],
             ['label' => trans('texts.enter_expense'), 'url' => '/expenses/create/0/'.$client->public_id]
         );
-        
+
         $data = array(
             'actionLinks' => $actionLinks,
             'showBreadcrumbs' => false,
@@ -132,7 +132,7 @@ class ClientController extends BaseController
      */
     public function create()
     {
-        if (Client::scope()->count() > Auth::user()->getMaxNumClients()) {
+        if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumClients()." clients"]);
         }
 
@@ -200,9 +200,9 @@ class ClientController extends BaseController
     public function update(UpdateClientRequest $request)
     {
         $client = $this->clientService->save($request->input());
-        
+
         Session::flash('message', trans('texts.updated_client'));
-        
+
         return redirect()->to($client->getRoute());
     }
 

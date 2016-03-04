@@ -678,8 +678,9 @@ if (Utils::isNinjaDev()) {
 */
 
 /*
-if (Utils::isNinjaDev() && Auth::check() && Auth::user()->id === 1)
+if (Utils::isNinjaDev())
 {
-  Auth::loginUsingId(1);
+  //ini_set('memory_limit','1024M');
+  //Auth::loginUsingId(1);
 }
 */
