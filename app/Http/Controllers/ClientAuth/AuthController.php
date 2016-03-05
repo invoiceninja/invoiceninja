@@ -22,7 +22,24 @@ class AuthController extends Controller {
 
 	public function showLoginForm()
 	{
-		return view('clientauth.login');
+        $data = array(
+        );
+        
+        $invitation_key = session('invitation_key');
+        if($invitation_key){
+            $invitation = Invitation::where('invitation_key', '=', $invitation_key)->first();
+            if ($invitation && !$invitation->is_deleted) {
+                $invoice = $invitation->invoice;
+                $client = $invoice->client;
+                $account = $client->account;
+                
+                $data['hideLogo'] = $account->isWhiteLabel();
+                $data['clientViewCSS'] = $account->clientViewCSS();
+                $data['clientFontUrl'] = $account->getFontsUrl();
+            }
+        }
+        
+		return view('clientauth.login')->with($data);
 	}
 
 	/**

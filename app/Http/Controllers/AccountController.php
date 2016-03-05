@@ -431,7 +431,6 @@ class AccountController extends BaseController
         $data = [
             'client_view_css' => $css,
             'enable_portal_password' => $account->enable_portal_password,
-            'fill_portal_password' => $account->fill_portal_password,
             'send_portal_password' => $account->send_portal_password,
             'title' => trans("texts.client_portal"),
             'section' => ACCOUNT_CLIENT_PORTAL,
@@ -549,8 +548,8 @@ class AccountController extends BaseController
             $account = Auth::user()->account;
             $account->client_view_css = $sanitized_css;
 
+            $account->enable_client_portal = !!Input::get('enable_client_portal');
             $account->enable_portal_password = !!Input::get('enable_portal_password');
-            $account->fill_portal_password = !!Input::get('fill_portal_password');
             $account->send_portal_password = !!Input::get('send_portal_password');
 
             $account->save();

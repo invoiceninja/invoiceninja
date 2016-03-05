@@ -14,7 +14,6 @@ class AddClientPassword extends Migration {
 	{
 		Schema::table('accounts', function ($table) {
 			$table->boolean('enable_portal_password')->default(0);
-			$table->boolean('fill_portal_password')->default(0);
 			$table->boolean('send_portal_password')->default(0);
 		});
 		
@@ -34,7 +33,6 @@ class AddClientPassword extends Migration {
 	{
 		Schema::table('accounts', function ($table) {
 			$table->dropColumn('enable_portal_password');
-			$table->dropColumn('fill_portal_password');
 			$table->dropColumn('send_portal_password');
 		});
 		

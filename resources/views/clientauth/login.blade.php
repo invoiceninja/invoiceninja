@@ -1,10 +1,7 @@
-@extends('master')
+@extends('public.header')
 
 @section('head')	
-
-<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>    
-
+@parent
 <style type="text/css">
     body {
         padding-top: 40px;
@@ -13,6 +10,8 @@
     .modal-header {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
+        background:#222;
+        color:#fff
     }
     .modal-header h4 {
         margin:0;
@@ -69,11 +68,16 @@
             ->addClass('form-signin') !!}
     {{ Former::populateField('remember', 'true') }}
 
-    <div class="modal-header">
-        <a href="{{ NINJA_WEB_URL }}" target="_blank">
+        <div class="modal-header">
+        @if (!isset($hideLogo) || !$hideLogo)
+            <a href="{{ NINJA_WEB_URL }}" target="_blank">
+                <img src="{{ asset('images/icon-login.png') }}" /> 
+                <h4>Invoice Ninja | {{ trans('texts.account_login') }}</h4>
+            </a>
+        @else
             <h4>{{ trans('texts.account_login') }}</h4>
-        </a>
-    </div>    
+        @endif
+        </div>    
         <div class="inner">
             <p>
                 {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}

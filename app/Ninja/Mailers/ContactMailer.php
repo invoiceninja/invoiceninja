@@ -31,6 +31,7 @@ class ContactMailer extends Mailer
         'viewButton',
         'paymentLink',
         'paymentButton',
+        'password',
     ];
 
     public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false)
@@ -109,6 +110,13 @@ class ContactMailer extends Mailer
             'invitation' => $invitation,
             'amount' => $invoice->getRequestedAmount()
         ];
+        
+         if (empty($invitation->contact->password) && $account->isPro() && $account->enable_portal_password && $account->send_portal_password) {
+            // The contact needs a password
+            $variables['password'] = $password = $this->generatePassword();
+            $invitation->contact->password = bcrypt($password);
+            $invitation->contact->save();
+        }
 
         $data = [
             'body' => $this->processVariables($body, $variables),
@@ -142,6 +150,28 @@ class ContactMailer extends Mailer
         } else {
             return $response;
         }
+    }
+    
+    protected function generatePassword($length = 9)
+    {
+        $sets = array(
+            'abcdefghjkmnpqrstuvwxyz',
+            'ABCDEFGHJKMNPQRSTUVWXYZ',
+            '23456789',
+        );
+        $all = '';
+        $password = '';
+        foreach($sets as $set)
+        {
+            $password .= $set[array_rand(str_split($set))];
+            $all .= $set;
+        }
+        $all = str_split($all);
+        for($i = 0; $i < $length - count($sets); $i++)
+            $password .= $all[array_rand($all)];
+        $password = str_shuffle($password);
+        
+        return $password;
     }
 
     public function sendPaymentConfirmation(Payment $payment)
@@ -253,6 +283,7 @@ class ContactMailer extends Mailer
             '$customClient2' => $account->custom_client_label2,
             '$customInvoice1' => $account->custom_invoice_text_label1,
             '$customInvoice2' => $account->custom_invoice_text_label2,
+            '$password' => isset($data['password'])?$data['password']:false,
         ];
 
         // Add variables for available payment types

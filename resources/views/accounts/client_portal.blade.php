@@ -15,6 +15,7 @@
 {!! Former::populateField('enable_client_portal', intval($account->enable_client_portal)) !!}
 {!! Former::populateField('client_view_css', $client_view_css) !!}
 {!! Former::populateField('enable_portal_password', $enable_portal_password) !!}
+{!! Former::populateField('send_portal_password', $send_portal_password) !!}
 
 @if (!Utils::isNinja() && !Auth::user()->account->isWhiteLabel())
 <div class="alert alert-warning" style="font-size:larger;">
@@ -40,16 +41,13 @@
 			<div class="col-md-10 col-md-offset-1">
 				{!! Former::checkbox('enable_portal_password')
 					->text(trans('texts.enable_portal_password'))
-					->label('&nbsp;') !!}
-			</div>
-			<div class="col-md-10 col-md-offset-1">
-				{!! Former::checkbox('fill_portal_password')
-					->text(trans('texts.fill_portal_password'))
+					->help(trans('texts.enable_portal_password_help'))
 					->label('&nbsp;') !!}
 			</div>
 			<div class="col-md-10 col-md-offset-1">
 				{!! Former::checkbox('send_portal_password')
 					->text(trans('texts.send_portal_password'))
+					->help(trans('texts.send_portal_password_help'))
 					->label('&nbsp;') !!}
 			</div>
 		</div>
@@ -67,7 +65,6 @@
 				->autofocus()
 				->maxlength(60000)
 				->style("min-width:100%;max-width:100%;font-family:'Roboto Mono', 'Lucida Console', Monaco, monospace;font-size:14px;'") !!}
-			</div>
 		</div>
 	</div>
 </div>
@@ -82,7 +79,6 @@
 	$('#enable_portal_password').change(fixCheckboxes);
 	function fixCheckboxes(){
 		var checked = $('#enable_portal_password').is(':checked');
-		$('#fill_portal_password').prop('disabled', !checked);
 		$('#send_portal_password').prop('disabled', !checked);
 	}
 	fixCheckboxes();

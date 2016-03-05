@@ -1,10 +1,7 @@
-@extends('master')
+@extends('public.header')
 
 @section('head')	
-
-<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>    
-
+@parent
 <style type="text/css">
     body {
         padding-top: 40px;
@@ -13,6 +10,8 @@
     .modal-header {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
+        background:#222;
+        color:#fff
     }
     .modal-header h4 {
         margin:0;
@@ -58,8 +57,16 @@
         'password_confirmation' => 'required',        
   )) !!}
 
-  <div class="modal-header">
-    <h4>{{ trans('texts.set_password') }}</h4></div>
+    <div class="modal-header">
+        @if (!isset($hideLogo) || !$hideLogo)
+            <a href="{{ NINJA_WEB_URL }}" target="_blank">
+                <img src="{{ asset('images/icon-login.png') }}" /> 
+                <h4>Invoice Ninja | {{ trans('texts.set_password') }}</h4>
+            </a>
+        @else
+            <h4>{{ trans('texts.set_password') }}</h4>
+        @endif
+    </div>
     <div class="inner">
 
       <input type="hidden" name="token" value="{{{ $token }}}">

@@ -2,7 +2,6 @@
 
 use Config;
 use App\Http\Controllers\Controller;
-use App\Http\Brokers\ClientPasswordBroker;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
@@ -42,7 +41,22 @@ class PasswordController extends Controller {
 
 	public function showLinkRequestForm()
 	{
-		return view('clientauth.password');
+        $data = array();
+        $invitation_key = session('invitation_key');
+        if($invitation_key){
+            $invitation = Invitation::where('invitation_key', '=', $invitation_key)->first();
+            if ($invitation && !$invitation->is_deleted) {
+                $invoice = $invitation->invoice;
+                $client = $invoice->client;
+                $account = $client->account;
+                
+                $data['hideLogo'] = $account->isWhiteLabel();
+                $data['clientViewCSS'] = $account->clientViewCSS();
+                $data['clientFontUrl'] = $account->getFontsUrl();
+            }
+        }
+        
+		return view('clientauth.password')->with($data);
 	}
 	
 	/**
@@ -93,8 +107,23 @@ class PasswordController extends Controller {
         if (is_null($token)) {
             return $this->getEmail();
         }
+        
+        $data = compact('token', 'invitation_key');
+        $invitation_key = session('invitation_key');
+        if($invitation_key){
+            $invitation = Invitation::where('invitation_key', '=', $invitation_key)->first();
+            if ($invitation && !$invitation->is_deleted) {
+                $invoice = $invitation->invoice;
+                $client = $invoice->client;
+                $account = $client->account;
+                
+                $data['hideLogo'] = $account->isWhiteLabel();
+                $data['clientViewCSS'] = $account->clientViewCSS();
+                $data['clientFontUrl'] = $account->getFontsUrl();
+            }
+        }
 
-        return view('clientauth.reset')->with(compact('token', 'invitation_key'));
+        return view('clientauth.reset')->with($data);
     }
     
     

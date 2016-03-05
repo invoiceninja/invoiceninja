@@ -1053,10 +1053,10 @@ $LANG = array(
     'enable_client_portal_help' => 'Show/hide the dashboard page in the client portal.',
 
     // Client Passwords
-    'client_portal_login_settings'=>'Login',
-    'enable_portal_password'=>'Require a password',
+    'enable_portal_password'=>'Password protect invoices',
+    'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
     'send_portal_password'=>'Generate password automatically',
-    'fill_portal_password'=>'Include password in invoice emails',
+    'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
 );
 
 return $LANG;
