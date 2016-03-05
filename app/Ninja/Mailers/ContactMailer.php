@@ -27,11 +27,11 @@ class ContactMailer extends Mailer
         'firstName',
         'invoice',
         'quote',
+        'password',
         'viewLink',
         'viewButton',
         'paymentLink',
         'paymentButton',
-        'password',
     ];
 
     public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false)
