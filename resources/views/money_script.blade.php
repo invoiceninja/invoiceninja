@@ -67,7 +67,8 @@
 
         var currency = currencyMap[currencyId];
         var thousand = currency.thousand_separator;
-        var decimal = currency.decimal_separator;
+	var decimal = currency.decimal_separator;
+	var precision = currency.precision;
         var code = currency.code;
         var swapSymbol = false;
 
@@ -82,7 +83,7 @@
             }
         }
 
-        value = accounting.formatMoney(value, '', 2, thousand, decimal);
+        value = accounting.formatMoney(value, '', precision, thousand, decimal);
         var symbol = currency.symbol;
 
         if (hideSymbol) {
