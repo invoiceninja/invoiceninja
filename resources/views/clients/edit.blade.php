@@ -93,7 +93,7 @@
                         attr: {name: 'contacts[' + \$index() + '][email]', id:'email'+\$index()}") !!}
 				{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][phone]'}") !!}
-				@if (!Utils::isPro() || $account->enable_portal_password)
+				@if ($account->isPro() && $account->enable_portal_password)
 					{!! Former::password('password')->data_bind("value: password()?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
 						attr: {name: 'contacts[' + \$index() + '][password]'}") !!}
 			    @endif
