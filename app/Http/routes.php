@@ -509,7 +509,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.5.0.3');
+    define('NINJA_VERSION', '2.5.0.4');
     define('NINJA_DATE', '2000-01-01');
 
     define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');
