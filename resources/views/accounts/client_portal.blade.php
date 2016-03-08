@@ -14,8 +14,8 @@
 
 {!! Former::populateField('enable_client_portal', intval($account->enable_client_portal)) !!}
 {!! Former::populateField('client_view_css', $client_view_css) !!}
-{!! Former::populateField('enable_portal_password', $enable_portal_password) !!}
-{!! Former::populateField('send_portal_password', $send_portal_password) !!}
+{!! Former::populateField('enable_portal_password', intval($enable_portal_password)) !!}
+{!! Former::populateField('send_portal_password', intval($send_portal_password)) !!}
 
 @if (!Utils::isNinja() && !Auth::user()->account->isWhiteLabel())
 <div class="alert alert-warning" style="font-size:larger;">
