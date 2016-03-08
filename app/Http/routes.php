@@ -227,7 +227,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
     Route::get('ping', 'ClientApiController@ping');
     Route::post('login', 'AccountApiController@login');
-    Route::get('register', 'AccountApiController@register');
+    Route::post('register', 'AccountApiController@register');
     Route::get('static', 'AccountApiController@getStaticData');
     Route::get('accounts', 'AccountApiController@show');
     Route::put('accounts', 'AccountApiController@update');
