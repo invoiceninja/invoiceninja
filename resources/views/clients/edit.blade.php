@@ -169,6 +169,7 @@
 		self.last_name = ko.observable('');
 		self.email = ko.observable('');
 		self.phone = ko.observable('');
+		self.password = ko.observable('');
 
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);

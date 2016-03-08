@@ -298,7 +298,6 @@ class ContactMailer extends Mailer
         $includesPasswordPlaceholder = strpos($template, '$password') !== false;
                 
         $str = str_replace(array_keys($variables), array_values($variables), $template);
-        $str = autolink($str, 100);
 
         if(!$includesPasswordPlaceholder && $passwordHTML){
             $pos = strrpos($str, '$password');
@@ -308,7 +307,7 @@ class ContactMailer extends Mailer
             }
         }        
         $str = str_replace('$password', '', $str);
-
+        $str = autolink($str, 100);
         
         return $str;
     }
