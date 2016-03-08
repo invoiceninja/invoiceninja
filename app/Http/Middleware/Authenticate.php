@@ -32,15 +32,16 @@ class Authenticate {
 		}
 		
 		if($guard=='client'){
+			$invitation_key = session('invitation_key');
+			$account_id = $this->getInvitationAccountId($invitation_key);
 			
-			if(Auth::guard('user')->check()){
+			if(Auth::guard('user')->check() && Auth::user('user')->account_id === $account_id){
 				// This is an admin; let them pretend to be a client
 				$authenticated = true;
 			}
 			
 			// Does this account require portal passwords?
-			$invitation_key = session('invitation_key');
-			$account = Account::whereId($this->getInvitationAccountId($invitation_key))->first();
+			$account = Account::whereId($account_id)->first();
 			if(!$account->enable_portal_password || !$account->isPro()){
 				$authenticated = true;
 			}
