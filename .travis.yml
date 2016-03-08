@@ -34,10 +34,11 @@ install:
   # these providers require referencing git commit's which cause Travis to fail
   - sed -i '/mollie/d' composer.json
   - sed -i '/2checkout/d' composer.json
+  - sed -i '/omnipay-neteller/d' composer.json
   - travis_retry composer install --prefer-dist;
 
 before_script:
-  # prevent MySQL went away error 
+  # prevent MySQL went away error
   - mysql -u root -e 'SET @@GLOBAL.wait_timeout=28800;'
   # copy configuration files
   - cp .env.example .env

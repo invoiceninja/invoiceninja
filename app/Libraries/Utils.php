@@ -281,7 +281,14 @@ class Utils
     }
 
     public static function getFromCache($id, $type) {
-        $data = Cache::get($type)->filter(function($item) use ($id) {
+        $cache = Cache::get($type);
+        
+        if ( ! $cache) {
+            static::logError("Cache for {$type} is not set");
+            return null;
+        }
+        
+        $data = $cache->filter(function($item) use ($id) {
             return $item->id == $id;
         });
 

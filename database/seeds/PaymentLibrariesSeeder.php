@@ -1,5 +1,4 @@
 <?php
-
 use App\Models\Gateway;
 use App\Models\PaymentTerm;
 use App\Models\Currency;
@@ -7,13 +6,11 @@ use App\Models\DateFormat;
 use App\Models\DatetimeFormat;
 use App\Models\InvoiceDesign;
 use App\Models\Country;
-
 class PaymentLibrariesSeeder extends Seeder
 {
     public function run()
     {
         Eloquent::unguard();
-
         $gateways = [
             ['name' => 'BeanStream', 'provider' => 'BeanStream', 'payment_library_id' => 2],
             ['name' => 'Psigate', 'provider' => 'Psigate', 'payment_library_id' => 2],
@@ -49,7 +46,6 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'WeChat Express', 'provider' => 'WeChat_Express', 'payment_library_id' => 1],
             ['name' => 'WePay', 'provider' => 'WePay', 'payment_library_id' => 1],
         ];
-
         foreach ($gateways as $gateway) {
             $record = Gateway::where('name', '=', $gateway['name'])->first();
             if ($record) {
@@ -59,6 +55,5 @@ class PaymentLibrariesSeeder extends Seeder
                 Gateway::create($gateway);
             }
         }
-
     }
 }
