@@ -26,7 +26,7 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ReferralRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
-use App\Events\UserLoggedIn;
+use App\Events\UserSignedUp;
 use App\Events\UserSettingsChanged;
 use App\Services\AuthService;
 
@@ -100,7 +100,7 @@ class AccountController extends BaseController
         }
 
         Auth::login($user, true);
-        event(new UserLoggedIn());
+        event(new UserSignedUp());
 
         $redirectTo = Input::get('redirect_to') ?: 'invoices/create';
 

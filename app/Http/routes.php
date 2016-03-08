@@ -48,6 +48,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/payments', 'PublicClientController@paymentIndex');
     Route::get('client/dashboard', 'PublicClientController@dashboard');
 });
+
 Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
 Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
 Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PublicClientController@paymentDatatable'));
@@ -226,6 +227,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
     Route::get('ping', 'ClientApiController@ping');
     Route::post('login', 'AccountApiController@login');
+    Route::get('register', 'AccountApiController@register');
     Route::get('static', 'AccountApiController@getStaticData');
     Route::get('accounts', 'AccountApiController@show');
     Route::put('accounts', 'AccountApiController@update');
