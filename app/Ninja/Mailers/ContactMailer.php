@@ -262,6 +262,7 @@ class ContactMailer extends Mailer
         $client = $data['client'];
         $invitation = $data['invitation'];
         $invoice = $invitation->invoice;
+        $passwordHTML = isset($data['password'])?'<p>'.trans('texts.password').': '.$data['password'].'<p>':false;
 
         $variables = [
             '$footer' => $account->getEmailFooter(),
@@ -275,15 +276,15 @@ class ContactMailer extends Mailer
             '$invoice' => $invoice->invoice_number,
             '$quote' => $invoice->invoice_number,
             '$link' => $invitation->getLink(),
-            '$viewLink' => $invitation->getLink(),
-            '$viewButton' => Form::emailViewButton($invitation->getLink(), $invoice->getEntityType()),
-            '$paymentLink' => $invitation->getLink('payment'),
-            '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')),
+            '$password' => $passwordHTML,
+            '$viewLink' => $invitation->getLink().'$password',
+            '$viewButton' => Form::emailViewButton($invitation->getLink(), $invoice->getEntityType()).'$password',
+            '$paymentLink' => $invitation->getLink('payment').'$password',
+            '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')).'$password',
             '$customClient1' => $account->custom_client_label1,
             '$customClient2' => $account->custom_client_label2,
             '$customInvoice1' => $account->custom_invoice_text_label1,
             '$customInvoice2' => $account->custom_invoice_text_label2,
-            '$password' => isset($data['password'])?$data['password']:false,
         ];
 
         // Add variables for available payment types
@@ -293,9 +294,21 @@ class ContactMailer extends Mailer
             $variables["\${$camelType}Link"] = $invitation->getLink() . "/{$type}";
             $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
         }
-
+        
+        $includesPasswordPlaceholder = strpos($template, '$password') !== false;
+                
         $str = str_replace(array_keys($variables), array_values($variables), $template);
         $str = autolink($str, 100);
+
+        if(!$includesPasswordPlaceholder && $passwordHTML){
+            $pos = strrpos($str, '$password');
+            if($pos !== false)
+            {
+                $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);
+            }
+        }        
+        $str = str_replace('$password', '', $str);
+
         
         return $str;
     }
