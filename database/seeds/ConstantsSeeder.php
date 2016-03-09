@@ -177,7 +177,7 @@ class ConstantsSeeder extends Seeder
 		    'America/Santiago'     => "(GMT-04:00) Santiago",
 		    'Canada/Newfoundland'  => "(GMT-03:30) Newfoundland",
 		    'America/Buenos_Aires' => "(GMT-03:00) Buenos Aires",
-		    'Greenland'            => "(GMT-03:00) Greenland",
+		    'America/Godthab'      => "(GMT-03:00) Greenland",
 		    'Atlantic/Stanley'     => "(GMT-02:00) Stanley",
 		    'Atlantic/Azores'      => "(GMT-01:00) Azores",
 		    'Atlantic/Cape_Verde'  => "(GMT-01:00) Cape Verde Is.",

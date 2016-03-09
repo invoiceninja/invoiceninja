@@ -1051,7 +1051,12 @@ $LANG = array(
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
     'enable_client_portal' => 'Dashboard',
     'enable_client_portal_help' => 'Show/hide the dashboard page in the client portal.',
-    
+
+    // Client Passwords
+    'enable_portal_password'=>'Password protect invoices',
+    'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
+    'send_portal_password'=>'Generate password automatically',
+    'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
 );
 
 return $LANG;

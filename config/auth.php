@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Authentication Defaults
@@ -14,7 +13,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => 'web',
+        'guard' => 'user',
         'passwords' => 'users',
     ],
 
@@ -36,9 +35,14 @@ return [
     */
 
     'guards' => [
-        'web' => [
+        'user' => [
             'driver' => 'session',
             'provider' => 'users',
+        ],
+        
+        'client' => [
+            'driver' => 'session',
+            'provider' => 'client',
         ],
 
         'api' => [
@@ -69,11 +73,11 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        
+        'client' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Contact::class,
+        ]
     ],
 
     /*
@@ -98,7 +102,13 @@ return [
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'email' => 'emails.password', //auth.emails.password
+            'email' => 'emails.password',
+            'table' => 'password_resets',
+            'expire' => 60,
+        ],
+        'client' => [
+            'provider' => 'client',
+            'email' => 'emails.client_password',
             'table' => 'password_resets',
             'expire' => 60,
         ],

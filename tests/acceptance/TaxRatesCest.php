@@ -29,6 +29,7 @@ class TaxRatesCest
         $total = $itemCost;
         $total += round($itemCost * $itemTaxRate / 100, 2);
         $total += round($itemCost * $invoiceTaxRate / 100, 2);
+        $itemTaxRate = number_format($itemTaxRate, 2);
 
         // create tax rates
         $I->amOnPage('/tax_rates/create');
