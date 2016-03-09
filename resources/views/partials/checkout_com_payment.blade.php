@@ -3,7 +3,7 @@
 <form method="POST" class="payment-form">
     <script>
         Checkout.render({
-            debugMode: true,
+            debugMode: {{ $checkoutComDebug }},
             publicKey: '{{ $checkoutComKey }}',
             paymentToken: '{{ $checkoutComToken }}',
             customerEmail: '{{ $contact->email }}',

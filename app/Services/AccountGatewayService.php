@@ -41,7 +41,7 @@ class AccountGatewayService extends BaseService
             [
                 'name',
                 function ($model) {
-                    return link_to("gateways/{$model->public_id}/edit", $model->name);
+                    return link_to("gateways/{$model->public_id}/edit", $model->name)->toHtml();
                 }
             ],
             [
