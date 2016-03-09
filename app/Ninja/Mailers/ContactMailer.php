@@ -291,7 +291,7 @@ class ContactMailer extends Mailer
         foreach (Gateway::$paymentTypes as $type) {
             $camelType = Gateway::getPaymentTypeName($type);
             $type = Utils::toSnakeCase($camelType);
-            $variables["\${$camelType}Link"] = $invitation->getLink() . "/{$type}";
+            $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$type}";
             $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
         }
         
