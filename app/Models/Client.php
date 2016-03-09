@@ -154,7 +154,15 @@ class Client extends EntityModel
             $contact = Contact::createNew();
             $contact->send_invoice = true;
         }
-
+        
+        if (!Utils::isPro() || $this->account->enable_portal_password){
+            if(!empty($data['password']) && $data['password']!='-%unchanged%-'){
+                $contact->password = bcrypt($data['password']);
+            } else if(empty($data['password'])){
+                $contact->password = null;
+            }
+        }
+            
         $contact->fill($data);
         $contact->is_primary = $isPrimary;
 

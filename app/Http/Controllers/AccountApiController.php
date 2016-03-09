@@ -19,6 +19,8 @@ use App\Ninja\Transformers\UserAccountTransformer;
 use App\Http\Controllers\BaseAPIController;
 use Swagger\Annotations as SWG;
 
+use App\Events\UserSignedUp;
+use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateAccountRequest;
 
 class AccountApiController extends BaseAPIController
@@ -32,13 +34,19 @@ class AccountApiController extends BaseAPIController
         $this->accountRepo = $accountRepo;
     }
 
+    public function register(RegisterRequest $request)
+    {
+        $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);        
+        $user = $account->users()->first();
+        
+        Auth::login($user, true);
+        event(new UserSignedUp());
+        
+        return $this->processLogin($request);
+    }
+
     public function login(Request $request)
     {
-        if ( ! env(API_SECRET) || $request->api_secret !== env(API_SECRET)) {
-            sleep(ERROR_DELAY);
-            return $this->errorResponse(['message'=>'Invalid secret'],401);
-        }
-
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             return $this->processLogin($request);
         } else {

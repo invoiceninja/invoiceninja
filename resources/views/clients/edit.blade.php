@@ -93,7 +93,10 @@
                         attr: {name: 'contacts[' + \$index() + '][email]', id:'email'+\$index()}") !!}
 				{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][phone]'}") !!}
-
+				@if ($account->isPro() && $account->enable_portal_password)
+					{!! Former::password('password')->data_bind("value: password()?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
+						attr: {name: 'contacts[' + \$index() + '][password]'}") !!}
+			    @endif
 				<div class="form-group">
 					<div class="col-lg-8 col-lg-offset-4 bold">
 						<span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
@@ -166,6 +169,7 @@
 		self.last_name = ko.observable('');
 		self.email = ko.observable('');
 		self.phone = ko.observable('');
+		self.password = ko.observable('');
 
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);
