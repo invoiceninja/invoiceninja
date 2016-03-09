@@ -1122,7 +1122,7 @@ return array(
     'all_pages_header' => 'Show header on',
     'all_pages_footer' => 'Show footer on',
     'invoice_currency' => 'Rechnungs-Währung',
-    'enable_https' => 'Wir empfehlen dringend HTTPS zu verwendne, um Kreditkarten online zu akzeptieren.',
+    'enable_https' => 'Wir empfehlen dringend HTTPS zu verwenden, um Kreditkarten online zu akzeptieren.',
     'quote_issued_to' => 'Quote issued to',
     'show_currency_code' => 'Währungscode',
     'trial_message' => 'Your account will receive a free two week trial of our pro plan.',
