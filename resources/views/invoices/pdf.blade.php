@@ -90,7 +90,14 @@
       NINJA.fontSize = {{ $account->font_size }};
       NINJA.headerFont = {!! json_encode($account->getHeaderFontName()) !!};
       NINJA.bodyFont = {!! json_encode($account->getBodyFontName()) !!};
+  @else
+      NINJA.primaryColor = "";
+      NINJA.secondaryColor = "";
+      NINJA.fontSize = 9;
+      NINJA.headerFont = "Roboto";
+      NINJA.bodyFont = "Roboto";    
   @endif
+  
   var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
 
   if (window.invoice) {

@@ -170,7 +170,7 @@ class InvoiceRepository extends BaseRepository
             );
 
         $table = \Datatable::query($query)
-            ->addColumn('invoice_number', function ($model) use ($entityType) { return link_to('/view/'.$model->invitation_key, $model->invoice_number); })
+            ->addColumn('invoice_number', function ($model) use ($entityType) { return link_to('/view/'.$model->invitation_key, $model->invoice_number)->toHtml(); })
             ->addColumn('invoice_date', function ($model) { return Utils::fromSqlDate($model->invoice_date); })
             ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); });
 

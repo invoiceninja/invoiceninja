@@ -89,6 +89,8 @@ class ExportController extends BaseController
                     if ($key === 'quotes') {
                         $key = 'invoices';
                         $data['entityType'] = ENTITY_QUOTE;
+                    } elseif ($key === 'recurringInvoices') {
+                        $key = 'recurring_invoices';
                     }
                     $sheet->loadView("export.{$key}", $data);
                 });
