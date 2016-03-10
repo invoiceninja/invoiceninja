@@ -79,7 +79,8 @@ class InvoiceService extends BaseService
 
     public function approveQuote($quote, $invitation = null)
     {
-        $account = Auth::user()->account;
+        $account = $quote->account;
+        
         if (!$quote->is_quote || $quote->quote_invoice_id) {
             return null;
         }
