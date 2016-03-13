@@ -220,6 +220,28 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'UKai.ttf',
                 'sort_order' => 1800,
             ],
+            [
+                'folder' => 'gensha_gothic_p',
+                'name' => 'GenshinGothic P - Japanese',
+                'css_stack' => '',
+                'google_font' => '',
+                'normal' => 'GenShinGothic-P-Regular.ttf',
+                'bold' => 'GenShinGothic-P-Regular.ttf',
+                'italics' => 'GenShinGothic-P-Regular.ttf',
+                'bolditalics' => 'GenShinGothic-P-Regular.ttf',
+                'sort_order' => 1800,
+            ],
+            [
+                'folder' => 'gensha_gothic',
+                'name' => 'GenshinGothic - Japanese',
+                'css_stack' => '',
+                'google_font' => '',
+                'normal' => 'GenShinGothic-Regular.ttf',
+                'bold' => 'GenShinGothic-Regular.ttf',
+                'italics' => 'GenShinGothic-Regular.ttf',
+                'bolditalics' => 'GenShinGothic-Regular.ttf',
+                'sort_order' => 1800,
+            ],
         ];
 
         foreach ($fonts as $font) {

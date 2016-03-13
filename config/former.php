@@ -49,7 +49,7 @@
 
     // Whether text that comes out of the translated
     // should be capitalized (ex: email => Email) automatically
-    'capitalize_translations' => true,
+    'capitalize_translations' => false,
 
     // An array of attributes to automatically translate
     'translatable'            => array(
