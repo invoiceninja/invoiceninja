@@ -45,7 +45,7 @@ class AccountApiController extends BaseAPIController
 
         if ($validator->fails()) {
 
-            foreach($validator->messages->all() as $message)
+            foreach($validator->errors()->all() as $message)
             {
                 return $this->errorResponse(['message'=>$message]);
             }
