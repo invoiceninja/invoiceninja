@@ -101,7 +101,9 @@ class PublicClientController extends BaseController
         // Checkout.com requires first getting a payment token
         $checkoutComToken = false;
         $checkoutComKey = false;
+        $checkoutComDebug = false;
         if ($accountGateway = $account->getGatewayConfig(GATEWAY_CHECKOUT_COM)) {
+            $checkoutComDebug = $accountGateway->getConfigField('testMode');
             if ($checkoutComToken = $this->paymentService->getCheckoutComToken($invitation)) {
                 $checkoutComKey = $accountGateway->getConfigField('publicApiKey');
                 $invitation->transaction_reference = $checkoutComToken;
@@ -126,6 +128,7 @@ class PublicClientController extends BaseController
             'paymentURL' => $paymentURL,
             'checkoutComToken' => $checkoutComToken,
             'checkoutComKey' => $checkoutComKey,
+            'checkoutComDebug' => $checkoutComDebug,
             'phantomjs' => Input::has('phantomjs'),
         );
 

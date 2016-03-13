@@ -99,6 +99,8 @@ class InvoiceController extends BaseController
             ->where('invitations.deleted_at', '=', null)
             ->select('contacts.public_id')->lists('public_id');
 
+        $clients = Client::scope()->withTrashed()->with('contacts', 'country');
+
         if ($clone) {
             $invoice->id = $invoice->public_id = null;
             $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
@@ -111,6 +113,7 @@ class InvoiceController extends BaseController
             Utils::trackViewed($invoice->getDisplayName().' - '.$invoice->client->getDisplayName(), $invoice->getEntityType());
             $method = 'PUT';
             $url = "{$entityType}s/{$publicId}";
+            $clients->whereId($invoice->client_id);
         }
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
@@ -157,7 +160,7 @@ class InvoiceController extends BaseController
         $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
 
         $data = array(
-                'clients' => Client::scope()->withTrashed()->with('contacts', 'country')->whereId($invoice->client_id)->get(),
+                'clients' => $clients->get(),
                 'entityType' => $entityType,
                 'showBreadcrumbs' => $clone,
                 'invoice' => $invoice,
