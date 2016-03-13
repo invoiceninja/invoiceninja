@@ -16,6 +16,12 @@ class RegisterRequest extends Request
      */
     public function __construct(array $query, array $request, array $attributes, array $cookies, array $files, array $server, $content)
     {
+        $this->query = $query;
+        $this->attributes = $attributes;
+        $this->cookies = $cookies;
+        $this->files = $files;
+        $this->server = $server;
+        $this->content = content;
         $this->request = $request;
     }
 
