@@ -34,25 +34,8 @@ class AccountApiController extends BaseAPIController
         $this->accountRepo = $accountRepo;
     }
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|unique:users',
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'password' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-
-            foreach($validator->errors()->all() as $message)
-            {
-                return $this->errorResponse(['message'=>$message],400);
-            }
-
-
-        }
-
 
         $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);        
         $user = $account->users()->first();
