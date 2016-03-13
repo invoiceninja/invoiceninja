@@ -36,6 +36,7 @@ class AccountApiController extends BaseAPIController
 
     public function register(RegisterRequest $request)
     {
+
         $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);        
         $user = $account->users()->first();
         
