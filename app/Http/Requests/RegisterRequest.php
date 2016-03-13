@@ -49,7 +49,7 @@ class RegisterRequest extends Request
                 Log::info($key);
                 Log::info($value);
 
-                $error['error'] = $value;
+                $error['error'] = ['message'=>$value];
                 $error = json_encode($error, JSON_PRETTY_PRINT);
                 $headers = Utils::getApiHeaders();
 
