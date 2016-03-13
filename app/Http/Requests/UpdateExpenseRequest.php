@@ -24,7 +24,7 @@ class UpdateExpenseRequest extends Request
     public function rules()
     {
           return [
-            'amount' => 'positive',
+            'amount' => 'numeric',
     		'expense_date' => 'required',
         ];
     }
