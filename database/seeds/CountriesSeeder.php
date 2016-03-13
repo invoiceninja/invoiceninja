@@ -108,6 +108,10 @@ class CountriesSeeder extends Seeder {
                 'swap_postal_code' => true,
                 'swap_currency_symbol' => true,
             ],
+            'JP' => [ // Japan
+                'swap_postal_code' => true,
+                'swap_currency_symbol' => true,
+            ],
             'LT' => [ // Lithuania
                 'swap_currency_symbol' => true,
             ],

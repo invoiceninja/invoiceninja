@@ -24,8 +24,13 @@ class AppServiceProvider extends ServiceProvider {
         });
 
         Form::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
+            $capitalize = config('former.capitalize_translations');
             $class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2.'/*') ) ? ' class="active"' : '';
-            $title = ucwords(trans("texts.$text")) . Utils::getProLabel($text);
+            if ($capitalize) {
+              $title = ucwords(trans("texts.$text")) . Utils::getProLabel($text);
+            } else {
+              $title = trans("texts.$text")  . Utils::getProLabel($text);
+            }
             return '<li'.$class.'><a href="'.URL::to($url).'" '.$extra.'>'.$title.'</a></li>';
         });
 
