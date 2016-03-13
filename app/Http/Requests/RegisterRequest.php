@@ -56,7 +56,7 @@ class RegisterRequest extends Request
             foreach ($error as $key => $value) {
 
                 $message['error'] = ['message'=>$value];
-                $message = json_encode($error, JSON_PRETTY_PRINT);
+                $message = json_encode($message, JSON_PRETTY_PRINT);
                 $headers = Utils::getApiHeaders();
 
                 return Response::make($message, 400, $headers);
