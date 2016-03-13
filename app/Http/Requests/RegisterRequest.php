@@ -1,7 +1,7 @@
 <?php namespace app\Http\Requests;
 
 use Auth;
-use App\Http\Requests\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Factory;
 use App\Libraries\Utils;
