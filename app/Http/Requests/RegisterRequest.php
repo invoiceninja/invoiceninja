@@ -19,7 +19,6 @@ class RegisterRequest extends Request
     public function __construct(InputRequest $req)
     {
         $this->req = $req;
-
     }
 
 
@@ -48,42 +47,21 @@ class RegisterRequest extends Request
 
     public function response(array $errors)
     {
-
-        Log::info($this->req->api_secret);
-        Log::info($this->req->email);
-
+        /* If the user is not validating from a mobile app - pass through parent::response*/
         if(!isset($this->req->api_secret))
             return parent::response($errors);
 
-        Log::info($errors);
+        /* If the user is  validating from a mobile app - pass through first error string and return error*/
+        foreach($errors as $error) {
+            foreach ($error as $key => $value) {
 
-        foreach($errors as $err) {
-            foreach ($err as $key => $value) {
-
-                Log::info($err);
-                Log::info($key);
-                Log::info($value);
-
-                $error['error'] = ['message'=>$value];
-                $error = json_encode($error, JSON_PRETTY_PRINT);
+                $message['error'] = ['message'=>$value];
+                $message = json_encode($error, JSON_PRETTY_PRINT);
                 $headers = Utils::getApiHeaders();
 
-                return Response::make($error, 400, $headers);
+                return Response::make($message, 400, $headers);
             }
         }
     }
-
-
-
-    public function setRequest($request)
-    {
-        $this->request = $request;
-    }
-
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
 
 }
