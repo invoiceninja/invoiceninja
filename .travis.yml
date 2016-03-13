@@ -37,7 +37,7 @@ install:
   - travis_retry composer install --prefer-dist;
 
 before_script:
-  # prevent MySQL went away error 
+  # prevent MySQL went away error
   - mysql -u root -e 'SET @@GLOBAL.wait_timeout=28800;'
   # copy configuration files
   - cp .env.example .env
