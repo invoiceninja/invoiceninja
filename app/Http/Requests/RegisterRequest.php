@@ -45,8 +45,9 @@ class RegisterRequest extends Request
     public function response(array $errors)
     {
 
-        Log::info($this->request);
-
+        Log::info($this->request->api_secret);
+        Log::info($this->request->email);
+        
         if(!isset($this->request->api_secret))
             return parent::response($errors);
 
