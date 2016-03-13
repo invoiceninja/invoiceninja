@@ -14,11 +14,6 @@ class RegisterRequest extends Request
      *
      * @return bool
      */
-    public function __construct(array $query, array $request, array $attributes, array $cookies, array $files, array $server, $content)
-    {
-        parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
-        $this->request = $request;
-    }
 
     public function authorize()
     {
@@ -44,7 +39,9 @@ class RegisterRequest extends Request
 
     public function response(array $errors)
     {
-        if(!isset($this->request->api_secret))
+        $request = $this->getRequest();
+
+        if(!isset($request->api_secret))
             return parent::response($errors);
 
         Log::info($errors);
@@ -63,5 +60,10 @@ class RegisterRequest extends Request
                 return Response::make($error, 400, $headers);
             }
         }
+    }
+
+    public function getRequest(\Illuminate\Http\Request $request)
+    {
+        return $request;
     }
 }
