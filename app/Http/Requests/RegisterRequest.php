@@ -44,6 +44,11 @@ class RegisterRequest extends Request
 
         foreach($errors as $err) {
             foreach ($err as $key => $value) {
+
+                Log::info($err);
+                Log::info($key);
+                Log::info($value);
+
                 $error['error'] = $value;
                 $error = json_encode($error, JSON_PRETTY_PRINT);
                 $headers = Utils::getApiHeaders();
