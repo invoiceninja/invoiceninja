@@ -14,13 +14,6 @@ class RegisterRequest extends Request
      *
      * @return bool
      */
-
-    public function __contstruct(Request $request)
-    {
-        $this->request = $request;
-    }
-
-
     public function authorize()
     {
         return true;
@@ -46,25 +39,12 @@ class RegisterRequest extends Request
 
     public function response(array $errors)
     {
-        $request = $this->request;
 
-        Log::info($request->api_secret);
-        Log::info($request->email);
+        foreach($errors as $error) {
+            foreach ($error as $key => $value) {
 
-        if(!isset($request->api_secret))
-            return parent::response($errors);
-
-        Log::info($errors);
-
-        foreach($errors as $err) {
-            foreach ($err as $key => $value) {
-
-                Log::info($err);
-                Log::info($key);
-                Log::info($value);
-
-                $error['error'] = ['message'=>$value];
-                $error = json_encode($error, JSON_PRETTY_PRINT);
+                $message['error'] = ['message'=>$value];
+                $message = json_encode($message, JSON_PRETTY_PRINT);
                 $headers = Utils::getApiHeaders();
 
                 return Response::make($error, 400, $headers);
