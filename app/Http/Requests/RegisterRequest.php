@@ -16,8 +16,6 @@ class RegisterRequest extends Request
      */
     public function __construct(array $query, array $request, array $attributes, array $cookies, array $files, array $server, $content)
     {
-        parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
-
         $this->request = $request;
     }
 
