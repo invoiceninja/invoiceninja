@@ -11,9 +11,9 @@ use Request;
 use Redirect;
 use Session;
 use URL;
+use Password;
 use Utils;
 use Validator;
-use Illuminate\Auth\Passwords\TokenRepositoryInterface;
 use App\Models\User;
 use App\Http\Requests;
 use App\Ninja\Repositories\AccountRepository;
@@ -240,7 +240,7 @@ class UserController extends BaseController
      *
      * @param string $code
      */
-    public function confirm($code, TokenRepositoryInterface $tokenRepo)
+    public function confirm($code)
     {
         $user = User::where('confirmation_code', '=', $code)->get()->first();
 
@@ -253,7 +253,7 @@ class UserController extends BaseController
 
             if ($user->public_id) {
                 //Auth::login($user);
-                $token = $tokenRepo->create($user);
+                $token = Password::getRepository()->create($user);
 
                 return Redirect::to("/password/reset/{$token}");
             } else {
