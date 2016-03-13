@@ -43,7 +43,7 @@ class RegisterRequest extends Request
         return $rules;
     }
 
-    public function response($errors)
+    public function response(array $errors)
     {
 
         if(!isset($this->request->api_secret))
