@@ -93,14 +93,16 @@
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check', name: 'client[contacts][' + $index() + '][send_invoice]'}">
 							<span data-bind="html: email.display"></span>
                         </label>
-                        <span data-bind="html: $data.view_as_recipient, visible: !$root.invoice().is_recurring()"></span>&nbsp;&nbsp;
-                        @if (Utils::isConfirmed())
-                        <span style="vertical-align:text-top;color:red" class="fa fa-exclamation-triangle"
-                                data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
-                        <span style="vertical-align:text-top" class="glyphicon glyphicon-info-sign"
-                                data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true},
-                                style: {color: $data.hasOwnProperty('invitation_viewed') &amp;&amp; $data.invitation_viewed() ? '#57D172':'#B1B5BA'}"></span>
-                        @endif
+                        <span data-bind="visible: !$root.invoice().is_recurring()">
+                            <span data-bind="html: $data.view_as_recipient"></span>&nbsp;&nbsp;
+                            @if (Utils::isConfirmed())
+                            <span style="vertical-align:text-top;color:red" class="fa fa-exclamation-triangle"
+                                    data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
+                            <span style="vertical-align:text-top" class="glyphicon glyphicon-info-sign"
+                                    data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true},
+                                    style: {color: $data.hasOwnProperty('invitation_viewed') &amp;&amp; $data.invitation_viewed() ? '#57D172':'#B1B5BA'}"></span>
+                            @endif
+                        </span>
 					</div>
 				</div>
 			</div>
