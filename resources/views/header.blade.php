@@ -258,18 +258,16 @@
     localStorage.setItem('auth_provider', provider);
   }
 
+  window.loadedSearchData = false;
   function showSearch() {
     $('#search').typeahead('val', '');
     $('#navbar-options').hide();
     $('#search-form').show();
-
-    if (window.hasOwnProperty('loadedSearchData')) {
-        $('#search').focus();
-    } else {
+    $('#search').focus();
+    
+    if (!window.loadedSearchData) {
         trackEvent('/activity', '/search');
         $.get('{{ URL::route('getSearchData') }}', function(data) {
-          window.loadedSearchData = true;
-
           $('#search').typeahead({
             hint: true,
             highlight: true,
@@ -307,6 +305,7 @@
           ).on('typeahead:selected', function(element, datum, name) {
             window.location = datum.url;
           }).focus(); 
+          window.loadedSearchData = true;
         });
     }
   }
@@ -322,7 +321,9 @@
     }, 3000);
 
     $('#search').blur(function(event){
-        hideSearch();
+        if (window.loadedSearchData) {
+            hideSearch();
+        }
     });
 
     if (isStorageSupported()) {
