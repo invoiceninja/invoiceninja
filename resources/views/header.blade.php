@@ -274,11 +274,31 @@
             hint: true,
             highlight: true,
           }
+          @if (Auth::check() && Auth::user()->account->custom_client_label1)
+          ,{
+            name: 'data',
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->custom_client_label1 }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->custom_client_label1 }}</span>'
+            }
+          }          
+          @endif
+          @if (Auth::check() && Auth::user()->account->custom_client_label2)
+          ,{
+            name: 'data',
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->custom_client_label2 }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->custom_client_label2 }}</span>'
+            }
+          }          
+          @endif
           @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
           ,{
             name: 'data',
             display: 'value',
-            source: searchData(data['{{ $type }}'], 'value', true),
+            source: searchData(data['{{ $type }}'], 'tokens', true),
             templates: {
               header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ trans("texts.{$type}") }}</span>'
             }
