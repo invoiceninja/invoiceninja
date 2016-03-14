@@ -25,45 +25,45 @@ class SubscriptionListener
     public function createdClient(ClientWasCreated $event)
     {
         $transformer = new ClientTransformer($event->client->account);
-        $this->checkSubscriptions(ACTIVITY_TYPE_CREATE_CLIENT, $event->client, $transformer);
+        $this->checkSubscriptions(EVENT_CREATE_CLIENT, $event->client, $transformer);
     }
 
     public function createdQuote(QuoteWasCreated $event)
     {
         $transformer = new InvoiceTransformer($event->quote->account);
-        $this->checkSubscriptions(ACTIVITY_TYPE_CREATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
+        $this->checkSubscriptions(EVENT_CREATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
     }
 
     public function createdPayment(PaymentWasCreated $event)
     {
         $transformer = new PaymentTransformer($event->payment->account);
-        $this->checkSubscriptions(ACTIVITY_TYPE_CREATE_PAYMENT, $event->payment, $transformer, [ENTITY_CLIENT, ENTITY_INVOICE]);
+        $this->checkSubscriptions(EVENT_CREATE_PAYMENT, $event->payment, $transformer, [ENTITY_CLIENT, ENTITY_INVOICE]);
     }
 
     public function createdInvoice(InvoiceWasCreated $event)
     {
         $transformer = new InvoiceTransformer($event->invoice->account);
-        $this->checkSubscriptions(ACTIVITY_TYPE_CREATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
+        $this->checkSubscriptions(EVENT_CREATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
     }
 
     public function createdCredit(CreditWasCreated $event)
     {
-        //$this->checkSubscriptions(ACTIVITY_TYPE_CREATE_CREDIT, $event->credit);
+        
     }
 
     public function createdVendor(VendorWasCreated $event)
     {
-        //$this->checkSubscriptions(ACTIVITY_TYPE_CREATE_VENDOR, $event->vendor);
+
     }
 
     public function createdExpense(ExpenseWasCreated $event)
     {
-        //$this->checkSubscriptions(ACTIVITY_TYPE_CREATE_EXPENSE, $event->expense);
+
     }
 
-    private function checkSubscriptions($activityTypeId, $entity, $transformer, $include = '')
+    private function checkSubscriptions($eventId, $entity, $transformer, $include = '')
     {
-        $subscription = $entity->account->getSubscription($activityTypeId);
+        $subscription = $entity->account->getSubscription($eventId);
 
         if ($subscription) {
             $manager = new Manager();
