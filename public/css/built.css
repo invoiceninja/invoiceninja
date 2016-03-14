@@ -2910,8 +2910,24 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
    .large-dialog {
         width: 960px;
    }
-   .hide-desktop 
-   {
+   .hide-desktop {
+        display: none;
+   }
+}
+
+/* Style to fix navigation by show icon instead of name */
+@media only screen and (min-width : 1200px) {
+   .nav-account-icon {
+        display: none;
+   }
+}
+@media only screen and (max-width : 992px) {
+   .nav-account-icon {
+        display: none;
+   }
+}
+@media only screen and (max-width : 1200px) and (min-width: 992px) {
+   .nav-account-name {
         display: none;
    }
 }

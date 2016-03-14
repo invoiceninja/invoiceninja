@@ -87,7 +87,7 @@
 
 			<div data-bind="with: client" class="invoice-contact">
 				<div style="display:none" class="form-group" data-bind="visible: contacts().length > 0 &amp;&amp; (contacts()[0].email() || contacts()[0].first_name()), foreach: contacts">
-					<div class="col-lg-8 col-lg-offset-4">
+					<div class="col-lg-8 col-lg-offset-4 col-sm-offset-4">
 						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}" onclick="refreshPDF(true)">
                             <input type="hidden" value="0" data-bind="attr: {name: 'client[contacts][' + $index() + '][send_invoice]'}">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check', name: 'client[contacts][' + $index() + '][send_invoice]'}">

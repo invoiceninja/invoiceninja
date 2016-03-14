@@ -427,14 +427,16 @@
 
         <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-            <div id="myAccountButton" class="ellipsis" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '130' : '100' }}px">
+            <div id="myAccountButton" class="ellipsis nav-account-name" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '130' : '100' }}px;">
                 @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
                     {{ Auth::user()->account->getDisplayName() }}
                 @else
                     {{ Auth::user()->getDisplayName() }}
                 @endif
               <span class="caret"></span>
-            </div>            
+            </div>
+            <span class="glyphicon glyphicon-user nav-account-icon" style="padding-left:0px" 
+                title="{{ Auth::user()->account->getDisplayName() }}"/>            
           </button>			
           <ul class="dropdown-menu user-accounts">
             @if (session(SESSION_USER_ACCOUNTS))
