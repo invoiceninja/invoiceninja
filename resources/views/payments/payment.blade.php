@@ -11,9 +11,6 @@
               $('.payment-form').submit(function(event) {
                 var $form = $(this);
 
-                // Disable the submit button to prevent repeated clicks
-                $form.find('button').prop('disabled', true);
-
                 var data = {
                     name: $('#first_name').val() + ' ' + $('#last_name').val(),
                     address_line1: $('#address1').val(),
@@ -28,6 +25,24 @@
                     exp_year: $('#expiration_year').val()
                 };
 
+                // Validate the card details
+                if (!Stripe.card.validateCardNumber(data.number)) {
+                    $('#js-error-message').html('{{ trans('texts.invalid_card_number') }}').fadeIn();
+                    return false;
+                }
+                if (!Stripe.card.validateExpiry(data.exp_month, data.exp_year)) {
+                    $('#js-error-message').html('{{ trans('texts.invalid_expiry') }}').fadeIn();
+                    return false;
+                }
+                if (!Stripe.card.validateCVC(data.cvc)) {
+                    $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
+                    return false;
+                }
+
+                // Disable the submit button to prevent repeated clicks
+                $form.find('button').prop('disabled', true);
+                $('#js-error-message').hide();
+                
                 Stripe.card.createToken(data, stripeResponseHandler);
 
                 // Prevent the form from submitting with the default action
@@ -102,10 +117,19 @@
   @endif
 @endif
 
+@if (Utils::isNinjaDev())
+    {{ Former::populateField('first_name', 'Test') }}
+    {{ Former::populateField('last_name', 'Test') }}
+    {{ Former::populateField('address1', '350 5th Ave') }}
+    {{ Former::populateField('city', 'New York') }}
+    {{ Former::populateField('state', 'NY') }}
+    {{ Former::populateField('postal_code', '10118') }}
+    {{ Former::populateField('country_id', 840) }}
+@endif
+
+
 <div class="container">
 <p>&nbsp;</p>
-
-<div id="js-error-message" style="display:none" class="alert alert-danger"></div>
 
 <div class="panel panel-default">
   <div class="panel-body">
@@ -290,14 +314,15 @@
         </div>
 
 
-        <p>&nbsp;<br/>&nbsp;</p>
-
+        <p>&nbsp;</p>
         <center>
             {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))
                             ->submit()
                             ->large() !!}
-        </center>
-
+        </center>        
+        <p>&nbsp;</p>
+        
+        <div id="js-error-message" style="display:none" class="alert alert-danger"></div>
     </div>
 
   </div>

@@ -1059,6 +1059,9 @@ $LANG = array(
     'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
     
     'expired' => 'Expired',
+    'invalid_card_number' => 'The credit card number is not valid.',
+    'invalid_expiry' => 'The expiration date is not valid.',
+    'invalid_cvv' => 'The CVV is not valid.',
     
 );
 
