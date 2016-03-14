@@ -1057,6 +1057,9 @@ $LANG = array(
     'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
     'send_portal_password'=>'Generate password automatically',
     'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
+    
+    'expired' => 'Expired',
+    
 );
 
 return $LANG;

@@ -160,8 +160,8 @@ class InvoiceService extends BaseService
             ],
             [
                 'invoice_status_name',
-                function ($model) {
-                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted'))->toHtml() : self::getStatusLabel($model);
+                function ($model) use ($entityType) {
+                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted'))->toHtml() : self::getStatusLabel($entityType, $model);
                 }
             ]
         ];
@@ -237,12 +237,13 @@ class InvoiceService extends BaseService
         ];
     }
 
-    private function getStatusLabel($model)
+    private function getStatusLabel($entityType, $model)
     {
         // check if invoice is overdue
         if (Utils::parseFloat($model->balance) && $model->due_date && $model->due_date != '0000-00-00') {
             if (\DateTime::createFromFormat('Y-m-d', $model->due_date) < new \DateTime("now")) {
-                return "<h4><div class=\"label label-danger\">".trans('texts.overdue')."</div></h4>";
+                $label = $entityType == ENTITY_INVOICE ? trans('texts.overdue') : trans('texts.expired');
+                return "<h4><div class=\"label label-danger\">" . $label . "</div></h4>";
             }
         }
 
