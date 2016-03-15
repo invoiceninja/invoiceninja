@@ -3,6 +3,8 @@
 use Utils;
 use URL;
 use Auth;
+use App\Models\Vendor;
+use App\Models\Expense;
 use App\Services\BaseService;
 use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Repositories\NinjaRepository;
@@ -83,13 +85,25 @@ class VendorService extends BaseService
                 trans('texts.edit_vendor'),
                 function ($model) {
                     return URL::to("vendors/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return Vendor::canEditItem($model);
                 }
             ],
-            [],
+            [
+                '--divider--', function(){return false;},
+                function ($model) {
+                    return Vendor::canEditItem($model) && Expense::canCreate();
+                }
+                
+            ],
             [
                 trans('texts.enter_expense'),
                 function ($model) {
                     return URL::to("expenses/create/{$model->public_id}");
+                },
+                function ($model) {
+                    return Expense::canCreate();
                 }
             ]
         ];

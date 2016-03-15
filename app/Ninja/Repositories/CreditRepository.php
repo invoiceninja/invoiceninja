@@ -37,7 +37,8 @@ class CreditRepository extends BaseRepository
                         'contacts.email',
                         'credits.private_notes',
                         'credits.deleted_at',
-                        'credits.is_deleted'
+                        'credits.is_deleted',
+                        'credits.user_id'
                     );
 
         if ($clientPublicId) {

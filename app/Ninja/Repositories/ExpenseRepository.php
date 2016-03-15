@@ -40,7 +40,8 @@ class ExpenseRepository extends BaseRepository
                         'expenses.public_id',
                         'expenses.deleted_at',
                         'expenses.should_be_invoiced',
-                        'expenses.created_at'
+                        'expenses.created_at',
+                        'expenses.user_id'
                     );
 
         return $query;

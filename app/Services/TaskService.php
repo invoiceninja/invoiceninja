@@ -1,8 +1,10 @@
 <?php namespace App\Services;
 
+use Auth;
 use URL;
 use Utils;
 use App\Models\Task;
+use App\Models\Invoice;
 use App\Ninja\Repositories\TaskRepository;
 use App\Services\BaseService;
 
@@ -32,6 +34,10 @@ class TaskService extends BaseService
     public function getDatatable($clientPublicId, $search)
     {
         $query = $this->taskRepo->find($clientPublicId, $search);
+
+        if(!Utils::hasPermission('view_all')){
+            $query->where('tasks.user_id', '=', Auth::user()->id);
+        }
 
         return $this->createDatatable(ENTITY_TASK, $query, !$clientPublicId);
     }
@@ -82,7 +88,7 @@ class TaskService extends BaseService
                     return URL::to('tasks/'.$model->public_id.'/edit');
                 },
                 function ($model) {
-                    return !$model->deleted_at || $model->deleted_at == '0000-00-00';
+                    return (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Task::canEditItem($model);
                 }
             ],
             [
@@ -91,7 +97,7 @@ class TaskService extends BaseService
                     return URL::to("/invoices/{$model->invoice_public_id}/edit");
                 },
                 function ($model) {
-                    return $model->invoice_number;
+                    return $model->invoice_number && Invoice::canEditItemById($model->invoice_number);
                 }
             ],
             [
@@ -100,7 +106,7 @@ class TaskService extends BaseService
                     return "javascript:stopTask({$model->public_id})";
                 },
                 function ($model) {
-                    return $model->is_running;
+                    return $model->is_running && Task::canEditItem($model);
                 }
             ],
             [
@@ -109,7 +115,7 @@ class TaskService extends BaseService
                     return "javascript:invoiceEntity({$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_number && (!$model->deleted_at || $model->deleted_at == '0000-00-00');
+                    return ! $model->invoice_number && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Invoice::canCreate();
                 }
             ]
         ];

@@ -38,7 +38,8 @@ class TaskRepository
                         'invoices.public_id as invoice_public_id',
                         'tasks.is_running',
                         'tasks.time_log',
-                        'tasks.created_at'
+                        'tasks.created_at',
+                        'tasks.user_id'
                     );
 
         if ($clientPublicId) {

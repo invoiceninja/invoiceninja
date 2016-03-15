@@ -30,6 +30,7 @@ class VendorController extends BaseController
 {
     protected $vendorService;
     protected $vendorRepo;
+    protected $model = 'App\Models\Vendor';
 
     public function __construct(VendorRepository $vendorRepo, VendorService $vendorService)
     {
@@ -92,6 +93,11 @@ class VendorController extends BaseController
     public function show($publicId)
     {
         $vendor = Vendor::withTrashed()->scope($publicId)->with('vendorcontacts', 'size', 'industry')->firstOrFail();
+        
+        if(!$this->checkViewPermission($vendor, $response)){
+            return $response;
+        }
+        
         Utils::trackViewed($vendor->getDisplayName(), 'vendor');
 
         $actionLinks = [
@@ -119,6 +125,10 @@ class VendorController extends BaseController
      */
     public function create()
     {
+        if(!$this->checkCreatePermission($response)){
+            return $response;
+        }
+        
         if (Vendor::scope()->count() > Auth::user()->getMaxNumVendors()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumVendors()." vendors"]);
         }
@@ -144,6 +154,11 @@ class VendorController extends BaseController
     public function edit($publicId)
     {
         $vendor = Vendor::scope($publicId)->with('vendorcontacts')->firstOrFail();
+        
+        if(!$this->checkEditPermission($vendor, $response)){
+            return $response;
+        }
+        
         $data = [
             'vendor' => $vendor,
             'method' => 'PUT',

@@ -21,4 +21,8 @@ class Product extends EntityModel
     {
         return $this->belongsTo('App\Models\TaxRate');
     }
+    
+    public function canEdit() {
+        return Auth::user()->hasPermission('admin');
+    }
 }

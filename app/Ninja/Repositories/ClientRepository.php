@@ -46,7 +46,8 @@ class ClientRepository extends BaseRepository
                         'clients.work_phone',
                         'contacts.email',
                         'clients.deleted_at',
-                        'clients.is_deleted'
+                        'clients.is_deleted',
+                        'clients.user_id'
                     );
 
         if (!\Session::get('show_trash:client')) {

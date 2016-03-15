@@ -192,6 +192,8 @@ class UserController extends BaseController
                 $user->last_name = trim(Input::get('last_name'));
                 $user->username = trim(Input::get('email'));
                 $user->email = trim(Input::get('email'));
+                $user->is_admin = boolval(Input::get('is_admin'));
+                $user->permissions = Input::get('permissions');
             } else {
                 $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
                             ->orderBy('public_id', 'DESC')->first();
@@ -202,10 +204,12 @@ class UserController extends BaseController
                 $user->last_name = trim(Input::get('last_name'));
                 $user->username = trim(Input::get('email'));
                 $user->email = trim(Input::get('email'));
+                $user->is_admin = boolval(Input::get('is_admin'));
                 $user->registered = true;
                 $user->password = str_random(RANDOM_KEY_LENGTH);
                 $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
                 $user->public_id = $lastUser->public_id + 1;
+                $user->permissions = Input::get('permissions');
             }
 
             $user->save();

@@ -1,6 +1,7 @@
 <?php namespace App\Services;
 
 use Utils;
+use Auth;
 use URL;
 use DateTime;
 use Event;
@@ -286,6 +287,10 @@ class PaymentService extends BaseService
     {
         $query = $this->paymentRepo->find($clientPublicId, $search);
 
+        if(!Utils::hasPermission('view_all')){
+            $query->where('payments.user_id', '=', Auth::user()->id);
+        }
+
         return $this->createDatatable(ENTITY_PAYMENT, $query, !$clientPublicId);
     }
 
@@ -339,6 +344,9 @@ class PaymentService extends BaseService
                 trans('texts.edit_payment'),
                 function ($model) {
                     return URL::to("payments/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return Payment::canEditItem($model);
                 }
             ]
         ];

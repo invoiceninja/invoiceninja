@@ -65,7 +65,8 @@ class InvoiceRepository extends BaseRepository
                 'invoices.quote_invoice_id',
                 'invoices.deleted_at',
                 'invoices.is_deleted',
-                'invoices.partial'
+                'invoices.partial',
+                'invoices.user_id'
             );
 
         if (!\Session::get('show_trash:'.$entityType)) {

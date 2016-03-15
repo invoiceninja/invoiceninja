@@ -47,6 +47,7 @@ class PaymentRepository extends BaseRepository
                         'payments.account_gateway_id',
                         'payments.deleted_at',
                         'payments.is_deleted',
+                        'payments.user_id',
                         'invoices.is_deleted as invoice_is_deleted',
                         'gateways.name as gateway_name'
                     );

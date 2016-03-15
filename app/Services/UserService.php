@@ -53,11 +53,15 @@ class UserService extends BaseService
                 'confirmed',
                 function ($model) {
                     if (!$model->public_id) {
-                        return self::getStatusLabel(USER_STATE_ADMIN);
+                        return self::getStatusLabel(USER_STATE_OWNER);
                     } elseif ($model->deleted_at) {
                         return self::getStatusLabel(USER_STATE_DISABLED);
                     } elseif ($model->confirmed) {
-                        return self::getStatusLabel(USER_STATE_ACTIVE);
+                        if($model->is_admin){
+                            return self::getStatusLabel(USER_STATE_ADMIN);
+                        } else {
+                            return self::getStatusLabel(USER_STATE_ACTIVE);
+                        }
                     } else {
                         return self::getStatusLabel(USER_STATE_PENDING);
                     }
@@ -96,16 +100,19 @@ class UserService extends BaseService
         $class = 'default';
         switch ($state) {
             case USER_STATE_PENDING:
-                $class = 'info';
+                $class = 'default';
                 break;
             case USER_STATE_ACTIVE:
-                $class = 'primary';
+                $class = 'info';
                 break;
             case USER_STATE_DISABLED:
                 $class = 'warning';
                 break;
-            case USER_STATE_ADMIN:
+            case USER_STATE_OWNER:
                 $class = 'success';
+                break;
+            case USER_STATE_ADMIN:
+                $class = 'primary';
                 break;
         }
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";

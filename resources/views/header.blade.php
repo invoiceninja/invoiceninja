@@ -472,11 +472,13 @@
                     'selected' => true,
                 ])
             @endif            
-            <li class="divider"></li>                
-            @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
-                <li>{!! link_to('/manage_companies', trans('texts.manage_companies')) !!}</li>
-            @elseif (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
-                <li>{!! link_to('/login?new_company=true', trans('texts.add_company')) !!}</li>
+            <li class="divider"></li>
+            @if (Utils::isAdmin())
+              @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
+                  <li>{!! link_to('/manage_companies', trans('texts.manage_companies')) !!}</li>
+              @elseif (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
+                  <li>{!! link_to('/login?new_company=true', trans('texts.add_company')) !!}</li>
+              @endif
             @endif
             <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
           </ul>
@@ -490,10 +492,14 @@
             <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
           </a>
           <ul class="dropdown-menu">
-            @foreach (\App\Models\Account::$basicSettings as $setting)
-                <li>{!! link_to('settings/' . $setting, uctrans("texts.{$setting}")) !!}</li>
-            @endforeach
-            <li><a href="{{ url('settings/' . ACCOUNT_INVOICE_SETTINGS) }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
+            @if (Utils::isAdmin())
+              @foreach (\App\Models\Account::$basicSettings as $setting)
+                  <li>{!! link_to('settings/' . $setting, uctrans("texts.{$setting}")) !!}</li>
+              @endforeach
+              <li><a href="{{ url('settings/' . ACCOUNT_INVOICE_SETTINGS) }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
+            @else
+              <li>{!! link_to('settings/user_details', uctrans("texts.user_details")) !!}</li>
+            @endif
           </ul>
         </li>
       </ul>

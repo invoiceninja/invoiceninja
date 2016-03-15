@@ -137,8 +137,6 @@ class AccountController extends BaseController
 
         if ($section == ACCOUNT_COMPANY_DETAILS) {
             return self::showCompanyDetails();
-        } elseif ($section == ACCOUNT_USER_DETAILS) {
-            return self::showUserDetails();
         } elseif ($section == ACCOUNT_LOCALIZATION) {
             return self::showLocalization();
         } elseif ($section == ACCOUNT_PAYMENTS) {
@@ -232,7 +230,7 @@ class AccountController extends BaseController
         return View::make('accounts.details', $data);
     }
 
-    private function showUserDetails()
+    public function showUserDetails()
     {
         $oauthLoginUrls = [];
         foreach (AuthService::$providers as $provider) {
@@ -467,8 +465,6 @@ class AccountController extends BaseController
     {
         if ($section === ACCOUNT_COMPANY_DETAILS) {
             return AccountController::saveDetails();
-        } elseif ($section === ACCOUNT_USER_DETAILS) {
-            return AccountController::saveUserDetails();
         } elseif ($section === ACCOUNT_LOCALIZATION) {
             return AccountController::saveLocalization();
         } elseif ($section === ACCOUNT_NOTIFICATIONS) {
@@ -839,7 +835,7 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS);
     }
 
-    private function saveUserDetails()
+    public function saveUserDetails()
     {
         $user = Auth::user();
         $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];

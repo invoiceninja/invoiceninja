@@ -1,10 +1,13 @@
 <?php namespace App\Services;
 
+use Auth;
 use DB;
 use Utils;
 use URL;
 use App\Services\BaseService;
 use App\Ninja\Repositories\ExpenseRepository;
+use App\Models\Expense;
+use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Vendor;
 
@@ -41,6 +44,10 @@ class ExpenseService extends BaseService
     public function getDatatable($search)
     {
         $query = $this->expenseRepo->find($search);
+
+        if(!Utils::hasPermission('view_all')){
+            $query->where('expenses.user_id', '=', Auth::user()->id);
+        }
 
         return $this->createDatatable(ENTITY_EXPENSE, $query);
     }
@@ -151,6 +158,9 @@ class ExpenseService extends BaseService
                 trans('texts.edit_expense'),
                 function ($model) {
                     return URL::to("expenses/{$model->public_id}/edit") ;
+                },
+                function ($model) {
+                    return Expense::canEditItem($model);
                 }
             ],
             [
@@ -159,7 +169,7 @@ class ExpenseService extends BaseService
                     return URL::to("/invoices/{$model->invoice_public_id}/edit");
                 },
                 function ($model) {
-                    return $model->invoice_public_id;
+                    return $model->invoice_public_id && Invoice::canEditItemById($model->invoice_public_id);
                 }
             ],
             [
@@ -168,7 +178,7 @@ class ExpenseService extends BaseService
                     return "javascript:invoiceEntity({$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00');
+                    return ! $model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Invoice::canCreate();
                 }
             ],
         ];
