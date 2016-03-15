@@ -1062,6 +1062,7 @@ $LANG = array(
     'invalid_card_number' => 'The credit card number is not valid.',
     'invalid_expiry' => 'The expiration date is not valid.',
     'invalid_cvv' => 'The CVV is not valid.',
+    'cost' => 'Cost',
     
 );
 
