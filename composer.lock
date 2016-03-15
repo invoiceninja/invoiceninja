@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "e5e8524886bd38794a15e406acc3745a",
-    "content-hash": "6b3f343959ba3f330c425325574dfe28",
+    "hash": "1bcfb75493d56560ac96995398b32dec",
+    "content-hash": "d0e5fab7dcb9832d08159c0bcf2e849f",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -127,7 +127,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/formers/former/zipball/795f7b9b200a4ff4a33b37a96eaaab0229e36325",
+                "url": "https://api.github.com/repos/formers/former/zipball/e196c4336db77be97131f6a3b3c3b69b3a22b683",
                 "reference": "795f7b9b200a4ff4a33b37a96eaaab0229e36325",
                 "shasum": ""
             },
@@ -385,7 +385,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/19553f63e4635480363ff2254350075f285fbbc5",
+                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/e97ed532f09e290b91ff7713b785ed7ab11d0812",
                 "reference": "19553f63e4635480363ff2254350075f285fbbc5",
                 "shasum": ""
             },
@@ -579,7 +579,7 @@
                 "laravel"
             ],
             "abandoned": "OpenSkill/Datatable",
-            "time": "2015-11-23 21:33:41"
+            "time": "2015-04-29 07:00:36"
         },
         {
             "name": "classpreloader/classpreloader",
@@ -3933,7 +3933,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-bitpay/zipball/e659f0e993c586cb36acafaf50835570b4a16eb2",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-bitpay/zipball/cf813f1d5436a1d2f942d3df6666695d1e2b5280",
                 "reference": "e659f0e993c586cb36acafaf50835570b4a16eb2",
                 "shasum": ""
             },
@@ -5536,16 +5536,16 @@
         },
         {
             "name": "paragonie/random_compat",
-            "version": "v1.2.1",
+            "version": "v1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/random_compat.git",
-                "reference": "f078eba3bcf140fd69b5fcc3ea5ac809abf729dc"
+                "reference": "b3313b618f4edd76523572531d5d7e22fe747430"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/f078eba3bcf140fd69b5fcc3ea5ac809abf729dc",
-                "reference": "f078eba3bcf140fd69b5fcc3ea5ac809abf729dc",
+                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/b3313b618f4edd76523572531d5d7e22fe747430",
+                "reference": "b3313b618f4edd76523572531d5d7e22fe747430",
                 "shasum": ""
             },
             "require": {
@@ -5580,7 +5580,7 @@
                 "pseudorandom",
                 "random"
             ],
-            "time": "2016-02-29 17:25:04"
+            "time": "2016-03-11 19:54:08"
         },
         {
             "name": "patricktalmadge/bootstrapper",
