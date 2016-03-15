@@ -64,11 +64,11 @@
                     && isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET']))
                     {{-- do nothing --}}
                 @elseif ($field == 'testMode' || $field == 'developerMode' || $field == 'sandbox')
-                    {!! Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable')->value('true') !!}
+                    {!! Former::checkbox($gateway->id.'_'.$field)->label(ucwords(Utils::toSpaceCase($field)))->text('Enable')->value('true') !!}
                 @elseif ($field == 'username' || $field == 'password')
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
                 @else
-                    {!! Former::text($gateway->id.'_'.$field)->label($gateway->id == GATEWAY_STRIPE ? trans('texts.secret_key') : Utils::toSpaceCase($field)) !!}
+                    {!! Former::text($gateway->id.'_'.$field)->label($gateway->id == GATEWAY_STRIPE ? trans('texts.secret_key') : ucwords(Utils::toSpaceCase($field))) !!}
                 @endif
 
             @endforeach
