@@ -1023,7 +1023,7 @@ class Account extends Eloquent
         return true;
     }
 
-    public function showCustomField($field, $entity)
+    public function showCustomField($field, $entity = false)
     {
         if ($this->isPro()) {
             return $this->$field ? true : false;

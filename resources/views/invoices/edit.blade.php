@@ -191,10 +191,10 @@
 				<th style="min-width:32px;" class="hide-border"></th>
 				<th style="min-width:160px">{{ $invoiceLabels['item'] }}</th>
 				<th style="width:100%">{{ $invoiceLabels['description'] }}</th>
-                @if ($account->custom_invoice_item_label1)
+                @if ($account->showCustomField('custom_invoice_item_label1'))
                     <th style="min-width:120px">{{ $account->custom_invoice_item_label1 }}</th>
                 @endif
-                @if ($account->custom_invoice_item_label2)
+                @if ($account->showCustomField('custom_invoice_item_label2'))
                     <th style="min-width:120px">{{ $account->custom_invoice_item_label2 }}</th>
                 @endif
 				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
@@ -219,12 +219,12 @@
                         <input type="text" data-bind="value: task_public_id, attr: {name: 'invoice_items[' + $index() + '][task_public_id]'}" style="display: none"/>
 						<input type="text" data-bind="value: expense_public_id, attr: {name: 'invoice_items[' + $index() + '][expense_public_id]'}" style="display: none"/>
 				</td>
-                @if ($account->custom_invoice_item_label1)
+                @if ($account->showCustomField('custom_invoice_item_label1'))
                     <td>
                         <input data-bind="value: custom_value1, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][custom_value1]'}" class="form-control invoice-item"/>
                     </td>
                 @endif
-                @if ($account->custom_invoice_item_label2)
+                @if ($account->showCustomField('custom_invoice_item_label2'))
                     <td>
                         <input data-bind="value: custom_value2, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][custom_value2]'}" class="form-control invoice-item"/>
                     </td>
@@ -257,7 +257,7 @@
 		<tfoot>
 			<tr>
 				<td class="hide-border"/>
-				<td class="hide-border" colspan="{{ 2 + ($account->custom_invoice_item_label1 ? 1 : 0) + ($account->custom_invoice_item_label2 ? 1 : 0) }}" rowspan="6" style="vertical-align:top">
+				<td class="hide-border" colspan="{{ 2 + ($account->showCustomField('custom_invoice_item_label1') ? 1 : 0) + ($account->showCustomField('custom_invoice_item_label2') ? 1 : 0) }}" rowspan="6" style="vertical-align:top">
 					<br/>
                     <div role="tabpanel">
 
