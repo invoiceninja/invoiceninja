@@ -1063,6 +1063,7 @@ $LANG = array(
     'invalid_expiry' => 'The expiration date is not valid.',
     'invalid_cvv' => 'The CVV is not valid.',
     'cost' => 'Cost',
+    'create_invoice_for_sample' => 'Note: create your first invoice to see a preview here.',
     
 );
 
