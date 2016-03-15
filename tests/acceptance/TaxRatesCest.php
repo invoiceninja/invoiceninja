@@ -72,7 +72,7 @@ class TaxRatesCest
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
-        $I->selectOption('#taxRateSelect', $invoiceTaxName . ' ' . $invoiceTaxRate . '%');
+        $I->selectOption('#taxRateSelect', $invoiceTaxName . ' ' . floatval($invoiceTaxRate) . '%');
         $I->wait(2);
 
         // check total is right before saving
