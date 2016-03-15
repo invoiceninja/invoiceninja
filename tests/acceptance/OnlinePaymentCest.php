@@ -67,6 +67,7 @@ class OnlinePaymentCest
             $I->amOnPage('/view/' . $invitationKey);
             $I->click('Pay Now');
 
+            /*
             $I->fillField(['name' => 'first_name'], $this->faker->firstName);
             $I->fillField(['name' => 'last_name'], $this->faker->lastName);
             $I->fillField(['name' => 'address1'], $this->faker->streetAddress);
@@ -75,6 +76,8 @@ class OnlinePaymentCest
             $I->fillField(['name' => 'state'], $this->faker->state);
             $I->fillField(['name' => 'postal_code'], $this->faker->postcode);
             $I->selectDropdown($I, 'United States', '.country-select .dropdown-toggle');
+            */
+            
             $I->fillField('#card_number', '4242424242424242');
             $I->fillField('#cvv', '1234');
             $I->selectOption('#expiration_month', 12);
