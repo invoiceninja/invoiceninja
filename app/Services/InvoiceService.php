@@ -9,6 +9,7 @@ use App\Ninja\Repositories\ClientRepository;
 use App\Events\QuoteInvitationWasApproved;
 use App\Models\Invitation;
 use App\Models\Invoice;
+use App\Models\Client;
 use App\Models\Payment;
 
 class InvoiceService extends BaseService
@@ -29,14 +30,26 @@ class InvoiceService extends BaseService
         return $this->invoiceRepo;
     }
 
-    public function save($data)
+    public function save($data, $checkSubPermissions = false)
     {
         if (isset($data['client'])) {
-            $client = $this->clientRepo->save($data['client']);
-            $data['client_id'] = $client->id;
+            $can_save_client = !$checkSubPermissions;
+            if(!$can_save_client){
+                if(empty($data['client']['public_id']) || $data['client']['public_id']=='-1'){
+                    $can_save_client = Client::canCreate();
+                }
+                else{
+                    $can_save_client = Client::wherePublicId($data['client']['public_id'])->first()->canEdit();
+                }
+            }
+            
+            if($can_save_client){
+                $client = $this->clientRepo->save($data['client']);
+                $data['client_id'] = $client->id;
+            }
         }
 
-        $invoice = $this->invoiceRepo->save($data);
+        $invoice = $this->invoiceRepo->save($data, $checkSubPermissions);
 
         $client = $invoice->client;
         $client->load('contacts');
@@ -124,12 +137,19 @@ class InvoiceService extends BaseService
             [
                 'invoice_number',
                 function ($model) use ($entityType) {
+                    if(!Invoice::canEditItem($model)){
+                        return $model->invoice_number;
+                    }
+                    
                     return link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                 }
             ],
             [
                 'client_name',
                 function ($model) {
+                    if(!Client::canViewItemByOwner($model->client_user_id)){
+                        return Utils::getClientDisplayName($model);
+                    }
                     return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                 },
                 ! $hideClient

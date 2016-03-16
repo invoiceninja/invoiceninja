@@ -584,6 +584,11 @@ class PaymentController extends BaseController
     public function store(CreatePaymentRequest $request)
     {
         $input = $request->input();
+        
+        if(!$this->checkUpdatePermission($input, $response)){
+            return $response;
+        }
+        
         $input['invoice_id'] = Invoice::getPrivateId($input['invoice']);
         $input['client_id'] = Client::getPrivateId($input['client']);
         $payment = $this->paymentRepo->save($input);
@@ -601,6 +606,11 @@ class PaymentController extends BaseController
     public function update(UpdatePaymentRequest $request)
     {
         $input = $request->input();
+                
+        if(!$this->checkUpdatePermission($input, $response)){
+            return $response;
+        }
+        
         $payment = $this->paymentRepo->save($input);
 
         Session::flash('message', trans('texts.updated_payment'));

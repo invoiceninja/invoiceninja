@@ -70,6 +70,10 @@ class ExpenseService extends BaseService
                 function ($model)
                 {
                     if ($model->vendor_public_id) {
+                        if(!Vendor::canViewItemByOwner($model->vendor_user_id)){
+                            return $model->vendor_name;
+                        }
+                        
                         return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name)->toHtml();
                     } else {
                         return '';
@@ -81,6 +85,10 @@ class ExpenseService extends BaseService
                 function ($model)
                 {
                     if ($model->client_public_id) {
+                        if(!Client::canViewItemByOwner($model->client_user_id)){
+                            return Utils::getClientDisplayName($model);
+                        }
+                        
                         return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                     } else {
                         return '';
@@ -90,6 +98,10 @@ class ExpenseService extends BaseService
             [
                 'expense_date',
                 function ($model) {
+                    if(!Expense::canEditItemByOwner($model->user_id)){
+                        return Utils::fromSqlDate($model->expense_date);
+                    }
+                    
                     return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date))->toHtml();
                 }
             ],
@@ -169,7 +181,7 @@ class ExpenseService extends BaseService
                     return URL::to("/invoices/{$model->invoice_public_id}/edit");
                 },
                 function ($model) {
-                    return $model->invoice_public_id && Invoice::canEditItemById($model->invoice_public_id);
+                    return $model->invoice_public_id && Invoice::canEditItemByOwner($model->invoice_user_id);
                 }
             ],
             [

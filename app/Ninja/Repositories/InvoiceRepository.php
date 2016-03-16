@@ -49,6 +49,7 @@ class InvoiceRepository extends BaseRepository
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                 DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'clients.public_id as client_public_id',
+                'clients.user_id as client_user_id',
                 'invoice_number',
                 'invoice_status_id',
                 'clients.name as client_name',
@@ -190,7 +191,7 @@ class InvoiceRepository extends BaseRepository
             ->make();
     }
 
-    public function save($data)
+    public function save($data, $checkSubPermissions = false)
     {
         $account = \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
@@ -406,29 +407,40 @@ class InvoiceRepository extends BaseRepository
             $task = false;
             if (isset($item['task_public_id']) && $item['task_public_id']) {
                 $task = Task::scope($item['task_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                $task->invoice_id = $invoice->id;
-                $task->client_id = $invoice->client_id;
-                $task->save();
+                if(!$checkSubPermissions || $task->canEdit()){
+                    $task->invoice_id = $invoice->id;
+                    $task->client_id = $invoice->client_id;
+                    $task->save();
+                }
             }
 
             $expense = false;
             if (isset($item['expense_public_id']) && $item['expense_public_id']) {
                 $expense = Expense::scope($item['expense_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                $expense->invoice_id = $invoice->id;
-                $expense->client_id = $invoice->client_id;
-                $expense->save();
+                if(!$checkSubPermissions || $expense->canEdit()){
+                    $expense->invoice_id = $invoice->id;
+                    $expense->client_id = $invoice->client_id;
+                    $expense->save();
+                }
             }
 
             if ($productKey = trim($item['product_key'])) {
                 if (\Auth::user()->account->update_products && ! strtotime($productKey)) {
                     $product = Product::findProductByKey($productKey);
                     if (!$product) {
-                        $product = Product::createNew();
-                        $product->product_key = trim($item['product_key']);
+                        if(!$checkSubPermissions || Product::canCreate()){
+                            $product = Product::createNew();
+                            $product->product_key = trim($item['product_key']);
+                        }
+                        else{
+                            $product = null;
+                        }
                     }
-                    $product->notes = ($task || $expense) ? '' : $item['notes'];
-                    $product->cost = $expense ? 0 : $item['cost'];
-                    $product->save();
+                    if($product && (!$checkSubPermissions || $product->canEdit())){
+                        $product->notes = ($task || $expense) ? '' : $item['notes'];
+                        $product->cost = $expense ? 0 : $item['cost'];
+                        $product->save();
+                    }
                 }
             }
 

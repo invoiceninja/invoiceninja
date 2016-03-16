@@ -345,10 +345,16 @@ class InvoiceController extends BaseController
      */
     public function store(SaveInvoiceWithClientRequest $request)
     {
+        $data = $request->input();
+        
+        if(!$this->checkUpdatePermission($data, $response)){
+            return $response;
+        }
+                
         $action = Input::get('action');
         $entityType = Input::get('entityType');
         
-        $invoice = $this->invoiceService->save($request->input());
+        $invoice = $this->invoiceService->save($data, true);
         $entityType = $invoice->getEntityType();
         $message = trans("texts.created_{$entityType}");
 
@@ -379,10 +385,16 @@ class InvoiceController extends BaseController
      */
     public function update(SaveInvoiceWithClientRequest $request)
     {
+        $data = $request->input();
+        
+        if(!$this->checkUpdatePermission($data, $response)){
+            return $response;
+        }
+        
         $action = Input::get('action');
         $entityType = Input::get('entityType');
 
-        $invoice = $this->invoiceService->save($request->input());
+        $invoice = $this->invoiceService->save($data, true);
         $entityType = $invoice->getEntityType();
         $message = trans("texts.updated_{$entityType}");
         Session::flash('message', $message);

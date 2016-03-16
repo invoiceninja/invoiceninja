@@ -1068,7 +1068,7 @@ $LANG = array(
     'administrator' => 'Administrator',
     'administrator_help' => 'Allow user to manage users, change settings, and view and modify all data',
     'user_create_all' => 'Create clients, invoices, etc.',
-    'user_view_all' => 'View All clients, invoices, etc.',
+    'user_view_all' => 'View all clients, invoices, etc.',
     'user_edit_all' => 'Edit all clients, invoices, etc.',
     
 );

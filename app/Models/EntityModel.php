@@ -134,8 +134,16 @@ class EntityModel extends Eloquent
         return static::whereId($item_id)->first()->user_id == Auth::user()->id;
     }
     
+    public static function canEditItemByOwner($user_id) {
+        if(Auth::user()->hasPermission('edit_all')) {
+            return true;
+        }
+        
+        return Auth::user()->id == $user_id;
+    }
+    
     public function canView() {
-        return static::canEdit($this);
+        return static::canViewItem($this);
     }
     
     public static function canViewItem($item) {
@@ -148,5 +156,13 @@ class EntityModel extends Eloquent
         }
         
         return static::whereId($item_id)->first()->user_id == Auth::user()->id;
+    }
+    
+    public static function canViewItemByOwner($user_id) {
+        if(Auth::user()->hasPermission('view_all')) {
+            return true;
+        }
+        
+        return Auth::user()->id == $user_id;
     }
 }

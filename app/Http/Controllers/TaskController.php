@@ -68,10 +68,6 @@ class TaskController extends BaseController
      */
     public function store()
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
-        
         return $this->save();
     }
 
@@ -187,6 +183,12 @@ class TaskController extends BaseController
     private function save($publicId = null)
     {
         $action = Input::get('action');
+        
+        $input = $request->input();
+        
+        if(!$this->checkUpdatePermission($input, $response)){
+            return $response;
+        }
 
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();

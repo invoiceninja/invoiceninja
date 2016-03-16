@@ -29,6 +29,7 @@ class CreditRepository extends BaseRepository
                         'credits.public_id',
                         'clients.name as client_name',
                         'clients.public_id as client_public_id',
+                        'clients.user_id as client_user_id',
                         'credits.amount',
                         'credits.balance',
                         'credits.credit_date',

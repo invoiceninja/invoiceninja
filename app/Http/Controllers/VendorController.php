@@ -77,7 +77,13 @@ class VendorController extends BaseController
      */
     public function store(CreateVendorRequest $request)
     {
-        $vendor = $this->vendorService->save($request->input());
+        $data = $request->input();
+        
+        if(!$this->checkUpdatePermission($data, $response)){
+            return $response;
+        }
+                
+        $vendor = $this->vendorService->save($data);
 
         Session::flash('message', trans('texts.created_vendor'));
 
@@ -195,7 +201,13 @@ class VendorController extends BaseController
      */
     public function update(UpdateVendorRequest $request)
     {
-        $vendor = $this->vendorService->save($request->input());
+        $data = $request->input();
+        
+        if(!$this->checkUpdatePermission($data, $response)){
+            return $response;
+        }
+                
+        $vendor = $this->vendorService->save($data);
 
         Session::flash('message', trans('texts.updated_vendor'));
 

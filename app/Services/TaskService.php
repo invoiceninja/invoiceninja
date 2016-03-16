@@ -5,6 +5,7 @@ use URL;
 use Utils;
 use App\Models\Task;
 use App\Models\Invoice;
+use App\Models\Client;
 use App\Ninja\Repositories\TaskRepository;
 use App\Services\BaseService;
 
@@ -48,6 +49,10 @@ class TaskService extends BaseService
             [
                 'client_name',
                 function ($model) {
+                    if(!Client::canViewItemByOwner($model->client_user_id)){
+                        return Utils::getClientDisplayName($model);
+                    }
+                    
                     return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
                 ! $hideClient
@@ -97,7 +102,7 @@ class TaskService extends BaseService
                     return URL::to("/invoices/{$model->invoice_public_id}/edit");
                 },
                 function ($model) {
-                    return $model->invoice_number && Invoice::canEditItemById($model->invoice_number);
+                    return $model->invoice_number && Invoice::canEditItemByOwner($model->invoice_user_id);
                 }
             ],
             [

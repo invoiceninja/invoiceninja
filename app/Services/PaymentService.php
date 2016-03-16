@@ -11,6 +11,8 @@ use CreditCard;
 use App\Models\Payment;
 use App\Models\Account;
 use App\Models\Country;
+use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\AccountGatewayToken;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\AccountRepository;
@@ -300,12 +302,20 @@ class PaymentService extends BaseService
             [
                 'invoice_number',
                 function ($model) {
+                    if(!Invoice::canEditItemByOwner($model->invoice_user_id)){
+                        return $model->invoice_number;
+                    }
+                    
                     return link_to("invoices/{$model->invoice_public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                 }
             ],
             [
                 'client_name',
                 function ($model) {
+                    if(!Client::canViewItemByOwner($model->client_user_id)){
+                        return Utils::getClientDisplayName($model);
+                    }
+                    
                     return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
                 ! $hideClient

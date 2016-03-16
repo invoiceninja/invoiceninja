@@ -5,6 +5,8 @@ use App\Services\DatatableService;
 
 class BaseService
 {
+    public static $bulk_actions = array('archive', 'restore', 'delete');
+    
     use DispatchesJobs;
 
     protected function getRepo()
@@ -14,14 +16,16 @@ class BaseService
 
     public function bulk($ids, $action)
     {
-        if ( ! $ids) {
+        if ( ! $ids || ! in_array($action, static::$bulk_actions) ) {
             return 0;
         }
 
         $entities = $this->getRepo()->findByPublicIdsWithTrashed($ids);
 
         foreach ($entities as $entity) {
-            $this->getRepo()->$action($entity);
+            if($entity->canEdit()){
+                $this->getRepo()->$action($entity);
+            }
         }
 
         return count($entities);
