@@ -5,8 +5,6 @@ use App\Services\DatatableService;
 
 class BaseService
 {
-    public static $bulk_actions = array('archive', 'restore', 'delete');
-    
     use DispatchesJobs;
 
     protected function getRepo()
@@ -16,7 +14,7 @@ class BaseService
 
     public function bulk($ids, $action)
     {
-        if ( ! $ids || ! in_array($action, static::$bulk_actions) ) {
+        if ( ! $ids ) {
             return 0;
         }
 
