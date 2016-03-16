@@ -488,19 +488,21 @@
       
       <ul class="nav navbar-nav navbar-right navbar-settings"> 
         <li class="dropdown">
-          <a href="{{ URL::to('/settings') }}" class="dropdown-toggle">
-            <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
-          </a>
-          <ul class="dropdown-menu">
-            @if (Utils::isAdmin())
+          @if (Utils::isAdmin())
+            <a href="{{ URL::to('/settings') }}" class="dropdown-toggle">
+              <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
+            </a>
+            <ul class="dropdown-menu">
               @foreach (\App\Models\Account::$basicSettings as $setting)
                   <li>{!! link_to('settings/' . $setting, uctrans("texts.{$setting}")) !!}</li>
               @endforeach
               <li><a href="{{ url('settings/' . ACCOUNT_INVOICE_SETTINGS) }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
-            @else
-              <li>{!! link_to('settings/user_details', uctrans("texts.user_details")) !!}</li>
-            @endif
-          </ul>
+            </ul>
+          @else
+            <a href="{{ URL::to('/settings/user_details') }}" class="dropdown-toggle">
+              <span class="glyphicon glyphicon-user" title="{{ trans('texts.settings') }}"/>
+            </a>
+          @endif
         </li>
       </ul>
 
