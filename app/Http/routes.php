@@ -108,14 +108,6 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
 
-    Route::get('api/products', array('as'=>'api.products', 'uses'=>'ProductController@getDatatable'));
-    Route::resource('products', 'ProductController');
-    Route::post('products/bulk', 'ProductController@bulk');
-
-    Route::get('api/tax_rates', array('as'=>'api.tax_rates', 'uses'=>'TaxRateController@getDatatable'));
-    Route::resource('tax_rates', 'TaxRateController');
-    Route::post('tax_rates/bulk', 'TaxRateController@bulk');
-
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
     Route::get('api/activities/{client_id?}', array('as'=>'api.activities', 'uses'=>'ActivityController@getDatatable'));
@@ -195,6 +187,14 @@ Route::group([
     Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
     Route::resource('tokens', 'TokenController');
     Route::post('tokens/bulk', 'TokenController@bulk');
+
+    Route::get('api/products', array('as'=>'api.products', 'uses'=>'ProductController@getDatatable'));
+    Route::resource('products', 'ProductController');
+    Route::post('products/bulk', 'ProductController@bulk');
+
+    Route::get('api/tax_rates', array('as'=>'api.tax_rates', 'uses'=>'TaxRateController@getDatatable'));
+    Route::resource('tax_rates', 'TaxRateController');
+    Route::post('tax_rates/bulk', 'TaxRateController@bulk');
 
     Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
