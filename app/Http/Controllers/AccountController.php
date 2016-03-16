@@ -123,7 +123,8 @@ class AccountController extends BaseController
 
     public function getSearchData()
     {
-        $data = $this->accountRepo->getSearchData();
+        $account = Auth::user()->account;
+        $data = $this->accountRepo->getSearchData($account);
 
         return Response::json($data);
     }

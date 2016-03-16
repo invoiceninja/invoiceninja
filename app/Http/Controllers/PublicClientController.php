@@ -50,7 +50,8 @@ class PublicClientController extends BaseController
             ]);
         }
 
-        if (!Input::has('phantomjs') && !Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
+        if (!Input::has('phantomjs') && !Input::has('silent') && !Session::has($invitationKey) 
+            && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             if ($invoice->is_quote) {
                 event(new QuoteInvitationWasViewed($invoice, $invitation));
             } else {

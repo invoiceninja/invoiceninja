@@ -153,7 +153,6 @@
 
         @if (isset($sampleInvoice) && $sampleInvoice)
             var sample = {!! $sampleInvoice->toJSON() !!}
-            console.log(sample);
             $('#sampleData').show().html(prettyJson(sample));
         @endif
     });
@@ -222,6 +221,9 @@
             {!! trans('texts.customize_help') !!}
 
             <pre id="sampleData" style="display:none;height:200px;padding-top:16px;"></pre>
+            @if (empty($sampleInvoice))
+                <div class="help-block">{{ trans('texts.create_invoice_for_sample') }}</div>
+            @endif
           </div>
 
          <div class="modal-footer" style="margin-top: 0px">

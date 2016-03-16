@@ -70,16 +70,16 @@ class AccountRepository
         return $account;
     }
 
-    public function getSearchData()
+    public function getSearchData($account)
     {
-        $data = $this->getAccountSearchData();
+        $data = $this->getAccountSearchData($account);
 
         $data['navigation'] = $this->getNavigationSearchData();
 
         return $data;
     }
 
-    private function getAccountSearchData()
+    private function getAccountSearchData($account)
     {
         $data = [
             'clients' => [],
@@ -87,6 +87,14 @@ class AccountRepository
             'invoices' => [],
             'quotes' => [],
         ];
+
+        // include custom client fields in search
+        if ($account->custom_client_label1) {
+            $data[$account->custom_client_label1] = [];
+        }
+        if ($account->custom_client_label2) {
+            $data[$account->custom_client_label2] = [];
+        }
 
         $clients = Client::scope()
                     ->with('contacts', 'invoices')
@@ -96,7 +104,23 @@ class AccountRepository
             if ($client->name) {
                 $data['clients'][] = [
                     'value' => $client->name,
+                    'tokens' => $client->name,
                     'url' => $client->present()->url,
+                ];
+            } 
+
+            if ($client->custom_value1) {
+                $data[$account->custom_client_label1][] = [
+                    'value' => "{$client->custom_value1}: " . $client->getDisplayName(),
+                    'tokens' => $client->custom_value1,
+                    'url' => $client->present()->url,                    
+                ];
+            }           
+            if ($client->custom_value2) {
+                $data[$account->custom_client_label2][] = [
+                    'value' => "{$client->custom_value2}: " . $client->getDisplayName(),
+                    'tokens' => $client->custom_value2,
+                    'url' => $client->present()->url,                    
                 ];
             }
 
@@ -104,12 +128,14 @@ class AccountRepository
                 if ($contact->getFullName()) {
                     $data['contacts'][] = [
                         'value' => $contact->getDisplayName(),
+                        'tokens' => $contact->getDisplayName(),
                         'url' => $client->present()->url,
                     ];
                 }
                 if ($contact->email) {
-                    $data[trans('texts.contacts')][] = [
+                    $data['contacts'][] = [
                         'value' => $contact->email,
+                        'tokens' => $contact->email,
                         'url' => $client->present()->url,
                     ];
                 }
@@ -119,6 +145,7 @@ class AccountRepository
                 $entityType = $invoice->getEntityType();
                 $data["{$entityType}s"][] = [
                     'value' => $invoice->getDisplayName() . ': ' . $client->getDisplayName(),
+                    'tokens' => $invoice->getDisplayName() . ': ' . $client->getDisplayName(),
                     'url' => $invoice->present()->url,
                 ];
             }
@@ -156,6 +183,7 @@ class AccountRepository
         $features[] = ['new_tax_rate', '/tax_rates/create'];
         $features[] = ['new_product', '/products/create'];
         $features[] = ['new_user', '/users/create'];
+        $features[] = ['custom_fields', '/settings/invoice_settings'];	
 
         $settings = array_merge(Account::$basicSettings, Account::$advancedSettings);
 
@@ -169,6 +197,7 @@ class AccountRepository
         foreach ($features as $feature) {
             $data[] = [
                 'value' => trans('texts.' . $feature[0]),
+                'tokens' => trans('texts.' . $feature[0]),
                 'url' => URL::to($feature[1])
             ];
         }
