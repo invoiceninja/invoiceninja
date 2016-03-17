@@ -70,7 +70,7 @@ class Authenticate {
 	}
 	
 	protected function getInvitation($key){
-		$invitation = Invitation::where('invitation_key', '=', $key)->first();
+		$invitation = Invitation::withTrashed()->where('invitation_key', '=', $key)->first();
 		if ($invitation && !$invitation->is_deleted) {
 			return $invitation;
 		}

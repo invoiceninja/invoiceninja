@@ -258,27 +258,45 @@
     localStorage.setItem('auth_provider', provider);
   }
 
+  window.loadedSearchData = false;
   function showSearch() {
     $('#search').typeahead('val', '');
     $('#navbar-options').hide();
     $('#search-form').show();
-
-    if (window.hasOwnProperty('loadedSearchData')) {
-        $('#search').focus();
-    } else {
+    $('#search').focus();
+    
+    if (!window.loadedSearchData) {
         trackEvent('/activity', '/search');
         $.get('{{ URL::route('getSearchData') }}', function(data) {
-          window.loadedSearchData = true;
-
           $('#search').typeahead({
             hint: true,
             highlight: true,
           }
+          @if (Auth::check() && Auth::user()->account->custom_client_label1)
+          ,{
+            name: 'data',
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->custom_client_label1 }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->custom_client_label1 }}</span>'
+            }
+          }          
+          @endif
+          @if (Auth::check() && Auth::user()->account->custom_client_label2)
+          ,{
+            name: 'data',
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->custom_client_label2 }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->custom_client_label2 }}</span>'
+            }
+          }          
+          @endif
           @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
           ,{
             name: 'data',
             display: 'value',
-            source: searchData(data['{{ $type }}'], 'value', true),
+            source: searchData(data['{{ $type }}'], 'tokens', true),
             templates: {
               header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ trans("texts.{$type}") }}</span>'
             }
@@ -287,6 +305,7 @@
           ).on('typeahead:selected', function(element, datum, name) {
             window.location = datum.url;
           }).focus(); 
+          window.loadedSearchData = true;
         });
     }
   }
@@ -302,7 +321,9 @@
     }, 3000);
 
     $('#search').blur(function(event){
-        hideSearch();
+        if (window.loadedSearchData) {
+            hideSearch();
+        }
     });
 
     if (isStorageSupported()) {
@@ -406,14 +427,16 @@
 
         <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-            <div id="myAccountButton" class="ellipsis" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '130' : '100' }}px">
+            <div id="myAccountButton" class="ellipsis nav-account-name" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '130' : '100' }}px;">
                 @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
                     {{ Auth::user()->account->getDisplayName() }}
                 @else
                     {{ Auth::user()->getDisplayName() }}
                 @endif
               <span class="caret"></span>
-            </div>            
+            </div>
+            <span class="glyphicon glyphicon-user nav-account-icon" style="padding-left:0px" 
+                title="{{ Auth::user()->account->getDisplayName() }}"/>            
           </button>			
           <ul class="dropdown-menu user-accounts">
             @if (session(SESSION_USER_ACCOUNTS))

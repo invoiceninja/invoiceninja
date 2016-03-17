@@ -231,7 +231,8 @@ class AppController extends BaseController
                 }
                 Artisan::call('optimize', array('--force' => true));
             } catch (Exception $e) {
-                Response::make($e->getMessage(), 500);
+                Utils::logError($e);
+                return Response::make($e->getMessage(), 500);
             }
         }
 
@@ -262,7 +263,8 @@ class AppController extends BaseController
                 Event::fire(new UserSettingsChanged());
                 Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {
-                Response::make($e->getMessage(), 500);
+                Utils::logError($e);
+                return Response::make($e->getMessage(), 500);
             }
         }
 

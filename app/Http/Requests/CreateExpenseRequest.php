@@ -24,7 +24,7 @@ class CreateExpenseRequest extends Request
     public function rules()
     {
         return [
-            'amount' => 'positive',
+            'amount' => 'numeric',
         ];
     }
 }

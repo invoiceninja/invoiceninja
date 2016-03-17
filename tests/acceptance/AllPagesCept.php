@@ -80,9 +80,9 @@ $I->amOnPage('/settings/user_management');
 $I->see('Add User');
 
 //try to logout
-$I->click('#myAccountButton');
-$I->see('Log Out');
-$I->click('Log Out');
+//$I->click('#myAccountButton');
+//$I->see('Log Out');
+//$I->click('Log Out');
 
 // Miscellaneous pages
 $I->amOnPage('/terms');

@@ -937,7 +937,7 @@ return array(
     'notes' => 'Notities',
     'invoice_will_create' => 'klant zal worden aangemaakt',
     'invoices_will_create' => 'factuur zal worden aangemaakt',
-    'failed_to_import' => 'The following records failed to import',
+    'failed_to_import' => 'The following records failed to import, they either already exist or are missing required fields.',
 
     'publishable_key' => 'Publishable Key',
     'secret_key' => 'Secret Key',

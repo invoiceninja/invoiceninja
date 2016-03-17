@@ -161,7 +161,7 @@ $LANG = array(
     'work_email' => 'Email',
     'language_id' => 'Language',
     'timezone_id' => 'Timezone',
-    'date_format_id' => 'Date format',
+    'date_format_id' => 'Date Format',
     'datetime_format_id' => 'Date/Time Format',
     'users' => 'Users',
     'localization' => 'Localization',
@@ -826,7 +826,7 @@ $LANG = array(
     'notes' => 'Notes',
     'invoice_will_create' => 'client will be created',
     'invoices_will_create' => 'invoices will be created',
-    'failed_to_import' => 'The following records failed to import',
+    'failed_to_import' => 'The following records failed to import, they either already exist or are missing required fields.',
     'publishable_key' => 'Publishable Key',
     'secret_key' => 'Secret Key',
     'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
@@ -950,7 +950,7 @@ $LANG = array(
     'add_bank_account' => 'Add Bank Account',
     'setup_account' => 'Setup Account',
     'import_expenses' => 'Import Expenses',
-    'bank_id' => 'bank',
+    'bank_id' => 'Bank',
     'integration_type' => 'Integration Type',
     'updated_bank_account' => 'Successfully updated bank account',
     'edit_bank_account' => 'Edit Bank Account',
@@ -1057,6 +1057,14 @@ $LANG = array(
     'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
     'send_portal_password'=>'Generate password automatically',
     'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
+    
+    'expired' => 'Expired',
+    'invalid_card_number' => 'The credit card number is not valid.',
+    'invalid_expiry' => 'The expiration date is not valid.',
+    'invalid_cvv' => 'The CVV is not valid.',
+    'cost' => 'Cost',
+    'create_invoice_for_sample' => 'Note: create your first invoice to see a preview here.',
+    
 );
 
 return $LANG;

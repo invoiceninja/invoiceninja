@@ -104,8 +104,8 @@ class Login
 						"<ORG>".$this->bank->org."\n".
 						"<FID>".$this->bank->fid."\n".
 					"</FI>\n".
-					"<APPID>QMOFX\n".
-					"<APPVER>1900\n".
+					"<APPID>QWIN\n".
+					"<APPVER>2500\n".
 				"</SONRQ>\n".
 			"</SIGNONMSGSRQV1>\n".
 			"<SIGNUPMSGSRQV1>\n".
@@ -171,8 +171,8 @@ class Account
 							"<ORG>".$this->login->bank->org."\n".
 							"<FID>".$this->login->bank->fid."\n".
 						"</FI>\n".
-						"<APPID>QMOFX\n".
-						"<APPVER>1900\n".
+						"<APPID>QWIN\n".
+						"<APPVER>2500\n".
 					"</SONRQ>\n".
 				"</SIGNONMSGSRQV1>\n";
         if ($this->type == 'BANK') {

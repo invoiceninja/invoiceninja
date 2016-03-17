@@ -89,7 +89,8 @@ th:last-child {
 }
 
 tr {border: none;}
-th {border-left: 1px solid #d26b26; }
+thead th {border-left: 1px solid #d26b26;}
+tbody td {border-left: 1px solid #FFFFFF;}
 .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
 vertical-align: middle;
 border-top: none;
@@ -783,8 +784,24 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
    .large-dialog {
         width: 960px;
    }
-   .hide-desktop 
-   {
+   .hide-desktop {
+        display: none;
+   }
+}
+
+/* Style to fix navigation by show icon instead of name */
+@media only screen and (min-width : 1200px) {
+   .nav-account-icon {
+        display: none;
+   }
+}
+@media only screen and (max-width : 992px) {
+   .nav-account-icon {
+        display: none;
+   }
+}
+@media only screen and (max-width : 1200px) and (min-width: 992px) {
+   .nav-account-name {
         display: none;
    }
 }
