@@ -11,7 +11,9 @@ class DashboardController extends BaseController
 {
     public function index()
     {
-
+        $view_all = !Auth::user()->hasPermission('view_all');
+        $user_id = Auth::user()->id;
+            
         // total_income, billed_clients, invoice_sent and active_clients
         $select = DB::raw('COUNT(DISTINCT CASE WHEN invoices.id IS NOT NULL THEN clients.id ELSE null END) billed_clients,
                         SUM(CASE WHEN invoices.invoice_status_id >= '.INVOICE_STATUS_SENT.' THEN 1 ELSE 0 END) invoices_sent,
@@ -24,8 +26,19 @@ class DashboardController extends BaseController
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
             ->where('invoices.is_recurring', '=', false)
-            ->where('invoices.is_quote', '=', false)
-            ->groupBy('accounts.id')
+            ->where('invoices.is_quote', '=', false);
+            
+        if(!$view_all){
+            $metrics = $metrics->where(function($query) use($user_id){
+                $query->where('invoices.user_id', '=', $user_id);
+                $query->orwhere(function($query) use($user_id){
+                    $query->where('invoices.user_id', '=', null); 
+                    $query->where('clients.user_id', '=', $user_id);
+                });
+            });
+        }
+            
+        $metrics = $metrics->groupBy('accounts.id')
             ->first();
 
         $select = DB::raw('SUM(clients.paid_to_date) as value, clients.currency_id as currency_id');
@@ -33,8 +46,13 @@ class DashboardController extends BaseController
             ->select($select)
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
             ->where('accounts.id', '=', Auth::user()->account_id)
-            ->where('clients.is_deleted', '=', false)
-            ->groupBy('accounts.id')
+            ->where('clients.is_deleted', '=', false);
+            
+        if(!$view_all){
+            $paidToDate = $paidToDate->where('clients.user_id', '=', $user_id);
+        }
+        
+        $paidToDate = $paidToDate->groupBy('accounts.id')
             ->groupBy(DB::raw('CASE WHEN clients.currency_id IS NULL THEN CASE WHEN accounts.currency_id IS NULL THEN 1 ELSE accounts.currency_id END ELSE clients.currency_id END'))
             ->get();
 
@@ -47,8 +65,13 @@ class DashboardController extends BaseController
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
             ->where('invoices.is_quote', '=', false)
-            ->where('invoices.is_recurring', '=', false)
-            ->groupBy('accounts.id')
+            ->where('invoices.is_recurring', '=', false);
+            
+        if(!$view_all){
+            $averageInvoice = $averageInvoice->where('invoices.user_id', '=', $user_id);
+        }
+        
+        $averageInvoice = $averageInvoice->groupBy('accounts.id')
             ->groupBy(DB::raw('CASE WHEN clients.currency_id IS NULL THEN CASE WHEN accounts.currency_id IS NULL THEN 1 ELSE accounts.currency_id END ELSE clients.currency_id END'))
             ->get();
 
@@ -65,8 +88,7 @@ class DashboardController extends BaseController
         $activities = Activity::where('activities.account_id', '=', Auth::user()->account_id)
                 ->where('activities.activity_type_id', '>', 0);
         
-        if(!Auth::user()->hasPermission('view_all')){
-            $user_id = Auth::user()->id;
+        if(!$view_all){
             $activities = $activities->where('activities.user_id', '=', $user_id);
         }
                 
@@ -89,8 +111,7 @@ class DashboardController extends BaseController
                     ->where('contacts.is_primary', '=', true)
                     ->where('invoices.due_date', '<', date('Y-m-d'));
             
-        if(!Auth::user()->hasPermission('view_all')){
-            $user_id = Auth::user()->id;
+        if(!$view_all){
             $pastDue = $pastDue->where('invoices.user_id', '=', $user_id);
         }
             
@@ -114,8 +135,7 @@ class DashboardController extends BaseController
                     ->where('invoices.due_date', '>=', date('Y-m-d'))
                     ->orderBy('invoices.due_date', 'asc');
             
-        if(!Auth::user()->hasPermission('view_all')){
-            $user_id = Auth::user()->id;
+        if(!$view_all){
             $upcoming = $upcoming->where('invoices.user_id', '=', $user_id);
         }
             
@@ -134,8 +154,7 @@ class DashboardController extends BaseController
                     ->where('contacts.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true);
             
-        if(!Auth::user()->hasPermission('view_all')){
-            $user_id = Auth::user()->id;
+        if(!$view_all){
             $payments = $payments->where('payments.user_id', '=', $user_id);
         }
             

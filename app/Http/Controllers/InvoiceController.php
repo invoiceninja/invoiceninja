@@ -165,6 +165,10 @@ class InvoiceController extends BaseController
 
         $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
 
+        if(!Auth::user()->hasPermission('view_all')){
+            $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
+        }
+        
         $data = array(
                 'clients' => $clients->get(),
                 'entityType' => $entityType,
@@ -227,8 +231,13 @@ class InvoiceController extends BaseController
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
 
+        $clients = Client::scope()->with('contacts', 'country')->orderBy('name');
+        if(!Auth::user()->hasPermission('view_all')){
+            $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
+        }
+        
         $data = [
-            'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
+            'clients' => $clients->get(),
             'entityType' => $invoice->getEntityType(),
             'invoice' => $invoice,
             'method' => 'POST',
