@@ -54,6 +54,7 @@ class QuoteController extends BaseController
         $data = [
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
+          'sortCol' => '3',
           'columns' => Utils::trans([
             'checkbox',
             'quote_number',
