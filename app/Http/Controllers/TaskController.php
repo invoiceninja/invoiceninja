@@ -22,10 +22,11 @@ class TaskController extends BaseController
 {
     protected $taskRepo;
     protected $taskService;
+    protected $model = 'App\Models\Task';
 
     public function __construct(TaskRepository $taskRepo, InvoiceRepository $invoiceRepo, TaskService $taskService)
     {
-        //parent::__construct();
+        // parent::__construct();
 
         $this->taskRepo = $taskRepo;
         $this->invoiceRepo = $invoiceRepo;
@@ -84,6 +85,9 @@ class TaskController extends BaseController
      */
     public function create($clientPublicId = 0)
     {
+        if(!$this->checkCreatePermission($response)){
+            return $response;
+        }
         $this->checkTimezone();
 
         $data = [
@@ -113,6 +117,10 @@ class TaskController extends BaseController
 
         $task = Task::scope($publicId)->with('client', 'invoice')->withTrashed()->firstOrFail();
 
+        if(!$this->checkEditPermission($task, $response)){
+            return $response;
+        }
+        
         $actions = [];
         if ($task->invoice) {
             $actions[] = ['url' => URL::to("invoices/{$task->invoice->public_id}/edit"), 'label' => trans("texts.view_invoice")];
@@ -175,6 +183,12 @@ class TaskController extends BaseController
     private function save($publicId = null)
     {
         $action = Input::get('action');
+        
+        $input = $request->input();
+        
+        if(!$this->checkUpdatePermission($input, $response)){
+            return $response;
+        }
 
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();

@@ -1,8 +1,12 @@
 <li style="margin-top: 4px; margin-bottom: 4px; min-width: 220px; cursor: pointer">
-    @if (isset($user_id) && $user_id != Auth::user()->id)
-        <a href="{{ URL::to("/switch_account/{$user_id}") }}">
-    @else 
-        <a href="{{ URL::to("/settings/company_details") }}">
+    @if (Utils::isAdmin())
+        @if (isset($user_id) && $user_id != Auth::user()->id)
+            <a href="{{ URL::to("/switch_account/{$user_id}") }}">
+        @else 
+            <a href="{{ URL::to("/settings/company_details") }}">
+        @endif
+    @else
+        <a href="{{ URL::to("/settings/user_details") }}">
     @endif
 
         @if (file_exists($logo_path))
@@ -23,7 +27,6 @@
         @if (isset($selected) && $selected)            
             </b>
         @endif
-
     </a>
 
 </li>

@@ -34,10 +34,11 @@ class InvoiceController extends BaseController
     protected $clientRepo;
     protected $invoiceService;
     protected $recurringInvoiceService;
+    protected $model = 'App\Models\Invoice';
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, RecurringInvoiceService $recurringInvoiceService)
     {
-        //parent::__construct();
+        // parent::__construct();
 
         $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
@@ -90,6 +91,11 @@ class InvoiceController extends BaseController
                         ->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items')
                         ->withTrashed()
                         ->firstOrFail();
+        
+        if(!$this->checkEditPermission($invoice, $response)){
+            return $response;
+        }
+        
         $entityType = $invoice->getEntityType();
 
         $contactIds = DB::table('invitations')
@@ -206,7 +212,11 @@ class InvoiceController extends BaseController
 
     public function create($clientPublicId = 0, $isRecurring = false)
     {
-        $account = Auth::user()->account;
+        if(!$this->checkCreatePermission($response)){
+            return $response;
+        }
+        
+       $account = Auth::user()->account;
         $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
         $clientId = null;
 
@@ -335,10 +345,16 @@ class InvoiceController extends BaseController
      */
     public function store(SaveInvoiceWithClientRequest $request)
     {
+        $data = $request->input();
+        
+        if(!$this->checkUpdatePermission($data, $response)){
+            return $response;
+        }
+                
         $action = Input::get('action');
         $entityType = Input::get('entityType');
         
-        $invoice = $this->invoiceService->save($request->input());
+        $invoice = $this->invoiceService->save($data, true);
         $entityType = $invoice->getEntityType();
         $message = trans("texts.created_{$entityType}");
 
@@ -369,10 +385,16 @@ class InvoiceController extends BaseController
      */
     public function update(SaveInvoiceWithClientRequest $request)
     {
+        $data = $request->input();
+        
+        if(!$this->checkUpdatePermission($data, $response)){
+            return $response;
+        }
+        
         $action = Input::get('action');
         $entityType = Input::get('entityType');
 
-        $invoice = $this->invoiceService->save($request->input());
+        $invoice = $this->invoiceService->save($data, true);
         $entityType = $invoice->getEntityType();
         $message = trans("texts.updated_{$entityType}");
         Session::flash('message', $message);

@@ -63,8 +63,13 @@
 					<label for="client" class="control-label col-lg-4 col-sm-4">{{ trans('texts.client') }}</label>
 					<div class="col-lg-8 col-sm-8">
                         <h4><div data-bind="text: getClientDisplayName(ko.toJS(client()))"></div></h4>
-						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
-                        {!! link_to('/clients/'.$invoice->client->public_id, trans('texts.view_client'), ['target' => '_blank']) !!}
+                        
+                        @if($invoice->client->canView())
+                            @if ($invoice->client->canEdit())
+                                <a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
+                            @endif
+                            {!! link_to('/clients/'.$invoice->client->public_id, trans('texts.view_client'), ['target' => '_blank']) !!}
+                        @endif
 					</div>
 				</div>
 				<div style="display:none">

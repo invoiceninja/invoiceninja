@@ -63,9 +63,15 @@ class DashboardController extends BaseController
             ->get();
 
         $activities = Activity::where('activities.account_id', '=', Auth::user()->account_id)
+                ->where('activities.activity_type_id', '>', 0);
+        
+        if(!Auth::user()->hasPermission('view_all')){
+            $user_id = Auth::user()->id;
+            $activities = $activities->where('activities.user_id', '=', $user_id);
+        }
+                
+        $activities = $activities->orderBy('activities.created_at', 'desc')
                 ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'account')
-                ->where('activity_type_id', '>', 0)
-                ->orderBy('created_at', 'desc')
                 ->take(50)
                 ->get();
 
@@ -81,8 +87,14 @@ class DashboardController extends BaseController
                     ->where('invoices.is_deleted', '=', false)
                     ->where('invoices.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
-                    ->where('invoices.due_date', '<', date('Y-m-d'))
-                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'is_quote'])
+                    ->where('invoices.due_date', '<', date('Y-m-d'));
+            
+        if(!Auth::user()->hasPermission('view_all')){
+            $user_id = Auth::user()->id;
+            $pastDue = $pastDue->where('invoices.user_id', '=', $user_id);
+        }
+            
+        $pastDue = $pastDue->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'is_quote'])
                     ->orderBy('invoices.due_date', 'asc')
                     ->take(50)
                     ->get();
@@ -100,9 +112,15 @@ class DashboardController extends BaseController
                     ->where('invoices.is_deleted', '=', false)
                     ->where('contacts.is_primary', '=', true)
                     ->where('invoices.due_date', '>=', date('Y-m-d'))
-                    ->orderBy('invoices.due_date', 'asc')
-                    ->take(50)
-                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'is_quote'])
+                    ->orderBy('invoices.due_date', 'asc');
+            
+        if(!Auth::user()->hasPermission('view_all')){
+            $user_id = Auth::user()->id;
+            $upcoming = $upcoming->where('invoices.user_id', '=', $user_id);
+        }
+            
+        $upcoming = $upcoming->take(50)
+                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'is_quote'])
                     ->get();
 
         $payments = DB::table('payments')
@@ -114,8 +132,14 @@ class DashboardController extends BaseController
                     ->where('invoices.is_deleted', '=', false)
                     ->where('clients.is_deleted', '=', false)
                     ->where('contacts.deleted_at', '=', null)
-                    ->where('contacts.is_primary', '=', true)
-                    ->select(['payments.payment_date', 'payments.amount', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id'])
+                    ->where('contacts.is_primary', '=', true);
+            
+        if(!Auth::user()->hasPermission('view_all')){
+            $user_id = Auth::user()->id;
+            $payments = $payments->where('payments.user_id', '=', $user_id);
+        }
+            
+        $payments = $payments->select(['payments.payment_date', 'payments.amount', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id'])
                     ->orderBy('payments.payment_date', 'desc')
                     ->take(50)
                     ->get();

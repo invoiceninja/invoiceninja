@@ -27,6 +27,7 @@ class TaskRepository
                         'tasks.public_id',
                         'clients.name as client_name',
                         'clients.public_id as client_public_id',
+                        'clients.user_id as client_user_id',
                         'contacts.first_name',
                         'contacts.email',
                         'contacts.last_name',
@@ -36,9 +37,11 @@ class TaskRepository
                         'tasks.deleted_at',
                         'invoices.invoice_number',
                         'invoices.public_id as invoice_public_id',
+                        'invoices.user_id as invoice_user_id',
                         'tasks.is_running',
                         'tasks.time_log',
-                        'tasks.created_at'
+                        'tasks.created_at',
+                        'tasks.user_id'
                     );
 
         if ($clientPublicId) {

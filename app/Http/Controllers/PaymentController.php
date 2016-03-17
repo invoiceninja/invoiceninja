@@ -30,9 +30,11 @@ use App\Http\Requests\UpdatePaymentRequest;
 
 class PaymentController extends BaseController
 {
+    protected $model = 'App\Models\Payment';
+    
     public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService)
     {
-        //parent::__construct();
+        // parent::__construct();
 
         $this->paymentRepo = $paymentRepo;
         $this->invoiceRepo = $invoiceRepo;
@@ -66,6 +68,10 @@ class PaymentController extends BaseController
 
     public function create($clientPublicId = 0, $invoicePublicId = 0)
     {
+        if(!$this->checkCreatePermission($response)){
+            return $response;
+        }
+        
         $invoices = Invoice::scope()
                     ->where('is_recurring', '=', false)
                     ->where('is_quote', '=', false)
@@ -92,6 +98,11 @@ class PaymentController extends BaseController
     public function edit($publicId)
     {
         $payment = Payment::scope($publicId)->firstOrFail();
+        
+        if(!$this->checkEditPermission($payment, $response)){
+            return $response;
+        }
+        
         $payment->payment_date = Utils::fromSqlDate($payment->payment_date);
 
         $data = array(
@@ -573,6 +584,11 @@ class PaymentController extends BaseController
     public function store(CreatePaymentRequest $request)
     {
         $input = $request->input();
+        
+        if(!$this->checkUpdatePermission($input, $response)){
+            return $response;
+        }
+        
         $input['invoice_id'] = Invoice::getPrivateId($input['invoice']);
         $input['client_id'] = Client::getPrivateId($input['client']);
         $payment = $this->paymentRepo->save($input);
@@ -590,6 +606,11 @@ class PaymentController extends BaseController
     public function update(UpdatePaymentRequest $request)
     {
         $input = $request->input();
+                
+        if(!$this->checkUpdatePermission($input, $response)){
+            return $response;
+        }
+        
         $payment = $this->paymentRepo->save($input);
 
         Session::flash('message', trans('texts.updated_payment'));

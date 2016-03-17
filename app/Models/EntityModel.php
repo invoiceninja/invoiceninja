@@ -113,4 +113,56 @@ class EntityModel extends Eloquent
         $name = $parts[count($parts)-1];
         return strtolower($name) . '_id';
     }
+    
+    public static function canCreate() {
+        return Auth::user()->hasPermission('create_all');
+    }
+    
+    public function canEdit() {
+        return static::canEditItem($this);
+    }
+    
+    public static function canEditItem($item) {
+        return Auth::user()->hasPermission('edit_all') || (isset($item->user_id) && Auth::user()->id == $item->user_id);
+    }
+    
+    public static function canEditItemById($item_id) {
+        if(Auth::user()->hasPermission('edit_all')) {
+            return true;
+        }
+        
+        return static::whereId($item_id)->first()->user_id == Auth::user()->id;
+    }
+    
+    public static function canEditItemByOwner($user_id) {
+        if(Auth::user()->hasPermission('edit_all')) {
+            return true;
+        }
+        
+        return Auth::user()->id == $user_id;
+    }
+    
+    public function canView() {
+        return static::canViewItem($this);
+    }
+    
+    public static function canViewItem($item) {
+        return Auth::user()->hasPermission('view_all') || (isset($item->user_id) && Auth::user()->id == $item->user_id);
+    }
+    
+    public static function canViewItemById($item_id) {
+        if(Auth::user()->hasPermission('view_all')) {
+            return true;
+        }
+        
+        return static::whereId($item_id)->first()->user_id == Auth::user()->id;
+    }
+    
+    public static function canViewItemByOwner($user_id) {
+        if(Auth::user()->hasPermission('view_all')) {
+            return true;
+        }
+        
+        return Auth::user()->id == $user_id;
+    }
 }

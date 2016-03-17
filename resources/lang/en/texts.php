@@ -1065,6 +1065,14 @@ $LANG = array(
     'cost' => 'Cost',
     'create_invoice_for_sample' => 'Note: create your first invoice to see a preview here.',
     
+    // User Permissions
+    'owner' => 'Owner',
+    'administrator' => 'Administrator',
+    'administrator_help' => 'Allow user to manage users, change settings, and view and modify all data',
+    'user_create_all' => 'Create clients, invoices, etc.',
+    'user_view_all' => 'View all clients, invoices, etc.',
+    'user_edit_all' => 'Edit all clients, invoices, etc.',
+    
 );
 
 return $LANG;
