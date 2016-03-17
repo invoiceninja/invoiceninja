@@ -184,9 +184,7 @@ class TaskController extends BaseController
     {
         $action = Input::get('action');
         
-        $input = $request->input();
-        
-        if(!$this->checkUpdatePermission($input, $response)){
+        if(!$this->checkUpdatePermission(array('public_id'=>$publicId)/* Hacky, but works */, $response)){
             return $response;
         }
 

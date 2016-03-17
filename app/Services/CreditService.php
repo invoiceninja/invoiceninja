@@ -2,6 +2,7 @@
 
 use Utils;
 use URL;
+use Auth;
 use App\Services\BaseService;
 use App\Models\Client;
 use App\Models\Payment;
@@ -34,7 +35,7 @@ class CreditService extends BaseService
         $query = $this->creditRepo->find($clientPublicId, $search);
         
         if(!Utils::hasPermission('view_all')){
-            $query->where('expenses.user_id', '=', Auth::user()->id);
+            $query->where('credits.user_id', '=', Auth::user()->id);
         }
 
         return $this->createDatatable(ENTITY_CREDIT, $query, !$clientPublicId);
