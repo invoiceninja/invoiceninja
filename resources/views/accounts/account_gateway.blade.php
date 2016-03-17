@@ -52,6 +52,15 @@
     @foreach ($gateways as $gateway)
 
         <div id="gateway_{{ $gateway->id }}_div" class='gateway-fields' style="display: none">
+            @if ($gateway->getHelp())
+                <div class="form-group">
+                    <label class="control-label col-lg-4 col-sm-4"></label>
+                    <div class="col-lg-8 col-sm-8 help-block">
+                        {!! $gateway->getHelp() !!}
+                    </div>
+                </div>
+            @endif
+
             @foreach ($gateway->fields as $field => $details)
 
                 @if ($details && !$accountGateway)
@@ -72,15 +81,6 @@
                 @endif
 
             @endforeach
-
-            @if ($gateway->getHelp())
-                <div class="form-group">
-                    <label class="control-label col-lg-4 col-sm-4"></label>
-                    <div class="col-lg-8 col-sm-8 help-block">
-                        {!! $gateway->getHelp() !!}
-                    </div>
-                </div>
-            @endif
 
             @if ($gateway->id == GATEWAY_STRIPE)
                 {!! Former::text('publishable_key') !!}
