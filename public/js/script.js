@@ -595,6 +595,7 @@ function calculateAmounts(invoice) {
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];
     var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
+    lineTotal = roundToTwo(lineTotal);
     if (lineTotal) {
       total += lineTotal;
     }
