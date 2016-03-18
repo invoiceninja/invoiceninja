@@ -65,6 +65,7 @@
 		$('#permissions_view_all').prop('disabled', adminChecked);
         $('#permissions_create_all').prop('disabled', adminChecked);
         $('#permissions_edit_all').prop('disabled', adminChecked || !viewChecked);
+        if(!viewChecked)$('#permissions_edit_all').prop('checked',false)
 	}
 	fixCheckboxes();
 @stop
