@@ -45,7 +45,7 @@ class ExpenseController extends BaseController
         return View::make('list', array(
             'entityType' => ENTITY_EXPENSE,
             'title' => trans('texts.expenses'),
-            'sortCol' => '1',
+            'sortCol' => '3',
             'columns' => Utils::trans([
               'checkbox',
               'vendor',
