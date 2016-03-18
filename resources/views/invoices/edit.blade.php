@@ -385,11 +385,18 @@
 				</tr>
 			@endif
 
-			<tr style="font-size:1.05em">
+			<tr data-bind="style: { 'font-weight': partial() ? 'normal' : 'bold', 'font-size': partial() ? '1em' : '1.05em' }">
 				<td class="hide-border" colspan="3"/>
 				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>
-				<td class="hide-border" colspan="{{ $account->hide_quantity ? 1 : 2 }}"><b>{{ trans($entityType == ENTITY_INVOICE ? 'texts.balance_due' : 'texts.total') }}</b></td>
-				<td class="hide-border" style="text-align: right"><span data-bind="text: totals.total"></span></td>
+				<td class="hide-border" data-bind="css: {'hide-border': !partial()}" colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $entityType == ENTITY_INVOICE ? $invoiceLabels['balance_due'] : trans('texts.total') }}</td>
+				<td class="hide-border" data-bind="css: {'hide-border': !partial()}" style="text-align: right"><span data-bind="text: totals.total"></span></td>
+			</tr>
+
+			<tr style="font-size:1.05em; display:none; font-weight:bold" data-bind="visible: partial">
+				<td class="hide-border" colspan="3"/>
+				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>
+				<td class="hide-border" colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $invoiceLabels['partial_due'] }}</td>
+				<td class="hide-border" style="text-align: right"><span data-bind="text: totals.partial"></span></td>
 			</tr>
 
 		</tfoot>
