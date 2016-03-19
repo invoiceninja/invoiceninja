@@ -104,62 +104,9 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
-
-    Route::get('api/users', array('as'=>'api.users', 'uses'=>'UserController@getDatatable'));
-    Route::resource('users', 'UserController');
-    Route::post('users/bulk', 'UserController@bulk');
-    Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
-    Route::get('start_trial', 'AccountController@startTrial');
-    Route::get('restore_user/{user_id}', 'UserController@restoreUser');
-    Route::post('users/change_password', 'UserController@changePassword');
-    Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
-    Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
-    Route::get('/manage_companies', 'UserController@manageCompanies');
-
-    Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
-    Route::resource('tokens', 'TokenController');
-    Route::post('tokens/bulk', 'TokenController@bulk');
-
-    Route::get('api/products', array('as'=>'api.products', 'uses'=>'ProductController@getDatatable'));
-    Route::resource('products', 'ProductController');
-    Route::post('products/bulk', 'ProductController@bulk');
-
-    Route::get('api/tax_rates', array('as'=>'api.tax_rates', 'uses'=>'TaxRateController@getDatatable'));
-    Route::resource('tax_rates', 'TaxRateController');
-    Route::post('tax_rates/bulk', 'TaxRateController@bulk');
-
-    Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
-    Route::get('settings/data_visualizations', 'ReportController@d3');
-    Route::get('settings/charts_and_reports', 'ReportController@showReports');
-    Route::post('settings/charts_and_reports', 'ReportController@showReports');
-
-    Route::post('settings/cancel_account', 'AccountController@cancelAccount');
-    Route::post('settings/company_details', 'AccountController@updateDetails');
-    Route::get('settings/{section?}', 'AccountController@showSection');
-    Route::post('settings/{section?}', 'AccountController@doSection');
-
-    //Route::get('api/payment_terms', array('as'=>'api.payment_terms', 'uses'=>'PaymentTermController@getDatatable'));
-    //Route::resource('payment_terms', 'PaymentTermController');
-    //Route::post('payment_terms/bulk', 'PaymentTermController@bulk');
-
-    Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
-    Route::post('user/setTheme', 'UserController@setTheme');
-    Route::post('remove_logo', 'AccountController@removeLogo');
-    Route::post('account/go_pro', 'AccountController@enableProPlan');
-
-    Route::post('/export', 'ExportController@doExport');
-    Route::post('/import', 'ImportController@doImport');
-    Route::post('/import_csv', 'ImportController@doImportCSV');
-
-    Route::resource('gateways', 'AccountGatewayController');
-    Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
-    Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
-
-    Route::resource('bank_accounts', 'BankAccountController');
-    Route::get('api/bank_accounts', array('as'=>'api.bank_accounts', 'uses'=>'BankAccountController@getDatatable'));
-    Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
-    Route::post('bank_accounts/validate', 'BankAccountController@validateAccount');
-    Route::post('bank_accounts/import_expenses/{bank_id}', 'BankAccountController@importExpenses');
+    
+    Route::get('settings/user_details', 'AccountController@showUserDetails');
+    Route::post('settings/user_details', 'AccountController@saveUserDetails');
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
@@ -220,6 +167,67 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('api/expense', array('as'=>'api.expenses', 'uses'=>'ExpenseController@getDatatable'));
     Route::get('api/expenseVendor/{id}', array('as'=>'api.expense', 'uses'=>'ExpenseController@getDatatableVendor'));
     Route::post('expenses/bulk', 'ExpenseController@bulk');
+});
+
+Route::group([
+    'middleware' => ['auth:user', 'permissions.required'],
+    'permissions' => 'admin',
+], function() {
+    Route::get('api/users', array('as'=>'api.users', 'uses'=>'UserController@getDatatable'));
+    Route::resource('users', 'UserController');
+    Route::post('users/bulk', 'UserController@bulk');
+    Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
+    Route::get('start_trial', 'AccountController@startTrial');
+    Route::get('restore_user/{user_id}', 'UserController@restoreUser');
+    Route::post('users/change_password', 'UserController@changePassword');
+    Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
+    Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
+    Route::get('/manage_companies', 'UserController@manageCompanies');
+
+    Route::get('api/tokens', array('as'=>'api.tokens', 'uses'=>'TokenController@getDatatable'));
+    Route::resource('tokens', 'TokenController');
+    Route::post('tokens/bulk', 'TokenController@bulk');
+
+    Route::get('api/products', array('as'=>'api.products', 'uses'=>'ProductController@getDatatable'));
+    Route::resource('products', 'ProductController');
+    Route::post('products/bulk', 'ProductController@bulk');
+
+    Route::get('api/tax_rates', array('as'=>'api.tax_rates', 'uses'=>'TaxRateController@getDatatable'));
+    Route::resource('tax_rates', 'TaxRateController');
+    Route::post('tax_rates/bulk', 'TaxRateController@bulk');
+
+    Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
+    Route::get('settings/data_visualizations', 'ReportController@d3');
+    Route::get('settings/charts_and_reports', 'ReportController@showReports');
+    Route::post('settings/charts_and_reports', 'ReportController@showReports');
+
+    Route::post('settings/cancel_account', 'AccountController@cancelAccount');
+    Route::post('settings/company_details', 'AccountController@updateDetails');
+    Route::get('settings/{section?}', 'AccountController@showSection');
+    Route::post('settings/{section?}', 'AccountController@doSection');
+
+    //Route::get('api/payment_terms', array('as'=>'api.payment_terms', 'uses'=>'PaymentTermController@getDatatable'));
+    //Route::resource('payment_terms', 'PaymentTermController');
+    //Route::post('payment_terms/bulk', 'PaymentTermController@bulk');
+
+    Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
+    Route::post('user/setTheme', 'UserController@setTheme');
+    Route::post('remove_logo', 'AccountController@removeLogo');
+    Route::post('account/go_pro', 'AccountController@enableProPlan');
+
+    Route::post('/export', 'ExportController@doExport');
+    Route::post('/import', 'ImportController@doImport');
+    Route::post('/import_csv', 'ImportController@doImportCSV');
+
+    Route::resource('gateways', 'AccountGatewayController');
+    Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
+    Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
+
+    Route::resource('bank_accounts', 'BankAccountController');
+    Route::get('api/bank_accounts', array('as'=>'api.bank_accounts', 'uses'=>'BankAccountController@getDatatable'));
+    Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
+    Route::post('bank_accounts/validate', 'BankAccountController@validateAccount');
+    Route::post('bank_accounts/import_expenses/{bank_id}', 'BankAccountController@importExpenses');
 });
 
 // Route groups for API
@@ -500,6 +508,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_PAYFAST', 13);
     define('GATEWAY_PAYPAL_EXPRESS', 17);
     define('GATEWAY_PAYPAL_PRO', 18);
+    define('GATEWAY_SAGE_PAY_DIRECT', 20);
+    define('GATEWAY_SAGE_PAY_SERVER', 21);
     define('GATEWAY_STRIPE', 23);
     define('GATEWAY_GOCARDLESS', 6);
     define('GATEWAY_TWO_CHECKOUT', 27);
@@ -604,6 +614,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('USER_STATE_PENDING', 'pending');
     define('USER_STATE_DISABLED', 'disabled');
     define('USER_STATE_ADMIN', 'admin');
+    define('USER_STATE_OWNER', 'owner');
 
     define('API_SERIALIZER_ARRAY', 'array');
     define('API_SERIALIZER_JSON', 'json');

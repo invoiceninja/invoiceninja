@@ -512,7 +512,11 @@ function InvoiceModel(data) {
     });
 
     self.totals.total = ko.computed(function() {
-        return self.formatMoney(self.partial() ? self.partial() : self.totals.rawTotal());
+        return self.formatMoney(self.totals.rawTotal());
+    });
+
+    self.totals.partial = ko.computed(function() {
+        return self.formatMoney(self.partial());
     });
 
     self.onDragged = function(item) {

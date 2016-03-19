@@ -75,6 +75,8 @@ class Gateway extends Eloquent
             $link = 'https://bitpay.com/dashboard/signup';
         } elseif ($this->id == GATEWAY_DWOLLA) {
             $link = 'https://www.dwolla.com/register';
+        } elseif ($this->id == GATEWAY_SAGE_PAY_DIRECT || $this->id == GATEWAY_SAGE_PAY_SERVER) {
+            $link = 'https://applications.sagepay.com/apply/2C02C252-0F8A-1B84-E10D-CF933EFCAA99';
         }
 
         $key = 'texts.gateway_help_'.$this->id;

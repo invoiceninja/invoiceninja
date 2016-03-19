@@ -1,6 +1,7 @@
 <?php namespace App\Services;
 
 use Utils;
+use Auth;
 use URL;
 use DateTime;
 use Event;
@@ -10,6 +11,8 @@ use CreditCard;
 use App\Models\Payment;
 use App\Models\Account;
 use App\Models\Country;
+use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\AccountGatewayToken;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\AccountRepository;
@@ -286,6 +289,10 @@ class PaymentService extends BaseService
     {
         $query = $this->paymentRepo->find($clientPublicId, $search);
 
+        if(!Utils::hasPermission('view_all')){
+            $query->where('payments.user_id', '=', Auth::user()->id);
+        }
+
         return $this->createDatatable(ENTITY_PAYMENT, $query, !$clientPublicId);
     }
 
@@ -295,12 +302,20 @@ class PaymentService extends BaseService
             [
                 'invoice_number',
                 function ($model) {
+                    if(!Invoice::canEditItemByOwner($model->invoice_user_id)){
+                        return $model->invoice_number;
+                    }
+                    
                     return link_to("invoices/{$model->invoice_public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                 }
             ],
             [
                 'client_name',
                 function ($model) {
+                    if(!Client::canViewItemByOwner($model->client_user_id)){
+                        return Utils::getClientDisplayName($model);
+                    }
+                    
                     return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
                 ! $hideClient
@@ -339,6 +354,9 @@ class PaymentService extends BaseService
                 trans('texts.edit_payment'),
                 function ($model) {
                     return URL::to("payments/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return Payment::canEditItem($model);
                 }
             ]
         ];

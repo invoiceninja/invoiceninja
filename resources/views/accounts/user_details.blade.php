@@ -21,7 +21,9 @@
         {{ Former::populateField('referral_code', true) }}
     @endif
 
-    @include('accounts.nav', ['selected' => ACCOUNT_USER_DETAILS])
+    @if (Utils::isAdmin())
+        @include('accounts.nav', ['selected' => ACCOUNT_USER_DETAILS])
+    @endif
 
     <div class="row">
         <div class="col-md-12">
