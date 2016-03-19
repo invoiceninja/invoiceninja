@@ -5,6 +5,7 @@ use DB;
 use Carbon;
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasUpdated;
+use App\Events\VendorWasDeleted;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 

@@ -1075,6 +1075,9 @@ $LANG = array(
     'gateway_help_20' => ':link to sign up for Sage Pay.',
     'gateway_help_21' => ':link to sign up for Sage Pay.',
     'partial_due' => 'Partial Due',
+    'restore_vendor' => 'Restore Vendor',
+    'restored_vendor' => 'Successfully restored vendor',
+    'restored_expense' => 'Successfully restored expense',
     
 );
 
