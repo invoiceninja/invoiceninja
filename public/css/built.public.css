@@ -790,14 +790,23 @@ html {
   overflow-y: scroll;
 }
 
-@media screen and (min-width: 700px) { 
-    .navbar-header {
-        padding-top: 16px;
-        padding-bottom: 16px;        
-    }
-    .navbar li a {
-        padding: 31px 20px 31px 20px;
-    }
+
+.navbar-header {
+    padding-top: 4px;
+    padding-bottom: 4px;        
+}
+.navbar li a {
+    padding-top: 18px;
+    font-weight: 500;
+    font-size: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.navbar {
+  -moz-box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28);
+  -webkit-box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28); 
+  box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28);      
 }
 
 #footer {
