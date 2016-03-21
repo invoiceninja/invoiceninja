@@ -1068,7 +1068,7 @@ $LANG = array(
     // User Permissions
     'owner' => 'Owner',
     'administrator' => 'Administrator',
-    'administrator_help' => 'Allow user to manage users, change settings, and view and modify all data',
+    'administrator_help' => 'Allow user to manage users, change settings and modify all records',
     'user_create_all' => 'Create clients, invoices, etc.',
     'user_view_all' => 'View all clients, invoices, etc.',
     'user_edit_all' => 'Edit all clients, invoices, etc.',
@@ -1078,6 +1078,11 @@ $LANG = array(
     'restore_vendor' => 'Restore Vendor',
     'restored_vendor' => 'Successfully restored vendor',
     'restored_expense' => 'Successfully restored expense',
+    'permissions' => 'Permissions',
+    'create_all_help' => 'Allow user to create and modify records',
+    'view_all_help' => 'Allow user to view records they didn\'t create',
+    'edit_all_help' => 'Allow user to modify records they didn\'t create',
+    
     
 );
 

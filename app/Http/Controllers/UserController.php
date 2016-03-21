@@ -77,7 +77,6 @@ class UserController extends BaseController
             'user' => $user,
             'method' => 'PUT',
             'url' => 'users/'.$publicId,
-            'title' => trans('texts.edit_user'),
         ];
 
         return View::make('users.edit', $data);
@@ -120,7 +119,6 @@ class UserController extends BaseController
           'user' => null,
           'method' => 'POST',
           'url' => 'users',
-          'title' => trans('texts.add_user'),
         ];
 
         return View::make('users.edit', $data);
