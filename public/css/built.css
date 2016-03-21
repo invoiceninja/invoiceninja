@@ -2529,6 +2529,14 @@ font-weight: bold;
   filter: none;
 }
 
+.navbar,
+ul.dropdown-menu,
+.twitter-typeahead .tt-menu {
+  -moz-box-shadow: 5px 5px 20px -10px rgba(80, 80, 80, .82);
+  -webkit-box-shadow: 5px 5px 20px -10px rgba(80, 80, 80, .82); 
+  box-shadow: 5px 5px 20px -10px rgba(80, 80, 80, .82);      
+}
+
 .navbar .active > a {
   background-color: #09334f !important;
   background-image: none;
