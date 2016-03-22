@@ -1051,6 +1051,51 @@ $LANG = array(
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
     'enable_client_portal' => 'ダッシュボード',
     'enable_client_portal_help' => 'Show/hide the dashboard page in the client portal.',
+
+    // Client Passwords
+    'enable_portal_password'=>'Password protect invoices',
+    'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
+    'send_portal_password'=>'Generate password automatically',
+    'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
+    
+    'expired' => 'Expired',
+    'invalid_card_number' => 'The credit card number is not valid.',
+    'invalid_expiry' => 'The expiration date is not valid.',
+    'invalid_cvv' => 'The CVV is not valid.',
+    'cost' => 'Cost',
+    'create_invoice_for_sample' => 'Note: create your first invoice to see a preview here.',
+    
+    // User Permissions
+    'owner' => 'Owner',
+    'administrator' => 'Administrator',
+    'administrator_help' => 'Allow user to manage users, change settings and modify all records',
+    'user_create_all' => 'Create clients, invoices, etc.',
+    'user_view_all' => 'View all clients, invoices, etc.',
+    'user_edit_all' => 'Edit all clients, invoices, etc.',
+    'gateway_help_20' => ':link to sign up for Sage Pay.',
+    'gateway_help_21' => ':link to sign up for Sage Pay.',
+    'partial_due' => 'Partial Due',
+    'restore_vendor' => 'Restore Vendor',
+    'restored_vendor' => 'Successfully restored vendor',
+    'restored_expense' => 'Successfully restored expense',
+    'permissions' => 'Permissions',
+    'create_all_help' => 'Allow user to create and modify records',
+    'view_all_help' => 'Allow user to view records they didn\'t create',
+    'edit_all_help' => 'Allow user to modify records they didn\'t create',
+    'view_payment' => 'View Payment', 
+   
+    'january' => 'January',
+    'february' => 'February',
+    'march' => 'March',
+    'april' => 'April',
+    'may' => 'May',
+    'june' => 'June',
+    'july' => 'July',
+    'august' => 'August',
+    'september' => 'September',
+    'october' => 'October',
+    'november' => 'November',
+    'december' => 'December',
     
 );
 
