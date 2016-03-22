@@ -158,6 +158,7 @@ class DashboardApiController extends BaseAPIController
             }
         }
 
+        /*
         $data = [
             'id' => 1,
             'paidToDate' => $paidToDate[0]->value,
@@ -167,13 +168,23 @@ class DashboardApiController extends BaseAPIController
             'averageInvoice' => $averageInvoice[0]->invoice_avg,
             'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
             'activeClients' => $metrics ? $metrics->active_clients : 0,
+        ];
+*/
+        $data = [
+            'account' => Auth::user()->account,
+            'paidToDate' => $paidToDate,
+            'balances' => $balances,
+            'averageInvoice' => $averageInvoice,
+            'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
+            'activeClients' => $metrics ? $metrics->active_clients : 0,
+            'activities' => $activities,
             'pastDue' => $pastDue,
             'upcoming' => $upcoming,
             'payments' => $payments,
             'title' => trans('texts.dashboard'),
             'hasQuotes' => $hasQuotes,
         ];
-
+        
         return $this->response($data);
 
     }
