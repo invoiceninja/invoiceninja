@@ -642,6 +642,6 @@ class PaymentController extends BaseController
         $message .= $error ?: trans('texts.payment_error');
 
         Session::flash('error', $message);
-        Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message));
+        Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
     }
 }

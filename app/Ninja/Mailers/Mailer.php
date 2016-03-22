@@ -81,7 +81,7 @@ class Mailer
             $emailError = $exception->getMessage();
         }
 
-        Utils::logError("Email Error: $emailError");
+        //Utils::logError("Email Error: $emailError");
         
         if (isset($data['invitation'])) {
             $invitation = $data['invitation'];
