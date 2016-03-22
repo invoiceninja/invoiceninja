@@ -171,20 +171,14 @@ class DashboardApiController extends BaseAPIController
         ];
 */
         $data = [
-            'account' => Auth::user()->account,
+            'id' => 1,
             'paidToDate' => $paidToDate,
             'balances' => $balances,
             'averageInvoice' => $averageInvoice,
             'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
             'activeClients' => $metrics ? $metrics->active_clients : 0,
-            'activities' => $activities,
-            'pastDue' => $pastDue,
-            'upcoming' => $upcoming,
-            'payments' => $payments,
-            'title' => trans('texts.dashboard'),
-            'hasQuotes' => $hasQuotes,
         ];
-        
+
         return $this->response($data);
 
     }
