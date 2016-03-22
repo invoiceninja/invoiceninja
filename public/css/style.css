@@ -405,7 +405,7 @@ font-weight: bold;
 .navbar,
 .panel-default,
 ul.dropdown-menu,
-.twitter-typeahead .tt-menu
+.twitter-typeahead .tt-menu,
 canvas {
     x-moz-box-shadow: 0 0 1px 1px rgba(0,0,0,.05);
     x-webkit-box-shadow: 0 0 1px 1px rgba(0,0,0,.05); 
