@@ -60,7 +60,16 @@
       @else
         NINJA.headerFont = NINJA.bodyFont = 'Roboto';
       @endif
-      var fields = ['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms'];
+      var fields = [
+          'item', 
+          'description', 
+          'unit_cost', 
+          'quantity', 
+          'line_total', 
+          'terms', 
+          'balance_due', 
+          'partial_due'
+      ];
       invoiceLabels.old = {};
       for (var i=0; i<fields.length; i++) {
         var field = fields[i];
@@ -181,11 +190,13 @@
                               {!! Former::text('labels_item')->label(trans('texts.item')) !!}
                               {!! Former::text('labels_description')->label(trans('texts.description')) !!}
                               {!! Former::text('labels_unit_cost')->label(trans('texts.unit_cost')) !!}
+                              {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
                         </div>
                         <div class="col-md-6">
-                              {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
                               {!! Former::text('labels_line_total')->label(trans('texts.line_total')) !!}
                               {!! Former::text('labels_terms')->label(trans('texts.terms')) !!}
+                              {!! Former::text('labels_balance_due')->label(trans('texts.balance_due')) !!}
+                              {!! Former::text('labels_partial_due')->label(trans('texts.partial_due')) !!}
                         </div>
                       </div>
 

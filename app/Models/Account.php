@@ -683,7 +683,7 @@ class Account extends Eloquent
             'subtotal',
             'paid_to_date',
             'balance_due',
-            'amount_due',
+            'partial_due',
             'terms',
             'your_invoice',
             'quote',

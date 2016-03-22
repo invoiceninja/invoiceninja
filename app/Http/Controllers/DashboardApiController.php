@@ -4,10 +4,8 @@ use Auth;
 use DB;
 use View;
 use App\Models\Activity;
-use App\Models\Invoice;
-use App\Models\Payment;
 
-class DashboardController extends BaseController
+class DashboardApiController extends BaseAPIController
 {
     public function index()
     {
@@ -85,18 +83,6 @@ class DashboardController extends BaseController
             ->groupBy(DB::raw('CASE WHEN clients.currency_id IS NULL THEN CASE WHEN accounts.currency_id IS NULL THEN 1 ELSE accounts.currency_id END ELSE clients.currency_id END'))
             ->get();
 
-        $activities = Activity::where('activities.account_id', '=', Auth::user()->account_id)
-                ->where('activities.activity_type_id', '>', 0);
-        
-        if(!$view_all){
-            $activities = $activities->where('activities.user_id', '=', $user_id);
-        }
-                
-        $activities = $activities->orderBy('activities.created_at', 'desc')
-                ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'account')
-                ->take(50)
-                ->get();
-
         $pastDue = DB::table('invoices')
                     ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
                     ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
@@ -173,13 +159,12 @@ class DashboardController extends BaseController
         }
 
         $data = [
-            'account' => Auth::user()->account,
+            'id' => 1,
             'paidToDate' => $paidToDate,
             'balances' => $balances,
             'averageInvoice' => $averageInvoice,
             'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
             'activeClients' => $metrics ? $metrics->active_clients : 0,
-            'activities' => $activities,
             'pastDue' => $pastDue,
             'upcoming' => $upcoming,
             'payments' => $payments,
@@ -187,6 +172,7 @@ class DashboardController extends BaseController
             'hasQuotes' => $hasQuotes,
         ];
 
-        return View::make('dashboard', $data);
+        return $this->response($data);
+
     }
 }

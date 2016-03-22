@@ -118,6 +118,21 @@ class Utils
         return Auth::check() && Auth::user()->isPro();
     }
 
+    public static function isAdmin()
+    {
+        return Auth::check() && Auth::user()->is_admin;
+    }
+
+    public static function hasPermission($permission, $requireAll = false)
+    {
+        return Auth::check() && Auth::user()->hasPermission($permission, $requireAll);
+    }
+
+    public static function hasAllPermissions($permission)
+    {
+        return Auth::check() && Auth::user()->hasPermissions($permission);
+    }
+
     public static function isTrial()
     {
         return Auth::check() && Auth::user()->isTrial();

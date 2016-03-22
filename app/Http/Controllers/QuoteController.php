@@ -33,10 +33,11 @@ class QuoteController extends BaseController
     protected $invoiceRepo;
     protected $clientRepo;
     protected $invoiceService;
+    protected $model = 'App\Models\Invoice';
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
     {
-        //parent::__construct();
+        // parent::__construct();
 
         $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
@@ -53,6 +54,7 @@ class QuoteController extends BaseController
         $data = [
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
+          'sortCol' => '3',
           'columns' => Utils::trans([
             'checkbox',
             'quote_number',
@@ -78,6 +80,10 @@ class QuoteController extends BaseController
 
     public function create($clientPublicId = 0)
     {
+        if(!$this->checkCreatePermission($response)){
+            return $response;
+        }
+        
         if (!Utils::isPro()) {
             return Redirect::to('/invoices/create');
         }

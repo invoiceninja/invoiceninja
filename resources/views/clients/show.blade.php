@@ -43,8 +43,11 @@
                 @endif
 
                 @if ($client->trashed())
-                    {!! Button::primary(trans('texts.restore_client'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
+                    @if ($client->canEdit())
+                        {!! Button::primary(trans('texts.restore_client'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
+                    @endif
                 @else
+                    @if ($client->canEdit())
                     {!! DropdownButton::normal(trans('texts.edit_client'))
                         ->withAttributes(['class'=>'normalDropDown'])
                         ->withContents([
@@ -52,10 +55,12 @@
                           ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
                         ]
                       )->split() !!}
-
-                    {!! DropdownButton::primary(trans('texts.new_invoice'))
-                            ->withAttributes(['class'=>'primaryDropDown'])
-                            ->withContents($actionLinks)->split() !!}
+                    @endif
+                    @if (\App\Models\Invoice::canCreate())
+                        {!! DropdownButton::primary(trans('texts.new_invoice'))
+                                ->withAttributes(['class'=>'primaryDropDown'])
+                                ->withContents($actionLinks)->split() !!}
+                    @endif
                 @endif
               {!! Former::close() !!}
 

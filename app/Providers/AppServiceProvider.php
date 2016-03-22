@@ -8,6 +8,9 @@ use Form;
 use URL;
 use Request;
 use Validator;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Models\Vendor;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider {
@@ -46,31 +49,38 @@ class AppServiceProvider extends ServiceProvider {
             $class = ( Request::is($types) || Request::is('*'.$type.'*')) && !Request::is('*settings*') ? ' active' : '';
 
             $str = '<li class="dropdown '.$class.'">
-                   <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>
-                   <ul class="dropdown-menu" id="menu1">
-                   <li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
-            
+                   <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>';
+                   
+            $items = [];
+                       
+            if(Auth::user()->hasPermission('create_all')){
+                   $items[] = '<li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
+            }
+                    
             if ($type == ENTITY_INVOICE) {
-                $str .= '<li class="divider"></li>
-                         <li><a href="'.URL::to('recurring_invoices').'">'.trans("texts.recurring_invoices").'</a></li>
-                         <li><a href="'.URL::to('recurring_invoices/create').'">'.trans("texts.new_recurring_invoice").'</a></li>';
+                if(!empty($items))$items[] = '<li class="divider"></li>';
+                $items[] = '<li><a href="'.URL::to('recurring_invoices').'">'.trans("texts.recurring_invoices").'</a></li>';
+                if(Invoice::canCreate())$items[] = '<li><a href="'.URL::to('recurring_invoices/create').'">'.trans("texts.new_recurring_invoice").'</a></li>';
                 if (Auth::user()->isPro()) {
-                    $str .= '<li class="divider"></li>
-                            <li><a href="'.URL::to('quotes').'">'.trans("texts.quotes").'</a></li>
-                            <li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';
+                    $items[] = '<li class="divider"></li>';
+                    $items[] = '<li><a href="'.URL::to('quotes').'">'.trans("texts.quotes").'</a></li>';
+                    if(Invoice::canCreate())$items[] = '<li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';
                 }
             } else if ($type == ENTITY_CLIENT) {
-                $str .= '<li class="divider"></li>
-                        <li><a href="'.URL::to('credits').'">'.trans("texts.credits").'</a></li>
-                        <li><a href="'.URL::to('credits/create').'">'.trans("texts.new_credit").'</a></li>';
+                if(!empty($items))$items[] = '<li class="divider"></li>';
+                $items[] = '<li><a href="'.URL::to('credits').'">'.trans("texts.credits").'</a></li>';
+                if(Credit::canCreate())$items[] = '<li><a href="'.URL::to('credits/create').'">'.trans("texts.new_credit").'</a></li>';
             } else if ($type == ENTITY_EXPENSE) {
-				$str .= '<li class="divider"></li>
-                        <li><a href="'.URL::to('vendors').'">'.trans("texts.vendors").'</a></li>
-                        <li><a href="'.URL::to('vendors/create').'">'.trans("texts.new_vendor").'</a></li>';
+				if(!empty($items))$items[] = '<li class="divider"></li>';
+                $items[] = '<li><a href="'.URL::to('vendors').'">'.trans("texts.vendors").'</a></li>';
+                if(Vendor::canCreate())$items[] = '<li><a href="'.URL::to('vendors/create').'">'.trans("texts.new_vendor").'</a></li>';
 			}
+            
+            if(!empty($items)){
+                $str.= '<ul class="dropdown-menu" id="menu1">'.implode($items).'</ul>';
+            }
 
-            $str .= '</ul>
-                  </li>';
+            $str .= '</li>';
 
             return $str;
         });
