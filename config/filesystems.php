@@ -47,23 +47,33 @@ return [
 			'driver' => 'local',
 			'root'   => storage_path().'/app',
 		],
+		
+		'logos' => [
+			'driver' => 'local',
+			'root'   => env('LOGO_PATH', public_path().'/logo'),
+		],
+		
+		'documents' => [
+			'driver' => 'local',
+			'root'   => storage_path().'/documents',
+		],
 
 		's3' => [
 			'driver' => 's3',
-			'key'    => 'your-key',
-			'secret' => 'your-secret',
-			'region' => 'your-region',
-			'bucket' => 'your-bucket',
+			'key'    => env('S3_KEY', ''),
+			'secret' => env('S3_SECRET', ''),
+			'region' => env('S3_REGION', ''),
+			'bucket' => env('S3_BUCKET', ''),
 		],
 
 		'rackspace' => [
 			'driver'    => 'rackspace',
-			'username'  => 'your-username',
-			'key'       => 'your-key',
-			'container' => 'your-container',
-			'endpoint'  => 'https://identity.api.rackspacecloud.com/v2.0/',
-			'region'    => 'IAD',
-			'url_type'  => 'publicURL'
+			'username'  => env('RACKSPACE_USERNAME', ''),
+			'key'       => env('RACKSPACE_KEY', ''),
+			'container' => env('RACKSPACE_CONTAINER', ''),
+			'endpoint'  => env('RACKSPACE_ENDPOINT', 'https://identity.api.rackspacecloud.com/v2.0/'),
+			'region'    => env('RACKSPACE_REGION', 'https://identity.api.rackspacecloud.com/v2.0/'),
+			'url_type'  => env('RACKSPACE_URL_TYPE', 'publicURL')
 		],
 
 	],

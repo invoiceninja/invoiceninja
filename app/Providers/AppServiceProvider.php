@@ -22,8 +22,15 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-        Form::macro('image_data', function($imagePath) {
-            return 'data:image/jpeg;base64,' . base64_encode(file_get_contents($imagePath));
+        Form::macro('image_data', function($image, $contents = false) {
+            if(!$contents){
+                $contents = file_get_contents($image);
+            }
+            else{
+                $contents = $image;
+            }
+                
+            return 'data:image/jpeg;base64,' . base64_encode($contents);            
         });
 
         Form::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {

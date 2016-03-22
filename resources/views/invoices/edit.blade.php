@@ -971,7 +971,7 @@
         @endif
 
 		@if ($account->hasLogo())
-			invoice.image = "{{ Form::image_data($account->getLogoPath()) }}";
+			invoice.image = "{{ Form::image_data($account->getLogoRaw(), true) }}";
 			invoice.imageWidth = {{ $account->getLogoWidth() }};
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
