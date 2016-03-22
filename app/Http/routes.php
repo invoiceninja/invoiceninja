@@ -101,7 +101,6 @@ if (Utils::isReseller()) {
 
 Route::group(['middleware' => 'auth:user'], function() {
     Route::get('dashboard', 'DashboardController@index');
-    Route::get('dashboard2', 'DashboardApiController@index');
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
@@ -258,6 +257,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('expenses','ExpenseApiController');
     Route::post('add_token', 'AccountApiController@addDeviceToken');
     Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
+    Route::get('dashboard', 'DashboardApiController@index');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');

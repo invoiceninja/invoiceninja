@@ -159,6 +159,7 @@ class DashboardApiController extends BaseAPIController
         }
 
         $data = [
+            'id' => 1,
             'paidToDate' => $paidToDate,
             'balances' => $balances,
             'averageInvoice' => $averageInvoice,
