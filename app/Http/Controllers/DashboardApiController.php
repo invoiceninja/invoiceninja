@@ -158,7 +158,7 @@ class DashboardApiController extends BaseAPIController
             }
         }
 
-        /*
+
         $data = [
             'id' => 1,
             'paidToDate' => $paidToDate[0]->value,
@@ -166,19 +166,21 @@ class DashboardApiController extends BaseAPIController
             'balances' => $balances[0]->value,
             'balancesCurrency' => $balances[0]->currency_id,
             'averageInvoice' => $averageInvoice[0]->invoice_avg,
+            'averageInvoiceCurrency' => $averageInvoice[0]->currency_id,
             'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
             'activeClients' => $metrics ? $metrics->active_clients : 0,
         ];
-*/
-        $data = [
-            'id' => 1,
-            'paidToDate' => $paidToDate,
-            'balances' => $balances,
-            'averageInvoice' => $averageInvoice,
-            'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
-            'activeClients' => $metrics ? $metrics->active_clients : 0,
-        ];
-
+        
+        /*
+               $data = [
+                   'id' => 1,
+                   'paidToDate' => $paidToDate,
+                   'balances' => $balances,
+                   'averageInvoice' => $averageInvoice,
+                   'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
+                   'activeClients' => $metrics ? $metrics->active_clients : 0,
+               ];
+       */
         return $this->response($data);
 
     }
