@@ -52,6 +52,7 @@ class InvoiceController extends BaseController
         $data = [
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
+            'sortCol' => '3',
             'columns' => Utils::trans([
                 'checkbox',
                 'invoice_number',
@@ -88,7 +89,7 @@ class InvoiceController extends BaseController
     {
         $account = Auth::user()->account;
         $invoice = Invoice::scope($publicId)
-                        ->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items')
+                        ->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items', 'payments')
                         ->withTrashed()
                         ->firstOrFail();
         
@@ -153,6 +154,14 @@ class InvoiceController extends BaseController
 
             if (!$invoice->is_recurring && $invoice->balance > 0) {
                 $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
+            }
+            
+            foreach ($invoice->payments as $payment) {
+                $label = trans("texts.view_payment");
+                if (count($invoice->payments) > 1) {
+                    $label .= ' - ' . $account->formatMoney($payment->amount, $invoice->client);   
+                }                
+                $actions[] = ['url' => $payment->present()->url, 'label' => $label];
             }
         }
 

@@ -52,6 +52,15 @@
     @foreach ($gateways as $gateway)
 
         <div id="gateway_{{ $gateway->id }}_div" class='gateway-fields' style="display: none">
+            @if ($gateway->getHelp())
+                <div class="form-group">
+                    <label class="control-label col-lg-4 col-sm-4"></label>
+                    <div class="col-lg-8 col-sm-8 help-block">
+                        {!! $gateway->getHelp() !!}
+                    </div>
+                </div>
+            @endif
+
             @foreach ($gateway->fields as $field => $details)
 
                 @if ($details && !$accountGateway)
@@ -64,23 +73,14 @@
                     && isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET']))
                     {{-- do nothing --}}
                 @elseif ($field == 'testMode' || $field == 'developerMode' || $field == 'sandbox')
-                    {!! Former::checkbox($gateway->id.'_'.$field)->label(Utils::toSpaceCase($field))->text('Enable')->value('true') !!}
+                    {!! Former::checkbox($gateway->id.'_'.$field)->label(ucwords(Utils::toSpaceCase($field)))->text('Enable')->value('true') !!}
                 @elseif ($field == 'username' || $field == 'password')
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
                 @else
-                    {!! Former::text($gateway->id.'_'.$field)->label($gateway->id == GATEWAY_STRIPE ? trans('texts.secret_key') : Utils::toSpaceCase($field)) !!}
+                    {!! Former::text($gateway->id.'_'.$field)->label($gateway->id == GATEWAY_STRIPE ? trans('texts.secret_key') : ucwords(Utils::toSpaceCase($field))) !!}
                 @endif
 
             @endforeach
-
-            @if ($gateway->getHelp())
-                <div class="form-group">
-                    <label class="control-label col-lg-4 col-sm-4"></label>
-                    <div class="col-lg-8 col-sm-8 help-block">
-                        {!! $gateway->getHelp() !!}
-                    </div>
-                </div>
-            @endif
 
             @if ($gateway->id == GATEWAY_STRIPE)
                 {!! Former::text('publishable_key') !!}

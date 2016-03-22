@@ -2216,7 +2216,8 @@ th:last-child {
 }
 
 tr {border: none;}
-th {border-left: 1px solid #d26b26; }
+thead th {border-left: 1px solid #d26b26;}
+tbody td {border-left: 1px solid #FFFFFF;}
 .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
 vertical-align: middle;
 border-top: none;
@@ -2526,6 +2527,16 @@ font-weight: bold;
   background-image: none;
   background-repeat: no-repeat;
   filter: none;
+}
+
+.navbar,
+.panel-default,
+ul.dropdown-menu,
+.twitter-typeahead .tt-menu,
+canvas {
+    x-moz-box-shadow: 0 0 1px 1px rgba(0,0,0,.05);
+    x-webkit-box-shadow: 0 0 1px 1px rgba(0,0,0,.05); 
+    box-shadow: 0 0 1px 1px rgba(0,0,0,.05);
 }
 
 .navbar .active > a {

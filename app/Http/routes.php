@@ -257,6 +257,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('expenses','ExpenseApiController');
     Route::post('add_token', 'AccountApiController@addDeviceToken');
     Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
+    Route::get('dashboard', 'DashboardApiController@index');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
@@ -508,6 +509,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_PAYFAST', 13);
     define('GATEWAY_PAYPAL_EXPRESS', 17);
     define('GATEWAY_PAYPAL_PRO', 18);
+    define('GATEWAY_SAGE_PAY_DIRECT', 20);
+    define('GATEWAY_SAGE_PAY_SERVER', 21);
     define('GATEWAY_STRIPE', 23);
     define('GATEWAY_GOCARDLESS', 6);
     define('GATEWAY_TWO_CHECKOUT', 27);
@@ -532,7 +535,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.5.0.4');
+    define('NINJA_VERSION', '2.5.1.1');
     define('NINJA_DATE', '2000-01-01');
 
     define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');

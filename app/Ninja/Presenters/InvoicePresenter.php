@@ -19,7 +19,7 @@ class InvoicePresenter extends Presenter {
     public function balanceDueLabel()
     {
         if ($this->entity->partial) {
-            return 'amount_due';
+            return 'partial_due';
         } elseif ($this->entity->is_quote) {
             return 'total';
         } else {

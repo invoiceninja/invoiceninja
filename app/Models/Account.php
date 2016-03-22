@@ -683,7 +683,7 @@ class Account extends Eloquent
             'subtotal',
             'paid_to_date',
             'balance_due',
-            'amount_due',
+            'partial_due',
             'terms',
             'your_invoice',
             'quote',
@@ -1023,7 +1023,7 @@ class Account extends Eloquent
         return true;
     }
 
-    public function showCustomField($field, $entity)
+    public function showCustomField($field, $entity = false)
     {
         if ($this->isPro()) {
             return $this->$field ? true : false;

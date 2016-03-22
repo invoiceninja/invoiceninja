@@ -28,45 +28,47 @@
 @include('accounts.nav', ['selected' => ACCOUNT_CLIENT_PORTAL])
 
 <div class="row">
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			<h3 class="panel-title">{!! trans('texts.client_portal') !!}</h3>
-		</div>
-		<div class="panel-body">
-			<div class="col-md-10 col-md-offset-1">
-				{!! Former::checkbox('enable_client_portal')
-					->text(trans('texts.enable'))
-					->help(trans('texts.enable_client_portal_help')) !!}
-			</div>
-			<div class="col-md-10 col-md-offset-1">
-				{!! Former::checkbox('enable_portal_password')
-					->text(trans('texts.enable_portal_password'))
-					->help(trans('texts.enable_portal_password_help'))
-					->label('&nbsp;') !!}
-			</div>
-			<div class="col-md-10 col-md-offset-1">
-				{!! Former::checkbox('send_portal_password')
-					->text(trans('texts.send_portal_password'))
-					->help(trans('texts.send_portal_password_help'))
-					->label('&nbsp;') !!}
-			</div>
-		</div>
-	</div>
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			<h3 class="panel-title">{!! trans('texts.custom_css') !!}</h3>
-		</div>
-		<div class="panel-body">
-			<div class="col-md-10 col-md-offset-1">
-				{!! Former::textarea('client_view_css')
-				->label(trans('texts.custom_css'))
-				->rows(10)
-				->raw()
-				->autofocus()
-				->maxlength(60000)
-				->style("min-width:100%;max-width:100%;font-family:'Roboto Mono', 'Lucida Console', Monaco, monospace;font-size:14px;'") !!}
-		</div>
-	</div>
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{!! trans('texts.client_portal') !!}</h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-10 col-md-offset-1">
+                    {!! Former::checkbox('enable_client_portal')
+                        ->text(trans('texts.enable'))
+                        ->help(trans('texts.enable_client_portal_help')) !!}
+                </div>
+                <div class="col-md-10 col-md-offset-1">
+                    {!! Former::checkbox('enable_portal_password')
+                        ->text(trans('texts.enable_portal_password'))
+                        ->help(trans('texts.enable_portal_password_help'))
+                        ->label('&nbsp;') !!}
+                </div>
+                <div class="col-md-10 col-md-offset-1">
+                    {!! Former::checkbox('send_portal_password')
+                        ->text(trans('texts.send_portal_password'))
+                        ->help(trans('texts.send_portal_password_help'))
+                        ->label('&nbsp;') !!}
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{!! trans('texts.custom_css') !!}</h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-10 col-md-offset-1">
+                    {!! Former::textarea('client_view_css')
+                    ->label(trans('texts.custom_css'))
+                    ->rows(10)
+                    ->raw()
+                    ->autofocus()
+                    ->maxlength(60000)
+                    ->style("min-width:100%;max-width:100%;font-family:'Roboto Mono', 'Lucida Console', Monaco, monospace;font-size:14px;'") !!}
+            </div>
+        </div>
+    </div>
 </div>
 </div>
 

@@ -247,7 +247,7 @@ class Utils
         return  "***{$class}*** [{$code}] : {$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
     }
 
-    public static function logError($error, $context = 'PHP')
+    public static function logError($error, $context = 'PHP', $info = false)
     {
         if ($error instanceof Exception) {
             $error = self::getErrorString($error);
@@ -271,7 +271,11 @@ class Utils
             'count' => Session::get('error_count', 0),
         ];
 
-        Log::error($error."\n", $data);
+        if ($info) {
+            Log::info($error."\n", $data);
+        } else {
+            Log::error($error."\n", $data);    
+        }
 
         /*
         Mail::queue('emails.error', ['message'=>$error.' '.json_encode($data)], function($message)
@@ -620,8 +624,8 @@ class Utils
 
     private static function getMonth($offset)
     {
-        $months = [ "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December", ];
+        $months = [ "january", "february", "march", "april", "may", "june",
+            "july", "august", "september", "october", "november", "december", ];
 
         $month = intval(date('n')) - 1;
 
@@ -632,7 +636,7 @@ class Utils
             $month += 12;
         }
 
-        return $months[$month];
+        return trans('texts.' . $months[$month]);
     }
 
     private static function getQuarter($offset)
