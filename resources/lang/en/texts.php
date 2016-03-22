@@ -1082,7 +1082,7 @@ $LANG = array(
     'create_all_help' => 'Allow user to create and modify records',
     'view_all_help' => 'Allow user to view records they didn\'t create',
     'edit_all_help' => 'Allow user to modify records they didn\'t create',
-    
+    'view_payment' => 'View Payment', 
     
 );
 
