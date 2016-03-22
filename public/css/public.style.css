@@ -16,14 +16,16 @@ html {
     padding-top: 18px;
     font-weight: 500;
     font-size: 15px;
+    font-weight: bold;
+    color: #ecf0f1;
     padding-left: 20px;
     padding-right: 20px;
 }
 
 .navbar {
-  -moz-box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28);
-  -webkit-box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28); 
-  box-shadow: 0 0 4px rgba(0,0,0,.14),0 4px 8px rgba(0,0,0,.28);      
+    x-moz-box-shadow: 0 0 1px 1px rgba(0,0,0,.05);
+    x-webkit-box-shadow: 0 0 1px 1px rgba(0,0,0,.05); 
+    box-shadow: 0 0 1px 1px rgba(0,0,0,.05);
 }
 
 #footer {
