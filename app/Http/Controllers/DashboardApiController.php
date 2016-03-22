@@ -161,7 +161,9 @@ class DashboardApiController extends BaseAPIController
         $data = [
             'id' => 1,
             'paidToDate' => $paidToDate[0]->value,
+            'paidToDateCurrency' => $paidToDate[0]->currency_id,
             'balances' => $balances[0]->value,
+            'balancesCurrency' => $balances[0]->currency_id,
             'averageInvoice' => $averageInvoice[0]->invoice_avg,
             'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
             'activeClients' => $metrics ? $metrics->active_clients : 0,
