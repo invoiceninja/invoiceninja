@@ -620,8 +620,8 @@ class Utils
 
     private static function getMonth($offset)
     {
-        $months = [ "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December", ];
+        $months = [ "january", "february", "march", "april", "may", "june",
+            "july", "august", "september", "october", "november", "december", ];
 
         $month = intval(date('n')) - 1;
 
@@ -632,7 +632,7 @@ class Utils
             $month += 12;
         }
 
-        return $months[$month];
+        return trans('texts.' . $months[$month]);
     }
 
     private static function getQuarter($offset)
