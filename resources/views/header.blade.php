@@ -258,38 +258,58 @@
     localStorage.setItem('auth_provider', provider);
   }
 
+  window.loadedSearchData = false;
   function showSearch() {
-    $('#search').typeahead('setQuery', '');
+    $('#search').typeahead('val', '');
     $('#navbar-options').hide();
     $('#search-form').show();
-
-    if (window.hasOwnProperty('searchData')) {
-        $('#search').focus();
-    } else {
+    $('#search').focus();
+    
+    if (!window.loadedSearchData) {
         trackEvent('/activity', '/search');
         $.get('{{ URL::route('getSearchData') }}', function(data) {
-          window.searchData = true;
-          var datasets = [];
-          for (var type in data)
-          {
-            if (!data.hasOwnProperty(type)) continue;
-            datasets.push({
-              name: type,
-              header: '&nbsp;<b>' + type  + '</b>',
-              local: data[type]
-            });
+          $('#search').typeahead({
+            hint: true,
+            highlight: true,
           }
-          if (datasets.length == 0) {
-            return;
+          @if (Auth::check() && Auth::user()->account->custom_client_label1)
+          ,{
+            name: 'data',
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->custom_client_label1 }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->custom_client_label1 }}</span>'
+            }
+          }          
+          @endif
+          @if (Auth::check() && Auth::user()->account->custom_client_label2)
+          ,{
+            name: 'data',
+            display: 'value',
+            source: searchData(data['{{ Auth::user()->account->custom_client_label2 }}'], 'tokens'),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ Auth::user()->account->custom_client_label2 }}</span>'
+            }
+          }          
+          @endif
+          @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
+          ,{
+            name: 'data',
+            display: 'value',
+            source: searchData(data['{{ $type }}'], 'tokens', true),
+            templates: {
+              header: '&nbsp;<span style="font-weight:600;font-size:16px">{{ trans("texts.{$type}") }}</span>'
+            }
           }
-          $('#search').typeahead(datasets).on('typeahead:selected', function(element, datum, name) {
-            var type = name == 'Contacts' ? 'clients' : name.toLowerCase();
-            window.location = '{{ URL::to('/') }}' + '/' + datum.entity_type + '/' + datum.public_id;
-          }).focus().typeahead('setQuery', $('#search').val());
+          @endforeach
+          ).on('typeahead:selected', function(element, datum, name) {
+            window.location = datum.url;
+          }).focus(); 
+          window.loadedSearchData = true;
         });
     }
   }
-
+  
   function hideSearch() {
     $('#search-form').hide();
     $('#navbar-options').show();
@@ -301,7 +321,9 @@
     }, 3000);
 
     $('#search').blur(function(event){
-        hideSearch();
+        if (window.loadedSearchData) {
+            hideSearch();
+        }
     });
 
     if (isStorageSupported()) {
@@ -379,18 +401,19 @@
         <span class="icon-bar"></span>
       </button>
       <a href="{{ URL::to(NINJA_WEB_URL) }}" class='navbar-brand' target="_blank">
+        {{-- Per our license, please do not remove or modify this link. --}}
         <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:20px;width:auto;padding-right:10px"/>
       </a>	    
     </div>
 
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
       <ul class="nav navbar-nav" style="font-weight: bold">
-        {!! HTML::nav_link('dashboard', 'dashboard') !!}
-        {!! HTML::menu_link('client') !!}
-        {!! HTML::menu_link('task') !!}
-        {!! HTML::menu_link('expense') !!}
-        {!! HTML::menu_link('invoice') !!}
-        {!! HTML::menu_link('payment') !!}
+        {!! Form::nav_link('dashboard', 'dashboard') !!}
+        {!! Form::menu_link('client') !!}
+        {!! Form::menu_link('task') !!}
+        {!! Form::menu_link('expense') !!}
+        {!! Form::menu_link('invoice') !!}
+        {!! Form::menu_link('payment') !!}
       </ul>
 
       <div id="navbar-options">
@@ -405,14 +428,16 @@
 
         <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-            <div id="myAccountButton" class="ellipsis" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '130' : '100' }}px">
+            <div id="myAccountButton" class="ellipsis nav-account-name" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '130' : '100' }}px;">
                 @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
                     {{ Auth::user()->account->getDisplayName() }}
                 @else
                     {{ Auth::user()->getDisplayName() }}
                 @endif
               <span class="caret"></span>
-            </div>            
+            </div>
+            <span class="glyphicon glyphicon-user nav-account-icon" style="padding-left:0px" 
+                title="{{ Auth::user()->account->getDisplayName() }}"/>            
           </button>			
           <ul class="dropdown-menu user-accounts">
             @if (session(SESSION_USER_ACCOUNTS))
@@ -448,11 +473,13 @@
                     'selected' => true,
                 ])
             @endif            
-            <li class="divider"></li>                
-            @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
-                <li>{!! link_to('/manage_companies', trans('texts.manage_companies')) !!}</li>
-            @elseif (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
-                <li>{!! link_to('/login?new_company=true', trans('texts.add_company')) !!}</li>
+            <li class="divider"></li>
+            @if (Utils::isAdmin())
+              @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
+                  <li>{!! link_to('/manage_companies', trans('texts.manage_companies')) !!}</li>
+              @elseif (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
+                  <li>{!! link_to('/login?new_company=true', trans('texts.add_company')) !!}</li>
+              @endif
             @endif
             <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
           </ul>
@@ -462,15 +489,21 @@
       
       <ul class="nav navbar-nav navbar-right navbar-settings"> 
         <li class="dropdown">
-          <a href="{{ URL::to('/settings') }}" class="dropdown-toggle">
-            <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
-          </a>
-          <ul class="dropdown-menu">
-            @foreach (\App\Models\Account::$basicSettings as $setting)
-                <li>{!! link_to('settings/' . $setting, uctrans("texts.{$setting}")) !!}</li>
-            @endforeach
-            <li><a href="{{ url('settings/' . ACCOUNT_INVOICE_SETTINGS) }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
-          </ul>
+          @if (Utils::isAdmin())
+            <a href="{{ URL::to('/settings') }}" class="dropdown-toggle">
+              <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
+            </a>
+            <ul class="dropdown-menu">
+              @foreach (\App\Models\Account::$basicSettings as $setting)
+                  <li>{!! link_to('settings/' . $setting, uctrans("texts.{$setting}")) !!}</li>
+              @endforeach
+              <li><a href="{{ url('settings/' . ACCOUNT_INVOICE_SETTINGS) }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
+            </ul>
+          @else
+            <a href="{{ URL::to('/settings/user_details') }}" class="dropdown-toggle">
+              <span class="glyphicon glyphicon-user" title="{{ trans('texts.settings') }}"/>
+            </a>
+          @endif
         </li>
       </ul>
 
@@ -498,7 +531,7 @@
       <form id="search-form" class="navbar-form navbar-right" role="search" style="display:none">
         <div class="form-group">
           <input type="text" id="search" style="width: 240px;padding-top:0px;padding-bottom:0px" 
-            class="form-control" placeholder="{{ trans('texts.search') }}">
+            class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}">
         </div>
       </form>
       
@@ -534,7 +567,7 @@
   @endif
 
   @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-    {!! HTML::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
+    {!! Form::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
   @endif
 
   @yield('content')		
@@ -736,7 +769,7 @@
   @if (Auth::user()->account->isWhiteLabel())  
     {{ trans('texts.white_labeled') }}
   @else
-    <a href="#" onclick="$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>
+    <a href="#" onclick="loadImages('#whiteLabelModal');$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>
 
     <div class="modal fade" id="whiteLabelModal" tabindex="-1" role="dialog" aria-labelledby="whiteLabelModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -751,11 +784,11 @@
             <div class="row">
                 <div class="col-md-6">
                     <h4>{{ trans('texts.before') }}</h4>
-                    {!! HTML::image('images/pro_plan/white_label_before.png', 'before', ['width' => '100%']) !!}
+                    <img src="{{ BLANK_IMAGE }}" data-src="http://ninja.dev/images/pro_plan/white_label_before.png" width="100%" alt="before">
                 </div>
                 <div class="col-md-6">
                     <h4>{{ trans('texts.after') }}</h4>
-                    {!! HTML::image('images/pro_plan/white_label_after.png', 'after', ['width' => '100%']) !!}
+                    <img src="{{ BLANK_IMAGE }}" data-src="http://ninja.dev/images/pro_plan/white_label_after.png" width="100%" alt="after">
                 </div>
             </div>
           </div>

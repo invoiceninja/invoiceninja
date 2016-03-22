@@ -26,8 +26,8 @@
 
     <div class="jumbotron">
         <h2>Invoice Ninja Setup</h2>
-        @if (version_compare(phpversion(), '5.4.0', '<'))
-            <div class="alert alert-warning">Warning: The application requires PHP >= 5.4.0</div>
+        @if (version_compare(phpversion(), '5.5.9', '<'))
+            <div class="alert alert-warning">Warning: The application requires PHP >= 5.5.9</div>
         @endif
         @if (!function_exists('proc_open'))
             <div class="alert alert-warning">Warning: <a href="http://php.net/manual/en/function.proc-open.php" target="_blank">proc_open</a> must be enabled.</div>

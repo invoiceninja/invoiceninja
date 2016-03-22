@@ -4,6 +4,12 @@ use Utils;
 use URL;
 use Auth;
 use App\Services\BaseService;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\Credit;
+use App\Models\Expense;
+use App\Models\Payment;
+use App\Models\Task;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\NinjaRepository;
 
@@ -37,6 +43,10 @@ class ClientService extends BaseService
     {
         $query = $this->clientRepo->find($search);
 
+        if(!Utils::hasPermission('view_all')){
+            $query->where('clients.user_id', '=', Auth::user()->id);
+        }
+
         return $this->createDatatable(ENTITY_CLIENT, $query);
     }
 
@@ -46,19 +56,19 @@ class ClientService extends BaseService
             [
                 'name',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->name ?: '');
+                    return link_to("clients/{$model->public_id}", $model->name ?: '')->toHtml();
                 }
             ],
             [
                 'first_name',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->first_name.' '.$model->last_name);
+                    return link_to("clients/{$model->public_id}", $model->first_name.' '.$model->last_name)->toHtml();
                 }
             ],
             [
                 'email',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->email ?: '');
+                    return link_to("clients/{$model->public_id}", $model->email ?: '')->toHtml();
                 }
             ],
             [
@@ -89,19 +99,33 @@ class ClientService extends BaseService
                 trans('texts.edit_client'),
                 function ($model) {
                     return URL::to("clients/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return Client::canEditItem($model);
                 }
             ],
-            [],
+            [
+                '--divider--', function(){return false;},
+                function ($model) {
+                    return Client::canEditItem($model) && (Task::canCreate() || Invoice::canCreate());
+                }
+            ],
             [
                 trans('texts.new_task'),
                 function ($model) {
                     return URL::to("tasks/create/{$model->public_id}");
+                },
+                function ($model) {
+                    return Task::canCreate();
                 }
             ],
             [
                 trans('texts.new_invoice'),
                 function ($model) {
                     return URL::to("invoices/create/{$model->public_id}");
+                },
+                function ($model) {
+                    return Invoice::canCreate();
                 }
             ],
             [
@@ -110,26 +134,40 @@ class ClientService extends BaseService
                     return URL::to("quotes/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->isPro();
+                    return Auth::user()->isPro() && Invoice::canCreate();
                 }
             ],
-            [],
+            [
+                '--divider--', function(){return false;},
+                function ($model) {
+                    return (Task::canCreate() || Invoice::canCreate()) && (Payment::canCreate() || Credit::canCreate() || Expense::canCreate());
+                }
+            ],
             [
                 trans('texts.enter_payment'),
                 function ($model) {
                     return URL::to("payments/create/{$model->public_id}");
+                },
+                function ($model) {
+                    return Payment::canCreate();
                 }
             ],
             [
                 trans('texts.enter_credit'),
                 function ($model) {
                     return URL::to("credits/create/{$model->public_id}");
+                },
+                function ($model) {
+                    return Credit::canCreate();
                 }
             ],
             [
                 trans('texts.enter_expense'),
                 function ($model) {
                     return URL::to("expenses/create/0/{$model->public_id}");
+                },
+                function ($model) {
+                    return Expense::canCreate();
                 }
             ]
         ];

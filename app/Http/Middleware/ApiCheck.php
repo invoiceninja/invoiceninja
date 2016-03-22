@@ -21,11 +21,15 @@ class ApiCheck {
     */
     public function handle($request, Closure $next)
     {
-        $loggingIn = $request->is('api/v1/login');
+        $loggingIn = $request->is('api/v1/login') || $request->is('api/v1/register');
         $headers = Utils::getApiHeaders();
 
         if ($loggingIn) {
-            // do nothing
+            // check API secret
+            if ( ! $request->api_secret || ! env(API_SECRET) || ! hash_equals($request->api_secret, env(API_SECRET))) {
+                sleep(ERROR_DELAY);
+                return Response::json('Invalid secret', 403, $headers);
+            }
         } else {
             // check for a valid token
             $token = AccountToken::where('token', '=', Request::header('X-Ninja-Token'))->first(['id', 'user_id']);
@@ -34,7 +38,7 @@ class ApiCheck {
                 Auth::loginUsingId($token->user_id);
                 Session::set('token_id', $token->id);
             } else {
-                sleep(3);
+                sleep(ERROR_DELAY);
                 return Response::json('Invalid token', 403, $headers);
             }
         }

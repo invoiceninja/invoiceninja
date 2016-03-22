@@ -3,6 +3,8 @@
 use Utils;
 use URL;
 use Auth;
+use App\Models\Vendor;
+use App\Models\Expense;
 use App\Services\BaseService;
 use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Repositories\NinjaRepository;
@@ -36,6 +38,10 @@ class VendorService extends BaseService
     public function getDatatable($search)
     {
         $query = $this->vendorRepo->find($search);
+        
+        if(!Utils::hasPermission('view_all')){
+            $query->where('vendors.user_id', '=', Auth::user()->id);
+        }
 
         return $this->createDatatable(ENTITY_VENDOR, $query);
     }
@@ -46,7 +52,7 @@ class VendorService extends BaseService
             [
                 'name',
                 function ($model) {
-                    return link_to("vendors/{$model->public_id}", $model->name ?: '');
+                    return link_to("vendors/{$model->public_id}", $model->name ?: '')->toHtml();
                 }
             ],
             [
@@ -64,7 +70,7 @@ class VendorService extends BaseService
             [
                 'email',
                 function ($model) {
-                    return link_to("vendors/{$model->public_id}", $model->email ?: '');
+                    return link_to("vendors/{$model->public_id}", $model->email ?: '')->toHtml();
                 }
             ],
             [
@@ -83,13 +89,25 @@ class VendorService extends BaseService
                 trans('texts.edit_vendor'),
                 function ($model) {
                     return URL::to("vendors/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return Vendor::canEditItem($model);
                 }
             ],
-            [],
+            [
+                '--divider--', function(){return false;},
+                function ($model) {
+                    return Vendor::canEditItem($model) && Expense::canCreate();
+                }
+                
+            ],
             [
                 trans('texts.enter_expense'),
                 function ($model) {
                     return URL::to("expenses/create/{$model->public_id}");
+                },
+                function ($model) {
+                    return Expense::canCreate();
                 }
             ]
         ];

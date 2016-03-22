@@ -725,8 +725,7 @@ return array(
     'primary_user' => 'Usuario Primario',
     'help' => 'Ayuda',
     'customize_help' => '<p>Nosotros usamos <a href="http://pdfmake.org/" target="_blank">pdfmake</a> para definir los diseños de las facturas de manera declarativa. El <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> de pdfmake es una excelente manera de ver a la librería en acción.</p>
-    <p>Puedes acceder cualquier campo de una factura agregando <code>Value</code> al final. Por ejemplo, <code>$invoiceNumberValue</code> muestra el número de factura.</p>
-    <p>Para acceder a una propiedad hija usando notación de punto.Por ejemplo, para mostrar el nombre de un cliente se puede usar <code>$client.nameValue</code>.</p>
+    <p>Para acceder a una propiedad hija usando notación de punto.Por ejemplo, para mostrar el nombre de un cliente se puede usar <code>$client.name</code>.</p>
     <p>Si necesitas ayuda entendiendo algo puede preguntar en nuestro <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">foro de soporte</a>.</p>',
 
     'invoice_due_date' => 'Fecha de Vencimiento',
@@ -921,7 +920,7 @@ return array(
     'notes' => 'Notes',
     'invoice_will_create' => 'client will be created',
     'invoices_will_create' => 'invoices will be created',
-    'failed_to_import' => 'The following records failed to import',
+    'failed_to_import' => 'The following records failed to import, they either already exist or are missing required fields.',
 
     'publishable_key' => 'Publishable Key',
     'secret_key' => 'Secret Key',

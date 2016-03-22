@@ -36,9 +36,11 @@ class PaymentRepository extends BaseRepository
                         'payments.transaction_reference',
                         'clients.name as client_name',
                         'clients.public_id as client_public_id',
+                        'clients.user_id as client_user_id',
                         'payments.amount',
                         'payments.payment_date',
                         'invoices.public_id as invoice_public_id',
+                        'invoices.user_id as invoice_user_id',
                         'invoices.invoice_number',
                         'contacts.first_name',
                         'contacts.last_name',
@@ -47,6 +49,7 @@ class PaymentRepository extends BaseRepository
                         'payments.account_gateway_id',
                         'payments.deleted_at',
                         'payments.is_deleted',
+                        'payments.user_id',
                         'invoices.is_deleted as invoice_is_deleted',
                         'gateways.name as gateway_name'
                     );
@@ -116,7 +119,7 @@ class PaymentRepository extends BaseRepository
     public function save($input)
     {
         $publicId = isset($input['public_id']) ? $input['public_id'] : false;
-        
+
         if ($publicId) {
             $payment = Payment::scope($publicId)->firstOrFail();
         } else {
@@ -136,7 +139,7 @@ class PaymentRepository extends BaseRepository
         } else {
             $payment->payment_date = date('Y-m-d');
         }
-         
+
         if (isset($input['transaction_reference'])) {
             $payment->transaction_reference = trim($input['transaction_reference']);
         }

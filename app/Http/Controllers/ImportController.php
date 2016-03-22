@@ -13,7 +13,7 @@ class ImportController extends BaseController
 {
     public function __construct(ImportService $importService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->importService = $importService;
     }

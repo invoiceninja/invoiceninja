@@ -72,7 +72,7 @@ class Utils
 
     public static function requireHTTPS()
     {
-        if (Request::root() === 'http://ninja.dev:8000') {
+        if (Request::root() === 'http://ninja.dev' || Request::root() === 'http://ninja.dev:8000') {
             return false;
         }
 
@@ -118,6 +118,21 @@ class Utils
         return Auth::check() && Auth::user()->isPro();
     }
 
+    public static function isAdmin()
+    {
+        return Auth::check() && Auth::user()->is_admin;
+    }
+
+    public static function hasPermission($permission, $requireAll = false)
+    {
+        return Auth::check() && Auth::user()->hasPermission($permission, $requireAll);
+    }
+
+    public static function hasAllPermissions($permission)
+    {
+        return Auth::check() && Auth::user()->hasPermissions($permission);
+    }
+
     public static function isTrial()
     {
         return Auth::check() && Auth::user()->isTrial();
@@ -126,6 +141,13 @@ class Utils
     public static function isEnglish()
     {
         return App::getLocale() == 'en';
+    }
+    
+    public static function getLocaleRegion()
+    {
+        $parts = explode('_', App::getLocale()); 
+        
+        return count($parts) ? $parts[0] : 'en';
     }
 
     public static function getUserType()
@@ -225,7 +247,7 @@ class Utils
         return  "***{$class}*** [{$code}] : {$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
     }
 
-    public static function logError($error, $context = 'PHP')
+    public static function logError($error, $context = 'PHP', $info = false)
     {
         if ($error instanceof Exception) {
             $error = self::getErrorString($error);
@@ -249,7 +271,11 @@ class Utils
             'count' => Session::get('error_count', 0),
         ];
 
-        Log::error($error."\n", $data);
+        if ($info) {
+            Log::info($error."\n", $data);
+        } else {
+            Log::error($error."\n", $data);    
+        }
 
         /*
         Mail::queue('emails.error', ['message'=>$error.' '.json_encode($data)], function($message)
@@ -598,8 +624,8 @@ class Utils
 
     private static function getMonth($offset)
     {
-        $months = [ "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December", ];
+        $months = [ "january", "february", "march", "april", "may", "june",
+            "july", "august", "september", "october", "november", "december", ];
 
         $month = intval(date('n')) - 1;
 
@@ -610,7 +636,7 @@ class Utils
             $month += 12;
         }
 
-        return $months[$month];
+        return trans('texts.' . $months[$month]);
     }
 
     private static function getQuarter($offset)
@@ -774,9 +800,11 @@ class Utils
         return $str;
     }
 
-    public static function exportData($output, $data)
+    public static function exportData($output, $data, $headers = false)
     {
-        if (count($data) > 0) {
+        if ($headers) {
+            fputcsv($output, $headers);
+        } elseif (count($data) > 0) {
             fputcsv($output, array_keys($data[0]));
         }
 

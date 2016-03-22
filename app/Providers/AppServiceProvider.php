@@ -4,9 +4,13 @@ use Session;
 use Auth;
 use Utils;
 use HTML;
+use Form;
 use URL;
 use Request;
 use Validator;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Models\Vendor;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider {
@@ -18,62 +22,74 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-        HTML::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
+        Form::macro('image_data', function($imagePath) {
+            return 'data:image/jpeg;base64,' . base64_encode(file_get_contents($imagePath));
+        });
+
+        Form::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
+            $capitalize = config('former.capitalize_translations');
             $class = ( Request::is($url) || Request::is($url.'/*') || Request::is($url2.'/*') ) ? ' class="active"' : '';
-            $title = ucwords(trans("texts.$text")) . Utils::getProLabel($text);
+            if ($capitalize) {
+              $title = ucwords(trans("texts.$text")) . Utils::getProLabel($text);
+            } else {
+              $title = trans("texts.$text")  . Utils::getProLabel($text);
+            }
             return '<li'.$class.'><a href="'.URL::to($url).'" '.$extra.'>'.$title.'</a></li>';
         });
 
-        HTML::macro('tab_link', function($url, $text, $active = false) {
+        Form::macro('tab_link', function($url, $text, $active = false) {
             $class = $active ? ' class="active"' : '';
             return '<li'.$class.'><a href="'.URL::to($url).'" data-toggle="tab">'.$text.'</a></li>';
         });
 
-        HTML::macro('menu_link', function($type) {
+        Form::macro('menu_link', function($type) {
             $types = $type.'s';
             $Type = ucfirst($type);
             $Types = ucfirst($types);
             $class = ( Request::is($types) || Request::is('*'.$type.'*')) && !Request::is('*settings*') ? ' active' : '';
 
             $str = '<li class="dropdown '.$class.'">
-                   <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>
-                   <ul class="dropdown-menu" id="menu1">
-                   <li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
-            
+                   <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>';
+                   
+            $items = [];
+                       
+            if(Auth::user()->hasPermission('create_all')){
+                   $items[] = '<li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
+            }
+                    
             if ($type == ENTITY_INVOICE) {
-                $str .= '<li class="divider"></li>
-                         <li><a href="'.URL::to('recurring_invoices').'">'.trans("texts.recurring_invoices").'</a></li>
-                         <li><a href="'.URL::to('recurring_invoices/create').'">'.trans("texts.new_recurring_invoice").'</a></li>';
+                if(!empty($items))$items[] = '<li class="divider"></li>';
+                $items[] = '<li><a href="'.URL::to('recurring_invoices').'">'.trans("texts.recurring_invoices").'</a></li>';
+                if(Invoice::canCreate())$items[] = '<li><a href="'.URL::to('recurring_invoices/create').'">'.trans("texts.new_recurring_invoice").'</a></li>';
                 if (Auth::user()->isPro()) {
-                    $str .= '<li class="divider"></li>
-                            <li><a href="'.URL::to('quotes').'">'.trans("texts.quotes").'</a></li>
-                            <li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';
+                    $items[] = '<li class="divider"></li>';
+                    $items[] = '<li><a href="'.URL::to('quotes').'">'.trans("texts.quotes").'</a></li>';
+                    if(Invoice::canCreate())$items[] = '<li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';
                 }
             } else if ($type == ENTITY_CLIENT) {
-                $str .= '<li class="divider"></li>
-                        <li><a href="'.URL::to('credits').'">'.trans("texts.credits").'</a></li>
-                        <li><a href="'.URL::to('credits/create').'">'.trans("texts.new_credit").'</a></li>';
+                if(!empty($items))$items[] = '<li class="divider"></li>';
+                $items[] = '<li><a href="'.URL::to('credits').'">'.trans("texts.credits").'</a></li>';
+                if(Credit::canCreate())$items[] = '<li><a href="'.URL::to('credits/create').'">'.trans("texts.new_credit").'</a></li>';
             } else if ($type == ENTITY_EXPENSE) {
-				$str .= '<li class="divider"></li>
-                        <li><a href="'.URL::to('vendors').'">'.trans("texts.vendors").'</a></li>
-                        <li><a href="'.URL::to('vendors/create').'">'.trans("texts.new_vendor").'</a></li>';
+				if(!empty($items))$items[] = '<li class="divider"></li>';
+                $items[] = '<li><a href="'.URL::to('vendors').'">'.trans("texts.vendors").'</a></li>';
+                if(Vendor::canCreate())$items[] = '<li><a href="'.URL::to('vendors/create').'">'.trans("texts.new_vendor").'</a></li>';
 			}
+            
+            if(!empty($items)){
+                $str.= '<ul class="dropdown-menu" id="menu1">'.implode($items).'</ul>';
+            }
 
-            $str .= '</ul>
-                  </li>';
+            $str .= '</li>';
 
             return $str;
         });
 
-        HTML::macro('image_data', function($imagePath) {
-            return 'data:image/jpeg;base64,' . base64_encode(file_get_contents($imagePath));
-        });
-
-        HTML::macro('flatButton', function($label, $color) {
+        Form::macro('flatButton', function($label, $color) {
             return '<input type="button" value="' . trans("texts.{$label}") . '" style="background-color:' . $color . ';border:0 none;border-radius:5px;padding:12px 40px;margin:0 6px;cursor:hand;display:inline-block;font-size:14px;color:#fff;text-transform:none;font-weight:bold;"/>';
         });
 
-        HTML::macro('emailViewButton', function($link = '#', $entityType = ENTITY_INVOICE) {
+        Form::macro('emailViewButton', function($link = '#', $entityType = ENTITY_INVOICE) {
             return view('partials.email_button')
                         ->with([
                             'link' => $link,
@@ -83,7 +99,7 @@ class AppServiceProvider extends ServiceProvider {
                         ->render();
         });
 
-        HTML::macro('emailPaymentButton', function($link = '#') {
+        Form::macro('emailPaymentButton', function($link = '#') {
             return view('partials.email_button')
                         ->with([
                             'link' => $link,
@@ -93,7 +109,7 @@ class AppServiceProvider extends ServiceProvider {
                         ->render();
         });
 
-        HTML::macro('breadcrumbs', function($status = false) {
+        Form::macro('breadcrumbs', function($status = false) {
             $str = '<ol class="breadcrumb">';
 
             // Get the breadcrumbs by exploding the current path.
@@ -135,7 +151,7 @@ class AppServiceProvider extends ServiceProvider {
 
             return $str . '</ol>';
         });
-
+        
         Validator::extend('positive', function($attribute, $value, $parameters) {
             return Utils::parseFloat($value) >= 0;
         });
@@ -223,11 +239,6 @@ class AppServiceProvider extends ServiceProvider {
 			'Illuminate\Contracts\Auth\Registrar',
 			'App\Services\Registrar'
 		);
-
-        $this->app->bind(
-            'App\Ninja\Import\DataImporterServiceInterface',
-            'App\Ninja\Import\FreshBooks\FreshBooksDataImporterService'
-        );
 	}
 
 }

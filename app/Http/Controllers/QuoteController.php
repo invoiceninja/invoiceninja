@@ -33,10 +33,11 @@ class QuoteController extends BaseController
     protected $invoiceRepo;
     protected $clientRepo;
     protected $invoiceService;
+    protected $model = 'App\Models\Invoice';
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
     {
-        parent::__construct();
+        // parent::__construct();
 
         $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
@@ -53,6 +54,7 @@ class QuoteController extends BaseController
         $data = [
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
+          'sortCol' => '3',
           'columns' => Utils::trans([
             'checkbox',
             'quote_number',
@@ -78,6 +80,10 @@ class QuoteController extends BaseController
 
     public function create($clientPublicId = 0)
     {
+        if(!$this->checkCreatePermission($response)){
+            return $response;
+        }
+        
         if (!Utils::isPro()) {
             return Redirect::to('/invoices/create');
         }
@@ -99,7 +105,7 @@ class QuoteController extends BaseController
             'title' => trans('texts.new_quote'),
         ];
         $data = array_merge($data, self::getViewModel());
-        
+
         return View::make('invoices.edit', $data);
     }
 
@@ -136,7 +142,7 @@ class QuoteController extends BaseController
             Session::flash('message', trans('texts.converted_to_invoice'));
             return Redirect::to('invoices/'.$clone->public_id);
         }
-        
+
         $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {

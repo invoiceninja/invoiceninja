@@ -439,7 +439,7 @@ class Account extends Eloquent
         return $height;
     }
 
-    public function createInvoice($entityType, $clientId = null)
+    public function createInvoice($entityType = ENTITY_INVOICE, $clientId = null)
     {
         $invoice = Invoice::createNew();
 
@@ -614,6 +614,28 @@ class Account extends Eloquent
         $this->save();
     }
 
+    public function loadAllData($updatedAt = null)
+    {
+        $map = [
+            'users' => [],
+            'clients' => ['contacts'],
+            'invoices' => ['invoice_items', 'user', 'client', 'payments'],
+            'products' => [],
+            'tax_rates' => [],
+            'expenses' => ['client', 'invoice', 'vendor'],
+            'payments' => ['invoice'],
+        ];
+
+        foreach ($map as $key => $values) {
+            $this->load([$key => function($query) use ($values, $updatedAt) {
+                $query->withTrashed()->with($values);
+                if ($updatedAt) {
+                    $query->where('updated_at', '>=', $updatedAt);
+                }
+            }]);
+        }        
+    }
+
     public function loadLocalizationSettings($client = false)
     {
         $this->load('timezone', 'date_format', 'datetime_format', 'language');
@@ -661,7 +683,7 @@ class Account extends Eloquent
             'subtotal',
             'paid_to_date',
             'balance_due',
-            'amount_due',
+            'partial_due',
             'terms',
             'your_invoice',
             'quote',
@@ -1001,7 +1023,7 @@ class Account extends Eloquent
         return true;
     }
 
-    public function showCustomField($field, $entity)
+    public function showCustomField($field, $entity = false)
     {
         if ($this->isPro()) {
             return $this->$field ? true : false;
@@ -1050,7 +1072,13 @@ class Account extends Eloquent
     
     public function hasLargeFont()
     {
-        return stripos($this->getBodyFontName(), 'chinese') || stripos($this->getHeaderFontName(), 'chinese');
+        foreach (['chinese', 'japanese'] as $language) {
+            if (stripos($this->getBodyFontName(), $language) || stripos($this->getHeaderFontName(), $language)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     public function getFontsUrl($protocol = ''){

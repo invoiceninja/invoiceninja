@@ -8,6 +8,9 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Events\QuoteInvitationWasApproved;
 use App\Models\Invitation;
+use App\Models\Invoice;
+use App\Models\Client;
+use App\Models\Payment;
 
 class InvoiceService extends BaseService
 {
@@ -27,15 +30,27 @@ class InvoiceService extends BaseService
         return $this->invoiceRepo;
     }
 
-    public function save($data)
+    public function save($data, $checkSubPermissions = false)
     {
         if (isset($data['client'])) {
-            $client = $this->clientRepo->save($data['client']);
-            $data['client_id'] = $client->id;
+            $can_save_client = !$checkSubPermissions;
+            if(!$can_save_client){
+                if(empty($data['client']['public_id']) || $data['client']['public_id']=='-1'){
+                    $can_save_client = Client::canCreate();
+                }
+                else{
+                    $can_save_client = Client::wherePublicId($data['client']['public_id'])->first()->canEdit();
+                }
+            }
+            
+            if($can_save_client){
+                $client = $this->clientRepo->save($data['client']);
+                $data['client_id'] = $client->id;
+            }
         }
 
-        $invoice = $this->invoiceRepo->save($data);
-        
+        $invoice = $this->invoiceRepo->save($data, $checkSubPermissions);
+
         $client = $invoice->client;
         $client->load('contacts');
         $sendInvoiceIds = [];
@@ -45,7 +60,7 @@ class InvoiceService extends BaseService
                 $sendInvoiceIds[] = $contact->id;
             }
         }
-        
+
         foreach ($client->contacts as $contact) {
             $invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
 
@@ -69,7 +84,7 @@ class InvoiceService extends BaseService
         if (!$invitation) {
             return $invoice;
         }
-        
+
         foreach ($invoice->invitations as $invoiceInvitation) {
             if ($invitation->contact_id == $invoiceInvitation->contact_id) {
                 return $invoiceInvitation->invitation_key;
@@ -79,11 +94,12 @@ class InvoiceService extends BaseService
 
     public function approveQuote($quote, $invitation = null)
     {
-        $account = Auth::user()->account;
+        $account = $quote->account;
+        
         if (!$quote->is_quote || $quote->quote_invoice_id) {
             return null;
         }
-        
+
         if ($account->auto_convert_quote || ! $account->isPro()) {
             $invoice = $this->convertQuote($quote, $invitation);
 
@@ -94,7 +110,7 @@ class InvoiceService extends BaseService
             $quote->markApproved();
 
             event(new QuoteInvitationWasApproved($quote, null, $invitation));
-            
+
             foreach ($quote->invitations as $invoiceInvitation) {
                 if ($invitation->contact_id == $invoiceInvitation->contact_id) {
                     return $invoiceInvitation->invitation_key;
@@ -108,6 +124,10 @@ class InvoiceService extends BaseService
         $query = $this->invoiceRepo->getInvoices($accountId, $clientPublicId, $entityType, $search)
                     ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE ? true : false);
 
+        if(!Utils::hasPermission('view_all')){
+            $query->where('invoices.user_id', '=', Auth::user()->id);
+        }
+        
         return $this->createDatatable($entityType, $query, !$clientPublicId);
     }
 
@@ -117,13 +137,20 @@ class InvoiceService extends BaseService
             [
                 'invoice_number',
                 function ($model) use ($entityType) {
-                    return link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)]); 
+                    if(!Invoice::canEditItem($model)){
+                        return $model->invoice_number;
+                    }
+                    
+                    return link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                 }
             ],
             [
                 'client_name',
                 function ($model) {
-                    return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model));
+                    if(!Client::canViewItemByOwner($model->client_user_id)){
+                        return Utils::getClientDisplayName($model);
+                    }
+                    return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                 },
                 ! $hideClient
             ],
@@ -159,8 +186,8 @@ class InvoiceService extends BaseService
             ],
             [
                 'invoice_status_name',
-                function ($model) {
-                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted')) : self::getStatusLabel($model);
+                function ($model) use ($entityType) {
+                    return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted'))->toHtml() : self::getStatusLabel($entityType, $model);
                 }
             ]
         ];
@@ -173,12 +200,18 @@ class InvoiceService extends BaseService
                 trans("texts.edit_{$entityType}"),
                 function ($model) use ($entityType) {
                     return URL::to("{$entityType}s/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return Invoice::canEditItem($model);
                 }
             ],
             [
                 trans("texts.clone_{$entityType}"),
                 function ($model) use ($entityType) {
                     return URL::to("{$entityType}s/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Invoice::canCreate();
                 }
             ],
             [
@@ -187,14 +220,19 @@ class InvoiceService extends BaseService
                     return URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}");
                 }
             ],
-            [],
+            [
+                '--divider--', function(){return false;},
+                function ($model) {
+                    return Invoice::canEditItem($model) || Payment::canCreate();
+                }
+            ],
             [
                 trans("texts.mark_sent"),
                 function ($model) {
                     return "javascript:markEntity({$model->public_id})";
                 },
                 function ($model) {
-                    return $model->invoice_status_id < INVOICE_STATUS_SENT;
+                    return $model->invoice_status_id < INVOICE_STATUS_SENT && Invoice::canEditItem($model);
                 }
             ],
             [
@@ -203,7 +241,7 @@ class InvoiceService extends BaseService
                     return URL::to("payments/create/{$model->client_public_id}/{$model->public_id}");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->balance > 0;
+                    return $entityType == ENTITY_INVOICE && $model->balance > 0 && Payment::canCreate();
                 }
             ],
             [
@@ -212,7 +250,7 @@ class InvoiceService extends BaseService
                     return URL::to("quotes/{$model->quote_id}/edit");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->quote_id;
+                    return $entityType == ENTITY_INVOICE && $model->quote_id && Invoice::canEditItem($model);
                 }
             ],
             [
@@ -221,7 +259,7 @@ class InvoiceService extends BaseService
                     return URL::to("invoices/{$model->quote_invoice_id}/edit");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id;
+                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && Invoice::canEditItem($model);
                 }
             ],
             [
@@ -230,18 +268,19 @@ class InvoiceService extends BaseService
                     return "javascript:convertEntity({$model->public_id})";
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id;
+                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && Invoice::canEditItem($model);
                 }
             ]
         ];
     }
 
-    private function getStatusLabel($model)
+    private function getStatusLabel($entityType, $model)
     {
         // check if invoice is overdue
         if (Utils::parseFloat($model->balance) && $model->due_date && $model->due_date != '0000-00-00') {
             if (\DateTime::createFromFormat('Y-m-d', $model->due_date) < new \DateTime("now")) {
-                return "<h4><div class=\"label label-danger\">".trans('texts.overdue')."</div></h4>";
+                $label = $entityType == ENTITY_INVOICE ? trans('texts.overdue') : trans('texts.expired');
+                return "<h4><div class=\"label label-danger\">" . $label . "</div></h4>";
             }
         }
 
@@ -266,5 +305,5 @@ class InvoiceService extends BaseService
         }
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
-    
+
 }

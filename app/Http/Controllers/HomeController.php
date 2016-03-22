@@ -17,7 +17,7 @@ class HomeController extends BaseController
 
     public function __construct(Mailer $mailer)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->mailer = $mailer;
     }

@@ -9,12 +9,14 @@
         {!! Former::text('public_id') !!}
 	</div>
 
-    @if ($entityType == ENTITY_TASK)
-        {!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
-    @endif
-    @if ($entityType == ENTITY_EXPENSE)
-        {!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
-    @endif
+	@if (\App\Models\Invoice::canCreate())
+		@if ($entityType == ENTITY_TASK)
+			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
+		@endif
+		@if ($entityType == ENTITY_EXPENSE)
+			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
+		@endif
+	@endif
 
 	{!! DropdownButton::normal(trans('texts.archive'))->withContents([
 		      ['label' => trans('texts.archive_'.$entityType), 'url' => 'javascript:submitForm("archive")'],
@@ -38,7 +40,9 @@
             {!! Button::normal(trans('texts.credits'))->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('list')) !!}
         @endif
 
-        {!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->appendIcon(Icon::create('plus-sign')) !!}
+		@if (Auth::user()->hasPermission('create_all'))
+        	{!! Button::primary(trans("texts.new_$entityType"))->asLinkTo(URL::to("/{$entityType}s/create"))->appendIcon(Icon::create('plus-sign')) !!}
+		@endif
         
 	</div>
 

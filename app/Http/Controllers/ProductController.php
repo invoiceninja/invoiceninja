@@ -21,7 +21,7 @@ class ProductController extends BaseController
 
     public function __construct(ProductService $productService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->productService = $productService;
     }

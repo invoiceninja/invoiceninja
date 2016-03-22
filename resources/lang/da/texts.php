@@ -747,8 +747,7 @@ return array(
     'primary_user' => 'Primær bruger',
     'help' => 'Hjælp',
     'customize_help' => '<p>Vi bruger <a href="http://pdfmake.org/" target="_blank">pdfmake</a> til at definere faktura design felter. pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">legeplads</a> giver en god mulighed for at se biblioteket i aktion.</p>
-                <p>Du kan tilgå alle faktura felter ved at tilføje <code>Value</code> til slutningen. For eksempel viser <code>$invoiceNumberValue</code> fakturanummeret.</p>
-                <p>For at tilgå under indstillingerne ved hjælp af dot notation. For eksempel kan man for at vise klient navnet bruge <code>$client.nameValue</code>.</p>
+                <p>For at tilgå under indstillingerne ved hjælp af dot notation. For eksempel kan man for at vise klient navnet bruge <code>$client.name</code>.</p>
                 <p>Hvis du mangler svar på nogen spørgsmål så post et spørgsmål i vores <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
 
     'invoice_due_date' => 'Due Date',
@@ -943,7 +942,7 @@ return array(
     'notes' => 'Notes',
     'invoice_will_create' => 'client will be created',
     'invoices_will_create' => 'invoices will be created',
-    'failed_to_import' => 'The following records failed to import',
+    'failed_to_import' => 'The following records failed to import, they either already exist or are missing required fields.',
 
     'publishable_key' => 'Publishable Key',
     'secret_key' => 'Secret Key',

@@ -9,7 +9,7 @@ function ViewModel(data) {
     self.expense_currency_id = ko.observable();
     self.tax_rates = ko.observableArray();
     self.tax_rates.push(new TaxRateModel());  // add blank row
-
+    self.products = {!! $products !!};
 
     self.loadClient = function(client) {
         ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
@@ -512,7 +512,11 @@ function InvoiceModel(data) {
     });
 
     self.totals.total = ko.computed(function() {
-        return self.formatMoney(self.partial() ? self.partial() : self.totals.rawTotal());
+        return self.formatMoney(self.totals.rawTotal());
+    });
+
+    self.totals.partial = ko.computed(function() {
+        return self.formatMoney(self.partial());
     });
 
     self.onDragged = function(item) {
@@ -714,6 +718,8 @@ function ItemModel(data) {
     self.notes = ko.observable('');
     self.cost = ko.observable(0);
     self.qty = ko.observable(0);
+    self.custom_value1 = ko.observable('');
+    self.custom_value2 = ko.observable('');
     self.tax_name = ko.observable('');
     self.tax_rate = ko.observable(0);
     self.task_public_id = ko.observable('');
@@ -804,5 +810,57 @@ function ItemModel(data) {
 
     this.onSelect = function() {}
 }
+
+/* Custom binding for product key typeahead */
+ko.bindingHandlers.typeahead = {
+    init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        var $element = $(element);
+        var allBindings = allBindingsAccessor();
+        
+        $element.typeahead({
+            highlight: true,
+            minLength: 0,
+        },
+        {
+            name: 'data',
+            display: allBindings.key,
+            source: searchData(allBindings.items, allBindings.key)
+        }).on('typeahead:select', function(element, datum, name) {
+            @if (Auth::user()->account->fill_products)
+                var model = ko.dataFor(this);
+                if (model.expense_public_id()) {
+                    return;
+                }
+                if (datum.notes) {
+                    model.notes(datum.notes);
+                }
+                if (datum.cost) {
+                    model.cost(accounting.toFixed(datum.cost, 2));
+                }
+                if (!model.qty()) {
+                    model.qty(1);
+                }
+                @if ($account->invoice_item_taxes)
+                    if (datum.default_tax_rate) {
+                        model.tax(self.model.getTaxRateById(datum.default_tax_rate.public_id));
+                    }
+                @endif
+            @endif
+            onItemChange();
+        }).on('typeahead:change', function(element, datum, name) {
+            var value = valueAccessor();
+            value(datum);
+            onItemChange();
+            refreshPDF(true);
+        });
+    },
+
+    update: function (element, valueAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        if (value) {
+            $(element).typeahead('val', value);
+        }
+    }
+};
 
 </script>

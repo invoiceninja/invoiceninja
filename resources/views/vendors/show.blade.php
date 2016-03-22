@@ -14,7 +14,7 @@
           }
         </style>
 
-        <script src="https://maps.googleapis.com/maps/api/js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}"></script>
     @endif
 @stop
 
@@ -142,7 +142,7 @@
     @endif
 
 	<ul class="nav nav-tabs nav-justified">
-		{!! HTML::tab_link('#expenses', trans('texts.expenses')) !!}
+		{!! Form::tab_link('#expenses', trans('texts.expenses')) !!}
 	</ul>
 
 	<div class="tab-content">

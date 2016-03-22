@@ -746,8 +746,7 @@ return array(
     'primary_user' => 'Hovedbruker',
     'help' => 'Hjelp',
     'customize_help' => '<p>Vi bruker <a href="http://pdfmake.org/" target="_blank">pdfmake</a> for å definere faktura designene deklarativt. Pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> gir en flott måte å se biblioteket i aksjon.</p>
-                        <p>Du kan få tilgang til hvilket som helst faktura felt ved å legge til <code>Value</code> i slutten. For eksempel <code>$invoiceNumberValue</code> viser faktura nummeret.</p>
-                        <p>For å få tilgang til et underelementet ved bruk av prikk notasjon. For eksempel for å vise klientens navn, kan du bruke <code>$client.nameValue</code>.</p>
+                        <p>For å få tilgang til et underelementet ved bruk av prikk notasjon. For eksempel for å vise klientens navn, kan du bruke <code>$client.name</code>.</p>
                         <p>Om du trenger hjelp til å finne ut noe, poster et spørsmål til vårt <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">brukerforum</a>.</p>',
 
     'invoice_due_date' => 'Tidsfrist',
@@ -943,7 +942,7 @@ return array(
     'notes' => 'Notes',
     'invoice_will_create' => 'client will be created',
     'invoices_will_create' => 'invoices will be created',
-    'failed_to_import' => 'The following records failed to import',
+    'failed_to_import' => 'The following records failed to import, they either already exist or are missing required fields.',
 
     'publishable_key' => 'Publishable Key',
     'secret_key' => 'Secret Key',

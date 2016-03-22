@@ -49,6 +49,7 @@ class InvoiceRepository extends BaseRepository
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                 DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'clients.public_id as client_public_id',
+                'clients.user_id as client_user_id',
                 'invoice_number',
                 'invoice_status_id',
                 'clients.name as client_name',
@@ -65,7 +66,8 @@ class InvoiceRepository extends BaseRepository
                 'invoices.quote_invoice_id',
                 'invoices.deleted_at',
                 'invoices.is_deleted',
-                'invoices.partial'
+                'invoices.partial',
+                'invoices.user_id'
             );
 
         if (!\Session::get('show_trash:'.$entityType)) {
@@ -170,7 +172,7 @@ class InvoiceRepository extends BaseRepository
             );
 
         $table = \Datatable::query($query)
-            ->addColumn('invoice_number', function ($model) use ($entityType) { return link_to('/view/'.$model->invitation_key, $model->invoice_number); })
+            ->addColumn('invoice_number', function ($model) use ($entityType) { return link_to('/view/'.$model->invitation_key, $model->invoice_number)->toHtml(); })
             ->addColumn('invoice_date', function ($model) { return Utils::fromSqlDate($model->invoice_date); })
             ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); });
 
@@ -189,7 +191,7 @@ class InvoiceRepository extends BaseRepository
             ->make();
     }
 
-    public function save($data)
+    public function save($data, $checkSubPermissions = false)
     {
         $account = \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
@@ -398,36 +400,47 @@ class InvoiceRepository extends BaseRepository
 
         foreach ($data['invoice_items'] as $item) {
             $item = (array) $item;
-            if (!$item['cost'] && !$item['product_key'] && !$item['notes']) {
+            if (empty($item['cost']) && empty($item['product_key']) && empty($item['notes']) && empty($item['custom_value1']) && empty($item['custom_value2'])) {
                 continue;
             }
 
             $task = false;
             if (isset($item['task_public_id']) && $item['task_public_id']) {
                 $task = Task::scope($item['task_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                $task->invoice_id = $invoice->id;
-                $task->client_id = $invoice->client_id;
-                $task->save();
+                if(!$checkSubPermissions || $task->canEdit()){
+                    $task->invoice_id = $invoice->id;
+                    $task->client_id = $invoice->client_id;
+                    $task->save();
+                }
             }
 
             $expense = false;
             if (isset($item['expense_public_id']) && $item['expense_public_id']) {
                 $expense = Expense::scope($item['expense_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                $expense->invoice_id = $invoice->id;
-                $expense->client_id = $invoice->client_id;
-                $expense->save();
+                if(!$checkSubPermissions || $expense->canEdit()){
+                    $expense->invoice_id = $invoice->id;
+                    $expense->client_id = $invoice->client_id;
+                    $expense->save();
+                }
             }
 
             if ($productKey = trim($item['product_key'])) {
                 if (\Auth::user()->account->update_products && ! strtotime($productKey)) {
                     $product = Product::findProductByKey($productKey);
                     if (!$product) {
-                        $product = Product::createNew();
-                        $product->product_key = trim($item['product_key']);
+                        if(!$checkSubPermissions || Product::canCreate()){
+                            $product = Product::createNew();
+                            $product->product_key = trim($item['product_key']);
+                        }
+                        else{
+                            $product = null;
+                        }
                     }
-                    $product->notes = ($task || $expense) ? '' : $item['notes'];
-                    $product->cost = $expense ? 0 : $item['cost'];
-                    $product->save();
+                    if($product && (!$checkSubPermissions || $product->canEdit())){
+                        $product->notes = ($task || $expense) ? '' : $item['notes'];
+                        $product->cost = $expense ? 0 : $item['cost'];
+                        $product->save();
+                    }
                 }
             }
 
@@ -438,6 +451,13 @@ class InvoiceRepository extends BaseRepository
             $invoiceItem->cost = Utils::parseFloat($item['cost']);
             $invoiceItem->qty = Utils::parseFloat($item['qty']);
             $invoiceItem->tax_rate = 0;
+
+            if (isset($item['custom_value1'])) {
+                $invoiceItem->custom_value1 = $item['custom_value1'];
+            }
+            if (isset($item['custom_value2'])) {
+                $invoiceItem->custom_value2 = $item['custom_value2'];
+            }
 
             if (isset($item['tax_rate']) && isset($item['tax_name']) && $item['tax_name']) {
                 $invoiceItem['tax_rate'] = Utils::parseFloat($item['tax_rate']);
@@ -603,7 +623,7 @@ class InvoiceRepository extends BaseRepository
         $invoice = Invoice::createNew($recurInvoice);
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;
-        $invoice->invoice_number = 'R'.$recurInvoice->account->getNextInvoiceNumber($recurInvoice);
+        $invoice->invoice_number = $recurInvoice->account->recurring_invoice_number_prefix . $recurInvoice->account->getNextInvoiceNumber($recurInvoice);
         $invoice->amount = $recurInvoice->amount;
         $invoice->balance = $recurInvoice->amount;
         $invoice->invoice_date = date_create()->format('Y-m-d');

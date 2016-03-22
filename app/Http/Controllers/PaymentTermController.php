@@ -22,8 +22,8 @@ class PaymentTermController extends BaseController
 
     public function __construct(PaymentTermService $paymentTermService)
     {
-        parent::__construct();
-        
+        //parent::__construct();
+
         $this->paymentTermService = $paymentTermService;
     }
 
@@ -99,5 +99,5 @@ class PaymentTermController extends BaseController
 
         return Redirect::to('settings/' . ACCOUNT_PAYMENT_TERMS);
     }
-   
+
 }
