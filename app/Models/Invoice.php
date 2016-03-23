@@ -175,6 +175,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->hasMany('App\Models\InvoiceItem')->orderBy('id');
     }
 
+    public function documents()
+    {
+        return $this->hasMany('App\Models\Document')->orderBy('id');
+    }
+
     public function invoice_status()
     {
         return $this->belongsTo('App\Models\InvoiceStatus');
@@ -385,6 +390,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'amount',
             'balance',
             'invoice_items',
+            'documents',
             'client',
             'tax_name',
             'tax_rate',

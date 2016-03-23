@@ -7,6 +7,7 @@ use App\Models\InvoiceItem;
 use App\Models\Invitation;
 use App\Models\Product;
 use App\Models\Task;
+use App\Models\Document;
 use App\Models\Expense;
 use App\Services\PaymentService;
 use App\Ninja\Repositories\BaseRepository;
@@ -396,6 +397,23 @@ class InvoiceRepository extends BaseRepository
 
         if ($publicId) {
             $invoice->invoice_items()->forceDelete();
+        }
+        
+        foreach ($data['documents'] as $document_id){
+            $document = Document::scope($document_id)->first();
+            if($document && !$checkSubPermissions || $document->canEdit()){
+                $document->invoice_id = $invoice->id;
+                $document->save();
+            }
+        }
+        
+        foreach ($invoice->documents as $document){
+            if(!in_array($document->id, $data['documents'])){
+                // Removed
+                if(!$checkSubPermissions || $document->canEdit()){
+                    $document->delete();
+                }
+            }
         }
 
         foreach ($data['invoice_items'] as $item) {

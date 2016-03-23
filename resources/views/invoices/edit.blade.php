@@ -270,6 +270,7 @@
                         <li role="presentation" class="active"><a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.note_to_client') }}</a></li>
                         <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_terms") }}</a></li>
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_footer") }}</a></li>
+                        <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_documents") }}</a></li>
                     </ul>
 
                     <div class="tab-content">
@@ -300,6 +301,16 @@
                                             <a href="#" onclick="return resetFooter()" title="'. trans('texts.reset_footer_help') .'">' . trans("texts.reset_footer") . '</a>
                                         </div>
                                     </div>') !!}
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
+                            <div id="document-upload" class="dropzone">
+                                <div class="fallback">
+                                    <input name="file" type="file" multiple />
+                                </div>
+                            </div>
+                            <div data-bind="foreach: documents">
+                                <input type="hidden" name="documents[]" data-bind="value: public_id">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -675,10 +686,12 @@
     @include('invoices.knockout')
 
 	<script type="text/javascript">
+    Dropzone.autoDiscover = false;
 
     var products = {!! $products !!};
     var clients = {!! $clients !!};
     var account = {!! Auth::user()->account !!};
+    var dropzone;
 
     var clientMap = {};
     var $clientSelect = $('select#client');
@@ -905,6 +918,43 @@
         @endif
 
         applyComboboxListeners();
+        
+        // Initialize document upload
+        dropzone = new Dropzone('#document-upload', {
+            url:{!! json_encode(url('document')) !!},
+            params:{
+                _token:"{{ Session::getToken() }}"
+            },
+            acceptedFiles:{!! json_encode(implode(',',array_keys(\App\Models\Document::$types))) !!},
+            addRemoveLinks:true,
+            maxFileSize:{{floatval(env('MAX_DOCUMENT_SIZE', DEFAULT_MAX_DOCUMENT_SIZE)/1000)}},
+            dictDefaultMessage:{!! json_encode(trans('texts.document_upload_message')) !!}
+        });
+        dropzone.on("addedfile",handleDocumentAdded);
+        dropzone.on("removedfile",handleDocumentRemoved);
+        dropzone.on("success",handleDocumentUploaded);
+        
+        for (var i=0; i<model.invoice().documents().length; i++) {
+            var document = model.invoice().documents()[i];
+            var mockFile = {
+                name:document.name(),
+                size:document.size(),
+                type:document.type(),
+                public_id:document.public_id(),
+                status:Dropzone.SUCCESS,
+                accepted:true,
+                url:document.url(),
+                mock:true,
+                index:i
+            };
+            
+            dropzone.emit('addedfile', mockFile);
+            dropzone.emit('complete', mockFile);
+            if(document.type().match(/image.*/)){
+                dropzone.emit('thumbnail', mockFile, document.url());
+            }
+            dropzone.files.push(mockFile);
+        }
 	});
 
     function onFrequencyChange(){
@@ -1261,6 +1311,21 @@
         number = number.replace('{$custom1}', client.custom_value1 ? client.custom_value1 : '');
         number = number.replace('{$custom2}', client.custom_value2 ? client.custom_value1 : '');
         model.invoice().invoice_number(number);
+    }
+        
+    function handleDocumentAdded(file){
+        if(file.mock)return;
+        file.index = model.invoice().documents().length;
+        model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
+    }
+        
+    function handleDocumentRemoved(file){
+        model.invoice().removeDocument(file.public_id);
+    }
+        
+    function handleDocumentUploaded(file, response){
+        file.public_id = response.document.public_id
+        model.invoice().documents()[file.index].update(response.document);
     }
 
 	</script>

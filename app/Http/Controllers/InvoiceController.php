@@ -23,6 +23,7 @@ use App\Models\Activity;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\DocumentRepository;
 use App\Services\InvoiceService;
 use App\Services\RecurringInvoiceService;
 use App\Http\Requests\SaveInvoiceWithClientRequest;
@@ -32,11 +33,12 @@ class InvoiceController extends BaseController
     protected $mailer;
     protected $invoiceRepo;
     protected $clientRepo;
+    protected $documentRepo;
     protected $invoiceService;
     protected $recurringInvoiceService;
     protected $model = 'App\Models\Invoice';
 
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, RecurringInvoiceService $recurringInvoiceService)
+    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService)
     {
         // parent::__construct();
 
@@ -89,7 +91,7 @@ class InvoiceController extends BaseController
     {
         $account = Auth::user()->account;
         $invoice = Invoice::scope($publicId)
-                        ->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items', 'payments')
+                        ->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items', 'documents', 'payments')
                         ->withTrashed()
                         ->firstOrFail();
         
@@ -229,7 +231,7 @@ class InvoiceController extends BaseController
             return $response;
         }
         
-       $account = Auth::user()->account;
+        $account = Auth::user()->account;
         $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
         $clientId = null;
 

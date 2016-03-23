@@ -1097,6 +1097,10 @@ $LANG = array(
     'november' => 'November',
     'december' => 'December',
     
+    // Documents
+    'invoice_documents' => 'Attached Documents',
+    'document_upload_message' => 'Drop files here or click to upload.'
+    
 );
 
 return $LANG;

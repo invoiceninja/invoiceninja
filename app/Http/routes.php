@@ -132,6 +132,9 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::post('invoices/bulk', 'InvoiceController@bulk');
     Route::post('recurring_invoices/bulk', 'InvoiceController@bulk');
 
+    Route::get('document/{public_id}/{filename?}', 'DocumentController@get');
+    Route::post('document', 'DocumentController@postUpload');
+    
     Route::get('quotes/create/{client_id?}', 'QuoteController@create');
     Route::get('quotes/{public_id}/clone', 'InvoiceController@cloneInvoice');
     Route::get('quotes/{public_id}/edit', 'InvoiceController@edit');
@@ -425,6 +428,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('MAX_IFRAME_URL_LENGTH', 250);
     define('MAX_LOGO_FILE_SIZE', 200); // KB
     define('MAX_FAILED_LOGINS', 10);
+    define('DEFAULT_MAX_DOCUMENT_SIZE', 10000);// KB
     define('DEFAULT_FONT_SIZE', 9);
     define('DEFAULT_HEADER_FONT', 1);// Roboto
     define('DEFAULT_BODY_FONT', 1);// Roboto
