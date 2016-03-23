@@ -270,7 +270,9 @@
                         <li role="presentation" class="active"><a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.note_to_client') }}</a></li>
                         <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_terms") }}</a></li>
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_footer") }}</a></li>
+                        @if (Auth::user()->account->isPro())
                         <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_documents") }}</a></li>
+                        @endif
                     </ul>
 
                     <div class="tab-content">
@@ -302,6 +304,7 @@
                                         </div>
                                     </div>') !!}
                         </div>
+                        @if (Auth::user()->account->isPro())
                         <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
                             <div id="document-upload" class="dropzone">
                                 <div class="fallback">
@@ -312,6 +315,7 @@
                                 <input type="hidden" name="documents[]" data-bind="value: public_id">
                             </div>
                         </div>
+                        @endif
                     </div>
                 </div>
 
@@ -919,6 +923,7 @@
 
         applyComboboxListeners();
         
+        @if (Auth::user()->account->isPro())
         // Initialize document upload
         dropzone = new Dropzone('#document-upload', {
             url:{!! json_encode(url('document')) !!},
@@ -955,6 +960,7 @@
             }
             dropzone.files.push(mockFile);
         }
+        @endif
 	});
 
     function onFrequencyChange(){
@@ -1313,6 +1319,7 @@
         model.invoice().invoice_number(number);
     }
         
+    @if (Auth::user()->account->isPro())
     function handleDocumentAdded(file){
         if(file.mock)return;
         file.index = model.invoice().documents().length;
@@ -1327,6 +1334,7 @@
         file.public_id = response.document.public_id
         model.invoice().documents()[file.index].update(response.document);
     }
+    @endif
 
 	</script>
 

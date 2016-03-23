@@ -48,6 +48,10 @@ class DocumentController extends BaseController
     
     public function postUpload()
     {
+        if (!Auth::user()->account->isPro()) {
+            return;
+        }
+        
         if(!$this->checkCreatePermission($response)){
             return $response;
         }
