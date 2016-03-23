@@ -71,8 +71,9 @@ class DocumentRepository extends BaseRepository
         $documentType = Document::$extensions[$extension];
         $filePath = $uploaded->path();
         $name = $uploaded->getClientOriginalName();
+        $size = filesize($filePath);
         
-        if(filesize($filePath)/1000 > MAX_DOCUMENT_SIZE){
+        if($size/1000 > MAX_DOCUMENT_SIZE){
             return Response::json([
                 'error' => 'File too large',
                 'code' => 400
@@ -87,7 +88,9 @@ class DocumentRepository extends BaseRepository
         $document = Document::createNew();
         $disk = $document->getDisk();
         if(!$disk->exists($filename)){// Have we already stored the same file
-            $disk->put($filename, file_get_contents($filePath));
+            $stream = fopen($filePath, 'r');
+            $disk->put($filename, $stream);
+            fclose($stream);
         }
         
         // This is an image; check if we need to create a preview
@@ -100,10 +103,8 @@ class DocumentRepository extends BaseRepository
             if(in_array($documentType, array('image/gif','image/bmp','image/tiff'))){
                 // Needs to be converted
                 $makePreview = true;
-            } else {
-                if($width > DOCUMENT_PREVIEW_SIZE || $height > DOCUMENT_PREVIEW_SIZE){
-                    $makePreview = true;
-                }                
+            } else if($width > DOCUMENT_PREVIEW_SIZE || $height > DOCUMENT_PREVIEW_SIZE){
+                $makePreview = true;              
             }
             
             if($documentType == 'image/bmp' || $documentType == 'image/tiff'){
@@ -156,7 +157,7 @@ class DocumentRepository extends BaseRepository
         
         $document->path = $filename;
         $document->type = $documentType;
-        $document->size = filesize($filePath);
+        $document->size = $size;
         $document->name = substr($name, -255);
         
         if(!empty($imageSize)){
