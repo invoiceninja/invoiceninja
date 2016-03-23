@@ -7,10 +7,12 @@ use URL;
 use Input;
 use Utils;
 use Request;
+use Response;
 use Session;
 use Datatable;
 use App\Models\Gateway;
 use App\Models\Invitation;
+use App\Models\Document;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ActivityRepository;
@@ -22,8 +24,9 @@ class PublicClientController extends BaseController
 {
     private $invoiceRepo;
     private $paymentRepo;
+    private $documentRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo, PaymentService $paymentService)
+    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo,  PaymentService $paymentService)
     {
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
@@ -371,6 +374,45 @@ class PublicClientController extends BaseController
         }
 
         return $invitation;
+    }
+    
+    
+    
+    public function getDocumentVFSJS($publicId, $name){
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+        
+        $clientId = $invitation->invoice->client_id;
+        $document = Document::scope($publicId, $invitation->account_id)->first();
+        
+                
+        if(!$document || substr($document->type, 0, 6) != 'image/'){
+            return Response::view('error', array('error'=>'Image does not exist!'), 404);
+        }
+        
+        $authorized = false;
+        if($document->expense && $document->expense->client_id == $invitation->invoice->client_id){
+            $authorized = true;
+        } else if($document->invoice && $document->invoice->client_id == $invitation->invoice->client_id){
+            $authorized = true;
+        }
+        
+        if(!$authorized){
+            return Response::view('error', array('error'=>'Not authorized'), 403);
+        }        
+        
+        if(substr($name, -3)=='.js'){
+            $name = substr($name, 0, -3);
+        }
+        
+        $content = $document->preview?$document->getRawPreview():$document->getRaw();
+        $content = 'ninjaAddVFSDoc('.json_encode(intval($publicId).'/'.strval($name)).',"'.base64_encode($content).'")';
+        $response = Response::make($content, 200);
+        $response->header('content-type', 'text/javascript');
+        $response->header('cache-control', 'max-age=31536000');
+        
+        return $response;
     }
 
 }

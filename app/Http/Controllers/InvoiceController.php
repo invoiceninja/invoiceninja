@@ -536,7 +536,7 @@ class InvoiceController extends BaseController
     public function invoiceHistory($publicId)
     {
         $invoice = Invoice::withTrashed()->scope($publicId)->firstOrFail();
-        $invoice->load('user', 'invoice_items', 'account.country', 'client.contacts', 'client.country');
+        $invoice->load('user', 'invoice_items', 'documents', 'account.country', 'client.contacts', 'client.country');
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->is_pro = Auth::user()->isPro();

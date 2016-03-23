@@ -45,7 +45,11 @@
         @endif
 
 		<div class="clearfix"></div><p>&nbsp;</p>
-
+        @if ($account->isPro() && $account->invoice_embed_documents)
+            @foreach ($invoice->documents as $document)
+                <script src="{{ $document->getClientVFSJSUrl() }}" type="text/javascript" {{ Input::has('phantomjs')?'':'async' }}></script>
+            @endforeach
+        @endif
 		<script type="text/javascript">
 
 			window.invoice = {!! $invoice->toJson() !!};
@@ -90,6 +94,5 @@
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>
 
-	</div>	
-
+	</div>
 @stop

@@ -600,7 +600,7 @@ class InvoiceRepository extends BaseRepository
             return false;
         }
 
-        $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
+        $invoice->load('user', 'invoice_items', 'documents', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
         $client = $invoice->client;
 
         if (!$client || $client->is_deleted) {

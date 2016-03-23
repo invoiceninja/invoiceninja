@@ -270,7 +270,7 @@
                         <li role="presentation" class="active"><a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.note_to_client') }}</a></li>
                         <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_terms") }}</a></li>
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_footer") }}</a></li>
-                        @if (Auth::user()->account->isPro())
+                        @if ($account->isPro())
                         <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_documents") }}</a></li>
                         @endif
                     </ul>
@@ -304,7 +304,7 @@
                                         </div>
                                     </div>') !!}
                         </div>
-                        @if (Auth::user()->account->isPro())
+                        @if ($account->isPro())
                         <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
                             <div id="document-upload" class="dropzone">
                                 <div class="fallback">
@@ -1319,7 +1319,7 @@
         model.invoice().invoice_number(number);
     }
         
-    @if (Auth::user()->account->isPro())
+    @if ($account->isPro())
     function handleDocumentAdded(file){
         if(file.mock)return;
         file.index = model.invoice().documents().length;
@@ -1328,14 +1328,21 @@
         
     function handleDocumentRemoved(file){
         model.invoice().removeDocument(file.public_id);
+        refreshPDF(true);
     }
         
     function handleDocumentUploaded(file, response){
         file.public_id = response.document.public_id
         model.invoice().documents()[file.index].update(response.document);
+        refreshPDF(true);
     }
     @endif
 
 	</script>
+    @if ($account->isPro() && $account->invoice_embed_documents)
+        @foreach ($invoice->documents as $document)
+            <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
+        @endforeach
+    @endif
 
 @stop

@@ -132,6 +132,14 @@ class Document extends EntityModel
         return url('document/'.$this->public_id.'/'.$this->name);
     }
     
+    public function getVFSJSUrl(){
+        return url('document/js/'.$this->public_id.'/'.$this->name.'.js');
+    }
+    
+    public function getClientVFSJSUrl(){
+        return url('client/document/js/'.$this->public_id.'/'.$this->name.'.js');
+    }
+    
     public function getPreviewUrl(){
         return $this->preview?url('document/preview/'.$this->public_id.'/'.$this->name.'.'.pathinfo($this->preview, PATHINFO_EXTENSION)):null;
     }

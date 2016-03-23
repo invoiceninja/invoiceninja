@@ -1099,8 +1099,9 @@ $LANG = array(
     
     // Documents
     'invoice_documents' => 'Attached Documents',
-    'document_upload_message' => 'Drop files here or click to upload.'
-    
+    'document_upload_message' => 'Drop files here or click to upload.',
+    'invoice_embed_documents' => 'Embed Documents',
+    'invoice_embed_documents_help' => 'Include attached images in the invoice.',    
 );
 
 return $LANG;

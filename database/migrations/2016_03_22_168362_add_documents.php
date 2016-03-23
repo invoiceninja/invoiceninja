@@ -10,14 +10,15 @@ class AddDocuments extends Migration {
 	 */
 	public function up()
 	{
-		/*Schema::table('accounts', function($table) {
+		Schema::table('accounts', function($table) {
 			$table->string('logo')->nullable()->default(null);
 			$table->unsignedInteger('logo_width');
 			$table->unsignedInteger('logo_height');
 			$table->unsignedInteger('logo_size');
+			$table->boolean('invoice_embed_documents')->default(1);
 		});
 		
-		DB::table('accounts')->update(array('logo' => ''));*/
+		DB::table('accounts')->update(array('logo' => ''));
 		Schema::dropIfExists('documents');
 		Schema::create('documents', function($t)
         {
@@ -59,6 +60,7 @@ class AddDocuments extends Migration {
 			$table->dropColumn('logo_width');
 			$table->dropColumn('logo_height');
 			$table->dropColumn('logo_size');
+			$table->dropColumn('invoice_embed_documents');
 		});
 		
 		Schema::dropIfExists('documents');

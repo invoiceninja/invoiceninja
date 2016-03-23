@@ -56,5 +56,10 @@
     <br/>&nbsp;<br/>
 
     @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
-
+    
+    @if (Auth::user()->account->isPro() && Auth::user()->account->invoice_embed_documents)
+        @foreach ($invoice->documents as $document)
+            <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
+        @endforeach
+    @endif
 @stop

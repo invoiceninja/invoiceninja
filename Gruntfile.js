@@ -171,7 +171,7 @@ module.exports = function(grunt) {
           'public/js/pdf_viewer.js',
           'public/js/compatibility.js',
           'public/js/pdfmake.min.js',
-          'public/js/vfs_fonts.js',
+          'public/js/vfs.js',
         ],
         dest: 'public/pdf.built.js',
         nonull: true

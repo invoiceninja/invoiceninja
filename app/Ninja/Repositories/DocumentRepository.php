@@ -94,12 +94,14 @@ class DocumentRepository extends BaseRepository
         if(in_array($documentType, array('image/jpeg','image/png','image/gif','image/bmp','image/tiff'))){
             $makePreview = false;
             $imageSize = getimagesize($filePath);
+            $width = $imageSize[0];
+            $height = $imageSize[1];
             $imgManagerConfig = array();
             if(in_array($documentType, array('image/gif','image/bmp','image/tiff'))){
                 // Needs to be converted
                 $makePreview = true;
             } else {
-                if($imageSize[0] > DOCUMENT_PREVIEW_SIZE || $imageSize[1] > DOCUMENT_PREVIEW_SIZE){
+                if($width > DOCUMENT_PREVIEW_SIZE || $height > DOCUMENT_PREVIEW_SIZE){
                     $makePreview = true;
                 }                
             }
@@ -126,14 +128,30 @@ class DocumentRepository extends BaseRepository
                     $imgManager = new ImageManager($imgManagerConfig);
                     
                     $img = $imgManager->make($filePath);
-                    $img->fit(DOCUMENT_PREVIEW_SIZE, DOCUMENT_PREVIEW_SIZE, function ($constraint) {
-                        $constraint->upsize();
-                    });
+                    
+                    if($width <= DOCUMENT_PREVIEW_SIZE && $height <= DOCUMENT_PREVIEW_SIZE){
+                        $previewWidth = $width;
+                        $previewHeight = $height;
+                    } else if($width > $height) {
+                        $previewWidth = DOCUMENT_PREVIEW_SIZE;
+                        $previewHeight = $height * DOCUMENT_PREVIEW_SIZE / $width;
+                    } else {
+                        $previewHeight = DOCUMENT_PREVIEW_SIZE;
+                        $previewWidth = $width * DOCUMENT_PREVIEW_SIZE / $height;
+                    }
+                    
+                    $img->resize($previewWidth, $previewHeight);
                     
                     $previewContent = (string) $img->encode($previewType);
                     $disk->put($document->preview, $previewContent);
+                    $base64 = base64_encode($previewContent);
                 }
-            }            
+                else{
+                    $base64 = base64_encode($disk->get($document->preview));
+                }
+            }else{
+                $base64 = base64_encode(file_get_contents($filePath));
+            }      
         }
         
         $document->path = $filename;
@@ -147,11 +165,16 @@ class DocumentRepository extends BaseRepository
         }
         
         $document->save();
+        $doc_array = $document->toArray();
         
+        if(!empty($base64)){
+            $mime = !empty($previewType)?Document::$extensions[$previewType]:$documentType;
+            $doc_array['base64'] = 'data:'.$mime.';base64,'.$base64;
+        }
 
         return Response::json([
             'error' => false,
-            'document' => $document,
+            'document' => $doc_array,
             'code'  => 200
         ], 200);
     }

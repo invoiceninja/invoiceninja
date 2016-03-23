@@ -47,6 +47,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/invoices', 'PublicClientController@invoiceIndex');
     Route::get('client/payments', 'PublicClientController@paymentIndex');
     Route::get('client/dashboard', 'PublicClientController@dashboard');
+    Route::get('client/document/js/{public_id}/{filename}', 'PublicClientController@getDocumentVFSJS');
 });
 
 Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
@@ -133,6 +134,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::post('recurring_invoices/bulk', 'InvoiceController@bulk');
 
     Route::get('document/{public_id}/{filename?}', 'DocumentController@get');
+    Route::get('document/js/{public_id}/{filename}', 'DocumentController@getVFSJS');
     Route::get('document/preview/{public_id}/{filename?}', 'DocumentController@getPreview');
     Route::post('document', 'DocumentController@postUpload');
     
@@ -430,7 +432,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('MAX_LOGO_FILE_SIZE', 200); // KB
     define('MAX_FAILED_LOGINS', 10);
     define('MAX_DOCUMENT_SIZE', env('MAX_DOCUMENT_SIZE', 10000));// KB
-    define('DOCUMENT_PREVIEW_SIZE', env('DOCUMENT_PREVIEW_SIZE', 150));// pixels
+    define('DOCUMENT_PREVIEW_SIZE', env('DOCUMENT_PREVIEW_SIZE', 300));// pixels
     define('DEFAULT_FONT_SIZE', 9);
     define('DEFAULT_HEADER_FONT', 1);// Roboto
     define('DEFAULT_BODY_FONT', 1);// Roboto

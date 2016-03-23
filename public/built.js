@@ -31101,11 +31101,12 @@ function GetPdfMake(invoice, javascript, callback) {
 
     function addFont(font){
         if(window.ninjaFontVfs[font.folder]){
+            folder = 'fonts/'+font.folder;
             pdfMake.fonts[font.name] = {
-                normal: font.folder+'/'+font.normal,
-                italics: font.folder+'/'+font.italics,
-                bold: font.folder+'/'+font.bold,
-                bolditalics: font.folder+'/'+font.bolditalics
+                normal: folder+'/'+font.normal,
+                italics: folder+'/'+font.italics,
+                bold: folder+'/'+font.bold,
+                bolditalics: folder+'/'+font.bolditalics
             }
         }
     }
@@ -31136,6 +31137,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'invoiceDetailsHeight': (NINJA.invoiceDetails(invoice).length * 16) + 16,
         'invoiceLineItems': NINJA.invoiceLines(invoice),
         'invoiceLineItemColumns': NINJA.invoiceColumns(invoice),
+        'invoiceDocuments' : NINJA.invoiceDocuments(invoice),
         'quantityWidth': NINJA.quantityWidth(invoice),
         'taxWidth': NINJA.taxWidth(invoice),
         'clientDetails': NINJA.clientDetails(invoice),
@@ -31391,6 +31393,31 @@ NINJA.invoiceLines = function(invoice) {
     }   
 
     return NINJA.prepareDataTable(grid, 'invoiceItems');
+}
+
+NINJA.invoiceDocuments = function(invoice) {
+    if(!invoice.documents || !invoice.account.invoice_embed_documents)return[];
+    var stack = [];
+    var stackItem = null;
+    
+    var j = 0;
+    for (var i = 0; i < invoice.documents.length; i++) {
+        var document = invoice.documents[i];
+        var path = document.base64;
+        if(!path && (document.preview_url || document.type == 'image/png' || document.type == 'image/jpeg')){
+            path = 'docs/'+document.public_id+'/'+document.name;
+        }
+        if(path && (window.pdfMake.vfs[path] || document.base64)){
+            if(j%3==0){
+                stackItem = {columns:[]};
+                stack.push(stackItem);
+            }
+            stackItem.columns.push({stack:[{image:path,style:'invoiceDocument',fit:[150,150]}], width:175})
+            j++;
+        }
+    }   
+
+    return {stack:stack};
 }
 
 NINJA.subtotals = function(invoice, hideBalance)
