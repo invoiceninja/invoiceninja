@@ -651,6 +651,7 @@ class AccountController extends BaseController
                 $account->subdomain = $subdomain;
                 $account->iframe_url = $iframeURL;
                 $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
+                $account->document_email_attachment = Input::get('document_email_attachment') ? true : false;
                 $account->email_design_id = Input::get('email_design_id');
 
                 if (Utils::isNinja()) {

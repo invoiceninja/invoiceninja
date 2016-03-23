@@ -59,9 +59,26 @@ class ContactMailer extends Mailer
         if ($account->attatchPDF() && !$pdfString) {
             $pdfString = $invoice->getPDFString();
         }
+        
+        $documentStrings = array();
+        if ($account->document_email_attachment && !empty($invoice->documents)) {
+            $documents = $invoice->documents->sortBy('size');
+                        
+            $size = 0;
+            $maxSize = MAX_EMAIL_DOCUMENTS_SIZE * 1000;
+            foreach($documents as $document){
+                $size += $document->size;
+                if($size > $maxSize)break;
+                
+                $documentStrings[] = array(
+                    'name' => $document->name,
+                    'data' => $document->getRaw(),
+                );
+            }
+        }
 
         foreach ($invoice->invitations as $invitation) {
-            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString);
+            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings);
             if ($response === true) {
                 $sent = true;
             }
@@ -80,7 +97,7 @@ class ContactMailer extends Mailer
         return $response;
     }
 
-    private function sendInvitation($invitation, $invoice, $body, $subject, $pdfString)
+    private function sendInvitation($invitation, $invoice, $body, $subject, $pdfString, $documentStrings)
     {
         $client = $invoice->client;
         $account = $invoice->account;
@@ -127,6 +144,7 @@ class ContactMailer extends Mailer
             'account' => $account,
             'client' => $client,
             'invoice' => $invoice,
+            'documents' => $documentStrings,
         ];
 
         if ($account->attatchPDF()) {
