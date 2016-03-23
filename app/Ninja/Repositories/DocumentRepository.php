@@ -5,7 +5,7 @@ use Utils;
 use Response;
 use App\Models\Document;
 use App\Ninja\Repositories\BaseRepository;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
 use Session;
 
 class DocumentRepository extends BaseRepository
@@ -20,8 +20,6 @@ class DocumentRepository extends BaseRepository
     {
         return Document::scope()
                 ->with('user')
-                ->withTrashed()
-                ->where('is_deleted', '=', false)
                 ->get();
     }
 
@@ -72,48 +70,80 @@ class DocumentRepository extends BaseRepository
         
         $documentType = Document::$extensions[$extension];
         $filePath = $uploaded->path();
-        $fileContents = null;
         $name = $uploaded->getClientOriginalName();
         
-        if(filesize($filePath)/1000 > env('MAX_DOCUMENT_SIZE', DEFAULT_MAX_DOCUMENT_SIZE)){
+        if(filesize($filePath)/1000 > MAX_DOCUMENT_SIZE){
             return Response::json([
                 'error' => 'File too large',
                 'code' => 400
             ], 400);
         }
         
-        if($documentType == 'image/gif'){
-            // Convert gif to png
-            $img = Image::make($filePath);
-            
-            $fileContents = (string) $img->encode('png');
-            $documentType = 'image/png';
-            $name = pathinfo($name)['filename'].'.png';
-        }
-        
         $documentTypeData = Document::$types[$documentType];
         
-        
-        $hash = $fileContents?sha1($fileContents):sha1_file($filePath);
+        $hash = sha1_file($filePath);
         $filename = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentTypeData['extension'];
                 
         $document = Document::createNew();
         $disk = $document->getDisk();
         if(!$disk->exists($filename)){// Have we already stored the same file
-            $disk->put($filename, $fileContents?$fileContents:file_get_contents($filePath));
+            $disk->put($filename, file_get_contents($filePath));
+        }
+        
+        // This is an image; check if we need to create a preview
+        if(in_array($documentType, array('image/jpeg','image/png','image/gif','image/bmp','image/tiff'))){
+            $makePreview = false;
+            $imageSize = getimagesize($filePath);
+            $imgManagerConfig = array();
+            if(in_array($documentType, array('image/gif','image/bmp','image/tiff'))){
+                // Needs to be converted
+                $makePreview = true;
+            } else {
+                if($imageSize[0] > DOCUMENT_PREVIEW_SIZE || $imageSize[1] > DOCUMENT_PREVIEW_SIZE){
+                    $makePreview = true;
+                }                
+            }
+            
+            if($documentType == 'image/bmp' || $documentType == 'image/tiff'){
+                if(!class_exists('Imagick')){
+                    // Cant't read this
+                    $makePreview = false;
+                } else {
+                    $imgManagerConfig['driver'] = 'imagick';
+                }                
+            }
+            
+            if($makePreview){
+                $previewType = 'jpg';
+                if(in_array($documentType, array('image/png','image/gif','image/bmp','image/tiff'))){
+                    // Has transparency
+                    $previewType = 'png';
+                }
+                    
+                $document->preview = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentTypeData['extension'].'.x'.DOCUMENT_PREVIEW_SIZE.'.'.$previewType;
+                if(!$disk->exists($document->preview)){
+                    // We haven't created a preview yet
+                    $imgManager = new ImageManager($imgManagerConfig);
+                    
+                    $img = $imgManager->make($filePath);
+                    $img->fit(DOCUMENT_PREVIEW_SIZE, DOCUMENT_PREVIEW_SIZE, function ($constraint) {
+                        $constraint->upsize();
+                    });
+                    
+                    $previewContent = (string) $img->encode($previewType);
+                    $disk->put($document->preview, $previewContent);
+                }
+            }            
         }
         
         $document->path = $filename;
         $document->type = $documentType;
-        $document->size = $fileContents?strlen($fileContents):filesize($filePath);
+        $document->size = filesize($filePath);
         $document->name = substr($name, -255);
         
-        if(!empty($documentTypeData['image'])){
-            $imageSize = getimagesize($filePath);
-            if($imageSize){
-                $document->width = $imageSize[0];
-                $document->height = $imageSize[1];
-            }
+        if(!empty($imageSize)){
+            $document->width = $imageSize[0];
+            $document->height = $imageSize[1];
         }
         
         $document->save();

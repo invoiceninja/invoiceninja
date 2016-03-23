@@ -62,7 +62,7 @@ return [
 			'driver' => 's3',
 			'key'    => env('S3_KEY', ''),
 			'secret' => env('S3_SECRET', ''),
-			'region' => env('S3_REGION', ''),
+			'region' => env('S3_REGION', 'us-east-1'),
 			'bucket' => env('S3_BUCKET', ''),
 		],
 
@@ -72,7 +72,7 @@ return [
 			'key'       => env('RACKSPACE_KEY', ''),
 			'container' => env('RACKSPACE_CONTAINER', ''),
 			'endpoint'  => env('RACKSPACE_ENDPOINT', 'https://identity.api.rackspacecloud.com/v2.0/'),
-			'region'    => env('RACKSPACE_REGION', 'https://identity.api.rackspacecloud.com/v2.0/'),
+			'region'    => env('RACKSPACE_REGION', 'IAD'),
 			'url_type'  => env('RACKSPACE_URL_TYPE', 'publicURL')
 		],
 

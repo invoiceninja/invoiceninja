@@ -27,16 +27,15 @@ class DocumentController extends BaseController
     public function get($publicId)
     {
         $document = Document::scope($publicId)
-                        ->withTrashed()
                         ->firstOrFail();
         
         if(!$this->checkViewPermission($document, $response)){
             return $response;
         }
         
-        $public_url = $document->getPublicUrl();
-        if($public_url){
-            return redirect($public_url);
+        $direct_url = $document->getDirectUrl();
+        if($direct_url){
+            return redirect($direct_url);
         }
         
         
@@ -46,9 +45,34 @@ class DocumentController extends BaseController
         return $response;
     }
     
+    public function getPreview($publicId)
+    {
+        $document = Document::scope($publicId)
+                        ->firstOrFail();
+        
+        if(!$this->checkViewPermission($document, $response)){
+            return $response;
+        }
+        
+        if(empty($document->preview)){
+            return Response::view('error', array('error'=>'Preview does not exist!'), 404);
+        }
+        
+        $direct_url = $document->getDirectPreviewUrl();
+        if($direct_url){
+            return redirect($direct_url);
+        }
+        
+        $extension = pathinfo($document->preview, PATHINFO_EXTENSION);
+        $response = Response::make($document->getRawPreview(), 200);
+        $response->header('content-type', Document::$extensions[$extension]);
+        
+        return $response;
+    }
+    
     public function postUpload()
     {
-        if (!Auth::user()->account->isPro()) {
+        if (!Utils::isPro()) {
             return;
         }
         

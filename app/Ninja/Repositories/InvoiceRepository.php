@@ -399,7 +399,8 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_items()->forceDelete();
         }
         
-        foreach ($data['documents'] as $document_id){
+        $document_ids = !empty($data['documents'])?array_map('intval', $data['documents']):array();;
+        foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
             if($document && !$checkSubPermissions || $document->canEdit()){
                 $document->invoice_id = $invoice->id;
@@ -408,7 +409,7 @@ class InvoiceRepository extends BaseRepository
         }
         
         foreach ($invoice->documents as $document){
-            if(!in_array($document->id, $data['documents'])){
+            if(!in_array($document->public_id, $document_ids)){
                 // Removed
                 if(!$checkSubPermissions || $document->canEdit()){
                     $document->delete();

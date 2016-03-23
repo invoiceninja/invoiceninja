@@ -28,6 +28,7 @@ class AddDocuments extends Migration {
             $t->unsignedInteger('invoice_id')->nullable();
             $t->unsignedInteger('expense_id')->nullable();
             $t->string('path');
+			$t->string('preview');
 			$t->string('name');
 			$t->string('type');
 			$t->string('disk');
@@ -36,7 +37,6 @@ class AddDocuments extends Migration {
 			$t->unsignedInteger('height')->nullable();
 
             $t->timestamps();
-            $t->softDeletes();
 
             $t->foreign('account_id')->references('id')->on('accounts');
 			$t->foreign('user_id')->references('id')->on('users');

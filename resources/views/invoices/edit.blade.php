@@ -932,7 +932,7 @@
             },
             acceptedFiles:{!! json_encode(implode(',',array_keys(\App\Models\Document::$types))) !!},
             addRemoveLinks:true,
-            maxFileSize:{{floatval(env('MAX_DOCUMENT_SIZE', DEFAULT_MAX_DOCUMENT_SIZE)/1000)}},
+            maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
             dictDefaultMessage:{!! json_encode(trans('texts.document_upload_message')) !!}
         });
         dropzone.on("addedfile",handleDocumentAdded);
@@ -948,7 +948,7 @@
                 public_id:document.public_id(),
                 status:Dropzone.SUCCESS,
                 accepted:true,
-                url:document.url(),
+                url:document.preview_url()||document.url(),
                 mock:true,
                 index:i
             };
@@ -956,7 +956,7 @@
             dropzone.emit('addedfile', mockFile);
             dropzone.emit('complete', mockFile);
             if(document.type().match(/image.*/)){
-                dropzone.emit('thumbnail', mockFile, document.url());
+                dropzone.emit('thumbnail', mockFile, document.preview_url()||document.url());
             }
             dropzone.files.push(mockFile);
         }

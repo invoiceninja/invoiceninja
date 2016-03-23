@@ -6,6 +6,7 @@ use Session;
 use DateTime;
 use Event;
 use Cache;
+use Document;
 use App;
 use File;
 use App\Events\UserSettingsChanged;
@@ -393,7 +394,7 @@ class Account extends Eloquent
     }
     
     public function getLogoDisk(){
-        return Storage::disk(env('LOGO_DISK', 'logos'));
+        return Storage::disk(env('LOGO_FILESYSTEM', 'logos'));
     }
     
     protected function calculateLogoDetails(){
@@ -442,7 +443,7 @@ class Account extends Eloquent
             }
         }
         
-        return null;
+        Document::getDirectFileUrl($this->logo, $this->getDisk());
     }
 
     public function getToken($name)
