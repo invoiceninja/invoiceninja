@@ -34,6 +34,7 @@ class AddDocuments extends Migration {
 			$t->string('name');
 			$t->string('type');
 			$t->string('disk');
+			$t->string('hash', 40);
             $t->unsignedInteger('size');
 			$t->unsignedInteger('width')->nullable();
 			$t->unsignedInteger('height')->nullable();

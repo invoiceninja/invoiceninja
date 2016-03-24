@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "aa7451471a31552d5d6dce491ec20272",
-    "content-hash": "d70446a01a12bb41eece33b979adc975",
+    "hash": "5b6b0afc0a26fa2b1dc48241fd665c1e",
+    "content-hash": "33f39a8d05247b96374ed20e95499936",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -400,6 +400,46 @@
                 "sdk"
             ],
             "time": "2016-03-22 19:19:22"
+        },
+        {
+            "name": "barracudanetworks/archivestream-php",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/barracudanetworks/ArchiveStream-php.git",
+                "reference": "9a81c7de7f0cd5ea2150fc3dc00f1c43178362b6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/barracudanetworks/ArchiveStream-php/zipball/9a81c7de7f0cd5ea2150fc3dc00f1c43178362b6",
+                "reference": "9a81c7de7f0cd5ea2150fc3dc00f1c43178362b6",
+                "shasum": ""
+            },
+            "require": {
+                "ext-gmp": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.1.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Barracuda\\ArchiveStream\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A library for dynamically streaming dynamic tar or zip files without the need to have the complete file stored on the server.",
+            "homepage": "https://github.com/barracudanetworks/ArchiveStream-php",
+            "keywords": [
+                "archive",
+                "php",
+                "stream",
+                "tar",
+                "zip"
+            ],
+            "time": "2016-01-07 06:02:26"
         },
         {
             "name": "barryvdh/laravel-debugbar",

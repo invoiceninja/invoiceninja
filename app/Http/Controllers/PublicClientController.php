@@ -19,6 +19,8 @@ use App\Ninja\Repositories\ActivityRepository;
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\QuoteInvitationWasViewed;
 use App\Services\PaymentService;
+use League\Flysystem\Filesystem;
+use League\Flysystem\ZipArchive\ZipArchiveAdapter;
 
 class PublicClientController extends BaseController
 {
@@ -135,6 +137,10 @@ class PublicClientController extends BaseController
             'checkoutComDebug' => $checkoutComDebug,
             'phantomjs' => Input::has('phantomjs'),
         );
+        
+        if($account->isPro() && $this->canCreateInvoiceDocsZip($invoice)){
+            $data['documentsZipURL'] = URL::to("client/documents/{$invitation->invitation_key}");
+        }
 
         return View::make('invoices.view', $data);
     }
@@ -375,9 +381,7 @@ class PublicClientController extends BaseController
 
         return $invitation;
     }
-    
-    
-    
+        
     public function getDocumentVFSJS($publicId, $name){
         if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
@@ -415,6 +419,101 @@ class PublicClientController extends BaseController
         return $response;
     }
     
+    protected function canCreateZip(){
+        return function_exists('gmp_init');
+    }
+    
+    protected function canCreateInvoiceDocsZip($invoice){
+        if(!$this->canCreateZip())return false;
+        if(count($invoice->documents) == 1)return false;
+        
+        $maxSize = MAX_ZIP_DOCUMENTS_SIZE * 1000;
+        $i = 0;
+        foreach($invoice->documents as $document){
+            if($document->size <= $maxSize)$i++;
+            if($i > 1){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public function getInvoiceDocumentsZip($invitationKey){
+        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return $this->returnError();
+        }
+        
+        Session::put('invitation_key', $invitationKey); // track current invitation
+        
+        $invoice = $invitation->invoice;
+        
+        if(!count($invoice->documents)){
+            return Response::view('error', array('error'=>'No documents'), 404);
+        }
+        
+        $documents = $invoice->documents->sortBy('size');
+
+        $size = 0;
+        $maxSize = MAX_ZIP_DOCUMENTS_SIZE * 1000;
+        $toZip = array();
+        foreach($documents as $document){
+            $size += $document->size;
+            if($size > $maxSize)break;
+            
+            if(!empty($toZip[$document->name])){
+                $hasSameHash = false;
+                foreach($toZip[$document->name] as $sameName){
+                    if($sameName->hash == $document->hash){
+                        $hasSameHash = true;
+                        break;
+                    }
+                }
+                
+                if(!$hasSameHash){
+                    // 2 different files with the same name
+                    $toZip[$document->name][] = $document;
+                }
+                else{
+                    // We're not adding this after all
+                    $size -= $document->size;
+                }
+            }
+            else{
+                $toZip[$document->name] = array($document);
+            }
+        }
+        
+        if(!count($toZip)){
+            return Response::view('error', array('error'=>'No documents small enough'), 404);
+        }
+        
+        $zip = new \Barracuda\ArchiveStream\ZipArchive($invitation->account->name.' Invoice '.$invoice->invoice_number.'.zip');
+        return Response::stream(function() use ($toZip, $zip) {
+            foreach($toZip as $documentsSameName){
+                $i = 0;
+                foreach($documentsSameName as $document){
+                    $name = $document->name;
+
+                    if($i){
+                        $nameInfo = pathinfo($document->name);
+                        $name = $nameInfo['filename'].' ('.$i.').'.$nameInfo['extension'];
+                    }
+
+                    $fileStream = $document->getStream();
+                    if($fileStream){
+                        $zip->init_file_stream_transfer($name, $document->size);
+                        while ($buffer = fread($fileStream, 8192))$zip->stream_file_part($buffer);
+                        fclose($fileStream);
+                        $zip->complete_file_stream();
+                    }
+                    else{
+                        $zip->add_file($name, $document->getRaw());
+                    }
+                }
+            }
+            $zip->finish();
+        }, 200);
+    }
     
     public function getDocument($invitationKey, $publicId){
         if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {

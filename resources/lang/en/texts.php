@@ -1098,6 +1098,7 @@ $LANG = array(
     'december' => 'December',
     
     // Documents
+    'documents_header' => 'Documents:',
     'email_documents_header' => 'Documents:',
     'email_documents_example_1' => 'Widgets Receipt.pdf',
     'email_documents_example_2' => 'Final Deliverable.zip',
@@ -1106,6 +1107,7 @@ $LANG = array(
     'invoice_embed_documents' => 'Embed Documents',
     'invoice_embed_documents_help' => 'Include attached images in the invoice.',
     'document_email_attachment' => 'Attach Documents',
+    'download_documents' => 'Download Documents',
 );
 
 return $LANG;

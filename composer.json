@@ -68,7 +68,8 @@
 		"cerdic/css-tidy": "~v1.5",
 		"asgrim/ofxparser": "^1.1",
 		"league/flysystem-aws-s3-v3": "~1.0",
-		"league/flysystem-rackspace": "~1.0"
+		"league/flysystem-rackspace": "~1.0",
+		"barracudanetworks/archivestream-php": "^1.0"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "~4.0",

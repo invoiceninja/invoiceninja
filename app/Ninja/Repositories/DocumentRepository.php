@@ -158,6 +158,7 @@ class DocumentRepository extends BaseRepository
         $document->path = $filename;
         $document->type = $documentType;
         $document->size = $size;
+        $document->hash = $hash;
         $document->name = substr($name, -255);
         
         if(!empty($imageSize)){

@@ -49,6 +49,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/dashboard', 'PublicClientController@dashboard');
     Route::get('client/document/js/{public_id}/{filename}', 'PublicClientController@getDocumentVFSJS');
     Route::get('client/document/{invitation_key}/{public_id}/{filename?}', 'PublicClientController@getDocument');
+    Route::get('client/documents/{invitation_key}/{filename?}', 'PublicClientController@getInvoiceDocumentsZip');
 });
 
 Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
@@ -434,6 +435,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('MAX_FAILED_LOGINS', 10);
     define('MAX_DOCUMENT_SIZE', env('MAX_DOCUMENT_SIZE', 10000));// KB
     define('MAX_EMAIL_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 10000));// Total KB
+    define('MAX_ZIP_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 30000));// Total KB (uncompressed)
     define('DOCUMENT_PREVIEW_SIZE', env('DOCUMENT_PREVIEW_SIZE', 300));// pixels
     define('DEFAULT_FONT_SIZE', 9);
     define('DEFAULT_HEADER_FONT', 1);// Roboto

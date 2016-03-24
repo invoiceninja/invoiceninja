@@ -24,7 +24,6 @@
         @if ($checkoutComToken)
             @include('partials.checkout_com_payment')
         @else
-    		<p>&nbsp;</p>
             <div class="pull-right" style="text-align:right">
             @if ($invoice->is_quote)            
                 {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
@@ -39,12 +38,28 @@
                     <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }}</a>
                 @endif            
     		@else 
-    			{!! Button::normal('Download PDF')->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
+    			{!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
     		@endif
     		</div>
+    		<div class="pull-left">
+                @if(!empty($documentsZipURL))
+                    {!! Button::normal(trans('texts.download_documents'))->asLinkTo($documentsZipURL)->large() !!}
+                @endif
+            </div>
         @endif
 
 		<div class="clearfix"></div><p>&nbsp;</p>
+        @if ($account->isPro() && count($invoice->documents))
+            <div class="invoice-documents">
+            <h3>{{ trans('texts.documents_header') }}</h3>
+            <ul>
+            @foreach ($invoice->documents as $document)
+                <li><a target="_blank" href="{{ $document->getClientUrl($invitation) }}">{{$document->name}}</a></li>
+            @endforeach
+            </ul>
+            </div>
+        @endif
+        
         @if ($account->isPro() && $account->invoice_embed_documents)
             @foreach ($invoice->documents as $document)
                 <script src="{{ $document->getClientVFSJSUrl() }}" type="text/javascript" {{ Input::has('phantomjs')?'':'async' }}></script>
