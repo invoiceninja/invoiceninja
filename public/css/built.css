@@ -3193,10 +3193,21 @@ div.panel-body div.panel-body {
 }
 
 /* Attached Documents */
-.dropzone {
+#document-upload {
     border:1px solid #ebe7e7;
     background:#f9f9f9 !important;
     border-radius:3px;
+    padding:20px;
+}
+
+.invoice-table #document-upload{
+    max-width:560px;
+}
+
+#document-upload .dropzone{
+    background:none;
+    border:none;
+    padding:0;
 }
 
 .dropzone .dz-preview.dz-image-preview{
@@ -3204,8 +3215,6 @@ div.panel-body div.panel-body {
 }
 
 .dropzone .dz-preview  .dz-image{
-    width:119px;
-    height:119px;
     border-radius:5px!important;
 }
 

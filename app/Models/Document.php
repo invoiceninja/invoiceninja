@@ -200,8 +200,10 @@ class Document extends EntityModel
     public function toArray()
     {
         $array = parent::toArray();
-        $array['url'] = $this->getUrl();
-        $array['preview_url'] = $this->getPreviewUrl();
+        
+        if(empty($this->visible) || in_array('url', $this->visible))$array['url'] = $this->getUrl();
+        if(empty($this->visible) || in_array('preview_url', $this->visible))$array['preview_url'] = $this->getPreviewUrl();
+        
         return $array;
     }
     

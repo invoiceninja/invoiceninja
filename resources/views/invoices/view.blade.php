@@ -49,12 +49,17 @@
         @endif
 
 		<div class="clearfix"></div><p>&nbsp;</p>
-        @if ($account->isPro() && count($invoice->documents))
+        @if ($account->isPro() && $invoice->hasDocuments())
             <div class="invoice-documents">
             <h3>{{ trans('texts.documents_header') }}</h3>
             <ul>
             @foreach ($invoice->documents as $document)
                 <li><a target="_blank" href="{{ $document->getClientUrl($invitation) }}">{{$document->name}} ({{Form::human_filesize($document->size)}})</a></li>
+            @endforeach
+            @foreach ($invoice->expenses as $expense)
+                @foreach ($expense->documents as $document)
+                    <li><a target="_blank" href="{{ $document->getClientUrl($invitation) }}">{{$document->name}} ({{Form::human_filesize($document->size)}})</a></li>
+                @endforeach
             @endforeach
             </ul>
             </div>
@@ -63,8 +68,15 @@
         @if ($account->isPro() && $account->invoice_embed_documents)
             @foreach ($invoice->documents as $document)
                 @if($document->isPDFEmbeddable())
-                    <script src="{{ $document->getClientVFSJSUrl() }}" type="text/javascript" {{ Input::has('phantomjs')?'':'async' }}></script>
+                    <script src="{{ $document->getClientVFSJSUrl() }}" type="text/javascript" async></script>
                 @endif
+            @endforeach
+            @foreach ($invoice->expenses as $expense)
+                @foreach ($expense->documents as $document)
+                    @if($document->isPDFEmbeddable())
+                        <script src="{{ $document->getClientVFSJSUrl() }}" type="text/javascript" async></script>
+                    @endif
+                @endforeach
             @endforeach
         @endif
 		<script type="text/javascript">

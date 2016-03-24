@@ -179,12 +179,6 @@ class PublicClientController extends BaseController
 
         return $paymentTypes;
     }
-    
-    protected function humanFilesize($bytes, $decimals = 2) {
-        $size = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
-        $factor = floor((strlen($bytes) - 1) / 3);
-        return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$size[$factor];
-    }
 
     public function download($invitationKey)
     {
@@ -473,7 +467,13 @@ class PublicClientController extends BaseController
     }
     
     protected function getInvoiceZipDocuments($invoice, &$size=0){
-        $documents = $invoice->documents->sortBy('size');
+        $documents = $invoice->documents;
+        
+        foreach($invoice->expenses as $expense){
+            $documents = $documents->merge($expense->documents);
+        }
+        
+        $documents = $documents->sortBy('size');
 
         $size = 0;
         $maxSize = MAX_ZIP_DOCUMENTS_SIZE * 1000;
@@ -519,10 +519,6 @@ class PublicClientController extends BaseController
         Session::put('invitation_key', $invitationKey); // track current invitation
         
         $invoice = $invitation->invoice;
-        
-        if(!count($invoice->documents)){
-            return Response::view('error', array('error'=>'No documents'), 404);
-        }
         
         $toZip = $this->getInvoiceZipDocuments($invoice);
         

@@ -4,17 +4,25 @@ use DB;
 use Utils;
 use App\Models\Expense;
 use App\Models\Vendor;
+use App\Models\Document;
 use App\Ninja\Repositories\BaseRepository;
 use Session;
 
 class ExpenseRepository extends BaseRepository
 {
+    protected $documentRepo;
+    
     // Expenses
     public function getClassName()
     {
         return 'App\Models\Expense';
     }
 
+    public function __construct(DocumentRepository $documentRepo)
+    {
+        $this->documentRepo = $documentRepo;
+    }
+    
     public function all()
     {
         return Expense::scope()
@@ -113,7 +121,7 @@ class ExpenseRepository extends BaseRepository
         return $query;
     }
 
-    public function save($input)
+    public function save($input, $checkSubPermissions=false)
     {
         $publicId = isset($input['public_id']) ? $input['public_id'] : false;
 
@@ -145,6 +153,45 @@ class ExpenseRepository extends BaseRepository
         $expense->exchange_rate = round($rate, 4);
         $expense->amount = round(Utils::parseFloat($input['amount']), 2);
 
+        // Documents
+        $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):array();;
+        foreach ($document_ids as $document_id){
+            $document = Document::scope($document_id)->first();
+            if($document && !$checkSubPermissions || $document->canEdit()){
+                $document->invoice_id = null;
+                $document->expense_id = $expense->id;
+                $document->save();
+            }
+        }
+        
+        if(!empty($input['documents']) && Document::canCreate()){
+            // Fallback upload
+            $doc_errors = array();
+            foreach($input['documents'] as $upload){
+                $result = $this->documentRepo->upload($upload);
+                if(is_string($result)){
+                    $doc_errors[] = $result;
+                }
+                else{
+                    $result->expense_id = $expense->id;
+                    $result->save();
+                    $document_ids[] = $result->public_id;
+                }
+            }
+            if(!empty($doc_errors)){
+                Session::flash('error', implode('<br>',array_map('htmlentities',$doc_errors)));
+            }
+        }
+        
+        foreach ($expense->documents as $document){
+            if(!in_array($document->public_id, $document_ids)){
+                // Removed
+                if(!$checkSubPermissions || $document->canEdit()){
+                    $document->delete();
+                }
+            }
+        }
+        
         $expense->save();
 
         return $expense;

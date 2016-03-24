@@ -17,6 +17,7 @@ use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Account;
 use App\Models\Product;
+use App\Models\Expense;
 use App\Models\TaxRate;
 use App\Models\InvoiceDesign;
 use App\Models\Activity;
@@ -91,7 +92,7 @@ class InvoiceController extends BaseController
     {
         $account = Auth::user()->account;
         $invoice = Invoice::scope($publicId)
-                        ->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items', 'documents', 'payments')
+                        ->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items', 'documents', 'expenses', 'expenses.documents', 'payments')
                         ->withTrashed()
                         ->firstOrFail();
         
@@ -241,6 +242,12 @@ class InvoiceController extends BaseController
 
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
+        
+        $invoice->expenses = Expense::scope([2])->with('documents')->get();
+        if(Session::get('expenses')){
+            $invoice->expenses = Expense::scope(Session::get('expenses'))->with('documents')->get();
+        }
+        
 
         $clients = Client::scope()->with('contacts', 'country')->orderBy('name');
         if(!Auth::user()->hasPermission('view_all')){
@@ -352,7 +359,6 @@ class InvoiceController extends BaseController
             'recurringDueDateHelp' => $recurringDueDateHelp,
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
             'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
-            'expenses' => Session::get('expenses') ? json_encode(Session::get('expenses')) : null,
             'expenseCurrencyId' => Session::get('expenseCurrencyId') ?: null,
         ];
 
@@ -537,7 +543,7 @@ class InvoiceController extends BaseController
     public function invoiceHistory($publicId)
     {
         $invoice = Invoice::withTrashed()->scope($publicId)->firstOrFail();
-        $invoice->load('user', 'invoice_items', 'documents', 'account.country', 'client.contacts', 'client.country');
+        $invoice->load('user', 'invoice_items', 'documents', 'expenses', 'expenses.documents', 'account.country', 'client.contacts', 'client.country');
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->is_pro = Auth::user()->isPro();

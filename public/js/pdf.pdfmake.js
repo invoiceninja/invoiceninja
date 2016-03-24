@@ -404,13 +404,19 @@ NINJA.invoiceLines = function(invoice) {
 }
 
 NINJA.invoiceDocuments = function(invoice) {
-    if(!invoice.documents || !invoice.account.invoice_embed_documents)return[];
+    if(!invoice.account.invoice_embed_documents)return[];
     var stack = [];
     var stackItem = null;
     
     var j = 0;
-    for (var i = 0; i < invoice.documents.length; i++) {
-        var document = invoice.documents[i];
+    for (var i = 0; i < invoice.documents.length; i++)addDoc(invoice.documents[i]);
+    
+    for (var i = 0; i < invoice.expenses.length; i++) {
+        var expense = invoice.expenses[i];
+        for (var i = 0; i < expense.documents.length; i++)addDoc(expense.documents[i]);        
+    }
+    
+    function addDoc(document){
         var path = document.base64;
         
         if(!path)path = 'docs/'+document.public_id+'/'+document.name;
@@ -423,9 +429,9 @@ NINJA.invoiceDocuments = function(invoice) {
             stackItem.columns.push({stack:[{image:path,style:'invoiceDocument',fit:[150,150]}], width:175})
             j++;
         }
-    }   
+    }
 
-    return {stack:stack};
+    return stack.length?{stack:stack}:[];
 }
 
 NINJA.subtotals = function(invoice, hideBalance)

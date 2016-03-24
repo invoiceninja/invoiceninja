@@ -63,8 +63,14 @@ class ContactMailer extends Mailer
         }
         
         $documentStrings = array();
-        if ($account->document_email_attachment && !empty($invoice->documents)) {
-            $documents = $invoice->documents->sortBy('size');
+        if ($account->document_email_attachment && $invoice->hasDocuments()) {
+            $documents = $invoice->documents;
+        
+            foreach($invoice->expenses as $expense){
+                $documents = $documents->merge($expense->documents);
+            }
+
+            $documents = $documents->sortBy('size');
                         
             $size = 0;
             $maxSize = MAX_EMAIL_DOCUMENTS_SIZE * 1000;
@@ -285,10 +291,15 @@ class ContactMailer extends Mailer
         $passwordHTML = isset($data['password'])?'<p>'.trans('texts.password').': '.$data['password'].'<p>':false;
         $documentsHTML = '';
 
-        if($account->isPro() && count($invoice->documents)){
+        if($account->isPro() && $invoice->hasDocuments()){
             $documentsHTML .= trans('texts.email_documents_header').'<ul>';
             foreach($invoice->documents as $document){
                 $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
+            }
+            foreach($invoice->expenses as $expense){
+                foreach($expense->documents as $document){
+                    $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
+                }
             }
             $documentsHTML .= '</ul>';
         }

@@ -38,9 +38,8 @@
 
 	{!! Former::open($url)
             ->method($method)
-            ->addClass('warn-on-exit')
+            ->addClass('warn-on-exit main-form')
             ->autocomplete('off')
-            ->attributes(array('enctype'=>'multipart/form-data'))
             ->onsubmit('return onFormSubmit(event)')
             ->rules(array(
         		'client' => 'required',
@@ -307,17 +306,27 @@
                         </div>
                         @if ($account->isPro())
                         <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
-                            <div id="document-upload" class="dropzone">
-                                <div class="fallback">
-                                    <input name="documents[]" type="file" multiple />
-                                </div>
-                                <div data-bind="foreach: documents">
-                                    <div class="fallback-doc">
-                                        <a href="#" class="fallback-doc-remove" data-bind="click: $parent.removeDocument"><i class="fa fa-close"></i></a>
-                                        <span data-bind="text:name"></span>
-                                        <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+                            <div id="document-upload">
+                                <div class="dropzone">
+                                    <div class="fallback">
+                                        <input name="documents[]" type="file" multiple />
+                                    </div>
+                                    <div data-bind="foreach: documents">
+                                        <div class="fallback-doc">
+                                            <a href="#" class="fallback-doc-remove" data-bind="click: $parent.removeDocument"><i class="fa fa-close"></i></a>
+                                            <span data-bind="text:name"></span>
+                                            <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+                                        </div>
                                     </div>
                                 </div>
+                                @if ($invoice->hasExpenseDocuments())
+                                    <h4>{{trans('texts.documents_from_expenses')}}</h4>
+                                    @foreach($invoice->expenses as $expense)
+                                        @foreach($expense->documents as $document)
+                                            <div>{{$document->name}}</div>
+                                        @endforeach
+                                    @endforeach
+                                @endif
                             </div>
                         </div>
                         @endif
@@ -778,24 +787,24 @@
                 model.invoice().has_tasks(true);
             @endif
 
-            @if (isset($expenses) && $expenses)
+            if(model.invoice().expenses() && !model.invoice().public_id()){
                 model.expense_currency_id({{ $expenseCurrencyId }});
 
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
-                var expenses = {!! $expenses !!};
+                var expenses = model.invoice().expenses();
 
                 for (var i=0; i<expenses.length; i++) {
                     var expense = expenses[i];
                     var item = model.invoice().addItem();
-                    item.notes(expense.description);
-                    item.qty(expense.qty);
-                    item.expense_public_id(expense.publicId);
-					item.cost(expense.cost);
+                    item.notes(expense.public_notes());
+                    item.qty(1);
+                    item.expense_public_id(expense.public_id());
+					item.cost(expense.converted_amount());
                 }
                 model.invoice().invoice_items.push(blank);
                 model.invoice().has_expenses(true);
-            @endif
+            }
 
         @endif
 
@@ -929,8 +938,13 @@
         applyComboboxListeners();
         
         @if (Auth::user()->account->isPro())
+        $('.main-form').submit(function(){
+            if($('#document-upload .dropzone .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
+            else $(this).removeAttr('enctype')
+        })
+        
         // Initialize document upload
-        dropzone = new Dropzone('#document-upload', {
+        dropzone = new Dropzone('#document-upload .dropzone', {
             url:{!! json_encode(url('document')) !!},
             params:{
                 _token:"{{ Session::getToken() }}"
@@ -1359,6 +1373,13 @@
             @if($document->isPDFEmbeddable())
                 <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
             @endif
+        @endforeach
+        @foreach ($invoice->expenses as $expense)
+            @foreach ($expense->documents as $document)
+                @if($document->isPDFEmbeddable())
+                    <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
+                @endif
+            @endforeach
         @endforeach
     @endif
 

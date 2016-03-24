@@ -16,14 +16,9 @@ class ExpensePresenter extends Presenter {
         return Utils::fromSqlDate($this->entity->expense_date);
     }
 
-    public function converted_amount()
-    {
-        return round($this->entity->amount * $this->entity->exchange_rate, 2);
-    }
-
     public function invoiced_amount()
     {
-        return $this->entity->invoice_id ? $this->converted_amount() : 0;
+        return $this->entity->invoice_id ? $this->entity->convertedAmount() : 0;
     }
 
     public function link()

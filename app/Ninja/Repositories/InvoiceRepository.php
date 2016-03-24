@@ -415,6 +415,7 @@ class InvoiceRepository extends BaseRepository
                 }
                 
                 $document->invoice_id = $invoice->id;
+                $document->expense_id = null;
                 $document->save();
             }
         }

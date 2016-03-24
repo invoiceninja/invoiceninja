@@ -227,6 +227,7 @@ function InvoiceModel(data) {
     self.invoice_status_id = ko.observable(0);
     self.invoice_items = ko.observableArray();
     self.documents = ko.observableArray();
+    self.expenses = ko.observableArray();
     self.amount = ko.observable(0);
     self.balance = ko.observable(0);
     self.invoice_design_id = ko.observable(1);
@@ -255,6 +256,11 @@ function InvoiceModel(data) {
         'documents': {
             create: function(options) {
                 return new DocumentModel(options.data);
+            }
+        },
+        'expenses': {
+            create: function(options) {
+                return new ExpenseModel(options.data);
             }
         },
         'tax': {
@@ -846,6 +852,28 @@ function DocumentModel(data) {
         self.update(data);
     }    
 }
+    
+var ExpenseModel = function(data) {
+    var self = this;
+
+    self.mapping = {
+        'documents': {
+            create: function(options) {
+                return new DocumentModel(options.data);
+            }
+        }
+    }
+    
+    self.description = ko.observable('');
+    self.qty = ko.observable(0);
+    self.public_id = ko.observable(0);
+    self.amount = ko.observable();
+    self.converted_amount = ko.observable();
+
+    if (data) {
+        ko.mapping.fromJS(data, self.mapping, this);
+    }
+};
 
 /* Custom binding for product key typeahead */
 ko.bindingHandlers.typeahead = {

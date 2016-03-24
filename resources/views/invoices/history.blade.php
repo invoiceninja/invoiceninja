@@ -57,11 +57,18 @@
 
     @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
     
-    @if (Auth::user()->account->isPro() && Auth::user()->account->invoice_embed_documents)
+    @if (Utils::isPro() && $invoice->account->invoice_embed_documents)
         @foreach ($invoice->documents as $document)
             @if($document->isPDFEmbeddable())
                 <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
             @endif
+        @endforeach
+        @foreach ($invoice->expenses as $expense)
+            @foreach ($expense->documents as $document)
+                @if($document->isPDFEmbeddable())
+                    <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
+                @endif
+            @endforeach
         @endforeach
     @endif
 @stop

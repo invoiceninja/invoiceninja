@@ -59,7 +59,7 @@ class DocumentRepository extends BaseRepository
 
     public function upload($uploaded, &$doc_array=null)
     {
-        $extension = strtolower($uploaded->extension());
+        $extension = strtolower($uploaded->getClientOriginalExtension());
         if(empty(Document::$types[$extension]) && !empty(Document::$extraExtensions[$extension])){
             $documentType = Document::$extraExtensions[$extension];            
         }
@@ -68,7 +68,7 @@ class DocumentRepository extends BaseRepository
         }
         
         if(empty(Document::$types[$documentType])){
-            return 'Unsupported extension';
+            return 'Unsupported file type';
         }
            
         $documentTypeData = Document::$types[$documentType];
@@ -180,10 +180,14 @@ class DocumentRepository extends BaseRepository
     
     public function getClientDatatable($contactId, $entityType, $search)
     {
-        $query = DB::table('invitations')
+        
+       $query = DB::table('invitations')
           ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
           ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
-          ->join('documents', 'documents.invoice_id', '=', 'invitations.invoice_id')
+          ->join('expenses', 'expenses.invoice_id', '=', 'invitations.invoice_id')
+          ->join('documents', function($join){
+            $join->on('documents.invoice_id', '=', 'invitations.invoice_id')->orOn('documents.expense_id', '=', 'expenses.id');
+          })
           ->join('clients', 'clients.id', '=', 'invoices.client_id')
           ->where('invitations.contact_id', '=', $contactId)
           ->where('invitations.deleted_at', '=', null)
