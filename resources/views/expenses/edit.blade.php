@@ -231,8 +231,10 @@
                 },
                 acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
                 addRemoveLinks:true,
+                @foreach(trans('texts.dropzone') as $key=>$text)
+                "dict{{strval($key)}}":"{{strval($text)}}",
+                @endforeach
                 maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
-                dictDefaultMessage:{!! json_encode(trans('texts.document_upload_message')) !!}
             });
             if(dropzone instanceof Dropzone){
                 dropzone.on("addedfile",handleDocumentAdded);
