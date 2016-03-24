@@ -38,10 +38,23 @@ class DocumentController extends BaseController
             return redirect($direct_url);
         }
         
+        $stream = $document->getStream();
         
-        $response = Response::make($document->getRaw(), 200);
-        $response->header('content-type', $document->type);
-        
+        if($stream){
+            $headers = [
+                'Content-Type'        => $document->type,
+                'Content-Length'      => $document->size,
+            ];
+
+            $response = Response::stream(function() use ($stream) {
+                fpassthru($stream);
+            }, 200, $headers);
+        }
+        else{
+            $response = Response::make($document->getRaw(), 200);
+            $response->header('content-type', $document->type);
+        }
+            
         return $response;
     }
     

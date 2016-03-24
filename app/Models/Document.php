@@ -122,6 +122,12 @@ class Document extends EntityModel
         return $disk->get($this->path);
     }
     
+    public function getStream(){
+        $disk = $this->getDisk();
+        
+        return $disk->readStream($this->path);
+    }
+    
     public function getRawPreview(){
         $disk = $this->getDisk();
         
