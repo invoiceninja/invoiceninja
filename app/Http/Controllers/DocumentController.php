@@ -33,6 +33,10 @@ class DocumentController extends BaseController
             return $response;
         }
         
+        return static::getDownloadResponse($document);
+    }
+    
+    public static function getDownloadResponse($document){
         $direct_url = $document->getDirectUrl();
         if($direct_url){
             return redirect($direct_url);

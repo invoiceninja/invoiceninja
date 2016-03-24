@@ -1,6 +1,7 @@
 <?php namespace App\Ninja\Mailers;
 
 use Form;
+use HTML;
 use Utils;
 use Event;
 use URL;
@@ -28,6 +29,7 @@ class ContactMailer extends Mailer
         'invoice',
         'quote',
         'password',
+        'documents',
         'viewLink',
         'viewButton',
         'paymentLink',
@@ -281,7 +283,16 @@ class ContactMailer extends Mailer
         $invitation = $data['invitation'];
         $invoice = $invitation->invoice;
         $passwordHTML = isset($data['password'])?'<p>'.trans('texts.password').': '.$data['password'].'<p>':false;
+        $documentsHTML = '';
 
+        if($account->isPro() && count($invoice->documents)){
+            $documentsHTML .= trans('texts.email_documents_header').'<ul>';
+            foreach($invoice->documents as $document){
+                $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
+            }
+            $documentsHTML .= '</ul>';
+        }
+        
         $variables = [
             '$footer' => $account->getEmailFooter(),
             '$client' => $client->getDisplayName(),
@@ -303,6 +314,7 @@ class ContactMailer extends Mailer
             '$customClient2' => $account->custom_client_label2,
             '$customInvoice1' => $account->custom_invoice_text_label1,
             '$customInvoice2' => $account->custom_invoice_text_label2,
+            '$documents' => $documentsHTML,
         ];
 
         // Add variables for available payment types

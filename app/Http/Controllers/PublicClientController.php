@@ -414,5 +414,30 @@ class PublicClientController extends BaseController
         
         return $response;
     }
+    
+    
+    public function getDocument($invitationKey, $publicId){
+        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return $this->returnError();
+        }
+        
+        Session::put('invitation_key', $invitationKey); // track current invitation
+        
+        $clientId = $invitation->invoice->client_id;
+        $document = Document::scope($publicId, $invitation->account_id)->firstOrFail();
+        
+        $authorized = false;
+        if($document->expense && $document->expense->client_id == $invitation->invoice->client_id){
+            $authorized = true;
+        } else if($document->invoice && $document->invoice->client_id == $invitation->invoice->client_id){
+            $authorized = true;
+        }
+        
+        if(!$authorized){
+            return Response::view('error', array('error'=>'Not authorized'), 403);
+        }        
+        
+        return DocumentController::getDownloadResponse($document);
+    }
 
 }

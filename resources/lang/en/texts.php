@@ -1098,6 +1098,9 @@ $LANG = array(
     'december' => 'December',
     
     // Documents
+    'email_documents_header' => 'Documents:',
+    'email_documents_example_1' => 'Widgets Receipt.pdf',
+    'email_documents_example_2' => 'Final Deliverable.zip',
     'invoice_documents' => 'Attached Documents',
     'document_upload_message' => 'Drop files here or click to upload.',
     'invoice_embed_documents' => 'Embed Documents',

@@ -138,6 +138,10 @@ class Document extends EntityModel
         return url('document/'.$this->public_id.'/'.$this->name);
     }
     
+    public function getClientUrl($invitation){
+        return url('client/document/'.$invitation->invitation_key.'/'.$this->public_id.'/'.$this->name);
+    }
+    
     public function getVFSJSUrl(){
         return url('document/js/'.$this->public_id.'/'.$this->name.'.js');
     }

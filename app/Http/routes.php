@@ -48,6 +48,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/payments', 'PublicClientController@paymentIndex');
     Route::get('client/dashboard', 'PublicClientController@dashboard');
     Route::get('client/document/js/{public_id}/{filename}', 'PublicClientController@getDocumentVFSJS');
+    Route::get('client/document/{invitation_key}/{public_id}/{filename?}', 'PublicClientController@getDocument');
 });
 
 Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
