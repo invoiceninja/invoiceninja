@@ -90,7 +90,7 @@ class DocumentRepository extends BaseRepository
         $disk = $document->getDisk();
         if(!$disk->exists($filename)){// Have we already stored the same file
             $stream = fopen($filePath, 'r');
-            $disk->put($filename, $stream);
+            $disk->getDriver()->putStream($filename, $stream, ['mimetype'=>$documentTypeData['mime']]);
             fclose($stream);
         }
         
