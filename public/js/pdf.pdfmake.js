@@ -411,9 +411,11 @@ NINJA.invoiceDocuments = function(invoice) {
     var j = 0;
     for (var i = 0; i < invoice.documents.length; i++)addDoc(invoice.documents[i]);
     
-    for (var i = 0; i < invoice.expenses.length; i++) {
-        var expense = invoice.expenses[i];
-        for (var i = 0; i < expense.documents.length; i++)addDoc(expense.documents[i]);        
+    if(invoice.expenses){
+        for (var i = 0; i < invoice.expenses.length; i++) {
+            var expense = invoice.expenses[i];
+            for (var i = 0; i < expense.documents.length; i++)addDoc(expense.documents[i]);        
+        }
     }
     
     function addDoc(document){
