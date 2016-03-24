@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Storage;
 use DB;
+use Auth;
 
 class Document extends EntityModel
 {
@@ -220,6 +221,20 @@ class Document extends EntityModel
         $document->height = $this->height;
         
         return $document;
+    }
+    
+    public static function canCreate(){
+        return true;
+    }
+    
+    public static function canViewItem($document){
+        if(Auth::user()->hasPermission('view_all'))return true;
+        if($document->expense){
+            if($document->expense->invoice)return $document->expense->invoice->canView();
+            return $document->expense->canView();
+        }
+        if($document->invoice)return $document->invoice->canView();
+        return Auth::user()->id == $item->user_id;
     }
 }
 

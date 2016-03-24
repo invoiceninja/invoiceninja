@@ -442,11 +442,10 @@ class InvoiceRepository extends BaseRepository
         foreach ($invoice->documents as $document){
             if(!in_array($document->public_id, $document_ids)){
                 // Removed
-                if(!$checkSubPermissions || $document->canEdit()){
-                    if($document->invoice_id == $invoice->id){
-                        // Make sure the document isn't on a clone
-                        $document->delete();
-                    }
+                // Not checking permissions; deleting a document is just editing the invoice
+                if($document->invoice_id == $invoice->id){
+                    // Make sure the document isn't on a clone
+                    $document->delete();
                 }
             }
         }
