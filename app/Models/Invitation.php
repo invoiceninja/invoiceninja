@@ -40,7 +40,7 @@ class Invitation extends EntityModel
         
         if ($this->account->isPro()) {
             if ($iframe_url) {
-                return "{$iframe_url}/?{$this->invitation_key}";
+                return "{$iframe_url}?{$this->invitation_key}";
             } elseif ($this->account->subdomain) {
                 $url = Utils::replaceSubdomain($url, $this->account->subdomain);
             }
