@@ -2,6 +2,7 @@
 
 use DB;
 use Utils;
+use Session;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Invitation;
@@ -14,13 +15,16 @@ use App\Ninja\Repositories\BaseRepository;
 
 class InvoiceRepository extends BaseRepository
 {
+    protected $documentRepo;
+
     public function getClassName()
     {
         return 'App\Models\Invoice';
     }
 
-    public function __construct(PaymentService $paymentService)
+    public function __construct(PaymentService $paymentService, DocumentRepository $documentRepo)
     {
+        $this->documentRepo = $documentRepo;
         $this->paymentService = $paymentService;
     }
 
@@ -399,7 +403,7 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_items()->forceDelete();
         }
         
-        $document_ids = !empty($data['documents'])?array_map('intval', $data['documents']):array();;
+        $document_ids = !empty($data['document_ids'])?array_map('intval', $data['document_ids']):array();;
         foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
             if($document && !$checkSubPermissions || $document->canEdit()){
@@ -412,6 +416,25 @@ class InvoiceRepository extends BaseRepository
                 
                 $document->invoice_id = $invoice->id;
                 $document->save();
+            }
+        }
+        
+        if(!empty($data['documents']) && Document::canCreate()){
+            // Fallback upload
+            $doc_errors = array();
+            foreach($data['documents'] as $upload){
+                $result = $this->documentRepo->upload($upload);
+                if(is_string($result)){
+                    $doc_errors[] = $result;
+                }
+                else{
+                    $result->invoice_id = $invoice->id;
+                    $result->save();
+                    $document_ids[] = $result->public_id;
+                }
+            }
+            if(!empty($doc_errors)){
+                Session::flash('error', implode('<br>',array_map('htmlentities',$doc_errors)));
             }
         }
         

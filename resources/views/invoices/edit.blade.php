@@ -40,6 +40,7 @@
             ->method($method)
             ->addClass('warn-on-exit')
             ->autocomplete('off')
+            ->attributes(array('enctype'=>'multipart/form-data'))
             ->onsubmit('return onFormSubmit(event)')
             ->rules(array(
         		'client' => 'required',
@@ -308,11 +309,15 @@
                         <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
                             <div id="document-upload" class="dropzone">
                                 <div class="fallback">
-                                    <input name="file" type="file" multiple />
+                                    <input name="documents[]" type="file" multiple />
                                 </div>
-                            </div>
-                            <div data-bind="foreach: documents">
-                                <input type="hidden" name="documents[]" data-bind="value: public_id">
+                                <div data-bind="foreach: documents">
+                                    <div class="fallback-doc">
+                                        <a href="#" class="fallback-doc-remove" data-bind="click: $parent.removeDocument"><i class="fa fa-close"></i></a>
+                                        <span data-bind="text:name"></span>
+                                        <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         @endif
@@ -935,33 +940,34 @@
             maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
             dictDefaultMessage:{!! json_encode(trans('texts.document_upload_message')) !!}
         });
-        dropzone.on("addedfile",handleDocumentAdded);
-        dropzone.on("removedfile",handleDocumentRemoved);
-        dropzone.on("success",handleDocumentUploaded);
-        
-        for (var i=0; i<model.invoice().documents().length; i++) {
-            var document = model.invoice().documents()[i];
-            var mockFile = {
-                name:document.name(),
-                size:document.size(),
-                type:document.type(),
-                public_id:document.public_id(),
-                status:Dropzone.SUCCESS,
-                accepted:true,
-                url:document.preview_url()||document.url(),
-                mock:true,
-                index:i
-            };
-            
-            dropzone.emit('addedfile', mockFile);
-            dropzone.emit('complete', mockFile);
-            if(document.preview_url()){
-                dropzone.emit('thumbnail', mockFile, document.preview_url()||document.url());
+        if(dropzone instanceof Dropzone){
+            dropzone.on("addedfile",handleDocumentAdded);
+            dropzone.on("removedfile",handleDocumentRemoved);
+            dropzone.on("success",handleDocumentUploaded);
+            for (var i=0; i<model.invoice().documents().length; i++) {
+                var document = model.invoice().documents()[i];
+                var mockFile = {
+                    name:document.name(),
+                    size:document.size(),
+                    type:document.type(),
+                    public_id:document.public_id(),
+                    status:Dropzone.SUCCESS,
+                    accepted:true,
+                    url:document.preview_url()||document.url(),
+                    mock:true,
+                    index:i
+                };
+
+                dropzone.emit('addedfile', mockFile);
+                dropzone.emit('complete', mockFile);
+                if(document.preview_url()){
+                    dropzone.emit('thumbnail', mockFile, document.preview_url()||document.url());
+                }
+                else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
+                    dropzone.emit('thumbnail', mockFile, document.url());
+                }
+                dropzone.files.push(mockFile);
             }
-            else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
-                dropzone.emit('thumbnail', mockFile, document.url());
-            }
-            dropzone.files.push(mockFile);
         }
         @endif
 	});

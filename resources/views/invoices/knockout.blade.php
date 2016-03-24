@@ -280,7 +280,8 @@ function InvoiceModel(data) {
         return documentModel;
     }
     
-    self.removeDocument = function(public_id) {
+    self.removeDocument = function(doc) {
+         var public_id = doc.public_id?doc.public_id():doc;
          self.documents.remove(function(document) {
             return document.public_id() == public_id;
         });

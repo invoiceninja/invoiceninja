@@ -406,6 +406,7 @@ class InvoiceController extends BaseController
     public function update(SaveInvoiceWithClientRequest $request)
     {
         $data = $request->input();
+        $data['documents'] = $request->file('documents');
         
         if(!$this->checkUpdatePermission($data, $response)){
             return $response;

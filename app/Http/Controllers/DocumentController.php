@@ -122,9 +122,19 @@ class DocumentController extends BaseController
             return $response;
         }
                 
-        $document = Input::all();
-        
-        $response = $this->documentRepo->upload($document);
-        return $response;
+        $result = $this->documentRepo->upload(Input::all()['file'], $doc_array);
+                
+        if(is_string($result)){
+             return Response::json([
+                'error' => $result,
+                'code'  => 400
+            ], 400);
+        } else {
+             return Response::json([
+                'error' => false,
+                'document' => $doc_array,
+                'code'  => 200
+            ], 200);
+        }
     }
 }

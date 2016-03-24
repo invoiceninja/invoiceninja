@@ -57,10 +57,8 @@ class DocumentRepository extends BaseRepository
         return $query;
     }
 
-    public function upload($input)
+    public function upload($uploaded, &$doc_array=null)
     {
-        $uploaded = $input['file'];
-
         $extension = strtolower($uploaded->extension());
         if(empty(Document::$types[$extension]) && !empty(Document::$extraExtensions[$extension])){
             $documentType = Document::$extraExtensions[$extension];            
@@ -70,10 +68,7 @@ class DocumentRepository extends BaseRepository
         }
         
         if(empty(Document::$types[$documentType])){
-            return Response::json([
-                'error' => 'Unsupported extension',
-                'code' => 400
-            ], 400);
+            return 'Unsupported extension';
         }
            
         $documentTypeData = Document::$types[$documentType];
@@ -83,10 +78,7 @@ class DocumentRepository extends BaseRepository
         $size = filesize($filePath);
         
         if($size/1000 > MAX_DOCUMENT_SIZE){
-            return Response::json([
-                'error' => 'File too large',
-                'code' => 400
-            ], 400);
+            return 'File too large';
         }
         
         
@@ -183,11 +175,7 @@ class DocumentRepository extends BaseRepository
             $doc_array['base64'] = 'data:'.$mime.';base64,'.$base64;
         }
 
-        return Response::json([
-            'error' => false,
-            'document' => $doc_array,
-            'code'  => 200
-        ], 200);
+        return $document;
     }
     
     public function getClientDatatable($contactId, $entityType, $search)
