@@ -46,7 +46,7 @@ class DocumentController extends BaseController
         
         if($stream){
             $headers = [
-                'Content-Type'        => $document->type,
+                'Content-Type'        => Document::$types[$document->type]['mime'],
                 'Content-Length'      => $document->size,
             ];
 
@@ -56,7 +56,7 @@ class DocumentController extends BaseController
         }
         else{
             $response = Response::make($document->getRaw(), 200);
-            $response->header('content-type', $document->type);
+            $response->header('content-type', Document::$types[$document->type]['mime']);
         }
             
         return $response;
@@ -80,9 +80,9 @@ class DocumentController extends BaseController
             return redirect($direct_url);
         }
         
-        $extension = pathinfo($document->preview, PATHINFO_EXTENSION);
+        $previewType = pathinfo($document->preview, PATHINFO_EXTENSION);
         $response = Response::make($document->getRawPreview(), 200);
-        $response->header('content-type', Document::$extensions[$extension]);
+        $response->header('content-type', Document::$types[$previewType]['mime']);
         
         return $response;
     }
@@ -99,7 +99,7 @@ class DocumentController extends BaseController
             return $response;
         }
         
-        if(substr($document->type, 0, 6) != 'image/'){
+        if(!$document->isPDFEmbeddable()){
             return Response::view('error', array('error'=>'Image does not exist!'), 404);
         }
         

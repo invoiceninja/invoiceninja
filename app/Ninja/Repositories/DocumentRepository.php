@@ -61,14 +61,22 @@ class DocumentRepository extends BaseRepository
         $uploaded = $input['file'];
 
         $extension = strtolower($uploaded->extension());
-        if(empty(Document::$extensions[$extension])){
+        if(empty(Document::$types[$extension]) && !empty(Document::$extraExtensions[$extension])){
+            $documentType = Document::$extraExtensions[$extension];            
+        }
+        else{
+            $documentType = $extension;
+        }
+        
+        if(empty(Document::$types[$documentType])){
             return Response::json([
                 'error' => 'Unsupported extension',
                 'code' => 400
             ], 400);
         }
-        
-        $documentType = Document::$extensions[$extension];
+           
+        $documentTypeData = Document::$types[$documentType];
+           
         $filePath = $uploaded->path();
         $name = $uploaded->getClientOriginalName();
         $size = filesize($filePath);
@@ -80,10 +88,10 @@ class DocumentRepository extends BaseRepository
             ], 400);
         }
         
-        $documentTypeData = Document::$types[$documentType];
+        
         
         $hash = sha1_file($filePath);
-        $filename = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentTypeData['extension'];
+        $filename = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentType;
                 
         $document = Document::createNew();
         $disk = $document->getDisk();
@@ -94,20 +102,20 @@ class DocumentRepository extends BaseRepository
         }
         
         // This is an image; check if we need to create a preview
-        if(in_array($documentType, array('image/jpeg','image/png','image/gif','image/bmp','image/tiff'))){
+        if(in_array($documentType, array('jpeg','png','gif','bmp','tiff','psd'))){
             $makePreview = false;
             $imageSize = getimagesize($filePath);
             $width = $imageSize[0];
             $height = $imageSize[1];
             $imgManagerConfig = array();
-            if(in_array($documentType, array('image/gif','image/bmp','image/tiff'))){
+            if(in_array($documentType, array('gif','bmp','tiff','psd'))){
                 // Needs to be converted
                 $makePreview = true;
             } else if($width > DOCUMENT_PREVIEW_SIZE || $height > DOCUMENT_PREVIEW_SIZE){
                 $makePreview = true;              
             }
             
-            if($documentType == 'image/bmp' || $documentType == 'image/tiff'){
+            if(in_array($documentType,array('bmp','tiff','psd'))){
                 if(!class_exists('Imagick')){
                     // Cant't read this
                     $makePreview = false;
@@ -117,13 +125,13 @@ class DocumentRepository extends BaseRepository
             }
             
             if($makePreview){
-                $previewType = 'jpg';
-                if(in_array($documentType, array('image/png','image/gif','image/bmp','image/tiff'))){
+                $previewType = 'jpeg';
+                if(in_array($documentType, array('png','gif','tiff','psd'))){
                     // Has transparency
                     $previewType = 'png';
                 }
                     
-                $document->preview = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentTypeData['extension'].'.x'.DOCUMENT_PREVIEW_SIZE.'.'.$previewType;
+                $document->preview = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentType.'.x'.DOCUMENT_PREVIEW_SIZE.'.'.$previewType;
                 if(!$disk->exists($document->preview)){
                     // We haven't created a preview yet
                     $imgManager = new ImageManager($imgManagerConfig);
@@ -170,7 +178,7 @@ class DocumentRepository extends BaseRepository
         $doc_array = $document->toArray();
         
         if(!empty($base64)){
-            $mime = !empty($previewType)?Document::$extensions[$previewType]:$documentType;
+            $mime = Document::$types[!empty($previewType)?$previewType:$documentType]['mime'];
             $doc_array['base64'] = 'data:'.$mime.';base64,'.$base64;
         }
 

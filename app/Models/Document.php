@@ -5,31 +5,68 @@ use DB;
 
 class Document extends EntityModel
 {
-    public static $extensions = array(
-        'png' => 'image/png',
-        'jpg' => 'image/jpeg',
-        'jpeg' => 'image/jpeg',
-        'tiff' => 'image/tiff',
-        'tif' => 'image/tiff',
-        'pdf' => 'application/pdf',
-        'gif' => 'image/gif'
+    public static $extraExtensions = array(
+        'jpg' => 'jpeg',
+        'tif' => 'tiff',
+    );
+    
+    public static $allowedMimes = array(// Used by Dropzone.js; does not affect what the server accepts
+        'image/png', 'image/jpeg', 'image/tiff', 'application/pdf', 'image/gif', 'image/vnd.adobe.photoshop', 'text/plain',
+        'application/zip', 'application/msword',
+        'application/excel', 'application/vnd.ms-excel', 'application/x-excel', 'application/x-msexcel', 
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/postscript', 'image/svg+xml',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-powerpoint',
     );
     
     public static $types = array(
-        'image/png' => array(
-            'extension' => 'png',
+        'png' => array(
+            'mime' => 'image/png',
         ),
-        'image/jpeg' => array(
-            'extension' => 'jpeg',
+        'ai' => array(
+            'mime' => 'application/postscript',
         ),
-        'image/tiff' => array(
-            'extension' => 'tiff',
+        'svg' => array(
+            'mime' => 'image/svg+xml',
         ),
-        'image/gif' => array(
-            'extension' => 'gif',
+        'jpeg' => array(
+            'mime' => 'image/jpeg',
         ),
-        'application/pdf' => array(
-            'extension' => 'pdf',
+        'tiff' => array(
+            'mime' => 'image/tiff',
+        ),
+        'pdf' => array(
+            'mime' => 'application/pdf',
+        ),
+        'gif' => array(
+            'mime' => 'image/gif',
+        ),
+        'psd' => array(
+            'mime' => 'image/vnd.adobe.photoshop',
+        ),
+        'txt' => array(
+            'mime' => 'text/plain',
+        ),
+        'zip' => array(
+            'mime' => 'application/zip',
+        ),
+        'doc' => array(
+            'mime' => 'application/msword',
+        ),
+        'xls' => array(
+            'mime' => 'application/vnd.ms-excel',
+        ),
+        'ppt' => array(
+            'mime' => 'application/vnd.ms-powerpoint',
+        ),
+        'xlsx' => array(
+            'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ),
+        'docx' => array(
+            'mime' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ),
+        'pptx' => array(
+            'mime' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         ),
     );
     
@@ -142,11 +179,17 @@ class Document extends EntityModel
         return url('client/document/'.$invitation->invitation_key.'/'.$this->public_id.'/'.$this->name);
     }
     
+    public function isPDFEmbeddable(){
+        return $this->type == 'jpeg' || $this->type == 'png' || $this->preview;
+    }
+    
     public function getVFSJSUrl(){
+        if(!$this->isPDFEmbeddable())return null;
         return url('document/js/'.$this->public_id.'/'.$this->name.'.js');
     }
     
     public function getClientVFSJSUrl(){
+        if(!$this->isPDFEmbeddable())return null;
         return url('client/document/js/'.$this->public_id.'/'.$this->name.'.js');
     }
     

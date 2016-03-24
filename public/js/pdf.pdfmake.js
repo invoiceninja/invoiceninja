@@ -412,10 +412,10 @@ NINJA.invoiceDocuments = function(invoice) {
     for (var i = 0; i < invoice.documents.length; i++) {
         var document = invoice.documents[i];
         var path = document.base64;
-        if(!path && (document.preview_url || document.type == 'image/png' || document.type == 'image/jpeg')){
-            path = 'docs/'+document.public_id+'/'+document.name;
-        }
+        
+        if(!path)path = 'docs/'+document.public_id+'/'+document.name;
         if(path && (window.pdfMake.vfs[path] || document.base64)){
+            // Only embed if we actually have an image for it
             if(j%3==0){
                 stackItem = {columns:[]};
                 stack.push(stackItem);

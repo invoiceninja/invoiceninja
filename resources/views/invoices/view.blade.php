@@ -43,7 +43,7 @@
     		</div>
     		<div class="pull-left">
                 @if(!empty($documentsZipURL))
-                    {!! Button::normal(trans('texts.download_documents'))->asLinkTo($documentsZipURL)->large() !!}
+                    {!! Button::normal(trans('texts.download_documents', array('size'=>Form::human_filesize($documentsZipSize))))->asLinkTo($documentsZipURL)->large() !!}
                 @endif
             </div>
         @endif
@@ -54,7 +54,7 @@
             <h3>{{ trans('texts.documents_header') }}</h3>
             <ul>
             @foreach ($invoice->documents as $document)
-                <li><a target="_blank" href="{{ $document->getClientUrl($invitation) }}">{{$document->name}}</a></li>
+                <li><a target="_blank" href="{{ $document->getClientUrl($invitation) }}">{{$document->name}} ({{Form::human_filesize($document->size)}})</a></li>
             @endforeach
             </ul>
             </div>
@@ -62,7 +62,9 @@
         
         @if ($account->isPro() && $account->invoice_embed_documents)
             @foreach ($invoice->documents as $document)
-                <script src="{{ $document->getClientVFSJSUrl() }}" type="text/javascript" {{ Input::has('phantomjs')?'':'async' }}></script>
+                @if($document->isPDFEmbeddable())
+                    <script src="{{ $document->getClientVFSJSUrl() }}" type="text/javascript" {{ Input::has('phantomjs')?'':'async' }}></script>
+                @endif
             @endforeach
         @endif
 		<script type="text/javascript">

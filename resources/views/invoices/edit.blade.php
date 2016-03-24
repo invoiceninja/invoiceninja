@@ -930,7 +930,7 @@
             params:{
                 _token:"{{ Session::getToken() }}"
             },
-            acceptedFiles:{!! json_encode(implode(',',array_keys(\App\Models\Document::$types))) !!},
+            acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
             addRemoveLinks:true,
             maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
             dictDefaultMessage:{!! json_encode(trans('texts.document_upload_message')) !!}
@@ -955,8 +955,11 @@
             
             dropzone.emit('addedfile', mockFile);
             dropzone.emit('complete', mockFile);
-            if(document.type().match(/image.*/)){
+            if(document.preview_url()){
                 dropzone.emit('thumbnail', mockFile, document.preview_url()||document.url());
+            }
+            else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
+                dropzone.emit('thumbnail', mockFile, document.url());
             }
             dropzone.files.push(mockFile);
         }
@@ -1005,7 +1008,9 @@
 	}
 
 	function createInvoiceModel() {
-		var invoice = ko.toJS(window.model).invoice;
+        var model = ko.toJS(window.model);
+        if(!model)return;
+		var invoice = model.invoice;
 		invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
 		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
@@ -1335,13 +1340,19 @@
         file.public_id = response.document.public_id
         model.invoice().documents()[file.index].update(response.document);
         refreshPDF(true);
+        
+        if(response.document.preview_url){
+            dropzone.emit('thumbnail', file, response.document.preview_url);
+        }
     }
     @endif
 
 	</script>
     @if ($account->isPro() && $account->invoice_embed_documents)
         @foreach ($invoice->documents as $document)
-            <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
+            @if($document->isPDFEmbeddable())
+                <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
+            @endif
         @endforeach
     @endif
 

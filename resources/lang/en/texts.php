@@ -1107,7 +1107,7 @@ $LANG = array(
     'invoice_embed_documents' => 'Embed Documents',
     'invoice_embed_documents_help' => 'Include attached images in the invoice.',
     'document_email_attachment' => 'Attach Documents',
-    'download_documents' => 'Download Documents',
+    'download_documents' => 'Download Documents (:size)',
 );
 
 return $LANG;

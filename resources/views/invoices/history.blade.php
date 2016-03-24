@@ -59,7 +59,9 @@
     
     @if (Auth::user()->account->isPro() && Auth::user()->account->invoice_embed_documents)
         @foreach ($invoice->documents as $document)
-            <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
+            @if($document->isPDFEmbeddable())
+                <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
+            @endif
         @endforeach
     @endif
 @stop
