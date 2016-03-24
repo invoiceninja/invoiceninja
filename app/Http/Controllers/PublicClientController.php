@@ -16,6 +16,7 @@ use App\Models\Document;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ActivityRepository;
+use App\Ninja\Repositories\DocumentRepository;
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\QuoteInvitationWasViewed;
 use App\Services\PaymentService;
@@ -27,11 +28,12 @@ class PublicClientController extends BaseController
     private $paymentRepo;
     private $documentRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo,  PaymentService $paymentService)
+    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo, DocumentRepository $documentRepo, PaymentService $paymentService)
     {
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
         $this->activityRepo = $activityRepo;
+        $this->documentRepo = $documentRepo;
         $this->paymentService = $paymentService;
     }
 
@@ -123,6 +125,7 @@ class PublicClientController extends BaseController
             'hideLogo' => $account->isWhiteLabel(),
             'hideHeader' => $account->isNinjaAccount(),
             'hideDashboard' => !$account->enable_client_portal,
+            'showDocuments' => $account->isPro(),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'invoice' => $invoice->hidePrivateFields(),
@@ -271,6 +274,7 @@ class PublicClientController extends BaseController
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
             'hideDashboard' => !$account->enable_client_portal,
+            'showDocuments' => $account->isPro(),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'title' => trans('texts.invoices'),
@@ -303,6 +307,7 @@ class PublicClientController extends BaseController
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
             'hideDashboard' => !$account->enable_client_portal,
+            'showDocuments' => $account->isPro(),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'entityType' => ENTITY_PAYMENT,
@@ -341,6 +346,7 @@ class PublicClientController extends BaseController
           'color' => $color,
           'hideLogo' => $account->isWhiteLabel(),
           'hideDashboard' => !$account->enable_client_portal,
+          'showDocuments' => $account->isPro(),
           'clientViewCSS' => $account->clientViewCSS(),
           'clientFontUrl' => $account->getFontsUrl(),
           'title' => trans('texts.quotes'),
@@ -359,6 +365,39 @@ class PublicClientController extends BaseController
         }
 
         return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_QUOTE, Input::get('sSearch'));
+    }
+
+    public function documentIndex()
+    {
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+        $account = $invitation->account;
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        
+        $data = [
+          'color' => $color,
+          'hideLogo' => $account->isWhiteLabel(),
+          'hideDashboard' => !$account->enable_client_portal,
+          'showDocuments' => $account->isPro(),
+          'clientViewCSS' => $account->clientViewCSS(),
+          'clientFontUrl' => $account->getFontsUrl(),
+          'title' => trans('texts.documents'),
+          'entityType' => ENTITY_DOCUMENT,
+          'columns' => Utils::trans(['invoice_number', 'name', 'document_date', 'document_size']),
+        ];
+
+        return response()->view('public_list', $data);
+    }
+
+
+    public function documentDatatable()
+    {
+        if (!$invitation = $this->getInvitation()) {
+            return false;
+        }
+
+        return $this->documentRepo->getClientDatatable($invitation->contact_id, ENTITY_DOCUMENT, Input::get('sSearch'));
     }
 
     private function returnError($error = false)

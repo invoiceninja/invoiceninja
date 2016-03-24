@@ -7,6 +7,7 @@ use App\Models\Document;
 use App\Ninja\Repositories\BaseRepository;
 use Intervention\Image\ImageManager;
 use Session;
+use Form;
 
 class DocumentRepository extends BaseRepository
 {
@@ -187,5 +188,52 @@ class DocumentRepository extends BaseRepository
             'document' => $doc_array,
             'code'  => 200
         ], 200);
+    }
+    
+    public function getClientDatatable($contactId, $entityType, $search)
+    {
+        $query = DB::table('invitations')
+          ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
+          ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
+          ->join('documents', 'documents.invoice_id', '=', 'invitations.invoice_id')
+          ->join('clients', 'clients.id', '=', 'invoices.client_id')
+          ->where('invitations.contact_id', '=', $contactId)
+          ->where('invitations.deleted_at', '=', null)
+          ->where('invoices.is_deleted', '=', false)
+          ->where('clients.deleted_at', '=', null)
+          ->where('invoices.is_recurring', '=', false)
+          // This needs to be a setting to also hide the activity on the dashboard page
+          //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT) 
+          ->select(
+                'invitations.invitation_key',
+                'invoices.invoice_number',
+                'documents.name',
+                'documents.public_id',
+                'documents.created_at',
+                'documents.size'
+          );
+
+        $table = \Datatable::query($query)
+            ->addColumn('invoice_number', function ($model) {
+                return link_to(
+                    '/view/'.$model->invitation_key, 
+                    $model->invoice_number
+                )->toHtml(); 
+            })
+            ->addColumn('name', function ($model) {
+                return link_to(
+                    '/client/document/'.$model->invitation_key.'/'.$model->public_id.'/'.$model->name, 
+                    $model->name,
+                    ['target'=>'_blank']
+                )->toHtml(); 
+            })
+            ->addColumn('document_date', function ($model) {
+                return Utils::fromSqlDate($model->created_at);
+            })
+            ->addColumn('document_size', function ($model) {
+                return Form::human_filesize($model->size); 
+            });
+
+        return $table->make();
     }
 }

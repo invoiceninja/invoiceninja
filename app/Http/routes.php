@@ -45,17 +45,20 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('complete', 'PaymentController@offsite_payment');
     Route::get('client/quotes', 'PublicClientController@quoteIndex');
     Route::get('client/invoices', 'PublicClientController@invoiceIndex');
+    Route::get('client/documents', 'PublicClientController@documentIndex');
     Route::get('client/payments', 'PublicClientController@paymentIndex');
     Route::get('client/dashboard', 'PublicClientController@dashboard');
     Route::get('client/document/js/{public_id}/{filename}', 'PublicClientController@getDocumentVFSJS');
     Route::get('client/document/{invitation_key}/{public_id}/{filename?}', 'PublicClientController@getDocument');
     Route::get('client/documents/{invitation_key}/{filename?}', 'PublicClientController@getInvoiceDocumentsZip');
+    
+    Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
+    Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
+    Route::get('api/client.documents', array('as'=>'api.client.documents', 'uses'=>'PublicClientController@documentDatatable'));
+    Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PublicClientController@paymentDatatable'));
+    Route::get('api/client.activity', array('as'=>'api.client.activity', 'uses'=>'PublicClientController@activityDatatable'));
 });
 
-Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
-Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
-Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PublicClientController@paymentDatatable'));
-Route::get('api/client.activity', array('as'=>'api.client.activity', 'uses'=>'PublicClientController@activityDatatable'));
 
 Route::get('license', 'PaymentController@show_license_payment');
 Route::post('license', 'PaymentController@do_license_payment');
@@ -318,6 +321,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_CLIENT', 'client');
     define('ENTITY_CONTACT', 'contact');
     define('ENTITY_INVOICE', 'invoice');
+    define('ENTITY_DOCUMENT', 'document');
     define('ENTITY_INVOICE_ITEMS', 'invoice_items');
     define('ENTITY_INVITATION', 'invitation');
     define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
