@@ -273,6 +273,7 @@
 
             self.expense_currency_id = ko.observable();
             self.invoice_currency_id = ko.observable();
+            self.documents = ko.observableArray();
             self.amount = ko.observable();
             self.exchange_rate = ko.observable(1);
             self.should_be_invoiced = ko.observable();

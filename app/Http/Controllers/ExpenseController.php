@@ -184,7 +184,14 @@ class ExpenseController extends BaseController
 
     public function store(CreateExpenseRequest $request)
     {
-        $expense = $this->expenseService->save($request->input());
+        $data = $request->input();
+        $data['documents'] = $request->file('documents');
+        
+        if(!$this->checkUpdatePermission($data, $response)){
+            return $response;
+        }
+        
+        $expense = $this->expenseService->save($data);
 
         Session::flash('message', trans('texts.created_expense'));
 

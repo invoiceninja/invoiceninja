@@ -152,6 +152,8 @@ class ExpenseRepository extends BaseRepository
         $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
         $expense->exchange_rate = round($rate, 4);
         $expense->amount = round(Utils::parseFloat($input['amount']), 2);
+        
+        $expense->save();
 
         // Documents
         $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):array();;
@@ -189,8 +191,6 @@ class ExpenseRepository extends BaseRepository
                 $document->delete();
             }
         }
-        
-        $expense->save();
 
         return $expense;
     }

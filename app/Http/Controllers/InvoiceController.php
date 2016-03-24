@@ -243,7 +243,6 @@ class InvoiceController extends BaseController
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
         
-        $invoice->expenses = Expense::scope([2])->with('documents')->get();
         if(Session::get('expenses')){
             $invoice->expenses = Expense::scope(Session::get('expenses'))->with('documents')->get();
         }
@@ -372,6 +371,7 @@ class InvoiceController extends BaseController
     public function store(SaveInvoiceWithClientRequest $request)
     {
         $data = $request->input();
+        $data['documents'] = $request->file('documents');
         
         if(!$this->checkUpdatePermission($data, $response)){
             return $response;
