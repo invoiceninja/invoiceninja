@@ -403,6 +403,13 @@ class InvoiceRepository extends BaseRepository
         foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
             if($document && !$checkSubPermissions || $document->canEdit()){
+                
+                if($document->invoice_id && $document->invoice_id != $invoice->id){
+                    // From a clone
+                    $document = $document->cloneDocument();
+                    $document_ids[] = $document->public_id;// Don't remove this document
+                }
+                
                 $document->invoice_id = $invoice->id;
                 $document->save();
             }
@@ -412,7 +419,10 @@ class InvoiceRepository extends BaseRepository
             if(!in_array($document->public_id, $document_ids)){
                 // Removed
                 if(!$checkSubPermissions || $document->canEdit()){
-                    $document->delete();
+                    if($document->invoice_id == $invoice->id){
+                        // Make sure the document isn't on a clone
+                        $document->delete();
+                    }
                 }
             }
         }
@@ -572,6 +582,11 @@ class InvoiceRepository extends BaseRepository
             $clone->invoice_items()->save($cloneItem);
         }
 
+        foreach ($invoice->documents as $document) {
+            $cloneDocument = $document->cloneDocument();            
+            $invoice->documents()->save($cloneDocument);
+        }
+
         foreach ($invoice->invitations as $invitation) {
             $cloneInvitation = Invitation::createNew($invoice);
             $cloneInvitation->contact_id = $invitation->contact_id;
@@ -674,6 +689,11 @@ class InvoiceRepository extends BaseRepository
             $item->tax_name = $recurItem->tax_name;
             $item->tax_rate = $recurItem->tax_rate;
             $invoice->invoice_items()->save($item);
+        }
+
+        foreach ($recurInvoice->documents as $recurDocument) {
+            $document = $recurDocument->cloneDocument();
+            $invoice->documents()->save($document);
         }
 
         foreach ($recurInvoice->invitations as $recurInvitation) {

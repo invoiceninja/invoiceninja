@@ -204,6 +204,21 @@ class Document extends EntityModel
         $array['preview_url'] = $this->getPreviewUrl();
         return $array;
     }
+    
+    public function cloneDocument(){
+        $document = Document::createNew($this);
+        $document->path = $this->path;
+        $document->preview = $this->preview;
+        $document->name = $this->name;
+        $document->type = $this->type;
+        $document->disk = $this->disk;
+        $document->hash = $this->hash;
+        $document->size = $this->size;
+        $document->width = $this->width;
+        $document->height = $this->height;
+        
+        return $document;
+    }
 }
 
 Document::deleted(function ($document) {
