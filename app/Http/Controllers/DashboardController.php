@@ -11,7 +11,9 @@ class DashboardController extends BaseController
 {
     public function index()
     {
-
+        $view_all = !Auth::user()->hasPermission('view_all');
+        $user_id = Auth::user()->id;
+            
         // total_income, billed_clients, invoice_sent and active_clients
         $select = DB::raw('COUNT(DISTINCT CASE WHEN invoices.id IS NOT NULL THEN clients.id ELSE null END) billed_clients,
                         SUM(CASE WHEN invoices.invoice_status_id >= '.INVOICE_STATUS_SENT.' THEN 1 ELSE 0 END) invoices_sent,
@@ -24,8 +26,19 @@ class DashboardController extends BaseController
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
             ->where('invoices.is_recurring', '=', false)
-            ->where('invoices.is_quote', '=', false)
-            ->groupBy('accounts.id')
+            ->where('invoices.is_quote', '=', false);
+            
+        if(!$view_all){
+            $metrics = $metrics->where(function($query) use($user_id){
+                $query->where('invoices.user_id', '=', $user_id);
+                $query->orwhere(function($query) use($user_id){
+                    $query->where('invoices.user_id', '=', null); 
+                    $query->where('clients.user_id', '=', $user_id);
+                });
+            });
+        }
+            
+        $metrics = $metrics->groupBy('accounts.id')
             ->first();
 
         $select = DB::raw('SUM(clients.paid_to_date) as value, clients.currency_id as currency_id');
@@ -33,8 +46,13 @@ class DashboardController extends BaseController
             ->select($select)
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
             ->where('accounts.id', '=', Auth::user()->account_id)
-            ->where('clients.is_deleted', '=', false)
-            ->groupBy('accounts.id')
+            ->where('clients.is_deleted', '=', false);
+            
+        if(!$view_all){
+            $paidToDate = $paidToDate->where('clients.user_id', '=', $user_id);
+        }
+        
+        $paidToDate = $paidToDate->groupBy('accounts.id')
             ->groupBy(DB::raw('CASE WHEN clients.currency_id IS NULL THEN CASE WHEN accounts.currency_id IS NULL THEN 1 ELSE accounts.currency_id END ELSE clients.currency_id END'))
             ->get();
 
@@ -47,8 +65,13 @@ class DashboardController extends BaseController
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
             ->where('invoices.is_quote', '=', false)
-            ->where('invoices.is_recurring', '=', false)
-            ->groupBy('accounts.id')
+            ->where('invoices.is_recurring', '=', false);
+            
+        if(!$view_all){
+            $averageInvoice = $averageInvoice->where('invoices.user_id', '=', $user_id);
+        }
+        
+        $averageInvoice = $averageInvoice->groupBy('accounts.id')
             ->groupBy(DB::raw('CASE WHEN clients.currency_id IS NULL THEN CASE WHEN accounts.currency_id IS NULL THEN 1 ELSE accounts.currency_id END ELSE clients.currency_id END'))
             ->get();
 
@@ -63,9 +86,14 @@ class DashboardController extends BaseController
             ->get();
 
         $activities = Activity::where('activities.account_id', '=', Auth::user()->account_id)
+                ->where('activities.activity_type_id', '>', 0);
+        
+        if(!$view_all){
+            $activities = $activities->where('activities.user_id', '=', $user_id);
+        }
+                
+        $activities = $activities->orderBy('activities.created_at', 'desc')
                 ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'account')
-                ->where('activity_type_id', '>', 0)
-                ->orderBy('created_at', 'desc')
                 ->take(50)
                 ->get();
 
@@ -81,8 +109,13 @@ class DashboardController extends BaseController
                     ->where('invoices.is_deleted', '=', false)
                     ->where('invoices.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
-                    ->where('invoices.due_date', '<', date('Y-m-d'))
-                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'is_quote'])
+                    ->where('invoices.due_date', '<', date('Y-m-d'));
+            
+        if(!$view_all){
+            $pastDue = $pastDue->where('invoices.user_id', '=', $user_id);
+        }
+            
+        $pastDue = $pastDue->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'is_quote'])
                     ->orderBy('invoices.due_date', 'asc')
                     ->take(50)
                     ->get();
@@ -100,9 +133,14 @@ class DashboardController extends BaseController
                     ->where('invoices.is_deleted', '=', false)
                     ->where('contacts.is_primary', '=', true)
                     ->where('invoices.due_date', '>=', date('Y-m-d'))
-                    ->orderBy('invoices.due_date', 'asc')
-                    ->take(50)
-                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'is_quote'])
+                    ->orderBy('invoices.due_date', 'asc');
+            
+        if(!$view_all){
+            $upcoming = $upcoming->where('invoices.user_id', '=', $user_id);
+        }
+            
+        $upcoming = $upcoming->take(50)
+                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'is_quote'])
                     ->get();
 
         $payments = DB::table('payments')
@@ -114,8 +152,13 @@ class DashboardController extends BaseController
                     ->where('invoices.is_deleted', '=', false)
                     ->where('clients.is_deleted', '=', false)
                     ->where('contacts.deleted_at', '=', null)
-                    ->where('contacts.is_primary', '=', true)
-                    ->select(['payments.payment_date', 'payments.amount', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id'])
+                    ->where('contacts.is_primary', '=', true);
+            
+        if(!$view_all){
+            $payments = $payments->where('payments.user_id', '=', $user_id);
+        }
+            
+        $payments = $payments->select(['payments.payment_date', 'payments.amount', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id'])
                     ->orderBy('payments.payment_date', 'desc')
                     ->take(50)
                     ->get();

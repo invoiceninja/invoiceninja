@@ -25,10 +25,11 @@ class ExpenseController extends BaseController
     // Expenses
     protected $expenseRepo;
     protected $expenseService;
+    protected $model = 'App\Models\Expense';
 
     public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService)
     {
-        parent::__construct();
+        // parent::__construct();
 
         $this->expenseRepo = $expenseRepo;
         $this->expenseService = $expenseService;
@@ -44,7 +45,7 @@ class ExpenseController extends BaseController
         return View::make('list', array(
             'entityType' => ENTITY_EXPENSE,
             'title' => trans('texts.expenses'),
-            'sortCol' => '1',
+            'sortCol' => '3',
             'columns' => Utils::trans([
               'checkbox',
               'vendor',
@@ -70,6 +71,10 @@ class ExpenseController extends BaseController
 
     public function create($vendorPublicId = null, $clientPublicId = null)
     {
+        if(!$this->checkCreatePermission($response)){
+            return $response;
+        }
+        
         if($vendorPublicId != 0) {
             $vendor = Vendor::scope($vendorPublicId)->with('vendorcontacts')->firstOrFail();
         } else {
@@ -95,6 +100,11 @@ class ExpenseController extends BaseController
     public function edit($publicId)
     {
         $expense = Expense::scope($publicId)->firstOrFail();
+        
+        if(!$this->checkEditPermission($expense, $response)){
+            return $response;
+        }
+        
         $expense->expense_date = Utils::fromSqlDate($expense->expense_date);
         
         $actions = [];

@@ -1,11 +1,11 @@
 <?php namespace App\Services;
 
-use Illuminate\Foundation\Bus\DispatchesCommands;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Services\DatatableService;
 
 class BaseService
 {
-    use DispatchesCommands;
+    use DispatchesJobs;
 
     protected function getRepo()
     {
@@ -14,14 +14,16 @@ class BaseService
 
     public function bulk($ids, $action)
     {
-        if ( ! $ids) {
+        if ( ! $ids ) {
             return 0;
         }
 
         $entities = $this->getRepo()->findByPublicIdsWithTrashed($ids);
 
         foreach ($entities as $entity) {
-            $this->getRepo()->$action($entity);
+            if($entity->canEdit()){
+                $this->getRepo()->$action($entity);
+            }
         }
 
         return count($entities);

@@ -34,10 +34,7 @@ class PublicClientController extends BaseController
     public function view($invitationKey)
     {
         if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
-            return response()->view('error', [
-                'error' => trans('texts.invoice_not_found'),
-                'hideHeader' => true,
-            ]);
+            return $this->returnError();
         }
 
         $invoice = $invitation->invoice;
@@ -53,7 +50,8 @@ class PublicClientController extends BaseController
             ]);
         }
 
-        if (!Input::has('phantomjs') && !Session::has($invitationKey) && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
+        if (!Input::has('phantomjs') && !Input::has('silent') && !Session::has($invitationKey) 
+            && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             if ($invoice->is_quote) {
                 event(new QuoteInvitationWasViewed($invoice, $invitation));
             } else {
@@ -104,7 +102,9 @@ class PublicClientController extends BaseController
         // Checkout.com requires first getting a payment token
         $checkoutComToken = false;
         $checkoutComKey = false;
+        $checkoutComDebug = false;
         if ($accountGateway = $account->getGatewayConfig(GATEWAY_CHECKOUT_COM)) {
+            $checkoutComDebug = $accountGateway->getConfigField('testMode');
             if ($checkoutComToken = $this->paymentService->getCheckoutComToken($invitation)) {
                 $checkoutComKey = $accountGateway->getConfigField('publicApiKey');
                 $invitation->transaction_reference = $checkoutComToken;
@@ -118,6 +118,7 @@ class PublicClientController extends BaseController
             'showBreadcrumbs' => false,
             'hideLogo' => $account->isWhiteLabel(),
             'hideHeader' => $account->isNinjaAccount(),
+            'hideDashboard' => !$account->enable_client_portal,
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'invoice' => $invoice->hidePrivateFields(),
@@ -128,6 +129,7 @@ class PublicClientController extends BaseController
             'paymentURL' => $paymentURL,
             'checkoutComToken' => $checkoutComToken,
             'checkoutComKey' => $checkoutComKey,
+            'checkoutComDebug' => $checkoutComDebug,
             'phantomjs' => Input::has('phantomjs'),
         );
 
@@ -188,10 +190,15 @@ class PublicClientController extends BaseController
         if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
         }
+
         $account = $invitation->account;
         $invoice = $invitation->invoice;
         $client = $invoice->client;
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
 
         $data = [
             'color' => $color,
@@ -244,6 +251,7 @@ class PublicClientController extends BaseController
         $data = [
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
+            'hideDashboard' => !$account->enable_client_portal,
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'title' => trans('texts.invoices'),
@@ -275,6 +283,7 @@ class PublicClientController extends BaseController
         $data = [
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
+            'hideDashboard' => !$account->enable_client_portal,
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'entityType' => ENTITY_PAYMENT,
@@ -293,7 +302,7 @@ class PublicClientController extends BaseController
         $payments = $this->paymentRepo->findForContact($invitation->contact->id, Input::get('sSearch'));
 
         return Datatable::query($payments)
-                ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number) : $model->invoice_number; })
+                ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number) : $model->invoice_number; })->toHtml()
                 ->addColumn('transaction_reference', function ($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
                 ->addColumn('payment_type', function ($model) { return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
                 ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
@@ -312,6 +321,7 @@ class PublicClientController extends BaseController
         $data = [
           'color' => $color,
           'hideLogo' => $account->isWhiteLabel(),
+          'hideDashboard' => !$account->enable_client_portal,
           'clientViewCSS' => $account->clientViewCSS(),
           'clientFontUrl' => $account->getFontsUrl(),
           'title' => trans('texts.quotes'),
@@ -332,13 +342,11 @@ class PublicClientController extends BaseController
         return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_QUOTE, Input::get('sSearch'));
     }
 
-    private function returnError()
+    private function returnError($error = false)
     {
         return response()->view('error', [
-            'error' => trans('texts.invoice_not_found'),
+            'error' => $error ?: trans('texts.invoice_not_found'),
             'hideHeader' => true,
-            'clientViewCSS' => $account->clientViewCSS(),
-            'clientFontUrl' => $account->getFontsUrl(),
         ]);
     }
 

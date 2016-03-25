@@ -42,7 +42,7 @@ class UserApiController extends BaseAPIController
         return $this->save($request);
     }
     */
-    
+
     public function update(UpdateUserRequest $request, $userPublicId)
     {
         /*

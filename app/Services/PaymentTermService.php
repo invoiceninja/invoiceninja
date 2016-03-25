@@ -34,7 +34,7 @@ class PaymentTermService extends BaseService
             [
                 'name',
                 function ($model) {
-                    return link_to("payment_terms/{$model->public_id}/edit", $model->name);
+                    return link_to("payment_terms/{$model->public_id}/edit", $model->name)->toHtml();
                 }
             ],
             [

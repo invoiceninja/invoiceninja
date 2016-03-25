@@ -40,7 +40,7 @@ class TokenService extends BaseService
             [
                 'name',
                 function ($model) {
-                    return link_to("tokens/{$model->public_id}/edit", $model->name);
+                    return link_to("tokens/{$model->public_id}/edit", $model->name)->toHtml();
                 }
             ],
             [

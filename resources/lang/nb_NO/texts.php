@@ -746,8 +746,7 @@ return array(
     'primary_user' => 'Hovedbruker',
     'help' => 'Hjelp',
     'customize_help' => '<p>Vi bruker <a href="http://pdfmake.org/" target="_blank">pdfmake</a> for å definere faktura designene deklarativt. Pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> gir en flott måte å se biblioteket i aksjon.</p>
-                        <p>Du kan få tilgang til hvilket som helst faktura felt ved å legge til <code>Value</code> i slutten. For eksempel <code>$invoiceNumberValue</code> viser faktura nummeret.</p>
-                        <p>For å få tilgang til et underelementet ved bruk av prikk notasjon. For eksempel for å vise klientens navn, kan du bruke <code>$client.nameValue</code>.</p>
+                        <p>For å få tilgang til et underelementet ved bruk av prikk notasjon. For eksempel for å vise klientens navn, kan du bruke <code>$client.name</code>.</p>
                         <p>Om du trenger hjelp til å finne ut noe, poster et spørsmål til vårt <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">brukerforum</a>.</p>',
 
     'invoice_due_date' => 'Tidsfrist',
@@ -943,7 +942,7 @@ return array(
     'notes' => 'Notes',
     'invoice_will_create' => 'client will be created',
     'invoices_will_create' => 'invoices will be created',
-    'failed_to_import' => 'The following records failed to import',
+    'failed_to_import' => 'The following records failed to import, they either already exist or are missing required fields.',
 
     'publishable_key' => 'Publishable Key',
     'secret_key' => 'Secret Key',
@@ -1131,5 +1130,74 @@ return array(
     'trial_success' => 'Successfully enabled two week free pro plan trial',
     'overdue' => 'Overdue',
     'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
+
+    'navigation' => 'Navigation',
+    'list_invoices' => 'List Invoices',
+    'list_clients' => 'List Clients',
+    'list_quotes' => 'List Quotes',
+    'list_tasks' => 'List Tasks',
+    'list_expenses' => 'List Expenses',
+    'list_recurring_invoices' => 'List Recurring Invoices',
+    'list_payments' => 'List Payments',
+    'list_credits' => 'List Credits',
+    'tax_name' => 'Tax Name',
+    'report_settings' => 'Report Settings',
+    'search_hotkey' => 'shortcut is /',
+
+    'new_user' => 'New User',
+    'new_product' => 'New Product',
+    'new_tax_rate' => 'New Tax Rate',
+    'invoiced_amount' => 'Invoiced Amount',
+    'invoice_item_fields' => 'Invoice Item Fields',
+    'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
+    'recurring_invoice_number' => 'Recurring Invoice Number',
+    'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
+    'enable_client_portal' => 'Dashboard',
+    'enable_client_portal_help' => 'Show/hide the dashboard page in the client portal.',
+
+    // Client Passwords
+    'enable_portal_password'=>'Password protect invoices',
+    'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
+    'send_portal_password'=>'Generate password automatically',
+    'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
+    
+    'expired' => 'Expired',
+    'invalid_card_number' => 'The credit card number is not valid.',
+    'invalid_expiry' => 'The expiration date is not valid.',
+    'invalid_cvv' => 'The CVV is not valid.',
+    'cost' => 'Cost',
+    'create_invoice_for_sample' => 'Note: create your first invoice to see a preview here.',
+    
+    // User Permissions
+    'owner' => 'Owner',
+    'administrator' => 'Administrator',
+    'administrator_help' => 'Allow user to manage users, change settings and modify all records',
+    'user_create_all' => 'Create clients, invoices, etc.',
+    'user_view_all' => 'View all clients, invoices, etc.',
+    'user_edit_all' => 'Edit all clients, invoices, etc.',
+    'gateway_help_20' => ':link to sign up for Sage Pay.',
+    'gateway_help_21' => ':link to sign up for Sage Pay.',
+    'partial_due' => 'Partial Due',
+    'restore_vendor' => 'Restore Vendor',
+    'restored_vendor' => 'Successfully restored vendor',
+    'restored_expense' => 'Successfully restored expense',
+    'permissions' => 'Permissions',
+    'create_all_help' => 'Allow user to create and modify records',
+    'view_all_help' => 'Allow user to view records they didn\'t create',
+    'edit_all_help' => 'Allow user to modify records they didn\'t create',
+    'view_payment' => 'View Payment', 
+   
+    'january' => 'January',
+    'february' => 'February',
+    'march' => 'March',
+    'april' => 'April',
+    'may' => 'May',
+    'june' => 'June',
+    'july' => 'July',
+    'august' => 'August',
+    'september' => 'September',
+    'october' => 'October',
+    'november' => 'November',
+    'december' => 'December',
 
 );

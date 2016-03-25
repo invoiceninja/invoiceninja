@@ -200,6 +200,7 @@
             }
 
             var keys = {!! json_encode(\App\Ninja\Mailers\ContactMailer::$variableFields) !!};
+            var passwordHtml = "{!! $account->isPro() && $account->enable_portal_password && $account->send_portal_password?'<p>'.trans('texts.password').': 6h2NWNdw6<p>':'' !!}";
             var vals = [
                 {!! json_encode($emailFooter) !!}, 
                 "{{ $account->getDisplayName() }}", 
@@ -211,10 +212,11 @@
                 "First Name",
                 "0001", 
                 "0001",
-                "{{ URL::to('/view/...') }}", 
-                '{!! HTML::flatButton('view_invoice', '#0b4d78') !!}',
-                "{{ URL::to('/payment/...') }}", 
-                '{!! HTML::flatButton('pay_now', '#36c157') !!}',
+                passwordHtml,
+                "{{ URL::to('/view/...') }}$password", 
+                '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
+                "{{ URL::to('/payment/...') }}$password", 
+                '{!! Form::flatButton('pay_now', '#36c157') !!}$password',
             ];
 
             // Add blanks for custom values
@@ -227,13 +229,21 @@
                 {!! "vals.push('" . URL::to('/payment/...') . "');" !!}
 
                 {!! "keys.push('" . \App\Models\Gateway::getPaymentTypeName($type).'Button' . "');" !!}
-                {!! "vals.push('" . HTML::flatButton('pay_now', '#36c157') . "');" !!}
+                {!! "vals.push('" . Form::flatButton('pay_now', '#36c157') . "');" !!}
             @endforeach
 
+            var includesPasswordPlaceholder = str.indexOf('$password') != -1;
+                
             for (var i=0; i<keys.length; i++) {
                 var regExp = new RegExp('\\$'+keys[i], 'g');
                 str = str.replace(regExp, vals[i]);
             }
+                 
+            if(!includesPasswordPlaceholder){
+                var lastSpot = str.lastIndexOf('$password')
+                str = str.slice(0, lastSpot) + str.slice(lastSpot).replace('$password', passwordHtml);
+            }
+            str = str.replace(/\$password/g,'');
 
             return str;
         }

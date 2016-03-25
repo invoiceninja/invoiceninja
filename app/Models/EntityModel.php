@@ -42,7 +42,7 @@ class EntityModel extends Eloquent
     {
         $className = get_called_class();
 
-        return $className::scope($publicId)->withTrashed()->pluck('id');
+        return $className::scope($publicId)->withTrashed()->value('id');
     }
 
     public function getActivityKey()
@@ -81,6 +81,11 @@ class EntityModel extends Eloquent
         return $query;
     }
 
+    public function scopeWithArchived($query)
+    {
+        return $query->withTrashed()->where('is_deleted', '=', false);
+    }
+
     public function getName()
     {
         return $this->public_id;
@@ -107,5 +112,57 @@ class EntityModel extends Eloquent
         $parts = explode('\\', $class);
         $name = $parts[count($parts)-1];
         return strtolower($name) . '_id';
+    }
+    
+    public static function canCreate() {
+        return Auth::user()->hasPermission('create_all');
+    }
+    
+    public function canEdit() {
+        return static::canEditItem($this);
+    }
+    
+    public static function canEditItem($item) {
+        return Auth::user()->hasPermission('edit_all') || (isset($item->user_id) && Auth::user()->id == $item->user_id);
+    }
+    
+    public static function canEditItemById($item_id) {
+        if(Auth::user()->hasPermission('edit_all')) {
+            return true;
+        }
+        
+        return static::whereId($item_id)->first()->user_id == Auth::user()->id;
+    }
+    
+    public static function canEditItemByOwner($user_id) {
+        if(Auth::user()->hasPermission('edit_all')) {
+            return true;
+        }
+        
+        return Auth::user()->id == $user_id;
+    }
+    
+    public function canView() {
+        return static::canViewItem($this);
+    }
+    
+    public static function canViewItem($item) {
+        return Auth::user()->hasPermission('view_all') || (isset($item->user_id) && Auth::user()->id == $item->user_id);
+    }
+    
+    public static function canViewItemById($item_id) {
+        if(Auth::user()->hasPermission('view_all')) {
+            return true;
+        }
+        
+        return static::whereId($item_id)->first()->user_id == Auth::user()->id;
+    }
+    
+    public static function canViewItemByOwner($user_id) {
+        if(Auth::user()->hasPermission('view_all')) {
+            return true;
+        }
+        
+        return Auth::user()->id == $user_id;
     }
 }

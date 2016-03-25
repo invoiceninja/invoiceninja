@@ -50,7 +50,7 @@
                             ->help(trans('texts.subdomain_help')) !!}
 
                 {!! Former::text('iframe_url')
-                            ->placeholder('http://www.example.com/invoice')
+                            ->placeholder('https://www.example.com/invoice')
                             ->appendIcon('question-sign')
                             ->addGroupClass('iframe_url')
                             ->label(' ')

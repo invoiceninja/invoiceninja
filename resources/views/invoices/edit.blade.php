@@ -4,17 +4,19 @@
 	@parent
 
     @include('money_script')
+
     @foreach ($account->getFontFolders() as $font)
-    <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
 	<script src="{{ asset('pdf.built.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
 
     <style type="text/css">
-
-    /* the value is auto set so we're removing the bold formatting */
-    label.control-label[for=invoice_number] {
-        font-weight: normal !important;
-    }
+        /* the value is auto set so we're removing the bold formatting */
+        label.control-label[for=invoice_number] {
+            font-weight: normal !important;
+        }
     </style>
 @stop
 
@@ -61,14 +63,19 @@
 					<label for="client" class="control-label col-lg-4 col-sm-4">{{ trans('texts.client') }}</label>
 					<div class="col-lg-8 col-sm-8">
                         <h4><div data-bind="text: getClientDisplayName(ko.toJS(client()))"></div></h4>
-						<a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
-                        {!! link_to('/clients/'.$invoice->client->public_id, trans('texts.view_client'), ['target' => '_blank']) !!}
+                        
+                        @if($invoice->client->canView())
+                            @if ($invoice->client->canEdit())
+                                <a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
+                            @endif
+                            {!! link_to('/clients/'.$invoice->client->public_id, trans('texts.view_client'), ['target' => '_blank']) !!}
+                        @endif
 					</div>
 				</div>
 				<div style="display:none">
     		@endif
-
-			{!! Former::select('client')->addOption('', '')->data_bind("dropdown: client")->addClass('client-input')->addGroupClass('client_select closer-row') !!}
+            
+            {!! Former::select('client')->addOption('', '')->data_bind("dropdown: client")->addClass('client-input')->addGroupClass('client_select closer-row') !!}
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
@@ -85,20 +92,22 @@
 
 			<div data-bind="with: client" class="invoice-contact">
 				<div style="display:none" class="form-group" data-bind="visible: contacts().length > 0 &amp;&amp; (contacts()[0].email() || contacts()[0].first_name()), foreach: contacts">
-					<div class="col-lg-8 col-lg-offset-4">
+					<div class="col-lg-8 col-lg-offset-4 col-sm-offset-4">
 						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}" onclick="refreshPDF(true)">
                             <input type="hidden" value="0" data-bind="attr: {name: 'client[contacts][' + $index() + '][send_invoice]'}">
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check', name: 'client[contacts][' + $index() + '][send_invoice]'}">
 							<span data-bind="html: email.display"></span>
                         </label>
-                        <span data-bind="html: $data.view_as_recipient, visible: !$root.invoice().is_recurring()"></span>&nbsp;&nbsp;
-                        @if (Utils::isConfirmed())
-                        <span style="vertical-align:text-top;color:red" class="fa fa-exclamation-triangle"
-                                data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
-                        <span style="vertical-align:text-top" class="glyphicon glyphicon-info-sign"
-                                data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true},
-                                style: {color: $data.hasOwnProperty('invitation_viewed') &amp;&amp; $data.invitation_viewed() ? '#57D172':'#B1B5BA'}"></span>
-                        @endif
+                        <span data-bind="visible: !$root.invoice().is_recurring()">
+                            <span data-bind="html: $data.view_as_recipient"></span>&nbsp;&nbsp;
+                            @if (Utils::isConfirmed())
+                            <span style="vertical-align:text-top;color:red" class="fa fa-exclamation-triangle"
+                                    data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
+                            <span style="vertical-align:text-top" class="glyphicon glyphicon-info-sign"
+                                    data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true},
+                                    style: {color: $data.hasOwnProperty('invitation_viewed') &amp;&amp; $data.invitation_viewed() ? '#57D172':'#B1B5BA'}"></span>
+                            @endif
+                        </span>
 					</div>
 				</div>
 			</div>
@@ -187,6 +196,12 @@
 				<th style="min-width:32px;" class="hide-border"></th>
 				<th style="min-width:160px">{{ $invoiceLabels['item'] }}</th>
 				<th style="width:100%">{{ $invoiceLabels['description'] }}</th>
+                @if ($account->showCustomField('custom_invoice_item_label1'))
+                    <th style="min-width:120px">{{ $account->custom_invoice_item_label1 }}</th>
+                @endif
+                @if ($account->showCustomField('custom_invoice_item_label2'))
+                    <th style="min-width:120px">{{ $account->custom_invoice_item_label2 }}</th>
+                @endif
 				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
 				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel">{{ $invoiceLabels['quantity'] }}</th>
 				<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
@@ -201,11 +216,7 @@
                         $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 				</td>
 				<td>
-                {!! Former::text('product_key')->useDatalist($products->toArray(), 'product_key')
-                        ->data_bind("value: product_key, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + \$index() + '][product_key]'}")
-                        ->addClass('datalist')
-                        ->raw()
-                         !!}
+                    <input id="product_key" type="text" data-bind="typeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
 				</td>
 				<td>
 					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][notes]'}"
@@ -213,6 +224,16 @@
                         <input type="text" data-bind="value: task_public_id, attr: {name: 'invoice_items[' + $index() + '][task_public_id]'}" style="display: none"/>
 						<input type="text" data-bind="value: expense_public_id, attr: {name: 'invoice_items[' + $index() + '][expense_public_id]'}" style="display: none"/>
 				</td>
+                @if ($account->showCustomField('custom_invoice_item_label1'))
+                    <td>
+                        <input data-bind="value: custom_value1, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][custom_value1]'}" class="form-control invoice-item"/>
+                    </td>
+                @endif
+                @if ($account->showCustomField('custom_invoice_item_label2'))
+                    <td>
+                        <input data-bind="value: custom_value2, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][custom_value2]'}" class="form-control invoice-item"/>
+                    </td>
+                @endif
 				<td>
 					<input data-bind="value: prettyCost, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][cost]'}"
                         style="text-align: right" class="form-control invoice-item"/>
@@ -241,7 +262,7 @@
 		<tfoot>
 			<tr>
 				<td class="hide-border"/>
-				<td class="hide-border" colspan="2" rowspan="6" style="vertical-align:top">
+				<td class="hide-border" colspan="{{ 2 + ($account->showCustomField('custom_invoice_item_label1') ? 1 : 0) + ($account->showCustomField('custom_invoice_item_label2') ? 1 : 0) }}" rowspan="6" style="vertical-align:top">
 					<br/>
                     <div role="tabpanel">
 
@@ -364,11 +385,18 @@
 				</tr>
 			@endif
 
-			<tr style="font-size:1.05em">
+			<tr data-bind="style: { 'font-weight': partial() ? 'normal' : 'bold', 'font-size': partial() ? '1em' : '1.05em' }">
 				<td class="hide-border" colspan="3"/>
 				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>
-				<td class="hide-border" colspan="{{ $account->hide_quantity ? 1 : 2 }}"><b>{{ trans($entityType == ENTITY_INVOICE ? 'texts.balance_due' : 'texts.total') }}</b></td>
-				<td class="hide-border" style="text-align: right"><span data-bind="text: totals.total"></span></td>
+				<td class="hide-border" data-bind="css: {'hide-border': !partial()}" colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $entityType == ENTITY_INVOICE ? $invoiceLabels['balance_due'] : trans('texts.total') }}</td>
+				<td class="hide-border" data-bind="css: {'hide-border': !partial()}" style="text-align: right"><span data-bind="text: totals.total"></span></td>
+			</tr>
+
+			<tr style="font-size:1.05em; display:none; font-weight:bold" data-bind="visible: partial">
+				<td class="hide-border" colspan="3"/>
+				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>
+				<td class="hide-border" colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $invoiceLabels['partial_due'] }}</td>
+				<td class="hide-border" style="text-align: right"><span data-bind="text: totals.partial"></span></td>
 			</tr>
 
 		</tfoot>
@@ -529,7 +557,10 @@
                             ->addClass('client-email') !!}
                     {!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown',
                             attr: {name: 'client[contacts][' + \$index() + '][phone]'}") !!}
-
+                    @if ($account->isPro() && $account->enable_portal_password)
+                        {!! Former::password('password')->data_bind("value: (typeof password=='function'?password():null)?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
+                            attr: {name: 'client[contacts][' + \$index() + '][password]'}") !!}
+                    @endif
                     <div class="form-group">
                         <div class="col-lg-8 col-lg-offset-4">
                             <span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
@@ -897,6 +928,9 @@
 	function applyComboboxListeners() {
         var selectorStr = '.invoice-table input, .invoice-table textarea';
 		$(selectorStr).off('change').on('change', function(event) {
+            if ($(event.target).hasClass('handled')) {
+                return;
+            }
             onItemChange();
             refreshPDF(true);
 		});
@@ -912,38 +946,6 @@
                 $(this).height($(this).height()+1);
             };
         });
-
-		@if (Auth::user()->account->fill_products)
-			$('.datalist').off('input').on('input', function() {
-				var key = $(this).val();
-				for (var i=0; i<products.length; i++) {
-					var product = products[i];
-					if (product.product_key == key) {
-						var model = ko.dataFor(this);
-                        if (model.expense_public_id()) {
-                            return;
-                        }
-                        if (product.notes) {
-                            model.notes(product.notes);
-                        }
-                        if (product.cost) {
-                            model.cost(accounting.toFixed(product.cost, 2));
-                        }
-                        if (!model.qty()) {
-						  model.qty(1);
-                        }
-                        @if ($account->invoice_item_taxes)
-                            if (product.default_tax_rate) {
-                                model.tax(self.model.getTaxRateById(product.default_tax_rate.public_id));
-                            }
-                        @endif
-                        model.product_key(key);
-                        onItemChange();
-                        break;
-					}
-				}
-			});
-		@endif
 	}
 
 	function createInvoiceModel() {
@@ -969,7 +971,7 @@
         @endif
 
 		@if ($account->hasLogo())
-			invoice.image = "{{ HTML::image_data($account->getLogoPath()) }}";
+			invoice.image = "{{ Form::image_data($account->getLogoPath()) }}";
 			invoice.imageWidth = {{ $account->getLogoWidth() }};
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif

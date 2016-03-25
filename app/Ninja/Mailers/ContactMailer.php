@@ -1,6 +1,6 @@
 <?php namespace App\Ninja\Mailers;
 
-use HTML;
+use Form;
 use Utils;
 use Event;
 use URL;
@@ -27,6 +27,7 @@ class ContactMailer extends Mailer
         'firstName',
         'invoice',
         'quote',
+        'password',
         'viewLink',
         'viewButton',
         'paymentLink',
@@ -109,6 +110,13 @@ class ContactMailer extends Mailer
             'invitation' => $invitation,
             'amount' => $invoice->getRequestedAmount()
         ];
+        
+         if (empty($invitation->contact->password) && $account->isPro() && $account->enable_portal_password && $account->send_portal_password) {
+            // The contact needs a password
+            $variables['password'] = $password = $this->generatePassword();
+            $invitation->contact->password = bcrypt($password);
+            $invitation->contact->save();
+        }
 
         $data = [
             'body' => $this->processVariables($body, $variables),
@@ -142,6 +150,28 @@ class ContactMailer extends Mailer
         } else {
             return $response;
         }
+    }
+    
+    protected function generatePassword($length = 9)
+    {
+        $sets = array(
+            'abcdefghjkmnpqrstuvwxyz',
+            'ABCDEFGHJKMNPQRSTUVWXYZ',
+            '23456789',
+        );
+        $all = '';
+        $password = '';
+        foreach($sets as $set)
+        {
+            $password .= $set[array_rand(str_split($set))];
+            $all .= $set;
+        }
+        $all = str_split($all);
+        for($i = 0; $i < $length - count($sets); $i++)
+            $password .= $all[array_rand($all)];
+        $password = str_shuffle($password);
+        
+        return $password;
     }
 
     public function sendPaymentConfirmation(Payment $payment)
@@ -232,6 +262,7 @@ class ContactMailer extends Mailer
         $client = $data['client'];
         $invitation = $data['invitation'];
         $invoice = $invitation->invoice;
+        $passwordHTML = isset($data['password'])?'<p>'.trans('texts.password').': '.$data['password'].'<p>':false;
 
         $variables = [
             '$footer' => $account->getEmailFooter(),
@@ -245,10 +276,11 @@ class ContactMailer extends Mailer
             '$invoice' => $invoice->invoice_number,
             '$quote' => $invoice->invoice_number,
             '$link' => $invitation->getLink(),
-            '$viewLink' => $invitation->getLink(),
-            '$viewButton' => HTML::emailViewButton($invitation->getLink(), $invoice->getEntityType()),
-            '$paymentLink' => $invitation->getLink('payment'),
-            '$paymentButton' => HTML::emailPaymentButton($invitation->getLink('payment')),
+            '$password' => $passwordHTML,
+            '$viewLink' => $invitation->getLink().'$password',
+            '$viewButton' => Form::emailViewButton($invitation->getLink(), $invoice->getEntityType()).'$password',
+            '$paymentLink' => $invitation->getLink('payment').'$password',
+            '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')).'$password',
             '$customClient1' => $account->custom_client_label1,
             '$customClient2' => $account->custom_client_label2,
             '$customInvoice1' => $account->custom_invoice_text_label1,
@@ -260,10 +292,21 @@ class ContactMailer extends Mailer
             $camelType = Gateway::getPaymentTypeName($type);
             $type = Utils::toSnakeCase($camelType);
             $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$type}";
-            $variables["\${$camelType}Button"] = HTML::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
+            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
         }
-
+        
+        $includesPasswordPlaceholder = strpos($template, '$password') !== false;
+                
         $str = str_replace(array_keys($variables), array_values($variables), $template);
+
+        if(!$includesPasswordPlaceholder && $passwordHTML){
+            $pos = strrpos($str, '$password');
+            if($pos !== false)
+            {
+                $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);
+            }
+        }        
+        $str = str_replace('$password', '', $str);
         $str = autolink($str, 100);
         
         return $str;

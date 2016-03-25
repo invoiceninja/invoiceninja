@@ -156,13 +156,12 @@
       return moment(this).format(format);
     };
 
-    
     ko.bindingHandlers.dateTimePicker = {
       init: function (element, valueAccessor, allBindingsAccessor) {
          var value = ko.utils.unwrapObservable(valueAccessor());
          // http://xdsoft.net/jqplugins/datetimepicker/
          $(element).datetimepicker({
-            lang: '{{ App::getLocale() }}',
+            lang: '{{ Utils::getLocaleRegion() }}',
             lazyInit: true,
             validateOnBlur: false,
             step: 30,

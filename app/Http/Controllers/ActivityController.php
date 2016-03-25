@@ -15,7 +15,7 @@ class ActivityController extends BaseController
 
     public function __construct(ActivityService $activityService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->activityService = $activityService;
     }

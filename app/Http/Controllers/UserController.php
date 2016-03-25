@@ -11,9 +11,9 @@ use Request;
 use Redirect;
 use Session;
 use URL;
+use Password;
 use Utils;
 use Validator;
-use Illuminate\Auth\Passwords\TokenRepositoryInterface;
 use App\Models\User;
 use App\Http\Requests;
 use App\Ninja\Repositories\AccountRepository;
@@ -30,7 +30,7 @@ class UserController extends BaseController
 
     public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer, UserMailer $userMailer, UserService $userService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
@@ -77,7 +77,6 @@ class UserController extends BaseController
             'user' => $user,
             'method' => 'PUT',
             'url' => 'users/'.$publicId,
-            'title' => trans('texts.edit_user'),
         ];
 
         return View::make('users.edit', $data);
@@ -120,7 +119,6 @@ class UserController extends BaseController
           'user' => null,
           'method' => 'POST',
           'url' => 'users',
-          'title' => trans('texts.add_user'),
         ];
 
         return View::make('users.edit', $data);
@@ -130,7 +128,7 @@ class UserController extends BaseController
     {
         $action = Input::get('bulk_action');
         $id = Input::get('bulk_public_id');
-        
+
         $user = User::where('account_id', '=', Auth::user()->account_id)
                     ->where('public_id', '=', $id)
                     ->withTrashed()
@@ -192,6 +190,8 @@ class UserController extends BaseController
                 $user->last_name = trim(Input::get('last_name'));
                 $user->username = trim(Input::get('email'));
                 $user->email = trim(Input::get('email'));
+                $user->is_admin = boolval(Input::get('is_admin'));
+                $user->permissions = Input::get('permissions');
             } else {
                 $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
                             ->orderBy('public_id', 'DESC')->first();
@@ -202,10 +202,12 @@ class UserController extends BaseController
                 $user->last_name = trim(Input::get('last_name'));
                 $user->username = trim(Input::get('email'));
                 $user->email = trim(Input::get('email'));
+                $user->is_admin = boolval(Input::get('is_admin'));
                 $user->registered = true;
                 $user->password = str_random(RANDOM_KEY_LENGTH);
                 $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
                 $user->public_id = $lastUser->public_id + 1;
+                $user->permissions = Input::get('permissions');
             }
 
             $user->save();
@@ -219,7 +221,7 @@ class UserController extends BaseController
 
             Session::flash('message', $message);
         }
-        
+
         return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
 
@@ -240,10 +242,10 @@ class UserController extends BaseController
      *
      * @param string $code
      */
-    public function confirm($code, TokenRepositoryInterface $tokenRepo)
+    public function confirm($code)
     {
         $user = User::where('confirmation_code', '=', $code)->get()->first();
-            
+
         if ($user) {
             $notice_msg = trans('texts.security.confirmation');
 
@@ -253,7 +255,7 @@ class UserController extends BaseController
 
             if ($user->public_id) {
                 //Auth::login($user);
-                $token = $tokenRepo->create($user);
+                $token = Password::getRepository()->create($user);
 
                 return Redirect::to("/password/reset/{$token}");
             } else {
@@ -294,7 +296,7 @@ class UserController extends BaseController
         return Redirect::to('/')->with('clearGuestKey', true);
     }
     */
-    
+
     public function changePassword()
     {
         // check the current password is correct
@@ -326,7 +328,7 @@ class UserController extends BaseController
         $oldUserId = Auth::user()->id;
         $referer = Request::header('referer');
         $account = $this->accountRepo->findUserAccounts($newUserId, $oldUserId);
-        
+
         if ($account) {
             if ($account->hasUserId($newUserId) && $account->hasUserId($oldUserId)) {
                 Auth::loginUsingId($newUserId);
@@ -337,7 +339,7 @@ class UserController extends BaseController
                 Session::put('_token', str_random(40));
             }
         }
-        
+
         return Redirect::to($referer);
     }
 

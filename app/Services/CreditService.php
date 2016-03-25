@@ -2,7 +2,10 @@
 
 use Utils;
 use URL;
+use Auth;
 use App\Services\BaseService;
+use App\Models\Client;
+use App\Models\Payment;
 use App\Ninja\Repositories\CreditRepository;
 
 
@@ -30,6 +33,10 @@ class CreditService extends BaseService
     public function getDatatable($clientPublicId, $search)
     {
         $query = $this->creditRepo->find($clientPublicId, $search);
+        
+        if(!Utils::hasPermission('view_all')){
+            $query->where('credits.user_id', '=', Auth::user()->id);
+        }
 
         return $this->createDatatable(ENTITY_CREDIT, $query, !$clientPublicId);
     }
@@ -40,7 +47,11 @@ class CreditService extends BaseService
             [
                 'client_name',
                 function ($model) {
-                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model)) : '';
+                    if(!Client::canViewItemByOwner($model->client_user_id)){
+                        return Utils::getClientDisplayName($model);
+                    }
+                    
+                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
                 ! $hideClient
             ],
@@ -78,6 +89,9 @@ class CreditService extends BaseService
                 trans('texts.apply_credit'),
                 function ($model) {
                     return URL::to("payments/create/{$model->client_public_id}") . '?paymentTypeId=1';
+                },
+                function ($model) {
+                    return Payment::canCreate();
                 }
             ]
         ];

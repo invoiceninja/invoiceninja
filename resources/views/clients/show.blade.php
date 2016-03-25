@@ -14,7 +14,7 @@
           }
         </style>
 
-        <script src="https://maps.googleapis.com/maps/api/js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}"></script>
     @endif
 @stop
 
@@ -43,8 +43,11 @@
                 @endif
 
                 @if ($client->trashed())
-                    {!! Button::primary(trans('texts.restore_client'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
+                    @if ($client->canEdit())
+                        {!! Button::primary(trans('texts.restore_client'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
+                    @endif
                 @else
+                    @if ($client->canEdit())
                     {!! DropdownButton::normal(trans('texts.edit_client'))
                         ->withAttributes(['class'=>'normalDropDown'])
                         ->withContents([
@@ -52,10 +55,12 @@
                           ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
                         ]
                       )->split() !!}
-
-                    {!! DropdownButton::primary(trans('texts.new_invoice'))
-                            ->withAttributes(['class'=>'primaryDropDown'])
-                            ->withContents($actionLinks)->split() !!}
+                    @endif
+                    @if (\App\Models\Invoice::canCreate())
+                        {!! DropdownButton::primary(trans('texts.new_invoice'))
+                                ->withAttributes(['class'=>'primaryDropDown'])
+                                ->withContents($actionLinks)->split() !!}
+                    @endif
                 @endif
               {!! Former::close() !!}
 
@@ -174,16 +179,16 @@
     @endif
 
 	<ul class="nav nav-tabs nav-justified">
-		{!! HTML::tab_link('#activity', trans('texts.activity'), true) !!}
+		{!! Form::tab_link('#activity', trans('texts.activity'), true) !!}
         @if ($hasTasks)
-            {!! HTML::tab_link('#tasks', trans('texts.tasks')) !!}
+            {!! Form::tab_link('#tasks', trans('texts.tasks')) !!}
         @endif
 		@if ($hasQuotes && Utils::isPro())
-			{!! HTML::tab_link('#quotes', trans('texts.quotes')) !!}
+			{!! Form::tab_link('#quotes', trans('texts.quotes')) !!}
 		@endif
-		{!! HTML::tab_link('#invoices', trans('texts.invoices')) !!}
-		{!! HTML::tab_link('#payments', trans('texts.payments')) !!}
-		{!! HTML::tab_link('#credits', trans('texts.credits')) !!}
+		{!! Form::tab_link('#invoices', trans('texts.invoices')) !!}
+		{!! Form::tab_link('#payments', trans('texts.payments')) !!}
+		{!! Form::tab_link('#credits', trans('texts.credits')) !!}
 	</ul>
 
 	<div class="tab-content">

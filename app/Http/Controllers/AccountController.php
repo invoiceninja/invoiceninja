@@ -15,6 +15,7 @@ use Response;
 use Request;
 use App\Models\Affiliate;
 use App\Models\License;
+use App\Models\Invoice;
 use App\Models\User;
 use App\Models\Account;
 use App\Models\Gateway;
@@ -25,7 +26,7 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ReferralRepository;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
-use App\Events\UserLoggedIn;
+use App\Events\UserSignedUp;
 use App\Events\UserSettingsChanged;
 use App\Services\AuthService;
 
@@ -40,7 +41,7 @@ class AccountController extends BaseController
 
     public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->accountRepo = $accountRepo;
         $this->userMailer = $userMailer;
@@ -99,7 +100,7 @@ class AccountController extends BaseController
         }
 
         Auth::login($user, true);
-        event(new UserLoggedIn());
+        event(new UserSignedUp());
 
         $redirectTo = Input::get('redirect_to') ?: 'invoices/create';
 
@@ -122,7 +123,8 @@ class AccountController extends BaseController
 
     public function getSearchData()
     {
-        $data = $this->accountRepo->getSearchData();
+        $account = Auth::user()->account;
+        $data = $this->accountRepo->getSearchData($account);
 
         return Response::json($data);
     }
@@ -135,8 +137,6 @@ class AccountController extends BaseController
 
         if ($section == ACCOUNT_COMPANY_DETAILS) {
             return self::showCompanyDetails();
-        } elseif ($section == ACCOUNT_USER_DETAILS) {
-            return self::showUserDetails();
         } elseif ($section == ACCOUNT_LOCALIZATION) {
             return self::showLocalization();
         } elseif ($section == ACCOUNT_PAYMENTS) {
@@ -150,7 +150,7 @@ class AccountController extends BaseController
         } elseif ($section == ACCOUNT_INVOICE_DESIGN || $section == ACCOUNT_CUSTOMIZE_DESIGN) {
             return self::showInvoiceDesign($section);
         } elseif ($section == ACCOUNT_CLIENT_PORTAL) {
-            return self::showClientViewStyling();
+            return self::showClientPortal();
         } elseif ($section === ACCOUNT_TEMPLATES_AND_REMINDERS) {
             return self::showTemplates();
         } elseif ($section === ACCOUNT_PRODUCTS) {
@@ -230,7 +230,7 @@ class AccountController extends BaseController
         return View::make('accounts.details', $data);
     }
 
-    private function showUserDetails()
+    public function showUserDetails()
     {
         $oauthLoginUrls = [];
         foreach (AuthService::$providers as $provider) {
@@ -393,12 +393,27 @@ class AccountController extends BaseController
 
         if ($section == ACCOUNT_CUSTOMIZE_DESIGN) {
             $data['customDesign'] = ($account->custom_design && !$design) ? $account->custom_design : $design;
+
+            // sample invoice to help determine variables
+            $invoice = Invoice::scope()
+                            ->with('client', 'account')
+                            ->where('is_quote', '=', false)
+                            ->where('is_recurring', '=', false)
+                            ->first();
+
+            if ($invoice) {
+                $invoice->hidePrivateFields();
+                unset($invoice->account);
+                unset($invoice->invoice_items);
+                unset($invoice->client->contacts);
+                $data['sampleInvoice'] = $invoice;
+            }
         }
 
         return View::make("accounts.{$section}", $data);
     }
 
-    private function showClientViewStyling()
+    private function showClientPortal()
     {
         $account = Auth::user()->account->load('country');
         $css = $account->client_view_css ? $account->client_view_css : '';
@@ -414,8 +429,11 @@ class AccountController extends BaseController
 
         $data = [
             'client_view_css' => $css,
+            'enable_portal_password' => $account->enable_portal_password,
+            'send_portal_password' => $account->send_portal_password,
             'title' => trans("texts.client_portal"),
             'section' => ACCOUNT_CLIENT_PORTAL,
+            'account' => $account,
         ];
 
         return View::make("accounts.client_portal", $data);
@@ -447,8 +465,6 @@ class AccountController extends BaseController
     {
         if ($section === ACCOUNT_COMPANY_DETAILS) {
             return AccountController::saveDetails();
-        } elseif ($section === ACCOUNT_USER_DETAILS) {
-            return AccountController::saveUserDetails();
         } elseif ($section === ACCOUNT_LOCALIZATION) {
             return AccountController::saveLocalization();
         } elseif ($section === ACCOUNT_NOTIFICATIONS) {
@@ -528,6 +544,11 @@ class AccountController extends BaseController
 
             $account = Auth::user()->account;
             $account->client_view_css = $sanitized_css;
+
+            $account->enable_client_portal = !!Input::get('enable_client_portal');
+            $account->enable_portal_password = !!Input::get('enable_portal_password');
+            $account->send_portal_password = !!Input::get('send_portal_password');
+
             $account->save();
 
             Session::flash('message', trans('texts.updated_settings'));
@@ -668,6 +689,8 @@ class AccountController extends BaseController
                 $account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;
                 $account->custom_invoice_text_label1 = trim(Input::get('custom_invoice_text_label1'));
                 $account->custom_invoice_text_label2 = trim(Input::get('custom_invoice_text_label2'));
+                $account->custom_invoice_item_label1 = trim(Input::get('custom_invoice_item_label1'));
+                $account->custom_invoice_item_label2 = trim(Input::get('custom_invoice_item_label2'));
 
                 $account->invoice_number_counter = Input::get('invoice_number_counter');
                 $account->quote_number_prefix = Input::get('quote_number_prefix');
@@ -676,6 +699,7 @@ class AccountController extends BaseController
                 $account->invoice_footer = Input::get('invoice_footer');
                 $account->quote_terms = Input::get('quote_terms');
                 $account->auto_convert_quote = Input::get('auto_convert_quote');
+                $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');
 
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');
@@ -736,7 +760,7 @@ class AccountController extends BaseController
             }
 
             $labels = [];
-            foreach (['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms'] as $field) {
+            foreach (['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms', 'balance_due', 'partial_due'] as $field) {
                 $labels[$field] = Input::get("labels_{$field}");
             }
             $account->invoice_labels = json_encode($labels);
@@ -811,7 +835,7 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS);
     }
 
-    private function saveUserDetails()
+    public function saveUserDetails()
     {
         $user = Auth::user();
         $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];

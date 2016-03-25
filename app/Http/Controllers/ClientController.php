@@ -20,6 +20,9 @@ use App\Models\Size;
 use App\Models\PaymentTerm;
 use App\Models\Industry;
 use App\Models\Currency;
+use App\Models\Payment;
+use App\Models\Credit;
+use App\Models\Expense;
 use App\Models\Country;
 use App\Models\Task;
 use App\Ninja\Repositories\ClientRepository;
@@ -32,10 +35,11 @@ class ClientController extends BaseController
 {
     protected $clientService;
     protected $clientRepo;
+    protected $model = 'App\Models\Client';
 
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->clientRepo = $clientRepo;
         $this->clientService = $clientService;
@@ -77,10 +81,16 @@ class ClientController extends BaseController
      */
     public function store(CreateClientRequest $request)
     {
-        $client = $this->clientService->save($request->input());
+        $data = $request->input();
         
+        if(!$this->checkUpdatePermission($data, $response)){
+            return $response;
+        }
+                
+        $client = $this->clientService->save($data);
+
         Session::flash('message', trans('texts.created_client'));
-        
+
         return redirect()->to($client->getRoute());
     }
 
@@ -93,23 +103,37 @@ class ClientController extends BaseController
     public function show($publicId)
     {
         $client = Client::withTrashed()->scope($publicId)->with('contacts', 'size', 'industry')->firstOrFail();
+        
+        if(!$this->checkViewPermission($client, $response)){
+            return $response;
+        }
+        
         Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 
-        $actionLinks = [
-            ['label' => trans('texts.new_task'), 'url' => '/tasks/create/'.$client->public_id]
-        ];
-
-        if (Utils::isPro()) {
-            array_push($actionLinks, ['label' => trans('texts.new_quote'), 'url' => '/quotes/create/'.$client->public_id]);
+        $actionLinks = [];
+        if(Task::canCreate()){
+            $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => '/tasks/create/'.$client->public_id];
+        }
+        if (Utils::isPro() && Invoice::canCreate()) {
+            $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => '/quotes/create/'.$client->public_id];
+        }
+        
+        if(!empty($actionLinks)){
+            $actionLinks[] = \DropdownButton::DIVIDER;
+        }
+        
+        if(Payment::canCreate()){
+            $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => '/payments/create/'.$client->public_id];
+        }
+        
+        if(Credit::canCreate()){
+            $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => '/credits/create/'.$client->public_id];
+        }
+        
+        if(Expense::canCreate()){
+            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => '/expenses/create/0/'.$client->public_id];
         }
 
-        array_push($actionLinks,
-            \DropdownButton::DIVIDER,
-            ['label' => trans('texts.enter_payment'), 'url' => '/payments/create/'.$client->public_id],
-            ['label' => trans('texts.enter_credit'), 'url' => '/credits/create/'.$client->public_id],
-            ['label' => trans('texts.enter_expense'), 'url' => '/expenses/create/0/'.$client->public_id]
-        );
-        
         $data = array(
             'actionLinks' => $actionLinks,
             'showBreadcrumbs' => false,
@@ -132,7 +156,11 @@ class ClientController extends BaseController
      */
     public function create()
     {
-        if (Client::scope()->count() > Auth::user()->getMaxNumClients()) {
+        if(!$this->checkCreatePermission($response)){
+            return $response;
+        }
+        
+        if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumClients()." clients"]);
         }
 
@@ -157,6 +185,11 @@ class ClientController extends BaseController
     public function edit($publicId)
     {
         $client = Client::scope($publicId)->with('contacts')->firstOrFail();
+        
+        if(!$this->checkEditPermission($client, $response)){
+            return $response;
+        }
+        
         $data = [
             'client' => $client,
             'method' => 'PUT',
@@ -199,10 +232,16 @@ class ClientController extends BaseController
      */
     public function update(UpdateClientRequest $request)
     {
-        $client = $this->clientService->save($request->input());
+        $data = $request->input();
         
+        if(!$this->checkUpdatePermission($data, $response)){
+            return $response;
+        }
+                
+        $client = $this->clientService->save($data);
+
         Session::flash('message', trans('texts.updated_client'));
-        
+
         return redirect()->to($client->getRoute());
     }
 

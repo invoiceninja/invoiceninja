@@ -1,9 +1,13 @@
-<script src="https://sandbox.checkout.com/js/v1/checkout.js"></script>
+@if ($checkoutComDebug)
+    <script src="https://sandbox.checkout.com/js/v1/checkout.js"></script>
+@else
+    <script src="https://cdn.checkout.com/js/checkout.js"></script>
+@endif
 
 <form method="POST" class="payment-form">
     <script>
         Checkout.render({
-            debugMode: true,
+            debugMode: {{ $checkoutComDebug ? 'true' : 'false' }},
             publicKey: '{{ $checkoutComKey }}',
             paymentToken: '{{ $checkoutComToken }}',
             customerEmail: '{{ $contact->email }}',

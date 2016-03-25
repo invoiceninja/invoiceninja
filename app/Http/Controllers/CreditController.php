@@ -17,10 +17,11 @@ class CreditController extends BaseController
 {
     protected $creditRepo;
     protected $creditService;
+    protected $model = 'App\Models\Credit';
 
     public function __construct(CreditRepository $creditRepo, CreditService $creditService)
     {
-        parent::__construct();
+        // parent::__construct();
 
         $this->creditRepo = $creditRepo;
         $this->creditService = $creditService;
@@ -56,6 +57,10 @@ class CreditController extends BaseController
 
     public function create($clientPublicId = 0)
     {
+        if(!$this->checkCreatePermission($response)){
+            return $response;
+        }
+        
         $data = array(
             'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
             //'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : $invoicePublicId,
@@ -72,6 +77,11 @@ class CreditController extends BaseController
     public function edit($publicId)
     {
         $credit = Credit::scope($publicId)->firstOrFail();
+        
+        if(!$this->checkEditPermission($credit, $response)){
+            return $response;
+        }
+        
         $credit->credit_date = Utils::fromSqlDate($credit->credit_date);
 
         $data = array(
@@ -88,9 +98,9 @@ class CreditController extends BaseController
     public function store(CreateCreditRequest $request)
     {
         $credit = $this->creditRepo->save($request->input());
-        
+
         Session::flash('message', trans('texts.created_credit'));
-        
+
         return redirect()->to($credit->client->getRoute());
     }
 

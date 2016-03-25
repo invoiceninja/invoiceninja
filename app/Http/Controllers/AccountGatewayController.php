@@ -24,7 +24,7 @@ class AccountGatewayController extends BaseController
 
     public function __construct(AccountGatewayService $accountGatewayService)
     {
-        parent::__construct();
+        //parent::__construct();
 
         $this->accountGatewayService = $accountGatewayService;
     }
