@@ -83,29 +83,29 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        $config = "APP_ENV=production\n".
-                    "APP_DEBUG={$app['debug']}\n".
-                    "APP_URL={$app['url']}\n".
-                    "APP_KEY={$app['key']}\n\n".
-                    "DB_TYPE={$dbType}\n".
-                    "DB_HOST={$database['type']['host']}\n".
-                    "DB_DATABASE={$database['type']['database']}\n".
-                    "DB_USERNAME={$database['type']['username']}\n".
-                    "DB_PASSWORD={$database['type']['password']}\n\n".
-                    "MAIL_DRIVER={$mail['driver']}\n".
-                    "MAIL_PORT={$mail['port']}\n".
-                    "MAIL_ENCRYPTION={$mail['encryption']}\n".
-                    "MAIL_HOST={$mail['host']}\n".
-                                        "MAIL_USERNAME={$mail['username']}\n";
+                $_ENV['APP_ENV']='production';
+                $_ENV['APP_DEBUG']=$app['debug'];
+                $_ENV['APP_URL']=$app['url'];
+                $_ENV['APP_KEY']=$app['key'];
+                $_ENV['DB_TYPE']=$dbType;
+                $_ENV['DB_HOST']=$database['type']['host'];
+                $_ENV['DB_DATABASE']=$database['type']['database'];
+                $_ENV['DB_USERNAME']=$database['type']['username'];
+                $_ENV['DB_PASSWORD']=$database['type']['password'];
+                $_ENV['MAIL_DRIVER']=$mail['driver'];
+                $_ENV['MAIL_PORT']=$mail['port'];
+                $_ENV['MAIL_ENCRYPTION']=$mail['encryption'];
+                $_ENV['MAIL_HOST']=$mail['host'];
+                $_ENV['MAIL_USERNAME']=$mail['username'];;
 
-                if (preg_match('/\s/',$mail['from']['name'])) {
-                $config .=  "MAIL_FROM_NAME='{$mail['from']['name']}'\n".
-                } else {
-                $config .=  "MAIL_FROM_NAME={$mail['from']['name']}\n".
+                $config = '';
+                foreach ($_ENV as $key => $val) {
+                        if (preg_match('/\s/',$val)) {
+                                $val = "'{$val}'";
+                        }
+                        $config .= "{$key}={$val}\n";
                 }
 
-        $config .=  "MAIL_PASSWORD={$mail['password']}\n\n".
-                    "PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'";
 
         // Write Config Settings
         $fp = fopen(base_path()."/.env", 'w');
