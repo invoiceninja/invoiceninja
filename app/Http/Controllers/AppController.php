@@ -83,28 +83,28 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-                $_ENV['APP_ENV']='production';
-                $_ENV['APP_DEBUG']=$app['debug'];
-                $_ENV['APP_URL']=$app['url'];
-                $_ENV['APP_KEY']=$app['key'];
-                $_ENV['DB_TYPE']=$dbType;
-                $_ENV['DB_HOST']=$database['type']['host'];
-                $_ENV['DB_DATABASE']=$database['type']['database'];
-                $_ENV['DB_USERNAME']=$database['type']['username'];
-                $_ENV['DB_PASSWORD']=$database['type']['password'];
-                $_ENV['MAIL_DRIVER']=$mail['driver'];
-                $_ENV['MAIL_PORT']=$mail['port'];
-                $_ENV['MAIL_ENCRYPTION']=$mail['encryption'];
-                $_ENV['MAIL_HOST']=$mail['host'];
-                $_ENV['MAIL_USERNAME']=$mail['username'];;
+        $_ENV['APP_ENV']='production';
+        $_ENV['APP_DEBUG']=$app['debug'];
+        $_ENV['APP_URL']=$app['url'];
+        $_ENV['APP_KEY']=$app['key'];
+        $_ENV['DB_TYPE']=$dbType;
+        $_ENV['DB_HOST']=$database['type']['host'];
+        $_ENV['DB_DATABASE']=$database['type']['database'];
+        $_ENV['DB_USERNAME']=$database['type']['username'];
+        $_ENV['DB_PASSWORD']=$database['type']['password'];
+        $_ENV['MAIL_DRIVER']=$mail['driver'];
+        $_ENV['MAIL_PORT']=$mail['port'];
+        $_ENV['MAIL_ENCRYPTION']=$mail['encryption'];
+        $_ENV['MAIL_HOST']=$mail['host'];
+        $_ENV['MAIL_USERNAME']=$mail['username'];;
 
-                $config = '';
-                foreach ($_ENV as $key => $val) {
-                        if (preg_match('/\s/',$val)) {
-                                $val = "'{$val}'";
-                        }
-                        $config .= "{$key}={$val}\n";
-                }
+        $config = '';
+        foreach ($_ENV as $key => $val) {
+            if (preg_match('/\s/',$val)) {
+                $val = "'{$val}'";
+            }
+            $config .= "{$key}={$val}\n";
+        }
 
 
         // Write Config Settings
