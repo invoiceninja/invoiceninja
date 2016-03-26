@@ -96,9 +96,15 @@ class AppController extends BaseController
                     "MAIL_PORT={$mail['port']}\n".
                     "MAIL_ENCRYPTION={$mail['encryption']}\n".
                     "MAIL_HOST={$mail['host']}\n".
-                    "MAIL_USERNAME={$mail['username']}\n".
-                    "MAIL_FROM_NAME={$mail['from']['name']}\n".
-                    "MAIL_PASSWORD={$mail['password']}\n\n".
+                                        "MAIL_USERNAME={$mail['username']}\n";
+
+                if (preg_match('/\s/',$mail['from']['name'])) {
+                $config .=  "MAIL_FROM_NAME='{$mail['from']['name']}'\n".
+                } else {
+                $config .=  "MAIL_FROM_NAME={$mail['from']['name']}\n".
+                }
+
+        $config .=  "MAIL_PASSWORD={$mail['password']}\n\n".
                     "PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'";
 
         // Write Config Settings
@@ -166,6 +172,9 @@ class AppController extends BaseController
 
         $config = '';
         foreach ($_ENV as $key => $val) {
+                        if (preg_match('/\s/',$val)) {
+                                $val = "'{$val}'";
+                        }
             $config .= "{$key}={$val}\n";
         }
 
