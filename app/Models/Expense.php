@@ -95,7 +95,7 @@ class Expense extends EntityModel
     {
         $array = parent::toArray();
         
-        if(empty($this->visible) || in_array('converted_amount', $this->visible))$array['previewconverted_amount_url'] = $this->convertedAmount();
+        if(empty($this->visible) || in_array('converted_amount', $this->visible))$array['converted_amount'] = $this->convertedAmount();
         
         return $array;
     }
