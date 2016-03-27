@@ -87,6 +87,11 @@
                 <li {{ Request::is('*client/invoices') ? 'class="active"' : '' }}>
                     {!! link_to('/client/invoices', trans('texts.invoices') ) !!}
                 </li>
+                @if (!empty($showDocuments))
+                    <li {{ Request::is('*client/documents') ? 'class="active"' : '' }}>
+                        {!! link_to('/client/documents', trans('texts.documents') ) !!}
+                    </li>
+                @endif
                 <li {{ Request::is('*client/payments') ? 'class="active"' : '' }}>
                     {!! link_to('/client/payments', trans('texts.payments') ) !!}
                 </li>                

@@ -24,8 +24,8 @@
             @foreach (Session::get(SESSION_USER_ACCOUNTS) as $account)
                 <tr>
                     <td>
-                    @if (isset($account->logo_path))
-                        {!! HTML::image($account->logo_path.'?no_cache='.time(), 'Logo', ['width' => 100]) !!}
+                    @if (isset($account->logo_url))
+                        {!! HTML::image($account->logo_url.'?no_cache='.time(), 'Logo', ['width' => 100]) !!}
                     @endif
                     </td>                    
                     <td>

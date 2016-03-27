@@ -38,7 +38,7 @@
 
 	{!! Former::open($url)
             ->method($method)
-            ->addClass('warn-on-exit')
+            ->addClass('warn-on-exit main-form')
             ->autocomplete('off')
             ->onsubmit('return onFormSubmit(event)')
             ->rules(array(
@@ -273,6 +273,9 @@
                         <li role="presentation" class="active"><a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.note_to_client') }}</a></li>
                         <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_terms") }}</a></li>
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_footer") }}</a></li>
+                        @if ($account->isPro())
+                        <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">{{ trans("texts.invoice_documents") }}</a></li>
+                        @endif
                     </ul>
 
                     <div class="tab-content">
@@ -304,6 +307,32 @@
                                         </div>
                                     </div>') !!}
                         </div>
+                        @if ($account->isPro())
+                        <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
+                            <div id="document-upload">
+                                <div class="dropzone">
+                                    <div class="fallback">
+                                        <input name="documents[]" type="file" multiple />
+                                    </div>
+                                    <div data-bind="foreach: documents">
+                                        <div class="fallback-doc">
+                                            <a href="#" class="fallback-doc-remove" data-bind="click: $parent.removeDocument"><i class="fa fa-close"></i></a>
+                                            <span data-bind="text:name"></span>
+                                            <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if ($invoice->hasExpenseDocuments())
+                                    <h4>{{trans('texts.documents_from_expenses')}}</h4>
+                                    @foreach($invoice->expenses as $expense)
+                                        @foreach($expense->documents as $document)
+                                            <div>{{$document->name}}</div>
+                                        @endforeach
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -681,10 +710,12 @@
     @include('invoices.knockout')
 
 	<script type="text/javascript">
+    Dropzone.autoDiscover = false;
 
     var products = {!! $products !!};
     var clients = {!! $clients !!};
     var account = {!! Auth::user()->account !!};
+    var dropzone;
 
     var clientMap = {};
     var $clientSelect = $('select#client');
@@ -757,24 +788,24 @@
                 model.invoice().has_tasks(true);
             @endif
 
-            @if (isset($expenses) && $expenses)
+            if(model.invoice().expenses() && !model.invoice().public_id()){
                 model.expense_currency_id({{ $expenseCurrencyId }});
 
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
-                var expenses = {!! $expenses !!};
+                var expenses = model.invoice().expenses();
 
                 for (var i=0; i<expenses.length; i++) {
                     var expense = expenses[i];
                     var item = model.invoice().addItem();
-                    item.notes(expense.description);
-                    item.qty(expense.qty);
-                    item.expense_public_id(expense.publicId);
-					item.cost(expense.cost);
+                    item.notes(expense.public_notes());
+                    item.qty(1);
+                    item.expense_public_id(expense.public_id());
+					item.cost(expense.converted_amount());
                 }
                 model.invoice().invoice_items.push(blank);
                 model.invoice().has_expenses(true);
-            @endif
+            }
 
         @endif
         
@@ -899,6 +930,56 @@
         @endif
 
         applyComboboxListeners();
+        
+        @if (Auth::user()->account->isPro())
+        $('.main-form').submit(function(){
+            if($('#document-upload .dropzone .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
+            else $(this).removeAttr('enctype')
+        })
+        
+        // Initialize document upload
+        dropzone = new Dropzone('#document-upload .dropzone', {
+            url:{!! json_encode(url('document')) !!},
+            params:{
+                _token:"{{ Session::getToken() }}"
+            },
+            acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
+            addRemoveLinks:true,
+            @foreach(trans('texts.dropzone') as $key=>$text)
+            "dict{{strval($key)}}":"{{strval($text)}}",
+            @endforeach
+            maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
+        });
+        if(dropzone instanceof Dropzone){
+            dropzone.on("addedfile",handleDocumentAdded);
+            dropzone.on("removedfile",handleDocumentRemoved);
+            dropzone.on("success",handleDocumentUploaded);
+            for (var i=0; i<model.invoice().documents().length; i++) {
+                var document = model.invoice().documents()[i];
+                var mockFile = {
+                    name:document.name(),
+                    size:document.size(),
+                    type:document.type(),
+                    public_id:document.public_id(),
+                    status:Dropzone.SUCCESS,
+                    accepted:true,
+                    url:document.preview_url()||document.url(),
+                    mock:true,
+                    index:i
+                };
+
+                dropzone.emit('addedfile', mockFile);
+                dropzone.emit('complete', mockFile);
+                if(document.preview_url()){
+                    dropzone.emit('thumbnail', mockFile, document.preview_url()||document.url());
+                }
+                else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
+                    dropzone.emit('thumbnail', mockFile, document.url());
+                }
+                dropzone.files.push(mockFile);
+            }
+        }
+        @endif
 	});
 
     function onFrequencyChange(){
@@ -943,7 +1024,9 @@
 	}
 
 	function createInvoiceModel() {
-		var invoice = ko.toJS(window.model).invoice;
+        var model = ko.toJS(window.model);
+        if(!model)return;
+		var invoice = model.invoice;
 		invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
 		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
@@ -965,7 +1048,7 @@
         @endif
 
 		@if ($account->hasLogo())
-			invoice.image = "{{ Form::image_data($account->getLogoPath()) }}";
+			invoice.image = "{{ Form::image_data($account->getLogoRaw(), true) }}";
 			invoice.imageWidth = {{ $account->getLogoWidth() }};
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
@@ -1256,7 +1339,44 @@
         number = number.replace('{$custom2}', client.custom_value2 ? client.custom_value1 : '');
         model.invoice().invoice_number(number);
     }
+        
+    @if ($account->isPro())
+    function handleDocumentAdded(file){
+        if(file.mock)return;
+        file.index = model.invoice().documents().length;
+        model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
+    }
+        
+    function handleDocumentRemoved(file){
+        model.invoice().removeDocument(file.public_id);
+        refreshPDF(true);
+    }
+        
+    function handleDocumentUploaded(file, response){
+        file.public_id = response.document.public_id
+        model.invoice().documents()[file.index].update(response.document);
+        refreshPDF(true);
+        
+        if(response.document.preview_url){
+            dropzone.emit('thumbnail', file, response.document.preview_url);
+        }
+    }
+    @endif
 
 	</script>
+    @if ($account->isPro() && $account->invoice_embed_documents)
+        @foreach ($invoice->documents as $document)
+            @if($document->isPDFEmbeddable())
+                <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
+            @endif
+        @endforeach
+        @foreach ($invoice->expenses as $expense)
+            @foreach ($expense->documents as $document)
+                @if($document->isPDFEmbeddable())
+                    <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
+                @endif
+            @endforeach
+        @endforeach
+    @endif
 
 @stop
