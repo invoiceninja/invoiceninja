@@ -324,11 +324,17 @@ class InvoiceController extends BaseController
             }
         }
 
+        // Tax rate options
+        $rates = TaxRate::scope()->orderBy('name')->get();
+        foreach ($rates as $rate) {
+            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';
+        }
+
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->with('default_tax_rate')->orderBy('product_key')->get(),
-            'taxRates' => TaxRate::scope()->orderBy('name')->get(),
+            'taxRates' => $options,
             'currencies' => Cache::get('currencies'),
             'languages' => Cache::get('languages'),
             'sizes' => Cache::get('sizes'),

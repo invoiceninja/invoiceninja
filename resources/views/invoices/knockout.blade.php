@@ -7,8 +7,6 @@ function ViewModel(data) {
     //self.invoice = data ? false : new InvoiceModel();
     self.invoice = ko.observable(data ? false : new InvoiceModel());
     self.expense_currency_id = ko.observable();
-    self.tax_rates = ko.observableArray();
-    self.tax_rates.push(new TaxRateModel());  // add blank row
     self.products = {!! $products !!};
 
     self.loadClient = function(client) {
@@ -47,11 +45,6 @@ function ViewModel(data) {
                 return new InvoiceModel(options.data);
             }
         },
-        'tax_rates': {
-            create: function(options) {
-                return new TaxRateModel(options.data);
-            }
-        },
     }
 
     if (data) {
@@ -59,10 +52,7 @@ function ViewModel(data) {
     }
 
     self.invoice_taxes.show = ko.computed(function() {
-        if (self.invoice_taxes() && self.tax_rates().length > 1) {
-            return true;
-        }
-        if (self.invoice().tax_rate() > 0) {
+        if (self.invoice_taxes()) {
             return true;
         }
         return false;
@@ -80,40 +70,6 @@ function ViewModel(data) {
         }
         return false;
     });
-
-    self.addTaxRate = function(data) {
-        var itemModel = new TaxRateModel(data);
-        self.tax_rates.push(itemModel);
-        applyComboboxListeners();
-    }
-
-    self.getTaxRateById = function(id) {
-        for (var i=0; i<self.tax_rates().length; i++) {
-            var taxRate = self.tax_rates()[i];
-            if (taxRate.public_id() == id) {
-                return taxRate;
-            }
-        }
-        return false;
-    }
-
-    self.getTaxRate = function(name, rate) {
-        for (var i=0; i<self.tax_rates().length; i++) {
-            var taxRate = self.tax_rates()[i];
-            if (taxRate.name() == name && taxRate.rate() == parseFloat(rate)) {
-                return taxRate;
-            }
-        }
-
-        var taxRate = new TaxRateModel();
-        taxRate.name(name);
-        taxRate.rate(parseFloat(rate));
-        if (name) {
-            taxRate.is_deleted(true);
-            self.tax_rates.push(taxRate);
-        }
-        return taxRate;
-    }
 
     self.showClientForm = function() {
         trackEvent('/activity', '/view_client_form');
@@ -251,11 +207,6 @@ function InvoiceModel(data) {
                 return new ItemModel(options.data);
             }
         },
-        'tax': {
-            create: function(options) {
-                return new TaxRateModel(options.data);
-            }
-        },
     }
 
     self.addItem = function() {
@@ -282,24 +233,18 @@ function InvoiceModel(data) {
         return self.has_tasks() ? invoiceLabels['rate'] : invoiceLabels['unit_cost'];
     }, this);
 
-    self._tax = ko.observable();
     this.tax = ko.computed({
         read: function () {
-            return self._tax();
+            return self.tax_rate() + ' ' + self.tax_name();
         },
         write: function(value) {
-            if (value) {
-                self._tax(value);
-                self.tax_name(value.name());
-                self.tax_rate(value.rate());
-            } else {
-                self._tax(false);
-                self.tax_name('');
-                self.tax_rate(0);
-            }
+            var rate = value.substr(0, value.indexOf(' '));
+            var name = value.substr(value.indexOf(' ') + 1);
+            self.tax_name(name);
+            self.tax_rate(rate);
         }
     })
-
+        
     self.wrapped_terms = ko.computed({
         read: function() {
             return this.terms();
@@ -663,55 +608,6 @@ function ContactModel(data) {
     });
 }
 
-function TaxRateModel(data) {
-    var self = this;
-    self.public_id = ko.observable('');
-    self.rate = ko.observable(0);
-    self.name = ko.observable('');
-    self.is_deleted = ko.observable(false);
-    self.is_blank = ko.observable(false);
-    self.actionsVisible = ko.observable(false);
-
-    if (data) {
-        ko.mapping.fromJS(data, {}, this);
-    }
-
-    this.prettyRate = ko.computed({
-        read: function () {
-            return this.rate() ? roundToTwo(this.rate()) : '';
-        },
-        write: function (value) {
-            this.rate(value);
-        },
-        owner: this
-    });
-
-
-    self.displayName = ko.computed({
-        read: function () {
-            var name = self.name() ? self.name() : '';
-            var rate = self.rate() ? parseFloat(self.rate()) + '%' : '';
-            return name + ' ' + rate;
-        },
-        write: function (value) {
-            // do nothing
-        },
-        owner: this
-    });
-
-    self.hideActions = function() {
-        self.actionsVisible(false);
-    }
-
-    self.showActions = function() {
-        self.actionsVisible(true);
-    }
-
-    self.isEmpty = function() {
-        return !self.rate() && !self.name();
-    }
-}
-
 function ItemModel(data) {
     var self = this;
     self.product_key = ko.observable('');
@@ -726,15 +622,15 @@ function ItemModel(data) {
     self.expense_public_id = ko.observable('');
     self.actionsVisible = ko.observable(false);
 
-    self._tax = ko.observable();
     this.tax = ko.computed({
         read: function () {
-            return self._tax();
+            return self.tax_rate() + ' ' + self.tax_name();
         },
         write: function(value) {
-            self._tax(value);
-            self.tax_name(value.name());
-            self.tax_rate(value.rate());
+            var rate = value.substr(0, value.indexOf(' '));
+            var name = value.substr(value.indexOf(' ') + 1);
+            self.tax_name(name);
+            self.tax_rate(rate);
         }
     })
 
@@ -758,16 +654,8 @@ function ItemModel(data) {
         owner: this
     });
 
-    self.mapping = {
-        'tax': {
-            create: function(options) {
-                return new TaxRateModel(options.data);
-            }
-        }
-    }
-
     if (data) {
-        ko.mapping.fromJS(data, self.mapping, this);
+        ko.mapping.fromJS(data, {}, this);
     }
 
     self.wrapped_notes = ko.computed({
@@ -842,7 +730,7 @@ ko.bindingHandlers.typeahead = {
                 }
                 @if ($account->invoice_item_taxes)
                     if (datum.default_tax_rate) {
-                        model.tax(self.model.getTaxRateById(datum.default_tax_rate.public_id));
+                        //model.tax(self.model.getTaxRateById(datum.default_tax_rate.public_id));
                     }
                 @endif
             @endif

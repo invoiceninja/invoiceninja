@@ -53,7 +53,7 @@
 
 	<div data-bind="with: invoice">
     <div class="panel panel-default">
-    <div class="panel-body" style="padding-bottom: 0px;">
+    <div class="panel-body">
 
     <div class="row" style="min-height:195px" onkeypress="formEnterClick(event)">
     	<div class="col-md-4" id="col_1">
@@ -243,9 +243,12 @@
                         style="text-align: right" class="form-control invoice-item" name="quantity"/>
 				</td>
 				<td style="display:none;" data-bind="visible: $root.invoice_item_taxes.show">
-					<select class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName', attr: {name: 'invoice_items[' + $index() + '][tax]'}"></select>
-                    <input type="text" data-bind="value: tax().name, attr: {name: 'invoice_items[' + $index() + '][tax_name]'}" style="display:none">
-                    <input type="text" data-bind="value: tax().rate, attr: {name: 'invoice_items[' + $index() + '][tax_rate]'}" style="display:none">
+                    {!! Former::select('')
+                            ->options($taxRates)
+                            ->data_bind('value: tax')
+                            ->raw() !!}
+                    <input type="text" data-bind="value: tax_name, attr: {name: 'invoice_items[' + $index() + '][tax_name]'}" style="display:none">
+                    <input type="text" data-bind="value: tax_rate, attr: {name: 'invoice_items[' + $index() + '][tax_rate]'}" style="display:none">
 				</td>
 				<td style="text-align:right;padding-top:9px !important" nowrap>
 					<div class="line-total" data-bind="text: totals.total"></div>
@@ -351,9 +354,12 @@
 					<td>{{ trans('texts.tax') }}</td>
 				@endif
 				<td style="min-width:120px">
-                    <select id="taxRateSelect" class="form-control" style="width:100%" data-bind="value: tax, options: $root.tax_rates, optionsText: 'displayName'"></select>
-                    <input type="text" name="tax_name" data-bind="value: tax().name" style="display:none">
-                    <input type="text" name="tax_rate" data-bind="value: tax().rate" style="display:none">
+                    {!! Former::select('')
+                            ->options($taxRates)
+                            ->data_bind('value: tax')
+                            ->raw() !!}                    
+                    <input type="text" name="tax_name" data-bind="value: tax_name" style="display:none">
+                    <input type="text" name="tax_rate" data-bind="value: tax_rate" style="display:none">
                 </td>
 				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 			</tr>
@@ -712,11 +718,6 @@
             // otherwise create blank model
             window.model = new ViewModel();
 
-            // load the tax rates
-            @foreach ($taxRates as $taxRate)
-                model.addTaxRate({!! $taxRate !!});
-            @endforeach
-
             var invoice = {!! $invoice !!};
             ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);
             model.invoice().is_recurring({{ $invoice->is_recurring ? '1' : '0' }});
@@ -736,7 +737,7 @@
                 model.invoice().custom_taxes2({{ $account->custom_invoice_taxes2 ? 'true' : 'false' }});
                 // set the default account tax rate
                 @if ($account->invoice_taxes && $account->default_tax_rate_id)
-                    model.invoice().tax(model.getTaxRateById({{ $account->default_tax_rate ?  $account->default_tax_rate->public_id : '' }}));
+                    //model.invoice().tax(model.getTaxRateById({{ $account->default_tax_rate ?  $account->default_tax_rate->public_id : '' }}));
                 @endif
             @endif
 
@@ -776,14 +777,7 @@
             @endif
 
         @endif
-
-        model.invoice().tax(model.getTaxRate(model.invoice().tax_name(), model.invoice().tax_rate()));
-        for (var i=0; i<model.invoice().invoice_items().length; i++) {
-            var item = model.invoice().invoice_items()[i];
-            item.tax(model.getTaxRate(item.tax_name(), item.tax_rate()));
-            item.cost(NINJA.parseFloat(item.cost()) != 0 ? roundToTwo(item.cost(), true) : '');
-        }
-
+        
         // display blank instead of '0'
         if (!NINJA.parseFloat(model.invoice().discount())) model.invoice().discount('');
         if (!NINJA.parseFloat(model.invoice().partial())) model.invoice().partial('');
