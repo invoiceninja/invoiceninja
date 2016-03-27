@@ -24,7 +24,6 @@
         @if ($checkoutComToken)
             @include('partials.checkout_com_payment')
         @else
-    		<p>&nbsp;</p>
             <div class="pull-right" style="text-align:right">
             @if ($invoice->is_quote)            
                 {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
@@ -39,13 +38,47 @@
                     <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }}</a>
                 @endif            
     		@else 
-    			{!! Button::normal('Download PDF')->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
+    			{!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
     		@endif
     		</div>
+    		<div class="pull-left">
+                @if(!empty($documentsZipURL))
+                    {!! Button::normal(trans('texts.download_documents', array('size'=>Form::human_filesize($documentsZipSize))))->asLinkTo($documentsZipURL)->large() !!}
+                @endif
+            </div>
         @endif
 
 		<div class="clearfix"></div><p>&nbsp;</p>
-
+        @if ($account->isPro() && $invoice->hasDocuments())
+            <div class="invoice-documents">
+            <h3>{{ trans('texts.documents_header') }}</h3>
+            <ul>
+            @foreach ($invoice->documents as $document)
+                <li><a target="_blank" href="{{ $document->getClientUrl($invitation) }}">{{$document->name}} ({{Form::human_filesize($document->size)}})</a></li>
+            @endforeach
+            @foreach ($invoice->expenses as $expense)
+                @foreach ($expense->documents as $document)
+                    <li><a target="_blank" href="{{ $document->getClientUrl($invitation) }}">{{$document->name}} ({{Form::human_filesize($document->size)}})</a></li>
+                @endforeach
+            @endforeach
+            </ul>
+            </div>
+        @endif
+        
+        @if ($account->isPro() && $account->invoice_embed_documents)
+            @foreach ($invoice->documents as $document)
+                @if($document->isPDFEmbeddable())
+                    <script src="{{ $document->getClientVFSJSUrl() }}" type="text/javascript" async></script>
+                @endif
+            @endforeach
+            @foreach ($invoice->expenses as $expense)
+                @foreach ($expense->documents as $document)
+                    @if($document->isPDFEmbeddable())
+                        <script src="{{ $document->getClientVFSJSUrl() }}" type="text/javascript" async></script>
+                    @endif
+                @endforeach
+            @endforeach
+        @endif
 		<script type="text/javascript">
 
 			window.invoice = {!! $invoice->toJson() !!};
@@ -90,6 +123,5 @@
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>
 
-	</div>	
-
+	</div>
 @stop

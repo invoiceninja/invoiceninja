@@ -1062,3 +1062,42 @@ td.right {
 div.panel-body div.panel-body {
     padding-bottom: 0px;
 }
+
+/* Attached Documents */
+#document-upload {
+    border:1px solid #ebe7e7;
+    background:#f9f9f9 !important;
+    border-radius:3px;
+    padding:20px;
+}
+
+.invoice-table #document-upload{
+    max-width:560px;
+}
+
+#document-upload .dropzone{
+    background:none;
+    border:none;
+    padding:0;
+}
+
+.dropzone .dz-preview.dz-image-preview{
+    background:none;
+}
+
+.dropzone .dz-preview  .dz-image{
+    border-radius:5px!important;
+}
+
+.dropzone .dz-preview.dz-image-preview .dz-image img{
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.dropzone .fallback-doc{
+    display:none;
+}
+.dropzone.dz-browser-not-supported .fallback-doc{
+    display:block;
+}

@@ -53,6 +53,11 @@ class Expense extends EntityModel
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
+    public function documents()
+    {
+        return $this->hasMany('App\Models\Document')->orderBy('id');
+    }
+
     public function getName()
     {
         if($this->expense_number)
@@ -79,6 +84,20 @@ class Expense extends EntityModel
     public function isExchanged()
     {
         return $this->invoice_currency_id != $this->expense_currency_id;
+    }
+
+    public function convertedAmount()
+    {
+        return round($this->amount * $this->exchange_rate, 2);
+    }
+    
+    public function toArray()
+    {
+        $array = parent::toArray();
+        
+        if(empty($this->visible) || in_array('converted_amount', $this->visible))$array['previewconverted_amount_url'] = $this->convertedAmount();
+        
+        return $array;
     }
 }
 

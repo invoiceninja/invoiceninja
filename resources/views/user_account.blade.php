@@ -9,9 +9,9 @@
         <a href="{{ URL::to("/settings/user_details") }}">
     @endif
 
-        @if (file_exists($logo_path))
+        @if (!empty($logo_url))
             <div class="pull-left" style="height: 40px; margin-right: 16px;">
-                <img style="width: 40px; margin-top:6px" src="{{ asset($logo_path) }}"/>
+                <img style="width: 40px; margin-top:6px" src="{{ asset($logo_url) }}"/>
             </div>
         @else
             <div class="pull-left" style="width: 40px; min-height: 40px; margin-right: 16px">&nbsp;</div>

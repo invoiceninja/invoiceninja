@@ -2,6 +2,7 @@
 
 use Utils;
 use DateTime;
+use URL;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use App\Models\BalanceAffecting;
@@ -173,6 +174,11 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function invoice_items()
     {
         return $this->hasMany('App\Models\InvoiceItem')->orderBy('id');
+    }
+
+    public function documents()
+    {
+        return $this->hasMany('App\Models\Document')->orderBy('id');
     }
 
     public function invoice_status()
@@ -385,6 +391,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             'amount',
             'balance',
             'invoice_items',
+            'documents',
+            'expenses',
             'client',
             'tax_name',
             'tax_rate',
@@ -457,6 +465,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'custom_invoice_text_label2',
             'custom_invoice_item_label1',
             'custom_invoice_item_label2',
+            'invoice_embed_documents'
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {
@@ -479,6 +488,26 @@ class Invoice extends EntityModel implements BalanceAffecting
                 'email',
                 'phone',
             ]);
+        }
+
+        foreach ($this->documents as $document) {
+            $document->setVisible([
+                'public_id',
+                'name',
+            ]);
+        }
+        
+        foreach ($this->expenses as $expense) {
+            $expense->setVisible([
+                'documents',
+            ]);
+            
+            foreach ($expense->documents as $document) {
+                $document->setVisible([
+                    'public_id',
+                    'name',
+                ]);
+            }
         }
 
         return $this;
@@ -860,6 +889,18 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         return $taxes;
+    }
+    
+    public function hasDocuments(){
+        if(count($this->documents))return true;
+        return $this->hasExpenseDocuments();
+    }
+    
+    public function hasExpenseDocuments(){
+        foreach($this->expenses as $expense){
+            if(count($expense->documents))return true;
+        }
+        return false;
     }
 }
 

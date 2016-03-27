@@ -48,6 +48,7 @@
     function getPDFString(cb) {
       invoice.is_pro = {!! Auth::user()->isPro() ? 'true' : 'false' !!};
       invoice.account.hide_quantity = $('#hide_quantity').is(":checked");
+      invoice.account.invoice_embed_documents = $('#invoice_embed_documents').is(":checked");
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
       invoice.invoice_design_id = $('#invoice_design_id').val();
       
@@ -207,6 +208,7 @@
 
                       {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) !!}
                       {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help')) !!}
+                      {!! Former::checkbox('invoice_embed_documents')->text(trans('texts.invoice_embed_documents_help')) !!}
 
                     </div>
                 </div>

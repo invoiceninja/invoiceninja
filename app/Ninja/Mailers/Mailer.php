@@ -44,6 +44,13 @@ class Mailer
                 if (!empty($data['pdfString']) && !empty($data['pdfFileName'])) {
                     $message->attachData($data['pdfString'], $data['pdfFileName']);
                 }
+                
+                // Attach documents to the email
+                if(!empty($data['documents'])){
+                    foreach($data['documents'] as $document){
+                        $message->attachData($document['data'], $document['name']);
+                    }
+                }
             });
 
             return $this->handleSuccess($response, $data);

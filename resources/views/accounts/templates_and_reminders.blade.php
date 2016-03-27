@@ -201,6 +201,13 @@
 
             var keys = {!! json_encode(\App\Ninja\Mailers\ContactMailer::$variableFields) !!};
             var passwordHtml = "{!! $account->isPro() && $account->enable_portal_password && $account->send_portal_password?'<p>'.trans('texts.password').': 6h2NWNdw6<p>':'' !!}";
+            
+            @if ($account->isPro())
+            var documentsHtml = "{!! trans('texts.email_documents_header').'<ul><li><a>'.trans('texts.email_documents_example_1').'</a></li><li><a>'.trans('texts.email_documents_example_2').'</a></li></ul>' !!}";
+            @else
+            var documentsHtml = "";
+            @endif
+            
             var vals = [
                 {!! json_encode($emailFooter) !!}, 
                 "{{ $account->getDisplayName() }}", 
@@ -213,6 +220,7 @@
                 "0001", 
                 "0001",
                 passwordHtml,
+                documentsHtml,
                 "{{ URL::to('/view/...') }}$password", 
                 '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
                 "{{ URL::to('/payment/...') }}$password", 
