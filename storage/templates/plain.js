@@ -58,6 +58,12 @@
         }
     },    
     {
+        "stack": [
+            "$invoiceDocuments"
+        ],
+        "style": "invoiceDocuments"
+    },
+    {
         "columns": [
             "$notesAndTerms",
             {
@@ -166,7 +172,13 @@
         "help": {
             "fontSize": "$fontSizeSmaller",
             "color": "#737373"
-        }
+        },
+		"invoiceDocuments": {
+			"margin": [7, 0, 7, 0]
+		},
+		"invoiceDocument": {
+			"margin": [0, 10, 0, 10]
+		}
      },
     "pageMargins": [40, 40, 40, 60]
 }

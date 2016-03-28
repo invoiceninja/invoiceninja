@@ -226,6 +226,8 @@ function InvoiceModel(data) {
     self.auto_bill = ko.observable();
     self.invoice_status_id = ko.observable(0);
     self.invoice_items = ko.observableArray();
+    self.documents = ko.observableArray();
+    self.expenses = ko.observableArray();
     self.amount = ko.observable(0);
     self.balance = ko.observable(0);
     self.invoice_design_id = ko.observable(1);
@@ -251,6 +253,16 @@ function InvoiceModel(data) {
                 return new ItemModel(options.data);
             }
         },
+        'documents': {
+            create: function(options) {
+                return new DocumentModel(options.data);
+            }
+        },
+        'expenses': {
+            create: function(options) {
+                return new ExpenseModel(options.data);
+            }
+        },
         'tax': {
             create: function(options) {
                 return new TaxRateModel(options.data);
@@ -266,6 +278,19 @@ function InvoiceModel(data) {
         self.invoice_items.push(itemModel);
         applyComboboxListeners();
         return itemModel;
+    }
+    
+    self.addDocument = function() {
+        var documentModel = new DocumentModel();
+        self.documents.push(documentModel);
+        return documentModel;
+    }
+    
+    self.removeDocument = function(doc) {
+         var public_id = doc.public_id?doc.public_id():doc;
+         self.documents.remove(function(document) {
+            return document.public_id() == public_id;
+        });
     }
 
     if (data) {
@@ -810,6 +835,45 @@ function ItemModel(data) {
 
     this.onSelect = function() {}
 }
+    
+function DocumentModel(data) {
+    var self = this;
+    self.public_id = ko.observable(0);
+    self.size = ko.observable(0);
+    self.name = ko.observable('');
+    self.type = ko.observable('');
+    self.url = ko.observable('');
+    
+    self.update = function(data){
+        ko.mapping.fromJS(data, {}, this);
+    }
+    
+    if (data) {
+        self.update(data);
+    }    
+}
+    
+var ExpenseModel = function(data) {
+    var self = this;
+
+    self.mapping = {
+        'documents': {
+            create: function(options) {
+                return new DocumentModel(options.data);
+            }
+        }
+    }
+    
+    self.description = ko.observable('');
+    self.qty = ko.observable(0);
+    self.public_id = ko.observable(0);
+    self.amount = ko.observable();
+    self.converted_amount = ko.observable();
+
+    if (data) {
+        ko.mapping.fromJS(data, self.mapping, this);
+    }
+};
 
 /* Custom binding for product key typeahead */
 ko.bindingHandlers.typeahead = {

@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         'App\Console\Commands\SendRecurringInvoices',
+        'App\Console\Commands\RemoveOrphanedDocuments',
         'App\Console\Commands\ResetData',
         'App\Console\Commands\CheckData',
         'App\Console\Commands\SendRenewalInvoices',
