@@ -194,7 +194,7 @@ class InvoiceController extends BaseController
                 'isRecurring' => $invoice->is_recurring,
                 'actions' => $actions,
                 'lastSent' => $lastSent);
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, self::getViewModel($invoice));
 
         if ($clone) {
             $data['formIsChanged'] = true;
@@ -261,7 +261,7 @@ class InvoiceController extends BaseController
             'url' => 'invoices',
             'title' => trans('texts.new_invoice'),
         ];
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, self::getViewModel($invoice));
 
         return View::make('invoices.edit', $data);
     }
@@ -271,7 +271,7 @@ class InvoiceController extends BaseController
         return self::create($clientPublicId, true);
     }
 
-    private static function getViewModel()
+    private static function getViewModel($invoice)
     {
         $recurringHelp = '';
         foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_help')) as $line) {
@@ -332,17 +332,37 @@ class InvoiceController extends BaseController
             }
         }
 
-        // Tax rate options
+        // Tax rate $options
+        $account = Auth::user()->account;
         $rates = TaxRate::scope()->orderBy('name')->get();
+        $options = [];
+        $defaultTax = false;
+        
         foreach ($rates as $rate) {
-            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';
+            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';            
+        
+            // load default invoice tax
+            if ($rate->id == $account->default_tax_rate_id) {
+                $defaultTax = $rate;
+            }
+        }     
+        
+        // Check for any taxes which have been deleted
+        if ($invoice->exists) {
+            foreach ($invoice->getTaxes() as $key => $rate) {
+                if (isset($options[$key])) {
+                    continue;
+                }                
+                $options[$key] = $rate['name'] . ' ' . $rate['rate'] . '%';
+            }
         }
-
+                        
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->with('default_tax_rate')->orderBy('product_key')->get(),
-            'taxRates' => $options,
+            'taxRateOptions' => $options,
+            'defaultTax' => $defaultTax,
             'currencies' => Cache::get('currencies'),
             'languages' => Cache::get('languages'),
             'sizes' => Cache::get('sizes'),

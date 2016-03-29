@@ -459,13 +459,13 @@ NINJA.subtotals = function(invoice, hideBalance)
 
     for (var key in invoice.item_taxes) {
         if (invoice.item_taxes.hasOwnProperty(key)) {
-            var taxRate = invoice.item_taxes[key];            
+            var taxRate = invoice.item_taxes[key];         
             var taxStr = taxRate.name + ' ' + (taxRate.rate*1).toString() + '%';
             data.push([{text: taxStr}, {text: formatMoneyInvoice(taxRate.amount, invoice)}]);
         }
     }
 
-    if (invoice.tax && invoice.tax.name || invoice.tax_name) {
+    if (invoice.tax_amount) {
         var taxStr = invoice.tax_name + ' ' + (invoice.tax_rate*1).toString() + '%';
         data.push([{text: taxStr}, {text: formatMoneyInvoice(invoice.tax_amount, invoice)}]);        
     }

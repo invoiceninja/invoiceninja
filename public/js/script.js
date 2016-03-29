@@ -612,11 +612,7 @@ function calculateAmounts(invoice) {
         invoice.has_product_key = true;
     }
 
-    // the object structure differs if it's read from the db or created by knockoutJS
-    if (item.tax && parseFloat(item.tax.rate)) {
-      taxRate = parseFloat(item.tax.rate);
-      taxName = item.tax.name;
-    } else if (item.tax_rate && parseFloat(item.tax_rate)) {
+    if (item.tax_rate && parseFloat(item.tax_rate)) {
       taxRate = parseFloat(item.tax_rate);
       taxName = item.tax_name;
     }
@@ -632,7 +628,7 @@ function calculateAmounts(invoice) {
     }
     var taxAmount = roundToTwo(lineTotal * taxRate / 100);
 
-    if (taxRate) {
+    if (taxAmount) {
       var key = taxName + taxRate;
       if (taxes.hasOwnProperty(key)) {
         taxes[key].amount += taxAmount;
@@ -641,7 +637,7 @@ function calculateAmounts(invoice) {
       }
     }
 
-    if ((item.tax && item.tax.name) || item.tax_name) {
+    if (item.tax_name) {
       hasTaxes = true;
     }
   }
@@ -667,9 +663,7 @@ function calculateAmounts(invoice) {
   }
 
   var tax = 0;
-  if (invoice.tax && parseFloat(invoice.tax.rate)) {
-    tax = parseFloat(invoice.tax.rate);
-  } else if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
+  if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
     tax = parseFloat(invoice.tax_rate);
   }
 
@@ -708,9 +702,7 @@ function calculateAmounts(invoice) {
 
 function getInvoiceTaxRate(invoice) {
   var tax = 0;
-  if (invoice.tax && parseFloat(invoice.tax.rate)) {
-    tax = parseFloat(invoice.tax.rate);
-  } else if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
+  if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
     tax = parseFloat(invoice.tax_rate);
   }
   return tax;

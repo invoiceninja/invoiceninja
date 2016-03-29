@@ -244,7 +244,8 @@
 				</td>
 				<td style="display:none;" data-bind="visible: $root.invoice_item_taxes.show">
                     {!! Former::select('')
-                            ->options($taxRates)
+                            ->addOption('', '')
+                            ->options($taxRateOptions)
                             ->data_bind('value: tax')
                             ->raw() !!}
                     <input type="text" data-bind="value: tax_name, attr: {name: 'invoice_items[' + $index() + '][tax_name]'}" style="display:none">
@@ -274,7 +275,7 @@
                         <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_terms") }}</a></li>
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.{$entityType}_footer") }}</a></li>
                         @if ($account->isPro())
-                        <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">{{ trans("texts.invoice_documents") }}</a></li>
+                            <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">{{ trans("texts.invoice_documents") }}</a></li>
                         @endif
                     </ul>
 
@@ -384,7 +385,8 @@
 				@endif
 				<td style="min-width:120px">
                     {!! Former::select('')
-                            ->options($taxRates)
+                            ->addOption('', '')
+                            ->options($taxRateOptions)
                             ->data_bind('value: tax')
                             ->raw() !!}                    
                     <input type="text" name="tax_name" data-bind="value: tax_name" style="display:none">
@@ -721,8 +723,7 @@
     var $clientSelect = $('select#client');
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
-
-
+    
 	$(function() {
         // create client dictionary
         for (var i=0; i<clients.length; i++) {
@@ -767,8 +768,10 @@
                 model.invoice().custom_taxes1({{ $account->custom_invoice_taxes1 ? 'true' : 'false' }});
                 model.invoice().custom_taxes2({{ $account->custom_invoice_taxes2 ? 'true' : 'false' }});
                 // set the default account tax rate
-                @if ($account->invoice_taxes && $account->default_tax_rate_id)
-                    //model.invoice().tax(model.getTaxRateById({{ $account->default_tax_rate ?  $account->default_tax_rate->public_id : '' }}));
+                @if ($account->invoice_taxes && ! empty($defaultTax))
+                    var defaultTax = {!! $defaultTax !!};
+                    model.invoice().tax_rate(defaultTax.rate);
+                    model.invoice().tax_name(defaultTax.name);
                 @endif
             @endif
 

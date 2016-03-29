@@ -853,9 +853,9 @@ class Invoice extends EntityModel implements BalanceAffecting
             $taxAmount = round($taxAmount, 2);
 
             if ($taxAmount) {
-                $taxes[$this->tax_name.$this->tax_rate] = [
+                $taxes[$this->tax_rate . ' ' . $this->tax_name] = [
                     'name' => $this->tax_name,
-                    'rate' => $this->tax_rate,
+                    'rate' => $this->tax_rate+0,
                     'amount' => $taxAmount,
                     'paid' => round($this->getAmountPaid($calculatePaid) / $this->amount * $taxAmount, 2)
                 ];
@@ -872,7 +872,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             $taxAmount = round($taxAmount, 2);
 
             if ($taxAmount) {
-                $key = $invoiceItem->tax_name.$invoiceItem->tax_rate;
+                $key = $invoiceItem->tax_rate . ' ' . $invoiceItem->tax_name;
                 
                 if ( ! isset($taxes[$key])) {
                     $taxes[$key] = [
@@ -884,7 +884,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                 $taxes[$key]['amount'] += $taxAmount;
                 $taxes[$key]['paid'] += $this->amount && $taxAmount ? round($this->getAmountPaid($calculatePaid) / $this->amount * $taxAmount, 2) : 0;
                 $taxes[$key]['name'] = $invoiceItem->tax_name;
-                $taxes[$key]['rate'] = $invoiceItem->tax_rate;
+                $taxes[$key]['rate'] = $invoiceItem->tax_rate+0;
             }
         }
 

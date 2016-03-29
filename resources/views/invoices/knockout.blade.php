@@ -794,7 +794,9 @@ ko.bindingHandlers.typeahead = {
                 }
                 @if ($account->invoice_item_taxes)
                     if (datum.default_tax_rate) {
-                        //model.tax(self.model.getTaxRateById(datum.default_tax_rate.public_id));
+                        model.tax_rate(datum.default_tax_rate.rate);
+                        model.tax_name(datum.default_tax_rate.name);
+                        model.tax(datum.default_tax_rate.rate + ' ' + datum.default_tax_rate.name);
                     }
                 @endif
             @endif
