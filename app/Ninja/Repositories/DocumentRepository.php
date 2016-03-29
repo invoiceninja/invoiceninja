@@ -184,10 +184,7 @@ class DocumentRepository extends BaseRepository
        $query = DB::table('invitations')
           ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
           ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
-          ->join('expenses', 'expenses.invoice_id', '=', 'invitations.invoice_id')
-          ->join('documents', function($join){
-            $join->on('documents.invoice_id', '=', 'invitations.invoice_id')->orOn('documents.expense_id', '=', 'expenses.id');
-          })
+          ->join('documents', 'documents.invoice_id', '=', 'invitations.invoice_id')
           ->join('clients', 'clients.id', '=', 'invoices.client_id')
           ->where('invitations.contact_id', '=', $contactId)
           ->where('invitations.deleted_at', '=', null)
