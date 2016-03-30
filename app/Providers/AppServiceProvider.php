@@ -22,8 +22,15 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-        Form::macro('image_data', function($imagePath) {
-            return 'data:image/jpeg;base64,' . base64_encode(file_get_contents($imagePath));
+        Form::macro('image_data', function($image, $contents = false) {
+            if(!$contents){
+                $contents = file_get_contents($image);
+            }
+            else{
+                $contents = $image;
+            }
+                
+            return 'data:image/jpeg;base64,' . base64_encode($contents);            
         });
 
         Form::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
@@ -150,6 +157,13 @@ class AppServiceProvider extends ServiceProvider {
             }
 
             return $str . '</ol>';
+        });
+        
+        Form::macro('human_filesize', function($bytes, $decimals = 1) {
+            $size = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
+            $factor = floor((strlen($bytes) - 1) / 3);
+            if($factor == 0)$decimals=0;// There aren't fractional bytes
+            return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . ' ' . @$size[$factor];
         });
         
         Validator::extend('positive', function($attribute, $value, $parameters) {

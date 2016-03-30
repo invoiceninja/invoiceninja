@@ -2,24 +2,29 @@
 
 use DB;
 use Utils;
+use Session;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Invitation;
 use App\Models\Product;
 use App\Models\Task;
+use App\Models\Document;
 use App\Models\Expense;
 use App\Services\PaymentService;
 use App\Ninja\Repositories\BaseRepository;
 
 class InvoiceRepository extends BaseRepository
 {
+    protected $documentRepo;
+
     public function getClassName()
     {
         return 'App\Models\Invoice';
     }
 
-    public function __construct(PaymentService $paymentService)
+    public function __construct(PaymentService $paymentService, DocumentRepository $documentRepo)
     {
+        $this->documentRepo = $documentRepo;
         $this->paymentService = $paymentService;
     }
 
@@ -397,6 +402,53 @@ class InvoiceRepository extends BaseRepository
         if ($publicId) {
             $invoice->invoice_items()->forceDelete();
         }
+        
+        $document_ids = !empty($data['document_ids'])?array_map('intval', $data['document_ids']):array();;
+        foreach ($document_ids as $document_id){
+            $document = Document::scope($document_id)->first();
+            if($document && !$checkSubPermissions || $document->canEdit()){
+                
+                if($document->invoice_id && $document->invoice_id != $invoice->id){
+                    // From a clone
+                    $document = $document->cloneDocument();
+                    $document_ids[] = $document->public_id;// Don't remove this document
+                }
+                
+                $document->invoice_id = $invoice->id;
+                $document->expense_id = null;
+                $document->save();
+            }
+        }
+        
+        if(!empty($data['documents']) && Document::canCreate()){
+            // Fallback upload
+            $doc_errors = array();
+            foreach($data['documents'] as $upload){
+                $result = $this->documentRepo->upload($upload);
+                if(is_string($result)){
+                    $doc_errors[] = $result;
+                }
+                else{
+                    $result->invoice_id = $invoice->id;
+                    $result->save();
+                    $document_ids[] = $result->public_id;
+                }
+            }
+            if(!empty($doc_errors)){
+                Session::flash('error', implode('<br>',array_map('htmlentities',$doc_errors)));
+            }
+        }
+        
+        foreach ($invoice->documents as $document){
+            if(!in_array($document->public_id, $document_ids)){
+                // Removed
+                // Not checking permissions; deleting a document is just editing the invoice
+                if($document->invoice_id == $invoice->id){
+                    // Make sure the document isn't on a clone
+                    $document->delete();
+                }
+            }
+        }
 
         foreach ($data['invoice_items'] as $item) {
             $item = (array) $item;
@@ -553,6 +605,11 @@ class InvoiceRepository extends BaseRepository
             $clone->invoice_items()->save($cloneItem);
         }
 
+        foreach ($invoice->documents as $document) {
+            $cloneDocument = $document->cloneDocument();            
+            $invoice->documents()->save($cloneDocument);
+        }
+
         foreach ($invoice->invitations as $invitation) {
             $cloneInvitation = Invitation::createNew($invoice);
             $cloneInvitation->contact_id = $invitation->contact_id;
@@ -581,7 +638,7 @@ class InvoiceRepository extends BaseRepository
             return false;
         }
 
-        $invoice->load('user', 'invoice_items', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
+        $invoice->load('user', 'invoice_items', 'documents', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
         $client = $invoice->client;
 
         if (!$client || $client->is_deleted) {
@@ -655,6 +712,11 @@ class InvoiceRepository extends BaseRepository
             $item->tax_name = $recurItem->tax_name;
             $item->tax_rate = $recurItem->tax_rate;
             $invoice->invoice_items()->save($item);
+        }
+
+        foreach ($recurInvoice->documents as $recurDocument) {
+            $document = $recurDocument->cloneDocument();
+            $invoice->documents()->save($document);
         }
 
         foreach ($recurInvoice->invitations as $recurInvitation) {

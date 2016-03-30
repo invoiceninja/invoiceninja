@@ -475,7 +475,7 @@ class AccountRepository
             $item->account_id = $user->account->id;
             $item->account_name = $user->account->getDisplayName();
             $item->pro_plan_paid = $user->account->pro_plan_paid;
-            $item->logo_path = $user->account->hasLogo() ? $user->account->getLogoPath() : null;
+            $item->logo_url = $user->account->hasLogo() ? $user->account->getLogoUrl() : null;
             $data[] = $item;
         }
 

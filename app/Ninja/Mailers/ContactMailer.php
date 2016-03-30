@@ -1,6 +1,7 @@
 <?php namespace App\Ninja\Mailers;
 
 use Form;
+use HTML;
 use Utils;
 use Event;
 use URL;
@@ -28,6 +29,7 @@ class ContactMailer extends Mailer
         'invoice',
         'quote',
         'password',
+        'documents',
         'viewLink',
         'viewButton',
         'paymentLink',
@@ -59,9 +61,32 @@ class ContactMailer extends Mailer
         if ($account->attatchPDF() && !$pdfString) {
             $pdfString = $invoice->getPDFString();
         }
+        
+        $documentStrings = array();
+        if ($account->document_email_attachment && $invoice->hasDocuments()) {
+            $documents = $invoice->documents;
+        
+            foreach($invoice->expenses as $expense){
+                $documents = $documents->merge($expense->documents);
+            }
+
+            $documents = $documents->sortBy('size');
+                        
+            $size = 0;
+            $maxSize = MAX_EMAIL_DOCUMENTS_SIZE * 1000;
+            foreach($documents as $document){
+                $size += $document->size;
+                if($size > $maxSize)break;
+                
+                $documentStrings[] = array(
+                    'name' => $document->name,
+                    'data' => $document->getRaw(),
+                );
+            }
+        }
 
         foreach ($invoice->invitations as $invitation) {
-            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString);
+            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings);
             if ($response === true) {
                 $sent = true;
             }
@@ -80,7 +105,7 @@ class ContactMailer extends Mailer
         return $response;
     }
 
-    private function sendInvitation($invitation, $invoice, $body, $subject, $pdfString)
+    private function sendInvitation($invitation, $invoice, $body, $subject, $pdfString, $documentStrings)
     {
         $client = $invoice->client;
         $account = $invoice->account;
@@ -127,6 +152,7 @@ class ContactMailer extends Mailer
             'account' => $account,
             'client' => $client,
             'invoice' => $invoice,
+            'documents' => $documentStrings,
         ];
 
         if ($account->attatchPDF()) {
@@ -263,7 +289,21 @@ class ContactMailer extends Mailer
         $invitation = $data['invitation'];
         $invoice = $invitation->invoice;
         $passwordHTML = isset($data['password'])?'<p>'.trans('texts.password').': '.$data['password'].'<p>':false;
+        $documentsHTML = '';
 
+        if($account->isPro() && $invoice->hasDocuments()){
+            $documentsHTML .= trans('texts.email_documents_header').'<ul>';
+            foreach($invoice->documents as $document){
+                $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
+            }
+            foreach($invoice->expenses as $expense){
+                foreach($expense->documents as $document){
+                    $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
+                }
+            }
+            $documentsHTML .= '</ul>';
+        }
+        
         $variables = [
             '$footer' => $account->getEmailFooter(),
             '$client' => $client->getDisplayName(),
@@ -285,6 +325,7 @@ class ContactMailer extends Mailer
             '$customClient2' => $account->custom_client_label2,
             '$customInvoice1' => $account->custom_invoice_text_label1,
             '$customInvoice2' => $account->custom_invoice_text_label2,
+            '$documents' => $documentsHTML,
         ];
 
         // Add variables for available payment types

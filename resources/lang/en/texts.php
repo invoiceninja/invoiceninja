@@ -1097,6 +1097,32 @@ $LANG = array(
     'november' => 'November',
     'december' => 'December',
     
+    // Documents
+    'documents_header' => 'Documents:',
+    'email_documents_header' => 'Documents:',
+    'email_documents_example_1' => 'Widgets Receipt.pdf',
+    'email_documents_example_2' => 'Final Deliverable.zip',
+    'invoice_documents' => 'Attached Documents',
+    'expense_documents' => 'Attached Documents',
+    'invoice_embed_documents' => 'Embed Documents',
+    'invoice_embed_documents_help' => 'Include attached images in the invoice.',
+    'document_email_attachment' => 'Attach Documents',
+    'download_documents' => 'Download Documents (:size)',
+    'documents_from_expenses' => 'From Expenses:',
+    'dropzone' => array(// See http://www.dropzonejs.com/#config-dictDefaultMessage
+        'DefaultMessage' => 'Drop files or click to upload',
+        'FallbackMessage' => 'Your browser does not support drag\'n\'drop file uploads.',
+        'FallbackText' => 'Please use the fallback form below to upload your files like in the olden days.',
+        'FileTooBig' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
+        'InvalidFileType' => 'You can\'t upload files of this type.',
+        'ResponseError' => 'Server responded with {{statusCode}} code.',
+        'CancelUpload' => 'Cancel upload',
+        'CancelUploadConfirmation' => 'Are you sure you want to cancel this upload?',
+        'RemoveFile' => 'Remove file',
+    ),
+    'documents' => 'Documents',
+    'document_date' => 'Document Date',
+    'document_size' => 'Size',
 );
 
 return $LANG;
