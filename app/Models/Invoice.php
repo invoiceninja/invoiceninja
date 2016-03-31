@@ -25,6 +25,13 @@ class Invoice extends EntityModel implements BalanceAffecting
     protected $presenter = 'App\Ninja\Presenters\InvoicePresenter';
     protected $dates = ['deleted_at'];
 
+    protected $fillable = [
+        'tax_name1',
+        'tax_rate1',
+        'tax_name2',
+        'tax_rate2',    
+    ];
+    
     protected $casts = [
         'is_recurring' => 'boolean',
         'has_tasks' => 'boolean',
@@ -394,8 +401,10 @@ class Invoice extends EntityModel implements BalanceAffecting
             'documents',
             'expenses',
             'client',
-            'tax_name',
-            'tax_rate',
+            'tax_name1',
+            'tax_rate1',
+            'tax_name2',
+            'tax_rate2',
             'account',
             'invoice_design',
             'invoice_design_id',
@@ -476,8 +485,10 @@ class Invoice extends EntityModel implements BalanceAffecting
                 'custom_value2',
                 'cost',
                 'qty',
-                'tax_name',
-                'tax_rate',
+                'tax_name1',
+                'tax_rate1',
+                'tax_name2',
+                'tax_rate2',
             ]);
         }
 
@@ -843,52 +854,66 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $total;
     }
 
+    // if $calculatePaid is true we'll loop through each payment to  
+    // determine the sum, otherwise we'll use the cached paid_to_date amount
     public function getTaxes($calculatePaid = false)
     {
         $taxes = [];
         $taxable = $this->getTaxable();
-        
-        if ($this->tax_rate && $this->tax_name) {
-            $taxAmount = $taxable * ($this->tax_rate / 100);
-            $taxAmount = round($taxAmount, 2);
+        $paidAmount = $this->getAmountPaid($calculatePaid);
+                
+        if ($this->tax_name1) {
+            $invoiceTaxAmount = round($taxable * ($this->tax_rate1 / 100), 2);
+            $invoicePaidAmount = $this->amount && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
+            $this->calculateTax($taxes, $this->tax_name1, $this->tax_rate1, $invoiceTaxAmount, $invoicePaidAmount);
+        }
 
-            if ($taxAmount) {
-                $taxes[$this->tax_rate . ' ' . $this->tax_name] = [
-                    'name' => $this->tax_name,
-                    'rate' => $this->tax_rate+0,
-                    'amount' => $taxAmount,
-                    'paid' => round($this->getAmountPaid($calculatePaid) / $this->amount * $taxAmount, 2)
-                ];
-            }
+        if ($this->tax_name2) {
+            $invoiceTaxAmount = round($taxable * ($this->tax_rate2 / 100), 2);
+            $invoicePaidAmount = $this->amount && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
+            $this->calculateTax($taxes, $this->tax_name2, $this->tax_rate2, $invoiceTaxAmount, $invoicePaidAmount);
         }
 
         foreach ($this->invoice_items as $invoiceItem) {
-            if ( ! $invoiceItem->tax_rate || ! $invoiceItem->tax_name) {
-                continue;
+            $itemTaxAmount = $this->getItemTaxable($invoiceItem, $taxable);
+            
+            if ($invoiceItem->tax_name1) {
+                $itemTaxAmount = round($taxable * ($invoiceItem->tax_rate1 / 100), 2);
+                $itemPaidAmount = $this->amount && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
+                $this->calculateTax($taxes, $invoiceItem->tax_name1, $invoiceItem->tax_rate1, $itemTaxAmount, $itemPaidAmount);
             }
 
-            $taxAmount = $this->getItemTaxable($invoiceItem, $taxable);
-            $taxAmount = $taxable * ($invoiceItem->tax_rate / 100);
-            $taxAmount = round($taxAmount, 2);
-
-            if ($taxAmount) {
-                $key = $invoiceItem->tax_rate . ' ' . $invoiceItem->tax_name;
-                
-                if ( ! isset($taxes[$key])) {
-                    $taxes[$key] = [
-                        'amount' => 0,
-                        'paid' => 0
-                    ];
-                }
-
-                $taxes[$key]['amount'] += $taxAmount;
-                $taxes[$key]['paid'] += $this->amount && $taxAmount ? round($this->getAmountPaid($calculatePaid) / $this->amount * $taxAmount, 2) : 0;
-                $taxes[$key]['name'] = $invoiceItem->tax_name;
-                $taxes[$key]['rate'] = $invoiceItem->tax_rate+0;
+            if ($invoiceItem->tax_name2) {
+                $itemTaxAmount = round($taxable * ($invoiceItem->tax_rate2 / 100), 2);
+                $itemPaidAmount = $this->amount && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
+                $this->calculateTax($taxes, $invoiceItem->tax_name2, $invoiceItem->tax_rate2, $itemTaxAmount, $itemPaidAmount);
             }
         }
-
+        
         return $taxes;
+    }
+    
+    private function calculateTax(&$taxes, $name, $rate, $amount, $paid) 
+    {    
+        if ( ! $amount) {
+            return;
+        } 
+        
+        $amount = round($amount, 2);
+        $paid = round($paid, 2);
+        $key = $rate . ' ' . $name;
+        
+        if ( ! isset($taxes[$key])) {
+            $taxes[$key] = [
+                'name' => $name,
+                'rate' => $rate+0,
+                'amount' => 0,
+                'paid' => 0
+            ];
+        }
+
+        $taxes[$key]['amount'] += $amount;
+        $taxes[$key]['paid'] += $paid;        
     }
     
     public function hasDocuments(){

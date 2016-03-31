@@ -350,13 +350,15 @@ NINJA.invoiceLines = function(invoice) {
         var qty = NINJA.parseFloat(item.qty) ? roundToTwo(NINJA.parseFloat(item.qty)) + '' : '';
         var notes = item.notes;
         var productKey = item.product_key;
-        var tax = '';        
+        var tax1 = '';        
+        var tax2 = '';        
         
         if (showItemTaxes) {
-            if (item.tax && parseFloat(item.tax.rate)) {
-                tax = parseFloat(item.tax.rate);
-            } else if (item.tax_rate && parseFloat(item.tax_rate)) {
-                tax = parseFloat(item.tax_rate);
+            if (item.tax_name1) {
+                tax1 = parseFloat(item.tax_rate1);
+            }
+            if (item.tax_name2) {
+                tax2 = parseFloat(item.tax_rate2);
             }
         }
 
@@ -393,7 +395,14 @@ NINJA.invoiceLines = function(invoice) {
             row.push({style:["quantity", rowStyle], text:qty || ' '});
         }
         if (showItemTaxes) {
-            row.push({style:["tax", rowStyle], text:tax ? (tax.toString() + '%') : ' '});
+            var str = '';
+            if (tax1) {
+                str += tax1.toString() + '% ';
+            }
+            if (tax2) {
+                str += tax2.toString() + '% ';
+            }
+            row.push({style:["tax", rowStyle], text:str});
         }
         row.push({style:["lineTotal", rowStyle], text:lineTotal || ' '});
 
@@ -465,9 +474,13 @@ NINJA.subtotals = function(invoice, hideBalance)
         }
     }
 
-    if (invoice.tax_amount) {
-        var taxStr = invoice.tax_name + ' ' + (invoice.tax_rate*1).toString() + '%';
-        data.push([{text: taxStr}, {text: formatMoneyInvoice(invoice.tax_amount, invoice)}]);        
+    if (invoice.tax_amount1) {
+        var taxStr = invoice.tax_name1 + ' ' + (invoice.tax_rate1*1).toString() + '%';
+        data.push([{text: taxStr}, {text: formatMoneyInvoice(invoice.tax_amount1, invoice)}]);        
+    }
+    if (invoice.tax_amount2) {
+        var taxStr = invoice.tax_name2 + ' ' + (invoice.tax_rate2*1).toString() + '%';
+        data.push([{text: taxStr}, {text: formatMoneyInvoice(invoice.tax_amount2, invoice)}]);        
     }
 
     if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {        

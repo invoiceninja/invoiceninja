@@ -221,6 +221,8 @@ class InvoiceRepository extends BaseRepository
             $invoice = Invoice::scope($publicId)->firstOrFail();
         }
 
+        $invoice->fill($data);
+
         if ((isset($data['set_default_terms']) && $data['set_default_terms'])
             || (isset($data['set_default_footer']) && $data['set_default_footer'])) {
             if (isset($data['set_default_terms']) && $data['set_default_terms']) {
@@ -297,12 +299,10 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->invoice_design_id = isset($data['invoice_design_id']) ? $data['invoice_design_id'] : $account->invoice_design_id;
 
-        if (isset($data['tax_name']) && isset($data['tax_rate']) && $data['tax_name']) {
-            $invoice->tax_rate = Utils::parseFloat($data['tax_rate']);
-            $invoice->tax_name = trim($data['tax_name']);
-        } else {
-            $invoice->tax_rate = 0;
-            $invoice->tax_name = '';
+        // provide backwards compatability
+        if (isset($data['tax_name']) && isset($data['tax_rate'])) {
+            $data['tax_name1'] = $data['tax_name']; 
+            $data['tax_rate1'] = $data['tax_rate']; 
         }
 
         $total = 0;
@@ -323,20 +323,24 @@ class InvoiceRepository extends BaseRepository
 
         foreach ($data['invoice_items'] as $item) {
             $item = (array) $item;
-            if (isset($item['tax_rate']) && Utils::parseFloat($item['tax_rate']) > 0) {
-                $invoiceItemCost = round(Utils::parseFloat($item['cost']), 2);
-                $invoiceItemQty = round(Utils::parseFloat($item['qty']), 2);
-                $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate']);
-                $lineTotal = $invoiceItemCost * $invoiceItemQty;
+            $invoiceItemCost = round(Utils::parseFloat($item['cost']), 2);
+            $invoiceItemQty = round(Utils::parseFloat($item['qty']), 2);
+            $lineTotal = $invoiceItemCost * $invoiceItemQty;
 
-                if ($invoice->discount > 0) {
-                    if ($invoice->is_amount_discount) {
-                        $lineTotal -= round(($lineTotal/$total) * $invoice->discount, 2);
-                    } else {
-                        $lineTotal -= round($lineTotal * ($invoice->discount/100), 2);
-                    }
+            if ($invoice->discount > 0) {
+                if ($invoice->is_amount_discount) {
+                    $lineTotal -= round(($lineTotal/$total) * $invoice->discount, 2);
+                } else {
+                    $lineTotal -= round($lineTotal * ($invoice->discount/100), 2);
                 }
+            }
 
+            if (isset($item['tax_rate1']) && Utils::parseFloat($item['tax_rate1']) > 0) {
+                $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate1']);            
+                $itemTax += round($lineTotal * $invoiceItemTaxRate / 100, 2);
+            }
+            if (isset($item['tax_rate2']) && Utils::parseFloat($item['tax_rate2']) > 0) {
+                $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate2']);            
                 $itemTax += round($lineTotal * $invoiceItemTaxRate / 100, 2);
             }
         }
@@ -378,8 +382,9 @@ class InvoiceRepository extends BaseRepository
             $total += $invoice->custom_value2;
         }
 
-        $total += $total * $invoice->tax_rate / 100;
-        $total = round($total, 2);
+        $taxAmount1 = round($total * $invoice->tax_rate1 / 100, 2);
+        $taxAmount2 = round($total * $invoice->tax_rate2 / 100, 2);
+        $total = round($total + $taxAmount1 + $taxAmount2, 2);        
         $total += $itemTax;
 
         // custom fields not charged taxes
@@ -502,7 +507,7 @@ class InvoiceRepository extends BaseRepository
             $invoiceItem->notes = trim($invoice->is_recurring ? $item['notes'] : Utils::processVariables($item['notes']));
             $invoiceItem->cost = Utils::parseFloat($item['cost']);
             $invoiceItem->qty = Utils::parseFloat($item['qty']);
-            $invoiceItem->tax_rate = 0;
+            //$invoiceItem->tax_rate = 0;
 
             if (isset($item['custom_value1'])) {
                 $invoiceItem->custom_value1 = $item['custom_value1'];
@@ -511,11 +516,14 @@ class InvoiceRepository extends BaseRepository
                 $invoiceItem->custom_value2 = $item['custom_value2'];
             }
 
-            if (isset($item['tax_rate']) && isset($item['tax_name']) && $item['tax_name']) {
-                $invoiceItem['tax_rate'] = Utils::parseFloat($item['tax_rate']);
-                $invoiceItem['tax_name'] = trim($item['tax_name']);
+            // provide backwards compatability
+            if (isset($item['tax_name']) && isset($item['tax_rate'])) {
+                $item['tax_name1'] = $item['tax_name']; 
+                $item['tax_rate1'] = $item['tax_rate']; 
             }
 
+            $invoiceItem->fill($item);
+            
             $invoice->invoice_items()->save($invoiceItem);
         }
 
@@ -562,8 +570,10 @@ class InvoiceRepository extends BaseRepository
           'invoice_footer',
           'public_notes',
           'invoice_design_id',
-          'tax_name',
-          'tax_rate',
+          'tax_name1',
+          'tax_rate1',
+          'tax_name2',
+          'tax_rate2',
           'amount',
           'is_quote',
           'custom_value1',
@@ -597,8 +607,11 @@ class InvoiceRepository extends BaseRepository
                 'notes',
                 'cost',
                 'qty',
-                'tax_name',
-                'tax_rate', ] as $field) {
+                'tax_name1',
+                'tax_rate1', 
+                'tax_name2',
+                'tax_rate2', 
+            ] as $field) {
                 $cloneItem->$field = $item->$field;
             }
 
@@ -689,8 +702,10 @@ class InvoiceRepository extends BaseRepository
         $invoice->public_notes = Utils::processVariables($recurInvoice->public_notes);
         $invoice->terms = Utils::processVariables($recurInvoice->terms);
         $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer);
-        $invoice->tax_name = $recurInvoice->tax_name;
-        $invoice->tax_rate = $recurInvoice->tax_rate;
+        $invoice->tax_name1 = $recurInvoice->tax_name1;
+        $invoice->tax_rate1 = $recurInvoice->tax_rate1;
+        $invoice->tax_name2 = $recurInvoice->tax_name2;
+        $invoice->tax_rate2 = $recurInvoice->tax_rate2;
         $invoice->invoice_design_id = $recurInvoice->invoice_design_id;
         $invoice->custom_value1 = $recurInvoice->custom_value1 ?: 0;
         $invoice->custom_value2 = $recurInvoice->custom_value2 ?: 0;
@@ -709,8 +724,10 @@ class InvoiceRepository extends BaseRepository
             $item->cost = $recurItem->cost;
             $item->notes = Utils::processVariables($recurItem->notes);
             $item->product_key = Utils::processVariables($recurItem->product_key);
-            $item->tax_name = $recurItem->tax_name;
-            $item->tax_rate = $recurItem->tax_rate;
+            $item->tax_name1 = $recurItem->tax_name1;
+            $item->tax_rate1 = $recurItem->tax_rate1;
+            $item->tax_name2 = $recurItem->tax_name2;
+            $item->tax_rate2 = $recurItem->tax_rate2;
             $invoice->invoice_items()->save($item);
         }
 

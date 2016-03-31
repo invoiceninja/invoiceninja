@@ -52,10 +52,11 @@ function ViewModel(data) {
     }
 
     self.invoice_taxes.show = ko.computed(function() {
-        if (self.invoice_taxes()) {
+        if (self.invoice().tax_name1() || self.invoice().tax_name2()) {
             return true;
         }
-        return false;
+        
+        return self.invoice_taxes() && {{ count($taxRateOptions) ? 'true' : 'false' }};
     });
 
     self.invoice_item_taxes.show = ko.computed(function() {
@@ -64,7 +65,7 @@ function ViewModel(data) {
         }
         for (var i=0; i<self.invoice().invoice_items().length; i++) {
             var item = self.invoice().invoice_items()[i];
-            if (item.tax_rate() > 0) {
+            if (item.tax_name1() || item.tax_name2()) {
                 return true;
             }
         }
@@ -175,8 +176,10 @@ function InvoiceModel(data) {
     self.start_date = ko.observable('');
     self.end_date = ko.observable('');
     self.last_sent_date = ko.observable('');
-    self.tax_name = ko.observable();
-    self.tax_rate = ko.observable();
+    self.tax_name1 = ko.observable();
+    self.tax_rate1 = ko.observable();
+    self.tax_name2 = ko.observable();
+    self.tax_rate2 = ko.observable();
     self.is_recurring = ko.observable(0);
     self.is_quote = ko.observable({{ $entityType == ENTITY_QUOTE ? '1' : '0' }});
     self.auto_bill = ko.observable();
@@ -258,15 +261,27 @@ function InvoiceModel(data) {
         return self.has_tasks() ? invoiceLabels['rate'] : invoiceLabels['unit_cost'];
     }, this);
 
-    this.tax = ko.computed({
+    this.tax1 = ko.computed({
         read: function () {
-            return self.tax_rate() + ' ' + self.tax_name();
+            return self.tax_rate1() + ' ' + self.tax_name1();
         },
         write: function(value) {
             var rate = value.substr(0, value.indexOf(' '));
             var name = value.substr(value.indexOf(' ') + 1);
-            self.tax_name(name);
-            self.tax_rate(rate);
+            self.tax_name1(name);
+            self.tax_rate1(rate);
+        }
+    })
+
+    this.tax2 = ko.computed({
+        read: function () {
+            return self.tax_rate2() + ' ' + self.tax_name2();
+        },
+        write: function(value) {
+            var rate = value.substr(0, value.indexOf(' '));
+            var name = value.substr(value.indexOf(' ') + 1);
+            self.tax_name2(name);
+            self.tax_rate2(rate);
         }
     })
         
@@ -359,15 +374,13 @@ function InvoiceModel(data) {
             total = NINJA.parseFloat(total) + customValue2;
         }
 
-        var taxRate = parseFloat(self.tax_rate());
-        //if (taxRate > 0) {
-        //    var tax = roundToTwo(total * (taxRate/100));
-        //    return self.formatMoney(tax);
-        //} else {
-        //    return self.formatMoney(0);
-        //}
-        var tax = roundToTwo(total * (taxRate/100));
-        return self.formatMoney(tax);
+        var taxRate1 = parseFloat(self.tax_rate1());
+        var tax1 = roundToTwo(total * (taxRate1/100));
+
+        var taxRate2 = parseFloat(self.tax_rate2());
+        var tax2 = roundToTwo(total * (taxRate2/100));
+        
+        return self.formatMoney(tax1 + tax2);
     });
 
     self.totals.itemTaxes = ko.computed(function() {
@@ -383,13 +396,24 @@ function InvoiceModel(data) {
                     lineTotal -= roundToTwo(lineTotal * (self.discount()/100));
                 }
             }
-            var taxAmount = roundToTwo(lineTotal * item.tax_rate() / 100);
+                        
+            var taxAmount = roundToTwo(lineTotal * item.tax_rate1() / 100);
             if (taxAmount) {
-                var key = item.tax_name() + item.tax_rate();
+                var key = item.tax_name1() + item.tax_rate1();
                 if (taxes.hasOwnProperty(key)) {
                     taxes[key].amount += taxAmount;
                 } else {
-                    taxes[key] = {name:item.tax_name(), rate:item.tax_rate(), amount:taxAmount};
+                    taxes[key] = {name:item.tax_name1(), rate:item.tax_rate1(), amount:taxAmount};
+                }
+            }
+
+            var taxAmount = roundToTwo(lineTotal * item.tax_rate2() / 100);
+            if (taxAmount) {
+                var key = item.tax_name2() + item.tax_rate2();
+                if (taxes.hasOwnProperty(key)) {
+                    taxes[key].amount += taxAmount;
+                } else {
+                    taxes[key] = {name:item.tax_name2(), rate:item.tax_rate2(), amount:taxAmount};
                 }
             }
         }
@@ -455,8 +479,9 @@ function InvoiceModel(data) {
             total = NINJA.parseFloat(total) + customValue2;
         }
 
-        var taxRate = parseFloat(self.tax_rate());
-        total = NINJA.parseFloat(total) + roundToTwo(total * (taxRate/100));
+        var taxAmount1 = roundToTwo(total * (parseFloat(self.tax_rate1())/100));
+        var taxAmount2 = roundToTwo(total * (parseFloat(self.tax_rate2())/100));
+        total = NINJA.parseFloat(total) + taxAmount1 + taxAmount2;
         total = roundToTwo(total);
 
         var taxes = self.totals.itemTaxes();
@@ -641,21 +666,35 @@ function ItemModel(data) {
     self.qty = ko.observable(0);
     self.custom_value1 = ko.observable('');
     self.custom_value2 = ko.observable('');
-    self.tax_name = ko.observable('');
-    self.tax_rate = ko.observable(0);
+    self.tax_name1 = ko.observable('');
+    self.tax_rate1 = ko.observable(0);
+    self.tax_name2 = ko.observable('');
+    self.tax_rate2 = ko.observable(0);
     self.task_public_id = ko.observable('');
     self.expense_public_id = ko.observable('');
     self.actionsVisible = ko.observable(false);
 
-    this.tax = ko.computed({
+    this.tax1 = ko.computed({
         read: function () {
-            return self.tax_rate() + ' ' + self.tax_name();
+            return self.tax_rate1() + ' ' + self.tax_name1();
         },
         write: function(value) {
             var rate = value.substr(0, value.indexOf(' '));
             var name = value.substr(value.indexOf(' ') + 1);
-            self.tax_name(name);
-            self.tax_rate(rate);
+            self.tax_name1(name);
+            self.tax_rate1(rate);
+        }
+    })
+
+    this.tax2 = ko.computed({
+        read: function () {
+            return self.tax_rate2() + ' ' + self.tax_name2();
+        },
+        write: function(value) {
+            var rate = value.substr(0, value.indexOf(' '));
+            var name = value.substr(value.indexOf(' ') + 1);
+            self.tax_name2(name);
+            self.tax_rate2(rate);
         }
     })
 
@@ -794,9 +833,9 @@ ko.bindingHandlers.typeahead = {
                 }
                 @if ($account->invoice_item_taxes)
                     if (datum.default_tax_rate) {
-                        model.tax_rate(datum.default_tax_rate.rate);
-                        model.tax_name(datum.default_tax_rate.name);
-                        model.tax(datum.default_tax_rate.rate + ' ' + datum.default_tax_rate.name);
+                        model.tax_rate1(datum.default_tax_rate.rate);
+                        model.tax_name1(datum.default_tax_rate.name);
+                        model.tax1(datum.default_tax_rate.rate + ' ' + datum.default_tax_rate.name);
                     }
                 @endif
             @endif

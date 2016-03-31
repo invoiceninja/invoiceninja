@@ -30497,8 +30497,10 @@ function calculateAmounts(invoice) {
 
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];
-    var taxRate = 0;
-    var taxName = '';
+    var taxRate1 = 0;
+    var taxName1 = '';
+    var taxRate2 = 0;
+    var taxName2 = '';
 
     if (item.product_key) {
         invoice.has_product_key = true;
@@ -30506,9 +30508,14 @@ function calculateAmounts(invoice) {
         invoice.has_product_key = true;
     }
 
-    if (item.tax_rate && parseFloat(item.tax_rate)) {
-      taxRate = parseFloat(item.tax_rate);
-      taxName = item.tax_name;
+    if (item.tax_rate1 && parseFloat(item.tax_rate1)) {
+      taxRate1 = parseFloat(item.tax_rate1);
+      taxName1 = item.tax_name1;
+    }
+
+    if (item.tax_rate2 && parseFloat(item.tax_rate2)) {
+      taxRate2 = parseFloat(item.tax_rate2);
+      taxName2 = item.tax_name2;
     }
 
     // calculate line item tax
@@ -30520,18 +30527,28 @@ function calculateAmounts(invoice) {
             lineTotal -= roundToTwo(lineTotal * (invoice.discount/100));
         }
     }
-    var taxAmount = roundToTwo(lineTotal * taxRate / 100);
-
-    if (taxAmount) {
-      var key = taxName + taxRate;
+    
+    var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
+    if (taxAmount1) {
+      var key = taxName1 + taxRate1;
       if (taxes.hasOwnProperty(key)) {
-        taxes[key].amount += taxAmount;
+        taxes[key].amount += taxAmount1;
       } else {
-        taxes[key] = {name: taxName, rate:taxRate, amount:taxAmount};
+        taxes[key] = {name: taxName1, rate:taxRate1, amount:taxAmount1};
       }
     }
 
-    if (item.tax_name) {
+    var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
+    if (taxAmount2) {
+      var key = taxName2 + taxRate2;
+      if (taxes.hasOwnProperty(key)) {
+        taxes[key].amount += taxAmount2;
+      } else {
+        taxes[key] = {name: taxName2, rate:taxRate2, amount:taxAmount2};
+      }
+    }
+
+    if (item.tax_name1 || item.tax_name2) {
       hasTaxes = true;
     }
   }
@@ -30556,15 +30573,17 @@ function calculateAmounts(invoice) {
     total += roundToTwo(invoice.custom_value2);
   }
 
-  var tax = 0;
-  if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
-    tax = parseFloat(invoice.tax_rate);
+  taxRate1 = 0;
+  taxRate2 = 0;
+  if (invoice.tax_rate1 && parseFloat(invoice.tax_rate1)) {
+    taxRate1 = parseFloat(invoice.tax_rate1);
   }
-
-  if (tax) {
-    var tax = roundToTwo(total * (tax/100));
-    total = parseFloat(total) + parseFloat(tax);
+  if (invoice.tax_rate2 && parseFloat(invoice.tax_rate2)) {
+    taxRate2 = parseFloat(invoice.tax_rate2);
   }
+  taxAmount1 = roundToTwo(total * (taxRate1/100));
+  taxAmount2 = roundToTwo(total * (taxRate2/100));
+  total = total + taxAmount1 + taxAmount2;
 
   for (var key in taxes) {
     if (taxes.hasOwnProperty(key)) {
@@ -30582,7 +30601,8 @@ function calculateAmounts(invoice) {
 
   invoice.total_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
   invoice.discount_amount = discount;
-  invoice.tax_amount = tax;
+  invoice.tax_amount1 = taxAmount1;
+  invoice.tax_amount2 = taxAmount2;
   invoice.item_taxes = taxes;
   
   if (NINJA.parseFloat(invoice.partial)) {
@@ -30592,14 +30612,6 @@ function calculateAmounts(invoice) {
   }
 
   return invoice;
-}
-
-function getInvoiceTaxRate(invoice) {
-  var tax = 0;
-  if (invoice.tax_rate && parseFloat(invoice.tax_rate)) {
-    tax = parseFloat(invoice.tax_rate);
-  }
-  return tax;
 }
 
 // http://stackoverflow.com/questions/11941876/correctly-suppressing-warnings-in-datatables
@@ -31337,13 +31349,15 @@ NINJA.invoiceLines = function(invoice) {
         var qty = NINJA.parseFloat(item.qty) ? roundToTwo(NINJA.parseFloat(item.qty)) + '' : '';
         var notes = item.notes;
         var productKey = item.product_key;
-        var tax = '';        
+        var tax1 = '';        
+        var tax2 = '';        
         
         if (showItemTaxes) {
-            if (item.tax && parseFloat(item.tax.rate)) {
-                tax = parseFloat(item.tax.rate);
-            } else if (item.tax_rate && parseFloat(item.tax_rate)) {
-                tax = parseFloat(item.tax_rate);
+            if (item.tax_name1) {
+                tax1 = parseFloat(item.tax_rate1);
+            }
+            if (item.tax_name2) {
+                tax2 = parseFloat(item.tax_rate2);
             }
         }
 
@@ -31380,7 +31394,14 @@ NINJA.invoiceLines = function(invoice) {
             row.push({style:["quantity", rowStyle], text:qty || ' '});
         }
         if (showItemTaxes) {
-            row.push({style:["tax", rowStyle], text:tax ? (tax.toString() + '%') : ' '});
+            var str = '';
+            if (tax1) {
+                str += tax1.toString() + '% ';
+            }
+            if (tax2) {
+                str += tax2.toString() + '% ';
+            }
+            row.push({style:["tax", rowStyle], text:str});
         }
         row.push({style:["lineTotal", rowStyle], text:lineTotal || ' '});
 
@@ -31452,9 +31473,13 @@ NINJA.subtotals = function(invoice, hideBalance)
         }
     }
 
-    if (invoice.tax_amount) {
-        var taxStr = invoice.tax_name + ' ' + (invoice.tax_rate*1).toString() + '%';
-        data.push([{text: taxStr}, {text: formatMoneyInvoice(invoice.tax_amount, invoice)}]);        
+    if (invoice.tax_amount1) {
+        var taxStr = invoice.tax_name1 + ' ' + (invoice.tax_rate1*1).toString() + '%';
+        data.push([{text: taxStr}, {text: formatMoneyInvoice(invoice.tax_amount1, invoice)}]);        
+    }
+    if (invoice.tax_amount2) {
+        var taxStr = invoice.tax_name2 + ' ' + (invoice.tax_rate2*1).toString() + '%';
+        data.push([{text: taxStr}, {text: formatMoneyInvoice(invoice.tax_amount2, invoice)}]);        
     }
 
     if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {        

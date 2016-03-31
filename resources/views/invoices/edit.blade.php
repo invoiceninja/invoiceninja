@@ -17,6 +17,11 @@
         label.control-label[for=invoice_number] {
             font-weight: normal !important;
         }
+        
+        select.tax-select {
+            width: 50%;
+            float: left;
+        }
     </style>
 @stop
 
@@ -204,7 +209,7 @@
                 @endif
 				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
 				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel">{{ $invoiceLabels['quantity'] }}</th>
-				<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
+				<th style="min-width:180px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
 				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
 				<th style="min-width:32px;" class="hide-border"></th>
 			</tr>
@@ -246,10 +251,19 @@
                     {!! Former::select('')
                             ->addOption('', '')
                             ->options($taxRateOptions)
-                            ->data_bind('value: tax')
+                            ->data_bind('value: tax1')
+                            ->addClass('tax-select')
                             ->raw() !!}
-                    <input type="text" data-bind="value: tax_name, attr: {name: 'invoice_items[' + $index() + '][tax_name]'}" style="display:none">
-                    <input type="text" data-bind="value: tax_rate, attr: {name: 'invoice_items[' + $index() + '][tax_rate]'}" style="display:none">
+                    <input type="text" data-bind="value: tax_name1, attr: {name: 'invoice_items[' + $index() + '][tax_name1]'}" style="display:none">
+                    <input type="text" data-bind="value: tax_rate1, attr: {name: 'invoice_items[' + $index() + '][tax_rate1]'}" style="display:none">
+                    {!! Former::select('')
+                            ->addOption('', '')
+                            ->options($taxRateOptions)
+                            ->data_bind('value: tax2')
+                            ->addClass('tax-select')
+                            ->raw() !!}
+                    <input type="text" data-bind="value: tax_name2, attr: {name: 'invoice_items[' + $index() + '][tax_name2]'}" style="display:none">
+                    <input type="text" data-bind="value: tax_rate2, attr: {name: 'invoice_items[' + $index() + '][tax_rate2]'}" style="display:none">
 				</td>
 				<td style="text-align:right;padding-top:9px !important" nowrap>
 					<div class="line-total" data-bind="text: totals.total"></div>
@@ -387,10 +401,19 @@
                     {!! Former::select('')
                             ->addOption('', '')
                             ->options($taxRateOptions)
-                            ->data_bind('value: tax')
+                            ->addClass('tax-select')
+                            ->data_bind('value: tax1')
                             ->raw() !!}                    
-                    <input type="text" name="tax_name" data-bind="value: tax_name" style="display:none">
-                    <input type="text" name="tax_rate" data-bind="value: tax_rate" style="display:none">
+                    <input type="text" name="tax_name1" data-bind="value: tax_name1" style="display:none">
+                    <input type="text" name="tax_rate1" data-bind="value: tax_rate1" style="display:none">
+                    {!! Former::select('')
+                            ->addOption('', '')
+                            ->options($taxRateOptions)
+                            ->addClass('tax-select')
+                            ->data_bind('value: tax2')
+                            ->raw() !!}                    
+                    <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">
+                    <input type="text" name="tax_rate2" data-bind="value: tax_rate2" style="display:none">
                 </td>
 				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 			</tr>
@@ -770,8 +793,8 @@
                 // set the default account tax rate
                 @if ($account->invoice_taxes && ! empty($defaultTax))
                     var defaultTax = {!! $defaultTax !!};
-                    model.invoice().tax_rate(defaultTax.rate);
-                    model.invoice().tax_name(defaultTax.name);
+                    model.invoice().tax_rate1(defaultTax.rate);
+                    model.invoice().tax_name1(defaultTax.name);
                 @endif
             @endif
 
