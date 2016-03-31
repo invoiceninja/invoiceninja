@@ -33,6 +33,10 @@ class SupportMultipleTaxRates extends Migration
             $table->string('tax_name2')->nullable();
             $table->decimal('tax_rate2', 13, 3);
 		});
+
+        Schema::table('accounts', function($table) {
+            $table->boolean('enable_client_portal_dashboard')->default(true);
+        });
 	}
 	/**
 	 * Reverse the migrations.
@@ -56,5 +60,9 @@ class SupportMultipleTaxRates extends Migration
             $table->dropColumn('tax_name2');
             $table->dropColumn('tax_rate2');
 		});
+
+        Schema::table('accounts', function($table) {
+            $table->dropColumn('enable_client_portal_dashboard');
+        });
 	}
 }
