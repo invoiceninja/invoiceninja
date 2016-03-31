@@ -158,8 +158,10 @@ class ReportController extends BaseController
             }
 
             $records = DB::table($entityType.'s')
-                ->select(DB::raw('sum(amount) as total, '.$timeframe.' as '.$groupBy))
-                ->where('account_id', '=', Auth::user()->account_id)
+                ->select(DB::raw('sum('.$entityType.'s.amount) as total, '.$timeframe.' as '.$groupBy))
+                ->join('clients', 'clients.id', '=', $entityType.'s.client_id')
+                ->where('clients.is_deleted', '=', false)
+                ->where($entityType.'s.account_id', '=', Auth::user()->account_id)
                 ->where($entityType.'s.is_deleted', '=', false)
                 ->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
                 ->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))
@@ -168,6 +170,9 @@ class ReportController extends BaseController
             if ($entityType == ENTITY_INVOICE) {
                 $records->where('is_quote', '=', false)
                         ->where('is_recurring', '=', false);
+            } elseif ($entityType == ENTITY_PAYMENT) {
+                $records->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
+                        ->where('invoices.is_deleted', '=', false);
             }
 
             $totals = $records->lists('total');
