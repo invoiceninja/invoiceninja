@@ -6,9 +6,11 @@ use Session;
 use DateTime;
 use Event;
 use Cache;
+use Document;
 use App;
 use File;
 use App\Events\UserSettingsChanged;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -384,26 +386,64 @@ class Account extends Eloquent
 
     public function hasLogo()
     {
-        return file_exists($this->getLogoFullPath());
+        if($this->logo == ''){
+            $this->calculateLogoDetails();
+        }
+        
+        return !empty($this->logo);
+    }
+    
+    public function getLogoDisk(){
+        return Storage::disk(env('LOGO_FILESYSTEM', 'logos'));
+    }
+    
+    protected function calculateLogoDetails(){
+        $disk = $this->getLogoDisk();
+                
+        if($disk->exists($this->account_key.'.png')){
+            $this->logo = $this->account_key.'.png';
+        } else if($disk->exists($this->account_key.'.jpg')) {
+            $this->logo = $this->account_key.'.jpg';
+        }
+                
+        if(!empty($this->logo)){
+            $image = imagecreatefromstring($disk->get($this->logo));
+            $this->logo_width = imagesx($image);
+            $this->logo_height = imagesy($image);            
+            $this->logo_size = $disk->size($this->logo);
+        } else {
+            $this->logo = null;
+        }
+        $this->save();
     }
 
-    public function getLogoPath()
-    {
-        $fileName = 'logo/' . $this->account_key;
-
-        return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
+    public function getLogoRaw(){
+        if(!$this->hasLogo()){
+            return null;
+        }
+        
+        $disk = $this->getLogoDisk();
+        return $disk->get($this->logo);
     }
-
-    public function getLogoFullPath()
-    {
-        $fileName = public_path() . '/logo/' . $this->account_key;
-
-        return file_exists($fileName.'.png') ? $fileName.'.png' : $fileName.'.jpg';
-    }
-
+    
     public function getLogoURL()
     {
-        return SITE_URL . '/' . $this->getLogoPath();
+        if(!$this->hasLogo()){
+            return null;
+        }
+        
+        $disk = $this->getLogoDisk();
+        $adapter = $disk->getAdapter();
+        
+        if($adapter instanceof \League\Flysystem\Adapter\Local) {
+            // Stored locally
+            $logo_url = str_replace(public_path(), url('/'), $adapter->applyPathPrefix($this->logo), $count);
+            if($count == 1){
+                return str_replace(DIRECTORY_SEPARATOR, '/', $logo_url);
+            }
+        }
+        
+        Document::getDirectFileUrl($this->logo, $this->getDisk());
     }
 
     public function getToken($name)
@@ -419,24 +459,20 @@ class Account extends Eloquent
 
     public function getLogoWidth()
     {
-        $path = $this->getLogoFullPath();
-        if (!file_exists($path)) {
-            return 0;
+        if(!$this->hasLogo()){
+            return null;
         }
-        list($width, $height) = getimagesize($path);
 
-        return $width;
+        return $this->logo_width;
     }
 
     public function getLogoHeight()
     {
-        $path = $this->getLogoFullPath();
-        if (!file_exists($path)) {
-            return 0;
+        if(!$this->hasLogo()){
+            return null;
         }
-        list($width, $height) = getimagesize($path);
 
-        return $height;
+        return $this->logo_height;
     }
 
     public function createInvoice($entityType = ENTITY_INVOICE, $clientId = null)
@@ -815,12 +851,11 @@ class Account extends Eloquent
 
     public function getLogoSize()
     {
-        if (!$this->hasLogo()) {
-            return 0;
+        if(!$this->hasLogo()){
+            return null;
         }
 
-        $filename = $this->getLogoFullPath();
-        return round(File::size($filename) / 1000);
+        return round($this->logo_size / 1000);
     }
 
     public function isLogoTooLarge()

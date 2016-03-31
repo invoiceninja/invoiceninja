@@ -50,7 +50,13 @@
             "paddingTop": "$amount:14", 
             "paddingBottom": "$amount:14"
         }
-    },    
+    },
+    {
+        "stack": [
+            "$invoiceDocuments"
+        ],
+        "style": "invoiceDocuments"
+    },
     {
         "columns": [
         {
@@ -254,6 +260,12 @@
             "help": {
                 "fontSize": "$fontSizeSmaller",
                 "color": "#737373"
+            },
+            "invoiceDocuments": {
+                "margin": [47, 0, 47, 0]
+            },
+            "invoiceDocument": {
+                "margin": [0, 10, 0, 10]
             }
         },
         "pageMargins": [0, 80, 0, 40]

@@ -109,11 +109,12 @@ function GetPdfMake(invoice, javascript, callback) {
 
     function addFont(font){
         if(window.ninjaFontVfs[font.folder]){
+            folder = 'fonts/'+font.folder;
             pdfMake.fonts[font.name] = {
-                normal: font.folder+'/'+font.normal,
-                italics: font.folder+'/'+font.italics,
-                bold: font.folder+'/'+font.bold,
-                bolditalics: font.folder+'/'+font.bolditalics
+                normal: folder+'/'+font.normal,
+                italics: folder+'/'+font.italics,
+                bold: folder+'/'+font.bold,
+                bolditalics: folder+'/'+font.bolditalics
             }
         }
     }
@@ -144,6 +145,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'invoiceDetailsHeight': (NINJA.invoiceDetails(invoice).length * 16) + 16,
         'invoiceLineItems': NINJA.invoiceLines(invoice),
         'invoiceLineItemColumns': NINJA.invoiceColumns(invoice),
+        'invoiceDocuments' : NINJA.invoiceDocuments(invoice),
         'quantityWidth': NINJA.quantityWidth(invoice),
         'taxWidth': NINJA.taxWidth(invoice),
         'clientDetails': NINJA.clientDetails(invoice),
@@ -348,13 +350,15 @@ NINJA.invoiceLines = function(invoice) {
         var qty = NINJA.parseFloat(item.qty) ? roundToTwo(NINJA.parseFloat(item.qty)) + '' : '';
         var notes = item.notes;
         var productKey = item.product_key;
-        var tax = '';        
+        var tax1 = '';        
+        var tax2 = '';        
         
         if (showItemTaxes) {
-            if (item.tax && parseFloat(item.tax.rate)) {
-                tax = parseFloat(item.tax.rate);
-            } else if (item.tax_rate && parseFloat(item.tax_rate)) {
-                tax = parseFloat(item.tax_rate);
+            if (item.tax_name1) {
+                tax1 = parseFloat(item.tax_rate1);
+            }
+            if (item.tax_name2) {
+                tax2 = parseFloat(item.tax_rate2);
             }
         }
 
@@ -391,7 +395,17 @@ NINJA.invoiceLines = function(invoice) {
             row.push({style:["quantity", rowStyle], text:qty || ' '});
         }
         if (showItemTaxes) {
-            row.push({style:["tax", rowStyle], text:tax ? (tax.toString() + '%') : ' '});
+            var str = ' ';
+            if (tax1) {
+                str += tax1.toString() + '%';
+            }
+            if (tax2) {
+                if (tax1) {
+                    str += '  ';
+                }
+                str += tax2.toString() + '%';
+            }
+            row.push({style:["tax", rowStyle], text:str});
         }
         row.push({style:["lineTotal", rowStyle], text:lineTotal || ' '});
 
@@ -399,6 +413,39 @@ NINJA.invoiceLines = function(invoice) {
     }   
 
     return NINJA.prepareDataTable(grid, 'invoiceItems');
+}
+
+NINJA.invoiceDocuments = function(invoice) {
+    if(!invoice.account.invoice_embed_documents)return[];
+    var stack = [];
+    var stackItem = null;
+    
+    var j = 0;
+    for (var i = 0; i < invoice.documents.length; i++)addDoc(invoice.documents[i]);
+    
+    if(invoice.expenses){
+        for (var i = 0; i < invoice.expenses.length; i++) {
+            var expense = invoice.expenses[i];
+            for (var i = 0; i < expense.documents.length; i++)addDoc(expense.documents[i]);        
+        }
+    }
+    
+    function addDoc(document){
+        var path = document.base64;
+        
+        if(!path)path = 'docs/'+document.public_id+'/'+document.name;
+        if(path && (window.pdfMake.vfs[path] || document.base64)){
+            // Only embed if we actually have an image for it
+            if(j%3==0){
+                stackItem = {columns:[]};
+                stack.push(stackItem);
+            }
+            stackItem.columns.push({stack:[{image:path,style:'invoiceDocument',fit:[150,150]}], width:175})
+            j++;
+        }
+    }
+
+    return stack.length?{stack:stack}:[];
 }
 
 NINJA.subtotals = function(invoice, hideBalance)
@@ -424,15 +471,19 @@ NINJA.subtotals = function(invoice, hideBalance)
 
     for (var key in invoice.item_taxes) {
         if (invoice.item_taxes.hasOwnProperty(key)) {
-            var taxRate = invoice.item_taxes[key];            
+            var taxRate = invoice.item_taxes[key];         
             var taxStr = taxRate.name + ' ' + (taxRate.rate*1).toString() + '%';
             data.push([{text: taxStr}, {text: formatMoneyInvoice(taxRate.amount, invoice)}]);
         }
     }
 
-    if (invoice.tax && invoice.tax.name || invoice.tax_name) {
-        var taxStr = invoice.tax_name + ' ' + (invoice.tax_rate*1).toString() + '%';
-        data.push([{text: taxStr}, {text: formatMoneyInvoice(invoice.tax_amount, invoice)}]);        
+    if (invoice.tax_amount1) {
+        var taxStr = invoice.tax_name1 + ' ' + (invoice.tax_rate1*1).toString() + '%';
+        data.push([{text: taxStr}, {text: formatMoneyInvoice(invoice.tax_amount1, invoice)}]);        
+    }
+    if (invoice.tax_amount2) {
+        var taxStr = invoice.tax_name2 + ' ' + (invoice.tax_rate2*1).toString() + '%';
+        data.push([{text: taxStr}, {text: formatMoneyInvoice(invoice.tax_amount2, invoice)}]);        
     }
 
     if (NINJA.parseFloat(invoice.custom_value1) && invoice.custom_taxes1 != '1') {        
