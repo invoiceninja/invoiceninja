@@ -395,12 +395,15 @@ NINJA.invoiceLines = function(invoice) {
             row.push({style:["quantity", rowStyle], text:qty || ' '});
         }
         if (showItemTaxes) {
-            var str = '';
+            var str = ' ';
             if (tax1) {
-                str += tax1.toString() + '% ';
+                str += tax1.toString() + '%';
             }
             if (tax2) {
-                str += tax2.toString() + '% ';
+                if (tax1) {
+                    str += '  ';
+                }
+                str += tax2.toString() + '%';
             }
             row.push({style:["tax", rowStyle], text:str});
         }
