@@ -7,6 +7,13 @@ class InvoiceItem extends EntityModel
     use SoftDeletes;
     protected $dates = ['deleted_at'];
 
+    protected $fillable = [
+        'tax_name1',
+        'tax_rate1',
+        'tax_name2',
+        'tax_rate2',    
+    ];
+
     public function invoice()
     {
         return $this->belongsTo('App\Models\Invoice');
