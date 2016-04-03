@@ -950,7 +950,7 @@ return array(
     'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
 
     'email_design' => 'Email Design',
-    'due_by' => 'Due by :date',
+    'due_by' => 'Fällig am :date',
     'enable_email_markup' => 'Enable Markup',
     'enable_email_markup_help' => 'Make it easier for your clients to pay you by adding schema.org markup to your emails.',
     'template_help_title' => 'Templates Hilfe',
