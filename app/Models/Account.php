@@ -983,7 +983,7 @@ class Account extends Eloquent
             // Add line breaks if HTML isn't already being used
             return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;
         } else {
-            return "<p>" . trans('texts.email_signature') . "\n<br>\$account</ p>";
+            return "<p>" . trans('texts.email_signature') . "\n<br>\$account</p>";
         }
     }
 
