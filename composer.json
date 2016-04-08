@@ -38,7 +38,7 @@
 		"alfaproject/omnipay-skrill": "dev-master",
 		"omnipay/bitpay": "dev-master",
 		"guzzlehttp/guzzle": "~6.0",
-		"wildbit/laravel-postmark-provider": "2.0",
+		"wildbit/laravel-postmark-provider": "3.0",
 		"Dwolla/omnipay-dwolla": "dev-master",
 		"laravel/socialite": "~2.0",
 		"simshaun/recurr": "dev-master",
