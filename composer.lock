@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5b6b0afc0a26fa2b1dc48241fd665c1e",
-    "content-hash": "33f39a8d05247b96374ed20e95499936",
+    "hash": "2ab7ab9013e31d8a2f0dcf43b31beefa",
+    "content-hash": "188fba7fcc31b702098d5417bc0e63e2",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -699,7 +699,7 @@
                 "laravel"
             ],
             "abandoned": "OpenSkill/Datatable",
-            "time": "2015-11-23 21:33:41"
+            "time": "2015-04-29 07:00:36"
         },
         {
             "name": "classpreloader/classpreloader",
@@ -4111,7 +4111,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-2checkout/zipball/77b316bd08c6b7a1e93721f15d1bfbd21a62ba6b",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-2checkout/zipball/b27d2823d052f5c227eeb29324bb564cfdb8f9af",
                 "reference": "e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
                 "shasum": ""
             },
@@ -7938,20 +7938,20 @@
         },
         {
             "name": "wildbit/laravel-postmark-provider",
-            "version": "2.0.0",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wildbit/laravel-postmark-provider.git",
-                "reference": "79a7e8bde66b2bd6f314829b00ee08616847ebc5"
+                "reference": "b80815602f618abe24030ea6d3f117da49a72885"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wildbit/laravel-postmark-provider/zipball/79a7e8bde66b2bd6f314829b00ee08616847ebc5",
-                "reference": "79a7e8bde66b2bd6f314829b00ee08616847ebc5",
+                "url": "https://api.github.com/repos/wildbit/laravel-postmark-provider/zipball/b80815602f618abe24030ea6d3f117da49a72885",
+                "reference": "b80815602f618abe24030ea6d3f117da49a72885",
                 "shasum": ""
             },
             "require": {
-                "illuminate/mail": "~5.0",
+                "illuminate/mail": "~5.2",
                 "wildbit/swiftmailer-postmark": "~2.0"
             },
             "type": "library",
@@ -7965,7 +7965,7 @@
                 "MIT"
             ],
             "description": "An officially supported mail provider to send mail from Laravel through Postmark, see instructions for integrating it here: https://github.com/wildbit/laravel-postmark-provider/blob/master/README.md",
-            "time": "2015-11-10 14:43:06"
+            "time": "2016-02-10 14:15:58"
         },
         {
             "name": "wildbit/swiftmailer-postmark",
