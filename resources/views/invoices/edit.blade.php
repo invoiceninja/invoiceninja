@@ -110,7 +110,7 @@
                                     data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
                             <span style="vertical-align:text-top" class="glyphicon glyphicon-info-sign"
                                     data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true},
-                                    style: {color: $data.hasOwnProperty('invitation_viewed') &amp;&amp; $data.invitation_viewed() ? '#57D172':'#B1B5BA'}"></span>
+                                    style: {color: $data.info_color}"></span>
                             @endif
                         </span>
 					</div>
