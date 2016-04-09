@@ -6,7 +6,7 @@
     @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
 
     {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!}
-    {!! Former::populate($account) !!}
+    {!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
 
 
     <div class="panel panel-default">
@@ -63,7 +63,7 @@
 
             @foreach ($gateway->fields as $field => $details)
 
-                @if ($details && !$accountGateway)
+                @if ($details && !$accountGateway && !is_array($details))
                     {!! Former::populateField($gateway->id.'_'.$field, $details) !!}
                 @endif
 
