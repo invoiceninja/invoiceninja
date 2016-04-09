@@ -103,7 +103,10 @@ class AppController extends BaseController
 
         $config = '';
         foreach ($_ENV as $key => $val) {
-            if (preg_match('/\s/',$val)) {
+            if (is_array($val)) {
+                continue;
+            }
+            if (preg_match('/\s/', $val)) {
                 $val = "'{$val}'";
             }
             $config .= "{$key}={$val}\n";
