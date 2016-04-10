@@ -26,21 +26,4 @@ class CreateClientRequest extends Request
             'contacts' => 'valid_contacts',
         ];
     }
-
-    public function validator($factory)
-    {
-        // support submiting the form with a single contact record
-        $input = $this->input();
-        if (isset($input['contact'])) {
-            $input['contacts'] = [$input['contact']];
-            unset($input['contact']);
-            $this->replace($input);
-        }
-
-        return $factory->make(
-            $this->input(),
-            $this->container->call([$this, 'rules']),
-            $this->messages()
-        );
-    }
 }
