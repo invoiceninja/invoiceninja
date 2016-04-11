@@ -278,7 +278,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 });
 
 // Redirects for legacy links
-/*
 Route::get('/rocksteady', function() {
     return Redirect::to(NINJA_WEB_URL, 301);
 });
@@ -306,7 +305,7 @@ Route::get('/compare-online-invoicing{sites?}', function() {
 Route::get('/forgot_password', function() {
     return Redirect::to(NINJA_APP_URL.'/forgot', 301);
 });
-*/
+
 
 if (!defined('CONTACT_EMAIL')) {
     define('CONTACT_EMAIL', Config::get('mail.from.address'));
