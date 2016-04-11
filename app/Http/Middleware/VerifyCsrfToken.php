@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
 class VerifyCsrfToken extends BaseVerifier {
 
     private $openRoutes = [
+        'complete',
         'signup/register',
         'api/v1/*',
         'api/v1/login',

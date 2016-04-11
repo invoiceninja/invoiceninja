@@ -42,7 +42,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
     Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
-    Route::get('complete', 'PaymentController@offsite_payment');
+    Route::match(['GET', 'POST'], 'complete', 'PaymentController@offsite_payment');
     Route::get('client/quotes', 'PublicClientController@quoteIndex');
     Route::get('client/invoices', 'PublicClientController@invoiceIndex');
     Route::get('client/documents', 'PublicClientController@documentIndex');
@@ -535,6 +535,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_BITPAY', 42);
     define('GATEWAY_DWOLLA', 43);
     define('GATEWAY_CHECKOUT_COM', 47);
+    define('GATEWAY_CYBERSOURCE', 49);
 
     define('EVENT_CREATE_CLIENT', 1);
     define('EVENT_CREATE_INVOICE', 2);

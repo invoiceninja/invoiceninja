@@ -74,6 +74,7 @@ class PaymentService extends BaseService
 
         if ($input) {
             $data = self::convertInputForOmnipay($input);
+            $data['email'] = $invitation->contact->email;
             Session::put($key, $data);
         } elseif (Session::get($key)) {
             $data = Session::get($key);
