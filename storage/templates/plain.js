@@ -56,12 +56,6 @@
             "paddingTop": "$amount:8", 
             "paddingBottom": "$amount:8"            
         }
-    },    
-    {
-        "stack": [
-            "$invoiceDocuments"
-        ],
-        "style": "invoiceDocuments"
     },
     {
         "columns": [
@@ -83,6 +77,12 @@
                 }
             }
         ]
+    },    
+    {
+        "stack": [
+            "$invoiceDocuments"
+        ],
+        "style": "invoiceDocuments"
     }
     ],
     "footer": {
