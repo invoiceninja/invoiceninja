@@ -399,6 +399,7 @@
 				@endif
 				<td style="min-width:120px">
                     {!! Former::select('')
+                            ->id('taxRateSelect1')
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->addClass('tax-select')
