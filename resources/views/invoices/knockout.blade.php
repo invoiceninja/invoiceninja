@@ -826,6 +826,7 @@ ko.bindingHandlers.typeahead = {
         {
             name: 'data',
             display: allBindings.key,
+            limit: 50,
             source: searchData(allBindings.items, allBindings.key)
         }).on('typeahead:select', function(element, datum, name) {
             @if (Auth::user()->account->fill_products)
