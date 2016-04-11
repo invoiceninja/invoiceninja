@@ -278,7 +278,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 });
 
 // Redirects for legacy links
-/*
 Route::get('/rocksteady', function() {
     return Redirect::to(NINJA_WEB_URL, 301);
 });
@@ -306,7 +305,7 @@ Route::get('/compare-online-invoicing{sites?}', function() {
 Route::get('/forgot_password', function() {
     return Redirect::to(NINJA_APP_URL.'/forgot', 301);
 });
-*/
+
 
 if (!defined('CONTACT_EMAIL')) {
     define('CONTACT_EMAIL', Config::get('mail.from.address'));
@@ -551,7 +550,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.5.1.2');
+    define('NINJA_VERSION', '2.5.1.3');
     define('NINJA_DATE', '2000-01-01');
 
     define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');

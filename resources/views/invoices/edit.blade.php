@@ -110,7 +110,7 @@
                                     data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
                             <span style="vertical-align:text-top" class="glyphicon glyphicon-info-sign"
                                     data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true},
-                                    style: {color: $data.hasOwnProperty('invitation_viewed') &amp;&amp; $data.invitation_viewed() ? '#57D172':'#B1B5BA'}"></span>
+                                    style: {color: $data.info_color}"></span>
                             @endif
                         </span>
 					</div>
@@ -399,6 +399,7 @@
 				@endif
 				<td style="min-width:120px">
                     {!! Former::select('')
+                            ->id('taxRateSelect1')
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->addClass('tax-select')
@@ -815,7 +816,7 @@
             @endif
 
             if(model.invoice().expenses() && !model.invoice().public_id()){
-                model.expense_currency_id({{ $expenseCurrencyId }});
+                model.expense_currency_id({{ isset($expenseCurrencyId) ? $expenseCurrencyId : 0 }});
 
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();

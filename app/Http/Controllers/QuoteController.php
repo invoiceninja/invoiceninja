@@ -111,10 +111,27 @@ class QuoteController extends BaseController
 
     private static function getViewModel()
     {
+        // Tax rate $options
+        $account = Auth::user()->account;
+        $rates = TaxRate::scope()->orderBy('name')->get();
+        $options = [];
+        $defaultTax = false;
+        
+        foreach ($rates as $rate) {
+            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';            
+        
+            // load default invoice tax
+            if ($rate->id == $account->default_tax_rate_id) {
+                $defaultTax = $rate;
+            }
+        }     
+        
         return [
           'entityType' => ENTITY_QUOTE,
           'account' => Auth::user()->account,
           'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
+          'taxRateOptions' => $options,
+          'defaultTax' => $defaultTax,
           'countries' => Cache::get('countries'),
           'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
           'taxRates' => TaxRate::scope()->orderBy('name')->get(),

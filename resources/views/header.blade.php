@@ -275,6 +275,7 @@
           @if (Auth::check() && Auth::user()->account->custom_client_label1)
           ,{
             name: 'data',
+            limit: 3,
             display: 'value',
             source: searchData(data['{{ Auth::user()->account->custom_client_label1 }}'], 'tokens'),
             templates: {
@@ -285,6 +286,7 @@
           @if (Auth::check() && Auth::user()->account->custom_client_label2)
           ,{
             name: 'data',
+            limit: 3,
             display: 'value',
             source: searchData(data['{{ Auth::user()->account->custom_client_label2 }}'], 'tokens'),
             templates: {
@@ -295,6 +297,7 @@
           @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
           ,{
             name: 'data',
+            limit: 3,
             display: 'value',
             source: searchData(data['{{ $type }}'], 'tokens', true),
             templates: {
