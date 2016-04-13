@@ -3206,7 +3206,7 @@ div.panel-body div.panel-body {
 }
 
 .invoice-table #document-upload{
-    max-width:560px;
+    width:500px;
 }
 
 #document-upload .dropzone{

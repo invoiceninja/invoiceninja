@@ -304,11 +304,11 @@
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="notes" style="padding-bottom:44px">
                             {!! Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
-                            ->label(null)->style('resize: none; min-width: 450px;')->rows(3) !!}
+                            ->label(null)->style('resize: none; width: 500px;')->rows(4) !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
                             {!! Former::textarea('terms')->data_bind("value:wrapped_terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('resize: none; min-width: 450px')->rows(3)
+                            ->label(false)->style('resize: none; width: 500px')->rows(4)
                             ->help('<div class="checkbox">
                                         <label>
                                             <input name="set_default_terms" type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
@@ -320,7 +320,7 @@
                         </div>
                         <div role="tabpanel" class="tab-pane" id="footer">
                             {!! Former::textarea('invoice_footer')->data_bind("value:wrapped_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('resize: none; min-width: 450px')->rows(3)
+                            ->label(false)->style('resize: none; width: 500px')->rows(4)
                             ->help('<div class="checkbox">
                                         <label>
                                             <input name="set_default_footer" type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
