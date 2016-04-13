@@ -52,7 +52,7 @@
                     <div class="col-lg-4 col-sm-4"></div>
                     <div class="col-lg-8 col-sm-8">
                         <a href="{{ $account->getLogoUrl().'?no_cache='.time() }}" target="_blank">
-                            {!! HTML::image($account->getLogoUrl().'?no_cache='.time(), 'Logo', ['max-width' => 200]) !!}
+                            {!! HTML::image($account->getLogoUrl().'?no_cache='.time(), 'Logo', ['style' => 'max-width:300px']) !!}
                         </a> &nbsp;
                         <a href="#" onclick="deleteLogo()">{{ trans('texts.remove_logo') }}</a>
                     </div>
