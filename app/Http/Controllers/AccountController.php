@@ -9,6 +9,7 @@ use Session;
 use Utils;
 use Validator;
 use View;
+use URL;
 use stdClass;
 use Cache;
 use Response;
@@ -234,7 +235,7 @@ class AccountController extends BaseController
     {
         $oauthLoginUrls = [];
         foreach (AuthService::$providers as $provider) {
-            $oauthLoginUrls[] = ['label' => $provider, 'url' => '/auth/'.strtolower($provider)];
+            $oauthLoginUrls[] = ['label' => $provider, 'url' => URL::to('/auth/'.strtolower($provider))];
         }
 
         $data = [
