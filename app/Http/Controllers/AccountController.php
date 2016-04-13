@@ -378,7 +378,8 @@ class AccountController extends BaseController
         
         $invoice->client = $client;
         $invoice->invoice_items = [$invoiceItem];
-        $invoice->documents = $account->isPro()?[$document,$document,$document,$document]:[];
+        //$invoice->documents = $account->isPro() ? [$document] : [];
+        $invoice->documents = [];
 
         $data['account'] = $account;
         $data['invoice'] = $invoice;
