@@ -403,13 +403,18 @@ font-weight: bold;
 }
 
 .navbar,
-.panel-default,
 ul.dropdown-menu,
-.twitter-typeahead .tt-menu,
-canvas {
+.twitter-typeahead .tt-menu {
     x-moz-box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
     x-webkit-box-shadow: 0 0 10px 2px rgba(0,0,0,.05); 
     box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
+}
+
+.panel-default,
+canvas {
+    border: 1px solid;
+    border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+    border-radius: 3px;
 }
 
 .navbar .active > a {
