@@ -123,8 +123,8 @@ class PublicClientController extends BaseController
             'showApprove' => $showApprove,
             'showBreadcrumbs' => false,
             'hideLogo' => $account->isWhiteLabel(),
-            'hideHeader' => $account->isNinjaAccount(),
-            'hideDashboard' => !$account->enable_client_portal,
+            'hideHeader' => $account->isNinjaAccount() || !$account->enable_client_portal,
+            'hideDashboard' => !$account->enable_client_portal_dashboard,
             'showDocuments' => $account->isPro(),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
@@ -212,7 +212,7 @@ class PublicClientController extends BaseController
         $client = $invoice->client;
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
 
-        if (!$account->enable_client_portal) {
+        if (!$account->enable_client_portal || !$account->enable_client_portal_dashboard) {
             return $this->returnError();
         }
 
@@ -221,6 +221,7 @@ class PublicClientController extends BaseController
             'account' => $account,
             'client' => $client,
             'hideLogo' => $account->isWhiteLabel(),
+            'showDocuments' => $account->isPro(),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
         ];
@@ -261,13 +262,19 @@ class PublicClientController extends BaseController
         if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
         }
+
         $account = $invitation->account;
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
+
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         
         $data = [
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
-            'hideDashboard' => !$account->enable_client_portal,
+            'hideDashboard' => !$account->enable_client_portal_dashboard,
             'showDocuments' => $account->isPro(),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
@@ -295,12 +302,16 @@ class PublicClientController extends BaseController
             return $this->returnError();
         }
         $account = $invitation->account;
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
-        
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
+
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';        
         $data = [
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
-            'hideDashboard' => !$account->enable_client_portal,
+            'hideDashboard' => !$account->enable_client_portal_dashboard,
             'showDocuments' => $account->isPro(),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
@@ -333,13 +344,18 @@ class PublicClientController extends BaseController
         if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
         }
+
         $account = $invitation->account;
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
+
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
-        
         $data = [
           'color' => $color,
           'hideLogo' => $account->isWhiteLabel(),
-          'hideDashboard' => !$account->enable_client_portal,
+          'hideDashboard' => !$account->enable_client_portal_dashboard,
           'showDocuments' => $account->isPro(),
           'clientViewCSS' => $account->clientViewCSS(),
           'clientFontUrl' => $account->getFontsUrl(),
@@ -366,13 +382,18 @@ class PublicClientController extends BaseController
         if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
         }
+
         $account = $invitation->account;
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
-        
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
+
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';        
         $data = [
           'color' => $color,
           'hideLogo' => $account->isWhiteLabel(),
-          'hideDashboard' => !$account->enable_client_portal,
+          'hideDashboard' => !$account->enable_client_portal_dashboard,
           'showDocuments' => $account->isPro(),
           'clientViewCSS' => $account->clientViewCSS(),
           'clientFontUrl' => $account->getFontsUrl(),

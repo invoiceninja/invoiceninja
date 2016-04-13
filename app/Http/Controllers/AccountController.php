@@ -552,6 +552,7 @@ class AccountController extends BaseController
             $account->client_view_css = $sanitized_css;
 
             $account->enable_client_portal = !!Input::get('enable_client_portal');
+            $account->enable_client_portal_dashboard = !!Input::get('enable_client_portal_dashboard');
             $account->enable_portal_password = !!Input::get('enable_portal_password');
             $account->send_portal_password = !!Input::get('send_portal_password');
 

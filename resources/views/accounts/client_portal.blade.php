@@ -13,6 +13,7 @@
 ->addClass('warn-on-exit') !!}
 
 {!! Former::populateField('enable_client_portal', intval($account->enable_client_portal)) !!}
+{!! Former::populateField('enable_client_portal_dashboard', intval($account->enable_client_portal_dashboard)) !!}
 {!! Former::populateField('client_view_css', $client_view_css) !!}
 {!! Former::populateField('enable_portal_password', intval($enable_portal_password)) !!}
 {!! Former::populateField('send_portal_password', intval($send_portal_password)) !!}
@@ -38,6 +39,11 @@
                     {!! Former::checkbox('enable_client_portal')
                         ->text(trans('texts.enable'))
                         ->help(trans('texts.enable_client_portal_help')) !!}
+                </div>
+                <div class="col-md-10 col-md-offset-1">
+                    {!! Former::checkbox('enable_client_portal_dashboard')
+                        ->text(trans('texts.enable'))
+                        ->help(trans('texts.enable_client_portal_dashboard_help')) !!}
                 </div>
                 <div class="col-md-10 col-md-offset-1">
                     {!! Former::checkbox('enable_portal_password')
