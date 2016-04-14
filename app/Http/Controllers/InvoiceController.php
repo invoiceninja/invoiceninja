@@ -123,7 +123,7 @@ class InvoiceController extends BaseController
             $clients->whereId($invoice->client_id);
         }
 
-        $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
+        $invoice->invoice_date = Utils::fromSqlDate(date('Y-m-d'));
         $invoice->recurring_due_date = $invoice->due_date;// Keep in SQL form
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->start_date = Utils::fromSqlDate($invoice->start_date);
