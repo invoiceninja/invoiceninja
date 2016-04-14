@@ -98,7 +98,13 @@ function ViewModel(data) {
 
         var isValid = true;
         $('input.client-email').each(function(item, value) {
+            var $email = $(value);
             var email = $(value).val();
+            
+            // Trim whitespace
+            email = (email || '').trim();
+            $email.val(email);
+            
             if (!firstName && (!email || !isValidEmailAddress(email))) {
                 isValid = false;
             }
