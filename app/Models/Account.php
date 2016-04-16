@@ -6,9 +6,9 @@ use Session;
 use DateTime;
 use Event;
 use Cache;
-use Document;
 use App;
 use File;
+use App\Models\Document;
 use App\Events\UserSettingsChanged;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -443,7 +443,7 @@ class Account extends Eloquent
         return $disk->get($this->logo);
     }
     
-    public function getLogoURL()
+    public function getLogoURL($cachebuster = false)
     {
         if(!$this->hasLogo()){
             return null;
@@ -455,12 +455,17 @@ class Account extends Eloquent
         if($adapter instanceof \League\Flysystem\Adapter\Local) {
             // Stored locally
             $logo_url = str_replace(public_path(), url('/'), $adapter->applyPathPrefix($this->logo), $count);
+            
+            if ($cachebuster) {
+               $logo_url .= '?no_cache='.time();
+            }
+            
             if($count == 1){
                 return str_replace(DIRECTORY_SEPARATOR, '/', $logo_url);
             }
         }
         
-        Document::getDirectFileUrl($this->logo, $this->getDisk());
+        return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
     }
 
     public function getToken($name)
