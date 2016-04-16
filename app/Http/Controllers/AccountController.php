@@ -148,6 +148,8 @@ class AccountController extends BaseController
             return self::showInvoiceSettings();
         } elseif ($section == ACCOUNT_IMPORT_EXPORT) {
             return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
+        } elseif ($section == ACCOUNT_MANAGEMENT) {
+            return self::showAccountManagement();
         } elseif ($section == ACCOUNT_INVOICE_DESIGN || $section == ACCOUNT_CUSTOMIZE_DESIGN) {
             return self::showInvoiceDesign($section);
         } elseif ($section == ACCOUNT_CLIENT_PORTAL) {
@@ -229,6 +231,16 @@ class AccountController extends BaseController
         ];
 
         return View::make('accounts.details', $data);
+    }
+
+    private function showAccountManagement()
+    {
+        $data = [
+            'account' => Auth::user()->account,
+            'title' => trans('texts.acount_management'),
+        ];
+
+        return View::make('accounts.management', $data);
     }
 
     public function showUserDetails()

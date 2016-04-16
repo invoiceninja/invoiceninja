@@ -354,6 +354,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_LOCALIZATION', 'localization');
     define('ACCOUNT_NOTIFICATIONS', 'notifications');
     define('ACCOUNT_IMPORT_EXPORT', 'import_export');
+    define('ACCOUNT_MANAGEMENT', 'account_management');
     define('ACCOUNT_PAYMENTS', 'online_payments');
     define('ACCOUNT_BANKS', 'bank_accounts');
     define('ACCOUNT_IMPORT_EXPENSES', 'import_expenses');

@@ -81,7 +81,7 @@ $LANG = array(
     'company_details' => 'Company Details',
     'online_payments' => 'Online Payments',
     'notifications' => 'Email Notifications',
-    'import_export' => 'Import | Export | Cancel',
+    'import_export' => 'Import | Export',
     'done' => 'Done',
     'save' => 'Save',
     'create' => 'Create',
@@ -368,7 +368,7 @@ $LANG = array(
     'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
     'confirm_email_quote' => 'Are you sure you want to email this quote?',
     'confirm_recurring_email_invoice' => 'Are you sure you want this invoice emailed?',
-    'cancel_account' => 'Cancel Account',
+    'cancel_account' => 'Delete Account',
     'cancel_account_message' => 'Warning: This will permanently erase all of your data, there is no undo.',
     'go_back' => 'Go Back',
     'data_visualizations' => 'Data Visualizations',
@@ -1126,6 +1126,13 @@ $LANG = array(
     'enable_client_portal_help' => 'Show/hide the client portal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
+    
+    'account_management' => 'Account Management',
+    'plan_status' => 'Plan Status',
+    
+    'plan_free' => 'Free',
+    'plan_pro' => 'Pro',
+    'plan_enterprise' => 'Enterprise'
 
 );
 

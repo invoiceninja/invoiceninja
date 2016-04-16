@@ -57,6 +57,7 @@ class Account extends Eloquent
         ACCOUNT_PRODUCTS,
         ACCOUNT_NOTIFICATIONS,
         ACCOUNT_IMPORT_EXPORT,
+        ACCOUNT_MANAGEMENT,
     ];
 
     public static $advancedSettings = [
