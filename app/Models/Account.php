@@ -18,6 +18,17 @@ class Account extends Eloquent
 {
     use PresentableTrait;
     use SoftDeletes;
+    
+    public static $plan_prices = array(
+        PLAN_PRO => array(
+            PLAN_TERM_MONTHLY => PLAN_PRICE_PRO_MONTHLY,
+            PLAN_TERM_YEARLY => PLAN_PRICE_PRO_YEARLY,
+        ),
+        PLAN_ENTERPRISE => array(
+            PLAN_TERM_MONTHLY => PLAN_PRICE_ENTERPRISE_MONTHLY,
+            PLAN_TERM_YEARLY => PLAN_PRICE_ENTERPRISE_YEARLY,
+        ),
+    );
 
     protected $presenter = 'App\Ninja\Presenters\AccountPresenter';
     protected $dates = ['deleted_at'];
@@ -175,6 +186,11 @@ class Account extends Eloquent
     public function payments()
     {
         return $this->hasMany('App\Models\Payment','account_id','id')->withTrashed();
+    }
+
+    public function company()
+    {
+        return $this->belongsTo('App\Models\Company');
     }
 
     public function setIndustryIdAttribute($value)
@@ -762,17 +778,18 @@ class Account extends Eloquent
         return $this->account_key === NINJA_ACCOUNT_KEY;
     }
 
-    public function startTrial()
+    public function startTrial($plan)
     {
         if ( ! Utils::isNinja()) {
             return;
         }
         
-        $this->pro_plan_trial = date_create()->format('Y-m-d');
-        $this->save();
+        $this->company->trial_plan = $plan;
+        $this->company->trial_started = date_create()->format('Y-m-d');
+        $this->company->save();
     }
 
-    public function isPro()
+    public function isPro(&$plan_details = null)
     {
         if (!Utils::isNinjaProd()) {
             return true;
@@ -782,14 +799,109 @@ class Account extends Eloquent
             return true;
         }
 
-        $datePaid = $this->pro_plan_paid;
-        $trialStart = $this->pro_plan_trial;
+        $plan_details = $this->getPlanDetails();
+        
+        return $plan_details && $plan_details['active'];
+    }
 
-        if ($datePaid == NINJA_DATE) {
+    public function isEnterprise(&$plan_details = null)
+    {
+        if (!Utils::isNinjaProd()) {
             return true;
         }
 
-        return Utils::withinPastTwoWeeks($trialStart) || Utils::withinPastYear($datePaid);
+        if ($this->isNinjaAccount()) {
+            return true;
+        }
+
+        $plan_details = $this->getPlanDetails();
+        
+        return $plan_details && $plan_details['active'] && $plan_details['plan'] == PLAN_ENTERPRISE;
+    }
+    
+    public function getPlanDetails($include_trial = true)
+    {
+        if (!$this->company) {
+            return null;
+        }
+        
+        $plan = $this->company->plan;
+        $trial_plan = $this->company->trial_plan;
+        
+        if(!$plan && (!$trial_plan || !$include_trial)) {
+            return null;
+        }        
+        
+        $trial_active = false;
+        if ($trial_plan && $include_trial) {
+            $trial_started = DateTime::createFromFormat('Y-m-d', $this->company->trial_started);
+            $trial_expires = clone $trial_started;
+            $trial_expires->modify('+2 weeks');
+            
+            if ($trial_expires > date_create()) {
+               $trial_active = true;
+            }
+        }
+        
+        $plan_active = false;
+        if ($plan) {            
+            if ($this->company->plan_expires == null && $this->company->plan_paid == NINJA_DATE) {
+                $plan_active = true;
+                $plan_expires = false;
+            } else {
+                $plan_expires = DateTime::createFromFormat('Y-m-d', $this->company->plan_expires);
+                if ($plan_expires > date_create()) {
+                    $plan_active = true;
+                }
+            }
+        }
+        
+        // Should we show plan details or trial details?
+        if (($plan && !$trial_plan) || !$include_trial) {
+            $use_plan = true;
+        } elseif (!$plan && $trial_plan) {
+            $use_plan = false;
+        } else {
+            // There is both a plan and a trial
+            if (!empty($plan_active) && empty($trial_active)) {
+                $use_plan = true;
+            } elseif (empty($plan_active) && !empty($trial_active)) {
+                $use_plan = false;
+            } elseif (empty($plan_active) && empty($trial_active)) {
+                // Neither are active; use whichever expired most recently
+                $use_plan = $plan_expires >= $trial_expires;
+            } else {
+                // Both are active; use whichever is a better plan
+                if ($plan == PLAN_ENTERPRISE) {
+                    $use_plan = true;
+                } elseif ($trial_plan == PLAN_ENTERPRISE) {
+                    $use_plan = false;
+                } else {
+                    // They're both the same; show the plan
+                    $use_plan = true;
+                }
+            }
+        }
+        
+        if ($use_plan) {
+            return array(
+                'trial' => false,
+                'plan' => $plan,
+                'started' => DateTime::createFromFormat('Y-m-d', $this->company->plan_started),
+                'expires' => $plan_expires,
+                'paid' => DateTime::createFromFormat('Y-m-d', $this->company->plan_paid),
+                'term' => $this->company->plan_term,
+                'active' => $plan_active,
+            );
+        } else {
+            return array(
+                'trial' => true,
+                'plan' => $trial_plan,
+                'started' => $trial_started,
+                'expires' => $trial_expires,
+                'active' => $trial_active,
+            );
+        }
     }
 
     public function isTrial()
@@ -797,35 +909,54 @@ class Account extends Eloquent
         if (!Utils::isNinjaProd()) {
             return false;
         }
+        
+        $plan_details = $this->getPlanDetails();
 
-        if ($this->pro_plan_paid && $this->pro_plan_paid != '0000-00-00') {
-            return false;
-        }
-
-        return Utils::withinPastTwoWeeks($this->pro_plan_trial);
+        return $plan_details && $plan_details['trial'] && $plan_details['active'];;
     }
 
-    public function isEligibleForTrial()
+    public function isEligibleForTrial($plan = null)
     {
-        return ! $this->pro_plan_trial || $this->pro_plan_trial == '0000-00-00';
+        if (!$this->company->trial_plan) {
+            if ($plan) {
+                return $plan == PLAN_PRO || $plan == PLAN_ENTERPRISE;
+            } else {
+                return array(PLAN_PRO, PLAN_ENTERPRISE);
+            }
+        }
+        
+        if ($this->company->trial_plan == PLAN_PRO) {
+            if ($plan) {
+                return $plan != PLAN_PRO;
+            } else {
+                return array(PLAN_ENTERPRISE);
+            }
+        }
+        
+        return false;
     }
 
     public function getCountTrialDaysLeft()
     {
-        $interval = Utils::getInterval($this->pro_plan_trial);
+        $planDetails = $this->getPlanDetails();
+        
+        if(!$planDetails || !$planDetails['trial']) {
+            return 0;
+        }
+        
+        $today = new DateTime('now');
+        $interval = $today->diff($planDetails['expires']);
         
         return $interval ? 14 - $interval->d : 0;
     }
 
     public function getRenewalDate()
     {
-        if ($this->pro_plan_paid && $this->pro_plan_paid != '0000-00-00') {
-            $date = DateTime::createFromFormat('Y-m-d', $this->pro_plan_paid);
-            $date->modify('+1 year');
+        $planDetails = $this->getPlanDetails();
+        
+        if ($planDetails && $planDetails['active']) {
+            $date = $planDetails['expires'];
             $date = max($date, date_create());
-        } elseif ($this->isTrial()) {
-            $date = date_create();
-            $date->modify('+'.$this->getCountTrialDaysLeft().' day');
         } else {
             $date = date_create();
         }
@@ -840,13 +971,10 @@ class Account extends Eloquent
         }
 
         if (Utils::isNinjaProd()) {
-            return self::isPro() && $this->pro_plan_paid != NINJA_DATE;
+            return self::isPro($plan_details) && $plan_details['expires'];
         } else {
-            if ($this->pro_plan_paid == NINJA_DATE) {
-                return true;
-            }
-            
-            return Utils::withinPastYear($this->pro_plan_paid);
+            $plan_details = $this->getPlanDetails();
+            return $plan_details && $plan_details['active'];
         }
     }
 

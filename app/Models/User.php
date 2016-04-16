@@ -122,9 +122,9 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->account->isTrial();
     }
 
-    public function isEligibleForTrial()
+    public function isEligibleForTrial($plan = null)
     {
-        return $this->account->isEligibleForTrial();
+        return $this->account->isEligibleForTrial($plan);
     }
 
     public function maxInvoiceDesignId()

@@ -440,7 +440,12 @@ class Utils
             return false;
         }
 
-        $dateTime = new DateTime($date);
+        if ($date instanceof DateTime) {
+            $dateTime = $date;
+        } else {
+            $dateTime = new DateTime($date);
+        }
+
         $timestamp = $dateTime->getTimestamp();
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
@@ -959,38 +964,6 @@ class Utils
         }
 
         return $entity1;
-    }
-
-    public static function withinPastYear($date)
-    {
-        if (!$date || $date == '0000-00-00') {
-            return false;
-        }
-
-        $today = new DateTime('now');
-        $datePaid = DateTime::createFromFormat('Y-m-d', $date);
-        $interval = $today->diff($datePaid);
-
-        return $interval->y == 0;
-    }
-
-    public static function getInterval($date)
-    {
-        if (!$date || $date == '0000-00-00') {
-            return false;
-        }
-
-        $today = new DateTime('now');
-        $datePaid = DateTime::createFromFormat('Y-m-d', $date);
-
-        return $today->diff($datePaid);
-    }
-
-    public static function withinPastTwoWeeks($date)
-    {
-        $interval = Utils::getInterval($date);
-
-        return $interval && $interval->d <= 14;
     }
 
     public static function addHttp($url)

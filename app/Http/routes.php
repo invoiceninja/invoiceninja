@@ -188,7 +188,8 @@ Route::group([
     Route::resource('users', 'UserController');
     Route::post('users/bulk', 'UserController@bulk');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
-    Route::get('start_trial', 'AccountController@startTrial');
+    Route::get('start_trial/{plan}', 'AccountController@startTrial')
+        ->where(['plan'=>'pro|enterprise']);
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
@@ -212,6 +213,7 @@ Route::group([
     Route::get('settings/charts_and_reports', 'ReportController@showReports');
     Route::post('settings/charts_and_reports', 'ReportController@showReports');
 
+    Route::post('settings/change_plan', 'AccountController@changePlan');
     Route::post('settings/cancel_account', 'AccountController@cancelAccount');
     Route::post('settings/company_details', 'AccountController@updateDetails');
     Route::get('settings/{section?}', 'AccountController@showSection');
@@ -583,6 +585,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
 
     define('PRO_PLAN_PRICE', 50);
+    define('PLAN_PRICE_PRO_MONTHLY', 5);
+    define('PLAN_PRICE_PRO_YEARLY', 50);
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY', 10);
+    define('PLAN_PRICE_ENTERPRISE_YEARLY', 100);
     define('WHITE_LABEL_PRICE', 20);
     define('INVOICE_DESIGNS_PRICE', 10);
 
@@ -645,6 +651,13 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('RESELLER_REVENUE_SHARE', 'A');
     define('RESELLER_LIMITED_USERS', 'B');
+    
+    // These must be lowercase
+    define('PLAN_FREE', 'free');
+    define('PLAN_PRO', 'pro');
+    define('PLAN_ENTERPRISE', 'enterprise');
+    define('PLAN_TERM_MONTHLY', 'month');
+    define('PLAN_TERM_YEARLY', 'year');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],

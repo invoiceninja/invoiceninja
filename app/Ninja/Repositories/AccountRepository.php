@@ -205,21 +205,23 @@ class AccountRepository
         return $data;
     }
 
-    public function enableProPlan()
+    public function enablePlan($plan = PLAN_PRO, $term = PLAN_TERM_MONTHLY, $credit = 0, $pending_monthly = false)
     {
-        if (Auth::user()->isPro() && ! Auth::user()->isTrial()) {
-            return false;
-        }
-        
         $account = Auth::user()->account;
         $client = $this->getNinjaClient($account);
-        $invitation = $this->createNinjaInvoice($client, $account);
+        $invitation = $this->createNinjaInvoice($client, $account, $plan, $term, $credit, $pending_monthly);
 
         return $invitation;
     }
 
-    public function createNinjaInvoice($client, $clientAccount)
+    public function createNinjaInvoice($client, $clientAccount, $plan = PLAN_PRO, $term = PLAN_TERM_MONTHLY, $credit = 0, $pending_monthly = false)
     {
+        if ($credit < 0) {
+            $credit = 0;
+        }
+        
+        $plan_cost = Account::$plan_prices[$plan][$term];
+        
         $account = $this->getNinjaAccount();
         $lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
         $publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
@@ -230,19 +232,39 @@ class AccountRepository
         $invoice->client_id = $client->id;
         $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
         $invoice->invoice_date = $clientAccount->getRenewalDate();
-        $invoice->amount = PRO_PLAN_PRICE;
-        $invoice->balance = PRO_PLAN_PRICE;
+        $invoice->amount = $invoice->balance = $plan_cost - $credit;
         $invoice->save();
 
-        $item = new InvoiceItem();
-        $item->account_id = $account->id;
-        $item->user_id = $account->users()->first()->id;
-        $item->public_id = $publicId;
+        if ($credit) {
+            $credit_item = InvoiceItem::createNew($invoice);
+            $credit_item->qty = 1;
+            $credit_item->cost = -$credit;
+            $credit_item->notes = trans('texts.plan_credit_description');
+            $credit_item->product_key = trans('texts.plan_credit_product');
+            $invoice->invoice_items()->save($credit_item);
+        }
+        
+        $item = InvoiceItem::createNew($invoice);
         $item->qty = 1;
-        $item->cost = PRO_PLAN_PRICE;
-        $item->notes = trans('texts.pro_plan_description');
-        $item->product_key = trans('texts.pro_plan_product');
+        $item->cost = $plan_cost;
+        $item->notes = trans("texts.{$plan}_plan_{$term}_description");
+        
+        // Don't change this without updating the regex in PaymentService->createPayment()
+        $item->product_key = 'Plan - '.ucfirst($plan).' ('.ucfirst($term).')';
         $invoice->invoice_items()->save($item);
+        
+        if ($pending_monthly) {
+            $term_end = $term == PLAN_MONTHLY ? date_create('+1 month') : date_create('+1 year');
+            $pending_monthly_item = InvoiceItem::createNew($invoice);
+            $item->qty = 1;
+            $pending_monthly_item->cost = 0;
+            $pending_monthly_item->notes = trans("texts.plan_pending_monthly", array('date', Utils::dateToString($term_end)));
+            
+            // Don't change this without updating the text in PaymentService->createPayment()
+            $pending_monthly_item->product_key = 'Pending Monthly';
+            $invoice->invoice_items()->save($pending_monthly_item);
+        }
+        
 
         $invitation = new Invitation();
         $invitation->account_id = $account->id;
@@ -355,7 +377,7 @@ class AccountRepository
             $user->last_name = $lastName;
             $user->registered = true;
 
-            $user->account->startTrial();
+            $user->account->startTrial(PLAN_ENTERPRISE);
         }
 
         $user->oauth_provider_id = $providerId;

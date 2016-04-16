@@ -30,6 +30,7 @@ use App\Ninja\Mailers\ContactMailer;
 use App\Events\UserSignedUp;
 use App\Events\UserSettingsChanged;
 use App\Services\AuthService;
+use App\Services\PaymentService;
 
 use App\Http\Requests\UpdateAccountRequest;
 
@@ -39,8 +40,9 @@ class AccountController extends BaseController
     protected $userMailer;
     protected $contactMailer;
     protected $referralRepository;
+    protected $paymentService;
 
-    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository)
+    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository, PaymentService $paymentService)
     {
         //parent::__construct();
 
@@ -48,6 +50,7 @@ class AccountController extends BaseController
         $this->userMailer = $userMailer;
         $this->contactMailer = $contactMailer;
         $this->referralRepository = $referralRepository;
+        $this->paymentService = $paymentService;
     }
 
     public function demo()
@@ -110,9 +113,124 @@ class AccountController extends BaseController
 
     public function enableProPlan()
     {
-        $invitation = $this->accountRepo->enableProPlan();
+        if (Auth::user()->isPro() && ! Auth::user()->isTrial()) {
+            return false;
+        }
+        
+        $invitation = $this->accountRepo->enablePlan();
 
         return $invitation->invitation_key;
+    }
+    
+    public function changePlan() {
+        $user = Auth::user();
+        $account = $user->account;
+        
+        $plan = Input::get('plan');
+        $term = Input::get('plan_term');
+        
+        $planDetails = $account->getPlanDetails(false);
+        
+        $credit = 0;
+        if ($planDetails['active']) {
+            if ($planDetails['plan'] == PLAN_PRO && $plan == PLAN_ENTERPRISE) {
+                // Upgrade from pro to enterprise
+                if($planDetails['term'] == PLAN_TERM_YEARLY && $term == PLAN_TERM_MONTHLY) {
+                    // Upgrade to yearly for now; switch to monthly in a year
+                    $pending_monthly = true;
+                    $term = PLAN_TERM_YEARLY;
+                }
+                
+                $new_plan = array(
+                    'plan' => PLAN_ENTERPRISE,
+                    'term' => $term,
+                );
+            } elseif ($planDetails['plan'] == $plan) {
+                // Term switch
+                if ($planDetails['term'] == PLAN_TERM_YEARLY && $term == PLAN_TERM_MONTHLY) {
+                    $pending_change = array(
+                        'plan' => $plan,
+                        'term' => $term
+                    );
+                } elseif ($planDetails['term'] == PLAN_TERM_MONTHLY && $term == PLAN_TERM_YEARLY) {
+                    $new_plan = array(
+                        'plan' => $plan,
+                        'term' => $term,
+                    );
+                } else {
+                    // Cancel the pending change
+                    $account->company->pending_plan = null;
+                    $account->company->pending_term = null;
+                    $account->company->save();
+                    Session::flash('message', trans('texts.updated_plan'));
+                }
+            } else {
+                // Downgrade
+                $refund_deadline = clone $planDetails['started'];
+                $refund_deadline->modify('+30 days');
+                
+                if ($plan == PLAN_FREE && $refund_deadline > date_create()) {
+                    // Refund
+                    $account->company->plan = null;
+                    $account->company->plan_term = null;
+                    $account->company->plan_started = null;
+                    $account->company->plan_expires = null;
+                    $account->company->plan_paid = null;
+                    $account->company->pending_plan = null;
+                    $account->company->pending_term = null;
+                    
+                    if ($account->company->payment) {
+                        $payment = $account->company->payment;
+                        
+                        $gateway = $this->paymentService->createGateway($payment->account_gateway);
+                        $refund = $gateway->refund(array(
+                            'transactionReference' => $payment->transaction_reference,
+                            'amount' => $payment->amount * 100
+                        ));
+                        $refund->send();
+                        $payment->delete();
+                        Session::flash('message', trans('texts.plan_refunded'));
+                        \Log::info("Refunded Plan Payment: {$account->name} - {$user->email}");
+                    } else {
+                        Session::flash('message', trans('texts.updated_plan'));
+                    }
+                    
+                    $account->company->save();
+                    
+                } else {
+                    $pending_change = array(
+                        'plan' => $plan,
+                        'term' => $plan == PLAN_FREE ? null : $term,
+                    );
+                }
+            }
+            
+            if (!empty($new_plan)) {
+                $percent_used = $planDetails['paid']->diff(date_create())->days / $planDetails['paid']->diff($planDetails['expires'])->days;
+                $old_plan_price = Account::$plan_prices[$planDetails['plan']][$planDetails['term']];
+                $credit = $old_plan_price * (1 - $percent_used);
+            }
+        } else {
+             $new_plan = array(
+                'plan' => $plan,
+                'term' => $term,
+            );
+        }
+        
+        if (!empty($pending_change) && empty($new_plan)) {
+            $account->company->pending_plan = $pending_change['plan'];
+            $account->company->pending_term = $pending_change['term'];
+            $account->company->save();
+            
+            Session::flash('message', trans('texts.updated_plan'));
+        }
+        
+        if (!empty($new_plan)) {
+            $invitation = $this->accountRepo->enablePlan($new_plan['plan'], $new_plan['term'], $credit, !empty($pending_monthly));
+            return Redirect::to('payment/'.$invitation->invitation_key);
+        }
+        
+        return Redirect::to('/settings/'.ACCOUNT_MANAGEMENT, 301);
     }
 
     public function setTrashVisible($entityType, $visible)
@@ -235,9 +353,11 @@ class AccountController extends BaseController
 
     private function showAccountManagement()
     {
+        $account = Auth::user()->account;
         $data = [
-            'account' => Auth::user()->account,
-            'title' => trans('texts.acount_management'),
+            'account' => $account,
+            'planDetails' => $account->getPlanDetails(),
+            'title' => trans('texts.account_management'),
         ];
 
         return View::make('accounts.management', $data);
@@ -955,7 +1075,7 @@ class AccountController extends BaseController
         $user->registered = true;
         $user->save();
 
-        $user->account->startTrial();
+        $user->account->startTrial(PLAN_ENTERPRISE);
 
         if (Input::get('go_pro') == 'true') {
             Session::set(REQUESTED_PRO_PLAN, true);
@@ -1027,12 +1147,12 @@ class AccountController extends BaseController
         return Redirect::to('/settings/'.ACCOUNT_USER_DETAILS)->with('message', trans('texts.confirmation_resent'));
     }
 
-    public function startTrial()
+    public function startTrial($plan)
     {
         $user = Auth::user();
 
-        if ($user->isEligibleForTrial()) {
-            $user->account->startTrial();
+        if ($user->isEligibleForTrial($plan)) {
+            $user->account->startTrial($plan);
         }
 
         return Redirect::back()->with('message', trans('texts.trial_success'));

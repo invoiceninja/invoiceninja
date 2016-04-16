@@ -726,8 +726,8 @@
                 <center>
                     <h2>{{ trans('texts.pro_plan_title') }}</h2>
                     <img class="img-responsive price" alt="Only $50 Per Year" src="{{ asset('images/pro_plan/price.png') }}"/>
-                    @if (Auth::user()->isEligibleForTrial())
-                        <a class="button" href="{{ URL::to('start_trial') }}">{{ trans('texts.trial_call_to_action') }}</a>
+                    @if (Auth::user()->isEligibleForTrial(PLAN_PRO))
+                        <a class="button" href="{{ URL::to('start_trial/'.PLAN_PRO) }}">{{ trans('texts.trial_call_to_action') }}</a>
                     @else
                         <a class="button" href="#" onclick="submitProPlan()">{{ trans('texts.pro_plan_call_to_action') }}</a>
                     @endif

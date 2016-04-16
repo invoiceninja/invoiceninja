@@ -13,13 +13,17 @@ class ReferralRepository
 
         $counts = [
             'free' => 0,
-            'pro' => 0
+            'pro' => 0,
+            'enterprise' => 0
         ];
 
         foreach ($accounts as $account) {
             $counts['free']++;
-            if (Utils::withinPastYear($account->pro_plan_paid)) {
+            if ($account->isPro()) {
                 $counts['pro']++;
+                if ($account->isEnterprise()) {
+                    $counts['enterprise']++;
+                }
             }
         }
 
