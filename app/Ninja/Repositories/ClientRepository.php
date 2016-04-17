@@ -100,13 +100,11 @@ class ClientRepository extends BaseRepository
         $first = true;
         $contacts = isset($data['contact']) ? [$data['contact']] : $data['contacts'];
         $contactIds = [];
-
-        Log::info($contacts);
-
-        usort($contacts, function ($left, $right) {
-            return $left['is_primary'] - $right['is_primary'];
-        });
         
+        usort($contacts, function ($left, $right) {
+            return $right['is_primary'] - $left['is_primary'];
+        });
+
         Log::info($contacts);
 
         foreach ($contacts as $contact) {
