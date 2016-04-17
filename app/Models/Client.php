@@ -146,7 +146,7 @@ class Client extends EntityModel
 
     public function addContact($data, $isPrimary = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
 
         if ($publicId && $publicId != '-1') {
             $contact = Contact::scope($publicId)->firstOrFail();
