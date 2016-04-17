@@ -19,6 +19,7 @@ use App\Models\License;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Models\Account;
+use App\Models\Document;
 use App\Models\Gateway;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
@@ -802,39 +803,77 @@ class AccountController extends BaseController
         $this->accountRepo->save($request->input(), $account);
 
         /* Logo image file */
-        if ($file = Input::file('logo')) {
+        if ($uploaded = Input::file('logo')) {
             $path = Input::file('logo')->getRealPath();
-            File::delete('logo/'.$account->account_key.'.jpg');
-            File::delete('logo/'.$account->account_key.'.png');
+            
+            $disk = $account->getLogoDisk();
+            if ($account->hasLogo()) {
+                $disk->delete($account->logo);
+            }
+            
+            $extension = strtolower($uploaded->getClientOriginalExtension());
+            if(empty(Document::$types[$extension]) && !empty(Document::$extraExtensions[$extension])){
+                $documentType = Document::$extraExtensions[$extension];            
+            }
+            else{
+                $documentType = $extension;
+            }
 
-            $mimeType = $file->getMimeType();
-
-            if ($mimeType == 'image/jpeg') {
-                $path = 'logo/'.$account->account_key.'.jpg';
-                $file->move('logo/', $account->account_key.'.jpg');
-            } elseif ($mimeType == 'image/png') {
-                $path = 'logo/'.$account->account_key.'.png';
-                $file->move('logo/', $account->account_key.'.png');
+            if(!in_array($documentType, array('jpeg', 'png', 'gif'))){
+                Session::flash('warning', 'Unsupported file type');
             } else {
-                if (extension_loaded('fileinfo')) {
-                    $image = Image::make($path);
-                    $image->resize(200, 120, function ($constraint) {
-                        $constraint->aspectRatio();
-                    });
-                    $path = 'logo/'.$account->account_key.'.jpg';
-                    Image::canvas($image->width(), $image->height(), '#FFFFFF')
-                        ->insert($image)->save($path);
+                $documentTypeData = Document::$types[$documentType];
+
+                $filePath = $uploaded->path();
+                $size = filesize($filePath);
+
+                if($size/1000 > MAX_DOCUMENT_SIZE){
+                    Session::flash('warning', 'File too large');
                 } else {
-                    Session::flash('warning', 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.');
+                    if ($documentType != 'gif') {
+                        $account->logo = $account->account_key.'.'.$documentType;
+                        
+                        $imageSize = getimagesize($filePath);
+                        $account->logo_width = $imageSize[0];
+                        $account->logo_height = $imageSize[1];
+                        $account->logo_size = $size;
+                        
+                        // make sure image isn't interlaced
+                        if (extension_loaded('fileinfo')) {
+                            $image = Image::make($path);
+                            $image->interlace(false);
+                            $imageStr = (string) $image->encode($documentType);
+                            $disk->put($account->logo, $imageStr);
+                            
+                            $account->logo_size = strlen($imageStr);
+                        } else {
+                            $stream = fopen($filePath, 'r');
+                            $disk->getDriver()->putStream($account->logo, $stream, ['mimetype'=>$documentTypeData['mime']]);
+                            fclose($stream);
+                        }
+                    } else {
+                        if (extension_loaded('fileinfo')) {
+                            $image = Image::make($path);
+                            $image->resize(200, 120, function ($constraint) {
+                                $constraint->aspectRatio();
+                            });
+                            
+                            $account->logo = $account->account_key.'.png';
+                            $image = Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image);
+                            $imageStr = (string) $image->encode('png');
+                            $disk->put($account->logo, $imageStr);
+                                
+                            $account->logo_size = strlen($imageStr);
+                            $account->logo_width = $image->width();
+                            $account->logo_height = $image->height();
+                        } else {
+                            Session::flash('warning', 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.');
+                        }
+                    }
                 }
             }
-
-            // make sure image isn't interlaced
-            if (extension_loaded('fileinfo')) {
-                $img = Image::make($path);
-                $img->interlace(false);
-                $img->save();
-            }
+            
+            $account->save();
         }
 
         event(new UserSettingsChanged());
@@ -900,10 +939,18 @@ class AccountController extends BaseController
 
     public function removeLogo()
     {
-        File::delete('logo/'.Auth::user()->account->account_key.'.jpg');
-        File::delete('logo/'.Auth::user()->account->account_key.'.png');
+        $account = Auth::user()->account;
+        if ($account->hasLogo()) {
+            $account->getLogoDisk()->delete($account->logo);
+            
+            $account->logo = null;
+            $account->logo_size = null;
+            $account->logo_width = null;
+            $account->logo_height = null;
+            $account->save();
 
-        Session::flash('message', trans('texts.removed_logo'));
+            Session::flash('message', trans('texts.removed_logo'));
+        }
 
         return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS);
     }
