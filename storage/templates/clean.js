@@ -70,12 +70,6 @@
         }
     },
     {
-        "stack": [
-            "$invoiceDocuments"
-        ],
-        "style": "invoiceDocuments"
-    },
-    {
         "columns": [        
             "$notesAndTerms",
             {
@@ -93,6 +87,12 @@
                 }
             }
         ]
+    },
+    {
+        "stack": [
+            "$invoiceDocuments"
+        ],
+        "style": "invoiceDocuments"
     }
     ],
     "defaultStyle": {

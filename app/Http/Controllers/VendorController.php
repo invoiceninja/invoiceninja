@@ -107,7 +107,7 @@ class VendorController extends BaseController
         Utils::trackViewed($vendor->getDisplayName(), 'vendor');
 
         $actionLinks = [
-            ['label' => trans('texts.new_vendor'), 'url' => '/vendors/create/' . $vendor->public_id]
+            ['label' => trans('texts.new_vendor'), 'url' => URL::to('/vendors/create/' . $vendor->public_id)]
         ];
 
         $data = array(

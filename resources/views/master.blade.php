@@ -51,6 +51,8 @@
                 } else {
                     logError(errorMsg);
                 }
+                
+                trackEvent('/error', errorMsg);
             } catch(err) {}
 
             return false;

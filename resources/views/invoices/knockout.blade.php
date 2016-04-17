@@ -98,7 +98,13 @@ function ViewModel(data) {
 
         var isValid = true;
         $('input.client-email').each(function(item, value) {
+            var $email = $(value);
             var email = $(value).val();
+            
+            // Trim whitespace
+            email = (email || '').trim();
+            $email.val(email);
+            
             if (!firstName && (!email || !isValidEmailAddress(email))) {
                 isValid = false;
             }
@@ -826,6 +832,7 @@ ko.bindingHandlers.typeahead = {
         {
             name: 'data',
             display: allBindings.key,
+            limit: 50,
             source: searchData(allBindings.items, allBindings.key)
         }).on('typeahead:select', function(element, datum, name) {
             @if (Auth::user()->account->fill_products)

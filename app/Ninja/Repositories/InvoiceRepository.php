@@ -554,14 +554,13 @@ class InvoiceRepository extends BaseRepository
             }
         }
         $clone->invoice_number = $invoiceNumber ?: $account->getNextInvoiceNumber($clone);
+        $clone->invoice_date = date_create()->format('Y-m-d');
 
         foreach ([
           'client_id',
           'discount',
           'is_amount_discount',
-          'invoice_date',
           'po_number',
-          'due_date',
           'is_recurring',
           'frequency_id',
           'start_date',
