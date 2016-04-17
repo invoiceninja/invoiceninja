@@ -100,6 +100,10 @@ class ClientRepository extends BaseRepository
         $contacts = isset($data['contact']) ? [$data['contact']] : $data['contacts'];
         $contactIds = [];
 
+        usort($contacts, function ($left, $right) {
+            return $right['is_primary'] - $left['is_primary'];
+        });
+
         foreach ($contacts as $contact) {
             $contact = $client->addContact($contact, $first);
             $contactIds[] = $contact->public_id;
