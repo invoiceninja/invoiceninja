@@ -105,7 +105,7 @@ class ReportController extends BaseController
                 $params = array_merge($params, self::generateReport($reportType, $startDate, $endDate, $dateField, $isExport));
 
                 if ($isExport) {
-                    self::export($params['displayData'], $params['columns'], $params['reportTotals']);
+                    self::export($reportType, $params['displayData'], $params['columns'], $params['reportTotals']);
                 }
             }
             if ($enableChart) {
@@ -514,11 +514,14 @@ class ReportController extends BaseController
         return $data;
     }
 
-    private function export($data, $columns, $totals)
+    private function export($reportType, $data, $columns, $totals)
     {
         $output = fopen('php://output', 'w') or Utils::fatalError();
+        $reportType = trans("texts.{$reportType}s"); 
+        $date = date('Y-m-d');
+        
         header('Content-Type:application/csv');
-        header('Content-Disposition:attachment;filename=ninja-report.csv');
+        header("Content-Disposition:attachment;filename={$date}_Ninja_{$reportType}.csv");
 
         Utils::exportData($output, $data, Utils::trans($columns));
         
