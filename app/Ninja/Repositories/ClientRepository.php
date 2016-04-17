@@ -100,7 +100,7 @@ class ClientRepository extends BaseRepository
         $contacts = isset($data['contact']) ? [$data['contact']] : $data['contacts'];
         $contactIds = [];
 
-        $contacts = usort($contacts, function ($left, $right) {
+        usort($contacts, function ($left, $right) {
             return $left['priority'] - $right['priority'];
         });
 
