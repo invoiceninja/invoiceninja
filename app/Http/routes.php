@@ -42,7 +42,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
     Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
-    Route::get('complete', 'PaymentController@offsite_payment');
+    Route::match(['GET', 'POST'], 'complete', 'PaymentController@offsite_payment');
     Route::get('client/quotes', 'PublicClientController@quoteIndex');
     Route::get('client/invoices', 'PublicClientController@invoiceIndex');
     Route::get('client/documents', 'PublicClientController@documentIndex');
@@ -79,8 +79,8 @@ Route::post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@po
 Route::get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));
 Route::post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper'));
 Route::get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper'));
-Route::get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
-Route::post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
+Route::get('/recover_password', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
+Route::post('/recover_password', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
 Route::get('/password/reset/{token}', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
 Route::post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
 Route::get('/user/confirm/{code}', 'UserController@confirm');
@@ -89,8 +89,8 @@ Route::get('/user/confirm/{code}', 'UserController@confirm');
 Route::get('/client/login', array('as' => 'login', 'uses' => 'ClientAuth\AuthController@getLogin'));
 Route::post('/client/login', array('as' => 'login', 'uses' => 'ClientAuth\AuthController@postLogin'));
 Route::get('/client/logout', array('as' => 'logout', 'uses' => 'ClientAuth\AuthController@getLogout'));
-Route::get('/client/forgot', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getEmail'));
-Route::post('/client/forgot', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postEmail'));
+Route::get('/client/recover_password', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getEmail'));
+Route::post('/client/recover_password', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postEmail'));
 Route::get('/client/password/reset/{invitation_key}/{token}', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getReset'));
 Route::post('/client/password/reset', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postReset'));
 
@@ -535,6 +535,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_BITPAY', 42);
     define('GATEWAY_DWOLLA', 43);
     define('GATEWAY_CHECKOUT_COM', 47);
+    define('GATEWAY_CYBERSOURCE', 49);
 
     define('EVENT_CREATE_CLIENT', 1);
     define('EVENT_CREATE_INVOICE', 2);

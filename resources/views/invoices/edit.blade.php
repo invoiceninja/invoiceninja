@@ -22,6 +22,12 @@
             width: 50%;
             float: left;
         }
+
+        #scrollable-dropdown-menu .tt-menu {
+            max-height: 150px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
     </style>
 @stop
 
@@ -221,7 +227,9 @@
                         $parent.invoice_items().length > 1" class="fa fa-sort"></i>
 				</td>
 				<td>
-                    <input id="product_key" type="text" data-bind="typeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
+                    <div id="scrollable-dropdown-menu">
+                        <input id="product_key" type="text" data-bind="typeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
+                    </div>
 				</td>
 				<td>
 					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][notes]'}"
@@ -296,11 +304,11 @@
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="notes" style="padding-bottom:44px">
                             {!! Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
-                            ->label(null)->style('resize: none; min-width: 450px;')->rows(3) !!}
+                            ->label(null)->style('resize: none; width: 500px;')->rows(4) !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
                             {!! Former::textarea('terms')->data_bind("value:wrapped_terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('resize: none; min-width: 450px')->rows(3)
+                            ->label(false)->style('resize: none; width: 500px')->rows(4)
                             ->help('<div class="checkbox">
                                         <label>
                                             <input name="set_default_terms" type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
@@ -312,7 +320,7 @@
                         </div>
                         <div role="tabpanel" class="tab-pane" id="footer">
                             {!! Former::textarea('invoice_footer')->data_bind("value:wrapped_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('resize: none; min-width: 450px')->rows(3)
+                            ->label(false)->style('resize: none; width: 500px')->rows(4)
                             ->help('<div class="checkbox">
                                         <label>
                                             <input name="set_default_footer" type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'

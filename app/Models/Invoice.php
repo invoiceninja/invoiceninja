@@ -789,7 +789,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         $invitation = $this->invitations[0];
-        $link = $invitation->getLink();
+        $link = $invitation->getLink('view', true);
         $key = env('PHANTOMJS_CLOUD_KEY');
         $curl = curl_init();
         

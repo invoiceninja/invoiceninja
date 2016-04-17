@@ -590,6 +590,11 @@ function calculateAmounts(invoice) {
   var hasTaxes = false;
   var taxes = {};
   invoice.has_product_key = false;
+  
+  // Bold designs currently breaks w/o the product column
+  if (invoice.invoice_design_id == 2) {
+      invoice.has_product_key = true;
+  }
 
   // sum line item
   for (var i=0; i<invoice.invoice_items.length; i++) {

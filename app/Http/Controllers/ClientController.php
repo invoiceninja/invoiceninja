@@ -112,10 +112,10 @@ class ClientController extends BaseController
 
         $actionLinks = [];
         if(Task::canCreate()){
-            $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => '/tasks/create/'.$client->public_id];
+            $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/'.$client->public_id)];
         }
         if (Utils::isPro() && Invoice::canCreate()) {
-            $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => '/quotes/create/'.$client->public_id];
+            $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/'.$client->public_id)];
         }
         
         if(!empty($actionLinks)){
@@ -123,15 +123,15 @@ class ClientController extends BaseController
         }
         
         if(Payment::canCreate()){
-            $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => '/payments/create/'.$client->public_id];
+            $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => URL::to('/payments/create/'.$client->public_id)];
         }
         
         if(Credit::canCreate()){
-            $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => '/credits/create/'.$client->public_id];
+            $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => URL::to('/credits/create/'.$client->public_id)];
         }
         
         if(Expense::canCreate()){
-            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => '/expenses/create/0/'.$client->public_id];
+            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/0/'.$client->public_id)];
         }
 
         $data = array(
