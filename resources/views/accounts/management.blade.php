@@ -34,10 +34,10 @@
 				@if ($planDetails && $planDetails['active'])
 					<div class="form-group">
 						<label class="col-sm-4 control-label">
-							@if($planDetails['active'])
-								{{ trans('texts.expires') }}
+							@if(!$account->company->pending_plan || $account->company->pending_plan == $planDetails['plan'])
+								{{ trans('texts.renews') }}
 							@else
-								{{ trans('texts.expired') }}
+								{{ trans('texts.expires') }}
 							@endif
 						</label>
 						<div class="col-sm-8">
@@ -56,18 +56,40 @@
 						<div class="col-sm-8">
 							<p class="form-control-static">
 								@if ($account->company->pending_plan == PLAN_FREE)
-									{{ trans('texts.plan_free') }}
+									{{ trans('texts.plan_changes_to', [
+										'plan'=>trans('texts.plan_free'),
+										'date'=>Utils::dateToString($planDetails['expires'])
+									]) }}
 								@else
-									{{ trans('texts.plan_'.$account->company->pending_plan) }}
-									 ({{ trans('texts.plan_term_'.$account->company->pending_term.'ly') }})
-								@endif
-								<a href="#" onclick="cancelPendingChange()">{{ trans('texts.cancel') }}</a>
+									{{ trans('texts.plan_term_changes_to', [
+										'plan'=>trans('texts.plan_'.$account->company->pending_plan),
+										'term'=>trans('texts.plan_term_'.$account->company->pending_term.'ly'),
+										'date'=>Utils::dateToString($planDetails['expires'])
+									]) }}
+								@endif<br>
+								<a href="#" onclick="cancelPendingChange()">{{ trans('texts.cancel_plan_change') }}</a>
 							</p>
 						</div>
 					</div>
 					@endif
 					{!! Former::actions( Button::info(trans('texts.plan_change'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('edit'))) !!}
 				@else
+					@if ($planDetails)
+						<div class="form-group">
+							<label class="col-sm-4 control-label">
+								@if ($planDetails['trial'])
+									{{ trans('texts.trial_expired', ['plan'=>trans('texts.plan_'.$planDetails['plan'])]) }}
+								@else
+									{{ trans('texts.plan_expired', ['plan'=>trans('texts.plan_'.$planDetails['plan'])]) }}
+								@endif
+							</label>
+							<div class="col-sm-8">
+								<p class="form-control-static">
+									{{ Utils::dateToString($planDetails['expires']) }}
+								</p>
+							</div>
+						</div>
+					@endif
 					{!! Former::actions( Button::success(trans('texts.plan_upgrade'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('plus-sign'))) !!}
 				@endif
 			</div>
