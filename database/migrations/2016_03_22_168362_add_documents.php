@@ -63,6 +63,7 @@ class AddDocuments extends Migration {
 			$table->dropColumn('logo_height');
 			$table->dropColumn('logo_size');
 			$table->dropColumn('invoice_embed_documents');
+			$table->dropColumn('document_email_attachment');
 		});
 		
 		Schema::dropIfExists('documents');
