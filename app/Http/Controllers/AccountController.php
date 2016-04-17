@@ -170,7 +170,7 @@ class AccountController extends BaseController
                 $refund_deadline = clone $planDetails['started'];
                 $refund_deadline->modify('+30 days');
                 
-                if ($plan == PLAN_FREE && $refund_deadline > date_create()) {
+                if ($plan == PLAN_FREE && $refund_deadline >= date_create()) {
                     // Refund
                     $account->company->plan = null;
                     $account->company->plan_term = null;
@@ -207,7 +207,17 @@ class AccountController extends BaseController
             }
             
             if (!empty($new_plan)) {
-                $percent_used = $planDetails['paid']->diff(date_create())->days / $planDetails['paid']->diff($planDetails['expires'])->days;
+                $time_used = $planDetails['paid']->diff(date_create());
+                $days_used = $time_used->days;
+                
+                if ($time_used->invert) {
+                    // They paid in advance
+                    $days_used *= -1;
+                }
+                
+                $days_total = $planDetails['paid']->diff($planDetails['expires'])->days;
+                
+                $percent_used = $days_used / $days_total;
                 $old_plan_price = Account::$plan_prices[$planDetails['plan']][$planDetails['term']];
                 $credit = $old_plan_price * (1 - $percent_used);
             }

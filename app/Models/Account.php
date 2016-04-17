@@ -843,7 +843,7 @@ class Account extends Eloquent
             $trial_expires = clone $trial_started;
             $trial_expires->modify('+2 weeks');
             
-            if ($trial_expires > date_create()) {
+            if ($trial_expires >= date_create()) {
                $trial_active = true;
             }
         }
@@ -855,7 +855,7 @@ class Account extends Eloquent
                 $plan_expires = false;
             } else {
                 $plan_expires = DateTime::createFromFormat('Y-m-d', $this->company->plan_expires);
-                if ($plan_expires > date_create()) {
+                if ($plan_expires >= date_create()) {
                     $plan_active = true;
                 }
             }

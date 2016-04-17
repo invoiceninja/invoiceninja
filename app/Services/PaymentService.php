@@ -244,14 +244,35 @@ class PaymentService extends BaseService
                 }
             }
             
-            if (!empty($plan)) {
+            if (!empty($plan)) { 
                 $account = Account::with('users')->find($invoice->client->public_id);
+                
+                if(
+                    $account->company->plan != $plan
+                    || DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create('-7 days')
+                ) {
+                    // Either this is a different plan, or the subscription expired more than a week ago
+                    // Reset any grandfathering
+                    $account->company->plan_started = date_create()->format('Y-m-d');
+                }
+                            
+                if (
+                    $account->company->plan == $plan
+                    && $account->company->plan_term == $term 
+                    && DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create()
+                ) {
+                    // This is a renewal; mark it paid as of when this term expires
+                    $account->company->plan_paid = $account->company->plan_expires;
+                } else {
+                    $account->company->plan_paid = date_create()->format('Y-m-d');
+                }
+                
                 $account->company->payment_id = $payment->id;
                 $account->company->plan = $plan;
                 $account->company->plan_term = $term;
-                $account->company->plan_paid = $account->company->plan_started = date_create()->format('Y-m-d');
-                $account->company->plan_expires = date_create($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
-                
+                $account->company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
+                    ->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
+                                
                 if (!empty($pending_monthly)) {
                     $account->company->pending_plan = $plan;
                     $account->company->pending_term = PLAN_TERM_MONTHLY;
