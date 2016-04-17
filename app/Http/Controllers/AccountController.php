@@ -130,10 +130,10 @@ class AccountController extends BaseController
         $plan = Input::get('plan');
         $term = Input::get('plan_term');
         
-        $planDetails = $account->getPlanDetails(false);
+        $planDetails = $account->getPlanDetails(false, false);
         
         $credit = 0;
-        if ($planDetails['active']) {
+        if ($planDetails) {
             if ($planDetails['plan'] == PLAN_PRO && $plan == PLAN_ENTERPRISE) {
                 // Upgrade from pro to enterprise
                 if($planDetails['term'] == PLAN_TERM_YEARLY && $term == PLAN_TERM_MONTHLY) {
@@ -367,7 +367,7 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         $data = [
             'account' => $account,
-            'planDetails' => $account->getPlanDetails(),
+            'planDetails' => $account->getPlanDetails(true),
             'title' => trans('texts.account_management'),
         ];
 

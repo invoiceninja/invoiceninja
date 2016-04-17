@@ -806,7 +806,7 @@ class Account extends Eloquent
 
         $plan_details = $this->getPlanDetails();
         
-        return $plan_details && $plan_details['active'];
+        return !empty($plan_details);
     }
 
     public function isEnterprise(&$plan_details = null)
@@ -821,10 +821,10 @@ class Account extends Eloquent
 
         $plan_details = $this->getPlanDetails();
         
-        return $plan_details && $plan_details['active'] && $plan_details['plan'] == PLAN_ENTERPRISE;
+        return $plan_details && $plan_details['plan'] == PLAN_ENTERPRISE;
     }
     
-    public function getPlanDetails($include_trial = true)
+    public function getPlanDetails($include_inactive = false, $include_trial = true)
     {
         if (!$this->company) {
             return null;
@@ -861,6 +861,10 @@ class Account extends Eloquent
             }
         }
         
+        if (!$include_inactive && !$plan_active && !$trial_plan) {
+            return null;
+        }
+        
         // Should we show plan details or trial details?
         if (($plan && !$trial_plan) || !$include_trial) {
             $use_plan = true;
@@ -872,10 +876,7 @@ class Account extends Eloquent
                 $use_plan = true;
             } elseif (empty($plan_active) && !empty($trial_active)) {
                 $use_plan = false;
-            } elseif (empty($plan_active) && empty($trial_active)) {
-                // Neither are active; use whichever expired most recently
-                $use_plan = $plan_expires >= $trial_expires;
-            } else {
+            } elseif (!empty($plan_active) && !empty($trial_active)) {
                 // Both are active; use whichever is a better plan
                 if ($plan == PLAN_ENTERPRISE) {
                     $use_plan = true;
@@ -885,6 +886,9 @@ class Account extends Eloquent
                     // They're both the same; show the plan
                     $use_plan = true;
                 }
+            } else {
+                // Neither are active; use whichever expired most recently
+                $use_plan = $plan_expires >= $trial_expires;
             }
         }
         
@@ -917,7 +921,7 @@ class Account extends Eloquent
         
         $plan_details = $this->getPlanDetails();
 
-        return $plan_details && $plan_details['trial'] && $plan_details['active'];;
+        return $plan_details && $plan_details['trial'];
     }
 
     public function isEligibleForTrial($plan = null)
@@ -943,7 +947,7 @@ class Account extends Eloquent
 
     public function getCountTrialDaysLeft()
     {
-        $planDetails = $this->getPlanDetails();
+        $planDetails = $this->getPlanDetails(true);
         
         if(!$planDetails || !$planDetails['trial']) {
             return 0;
@@ -959,7 +963,7 @@ class Account extends Eloquent
     {
         $planDetails = $this->getPlanDetails();
         
-        if ($planDetails && $planDetails['active']) {
+        if ($planDetails) {
             $date = $planDetails['expires'];
             $date = max($date, date_create());
         } else {
@@ -979,7 +983,7 @@ class Account extends Eloquent
             return self::isPro($plan_details) && $plan_details['expires'];
         } else {
             $plan_details = $this->getPlanDetails();
-            return $plan_details && $plan_details['active'];
+            return $plan_details;
         }
     }
 
