@@ -8,6 +8,7 @@ use App\Models\Contact;
 use App\Models\Activity;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasUpdated;
+use Illuminate\Support\Facades\Log;
 
 class ClientRepository extends BaseRepository
 {
@@ -100,9 +101,13 @@ class ClientRepository extends BaseRepository
         $contacts = isset($data['contact']) ? [$data['contact']] : $data['contacts'];
         $contactIds = [];
 
+        Log::info($contacts);
+
         usort($contacts, function ($left, $right) {
             return $left['is_primary'] - $right['is_primary'];
         });
+        
+        Log::info($contacts);
 
         foreach ($contacts as $contact) {
             $contact = $client->addContact($contact, $first);
