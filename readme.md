@@ -8,10 +8,6 @@
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=develop)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Note: we've recently updated this branch to Laravel 5.2. If you're upgrading here are some things to note
-* Make sure to run composer install
-* If there are any strings with spaces in your .env file you'll need to enclose them in quotes to prevent error class log not found.
-
 ### Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 * White-label reseller (you pay us): 10% of revenue with a $100 sign up fee
@@ -52,7 +48,7 @@ Note: we've recently updated this branch to Laravel 5.2. If you're upgrading her
 * [Debian and Nginx](https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/)
 * [User Guide](https://www.invoiceninja.com/app-user-guide/)
 * [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
-* [API Documentation](https://www.invoiceninja.com/knowledgebase/api-documentation/)
+* [API Documentation](https://www.invoiceninja.com/api-documentation/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 

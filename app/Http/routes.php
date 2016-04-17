@@ -42,17 +42,23 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
     Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
-    Route::get('complete', 'PaymentController@offsite_payment');
+    Route::match(['GET', 'POST'], 'complete', 'PaymentController@offsite_payment');
     Route::get('client/quotes', 'PublicClientController@quoteIndex');
     Route::get('client/invoices', 'PublicClientController@invoiceIndex');
+    Route::get('client/documents', 'PublicClientController@documentIndex');
     Route::get('client/payments', 'PublicClientController@paymentIndex');
     Route::get('client/dashboard', 'PublicClientController@dashboard');
+    Route::get('client/document/js/{public_id}/{filename}', 'PublicClientController@getDocumentVFSJS');
+    Route::get('client/document/{invitation_key}/{public_id}/{filename?}', 'PublicClientController@getDocument');
+    Route::get('client/documents/{invitation_key}/{filename?}', 'PublicClientController@getInvoiceDocumentsZip');
+    
+    Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
+    Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
+    Route::get('api/client.documents', array('as'=>'api.client.documents', 'uses'=>'PublicClientController@documentDatatable'));
+    Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PublicClientController@paymentDatatable'));
+    Route::get('api/client.activity', array('as'=>'api.client.activity', 'uses'=>'PublicClientController@activityDatatable'));
 });
 
-Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
-Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
-Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PublicClientController@paymentDatatable'));
-Route::get('api/client.activity', array('as'=>'api.client.activity', 'uses'=>'PublicClientController@activityDatatable'));
 
 Route::get('license', 'PaymentController@show_license_payment');
 Route::post('license', 'PaymentController@do_license_payment');
@@ -73,8 +79,8 @@ Route::post('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@po
 Route::get('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper'));
 Route::post('/login', array('as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper'));
 Route::get('/logout', array('as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper'));
-Route::get('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
-Route::post('/forgot', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
+Route::get('/recover_password', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail'));
+Route::post('/recover_password', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail'));
 Route::get('/password/reset/{token}', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset'));
 Route::post('/password/reset', array('as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset'));
 Route::get('/user/confirm/{code}', 'UserController@confirm');
@@ -83,8 +89,8 @@ Route::get('/user/confirm/{code}', 'UserController@confirm');
 Route::get('/client/login', array('as' => 'login', 'uses' => 'ClientAuth\AuthController@getLogin'));
 Route::post('/client/login', array('as' => 'login', 'uses' => 'ClientAuth\AuthController@postLogin'));
 Route::get('/client/logout', array('as' => 'logout', 'uses' => 'ClientAuth\AuthController@getLogout'));
-Route::get('/client/forgot', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getEmail'));
-Route::post('/client/forgot', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postEmail'));
+Route::get('/client/recover_password', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getEmail'));
+Route::post('/client/recover_password', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postEmail'));
 Route::get('/client/password/reset/{invitation_key}/{token}', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getReset'));
 Route::post('/client/password/reset', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postReset'));
 
@@ -101,7 +107,6 @@ if (Utils::isReseller()) {
 
 Route::group(['middleware' => 'auth:user'], function() {
     Route::get('dashboard', 'DashboardController@index');
-    Route::get('dashboard2', 'DashboardApiController@index');
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
@@ -133,6 +138,11 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::post('invoices/bulk', 'InvoiceController@bulk');
     Route::post('recurring_invoices/bulk', 'InvoiceController@bulk');
 
+    Route::get('document/{public_id}/{filename?}', 'DocumentController@get');
+    Route::get('document/js/{public_id}/{filename}', 'DocumentController@getVFSJS');
+    Route::get('document/preview/{public_id}/{filename?}', 'DocumentController@getPreview');
+    Route::post('document', 'DocumentController@postUpload');
+    
     Route::get('quotes/create/{client_id?}', 'QuoteController@create');
     Route::get('quotes/{public_id}/clone', 'InvoiceController@cloneInvoice');
     Route::get('quotes/{public_id}/edit', 'InvoiceController@edit');
@@ -258,6 +268,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('expenses','ExpenseApiController');
     Route::post('add_token', 'AccountApiController@addDeviceToken');
     Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
+    Route::get('dashboard', 'DashboardApiController@index');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
@@ -267,7 +278,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 });
 
 // Redirects for legacy links
-/*
 Route::get('/rocksteady', function() {
     return Redirect::to(NINJA_WEB_URL, 301);
 });
@@ -295,7 +305,7 @@ Route::get('/compare-online-invoicing{sites?}', function() {
 Route::get('/forgot_password', function() {
     return Redirect::to(NINJA_APP_URL.'/forgot', 301);
 });
-*/
+
 
 if (!defined('CONTACT_EMAIL')) {
     define('CONTACT_EMAIL', Config::get('mail.from.address'));
@@ -310,6 +320,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_CLIENT', 'client');
     define('ENTITY_CONTACT', 'contact');
     define('ENTITY_INVOICE', 'invoice');
+    define('ENTITY_DOCUMENT', 'document');
     define('ENTITY_INVOICE_ITEMS', 'invoice_items');
     define('ENTITY_INVITATION', 'invitation');
     define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
@@ -425,6 +436,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('MAX_IFRAME_URL_LENGTH', 250);
     define('MAX_LOGO_FILE_SIZE', 200); // KB
     define('MAX_FAILED_LOGINS', 10);
+    define('MAX_DOCUMENT_SIZE', env('MAX_DOCUMENT_SIZE', 10000));// KB
+    define('MAX_EMAIL_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 10000));// Total KB
+    define('MAX_ZIP_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 30000));// Total KB (uncompressed)
+    define('DOCUMENT_PREVIEW_SIZE', env('DOCUMENT_PREVIEW_SIZE', 300));// pixels
     define('DEFAULT_FONT_SIZE', 9);
     define('DEFAULT_HEADER_FONT', 1);// Roboto
     define('DEFAULT_BODY_FONT', 1);// Roboto
@@ -520,6 +535,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_BITPAY', 42);
     define('GATEWAY_DWOLLA', 43);
     define('GATEWAY_CHECKOUT_COM', 47);
+    define('GATEWAY_CYBERSOURCE', 49);
 
     define('EVENT_CREATE_CLIENT', 1);
     define('EVENT_CREATE_INVOICE', 2);
@@ -535,7 +551,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.5.0.4');
+    define('NINJA_VERSION', '2.5.1.3');
     define('NINJA_DATE', '2000-01-01');
 
     define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');

@@ -26,21 +26,4 @@ class CreateVendorRequest extends Request
             'name' => 'required',
         ];
     }
-
-    /*
-    public function validator($factory)
-    {
-        // support submiting the form with a single contact record
-        $input = $this->input();
-        if (isset($input['vendor_contact'])) {
-            $input['vendor_contacts'] = [$input['vendor_contact']];
-            unset($input['vendor_contact']);
-            $this->replace($input);
-        }
-
-        return $factory->make(
-            $this->input(), $this->container->call([$this, 'rules']), $this->messages()
-        );
-    }
-    */
 }

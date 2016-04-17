@@ -105,7 +105,7 @@ class ReportController extends BaseController
                 $params = array_merge($params, self::generateReport($reportType, $startDate, $endDate, $dateField, $isExport));
 
                 if ($isExport) {
-                    self::export($params['displayData'], $params['columns'], $params['reportTotals']);
+                    self::export($reportType, $params['displayData'], $params['columns'], $params['reportTotals']);
                 }
             }
             if ($enableChart) {
@@ -158,8 +158,10 @@ class ReportController extends BaseController
             }
 
             $records = DB::table($entityType.'s')
-                ->select(DB::raw('sum(amount) as total, '.$timeframe.' as '.$groupBy))
-                ->where('account_id', '=', Auth::user()->account_id)
+                ->select(DB::raw('sum('.$entityType.'s.amount) as total, '.$timeframe.' as '.$groupBy))
+                ->join('clients', 'clients.id', '=', $entityType.'s.client_id')
+                ->where('clients.is_deleted', '=', false)
+                ->where($entityType.'s.account_id', '=', Auth::user()->account_id)
                 ->where($entityType.'s.is_deleted', '=', false)
                 ->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
                 ->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))
@@ -168,6 +170,9 @@ class ReportController extends BaseController
             if ($entityType == ENTITY_INVOICE) {
                 $records->where('is_quote', '=', false)
                         ->where('is_recurring', '=', false);
+            } elseif ($entityType == ENTITY_PAYMENT) {
+                $records->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
+                        ->where('invoices.is_deleted', '=', false);
             }
 
             $totals = $records->lists('total');
@@ -354,8 +359,8 @@ class ReportController extends BaseController
 
     private function generateInvoiceReport($startDate, $endDate, $isExport)
     {
-        $columns = ['client', 'invoice_number', 'invoice_date', 'amount', 'paid', 'balance'];
-
+        $columns = ['client', 'invoice_number', 'invoice_date', 'amount', 'payment_date', 'paid', 'method'];
+        
         $account = Auth::user()->account;
         $displayData = [];
         $reportTotals = [];
@@ -379,19 +384,25 @@ class ReportController extends BaseController
                         }]);
         
         foreach ($clients->get() as $client) {
-            $currencyId = $client->currency_id ?: Auth::user()->account->getCurrencyId();
+            foreach ($client->invoices as $invoice) {               
+                
+                $payments = count($invoice->payments) ? $invoice->payments : [false];
+                foreach ($payments as $payment) {
+                    $displayData[] = [
+                        $isExport ? $client->getDisplayName() : $client->present()->link,
+                        $isExport ? $invoice->invoice_number : $invoice->present()->link,
+                        $invoice->present()->invoice_date,
+                        $account->formatMoney($invoice->amount, $client),
+                        $payment ? $payment->present()->payment_date : '',
+                        $payment ? $account->formatMoney($payment->amount, $client) : '',
+                        $payment ? $payment->present()->method : '',
+                    ];          
+                    if ($payment) {
+                        $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment->amount);
+                    }
+                }
 
-            foreach ($client->invoices as $invoice) {
-                $displayData[] = [
-                    $isExport ? $client->getDisplayName() : $client->present()->link,
-                    $isExport ? $invoice->invoice_number : $invoice->present()->link,
-                    $invoice->present()->invoice_date,
-                    $account->formatMoney($invoice->amount, $client),
-                    $account->formatMoney($invoice->getAmountPaid(), $client),
-                    $account->formatMoney($invoice->balance, $client),
-                ];
                 $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $invoice->amount);
-                $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $invoice->getAmountPaid());
                 $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'balance', $invoice->balance);
             }
         }
@@ -503,11 +514,14 @@ class ReportController extends BaseController
         return $data;
     }
 
-    private function export($data, $columns, $totals)
+    private function export($reportType, $data, $columns, $totals)
     {
         $output = fopen('php://output', 'w') or Utils::fatalError();
+        $reportType = trans("texts.{$reportType}s"); 
+        $date = date('Y-m-d');
+        
         header('Content-Type:application/csv');
-        header('Content-Disposition:attachment;filename=ninja-report.csv');
+        header("Content-Disposition:attachment;filename={$date}_Ninja_{$reportType}.csv");
 
         Utils::exportData($output, $data, Utils::trans($columns));
         

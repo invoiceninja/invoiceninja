@@ -7,7 +7,7 @@ use Response;
 use App\Models\Invoice;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Http\Controllers\BaseAPIController;
-use App\Ninja\Transformers\QuoteTransformer;
+use App\Ninja\Transformers\InvoiceTransformer;
 
 class QuoteApiController extends BaseAPIController
 {
@@ -53,7 +53,7 @@ class QuoteApiController extends BaseAPIController
 
         $invoices = $invoices->orderBy('created_at', 'desc')->paginate();
 
-        $transformer = new QuoteTransformer(\Auth::user()->account, Input::get('serializer'));
+        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
         $paginator = $paginator->paginate();
 
         $data = $this->createCollection($invoices, $transformer, 'quotes', $paginator);

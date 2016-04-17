@@ -14,6 +14,6 @@
     RewriteRule ^ index.php [L]
     
     # In case of running InvoiceNinja in a Subdomain like invoiceninja.example.com,
-    # you have to enablel the following line:
+    # you have to enable the following line:
     # RewriteBase /
 </IfModule>

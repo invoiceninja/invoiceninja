@@ -70,7 +70,7 @@
             </button>
             @if (!isset($hideLogo) || !$hideLogo)
                 {{-- Per our license, please do not remove or modify this link. --}}
-                <a class="navbar-brand" href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank"><img src="{{ asset('images/invoiceninja-logo.png') }}"></a>
+                <a class="navbar-brand" href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank"><img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:20px"></a>
             @endif            
         </div>
         <div id="navbar" class="collapse navbar-collapse">
@@ -87,6 +87,11 @@
                 <li {{ Request::is('*client/invoices') ? 'class="active"' : '' }}>
                     {!! link_to('/client/invoices', trans('texts.invoices') ) !!}
                 </li>
+                @if (!empty($showDocuments))
+                    <li {{ Request::is('*client/documents') ? 'class="active"' : '' }}>
+                        {!! link_to('/client/documents', trans('texts.documents') ) !!}
+                    </li>
+                @endif
                 <li {{ Request::is('*client/payments') ? 'class="active"' : '' }}>
                     {!! link_to('/client/payments', trans('texts.payments') ) !!}
                 </li>                

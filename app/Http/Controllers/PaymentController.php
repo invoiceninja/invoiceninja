@@ -460,6 +460,8 @@ class PaymentController extends BaseController
                 $ref = $response->getData()['m_payment_id'];
             } elseif ($accountGateway->gateway_id == GATEWAY_GOCARDLESS) {
                 $ref = $response->getData()['signature'];
+            } elseif ($accountGateway->gateway_id == GATEWAY_CYBERSOURCE) {
+                $ref = $response->getData()['transaction_uuid'];
             } else {
                 $ref = $response->getTransactionReference();
             }
@@ -551,7 +553,15 @@ class PaymentController extends BaseController
         }
 
         try {
-            if (method_exists($gateway, 'completePurchase') 
+            if ($accountGateway->isGateway(GATEWAY_CYBERSOURCE)) {
+                if (Input::get('decision') == 'ACCEPT') {
+                    $payment = $this->paymentService->createPayment($invitation, $accountGateway, $token, $payerId);
+                    Session::flash('message', trans('texts.applied_payment'));
+                } else {
+                    Session::flash('error', Input::get('message'));
+                }
+                return Redirect::to($invitation->getLink());
+            } elseif (method_exists($gateway, 'completePurchase') 
                 && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)
                 && !$accountGateway->isGateway(GATEWAY_CHECKOUT_COM)) {
                 $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
@@ -572,11 +582,9 @@ class PaymentController extends BaseController
             } else {
                 $payment = $this->paymentService->createPayment($invitation, $accountGateway, $token, $payerId);
                 Session::flash('message', trans('texts.applied_payment'));
-
                 return Redirect::to($invitation->getLink());
             }
         } catch (\Exception $e) {
-
             $this->error('Offsite-uncaught', false, $accountGateway, $e);
             return Redirect::to($invitation->getLink());
         }
@@ -642,6 +650,6 @@ class PaymentController extends BaseController
         $message .= $error ?: trans('texts.payment_error');
 
         Session::flash('error', $message);
-        Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message));
+        Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
     }
 }

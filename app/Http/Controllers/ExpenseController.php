@@ -99,7 +99,7 @@ class ExpenseController extends BaseController
 
     public function edit($publicId)
     {
-        $expense = Expense::scope($publicId)->firstOrFail();
+        $expense = Expense::scope($publicId)->with('documents')->firstOrFail();
         
         if(!$this->checkEditPermission($expense, $response)){
             return $response;
@@ -146,12 +146,6 @@ class ExpenseController extends BaseController
 
         $data = array_merge($data, self::getViewModel());
 
-        if (Auth::user()->account->isNinjaAccount()) {
-            if ($account = Account::whereId($client->public_id)->first()) {
-                $data['proPlanPaid'] = $account['pro_plan_paid'];
-            }
-        }
-
         return View::make('expenses.edit', $data);
     }
 
@@ -163,7 +157,14 @@ class ExpenseController extends BaseController
      */
     public function update(UpdateExpenseRequest $request)
     {
-        $expense = $this->expenseService->save($request->input());
+        $data = $request->input();
+        $data['documents'] = $request->file('documents');
+        
+        if(!$this->checkUpdatePermission($data, $response)){
+            return $response;
+        }
+        
+        $expense = $this->expenseService->save($data, true);
 
         Session::flash('message', trans('texts.updated_expense'));
 
@@ -177,7 +178,14 @@ class ExpenseController extends BaseController
 
     public function store(CreateExpenseRequest $request)
     {
-        $expense = $this->expenseService->save($request->input());
+        $data = $request->input();
+        $data['documents'] = $request->file('documents');
+        
+        if(!$this->checkUpdatePermission($data, $response)){
+            return $response;
+        }
+        
+        $expense = $this->expenseService->save($data);
 
         Session::flash('message', trans('texts.created_expense'));
 
@@ -195,8 +203,7 @@ class ExpenseController extends BaseController
                 $expenses = Expense::scope($ids)->with('client')->get();
                 $clientPublicId = null;
                 $currencyId = null;
-                $data = [];
-
+                
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
                 foreach ($expenses as $expense)
                 {
@@ -220,19 +227,11 @@ class ExpenseController extends BaseController
                         Session::flash('error', trans('texts.expense_error_invoiced'));
                         return Redirect::to('expenses');
                     }
-
-                    $account = Auth::user()->account;
-                    $data[] = [
-                        'publicId' => $expense->public_id,
-                        'description' => $expense->public_notes,
-                        'qty' => 1,
-                        'cost' => $expense->present()->converted_amount,
-                    ];
                 }
 
                 return Redirect::to("invoices/create/{$clientPublicId}")
                         ->with('expenseCurrencyId', $currencyId)
-                        ->with('expenses', $data);
+                        ->with('expenses', $ids);
                 break;
 
             default:

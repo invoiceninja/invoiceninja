@@ -20,6 +20,10 @@ class BaseRepository
 
     public function archive($entity)
     {
+        if ($entity->trashed()) {
+            return;
+        }
+        
         $entity->delete();
 
         $className = $this->getEventClass($entity, 'Archived');
@@ -31,6 +35,10 @@ class BaseRepository
 
     public function restore($entity)
     {
+        if ( ! $entity->trashed()) {
+            return;
+        }
+
         $fromDeleted = false;
         $entity->restore();
 
@@ -49,6 +57,10 @@ class BaseRepository
 
     public function delete($entity)
     {
+        if ($entity->is_deleted) {
+            return;
+        }
+        
         $entity->is_deleted = true;
         $entity->save();
 

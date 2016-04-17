@@ -1049,8 +1049,6 @@ $LANG = array(
     'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
     'recurring_invoice_number' => 'Recurring Invoice Number',
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
-    'enable_client_portal' => 'Dashboard',
-    'enable_client_portal_help' => 'Show/hide the dashboard page in the client portal.',
 
     // Client Passwords
     'enable_portal_password'=>'Password protect invoices',
@@ -1068,7 +1066,7 @@ $LANG = array(
     // User Permissions
     'owner' => 'Owner',
     'administrator' => 'Administrator',
-    'administrator_help' => 'Allow user to manage users, change settings, and view and modify all data',
+    'administrator_help' => 'Allow user to manage users, change settings and modify all records',
     'user_create_all' => 'Create clients, invoices, etc.',
     'user_view_all' => 'View all clients, invoices, etc.',
     'user_edit_all' => 'Edit all clients, invoices, etc.',
@@ -1078,7 +1076,57 @@ $LANG = array(
     'restore_vendor' => 'Restore Vendor',
     'restored_vendor' => 'Successfully restored vendor',
     'restored_expense' => 'Successfully restored expense',
+    'permissions' => 'Permissions',
+    'create_all_help' => 'Allow user to create and modify records',
+    'view_all_help' => 'Allow user to view records they didn\'t create',
+    'edit_all_help' => 'Allow user to modify records they didn\'t create',
+    'view_payment' => 'View Payment', 
+   
+    'january' => 'January',
+    'february' => 'February',
+    'march' => 'March',
+    'april' => 'April',
+    'may' => 'May',
+    'june' => 'June',
+    'july' => 'July',
+    'august' => 'August',
+    'september' => 'September',
+    'october' => 'October',
+    'november' => 'November',
+    'december' => 'December',
     
+    // Documents
+    'documents_header' => 'Documents:',
+    'email_documents_header' => 'Documents:',
+    'email_documents_example_1' => 'Widgets Receipt.pdf',
+    'email_documents_example_2' => 'Final Deliverable.zip',
+    'invoice_documents' => 'Documents',
+    'expense_documents' => 'Attached Documents',
+    'invoice_embed_documents' => 'Embed Documents',
+    'invoice_embed_documents_help' => 'Include attached images in the invoice.',
+    'document_email_attachment' => 'Attach Documents',
+    'download_documents' => 'Download Documents (:size)',
+    'documents_from_expenses' => 'From Expenses:',
+    'dropzone' => array(// See http://www.dropzonejs.com/#config-dictDefaultMessage
+        'DefaultMessage' => 'Drop files or click to upload',
+        'FallbackMessage' => 'Your browser does not support drag\'n\'drop file uploads.',
+        'FallbackText' => 'Please use the fallback form below to upload your files like in the olden days.',
+        'FileTooBig' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
+        'InvalidFileType' => 'You can\'t upload files of this type.',
+        'ResponseError' => 'Server responded with {{statusCode}} code.',
+        'CancelUpload' => 'Cancel upload',
+        'CancelUploadConfirmation' => 'Are you sure you want to cancel this upload?',
+        'RemoveFile' => 'Remove file',
+    ),
+    'documents' => 'Documents',
+    'document_date' => 'Document Date',
+    'document_size' => 'Size',
+
+    'enable_client_portal' => 'Client Portal',
+    'enable_client_portal_help' => 'Show/hide the client portal.',
+    'enable_client_portal_dashboard' => 'Dashboard',
+    'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
+
 );
 
 return $LANG;

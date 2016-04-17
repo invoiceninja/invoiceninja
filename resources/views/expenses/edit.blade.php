@@ -105,6 +105,27 @@
 
                 </div>
             </div>
+            @if ($account->isPro())
+            <div clas="row">
+                <div class="col-md-2 col-sm-4"><div class="control-label" style="margin-bottom:10px;">{{trans('texts.expense_documents')}}</div></div>
+                <div class="col-md-12 col-sm-8">
+                    <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
+                        <div id="document-upload" class="dropzone">
+                            <div class="fallback">
+                                <input name="documents[]" type="file" multiple />
+                            </div>
+                            <div data-bind="foreach: documents">
+                                <div class="fallback-doc">
+                                    <a href="#" class="fallback-doc-remove" data-bind="click: $parent.removeDocument"><i class="fa fa-close"></i></a>
+                                    <span data-bind="text:name"></span>
+                                    <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 
@@ -122,6 +143,7 @@
 	{!! Former::close() !!}
 
     <script type="text/javascript">
+        Dropzone.autoDiscover = false;
 
         var vendors = {!! $vendors !!};
         var clients = {!! $clients !!};
@@ -194,6 +216,56 @@
             @else
                 $('#amount').focus();
             @endif
+            
+            @if (Auth::user()->account->isPro())
+            $('.main-form').submit(function(){
+                if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
+                else $(this).removeAttr('enctype')
+            })
+            
+            // Initialize document upload
+            dropzone = new Dropzone('#document-upload', {
+                url:{!! json_encode(url('document')) !!},
+                params:{
+                    _token:"{{ Session::getToken() }}"
+                },
+                acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
+                addRemoveLinks:true,
+                @foreach(trans('texts.dropzone') as $key=>$text)
+                "dict{{strval($key)}}":"{{strval($text)}}",
+                @endforeach
+                maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
+            });
+            if(dropzone instanceof Dropzone){
+                dropzone.on("addedfile",handleDocumentAdded);
+                dropzone.on("removedfile",handleDocumentRemoved);
+                dropzone.on("success",handleDocumentUploaded);
+                for (var i=0; i<model.documents().length; i++) {
+                    var document = model.documents()[i];
+                    var mockFile = {
+                        name:document.name(),
+                        size:document.size(),
+                        type:document.type(),
+                        public_id:document.public_id(),
+                        status:Dropzone.SUCCESS,
+                        accepted:true,
+                        url:document.preview_url()||document.url(),
+                        mock:true,
+                        index:i
+                    };
+
+                    dropzone.emit('addedfile', mockFile);
+                    dropzone.emit('complete', mockFile);
+                    if(document.preview_url()){
+                        dropzone.emit('thumbnail', mockFile, document.preview_url()||document.url());
+                    }
+                    else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
+                        dropzone.emit('thumbnail', mockFile, document.url());
+                    }
+                    dropzone.files.push(mockFile);
+                }
+            }
+            @endif
         });
 
         var ViewModel = function(data) {
@@ -201,13 +273,22 @@
 
             self.expense_currency_id = ko.observable();
             self.invoice_currency_id = ko.observable();
+            self.documents = ko.observableArray();
             self.amount = ko.observable();
             self.exchange_rate = ko.observable(1);
             self.should_be_invoiced = ko.observable();
             self.convert_currency = ko.observable(false);
 
+            self.mapping = {
+                'documents': {
+                    create: function(options) {
+                        return new DocumentModel(options.data);
+                    }
+                }
+            }
+            
             if (data) {
-                ko.mapping.fromJS(data, {}, this);
+                ko.mapping.fromJS(data, self.mapping, this);
             }
 
             self.account_currency_id = ko.observable({{ $account->getCurrencyId() }});
@@ -250,8 +331,57 @@
                     || invoiceCurrencyId != self.account_currency_id()
                     || expenseCurrencyId != self.account_currency_id();
             })
-        };
+            
+            self.addDocument = function() {
+                var documentModel = new DocumentModel();
+                self.documents.push(documentModel);
+                return documentModel;
+            }
 
+            self.removeDocument = function(doc) {
+                 var public_id = doc.public_id?doc.public_id():doc;
+                 self.documents.remove(function(document) {
+                    return document.public_id() == public_id;
+                });
+            }
+        };
+        function DocumentModel(data) {
+            var self = this;
+            self.public_id = ko.observable(0);
+            self.size = ko.observable(0);
+            self.name = ko.observable('');
+            self.type = ko.observable('');
+            self.url = ko.observable('');
+
+            self.update = function(data){
+                ko.mapping.fromJS(data, {}, this);
+            }
+
+            if (data) {
+                self.update(data);
+            }    
+        }
+        
+        @if (Auth::user()->account->isPro())
+        function handleDocumentAdded(file){
+            if(file.mock)return;
+            file.index = model.documents().length;
+            model.addDocument({name:file.name, size:file.size, type:file.type});
+        }
+
+        function handleDocumentRemoved(file){
+            model.removeDocument(file.public_id);
+        }
+
+        function handleDocumentUploaded(file, response){
+            file.public_id = response.document.public_id
+            model.documents()[file.index].update(response.document);
+
+            if(response.document.preview_url){
+                dropzone.emit('thumbnail', file, response.document.preview_url);
+            }
+        }
+        @endif
     </script>
 
 @stop

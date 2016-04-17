@@ -275,6 +275,7 @@
           @if (Auth::check() && Auth::user()->account->custom_client_label1)
           ,{
             name: 'data',
+            limit: 3,
             display: 'value',
             source: searchData(data['{{ Auth::user()->account->custom_client_label1 }}'], 'tokens'),
             templates: {
@@ -285,6 +286,7 @@
           @if (Auth::check() && Auth::user()->account->custom_client_label2)
           ,{
             name: 'data',
+            limit: 3,
             display: 'value',
             source: searchData(data['{{ Auth::user()->account->custom_client_label2 }}'], 'tokens'),
             templates: {
@@ -295,6 +297,7 @@
           @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
           ,{
             name: 'data',
+            limit: 3,
             display: 'value',
             source: searchData(data['{{ $type }}'], 'tokens', true),
             templates: {
@@ -448,7 +451,7 @@
                             'user_id' => $item->user_id,
                             'account_name' => $item->account_name,
                             'user_name' => $item->user_name,
-                            'logo_path' => isset($item->logo_path) ? $item->logo_path : "",
+                            'logo_url' => isset($item->logo_url) ? $item->logo_url : "",
                             'selected' => true,
                         ])
                     @endif
@@ -460,7 +463,7 @@
                             'user_id' => $item->user_id,
                             'account_name' => $item->account_name,
                             'user_name' => $item->user_name,
-                            'logo_path' => isset($item->logo_path) ? $item->logo_path : "",
+                            'logo_url' => isset($item->logo_url) ? $item->logo_url : "",
                             'selected' => false,
                         ])
                     @endif
@@ -469,7 +472,7 @@
                 @include('user_account', [
                     'account_name' => Auth::user()->account->name ?: trans('texts.untitled'), 
                     'user_name' => Auth::user()->getDisplayName(),
-                    'logo_path' => Auth::user()->account->getLogoPath(),
+                    'logo_url' => Auth::user()->account->getLogoURL(),
                     'selected' => true,
                 ])
             @endif            

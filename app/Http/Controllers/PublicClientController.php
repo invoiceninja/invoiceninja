@@ -7,27 +7,33 @@ use URL;
 use Input;
 use Utils;
 use Request;
+use Response;
 use Session;
 use Datatable;
 use App\Models\Gateway;
 use App\Models\Invitation;
+use App\Models\Document;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ActivityRepository;
+use App\Ninja\Repositories\DocumentRepository;
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\QuoteInvitationWasViewed;
 use App\Services\PaymentService;
+use Barracuda\ArchiveStream\ZipArchive;
 
 class PublicClientController extends BaseController
 {
     private $invoiceRepo;
     private $paymentRepo;
+    private $documentRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo, PaymentService $paymentService)
+    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo, DocumentRepository $documentRepo, PaymentService $paymentService)
     {
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
         $this->activityRepo = $activityRepo;
+        $this->documentRepo = $documentRepo;
         $this->paymentService = $paymentService;
     }
 
@@ -117,8 +123,9 @@ class PublicClientController extends BaseController
             'showApprove' => $showApprove,
             'showBreadcrumbs' => false,
             'hideLogo' => $account->isWhiteLabel(),
-            'hideHeader' => $account->isNinjaAccount(),
-            'hideDashboard' => !$account->enable_client_portal,
+            'hideHeader' => $account->isNinjaAccount() || !$account->enable_client_portal,
+            'hideDashboard' => !$account->enable_client_portal_dashboard,
+            'showDocuments' => $account->isPro(),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'invoice' => $invoice->hidePrivateFields(),
@@ -132,6 +139,15 @@ class PublicClientController extends BaseController
             'checkoutComDebug' => $checkoutComDebug,
             'phantomjs' => Input::has('phantomjs'),
         );
+        
+        if($account->isPro() && $this->canCreateZip()){
+            $zipDocs = $this->getInvoiceZipDocuments($invoice, $size);
+            
+            if(count($zipDocs) > 1){
+                $data['documentsZipURL'] = URL::to("client/documents/{$invitation->invitation_key}");
+                $data['documentsZipSize'] = $size;
+            }
+        }
 
         return View::make('invoices.view', $data);
     }
@@ -196,7 +212,7 @@ class PublicClientController extends BaseController
         $client = $invoice->client;
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
 
-        if (!$account->enable_client_portal) {
+        if (!$account->enable_client_portal || !$account->enable_client_portal_dashboard) {
             return $this->returnError();
         }
 
@@ -205,6 +221,7 @@ class PublicClientController extends BaseController
             'account' => $account,
             'client' => $client,
             'hideLogo' => $account->isWhiteLabel(),
+            'showDocuments' => $account->isPro(),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
         ];
@@ -245,13 +262,20 @@ class PublicClientController extends BaseController
         if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
         }
+
         $account = $invitation->account;
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
+
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         
         $data = [
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
-            'hideDashboard' => !$account->enable_client_portal,
+            'hideDashboard' => !$account->enable_client_portal_dashboard,
+            'showDocuments' => $account->isPro(),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'title' => trans('texts.invoices'),
@@ -278,12 +302,17 @@ class PublicClientController extends BaseController
             return $this->returnError();
         }
         $account = $invitation->account;
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
-        
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
+
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';        
         $data = [
             'color' => $color,
             'hideLogo' => $account->isWhiteLabel(),
-            'hideDashboard' => !$account->enable_client_portal,
+            'hideDashboard' => !$account->enable_client_portal_dashboard,
+            'showDocuments' => $account->isPro(),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'entityType' => ENTITY_PAYMENT,
@@ -302,7 +331,7 @@ class PublicClientController extends BaseController
         $payments = $this->paymentRepo->findForContact($invitation->contact->id, Input::get('sSearch'));
 
         return Datatable::query($payments)
-                ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number) : $model->invoice_number; })->toHtml()
+                ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number)->toHtml() : $model->invoice_number; })
                 ->addColumn('transaction_reference', function ($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
                 ->addColumn('payment_type', function ($model) { return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
                 ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
@@ -315,13 +344,19 @@ class PublicClientController extends BaseController
         if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
         }
+
         $account = $invitation->account;
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
+
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
-        
         $data = [
           'color' => $color,
           'hideLogo' => $account->isWhiteLabel(),
-          'hideDashboard' => !$account->enable_client_portal,
+          'hideDashboard' => !$account->enable_client_portal_dashboard,
+          'showDocuments' => $account->isPro(),
           'clientViewCSS' => $account->clientViewCSS(),
           'clientFontUrl' => $account->getFontsUrl(),
           'title' => trans('texts.quotes'),
@@ -340,6 +375,44 @@ class PublicClientController extends BaseController
         }
 
         return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_QUOTE, Input::get('sSearch'));
+    }
+
+    public function documentIndex()
+    {
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+
+        $account = $invitation->account;
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
+
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';        
+        $data = [
+          'color' => $color,
+          'hideLogo' => $account->isWhiteLabel(),
+          'hideDashboard' => !$account->enable_client_portal_dashboard,
+          'showDocuments' => $account->isPro(),
+          'clientViewCSS' => $account->clientViewCSS(),
+          'clientFontUrl' => $account->getFontsUrl(),
+          'title' => trans('texts.documents'),
+          'entityType' => ENTITY_DOCUMENT,
+          'columns' => Utils::trans(['invoice_number', 'name', 'document_date', 'document_size']),
+        ];
+
+        return response()->view('public_list', $data);
+    }
+
+
+    public function documentDatatable()
+    {
+        if (!$invitation = $this->getInvitation()) {
+            return false;
+        }
+
+        return $this->documentRepo->getClientDatatable($invitation->contact_id, ENTITY_DOCUMENT, Input::get('sSearch'));
     }
 
     private function returnError($error = false)
@@ -371,6 +444,149 @@ class PublicClientController extends BaseController
         }
 
         return $invitation;
+    }
+        
+    public function getDocumentVFSJS($publicId, $name){
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+        
+        $clientId = $invitation->invoice->client_id;
+        $document = Document::scope($publicId, $invitation->account_id)->first();
+        
+                
+        if(!$document->isPDFEmbeddable()){
+            return Response::view('error', array('error'=>'Image does not exist!'), 404);
+        }
+        
+        $authorized = false;
+        if($document->expense && $document->expense->client_id == $invitation->invoice->client_id){
+            $authorized = true;
+        } else if($document->invoice && $document->invoice->client_id == $invitation->invoice->client_id){
+            $authorized = true;
+        }
+        
+        if(!$authorized){
+            return Response::view('error', array('error'=>'Not authorized'), 403);
+        }        
+        
+        if(substr($name, -3)=='.js'){
+            $name = substr($name, 0, -3);
+        }
+        
+        $content = $document->preview?$document->getRawPreview():$document->getRaw();
+        $content = 'ninjaAddVFSDoc('.json_encode(intval($publicId).'/'.strval($name)).',"'.base64_encode($content).'")';
+        $response = Response::make($content, 200);
+        $response->header('content-type', 'text/javascript');
+        $response->header('cache-control', 'max-age=31536000');
+        
+        return $response;
+    }
+    
+    protected function canCreateZip(){
+        return function_exists('gmp_init');
+    }
+    
+    protected function getInvoiceZipDocuments($invoice, &$size=0){
+        $documents = $invoice->documents;
+        
+        foreach($invoice->expenses as $expense){
+            $documents = $documents->merge($expense->documents);
+        }
+        
+        $documents = $documents->sortBy('size');
+
+        $size = 0;
+        $maxSize = MAX_ZIP_DOCUMENTS_SIZE * 1000;
+        $toZip = array();
+        foreach($documents as $document){
+            if($size + $document->size > $maxSize)break;
+            
+            if(!empty($toZip[$document->name])){
+                // This name is taken
+                if($toZip[$document->name]->hash != $document->hash){
+                    // 2 different files with the same name
+                    $nameInfo = pathinfo($document->name);
+                    
+                    for($i = 1;; $i++){
+                        $name = $nameInfo['filename'].' ('.$i.').'.$nameInfo['extension'];
+                        
+                        if(empty($toZip[$name])){
+                            $toZip[$name] = $document;
+                            $size += $document->size;
+                            break;
+                        } else if ($toZip[$name]->hash == $document->hash){
+                            // We're not adding this after all
+                            break;
+                        }
+                    }
+                    
+                }
+            }
+            else{
+                $toZip[$document->name] = $document;
+                $size += $document->size;
+            }
+        }
+        
+        return $toZip;
+    }
+    
+    public function getInvoiceDocumentsZip($invitationKey){
+        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return $this->returnError();
+        }
+        
+        Session::put('invitation_key', $invitationKey); // track current invitation
+        
+        $invoice = $invitation->invoice;
+        
+        $toZip = $this->getInvoiceZipDocuments($invoice);
+        
+        if(!count($toZip)){
+            return Response::view('error', array('error'=>'No documents small enough'), 404);
+        }
+        
+        $zip = new ZipArchive($invitation->account->name.' Invoice '.$invoice->invoice_number.'.zip');
+        return Response::stream(function() use ($toZip, $zip) {
+            foreach($toZip as $name=>$document){
+                $fileStream = $document->getStream();
+                if($fileStream){
+                    $zip->init_file_stream_transfer($name, $document->size, array('time'=>$document->created_at->timestamp));
+                    while ($buffer = fread($fileStream, 256000))$zip->stream_file_part($buffer);
+                    fclose($fileStream);
+                    $zip->complete_file_stream();
+                }
+                else{
+                    $zip->add_file($name, $document->getRaw());
+                }
+            }
+            $zip->finish();
+        }, 200);
+    }
+    
+    public function getDocument($invitationKey, $publicId){
+        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return $this->returnError();
+        }
+        
+        Session::put('invitation_key', $invitationKey); // track current invitation
+        
+        $clientId = $invitation->invoice->client_id;
+        $document = Document::scope($publicId, $invitation->account_id)->firstOrFail();
+        
+        $authorized = false;
+        if($document->expense && $document->expense->client_id == $invitation->invoice->client_id){
+            $authorized = true;
+        } else if($document->invoice && $document->invoice->client_id == $invitation->invoice->client_id){
+            $authorized = true;
+        }
+        
+        if(!$authorized){
+            return Response::view('error', array('error'=>'Not authorized'), 403);
+        }        
+        
+        return DocumentController::getDownloadResponse($document);
     }
 
 }

@@ -29,7 +29,9 @@ class Invitation extends EntityModel
         return $this->belongsTo('App\Models\Account');
     }
 
-    public function getLink($type = 'view')
+    // If we're getting the link for PhantomJS to generate the PDF
+    // we need to make sure it's served from our site
+    public function getLink($type = 'view', $forceOnsite = false)
     {
         if (!$this->account) {
             $this->load('account');
@@ -39,8 +41,8 @@ class Invitation extends EntityModel
         $iframe_url = $this->account->iframe_url;
         
         if ($this->account->isPro()) {
-            if ($iframe_url) {
-                return "{$iframe_url}/?{$this->invitation_key}";
+            if ($iframe_url && !$forceOnsite) {
+                return "{$iframe_url}?{$this->invitation_key}";
             } elseif ($this->account->subdomain) {
                 $url = Utils::replaceSubdomain($url, $this->account->subdomain);
             }
