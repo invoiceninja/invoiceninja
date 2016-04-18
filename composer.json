@@ -26,7 +26,7 @@
         "anahkiasen/former": "4.0.*@dev",
         "barryvdh/laravel-debugbar": "~2.0",
         "chumper/datatable": "dev-develop#04ef2bf",
-        "omnipay/omnipay": "~2.3.0",
+        "omnipay/omnipay": "~2.3",
         "intervention/image": "dev-master",
         "webpatser/laravel-countries": "dev-master",
         "barryvdh/laravel-ide-helper": "dev-master",
