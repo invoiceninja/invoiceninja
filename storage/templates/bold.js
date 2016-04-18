@@ -52,12 +52,6 @@
         }
     },
     {
-        "stack": [
-            "$invoiceDocuments"
-        ],
-        "style": "invoiceDocuments"
-    },
-    {
         "columns": [
         {
             "width": 46,
@@ -78,7 +72,13 @@
                 "paddingBottom": "$amount:4"  
             }
         }]
-    }
+    },
+        {
+            "stack": [
+                "$invoiceDocuments"
+            ],
+            "style": "invoiceDocuments"
+        }
     ],
     "footer":
     [

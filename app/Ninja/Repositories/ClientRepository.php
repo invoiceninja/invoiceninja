@@ -100,6 +100,11 @@ class ClientRepository extends BaseRepository
         $contacts = isset($data['contact']) ? [$data['contact']] : $data['contacts'];
         $contactIds = [];
 
+        // If the primary is set ensure it's listed first
+        usort($contacts, function ($left, $right) {
+            return (isset($right['is_primary']) ? $right['is_primary'] : 0) - (isset($left['is_primary']) ? $left['is_primary'] : 0);
+        });
+
         foreach ($contacts as $contact) {
             $contact = $client->addContact($contact, $first);
             $contactIds[] = $contact->public_id;

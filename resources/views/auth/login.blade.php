@@ -105,7 +105,7 @@
             @endif
 
             <p class="link">
-                {!! link_to('/forgot', trans('texts.forgot_password')) !!}
+                {!! link_to('/recover_password', trans('texts.recover_password')) !!}
                 {!! link_to(NINJA_WEB_URL.'/knowledgebase/', trans('texts.knowledge_base'), ['target' => '_blank', 'class' => 'pull-right']) !!}
             </p>
 
