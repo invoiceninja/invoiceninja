@@ -71,11 +71,10 @@ class Handler extends ExceptionHandler {
             }
         }
 
-        return parent::render($request, $e);
-
-        /*
         // In production, except for maintenance mode, we'll show a custom error screen
-        if (Utils::isNinjaProd() && !Utils::isDownForMaintenance()) {
+        if (Utils::isNinjaProd()
+            && !Utils::isDownForMaintenance()
+            && !($e instanceof HttpResponseException)) {
             $data = [
                 'error' => get_class($e),
                 'hideHeader' => true,
@@ -85,6 +84,5 @@ class Handler extends ExceptionHandler {
         } else {
             return parent::render($request, $e);
         }
-        */
 	}
 }
