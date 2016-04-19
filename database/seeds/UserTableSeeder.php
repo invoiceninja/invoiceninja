@@ -20,7 +20,7 @@ class UserTableSeeder extends Seeder
             //'name' => 'Test Account',
             'account_key' => str_random(RANDOM_KEY_LENGTH),
             'timezone_id' => 1,
-            'company_id' => $company,
+            'company_id' => $company->id,
         ]);
 
         User::create([
