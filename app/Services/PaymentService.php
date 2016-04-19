@@ -39,18 +39,7 @@ class PaymentService extends BaseService
     public function createGateway($accountGateway)
     {
         $gateway = Omnipay::create($accountGateway->gateway->provider);
-        $config = $accountGateway->getConfig();
-
-        foreach ($config as $key => $val) {
-            if (!$val) {
-                continue;
-            }
-
-            $function = "set".ucfirst($key);
-            if (method_exists($gateway, $function)) {
-                $gateway->$function($val);
-            }
-        }
+        $gateway->initialize((array) $accountGateway->getConfig());
 
         if ($accountGateway->isGateway(GATEWAY_DWOLLA)) {
             if ($gateway->getSandbox() && isset($_ENV['DWOLLA_SANDBOX_KEY']) && isset($_ENV['DWOLLA_SANSBOX_SECRET'])) {
