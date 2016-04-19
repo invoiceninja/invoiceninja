@@ -753,6 +753,7 @@ class AccountController extends BaseController
                 $account->custom_invoice_item_label1 = trim(Input::get('custom_invoice_item_label1'));
                 $account->custom_invoice_item_label2 = trim(Input::get('custom_invoice_item_label2'));
 
+                $account->invoice_number_padding = Input::get('invoice_number_padding');
                 $account->invoice_number_counter = Input::get('invoice_number_counter');
                 $account->quote_number_prefix = Input::get('quote_number_prefix');
                 $account->share_counter = Input::get('share_counter') ? true : false;

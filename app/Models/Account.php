@@ -551,7 +551,7 @@ class Account extends Eloquent
         $replace = [date('Y')];
 
         $search[] = '{$counter}';
-        $replace[] = str_pad($this->getCounter($invoice->is_quote), 4, '0', STR_PAD_LEFT);
+        $replace[] = str_pad($this->getCounter($invoice->is_quote), $this->invoice_number_padding, '0', STR_PAD_LEFT);
 
         if (strstr($pattern, '{$userId}')) {
             $search[] = '{$userId}';
@@ -617,7 +617,7 @@ class Account extends Eloquent
 
         // confirm the invoice number isn't already taken 
         do {
-            $number = $prefix . str_pad($counter, 4, '0', STR_PAD_LEFT);
+            $number = $prefix . str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
             $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
             $counter++;
             $counterOffset++;
