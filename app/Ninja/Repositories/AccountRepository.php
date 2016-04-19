@@ -382,7 +382,7 @@ class AccountRepository
             $user->last_name = $lastName;
             $user->registered = true;
 
-            $user->account->startTrial(PLAN_ENTERPRISE);
+            $user->account->startTrial(PLAN_PRO);
         }
 
         $user->oauth_provider_id = $providerId;

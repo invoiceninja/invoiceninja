@@ -189,7 +189,7 @@ Route::group([
     Route::post('users/bulk', 'UserController@bulk');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
     Route::get('start_trial/{plan}', 'AccountController@startTrial')
-        ->where(['plan'=>'pro|enterprise']);
+        ->where(['plan'=>'pro']);
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
