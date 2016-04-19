@@ -799,6 +799,14 @@ class Account extends Eloquent
         $planDetails = $this->getPlanDetails();
         $selfHost = !Utils::isNinjaProd();
         
+        if (!$selfHost && function_exists('ninja_account_features')) {
+            $result = ninja_account_features($this, $feature);
+            
+            if ($result != null) {
+                return $result;
+            }
+        }
+        
         switch ($feature) {
             // Pro
             case FEATURE_CUSTOMIZE_INVOICE_DESIGN:
@@ -829,10 +837,6 @@ class Account extends Eloquent
             case FEATURE_CLIENT_PORTAL_CSS:
                 return !empty($planDetails);// A plan is required even for self-hosted users
                 
-            // Enterprise
-            case FEATURE_DOCUMENTS:
-                return $selfHost || !empty($planDetails) && $planDetails['plan'] == PLAN_ENTERPRISE;
-                            
             // Enterprise; No Trial allowed; grandfathered for old pro users
             case FEATURE_USERS:// Grandfathered for old Pro users
                 if($planDetails && $planDetails['trial']) {
@@ -843,6 +847,7 @@ class Account extends Eloquent
                 return $selfHost || !empty($planDetails) && ($planDetails['plan'] == PLAN_ENTERPRISE || $planDetails['started'] <= date_create(PRO_USERS_GRANDFATHER_DEADLINE));
                 
             // Enterprise; No Trial allowed
+            case FEATURE_DOCUMENTS:
             case FEATURE_USER_PERMISSIONS:
                 return $selfHost || !empty($planDetails) && $planDetails['plan'] == PLAN_ENTERPRISE && !$planDetails['trial'];
             
