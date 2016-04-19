@@ -409,7 +409,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'invoice_design',
             'invoice_design_id',
             'invoice_fonts',
-            'is_pro',
+            'features',
             'is_quote',
             'custom_value1',
             'custom_value2',

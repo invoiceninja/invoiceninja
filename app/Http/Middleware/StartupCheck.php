@@ -141,9 +141,10 @@ class StartupCheck
                     }
                 } elseif ($productId == PRODUCT_WHITE_LABEL) {
                     if ($data == 'valid') {
-                        $account = Auth::user()->account;
-                        $account->pro_plan_paid = date_create()->format('Y-m-d');
-                        $account->save();
+                        $company = Auth::user()->account->company;
+                        $company->plan_paid = date_create()->format('Y-m-d');
+                        $company->plan = PLAN_WHITE_LABEL;
+                        $company->save();
 
                         Session::flash('message', trans('texts.bought_white_label'));
                     }

@@ -57,7 +57,7 @@
 
     @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
     
-    @if (Utils::isPro() && $invoice->account->invoice_embed_documents)
+    @if (Utils::hasFeature(FEATURE_DOCUMENTS) && $invoice->account->invoice_embed_documents)
         @foreach ($invoice->documents as $document)
             @if($document->isPDFEmbeddable())
                 <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>

@@ -55,7 +55,7 @@ function GetPdfMake(invoice, javascript, callback) {
         }
 
         // determine whether or not to show the header/footer
-        if (invoice.is_pro) {
+        if (invoice.features.customize_invoice_design) {
             if (key === 'header') {
                 return function(page, pages) {
                     return page === 1 || invoice.account.all_pages_header == '1' ? val : '';
@@ -86,7 +86,7 @@ function GetPdfMake(invoice, javascript, callback) {
     // Add ninja logo to the footer
     var dd = JSON.parse(javascript, jsonCallBack);
     var designId = invoice.invoice_design_id;
-    if (!invoice.is_pro) {
+    if (!invoice.features.remove_created_by) {
         if (designId == NINJA.TEMPLATES.CLEAN || designId == NINJA.TEMPLATES.NORMAL) {
             dd.footer.columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, 0, 0, 0]})
         } else if (designId == NINJA.TEMPLATES.BOLD) {
@@ -270,10 +270,10 @@ NINJA.invoiceColumns = function(invoice)
 
     columns.push("*")
 
-    if (invoice.is_pro && account.custom_invoice_item_label1) {
+    if (invoice.features.invoice_settings && account.custom_invoice_item_label1) {
         columns.push("10%");
     }
-    if (invoice.is_pro && account.custom_invoice_item_label2) {
+    if (invoice.features.invoice_settings && account.custom_invoice_item_label2) {
         columns.push("10%");
     }
 
@@ -293,7 +293,7 @@ NINJA.invoiceColumns = function(invoice)
 
 NINJA.invoiceFooter = function(invoice)
 {
-    if (!invoice.is_pro && invoice.invoice_design_id == 3) {
+    if (!invoice.features.invoice_settings && invoice.invoice_design_id == 3) {
         return invoice.invoice_footer ? invoice.invoice_footer.substring(0, 200) : ' ';
     } else {
         return invoice.invoice_footer || ' ';
@@ -325,10 +325,10 @@ NINJA.invoiceLines = function(invoice) {
 
     grid[0].push({text: invoiceLabels.description, style: ['tableHeader', 'descriptionTableHeader']});
 
-    if (invoice.is_pro && account.custom_invoice_item_label1) {
+    if (invoice.features.invoice_settings && account.custom_invoice_item_label1) {
         grid[0].push({text: account.custom_invoice_item_label1, style: ['tableHeader', 'custom1TableHeader']});
     }
-    if (invoice.is_pro && account.custom_invoice_item_label2) {
+    if (invoice.features.invoice_ettings && account.custom_invoice_item_label2) {
         grid[0].push({text: account.custom_invoice_item_label2, style: ['tableHeader', 'custom2TableHeader']});
     }
 
@@ -385,10 +385,10 @@ NINJA.invoiceLines = function(invoice) {
             row.push({style:["productKey", rowStyle], text:productKey || ' '}); // product key can be blank when selecting from a datalist
         }
         row.push({style:["notes", rowStyle], stack:[{text:notes || ' '}]}); 
-        if (invoice.is_pro && account.custom_invoice_item_label1) {
+        if (invoice.features.invoice_settings && account.custom_invoice_item_label1) {
             row.push({style:["customValue1", rowStyle], text:item.custom_value1 || ' '});
         }
-        if (invoice.is_pro && account.custom_invoice_item_label2) {
+        if (invoice.features.invoice_settings && account.custom_invoice_item_label2) {
             row.push({style:["customValue2", rowStyle], text:item.custom_value2 || ' '});
         }
         row.push({style:["cost", rowStyle], text:cost});
@@ -555,7 +555,7 @@ NINJA.accountAddress = function(invoice) {
         {text: account.country ? account.country.name : ''},
     ];
 
-    if (invoice.is_pro) {
+    if (invoice.features.invoice_settings) {
         data.push({text: invoice.account.custom_value1 ? invoice.account.custom_label1 + ' ' + invoice.account.custom_value1 : false});
         data.push({text: invoice.account.custom_value2 ? invoice.account.custom_label2 + ' ' + invoice.account.custom_value2 : false});
     }

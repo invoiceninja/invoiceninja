@@ -296,7 +296,7 @@
                         <li role="presentation" class="active"><a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.note_to_client') }}</a></li>
                         <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.terms") }}</a></li>
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.footer") }}</a></li>
-                        @if ($account->isPro())
+                        @if ($account->hasFeature(FEATURE_DOCUMENTS))
                             <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">{{ trans("texts.invoice_documents") }}</a></li>
                         @endif
                     </ul>
@@ -330,7 +330,7 @@
                                         </div>
                                     </div>') !!}
                         </div>
-                        @if ($account->isPro())
+                        @if ($account->hasFeature(FEATURE_DOCUMENTS))
                         <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
                             <div id="document-upload">
                                 <div class="dropzone">
@@ -493,7 +493,7 @@
             {!! Former::text('pdfupload') !!}
 		</div>
 
-		@if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
+		@if (!Utils::hasFeature(FEATURE_MORE_INVOICE_DESIGNS) || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
 		@else
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
@@ -565,7 +565,7 @@
 				
                 </span>
 
-                @if (Auth::user()->isPro())
+                @if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
                     @if ($account->custom_client_label1)
                         {!! Former::text('client[custom_value1]')
                             ->label($account->custom_client_label1)
@@ -620,7 +620,7 @@
                             ->addClass('client-email') !!}
                     {!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown',
                             attr: {name: 'client[contacts][' + \$index() + '][phone]'}") !!}
-                    @if ($account->isPro() && $account->enable_portal_password)
+                    @if ($account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password)
                         {!! Former::password('password')->data_bind("value: (typeof password=='function'?password():null)?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
                             attr: {name: 'client[contacts][' + \$index() + '][password]'}") !!}
                     @endif
@@ -960,7 +960,7 @@
 
         applyComboboxListeners();
         
-        @if (Auth::user()->account->isPro())
+        @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
         $('.main-form').submit(function(){
             if($('#document-upload .dropzone .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
             else $(this).removeAttr('enctype')
@@ -1056,7 +1056,11 @@
         var model = ko.toJS(window.model);
         if(!model)return;
 		var invoice = model.invoice;
-		invoice.is_pro = {{ Auth::user()->isPro() ? 'true' : 'false' }};
+		invoice.features = {
+            customize_invoice_design:{{ Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'true' : 'false' }},
+            remove_created_by:{{ Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY) ? 'true' : 'false' }},
+            invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
+        };
 		invoice.is_quote = {{ $entityType == ENTITY_QUOTE ? 'true' : 'false' }};
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
 
@@ -1369,7 +1373,7 @@
         model.invoice().invoice_number(number);
     }
         
-    @if ($account->isPro())
+    @if ($account->hasFeature(FEATURE_DOCUMENTS))
     function handleDocumentAdded(file){
         if(file.mock)return;
         file.index = model.invoice().documents().length;
@@ -1393,7 +1397,7 @@
     @endif
 
 	</script>
-    @if ($account->isPro() && $account->invoice_embed_documents)
+    @if ($account->hasFeature(FEATURE_DOCUMENTS) && $account->invoice_embed_documents)
         @foreach ($invoice->documents as $document)
             @if($document->isPDFEmbeddable())
                 <script src="{{ $document->getVFSJSUrl() }}" type="text/javascript" async></script>
