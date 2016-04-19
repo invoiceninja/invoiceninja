@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\Account;
+use App\Models\Company;
 use App\Models\Affiliate;
 
 class UserTableSeeder extends Seeder
