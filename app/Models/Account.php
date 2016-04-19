@@ -830,7 +830,7 @@ class Account extends Eloquent
 
             // White Label
             case FEATURE_WHITE_LABEL:
-                if ($this->isNinjaAccount() || (!$selfHost && $planDetails && !$plan_details['expires'])) {
+                if ($this->isNinjaAccount() || (!$selfHost && $planDetails && !$planDetails['expires'])) {
                     return false;
                 }
                 // Fallthrough
@@ -1262,7 +1262,7 @@ class Account extends Eloquent
 
     public function attatchPDF()
     {
-        return $this->hasFeaure(FEATURE_PDF_ATTACHMENT) && $this->pdf_email_attachment;
+        return $this->hasFeature(FEATURE_PDF_ATTACHMENT) && $this->pdf_email_attachment;
     }
     
     public function getEmailDesignId()
