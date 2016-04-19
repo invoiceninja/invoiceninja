@@ -493,12 +493,6 @@
             {!! Former::text('pdfupload') !!}
 		</div>
 
-        @if ($account->hasLargeFont())
-            <label for="livePreview" class="control-label" style="padding-right:10px">
-                <input id="livePreview" type="checkbox"/> {{ trans('texts.live_preview') }}
-            </label>
-        @endif
-
 		@if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
 		@else
@@ -1097,8 +1091,8 @@
 
     window.generatedPDF = false;
 	function getPDFString(cb, force) {
-        @if ($account->hasLargeFont())
-            if (!$('#livePreview').is(':checked') && window.generatedPDF) {
+        @if (!$account->live_preview)
+            if (window.generatedPDF) {
                 return;
             }
         @endif

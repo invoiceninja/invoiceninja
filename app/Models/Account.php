@@ -1110,17 +1110,6 @@ class Account extends Eloquent
         return $css;
     }
     
-    public function hasLargeFont()
-    {
-        foreach (['chinese', 'japanese'] as $language) {
-            if (stripos($this->getBodyFontName(), $language) || stripos($this->getHeaderFontName(), $language)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-
     public function getFontsUrl($protocol = ''){
         $bodyFont = $this->getHeaderFontId();
         $headerFont = $this->getBodyFontId();

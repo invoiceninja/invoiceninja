@@ -976,9 +976,9 @@ $LANG = array(
     'expense_error_mismatch_currencies' => 'The client\'s currency does not match the expense currency.',
     'trello_roadmap' => 'Trello Roadmap',
     'header_footer' => 'Header/Footer',
-    'first_page' => 'first page',
-    'all_pages' => 'all pages',
-    'last_page' => 'last page',
+    'first_page' => 'First page',
+    'all_pages' => 'All pages',
+    'last_page' => 'Last page',
     'all_pages_header' => 'Show header on',
     'all_pages_footer' => 'Show footer on',
     'invoice_currency' => 'Invoice Currency',
@@ -1126,7 +1126,9 @@ $LANG = array(
     'enable_client_portal_help' => 'Show/hide the client portal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
-
+    
+    'live_preview' => 'Live Preview',
+    'page_size' => 'Page Size',
 );
 
 return $LANG;

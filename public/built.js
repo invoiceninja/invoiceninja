@@ -31100,7 +31100,8 @@ function GetPdfMake(invoice, javascript, callback) {
         }
     }
     
-    
+    // set page size
+    dd.pageSize = invoice.account.page_size;
     
     pdfMake.fonts = {}
     fonts = window.invoiceFonts || invoice.invoice_fonts;

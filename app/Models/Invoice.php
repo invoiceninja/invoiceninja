@@ -474,7 +474,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             'custom_invoice_text_label2',
             'custom_invoice_item_label1',
             'custom_invoice_item_label2',
-            'invoice_embed_documents'
+            'invoice_embed_documents',
+            'page_size',
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {

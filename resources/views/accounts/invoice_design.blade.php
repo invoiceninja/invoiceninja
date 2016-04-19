@@ -51,16 +51,14 @@
       invoice.account.invoice_embed_documents = $('#invoice_embed_documents').is(":checked");
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
       invoice.invoice_design_id = $('#invoice_design_id').val();
+      invoice.account.page_size = $('#page_size option:selected').text();
       
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
-      @if (Auth::user()->isPro())
-        NINJA.headerFont = $('#header_font_id option:selected').text();
-        NINJA.bodyFont = $('#body_font_id option:selected').text();
-      @else
-        NINJA.headerFont = NINJA.bodyFont = 'Roboto';
-      @endif
+      NINJA.headerFont = $('#header_font_id option:selected').text();
+      NINJA.bodyFont = $('#body_font_id option:selected').text();
+      
       var fields = [
           'item', 
           'description', 
@@ -112,7 +110,16 @@
     <div class="col-md-12">
 
       {!! Former::open()->addClass('warn-on-exit')->onchange('if(!window.loadingFonts)refreshPDF()') !!}
-      {!! Former::populate($account) !!}
+      
+      {!! Former::populateField('invoice_design_id', $account->invoice_design_id) !!}
+      {!! Former::populateField('body_font_id', $account->body_font_id) !!}
+      {!! Former::populateField('header_font_id', $account->header_font_id) !!}
+      {!! Former::populateField('live_preview', intval($account->live_preview)) !!}
+      {!! Former::populateField('font_size', $account->font_size) !!}
+      {!! Former::populateField('page_size', $account->page_size) !!}
+      {!! Former::populateField('invoice_embed_documents', intval($account->invoice_embed_documents)) !!}
+      {!! Former::populateField('primary_color', $account->primary_color) !!}
+      {!! Former::populateField('secondary_color', $account->secondary_color) !!}
       {!! Former::populateField('hide_quantity', intval($account->hide_quantity)) !!}
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
       {!! Former::populateField('all_pages_header', intval($account->all_pages_header)) !!}
@@ -156,13 +163,17 @@
                           {!! Former::select('header_font_id')
                                   ->fromQuery($invoiceFonts, 'name', 'id') !!}
 
+                          {!! Former::checkbox('live_preview')->text(trans('texts.enable')) !!}                        
+
                         </div>
                         <div class="col-md-6">
 
-
                         {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 6) }}
                         {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 6) }}
-                        
+
+                          {!! Former::select('page_size')
+                                  ->options($pageSizes) !!}
+                                  
                           {!! Former::text('font_size')
                                 ->type('number')
                                 ->min('0')
@@ -170,6 +181,7 @@
 
                           {!! Former::text('primary_color') !!}
                           {!! Former::text('secondary_color') !!}
+
 
                         {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
                         {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
