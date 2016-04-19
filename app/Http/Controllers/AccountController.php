@@ -1132,7 +1132,7 @@ class AccountController extends BaseController
         $user->registered = true;
         $user->save();
 
-        $user->account->startTrial(PLAN_ENTERPRISE);
+        $user->account->startTrial(PLAN_PRO);
 
         if (Input::get('go_pro') == 'true') {
             Session::set(REQUESTED_PRO_PLAN, true);
