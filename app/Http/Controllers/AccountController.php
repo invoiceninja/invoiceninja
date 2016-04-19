@@ -521,7 +521,7 @@ class AccountController extends BaseController
         
         $invoice->client = $client;
         $invoice->invoice_items = [$invoiceItem];
-        //$invoice->documents = $account->isPro() ? [$document] : [];
+        //$invoice->documents = $account->hasFeature(FEATURE_DOCUMENTS) ? [$document] : [];
         $invoice->documents = [];
 
         $data['account'] = $account;
@@ -643,7 +643,7 @@ class AccountController extends BaseController
 
     private function saveCustomizeDesign()
     {
-        if (Auth::user()->account->isPro()) {
+        if (Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
             $account = Auth::user()->account;
             $account->custom_design = Input::get('custom_design');
             $account->invoice_design_id = CUSTOM_DESIGN;
@@ -658,7 +658,7 @@ class AccountController extends BaseController
     private function saveClientPortal()
     {
         // Only allowed for pro Invoice Ninja users or white labeled self-hosted users
-        if ((Utils::isNinja() && Auth::user()->account->isPro()) || Auth::user()->account->isWhiteLabel()) {
+        if (Auth::user()->account->hasFeature(FEATURE_CLIENT_PORTAL_CSS)) {
             $input_css = Input::get('client_view_css');
             if (Utils::isNinja()) {
                 // Allow referencing the body element
@@ -709,7 +709,7 @@ class AccountController extends BaseController
 
     private function saveEmailTemplates()
     {
-        if (Auth::user()->account->isPro()) {
+        if (Auth::user()->account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
             $account = Auth::user()->account;
 
             foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type) {
@@ -771,7 +771,7 @@ class AccountController extends BaseController
 
     private function saveEmailSettings()
     {
-        if (Auth::user()->account->isPro()) {
+        if (Auth::user()->account->hasFeature(FEATURE_CUSTOM_EMAILS)) {
             $rules = [];
             $user = Auth::user();
             $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
@@ -814,7 +814,7 @@ class AccountController extends BaseController
 
     private function saveInvoiceSettings()
     {
-        if (Auth::user()->account->isPro()) {
+        if (Auth::user()->account->hasFeature(FEATURE_INVOICE_SETTINGS)) {
             $rules = [
                 'invoice_number_pattern' => 'has_counter',
                 'quote_number_pattern' => 'has_counter',
@@ -894,7 +894,7 @@ class AccountController extends BaseController
 
     private function saveInvoiceDesign()
     {
-        if (Auth::user()->account->isPro()) {
+        if (Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
             $account = Auth::user()->account;
             $account->hide_quantity = Input::get('hide_quantity') ? true : false;
             $account->hide_paid_to_date = Input::get('hide_paid_to_date') ? true : false;
@@ -1188,6 +1188,9 @@ class AccountController extends BaseController
         \Log::info("Canceled Account: {$account->name} - {$user->email}");
 
         $this->accountRepo->unlinkAccount($account);
+        if ($account->company->accounts->count() == 1) {
+            $account->company->forceDelete();    
+        }
         $account->forceDelete();
 
         Auth::logout();

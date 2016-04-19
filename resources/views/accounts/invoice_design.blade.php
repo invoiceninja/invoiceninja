@@ -46,7 +46,11 @@
     }
     
     function getPDFString(cb) {
-      invoice.is_pro = {!! Auth::user()->isPro() ? 'true' : 'false' !!};
+      invoice.features = {
+          customize_invoice_design:{{ Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'true' : 'false' }},
+          remove_created_by:{{ Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY) ? 'true' : 'false' }},
+          invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
+      };
       invoice.account.hide_quantity = $('#hide_quantity').is(":checked");
       invoice.account.invoice_embed_documents = $('#invoice_embed_documents').is(":checked");
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
@@ -55,7 +59,7 @@
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
-      @if (Auth::user()->isPro())
+      @if (Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
         NINJA.headerFont = $('#header_font_id option:selected').text();
         NINJA.bodyFont = $('#body_font_id option:selected').text();
       @else
@@ -89,7 +93,7 @@
     $(function() {   
       var options = {
         preferredFormat: 'hex',
-        disabled: {!! Auth::user()->isPro() ? 'false' : 'true' !!},
+        disabled: {!! Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'false' : 'true' !!},
         showInitial: false,
         showInput: true,
         allowEmpty: true,
@@ -143,7 +147,7 @@
                       <div class="row">
                         <div class="col-md-6">
 
-                          @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
+                          @if (!Utils::hasFeature(FEATURE_MORE_INVOICE_DESIGNS) || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
                             {!! Former::select('invoice_design_id')
                                     ->fromQuery($invoiceDesigns, 'name', 'id')
                                     ->addOption(trans('texts.more_designs') . '...', '-1') !!}
@@ -249,7 +253,7 @@
         ) !!}
     <br/>
 
-    @if (!Auth::user()->isPro())
+      @if (!Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
         <script>
               $(function() {   
                 $('form.warn-on-exit input, .save-button').prop('disabled', true);

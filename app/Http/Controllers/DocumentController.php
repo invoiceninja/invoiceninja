@@ -114,7 +114,7 @@ class DocumentController extends BaseController
     
     public function postUpload()
     {
-        if (!Utils::isPro()) {
+        if (!Utils::hasFeature(FEATURE_DOCUMENTS)) {
             return;
         }
         

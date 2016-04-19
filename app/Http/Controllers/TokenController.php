@@ -93,7 +93,7 @@ class TokenController extends BaseController
      */
     public function save($tokenPublicId = false)
     {
-        if (Auth::user()->account->isPro()) {
+        if (Auth::user()->account->hasFeature(FEATURE_API)) {
             $rules = [
                 'name' => 'required',
             ];

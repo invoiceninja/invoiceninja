@@ -7,7 +7,6 @@
 
 <div class="row">
 	<div class="col-md-12">
-		@if (Utils::isNinjaProd())
 		{!! Former::open('settings/change_plan')->addClass('change-plan') !!}
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -25,8 +24,10 @@
 								@elseif ($planDetails['expires'])
 									({{ trans('texts.plan_term_'.$planDetails['term'].'ly') }})
 								@endif
-							@else
+							@elseif(Utils::isNinjaProd())
 								{{ trans('texts.plan_free') }}
+							@else
+								{{ trans('texts.plan_free_self_hosted') }}
 							@endif
 						</p>
 					</div>
@@ -34,7 +35,7 @@
 				@if ($planDetails && $planDetails['active'])
 					<div class="form-group">
 						<label class="col-sm-4 control-label">
-							@if(!$account->company->pending_plan || $account->company->pending_plan == $planDetails['plan'])
+							@if((!$account->company->pending_plan || $account->company->pending_plan == $planDetails['plan']) && $planDetails['expires'] && !$planDetails['trial'])
 								{{ trans('texts.renews') }}
 							@else
 								{{ trans('texts.expires') }}
@@ -72,7 +73,9 @@
 						</div>
 					</div>
 					@endif
-					{!! Former::actions( Button::info(trans('texts.plan_change'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('edit'))) !!}
+					@if (Utils::isNinjaProd())
+						{!! Former::actions( Button::info(trans('texts.plan_change'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('edit'))) !!}
+					@endif
 				@else
 					@if ($planDetails)
 						<div class="form-group">
@@ -90,11 +93,15 @@
 							</div>
 						</div>
 					@endif
+					@if (Utils::isNinjaProd())
 					{!! Former::actions( Button::success(trans('texts.plan_upgrade'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('plus-sign'))) !!}
+					@else
+					{!! Former::actions( Button::success(trans('texts.white_label_button'))->large()->withAttributes(['onclick' => 'loadImages("#whiteLabelModal");$("#whiteLabelModal").modal("show");'])->appendIcon(Icon::create('plus-sign'))) !!}
+					@endif
 				@endif
 			</div>
 		</div>
-		
+		@if (Utils::isNinjaProd())
 			<div class="modal fade" id="changePlanModel" tabindex="-1" role="dialog" aria-labelledby="changePlanModelLabel" aria-hidden="true">
 				<div class="modal-dialog" style="min-width:150px">
 					<div class="modal-content">
@@ -134,8 +141,8 @@
 					</div>
 				</div>
 			</div>
-		{!! Former::close() !!}
 		@endif
+		{!! Former::close() !!}
 
 		{!! Former::open('settings/cancel_account')->addClass('cancel-account') !!}
 		<div class="panel panel-default">

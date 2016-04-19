@@ -555,7 +555,6 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
     define('NINJA_VERSION', '2.5.1.3');
-    define('NINJA_DATE', '2000-01-01');
 
     define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');
     define('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja');
@@ -656,9 +655,41 @@ if (!defined('CONTACT_EMAIL')) {
     define('PLAN_FREE', 'free');
     define('PLAN_PRO', 'pro');
     define('PLAN_ENTERPRISE', 'enterprise');
+    define('PLAN_WHITE_LABEL', 'white_label');
     define('PLAN_TERM_MONTHLY', 'month');
     define('PLAN_TERM_YEARLY', 'year');
+    
+    // Pro
+    define('FEATURE_CUSTOMIZE_INVOICE_DESIGN', 'customize_invoice_design');
+    define('FEATURE_REMOVE_CREATED_BY', 'remove_created_by');
+    define('FEATURE_DIFFERENT_DESIGNS', 'different_designs');
+    define('FEATURE_EMAIL_TEMPLATES_REMINDERS', 'email_templates_reminders');
+    define('FEATURE_INVOICE_SETTINGS', 'invoice_settings');
+    define('FEATURE_CUSTOM_EMAILS', 'custom_emails');
+    define('FEATURE_PDF_ATTACHMENT', 'pdf_attachment');
+    define('FEATURE_MORE_INVOICE_DESIGNS', 'more_invoice_designs');
+    define('FEATURE_QUOTES', 'quotes');
+    define('FEATURE_REPORTS', 'reports');
+    define('FEATURE_API', 'api');
+    define('FEATURE_CLIENT_PORTAL_PASSWORD', 'client_portal_password');
+    define('FEATURE_CUSTOM_URL', 'custom_url');
+    
+    define('FEATURE_MORE_CLIENTS', 'more_clients'); // No trial allowed
+    
+    // Whitelabel
+    define('FEATURE_CLIENT_PORTAL_CSS', 'client_portal_css');
+    define('FEATURE_WHITE_LABEL', 'feature_white_label');
 
+    // Enterprise
+    define('FEATURE_DOCUMENTS', 'documents');
+    
+    // No Trial allowed
+    define('FEATURE_USERS', 'users');// Grandfathered for old Pro users
+    define('FEATURE_USER_PERMISSIONS', 'user_permissions');
+    
+    // Pro users who started paying on or before this date will be able to manage users
+    define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-05-15');
+    
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],

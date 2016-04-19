@@ -155,7 +155,7 @@ class Client extends EntityModel
             $contact->send_invoice = true;
         }
         
-        if (!Utils::isPro() || $this->account->enable_portal_password){
+        if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->account->enable_portal_password){
             if(!empty($data['password']) && $data['password']!='-%unchanged%-'){
                 $contact->password = bcrypt($data['password']);
             } else if(empty($data['password'])){

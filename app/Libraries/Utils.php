@@ -118,6 +118,11 @@ class Utils
         return Auth::check() && Auth::user()->isPro();
     }
 
+    public static function hasFeature($feature)
+    {
+        return Auth::check() && Auth::user()->hasFeature($feature);
+    }
+
     public static function isAdmin()
     {
         return Auth::check() && Auth::user()->is_admin;

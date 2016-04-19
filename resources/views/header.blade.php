@@ -431,7 +431,7 @@
 
         <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-            <div id="myAccountButton" class="ellipsis nav-account-name" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '130' : '100' }}px;">
+            <div id="myAccountButton" class="ellipsis nav-account-name" style="max-width:{{ Utils::hasFeature(FEATURE_USERS) ? '130' : '100' }}px;">
                 @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
                     {{ Auth::user()->account->getDisplayName() }}
                 @else
@@ -769,7 +769,7 @@
   {{-- Per our license, please do not remove or modify this section. --}}
   {!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => 'invoiceninja.com']) !!} -
   {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank', 'title' => trans('texts.trello_roadmap')]) !!} | 
-  @if (Auth::user()->account->isWhiteLabel())  
+  @if (Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))  
     {{ trans('texts.white_labeled') }}
   @else
     <a href="#" onclick="loadImages('#whiteLabelModal');$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>

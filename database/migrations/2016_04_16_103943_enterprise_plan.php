@@ -18,7 +18,7 @@ class EnterprisePlan extends Migration
         {           
             $table->increments('id');
             
-            $table->enum('plan', array('pro', 'enterprise'))->nullable();
+            $table->enum('plan', array('pro', 'enterprise', 'white_label'))->nullable();
             $table->enum('plan_term', array('month', 'year'))->nullable();
             $table->date('plan_started')->nullable();
             $table->date('plan_paid')->nullable();
@@ -32,10 +32,6 @@ class EnterprisePlan extends Migration
             
             $table->enum('pending_plan', array('pro', 'enterprise', 'free'))->nullable();
             $table->enum('pending_term', array('month', 'year'))->nullable();
-            
-            // Used when a user has started changing a plan but hasn't finished paying yet
-            $table->enum('temp_pending_plan', array('pro', 'enterprise'))->nullable();
-            $table->enum('temp_pending_term', array('month', 'year'))->nullable();
             
             $table->timestamps();
             $table->softDeletes();
@@ -98,11 +94,14 @@ LEFT JOIN users u5 ON (u5.public_id IS NULL OR u5.public_id = 0) AND user_accoun
             $company->plan_started = $primaryAccount->pro_plan_paid;
             $company->plan_paid = $primaryAccount->pro_plan_paid;
 
-            if ($company->plan_paid != NINJA_DATE) {
+            if (!Utils::isNinjaProd()) {
+                $company->plan = 'white_label';
+                $company->plan_term = null;
+            } elseif ($company->plan_paid != '2000-01-01'/* NINJA_DATE*/) {
                 $expires = DateTime::createFromFormat('Y-m-d', $primaryAccount->pro_plan_paid);
                 $expires->modify('+1 year');
                 $company->plan_expires = $expires->format('Y-m-d');
-            }
+            } 
         }
 
         if ($primaryAccount->pro_plan_trial && $primaryAccount->pro_plan_trial != '0000-00-00') {

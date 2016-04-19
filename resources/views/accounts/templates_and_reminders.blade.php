@@ -125,7 +125,7 @@
         </div>
     </div>
 
-    @if (Auth::user()->isPro())
+    @if (Auth::user()->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS))
         <center>
             {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
         </center>

@@ -230,7 +230,7 @@
     @endif
 
 
-    @if (Utils::isPro() && $hasQuotes)
+    @if (Utils::hasFeature(FEATURE_QUOTES) && $hasQuotes)
         <div class="tab-pane" id="quotes">
 
 			{!! Datatable::table()

@@ -72,7 +72,11 @@ class PublicClientController extends BaseController
         
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-        $invoice->is_pro = $account->isPro();
+        $invoice->features = [
+            'customize_invoice_design' => $account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+            'remove_created_by' => $account->hasFeature(FEATURE_REMOVE_CREATED_BY),
+            'invoice_settings' => $account->hasFeature(FEATURE_INVOICE_SETTINGS),
+        ];
         $invoice->invoice_fonts = $account->getFontsData();
         
         if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
@@ -122,10 +126,10 @@ class PublicClientController extends BaseController
             'account' => $account,
             'showApprove' => $showApprove,
             'showBreadcrumbs' => false,
-            'hideLogo' => $account->isWhiteLabel(),
+            'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
             'hideHeader' => $account->isNinjaAccount() || !$account->enable_client_portal,
             'hideDashboard' => !$account->enable_client_portal_dashboard,
-            'showDocuments' => $account->isPro(),
+            'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'invoice' => $invoice->hidePrivateFields(),
@@ -140,7 +144,7 @@ class PublicClientController extends BaseController
             'phantomjs' => Input::has('phantomjs'),
         );
         
-        if($account->isPro() && $this->canCreateZip()){
+        if($account->hasFeature(FEATURE_DOCUMENTS) && $this->canCreateZip()){
             $zipDocs = $this->getInvoiceZipDocuments($invoice, $size);
             
             if(count($zipDocs) > 1){
@@ -220,8 +224,8 @@ class PublicClientController extends BaseController
             'color' => $color,
             'account' => $account,
             'client' => $client,
-            'hideLogo' => $account->isWhiteLabel(),
-            'showDocuments' => $account->isPro(),
+            'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
+            'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
         ];
@@ -273,9 +277,9 @@ class PublicClientController extends BaseController
         
         $data = [
             'color' => $color,
-            'hideLogo' => $account->isWhiteLabel(),
+            'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
             'hideDashboard' => !$account->enable_client_portal_dashboard,
-            'showDocuments' => $account->isPro(),
+            'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'title' => trans('texts.invoices'),
@@ -310,9 +314,9 @@ class PublicClientController extends BaseController
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';        
         $data = [
             'color' => $color,
-            'hideLogo' => $account->isWhiteLabel(),
+            'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
             'hideDashboard' => !$account->enable_client_portal_dashboard,
-            'showDocuments' => $account->isPro(),
+            'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'entityType' => ENTITY_PAYMENT,
@@ -354,9 +358,9 @@ class PublicClientController extends BaseController
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         $data = [
           'color' => $color,
-          'hideLogo' => $account->isWhiteLabel(),
+          'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
           'hideDashboard' => !$account->enable_client_portal_dashboard,
-          'showDocuments' => $account->isPro(),
+          'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
           'clientViewCSS' => $account->clientViewCSS(),
           'clientFontUrl' => $account->getFontsUrl(),
           'title' => trans('texts.quotes'),
@@ -392,9 +396,9 @@ class PublicClientController extends BaseController
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';        
         $data = [
           'color' => $color,
-          'hideLogo' => $account->isWhiteLabel(),
+          'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
           'hideDashboard' => !$account->enable_client_portal_dashboard,
-          'showDocuments' => $account->isPro(),
+          'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
           'clientViewCSS' => $account->clientViewCSS(),
           'clientFontUrl' => $account->getFontsUrl(),
           'title' => trans('texts.documents'),

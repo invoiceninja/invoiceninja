@@ -68,7 +68,7 @@ class AppServiceProvider extends ServiceProvider {
                 if(!empty($items))$items[] = '<li class="divider"></li>';
                 $items[] = '<li><a href="'.URL::to('recurring_invoices').'">'.trans("texts.recurring_invoices").'</a></li>';
                 if(Invoice::canCreate())$items[] = '<li><a href="'.URL::to('recurring_invoices/create').'">'.trans("texts.new_recurring_invoice").'</a></li>';
-                if (Auth::user()->isPro()) {
+                if (Auth::user()->hasFeature(FEATURE_QUOTES)) {
                     $items[] = '<li class="divider"></li>';
                     $items[] = '<li><a href="'.URL::to('quotes').'">'.trans("texts.quotes").'</a></li>';
                     if(Invoice::canCreate())$items[] = '<li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';

@@ -533,7 +533,7 @@ class Account extends Eloquent
 
     public function getNumberPrefix($isQuote)
     {
-        if ( ! $this->isPro()) {
+        if ( ! $this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
             return '';
         }
 
@@ -542,7 +542,7 @@ class Account extends Eloquent
 
     public function hasNumberPattern($isQuote)
     {
-        if ( ! $this->isPro()) {
+        if ( ! $this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
             return false;
         }
 
@@ -662,7 +662,7 @@ class Account extends Eloquent
             $default = $this->invoice_number_counter;
             $actual = Utils::parseInt($invoice->invoice_number);
 
-            if ( ! $this->isPro() && $default != $actual) {
+            if ( ! $this->hasFeature(FEATURE_INVOICE_SETTINGS) && $default != $actual) {
                 $this->invoice_number_counter = $actual + 1;
             } else {
                 $this->invoice_number_counter += 1;
@@ -794,6 +794,63 @@ class Account extends Eloquent
         $this->company->save();
     }
 
+    public function hasFeature($feature)
+    {
+        $planDetails = $this->getPlanDetails();
+        $selfHost = !Utils::isNinjaProd();
+        
+        switch ($feature) {
+            // Pro
+            case FEATURE_CUSTOMIZE_INVOICE_DESIGN:
+            case FEATURE_REMOVE_CREATED_BY:
+            case FEATURE_DIFFERENT_DESIGNS:
+            case FEATURE_EMAIL_TEMPLATES_REMINDERS:
+            case FEATURE_INVOICE_SETTINGS:
+            case FEATURE_CUSTOM_EMAILS:
+            case FEATURE_PDF_ATTACHMENT:
+            case FEATURE_MORE_INVOICE_DESIGNS:
+            case FEATURE_QUOTES:
+            case FEATURE_REPORTS:
+            case FEATURE_API:
+            case FEATURE_CLIENT_PORTAL_PASSWORD:
+            case FEATURE_CUSTOM_URL:
+                return $selfHost || !empty($planDetails);
+                
+            // Pro; No trial allowed, unless they're trialing enterprise with an active pro plan
+            case FEATURE_MORE_CLIENTS:
+                return $selfHost || !empty($planDetails) && (!$planDetails['trial'] || !empty($this->getPlanDetails(false, false)));
+
+            // White Label
+            case FEATURE_WHITE_LABEL:
+                if ($this->isNinjaAccount() || (!$selfHost && $planDetails && !$plan_details['expires'])) {
+                    return false;
+                }
+                // Fallthrough
+            case FEATURE_CLIENT_PORTAL_CSS:
+                return !empty($planDetails);// A plan is required even for self-hosted users
+                
+            // Enterprise
+            case FEATURE_DOCUMENTS:
+                return $selfHost || !empty($planDetails) && $planDetails['plan'] == PLAN_ENTERPRISE;
+                            
+            // Enterprise; No Trial allowed; grandfathered for old pro users
+            case FEATURE_USERS:// Grandfathered for old Pro users
+                if($planDetails && $planDetails['trial']) {
+                    // Do they have a non-trial plan?
+                    $planDetails = $this->getPlanDetails(false, false);
+                }
+                
+                return $selfHost || !empty($planDetails) && ($planDetails['plan'] == PLAN_ENTERPRISE || $planDetails['started'] <= date_create(PRO_USERS_GRANDFATHER_DEADLINE));
+                
+            // Enterprise; No Trial allowed
+            case FEATURE_USER_PERMISSIONS:
+                return $selfHost || !empty($planDetails) && $planDetails['plan'] == PLAN_ENTERPRISE && !$planDetails['trial'];
+            
+            default:
+                return false;
+        }
+    }
+    
     public function isPro(&$plan_details = null)
     {
         if (!Utils::isNinjaProd()) {
@@ -850,7 +907,7 @@ class Account extends Eloquent
         
         $plan_active = false;
         if ($plan) {            
-            if ($this->company->plan_expires == null && $this->company->plan_paid == NINJA_DATE) {
+            if ($this->company->plan_expires == null) {
                 $plan_active = true;
                 $plan_expires = false;
             } else {
@@ -861,7 +918,7 @@ class Account extends Eloquent
             }
         }
         
-        if (!$include_inactive && !$plan_active && !$trial_plan) {
+        if (!$include_inactive && !$plan_active && !$trial_active) {
             return null;
         }
         
@@ -956,7 +1013,7 @@ class Account extends Eloquent
         $today = new DateTime('now');
         $interval = $today->diff($planDetails['expires']);
         
-        return $interval ? 14 - $interval->d : 0;
+        return $interval ? $interval->d : 0;
     }
 
     public function getRenewalDate()
@@ -971,20 +1028,6 @@ class Account extends Eloquent
         }
 
         return $date->format('Y-m-d');
-    }
-
-    public function isWhiteLabel()
-    {
-        if ($this->isNinjaAccount()) {
-            return false;
-        }
-
-        if (Utils::isNinjaProd()) {
-            return self::isPro($plan_details) && $plan_details['expires'];
-        } else {
-            $plan_details = $this->getPlanDetails();
-            return $plan_details;
-        }
     }
 
     public function getLogoSize()
@@ -1063,7 +1106,7 @@ class Account extends Eloquent
 
     public function getEmailSubject($entityType)
     {
-        if ($this->isPro()) {
+        if ($this->hasFeature(FEATURE_CUSTOM_EMAILS)) {
             $field = "email_subject_{$entityType}";
             $value = $this->$field;
 
@@ -1083,7 +1126,7 @@ class Account extends Eloquent
 
         $template = "<div>\$client,</div><br>";
 
-        if ($this->isPro() && $this->email_design_id != EMAIL_DESIGN_PLAIN) {
+        if ($this->hasFeature(FEATURE_CUSTOM_EMAILS) && $this->email_design_id != EMAIL_DESIGN_PLAIN) {
             $template .= "<div>" . trans("texts.{$entityType}_message_button", ['amount' => '$amount']) . "</div><br>" .
                          "<div style=\"text-align: center;\">\$viewButton</div><br>";
         } else {
@@ -1102,7 +1145,7 @@ class Account extends Eloquent
     {
         $template = false;
 
-        if ($this->isPro()) {
+        if ($this->hasFeature(FEATURE_CUSTOM_EMAILS)) {
             $field = "email_template_{$entityType}";
             $template = $this->$field;
         }
@@ -1198,7 +1241,7 @@ class Account extends Eloquent
 
     public function showCustomField($field, $entity = false)
     {
-        if ($this->isPro()) {
+        if ($this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
             return $this->$field ? true : false;
         }
 
@@ -1214,18 +1257,18 @@ class Account extends Eloquent
 
     public function attatchPDF()
     {
-        return $this->isPro() && $this->pdf_email_attachment;
+        return $this->hasFeaure(FEATURE_PDF_ATTACHMENT) && $this->pdf_email_attachment;
     }
     
     public function getEmailDesignId()
     {
-        return $this->isPro() ? $this->email_design_id : EMAIL_DESIGN_PLAIN;
+        return $this->hasFeature(FEATURE_CUSTOM_EMAILS) ? $this->email_design_id : EMAIL_DESIGN_PLAIN;
     }
 
     public function clientViewCSS(){
-        $css = null;
+        $css = '';
         
-        if ($this->isPro()) {
+        if ($this->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
             $bodyFont = $this->getBodyFontCss();
             $headerFont = $this->getHeaderFontCss();
             
@@ -1233,11 +1276,10 @@ class Account extends Eloquent
             if ($headerFont != $bodyFont) {
                 $css .= 'h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6{'.$headerFont.'}';
             }
-            
-            if ((Utils::isNinja() && $this->isPro()) || $this->isWhiteLabel()) {
-                // For self-hosted users, a white-label license is required for custom CSS
-                $css .= $this->client_view_css;
-            }
+        }
+        if ($this->hasFeature(FEATURE_CLIENT_PORTAL_CSS)) {
+            // For self-hosted users, a white-label license is required for custom CSS
+            $css .= $this->client_view_css;
         }
         
         return $css;
@@ -1270,11 +1312,11 @@ class Account extends Eloquent
     }
     
     public function getHeaderFontId() {
-        return ($this->isPro() && $this->header_font_id) ? $this->header_font_id : DEFAULT_HEADER_FONT;
+        return ($this->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) && $this->header_font_id) ? $this->header_font_id : DEFAULT_HEADER_FONT;
     }
 
     public function getBodyFontId() {
-        return ($this->isPro() && $this->body_font_id) ? $this->body_font_id : DEFAULT_BODY_FONT;
+        return ($this->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) && $this->body_font_id) ? $this->body_font_id : DEFAULT_BODY_FONT;
     }
 
     public function getHeaderFontName(){
