@@ -46,11 +46,11 @@ class EnterprisePlan extends Migration
     
         $single_account_ids = \DB::table('users')
             ->leftJoin('user_accounts', function ($join) {
-                $join->on('user_Accounts.user_id1', '=', 'users.id');
-                $join->orOn('user_Accounts.user_id2', '=', 'users.id');
-                $join->orOn('user_Accounts.user_id3', '=', 'users.id');
-                $join->orOn('user_Accounts.user_id4', '=', 'users.id');
-                $join->orOn('user_Accounts.user_id5', '=', 'users.id');
+                $join->on('user_accounts.user_id1', '=', 'users.id');
+                $join->orOn('user_accounts.user_id2', '=', 'users.id');
+                $join->orOn('user_accounts.user_id3', '=', 'users.id');
+                $join->orOn('user_accounts.user_id4', '=', 'users.id');
+                $join->orOn('user_accounts.user_id5', '=', 'users.id');
             })
             ->whereNull('user_accounts.id')
             ->where(function ($query) {
