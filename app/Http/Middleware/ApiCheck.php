@@ -47,7 +47,7 @@ class ApiCheck {
             return $next($request);
         }
 
-        if (!Utils::isPro() && !$loggingIn) {
+        if (!Utils::hasFeature(FEATURE_API) && !$loggingIn) {
             return Response::json('API requires pro plan', 403, $headers);
         } else {
             $key = Auth::check() ? Auth::user()->account->id : $request->getClientIp();

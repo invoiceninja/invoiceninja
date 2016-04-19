@@ -81,7 +81,7 @@ $LANG = array(
     'company_details' => 'Company Details',
     'online_payments' => 'Online Payments',
     'notifications' => 'Email Notifications',
-    'import_export' => 'Import | Export | Cancel',
+    'import_export' => 'Import | Export',
     'done' => 'Done',
     'save' => 'Save',
     'create' => 'Create',
@@ -268,7 +268,6 @@ $LANG = array(
     'erase_data' => 'This will permanently erase your data.',
     'password' => 'Password',
     'pro_plan_product' => 'Pro Plan',
-    'pro_plan_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
     'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!<p/>&nbsp;<br/>
                           <b>Next Steps</b><p/>A payable invoice has been sent to the email
                           address associated with your account. To unlock all of the awesome
@@ -368,7 +367,7 @@ $LANG = array(
     'confirm_email_invoice' => 'Are you sure you want to email this invoice?',
     'confirm_email_quote' => 'Are you sure you want to email this quote?',
     'confirm_recurring_email_invoice' => 'Are you sure you want this invoice emailed?',
-    'cancel_account' => 'Cancel Account',
+    'cancel_account' => 'Delete Account',
     'cancel_account_message' => 'Warning: This will permanently erase all of your data, there is no undo.',
     'go_back' => 'Go Back',
     'data_visualizations' => 'Data Visualizations',
@@ -1126,7 +1125,53 @@ $LANG = array(
     'enable_client_portal_help' => 'Show/hide the client portal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
-
+    
+    
+    // Plans
+    'account_management' => 'Account Management',
+    'plan_status' => 'Plan Status',
+    
+    'plan_upgrade' => 'Upgrade',
+    'plan_change' => 'Change Plan',
+    'pending_change_to' => 'Changes To',
+    'plan_changes_to' => ':plan on :date',
+    'plan_term_changes_to' => ':plan (:term) on :date',
+    'cancel_plan_change' => 'Cancel Change',
+    'plan' => 'Plan',
+    'expires' => 'Expires',
+    'renews' => 'Renews',
+    'plan_expired' => ':plan Plan Expired',
+    'trial_expired' => ':plan Plan Trial Ended',
+    'never' => 'Never',
+    'plan_free' => 'Free',
+    'plan_pro' => 'Pro',
+    'plan_enterprise' => 'Enterprise',
+    'plan_white_label' => 'Self Hosted (White labeled)',
+    'plan_free_self_hosted' => 'Self Hosted (Free)',
+    'plan_trial' => 'Trial',
+    'plan_term' => 'Term',
+    'plan_term_monthly' => 'Monthly',
+    'plan_term_yearly' => 'Yearly',
+    'plan_term_month' => 'Month',
+    'plan_term_year' => 'Year',
+    'plan_price_monthly' => '$:price/Month',
+    'plan_price_yearly' => '$:price/Year',
+    'updated_plan' => 'Updated plan settings',
+    'plan_paid' => 'Term Started',
+    'plan_started' => 'Plan Started',
+    'plan_expires' => 'Plan Expires',
+    
+    'white_label_button' => 'White Label',
+    
+    'pro_plan_year_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
+    'pro_plan_month_description' => 'One month enrollment in the Invoice Ninja Pro Plan.',
+    'enterprise_plan_product' => 'Enterprise Plan',
+    'enterprise_plan_year_description' => 'One year enrollment in the Invoice Ninja Enterprise Plan.',
+    'enterprise_plan_month_description' => 'One month enrollment in the Invoice Ninja Enterprise Plan.',
+    'plan_credit_product' => 'Credit',
+    'plan_credit_description' => 'Credit for unused time',
+    'plan_pending_monthly' => 'Will switch to monthly on :date',
+    'plan_refunded' => 'A refund has been issued.'
 );
 
 return $LANG;

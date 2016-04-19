@@ -132,7 +132,11 @@ class InvoiceController extends BaseController
         $invoice->start_date = Utils::fromSqlDate($invoice->start_date);
         $invoice->end_date = Utils::fromSqlDate($invoice->end_date);
         $invoice->last_sent_date = Utils::fromSqlDate($invoice->last_sent_date);
-        $invoice->is_pro = Auth::user()->isPro();
+        $invoice->features = [
+            'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+            'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+            'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+        ];
 
         $actions = [
             ['url' => 'javascript:onCloneClick()', 'label' => trans("texts.clone_{$entityType}")],
@@ -573,7 +577,11 @@ class InvoiceController extends BaseController
         $invoice->load('user', 'invoice_items', 'documents', 'expenses', 'expenses.documents', 'account.country', 'client.contacts', 'client.country');
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-        $invoice->is_pro = Auth::user()->isPro();
+        $invoice->features = [
+            'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+            'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+            'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+        ];
         $invoice->is_quote = intval($invoice->is_quote);
 
         $activityTypeId = $invoice->is_quote ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
@@ -591,7 +599,11 @@ class InvoiceController extends BaseController
             $backup = json_decode($activity->json_backup);
             $backup->invoice_date = Utils::fromSqlDate($backup->invoice_date);
             $backup->due_date = Utils::fromSqlDate($backup->due_date);
-            $backup->is_pro = Auth::user()->isPro();
+            $invoice->features = [
+                'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+                'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+                'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+            ];
             $backup->is_quote = isset($backup->is_quote) && intval($backup->is_quote);
             $backup->account = $invoice->account->toArray();
 

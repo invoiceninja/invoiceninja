@@ -21,7 +21,7 @@ class ReportController extends BaseController
         $message = '';
         $fileName = storage_path().'/dataviz_sample.txt';
 
-        if (Auth::user()->account->isPro()) {
+        if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             $account = Account::where('id', '=', Auth::user()->account->id)
                             ->with(['clients.invoices.invoice_items', 'clients.contacts'])
                             ->first();
@@ -99,7 +99,7 @@ class ReportController extends BaseController
             'title' => trans('texts.charts_and_reports'),
         ];
 
-        if (Auth::user()->account->isPro()) {
+        if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
             if ($enableReport) {
                 $isExport = $action == 'export';
                 $params = array_merge($params, self::generateReport($reportType, $startDate, $endDate, $dateField, $isExport));
