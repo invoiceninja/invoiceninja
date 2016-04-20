@@ -87,6 +87,10 @@ LEFT JOIN users u5 ON (u5.public_id IS NULL OR u5.public_id = 0) AND user_accoun
             $primaryAccount = $otherAccounts->first();
         }
         
+        if (empty($primaryAccount)) {
+            return;
+        }
+        
         $company = Company::create();
         if ($primaryAccount->pro_plan_paid && $primaryAccount->pro_plan_paid != '0000-00-00') {
             $company->plan = 'pro';
