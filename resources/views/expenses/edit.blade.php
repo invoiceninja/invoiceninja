@@ -362,7 +362,7 @@
             }    
         }
         
-        @if (Auth::user()->account->isPro())
+        @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
         function handleDocumentAdded(file){
             if(file.mock)return;
             file.index = model.documents().length;

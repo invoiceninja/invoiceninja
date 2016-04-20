@@ -46,21 +46,23 @@
     }
     
     function getPDFString(cb) {
-      invoice.is_pro = {!! Auth::user()->isPro() ? 'true' : 'false' !!};
+      invoice.features = {
+          customize_invoice_design:{{ Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'true' : 'false' }},
+          remove_created_by:{{ Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY) ? 'true' : 'false' }},
+          invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
+      };
       invoice.account.hide_quantity = $('#hide_quantity').is(":checked");
       invoice.account.invoice_embed_documents = $('#invoice_embed_documents').is(":checked");
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
       invoice.invoice_design_id = $('#invoice_design_id').val();
+      invoice.account.page_size = $('#page_size option:selected').text();
       
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
-      @if (Auth::user()->isPro())
-        NINJA.headerFont = $('#header_font_id option:selected').text();
-        NINJA.bodyFont = $('#body_font_id option:selected').text();
-      @else
-        NINJA.headerFont = NINJA.bodyFont = 'Roboto';
-      @endif
+      NINJA.headerFont = $('#header_font_id option:selected').text();
+      NINJA.bodyFont = $('#body_font_id option:selected').text();
+      
       var fields = [
           'item', 
           'description', 
@@ -89,7 +91,7 @@
     $(function() {   
       var options = {
         preferredFormat: 'hex',
-        disabled: {!! Auth::user()->isPro() ? 'false' : 'true' !!},
+        disabled: {!! Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'false' : 'true' !!},
         showInitial: false,
         showInput: true,
         allowEmpty: true,
@@ -112,7 +114,16 @@
     <div class="col-md-12">
 
       {!! Former::open()->addClass('warn-on-exit')->onchange('if(!window.loadingFonts)refreshPDF()') !!}
-      {!! Former::populate($account) !!}
+      
+      {!! Former::populateField('invoice_design_id', $account->invoice_design_id) !!}
+      {!! Former::populateField('body_font_id', $account->body_font_id) !!}
+      {!! Former::populateField('header_font_id', $account->header_font_id) !!}
+      {!! Former::populateField('live_preview', intval($account->live_preview)) !!}
+      {!! Former::populateField('font_size', $account->font_size) !!}
+      {!! Former::populateField('page_size', $account->page_size) !!}
+      {!! Former::populateField('invoice_embed_documents', intval($account->invoice_embed_documents)) !!}
+      {!! Former::populateField('primary_color', $account->primary_color) !!}
+      {!! Former::populateField('secondary_color', $account->secondary_color) !!}
       {!! Former::populateField('hide_quantity', intval($account->hide_quantity)) !!}
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
       {!! Former::populateField('all_pages_header', intval($account->all_pages_header)) !!}
@@ -143,7 +154,7 @@
                       <div class="row">
                         <div class="col-md-6">
 
-                          @if (!Utils::isPro() || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
+                          @if (!Utils::hasFeature(FEATURE_MORE_INVOICE_DESIGNS) || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
                             {!! Former::select('invoice_design_id')
                                     ->fromQuery($invoiceDesigns, 'name', 'id')
                                     ->addOption(trans('texts.more_designs') . '...', '-1') !!}
@@ -156,13 +167,17 @@
                           {!! Former::select('header_font_id')
                                   ->fromQuery($invoiceFonts, 'name', 'id') !!}
 
+                          {!! Former::checkbox('live_preview')->text(trans('texts.enable')) !!}                        
+
                         </div>
                         <div class="col-md-6">
 
-
                         {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 6) }}
                         {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 6) }}
-                        
+
+                          {!! Former::select('page_size')
+                                  ->options($pageSizes) !!}
+                                  
                           {!! Former::text('font_size')
                                 ->type('number')
                                 ->min('0')
@@ -170,6 +185,7 @@
 
                           {!! Former::text('primary_color') !!}
                           {!! Former::text('secondary_color') !!}
+
 
                         {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
                         {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
@@ -249,7 +265,7 @@
         ) !!}
     <br/>
 
-    @if (!Auth::user()->isPro())
+      @if (!Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
         <script>
               $(function() {   
                 $('form.warn-on-exit input, .save-button').prop('disabled', true);

@@ -284,7 +284,14 @@ class InvoiceRepository extends BaseRepository
             $invoice->end_date = null;
         }
 
-        $invoice->terms = (isset($data['terms']) && trim($data['terms'])) ? trim($data['terms']) : (!$publicId && $account->invoice_terms ? $account->invoice_terms : '');
+        if (isset($data['terms']) && trim($data['terms'])) {
+            $invoice->terms = trim($data['terms']);
+        } elseif ($isNew && $account->{"{$entityType}_terms"}) {
+            $invoice->terms = $account->{"{$entityType}_terms"};
+        } else {
+            $invoice->terms = '';
+        }
+        
         $invoice->invoice_footer = (isset($data['invoice_footer']) && trim($data['invoice_footer'])) ? trim($data['invoice_footer']) : (!$publicId && $account->invoice_footer ? $account->invoice_footer : '');
         $invoice->public_notes = isset($data['public_notes']) ? trim($data['public_notes']) : null;
 

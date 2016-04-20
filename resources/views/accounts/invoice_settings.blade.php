@@ -59,12 +59,13 @@
 
                         {!! Former::text('invoice_number_prefix')
                                 ->addGroupClass('invoice-prefix')
-                                ->label(' ') !!}
+                                ->label(trans('texts.prefix')) !!}
                         {!! Former::text('invoice_number_pattern')
                                 ->appendIcon('question-sign')
                                 ->addGroupClass('invoice-pattern')
-                                ->label(' ')
+                                ->label(trans('texts.pattern'))
                                 ->addGroupClass('number-pattern') !!}
+                        {!! Former::text('invoice_number_padding') !!}
                         {!! Former::text('invoice_number_counter')
                                 ->label(trans('texts.counter'))
                                 ->help(trans('texts.invoice_number_help') . ' ' . 
@@ -84,12 +85,12 @@
 
                         {!! Former::text('quote_number_prefix')
                                 ->addGroupClass('quote-prefix')
-                                ->label(' ') !!}
+                                ->label(trans('texts.prefix')) !!}
                         {!! Former::text('quote_number_pattern')
                                 ->appendIcon('question-sign')
                                 ->addGroupClass('quote-pattern')
                                 ->addGroupClass('number-pattern')
-                                ->label(' ') !!}
+                                ->label(trans('texts.pattern')) !!}
                         {!! Former::text('quote_number_counter')
                                 ->label(trans('texts.counter'))
                                 ->addGroupClass('pad-checkbox')
@@ -264,7 +265,7 @@
 
 
     
-    @if (Auth::user()->isPro())
+    @if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
         <center>
             {!! Button::success(trans('texts.save'))->large()->submit()->appendIcon(Icon::create('floppy-disk')) !!}
         </center>

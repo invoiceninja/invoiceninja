@@ -43,7 +43,7 @@
                         {!! Former::text('website') !!}
 			{!! Former::text('work_phone') !!}
 			
-			@if (Auth::user()->isPro())
+			@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
 				@if ($customLabel1)
 					{!! Former::text('custom_value1')->label($customLabel1) !!}
 				@endif
@@ -93,7 +93,7 @@
                         attr: {name: 'contacts[' + \$index() + '][email]', id:'email'+\$index()}") !!}
 				{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][phone]'}") !!}
-				@if ($account->isPro() && $account->enable_portal_password)
+				@if ($account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password)
 					{!! Former::password('password')->data_bind("value: password()?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
 						attr: {name: 'contacts[' + \$index() + '][password]'}") !!}
 			    @endif
@@ -134,15 +134,43 @@
 			{!! Former::textarea('private_notes') !!}
 
 
-            @if (isset($proPlanPaid))
-                {!! Former::populateField('pro_plan_paid', $proPlanPaid) !!}
-                {!! Former::text('pro_plan_paid')
+            @if (Auth::user()->account->isNinjaAccount())
+				@if (isset($planDetails))
+					{!! Former::populateField('plan', $planDetails['plan']) !!}
+					{!! Former::populateField('plan_term', $planDetails['term']) !!}
+					@if (!empty($planDetails['paid']))
+						{!! Former::populateField('plan_paid', $planDetails['paid']->format('Y-m-d')) !!}
+					@endif
+					@if (!empty($planDetails['expires']))
+						{!! Former::populateField('plan_expires', $planDetails['expires']->format('Y-m-d')) !!}
+					@endif
+					@if (!empty($planDetails['started']))
+						{!! Former::populateField('plan_started', $planDetails['started']->format('Y-m-d')) !!}
+					@endif
+				@endif
+				{!! Former::select('plan')
+							->addOption(trans('texts.plan_free'), PLAN_FREE)
+							->addOption(trans('texts.plan_pro'), PLAN_PRO)
+							->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE)!!}
+				{!! Former::select('plan_term')
+							->addOption()
+							->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
+							->addOption(trans('texts.plan_term_monthly'), PLAN_TERM_MONTHLY)!!}
+				{!! Former::text('plan_started')
                             ->data_date_format('yyyy-mm-dd')
-                            ->addGroupClass('pro_plan_paid_date')
+                            ->addGroupClass('plan_start_date')
+                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+                {!! Former::text('plan_paid')
+                            ->data_date_format('yyyy-mm-dd')
+                            ->addGroupClass('plan_paid_date')
+                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+				{!! Former::text('plan_expires')
+                            ->data_date_format('yyyy-mm-dd')
+                            ->addGroupClass('plan_expire_date')
                             ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
                 <script type="text/javascript">
                     $(function() {
-                        $('#pro_plan_paid').datepicker();
+                        $('#plan_started, #plan_paid, #plan_expires').datepicker();
                     });
                 </script>
             @endif

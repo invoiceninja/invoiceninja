@@ -45,7 +45,11 @@
     var customDesign = origCustomDesign = {!! $customDesign ?: 'JSON.parse(invoiceDesigns[0].javascript);' !!};
 
     function getPDFString(cb, force) {
-      invoice.is_pro = {!! Auth::user()->isPro() ? 'true' : 'false' !!};
+      invoice.features = {
+            customize_invoice_design:{{ Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'true' : 'false' }},
+            remove_created_by:{{ Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY) ? 'true' : 'false' }},
+            invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
+        };
       invoice.account.hide_quantity = {!! Auth::user()->account->hide_quantity ? 'true' : 'false' !!};
       invoice.account.hide_paid_to_date = {!! Auth::user()->account->hide_paid_to_date ? 'true' : 'false' !!};
       invoice.invoice_design_id = {!! Auth::user()->account->invoice_design_id !!};
@@ -194,7 +198,7 @@
     </div>
 
       <script>
-      @if (!Auth::user()->isPro())
+      @if (!Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
         $(function() {   
             $('form.warn-on-exit input, .save-button').prop('disabled', true);
         });

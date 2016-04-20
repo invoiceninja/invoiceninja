@@ -136,7 +136,7 @@ class ContactMailer extends Mailer
             'amount' => $invoice->getRequestedAmount()
         ];
         
-         if (empty($invitation->contact->password) && $account->isPro() && $account->enable_portal_password && $account->send_portal_password) {
+         if (empty($invitation->contact->password) && $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password && $account->send_portal_password) {
             // The contact needs a password
             $variables['password'] = $password = $this->generatePassword();
             $invitation->contact->password = bcrypt($password);
@@ -291,7 +291,7 @@ class ContactMailer extends Mailer
         $passwordHTML = isset($data['password'])?'<p>'.trans('texts.password').': '.$data['password'].'<p>':false;
         $documentsHTML = '';
 
-        if($account->isPro() && $invoice->hasDocuments()){
+        if($account->hasFeature(FEATURE_DOCUMENTS) && $invoice->hasDocuments()){
             $documentsHTML .= trans('texts.email_documents_header').'<ul>';
             foreach($invoice->documents as $document){
                 $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';

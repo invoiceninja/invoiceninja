@@ -39,18 +39,7 @@ class PaymentService extends BaseService
     public function createGateway($accountGateway)
     {
         $gateway = Omnipay::create($accountGateway->gateway->provider);
-        $config = $accountGateway->getConfig();
-
-        foreach ($config as $key => $val) {
-            if (!$val) {
-                continue;
-            }
-
-            $function = "set".ucfirst($key);
-            if (method_exists($gateway, $function)) {
-                $gateway->$function($val);
-            }
-        }
+        $gateway->initialize((array) $accountGateway->getConfig());
 
         if ($accountGateway->isGateway(GATEWAY_DWOLLA)) {
             if ($gateway->getSandbox() && isset($_ENV['DWOLLA_SANDBOX_KEY']) && isset($_ENV['DWOLLA_SANSBOX_SECRET'])) {
@@ -216,17 +205,6 @@ class PaymentService extends BaseService
     {
         $invoice = $invitation->invoice;
 
-        // enable pro plan for hosted users
-        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY && $invoice->amount == PRO_PLAN_PRICE) {
-            $account = Account::with('users')->find($invoice->client->public_id);
-            $account->pro_plan_paid = $account->getRenewalDate();
-            $account->save();
-
-            // sync pro accounts
-            $user = $account->users()->first();
-            $this->accountRepo->syncAccounts($user->id, $account->pro_plan_paid);
-        }
-
         $payment = Payment::createNew($invitation);
         $payment->invitation_id = $invitation->id;
         $payment->account_gateway_id = $accountGateway->id;
@@ -236,12 +214,65 @@ class PaymentService extends BaseService
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = date_create()->format('Y-m-d');
-
+        
         if ($payerId) {
             $payment->payer_id = $payerId;
         }
 
         $payment->save();
+
+        // enable pro plan for hosted users
+        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY) {
+            foreach ($invoice->invoice_items as $invoice_item) {
+                // Hacky, but invoices don't have meta fields to allow us to store this easily
+                if (1 == preg_match('/^Plan - (.+) \((.+)\)$/', $invoice_item->product_key, $matches)) {
+                    $plan = strtolower($matches[1]);
+                    $term = strtolower($matches[2]);
+                } elseif ($invoice_item->product_key == 'Pending Monthly') {
+                    $pending_monthly = true;
+                }
+            }
+            
+            if (!empty($plan)) { 
+                $account = Account::with('users')->find($invoice->client->public_id);
+                
+                if(
+                    $account->company->plan != $plan
+                    || DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create('-7 days')
+                ) {
+                    // Either this is a different plan, or the subscription expired more than a week ago
+                    // Reset any grandfathering
+                    $account->company->plan_started = date_create()->format('Y-m-d');
+                }
+                            
+                if (
+                    $account->company->plan == $plan
+                    && $account->company->plan_term == $term 
+                    && DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create()
+                ) {
+                    // This is a renewal; mark it paid as of when this term expires
+                    $account->company->plan_paid = $account->company->plan_expires;
+                } else {
+                    $account->company->plan_paid = date_create()->format('Y-m-d');
+                }
+                
+                $account->company->payment_id = $payment->id;
+                $account->company->plan = $plan;
+                $account->company->plan_term = $term;
+                $account->company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
+                    ->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
+                                
+                if (!empty($pending_monthly)) {
+                    $account->company->pending_plan = $plan;
+                    $account->company->pending_term = PLAN_TERM_MONTHLY;
+                } else {
+                    $account->company->pending_plan = null;
+                    $account->company->pending_term = null;
+                }
+                
+                $account->company->save();
+            }
+        }
 
         return $payment;
     }

@@ -32,8 +32,8 @@ class ClientService extends BaseService
 
     public function save($data)
     {
-        if (Auth::user()->account->isNinjaAccount() && isset($data['pro_plan_paid'])) {
-            $this->ninjaRepo->updateProPlanPaid($data['public_id'], $data['pro_plan_paid']);
+        if (Auth::user()->account->isNinjaAccount() && isset($data['plan'])) {
+            $this->ninjaRepo->updatePlanDetails($data['public_id'], $data);
         }
 
         return $this->clientRepo->save($data);
@@ -134,7 +134,7 @@ class ClientService extends BaseService
                     return URL::to("quotes/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->isPro() && Invoice::canCreate();
+                    return Auth::user()->hasFeature(FEATURE_QUOTES) && Invoice::canCreate();
                 }
             ],
             [

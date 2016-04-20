@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\Account;
+use App\Models\Company;
 use App\Models\Affiliate;
 
 class UserTableSeeder extends Seeder
@@ -13,10 +14,13 @@ class UserTableSeeder extends Seeder
 
         Eloquent::unguard();
 
+        $company = Company::create();
+        
         $account = Account::create([
             //'name' => 'Test Account',
             'account_key' => str_random(RANDOM_KEY_LENGTH),
             'timezone_id' => 1,
+            'company_id' => $company->id,
         ]);
 
         User::create([

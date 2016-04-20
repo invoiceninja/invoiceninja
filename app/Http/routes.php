@@ -188,7 +188,8 @@ Route::group([
     Route::resource('users', 'UserController');
     Route::post('users/bulk', 'UserController@bulk');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
-    Route::get('start_trial', 'AccountController@startTrial');
+    Route::get('start_trial/{plan}', 'AccountController@startTrial')
+        ->where(['plan'=>'pro']);
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
     Route::post('users/change_password', 'UserController@changePassword');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
@@ -212,6 +213,7 @@ Route::group([
     Route::get('settings/charts_and_reports', 'ReportController@showReports');
     Route::post('settings/charts_and_reports', 'ReportController@showReports');
 
+    Route::post('settings/change_plan', 'AccountController@changePlan');
     Route::post('settings/cancel_account', 'AccountController@cancelAccount');
     Route::post('settings/company_details', 'AccountController@updateDetails');
     Route::get('settings/{section?}', 'AccountController@showSection');
@@ -354,6 +356,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_LOCALIZATION', 'localization');
     define('ACCOUNT_NOTIFICATIONS', 'notifications');
     define('ACCOUNT_IMPORT_EXPORT', 'import_export');
+    define('ACCOUNT_MANAGEMENT', 'account_management');
     define('ACCOUNT_PAYMENTS', 'online_payments');
     define('ACCOUNT_BANKS', 'bank_accounts');
     define('ACCOUNT_IMPORT_EXPENSES', 'import_expenses');
@@ -552,7 +555,6 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
     define('NINJA_APP_URL', 'https://app.invoiceninja.com');
     define('NINJA_VERSION', '2.5.1.3');
-    define('NINJA_DATE', '2000-01-01');
 
     define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');
     define('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja');
@@ -582,6 +584,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
 
     define('PRO_PLAN_PRICE', 50);
+    define('PLAN_PRICE_PRO_MONTHLY', 5);
+    define('PLAN_PRICE_PRO_YEARLY', 50);
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY', 10);
+    define('PLAN_PRICE_ENTERPRISE_YEARLY', 100);
     define('WHITE_LABEL_PRICE', 20);
     define('INVOICE_DESIGNS_PRICE', 10);
 
@@ -644,7 +650,46 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('RESELLER_REVENUE_SHARE', 'A');
     define('RESELLER_LIMITED_USERS', 'B');
+    
+    // These must be lowercase
+    define('PLAN_FREE', 'free');
+    define('PLAN_PRO', 'pro');
+    define('PLAN_ENTERPRISE', 'enterprise');
+    define('PLAN_WHITE_LABEL', 'white_label');
+    define('PLAN_TERM_MONTHLY', 'month');
+    define('PLAN_TERM_YEARLY', 'year');
+    
+    // Pro
+    define('FEATURE_CUSTOMIZE_INVOICE_DESIGN', 'customize_invoice_design');
+    define('FEATURE_REMOVE_CREATED_BY', 'remove_created_by');
+    define('FEATURE_DIFFERENT_DESIGNS', 'different_designs');
+    define('FEATURE_EMAIL_TEMPLATES_REMINDERS', 'email_templates_reminders');
+    define('FEATURE_INVOICE_SETTINGS', 'invoice_settings');
+    define('FEATURE_CUSTOM_EMAILS', 'custom_emails');
+    define('FEATURE_PDF_ATTACHMENT', 'pdf_attachment');
+    define('FEATURE_MORE_INVOICE_DESIGNS', 'more_invoice_designs');
+    define('FEATURE_QUOTES', 'quotes');
+    define('FEATURE_REPORTS', 'reports');
+    define('FEATURE_API', 'api');
+    define('FEATURE_CLIENT_PORTAL_PASSWORD', 'client_portal_password');
+    define('FEATURE_CUSTOM_URL', 'custom_url');
+    
+    define('FEATURE_MORE_CLIENTS', 'more_clients'); // No trial allowed
+    
+    // Whitelabel
+    define('FEATURE_CLIENT_PORTAL_CSS', 'client_portal_css');
+    define('FEATURE_WHITE_LABEL', 'feature_white_label');
 
+    // Enterprise
+    define('FEATURE_DOCUMENTS', 'documents');
+    
+    // No Trial allowed
+    define('FEATURE_USERS', 'users');// Grandfathered for old Pro users
+    define('FEATURE_USER_PERMISSIONS', 'user_permissions');
+    
+    // Pro users who started paying on or before this date will be able to manage users
+    define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-05-15');
+    
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],

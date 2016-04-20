@@ -27,6 +27,7 @@
 </div>
 </div>
 
+@if (Utils::hasFeature(FEATURE_USER_PERMISSIONS))
 <div class="panel panel-default">
 <div class="panel-heading">
     <h3 class="panel-title">{!! trans('texts.permissions') !!}</h3>
@@ -59,6 +60,7 @@
     
 </div>
 </div>
+@endif
 
   {!! Former::actions( 
       Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/user_management'))->appendIcon(Icon::create('remove-circle'))->large(),
