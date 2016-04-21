@@ -50,7 +50,7 @@ class PasswordController extends Controller {
                 $client = $invoice->client;
                 $account = $client->account;
                 
-                $data['hideLogo'] = $account->isWhiteLabel();
+                $data['hideLogo'] = $account->hasFeature(FEATURE_WHITE_LABEL);
                 $data['clientViewCSS'] = $account->clientViewCSS();
                 $data['clientFontUrl'] = $account->getFontsUrl();
             }
@@ -117,7 +117,7 @@ class PasswordController extends Controller {
                 $client = $invoice->client;
                 $account = $client->account;
                 
-                $data['hideLogo'] = $account->isWhiteLabel();
+                $data['hideLogo'] = $account->hasFeature(FEATURE_WHITE_LABEL);
                 $data['clientViewCSS'] = $account->clientViewCSS();
                 $data['clientFontUrl'] = $account->getFontsUrl();
             }

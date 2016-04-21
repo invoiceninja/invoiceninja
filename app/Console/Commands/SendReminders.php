@@ -36,7 +36,7 @@ class SendReminders extends Command
         $this->info(count($accounts).' accounts found');
 
         foreach ($accounts as $account) {
-            if (!$account->isPro()) {
+            if (!$account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 continue;
             }
 

@@ -112,9 +112,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->account->isPro();
     }
 
+    public function hasFeature($feature)
+    {
+        return $this->account->hasFeature($feature);
+    }
+
     public function isPaidPro()
     {
-        return $this->isPro() && ! $this->isTrial();
+        return $this->isPro($accountDetails) && !$accountDetails['trial'];
     }
 
     public function isTrial()
@@ -122,14 +127,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return $this->account->isTrial();
     }
 
-    public function isEligibleForTrial()
+    public function isEligibleForTrial($plan = null)
     {
-        return $this->account->isEligibleForTrial();
+        return $this->account->isEligibleForTrial($plan);
     }
 
     public function maxInvoiceDesignId()
     {
-        return $this->isPro() ? 11 : (Utils::isNinja() ? COUNT_FREE_DESIGNS : COUNT_FREE_DESIGNS_SELF_HOST);
+        return $this->hasFeature(FEATURE_MORE_INVOICE_DESIGNS) ? 11 : (Utils::isNinja() ? COUNT_FREE_DESIGNS : COUNT_FREE_DESIGNS_SELF_HOST);
     }
 
     public function getDisplayName()
@@ -173,7 +178,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getMaxNumClients()
     {
-        if ($this->isPro() && ! $this->isTrial()) {
+        if ($this->hasFeature(FEATURE_MORE_CLIENTS)) {
             return MAX_NUM_CLIENTS_PRO;
         }
 
@@ -186,7 +191,7 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
 
     public function getMaxNumVendors()
     {
-        if ($this->isPro() && ! $this->isTrial()) {
+        if ($this->hasFeature(FEATURE_MORE_CLIENTS)) {
             return MAX_NUM_VENDORS_PRO;
         }
 

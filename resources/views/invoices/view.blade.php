@@ -65,7 +65,7 @@
             </div>
         @endif
         
-        @if ($account->isPro() && $account->invoice_embed_documents)
+        @if ($account->hasFeature(FEATURE_DOCUMENTS) && $account->invoice_embed_documents)
             @foreach ($invoice->documents as $document)
                 @if($document->isPDFEmbeddable())
                     <script src="{{ $document->getClientVFSJSUrl() }}" type="text/javascript" async></script>
@@ -82,7 +82,11 @@
 		<script type="text/javascript">
 
 			window.invoice = {!! $invoice->toJson() !!};
-			invoice.is_pro = {{ $invoice->client->account->isPro() ? 'true' : 'false' }};
+			invoice.features = {
+                customize_invoice_design:{{ $invoice->client->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'true' : 'false' }},
+                remove_created_by:{{ $invoice->client->account->hasFeature(FEATURE_REMOVE_CREATED_BY) ? 'true' : 'false' }},
+                invoice_settings:{{ $invoice->client->account->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
+            };
 			invoice.is_quote = {{ $invoice->is_quote ? 'true' : 'false' }};
 			invoice.contact = {!! $contact->toJson() !!};
 

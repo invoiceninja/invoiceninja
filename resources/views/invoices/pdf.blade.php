@@ -84,7 +84,7 @@
   @endif
 
   var NINJA = NINJA || {};
-  @if ($account->isPro())
+  @if ($account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
       NINJA.primaryColor = "{{ $account->primary_color }}";
       NINJA.secondaryColor = "{{ $account->secondary_color }}";
       NINJA.fontSize = {{ $account->font_size }};

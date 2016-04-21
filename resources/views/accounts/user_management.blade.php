@@ -6,7 +6,7 @@
 
 
   <div class="pull-right">  
-    @if (Utils::isPro() && ! Utils::isTrial())
+    @if (Utils::hasFeature(FEATURE_USERS))
         {!! Button::primary(trans('texts.add_user'))->asLinkTo(URL::to('/users/create'))->appendIcon(Icon::create('plus-sign')) !!}
     @endif
   </div>

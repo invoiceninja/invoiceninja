@@ -114,7 +114,7 @@ class ClientController extends BaseController
         if(Task::canCreate()){
             $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/'.$client->public_id)];
         }
-        if (Utils::isPro() && Invoice::canCreate()) {
+        if (Utils::hasFeature(FEATURE_QUOTES) && Invoice::canCreate()) {
             $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/'.$client->public_id)];
         }
         
@@ -201,7 +201,7 @@ class ClientController extends BaseController
 
         if (Auth::user()->account->isNinjaAccount()) {
             if ($account = Account::whereId($client->public_id)->first()) {
-                $data['proPlanPaid'] = $account['pro_plan_paid'];
+                $data['planDetails'] = $account->getPlanDetails(false, false);
             }
         }
 

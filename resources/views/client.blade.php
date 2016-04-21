@@ -32,7 +32,7 @@
 			{!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown'") !!}
-			@if ($account->isPro() && $account->enable_portal_password)
+			@if ($account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password)
 					{!! Former::password('password')->data_bind("value: password()?'-%unchanged%-':'', valueUpdate: 'afterkeydown'") !!}
 			    @endif
 

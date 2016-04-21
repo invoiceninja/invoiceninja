@@ -47,7 +47,7 @@ class QuoteController extends BaseController
 
     public function index()
     {
-        if (!Utils::isPro()) {
+        if (!Utils::hasFeature(FEATURE_QUOTES)) {
             return Redirect::to('/invoices/create');
         }
 
@@ -84,7 +84,7 @@ class QuoteController extends BaseController
             return $response;
         }
         
-        if (!Utils::isPro()) {
+        if (!Utils::hasFeature(FEATURE_QUOTES)) {
             return Redirect::to('/invoices/create');
         }
 

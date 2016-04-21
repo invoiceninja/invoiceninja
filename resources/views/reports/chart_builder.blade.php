@@ -45,7 +45,7 @@
                                 Button::success(trans('texts.run'))->withAttributes(array('id' => 'submitButton'))->submit()->appendIcon(Icon::create('play'))
                             ) !!}
 
-                        @if (!Auth::user()->isPro())
+                        @if (!Auth::user()->hasFeature(FEATURE_REPORTS))
                         <script>
                             $(function() {   
                                 $('form.warn-on-exit').find('input, button').prop('disabled', true);
