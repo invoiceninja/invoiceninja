@@ -165,7 +165,7 @@ class AccountController extends BaseController
                     $account->company->save();
                     Session::flash('message', trans('texts.updated_plan'));
                 }
-            } else {
+            } elseif (!empty($planDetails['started'])) {
                 // Downgrade
                 $refund_deadline = clone $planDetails['started'];
                 $refund_deadline->modify('+30 days');
@@ -186,7 +186,7 @@ class AccountController extends BaseController
                         $gateway = $this->paymentService->createGateway($payment->account_gateway);
                         $refund = $gateway->refund(array(
                             'transactionReference' => $payment->transaction_reference,
-                            'amount' => $payment->amount * 100
+                            'amount' => $payment->amount
                         ));
                         $refund->send();
                         $payment->delete();
@@ -238,7 +238,7 @@ class AccountController extends BaseController
         
         if (!empty($new_plan)) {
             $invitation = $this->accountRepo->enablePlan($new_plan['plan'], $new_plan['term'], $credit, !empty($pending_monthly));
-            return Redirect::to('payment/'.$invitation->invitation_key);
+            return Redirect::to('view/'.$invitation->invitation_key);
         }
         
         return Redirect::to('/settings/'.ACCOUNT_MANAGEMENT, 301);
