@@ -23,6 +23,10 @@ class PaymentService extends BaseService
 {
     public $lastError;
     protected $datatableService;
+    
+    protected static $refundableGateways = array(
+        GATEWAY_STRIPE
+    );
 
     public function __construct(PaymentRepository $paymentRepo, AccountRepository $accountRepo, DatatableService $datatableService)
     {
@@ -375,6 +379,12 @@ class PaymentService extends BaseService
                 function ($model) {
                     return Utils::dateToString($model->payment_date);
                 }
+            ],
+            [
+                'payment_status_name',
+                function ($model) use ($entityType) {
+                    return self::getStatusLabel($entityType, $model);
+                }
             ]
         ];
     }
@@ -390,9 +400,103 @@ class PaymentService extends BaseService
                 function ($model) {
                     return Payment::canEditItem($model);
                 }
+            ],
+            [
+                trans('texts.refund_payment'),
+                function ($model) {
+                    $max_refund = number_format($model->amount - $model->refunded, 2);
+                    $formatted = Utils::formatMoney($max_refund, $model->currency_id, $model->country_id);
+                    $symbol = Utils::getFromCache($model->currency_id, 'currencies')->symbol;
+                    return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}')";
+                },
+                function ($model) {
+                    return Payment::canEditItem($model) && (
+                        ($model->transaction_reference && in_array($model->gateway_id , static::$refundableGateways))
+                        || $model->payment_type_id == PAYMENT_TYPE_CREDIT
+                    );
+                }
             ]
         ];
     }
+    
+    public function bulk($ids, $action, $params = array())
+    {
+        if ($action == 'refund') {
+            if ( ! $ids ) {
+                return 0;
+            }
 
+            $payments = $this->getRepo()->findByPublicIdsWithTrashed($ids);
 
+            foreach ($payments as $payment) {
+                if($payment->canEdit()){
+                    if(!empty($params['amount'])) {
+                        $this->refund($payment, floatval($params['amount']));
+                    } else {
+                        $this->refund($payment);
+                    }  
+                }
+            }
+
+            return count($payments);
+        } else {
+            return parent::bulk($ids, $action);
+        }
+    }
+    
+    private function getStatusLabel($entityType, $model)
+    {
+        $label = trans("texts.status_" . strtolower($model->payment_status_name));
+        $class = 'default';
+        switch ($model->payment_status_id) {
+            case PAYMENT_STATUS_PENDING:
+                $class = 'info';
+                break;
+            case PAYMENT_STATUS_COMPLETED:
+                $class = 'success';
+                break;
+            case PAYMENT_STATUS_FAILED:
+                $class = 'danger';
+                break;
+            case PAYMENT_STATUS_PARTIALLY_REFUNDED:
+                $label = trans('texts.status_partially_refunded_amount', [
+                    'amount' => Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id),
+                ]);
+                $class = 'primary';
+                break;
+            case PAYMENT_STATUS_REFUNDED:
+                $class = 'default';
+                break;
+        }
+        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
+    }
+    
+    public function refund($payment, $amount = null) {
+        if (!$amount) {
+            $amount = $payment->amount;
+        }
+        
+        $amount = min($amount, $payment->amount - $payment->refunded);
+        
+        if (!$amount) {
+            return;
+        }
+        
+        if ($payment->payment_type_id != PAYMENT_TYPE_CREDIT) {
+            $accountGateway = $this->createGateway($payment->account_gateway);
+            $refund = $accountGateway->refund(array(
+                'transactionReference' => $payment->transaction_reference,
+                'amount' => $amount,
+            ));
+            $response = $refund->send();
+            
+            if ($response->isSuccessful()) {
+                $payment->recordRefund($amount);
+            } else {
+                $this->error('Unknown', $response->getMessage(), $accountGateway);
+            }
+        } else {
+            $payment->recordRefund($amount);
+        }
+    }
 }

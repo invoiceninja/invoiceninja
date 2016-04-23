@@ -57,6 +57,7 @@ class PaymentController extends BaseController
               'method',
               'payment_amount',
               'payment_date',
+              'status',
               ''
             ]),
         ));
@@ -630,11 +631,12 @@ class PaymentController extends BaseController
     public function bulk()
     {
         $action = Input::get('action');
+        $amount = Input::get('amount');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
-        $count = $this->paymentService->bulk($ids, $action);
+        $count = $this->paymentService->bulk($ids, $action, array('amount'=>$amount));
 
         if ($count > 0) {
-            $message = Utils::pluralize($action.'d_payment', $count);
+            $message = Utils::pluralize($action=='refund'?'refunded_payment':$action.'d_payment', $count);
             Session::flash('message', $message);
         }
 

@@ -22,6 +22,7 @@ class PaymentRepository extends BaseRepository
                     ->join('clients', 'clients.id', '=', 'payments.client_id')
                     ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
+                    ->join('payment_statuses', 'payment_statuses.id', '=', 'payments.payment_status_id')
                     ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
                     ->leftJoin('account_gateways', 'account_gateways.id', '=', 'payments.account_gateway_id')
                     ->leftJoin('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
@@ -39,6 +40,8 @@ class PaymentRepository extends BaseRepository
                         'clients.user_id as client_user_id',
                         'payments.amount',
                         'payments.payment_date',
+                        'payments.payment_status_id',
+                        'payments.payment_type_id',
                         'invoices.public_id as invoice_public_id',
                         'invoices.user_id as invoice_user_id',
                         'invoices.invoice_number',
@@ -50,8 +53,11 @@ class PaymentRepository extends BaseRepository
                         'payments.deleted_at',
                         'payments.is_deleted',
                         'payments.user_id',
+                        'payments.refunded',
                         'invoices.is_deleted as invoice_is_deleted',
-                        'gateways.name as gateway_name'
+                        'gateways.name as gateway_name',
+                        'gateways.id as gateway_id',
+                        'payment_statuses.name as payment_status_name'
                     );
 
         if (!\Session::get('show_trash:payment')) {
@@ -78,6 +84,7 @@ class PaymentRepository extends BaseRepository
                     ->join('clients', 'clients.id', '=', 'payments.client_id')
                     ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
+                    ->join('payment_statuses', 'payment_statuses.id', '=', 'payments.payment_status_id')
                     ->leftJoin('invitations', function ($join) {
                         $join->on('invitations.invoice_id', '=', 'invoices.id')
                              ->on('invitations.contact_id', '=', 'contacts.id');
@@ -104,7 +111,10 @@ class PaymentRepository extends BaseRepository
                         'contacts.last_name',
                         'contacts.email',
                         'payment_types.name as payment_type',
-                        'payments.account_gateway_id'
+                        'payments.account_gateway_id',
+                        'payments.refunded',
+                        'payments.payment_status_id',
+                        'payment_statuses.name as payment_status_name'
                     );
 
         if ($filter) {
@@ -189,6 +199,4 @@ class PaymentRepository extends BaseRepository
 
         parent::restore($payment);
     }
-
-
 }

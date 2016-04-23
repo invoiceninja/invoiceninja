@@ -182,14 +182,7 @@ class AccountController extends BaseController
                     
                     if ($account->company->payment) {
                         $payment = $account->company->payment;
-                        
-                        $gateway = $this->paymentService->createGateway($payment->account_gateway);
-                        $refund = $gateway->refund(array(
-                            'transactionReference' => $payment->transaction_reference,
-                            'amount' => $payment->amount
-                        ));
-                        $refund->send();
-                        $payment->delete();
+                        $this->paymentService->refund($payment);
                         Session::flash('message', trans('texts.plan_refunded'));
                         \Log::info("Refunded Plan Payment: {$account->name} - {$user->email}");
                     } else {

@@ -252,6 +252,9 @@ class PublicClientController extends BaseController
                     'invoice' => trans('texts.invoice') . ' ' . $model->invoice,
                     'contact' => Utils::getClientDisplayName($model),
                     'payment' => trans('texts.payment') . ($model->payment ? ' ' . $model->payment : ''),
+                    'credit' => $model->payment_amount ? Utils::formatMoney($model->credit, $model->currency_id, $model->country_id) : '',
+                    'payment_amount' => $model->payment_amount ? Utils::formatMoney($model->payment_amount, $model->currency_id, $model->country_id) : null,
+                    'adjustment' => $model->adjustment ? Utils::formatMoney($model->adjustment, $model->currency_id, $model->country_id) : null,
                 ];
 
                 return trans("texts.activity_{$model->activity_type_id}", $data);
@@ -321,7 +324,7 @@ class PublicClientController extends BaseController
             'clientFontUrl' => $account->getFontsUrl(),
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
-            'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date'])
+            'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date', 'status'])
         ];
 
         return response()->view('public_list', $data);
@@ -340,7 +343,35 @@ class PublicClientController extends BaseController
                 ->addColumn('payment_type', function ($model) { return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
                 ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
                 ->addColumn('payment_date', function ($model) { return Utils::dateToString($model->payment_date); })
+                ->addColumn('status', function ($model) { return $this->getPaymentStatusLabel($model); })
                 ->make();
+    }
+    
+    private function getPaymentStatusLabel($model)
+    {
+        $label = trans("texts.status_" . strtolower($model->payment_status_name));
+        $class = 'default';
+        switch ($model->payment_status_id) {
+            case PAYMENT_STATUS_PENDING:
+                $class = 'info';
+                break;
+            case PAYMENT_STATUS_COMPLETED:
+                $class = 'success';
+                break;
+            case PAYMENT_STATUS_FAILED:
+                $class = 'danger';
+                break;
+            case PAYMENT_STATUS_PARTIALLY_REFUNDED:
+                $label = trans('texts.status_partially_refunded_amount', [
+                    'amount' => Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id),
+                ]);
+                $class = 'primary';
+                break;
+            case PAYMENT_STATUS_REFUNDED:
+                $class = 'default';
+                break;
+        }
+        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 
     public function quoteIndex()

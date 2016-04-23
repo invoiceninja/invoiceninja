@@ -398,6 +398,7 @@ if (!defined('CONTACT_EMAIL')) {
     //define('ACTIVITY_TYPE_UPDATE_PAYMENT', 11);
     define('ACTIVITY_TYPE_ARCHIVE_PAYMENT', 12);
     define('ACTIVITY_TYPE_DELETE_PAYMENT', 13);
+    define('ACTIVITY_TYPE_REFUNDED_PAYMENT', 39);
 
     define('ACTIVITY_TYPE_CREATE_CREDIT', 14);
     //define('ACTIVITY_TYPE_UPDATE_CREDIT', 15);
@@ -474,6 +475,12 @@ if (!defined('CONTACT_EMAIL')) {
     define('INVOICE_STATUS_APPROVED', 4);
     define('INVOICE_STATUS_PARTIAL', 5);
     define('INVOICE_STATUS_PAID', 6);
+    
+    define('PAYMENT_STATUS_PENDING', 1);
+    define('PAYMENT_STATUS_FAILED', 2);
+    define('PAYMENT_STATUS_COMPLETED', 3);
+    define('PAYMENT_STATUS_PARTIALLY_REFUNDED', 4);
+    define('PAYMENT_STATUS_REFUNDED', 5);
 
     define('PAYMENT_TYPE_CREDIT', 1);
     define('CUSTOM_DESIGN', 11);

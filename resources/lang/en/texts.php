@@ -1176,6 +1176,20 @@ $LANG = array(
     'page_size' => 'Page Size',
     'live_preview_disabled' => 'Live preview has been disabled to support selected font',
     'invoice_number_padding' => 'Padding',
+    
+    // Payment updates
+    'refund_payment' => 'Refund Payment',
+    'refund_max' => 'Max:',
+    'refund' => 'Refund',
+    'are_you_sure_refund' => 'Refund selected payments?',
+    'status_pending' => 'Pending',
+    'status_completed' => 'Completed',
+    'status_failed' => 'Failed',
+    'status_partially_refunded' => 'Partially Refunded',
+    'status_partially_refunded_amount' => ':amount Refunded',
+    'status_refunded' => 'Refunded',
+    'refunded_payment' => 'Refunded Payment',
+    'activity_39' => ':user refunded :adjustment of a :payment_amount payment (:payment)',
 
 );
 
