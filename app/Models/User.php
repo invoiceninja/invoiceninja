@@ -326,6 +326,10 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         
         return false;
     }
+    
+    public function owns($entity) {
+        return !empty($entity->user_id) && $entity->user_id == $this->id;
+    }
 }
 
 User::updating(function ($user) {

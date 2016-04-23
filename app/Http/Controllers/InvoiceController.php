@@ -96,9 +96,7 @@ class InvoiceController extends BaseController
                         ->withTrashed()
                         ->firstOrFail();
         
-        if(!$this->checkEditPermission($invoice, $response)){
-            return $response;
-        }
+        $this->authorize('edit', $invoice)
         
         $entityType = $invoice->getEntityType();
 

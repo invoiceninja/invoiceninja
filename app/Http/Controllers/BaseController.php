@@ -22,39 +22,15 @@ class BaseController extends Controller
         }
     }
     
-    protected function checkViewPermission($object, &$response = null){
-        if(!$object->canView()){
-            $response = response('Unauthorized.', 401);
-            return false;
-        }
-        return true;
-    }
-    
-    protected function checkEditPermission($object, &$response = null){
-        if(!$object->canEdit()){
-            $response = response('Unauthorized.', 401);
-            return false;
-        }
-        return true;
-    }
-    
-    protected function checkCreatePermission(&$response = null){
-        if(!call_user_func(array($this->model, 'canCreate'))){
-            $response = response('Unauthorized.', 401);
-            return false;
-        }
-        return true;
-    }
-    
-    protected function checkUpdatePermission($input, &$response = null){
+    protected function authorizeUpdate($input){
         $creating = empty($input['public_id']) || $input['public_id'] == '-1';
         
         if($creating){
-            return $this->checkCreatePermission($response);
+            $this->authorize('create', $this->model);
         }
         else{
             $object = call_user_func(array($this->model, 'scope'), $input['public_id'])->firstOrFail();
-            return $this->checkEditPermission($object, $response);
+            $this->authorize('edit', $object);
         }
     }
 }
