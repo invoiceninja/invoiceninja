@@ -75,7 +75,7 @@ class PaymentService extends BaseService
             $data = $this->createDataForClient($invitation);
         }
 
-        $card = new CreditCard($data);
+        $card = !empty($data['number']) ? new CreditCard($data) : null;
         $data = [
             'amount' => $invoice->getRequestedAmount(),
             'card' => $card,
@@ -155,12 +155,21 @@ class PaymentService extends BaseService
         ];
     }
 
-    public function createToken($gateway, $details, $accountGateway, $client, $contactId)
+    public function createToken($gateway, $details, $accountGateway, $client, $contactId, &$customerReference = null)
     {
         $tokenResponse = $gateway->createCard($details)->send();
-        $cardReference = $tokenResponse->getCustomerReference();
+        $cardReference = $tokenResponse->getCardReference();
+        $customerReference = $tokenResponse->getCustomerReference();
+        
+        if ($customerReference == $cardReference) {
+            // This customer was just created; find the card
+            $data = $tokenResponse->getData();
+            if(!empty($data['default_source'])) {
+                $cardReference = $data['default_source'];
+            }
+        }
 
-        if ($cardReference) {
+        if ($customerReference) {
             $token = AccountGatewayToken::where('client_id', '=', $client->id)
             ->where('account_gateway_id', '=', $accountGateway->id)->first();
 
@@ -172,7 +181,7 @@ class PaymentService extends BaseService
                 $token->client_id = $client->id;
             }
 
-            $token->token = $cardReference;
+            $token->token = $customerReference;
             $token->save();
         } else {
             $this->lastError = $tokenResponse->getMessage();
@@ -205,7 +214,7 @@ class PaymentService extends BaseService
         return $token;
     }
 
-    public function createPayment($invitation, $accountGateway, $ref, $payerId = null)
+    public function createPayment($invitation, $accountGateway, $ref, $payerId = null, $last4 = null, $expiration = null, $card_type_id = null, $routing_number = null)
     {
         $invoice = $invitation->invoice;
 
@@ -218,6 +227,10 @@ class PaymentService extends BaseService
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = date_create()->format('Y-m-d');
+        $payment->last4 = $last4;
+        $payment->expiration = $expiration;
+        $payment->card_type_id = $card_type_id;
+        $payment->routing_number = $routing_number;
         
         if ($payerId) {
             $payment->payer_id = $payerId;
@@ -329,7 +342,8 @@ class PaymentService extends BaseService
             $query->where('payments.user_id', '=', Auth::user()->id);
         }
 
-        return $this->createDatatable(ENTITY_PAYMENT, $query, !$clientPublicId);
+        return $this->createDatatable(ENTITY_PAYMENT, $query, !$clientPublicId, false, 
+                ['invoice_number', 'transaction_reference', 'payment_type', 'amount', 'payment_date']);
     }
 
     protected function getDatatableColumns($entityType, $hideClient)
@@ -366,6 +380,15 @@ class PaymentService extends BaseService
                 'payment_type',
                 function ($model) {
                     return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? $model->gateway_name : '');
+                }
+            ],
+            [
+                'source',
+                function ($model) { 
+                    if (!$model->card_type_code) return '';
+                    $card_type = trans("texts.card_" . $model->card_type_code);
+                    $expiration = trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($model->expiration, false)->format('m/d')));
+                    return '<img height="22" src="'.URL::to('/images/credit_cards/'.$model->card_type_code.'.png').'" alt="'.htmlentities($card_type).'">&nbsp; &bull;&bull;&bull;'.$model->last4.' '.$expiration;
                 }
             ],
             [

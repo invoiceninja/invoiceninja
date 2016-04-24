@@ -290,8 +290,10 @@
 			    			trans('texts.invoice'),
 			    			trans('texts.transaction_reference'),
 			    			trans('texts.method'),
+                            trans('texts.source'),
 			    			trans('texts.payment_amount'),
-			    			trans('texts.payment_date'))
+			    			trans('texts.payment_date'),
+                            trans('texts.status'))
 				->setUrl(url('api/payments/' . $client->public_id))
                 ->setCustomValues('entityType', 'payments')
 				->setOptions('sPaginationType', 'bootstrap')

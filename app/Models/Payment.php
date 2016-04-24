@@ -57,6 +57,11 @@ class Payment extends EntityModel
     public function payment_status()
     {
         return $this->belongsTo('App\Models\PaymentStatus');
+    }    
+
+    public function card_type()
+    {
+        return $this->belongsTo('App\Models\CardTypes');
     }
 
     public function getRoute()

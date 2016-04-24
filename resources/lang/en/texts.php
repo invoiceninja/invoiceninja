@@ -1190,7 +1190,21 @@ $LANG = array(
     'status_refunded' => 'Refunded',
     'refunded_payment' => 'Refunded Payment',
     'activity_39' => ':user refunded :adjustment of a :payment_amount payment (:payment)',
-
+    'card_expiration' => 'Exp: :expires',
+    
+    'card_unknown' => 'Unknown',
+    'card_amex' => 'American Express',
+    'card_carteblanche' => 'Carte Blanche',
+    'card_unionpay' => 'UnionPay',
+    'card_diners' => 'Diners Club',
+    'card_discover' => 'Discover',
+    'card_jcb' => 'JCB',
+    'card_laser' => 'Laser',
+    'card_maestro' => 'Maestro',
+    'card_mastercard' => 'MasterCard',
+    'card_solo' => 'Solo',
+    'card_switch' => 'Switch',
+    'card_visa' => 'Visa',
 );
 
 return $LANG;

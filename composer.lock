@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cf82d2ddb25cb1a7d6b4867bcc8692b8",
-    "content-hash": "481a95753b873249aebceb99e7426421",
+    "hash": "607b25b09aee82ac769bd942fac91ba6",
+    "content-hash": "122f3f59beb2286159145d219dbcbc90",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -127,7 +127,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/formers/former/zipball/78ae8c65b1f8134e2db1c9491c251c03638823ca",
+                "url": "https://api.github.com/repos/formers/former/zipball/37f6876a5d211427b5c445cd64f0eb637f42f685",
                 "reference": "d97f907741323b390f43954a90a227921ecc6b96",
                 "shasum": ""
             },
@@ -699,7 +699,7 @@
                 "laravel"
             ],
             "abandoned": "OpenSkill/Datatable",
-            "time": "2015-04-29 07:00:36"
+            "time": "2015-11-23 21:33:41"
         },
         {
             "name": "classpreloader/classpreloader",
@@ -5661,16 +5661,16 @@
         },
         {
             "name": "omnipay/stripe",
-            "version": "v2.3.0",
+            "version": "v2.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-stripe.git",
-                "reference": "54b816a5e95e34c988d71fb805b0232cfd7c1ce5"
+                "reference": "fe05ddd73d9ae38ca026dbc270ca98aaf3f99da4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-stripe/zipball/54b816a5e95e34c988d71fb805b0232cfd7c1ce5",
-                "reference": "54b816a5e95e34c988d71fb805b0232cfd7c1ce5",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-stripe/zipball/fe05ddd73d9ae38ca026dbc270ca98aaf3f99da4",
+                "reference": "fe05ddd73d9ae38ca026dbc270ca98aaf3f99da4",
                 "shasum": ""
             },
             "require": {
@@ -5714,7 +5714,7 @@
                 "payment",
                 "stripe"
             ],
-            "time": "2015-11-10 16:17:35"
+            "time": "2016-03-19 08:35:06"
         },
         {
             "name": "omnipay/targetpay",

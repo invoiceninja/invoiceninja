@@ -481,6 +481,20 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_STATUS_COMPLETED', 3);
     define('PAYMENT_STATUS_PARTIALLY_REFUNDED', 4);
     define('PAYMENT_STATUS_REFUNDED', 5);
+    
+    define('CARD_UNKNOWN', 0);
+    define('CARD_AMERICAN_EXPRESS', 1);
+    define('CARD_CARTE_BLANCHE', 2);
+    define('CARD_UNIONPAY', 3);
+    define('CARD_DINERS_CLUB', 4);
+    define('CARD_DISCOVER', 5);
+    define('CARD_JCB', 6);
+    define('CARD_LASER', 7);
+    define('CARD_MAISTRO', 8);
+    define('CARD_MASTERCARD', 9);
+    define('CARD_SOLO', 10);
+    define('CARD_SWITCH', 11);
+    define('CARD_VISA', 12);
 
     define('PAYMENT_TYPE_CREDIT', 1);
     define('CUSTOM_DESIGN', 11);

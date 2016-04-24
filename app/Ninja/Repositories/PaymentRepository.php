@@ -23,6 +23,7 @@ class PaymentRepository extends BaseRepository
                     ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->join('payment_statuses', 'payment_statuses.id', '=', 'payments.payment_status_id')
+                    ->join('card_types', 'card_types.id', '=', 'payments.card_type_id')
                     ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
                     ->leftJoin('account_gateways', 'account_gateways.id', '=', 'payments.account_gateway_id')
                     ->leftJoin('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
@@ -54,10 +55,13 @@ class PaymentRepository extends BaseRepository
                         'payments.is_deleted',
                         'payments.user_id',
                         'payments.refunded',
+                        'payments.expiration',
+                        'payments.last4',
                         'invoices.is_deleted as invoice_is_deleted',
                         'gateways.name as gateway_name',
                         'gateways.id as gateway_id',
-                        'payment_statuses.name as payment_status_name'
+                        'payment_statuses.name as payment_status_name',
+                        'card_types.code as card_type_code'
                     );
 
         if (!\Session::get('show_trash:payment')) {
@@ -85,6 +89,7 @@ class PaymentRepository extends BaseRepository
                     ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->join('payment_statuses', 'payment_statuses.id', '=', 'payments.payment_status_id')
+                    ->join('card_types', 'card_types.id', '=', 'payments.card_type_id')
                     ->leftJoin('invitations', function ($join) {
                         $join->on('invitations.invoice_id', '=', 'invoices.id')
                              ->on('invitations.contact_id', '=', 'contacts.id');
@@ -113,8 +118,11 @@ class PaymentRepository extends BaseRepository
                         'payment_types.name as payment_type',
                         'payments.account_gateway_id',
                         'payments.refunded',
+                        'payments.expiration',
+                        'payments.last4',
                         'payments.payment_status_id',
-                        'payment_statuses.name as payment_status_name'
+                        'payment_statuses.name as payment_status_name',
+                        'card_types.code as card_type_code'
                     );
 
         if ($filter) {
