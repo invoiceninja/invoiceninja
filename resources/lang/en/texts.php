@@ -1190,7 +1190,7 @@ $LANG = array(
     'status_refunded' => 'Refunded',
     'refunded_payment' => 'Refunded Payment',
     'activity_39' => ':user refunded :adjustment of a :payment_amount payment (:payment)',
-    'card_expiration' => 'Exp: :expires',
+    'card_expiration' => 'Exp:&nbsp:expires',
     
     'card_unknown' => 'Unknown',
     'card_amex' => 'American Express',
