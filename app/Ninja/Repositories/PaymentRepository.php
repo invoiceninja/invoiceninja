@@ -23,7 +23,7 @@ class PaymentRepository extends BaseRepository
                     ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->join('payment_statuses', 'payment_statuses.id', '=', 'payments.payment_status_id')
-                    ->join('card_types', 'card_types.id', '=', 'payments.card_type_id')
+                    ->leftJoin('card_types', 'card_types.id', '=', 'payments.card_type_id')
                     ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
                     ->leftJoin('account_gateways', 'account_gateways.id', '=', 'payments.account_gateway_id')
                     ->leftJoin('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
@@ -89,7 +89,7 @@ class PaymentRepository extends BaseRepository
                     ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->join('payment_statuses', 'payment_statuses.id', '=', 'payments.payment_status_id')
-                    ->join('card_types', 'card_types.id', '=', 'payments.card_type_id')
+                    ->leftJoin('card_types', 'card_types.id', '=', 'payments.card_type_id')
                     ->leftJoin('invitations', function ($join) {
                         $join->on('invitations.invoice_id', '=', 'invoices.id')
                              ->on('invitations.contact_id', '=', 'contacts.id');
