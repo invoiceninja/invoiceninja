@@ -344,7 +344,7 @@ class PublicClientController extends BaseController
                 ->addColumn('payment_source', function ($model) { 
                     if (!$model->card_type_code) return '';
                     $card_type = trans("texts.card_" . $model->card_type_code);
-                    $expiration = trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($model->expiration, false)->format('m/d')));
+                    $expiration = trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($model->expiration, false)->format('m/y')));
                     return '<img height="22" src="'.URL::to('/images/credit_cards/'.$model->card_type_code.'.png').'" alt="'.htmlentities($card_type).'">&nbsp; &bull;&bull;&bull;'.$model->last4.' '.$expiration;
                 })
                 ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })

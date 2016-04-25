@@ -214,7 +214,7 @@ class PaymentService extends BaseService
         return $token;
     }
 
-    public function createPayment($invitation, $accountGateway, $ref, $payerId = null, $last4 = null, $expiration = null, $card_type_id = null, $routing_number = null)
+    public function createPayment($invitation, $accountGateway, $ref, $payerId = null, $paymentDetails = null, $purchaseResponse = null)
     {
         $invoice = $invitation->invoice;
 
@@ -227,10 +227,44 @@ class PaymentService extends BaseService
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = date_create()->format('Y-m-d');
-        $payment->last4 = $last4;
-        $payment->expiration = $expiration;
-        $payment->card_type_id = $card_type_id;
-        $payment->routing_number = $routing_number;
+        
+       if (!empty($paymentDetails['card'])) {
+            $card = $paymentDetails['card'];
+            $payment->last4 = substr($card->number, -4);
+            $year = $card->expiryYear;
+            if (strlen($year) == 2) {
+                $year = '20' . $year;
+            }
+
+            $payment->expiration = $year . '-' . $card->expiryMonth . '-00';
+            $payment->card_type_id = $this->detectCardType($card->number);
+        }
+
+        if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+            $card = $purchaseResponse->getSource();
+            if (!$card) {
+                $card = $purchaseResponse->getCard();
+            }
+
+            if ($card) {
+                $payment->last4 = $card['last4'];
+                $payment->expiration = $card['exp_year'] . '-' . $card['exp_month'] . '-00';
+                $stripe_card_types = array(
+                    'Visa' => CARD_VISA,
+                    'American Express' => CARD_AMERICAN_EXPRESS,
+                    'MasterCard' => CARD_MASTERCARD,
+                    'Discover' => CARD_DISCOVER,
+                    'JCB' => CARD_JCB,
+                    'Diners Club' => CARD_DINERS_CLUB
+                );
+
+                if (!empty($stripe_card_types[$card['brand']])) {
+                    $payment->card_type_id = $stripe_card_types[$card['brand']];
+                } else {
+                    $payment->card_type_id = CARD_UNKNOWN;
+                }
+            }
+        }
         
         if ($payerId) {
             $payment->payer_id = $payerId;
@@ -293,6 +327,24 @@ class PaymentService extends BaseService
 
         return $payment;
     }
+    
+    private function detectCardType($number)
+    {
+        if (preg_match('/^3[47][0-9]{13}$/',$number)) {
+            return CARD_AMERICAN_EXPRESS;
+        } elseif (preg_match('/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/',$number)) {
+            return CARD_DINERS_CLUB;
+        } elseif (preg_match('/^6(?:011|5[0-9][0-9])[0-9]{12}$/',$number)) {
+            return CARD_DISCOVER;
+        } elseif (preg_match('/^(?:2131|1800|35\d{3})\d{11}$/',$number)) {
+            return CARD_JCB;
+        } elseif (preg_match('/^5[1-5][0-9]{14}$/',$number)) {
+            return CARD_MASTERCARD;
+        } elseif (preg_match('/^4[0-9]{12}(?:[0-9]{3})?$/',$number)) {
+            return CARD_VISA;
+        }
+        return CARD_UNKNOWN;
+    }
 
     public function completePurchase($gateway, $accountGateway, $details, $token)
     {
@@ -328,7 +380,7 @@ class PaymentService extends BaseService
 
         if ($response->isSuccessful()) {
             $ref = $response->getTransactionReference();
-            return $this->createPayment($invitation, $accountGateway, $ref);
+            return $this->createPayment($invitation, $accountGateway, $ref, $details, $response);
         } else {
             return false;
         }
@@ -387,7 +439,7 @@ class PaymentService extends BaseService
                 function ($model) { 
                     if (!$model->card_type_code) return '';
                     $card_type = trans("texts.card_" . $model->card_type_code);
-                    $expiration = trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($model->expiration, false)->format('m/d')));
+                    $expiration = trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($model->expiration, false)->format('m/y')));
                     return '<img height="22" src="'.URL::to('/images/credit_cards/'.$model->card_type_code.'.png').'" alt="'.htmlentities($card_type).'">&nbsp; &bull;&bull;&bull;'.$model->last4.' '.$expiration;
                 }
             ],

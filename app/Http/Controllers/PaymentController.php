@@ -482,49 +482,7 @@ class PaymentController extends BaseController
             }
 
             if ($response->isSuccessful()) {
-                $last4 = null;
-                $expiration = null;
-                $card_type_id = null;
-                
-                if (!empty($details['card'])) {
-                    $card = $details['card'];
-                    $last4 = substr($card->number, -4);
-                    $year = $card->expiryYear;
-                    if (strlen($year) == 2) {
-                        $year = '20' . $year;
-                    }
-                    
-                    $expiration = $year . '-' . $card->expiryMonth . '-00';
-                    $card_type_id = $this->detectCardType($card->number);
-                }
-                
-                if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
-                    $card = $response->getSource();
-                    if (!$card) {
-                        $card = $response->getCard();
-                    }
-                    
-                    if ($card) {
-                        $last4 = $card['last4'];
-                        $expiration = $card['exp_year'] . '-' . $card['exp_month'] . '-00';
-                        $stripe_card_types = array(
-                            'Visa' => CARD_VISA,
-                            'American Express' => CARD_AMERICAN_EXPRESS,
-                            'MasterCard' => CARD_MASTERCARD,
-                            'Discover' => CARD_DISCOVER,
-                            'JCB' => CARD_JCB,
-                            'Diners Club' => CARD_DINERS_CLUB
-                        );
-
-                        if (!empty($stripe_card_types[$card['brand']])) {
-                            $card_type_id = $stripe_card_types[$card['brand']];
-                        } else {
-                            $card_type_id = CARD_UNKNOWN;
-                        }
-                    }
-                }
-                
-                $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, null, $last4, $expiration, $card_type_id);
+                $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, null, $details, $response);
                 Session::flash('message', trans('texts.applied_payment'));
 
                 if ($account->account_key == NINJA_ACCOUNT_KEY) {
@@ -556,24 +514,6 @@ class PaymentController extends BaseController
                 return Redirect::to('view/'.$invitationKey);
             }
         }
-    }
-    
-    private function detectCardType($number)
-    {
-        if (preg_match('/^3[47][0-9]{13}$/',$number)) {
-            return CARD_AMERICAN_EXPRESS;
-        } elseif (preg_match('/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/',$number)) {
-            return CARD_DINERS_CLUB;
-        } elseif (preg_match('/^6(?:011|5[0-9][0-9])[0-9]{12}$/',$number)) {
-            return CARD_DISCOVER;
-        } elseif (preg_match('/^(?:2131|1800|35\d{3})\d{11}$/',$number)) {
-            return CARD_JCB;
-        } elseif (preg_match('/^5[1-5][0-9]{14}$/',$number)) {
-            return CARD_MASTERCARD;
-        } elseif (preg_match('/^4[0-9]{12}(?:[0-9]{3})?$/',$number)) {
-            return CARD_VISA;
-        }
-        return CARD_UNKNOWN;
     }
 
     public function offsite_payment()
@@ -637,7 +577,7 @@ class PaymentController extends BaseController
                 if ($response->isCancelled()) {
                     // do nothing
                 } elseif ($response->isSuccessful()) {
-                    $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, $payerId);
+                    $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, $payerId, $details, $purchaseResponse);
                     Session::flash('message', trans('texts.applied_payment'));
                 } else {
                     $this->error('offsite', $response->getMessage(), $accountGateway);
