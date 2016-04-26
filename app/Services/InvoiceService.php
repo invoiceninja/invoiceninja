@@ -33,17 +33,17 @@ class InvoiceService extends BaseService
     public function save($data, $checkSubPermissions = false)
     {
         if (isset($data['client'])) {
-            $can_save_client = !$checkSubPermissions;
-            if(!$can_save_client){
-                if(empty($data['client']['public_id']) || $data['client']['public_id']=='-1'){
-                    $can_save_client = Client::canCreate();
-                }
-                else{
-                    $can_save_client = Client::wherePublicId($data['client']['public_id'])->first()->canEdit();
+            $canSaveClient = !$checkSubPermissions;
+            if( ! $canSaveClient){
+                $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id'); 
+                if (empty($clientPublicId) || $clientPublicId == '-1') {
+                    $canSaveClient = Client::canCreate();
+                } else {
+                    $canSaveClient = Client::scope($clientPublicId)->first()->canEdit();
                 }
             }
             
-            if($can_save_client){
+            if ($canSaveClient) {
                 $client = $this->clientRepo->save($data['client']);
                 $data['client_id'] = $client->id;
             }

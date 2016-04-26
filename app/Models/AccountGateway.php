@@ -60,13 +60,7 @@ class AccountGateway extends EntityModel
 
     public function getConfigField($field)
     {
-        $config = $this->getConfig();
-
-        if (!$field || !property_exists($config, $field)) {
-            return false;
-        }
-
-        return $config->$field;
+        return object_get($this->getConfig(), $field, false);
     }
 
     public function getPublishableStripeKey()

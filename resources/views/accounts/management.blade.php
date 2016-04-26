@@ -220,6 +220,11 @@
   	  	}
 		$('#plan_term, #plan').change(updatePlanModal);
 	  	updatePlanModal();
+		
+		if(window.location.hash) {
+			var hash = window.location.hash;
+			$(hash).modal('toggle');
+	  	}
   	});
 </script>
 @stop
