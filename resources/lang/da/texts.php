@@ -516,11 +516,11 @@ return array(
     'token_billing_3' => 'Fravalg - checkboks er vist og valgt',
     'token_billing_4' => 'Altid',
     'token_billing_checkbox' => 'Opbevar kreditkort oplysninger',
-    'view_in_stripe' => 'Vis i Stripe ',
+    'view_in_gateway' => 'Vis i :gateway',
     'use_card_on_file' => 'Brug allerede gemt kort',
     'edit_payment_details' => 'Redigér betalings detaljer',
     'token_billing' => 'Gem kort detaljer',
-    'token_billing_secure' => 'Kort data er opbevaret sikkert hos :stripe_link',
+    'token_billing_secure' => 'Kort data er opbevaret sikkert hos :link',
 
     'support' => 'Kundeservice',
     'contact_information' => 'Kontakt information',

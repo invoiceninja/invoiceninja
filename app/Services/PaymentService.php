@@ -157,15 +157,26 @@ class PaymentService extends BaseService
 
     public function createToken($gateway, $details, $accountGateway, $client, $contactId, &$customerReference = null)
     {
-        $tokenResponse = $gateway->createCard($details)->send();
-        $cardReference = $tokenResponse->getCardReference();
-        $customerReference = $tokenResponse->getCustomerReference();
-        
-        if ($customerReference == $cardReference) {
-            // This customer was just created; find the card
-            $data = $tokenResponse->getData();
-            if(!empty($data['default_source'])) {
-                $cardReference = $data['default_source'];
+        if ($accountGateway->gateway->id == GATEWAY_STRIPE) {
+            $tokenResponse = $gateway->createCard($details)->send();
+            $cardReference = $tokenResponse->getCardReference();
+            $customerReference = $tokenResponse->getCustomerReference();
+
+            if ($customerReference == $cardReference) {
+                // This customer was just created; find the card
+                $data = $tokenResponse->getData();
+                if (!empty($data['default_source'])) {
+                    $cardReference = $data['default_source'];
+                }
+            }
+        } elseif ($accountGateway->gateway->id == GATEWAY_BRAINTREE) {
+            $tokenResponse = $gateway->createCustomer(array('customerData'=>array()))->send();
+
+            if ($tokenResponse->isSuccessful()) {
+                $details['customerId'] = $customerReference = $tokenResponse->getCustomerData()->id;
+
+                $tokenResponse = $gateway->createPaymentMethod($details)->send();
+                $cardReference = $tokenResponse->getData()->paymentMethod->token;
             }
         }
 
@@ -214,6 +225,18 @@ class PaymentService extends BaseService
         return $token;
     }
 
+    public function getBraintreeClientToken($account)
+    {
+        $token = false;
+
+        $accountGateway = $account->getGatewayConfig(GATEWAY_BRAINTREE);
+        $gateway = $this->createGateway($accountGateway);
+
+        $token = $gateway->clientToken()->send()->getToken();
+
+        return $token;
+    }
+
     public function createPayment($invitation, $accountGateway, $ref, $payerId = null, $paymentDetails = null, $purchaseResponse = null)
     {
         $invoice = $invitation->invoice;
@@ -228,7 +251,7 @@ class PaymentService extends BaseService
         $payment->transaction_reference = $ref;
         $payment->payment_date = date_create()->format('Y-m-d');
         
-       if (!empty($paymentDetails['card'])) {
+        if (!empty($paymentDetails['card'])) {
             $card = $paymentDetails['card'];
             $payment->last4 = substr($card->number, -4);
             $year = $card->expiryYear;
@@ -255,7 +278,7 @@ class PaymentService extends BaseService
                     'MasterCard' => CARD_MASTERCARD,
                     'Discover' => CARD_DISCOVER,
                     'JCB' => CARD_JCB,
-                    'Diners Club' => CARD_DINERS_CLUB
+                    'Diners Club' => CARD_DINERS_CLUB,
                 );
 
                 if (!empty($stripe_card_types[$card['brand']])) {
@@ -263,6 +286,31 @@ class PaymentService extends BaseService
                 } else {
                     $payment->card_type_id = CARD_UNKNOWN;
                 }
+            }
+        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+            $card = $purchaseResponse->getData()->transaction->creditCardDetails;
+            $payment->last4 = $card->last4;
+            $payment->expiration = $card->expirationYear . '-' . $card->expirationMonth . '-00';
+
+            $braintree_card_types = array(
+                'Visa' => CARD_VISA,
+                'American Express' => CARD_AMERICAN_EXPRESS,
+                'MasterCard' => CARD_MASTERCARD,
+                'Discover' => CARD_DISCOVER,
+                'JCB' => CARD_JCB,
+                'Diners Club' => CARD_DINERS_CLUB,
+                'Carte Blanche' => CARD_CARTE_BLANCHE,
+                'China UnionPay' => CARD_UNIONPAY,
+                'Laser' => CARD_LASER,
+                'Maestro' => CARD_MAESTRO,
+                'Solo' => CARD_SOLO,
+                'Switch' => CARD_SWITCH,
+            );
+
+            if (!empty($braintree_card_types[$card->cardType])) {
+                $payment->card_type_id = $braintree_card_types[$card->cardType];
+            } else {
+                $payment->card_type_id = CARD_UNKNOWN;
             }
         }
         
@@ -363,7 +411,7 @@ class PaymentService extends BaseService
         $client = $invoice->client;
         $account = $invoice->account;
         $invitation = $invoice->invitations->first();
-        $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
+        $accountGateway = $account->getTokenGateway();
         $token = $client->getGatewayToken();
 
         if (!$invitation || !$accountGateway || !$token) {
@@ -375,12 +423,21 @@ class PaymentService extends BaseService
         $details = $this->getPaymentDetails($invitation, $accountGateway);
         $details['customerReference'] = $token;
 
+        if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+            $details['customerReference'] = $token;
+
+        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+            $details['customerId'] = $token;
+            $customer = $gateway->findCustomer($token)->send();
+            $details['paymentMethodToken'] = $customer->getData()->paymentMethods[0]->token;
+        }
+
         // submit purchase/get response
         $response = $gateway->purchase($details)->send();
 
         if ($response->isSuccessful()) {
             $ref = $response->getTransactionReference();
-            return $this->createPayment($invitation, $accountGateway, $ref, $details, $response);
+            return $this->createPayment($invitation, $accountGateway, $ref, null, $details, $response);
         } else {
             return false;
         }

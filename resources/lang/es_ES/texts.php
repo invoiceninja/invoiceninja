@@ -509,11 +509,11 @@ return array(
     'token_billing_3' => 'La casilla Opt-Out se muestra y se selecciona',
     'token_billing_4' => 'Siempre',
     'token_billing_checkbox' => 'Almacenar datos de la tarjeta de crédito',
-    'view_in_stripe' => 'Ver en Stripe',
+    'view_in_gateway' => 'Ver en :gateway',
     'use_card_on_file' => 'Usar tarjeta en fichero', //??
     'edit_payment_details' => 'Editar detalles de pago',
     'token_billing' => 'Guardar datos de la tarjeta',
-    'token_billing_secure' => 'Los datos serán almacenados de forma segura por :stripe_link',
+    'token_billing_secure' => 'Los datos serán almacenados de forma segura por :link',
 
     'support' => 'Soporte',
     'contact_information' => 'Información de Contacto',

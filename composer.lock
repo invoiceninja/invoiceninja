@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "607b25b09aee82ac769bd942fac91ba6",
-    "content-hash": "122f3f59beb2286159145d219dbcbc90",
+    "hash": "e2b43d6bd5e87dfb9b3be07e89a2bd9f",
+    "content-hash": "480134957ff37fd0f46b5d90909da660",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -557,6 +557,53 @@
                 "sublime"
             ],
             "time": "2016-03-03 14:38:04"
+        },
+        {
+            "name": "braintree/braintree_php",
+            "version": "3.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/braintree/braintree_php.git",
+                "reference": "2ab7e41d8d31286fa64bae7279a8e785a40b1be4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/2ab7e41d8d31286fa64bae7279a8e785a40b1be4",
+                "reference": "2ab7e41d8d31286fa64bae7279a8e785a40b1be4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-dom": "*",
+                "ext-hash": "*",
+                "ext-openssl": "*",
+                "ext-xmlwriter": "*",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Braintree": "lib/"
+                },
+                "psr-4": {
+                    "Braintree\\": "lib/Braintree"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Braintree",
+                    "homepage": "http://www.braintreepayments.com"
+                }
+            ],
+            "description": "Braintree PHP Client Library",
+            "time": "2016-04-12 20:39:36"
         },
         {
             "name": "cardgate/omnipay-cardgate",
@@ -2338,7 +2385,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/e368d262887dbb2fdfaf710880571ede51e9c0e6",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/22088b04728a039bd1fc32f7e79a89a118b78698",
                 "reference": "e368d262887dbb2fdfaf710880571ede51e9c0e6",
                 "shasum": ""
             },
@@ -4276,6 +4323,69 @@
                 "payment"
             ],
             "time": "2016-03-10 03:16:04"
+        },
+        {
+            "name": "omnipay/braintree",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/omnipay-braintree.git",
+                "reference": "e4b4027c6a9e6443833490d0d51fd530f0a19f62"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-braintree/zipball/e4b4027c6a9e6443833490d0d51fd530f0a19f62",
+                "reference": "e4b4027c6a9e6443833490d0d51fd530f0a19f62",
+                "shasum": ""
+            },
+            "require": {
+                "braintree/braintree_php": "^2.39|^3.0",
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Braintree\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Barry vd. Heuvel",
+                    "email": "barryvdh@gmail.com"
+                },
+                {
+                    "name": "Kayla Daniels",
+                    "email": "kayladnls@gmail.com"
+                },
+                {
+                    "name": "Omnipay Contributors",
+                    "homepage": "https://github.com/thephpleague/omnipay-braintree/contributors"
+                }
+            ],
+            "description": "Braintree gateway for Omnipay payment processing library",
+            "homepage": "https://github.com/thephpleague/omnipay-braintree",
+            "keywords": [
+                "braintree",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "purchase"
+            ],
+            "time": "2016-02-25 20:54:09"
         },
         {
             "name": "omnipay/buckaroo",
@@ -9894,7 +10004,8 @@
         "meebio/omnipay-secure-trading": 20,
         "labs7in0/omnipay-wechat": 20,
         "laracasts/presenter": 20,
-        "jlapp/swaggervel": 20
+        "jlapp/swaggervel": 20,
+        "omnipay/braintree": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

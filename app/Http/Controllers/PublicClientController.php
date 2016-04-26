@@ -305,7 +305,7 @@ class PublicClientController extends BaseController
 
     public function paymentIndex()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$invitation = $this->getInGvitation()) {
             return $this->returnError();
         }
         $account = $invitation->account;

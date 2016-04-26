@@ -490,7 +490,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('CARD_DISCOVER', 5);
     define('CARD_JCB', 6);
     define('CARD_LASER', 7);
-    define('CARD_MAISTRO', 8);
+    define('CARD_MAESTRO', 8);
     define('CARD_MASTERCARD', 9);
     define('CARD_SOLO', 10);
     define('CARD_SWITCH', 11);
@@ -560,6 +560,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_DWOLLA', 43);
     define('GATEWAY_CHECKOUT_COM', 47);
     define('GATEWAY_CYBERSOURCE', 49);
+    define('GATEWAY_BRAINTREE', 62);
 
     define('EVENT_CREATE_CLIENT', 1);
     define('EVENT_CREATE_INVOICE', 2);

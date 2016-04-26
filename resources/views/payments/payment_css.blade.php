@@ -12,9 +12,14 @@ body {
 
 .container input[type=text],
 .container input[type=email],
-.container select {
+.container select,
+.braintree-hosted {
+    @if(!empty($account))
+    {!! $account->getBodyFontCss() !!}
+    @else
     font-weight: 300;
     font-family: 'Roboto', sans-serif;
+    @endif
     width: 100%;
     padding: 11px;
     color: #8c8c8c;
@@ -24,6 +29,12 @@ body {
     font-size: 16px;
     min-height: 42px !important;
     font-weight: 400;
+}
+
+.form-control.braintree-hosted-fields-focused{
+    border-color: #66afe9;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
 }
 
 div.col-md-3,

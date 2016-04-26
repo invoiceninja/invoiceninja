@@ -516,11 +516,11 @@ return array(
     'token_billing_3' => 'Aktivert - valgboks er vist og valgt',
     'token_billing_4' => 'Alltid',
     'token_billing_checkbox' => 'Lagre bankkort detaljer',
-    'view_in_stripe' => 'Vis i Stripe',
+    'view_in_gateway' => 'Vis i :gateway',
     'use_card_on_file' => 'Bruk lagret kort',
     'edit_payment_details' => 'Rediger betalings detaljer',
     'token_billing' => 'Lagre kort detaljer',
-    'token_billing_secure' => 'Dataene er trygt lagret av :stripe_link',
+    'token_billing_secure' => 'Dataene er trygt lagret av :link',
 
     'support' => 'Brukerstøtte',
     'contact_information' => 'Kontaktinformasjon',

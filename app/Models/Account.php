@@ -1199,14 +1199,33 @@ class Account extends Eloquent
         return false;
     }
 
-    public function showTokenCheckbox()
+    public function showTokenCheckbox(&$storage_gateway = null)
     {
-        if (!$this->isGatewayConfigured(GATEWAY_STRIPE)) {
+        if (!$this->getTokenGatewayId()) {
             return false;
         }
 
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_IN
                 || $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
+    }
+
+    public function getTokenGatewayId() {
+        if ($this->isGatewayConfigured(GATEWAY_STRIPE)) {
+            return GATEWAY_STRIPE;
+        } elseif ($this->isGatewayConfigured(GATEWAY_BRAINTREE)) {
+            return GATEWAY_BRAINTREE;
+        } else {
+            return false;
+        }
+    }
+
+    public function getTokenGateway() {
+        $gatewayId = $this->getTokenGatewayId();
+        if (!$gatewayId) {
+            return;
+        }
+
+        return $this->getGatewayConfig($gatewayId);
     }
 
     public function selectTokenCheckbox()

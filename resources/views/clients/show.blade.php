@@ -39,7 +39,7 @@
                 </div>
 
                 @if ($gatewayLink)
-                    {!! Button::normal(trans('texts.view_in_stripe'))->asLinkTo($gatewayLink)->withAttributes(['target' => '_blank']) !!}
+                    {!! Button::normal(trans('texts.view_in_gateway', ['gateway'=>$gateway->gateway->name]))->asLinkTo($gatewayLink)->withAttributes(['target' => '_blank']) !!}
                 @endif
 
                 @if ($client->trashed())

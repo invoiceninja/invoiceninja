@@ -200,6 +200,10 @@ class PaymentController extends BaseController
             'showAddress' => $accountGateway->show_address,
         ];
 
+        if ($gateway->id = GATEWAY_BRAINTREE) {
+            $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
+        }
+
         return View::make('payments.payment', $data);
     }
 
@@ -377,7 +381,7 @@ class PaymentController extends BaseController
             'last_name' => 'required',
         ];
 
-        if ( ! Input::get('stripeToken')) {
+        if ( ! Input::get('stripeToken') && ! Input::get('payment_method_nonce')) {
             $rules = array_merge(
                 $rules,
                 [
@@ -446,6 +450,28 @@ class PaymentController extends BaseController
                     if ($token) {
                         $details['token'] = $token;
                         $details['customerReference'] = $customerReference;
+                    } else {
+                        $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
+                        return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
+                    }
+                }
+            } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+                if ($token = Input::get('payment_method_nonce')) {
+                    $details['token'] = $token;
+                    unset($details['card']);
+                }
+
+                if ($useToken) {
+                    $details['customerId'] = $customerId = $client->getGatewayToken();
+                    $customer = $gateway->findCustomer($customerId)->send();
+                    $details['paymentMethodToken'] = $customer->getData()->paymentMethods[0]->token;
+                    unset($details['token']);
+                } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing')) {
+                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference);
+                    if ($token) {
+                        $details['paymentMethodToken'] = $token;
+                        $details['customerId'] = $customerReference;
+                        unset($details['token']);
                     } else {
                         $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
                         return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));

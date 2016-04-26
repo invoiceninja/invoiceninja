@@ -254,16 +254,15 @@ class Client extends EntityModel
     }
 
 
-    public function getGatewayToken()
+    public function getGatewayToken(&$accountGateway = null)
     {
         $this->account->load('account_gateways');
 
         if (!count($this->account->account_gateways)) {
             return false;
         }
+        $accountGateway = $this->account->getTokenGateway();
 
-        $accountGateway = $this->account->getGatewayConfig(GATEWAY_STRIPE);
-        
         if (!$accountGateway) {
             return false;
         }
@@ -274,10 +273,22 @@ class Client extends EntityModel
         return $token ? $token->token : false;
     }
 
-    public function getGatewayLink()
+    public function getGatewayLink(&$accountGateway = null)
     {
-        $token = $this->getGatewayToken();
-        return $token ? "https://dashboard.stripe.com/customers/{$token}" : false;
+        $token = $this->getGatewayToken($accountGateway);
+        if (!$token) {
+            return false;
+        }
+
+        if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+            return "https://dashboard.stripe.com/customers/{$token}";
+        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+            $merchantId = $accountGateway->getConfig()->merchantId;
+            $testMode = $accountGateway->getConfig()->testMode;
+            return $testMode ? "https://sandbox.braintreegateway.com/merchants/{$merchantId}/customers/{$token}" : "https://www.braintreegateway.com/merchants/{$merchantId}/customers/{$token}";
+        } else {
+            return false;
+        }
     }
 
     public function getAmount()

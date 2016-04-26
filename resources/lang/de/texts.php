@@ -516,11 +516,11 @@ return array(
     'token_billing_3' => 'Opt-out - Kontrollkästchen wird angezeigt und ist ausgewählt',
     'token_billing_4' => 'Immer',
     'token_billing_checkbox' => 'Kreditkarteninformationen speichern',
-    'view_in_stripe' => 'Auf Stripe anzeigen',
+    'view_in_gateway' => 'Auf :gateway anzeigen',
     'use_card_on_file' => 'Verwende gespeicherte Kreditkarte',
     'edit_payment_details' => 'Zahlungsdetails bearbeiten',
     'token_billing' => 'Kreditkarte merken',
-    'token_billing_secure' => 'Die Daten werden sicher von :stripe_link gespeichert.',
+    'token_billing_secure' => 'Die Daten werden sicher von :link gespeichert.',
 
     'support' => 'Support',
     'contact_information' => 'Kontakt-Informationen',

@@ -2,8 +2,63 @@
 
 @section('head')
     @parent
+    @if (!empty($braintreeClientToken))
+        <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
+        <script type="text/javascript" >
+            $(function() {
+                braintree.setup("{{ $braintreeClientToken }}", "custom", {
+                    id: "payment-form",
+                    hostedFields: {
+                        number: {
+                            selector: "#card_number",
+                            placeholder: "{{ trans('texts.card_number') }}"
+                        },
+                        cvv: {
+                            selector: "#cvv",
+                            placeholder: "{{ trans('texts.cvv') }}"
+                        },
+                        expirationMonth: {
+                            selector: "#expiration_month",
+                            placeholder: "{{ trans('texts.expiration_month') }}"
+                        },
+                        expirationYear: {
+                            selector: "#expiration_year",
+                            placeholder: "{{ trans('texts.expiration_year') }}"
+                        },
+                        styles: {
+                            'input': {
+                                'font-family': {!!  json_encode(Utils::getFromCache($account->getBodyFontId(), 'fonts')['css_stack']) !!},
+                                'font-weight': "{{ Utils::getFromCache($account->getBodyFontId(), 'fonts')['css_weight'] }}",
+                                'font-size': '16px'
+                            }
+                        }
+                    },
+                    onError: function(e) {
+                        // Show the errors on the form
+                        if (e.details && e.details.invalidFieldKeys.length) {
+                            var invalidField = e.details.invalidFieldKeys[0];
 
-    @if ($accountGateway->getPublishableStripeKey())
+                            if (invalidField == 'number') {
+                                $('#js-error-message').html('{{ trans('texts.invalid_card_number') }}').fadeIn();
+                            }
+                            else if (invalidField == 'expirationDate' || invalidField == 'expirationYear' || invalidField == 'expirationMonth') {
+                                $('#js-error-message').html('{{ trans('texts.invalid_expiry') }}').fadeIn();
+                            }
+                            else if (invalidField == 'cvv') {
+                                $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
+                            }
+                        }
+                        else {
+                            $('#js-error-message').html(e.message).fadeIn();
+                        }
+                    }
+                });
+                $('.payment-form').submit(function(event) {
+                    $('#js-error-message').hide();
+                });
+            });
+        </script>
+    @elseif ($accountGateway->getPublishableStripeKey())
         <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
         <script type="text/javascript">
             Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
@@ -92,6 +147,7 @@
 {!! Former::vertical_open($url)
         ->autocomplete('on')
         ->addClass('payment-form')
+        ->id('payment-form')
         ->rules(array(
             'first_name' => 'required',
             'last_name' => 'required',
@@ -238,22 +294,33 @@
         <h3>{{ trans('texts.billing_method') }}</h3>
         <div class="row">
             <div class="col-md-9">
+                @if (!empty($braintreeClientToken))
+                    <div id="card_number" class="braintree-hosted form-control"></div>
+                @else
                 {!! Former::text($accountGateway->getPublishableStripeKey() ? '' : 'card_number')
                         ->id('card_number')
                         ->placeholder(trans('texts.card_number'))
                         ->autocomplete('cc-number')
                         ->label('') !!}
+                @endif
             </div>
             <div class="col-md-3">
+                @if (!empty($braintreeClientToken))
+                    <div id="cvv" class="braintree-hosted form-control"></div>
+                @else
                 {!! Former::text($accountGateway->getPublishableStripeKey() ? '' : 'cvv')
                         ->id('cvv')
                         ->placeholder(trans('texts.cvv'))
                         ->autocomplete('off')
                         ->label('') !!}
+                @endif
             </div>
         </div>
         <div class="row">
             <div class="col-md-6">
+                @if (!empty($braintreeClientToken))
+                    <div id="expiration_month" class="braintree-hosted form-control"></div>
+                @else
                 {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_month')
                         ->id('expiration_month')
                         ->autocomplete('cc-exp-month')
@@ -271,8 +338,12 @@
                           ->addOption('11 - November', '11')
                           ->addOption('12 - December', '12')->label('')
                         !!}
+                @endif
             </div>
             <div class="col-md-6">
+                @if (!empty($braintreeClientToken))
+                    <div id="expiration_year" class="braintree-hosted form-control"></div>
+                @else
                 {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_year')
                         ->id('expiration_year')
                         ->autocomplete('cc-exp-year')
@@ -289,16 +360,23 @@
                             ->addOption('2025', '2025')
                             ->addOption('2026', '2026')->label('')
                           !!}
+                @endif
             </div>
         </div>
 
 
         <div class="row" style="padding-top:18px">
             <div class="col-md-5">
-                @if ($client && $account->showTokenCheckbox())
+                @if ($client && $account->showTokenCheckbox($storageGateway))
                     <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
                     <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
-                    <span class="help-block" style="font-size:15px">{!! trans('texts.token_billing_secure', ['stripe_link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}</span>
+                    <span class="help-block" style="font-size:15px">
+                        @if ($storageGateway == GATEWAY_STRIPE)
+                            {!! trans('texts.token_billing_secure', ['link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}
+                        @elseif ($storageGateway == GATEWAY_BRAINTREE)
+                            {!! trans('texts.token_billing_secure', ['link' => link_to('https://www.braintreepayments.com/', 'Braintree', ['target' => '_blank'])]) !!}
+                        @endif
+                    </span>
                 @endif
             </div>
 
