@@ -101,13 +101,14 @@ class ClientService extends BaseService
                     return URL::to("clients/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Client::canEditItem($model);
+                    return Auth::user()->can('editByOwner', [ENTITY_CLIENT, $model->user_id]);
                 }
             ],
             [
                 '--divider--', function(){return false;},
                 function ($model) {
-                    return Client::canEditItem($model) && (Task::canCreate() || Invoice::canCreate());
+                    $user = Auth::user();
+                    return $user->can('editByOwner', [ENTITY_CLIENT, $model->user_id]) && ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE));
                 }
             ],
             [
@@ -116,7 +117,7 @@ class ClientService extends BaseService
                     return URL::to("tasks/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Task::canCreate();
+                    return Auth::user()->can('create', ENTITY_TASK);
                 }
             ],
             [
@@ -125,7 +126,7 @@ class ClientService extends BaseService
                     return URL::to("invoices/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Invoice::canCreate();
+                    return Auth::user()->can('create', ENTITY_INVOICE);
                 }
             ],
             [
@@ -134,13 +135,14 @@ class ClientService extends BaseService
                     return URL::to("quotes/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->hasFeature(FEATURE_QUOTES) && Invoice::canCreate();
+                    return Auth::user()->hasFeature(FEATURE_QUOTES) && Auth::user()->can('create', ENTITY_INVOICE);
                 }
             ],
             [
                 '--divider--', function(){return false;},
                 function ($model) {
-                    return (Task::canCreate() || Invoice::canCreate()) && (Payment::canCreate() || Credit::canCreate() || Expense::canCreate());
+                    $user = Auth::user();
+                    return ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE)) && ($user->can('create', ENTITY_PAYMENT) || $user->can('create', ENTITY_CREDIT) || $user->can('create', ENTITY_EXPENSE));
                 }
             ],
             [
@@ -149,7 +151,7 @@ class ClientService extends BaseService
                     return URL::to("payments/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Payment::canCreate();
+                    return Auth::user()->can('create', ENTITY_PAYMENT);
                 }
             ],
             [
@@ -158,7 +160,7 @@ class ClientService extends BaseService
                     return URL::to("credits/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Credit::canCreate();
+                    return Auth::user()->can('create', ENTITY_CREDIT);
                 }
             ],
             [
@@ -167,7 +169,7 @@ class ClientService extends BaseService
                     return URL::to("expenses/create/0/{$model->public_id}");
                 },
                 function ($model) {
-                    return Expense::canCreate();
+                    return Auth::user()->can('create', ENTITY_EXPENSE);
                 }
             ]
         ];

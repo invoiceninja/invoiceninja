@@ -15,7 +15,7 @@ use App\Ninja\Repositories\DocumentRepository;
 class DocumentController extends BaseController
 {
     protected $documentRepo;
-    protected $model = 'App\Models\Document';
+    protected $entity = ENTITY_DOCUMENT;
 
     public function __construct(DocumentRepository $documentRepo)
     {
@@ -29,9 +29,7 @@ class DocumentController extends BaseController
         $document = Document::scope($publicId)
                         ->firstOrFail();
         
-        if(!$this->checkViewPermission($document, $response)){
-            return $response;
-        }
+        $this->authorize('view', $document);
         
         return static::getDownloadResponse($document);
     }
@@ -67,9 +65,7 @@ class DocumentController extends BaseController
         $document = Document::scope($publicId)
                         ->firstOrFail();
         
-        if(!$this->checkViewPermission($document, $response)){
-            return $response;
-        }
+        $this->authorize('view', $document);
         
         if(empty($document->preview)){
             return Response::view('error', array('error'=>'Preview does not exist!'), 404);
@@ -95,9 +91,7 @@ class DocumentController extends BaseController
             $name = substr($name, 0, -3);
         }
         
-        if(!$this->checkViewPermission($document, $response)){
-            return $response;
-        }
+        $this->authorize('view', $document);
         
         if(!$document->isPDFEmbeddable()){
             return Response::view('error', array('error'=>'Image does not exist!'), 404);
@@ -118,9 +112,7 @@ class DocumentController extends BaseController
             return;
         }
         
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
+        $this->authorizeCreate();
                 
         $result = $this->documentRepo->upload(Input::all()['file'], $doc_array);
                 
