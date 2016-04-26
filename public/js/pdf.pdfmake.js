@@ -597,25 +597,18 @@ NINJA.invoiceDetails = function(invoice) {
         ])
     }
 
-    var isPartial = NINJA.parseFloat(invoice.partial);
-    
-    if (NINJA.parseFloat(invoice.balance) < NINJA.parseFloat(invoice.amount)) {
-        data.push([
-            {text: invoiceLabels.balance_due},
-            {text: formatMoneyInvoice(invoice.amount, invoice)}
-        ]);
-    } else if (isPartial) {
-        data.push([
-            {text: invoiceLabels.balance_due},
-            {text: formatMoneyInvoice(invoice.total_amount, invoice)}
-        ]);
-    }
-
     data.push([
-        {text: isPartial ? invoiceLabels.partial_due : invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
-        {text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['invoiceDetailBalanceDue']}
+        {text: invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
+        {text: formatMoneyInvoice(invoice.total_amount, invoice), style: ['invoiceDetailBalanceDue']}
     ])
 
+    if (NINJA.parseFloat(invoice.partial)) {
+        data.push([
+            {text: invoiceLabels.partial_due, style: ['invoiceDetailBalanceDueLabel']},
+            {text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['invoiceDetailBalanceDue']}
+        ])
+    }
+    
     return NINJA.prepareDataPairs(data, 'invoiceDetails');
 }
 

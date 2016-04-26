@@ -710,7 +710,7 @@ function calculateAmounts(invoice) {
     total += roundToTwo(invoice.custom_value2);
   }
 
-  invoice.total_amount = roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance));
+  invoice.total_amount = roundToTwo(roundToTwo(total) - (roundToTwo(invoice.amount) - roundToTwo(invoice.balance)));
   invoice.discount_amount = discount;
   invoice.tax_amount1 = taxAmount1;
   invoice.tax_amount2 = taxAmount2;

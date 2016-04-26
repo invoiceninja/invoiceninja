@@ -189,15 +189,13 @@
   function submitProPlan() {
     fbq('track', 'AddPaymentInfo');
     trackEvent('/account', '/submit_pro_plan/' + NINJA.proPlanFeature);
-    if (NINJA.isRegistered) {      
-      $.ajax({
-        type: 'POST',
-        url: '{{ URL::to('account/go_pro') }}',
-        success: function(result) { 
-          NINJA.formIsChanged = false;
-          window.location = '/payment/' + result;
-        }
-      });     
+    if (NINJA.isRegistered) {
+      if (window.showChangePlan) {
+        $('#proPlanModal').modal('hide');
+        showChangePlan();
+      } else {
+        window.location = '/settings/account_management#changePlanModel';
+      }
     } else {
       $('#proPlanModal').modal('hide');    
       $('#go_pro').val('true');

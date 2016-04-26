@@ -63,10 +63,11 @@ class AddPageSize extends Migration
             $table->boolean('is_early_access');
         });
         
-        Schema::dropIfExists('expense_categories');
-
         Schema::table('expenses', function ($table) {
+            $table->dropForeign('expenses_expense_category_id_foreign');
             $table->dropColumn('expense_category_id');
         });
+        
+        Schema::dropIfExists('expense_categories');
     }
 }

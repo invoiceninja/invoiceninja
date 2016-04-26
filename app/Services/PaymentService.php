@@ -98,9 +98,13 @@ class PaymentService extends BaseService
             'number' => isset($input['card_number']) ? $input['card_number'] : null,
             'expiryMonth' => isset($input['expiration_month']) ? $input['expiration_month'] : null,
             'expiryYear' => isset($input['expiration_year']) ? $input['expiration_year'] : null,
-            'cvv' => isset($input['cvv']) ? $input['cvv'] : '',
         ];
-
+        
+        // allow space until there's a setting to disable
+        if (isset($input['cvv']) && $input['cvv'] != ' ') {
+            $data['cvv'] = $input['cvv'];
+        }
+        
         if (isset($input['country_id'])) {
             $country = Country::find($input['country_id']);
 

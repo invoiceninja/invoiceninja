@@ -142,7 +142,9 @@ class StartupCheck
                 } elseif ($productId == PRODUCT_WHITE_LABEL) {
                     if ($data == 'valid') {
                         $company = Auth::user()->account->company;
+                        $company->plan_term = PLAN_TERM_YEARLY;
                         $company->plan_paid = date_create()->format('Y-m-d');
+                        $company->plan_expires = date_create()->modify('+1 year')->format('Y-m-d');
                         $company->plan = PLAN_WHITE_LABEL;
                         $company->save();
 
