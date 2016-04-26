@@ -13,7 +13,14 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        Invoice::class => InvoicePolicy::class,
+        \App\Models\Client::class => \App\Policies\ClientPolicy::class,
+        \App\Models\Credit::class => \App\Policies\CreditPolicy::class,
+        \App\Models\Document::class => \App\Policies\DocumentPolicy::class,
+        \App\Models\Expense::class => \App\Policies\ExpensePolicy::class,
+        \App\Models\Invoice::class => \App\Policies\InvoicePolicy::class,
+        \App\Models\Payment::class => \App\Policies\PaymentPolicy::class,
+        \App\Models\Task::class => \App\Policies\TaskPolicy::class,
+        \App\Models\Vendor::class => \App\Policies\VendorPolicy::class,
     ];
     
     /**
@@ -24,6 +31,10 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(GateContract $gate)
     {
+        foreach (get_class_methods(new \App\Policies\GenericEntityPolicy) as $method) {
+            $gate->define($method, "App\Policies\GenericEntityPolicy@{$method}");
+        }
+        
         $this->registerPolicies($gate);
     }
 }

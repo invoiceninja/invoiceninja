@@ -37,7 +37,7 @@ class InvoiceController extends BaseController
     protected $documentRepo;
     protected $invoiceService;
     protected $recurringInvoiceService;
-    protected $model = 'App\Models\Invoice';
+    protected $entity = ENTITY_INVOICE;
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService)
     {
@@ -96,7 +96,7 @@ class InvoiceController extends BaseController
                         ->withTrashed()
                         ->firstOrFail();
         
-        $this->authorize('edit', $invoice)
+        $this->authorize('edit', $invoice);
         
         $entityType = $invoice->getEntityType();
 
@@ -231,9 +231,7 @@ class InvoiceController extends BaseController
 
     public function create($clientPublicId = 0, $isRecurring = false)
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
+        $this->authorizeCreate();
         
         $account = Auth::user()->account;
         $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
@@ -402,9 +400,7 @@ class InvoiceController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
         
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
+        $this->authorizeUpdate($data);
                 
         $action = Input::get('action');
         $entityType = Input::get('entityType');
@@ -443,9 +439,7 @@ class InvoiceController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
         
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
+        $this->authorizeUpdate($data);
         
         $action = Input::get('action');
         $entityType = Input::get('entityType');

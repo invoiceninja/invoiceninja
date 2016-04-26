@@ -7,19 +7,27 @@ use App\Models\EntityModel;
 
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class InvoicePolicy extends EntityPolicy
+class EntityPolicy
 {
     use HandlesAuthorization;
     
-    public static function canCreate() {
-        return Auth::user()->hasPermission('create_all');
+    public static function create($user) {
+        return $user->hasPermission('create_all');
     }
     
     public static function edit($user, $item) {
-        $user->hasPermission('edit_all') || $user->owns($item);
+        return $user->hasPermission('edit_all') || $user->owns($item);
     }
     
     public static function view($user, $item) {
-        $user->hasPermission('view_all') || $user->owns($item);
+        return $user->hasPermission('view_all') || $user->owns($item);
+    }
+    
+    public static function viewByOwner($user, $ownerUserId) {
+        return $user->hasPermission('view_all') || $user->id == $ownerUserId;
+    }
+    
+    public static function editByOwner($user, $ownerUserId) {
+        return $user->hasPermission('edit_all') || $user->id == $ownerUserId;
     }
 }

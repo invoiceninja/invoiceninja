@@ -25,7 +25,7 @@ class ExpenseController extends BaseController
     // Expenses
     protected $expenseRepo;
     protected $expenseService;
-    protected $model = 'App\Models\Expense';
+    protected $entity = ENTITY_EXPENSE;
 
     public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService)
     {
@@ -71,9 +71,7 @@ class ExpenseController extends BaseController
 
     public function create($vendorPublicId = null, $clientPublicId = null)
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
+        $this->authorizeCreate();
         
         if($vendorPublicId != 0) {
             $vendor = Vendor::scope($vendorPublicId)->with('vendorcontacts')->firstOrFail();
@@ -101,9 +99,7 @@ class ExpenseController extends BaseController
     {
         $expense = Expense::scope($publicId)->with('documents')->firstOrFail();
         
-        if(!$this->checkEditPermission($expense, $response)){
-            return $response;
-        }
+        $this->authorize('edit', $expense);
         
         $expense->expense_date = Utils::fromSqlDate($expense->expense_date);
         
@@ -160,9 +156,7 @@ class ExpenseController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
         
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
+        $this->authorizeUpdate($data);
         
         $expense = $this->expenseService->save($data, true);
 
@@ -181,9 +175,7 @@ class ExpenseController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
         
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
+        $this->authorizeUpdate($data);
         
         $expense = $this->expenseService->save($data);
 

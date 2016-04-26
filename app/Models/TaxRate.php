@@ -17,8 +17,4 @@ class TaxRate extends EntityModel
     {
         return ENTITY_TAX_RATE;
     }
-    
-    public function canEdit() {
-        return Auth::user()->hasPermission('admin');
-    }
 }

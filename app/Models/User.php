@@ -7,20 +7,22 @@ use App\Libraries\Utils;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use Illuminate\Auth\Authenticatable;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class User extends Model implements AuthenticatableContract, CanResetPasswordContract {
+class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract {
     public static $all_permissions = array(
         'create_all' => 0b0001,
         'view_all' => 0b0010,
         'edit_all' => 0b0100,
     );    
     
-    use Authenticatable, CanResetPassword;
+    use Authenticatable, Authorizable, CanResetPassword;
 
     /**
      * The database table used by the model.
