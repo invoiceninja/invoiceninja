@@ -37,9 +37,9 @@ class InvoiceService extends BaseService
             if( ! $canSaveClient){
                 $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id'); 
                 if (empty($clientPublicId) || $clientPublicId == '-1') {
-                    $canSaveClient = Client::canCreate();
+                    $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
                 } else {
-                    $canSaveClient = Client::scope($clientPublicId)->first()->canEdit();
+                    $canSaveClient = Auth::user()->can('edit', Client::scope($clientPublicId)->first());
                 }
             }
             
@@ -137,7 +137,7 @@ class InvoiceService extends BaseService
             [
                 'invoice_number',
                 function ($model) use ($entityType) {
-                    if(!Invoice::canEditItem($model)){
+                    if(!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id])){
                         return $model->invoice_number;
                     }
                     
@@ -147,7 +147,7 @@ class InvoiceService extends BaseService
             [
                 'client_name',
                 function ($model) {
-                    if(!Client::canViewItemByOwner($model->client_user_id)){
+                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
                         return Utils::getClientDisplayName($model);
                     }
                     return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
@@ -202,7 +202,7 @@ class InvoiceService extends BaseService
                     return URL::to("{$entityType}s/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Invoice::canEditItem($model);
+                    return Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
                 }
             ],
             [
@@ -211,7 +211,7 @@ class InvoiceService extends BaseService
                     return URL::to("{$entityType}s/{$model->public_id}/clone");
                 },
                 function ($model) {
-                    return Invoice::canCreate();
+                    return Auth::user()->can('create', ENTITY_INVOICE);
                 }
             ],
             [
@@ -223,7 +223,7 @@ class InvoiceService extends BaseService
             [
                 '--divider--', function(){return false;},
                 function ($model) {
-                    return Invoice::canEditItem($model) || Payment::canCreate();
+                    return Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]) || Auth::user()->can('create', ENTITY_PAYMENT);
                 }
             ],
             [
@@ -232,7 +232,7 @@ class InvoiceService extends BaseService
                     return "javascript:markEntity({$model->public_id})";
                 },
                 function ($model) {
-                    return $model->invoice_status_id < INVOICE_STATUS_SENT && Invoice::canEditItem($model);
+                    return $model->invoice_status_id < INVOICE_STATUS_SENT && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
                 }
             ],
             [
@@ -241,7 +241,7 @@ class InvoiceService extends BaseService
                     return URL::to("payments/create/{$model->client_public_id}/{$model->public_id}");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->balance > 0 && Payment::canCreate();
+                    return $entityType == ENTITY_INVOICE && $model->balance > 0 && Auth::user()->can('create', ENTITY_PAYMENT);
                 }
             ],
             [
@@ -250,7 +250,7 @@ class InvoiceService extends BaseService
                     return URL::to("quotes/{$model->quote_id}/edit");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->quote_id && Invoice::canEditItem($model);
+                    return $entityType == ENTITY_INVOICE && $model->quote_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
                 }
             ],
             [
@@ -259,7 +259,7 @@ class InvoiceService extends BaseService
                     return URL::to("invoices/{$model->quote_invoice_id}/edit");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && Invoice::canEditItem($model);
+                    return $entityType == ENTITY_QUOTE && $model->quote_invoice_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
                 }
             ],
             [
@@ -268,7 +268,7 @@ class InvoiceService extends BaseService
                     return "javascript:convertEntity({$model->public_id})";
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && Invoice::canEditItem($model);
+                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
                 }
             ]
         ];

@@ -33,7 +33,7 @@ class QuoteController extends BaseController
     protected $invoiceRepo;
     protected $clientRepo;
     protected $invoiceService;
-    protected $model = 'App\Models\Invoice';
+    protected $entity = ENTITY_INVOICE;
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
     {
@@ -80,9 +80,7 @@ class QuoteController extends BaseController
 
     public function create($clientPublicId = 0)
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
+        $this->authorizeCreate();
         
         if (!Utils::hasFeature(FEATURE_QUOTES)) {
             return Redirect::to('/invoices/create');

@@ -17,7 +17,7 @@ class CreditController extends BaseController
 {
     protected $creditRepo;
     protected $creditService;
-    protected $model = 'App\Models\Credit';
+    protected $entity = ENTITY_CREDIT;
 
     public function __construct(CreditRepository $creditRepo, CreditService $creditService)
     {
@@ -57,9 +57,7 @@ class CreditController extends BaseController
 
     public function create($clientPublicId = 0)
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
+        $this->authorizeCreate();
         
         $data = array(
             'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
@@ -78,9 +76,7 @@ class CreditController extends BaseController
     {
         $credit = Credit::scope($publicId)->firstOrFail();
         
-        if(!$this->checkEditPermission($credit, $response)){
-            return $response;
-        }
+        $this->authorize('edit', $credit);
         
         $credit->credit_date = Utils::fromSqlDate($credit->credit_date);
 

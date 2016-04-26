@@ -21,7 +21,7 @@ class BaseService
         $entities = $this->getRepo()->findByPublicIdsWithTrashed($ids);
 
         foreach ($entities as $entity) {
-            if($entity->canEdit()){
+            if(Auth::user()->can('edit', $entity)){
                 $this->getRepo()->$action($entity);
             }
         }
