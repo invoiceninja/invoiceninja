@@ -610,7 +610,7 @@ class PaymentController extends BaseController
     {
         $input = $request->input();
                 
-        $this->authorizeUpdate($data);
+        $this->authorizeUpdate($input);
         
         $payment = $this->paymentRepo->save($input);
 
