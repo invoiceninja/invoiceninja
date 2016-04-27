@@ -157,12 +157,14 @@
                         ->label(trans("texts.{$entityType}_number_short"))
                         ->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
             </span>
+            @if($account->getTokenGatewayId())
             <span data-bind="visible: is_recurring()" style="display: none">
             {!! Former::checkbox('auto_bill')
                         ->label(trans('texts.auto_bill'))
-                        ->text(trans('texts.enable_with_stripe'))
+                        ->text(trans('texts.enable'))
                         ->data_bind("checked: auto_bill, valueUpdate: 'afterkeydown'") !!}
             </span>
+            @endif
 			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
