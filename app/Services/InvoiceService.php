@@ -30,26 +30,23 @@ class InvoiceService extends BaseService
         return $this->invoiceRepo;
     }
 
-    public function save($data, $checkSubPermissions = false)
+    public function save($data)
     {
         if (isset($data['client'])) {
-            $canSaveClient = !$checkSubPermissions;
-            if( ! $canSaveClient){
-                $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id'); 
-                if (empty($clientPublicId) || $clientPublicId == '-1') {
-                    $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
-                } else {
-                    $canSaveClient = Auth::user()->can('edit', Client::scope($clientPublicId)->first());
-                }
-            }
-            
+            $canSaveClient = false;
+            $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id'); 
+            if (empty($clientPublicId) || $clientPublicId == '-1') {
+                $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
+            } else {
+                $canSaveClient = Auth::user()->can('edit', Client::scope($clientPublicId)->first());
+            }            
             if ($canSaveClient) {
                 $client = $this->clientRepo->save($data['client']);
                 $data['client_id'] = $client->id;
             }
         }
 
-        $invoice = $this->invoiceRepo->save($data, $checkSubPermissions);
+        $invoice = $this->invoiceRepo->save($data);
 
         $client = $invoice->client;
         $client->load('contacts');

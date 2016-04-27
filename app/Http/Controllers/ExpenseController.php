@@ -158,7 +158,7 @@ class ExpenseController extends BaseController
         
         $this->authorizeUpdate($data);
         
-        $expense = $this->expenseService->save($data, true);
+        $expense = $this->expenseService->save($data);
 
         Session::flash('message', trans('texts.updated_expense'));
 

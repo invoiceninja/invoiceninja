@@ -405,7 +405,7 @@ class InvoiceController extends BaseController
         $action = Input::get('action');
         $entityType = Input::get('entityType');
         
-        $invoice = $this->invoiceService->save($data, true);
+        $invoice = $this->invoiceService->save($data);
         $entityType = $invoice->getEntityType();
         $message = trans("texts.created_{$entityType}");
 
@@ -444,7 +444,7 @@ class InvoiceController extends BaseController
         $action = Input::get('action');
         $entityType = Input::get('entityType');
 
-        $invoice = $this->invoiceService->save($data, true);
+        $invoice = $this->invoiceService->save($data);
         $entityType = $invoice->getEntityType();
         $message = trans("texts.updated_{$entityType}");
         Session::flash('message', $message);

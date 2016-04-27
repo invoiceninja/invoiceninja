@@ -198,7 +198,7 @@ class InvoiceRepository extends BaseRepository
             ->make();
     }
 
-    public function save($data, $checkSubPermissions = false)
+    public function save($data)
     {
         $account = \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
@@ -420,7 +420,7 @@ class InvoiceRepository extends BaseRepository
         $document_ids = !empty($data['document_ids'])?array_map('intval', $data['document_ids']):array();;
         foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
-            if($document && !$checkSubPermissions || Auth::user()->can('edit', $document)){
+            if($document && Auth::user()->can('edit', $document)){
                 
                 if($document->invoice_id && $document->invoice_id != $invoice->id){
                     // From a clone
@@ -473,7 +473,7 @@ class InvoiceRepository extends BaseRepository
             $task = false;
             if (isset($item['task_public_id']) && $item['task_public_id']) {
                 $task = Task::scope($item['task_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                if(!$checkSubPermissions || Auth::user()->can('edit', $task)){
+                if(Auth::user()->can('edit', $task)){
                     $task->invoice_id = $invoice->id;
                     $task->client_id = $invoice->client_id;
                     $task->save();
@@ -483,7 +483,7 @@ class InvoiceRepository extends BaseRepository
             $expense = false;
             if (isset($item['expense_public_id']) && $item['expense_public_id']) {
                 $expense = Expense::scope($item['expense_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                if(!$checkSubPermissions || Auth::user()->can('edit', $expense)){
+                if(Auth::user()->can('edit', $expense)){
                     $expense->invoice_id = $invoice->id;
                     $expense->client_id = $invoice->client_id;
                     $expense->save();
@@ -494,7 +494,7 @@ class InvoiceRepository extends BaseRepository
                 if (\Auth::user()->account->update_products && ! strtotime($productKey)) {
                     $product = Product::findProductByKey($productKey);
                     if (!$product) {
-                        if(!$checkSubPermissions || Auth::user()->can('create', ENTITY_PRODUCT)){
+                        if (Auth::user()->can('create', ENTITY_PRODUCT)) {
                             $product = Product::createNew();
                             $product->product_key = trim($item['product_key']);
                         }
@@ -502,7 +502,7 @@ class InvoiceRepository extends BaseRepository
                             $product = null;
                         }
                     }
-                    if($product && (!$checkSubPermissions || Auth::user()->can('edit', $product))){
+                    if ($product && (Auth::user()->can('edit', $product))) {
                         $product->notes = ($task || $expense) ? '' : $item['notes'];
                         $product->cost = $expense ? 0 : $item['cost'];
                         $product->save();
@@ -516,7 +516,6 @@ class InvoiceRepository extends BaseRepository
             $invoiceItem->notes = trim($invoice->is_recurring ? $item['notes'] : Utils::processVariables($item['notes']));
             $invoiceItem->cost = Utils::parseFloat($item['cost']);
             $invoiceItem->qty = Utils::parseFloat($item['qty']);
-            //$invoiceItem->tax_rate = 0;
 
             if (isset($item['custom_value1'])) {
                 $invoiceItem->custom_value1 = $item['custom_value1'];

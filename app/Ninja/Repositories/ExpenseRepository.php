@@ -122,7 +122,7 @@ class ExpenseRepository extends BaseRepository
         return $query;
     }
 
-    public function save($input, $checkSubPermissions=false)
+    public function save($input)
     {
         $publicId = isset($input['public_id']) ? $input['public_id'] : false;
 
@@ -160,7 +160,7 @@ class ExpenseRepository extends BaseRepository
         $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):array();;
         foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
-            if($document && !$checkSubPermissions || Auth::user()->can('edit', $document)){
+            if($document && Auth::user()->can('edit', $document)){
                 $document->invoice_id = null;
                 $document->expense_id = $expense->id;
                 $document->save();
