@@ -4,6 +4,7 @@ use App\Http\Middleware\PermissionsRequired;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Auth;
+use Utils;
 
 class BaseController extends Controller
 {
@@ -34,7 +35,7 @@ class BaseController extends Controller
             $this->authorize('create', $this->entity);
         }
         else{
-            $className = ucwords($this->entity, '_');
+            $className = Utils::getEntityName($this->entity);
             
             $object = call_user_func(array("App\\Models\\{$className}", 'scope'), $input['public_id'])->firstOrFail();
             $this->authorize('edit', $object);
