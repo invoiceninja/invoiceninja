@@ -155,7 +155,7 @@ class VendorController extends BaseController
     {
         $vendor = Vendor::scope($publicId)->with('vendorcontacts')->firstOrFail();
         
-        $this->authorize('edit', $vendor)
+        $this->authorize('edit', $vendor);
         
         $data = [
             'vendor' => $vendor,
