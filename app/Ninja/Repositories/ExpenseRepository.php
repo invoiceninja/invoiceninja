@@ -2,6 +2,7 @@
 
 use DB;
 use Utils;
+use Auth;
 use App\Models\Expense;
 use App\Models\Vendor;
 use App\Models\Document;
@@ -159,14 +160,14 @@ class ExpenseRepository extends BaseRepository
         $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):array();;
         foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
-            if($document && !$checkSubPermissions || $document->canEdit()){
+            if($document && !$checkSubPermissions || Auth::user()->can('edit', $document)){
                 $document->invoice_id = null;
                 $document->expense_id = $expense->id;
                 $document->save();
             }
         }
         
-        if(!empty($input['documents']) && Document::canCreate()){
+        if(!empty($input['documents']) && Auth::user()->can('create', ENTITY_DOCUMENT)){
             // Fallback upload
             $doc_errors = array();
             foreach($input['documents'] as $upload){

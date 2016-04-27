@@ -493,7 +493,7 @@ return array(
     'invoice_history' => 'Rechnungshistorie',
     'quote_history' => 'Angebotshistorie',
     'current_version' => 'Aktuelle Version',
-    'select_versiony' => 'Version auswählen',
+    'select_version' => 'Version auswählen',
     'view_history' => 'Historie anzeigen',
 
     'edit_payment' => 'Zahlung bearbeiten',

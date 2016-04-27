@@ -338,7 +338,7 @@ class PaymentService extends BaseService
             [
                 'invoice_number',
                 function ($model) {
-                    if(!Invoice::canEditItemByOwner($model->invoice_user_id)){
+                    if(!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id])){
                         return $model->invoice_number;
                     }
                     
@@ -348,7 +348,7 @@ class PaymentService extends BaseService
             [
                 'client_name',
                 function ($model) {
-                    if(!Client::canViewItemByOwner($model->client_user_id)){
+                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
                         return Utils::getClientDisplayName($model);
                     }
                     
@@ -392,7 +392,7 @@ class PaymentService extends BaseService
                     return URL::to("payments/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Payment::canEditItem($model);
+                    return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]);
                 }
             ]
         ];

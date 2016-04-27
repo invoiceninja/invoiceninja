@@ -30,7 +30,7 @@ class VendorController extends BaseController
 {
     protected $vendorService;
     protected $vendorRepo;
-    protected $model = 'App\Models\Vendor';
+    protected $entity = ENTITY_VENDOR;
 
     public function __construct(VendorRepository $vendorRepo, VendorService $vendorService)
     {
@@ -79,9 +79,7 @@ class VendorController extends BaseController
     {
         $data = $request->input();
         
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
+        $this->authorizeUpdate($data);
                 
         $vendor = $this->vendorService->save($data);
 
@@ -100,9 +98,7 @@ class VendorController extends BaseController
     {
         $vendor = Vendor::withTrashed()->scope($publicId)->with('vendorcontacts', 'size', 'industry')->firstOrFail();
         
-        if(!$this->checkViewPermission($vendor, $response)){
-            return $response;
-        }
+        $this->authorize('view', $vendor);
         
         Utils::trackViewed($vendor->getDisplayName(), 'vendor');
 
@@ -131,9 +127,7 @@ class VendorController extends BaseController
      */
     public function create()
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
+        $this->authorizeCreate();
         
         if (Vendor::scope()->count() > Auth::user()->getMaxNumVendors()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumVendors()." vendors"]);
@@ -161,9 +155,7 @@ class VendorController extends BaseController
     {
         $vendor = Vendor::scope($publicId)->with('vendorcontacts')->firstOrFail();
         
-        if(!$this->checkEditPermission($vendor, $response)){
-            return $response;
-        }
+        $this->authorize('edit', $vendor)
         
         $data = [
             'vendor' => $vendor,
@@ -203,9 +195,7 @@ class VendorController extends BaseController
     {
         $data = $request->input();
         
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
+        $this->authorizeUpdate($data);
                 
         $vendor = $this->vendorService->save($data);
 

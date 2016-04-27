@@ -489,7 +489,7 @@ return array(
     'invoice_history' => 'Factuurgeschiedenis',
     'quote_history' => 'Offertegeschiedenis',
     'current_version' => 'Huidige versie',
-    'select_versiony' => 'Selecteer versie',
+    'select_version' => 'Selecteer versie',
     'view_history' => 'Bekijk geschiedenis',
 
     'edit_payment' => 'Bewerk betaling',

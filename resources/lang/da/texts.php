@@ -493,7 +493,7 @@ return array(
     'invoice_history' => 'Faktura historik',
     'quote_history' => 'Tilbuds historik',
     'current_version' => 'Nuværende version',
-    'select_versiony' => 'Vælg version',
+    'select_version' => 'Vælg version',
     'view_history' => 'Vis historik',
 
     'edit_payment' => 'Redigér betaling',
