@@ -590,7 +590,7 @@ class PaymentController extends BaseController
     {
         $input = $request->input();
         
-        $this->authorizeUpdate($data);
+        $this->authorizeUpdate($input);
         
         $input['invoice_id'] = Invoice::getPrivateId($input['invoice']);
         $input['client_id'] = Client::getPrivateId($input['client']);
