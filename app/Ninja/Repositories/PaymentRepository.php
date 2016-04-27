@@ -64,7 +64,14 @@ class PaymentRepository extends BaseRepository
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {
-                $query->where('clients.name', 'like', '%'.$filter.'%');
+                $query->where('clients.name', 'like', '%'.$filter.'%')
+                      ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%')
+                      ->orWhere('payments.transaction_reference', 'like', '%'.$filter.'%')
+                      ->orWhere('gateways.name', 'like', '%'.$filter.'%')
+                      ->orWhere('payment_types.name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.email', 'like', '%'.$filter.'%');
             });
         }
 

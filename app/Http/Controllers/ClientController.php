@@ -35,7 +35,7 @@ class ClientController extends BaseController
 {
     protected $clientService;
     protected $clientRepo;
-    protected $model = 'App\Models\Client';
+    protected $entity = ENTITY_CLIENT;
 
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
@@ -83,9 +83,7 @@ class ClientController extends BaseController
     {
         $data = $request->input();
         
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
+        $this->authorizeUpdate($data);
                 
         $client = $this->clientService->save($data);
 
@@ -104,17 +102,16 @@ class ClientController extends BaseController
     {
         $client = Client::withTrashed()->scope($publicId)->with('contacts', 'size', 'industry')->firstOrFail();
         
-        if(!$this->checkViewPermission($client, $response)){
-            return $response;
-        }
+        $this->authorize('view', $client);
         
+        $user = Auth::user();
         Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 
         $actionLinks = [];
-        if(Task::canCreate()){
+        if($user->can('create', ENTITY_TASK)){
             $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/'.$client->public_id)];
         }
-        if (Utils::hasFeature(FEATURE_QUOTES) && Invoice::canCreate()) {
+        if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_INVOICE)) {
             $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/'.$client->public_id)];
         }
         
@@ -122,15 +119,15 @@ class ClientController extends BaseController
             $actionLinks[] = \DropdownButton::DIVIDER;
         }
         
-        if(Payment::canCreate()){
+        if($user->can('create', ENTITY_PAYMENT)){
             $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => URL::to('/payments/create/'.$client->public_id)];
         }
         
-        if(Credit::canCreate()){
+        if($user->can('create', ENTITY_CREDIT)){
             $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => URL::to('/credits/create/'.$client->public_id)];
         }
         
-        if(Expense::canCreate()){
+        if($user->can('create', ENTITY_EXPENSE)){
             $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/0/'.$client->public_id)];
         }
 
@@ -156,9 +153,7 @@ class ClientController extends BaseController
      */
     public function create()
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
+        $this->authorizeCreate();
         
         if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumClients()." clients"]);
@@ -186,9 +181,7 @@ class ClientController extends BaseController
     {
         $client = Client::scope($publicId)->with('contacts')->firstOrFail();
         
-        if(!$this->checkEditPermission($client, $response)){
-            return $response;
-        }
+        $this->authorize('edit', $client);
         
         $data = [
             'client' => $client,
@@ -234,9 +227,7 @@ class ClientController extends BaseController
     {
         $data = $request->input();
         
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
+        $this->authorizeUpdate($data);
                 
         $client = $this->clientService->save($data);
 

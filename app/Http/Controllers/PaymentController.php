@@ -30,7 +30,7 @@ use App\Http\Requests\UpdatePaymentRequest;
 
 class PaymentController extends BaseController
 {
-    protected $model = 'App\Models\Payment';
+    protected $entity = ENTITY_PAYMENT;
     
     public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService)
     {
@@ -69,9 +69,7 @@ class PaymentController extends BaseController
 
     public function create($clientPublicId = 0, $invoicePublicId = 0)
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
+        $this->authorizeCreate();
         
         $invoices = Invoice::scope()
                     ->where('is_recurring', '=', false)
@@ -100,9 +98,7 @@ class PaymentController extends BaseController
     {
         $payment = Payment::scope($publicId)->firstOrFail();
         
-        if(!$this->checkEditPermission($payment, $response)){
-            return $response;
-        }
+        $this->authorize('edit', $payment);
         
         $payment->payment_date = Utils::fromSqlDate($payment->payment_date);
 
@@ -594,9 +590,7 @@ class PaymentController extends BaseController
     {
         $input = $request->input();
         
-        if(!$this->checkUpdatePermission($input, $response)){
-            return $response;
-        }
+        $this->authorizeUpdate($data);
         
         $input['invoice_id'] = Invoice::getPrivateId($input['invoice']);
         $input['client_id'] = Client::getPrivateId($input['client']);
@@ -616,9 +610,7 @@ class PaymentController extends BaseController
     {
         $input = $request->input();
                 
-        if(!$this->checkUpdatePermission($input, $response)){
-            return $response;
-        }
+        $this->authorizeUpdate($data);
         
         $payment = $this->paymentRepo->save($input);
 

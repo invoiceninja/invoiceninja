@@ -487,7 +487,7 @@ return array(
     'invoice_history' => 'Historique des factures',
     'quote_history' => 'Historique des soumissions',
     'current_version' => 'Version courante',
-    'select_versiony' => 'Choix de la verison',
+    'select_version' => 'Choix de la verison',
     'view_history' => 'Consulter l\'historique',
 
     'edit_payment' => 'Éditer le paiement',
