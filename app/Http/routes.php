@@ -481,22 +481,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_STATUS_COMPLETED', 3);
     define('PAYMENT_STATUS_PARTIALLY_REFUNDED', 4);
     define('PAYMENT_STATUS_REFUNDED', 5);
-    
-    define('CARD_UNKNOWN', 0);
-    define('CARD_AMERICAN_EXPRESS', 1);
-    define('CARD_CARTE_BLANCHE', 2);
-    define('CARD_UNIONPAY', 3);
-    define('CARD_DINERS_CLUB', 4);
-    define('CARD_DISCOVER', 5);
-    define('CARD_JCB', 6);
-    define('CARD_LASER', 7);
-    define('CARD_MAESTRO', 8);
-    define('CARD_MASTERCARD', 9);
-    define('CARD_SOLO', 10);
-    define('CARD_SWITCH', 11);
-    define('CARD_VISA', 12);
 
-    define('PAYMENT_TYPE_CREDIT', 1);
     define('CUSTOM_DESIGN', 11);
 
     define('FREQUENCY_WEEKLY', 1);
@@ -628,6 +613,23 @@ if (!defined('CONTACT_EMAIL')) {
     define('TOKEN_BILLING_OPT_IN', 2);
     define('TOKEN_BILLING_OPT_OUT', 3);
     define('TOKEN_BILLING_ALWAYS', 4);
+
+    define('PAYMENT_TYPE_CREDIT', 1);
+    define('PAYMENT_TYPE_VISA', 6);
+    define('PAYMENT_TYPE_MASTERCARD', 7);
+    define('PAYMENT_TYPE_AMERICAN_EXPRESS', 8);
+    define('PAYMENT_TYPE_DISCOVER', 9);
+    define('PAYMENT_TYPE_DINERS', 10);
+    define('PAYMENT_TYPE_EUROCARD', 11);
+    define('PAYMENT_TYPE_NOVA', 12);
+    define('PAYMENT_TYPE_CREDIT_CARD_OTHER', 13);
+    define('PAYMENT_TYPE_CARTE_BLANCHE', 17);
+    define('PAYMENT_TYPE_UNIONPAY', 18);
+    define('PAYMENT_TYPE_JCB', 19);
+    define('PAYMENT_TYPE_LASER', 20);
+    define('PAYMENT_TYPE_MAESTRO', 21);
+    define('PAYMENT_TYPE_SOLO', 22);
+    define('PAYMENT_TYPE_SWITCH', 23);
 
     define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
     define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');

@@ -305,7 +305,7 @@ class PublicClientController extends BaseController
 
     public function paymentIndex()
     {
-        if (!$invitation = $this->getInGvitation()) {
+        if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
         }
         $account = $invitation->account;
@@ -340,12 +340,13 @@ class PublicClientController extends BaseController
         return Datatable::query($payments)
                 ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number)->toHtml() : $model->invoice_number; })
                 ->addColumn('transaction_reference', function ($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
-                ->addColumn('payment_type', function ($model) { return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
+                ->addColumn('payment_type', function ($model) { return ($model->payment_type && !$model->last4) ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
                 ->addColumn('payment_source', function ($model) { 
-                    if (!$model->card_type_code) return '';
-                    $card_type = trans("texts.card_" . $model->card_type_code);
+                    if (!$model->last4) return '';
+                    $code = str_replace(' ', '', strtolower($model->payment_type));
+                    $card_type = trans("texts.card_" . $code);
                     $expiration = trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($model->expiration, false)->format('m/y')));
-                    return '<img height="22" src="'.URL::to('/images/credit_cards/'.$model->card_type_code.'.png').'" alt="'.htmlentities($card_type).'">&nbsp; &bull;&bull;&bull;'.$model->last4.' '.$expiration;
+                    return '<img height="22" src="'.URL::to('/images/credit_cards/'.$code.'.png').'" alt="'.htmlentities($card_type).'">&nbsp; &bull;&bull;&bull;'.$model->last4.' '.$expiration;
                 })
                 ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
                 ->addColumn('payment_date', function ($model) { return Utils::dateToString($model->payment_date); })

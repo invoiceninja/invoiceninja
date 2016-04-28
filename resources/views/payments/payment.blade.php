@@ -367,7 +367,7 @@
 
         <div class="row" style="padding-top:18px">
             <div class="col-md-5">
-                @if ($client && $account->showTokenCheckbox($storageGateway))
+                @if ($client && $account->showTokenCheckbox($storageGateway/* will contain gateway id */))
                     <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
                     <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
                     <span class="help-block" style="font-size:15px">

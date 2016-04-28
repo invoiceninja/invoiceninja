@@ -16,10 +16,10 @@ class UpdateSeeder extends Seeder
         $this->call('BanksSeeder');
         $this->call('InvoiceStatusSeeder');
         $this->call('PaymentStatusSeeder');
-        $this->call('CardTypesSeeder');
         $this->call('CurrenciesSeeder');
         $this->call('DateFormatsSeeder');
         $this->call('InvoiceDesignsSeeder');
         $this->call('PaymentTermsSeeder');
+        $this->call('PaymentTypesSeeder');
     }
 }

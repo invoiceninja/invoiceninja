@@ -1192,8 +1192,8 @@ $LANG = array(
     'activity_39' => ':user refunded :adjustment of a :payment_amount payment (:payment)',
     'card_expiration' => 'Exp:&nbsp:expires',
     
-    'card_unknown' => 'Unknown',
-    'card_amex' => 'American Express',
+    'card_creditcardother' => 'Unknown',
+    'card_americanexpress' => 'American Express',
     'card_carteblanche' => 'Carte Blanche',
     'card_unionpay' => 'UnionPay',
     'card_diners' => 'Diners Club',
@@ -1204,7 +1204,7 @@ $LANG = array(
     'card_mastercard' => 'MasterCard',
     'card_solo' => 'Solo',
     'card_switch' => 'Switch',
-    'card_visa' => 'Visa',
+    'card_visacard' => 'Visa',
 );
 
 return $LANG;

@@ -1201,7 +1201,7 @@ class Account extends Eloquent
 
     public function showTokenCheckbox(&$storage_gateway = null)
     {
-        if (!$this->getTokenGatewayId()) {
+        if (!($storage_gateway = $this->getTokenGatewayId())) {
             return false;
         }
 

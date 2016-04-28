@@ -260,7 +260,7 @@ class PaymentService extends BaseService
             }
 
             $payment->expiration = $year . '-' . $card->expiryMonth . '-00';
-            $payment->card_type_id = $this->detectCardType($card->number);
+            $payment->payment_type_id = $this->detectCardType($card->number);
         }
 
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
@@ -273,18 +273,18 @@ class PaymentService extends BaseService
                 $payment->last4 = $card['last4'];
                 $payment->expiration = $card['exp_year'] . '-' . $card['exp_month'] . '-00';
                 $stripe_card_types = array(
-                    'Visa' => CARD_VISA,
-                    'American Express' => CARD_AMERICAN_EXPRESS,
-                    'MasterCard' => CARD_MASTERCARD,
-                    'Discover' => CARD_DISCOVER,
-                    'JCB' => CARD_JCB,
-                    'Diners Club' => CARD_DINERS_CLUB,
+                    'Visa' => PAYMENT_TYPE_VISA,
+                    'American Express' => PAYMENT_TYPE_AMERICAN_EXPRESS,
+                    'MasterCard' => PAYMENT_TYPE_MASTERCARD,
+                    'Discover' => PAYMENT_TYPE_DISCOVER,
+                    'JCB' => PAYMENT_TYPE_JCB,
+                    'Diners Club' => PAYMENT_TYPE_DINERS,
                 );
 
                 if (!empty($stripe_card_types[$card['brand']])) {
-                    $payment->card_type_id = $stripe_card_types[$card['brand']];
+                    $payment->payment_type_id = $stripe_card_types[$card['brand']];
                 } else {
-                    $payment->card_type_id = CARD_UNKNOWN;
+                    $payment->payment_type_id = PAYMENT_TYPE_CREDIT_CARD_OTHER;
                 }
             }
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
@@ -293,24 +293,24 @@ class PaymentService extends BaseService
             $payment->expiration = $card->expirationYear . '-' . $card->expirationMonth . '-00';
 
             $braintree_card_types = array(
-                'Visa' => CARD_VISA,
-                'American Express' => CARD_AMERICAN_EXPRESS,
-                'MasterCard' => CARD_MASTERCARD,
-                'Discover' => CARD_DISCOVER,
-                'JCB' => CARD_JCB,
-                'Diners Club' => CARD_DINERS_CLUB,
-                'Carte Blanche' => CARD_CARTE_BLANCHE,
-                'China UnionPay' => CARD_UNIONPAY,
-                'Laser' => CARD_LASER,
-                'Maestro' => CARD_MAESTRO,
-                'Solo' => CARD_SOLO,
-                'Switch' => CARD_SWITCH,
+                'Visa' => PAYMENT_TYPE_VISA,
+                'American Express' => PAYMENT_TYPE_AMERICAN_EXPRESS,
+                'MasterCard' => PAYMENT_TYPE_MASTERCARD,
+                'Discover' => PAYMENT_TYPE_DISCOVER,
+                'JCB' => PAYMENT_TYPE_JCB,
+                'Diners Club' => PAYMENT_TYPE_DINERS,
+                'Carte Blanche' => PAYMENT_TYPE_CARTE_BLANCHE,
+                'China UnionPay' => PAYMENT_TYPE_UNIONPAY,
+                'Laser' => PAYMENT_TYPE_LASER,
+                'Maestro' => PAYMENT_TYPE_MAESTRO,
+                'Solo' => PAYMENT_TYPE_SOLO,
+                'Switch' => PAYMENT_TYPE_SWITCH,
             );
 
             if (!empty($braintree_card_types[$card->cardType])) {
-                $payment->card_type_id = $braintree_card_types[$card->cardType];
+                $payment->payment_type_id = $braintree_card_types[$card->cardType];
             } else {
-                $payment->card_type_id = CARD_UNKNOWN;
+                $payment->payment_type_id = PAYMENT_TYPE_CREDIT_CARD_OTHER;
             }
         }
         
@@ -379,19 +379,19 @@ class PaymentService extends BaseService
     private function detectCardType($number)
     {
         if (preg_match('/^3[47][0-9]{13}$/',$number)) {
-            return CARD_AMERICAN_EXPRESS;
+            return PAYMENT_TYPE_AMERICAN_EXPRESS;
         } elseif (preg_match('/^3(?:0[0-5]|[68][0-9])[0-9]{11}$/',$number)) {
-            return CARD_DINERS_CLUB;
+            return PAYMENT_TYPE_DINERS;
         } elseif (preg_match('/^6(?:011|5[0-9][0-9])[0-9]{12}$/',$number)) {
-            return CARD_DISCOVER;
+            return PAYMENT_TYPE_DISCOVER;
         } elseif (preg_match('/^(?:2131|1800|35\d{3})\d{11}$/',$number)) {
-            return CARD_JCB;
+            return PAYMENT_TYPE_JCB;
         } elseif (preg_match('/^5[1-5][0-9]{14}$/',$number)) {
-            return CARD_MASTERCARD;
+            return PAYMENT_TYPE_MASTERCARD;
         } elseif (preg_match('/^4[0-9]{12}(?:[0-9]{3})?$/',$number)) {
-            return CARD_VISA;
+            return PAYMENT_TYPE_VISA;
         }
-        return CARD_UNKNOWN;
+        return PAYMENT_TYPE_CREDIT_CARD_OTHER;
     }
 
     public function completePurchase($gateway, $accountGateway, $details, $token)
@@ -488,16 +488,17 @@ class PaymentService extends BaseService
             [
                 'payment_type',
                 function ($model) {
-                    return $model->payment_type ? $model->payment_type : ($model->account_gateway_id ? $model->gateway_name : '');
+                    return ($model->payment_type && !$model->last4) ? $model->payment_type : ($model->account_gateway_id ? $model->gateway_name : '');
                 }
             ],
             [
                 'source',
                 function ($model) { 
-                    if (!$model->card_type_code) return '';
-                    $card_type = trans("texts.card_" . $model->card_type_code);
+                    if (!$model->last4) return '';
+                    $code = str_replace(' ', '', strtolower($model->payment_type));
+                    $card_type = trans("texts.card_" . $code);
                     $expiration = trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($model->expiration, false)->format('m/y')));
-                    return '<img height="22" src="'.URL::to('/images/credit_cards/'.$model->card_type_code.'.png').'" alt="'.htmlentities($card_type).'">&nbsp; &bull;&bull;&bull;'.$model->last4.' '.$expiration;
+                    return '<img height="22" src="'.URL::to('/images/credit_cards/'.$code.'.png').'" alt="'.htmlentities($card_type).'">&nbsp; &bull;&bull;&bull;'.$model->last4.' '.$expiration;
                 }
             ],
             [

@@ -13,7 +13,6 @@ class PaymentsChanges extends Migration
     public function up()
     {
         Schema::dropIfExists('payment_statuses');
-        Schema::dropIfExists('card_types');
         
         Schema::create('payment_statuses', function($table)
         {
@@ -21,15 +20,7 @@ class PaymentsChanges extends Migration
             $table->string('name');
         });
         
-        Schema::create('card_types', function($table)
-        {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('code');
-        });
-        
         (new \PaymentStatusSeeder())->run();
-        (new \CardTypesSeeder())->run();
         
         Schema::table('payments', function($table)
         {
@@ -40,8 +31,6 @@ class PaymentsChanges extends Migration
             $table->unsignedInteger('routing_number')->nullable();
             $table->smallInteger('last4')->unsigned()->nullable();
             $table->date('expiration')->nullable();
-            $table->unsignedInteger('card_type_id')->nullable();
-            $table->foreign('card_type_id')->references('id')->on('card_types');
         });
     }
 
@@ -61,11 +50,8 @@ class PaymentsChanges extends Migration
             $table->dropColumn('routing_number');
             $table->dropColumn('last4');
             $table->dropColumn('expiration');
-            $table->dropForeign('card_type_id_foreign');
-            $table->dropColumn('card_type_id');
         });
         
         Schema::dropIfExists('payment_statuses');
-        Schema::dropIfExists('card_types');
     }
 }
