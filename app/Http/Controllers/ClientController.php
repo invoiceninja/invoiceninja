@@ -184,7 +184,7 @@ class ClientController extends BaseController
         $data = [
             'client' => $client,
             'method' => 'PUT',
-            'url' => 'clients/'.$publicId,
+            'url' => 'clients/'.$client->public_id,
             'title' => trans('texts.edit_client'),
         ];
 

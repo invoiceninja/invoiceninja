@@ -15,8 +15,8 @@ class BaseRequest extends Request {
             return $this->entity;
         }
         
-        //dd($this->clients);
-        $publicId = Input::get('public_id') ?: Input::get('id');
+        $paramName = $this->entityType . 's';
+        $publicId = $this->$paramName ?: (Input::get('public_id') ?: Input::get('id'));
         
         if ( ! $publicId) {
             return null;
