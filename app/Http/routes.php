@@ -253,8 +253,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::get('accounts', 'AccountApiController@show');
     Route::put('accounts', 'AccountApiController@update');
     Route::resource('clients', 'ClientApiController');
-    Route::get('quotes', 'QuoteApiController@index');
-    Route::resource('quotes', 'QuoteApiController');
+    //Route::get('quotes', 'QuoteApiController@index');
+    //Route::resource('quotes', 'QuoteApiController');
     Route::get('invoices', 'InvoiceApiController@index');
     Route::resource('invoices', 'InvoiceApiController');
     Route::get('payments', 'PaymentApiController@index');
