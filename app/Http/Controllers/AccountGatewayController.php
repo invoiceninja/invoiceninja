@@ -86,6 +86,7 @@ class AccountGatewayController extends BaseController
                                     ->where('id', '!=', GATEWAY_BITPAY)
                                     ->where('id', '!=', GATEWAY_GOCARDLESS)
                                     ->where('id', '!=', GATEWAY_DWOLLA)
+                                    ->where('id', '!=', GATEWAY_STRIPE)
                                     ->orderBy('name')->get();
         $data['hiddenFields'] = Gateway::$hiddenFields;
 
@@ -104,6 +105,18 @@ class AccountGatewayController extends BaseController
         $paymentTypes = [];
         foreach (Gateway::$paymentTypes as $type) {
             if ($accountGateway || !$account->getGatewayByType($type)) {
+                if ($type == PAYMENT_TYPE_CREDIT_CARD && $account->getGatewayByType(PAYMENT_TYPE_STRIPE)) {
+                    // Stripe is already handling credit card payments
+                    continue;
+                }
+
+                if ($type == PAYMENT_TYPE_DIRECT_DEBIT && $stripeGateway = $account->getGatewayByType(PAYMENT_TYPE_STRIPE)) {
+                    if (!empty($stripeGateway->getConfig()->enableAch)) {
+                        // Stripe is already handling ACH payments
+                        continue;
+                    }
+                }
+
                 $paymentTypes[$type] = trans('texts.'.strtolower($type));
 
                 if ($type == PAYMENT_TYPE_BITCOIN) {
@@ -185,6 +198,8 @@ class AccountGatewayController extends BaseController
             $gatewayId = GATEWAY_GOCARDLESS;
         } elseif ($paymentType == PAYMENT_TYPE_DWOLLA) {
             $gatewayId = GATEWAY_DWOLLA;
+        } elseif ($paymentType == PAYMENT_TYPE_STRIPE) {
+            $gatewayId = GATEWAY_STRIPE;
         }
 
         if (!$gatewayId) {
@@ -204,6 +219,7 @@ class AccountGatewayController extends BaseController
                 // do nothing - we're unable to acceptance test with StripeJS
             } else {
                 $rules['publishable_key'] = 'required';
+                $rules['enable_ach'] = 'boolean';
             }
         }
 
@@ -257,6 +273,31 @@ class AccountGatewayController extends BaseController
                 $config->publishableKey = $publishableKey;
             } elseif ($oldConfig && property_exists($oldConfig, 'publishableKey')) {
                 $config->publishableKey = $oldConfig->publishableKey;
+            }
+
+            $plaidClientId = Input::get('plaid_client_id');
+            if ($plaidClientId = str_replace('*', '', $plaidClientId)) {
+                $config->plaidClientId = $plaidClientId;
+            } elseif ($oldConfig && property_exists($oldConfig, 'plaidClientId')) {
+                $config->plaidClientId = $oldConfig->plaidClientId;
+            }
+
+            $plaidSecret = Input::get('plaid_secret');
+            if ($plaidSecret = str_replace('*', '', $plaidSecret)) {
+                $config->plaidSecret = $plaidSecret;
+            } elseif ($oldConfig && property_exists($oldConfig, 'plaidSecret')) {
+                $config->plaidSecret = $oldConfig->plaidSecret;
+            }
+
+            $plaidPublicKey = Input::get('plaid_public_key');
+            if ($plaidPublicKey = str_replace('*', '', $plaidPublicKey)) {
+                $config->plaidPublicKey = $plaidPublicKey;
+            } elseif ($oldConfig && property_exists($oldConfig, 'plaidPublicKey')) {
+                $config->plaidPublicKey = $oldConfig->plaidPublicKey;
+            }
+
+            if ($gatewayId == GATEWAY_STRIPE) {
+                $config->enableAch = boolval(Input::get('enable_ach'));
             }
 
             $cardCount = 0;

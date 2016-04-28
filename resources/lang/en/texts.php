@@ -502,7 +502,7 @@ $LANG = array(
     'resend_confirmation' => 'Resend confirmation email',
     'confirmation_resent' => 'The confirmation email was resent',
     'gateway_help_42' => ':link to sign up for BitPay.<br/>Note: use a Legacy API Key, not an API token.',
-    'payment_type_credit_card' => 'Credit Card',
+    'payment_type_credit_card' => 'Other Providers',
     'payment_type_paypal' => 'PayPal',
     'payment_type_bitcoin' => 'Bitcoin',
     'knowledge_base' => 'Knowledge Base',
@@ -1205,6 +1205,19 @@ $LANG = array(
     'card_solo' => 'Solo',
     'card_switch' => 'Switch',
     'card_visacard' => 'Visa',
+
+    'payment_type_stripe' => 'Stripe',
+    'ach' => 'ACH',
+    'enable_ach' => 'Enable ACH',
+    'stripe_ach_help' => 'ACH support must also be enabled at Stripe.',
+    'stripe_ach_disabled' => 'Another gateway is already configured for direct debit.',
+
+    'plaid' => 'Plaid',
+    'client_id' => 'Client Id',
+    'secret' => 'Secret',
+    'public_key' => 'Public Key',
+    'plaid_optional' => '(optional)',
+    'plaid_environment_help' => 'When a Stripe test key is given, Plaid\'s development environement (tartan) will be used.',
 );
 
 return $LANG;
