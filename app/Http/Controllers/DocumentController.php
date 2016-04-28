@@ -15,7 +15,7 @@ use App\Ninja\Repositories\DocumentRepository;
 class DocumentController extends BaseController
 {
     protected $documentRepo;
-    protected $entity = ENTITY_DOCUMENT;
+    protected $entityType = ENTITY_DOCUMENT;
 
     public function __construct(DocumentRepository $documentRepo)
     {

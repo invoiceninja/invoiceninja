@@ -37,7 +37,7 @@ class InvoiceController extends BaseController
     protected $documentRepo;
     protected $invoiceService;
     protected $recurringInvoiceService;
-    protected $entity = ENTITY_INVOICE;
+    protected $entityType = ENTITY_INVOICE;
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService)
     {

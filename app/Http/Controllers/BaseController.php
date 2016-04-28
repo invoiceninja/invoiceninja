@@ -3,6 +3,7 @@
 use App\Http\Middleware\PermissionsRequired;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Input;
 use Auth;
 use Utils;
 
@@ -10,7 +11,7 @@ class BaseController extends Controller
 {
     use DispatchesJobs, AuthorizesRequests;
     
-    protected $entity;
+    protected $entityType;
 
     /**
      * Setup the layout used by the controller.
@@ -25,17 +26,23 @@ class BaseController extends Controller
     }
     
     protected function authorizeCreate() {
-        $this->authorize('create', $this->entity);
+        $this->authorize('create', $this->entityType);
     }
+    
+    /*
+    protected function authorizeUpdate($entity) {
+        $this->authorize('edit', $entity);
+    }
+    */
     
     protected function authorizeUpdate($input){
         $creating = empty($input['public_id']) || $input['public_id'] == '-1';
         
         if($creating){
-            $this->authorize('create', $this->entity);
+            $this->authorize('create', $this->entityType);
         }
         else{
-            $className = Utils::getEntityName($this->entity);
+            $className = Utils::getEntityName($this->entityType);
             
             $object = call_user_func(array("App\\Models\\{$className}", 'scope'), $input['public_id'])->firstOrFail();
             $this->authorize('edit', $object);

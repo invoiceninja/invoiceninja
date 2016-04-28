@@ -1,9 +1,6 @@
-<?php namespace app\Http\Requests;
+<?php namespace App\Http\Requests;
 
-use App\Http\Requests\Request;
-use Illuminate\Validation\Factory;
-
-class UpdateClientRequest extends Request
+class UpdateClientRequest extends ClientRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -12,7 +9,7 @@ class UpdateClientRequest extends Request
      */
     public function authorize()
     {
-        return true;
+        return $this->user()->can('edit', $this->entity());
     }
 
     /**

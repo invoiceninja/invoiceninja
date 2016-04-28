@@ -28,6 +28,7 @@ use App\Models\Task;
 use App\Ninja\Repositories\ClientRepository;
 use App\Services\ClientService;
 
+use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 
@@ -35,7 +36,7 @@ class ClientController extends BaseController
 {
     protected $clientService;
     protected $clientRepo;
-    protected $entity = ENTITY_CLIENT;
+    protected $entityType = ENTITY_CLIENT;
 
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
@@ -81,11 +82,7 @@ class ClientController extends BaseController
      */
     public function store(CreateClientRequest $request)
     {
-        $data = $request->input();
-        
-        $this->authorizeUpdate($data);
-                
-        $client = $this->clientService->save($data);
+        $client = $this->clientService->save($request->input());
 
         Session::flash('message', trans('texts.created_client'));
 
@@ -100,6 +97,7 @@ class ClientController extends BaseController
      */
     public function show($publicId)
     {
+        //$client = $request->entity()->load('conacts');         
         $client = Client::withTrashed()->scope($publicId)->with('contacts', 'size', 'industry')->firstOrFail();
         
         $this->authorize('view', $client);
@@ -177,9 +175,9 @@ class ClientController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function edit($publicId)
+    public function edit(ClientRequest $request)
     {
-        $client = Client::scope($publicId)->with('contacts')->firstOrFail();
+        $client = $request->entity();
         
         $this->authorize('edit', $client);
         
@@ -225,11 +223,7 @@ class ClientController extends BaseController
      */
     public function update(UpdateClientRequest $request)
     {
-        $data = $request->input();
-        
-        $this->authorizeUpdate($data);
-                
-        $client = $this->clientService->save($data);
+        $client = $this->clientService->save($request->input(), $request->entity());
 
         Session::flash('message', trans('texts.updated_client'));
 

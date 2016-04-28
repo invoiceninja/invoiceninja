@@ -25,12 +25,12 @@ use App\Services\VendorService;
 
 use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
-// vendor
+
 class VendorController extends BaseController
 {
     protected $vendorService;
     protected $vendorRepo;
-    protected $entity = ENTITY_VENDOR;
+    protected $entityType = ENTITY_VENDOR;
 
     public function __construct(VendorRepository $vendorRepo, VendorService $vendorService)
     {

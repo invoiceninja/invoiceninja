@@ -669,6 +669,11 @@ class Utils
         return $year + $offset;
     }
 
+    public static function getEntityClass($entityType)
+    {
+        return 'App\\Models\\' . static::getEntityName($entityType);
+    }
+
     public static function getEntityName($entityType)
     {
         return ucwords(str_replace('_', ' ', $entityType));

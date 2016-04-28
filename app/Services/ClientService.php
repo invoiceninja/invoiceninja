@@ -30,13 +30,13 @@ class ClientService extends BaseService
         return $this->clientRepo;
     }
 
-    public function save($data)
+    public function save($data, $client = null)
     {
         if (Auth::user()->account->isNinjaAccount() && isset($data['plan'])) {
             $this->ninjaRepo->updatePlanDetails($data['public_id'], $data);
         }
 
-        return $this->clientRepo->save($data);
+        return $this->clientRepo->save($data, $client);
     }
 
     public function getDatatable($search)

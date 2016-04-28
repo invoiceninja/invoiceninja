@@ -33,7 +33,7 @@ class QuoteController extends BaseController
     protected $invoiceRepo;
     protected $clientRepo;
     protected $invoiceService;
-    protected $entity = ENTITY_INVOICE;
+    protected $entityType = ENTITY_INVOICE;
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
     {
