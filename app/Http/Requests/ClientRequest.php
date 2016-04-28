@@ -4,6 +4,11 @@ class ClientRequest extends BaseRequest {
 
     protected $entityType = ENTITY_CLIENT;
 
+    public function entity()
+    {
+        return parent::entity()->load('contacts');
+    }
+
     public function authorize()
     {
         return true;
