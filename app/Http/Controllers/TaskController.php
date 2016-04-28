@@ -22,7 +22,7 @@ class TaskController extends BaseController
 {
     protected $taskRepo;
     protected $taskService;
-    protected $entity = ENTITY_TASK;
+    protected $entityType = ENTITY_TASK;
 
     public function __construct(TaskRepository $taskRepo, InvoiceRepository $invoiceRepo, TaskService $taskService)
     {

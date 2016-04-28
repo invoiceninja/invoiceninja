@@ -17,7 +17,7 @@ class CreditController extends BaseController
 {
     protected $creditRepo;
     protected $creditService;
-    protected $entity = ENTITY_CREDIT;
+    protected $entityType = ENTITY_CREDIT;
 
     public function __construct(CreditRepository $creditRepo, CreditService $creditService)
     {

@@ -35,7 +35,7 @@ class ClientController extends BaseController
 {
     protected $clientService;
     protected $clientRepo;
-    protected $entity = ENTITY_CLIENT;
+    protected $entityType = ENTITY_CLIENT;
 
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {

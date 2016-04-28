@@ -30,7 +30,7 @@ use App\Http\Requests\UpdatePaymentRequest;
 
 class PaymentController extends BaseController
 {
-    protected $entity = ENTITY_PAYMENT;
+    protected $entityType = ENTITY_PAYMENT;
     
     public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService)
     {

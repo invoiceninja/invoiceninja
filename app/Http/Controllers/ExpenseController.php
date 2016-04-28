@@ -25,7 +25,7 @@ class ExpenseController extends BaseController
     // Expenses
     protected $expenseRepo;
     protected $expenseService;
-    protected $entity = ENTITY_EXPENSE;
+    protected $entityType = ENTITY_EXPENSE;
 
     public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService)
     {
