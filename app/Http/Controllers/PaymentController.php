@@ -137,7 +137,7 @@ class PaymentController extends BaseController
         ];
     }
 
-    public function show_payment($invitationKey, $paymentType = false)
+    public function show_payment($invitationKey, $paymentType = false, $sourceId = false)
     {
 
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
@@ -155,27 +155,31 @@ class PaymentController extends BaseController
 
         if ($paymentType == PAYMENT_TYPE_TOKEN) {
             $useToken = true;
-            $paymentType = PAYMENT_TYPE_CREDIT_CARD;
+            $accountGateway = $invoice->client->account->getTokenGateway();
+            $paymentType = $accountGateway->getPaymentType();
+        } else {
+            $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
         }
+
         Session::put($invitation->id . 'payment_type', $paymentType);
 
-        $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
         $gateway = $accountGateway->gateway;
 
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
-
-        // Handle offsite payments
-        if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD
+        $isOffsite = ($paymentType != PAYMENT_TYPE_CREDIT_CARD && $accountGateway->getPaymentType() != PAYMENT_TYPE_STRIPE)
             || $gateway->id == GATEWAY_EWAY
             || $gateway->id == GATEWAY_TWO_CHECKOUT
             || $gateway->id == GATEWAY_PAYFAST
-            || $gateway->id == GATEWAY_MOLLIE) {
+            || $gateway->id == GATEWAY_MOLLIE;
+
+        // Handle offsite payments
+        if ($useToken || $isOffsite) {
             if (Session::has('error')) {
                 Session::reflash();
                 return Redirect::to('view/'.$invitationKey);
             } else {
-                return self::do_payment($invitationKey, false, $useToken);
+                return self::do_payment($invitationKey, false, $useToken, $sourceId);
             }
         }
 
@@ -189,22 +193,24 @@ class PaymentController extends BaseController
             'gateway' => $gateway,
             'accountGateway' => $accountGateway,
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
+            'paymentType' => $paymentType,
             'countries' => Cache::get('countries'),
             'currencyId' => $client->getCurrencyId(),
             'currencyCode' => $client->currency ? $client->currency->code : ($account->currency ? $account->currency->code : 'USD'),
             'account' => $client->account,
-            'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
-            'hideHeader' => $account->isNinjaAccount(),
-            'clientViewCSS' => $account->clientViewCSS(),
-            'clientFontUrl' => $account->getFontsUrl(),
+            'clientFontUrl' => $client->account->getFontsUrl(),
             'showAddress' => $accountGateway->show_address,
         ];
 
-        if ($gateway->id = GATEWAY_BRAINTREE) {
+        if ($paymentType == PAYMENT_TYPE_STRIPE_ACH) {
+            $data['currencies'] = Cache::get('currencies');
+        }
+
+        if ($gateway->id == GATEWAY_BRAINTREE) {
             $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
         }
 
-        return View::make('payments.payment', $data);
+        return View::make('payments.add_paymentmethod', $data);
     }
 
     public function show_license_payment()
@@ -235,7 +241,7 @@ class PaymentController extends BaseController
 
         $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
-        $accountGateway = $account->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD);
+        $accountGateway = $account->getGatewayByType(PAYMENT_TYPE_STRIPE_CREDIT_CARD);
         $gateway = $accountGateway->gateway;
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
@@ -260,7 +266,7 @@ class PaymentController extends BaseController
             'showAddress' => true,
         ];
 
-        return View::make('payments.payment', $data);
+        return View::make('payments.add_paymentmethod', $data);
     }
 
     public function do_license_payment()
@@ -291,7 +297,7 @@ class PaymentController extends BaseController
 
         $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
-        $accountGateway = $account->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD);
+        $accountGateway = $account->getGatewayByType(PAYMENT_TYPE_STRIPE_CREDIT_CARD);
 
         try {
             $affiliate = Affiliate::find(Session::get('affiliate_id'));
@@ -367,13 +373,14 @@ class PaymentController extends BaseController
         }
     }
 
-    public function do_payment($invitationKey, $onSite = true, $useToken = false)
+    public function do_payment($invitationKey, $onSite = true, $useToken = false, $sourceId = false)
     {
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
         $client = $invoice->client;
         $account = $client->account;
-        $accountGateway = $account->getGatewayByType(Session::get($invitation->id . 'payment_type'));
+        $paymentType = Session::get($invitation->id . 'payment_type');
+        $accountGateway = $account->getGatewayByType($paymentType);
 
 
         $rules = [
@@ -445,11 +452,20 @@ class PaymentController extends BaseController
                 if ($useToken) {
                     $details['customerReference'] = $client->getGatewayToken();
                     unset($details['token']);
-                } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing')) {
-                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference);
+                    if ($sourceId) {
+                        $details['cardReference'] = $sourceId;
+                    }
+                } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing') || $paymentType == PAYMENT_TYPE_STRIPE_ACH) {
+                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */);
                     if ($token) {
                         $details['token'] = $token;
                         $details['customerReference'] = $customerReference;
+
+                        if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && empty($usingPlaid) ) {
+                            // The user needs to complete verification
+                            Session::flash('message', trans('texts.bank_account_verification_next_steps'));
+                            return Redirect::to('/client/paymentmethods');
+                        }
                     } else {
                         $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
                         return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
@@ -463,11 +479,15 @@ class PaymentController extends BaseController
 
                 if ($useToken) {
                     $details['customerId'] = $customerId = $client->getGatewayToken();
-                    $customer = $gateway->findCustomer($customerId)->send();
-                    $details['paymentMethodToken'] = $customer->getData()->paymentMethods[0]->token;
+                    if (!$sourceId) {
+                        $customer = $gateway->findCustomer($customerId)->send();
+                        $details['paymentMethodToken'] = $customer->getData()->paymentMethods[0]->token;
+                    } else {
+                        $details['paymentMethodToken'] = $sourceId;
+                    }
                     unset($details['token']);
                 } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing')) {
-                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference);
+                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */);
                     if ($token) {
                         $details['paymentMethodToken'] = $token;
                         $details['customerId'] = $customerReference;
@@ -682,5 +702,86 @@ class PaymentController extends BaseController
 
         Session::flash('error', $message);
         Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
+    }
+
+    public function getBankInfo($routingNumber) {
+        if (strlen($routingNumber) != 9 || !preg_match('/\d{9}/', $routingNumber)) {
+            return response()->json([
+                'message' => 'Invalid routing number',
+            ], 400);
+        }
+
+        $data = static::getBankData($routingNumber);
+
+        if (is_string($data)) {
+            return response()->json([
+                'message' => $data,
+            ], 500);
+        } elseif (!empty($data)) {
+            return $data;
+        }
+        
+        return response()->json([
+            'message' => 'Bank not found',
+        ], 404);
+    }
+
+    public static function getBankData($routingNumber) {
+        $cached = Cache::get('bankData:'.$routingNumber);
+
+        if ($cached != null) {
+            return $cached == false ? null : $cached;
+        }
+
+        $dataPath = base_path('vendor/gatepay/FedACHdir/FedACHdir.txt');
+
+        if (!file_exists($dataPath) || !$size = filesize($dataPath)) {
+            return 'Invalid data file';
+        }
+
+        $lineSize = 157;
+        $numLines = $size/$lineSize;
+
+        if ($numLines % 1 != 0) {
+            // The number of lines should be an integer
+            return 'Invalid data file';
+        }
+
+        // Format: http://www.sco.ca.gov/Files-21C/Bank_Master_Interface_Information_Package.pdf
+        $file = fopen($dataPath, 'r');
+
+        // Binary search
+        $low = 0;
+        $high = $numLines - 1;
+        while ($low <= $high) {
+            $mid = floor(($low + $high) / 2);
+
+            fseek($file, $mid * $lineSize);
+            $thisNumber = fread($file, 9);
+
+            if ($thisNumber > $routingNumber) {
+                $high = $mid - 1;
+            } else if ($thisNumber < $routingNumber) {
+                $low = $mid + 1;
+            } else {
+                $data = array('routing_number' => $thisNumber);
+                fseek($file, 26, SEEK_CUR);
+                $data['name'] = trim(fread($file, 36));
+                $data['address'] = trim(fread($file, 36));
+                $data['city'] = trim(fread($file, 20));
+                $data['state'] = fread($file, 2);
+                $data['zip'] = fread($file, 5).'-'.fread($file, 4);
+                $data['phone'] = fread($file, 10);
+                break;
+            }
+        }
+
+        if (!empty($data)) {
+            Cache::put('bankData:'.$routingNumber, $data, 5);
+            return $data;
+        } else {
+            Cache::put('bankData:'.$routingNumber, false, 5);
+            return null;
+        }
     }
 }

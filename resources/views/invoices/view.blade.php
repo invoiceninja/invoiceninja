@@ -14,6 +14,12 @@
 			body {
 				background-color: #f8f8f8;		
 			}
+
+            .dropdown-menu li a{
+                overflow:hidden;
+                margin-top:5px;
+                margin-bottom:5px;
+            }
 		</style>
 @stop
 

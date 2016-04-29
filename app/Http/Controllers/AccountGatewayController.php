@@ -117,7 +117,7 @@ class AccountGatewayController extends BaseController
                     }
                 }
 
-                $paymentTypes[$type] = trans('texts.'.strtolower($type));
+                $paymentTypes[$type] = $type == PAYMENT_TYPE_CREDIT_CARD ? trans('texts.other_providers'): trans('texts.'.strtolower($type));
 
                 if ($type == PAYMENT_TYPE_BITCOIN) {
                     $paymentTypes[$type] .= ' - BitPay';

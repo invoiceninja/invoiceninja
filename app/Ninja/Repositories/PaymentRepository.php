@@ -56,6 +56,7 @@ class PaymentRepository extends BaseRepository
                         'payments.refunded',
                         'payments.expiration',
                         'payments.last4',
+                        'payments.routing_number',
                         'invoices.is_deleted as invoice_is_deleted',
                         'gateways.name as gateway_name',
                         'gateways.id as gateway_id',
@@ -107,6 +108,7 @@ class PaymentRepository extends BaseRepository
                         'clients.public_id as client_public_id',
                         'payments.amount',
                         'payments.payment_date',
+                        'payments.payment_type_id',
                         'invoices.public_id as invoice_public_id',
                         'invoices.invoice_number',
                         'contacts.first_name',
@@ -117,6 +119,7 @@ class PaymentRepository extends BaseRepository
                         'payments.refunded',
                         'payments.expiration',
                         'payments.last4',
+                        'payments.routing_number',
                         'payments.payment_status_id',
                         'payment_statuses.name as payment_status_name'
                     );

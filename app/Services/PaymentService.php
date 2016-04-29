@@ -5,6 +5,7 @@ use Auth;
 use URL;
 use DateTime;
 use Event;
+use Cache;
 use Omnipay;
 use Session;
 use CreditCard;
@@ -13,6 +14,7 @@ use App\Models\Account;
 use App\Models\Country;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Http\Controllers\PaymentController;
 use App\Models\AccountGatewayToken;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\AccountRepository;
@@ -155,8 +157,159 @@ class PaymentService extends BaseService
         ];
     }
 
+    public function getClientPaymentMethods($client) {
+        $token = $client->getGatewayToken($accountGateway);
+        if (!$token) {
+            return null;
+        }
+
+        $gateway = $this->createGateway($accountGateway);
+
+        $paymentMethods = array();
+        if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+            $response = $gateway->fetchCustomer(array('customerReference' => $token))->send();
+            if (!$response->isSuccessful()) {
+                return null;
+            }
+
+            $data = $response->getData();
+            $default_source = $data['default_source'];
+            $sources = isset($data['sources']) ? $data['sources']['data'] : $data['cards']['data'];
+
+            $paymentTypes = Cache::get('paymentTypes');
+            $currencies = Cache::get('currencies');
+            foreach ($sources as $source) {
+                if ($source['object'] == 'bank_account') {
+                    $paymentMethods[] = array(
+                        'id' => $source['id'],
+                        'default' => $source['id'] == $default_source,
+                        'type' => $paymentTypes->find(PAYMENT_TYPE_ACH),
+                        'currency' => $currencies->where('code', strtoupper($source['currency']))->first(),
+                        'last4' => $source['last4'],
+                        'routing_number' => $source['routing_number'],
+                        'bank_name' => $source['bank_name'],
+                        'status' => $source['status'],
+                    );
+                } elseif ($source['object'] == 'card') {
+                    $paymentMethods[] = array(
+                        'id' => $source['id'],
+                        'default' => $source['id'] == $default_source,
+                        'type' => $paymentTypes->find($this->parseCardType($source['brand'])),
+                        'last4' => $source['last4'],
+                        'expiration' => $source['exp_year'] . '-' . $source['exp_month'] . '-00',
+                    );
+                }
+            }
+        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+
+        }
+
+        return $paymentMethods;
+    }
+
+    public function verifyClientPaymentMethod($client, $sourceId, $amount1, $amount2) {
+        $token = $client->getGatewayToken($accountGateway);
+        if ($accountGateway->gateway_id != GATEWAY_STRIPE) {
+            return 'Unsupported gateway';
+        }
+
+        try{
+            // Omnipay doesn't support verifying payment methods
+            // Also, it doesn't want to urlencode without putting numbers inside the brackets
+            $response = (new \GuzzleHttp\Client(['base_uri'=>'https://api.stripe.com/v1/']))->request(
+                'POST',
+                'customers/'.$token.'/sources/'.$sourceId.'/verify',
+                [
+                    'body' => 'amounts[]='.intval($amount1).'&amounts[]='.intval($amount2),
+                    'headers'  => ['content-type' => 'application/x-www-form-urlencoded'],
+                    'auth' => [$accountGateway->getConfig()->apiKey,''],
+                ]
+            );
+            return json_decode($response->getBody(), true);
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            $response = $e->getResponse();
+            $body = json_decode($response->getBody(), true);
+
+            if ($body && $body['error'] && $body['error']['type'] == 'invalid_request_error') {
+                return $body['error']['message'];
+            }
+
+            return $e->getMessage();
+        }
+    }
+
+    public function removeClientPaymentMethod($client, $sourceId) {
+        $token = $client->getGatewayToken($accountGateway/* return parameter */);
+        if (!$token) {
+            return null;
+        }
+
+        $gateway = $this->createGateway($accountGateway);
+
+        if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+            $response = $gateway->deleteCard(array('customerReference' => $token, 'cardReference'=>$sourceId))->send();
+            if (!$response->isSuccessful()) {
+                return $response->getMessage();
+            }
+        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+
+        }
+
+        return true;
+    }
+
+    public function setClientDefaultPaymentMethod($client, $sourceId) {
+        $token = $client->getGatewayToken($accountGateway/* return parameter */);
+        if (!$token) {
+            return null;
+        }
+
+        $gateway = $this->createGateway($accountGateway);
+
+        if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+            try{
+                // Omnipay doesn't support setting a default source
+                $response = (new \GuzzleHttp\Client(['base_uri'=>'https://api.stripe.com/v1/']))->request(
+                    'POST',
+                    'customers/'.$token,
+                    [
+                        'body' => 'default_card='.$sourceId,
+                        'headers'  => ['content-type' => 'application/x-www-form-urlencoded'],
+                        'auth' => [$accountGateway->getConfig()->apiKey,''],
+                    ]
+                );
+                return true;
+            } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+                $response = $e->getResponse();
+                $body = json_decode($response->getBody(), true);
+
+                if ($body && $body['error'] && $body['error']['type'] == 'invalid_request_error') {
+                    return $body['error']['message'];
+                }
+
+                return $e->getMessage();
+            }
+        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+
+        }
+
+        return true;
+    }
+
     public function createToken($gateway, $details, $accountGateway, $client, $contactId, &$customerReference = null)
     {
+        $customerReference = $client->getGatewayToken();
+
+        if ($customerReference) {
+            $details['customerReference'] = $customerReference;
+
+            $customerResponse = $gateway->fetchCustomer(array('customerReference'=>$customerReference))->send();
+
+            if (!$customerResponse->isSuccessful()){
+                $customerReference = null; // The customer might not exist anymore
+            }
+        }
+
         if ($accountGateway->gateway->id == GATEWAY_STRIPE) {
             $tokenResponse = $gateway->createCard($details)->send();
             $cardReference = $tokenResponse->getCardReference();
@@ -170,10 +323,15 @@ class PaymentService extends BaseService
                 }
             }
         } elseif ($accountGateway->gateway->id == GATEWAY_BRAINTREE) {
-            $tokenResponse = $gateway->createCustomer(array('customerData'=>array()))->send();
+            if (!$customerReference) {
+                $tokenResponse = $gateway->createCustomer(array('customerData' => array()))->send();
+                if ($tokenResponse->isSuccessful()) {
+                    $customerReference = $tokenResponse->getCustomerData()->id;
+                }
+            }
 
-            if ($tokenResponse->isSuccessful()) {
-                $details['customerId'] = $customerReference = $tokenResponse->getCustomerData()->id;
+            if ($customerReference) {
+                $details['customerId'] = $customerReference;
 
                 $tokenResponse = $gateway->createPaymentMethod($details)->send();
                 $cardReference = $tokenResponse->getData()->paymentMethod->token;
@@ -264,54 +422,26 @@ class PaymentService extends BaseService
         }
 
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
-            $card = $purchaseResponse->getSource();
-            if (!$card) {
-                $card = $purchaseResponse->getCard();
-            }
+            $data = $purchaseResponse->getData();
+            $source = !empty($data['source'])?$data['source']:$data['card'];
 
-            if ($card) {
-                $payment->last4 = $card['last4'];
-                $payment->expiration = $card['exp_year'] . '-' . $card['exp_month'] . '-00';
-                $stripe_card_types = array(
-                    'Visa' => PAYMENT_TYPE_VISA,
-                    'American Express' => PAYMENT_TYPE_AMERICAN_EXPRESS,
-                    'MasterCard' => PAYMENT_TYPE_MASTERCARD,
-                    'Discover' => PAYMENT_TYPE_DISCOVER,
-                    'JCB' => PAYMENT_TYPE_JCB,
-                    'Diners Club' => PAYMENT_TYPE_DINERS,
-                );
+            if ($source) {
+                $payment->last4 = $source['last4'];
 
-                if (!empty($stripe_card_types[$card['brand']])) {
-                    $payment->payment_type_id = $stripe_card_types[$card['brand']];
-                } else {
-                    $payment->payment_type_id = PAYMENT_TYPE_CREDIT_CARD_OTHER;
+                if ($source['object'] == 'bank_account') {
+                    $payment->routing_number = $source['routing_number'];
+                    $payment->payment_type_id = PAYMENT_TYPE_ACH;
+                }
+                else{
+                    $payment->expiration = $card['exp_year'] . '-' . $card['exp_month'] . '-00';
+                    $payment->payment_type_id = $this->parseCardType($card['brand']);
                 }
             }
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
             $card = $purchaseResponse->getData()->transaction->creditCardDetails;
             $payment->last4 = $card->last4;
             $payment->expiration = $card->expirationYear . '-' . $card->expirationMonth . '-00';
-
-            $braintree_card_types = array(
-                'Visa' => PAYMENT_TYPE_VISA,
-                'American Express' => PAYMENT_TYPE_AMERICAN_EXPRESS,
-                'MasterCard' => PAYMENT_TYPE_MASTERCARD,
-                'Discover' => PAYMENT_TYPE_DISCOVER,
-                'JCB' => PAYMENT_TYPE_JCB,
-                'Diners Club' => PAYMENT_TYPE_DINERS,
-                'Carte Blanche' => PAYMENT_TYPE_CARTE_BLANCHE,
-                'China UnionPay' => PAYMENT_TYPE_UNIONPAY,
-                'Laser' => PAYMENT_TYPE_LASER,
-                'Maestro' => PAYMENT_TYPE_MAESTRO,
-                'Solo' => PAYMENT_TYPE_SOLO,
-                'Switch' => PAYMENT_TYPE_SWITCH,
-            );
-
-            if (!empty($braintree_card_types[$card->cardType])) {
-                $payment->payment_type_id = $braintree_card_types[$card->cardType];
-            } else {
-                $payment->payment_type_id = PAYMENT_TYPE_CREDIT_CARD_OTHER;
-            }
+            $payment->payment_type_id = $this->parseCardType($card->cardType);
         }
         
         if ($payerId) {
@@ -374,6 +504,29 @@ class PaymentService extends BaseService
         }
 
         return $payment;
+    }
+
+    private function parseCardType($cardName) {
+        $cardTypes = array(
+            'Visa' => PAYMENT_TYPE_VISA,
+            'American Express' => PAYMENT_TYPE_AMERICAN_EXPRESS,
+            'MasterCard' => PAYMENT_TYPE_MASTERCARD,
+            'Discover' => PAYMENT_TYPE_DISCOVER,
+            'JCB' => PAYMENT_TYPE_JCB,
+            'Diners Club' => PAYMENT_TYPE_DINERS,
+            'Carte Blanche' => PAYMENT_TYPE_CARTE_BLANCHE,
+            'China UnionPay' => PAYMENT_TYPE_UNIONPAY,
+            'Laser' => PAYMENT_TYPE_LASER,
+            'Maestro' => PAYMENT_TYPE_MAESTRO,
+            'Solo' => PAYMENT_TYPE_SOLO,
+            'Switch' => PAYMENT_TYPE_SWITCH
+        );
+
+        if (!empty($cardTypes[$cardName])) {
+            return $cardTypes[$cardName];
+        } else {
+            return PAYMENT_TYPE_CREDIT_CARD_OTHER;
+        }
     }
     
     private function detectCardType($number)
@@ -493,12 +646,21 @@ class PaymentService extends BaseService
             ],
             [
                 'source',
-                function ($model) { 
+                function ($model) {
                     if (!$model->last4) return '';
                     $code = str_replace(' ', '', strtolower($model->payment_type));
                     $card_type = trans("texts.card_" . $code);
-                    $expiration = trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($model->expiration, false)->format('m/y')));
-                    return '<img height="22" src="'.URL::to('/images/credit_cards/'.$code.'.png').'" alt="'.htmlentities($card_type).'">&nbsp; &bull;&bull;&bull;'.$model->last4.' '.$expiration;
+                    if ($model->payment_type_id != PAYMENT_TYPE_ACH) {
+                        $expiration = trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($model->expiration, false)->format('m/y')));
+                        return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
+                    } else {
+                        $bankData = PaymentController::getBankData($model->routing_number);
+                        if (is_array($bankData)) {
+                            return $bankData['name'].'&nbsp; &bull;&bull;&bull;' . $model->last4;
+                        } else {
+                            return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
+                        }
+                    }
                 }
             ],
             [

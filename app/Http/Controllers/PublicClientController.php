@@ -10,6 +10,8 @@ use Request;
 use Response;
 use Session;
 use Datatable;
+use Validator;
+use Cache;
 use App\Models\Gateway;
 use App\Models\Invitation;
 use App\Models\Document;
@@ -94,7 +96,7 @@ class PublicClientController extends BaseController
 
         $paymentTypes = $this->getPaymentTypes($client, $invitation);
         $paymentURL = '';
-        if (count($paymentTypes)) {
+        if (count($paymentTypes) == 1) {
             $paymentURL = $paymentTypes[0]['url'];
             if (!$account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
                 $paymentURL = URL::to($paymentURL);
@@ -126,11 +128,6 @@ class PublicClientController extends BaseController
             'account' => $account,
             'showApprove' => $showApprove,
             'showBreadcrumbs' => false,
-            'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
-            'hideHeader' => $account->isNinjaAccount() || !$account->enable_client_portal,
-            'hideDashboard' => !$account->enable_client_portal_dashboard,
-            'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
-            'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'invoice' => $invoice->hidePrivateFields(),
             'invitation' => $invitation,
@@ -161,23 +158,67 @@ class PublicClientController extends BaseController
         $paymentTypes = [];
         $account = $client->account;
 
-        if ($client->getGatewayToken()) {
-            $paymentTypes[] = [
-                'url' => URL::to("payment/{$invitation->invitation_key}/token"), 'label' => trans('texts.use_card_on_file')
-            ];
-        }
-        foreach(Gateway::$paymentTypes as $type) {
-            if ($account->getGatewayByType($type)) {
-                $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
-                $url = URL::to("/payment/{$invitation->invitation_key}/{$typeLink}");
+        $paymentMethods = $this->paymentService->getClientPaymentMethods($client);
 
-                // PayPal doesn't allow being run in an iframe so we need to open in new tab
-                if ($type === PAYMENT_TYPE_PAYPAL && $account->iframe_url) {
-                    $url = 'javascript:window.open("'.$url.'", "_blank")';
+        if ($paymentMethods) {
+            foreach ($paymentMethods as $paymentMethod) {
+                if ($paymentMethod['type']->id != PAYMENT_TYPE_ACH || $paymentMethod['status'] == 'verified') {
+
+                    if ($paymentMethod['type']->id == PAYMENT_TYPE_ACH) {
+                        $html = '<div>'.htmlentities($paymentMethod['bank_name']).'</div>';
+                    } else {
+                        $code = htmlentities(str_replace(' ', '', strtolower($paymentMethod['type']->name)));
+                        $html = '<img height="22" src="'.URL::to('/images/credit_cards/'.$code.'.png').'" alt="'.trans("texts.card_".$code).'">';
+                    }
+
+                    if ($paymentMethod['type']->id != PAYMENT_TYPE_ACH) {
+                        $html .= '<div class="pull-right" style="text-align:right">'.trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($paymentMethod['expiration'], false)->format('m/y'))).'<br>';
+                    } else {
+                        $html .= '<div style="text-align:right">';
+                    }
+                    $html .= '&bull;&bull;&bull;'.$paymentMethod['last4'].'</div>';
+
+                    $paymentTypes[] = [
+                        'url' => URL::to("/payment/{$invitation->invitation_key}/token/".$paymentMethod['id']),
+                        'label' => $html,
+                    ];
                 }
-                $paymentTypes[] = [
-                    'url' => $url, 'label' => trans('texts.'.strtolower($type))
-                ];
+            }
+        }
+
+
+        foreach(Gateway::$paymentTypes as $type) {
+            if ($gateway = $account->getGatewayByType($type)) {
+                $types = array($type);
+
+                if ($type == PAYMENT_TYPE_STRIPE) {
+                    $types = array(PAYMENT_TYPE_STRIPE_CREDIT_CARD);
+                    if ($gateway->getAchEnabled()) {
+                        $types[] = PAYMENT_TYPE_STRIPE_ACH;
+                    }
+                }
+
+                foreach($types as $type) {
+                    $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
+                    $url = URL::to("/payment/{$invitation->invitation_key}/{$typeLink}");
+
+                    // PayPal doesn't allow being run in an iframe so we need to open in new tab
+                    if ($type === PAYMENT_TYPE_PAYPAL && $account->iframe_url) {
+                        $url = 'javascript:window.open("' . $url . '", "_blank")';
+                    }
+
+                    if ($type == PAYMENT_TYPE_STRIPE_CREDIT_CARD) {
+                        $label = trans('texts.' . strtolower(PAYMENT_TYPE_CREDIT_CARD));
+                    } elseif ($type == PAYMENT_TYPE_STRIPE_ACH) {
+                        $label = trans('texts.' . strtolower(PAYMENT_TYPE_DIRECT_DEBIT));
+                    } else {
+                        $label = trans('texts.' . strtolower($type));
+                    }
+
+                    $paymentTypes[] = [
+                        'url' => $url, 'label' => $label
+                    ];
+                }
             }
         }
 
@@ -224,9 +265,6 @@ class PublicClientController extends BaseController
             'color' => $color,
             'account' => $account,
             'client' => $client,
-            'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
-            'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
-            'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
         ];
         
@@ -248,7 +286,7 @@ class PublicClientController extends BaseController
             ->addColumn('activity_type_id', function ($model) {
                 $data = [
                     'client' => Utils::getClientDisplayName($model),
-                    'user' => $model->is_system ? ('<i>' . trans('texts.system') . '</i>') : ($model->user_first_name . ' ' . $model->user_last_name), 
+                    'user' => $model->is_system ? ('<i>' . trans('texts.system') . '</i>') : ($model->user_first_name . ' ' . $model->user_last_name),
                     'invoice' => trans('texts.invoice') . ' ' . $model->invoice,
                     'contact' => Utils::getClientDisplayName($model),
                     'payment' => trans('texts.payment') . ($model->payment ? ' ' . $model->payment : ''),
@@ -280,10 +318,7 @@ class PublicClientController extends BaseController
         
         $data = [
             'color' => $color,
-            'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
-            'hideDashboard' => !$account->enable_client_portal_dashboard,
-            'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
-            'clientViewCSS' => $account->clientViewCSS(),
+            'account' => $account,
             'clientFontUrl' => $account->getFontsUrl(),
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
@@ -317,10 +352,7 @@ class PublicClientController extends BaseController
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';        
         $data = [
             'color' => $color,
-            'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
-            'hideDashboard' => !$account->enable_client_portal_dashboard,
-            'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
-            'clientViewCSS' => $account->clientViewCSS(),
+            'account' => $account,
             'clientFontUrl' => $account->getFontsUrl(),
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
@@ -345,8 +377,17 @@ class PublicClientController extends BaseController
                     if (!$model->last4) return '';
                     $code = str_replace(' ', '', strtolower($model->payment_type));
                     $card_type = trans("texts.card_" . $code);
-                    $expiration = trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($model->expiration, false)->format('m/y')));
-                    return '<img height="22" src="'.URL::to('/images/credit_cards/'.$code.'.png').'" alt="'.htmlentities($card_type).'">&nbsp; &bull;&bull;&bull;'.$model->last4.' '.$expiration;
+                    if ($model->payment_type_id != PAYMENT_TYPE_ACH) {
+                        $expiration = trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($model->expiration, false)->format('m/y')));
+                        return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
+                    } else {
+                        $bankData = PaymentController::getBankData($model->routing_number);
+                        if (is_array($bankData)) {
+                            return $bankData['name'].'&nbsp; &bull;&bull;&bull;' . $model->last4;
+                        } else {
+                            return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
+                        }
+                    }
                 })
                 ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
                 ->addColumn('payment_date', function ($model) { return Utils::dateToString($model->payment_date); })
@@ -397,10 +438,7 @@ class PublicClientController extends BaseController
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         $data = [
           'color' => $color,
-          'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
-          'hideDashboard' => !$account->enable_client_portal_dashboard,
-          'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
-          'clientViewCSS' => $account->clientViewCSS(),
+          'account' => $account,
           'clientFontUrl' => $account->getFontsUrl(),
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
@@ -435,10 +473,7 @@ class PublicClientController extends BaseController
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';        
         $data = [
           'color' => $color,
-          'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
-          'hideDashboard' => !$account->enable_client_portal_dashboard,
-          'showDocuments' => $account->hasFeature(FEATURE_DOCUMENTS),
-          'clientViewCSS' => $account->clientViewCSS(),
+          'account' => $account,
           'clientFontUrl' => $account->getFontsUrl(),
           'title' => trans('texts.documents'),
           'entityType' => ENTITY_DOCUMENT,
@@ -632,4 +667,169 @@ class PublicClientController extends BaseController
         return DocumentController::getDownloadResponse($document);
     }
 
+    public function paymentMethods()
+    {
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+
+        $client = $invitation->invoice->client;
+        $account = $client->account;
+        $paymentMethods = $this->paymentService->getClientPaymentMethods($client);
+
+        $data = array(
+            'account' => $account,
+            'color' => $account->primary_color ? $account->primary_color : '#0b4d78',
+            'client' => $client,
+            'clientViewCSS' => $account->clientViewCSS(),
+            'clientFontUrl' => $account->getFontsUrl(),
+            'paymentMethods' => $paymentMethods,
+            'gateway' => $account->getTokenGateway(),
+            'title' => trans('texts.payment_methods')
+        );
+
+        return response()->view('payments.paymentmethods', $data);
+    }
+
+    public function verifyPaymentMethod()
+    {
+        $sourceId = Input::get('source_id');
+        $amount1 = Input::get('verification1');
+        $amount2 = Input::get('verification2');
+
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+
+        $client = $invitation->invoice->client;
+        $result = $this->paymentService->verifyClientPaymentMethod($client, $sourceId, $amount1, $amount2);
+
+        if (is_string($result)) {
+            Session::flash('error', $result);
+        } else {
+            Session::flash('message', trans('texts.payment_method_verified'));
+        }
+
+        return redirect()->to('/client/paymentmethods/');
+    }
+
+    public function removePaymentMethod($sourceId)
+    {
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+
+        $client = $invitation->invoice->client;
+        $result = $this->paymentService->removeClientPaymentMethod($client, $sourceId);
+
+        if (is_string($result)) {
+            Session::flash('error', $result);
+        } else {
+            Session::flash('message', trans('texts.payment_method_removed'));
+        }
+
+        return redirect()->to('/client/paymentmethods/');
+    }
+
+    public function addPaymentMethod($paymentType)
+    {
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+
+        $invoice = $invitation->invoice;
+        $client = $invitation->invoice->client;
+        $account = $client->account;
+
+        $typeLink = $paymentType;
+        $paymentType = 'PAYMENT_TYPE_' . strtoupper($paymentType);
+        $accountGateway = $invoice->client->account->getTokenGateway();
+        $gateway = $accountGateway->gateway;
+        $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
+
+
+        $data = [
+            'showBreadcrumbs' => false,
+            'client' => $client,
+            'contact' => $invitation->contact,
+            'gateway' => $gateway,
+            'accountGateway' => $accountGateway,
+            'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
+            'paymentType' => $paymentType,
+            'countries' => Cache::get('countries'),
+            'currencyId' => $client->getCurrencyId(),
+            'currencyCode' => $client->currency ? $client->currency->code : ($account->currency ? $account->currency->code : 'USD'),
+            'account' => $account,
+            'url' => URL::to('client/paymentmethods/add/'.$typeLink),
+            'clientFontUrl' => $account->getFontsUrl(),
+            'showAddress' => $accountGateway->show_address,
+        ];
+
+        if ($paymentType == PAYMENT_TYPE_STRIPE_ACH) {
+
+            $data['currencies'] = Cache::get('currencies');
+        }
+
+        if ($gateway->id == GATEWAY_BRAINTREE) {
+            $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
+        }
+
+        return View::make('payments.add_paymentmethod', $data);
+    }
+
+    public function postAddPaymentMethod($paymentType)
+    {
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+
+        $paymentType = 'PAYMENT_TYPE_' . strtoupper($paymentType);
+        $client = $invitation->invoice->client;
+        $account = $client->account;
+
+        $accountGateway = $account->getGatewayByType($paymentType);
+        $sourceToken = $accountGateway->gateway_id == GATEWAY_STRIPE ? Input::get('stripeToken'):Input::get('payment_method_nonce');
+
+        if ($sourceToken) {
+            $details = array('token' => $sourceToken);
+            $gateway = $this->paymentService->createGateway($accountGateway);
+            $sourceId = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id);
+        } else {
+            return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
+        }
+
+        if(empty($sourceId)) {
+            $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
+            return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
+        } else if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && empty($usingPlaid) ) {
+            // The user needs to complete verification
+            Session::flash('message', trans('texts.bank_account_verification_next_steps'));
+            return Redirect::to('client/paymentmethods/add/' . $paymentType);
+        } else {
+            Session::flash('message', trans('texts.payment_method_added'));
+            return redirect()->to('/client/paymentmethods/');
+        }
+    }
+
+    public function setDefaultPaymentMethod(){
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+
+        $validator = Validator::make(Input::all(), array('source' => 'required'));
+        if ($validator->fails()) {
+            return Redirect::to('client/paymentmethods');
+        }
+
+        $client = $invitation->invoice->client;
+        $result = $this->paymentService->setClientDefaultPaymentMethod($client, Input::get('source'));
+
+        if (is_string($result)) {
+            Session::flash('error', $result);
+        } else {
+            Session::flash('message', trans('texts.payment_method_set_as_default'));
+        }
+
+        return redirect()->to('/client/paymentmethods/');
+    }
 }

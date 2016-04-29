@@ -40,9 +40,15 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('download/{invitation_key}', 'PublicClientController@download');
     Route::get('view', 'HomeController@viewLogo');
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
-    Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
+    Route::get('payment/{invitation_key}/{payment_type?}/{source_id?}', 'PaymentController@show_payment');
     Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
     Route::match(['GET', 'POST'], 'complete', 'PaymentController@offsite_payment');
+    Route::get('client/paymentmethods', 'PublicClientController@paymentMethods');
+    Route::post('client/paymentmethods/verify', 'PublicClientController@verifyPaymentMethod');
+    Route::get('client/paymentmethods/add/{payment_type}', 'PublicClientController@addPaymentMethod');
+    Route::post('client/paymentmethods/add/{payment_type}', 'PublicClientController@postAddPaymentMethod');
+    Route::post('client/paymentmethods/default', 'PublicClientController@setDefaultPaymentMethod');
+    Route::post('client/paymentmethods/{source_id}/remove', 'PublicClientController@removePaymentMethod');
     Route::get('client/quotes', 'PublicClientController@quoteIndex');
     Route::get('client/invoices', 'PublicClientController@invoiceIndex');
     Route::get('client/documents', 'PublicClientController@documentIndex');
@@ -60,6 +66,7 @@ Route::group(['middleware' => 'auth:client'], function() {
 });
 
 
+Route::get('bank/{routing_number}', 'PaymentController@getBankInfo');
 Route::get('license', 'PaymentController@show_license_payment');
 Route::post('license', 'PaymentController@do_license_payment');
 Route::get('claim_license', 'PaymentController@claim_license');
@@ -615,6 +622,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('TOKEN_BILLING_ALWAYS', 4);
 
     define('PAYMENT_TYPE_CREDIT', 1);
+    define('PAYMENT_TYPE_ACH', 5);
     define('PAYMENT_TYPE_VISA', 6);
     define('PAYMENT_TYPE_MASTERCARD', 7);
     define('PAYMENT_TYPE_AMERICAN_EXPRESS', 8);
@@ -633,6 +641,8 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
     define('PAYMENT_TYPE_STRIPE', 'PAYMENT_TYPE_STRIPE');
+    define('PAYMENT_TYPE_STRIPE_CREDIT_CARD', 'PAYMENT_TYPE_STRIPE_CREDIT_CARD');
+    define('PAYMENT_TYPE_STRIPE_ACH', 'PAYMENT_TYPE_STRIPE_ACH');
     define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
     define('PAYMENT_TYPE_DIRECT_DEBIT', 'PAYMENT_TYPE_DIRECT_DEBIT');
     define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');

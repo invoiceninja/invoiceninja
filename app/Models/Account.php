@@ -379,6 +379,10 @@ class Account extends Eloquent
 
     public function getGatewayByType($type = PAYMENT_TYPE_ANY)
     {
+        if ($type == PAYMENT_TYPE_STRIPE_ACH || $type == PAYMENT_TYPE_STRIPE_CREDIT_CARD) {
+            $type = PAYMENT_TYPE_STRIPE;
+        }
+
         foreach ($this->account_gateways as $gateway) {
             if (!$type || $type == PAYMENT_TYPE_ANY) {
                 return $gateway;
