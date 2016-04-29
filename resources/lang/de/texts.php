@@ -1134,7 +1134,7 @@ return array(
 
     'navigation' => 'Navigation',
     'list_invoices' => 'Rechnungen Auflisten',
-    'list_clients' => 'Klienten Auflisten',
+    'list_clients' => 'Kunden Auflisten',
     'list_quotes' => 'Angebote Auflisten',
     'list_tasks' => 'Aufgaben Auflisten',
     'list_expenses' => 'Ausgaben Auflisten',
@@ -1154,7 +1154,7 @@ return array(
     'recurring_invoice_number' => 'Wiederkehrende Rechnungsnummer',
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
     'enable_client_portal' => 'Dashboard',
-    'enable_client_portal_help' => 'Dashboard-Seite im Klienten-Portal anzeigen/verbergen.',
+    'enable_client_portal_help' => 'Dashboard-Seite im Kunden-Portal anzeigen/verbergen.',
 
     // Client Passwords
     'enable_portal_password'=>'Sichere Rechnungen mit einem Passwort ab',
@@ -1173,9 +1173,9 @@ return array(
     'owner' => 'Eigentümer',
     'administrator' => 'Administrator',
     'administrator_help' => 'Erlaube Benutzern, andere Benutzer zu administrieren, Einstellungen und alle Einträge zu verändern',
-    'user_create_all' => 'Klienten, Rechnungen, etc. erstellen',
-    'user_view_all' => 'Klienten, Rechnungen, etc. ansehen',
-    'user_edit_all' => 'Klienten, Rechnungen, etc. bearbeiten',
+    'user_create_all' => 'Kunden, Rechnungen, etc. erstellen',
+    'user_view_all' => 'Kunden, Rechnungen, etc. ansehen',
+    'user_edit_all' => 'Kunden, Rechnungen, etc. bearbeiten',
     'gateway_help_20' => ':link um sich bei Sage Pay zu registrieren.',
     'gateway_help_21' => ':link um sich bei Sage Pay zu registrieren.',
     'partial_due' => 'Offener Teilbetrag',
