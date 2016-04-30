@@ -85,12 +85,12 @@
                 <li {{ Request::is('*client/invoices') ? 'class="active"' : '' }}>
                     {!! link_to('/client/invoices', trans('texts.invoices') ) !!}
                 </li>
-                @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                @if (isset($account) && $account->hasFeature(FEATURE_DOCUMENTS))
                     <li {{ Request::is('*client/documents') ? 'class="active"' : '' }}>
                         {!! link_to('/client/documents', trans('texts.documents') ) !!}
                     </li>
                 @endif
-                @if ($account->getTokenGatewayId())
+                @if (isset($account) && $account->getTokenGatewayId())
                     <li {{ Request::is('*client/paymentmethods') ? 'class="active"' : '' }}>
                         {!! link_to('/client/paymentmethods', trans('texts.payment_methods') ) !!}
                     </li>

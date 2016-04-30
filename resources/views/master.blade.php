@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{App::getLocale()}}">
 <head>
-    @if (isset($account) && $account->hasFeature(FEATURE_WHITE_LABEL))
+    @if (isset($account) && $account instanceof \App\Models\Account && $account->hasFeature(FEATURE_WHITE_LABEL))
         <title>{{ trans('texts.client_portal') }}</title>
     @else
         <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }}</title> 
