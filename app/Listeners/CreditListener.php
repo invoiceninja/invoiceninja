@@ -1,5 +1,6 @@
 <?php namespace app\Listeners;
 
+use App\Events\PaymentFailed;
 use Carbon;
 use App\Models\Credit;
 use App\Events\PaymentWasDeleted;

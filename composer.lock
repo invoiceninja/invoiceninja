@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "039f9d8f2e342f6c05dadb3523883a47",
-    "content-hash": "fd558fd1e187969baf015eab8e288e5b",
+    "hash": "7139e4aedb2ac151079c50ee5c17f93c",
+    "content-hash": "a314d6c0a16785dd2395a7fd73cdc76d",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",

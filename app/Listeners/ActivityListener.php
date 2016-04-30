@@ -25,6 +25,7 @@ use App\Events\PaymentWasDeleted;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasArchived;
 use App\Events\PaymentWasRestored;
+use App\Events\PaymentFailed;
 use App\Events\CreditWasCreated;
 use App\Events\CreditWasDeleted;
 use App\Events\CreditWasArchived;
@@ -319,6 +320,18 @@ class ActivityListener
             ACTIVITY_TYPE_REFUNDED_PAYMENT,
             $event->refundAmount,
             $event->refundAmount * -1
+        );
+    }
+
+    public function failedPayment(PaymentFailed $event)
+    {
+        $payment = $event->payment;
+
+        $this->activityRepo->create(
+            $payment,
+            ACTIVITY_TYPE_FAILED_PAYMENT,
+            $payment->amount,
+            $payment->amount * -1
         );
     }
 

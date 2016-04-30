@@ -1251,7 +1251,14 @@ $LANG = array(
     'payment_method_added' => 'Added payment method.',
     'use_for_auto_bill' => 'Use For Autobill',
     'used_for_auto_bill' => 'Autobill Payment Method',
-    'payment_method_set_as_default' => 'Set Autobill payment method.'
+    'payment_method_set_as_default' => 'Set Autobill payment method.',
+    'activity_40' => ':payment_amount payment (:payment) failed',
+    'webhook_url' => 'Webhook URL',
+    'stripe_webhook_help' => 'You must :link for ACH payment status to be updated.',
+    'stripe_webhook_help_link_text' => 'add this URL as an endpoint at Stripe',
+    'payment_method_error' => 'There was an error adding your payment methd. Please try again later.',
+    'notification_invoice_payment_failed_subject' => 'Payment failed for Invoice :invoice',
+    'notification_invoice_payment_failed' => 'A payment made by client :client towards Invoice :invoice failed. The payment has been marked as failed and :amount has been added to the client\'s balance.',
 );
 
 return $LANG;

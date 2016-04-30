@@ -213,29 +213,15 @@ class PaymentService extends BaseService
             return 'Unsupported gateway';
         }
 
-        try{
-            // Omnipay doesn't support verifying payment methods
-            // Also, it doesn't want to urlencode without putting numbers inside the brackets
-            $response = (new \GuzzleHttp\Client(['base_uri'=>'https://api.stripe.com/v1/']))->request(
-                'POST',
-                'customers/'.$token.'/sources/'.$sourceId.'/verify',
-                [
-                    'body' => 'amounts[]='.intval($amount1).'&amounts[]='.intval($amount2),
-                    'headers'  => ['content-type' => 'application/x-www-form-urlencoded'],
-                    'auth' => [$accountGateway->getConfig()->apiKey,''],
-                ]
-            );
-            return json_decode($response->getBody(), true);
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            $response = $e->getResponse();
-            $body = json_decode($response->getBody(), true);
 
-            if ($body && $body['error'] && $body['error']['type'] == 'invalid_request_error') {
-                return $body['error']['message'];
-            }
-
-            return $e->getMessage();
-        }
+        // Omnipay doesn't support verifying payment methods
+        // Also, it doesn't want to urlencode without putting numbers inside the brackets
+        return $this->makeStripeCall(
+            $accountGateway,
+            'POST',
+            'customers/'.$token.'/sources/'.$sourceId.'/verify',
+            'amounts[]='.intval($amount1).'&amounts[]='.intval($amount2)
+        );
     }
 
     public function removeClientPaymentMethod($client, $sourceId) {
@@ -267,28 +253,13 @@ class PaymentService extends BaseService
         $gateway = $this->createGateway($accountGateway);
 
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
-            try{
-                // Omnipay doesn't support setting a default source
-                $response = (new \GuzzleHttp\Client(['base_uri'=>'https://api.stripe.com/v1/']))->request(
-                    'POST',
-                    'customers/'.$token,
-                    [
-                        'body' => 'default_card='.$sourceId,
-                        'headers'  => ['content-type' => 'application/x-www-form-urlencoded'],
-                        'auth' => [$accountGateway->getConfig()->apiKey,''],
-                    ]
-                );
-                return true;
-            } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-                $response = $e->getResponse();
-                $body = json_decode($response->getBody(), true);
 
-                if ($body && $body['error'] && $body['error']['type'] == 'invalid_request_error') {
-                    return $body['error']['message'];
-                }
-
-                return $e->getMessage();
-            }
+            return $this->makeStripeCall(
+                $accountGateway,
+                'POST',
+                'customers/'.$token,
+                'default_card='.$sourceId
+            );
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
 
         }
@@ -312,14 +283,21 @@ class PaymentService extends BaseService
 
         if ($accountGateway->gateway->id == GATEWAY_STRIPE) {
             $tokenResponse = $gateway->createCard($details)->send();
-            $cardReference = $tokenResponse->getCardReference();
+            $sourceReference = $tokenResponse->getCardReference();
             $customerReference = $tokenResponse->getCustomerReference();
 
-            if ($customerReference == $cardReference) {
+            if (!$sourceReference) {
+                $responseData = $tokenResponse->getData();
+                if ($responseData['object'] == 'bank_account' || $responseData['object']  == 'card') {
+                    $sourceReference = $responseData['id'];
+                }
+            }
+
+            if ($customerReference == $sourceReference) {
                 // This customer was just created; find the card
                 $data = $tokenResponse->getData();
                 if (!empty($data['default_source'])) {
-                    $cardReference = $data['default_source'];
+                    $sourceReferebce = $data['default_source'];
                 }
             }
         } elseif ($accountGateway->gateway->id == GATEWAY_BRAINTREE) {
@@ -356,7 +334,7 @@ class PaymentService extends BaseService
             $this->lastError = $tokenResponse->getMessage();
         }
 
-        return $cardReference;
+        return $sourceReference;
     }
 
     public function getCheckoutComToken($invitation)
@@ -424,6 +402,8 @@ class PaymentService extends BaseService
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
             $data = $purchaseResponse->getData();
             $source = !empty($data['source'])?$data['source']:$data['card'];
+
+            $payment->payment_status_id = $data['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
 
             if ($source) {
                 $payment->last4 = $source['last4'];
@@ -792,6 +772,41 @@ class PaymentService extends BaseService
             }
         } else {
             $payment->recordRefund($amount);
+        }
+    }
+
+    public function makeStripeCall($accountGateway, $method, $url, $body = null) {
+        $apiKey = $accountGateway->getConfig()->apiKey;
+
+        if (!$apiKey) {
+            return 'No API key set';
+        }
+
+        try{
+            $options = [
+                'headers'  => ['content-type' => 'application/x-www-form-urlencoded'],
+                'auth' => [$accountGateway->getConfig()->apiKey,''],
+            ];
+
+            if ($body) {
+                $options['body'] = $body;
+            }
+
+            $response = (new \GuzzleHttp\Client(['base_uri'=>'https://api.stripe.com/v1/']))->request(
+                $method,
+                $url,
+                $options
+            );
+            return json_decode($response->getBody(), true);
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            $response = $e->getResponse();
+            $body = json_decode($response->getBody(), true);
+
+            if ($body && $body['error'] && $body['error']['type'] == 'invalid_request_error') {
+                return $body['error']['message'];
+            }
+
+            return $e->getMessage();
         }
     }
 }

@@ -112,6 +112,10 @@ class EventServiceProvider extends ServiceProvider {
             'App\Listeners\InvoiceListener@refundedPayment',
             'App\Listeners\CreditListener@refundedPayment',
         ],
+        'App\Events\PaymentFailed' => [
+            'App\Listeners\ActivityListener@failedPayment',
+            'App\Listeners\InvoiceListener@failedPayment',
+        ],
         'App\Events\PaymentWasRestored' => [
             'App\Listeners\ActivityListener@restoredPayment',
             'App\Listeners\InvoiceListener@restoredPayment',

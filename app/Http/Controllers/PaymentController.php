@@ -15,6 +15,7 @@ use Cache;
 use App\Models\Invoice;
 use App\Models\Invitation;
 use App\Models\Client;
+use App\Models\Account;
 use App\Models\PaymentType;
 use App\Models\License;
 use App\Models\Payment;
@@ -23,6 +24,7 @@ use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Mailers\UserMailer;
 use App\Services\PaymentService;
 
 use App\Http\Requests\CreatePaymentRequest;
@@ -32,7 +34,7 @@ class PaymentController extends BaseController
 {
     protected $model = 'App\Models\Payment';
     
-    public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService)
+    public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService, UserMailer $userMailer)
     {
         // parent::__construct();
 
@@ -41,6 +43,7 @@ class PaymentController extends BaseController
         $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
         $this->paymentService = $paymentService;
+        $this->userMailer = $userMailer;
     }
 
     public function index()
@@ -783,5 +786,86 @@ class PaymentController extends BaseController
             Cache::put('bankData:'.$routingNumber, false, 5);
             return null;
         }
+    }
+
+    public function handlePaymentWebhook($accountKey, $gatewayId)
+    {
+        $gatewayId = intval($gatewayId);
+
+        if ($gatewayId != GATEWAY_STRIPE) {
+            return response()->json([
+                'message' => 'Unsupported gateway',
+            ], 404);
+        }
+
+        $account = Account::where('accounts.account_key', '=', $accountKey)->first();
+
+        if (!$account) {
+            return response()->json([
+                'message' => 'Unknown account',
+            ], 404);
+        }
+
+        $eventId = Input::get('id');
+        $eventType= Input::get('type');
+
+        if (!$eventId) {
+            return response()->json([
+                'message' => 'Missing event id',
+            ], 400);
+        }
+
+        if (!$eventType) {
+            return response()->json([
+                'message' => 'Missing event type',
+            ], 400);
+        }
+
+        if (!in_array($eventType, array('charge.failed', 'charge.succeeded'))) {
+            return array('message' => 'Ignoring event');
+        }
+
+        $accountGateway = $account->getGatewayConfig(intval($gatewayId));
+
+        // Fetch the event directly from Stripe for security
+        $eventDetails = $this->paymentService->makeStripeCall($accountGateway, 'GET', 'events/'.$eventId);
+
+        if (is_string($eventDetails) || !$eventDetails) {
+            return response()->json([
+                'message' => $eventDetails ? $eventDetails : 'Could not get event details.',
+            ], 500);
+        }
+
+        if ($eventType != $eventDetails['type']) {
+            return response()->json([
+                'message' => 'Event type mismatch',
+            ], 400);
+        }
+
+        if (!$eventDetails['pending_webhooks'] && false) {
+            return response()->json([
+                'message' => 'This is not a pending event',
+            ], 400);
+        }
+
+        $charge = $eventDetails['data']['object'];
+        $transactionRef = $charge['id'];
+
+        $payment = Payment::where('transaction_reference', '=', $transactionRef)->first();
+
+        if (!$payment) {
+            return array('message' => 'Unknown payment');
+        }
+
+        if ($eventType == 'charge.failed') {
+            if (!$payment->isFailed() || true) {
+                $payment->markFailed($charge['failure_message']);
+                $this->userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
+            }
+        } elseif ($eventType == 'charge.succeeded') {
+            $payment->markComplete();
+        }
+
+        return array('message' => 'Processed successfully');
     }
 }

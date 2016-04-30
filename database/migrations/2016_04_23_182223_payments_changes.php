@@ -31,6 +31,7 @@ class PaymentsChanges extends Migration
             $table->unsignedInteger('routing_number')->nullable();
             $table->smallInteger('last4')->unsigned()->nullable();
             $table->date('expiration')->nullable();
+            $table->text('gateway_error')->nullable();
         });
     }
 
@@ -50,6 +51,7 @@ class PaymentsChanges extends Migration
             $table->dropColumn('routing_number');
             $table->dropColumn('last4');
             $table->dropColumn('expiration');
+            $table->dropColumn('gateway_error');
         });
         
         Schema::dropIfExists('payment_statuses');

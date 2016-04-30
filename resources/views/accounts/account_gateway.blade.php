@@ -115,7 +115,6 @@
             ->addGroupClass('gateway-option')
     !!}
     <div class="stripe-ach">
-
         @if ($account->getGatewayByType(PAYMENT_TYPE_DIRECT_DEBIT))
             {!! Former::checkbox('enable_ach')
                 ->label(trans('texts.ach'))
@@ -128,7 +127,16 @@
             ->label(trans('texts.ach'))
             ->text(trans('texts.enable_ach'))
             ->help(trans('texts.stripe_ach_help')) !!}
-        <div class="stripe-plaid">
+        <div class="stripe-ach-options">
+            <div class="form-group">
+                <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
+                <div class="col-lg-8 col-sm-8 help-block">
+                    <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to('/paymenthook/'.$account->account_key.'/'.GATEWAY_STRIPE) }}">
+                    <div class="help-block"><strong>{!! trans('texts.stripe_webhook_help', [
+                        'link'=>'<a href="https://dashboard.stripe.com/account/webhooks" target="_blank">'.trans('texts.stripe_webhook_help_link_text').'</a>'
+                    ]) !!}</strong></div>
+                </div>
+            </div>
             <div class="form-group">
                 <div class="col-sm-8 col-sm-offset-4">
                     <h4>{{trans('texts.plaid')}}</h4>
@@ -211,7 +219,7 @@
 
     function enablePlaidSettings() {
         var visible = $('#enable_ach').is(':checked');
-        $('.stripe-plaid').toggle(visible);
+        $('.stripe-ach-options').toggle(visible);
     }
 
     $(function() {

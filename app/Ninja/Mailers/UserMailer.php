@@ -57,6 +57,7 @@ class UserMailer extends Mailer
         ];
 
         if ($payment) {
+            $data['payment'] = $payment;
             $data['paymentAmount'] = $account->formatMoney($payment->amount, $client);
         }
 

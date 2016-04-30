@@ -4,6 +4,8 @@ use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasRefunded;
+use App\Events\PaymentCompleted;
+use App\Events\PaymentFailed;
 use Laracasts\Presenter\PresentableTrait;
 
 class Payment extends EntityModel
@@ -119,6 +121,21 @@ class Payment extends EntityModel
                 Event::fire(new PaymentWasRefunded($this, $refund_change));
             }
         }
+    }
+
+    public function markComplete()
+    {
+        $this->payment_status_id = PAYMENT_STATUS_COMPLETED;
+        $this->save();
+        Event::fire(new PaymentCompleted($this));
+    }
+
+    public function markFailed($failureMessage)
+    {
+        $this->payment_status_id = PAYMENT_STATUS_FAILED;
+        $this->gateway_error = $failureMessage;
+        $this->save();
+        Event::fire(new PaymentFailed($this));
     }
 
     public function getEntityType()

@@ -67,6 +67,7 @@ Route::group(['middleware' => 'auth:client'], function() {
 
 
 Route::get('bank/{routing_number}', 'PaymentController@getBankInfo');
+Route::post('paymenthook/{accountKey}/{gatewayId}', 'PaymentController@handlePaymentWebhook');
 Route::get('license', 'PaymentController@show_license_payment');
 Route::post('license', 'PaymentController@do_license_payment');
 Route::get('claim_license', 'PaymentController@claim_license');
@@ -406,6 +407,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACTIVITY_TYPE_ARCHIVE_PAYMENT', 12);
     define('ACTIVITY_TYPE_DELETE_PAYMENT', 13);
     define('ACTIVITY_TYPE_REFUNDED_PAYMENT', 39);
+    define('ACTIVITY_TYPE_FAILED_PAYMENT', 40);
 
     define('ACTIVITY_TYPE_CREATE_CREDIT', 14);
     //define('ACTIVITY_TYPE_UPDATE_CREDIT', 15);

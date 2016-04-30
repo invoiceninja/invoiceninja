@@ -12,6 +12,7 @@ use Session;
 use Datatable;
 use Validator;
 use Cache;
+use Redirect;
 use App\Models\Gateway;
 use App\Models\Invitation;
 use App\Models\Document;
@@ -783,6 +784,7 @@ class PublicClientController extends BaseController
             return $this->returnError();
         }
 
+        $typeLink = $paymentType;
         $paymentType = 'PAYMENT_TYPE_' . strtoupper($paymentType);
         $client = $invitation->invoice->client;
         $account = $client->account;
@@ -799,12 +801,12 @@ class PublicClientController extends BaseController
         }
 
         if(empty($sourceId)) {
-            $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
-            return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
+            $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
+            return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
         } else if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && empty($usingPlaid) ) {
             // The user needs to complete verification
             Session::flash('message', trans('texts.bank_account_verification_next_steps'));
-            return Redirect::to('client/paymentmethods/add/' . $paymentType);
+            return Redirect::to('client/paymentmethods/');
         } else {
             Session::flash('message', trans('texts.payment_method_added'));
             return redirect()->to('/client/paymentmethods/');
@@ -831,5 +833,17 @@ class PublicClientController extends BaseController
         }
 
         return redirect()->to('/client/paymentmethods/');
+    }
+
+    private function paymentMethodError($type, $error, $accountGateway = false, $exception = false)
+    {
+        $message = '';
+        if ($accountGateway && $accountGateway->gateway) {
+            $message = $accountGateway->gateway->name . ': ';
+        }
+        $message .= $error ?: trans('texts.payment_method_error');
+
+        Session::flash('error', $message);
+        Utils::logError("Payment Method Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
     }
 }
