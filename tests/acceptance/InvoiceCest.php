@@ -64,7 +64,7 @@ class InvoiceCest
         $this->fillItems($I);
         
         $I->executeJS("submitAction('email')");
-        $I->wait(1);
+        $I->wait(2);
         $I->see($clientEmail);
 
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
