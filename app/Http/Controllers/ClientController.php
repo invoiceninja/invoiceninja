@@ -95,12 +95,9 @@ class ClientController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function show($publicId)
+    public function show(ClientRequest $request)
     {
-        //$client = $request->entity()->load('conacts');         
-        $client = Client::withTrashed()->scope($publicId)->with('contacts', 'size', 'industry')->firstOrFail();
-        
-        $this->authorize('view', $client);
+        $client = $request->entity();         
         
         $user = Auth::user();
         Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);

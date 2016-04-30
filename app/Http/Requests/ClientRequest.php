@@ -11,7 +11,7 @@ class ClientRequest extends BaseRequest {
 
     public function authorize()
     {
-        return true;
+        return $this->user()->can('view', $this->entity());
     }
 
     /**
