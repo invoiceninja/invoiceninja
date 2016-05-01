@@ -48,8 +48,8 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/documents', 'PublicClientController@documentIndex');
     Route::get('client/payments', 'PublicClientController@paymentIndex');
     Route::get('client/dashboard', 'PublicClientController@dashboard');
-    Route::get('client/document/js/{public_id}/{filename}', 'PublicClientController@getDocumentVFSJS');
-    Route::get('client/document/{invitation_key}/{public_id}/{filename?}', 'PublicClientController@getDocument');
+    Route::get('client/documents/js/{documents}/{filename}', 'PublicClientController@getDocumentVFSJS');
+    Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'PublicClientController@getDocument');
     Route::get('client/documents/{invitation_key}/{filename?}', 'PublicClientController@getInvoiceDocumentsZip');
     
     Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
@@ -134,20 +134,20 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
     Route::get('recurring_invoices/create/{client_id?}', 'InvoiceController@createRecurring');
     Route::get('recurring_invoices', 'RecurringInvoiceController@index');
-    Route::get('invoices/{public_id}/clone', 'InvoiceController@cloneInvoice');
+    Route::get('invoices/{invoices}/clone', 'InvoiceController@cloneInvoice');
     Route::post('invoices/bulk', 'InvoiceController@bulk');
     Route::post('recurring_invoices/bulk', 'InvoiceController@bulk');
 
-    Route::get('document/{public_id}/{filename?}', 'DocumentController@get');
-    Route::get('document/js/{public_id}/{filename}', 'DocumentController@getVFSJS');
-    Route::get('document/preview/{public_id}/{filename?}', 'DocumentController@getPreview');
+    Route::get('documents/{documents}/{filename?}', 'DocumentController@get');
+    Route::get('documents/js/{documents}/{filename}', 'DocumentController@getVFSJS');
+    Route::get('documents/preview/{documents}/{filename?}', 'DocumentController@getPreview');
     Route::post('document', 'DocumentController@postUpload');
     
     Route::get('quotes/create/{client_id?}', 'QuoteController@create');
-    Route::get('quotes/{public_id}/clone', 'InvoiceController@cloneInvoice');
-    Route::get('quotes/{public_id}/edit', 'InvoiceController@edit');
-    Route::put('quotes/{public_id}', 'InvoiceController@update');
-    Route::get('quotes/{public_id}', 'InvoiceController@edit');
+    Route::get('quotes/{invoices}/clone', 'InvoiceController@cloneInvoice');
+    Route::get('quotes/{invoices}/edit', 'InvoiceController@edit');
+    Route::put('quotes/{invoices}', 'InvoiceController@update');
+    Route::get('quotes/{invoices}', 'InvoiceController@edit');
     Route::post('quotes', 'InvoiceController@store');
     Route::get('quotes', 'QuoteController@index');
     Route::get('api/quotes/{client_id?}', array('as'=>'api.quotes', 'uses'=>'QuoteController@getDatatable'));

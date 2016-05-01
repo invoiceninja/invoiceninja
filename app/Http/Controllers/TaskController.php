@@ -75,11 +75,11 @@ class TaskController extends BaseController
         return $this->save();
     }
 
-    public function show(TaskRequest $request)
+    public function show($publicId)
     {
         Session::reflash();
 
-        return Redirect::to("tasks/{$request->task_id}/edit");
+        return Redirect::to("tasks/{$publicId}/edit");
     }
 
     /**

@@ -18,8 +18,8 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Transformers\InvoiceTransformer;
-use App\Http\Requests\CreateInvoiceRequest;
-use App\Http\Requests\UpdateInvoiceRequest;
+use App\Http\Requests\CreateInvoiceAPIRequest;
+use App\Http\Requests\UpdateInvoiceAPIRequest;
 use App\Services\InvoiceService;
 
 class InvoiceApiController extends BaseAPIController
@@ -139,7 +139,7 @@ class InvoiceApiController extends BaseAPIController
      *   )
      * )
      */
-    public function store(CreateInvoiceRequest $request)
+    public function store(CreateInvoiceAPIRequest $request)
     {
         $data = Input::all();
         $error = null;
@@ -351,7 +351,7 @@ class InvoiceApiController extends BaseAPIController
          *   )
          * )
          */
-    public function update(UpdateInvoiceRequest $request, $publicId)
+    public function update(UpdateInvoiceAPIRequest $request, $publicId)
     {
         if ($request->action == ACTION_ARCHIVE) {
             $invoice = Invoice::scope($publicId)->firstOrFail();

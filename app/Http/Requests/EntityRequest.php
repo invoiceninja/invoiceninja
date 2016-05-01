@@ -23,7 +23,12 @@ class EntityRequest extends Request {
         } 
         
         $class = Utils::getEntityClass($this->entityType);
-        $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
+        
+        if (method_exists($class, 'withTrashed')) {
+            $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
+        } else {
+            $this->entity = $class::scope($publicId)->firstOrFail();
+        }
         
         return $this->entity;
     }

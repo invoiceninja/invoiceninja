@@ -26,6 +26,7 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Events\QuoteInvitationWasApproved;
 use App\Services\InvoiceService;
+use App\Http\Requests\InvoiceRequest;
 
 class QuoteController extends BaseController
 {
@@ -78,10 +79,8 @@ class QuoteController extends BaseController
         return $this->invoiceService->getDatatable($accountId, $clientPublicId, ENTITY_QUOTE, $search);
     }
 
-    public function create($clientPublicId = 0)
+    public function create(InvoiceRequest $request, $clientPublicId = 0)
     {
-        $this->authorizeCreate();
-        
         if (!Utils::hasFeature(FEATURE_QUOTES)) {
             return Redirect::to('/invoices/create');
         }
