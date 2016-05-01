@@ -1,6 +1,6 @@
 <?php namespace App\Http\Requests;
 
-class CreateCreditRequest extends BaseRequest
+class CreateCreditRequest extends EntityRequest
 {
     /**
      * Determine if the user is authorized to make this request.

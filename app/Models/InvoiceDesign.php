@@ -1,4 +1,4 @@
-<?php namespace app\Models;
+<?php namespace App\Models;
 
 use Eloquent;
 use Auth;

@@ -146,10 +146,8 @@ class ClientController extends BaseController
      *
      * @return Response
      */
-    public function create()
+    public function create(ClientRequest $request)
     {
-        $this->authorizeCreate();
-        
         if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumClients()." clients"]);
         }
@@ -175,9 +173,7 @@ class ClientController extends BaseController
     public function edit(ClientRequest $request)
     {
         $client = $request->entity();
-        
-        $this->authorize('edit', $client);
-        
+                
         $data = [
             'client' => $client,
             'method' => 'PUT',

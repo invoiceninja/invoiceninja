@@ -1,26 +1,18 @@
 <?php namespace App\Http\Requests;
 
-class ClientRequest extends BaseRequest {
+class ClientRequest extends EntityRequest {
 
     protected $entityType = ENTITY_CLIENT;
 
     public function entity()
     {
-        return parent::entity()->load('contacts');
-    }
-
-    public function authorize()
-    {
-        return $this->user()->can('view', $this->entity());
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
-    {
-        return [];
+        $client = parent::entity();
+        
+        // eager load the contacts
+        if ($client && ! count($client->contacts)) {
+            $client->load('contacts');
+        }
+         
+        return $client;
     }
 }

@@ -1,4 +1,4 @@
-<?php namespace app\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use DB;
 use Utils;

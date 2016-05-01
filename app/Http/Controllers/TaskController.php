@@ -90,7 +90,7 @@ class TaskController extends BaseController
 
         $data = [
             'task' => null,
-            'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
+            'clientPublicId' => Input::old('client') ? Input::old('client') : ($clientPublicId ?: 0),
             'method' => 'POST',
             'url' => 'tasks',
             'title' => trans('texts.new_task'),
