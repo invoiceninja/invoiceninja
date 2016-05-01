@@ -1,6 +1,6 @@
 <?php namespace App\Http\Requests;
 
-class CreateCreditRequest extends CreditRequest
+class UpdateTaskRequest extends TaskRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -9,7 +9,7 @@ class CreateCreditRequest extends CreditRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_CREDIT);
+        return $this->user()->can('edit', $this->entity());
     }
 
     /**
@@ -20,8 +20,7 @@ class CreateCreditRequest extends CreditRequest
     public function rules()
     {
         return [
-            'client' => 'required',
-            'amount' => 'required|positive',
+            'time_log' => 'time_log',
         ];
     }
 }
