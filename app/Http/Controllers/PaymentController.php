@@ -853,7 +853,7 @@ class PaymentController extends BaseController
         }
 
         if ($eventType == 'charge.failed') {
-            if (!$payment->isFailed() {
+            if (!$payment->isFailed()) {
                 $payment->markFailed($charge['failure_message']);
                 $this->userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
             }
