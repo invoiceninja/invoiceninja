@@ -837,7 +837,7 @@ class PaymentController extends BaseController
             ], 400);
         }
 
-        if (!$eventDetails['pending_webhooks'] && false) {
+        if (!$eventDetails['pending_webhooks']) {
             return response()->json([
                 'message' => 'This is not a pending event',
             ], 400);
@@ -853,7 +853,7 @@ class PaymentController extends BaseController
         }
 
         if ($eventType == 'charge.failed') {
-            if (!$payment->isFailed() || true) {
+            if (!$payment->isFailed() {
                 $payment->markFailed($charge['failure_message']);
                 $this->userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
             }
