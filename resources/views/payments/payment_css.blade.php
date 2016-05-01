@@ -113,8 +113,6 @@ header h3 em {
     color: #eb8039;
 }
 
-
-
 .secure {
     text-align: right;
     float: right;
@@ -136,6 +134,80 @@ header h3 em {
     text-transform: uppercase;
 }
 
+#plaid_link_button img {
+    height:30px;
+    vertical-align:-7px;
+    margin-right:5px;
+}
 
+#plaid_link_button:hover img,
+#plaid_link_button .hoverimg{
+    display:none;
+}
+
+#plaid_link_button:hover .hoverimg{
+    display:inline;
+}
+
+#plaid_link_button {
+    width:425px;
+    border-color:#2A5A74;
+    color:#2A5A74;
+}
+
+#plaid_link_button:hover {
+    width:425px;
+    background-color:#2A5A74;
+    color:#fff;
+}
+
+#plaid_or,
+#plaid_container {
+    text-align:center
+}
+
+#plaid_or span{
+    background:#fff;
+    position:relative;
+    bottom:-11px;
+    font-size:125%;
+    padding:0 10px;
+}
+
+#plaid_or {
+    border-bottom:1px solid #000;
+    margin:10px 0 30px;
+}
+
+#secured_by_plaid{
+    position:fixed;
+    z-index:999999999;
+    bottom:5px;
+    left:5px;
+    color:#fff;
+    border:1px solid #fff;
+    padding:3px 7px 3px 3px;
+    border-radius:3px;
+    vertical-align:-5px;
+    text-decoration: none!important;
+}
+#secured_by_plaid img{
+    height:20px;
+    margin-right:5px;
+}
+
+#secured_by_plaid:hover{
+    background-color:#2A5A74;
+}
+
+#plaid_linked{
+    margin:40px 0;
+    display:none;
+}
+
+#plaid_linked_status {
+    margin-bottom:10px;
+    font-size:150%;
+}
 
 </style>

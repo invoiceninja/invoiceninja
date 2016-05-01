@@ -794,10 +794,16 @@ class PublicClientController extends BaseController
 
         if ($sourceToken) {
             $details = array('token' => $sourceToken);
+        } elseif (Input::get('plaidPublicToken')) {
+            $usingPlaid = true;
+            $details = array('plaidPublicToken' => Input::get('plaidPublicToken'), 'plaidAccountId' => Input::get('plaidAccountId'));
+        }
+
+        if (!empty($details)) {
             $gateway = $this->paymentService->createGateway($accountGateway);
             $sourceId = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id);
         } else {
-            return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
+            return Redirect::to('payment/'.$invitation->invitation_key)->withInput(Request::except('cvv'));
         }
 
         if(empty($sourceId)) {

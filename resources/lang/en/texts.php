@@ -1259,6 +1259,10 @@ $LANG = array(
     'payment_method_error' => 'There was an error adding your payment methd. Please try again later.',
     'notification_invoice_payment_failed_subject' => 'Payment failed for Invoice :invoice',
     'notification_invoice_payment_failed' => 'A payment made by client :client towards Invoice :invoice failed. The payment has been marked as failed and :amount has been added to the client\'s balance.',
+    'link_with_plaid' => 'Link Account Instantly with Plaid',
+    'link_manually' => 'Link Manually',
+    'secured_by_plaid' => 'Secured by Plaid',
+    'plaid_linked_status' => 'Your bank account at :bank'
 );
 
 return $LANG;

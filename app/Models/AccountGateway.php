@@ -117,7 +117,7 @@ class AccountGateway extends EntityModel
 
         $stripe_key = $this->getPublishableStripeKey();
 
-        return substr(trim($stripe_key), 0, 8) == 'sk_test_' ? 'tartan' : 'production';
+        return substr(trim($stripe_key), 0, 8) == 'pk_test_' ? 'tartan' : 'production';
     }
 }
 

@@ -93,6 +93,17 @@ class PaymentService extends BaseService
             $data['ButtonSource'] = 'InvoiceNinja_SP';
         };
 
+        if($input && $accountGateway->isGateway(GATEWAY_STRIPE)) {
+            if (!empty($input['stripeToken'])) {
+                $data['token'] = $input['stripeToken'];
+                unset($details['card']);
+            } elseif (!empty($input['plaidPublicToken'])) {
+                $data['plaidPublicToken'] = $input['plaidPublicToken'];
+                $data['plaidAccountId'] = $input['plaidAccountId'];
+                unset($data['card']);
+            }
+        }
+
         return $data;
     }
 
@@ -282,22 +293,49 @@ class PaymentService extends BaseService
         }
 
         if ($accountGateway->gateway->id == GATEWAY_STRIPE) {
-            $tokenResponse = $gateway->createCard($details)->send();
-            $sourceReference = $tokenResponse->getCardReference();
-            $customerReference = $tokenResponse->getCustomerReference();
+            if (!empty($details['plaidPublicToken'])) {
+                $plaidResult = $this->getPlaidToken($accountGateway, $details['plaidPublicToken'], $details['plaidAccountId']);
 
-            if (!$sourceReference) {
-                $responseData = $tokenResponse->getData();
-                if ($responseData['object'] == 'bank_account' || $responseData['object']  == 'card') {
-                    $sourceReference = $responseData['id'];
+                if (is_string($plaidResult)) {
+                    $this->lastError = $plaidResult;
+                    return;
+                } elseif (!$plaidResult) {
+                    $this->lastError = 'No token received from Plaid';
+                    return;
                 }
+
+                unset($details['plaidPublicToken']);
+                unset($details['plaidAccountId']);
+                $details['token'] = $plaidResult['stripe_bank_account_token'];
             }
 
-            if ($customerReference == $sourceReference) {
-                // This customer was just created; find the card
+            $tokenResponse = $gateway->createCard($details)->send();
+
+            if ($tokenResponse->isSuccessful()) {
+                $sourceReference = $tokenResponse->getCardReference();
+                if (!$customerReference) {
+                    $customerReference = $tokenResponse->getCustomerReference();
+                }
+
+                if (!$sourceReference) {
+                    $responseData = $tokenResponse->getData();
+                    if (!empty($responseData['object']) && ($responseData['object'] == 'bank_account' || $responseData['object'] == 'card')) {
+                        $sourceReference = $responseData['id'];
+                    }
+                }
+
+                if ($customerReference == $sourceReference) {
+                    // This customer was just created; find the card
+                    $data = $tokenResponse->getData();
+                    if (!empty($data['default_source'])) {
+                        $sourceReference = $data['default_source'];
+                    }
+                }
+            } else {
                 $data = $tokenResponse->getData();
-                if (!empty($data['default_source'])) {
-                    $sourceReferebce = $data['default_source'];
+                if ($data && $data['error'] && $data['error']['type'] == 'invalid_request_error') {
+                    $this->lastError =  $data['error']['message'];
+                    return;
                 }
             }
         } elseif ($accountGateway->gateway->id == GATEWAY_BRAINTREE) {
@@ -312,7 +350,7 @@ class PaymentService extends BaseService
                 $details['customerId'] = $customerReference;
 
                 $tokenResponse = $gateway->createPaymentMethod($details)->send();
-                $cardReference = $tokenResponse->getData()->paymentMethod->token;
+                $sourceReference = $tokenResponse->getData()->paymentMethod->token;
             }
         }
 
@@ -804,6 +842,47 @@ class PaymentService extends BaseService
 
             if ($body && $body['error'] && $body['error']['type'] == 'invalid_request_error') {
                 return $body['error']['message'];
+            }
+
+            return $e->getMessage();
+        }
+    }
+
+    private function getPlaidToken($accountGateway, $publicToken, $accountId) {
+        $clientId = $accountGateway->getPlaidClientId();
+        $secret = $accountGateway->getPlaidSecret();
+
+        if (!$clientId) {
+            return 'No client ID set';
+        }
+
+        if (!$secret) {
+            return 'No secret set';
+        }
+
+        try{
+            $subdomain = $accountGateway->getPlaidEnvironment() == 'production' ? 'api' : 'tartan';
+            $response = (new \GuzzleHttp\Client(['base_uri'=>"https://{$subdomain}.plaid.com"]))->request(
+                'POST',
+                'exchange_token',
+                [
+                    'allow_redirects' => false,
+                    'headers'  => ['content-type' => 'application/x-www-form-urlencoded'],
+                    'body' => http_build_query(array(
+                        'client_id' => $clientId,
+                        'secret' => $secret,
+                        'public_token' => $publicToken,
+                        'account_id' => $accountId,
+                    ))
+                ]
+            );
+            return json_decode($response->getBody(), true);
+        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
+            $response = $e->getResponse();
+            $body = json_decode($response->getBody(), true);
+
+            if ($body && !empty($body['message'])) {
+                return $body['message'];
             }
 
             return $e->getMessage();

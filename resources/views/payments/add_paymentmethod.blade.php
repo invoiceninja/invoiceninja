@@ -64,6 +64,8 @@
             Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
             $(function() {
                 $('.payment-form').submit(function(event) {
+                    if($('[name=plaidAccountId]').length)return;
+
                     var $form = $(this);
 
                     var data = {
@@ -140,6 +142,31 @@
                     // Prevent the form from submitting with the default action
                     return false;
                 });
+
+                @if($accountGateway->getPlaidEnabled())
+                    var plaidHandler = Plaid.create({
+                        selectAccount: true,
+                        env: '{{ $accountGateway->getPlaidEnvironment() }}',
+                        clientName: {!! json_encode($account->getDisplayName()) !!},
+                        key: '{{ $accountGateway->getPlaidPublicKey() }}',
+                        product: 'auth',
+                        onSuccess: plaidSuccessHandler,
+                        onExit : function(){$('#secured_by_plaid').hide()}
+                    });
+
+                    $('#plaid_link_button').click(function(){plaidHandler.open();$('#secured_by_plaid').fadeIn()});
+                    $('#plaid_unlink').click(function(e){
+                        e.preventDefault();
+                        $('#manual_container').fadeIn();
+                        $('#plaid_linked').hide();
+                        $('#plaid_link_button').show();
+                        $('#pay_now_button').hide();
+                        $('#add_account_button').show();
+                        $('[name=plaidPublicToken]').remove();
+                        $('[name=plaidAccountId]').remove();
+                        $('[name=account_holder_type],#account_holder_name').attr('required','required');
+                    })
+                @endif
             });
 
             function stripeResponseHandler(status, response) {
@@ -162,6 +189,26 @@
                     $form.append($('<input type="hidden" name="stripeToken"/>').val(token));
                     // and submit
                     $form.get(0).submit();
+                }
+            };
+
+            function plaidSuccessHandler(public_token, metadata) {
+                $('#secured_by_plaid').hide()
+                var $form = $('.payment-form');
+
+                $form.append($('<input type="hidden" name="plaidPublicToken"/>').val(public_token));
+                $form.append($('<input type="hidden" name="plaidAccountId"/>').val(metadata.account_id));
+                $('#plaid_linked_status').text('{{ trans('texts.plaid_linked_status') }}'.replace(':bank', metadata.institution.name));
+                $('#manual_container').fadeOut();
+                $('#plaid_linked').show();
+                $('#plaid_link_button').hide();
+                $('[name=account_holder_type],#account_holder_name').removeAttr('required');
+
+
+                var payNowBtn = $('#pay_now_button');
+                if(payNowBtn.length) {
+                    payNowBtn.show();
+                    $('#add_account_button').hide();
                 }
             };
         </script>
@@ -364,67 +411,93 @@
 
 
                     @if($paymentType == PAYMENT_TYPE_STRIPE_ACH)
-                        <p>{{ trans('texts.ach_verification_delay_help') }}</p>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="radio">
-                                    {!! Former::radios('account_holder_type')->radios(array(
-                                        trans('texts.individual_account') => array('value' => 'individual'),
-                                        trans('texts.company_account') => array('value' => 'company'),
-                                    ))->inline()->label('');  !!}
+                        @if($accountGateway->getPlaidEnabled())
+                            <div id="plaid_container">
+                                <a class="btn btn-default btn-lg" id="plaid_link_button">
+                                    <img src="{{ URL::to('images/plaid-logo.svg') }}">
+                                    <img src="{{ URL::to('images/plaid-logowhite.svg') }}" class="hoverimg">
+                                    {{ trans('texts.link_with_plaid') }}
+                                </a>
+                                <div id="plaid_linked">
+                                    <div id="plaid_linked_status"></div>
+                                    <a href="#" id="plaid_unlink">{{ trans('texts.unlink') }}</a>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                {!! Former::text('account_holder_name')
-                                       ->placeholder(trans('texts.account_holder_name'))
-                                       ->label('') !!}
+                        @endif
+                        <div id="manual_container">
+                            @if($accountGateway->getPlaidEnabled())
+                            <div id="plaid_or"><span>{{ trans('texts.or') }}</span></div>
+                            <h4>{{ trans('texts.link_manually') }}</h4>
+                            @endif
+                            <p>{{ trans('texts.ach_verification_delay_help') }}</p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="radio">
+                                        {!! Former::radios('account_holder_type')->radios(array(
+                                            trans('texts.individual_account') => array('value' => 'individual'),
+                                            trans('texts.company_account') => array('value' => 'company'),
+                                        ))->inline()->label('');  !!}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    {!! Former::text('account_holder_name')
+                                           ->placeholder(trans('texts.account_holder_name'))
+                                           ->label('') !!}
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                {!! Former::select('country')
-                                        ->placeholder(trans('texts.country_id'))
-                                        ->fromQuery($countries, 'name', 'iso_3166_2')
-                                        ->addGroupClass('country-select')
-                                        ->label('') !!}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {!! Former::select('country')
+                                            ->placeholder(trans('texts.country_id'))
+                                            ->fromQuery($countries, 'name', 'iso_3166_2')
+                                            ->addGroupClass('country-select')
+                                            ->label('') !!}
+                                </div>
+                                <div class="col-md-6">
+                                    {!! Former::select('currency')
+                                            ->placeholder(trans('texts.currency_id'))
+                                            ->fromQuery($currencies, 'name', 'code')
+                                            ->addGroupClass('currency-select')
+                                            ->label('') !!}
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                {!! Former::select('currency')
-                                        ->placeholder(trans('texts.currency_id'))
-                                        ->fromQuery($currencies, 'name', 'code')
-                                        ->addGroupClass('currency-select')
-                                        ->label('') !!}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {!! Former::text('')
+                                            ->id('routing_number')
+                                            ->placeholder(trans('texts.routing_number'))
+                                            ->label('') !!}
+                                </div>
+                                <div class="col-md-6">
+                                    <div id="bank_name"></div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                {!! Former::text('')
-                                        ->id('routing_number')
-                                        ->placeholder(trans('texts.routing_number'))
-                                        ->label('') !!}
-                            </div>
-                            <div class="col-md-6">
-                                <div id="bank_name"></div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                {!! Former::text('')
-                                        ->id('account_number')
-                                        ->placeholder(trans('texts.account_number'))
-                                        ->label('') !!}
-                            </div>
-                            <div class="col-md-6">
-                                {!! Former::text('')
-                                        ->id('confirm_account_number')
-                                        ->placeholder(trans('texts.confirm_account_number'))
-                                        ->label('') !!}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {!! Former::text('')
+                                            ->id('account_number')
+                                            ->placeholder(trans('texts.account_number'))
+                                            ->label('') !!}
+                                </div>
+                                <div class="col-md-6">
+                                    {!! Former::text('')
+                                            ->id('confirm_account_number')
+                                            ->placeholder(trans('texts.confirm_account_number'))
+                                            ->label('') !!}
+                                </div>
                             </div>
                         </div>
                         <center>
                             {!! Button::success(strtoupper(trans('texts.add_account')))
                                             ->submit()
+                                            ->withAttributes(['id'=>'add_account_button'])
                                             ->large() !!}
+                            @if($accountGateway->getPlaidEnabled() && !empty($amount))
+                                {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))
+                                            ->submit()
+                                            ->withAttributes(['style'=>'display:none', 'id'=>'pay_now_button'])
+                                            ->large() !!}
+                            @endif
                         </center>
                     @else
                         <div class="row">
@@ -607,5 +680,8 @@
         });
 
     </script>
-
+    @if ($accountGateway->getPlaidEnabled())
+    <a href="https://plaid.com/products/auth/" target="_blank" style="display:none" id="secured_by_plaid"><img src="{{ URL::to('images/plaid-logowhite.svg') }}">{{ trans('texts.secured_by_plaid') }}</a>
+    <script src="https://cdn.plaid.com/link/stable/link-initialize.js"></script>
+    @endif
 @stop

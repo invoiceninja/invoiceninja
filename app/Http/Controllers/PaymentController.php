@@ -391,7 +391,7 @@ class PaymentController extends BaseController
             'last_name' => 'required',
         ];
 
-        if ( ! Input::get('stripeToken') && ! Input::get('payment_method_nonce')) {
+        if ( ! Input::get('stripeToken') && ! Input::get('payment_method_nonce') && !(Input::get('plaidPublicToken') && Input::get('plaidAccountId'))) {
             $rules = array_merge(
                 $rules,
                 [
@@ -447,11 +447,6 @@ class PaymentController extends BaseController
 
             // check if we're creating/using a billing token
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
-                if ($token = Input::get('stripeToken')) {
-                    $details['token'] = $token;
-                    unset($details['card']);
-                }
-
                 if ($useToken) {
                     $details['customerReference'] = $client->getGatewayToken();
                     unset($details['token']);
@@ -464,7 +459,7 @@ class PaymentController extends BaseController
                         $details['token'] = $token;
                         $details['customerReference'] = $customerReference;
 
-                        if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && empty($usingPlaid) ) {
+                        if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && empty(Input::get('plaidPublicToken')) ) {
                             // The user needs to complete verification
                             Session::flash('message', trans('texts.bank_account_verification_next_steps'));
                             return Redirect::to('/client/paymentmethods');
