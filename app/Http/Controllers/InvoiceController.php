@@ -546,13 +546,13 @@ class InvoiceController extends BaseController
         }
     }
 
-    public function convertQuote(InvoiceRequest $request, $publicId)
+    public function convertQuote(InvoiceRequest $request)
     {
-        $invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();
-        $clone = $this->invoiceService->convertQuote($invoice);
+        $clone = $this->invoiceService->convertQuote($request->entity());
 
         Session::flash('message', trans('texts.converted_to_invoice'));
-        return Redirect::to('invoices/'.$clone->public_id);
+        
+        return Redirect::to('invoices/' . $clone->public_id);
     }
 
     public function cloneInvoice(InvoiceRequest $request, $publicId)

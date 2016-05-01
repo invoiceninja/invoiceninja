@@ -4,17 +4,16 @@ class InvoiceRequest extends EntityRequest {
 
     protected $entityType = ENTITY_INVOICE;
 
-    /*
     public function entity()
     {
-        $expense = parent::entity();
+        $invoice = parent::entity();
         
         // eager load the contacts
-        if ($expense && ! count($expense->documents)) {
-            $expense->load('documents');
+        if ($invoice && ! count($invoice->invoice_items)) {
+            $invoice->load('invoice_items');
         }
          
-        return $expense;
+        return $invoice;
     }
-    */
+
 }

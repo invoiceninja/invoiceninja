@@ -18,6 +18,8 @@ class ClientApiController extends BaseAPIController
     protected $clientRepo;
     protected $clientService;
 
+    protected $entityType = ENTITY_CLIENT;
+
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
         parent::__construct();
@@ -53,26 +55,18 @@ class ClientApiController extends BaseAPIController
     {
         $clients = Client::scope()
             ->with($this->getIncluded())
-            ->orderBy('created_at', 'desc')->withTrashed();
+            ->orderBy('created_at', 'desc')
+            ->withTrashed();
 
         // Filter by email
         if (Input::has('email')) {
-
             $email = Input::get('email');
             $clients = $clients->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', $email);
             });
-
         }
-
-        $clients = $clients->paginate();
-
-        $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
-        $paginator = Client::scope()->withTrashed()->paginate();
-
-        $data = $this->createCollection($clients, $transformer, ENTITY_CLIENT, $paginator);
-
-        return $this->response($data);
+        
+        return $this->returnList($clients);
     }
 
     /**

@@ -101,6 +101,16 @@ class EntityModel extends Eloquent
         return $this->getName();
     }
 
+    public static function getClassName($entityType)
+    {
+        return 'App\\Models\\' . ucwords(Utils::toCamelCase($entityType));
+    }
+
+    public static function getTransformerName($entityType)
+    {
+        return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
+    }
+
     public function setNullValues()
     {
         foreach ($this->fillable as $field) {

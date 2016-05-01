@@ -2,6 +2,8 @@
 
 use Session;
 use Utils;
+use Auth;
+use Input;
 use Response;
 use Request;
 use League\Fractal;
@@ -9,8 +11,10 @@ use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
 use League\Fractal\Serializer\JsonApiSerializer;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * @SWG\Swagger(
@@ -64,6 +68,23 @@ class BaseAPIController extends Controller
         }
     }
 
+    protected function returnList($query)
+    {
+        if ($clientPublicId = Input::get('client_id')) {
+            $filter = function($query) use ($clientPublicId) {
+                $query->where('public_id', '=', $clientPublicId);
+            };
+            $query->whereHas('client', $filter);
+        }
+        
+        $transformerClass = EntityModel::getTransformerName($this->entityType);
+        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));        
+        
+        $data = $this->createCollection($query, $transformer, $this->entityType);
+
+        return $this->response($data);
+    }
+
     protected function createItem($data, $transformer, $entityType)
     {
         if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
@@ -74,18 +95,19 @@ class BaseAPIController extends Controller
         return $this->manager->createData($resource)->toArray();
     }
 
-    protected function createCollection($data, $transformer, $entityType, $paginator = false)
+    protected function createCollection($query, $transformer, $entityType)
     {
         if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
             $entityType = null;
         }
 
-        $resource = new Collection($data, $transformer, $entityType);
-
-        if ($paginator) {
-            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+        if ($query instanceof LengthAwarePaginator) {
+            $resource = new Collection($query, $transformer, $entityType);
+        } else {
+            $resource = new Collection($query->get(), $transformer, $entityType);
+            $resource->setPaginator(new IlluminatePaginatorAdapter($query->paginate()));
         }
-
+        
         return $this->manager->createData($resource)->toArray();
     }
 

@@ -26,6 +26,8 @@ class InvoiceApiController extends BaseAPIController
 {
     protected $invoiceRepo;
 
+    protected $entityType = ENTITY_INVOICE;
+
     public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer)
     {
         parent::__construct();
@@ -55,36 +57,12 @@ class InvoiceApiController extends BaseAPIController
      */
     public function index()
     {
-        $paginator = Invoice::scope()->withTrashed();
-        $invoices = Invoice::scope()->withTrashed()
-                        ->with(array_merge(['invoice_items'], $this->getIncluded()));
+        $invoices = Invoice::scope()
+                        ->withTrashed()
+                        ->with(array_merge(['invoice_items'], $this->getIncluded()))
+                        ->orderBy('created_at', 'desc');
 
-        if ($clientPublicId = Input::get('client_id')) {
-            $filter = function($query) use ($clientPublicId) {
-                $query->where('public_id', '=', $clientPublicId);
-            };
-            $invoices->whereHas('client', $filter);
-            $paginator->whereHas('client', $filter);
-        }
-
-        $invoices = $invoices->orderBy('created_at', 'desc')->paginate();
-
-        /*
-        // Add the first invitation link to the data
-        foreach ($invoices as $key => $invoice) {
-            foreach ($invoice->invitations as $subKey => $invitation) {
-                $invoices[$key]['link'] = $invitation->getLink();
-            }
-            unset($invoice['invitations']);
-        }
-        */
-
-        $transformer = new InvoiceTransformer(Auth::user()->account, Input::get('serializer'));
-        $paginator = $paginator->paginate();
-
-        $data = $this->createCollection($invoices, $transformer, 'invoices', $paginator);
-
-        return $this->response($data);
+        return $this->returnList($invoices);
     }
 
         /**
@@ -106,7 +84,6 @@ class InvoiceApiController extends BaseAPIController
 
     public function show($publicId)
     {
-
         $invoice = Invoice::scope($publicId)->withTrashed()->first();
 
         if(!$invoice)
