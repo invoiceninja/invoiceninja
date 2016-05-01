@@ -264,7 +264,7 @@ class InvoiceController extends BaseController
         return View::make('invoices.edit', $data);
     }
 
-    public function createRecurring(ClientRequest $request, $clientPublicId = 0)
+    public function createRecurring(InvoiceRequest $request, $clientPublicId = 0)
     {
         return self::create($request, $clientPublicId, true);
     }
