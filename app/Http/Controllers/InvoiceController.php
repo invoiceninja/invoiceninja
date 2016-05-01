@@ -447,9 +447,9 @@ class InvoiceController extends BaseController
         Session::flash('message', $message);
 
         if ($action == 'clone') {
-            return $this->cloneInvoice($invoice->public_id);
+            return $this->cloneInvoice($request, $invoice->public_id);
         } elseif ($action == 'convert') {
-            return $this->convertQuote($invoice->public_id);
+            return $this->convertQuote($request, $invoice->public_id);
         } elseif ($action == 'email') {
             return $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
@@ -546,7 +546,7 @@ class InvoiceController extends BaseController
         }
     }
 
-    public function convertQuote($publicId)
+    public function convertQuote(InvoiceRequest $request, $publicId)
     {
         $invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();
         $clone = $this->invoiceService->convertQuote($invoice);
